@@ -145,6 +145,14 @@ WorldServerPort = 8085
 BindIP = "0.0.0.0"
 
 #
+#    PidFile
+#        Description: World daemon PID file
+#        Example:     "./world.pid" - (Enabled)
+#        Default:     ""            - (Disabled)
+
+PidFile = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -343,23 +351,6 @@ TargetPosRecalculateRange = 1.5
 UpdateUptimeInterval = 1
 
 #
-#    LogDB.Opt.ClearInterval
-#        Description: Time (in minutes) for the WUPDATE_CLEANDB timer that clears the `logs` table
-#                     of old entries.
-#        Default:     10 - (10 minutes)
-#                     1+
-
-LogDB.Opt.ClearInterval = 10
-
-#
-#    LogDB.Opt.ClearTime
-#        Description: Time (in seconds) for keeping old `logs` table entries.
-#        Default:     1209600 - (Enabled, 14 days)
-#                     0       - (Disabled, Do not clear entries)
-
-LogDB.Opt.ClearTime = 1209600
-
-#
 #    MaxCoreStuckTime
 #        Description: Time (in seconds) before the server is forced to crash if it is frozen.
 #        Default:     0   - (Disabled)
@@ -437,25 +428,6 @@ PreloadAllNonInstancedMapGrids = 0
 SetAllCreaturesWithWaypointMovementActive = 0
 
 #
-###################################################################################################
-
-###################################################################################################
-# SERVER LOGGING
-#
-#    PidFile
-#        Description: World daemon PID file
-#        Example:     "./world.pid" - (Enabled)
-#        Default:     ""            - (Disabled)
-
-PidFile = ""
-
-#
-#    EnableLogDB
-#        Description: Write log messages to database (LogDatabaseInfo).
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-EnableLogDB = 0
 ###################################################################################################
 
 ###################################################################################################
@@ -1803,14 +1775,6 @@ GM.InGMList.Level = 3
 #                     2 - (Only gamemasters)
 
 GM.InWhoList.Level = 3
-
-#
-#    GM.LogTrade
-#        Description: Include GM trade and trade slot enchanting operations in GM log.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-
-GM.LogTrade = 1
 
 #
 #    GM.StartLevel
@@ -3191,7 +3155,6 @@ MoveMaps.Enable = 1
 Minigob.Manabonk.Enable = 1
 
 #
-
 #    Allow.IP.Based.Action.Logging
 #        Description: Logs actions, e.g. account login and logout to name a few, based on IP of current session.
 #        Default:     0 - (Disabled)

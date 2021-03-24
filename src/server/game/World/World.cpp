@@ -970,22 +970,6 @@ void World::LoadConfigSettings(bool reload)
         m_timers[WUPDATE_UPTIME].Reset();
     }
 
-    // log db cleanup interval
-    m_int_configs[CONFIG_LOGDB_CLEARINTERVAL] = sConfigMgr->GetOption<int32>("LogDB.Opt.ClearInterval", 10);
-    if (int32(m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]) <= 0)
-    {
-        LOG_ERROR("server", "LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]);
-        m_int_configs[CONFIG_LOGDB_CLEARINTERVAL] = 10;
-    }
-    if (reload)
-    {
-        m_timers[WUPDATE_CLEANDB].SetInterval(m_int_configs[CONFIG_LOGDB_CLEARINTERVAL] * MINUTE * IN_MILLISECONDS);
-        m_timers[WUPDATE_CLEANDB].Reset();
-    }
-    m_int_configs[CONFIG_LOGDB_CLEARTIME] = sConfigMgr->GetOption<int32>("LogDB.Opt.ClearTime", 1209600); // 14 days default
-    LOG_INFO("server", "Will clear `logs` table of entries older than %i seconds every %u minutes.",
-                    m_int_configs[CONFIG_LOGDB_CLEARTIME], m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]);
-
     m_int_configs[CONFIG_TELEPORT_TIMEOUT_NEAR]             = sConfigMgr->GetOption<int32>("TeleportTimeoutNear", 25); // pussywizard
     m_int_configs[CONFIG_TELEPORT_TIMEOUT_FAR]              = sConfigMgr->GetOption<int32>("TeleportTimeoutFar", 45); // pussywizard
     m_int_configs[CONFIG_MAX_ALLOWED_MMR_DROP]              = sConfigMgr->GetOption<int32>("MaxAllowedMMRDrop", 500); // pussywizard
@@ -1308,17 +1292,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MIN_LOG_UPDATE]              = sConfigMgr->GetOption<int32>("MinRecordUpdateTimeDiff", 100);
     m_int_configs[CONFIG_NUMTHREADS]                  = sConfigMgr->GetOption<int32>("MapUpdate.Threads", 1);
     m_int_configs[CONFIG_MAX_RESULTS_LOOKUP_COMMANDS] = sConfigMgr->GetOption<int32>("Command.LookupMaxResults", 0);
-
-    // chat logging
-    m_bool_configs[CONFIG_CHATLOG_CHANNEL] = sConfigMgr->GetOption<bool>("ChatLogs.Channel", false);
-    m_bool_configs[CONFIG_CHATLOG_WHISPER] = sConfigMgr->GetOption<bool>("ChatLogs.Whisper", false);
-    m_bool_configs[CONFIG_CHATLOG_SYSCHAN] = sConfigMgr->GetOption<bool>("ChatLogs.SysChan", false);
-    m_bool_configs[CONFIG_CHATLOG_PARTY]   = sConfigMgr->GetOption<bool>("ChatLogs.Party", false);
-    m_bool_configs[CONFIG_CHATLOG_RAID]    = sConfigMgr->GetOption<bool>("ChatLogs.Raid", false);
-    m_bool_configs[CONFIG_CHATLOG_GUILD]   = sConfigMgr->GetOption<bool>("ChatLogs.Guild", false);
-    m_bool_configs[CONFIG_CHATLOG_PUBLIC]  = sConfigMgr->GetOption<bool>("ChatLogs.Public", false);
-    m_bool_configs[CONFIG_CHATLOG_ADDON]   = sConfigMgr->GetOption<bool>("ChatLogs.Addon", false);
-    m_bool_configs[CONFIG_CHATLOG_BGROUND] = sConfigMgr->GetOption<bool>("ChatLogs.BattleGround", false);
 
     // Warden
     m_bool_configs[CONFIG_WARDEN_ENABLED]              = sConfigMgr->GetOption<bool>("Warden.Enabled", true);
@@ -1958,8 +1931,7 @@ void World::SetInitialWorldSettings()
     //Update "uptime" table based on configuration entry in minutes.
 
     m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
-    //erase corpses every 20 minutes
-    m_timers[WUPDATE_CLEANDB].SetInterval(m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]*MINUTE * IN_MILLISECONDS);
+
     // clean logs table every 14 days by default
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(getIntConfig(CONFIG_AUTOBROADCAST_INTERVAL));
 
@@ -2273,22 +2245,6 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_WEATHERS].Reset();
         WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
-    }
-
-    /// <li> Clean logs table
-    if (sWorld->getIntConfig(CONFIG_LOGDB_CLEARTIME) > 0) // if not enabled, ignore the timer
-    {
-        if (m_timers[WUPDATE_CLEANDB].Passed())
-        {
-            m_timers[WUPDATE_CLEANDB].Reset();
-
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_OLD_LOGS);
-
-            stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_LOGDB_CLEARTIME));
-            stmt->setUInt32(1, uint32(time(0)));
-
-            LoginDatabase.Execute(stmt);
-        }
     }
 
     sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
