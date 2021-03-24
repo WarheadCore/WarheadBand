@@ -23,7 +23,8 @@ EnumValuesPattern = compile(r"\s+\S.+?(,|$)[^\n]*")
 EnumValueNamePattern = compile(r"^\s*([a-zA-Z0-9_]+)", flags=MULTILINE)
 EnumValueSkipLinePattern = compile(r"^\s*//")
 EnumValueCommentPattern = compile(r"//,?[ \t]*([^\n]+)$")
-CommentMatchFormat = compile(r"^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$")
+CommentMatchFormat = compile(
+    r"^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$")
 CommentSkipFormat = compile(r"^SKIP *$")
 
 
@@ -86,7 +87,8 @@ def processFile(path, filename):
             values.append((valueName, valueTitle, valueDescription))
 
         enums.append((prefix + name, prefix, values))
-        print("%s.h: Enum %s parsed with %d values" % (filename, name, len(values)))
+        print("%s.h: Enum %s parsed with %d values" %
+              (filename, name, len(values)))
 
     if not enums:
         return
@@ -113,31 +115,29 @@ def processFile(path, filename):
         output.write("|* " + tag + " *|\n")
         output.write("\\*" + ("*" * (len(tag) + 2)) + "*/\n")
         output.write("template <>\n")
-        output.write("EnumText EnumUtils<%s>::ToString(%s value)\n" % (name, name))
+        output.write("EnumText EnumUtils<%s>::ToString(%s value)\n" %
+                     (name, name))
         output.write("{\n")
         output.write("    switch (value)\n")
         output.write("    {\n")
         for label, title, description in values:
-            output.write(
-                "        case %s: return { %s, %s, %s };\n"
-                % (
-                    prefix + label,
-                    strescape(label),
-                    strescape(title),
-                    strescape(description),
-                )
-            )
+            output.write("        case %s: return { %s, %s, %s };\n" % (
+                prefix + label,
+                strescape(label),
+                strescape(title),
+                strescape(description),
+            ))
         output.write('        default: throw std::out_of_range("value");\n')
         output.write("    }\n")
         output.write("}\n")
         output.write("\n")
         output.write("template <>\n")
-        output.write(
-            "size_t EnumUtils<%s>::Count() { return %d; }\n" % (name, len(values))
-        )
+        output.write("size_t EnumUtils<%s>::Count() { return %d; }\n" %
+                     (name, len(values)))
         output.write("\n")
         output.write("template <>\n")
-        output.write("%s EnumUtils<%s>::FromIndex(size_t index)\n" % (name, name))
+        output.write("%s EnumUtils<%s>::FromIndex(size_t index)\n" %
+                     (name, name))
         output.write("{\n")
         output.write("    switch (index)\n")
         output.write("    {\n")
@@ -148,7 +148,8 @@ def processFile(path, filename):
         output.write("}\n")
         output.write("\n")
         output.write("template <>\n")
-        output.write("size_t EnumUtils<%s>::ToIndex(%s value)\n" % (name, name))
+        output.write("size_t EnumUtils<%s>::ToIndex(%s value)\n" %
+                     (name, name))
         output.write("{\n")
         output.write("    switch (value)\n")
         output.write("    {\n")
