@@ -57,6 +57,7 @@ target_link_libraries(common
   PUBLIC
     warhead-core-interface
     ace
+    boost
     Poco::Foundation
     mysql
     g3dlib
