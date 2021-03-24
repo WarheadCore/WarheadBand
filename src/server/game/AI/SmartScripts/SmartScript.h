@@ -49,8 +49,12 @@ public:
     void InstallTemplate(SmartScriptHolder const& e);
     SmartScriptHolder CreateSmartEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, uint32 event_param5, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 target_param4, uint32 phaseMask);
     void AddEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, uint32 event_param5, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 target_param4, uint32 phaseMask);
-    void SetPathId(uint32 id) { mPathId = id; }
-    uint32 GetPathId() const { return mPathId; }
+    void SetPathId(uint32 id) {
+        mPathId = id;
+    }
+    uint32 GetPathId() const {
+        return mPathId;
+    }
     WorldObject* GetBaseObject()
     {
         WorldObject* obj = nullptr;
@@ -231,20 +235,42 @@ public:
     CounterMap mCounterList;
 
     // Xinef: Fix Combat Movement
-    void SetActualCombatDist(uint32 dist) { mActualCombatDist = dist; }
-    void RestoreMaxCombatDist() { mActualCombatDist = mMaxCombatDist; }
-    uint32 GetActualCombatDist() const { return mActualCombatDist; }
-    uint32 GetMaxCombatDist() const { return mMaxCombatDist; }
+    void SetActualCombatDist(uint32 dist) {
+        mActualCombatDist = dist;
+    }
+    void RestoreMaxCombatDist() {
+        mActualCombatDist = mMaxCombatDist;
+    }
+    uint32 GetActualCombatDist() const {
+        return mActualCombatDist;
+    }
+    uint32 GetMaxCombatDist() const {
+        return mMaxCombatDist;
+    }
 
     // Xinef: SmartCasterAI, replace above
-    void SetCasterActualDist(float dist) { smartCasterActualDist = dist; }
-    void RestoreCasterMaxDist() { smartCasterActualDist = smartCasterMaxDist; }
-    Powers GetCasterPowerType() const { return smartCasterPowerType; }
-    float GetCasterActualDist() const { return smartCasterActualDist; }
-    float GetCasterMaxDist() const { return smartCasterMaxDist; }
+    void SetCasterActualDist(float dist) {
+        smartCasterActualDist = dist;
+    }
+    void RestoreCasterMaxDist() {
+        smartCasterActualDist = smartCasterMaxDist;
+    }
+    Powers GetCasterPowerType() const {
+        return smartCasterPowerType;
+    }
+    float GetCasterActualDist() const {
+        return smartCasterActualDist;
+    }
+    float GetCasterMaxDist() const {
+        return smartCasterMaxDist;
+    }
 
-    bool AllowPhaseReset() const { return _allowPhaseReset; }
-    void SetPhaseReset(bool allow) { _allowPhaseReset = allow; }
+    bool AllowPhaseReset() const {
+        return _allowPhaseReset;
+    }
+    void SetPhaseReset(bool allow) {
+        _allowPhaseReset = allow;
+    }
 
 private:
     void IncPhase(uint32 p)
@@ -266,7 +292,9 @@ private:
             return false;
         return (1 << (mEventPhase - 1)) & p;
     }
-    void SetPhase(uint32 p = 0) { mEventPhase = p; }
+    void SetPhase(uint32 p = 0) {
+        mEventPhase = p;
+    }
 
     SmartAIEventList mEvents;
     SmartAIEventList mInstallEvents;

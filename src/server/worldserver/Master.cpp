@@ -61,20 +61,20 @@ public:
     {
         switch (sigNum)
         {
-            case SIGINT:
-                World::StopNow(RESTART_EXIT_CODE);
-                break;
-            case SIGTERM:
+        case SIGINT:
+            World::StopNow(RESTART_EXIT_CODE);
+            break;
+        case SIGTERM:
 #ifdef _WIN32
-            case SIGBREAK:
-                if (m_ServiceStatus != 1)
+        case SIGBREAK:
+            if (m_ServiceStatus != 1)
 #endif
-                    World::StopNow(SHUTDOWN_EXIT_CODE);
-                break;
-                /*case SIGSEGV:
-                    LOG_INFO("server", "ZOMG! SIGSEGV handled!");
-                    World::StopNow(SHUTDOWN_EXIT_CODE);
-                    break;*/
+                World::StopNow(SHUTDOWN_EXIT_CODE);
+            break;
+            /*case SIGSEGV:
+                LOG_INFO("server", "ZOMG! SIGSEGV handled!");
+                World::StopNow(SHUTDOWN_EXIT_CODE);
+                break;*/
         }
     }
 };
@@ -419,7 +419,7 @@ bool Master::_StartDB()
     if (async_threads < 1 || async_threads > 32)
     {
         LOG_ERROR("server", "World database: invalid number of worker threads specified. "
-                       "Please pick a value between 1 and 32.");
+                  "Please pick a value between 1 and 32.");
         return false;
     }
 
@@ -443,7 +443,7 @@ bool Master::_StartDB()
     if (async_threads < 1 || async_threads > 32)
     {
         LOG_ERROR("server", "Character database: invalid number of worker threads specified. "
-                       "Please pick a value between 1 and 32.");
+                  "Please pick a value between 1 and 32.");
         return false;
     }
 
@@ -468,7 +468,7 @@ bool Master::_StartDB()
     if (async_threads < 1 || async_threads > 32)
     {
         LOG_ERROR("server", "Login database: invalid number of worker threads specified. "
-                       "Please pick a value between 1 and 32.");
+                  "Please pick a value between 1 and 32.");
         return false;
     }
 

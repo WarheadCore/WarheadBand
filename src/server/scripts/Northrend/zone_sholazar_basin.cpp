@@ -224,42 +224,42 @@ public:
 
             switch (events.ExecuteEvent())
             {
-                case EVENT_ARTRUIS_HP_CHECK:
-                    if (me->GetHealthPct() <= 30)
-                    {
-                        me->SetControlled(true, UNIT_STATE_STUNNED);
-                        me->MonsterTextEmote("Artruis is shielded. You must choose your side quickly to break his spell.", 0, true);
-                        SummonsAction(ACTION_BIND_MINIONS);
-                        break;
-                    }
-                    events.RepeatEvent(1000);
+            case EVENT_ARTRUIS_HP_CHECK:
+                if (me->GetHealthPct() <= 30)
+                {
+                    me->SetControlled(true, UNIT_STATE_STUNNED);
+                    me->MonsterTextEmote("Artruis is shielded. You must choose your side quickly to break his spell.", 0, true);
+                    SummonsAction(ACTION_BIND_MINIONS);
                     break;
-                case EVENT_ARTRUIS_TALK1:
-                    me->MonsterYell("I have weathered a hundred years of war and suffering. Do you truly think it wise to pit your mortal bodies against a being that cannot die? I'd venture you have more to lose.", LANG_UNIVERSAL, 0);
-                    events.RescheduleEvent(EVENT_ARTRUIS_TALK2, 10000);
-                    break;
-                case EVENT_ARTRUIS_TALK2:
-                    me->MonsterYell("Even shattered into countless pieces, the crystals all around weaken me... perhaps i should not have underestimated the titans so...", LANG_UNIVERSAL, 0);
-                    break;
-                case EVENT_ARTRUIS_TALK3:
-                    me->MonsterYell("Arthas once mustered strength... of the very same sort... perhaps he is the path that you will follow.", LANG_UNIVERSAL, 0);
-                    break;
-                case EVENT_CAST_FROST_BOLT:
-                    me->CastSpell(me->GetVictim(), SPELL_ARTRUIS_FROSTBOLT, false);
-                    events.RepeatEvent(4000);
-                    break;
-                case EVENT_CAST_ICE_LANCE:
-                    me->CastSpell(me->GetVictim(), SPELL_ARTRUIS_ICE_LANCE, false);
-                    events.RepeatEvent(8500);
-                    break;
-                case EVENT_CAST_FROST_NOVA:
-                    me->CastSpell(me, SPELL_ARTRUIS_FROST_NOVA, false);
-                    events.RepeatEvent(15000);
-                    break;
-                case EVENT_CAST_ICY_VEINS:
-                    me->CastSpell(me, SPELL_ARTRUIS_ICY_VEINS, false);
-                    events.RepeatEvent(30000);
-                    break;
+                }
+                events.RepeatEvent(1000);
+                break;
+            case EVENT_ARTRUIS_TALK1:
+                me->MonsterYell("I have weathered a hundred years of war and suffering. Do you truly think it wise to pit your mortal bodies against a being that cannot die? I'd venture you have more to lose.", LANG_UNIVERSAL, 0);
+                events.RescheduleEvent(EVENT_ARTRUIS_TALK2, 10000);
+                break;
+            case EVENT_ARTRUIS_TALK2:
+                me->MonsterYell("Even shattered into countless pieces, the crystals all around weaken me... perhaps i should not have underestimated the titans so...", LANG_UNIVERSAL, 0);
+                break;
+            case EVENT_ARTRUIS_TALK3:
+                me->MonsterYell("Arthas once mustered strength... of the very same sort... perhaps he is the path that you will follow.", LANG_UNIVERSAL, 0);
+                break;
+            case EVENT_CAST_FROST_BOLT:
+                me->CastSpell(me->GetVictim(), SPELL_ARTRUIS_FROSTBOLT, false);
+                events.RepeatEvent(4000);
+                break;
+            case EVENT_CAST_ICE_LANCE:
+                me->CastSpell(me->GetVictim(), SPELL_ARTRUIS_ICE_LANCE, false);
+                events.RepeatEvent(8500);
+                break;
+            case EVENT_CAST_FROST_NOVA:
+                me->CastSpell(me, SPELL_ARTRUIS_FROST_NOVA, false);
+                events.RepeatEvent(15000);
+                break;
+            case EVENT_CAST_ICY_VEINS:
+                me->CastSpell(me, SPELL_ARTRUIS_ICY_VEINS, false);
+                events.RepeatEvent(30000);
+                break;
             }
         }
     };
@@ -368,15 +368,15 @@ public:
 
                 switch (s)
                 {
-                    case 0:
-                        Say(MCM_TEXT_CORRECT1);
-                        break;
-                    case 1:
-                        Say(MCM_TEXT_CORRECT2);
-                        break;
-                    default:
-                        Say(MCM_TEXT_CORRECT3);
-                        break;
+                case 0:
+                    Say(MCM_TEXT_CORRECT1);
+                    break;
+                case 1:
+                    Say(MCM_TEXT_CORRECT2);
+                    break;
+                default:
+                    Say(MCM_TEXT_CORRECT3);
+                    break;
                 }
 
                 if (currentstep >= stepcount)
@@ -405,15 +405,15 @@ public:
                 uint8 a = 0;
                 switch (spellInfo->Id)
                 {
-                    case 51931:
-                        a = 4;
-                        break;
-                    case 51932:
-                        a = 3;
-                        break;
-                    case 51933:
-                        a = 5;
-                        break;
+                case 51931:
+                    a = 4;
+                    break;
+                case 51932:
+                    a = 3;
+                    break;
+                case 51933:
+                    a = 5;
+                    break;
                 }
 
                 CheckAction(a, caster->GetGUID());
@@ -446,21 +446,21 @@ public:
                     expectedaction = urand(1, 5);
                     switch (expectedaction)
                     {
-                        case 1:
-                            Say(MCM_TEXT_PRESSURE);
-                            break;
-                        case 2:
-                            Say(MCM_TEXT_HEAT);
-                            break;
-                        case 3:
-                            Say(MCM_TEXT_BANANA);
-                            break;
-                        case 4:
-                            Say(MCM_TEXT_ORANGE);
-                            break;
-                        case 5:
-                            Say(MCM_TEXT_PAPAYA);
-                            break;
+                    case 1:
+                        Say(MCM_TEXT_PRESSURE);
+                        break;
+                    case 2:
+                        Say(MCM_TEXT_HEAT);
+                        break;
+                    case 3:
+                        Say(MCM_TEXT_BANANA);
+                        break;
+                    case 4:
+                        Say(MCM_TEXT_ORANGE);
+                        break;
+                    case 5:
+                        Say(MCM_TEXT_PAPAYA);
+                        break;
                     }
                     timer = 10000;
                 }
@@ -595,17 +595,17 @@ public:
         ClearGossipMenuFor(player);
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                CloseGossipMenuFor(player);
-                creature->AI()->Talk(SAY_TEXTID_VEKJIK1, player);
-                player->AreaExploredOrEventHappens(QUEST_MAKING_PEACE);
-                //creature->CastSpell(player, SPELL_FREANZYHEARTS_FURY, true);
-                player->KnockbackFrom(creature->GetPositionX(), creature->GetPositionY(), 30.0f, 18.0f);
-                break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK2, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            CloseGossipMenuFor(player);
+            creature->AI()->Talk(SAY_TEXTID_VEKJIK1, player);
+            player->AreaExploredOrEventHappens(QUEST_MAKING_PEACE);
+            //creature->CastSpell(player, SPELL_FREANZYHEARTS_FURY, true);
+            player->KnockbackFrom(creature->GetPositionX(), creature->GetPositionY(), 30.0f, 18.0f);
+            break;
         }
 
         return true;
@@ -653,18 +653,18 @@ public:
         ClearGossipMenuFor(player);
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, GOSSIP_TEXTID_AVATAR2, creature);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                SendGossipMenuFor(player, GOSSIP_TEXTID_AVATAR3, creature);
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->CastSpell(player, SPELL_FREYA_CONVERSATION, true);
-                CloseGossipMenuFor(player);
-                break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, GOSSIP_TEXTID_AVATAR2, creature);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            SendGossipMenuFor(player, GOSSIP_TEXTID_AVATAR3, creature);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            player->CastSpell(player, SPELL_FREYA_CONVERSATION, true);
+            CloseGossipMenuFor(player);
+            break;
         }
         return true;
     }
@@ -752,36 +752,36 @@ public:
 
             switch (waypointId)
             {
-                case 0:
-                    Talk(SAY_WP_2);
-                    break;
-                case 1:
-                    Talk(SAY_WP_3);
-                    me->CastSpell(5918.33f, 5372.91f, -98.770f, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                    break;
-                case 2:
-                    Talk(SAY_WP_4);
-                    break;
-                case 7:
-                    Talk(SAY_WP_5);
-                    break;
-                case 8:
-                    me->CastSpell(5887.37f, 5379.39f, -91.289f, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                    break;
-                case 9:
-                    Talk(SAY_WP_6);
-                    break;
-                case 13:
-                    if (player)
-                    {
-                        player->GroupEventHappens(QUEST_DISASTER, me);
-                        Talk(SAY_WP_7);
-                    }
-                    break;
+            case 0:
+                Talk(SAY_WP_2);
+                break;
+            case 1:
+                Talk(SAY_WP_3);
+                me->CastSpell(5918.33f, 5372.91f, -98.770f, SPELL_EXPLODE_CRYSTAL, true);
+                me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
+                me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                break;
+            case 2:
+                Talk(SAY_WP_4);
+                break;
+            case 7:
+                Talk(SAY_WP_5);
+                break;
+            case 8:
+                me->CastSpell(5887.37f, 5379.39f, -91.289f, SPELL_EXPLODE_CRYSTAL, true);
+                me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
+                me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                break;
+            case 9:
+                Talk(SAY_WP_6);
+                break;
+            case 13:
+                if (player)
+                {
+                    player->GroupEventHappens(QUEST_DISASTER, me);
+                    Talk(SAY_WP_7);
+                }
+                break;
             }
         }
 
@@ -927,33 +927,33 @@ public:
 
                 switch (phase)
                 {
-                    case 1:
-                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
-                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
-                        timer = 5000;
-                        break;
-                    case 2:
-                        orphan->SetFacingToObject(me);
-                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_7);
-                        timer = 5000;
-                        break;
-                    case 3:
-                        Talk(TEXT_NESINGWARY_1);
-                        timer = 5000;
-                        break;
-                    case 4:
-                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_8);
-                        timer = 5000;
-                        break;
-                    case 5:
-                        orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_9);
-                        timer = 5000;
-                        break;
-                    case 6:
-                        orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                        player->GroupEventHappens(QUEST_THE_MIGHTY_HEMET_NESINGWARY, me);
-                        Reset();
-                        return;
+                case 1:
+                    orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                    orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
+                    timer = 5000;
+                    break;
+                case 2:
+                    orphan->SetFacingToObject(me);
+                    orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_7);
+                    timer = 5000;
+                    break;
+                case 3:
+                    Talk(TEXT_NESINGWARY_1);
+                    timer = 5000;
+                    break;
+                case 4:
+                    orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_8);
+                    timer = 5000;
+                    break;
+                case 5:
+                    orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_9);
+                    timer = 5000;
+                    break;
+                case 6:
+                    orphan->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                    player->GroupEventHappens(QUEST_THE_MIGHTY_HEMET_NESINGWARY, me);
+                    Reset();
+                    return;
                 }
                 ++phase;
             }
@@ -1115,15 +1115,15 @@ public:
 
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                spellId = SPELL_ADD_ORANGE;
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                spellId = SPELL_ADD_BANANAS;
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                spellId = SPELL_ADD_PAPAYA;
-                break;
+        case GOSSIP_ACTION_INFO_DEF + 1:
+            spellId = SPELL_ADD_ORANGE;
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2:
+            spellId = SPELL_ADD_BANANAS;
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 3:
+            spellId = SPELL_ADD_PAPAYA;
+            break;
         }
 
         if (spellId)
@@ -1283,47 +1283,47 @@ public:
 
             switch (ev)
             {
-                case EVENT_MISS_BIRD:
-                    {
-                        Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
-                        Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
+            case EVENT_MISS_BIRD:
+            {
+                Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
+                Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
 
-                        if (!bird || !crunchy)
-                            ; // fall to EVENT_MISS
-                        else
-                        {
-                            shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
-                            bird->CastSpell(bird, SPELL_BIRD_FALL);
-                            wilhelm->AI()->Talk(SAY_WILHELM_MISS);
-                            drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
+                if (!bird || !crunchy)
+                    ; // fall to EVENT_MISS
+                else
+                {
+                    shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
+                    bird->CastSpell(bird, SPELL_BIRD_FALL);
+                    wilhelm->AI()->Talk(SAY_WILHELM_MISS);
+                    drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
 
-                            Unit::Kill(bird, bird);
-                            crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
-                                                                  bird->GetMapWaterOrGroundLevel(bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
-                            /// @todo Make crunchy perform emote eat when he reaches the bird
+                    Unit::Kill(bird, bird);
+                    crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
+                                                          bird->GetMapWaterOrGroundLevel(bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
+                    /// @todo Make crunchy perform emote eat when he reaches the bird
 
-                            break;
-                        }
-                        [[fallthrough]];
-                    }
-                case EVENT_MISS:
-                    {
-                        shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);
-                        wilhelm->AI()->Talk(SAY_WILHELM_MISS);
-                        drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
-                        break;
-                    }
-                case EVENT_HIT:
-                    {
-                        shooter->CastSpell(apple, SPELL_HIT_APPLE);
-                        apple->CastSpell(apple, SPELL_APPLE_FALL);
-                        wilhelm->AI()->Talk(SAY_WILHELM_HIT);
-                        if (Player* player = shooter->ToPlayer())
-                            player->KilledMonsterCredit(NPC_APPLE, 0);
-                        //apple->DespawnOrUnsummon(); zomg!
+                    break;
+                }
+                [[fallthrough]];
+            }
+            case EVENT_MISS:
+            {
+                shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);
+                wilhelm->AI()->Talk(SAY_WILHELM_MISS);
+                drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
+                break;
+            }
+            case EVENT_HIT:
+            {
+                shooter->CastSpell(apple, SPELL_HIT_APPLE);
+                apple->CastSpell(apple, SPELL_APPLE_FALL);
+                wilhelm->AI()->Talk(SAY_WILHELM_HIT);
+                if (Player* player = shooter->ToPlayer())
+                    player->KilledMonsterCredit(NPC_APPLE, 0);
+                //apple->DespawnOrUnsummon(); zomg!
 
-                        break;
-                    }
+                break;
+            }
             }
         }
 
@@ -1404,32 +1404,32 @@ public:
                 if (Unit* pilot = veh->GetPassenger(0))
                     switch (pointId)
                     {
-                        case 5:
-                            pilot->ToCreature()->AI()->Talk(VIC_SAY_0);
-                            break;
-                        case 11:
-                            pilot->ToCreature()->AI()->Talk(VIC_SAY_1);
-                            break;
-                        case 12:
-                            pilot->ToCreature()->AI()->Talk(VIC_SAY_2);
-                            break;
-                        case 14:
-                            pilot->ToCreature()->AI()->Talk(VIC_SAY_3);
-                            break;
-                        case 15:
-                            pilot->ToCreature()->ToCreature()->AI()->Talk(VIC_SAY_4);
-                            break;
-                        case 17:
-                            pilot->ToCreature()->AI()->Talk(VIC_SAY_5);
-                            break;
-                        case 21:
-                            pilot->ToCreature()->AI()->Talk(VIC_SAY_6);
-                            break;
-                        case 25:
-                            Talk(PLANE_EMOTE);
-                            DoCast(AURA_ENGINE);
-                            me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
-                            break;
+                    case 5:
+                        pilot->ToCreature()->AI()->Talk(VIC_SAY_0);
+                        break;
+                    case 11:
+                        pilot->ToCreature()->AI()->Talk(VIC_SAY_1);
+                        break;
+                    case 12:
+                        pilot->ToCreature()->AI()->Talk(VIC_SAY_2);
+                        break;
+                    case 14:
+                        pilot->ToCreature()->AI()->Talk(VIC_SAY_3);
+                        break;
+                    case 15:
+                        pilot->ToCreature()->ToCreature()->AI()->Talk(VIC_SAY_4);
+                        break;
+                    case 17:
+                        pilot->ToCreature()->AI()->Talk(VIC_SAY_5);
+                        break;
+                    case 21:
+                        pilot->ToCreature()->AI()->Talk(VIC_SAY_6);
+                        break;
+                    case 25:
+                        Talk(PLANE_EMOTE);
+                        DoCast(AURA_ENGINE);
+                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
+                        break;
                     }
             pointId++;
         }
@@ -1480,14 +1480,14 @@ public:
             {
                 switch (GetSpellInfo()->Id)
                 {
-                    case SPELL_CORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetAcoreStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
-                        break;
-                    case SPELL_INCORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetAcoreStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
-                        break;
-                    default:
-                        break;
+                case SPELL_CORRECT_TRACKS:
+                    player->MonsterSay(sObjectMgr->GetAcoreStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
+                    break;
+                case SPELL_INCORRECT_TRACKS:
+                    player->MonsterSay(sObjectMgr->GetAcoreStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
+                    break;
+                default:
+                    break;
                 }
             }
         }

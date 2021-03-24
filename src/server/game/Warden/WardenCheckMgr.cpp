@@ -125,35 +125,35 @@ void WardenCheckMgr::LoadWardenChecks()
         // Prepare check pools
         switch (checkType)
         {
-            case MEM_CHECK:
-            case MODULE_CHECK:
+        case MEM_CHECK:
+        case MODULE_CHECK:
+        {
+            CheckIdPool[WARDEN_CHECK_MEM_TYPE].push_back(id);
+            break;
+        }
+        case LUA_EVAL_CHECK:
+        {
+            if (wardenCheck.Length > WARDEN_MAX_LUA_CHECK_LENGTH)
             {
-                CheckIdPool[WARDEN_CHECK_MEM_TYPE].push_back(id);
-                break;
+                LOG_ERROR("server", "sql.sql: Found over-long Lua check for Warden check with id %u in `warden_checks`. Max length is %u. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
+                continue;
             }
-            case LUA_EVAL_CHECK:
-            {
-                if (wardenCheck.Length > WARDEN_MAX_LUA_CHECK_LENGTH)
-                {
-                    LOG_ERROR("server", "sql.sql: Found over-long Lua check for Warden check with id %u in `warden_checks`. Max length is %u. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
-                    continue;
-                }
 
-                std::string str = fmt::sprintf("%04u", id);
-                ASSERT(str.size() == 4);
-                std::copy(str.begin(), str.end(), wardenCheck.IdStr.begin());
+            std::string str = fmt::sprintf("%04u", id);
+            ASSERT(str.size() == 4);
+            std::copy(str.begin(), str.end(), wardenCheck.IdStr.begin());
 
-                CheckIdPool[WARDEN_CHECK_LUA_TYPE].push_back(id);
-                break;
-            }
-            default:
-            {
-                if (checkType == PAGE_CHECK_A || checkType == PAGE_CHECK_B || checkType == DRIVER_CHECK)
-                    wardenCheck.Data.SetHexStr(data.c_str());
+            CheckIdPool[WARDEN_CHECK_LUA_TYPE].push_back(id);
+            break;
+        }
+        default:
+        {
+            if (checkType == PAGE_CHECK_A || checkType == PAGE_CHECK_B || checkType == DRIVER_CHECK)
+                wardenCheck.Data.SetHexStr(data.c_str());
 
-                CheckIdPool[WARDEN_CHECK_OTHER_TYPE].push_back(id);
-                break;
-            }
+            CheckIdPool[WARDEN_CHECK_OTHER_TYPE].push_back(id);
+            break;
+        }
         }
 
         ++count;

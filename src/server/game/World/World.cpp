@@ -593,7 +593,7 @@ void World::LoadConfigSettings(bool reload)
     else if (rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] > NOMINAL_MELEE_RANGE)
     {
         LOG_ERROR("server", "TargetPosRecalculateRange (%f) must be <= %f. Using %f instead.",
-                       rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], NOMINAL_MELEE_RANGE, NOMINAL_MELEE_RANGE);
+                  rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], NOMINAL_MELEE_RANGE, NOMINAL_MELEE_RANGE);
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = NOMINAL_MELEE_RANGE;
     }
 
@@ -834,13 +834,13 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] < 1)
     {
         LOG_ERROR("server", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
-                       m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+                  m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = 55;
     }
     else if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
         LOG_ERROR("server", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
-                       m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+                  m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
@@ -853,7 +853,7 @@ void World::LoadConfigSettings(bool reload)
     else if (m_int_configs[CONFIG_START_PLAYER_MONEY] > MAX_MONEY_AMOUNT)
     {
         LOG_ERROR("server", "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.",
-                       m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
+                  m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
         m_int_configs[CONFIG_START_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
     }
 
@@ -868,13 +868,13 @@ void World::LoadConfigSettings(bool reload)
     if (int32(m_int_configs[CONFIG_START_HONOR_POINTS]) < 0)
     {
         LOG_ERROR("server", "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
-                       m_int_configs[CONFIG_START_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS], 0);
+                  m_int_configs[CONFIG_START_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS], 0);
         m_int_configs[CONFIG_START_HONOR_POINTS] = 0;
     }
     else if (m_int_configs[CONFIG_START_HONOR_POINTS] > m_int_configs[CONFIG_MAX_HONOR_POINTS])
     {
         LOG_ERROR("server", "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
-                       m_int_configs[CONFIG_START_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS]);
+                  m_int_configs[CONFIG_START_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS]);
         m_int_configs[CONFIG_START_HONOR_POINTS] = m_int_configs[CONFIG_MAX_HONOR_POINTS];
     }
 
@@ -889,13 +889,13 @@ void World::LoadConfigSettings(bool reload)
     if (int32(m_int_configs[CONFIG_START_ARENA_POINTS]) < 0)
     {
         LOG_ERROR("server", "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
-                       m_int_configs[CONFIG_START_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS], 0);
+                  m_int_configs[CONFIG_START_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS], 0);
         m_int_configs[CONFIG_START_ARENA_POINTS] = 0;
     }
     else if (m_int_configs[CONFIG_START_ARENA_POINTS] > m_int_configs[CONFIG_MAX_ARENA_POINTS])
     {
         LOG_ERROR("server", "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
-                       m_int_configs[CONFIG_START_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS]);
+                  m_int_configs[CONFIG_START_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS]);
         m_int_configs[CONFIG_START_ARENA_POINTS] = m_int_configs[CONFIG_MAX_ARENA_POINTS];
     }
 
@@ -903,7 +903,7 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
         LOG_ERROR("server", "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel(%u). Set to %u.",
-                       m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], 60);
+                  m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], 60);
         m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = 60;
     }
 
@@ -940,7 +940,7 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_START_GM_LEVEL] < m_int_configs[CONFIG_START_PLAYER_LEVEL])
     {
         LOG_ERROR("server", "GM.StartLevel (%i) must be in range StartPlayerLevel(%u)..%u. Set to %u.",
-                       m_int_configs[CONFIG_START_GM_LEVEL], m_int_configs[CONFIG_START_PLAYER_LEVEL], MAX_LEVEL, m_int_configs[CONFIG_START_PLAYER_LEVEL]);
+                  m_int_configs[CONFIG_START_GM_LEVEL], m_int_configs[CONFIG_START_PLAYER_LEVEL], MAX_LEVEL, m_int_configs[CONFIG_START_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_GM_LEVEL] = m_int_configs[CONFIG_START_PLAYER_LEVEL];
     }
     else if (m_int_configs[CONFIG_START_GM_LEVEL] > MAX_LEVEL)
@@ -2373,46 +2373,50 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, TeamId 
 
 namespace Warhead
 {
-    class WorldWorldTextBuilder
+class WorldWorldTextBuilder
+{
+public:
+    typedef std::vector<WorldPacket*> WorldPacketList;
+    explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) {}
+    void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
     {
-    public:
-        typedef std::vector<WorldPacket*> WorldPacketList;
-        explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) {}
-        void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
+        char const* text = sObjectMgr->GetAcoreString(i_textId, loc_idx);
+
+        if (i_args)
         {
-            char const* text = sObjectMgr->GetAcoreString(i_textId, loc_idx);
+            // we need copy va_list before use or original va_list will corrupted
+            va_list ap;
+            va_copy(ap, *i_args);
 
-            if (i_args)
-            {
-                // we need copy va_list before use or original va_list will corrupted
-                va_list ap;
-                va_copy(ap, *i_args);
+            char str[2048];
+            vsnprintf(str, 2048, text, ap);
+            va_end(ap);
 
-                char str[2048];
-                vsnprintf(str, 2048, text, ap);
-                va_end(ap);
-
-                do_helper(data_list, &str[0]);
-            }
-            else
-                do_helper(data_list, (char*)text);
+            do_helper(data_list, &str[0]);
         }
-    private:
-        char* lineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
-        void do_helper(WorldPacketList& data_list, char* text)
+        else
+            do_helper(data_list, (char*)text);
+    }
+private:
+    char* lineFromMessage(char*& pos) {
+        char* start = strtok(pos, "\n");
+        pos = nullptr;
+        return start;
+    }
+    void do_helper(WorldPacketList& data_list, char* text)
+    {
+        char* pos = text;
+        while (char* line = lineFromMessage(pos))
         {
-            char* pos = text;
-            while (char* line = lineFromMessage(pos))
-            {
-                WorldPacket* data = new WorldPacket();
-                ChatHandler::BuildChatPacket(*data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-                data_list.push_back(data);
-            }
+            WorldPacket* data = new WorldPacket();
+            ChatHandler::BuildChatPacket(*data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+            data_list.push_back(data);
         }
+    }
 
-        uint32 i_textId;
-        va_list* i_args;
-    };
+    uint32 i_textId;
+    va_list* i_args;
+};
 }                                                           // namespace Warhead
 
 /// Send a System Message to all players (except self if mentioned)

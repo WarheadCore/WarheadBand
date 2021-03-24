@@ -32,27 +32,27 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
 {
     switch (sender->GetTypeId())
     {
-        case TYPEID_UNIT:
-            m_messageType = MAIL_CREATURE;
-            m_senderId = sender->GetEntry();
-            break;
-        case TYPEID_GAMEOBJECT:
-            m_messageType = MAIL_GAMEOBJECT;
-            m_senderId = sender->GetEntry();
-            break;
-        /*case TYPEID_ITEM:
-            m_messageType = MAIL_ITEM;
-            m_senderId = sender->GetEntry();
-            break;*/
-        case TYPEID_PLAYER:
-            m_messageType = MAIL_NORMAL;
-            m_senderId = sender->GetGUIDLow();
-            break;
-        default:
-            m_messageType = MAIL_NORMAL;
-            m_senderId = 0;                                 // will show mail from not existed player
-            LOG_ERROR("server", "MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
-            break;
+    case TYPEID_UNIT:
+        m_messageType = MAIL_CREATURE;
+        m_senderId = sender->GetEntry();
+        break;
+    case TYPEID_GAMEOBJECT:
+        m_messageType = MAIL_GAMEOBJECT;
+        m_senderId = sender->GetEntry();
+        break;
+    /*case TYPEID_ITEM:
+        m_messageType = MAIL_ITEM;
+        m_senderId = sender->GetEntry();
+        break;*/
+    case TYPEID_PLAYER:
+        m_messageType = MAIL_NORMAL;
+        m_senderId = sender->GetGUIDLow();
+        break;
+    default:
+        m_messageType = MAIL_NORMAL;
+        m_senderId = 0;                                 // will show mail from not existed player
+        LOG_ERROR("server", "MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
+        break;
     }
 }
 

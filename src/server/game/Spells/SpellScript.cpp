@@ -110,16 +110,16 @@ std::string _SpellScript::EffectHook::EffIndexToString()
 {
     switch (effIndex)
     {
-        case EFFECT_ALL:
-            return "EFFECT_ALL";
-        case EFFECT_FIRST_FOUND:
-            return "EFFECT_FIRST_FOUND";
-        case EFFECT_0:
-            return "EFFECT_0";
-        case EFFECT_1:
-            return "EFFECT_1";
-        case EFFECT_2:
-            return "EFFECT_2";
+    case EFFECT_ALL:
+        return "EFFECT_ALL";
+    case EFFECT_FIRST_FOUND:
+        return "EFFECT_FIRST_FOUND";
+    case EFFECT_0:
+        return "EFFECT_0";
+    case EFFECT_1:
+        return "EFFECT_1";
+    case EFFECT_2:
+        return "EFFECT_2";
     }
     return "Invalid Value";
 }
@@ -137,12 +137,12 @@ std::string _SpellScript::EffectNameCheck::ToString()
 {
     switch (effName)
     {
-        case SPELL_EFFECT_ANY:
-            return "SPELL_EFFECT_ANY";
-        default:
-            char num[10];
-            sprintf (num, "%u", effName);
-            return num;
+    case SPELL_EFFECT_ANY:
+        return "SPELL_EFFECT_ANY";
+    default:
+        char num[10];
+        sprintf (num, "%u", effName);
+        return num;
     }
 }
 
@@ -159,12 +159,12 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
 {
     switch (effAurName)
     {
-        case SPELL_AURA_ANY:
-            return "SPELL_AURA_ANY";
-        default:
-            char num[10];
-            sprintf (num, "%u", effAurName);
-            return num;
+    case SPELL_AURA_ANY:
+        return "SPELL_AURA_ANY";
+    default:
+        char num[10];
+        sprintf (num, "%u", effAurName);
+        return num;
     }
 }
 
@@ -241,35 +241,35 @@ bool SpellScript::TargetHook::CheckEffect(SpellInfo const* spellEntry, uint8 eff
     SpellImplicitTargetInfo targetInfo(targetType);
     switch (targetInfo.GetSelectionCategory())
     {
-        case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
-            return !area;
-        case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
-            return true;
-        case TARGET_SELECT_CATEGORY_CONE: // AREA
-        case TARGET_SELECT_CATEGORY_AREA: // AREA
-            return area;
-        case TARGET_SELECT_CATEGORY_DEFAULT:
-            switch (targetInfo.GetObjectType())
+    case TARGET_SELECT_CATEGORY_CHANNEL: // SINGLE
+        return !area;
+    case TARGET_SELECT_CATEGORY_NEARBY: // BOTH
+        return true;
+    case TARGET_SELECT_CATEGORY_CONE: // AREA
+    case TARGET_SELECT_CATEGORY_AREA: // AREA
+        return area;
+    case TARGET_SELECT_CATEGORY_DEFAULT:
+        switch (targetInfo.GetObjectType())
+        {
+        case TARGET_OBJECT_TYPE_SRC: // EMPTY
+            return false;
+        case TARGET_OBJECT_TYPE_DEST: // DEST
+            return dest;
+        default:
+            switch (targetInfo.GetReferenceType())
             {
-                case TARGET_OBJECT_TYPE_SRC: // EMPTY
-                    return false;
-                case TARGET_OBJECT_TYPE_DEST: // DEST
-                    return dest;
-                default:
-                    switch (targetInfo.GetReferenceType())
-                    {
-                        case TARGET_REFERENCE_TYPE_CASTER: // SINGLE
-                            return !area;
-                        case TARGET_REFERENCE_TYPE_TARGET: // BOTH
-                            return true;
-                        default:
-                            break;
-                    }
-                    break;
+            case TARGET_REFERENCE_TYPE_CASTER: // SINGLE
+                return !area;
+            case TARGET_REFERENCE_TYPE_TARGET: // BOTH
+                return true;
+            default:
+                break;
             }
             break;
-        default:
-            break;
+        }
+        break;
+    default:
+        break;
     }
 
     return false;
@@ -374,12 +374,12 @@ bool SpellScript::IsInTargetHook() const
 {
     switch (m_currentScriptState)
     {
-        case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
-        case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
-        case SPELL_SCRIPT_HOOK_BEFORE_HIT:
-        case SPELL_SCRIPT_HOOK_HIT:
-        case SPELL_SCRIPT_HOOK_AFTER_HIT:
-            return true;
+    case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
+    case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
+    case SPELL_SCRIPT_HOOK_BEFORE_HIT:
+    case SPELL_SCRIPT_HOOK_HIT:
+    case SPELL_SCRIPT_HOOK_AFTER_HIT:
+        return true;
     }
     return false;
 }
@@ -948,18 +948,18 @@ bool AuraScript::_IsDefaultActionPrevented()
 {
     switch (m_currentScriptState)
     {
-        case AURA_SCRIPT_HOOK_EFFECT_APPLY:
-        case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
-        case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
-        case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
-        case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
-        case AURA_SCRIPT_HOOK_PREPARE_PROC:
-        case AURA_SCRIPT_HOOK_PROC:
-        case AURA_SCRIPT_HOOK_EFFECT_PROC:
-            return m_defaultActionPrevented;
-        default:
-            ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
-            return false;
+    case AURA_SCRIPT_HOOK_EFFECT_APPLY:
+    case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
+    case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
+    case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
+    case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
+    case AURA_SCRIPT_HOOK_PREPARE_PROC:
+    case AURA_SCRIPT_HOOK_PROC:
+    case AURA_SCRIPT_HOOK_EFFECT_PROC:
+        return m_defaultActionPrevented;
+    default:
+        ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+        return false;
     }
 }
 
@@ -967,19 +967,19 @@ void AuraScript::PreventDefaultAction()
 {
     switch (m_currentScriptState)
     {
-        case AURA_SCRIPT_HOOK_EFFECT_APPLY:
-        case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
-        case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
-        case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
-        case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
-        case AURA_SCRIPT_HOOK_PREPARE_PROC:
-        case AURA_SCRIPT_HOOK_PROC:
-        case AURA_SCRIPT_HOOK_EFFECT_PROC:
-            m_defaultActionPrevented = true;
-            break;
-        default:
-            LOG_ERROR("server", "TSCR: Script: `%s` Spell: `%u` AuraScript::PreventDefaultAction called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
-            break;
+    case AURA_SCRIPT_HOOK_EFFECT_APPLY:
+    case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
+    case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
+    case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
+    case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
+    case AURA_SCRIPT_HOOK_PREPARE_PROC:
+    case AURA_SCRIPT_HOOK_PROC:
+    case AURA_SCRIPT_HOOK_EFFECT_PROC:
+        m_defaultActionPrevented = true;
+        break;
+    default:
+        LOG_ERROR("server", "TSCR: Script: `%s` Spell: `%u` AuraScript::PreventDefaultAction called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
+        break;
     }
 }
 
@@ -1147,25 +1147,25 @@ Unit* AuraScript::GetTarget() const
 {
     switch (m_currentScriptState)
     {
-        case AURA_SCRIPT_HOOK_EFFECT_APPLY:
-        case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
-        case AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY:
-        case AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE:
-        case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
-        case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
-        case AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB:
-        case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:
-        case AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD:
-        case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
-        case AURA_SCRIPT_HOOK_CHECK_PROC:
-        case AURA_SCRIPT_HOOK_PREPARE_PROC:
-        case AURA_SCRIPT_HOOK_PROC:
-        case AURA_SCRIPT_HOOK_AFTER_PROC:
-        case AURA_SCRIPT_HOOK_EFFECT_PROC:
-        case AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC:
-            return m_auraApplication->GetTarget();
-        default:
-            LOG_ERROR("server", "TSCR: Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
+    case AURA_SCRIPT_HOOK_EFFECT_APPLY:
+    case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
+    case AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY:
+    case AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE:
+    case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
+    case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
+    case AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB:
+    case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:
+    case AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD:
+    case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
+    case AURA_SCRIPT_HOOK_CHECK_PROC:
+    case AURA_SCRIPT_HOOK_PREPARE_PROC:
+    case AURA_SCRIPT_HOOK_PROC:
+    case AURA_SCRIPT_HOOK_AFTER_PROC:
+    case AURA_SCRIPT_HOOK_EFFECT_PROC:
+    case AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC:
+        return m_auraApplication->GetTarget();
+    default:
+        LOG_ERROR("server", "TSCR: Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
     }
 
     return nullptr;

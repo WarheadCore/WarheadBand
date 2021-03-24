@@ -631,15 +631,15 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
         switch ((*itr)->messageType)
         {
-            case MAIL_NORMAL:                               // sender guid
-                data << uint64(MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER));
-                break;
-            case MAIL_CREATURE:
-            case MAIL_GAMEOBJECT:
-            case MAIL_AUCTION:
-            case MAIL_CALENDAR:
-                data << uint32((*itr)->sender);            // creature/gameobject entry, auction id, calendar event id?
-                break;
+        case MAIL_NORMAL:                               // sender guid
+            data << uint64(MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER));
+            break;
+        case MAIL_CREATURE:
+        case MAIL_GAMEOBJECT:
+        case MAIL_AUCTION:
+        case MAIL_CALENDAR:
+            data << uint32((*itr)->sender);            // creature/gameobject entry, auction id, calendar event id?
+            break;
         }
 
         // prevent client crash

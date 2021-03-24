@@ -389,11 +389,11 @@ public:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo(
-                {
-                    SPELL_ROGUE_KILLING_SPREE_TELEPORT,
-                    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
-                    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
-                });
+            {
+                SPELL_ROGUE_KILLING_SPREE_TELEPORT,
+                SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
+                SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
+            });
         }
 
         void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

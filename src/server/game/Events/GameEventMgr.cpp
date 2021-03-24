@@ -47,37 +47,37 @@ bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
     switch (mGameEvent[entry].state)
     {
-        default:
-        case GAMEEVENT_NORMAL:
-            {
-                time_t currenttime = time(nullptr);
-                // Get the event information
-                return mGameEvent[entry].start < currenttime
-                       && currenttime < mGameEvent[entry].end
-                       && (currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * MINUTE) < mGameEvent[entry].length * MINUTE;
-            }
-        // if the state is conditions or nextphase, then the event should be active
-        case GAMEEVENT_WORLD_CONDITIONS:
-        case GAMEEVENT_WORLD_NEXTPHASE:
-            return true;
-        // finished world events are inactive
-        case GAMEEVENT_WORLD_FINISHED:
-        case GAMEEVENT_INTERNAL:
-            return false;
-        // if inactive world event, check the prerequisite events
-        case GAMEEVENT_WORLD_INACTIVE:
-            {
-                time_t currenttime = time(nullptr);
-                for (std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
-                {
-                    if ((mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
-                            mGameEvent[*itr].nextstart > currenttime)               // if not in nextphase state for long enough, can't start this one
-                        return false;
-                }
-                // all prerequisite events are met
-                // but if there are no prerequisites, this can be only activated through gm command
-                return !(mGameEvent[entry].prerequisite_events.empty());
-            }
+    default:
+    case GAMEEVENT_NORMAL:
+    {
+        time_t currenttime = time(nullptr);
+        // Get the event information
+        return mGameEvent[entry].start < currenttime
+               && currenttime < mGameEvent[entry].end
+               && (currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * MINUTE) < mGameEvent[entry].length * MINUTE;
+    }
+    // if the state is conditions or nextphase, then the event should be active
+    case GAMEEVENT_WORLD_CONDITIONS:
+    case GAMEEVENT_WORLD_NEXTPHASE:
+        return true;
+    // finished world events are inactive
+    case GAMEEVENT_WORLD_FINISHED:
+    case GAMEEVENT_INTERNAL:
+        return false;
+    // if inactive world event, check the prerequisite events
+    case GAMEEVENT_WORLD_INACTIVE:
+    {
+        time_t currenttime = time(nullptr);
+        for (std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
+        {
+            if ((mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
+                    mGameEvent[*itr].nextstart > currenttime)               // if not in nextphase state for long enough, can't start this one
+                return false;
+        }
+        // all prerequisite events are met
+        // but if there are no prerequisites, this can be only activated through gm command
+        return !(mGameEvent[entry].prerequisite_events.empty());
+    }
     }
 }
 
@@ -514,7 +514,7 @@ void GameEventMgr::LoadFromDB()
                     if (!sObjectMgr->GetEquipmentInfo(entry, equipId))
                     {
                         LOG_ERROR("sql.sql", "Table `game_event_model_equip` have creature (Guid: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
-                                         guid, newModelEquipSet.equipment_id);
+                                  guid, newModelEquipSet.equipment_id);
                         continue;
                     }
                 }
@@ -1281,7 +1281,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
         LOG_ERROR("server", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SZFMTD ")",
-                       internal_event_id, mGameEventCreatureGuids.size());
+                  internal_event_id, mGameEventCreatureGuids.size());
         return;
     }
 
@@ -1307,7 +1307,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     if (internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
         LOG_ERROR("server", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SZFMTD ")",
-                       internal_event_id, mGameEventGameobjectGuids.size());
+                  internal_event_id, mGameEventGameobjectGuids.size());
         return;
     }
 
@@ -1339,7 +1339,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     if (internal_event_id >= int32(mGameEventPoolIds.size()))
     {
         LOG_ERROR("server", "GameEventMgr::GameEventSpawn attempt access to out of range mGameEventPoolIds element %u (size: " SZFMTD ")",
-                       internal_event_id, mGameEventPoolIds.size());
+                  internal_event_id, mGameEventPoolIds.size());
         return;
     }
 
@@ -1354,7 +1354,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
         LOG_ERROR("server", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SZFMTD ")",
-                       internal_event_id, mGameEventCreatureGuids.size());
+                  internal_event_id, mGameEventCreatureGuids.size());
         return;
     }
 
@@ -1376,7 +1376,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     if (internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
         LOG_ERROR("server", "GameEventMgr::GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SZFMTD ")",
-                       internal_event_id, mGameEventGameobjectGuids.size());
+                  internal_event_id, mGameEventGameobjectGuids.size());
         return;
     }
 
@@ -1756,16 +1756,16 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
 
     switch (holiday->CalendarFilterType)
     {
-        case -1: // Yearly
-            event.occurence = YEAR / MINUTE; // Not all too useful
-            break;
-        case 0: // Weekly
-            event.occurence = WEEK / MINUTE;
-            break;
-        case 1: // Defined dates only (Darkmoon Faire)
-            break;
-        case 2: // Only used for looping events (Call to Arms)
-            break;
+    case -1: // Yearly
+        event.occurence = YEAR / MINUTE; // Not all too useful
+        break;
+    case 0: // Weekly
+        event.occurence = WEEK / MINUTE;
+        break;
+    case 1: // Defined dates only (Darkmoon Faire)
+        break;
+    case 2: // Only used for looping events (Call to Arms)
+        break;
     }
 
     if (holiday->Looping)

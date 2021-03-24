@@ -223,7 +223,9 @@ public:
         EventMap _events;
         SummonList _summons;
 
-        void JustSummoned(Creature* cr) override { _summons.Summon(cr); }
+        void JustSummoned(Creature* cr) override {
+            _summons.Summon(cr);
+        }
 
         void MoveInLineOfSight(Unit* who) override
         {
@@ -337,40 +339,40 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_CRUSADER_STRIKE:
-                        me->CastSpell(me->GetVictim(), CRUSADER_STRIKE, false);
-                        _events.RepeatEvent(3500);
-                        break;
-                    case EVENT_HAMMER_OF_JUSTICE:
-                        me->CastSpell(me->GetVictim(), HAMMER_OF_JUSTICE, false);
-                        _events.RepeatEvent(urand(10000, 14000));
-                        break;
-                    case EVENT_HOLY_LIGHT:
-                        // if low enough will heal and trigger again in 18s.
-                        if (me->GetHealthPct() <= 45)
+                case EVENT_CRUSADER_STRIKE:
+                    me->CastSpell(me->GetVictim(), CRUSADER_STRIKE, false);
+                    _events.RepeatEvent(3500);
+                    break;
+                case EVENT_HAMMER_OF_JUSTICE:
+                    me->CastSpell(me->GetVictim(), HAMMER_OF_JUSTICE, false);
+                    _events.RepeatEvent(urand(10000, 14000));
+                    break;
+                case EVENT_HOLY_LIGHT:
+                    // if low enough will heal and trigger again in 18s.
+                    if (me->GetHealthPct() <= 45)
+                    {
+                        me->CastSpell(me, HOLY_LIGHT, false);
+                        _events.RepeatEvent(urand(18000, 22000));
+                    }
+                    else if (Unit* who = me->FindNearestCreature(ANCHORITE_KARJA, 30.0f, true))
+                    {
+                        if (who->GetHealthPct() <= 45)
                         {
-                            me->CastSpell(me, HOLY_LIGHT, false);
+                            me->CastSpell(who, HOLY_LIGHT, false);
                             _events.RepeatEvent(urand(18000, 22000));
                         }
-                        else if (Unit* who = me->FindNearestCreature(ANCHORITE_KARJA, 30.0f, true))
+                    }
+                    else if (Unit* who = me->FindNearestCreature(EXARCH_ORELIS, 30.0f, true))
+                    {
+                        if (who->GetHealthPct() <= 45)
                         {
-                            if (who->GetHealthPct() <= 45)
-                            {
-                                me->CastSpell(who, HOLY_LIGHT, false);
-                                _events.RepeatEvent(urand(18000, 22000));
-                            }
+                            me->CastSpell(who, HOLY_LIGHT, false);
+                            _events.RepeatEvent(urand(18000, 22000));
                         }
-                        else if (Unit* who = me->FindNearestCreature(EXARCH_ORELIS, 30.0f, true))
-                        {
-                            if (who->GetHealthPct() <= 45)
-                            {
-                                me->CastSpell(who, HOLY_LIGHT, false);
-                                _events.RepeatEvent(urand(18000, 22000));
-                            }
-                        }
-                        else
-                            _events.RepeatEvent(1000);
-                        break;
+                    }
+                    else
+                        _events.RepeatEvent(1000);
+                    break;
                 }
             }
 
@@ -436,10 +438,10 @@ public:
 
             switch ( _events.ExecuteEvent())
             {
-                case EVENT_SPELL_HOLY_SMITE:
-                    me->CastSpell(me->GetVictim(), HOLY_SMITE_KARJA, false);
-                    _events.ScheduleEvent(EVENT_SPELL_HOLY_SMITE, 2500);
-                    break;
+            case EVENT_SPELL_HOLY_SMITE:
+                me->CastSpell(me->GetVictim(), HOLY_SMITE_KARJA, false);
+                _events.ScheduleEvent(EVENT_SPELL_HOLY_SMITE, 2500);
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -520,23 +522,23 @@ public:
 
             switch (_events.ExecuteEvent())
             {
-                case EVENT_SPELL_DEMORALIZING_SHOUT:
-                    if (me->FindNearestCreature(me->GetVictim()->GetEntry(), 10.0f, true))
-                    {
-                        me->CastSpell(me->GetVictim(), DEMORALIZING_SHOUT, false);
-                        _events.ScheduleEvent(EVENT_SPELL_DEMORALIZING_SHOUT, urand(10000, 12000));
-                    }
-                    else
-                        _events.ScheduleEvent(EVENT_SPELL_DEMORALIZING_SHOUT, 1000);
-                    break;
-                case EVENT_SPELL_HEROIC_STRIKE:
-                    me->CastSpell(me->GetVictim(), HEROIC_STRIKE, false);
-                    _events.ScheduleEvent(EVENT_SPELL_HEROIC_STRIKE, urand(3000, 4000));
-                    break;
-                case EVENT_SPELL_REND:
-                    me->CastSpell(me->GetVictim(), REND, false);
-                    _events.ScheduleEvent(EVENT_SPELL_REND, urand(5000, 8000));
-                    break;
+            case EVENT_SPELL_DEMORALIZING_SHOUT:
+                if (me->FindNearestCreature(me->GetVictim()->GetEntry(), 10.0f, true))
+                {
+                    me->CastSpell(me->GetVictim(), DEMORALIZING_SHOUT, false);
+                    _events.ScheduleEvent(EVENT_SPELL_DEMORALIZING_SHOUT, urand(10000, 12000));
+                }
+                else
+                    _events.ScheduleEvent(EVENT_SPELL_DEMORALIZING_SHOUT, 1000);
+                break;
+            case EVENT_SPELL_HEROIC_STRIKE:
+                me->CastSpell(me->GetVictim(), HEROIC_STRIKE, false);
+                _events.ScheduleEvent(EVENT_SPELL_HEROIC_STRIKE, urand(3000, 4000));
+                break;
+            case EVENT_SPELL_REND:
+                me->CastSpell(me->GetVictim(), REND, false);
+                _events.ScheduleEvent(EVENT_SPELL_REND, urand(5000, 8000));
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -562,43 +564,43 @@ public:
         {
             switch (CreatureID)
             {
-                case ADYEN_THE_LIGHTBRINGER:
-                    adyen = nullptr;
-                    adyen = me->FindNearestCreature(ADYEN_THE_LIGHTBRINGER, 100.0f, true);
-                    if (adyen != nullptr)
+            case ADYEN_THE_LIGHTBRINGER:
+                adyen = nullptr;
+                adyen = me->FindNearestCreature(ADYEN_THE_LIGHTBRINGER, 100.0f, true);
+                if (adyen != nullptr)
+                    return true;
+                break;
+            case EXARCH_ORELIS:
+                orelis = nullptr;
+                orelis = me->FindNearestCreature(EXARCH_ORELIS, 100.0f, true);
+                if (orelis != nullptr)
+                    return true;
+                break;
+            case ANCHORITE_KARJA:
+                karja = nullptr;
+                karja = me->FindNearestCreature(ANCHORITE_KARJA, 100.0f, true);
+                if (karja != nullptr)
+                    return true;
+                break;
+            case KAYLAAN_THE_LOST:
+                kaylaan = nullptr;
+                kaylaan = me->FindNearestCreature(KAYLAAN_THE_LOST, 100.0f, true);
+                if (kaylaan != nullptr)
+                    return true;
+                break;
+            case ISHANAH_HIGH_PRIESTESS:
+                ishanah = nullptr;
+                ishanah = me->FindNearestCreature(ISHANAH_HIGH_PRIESTESS, 100.0f, true);
+                if (ishanah == nullptr)
+                {
+                    // Ishanah may be dead; in this case we also need a reference to the creature for the respawn
+                    ishanah = me->FindNearestCreature(ISHANAH_HIGH_PRIESTESS, 100.0f, false);
+                    if (ishanah != nullptr)
                         return true;
-                    break;
-                case EXARCH_ORELIS:
-                    orelis = nullptr;
-                    orelis = me->FindNearestCreature(EXARCH_ORELIS, 100.0f, true);
-                    if (orelis != nullptr)
-                        return true;
-                    break;
-                case ANCHORITE_KARJA:
-                    karja = nullptr;
-                    karja = me->FindNearestCreature(ANCHORITE_KARJA, 100.0f, true);
-                    if (karja != nullptr)
-                        return true;
-                    break;
-                case KAYLAAN_THE_LOST:
-                    kaylaan = nullptr;
-                    kaylaan = me->FindNearestCreature(KAYLAAN_THE_LOST, 100.0f, true);
-                    if (kaylaan != nullptr)
-                        return true;
-                    break;
-                case ISHANAH_HIGH_PRIESTESS:
-                    ishanah = nullptr;
-                    ishanah = me->FindNearestCreature(ISHANAH_HIGH_PRIESTESS, 100.0f, true);
-                    if (ishanah == nullptr)
-                    {
-                        // Ishanah may be dead; in this case we also need a reference to the creature for the respawn
-                        ishanah = me->FindNearestCreature(ISHANAH_HIGH_PRIESTESS, 100.0f, false);
-                        if (ishanah != nullptr)
-                            return true;
-                    }
-                    else
-                        return true;
-                    break;
+                }
+                else
+                    return true;
+                break;
             }
             return false; // When he doesn't find anyone
         }
@@ -617,26 +619,26 @@ public:
         {
             switch (param)
             {
-                case EVENT_ADYEN_SAY_1:
-                    DeathblowToTheLegionRunning = true;
-                    _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_1, 1000);
-                    break;
-                case EVENT_ADYEN_SAY_3:
-                    _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_3, 2000);
-                    break;
-                case EVENT_KAYLAAN_SAY_1:
-                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_1, 4000);
-                    break;
-                case EVENT_END_ALDOR_FIGHT:
-                    _actionEvents.ScheduleEvent(EVENT_END_ALDOR_FIGHT, 1);
-                    break;
-                case EVENT_ISHANAH_SAY_1:
-                    _actionEvents.ScheduleEvent(EVENT_ISHANAH_SAY_1, 2000);
-                    break;
-                case RESET_DEATHBLOW_EVENT:
-                    DeathblowToTheLegionRunning = false;
-                    Reset();
-                    break;
+            case EVENT_ADYEN_SAY_1:
+                DeathblowToTheLegionRunning = true;
+                _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_1, 1000);
+                break;
+            case EVENT_ADYEN_SAY_3:
+                _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_3, 2000);
+                break;
+            case EVENT_KAYLAAN_SAY_1:
+                _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_1, 4000);
+                break;
+            case EVENT_END_ALDOR_FIGHT:
+                _actionEvents.ScheduleEvent(EVENT_END_ALDOR_FIGHT, 1);
+                break;
+            case EVENT_ISHANAH_SAY_1:
+                _actionEvents.ScheduleEvent(EVENT_ISHANAH_SAY_1, 2000);
+                break;
+            case RESET_DEATHBLOW_EVENT:
+                DeathblowToTheLegionRunning = false;
+                Reset();
+                break;
             }
         }
 
@@ -683,213 +685,213 @@ public:
 
                 switch (_actionEvents.ExecuteEvent())
                 {
-                    case EVENT_ADYEN_SAY_1:
+                case EVENT_ADYEN_SAY_1:
+                    if (GetCreature(ADYEN_THE_LIGHTBRINGER))
+                        adyen->AI()->Talk(0);
+                    _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_1, 11000);
+                    break;
+                case EVENT_SOCRETHAR_SAY_1:
+                    Talk(0);
+                    _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_2, 7000);
+                    break;
+                case EVENT_ADYEN_SAY_2:
+                    if (GetCreature(ADYEN_THE_LIGHTBRINGER))
+                        adyen->AI()->Talk(1);
+                    _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_2, 11000);
+                    break;
+                case EVENT_SOCRETHAR_SAY_2:
+                    Talk(1);
+                    if (Creature* summonKaylaan = me->SummonCreature(KAYLAAN_THE_LOST, KaylaanSpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 240000))
+                        summonKaylaan->GetMotionMaster()->MovePath(KAYLAAN_PATH_ID1, false);
+                    break;
+                case EVENT_ADYEN_SAY_3:
+                    if (GetCreature(ADYEN_THE_LIGHTBRINGER))
+                        adyen->AI()->Talk(2);
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->SetStandState(UNIT_STAND_STATE_STAND);
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_WALK_TO_ADYEN, 3500);
+                    break;
+                case EVENT_KAYLAAN_WALK_TO_ADYEN:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->GetMotionMaster()->MovePath(KAYLAAN_PATH_ID2, false);
+                    break;
+                case EVENT_KAYLAAN_SAY_1:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                    {
+                        kaylaan->AI()->Talk(0);
+                        kaylaan->SetHomePosition(kaylaan->GetPosition());
+                    }
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_2, 9000);
+                    break;
+                case EVENT_KAYLAAN_SAY_2:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->AI()->Talk(1);
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_3, 8000);
+                    break;
+                case EVENT_KAYLAAN_SAY_3:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->AI()->Talk(2);
+                    _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_4, 8000);
+                    break;
+                case EVENT_ADYEN_SAY_4:
+                    if (GetCreature(ADYEN_THE_LIGHTBRINGER))
+                        adyen->AI()->Talk(3);
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_4, 11000);
+                    break;
+                case EVENT_KAYLAAN_SAY_4:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->AI()->Talk(3);
+                    _actionEvents.ScheduleEvent(EVENT_SPELL_POWER_OF_THE_LEGION, 5000);
+                    break;
+                case EVENT_SPELL_POWER_OF_THE_LEGION:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        me->CastSpell(kaylaan, POWER_OF_THE_LEGION, false);
+                    Talk(2);
+                    _actionEvents.ScheduleEvent(EVENT_FIGHT_ALDOR, 3000);
+                    break;
+                case EVENT_FIGHT_ALDOR:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                    {
+                        kaylaan->setFaction(EXODAR_ENEMY_FACTION);
                         if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                            adyen->AI()->Talk(0);
-                        _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_1, 11000);
-                        break;
-                    case EVENT_SOCRETHAR_SAY_1:
-                        Talk(0);
-                        _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_2, 7000);
-                        break;
-                    case EVENT_ADYEN_SAY_2:
-                        if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                            adyen->AI()->Talk(1);
-                        _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_2, 11000);
-                        break;
-                    case EVENT_SOCRETHAR_SAY_2:
-                        Talk(1);
-                        if (Creature* summonKaylaan = me->SummonCreature(KAYLAAN_THE_LOST, KaylaanSpawnPosition, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 240000))
-                            summonKaylaan->GetMotionMaster()->MovePath(KAYLAAN_PATH_ID1, false);
-                        break;
-                    case EVENT_ADYEN_SAY_3:
-                        if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                            adyen->AI()->Talk(2);
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->SetStandState(UNIT_STAND_STATE_STAND);
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_WALK_TO_ADYEN, 3500);
-                        break;
-                    case EVENT_KAYLAAN_WALK_TO_ADYEN:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->GetMotionMaster()->MovePath(KAYLAAN_PATH_ID2, false);
-                        break;
-                    case EVENT_KAYLAAN_SAY_1:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                        {
-                            kaylaan->AI()->Talk(0);
-                            kaylaan->SetHomePosition(kaylaan->GetPosition());
-                        }
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_2, 9000);
-                        break;
-                    case EVENT_KAYLAAN_SAY_2:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->AI()->Talk(1);
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_3, 8000);
-                        break;
-                    case EVENT_KAYLAAN_SAY_3:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->AI()->Talk(2);
-                        _actionEvents.ScheduleEvent(EVENT_ADYEN_SAY_4, 8000);
-                        break;
-                    case EVENT_ADYEN_SAY_4:
-                        if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                            adyen->AI()->Talk(3);
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_4, 11000);
-                        break;
-                    case EVENT_KAYLAAN_SAY_4:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->AI()->Talk(3);
-                        _actionEvents.ScheduleEvent(EVENT_SPELL_POWER_OF_THE_LEGION, 5000);
-                        break;
-                    case EVENT_SPELL_POWER_OF_THE_LEGION:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            me->CastSpell(kaylaan, POWER_OF_THE_LEGION, false);
-                        Talk(2);
-                        _actionEvents.ScheduleEvent(EVENT_FIGHT_ALDOR, 3000);
-                        break;
-                    case EVENT_FIGHT_ALDOR:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                        {
-                            kaylaan->setFaction(EXODAR_ENEMY_FACTION);
-                            if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                                kaylaan->AI()->AttackStart(adyen);
-                        }
-                        break;
-                    case EVENT_END_ALDOR_FIGHT:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                        {
-                            kaylaan->setFaction(EXODAR_FACTION);
-                            kaylaan->GetMotionMaster()->MoveTargetedHome();
-                            kaylaan->CombatStop();
-                            kaylaan->ClearInCombat();
-                        }
+                            kaylaan->AI()->AttackStart(adyen);
+                    }
+                    break;
+                case EVENT_END_ALDOR_FIGHT:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                    {
+                        kaylaan->setFaction(EXODAR_FACTION);
+                        kaylaan->GetMotionMaster()->MoveTargetedHome();
+                        kaylaan->CombatStop();
+                        kaylaan->ClearInCombat();
+                    }
 
-                        if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                        {
-                            adyen->GetMotionMaster()->MoveTargetedHome();
-                            adyen->CombatStop();
-                            adyen->ClearInCombat();
-                        }
+                    if (GetCreature(ADYEN_THE_LIGHTBRINGER))
+                    {
+                        adyen->GetMotionMaster()->MoveTargetedHome();
+                        adyen->CombatStop();
+                        adyen->ClearInCombat();
+                    }
 
-                        if (GetCreature(EXARCH_ORELIS))
-                        {
-                            orelis->GetMotionMaster()->MoveTargetedHome();
-                            orelis->CombatStop();
-                            orelis->ClearInCombat();
-                        }
+                    if (GetCreature(EXARCH_ORELIS))
+                    {
+                        orelis->GetMotionMaster()->MoveTargetedHome();
+                        orelis->CombatStop();
+                        orelis->ClearInCombat();
+                    }
 
-                        if (GetCreature(ANCHORITE_KARJA))
-                        {
-                            karja->GetMotionMaster()->MoveTargetedHome();
-                            karja->CombatStop();
-                            karja->ClearInCombat();
-                        }
-                        _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_4, 2000);
-                        break;
-                    case EVENT_SOCRETHAR_SAY_4:
-                        Talk(3);
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_5, 8000);
-                        break;
-                    case EVENT_KAYLAAN_SAY_5:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->AI()->Talk(4);
-                        if (Creature* summonIshanah = me->SummonCreature(ISHANAH_HIGH_PRIESTESS, IshanahSpawnPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
-                        {
-                            summonIshanah->GetMotionMaster()->MovePath(ISHANAH_PATH_ID, false);
-                            summonIshanah->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                        }
-                        break;
-                    case EVENT_ISHANAH_SAY_1:
-                        if (GetCreature(ISHANAH_HIGH_PRIESTESS))
-                            ishanah->AI()->Talk(0);
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                        {
-                            kaylaan->RemoveAurasDueToSpell(POWER_OF_THE_LEGION);
-                            kaylaan->SetStandState(UNIT_STAND_STATE_KNEEL);
-                        }
-                        _actionEvents.ScheduleEvent(EVENT_ISHANAH_SAY_2, 6000);
-                        break;
-                    case EVENT_ISHANAH_SAY_2:
-                        if (GetCreature(ISHANAH_HIGH_PRIESTESS))
-                            ishanah->AI()->Talk(1);
-                        _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_5, 8000);
-                        break;
-                    case EVENT_SOCRETHAR_SAY_5:
-                        Talk(4);
-                        _actionEvents.ScheduleEvent(EVENT_KILL_ISHANAH, 4000);
-                        break;
-                    case EVENT_KILL_ISHANAH:
-                        if (GetCreature(ISHANAH_HIGH_PRIESTESS))
-                            me->CastSpell(ishanah, WRATH_OF_SOCRETHAR);
-                        _actionEvents.ScheduleEvent(EVENT_ISHANAH_DIES, 1500);
-                        break;
-                    case EVENT_ISHANAH_DIES:
-                        if (GetCreature(ISHANAH_HIGH_PRIESTESS))
-                            me->Kill(me, ishanah);
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_6, 4000);
-                        break;
-                    case EVENT_KAYLAAN_SAY_6:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                        {
-                            kaylaan->AI()->Talk(6);
-                            kaylaan->SetStandState(UNIT_STAND_STATE_STAND);
-                            kaylaan->GetMotionMaster()->MovePath(207942, false);
-                        }
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_7, 9000);
-                        break;
-                    case EVENT_KAYLAAN_SAY_7:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                        {
-                            kaylaan->AI()->Talk(7);
-                            kaylaan->CastSpell(kaylaan, DIVINE_SHIELD);
-                        }
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_RESSURECTION, 1000);
-                        break;
-                    case EVENT_KAYLAAN_RESSURECTION:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            kaylaan->CastSpell(ishanah, REDEMPTION);
-                        _actionEvents.ScheduleEvent(EVENT_ISHANAH_IS_BACK_AGAIN, 11000);
-                        break;
-                    case EVENT_ISHANAH_IS_BACK_AGAIN:
-                        if (GetCreature(ISHANAH_HIGH_PRIESTESS))
-                        {
-                            ishanah->Respawn();
-                            ishanah->setActive(true); // ensure that Ishanah disappears, even when no player is near
-                            ishanah->DespawnOrUnsummon(600000); // ensure that Ishanah disappears after 10 minutes
-                            ishanah->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                        }
-                        _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_6, 3000);
-                        break;
-                    case EVENT_SOCRETHAR_SAY_6:
-                        Talk(5);
-                        _actionEvents.ScheduleEvent(EVENT_KILL_KAYLAAN, 4000);
-                        break;
-                    case EVENT_KILL_KAYLAAN:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            me->CastSpell(kaylaan, WRATH_OF_SOCRETHAR);
-                        _actionEvents.ScheduleEvent(EVENT_KAYLAAN_DIES, 1500);
-                        break;
-                    case EVENT_KAYLAAN_DIES:
-                        if (GetCreature(KAYLAAN_THE_LOST))
-                            me->Kill(me, kaylaan);
-                        _actionEvents.ScheduleEvent(EVENT_FINAL_FIGHT, 3000);
-                        break;
-                    case EVENT_FINAL_FIGHT:
-                        // Prepare Socrethar for encounter
-                        me->setFaction(EXODAR_ENEMY_FACTION);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
-                        me->SetReactState(REACT_AGGRESSIVE);
+                    if (GetCreature(ANCHORITE_KARJA))
+                    {
+                        karja->GetMotionMaster()->MoveTargetedHome();
+                        karja->CombatStop();
+                        karja->ClearInCombat();
+                    }
+                    _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_4, 2000);
+                    break;
+                case EVENT_SOCRETHAR_SAY_4:
+                    Talk(3);
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_5, 8000);
+                    break;
+                case EVENT_KAYLAAN_SAY_5:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->AI()->Talk(4);
+                    if (Creature* summonIshanah = me->SummonCreature(ISHANAH_HIGH_PRIESTESS, IshanahSpawnPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                    {
+                        summonIshanah->GetMotionMaster()->MovePath(ISHANAH_PATH_ID, false);
+                        summonIshanah->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                    }
+                    break;
+                case EVENT_ISHANAH_SAY_1:
+                    if (GetCreature(ISHANAH_HIGH_PRIESTESS))
+                        ishanah->AI()->Talk(0);
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                    {
+                        kaylaan->RemoveAurasDueToSpell(POWER_OF_THE_LEGION);
+                        kaylaan->SetStandState(UNIT_STAND_STATE_KNEEL);
+                    }
+                    _actionEvents.ScheduleEvent(EVENT_ISHANAH_SAY_2, 6000);
+                    break;
+                case EVENT_ISHANAH_SAY_2:
+                    if (GetCreature(ISHANAH_HIGH_PRIESTESS))
+                        ishanah->AI()->Talk(1);
+                    _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_5, 8000);
+                    break;
+                case EVENT_SOCRETHAR_SAY_5:
+                    Talk(4);
+                    _actionEvents.ScheduleEvent(EVENT_KILL_ISHANAH, 4000);
+                    break;
+                case EVENT_KILL_ISHANAH:
+                    if (GetCreature(ISHANAH_HIGH_PRIESTESS))
+                        me->CastSpell(ishanah, WRATH_OF_SOCRETHAR);
+                    _actionEvents.ScheduleEvent(EVENT_ISHANAH_DIES, 1500);
+                    break;
+                case EVENT_ISHANAH_DIES:
+                    if (GetCreature(ISHANAH_HIGH_PRIESTESS))
+                        me->Kill(me, ishanah);
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_6, 4000);
+                    break;
+                case EVENT_KAYLAAN_SAY_6:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                    {
+                        kaylaan->AI()->Talk(6);
+                        kaylaan->SetStandState(UNIT_STAND_STATE_STAND);
+                        kaylaan->GetMotionMaster()->MovePath(207942, false);
+                    }
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_SAY_7, 9000);
+                    break;
+                case EVENT_KAYLAAN_SAY_7:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                    {
+                        kaylaan->AI()->Talk(7);
+                        kaylaan->CastSpell(kaylaan, DIVINE_SHIELD);
+                    }
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_RESSURECTION, 1000);
+                    break;
+                case EVENT_KAYLAAN_RESSURECTION:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        kaylaan->CastSpell(ishanah, REDEMPTION);
+                    _actionEvents.ScheduleEvent(EVENT_ISHANAH_IS_BACK_AGAIN, 11000);
+                    break;
+                case EVENT_ISHANAH_IS_BACK_AGAIN:
+                    if (GetCreature(ISHANAH_HIGH_PRIESTESS))
+                    {
+                        ishanah->Respawn();
+                        ishanah->setActive(true); // ensure that Ishanah disappears, even when no player is near
+                        ishanah->DespawnOrUnsummon(600000); // ensure that Ishanah disappears after 10 minutes
+                        ishanah->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
+                    }
+                    _actionEvents.ScheduleEvent(EVENT_SOCRETHAR_SAY_6, 3000);
+                    break;
+                case EVENT_SOCRETHAR_SAY_6:
+                    Talk(5);
+                    _actionEvents.ScheduleEvent(EVENT_KILL_KAYLAAN, 4000);
+                    break;
+                case EVENT_KILL_KAYLAAN:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        me->CastSpell(kaylaan, WRATH_OF_SOCRETHAR);
+                    _actionEvents.ScheduleEvent(EVENT_KAYLAAN_DIES, 1500);
+                    break;
+                case EVENT_KAYLAAN_DIES:
+                    if (GetCreature(KAYLAAN_THE_LOST))
+                        me->Kill(me, kaylaan);
+                    _actionEvents.ScheduleEvent(EVENT_FINAL_FIGHT, 3000);
+                    break;
+                case EVENT_FINAL_FIGHT:
+                    // Prepare Socrethar for encounter
+                    me->setFaction(EXODAR_ENEMY_FACTION);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
+                    me->SetReactState(REACT_AGGRESSIVE);
 
-                        // Engage combat with Socrethar
-                        if (GetCreature(ADYEN_THE_LIGHTBRINGER))
-                            adyen->AI()->EnterCombat(me);
-                        if (GetCreature(EXARCH_ORELIS))
-                            orelis->AI()->EnterCombat(me);
-                        if (GetCreature(ANCHORITE_KARJA))
-                            karja->AI()->EnterCombat(me);
-                        if (GetCreature(ISHANAH_HIGH_PRIESTESS))
-                            ishanah->AI()->EnterCombat(me);
-                        break;
+                    // Engage combat with Socrethar
+                    if (GetCreature(ADYEN_THE_LIGHTBRINGER))
+                        adyen->AI()->EnterCombat(me);
+                    if (GetCreature(EXARCH_ORELIS))
+                        orelis->AI()->EnterCombat(me);
+                    if (GetCreature(ANCHORITE_KARJA))
+                        karja->AI()->EnterCombat(me);
+                    if (GetCreature(ISHANAH_HIGH_PRIESTESS))
+                        ishanah->AI()->EnterCombat(me);
+                    break;
                 }
             }
 
@@ -903,30 +905,30 @@ public:
 
             switch (combatEvents.ExecuteEvent())
             {
-                case EVENT_SPELL_NETHER_PROTECTION:
-                    if (!me->HasAura(NETHER_PROTECTION))
-                        me->CastSpell(me, NETHER_PROTECTION, false);
-                    break;
-                case EVENT_SPELL_ANTI_MAGIC_SHIELD:
-                    me->CastSpell(me, ANTI_MAGIC_SHIELD, false);
-                    combatEvents.ScheduleEvent(EVENT_SPELL_ANTI_MAGIC_SHIELD, 20000);
-                    break;
-                case EVENT_SPELL_BACKLASH:
-                    DoCastVictim(BACKLASH);
-                    combatEvents.ScheduleEvent(EVENT_SPELL_BACKLASH, 7000);
-                    break;
-                case EVENT_SPELL_CLEAVE:
-                    me->CastSpell(me->GetVictim(), CLEAVE, false);
-                    combatEvents.ScheduleEvent(EVENT_SPELL_CLEAVE, 3000);
-                    break;
-                case EVENT_SPELL_FIREBALL_BARRAGE:
-                    me->CastSpell(me->GetVictim(), FIREBALL_BARRAGE, false);
-                    combatEvents.ScheduleEvent(EVENT_SPELL_FIREBALL_BARRAGE, 15000);
-                    break;
-                case EVENT_SPELL_SHADOW_BOLT_VOLLEY:
-                    me->CastSpell(me->GetVictim(), SHADOW_BOLT_VOLLEY, false);
-                    combatEvents.ScheduleEvent(EVENT_SPELL_SHADOW_BOLT_VOLLEY, 10000);
-                    break;
+            case EVENT_SPELL_NETHER_PROTECTION:
+                if (!me->HasAura(NETHER_PROTECTION))
+                    me->CastSpell(me, NETHER_PROTECTION, false);
+                break;
+            case EVENT_SPELL_ANTI_MAGIC_SHIELD:
+                me->CastSpell(me, ANTI_MAGIC_SHIELD, false);
+                combatEvents.ScheduleEvent(EVENT_SPELL_ANTI_MAGIC_SHIELD, 20000);
+                break;
+            case EVENT_SPELL_BACKLASH:
+                DoCastVictim(BACKLASH);
+                combatEvents.ScheduleEvent(EVENT_SPELL_BACKLASH, 7000);
+                break;
+            case EVENT_SPELL_CLEAVE:
+                me->CastSpell(me->GetVictim(), CLEAVE, false);
+                combatEvents.ScheduleEvent(EVENT_SPELL_CLEAVE, 3000);
+                break;
+            case EVENT_SPELL_FIREBALL_BARRAGE:
+                me->CastSpell(me->GetVictim(), FIREBALL_BARRAGE, false);
+                combatEvents.ScheduleEvent(EVENT_SPELL_FIREBALL_BARRAGE, 15000);
+                break;
+            case EVENT_SPELL_SHADOW_BOLT_VOLLEY:
+                me->CastSpell(me->GetVictim(), SHADOW_BOLT_VOLLEY, false);
+                combatEvents.ScheduleEvent(EVENT_SPELL_SHADOW_BOLT_VOLLEY, 10000);
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -982,15 +984,15 @@ public:
         {
             switch (victim->GetEntry())
             {
-                case ADYEN_THE_LIGHTBRINGER:
-                    adyen_dead = true;
-                    break;
-                case ANCHORITE_KARJA:
-                    karja_dead = true;
-                    break;
-                case EXARCH_ORELIS:
-                    orelis_dead = true;
-                    break;
+            case ADYEN_THE_LIGHTBRINGER:
+                adyen_dead = true;
+                break;
+            case ANCHORITE_KARJA:
+                karja_dead = true;
+                break;
+            case EXARCH_ORELIS:
+                orelis_dead = true;
+                break;
             }
 
             if (adyen_dead && karja_dead && orelis_dead)
@@ -1046,15 +1048,15 @@ public:
 
             switch (_events.ExecuteEvent())
             {
-                case EVENT_SPELL_BURNING_LIGHT:
-                    me->CastSpell(me->GetVictim(), BURNING_LIGHT, false);
-                    _events.ScheduleEvent(EVENT_SPELL_BURNING_LIGHT, 4000);
-                    break;
-                case EVENT_SPELL_CONSECRATION:
-                    if (me->FindNearestCreature(me->GetVictim()->GetGUID(), 10.0f, true))
-                        me->CastSpell(me, CONSECRATION, false);
-                    _events.ScheduleEvent(EVENT_SPELL_CONSECRATION, 14000);
-                    break;
+            case EVENT_SPELL_BURNING_LIGHT:
+                me->CastSpell(me->GetVictim(), BURNING_LIGHT, false);
+                _events.ScheduleEvent(EVENT_SPELL_BURNING_LIGHT, 4000);
+                break;
+            case EVENT_SPELL_CONSECRATION:
+                if (me->FindNearestCreature(me->GetVictim()->GetGUID(), 10.0f, true))
+                    me->CastSpell(me, CONSECRATION, false);
+                _events.ScheduleEvent(EVENT_SPELL_CONSECRATION, 14000);
+                break;
             }
 
             DoMeleeAttackIfReady();
@@ -1210,18 +1212,18 @@ public:
 
             switch (i)
             {
-                case 16:
-                    Talk(SAY_SAEED_1);
-                    me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    SetEscortPaused(true);
-                    break;
-                case 18:
-                    events.ScheduleEvent(EVENT_START_FIGHT1, 0);
-                    SetEscortPaused(true);
-                    break;
-                case 19:
-                    summons.DespawnAll();
-                    break;
+            case 16:
+                Talk(SAY_SAEED_1);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                SetEscortPaused(true);
+                break;
+            case 18:
+                events.ScheduleEvent(EVENT_START_FIGHT1, 0);
+                SetEscortPaused(true);
+                break;
+            case 19:
+                summons.DespawnAll();
+                break;
             }
         }
 
@@ -1259,23 +1261,23 @@ public:
             events.Update(diff);
             switch (events.ExecuteEvent())
             {
-                case EVENT_START_WALK:
-                    SummonsAction(nullptr);
-                    SetEscortPaused(false);
-                    break;
-                case EVENT_START_FIGHT1:
-                    Talk(SAY_SAEED_3);
-                    events.ScheduleEvent(EVENT_START_FIGHT2, 3000);
-                    break;
-                case EVENT_START_FIGHT2:
-                    if (Creature* dimensius = me->FindNearestCreature(NPC_DIMENSIUS, 50.0f))
-                    {
-                        dimensius->RemoveAurasDueToSpell(SPELL_DIMENSIUS_TRANSFORM);
-                        dimensius->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        AttackStart(dimensius);
-                        fight = true;
-                    }
-                    break;
+            case EVENT_START_WALK:
+                SummonsAction(nullptr);
+                SetEscortPaused(false);
+                break;
+            case EVENT_START_FIGHT1:
+                Talk(SAY_SAEED_3);
+                events.ScheduleEvent(EVENT_START_FIGHT2, 3000);
+                break;
+            case EVENT_START_FIGHT2:
+                if (Creature* dimensius = me->FindNearestCreature(NPC_DIMENSIUS, 50.0f))
+                {
+                    dimensius->RemoveAurasDueToSpell(SPELL_DIMENSIUS_TRANSFORM);
+                    dimensius->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    AttackStart(dimensius);
+                    fight = true;
+                }
+                break;
             }
 
             if (!UpdateVictim())
@@ -1494,102 +1496,102 @@ public:
             //Phase 1 Dawnforge say
             switch (Phase)
             {
+            case 1:
+                Talk(SAY_COMMANDER_DAWNFORGE_1);
+                ++Phase;
+                Phase_Timer = 16000;
+                break;
+            //Phase 2 Ardonis say
+            case 2:
+                ardonis->AI()->Talk(SAY_ARCANIST_ARDONIS_1);
+                ++Phase;
+                Phase_Timer = 16000;
+                break;
+            //Phase 3 Dawnforge say
+            case 3:
+                Talk(SAY_COMMANDER_DAWNFORGE_2);
+                ++Phase;
+                Phase_Timer = 16000;
+                break;
+            //Phase 4 Pathaleon spawns up to phase 9
+            case 4:
+                //spawn pathaleon's image
+                me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90000);
+                ++Phase;
+                Phase_Timer = 500;
+                break;
+            //Phase 5 Pathaleon say
+            case 5:
+                pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_1);
+                ++Phase;
+                Phase_Timer = 6000;
+                break;
+            //Phase 6
+            case 6:
+                switch (PhaseSubphase)
+                {
+                //Subphase 1: Turn Dawnforge and Ardonis
+                case 0:
+                    Turn_to_Pathaleons_Image();
+                    ++PhaseSubphase;
+                    Phase_Timer = 8000;
+                    break;
+                //Subphase 2 Dawnforge say
                 case 1:
-                    Talk(SAY_COMMANDER_DAWNFORGE_1);
-                    ++Phase;
-                    Phase_Timer = 16000;
-                    break;
-                //Phase 2 Ardonis say
-                case 2:
-                    ardonis->AI()->Talk(SAY_ARCANIST_ARDONIS_1);
-                    ++Phase;
-                    Phase_Timer = 16000;
-                    break;
-                //Phase 3 Dawnforge say
-                case 3:
-                    Talk(SAY_COMMANDER_DAWNFORGE_2);
-                    ++Phase;
-                    Phase_Timer = 16000;
-                    break;
-                //Phase 4 Pathaleon spawns up to phase 9
-                case 4:
-                    //spawn pathaleon's image
-                    me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90000);
-                    ++Phase;
-                    Phase_Timer = 500;
-                    break;
-                //Phase 5 Pathaleon say
-                case 5:
-                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_1);
-                    ++Phase;
-                    Phase_Timer = 6000;
-                    break;
-                //Phase 6
-                case 6:
-                    switch (PhaseSubphase)
-                    {
-                        //Subphase 1: Turn Dawnforge and Ardonis
-                        case 0:
-                            Turn_to_Pathaleons_Image();
-                            ++PhaseSubphase;
-                            Phase_Timer = 8000;
-                            break;
-                        //Subphase 2 Dawnforge say
-                        case 1:
-                            Talk(SAY_COMMANDER_DAWNFORGE_3);
-                            PhaseSubphase = 0;
-                            ++Phase;
-                            Phase_Timer = 8000;
-                            break;
-                    }
-                    break;
-                //Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
-                case 7:
-                    switch (PhaseSubphase)
-                    {
-                        //Subphase 1
-                        case 0:
-                            pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2);
-                            ++PhaseSubphase;
-                            Phase_Timer = 12000;
-                            break;
-                        //Subphase 2
-                        case 1:
-                            pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2_1);
-                            ++PhaseSubphase;
-                            Phase_Timer = 16000;
-                            break;
-                        //Subphase 3
-                        case 2:
-                            pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2_2);
-                            PhaseSubphase = 0;
-                            ++Phase;
-                            Phase_Timer = 10000;
-                            break;
-                    }
-                    break;
-                //Phase 8 Dawnforge & Ardonis say
-                case 8:
-                    Talk(SAY_COMMANDER_DAWNFORGE_4);
-                    ardonis->AI()->Talk(SAY_ARCANIST_ARDONIS_2);
-                    ++Phase;
-                    Phase_Timer = 4000;
-                    break;
-                //Phase 9 Pathaleons Despawn, Reset Dawnforge & Ardonis angle
-                case 9:
-                    Turn_to_eachother();
-                    //hide pathaleon, unit will despawn shortly
-                    pathaleon->SetVisible(false);
+                    Talk(SAY_COMMANDER_DAWNFORGE_3);
                     PhaseSubphase = 0;
                     ++Phase;
-                    Phase_Timer = 3000;
+                    Phase_Timer = 8000;
                     break;
-                //Phase 10 Dawnforge say
-                case 10:
-                    Talk(SAY_COMMANDER_DAWNFORGE_5);
-                    player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
-                    Reset();
+                }
+                break;
+            //Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
+            case 7:
+                switch (PhaseSubphase)
+                {
+                //Subphase 1
+                case 0:
+                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2);
+                    ++PhaseSubphase;
+                    Phase_Timer = 12000;
                     break;
+                //Subphase 2
+                case 1:
+                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2_1);
+                    ++PhaseSubphase;
+                    Phase_Timer = 16000;
+                    break;
+                //Subphase 3
+                case 2:
+                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2_2);
+                    PhaseSubphase = 0;
+                    ++Phase;
+                    Phase_Timer = 10000;
+                    break;
+                }
+                break;
+            //Phase 8 Dawnforge & Ardonis say
+            case 8:
+                Talk(SAY_COMMANDER_DAWNFORGE_4);
+                ardonis->AI()->Talk(SAY_ARCANIST_ARDONIS_2);
+                ++Phase;
+                Phase_Timer = 4000;
+                break;
+            //Phase 9 Pathaleons Despawn, Reset Dawnforge & Ardonis angle
+            case 9:
+                Turn_to_eachother();
+                //hide pathaleon, unit will despawn shortly
+                pathaleon->SetVisible(false);
+                PhaseSubphase = 0;
+                ++Phase;
+                Phase_Timer = 3000;
+                break;
+            //Phase 10 Dawnforge say
+            case 10:
+                Talk(SAY_COMMANDER_DAWNFORGE_5);
+                player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
+                Reset();
+                break;
             }
         }
     };
@@ -1858,32 +1860,32 @@ public:
 
             switch (waypointId)
             {
-                case 3: //first spawn
-                    Talk(SAY_BESSY_1);
-                    me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_FIRST, 2449.53f, 2184.43f, 96.36f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_FIRST, 2449.85f, 2186.34f, 97.57f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 7:
-                    Talk(SAY_BESSY_1);
-                    me->SummonCreature(SPAWN_SECOND, 2309.64f, 2186.24f, 92.25f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_SECOND, 2309.25f, 2183.46f, 91.75f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    break;
-                case 12:
-                    player->GroupEventHappens(Q_ALMABTRIEB, me);
-                    if (me->FindNearestCreature(N_THADELL, 30))
-                    {
-                        Creature* thadell = me->FindNearestCreature(N_THADELL, 30);
-                        thadell->AI()->Talk(SAY_THADELL_1);
-                    }
-                    break;
-                case 13:
-                    if (me->FindNearestCreature(N_THADELL, 30))
-                    {
-                        Creature* thadell = me->FindNearestCreature(N_THADELL, 30);
-                        thadell->AI()->Talk(SAY_THADELL_2, player);
-                    }
-                    break;
+            case 3: //first spawn
+                Talk(SAY_BESSY_1);
+                me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, 2449.53f, 2184.43f, 96.36f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, 2449.85f, 2186.34f, 97.57f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            case 7:
+                Talk(SAY_BESSY_1);
+                me->SummonCreature(SPAWN_SECOND, 2309.64f, 2186.24f, 92.25f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_SECOND, 2309.25f, 2183.46f, 91.75f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            case 12:
+                player->GroupEventHappens(Q_ALMABTRIEB, me);
+                if (me->FindNearestCreature(N_THADELL, 30))
+                {
+                    Creature* thadell = me->FindNearestCreature(N_THADELL, 30);
+                    thadell->AI()->Talk(SAY_THADELL_1);
+                }
+                break;
+            case 13:
+                if (me->FindNearestCreature(N_THADELL, 30))
+                {
+                    Creature* thadell = me->FindNearestCreature(N_THADELL, 30);
+                    thadell->AI()->Talk(SAY_THADELL_2, player);
+                }
+                break;
             }
         }
 
@@ -1941,21 +1943,21 @@ public:
 
             switch (waypointId)
             {
-                case 7:
-                case 17:
-                case 29:
-                    //Find Object and "work"
-                    if (GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
-                    {
-                        // take the GO -> animation
-                        me->HandleEmoteCommand(EMOTE_STATE_LOOT);
-                        SetEscortPaused(true);
-                        bTake = true;
-                    }
-                    break;
-                case 36: //return and quest_complete
-                    player->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
-                    break;
+            case 7:
+            case 17:
+            case 29:
+                //Find Object and "work"
+                if (GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
+                {
+                    // take the GO -> animation
+                    me->HandleEmoteCommand(EMOTE_STATE_LOOT);
+                    SetEscortPaused(true);
+                    bTake = true;
+                }
+                break;
+            case 36: //return and quest_complete
+                player->CompleteQuest(QUEST_MARK_V_IS_ALIVE);
+                break;
             }
         }
 

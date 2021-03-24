@@ -64,23 +64,23 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
         while (uint32 eventId = _bgEvents.ExecuteEvent())
             switch (eventId)
             {
-                case BG_EY_EVENT_ADD_POINTS:
-                    if (_ownedPointsCount[TEAM_ALLIANCE] > 0)
-                        AddPoints(TEAM_ALLIANCE, BG_EY_TickPoints[_ownedPointsCount[TEAM_ALLIANCE] - 1]);
-                    if (_ownedPointsCount[TEAM_HORDE] > 0)
-                        AddPoints(TEAM_HORDE, BG_EY_TickPoints[_ownedPointsCount[TEAM_HORDE] - 1]);
-                    _bgEvents.ScheduleEvent(BG_EY_EVENT_ADD_POINTS, BG_EY_FPOINTS_TICK_TIME - (World::GetGameTimeMS() % BG_EY_FPOINTS_TICK_TIME));
-                    break;
-                case BG_EY_EVENT_FLAG_ON_GROUND:
-                    RespawnFlagAfterDrop();
-                    break;
-                case BG_EY_EVENT_RESPAWN_FLAG:
-                    RespawnFlag();
-                    break;
-                case BG_EY_EVENT_CHECK_CPOINTS:
-                    UpdatePointsState();
-                    _bgEvents.ScheduleEvent(BG_EY_EVENT_CHECK_CPOINTS, BG_EY_FPOINTS_CHECK_TIME - (World::GetGameTimeMS() % BG_EY_FPOINTS_CHECK_TIME));
-                    break;
+            case BG_EY_EVENT_ADD_POINTS:
+                if (_ownedPointsCount[TEAM_ALLIANCE] > 0)
+                    AddPoints(TEAM_ALLIANCE, BG_EY_TickPoints[_ownedPointsCount[TEAM_ALLIANCE] - 1]);
+                if (_ownedPointsCount[TEAM_HORDE] > 0)
+                    AddPoints(TEAM_HORDE, BG_EY_TickPoints[_ownedPointsCount[TEAM_HORDE] - 1]);
+                _bgEvents.ScheduleEvent(BG_EY_EVENT_ADD_POINTS, BG_EY_FPOINTS_TICK_TIME - (World::GetGameTimeMS() % BG_EY_FPOINTS_TICK_TIME));
+                break;
+            case BG_EY_EVENT_FLAG_ON_GROUND:
+                RespawnFlagAfterDrop();
+                break;
+            case BG_EY_EVENT_RESPAWN_FLAG:
+                RespawnFlag();
+                break;
+            case BG_EY_EVENT_CHECK_CPOINTS:
+                UpdatePointsState();
+                _bgEvents.ScheduleEvent(BG_EY_EVENT_CHECK_CPOINTS, BG_EY_FPOINTS_CHECK_TIME - (World::GetGameTimeMS() % BG_EY_FPOINTS_CHECK_TIME));
+                break;
             }
     }
 }
@@ -224,38 +224,38 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
 
     switch (trigger)
     {
-        case AT_BLOOD_ELF_POINT:
-            if (_capturePointInfo[POINT_BLOOD_ELF].IsUnderControl(player->GetTeamId()))
-                if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
-                    EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
-            break;
-        case AT_FEL_REAVER_POINT:
-            if (_capturePointInfo[POINT_FEL_REAVER].IsUnderControl(player->GetTeamId()))
-                if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
-                    EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
-            break;
-        case AT_MAGE_TOWER_POINT:
-            if (_capturePointInfo[POINT_MAGE_TOWER].IsUnderControl(player->GetTeamId()))
-                if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
-                    EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_MAGE_TOWER);
-            break;
-        case AT_DRAENEI_RUINS_POINT:
-            if (_capturePointInfo[POINT_DRAENEI_RUINS].IsUnderControl(player->GetTeamId()))
-                if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
-                    EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_DRAENEI_RUINS);
-            break;
-        case 4512:
-        case 4515:
-        case 4517:
-        case 4519:
-        case 4530:
-        case 4531:
-        case 5866:
-        case AT_BLOOD_ELF_BUFF:
-        case AT_FEL_REAVER_BUFF:
-        case AT_MAGE_TOWER_BUFF:
-        case AT_DRAENEI_RUINS_BUFF:
-            break;
+    case AT_BLOOD_ELF_POINT:
+        if (_capturePointInfo[POINT_BLOOD_ELF].IsUnderControl(player->GetTeamId()))
+            if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
+                EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
+        break;
+    case AT_FEL_REAVER_POINT:
+        if (_capturePointInfo[POINT_FEL_REAVER].IsUnderControl(player->GetTeamId()))
+            if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
+                EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
+        break;
+    case AT_MAGE_TOWER_POINT:
+        if (_capturePointInfo[POINT_MAGE_TOWER].IsUnderControl(player->GetTeamId()))
+            if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
+                EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_MAGE_TOWER);
+        break;
+    case AT_DRAENEI_RUINS_POINT:
+        if (_capturePointInfo[POINT_DRAENEI_RUINS].IsUnderControl(player->GetTeamId()))
+            if (_flagState == BG_EY_FLAG_STATE_ON_PLAYER && GetFlagPickerGUID() == player->GetGUID())
+                EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_DRAENEI_RUINS);
+        break;
+    case 4512:
+    case 4515:
+    case 4517:
+    case 4519:
+    case 4530:
+    case 4531:
+    case 5866:
+    case AT_BLOOD_ELF_BUFF:
+    case AT_FEL_REAVER_BUFF:
+    case AT_MAGE_TOWER_BUFF:
+    case AT_DRAENEI_RUINS_BUFF:
+        break;
     }
 }
 

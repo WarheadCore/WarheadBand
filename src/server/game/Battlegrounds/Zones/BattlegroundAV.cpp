@@ -158,122 +158,122 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 #endif
     switch (questid)
     {
-        case AV_QUEST_A_SCRAPS1:
-        case AV_QUEST_A_SCRAPS2:
-        case AV_QUEST_H_SCRAPS1:
-        case AV_QUEST_H_SCRAPS2:
-            m_Team_QuestStatus[teamId][0] += 20;
-            if (m_Team_QuestStatus[teamId][0] == 500 || m_Team_QuestStatus[teamId][0] == 1000 || m_Team_QuestStatus[teamId][0] == 1500) //25, 50, 75 turn ins
-            {
+    case AV_QUEST_A_SCRAPS1:
+    case AV_QUEST_A_SCRAPS2:
+    case AV_QUEST_H_SCRAPS1:
+    case AV_QUEST_H_SCRAPS2:
+        m_Team_QuestStatus[teamId][0] += 20;
+        if (m_Team_QuestStatus[teamId][0] == 500 || m_Team_QuestStatus[teamId][0] == 1000 || m_Team_QuestStatus[teamId][0] == 1500) //25, 50, 75 turn ins
+        {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed starting with unit upgrading..", questid);
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed starting with unit upgrading..", questid);
 #endif
-                for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
-                    if (m_Nodes[i].OwnerId == player->GetTeamId() && m_Nodes[i].State == POINT_CONTROLED)
-                    {
-                        DePopulateNode(i);
-                        PopulateNode(i);
-                        //maybe this is bad, because it will instantly respawn all creatures on every grave..
-                    }
-            }
-            break;
-        case AV_QUEST_A_COMMANDER1:
-        case AV_QUEST_H_COMMANDER1:
-            m_Team_QuestStatus[teamId][1]++;
-            RewardReputationToTeam(teamId, 1, teamId);
+            for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
+                if (m_Nodes[i].OwnerId == player->GetTeamId() && m_Nodes[i].State == POINT_CONTROLED)
+                {
+                    DePopulateNode(i);
+                    PopulateNode(i);
+                    //maybe this is bad, because it will instantly respawn all creatures on every grave..
+                }
+        }
+        break;
+    case AV_QUEST_A_COMMANDER1:
+    case AV_QUEST_H_COMMANDER1:
+        m_Team_QuestStatus[teamId][1]++;
+        RewardReputationToTeam(teamId, 1, teamId);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            if (m_Team_QuestStatus[teamId][1] == 30)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+        if (m_Team_QuestStatus[teamId][1] == 30)
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 #endif
-            break;
-        case AV_QUEST_A_COMMANDER2:
-        case AV_QUEST_H_COMMANDER2:
-            m_Team_QuestStatus[teamId][2]++;
-            RewardReputationToTeam(teamId, 1, teamId);
+        break;
+    case AV_QUEST_A_COMMANDER2:
+    case AV_QUEST_H_COMMANDER2:
+        m_Team_QuestStatus[teamId][2]++;
+        RewardReputationToTeam(teamId, 1, teamId);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            if (m_Team_QuestStatus[teamId][2] == 60)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+        if (m_Team_QuestStatus[teamId][2] == 60)
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 #endif
-            break;
-        case AV_QUEST_A_COMMANDER3:
-        case AV_QUEST_H_COMMANDER3:
-            m_Team_QuestStatus[teamId][3]++;
-            RewardReputationToTeam(teamId, 1, teamId);
+        break;
+    case AV_QUEST_A_COMMANDER3:
+    case AV_QUEST_H_COMMANDER3:
+        m_Team_QuestStatus[teamId][3]++;
+        RewardReputationToTeam(teamId, 1, teamId);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            if (m_Team_QuestStatus[teamId][3] == 120)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+        if (m_Team_QuestStatus[teamId][3] == 120)
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 #endif
-            break;
-        case AV_QUEST_A_BOSS1:
-        case AV_QUEST_H_BOSS1:
-            m_Team_QuestStatus[teamId][4] += 9; //you can turn in 10 or 1 item..
-            [[fallthrough]];
-        case AV_QUEST_A_BOSS2:
-        case AV_QUEST_H_BOSS2:
-            m_Team_QuestStatus[teamId][4]++;
+        break;
+    case AV_QUEST_A_BOSS1:
+    case AV_QUEST_H_BOSS1:
+        m_Team_QuestStatus[teamId][4] += 9; //you can turn in 10 or 1 item..
+        [[fallthrough]];
+    case AV_QUEST_A_BOSS2:
+    case AV_QUEST_H_BOSS2:
+        m_Team_QuestStatus[teamId][4]++;
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            if (m_Team_QuestStatus[teamId][4] >= 200)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+        if (m_Team_QuestStatus[teamId][4] >= 200)
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 #endif
-            break;
-        case AV_QUEST_A_NEAR_MINE:
-        case AV_QUEST_H_NEAR_MINE:
-            m_Team_QuestStatus[teamId][5]++;
-            if (m_Team_QuestStatus[teamId][5] == 28)
-            {
+        break;
+    case AV_QUEST_A_NEAR_MINE:
+    case AV_QUEST_H_NEAR_MINE:
+        m_Team_QuestStatus[teamId][5]++;
+        if (m_Team_QuestStatus[teamId][5] == 28)
+        {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 
-                if (m_Team_QuestStatus[teamId][6] == 7)
-                    LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
-#endif
-            }
-            break;
-        case AV_QUEST_A_OTHER_MINE:
-        case AV_QUEST_H_OTHER_MINE:
-            m_Team_QuestStatus[teamId][6]++;
             if (m_Team_QuestStatus[teamId][6] == 7)
-            {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
-
-                if (m_Team_QuestStatus[teamId][5] == 20)
-                    LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
+                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
 #endif
-            }
-            break;
-        case AV_QUEST_A_RIDER_HIDE:
-        case AV_QUEST_H_RIDER_HIDE:
-            m_Team_QuestStatus[teamId][7]++;
-            if (m_Team_QuestStatus[teamId][7] == 25)
-            {
+        }
+        break;
+    case AV_QUEST_A_OTHER_MINE:
+    case AV_QUEST_H_OTHER_MINE:
+        m_Team_QuestStatus[teamId][6]++;
+        if (m_Team_QuestStatus[teamId][6] == 7)
+        {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 
-                if (m_Team_QuestStatus[teamId][8] == 25)
-                    LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
+            if (m_Team_QuestStatus[teamId][5] == 20)
+                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - ground assault ready", questid);
 #endif
-            }
-            break;
-        case AV_QUEST_A_RIDER_TAME:
-        case AV_QUEST_H_RIDER_TAME:
-            m_Team_QuestStatus[teamId][8]++;
+        }
+        break;
+    case AV_QUEST_A_RIDER_HIDE:
+    case AV_QUEST_H_RIDER_HIDE:
+        m_Team_QuestStatus[teamId][7]++;
+        if (m_Team_QuestStatus[teamId][7] == 25)
+        {
+#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+
             if (m_Team_QuestStatus[teamId][8] == 25)
-            {
+                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
+#endif
+        }
+        break;
+    case AV_QUEST_A_RIDER_TAME:
+    case AV_QUEST_H_RIDER_TAME:
+        m_Team_QuestStatus[teamId][8]++;
+        if (m_Team_QuestStatus[teamId][8] == 25)
+        {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
+            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here", questid);
 
-                if (m_Team_QuestStatus[teamId][7] == 25)
-                    LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
+            if (m_Team_QuestStatus[teamId][7] == 25)
+                LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed (need to implement some events here - rider assault ready", questid);
 #endif
-            }
-            break;
-        default:
+        }
+        break;
+    default:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed but is not interesting at all", questid);
+        LOG_DEBUG("bg.battleground", "BG_AV Quest %i completed but is not interesting at all", questid);
 #endif
-            return; //was no interesting quest at all
-            break;
+        return; //was no interesting quest at all
+        break;
     }
 }
 
@@ -542,29 +542,29 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger)
 
     switch (trigger)
     {
-        case 95:
-        case 2608:
-            if (player->GetTeamId() != TEAM_ALLIANCE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
-        case 2606:
-            if (player->GetTeamId() != TEAM_HORDE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
-            else
-                player->LeaveBattleground();
-            break;
-        case 3326:
-        case 3327:
-        case 3328:
-        case 3329:
-        case 3330:
-        case 3331:
-            //player->Unmount();
-            break;
-        default:
-            break;
+    case 95:
+    case 2608:
+        if (player->GetTeamId() != TEAM_ALLIANCE)
+            player->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
+        else
+            player->LeaveBattleground();
+        break;
+    case 2606:
+        if (player->GetTeamId() != TEAM_HORDE)
+            player->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
+        else
+            player->LeaveBattleground();
+        break;
+    case 3326:
+    case 3327:
+    case 3328:
+    case 3329:
+    case 3330:
+    case 3331:
+        //player->Unmount();
+        break;
+    default:
+        break;
     }
 }
 
@@ -576,34 +576,34 @@ void BattlegroundAV::UpdatePlayerScore(Player* player, uint32 type, uint32 value
 
     switch (type)
     {
-        case SCORE_GRAVEYARDS_ASSAULTED:
-            ((BattlegroundAVScore*)itr->second)->GraveyardsAssaulted += value;
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
-            break;
-        case SCORE_GRAVEYARDS_DEFENDED:
-            ((BattlegroundAVScore*)itr->second)->GraveyardsDefended += value;
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
-            break;
-        case SCORE_TOWERS_ASSAULTED:
-            ((BattlegroundAVScore*)itr->second)->TowersAssaulted += value;
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
-            break;
-        case SCORE_TOWERS_DEFENDED:
-            ((BattlegroundAVScore*)itr->second)->TowersDefended += value;
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
-            break;
-        case SCORE_MINES_CAPTURED:
-            ((BattlegroundAVScore*)itr->second)->MinesCaptured += value;
-            break;
-        case SCORE_LEADERS_KILLED:
-            ((BattlegroundAVScore*)itr->second)->LeadersKilled += value;
-            break;
-        case SCORE_SECONDARY_OBJECTIVES:
-            ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += value;
-            break;
-        default:
-            Battleground::UpdatePlayerScore(player, type, value, doAddHonor);
-            break;
+    case SCORE_GRAVEYARDS_ASSAULTED:
+        ((BattlegroundAVScore*)itr->second)->GraveyardsAssaulted += value;
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
+        break;
+    case SCORE_GRAVEYARDS_DEFENDED:
+        ((BattlegroundAVScore*)itr->second)->GraveyardsDefended += value;
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
+        break;
+    case SCORE_TOWERS_ASSAULTED:
+        ((BattlegroundAVScore*)itr->second)->TowersAssaulted += value;
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
+        break;
+    case SCORE_TOWERS_DEFENDED:
+        ((BattlegroundAVScore*)itr->second)->TowersDefended += value;
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
+        break;
+    case SCORE_MINES_CAPTURED:
+        ((BattlegroundAVScore*)itr->second)->MinesCaptured += value;
+        break;
+    case SCORE_LEADERS_KILLED:
+        ((BattlegroundAVScore*)itr->second)->LeadersKilled += value;
+        break;
+    case SCORE_SECONDARY_OBJECTIVES:
+        ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += value;
+        break;
+    default:
+        Battleground::UpdatePlayerScore(player, type, value, doAddHonor);
+        break;
     }
 }
 
@@ -915,21 +915,21 @@ void BattlegroundAV::EventPlayerClickedOnFlag(Player* source, GameObject* gameOb
         return;
     switch (gameObject->GetEntry())
     {
-        case BG_AV_OBJECTID_BANNER_A:
-        case BG_AV_OBJECTID_BANNER_A_B:
-        case BG_AV_OBJECTID_BANNER_H:
-        case BG_AV_OBJECTID_BANNER_H_B:
-        case BG_AV_OBJECTID_BANNER_SNOWFALL_N:
-            EventPlayerAssaultsPoint(source, object);
-            break;
-        case BG_AV_OBJECTID_BANNER_CONT_A:
-        case BG_AV_OBJECTID_BANNER_CONT_A_B:
-        case BG_AV_OBJECTID_BANNER_CONT_H:
-        case BG_AV_OBJECTID_BANNER_CONT_H_B:
-            EventPlayerDefendsPoint(source, object);
-            break;
-        default:
-            break;
+    case BG_AV_OBJECTID_BANNER_A:
+    case BG_AV_OBJECTID_BANNER_A_B:
+    case BG_AV_OBJECTID_BANNER_H:
+    case BG_AV_OBJECTID_BANNER_H_B:
+    case BG_AV_OBJECTID_BANNER_SNOWFALL_N:
+        EventPlayerAssaultsPoint(source, object);
+        break;
+    case BG_AV_OBJECTID_BANNER_CONT_A:
+    case BG_AV_OBJECTID_BANNER_CONT_A_B:
+    case BG_AV_OBJECTID_BANNER_CONT_H:
+    case BG_AV_OBJECTID_BANNER_CONT_H_B:
+        EventPlayerDefendsPoint(source, object);
+        break;
+    default:
+        break;
     }
 }
 
@@ -1458,39 +1458,39 @@ char const* BattlegroundAV::GetNodeName(BG_AV_Nodes node)
 {
     switch (node)
     {
-        case BG_AV_NODES_FIRSTAID_STATION:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_STORM_AID);
-        case BG_AV_NODES_DUNBALDAR_SOUTH:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_DUN_S);
-        case BG_AV_NODES_DUNBALDAR_NORTH:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_DUN_N);
-        case BG_AV_NODES_STORMPIKE_GRAVE:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_STORMPIKE);
-        case BG_AV_NODES_ICEWING_BUNKER:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_ICEWING);
-        case BG_AV_NODES_STONEHEART_GRAVE:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_STONE);
-        case BG_AV_NODES_STONEHEART_BUNKER:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_STONE);
-        case BG_AV_NODES_SNOWFALL_GRAVE:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_SNOW);
-        case BG_AV_NODES_ICEBLOOD_TOWER:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_ICE);
-        case BG_AV_NODES_ICEBLOOD_GRAVE:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_ICE);
-        case BG_AV_NODES_TOWER_POINT:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_POINT);
-        case BG_AV_NODES_FROSTWOLF_GRAVE:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_FROST);
-        case BG_AV_NODES_FROSTWOLF_ETOWER:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_FROST_E);
-        case BG_AV_NODES_FROSTWOLF_WTOWER:
-            return GetAcoreString(LANG_BG_AV_NODE_TOWER_FROST_W);
-        case BG_AV_NODES_FROSTWOLF_HUT:
-            return GetAcoreString(LANG_BG_AV_NODE_GRAVE_FROST_HUT);
-        default:
-            LOG_ERROR("server", "tried to get name for node %u", node);
-            break;
+    case BG_AV_NODES_FIRSTAID_STATION:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_STORM_AID);
+    case BG_AV_NODES_DUNBALDAR_SOUTH:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_DUN_S);
+    case BG_AV_NODES_DUNBALDAR_NORTH:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_DUN_N);
+    case BG_AV_NODES_STORMPIKE_GRAVE:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_STORMPIKE);
+    case BG_AV_NODES_ICEWING_BUNKER:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_ICEWING);
+    case BG_AV_NODES_STONEHEART_GRAVE:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_STONE);
+    case BG_AV_NODES_STONEHEART_BUNKER:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_STONE);
+    case BG_AV_NODES_SNOWFALL_GRAVE:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_SNOW);
+    case BG_AV_NODES_ICEBLOOD_TOWER:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_ICE);
+    case BG_AV_NODES_ICEBLOOD_GRAVE:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_ICE);
+    case BG_AV_NODES_TOWER_POINT:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_POINT);
+    case BG_AV_NODES_FROSTWOLF_GRAVE:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_FROST);
+    case BG_AV_NODES_FROSTWOLF_ETOWER:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_FROST_E);
+    case BG_AV_NODES_FROSTWOLF_WTOWER:
+        return GetAcoreString(LANG_BG_AV_NODE_TOWER_FROST_W);
+    case BG_AV_NODES_FROSTWOLF_HUT:
+        return GetAcoreString(LANG_BG_AV_NODE_GRAVE_FROST_HUT);
+    default:
+        LOG_ERROR("server", "tried to get name for node %u", node);
+        break;
     }
 
     return "Unknown";

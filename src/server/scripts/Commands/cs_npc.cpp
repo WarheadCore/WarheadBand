@@ -1232,15 +1232,15 @@ public:
         char lastchar = args[strlen(args) - 1];
         switch (lastchar)
         {
-            case '?':
-                creature->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
-                break;
-            case '!':
-                creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                break;
-            default:
-                creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                break;
+        case '?':
+            creature->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
+            break;
+        case '!':
+            creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            break;
+        default:
+            creature->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+            break;
         }
 
         return true;

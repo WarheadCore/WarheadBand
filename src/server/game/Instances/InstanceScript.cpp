@@ -102,20 +102,20 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
 {
     switch (state)
     {
-        case NOT_STARTED:
-            if (!minion->IsAlive())
-                minion->Respawn();
-            else if (minion->IsInCombat())
-                minion->AI()->EnterEvadeMode();
-            break;
-        case IN_PROGRESS:
-            if (!minion->IsAlive())
-                minion->Respawn();
-            else if (!minion->GetVictim())
-                minion->AI()->DoZoneInCombat(nullptr, 100.0f);
-            break;
-        default:
-            break;
+    case NOT_STARTED:
+        if (!minion->IsAlive())
+            minion->Respawn();
+        else if (minion->IsInCombat())
+            minion->AI()->EnterEvadeMode();
+        break;
+    case IN_PROGRESS:
+        if (!minion->IsAlive())
+            minion->Respawn();
+        else if (!minion->GetVictim())
+            minion->AI()->DoZoneInCombat(nullptr, 100.0f);
+        break;
+    default:
+        break;
     }
 }
 
@@ -132,17 +132,17 @@ void InstanceScript::UpdateDoorState(GameObject* door)
         DoorInfo const& info = range.first->second;
         switch (info.type)
         {
-            case DOOR_TYPE_ROOM:
-                open &= (info.bossInfo->state != IN_PROGRESS);
-                break;
-            case DOOR_TYPE_PASSAGE:
-                open &= (info.bossInfo->state == DONE);
-                break;
-            case DOOR_TYPE_SPAWN_HOLE:
-                open &= (info.bossInfo->state == IN_PROGRESS);
-                break;
-            default:
-                break;
+        case DOOR_TYPE_ROOM:
+            open &= (info.bossInfo->state != IN_PROGRESS);
+            break;
+        case DOOR_TYPE_PASSAGE:
+            open &= (info.bossInfo->state == DONE);
+            break;
+        case DOOR_TYPE_SPAWN_HOLE:
+            open &= (info.bossInfo->state == IN_PROGRESS);
+            break;
+        default:
+            break;
         }
     }
 
@@ -164,25 +164,25 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
             data.bossInfo->door[data.type].insert(door);
             switch (data.boundary)
             {
-                default:
-                case BOUNDARY_NONE:
-                    break;
-                case BOUNDARY_N:
-                case BOUNDARY_S:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX();
-                    break;
-                case BOUNDARY_E:
-                case BOUNDARY_W:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionY();
-                    break;
-                case BOUNDARY_NW:
-                case BOUNDARY_SE:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() + door->GetPositionY();
-                    break;
-                case BOUNDARY_NE:
-                case BOUNDARY_SW:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() - door->GetPositionY();
-                    break;
+            default:
+            case BOUNDARY_NONE:
+                break;
+            case BOUNDARY_N:
+            case BOUNDARY_S:
+                data.bossInfo->boundary[data.boundary] = door->GetPositionX();
+                break;
+            case BOUNDARY_E:
+            case BOUNDARY_W:
+                data.bossInfo->boundary[data.boundary] = door->GetPositionY();
+                break;
+            case BOUNDARY_NW:
+            case BOUNDARY_SE:
+                data.bossInfo->boundary[data.boundary] = door->GetPositionX() + door->GetPositionY();
+                break;
+            case BOUNDARY_NE:
+            case BOUNDARY_SW:
+                data.bossInfo->boundary[data.boundary] = door->GetPositionX() - door->GetPositionY();
+                break;
             }
         }
         else
@@ -404,7 +404,7 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= nullptr*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
     LOG_ERROR("server", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
-                   instance->GetId(), criteria_id);
+              instance->GetId(), criteria_id);
     return false;
 }
 
@@ -435,24 +435,24 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, ui
 
     switch (type)
     {
-        case ENCOUNTER_FRAME_ENGAGE:
-        case ENCOUNTER_FRAME_DISENGAGE:
-        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
-            data.append(unit->GetPackGUID());
-            data << uint8(param1);
-            break;
-        case ENCOUNTER_FRAME_ADD_TIMER:
-        case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
-        case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
-            data << uint8(param1);
-            break;
-        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
-            data << uint8(param1);
-            data << uint8(param2);
-            break;
-        case ENCOUNTER_FRAME_REFRESH_FRAMES:
-        default:
-            break;
+    case ENCOUNTER_FRAME_ENGAGE:
+    case ENCOUNTER_FRAME_DISENGAGE:
+    case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+        data.append(unit->GetPackGUID());
+        data << uint8(param1);
+        break;
+    case ENCOUNTER_FRAME_ADD_TIMER:
+    case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
+    case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
+        data << uint8(param1);
+        break;
+    case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
+        data << uint8(param1);
+        data << uint8(param2);
+        break;
+    case ENCOUNTER_FRAME_REFRESH_FRAMES:
+    default:
+        break;
     }
 
     instance->SendToPlayers(&data);
@@ -463,19 +463,19 @@ std::string InstanceScript::GetBossStateName(uint8 state)
     // See enum EncounterState in InstanceScript.h
     switch (state)
     {
-        case NOT_STARTED:
-            return "NOT_STARTED";
-        case IN_PROGRESS:
-            return "IN_PROGRESS";
-        case FAIL:
-            return "FAIL";
-        case DONE:
-            return "DONE";
-        case SPECIAL:
-            return "SPECIAL";
-        case TO_BE_DECIDED:
-            return "TO_BE_DECIDED";
-        default:
-            return "INVALID";
+    case NOT_STARTED:
+        return "NOT_STARTED";
+    case IN_PROGRESS:
+        return "IN_PROGRESS";
+    case FAIL:
+        return "FAIL";
+    case DONE:
+        return "DONE";
+    case SPECIAL:
+        return "SPECIAL";
+    case TO_BE_DECIDED:
+        return "TO_BE_DECIDED";
+    default:
+        return "INVALID";
     }
 }

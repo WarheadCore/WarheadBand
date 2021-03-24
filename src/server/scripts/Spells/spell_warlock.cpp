@@ -617,13 +617,13 @@ public:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo(
-                {
-                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS,
-                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER,
-                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD,
-                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER,
-                    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP
-                });
+            {
+                SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS,
+                SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER,
+                SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD,
+                SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER,
+                SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP
+            });
         }
 
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -635,26 +635,26 @@ public:
                     CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
                     switch (ci->family)
                     {
-                        case CREATURE_FAMILY_SUCCUBUS:
-                            targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS, true);
-                            break;
-                        case CREATURE_FAMILY_VOIDWALKER:
-                            {
-                                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
-                                int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
-                                targetCreature->CastCustomSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, nullptr, nullptr, true);
-                                //unitTarget->CastSpell(unitTarget, 54441, true);
-                                break;
-                            }
-                        case CREATURE_FAMILY_FELGUARD:
-                            targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD, true);
-                            break;
-                        case CREATURE_FAMILY_FELHUNTER:
-                            targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER, true);
-                            break;
-                        case CREATURE_FAMILY_IMP:
-                            targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
-                            break;
+                    case CREATURE_FAMILY_SUCCUBUS:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS, true);
+                        break;
+                    case CREATURE_FAMILY_VOIDWALKER:
+                    {
+                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
+                        int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
+                        targetCreature->CastCustomSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, nullptr, nullptr, true);
+                        //unitTarget->CastSpell(unitTarget, 54441, true);
+                        break;
+                    }
+                    case CREATURE_FAMILY_FELGUARD:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD, true);
+                        break;
+                    case CREATURE_FAMILY_FELHUNTER:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER, true);
+                        break;
+                    case CREATURE_FAMILY_IMP:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
+                        break;
                     }
                 }
             }
@@ -712,15 +712,15 @@ public:
                 {
                     switch (aurEff->GetId())
                     {
-                        case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1:
-                            rank = 1;
-                            break;
-                        case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2:
-                            rank = 2;
-                            break;
-                        default:
-                            LOG_ERROR("server", "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
-                            break;
+                    case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1:
+                        rank = 1;
+                        break;
+                    case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2:
+                        rank = 2;
+                        break;
+                    default:
+                        LOG_ERROR("server", "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                        break;
                     }
                 }
                 uint8 spellRank = GetSpellInfo()->GetRank();

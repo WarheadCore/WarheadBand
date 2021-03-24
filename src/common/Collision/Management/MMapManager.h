@@ -38,64 +38,72 @@ inline void dtCustomFree(void* ptr)
 //  move map related classes
 namespace MMAP
 {
-    typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
-    typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
+typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
+typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
 
-    // dummy struct to hold map's mmap data
-    struct MMapData
+// dummy struct to hold map's mmap data
+struct MMapData
+{
+    MMapData(dtNavMesh* mesh) : navMesh(mesh) {}
+    ~MMapData()
     {
-        MMapData(dtNavMesh* mesh) : navMesh(mesh) {}
-        ~MMapData()
-        {
-            for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
-                dtFreeNavMeshQuery(i->second);
+        for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
+            dtFreeNavMeshQuery(i->second);
 
-            if (navMesh)
-                dtFreeNavMesh(navMesh);
-        }
+        if (navMesh)
+            dtFreeNavMesh(navMesh);
+    }
 
-        dtNavMesh* navMesh;
+    dtNavMesh* navMesh;
 
-        // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
-        NavMeshQuerySet navMeshQueries;     // instanceId to query
-        MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
-    };
+    // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
+    NavMeshQuerySet navMeshQueries;     // instanceId to query
+    MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
+};
 
-    typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
+typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
 
-    // singleton class
-    // holds all all access to mmap loading unloading and meshes
-    class MMapManager
-    {
-    public:
-        MMapManager() : loadedTiles(0) {}
-        ~MMapManager();
+// singleton class
+// holds all all access to mmap loading unloading and meshes
+class MMapManager
+{
+public:
+    MMapManager() : loadedTiles(0) {}
+    ~MMapManager();
 
-        bool loadMap(uint32 mapId, int32 x, int32 y);
-        bool unloadMap(uint32 mapId, int32 x, int32 y);
-        bool unloadMap(uint32 mapId);
-        bool unloadMapInstance(uint32 mapId, uint32 instanceId);
+    bool loadMap(uint32 mapId, int32 x, int32 y);
+    bool unloadMap(uint32 mapId, int32 x, int32 y);
+    bool unloadMap(uint32 mapId);
+    bool unloadMapInstance(uint32 mapId, uint32 instanceId);
 
-        // the returned [dtNavMeshQuery const*] is NOT threadsafe
-        dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
-        dtNavMesh const* GetNavMesh(uint32 mapId);
+    // the returned [dtNavMeshQuery const*] is NOT threadsafe
+    dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
+    dtNavMesh const* GetNavMesh(uint32 mapId);
 
-        uint32 getLoadedTilesCount() const { return loadedTiles; }
-        uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }
+    uint32 getLoadedTilesCount() const {
+        return loadedTiles;
+    }
+    uint32 getLoadedMapsCount() const {
+        return loadedMMaps.size();
+    }
 
-        ACE_RW_Thread_Mutex& GetMMapLock(uint32 mapId);
-        ACE_RW_Thread_Mutex& GetMMapGeneralLock() { return MMapLock; } // pussywizard: in case a per-map mutex can't be found, should never happen
-        ACE_RW_Thread_Mutex& GetManagerLock() { return MMapManagerLock; }
-    private:
-        bool loadMapData(uint32 mapId);
-        uint32 packTileID(int32 x, int32 y);
+    ACE_RW_Thread_Mutex& GetMMapLock(uint32 mapId);
+    ACE_RW_Thread_Mutex& GetMMapGeneralLock() {
+        return MMapLock;    // pussywizard: in case a per-map mutex can't be found, should never happen
+    }
+    ACE_RW_Thread_Mutex& GetManagerLock() {
+        return MMapManagerLock;
+    }
+private:
+    bool loadMapData(uint32 mapId);
+    uint32 packTileID(int32 x, int32 y);
 
-        MMapDataSet loadedMMaps;
-        uint32 loadedTiles;
+    MMapDataSet loadedMMaps;
+    uint32 loadedTiles;
 
-        ACE_RW_Thread_Mutex MMapManagerLock;
-        ACE_RW_Thread_Mutex MMapLock; // pussywizard: in case a per-map mutex can't be found, should never happen
-    };
+    ACE_RW_Thread_Mutex MMapManagerLock;
+    ACE_RW_Thread_Mutex MMapLock; // pussywizard: in case a per-map mutex can't be found, should never happen
+};
 }
 
 #endif

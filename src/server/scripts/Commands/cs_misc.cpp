@@ -217,27 +217,64 @@ public:
         {
             last_name = std::string(*i);
             plr = ObjectAccessor::FindPlayerByName(last_name, false);
-            if (!plr) { error = 1; break; }
-            if (!plr->IsInWorld() || !plr->FindMap() || plr->IsBeingTeleported()) { error = 2; break; }
-            if (plr->GetMap()->GetEntry()->Instanceable()) { error = 3; break; }
-            if (plr->isUsingLfg()) { error = 4; break; }
-            if (plr->InBattlegroundQueue()) { error = 5; break; }
-            if (plr->IsInFlight()) { error = 10; break; }
-            if (!plr->IsAlive()) { error = 11; break; }
+            if (!plr) {
+                error = 1;
+                break;
+            }
+            if (!plr->IsInWorld() || !plr->FindMap() || plr->IsBeingTeleported()) {
+                error = 2;
+                break;
+            }
+            if (plr->GetMap()->GetEntry()->Instanceable()) {
+                error = 3;
+                break;
+            }
+            if (plr->isUsingLfg()) {
+                error = 4;
+                break;
+            }
+            if (plr->InBattlegroundQueue()) {
+                error = 5;
+                break;
+            }
+            if (plr->IsInFlight()) {
+                error = 10;
+                break;
+            }
+            if (!plr->IsAlive()) {
+                error = 11;
+                break;
+            }
             const Group* g = plr->GetGroup();
             if (hcnt > 1)
             {
-                if (!g) { error = 6; break; }
-                if (g->isRaidGroup() || g->isBGGroup() || g->isBFGroup() || g->isLFGGroup()) { error = 7; break; }
-                if (g->GetMembersCount() != hcnt) { error = 8; break; }
+                if (!g) {
+                    error = 6;
+                    break;
+                }
+                if (g->isRaidGroup() || g->isBGGroup() || g->isBFGroup() || g->isLFGGroup()) {
+                    error = 7;
+                    break;
+                }
+                if (g->GetMembersCount() != hcnt) {
+                    error = 8;
+                    break;
+                }
 
                 uint8 sti = (cnt < hcnt ? 0 : hcnt);
                 if (sti != cnt)
-                    if (players[sti]->GetGroup() != plr->GetGroup()) { error = 9; last_name += " and " + players[sti]->GetName(); break; }
+                    if (players[sti]->GetGroup() != plr->GetGroup()) {
+                        error = 9;
+                        last_name += " and " + players[sti]->GetName();
+                        break;
+                    }
             }
             else // 1v1
             {
-                if (g) { error = 12; break; }
+                if (g) {
+                    error = 12;
+                    break;
+                }
             }
             players[cnt++] = plr;
         }
@@ -253,45 +290,45 @@ public:
 
         switch (error)
         {
-            case 1:
-                handler->PSendSysMessage("Player %s not found.", last_name.c_str());
-                break;
-            case 2:
-                handler->PSendSysMessage("Player %s is being teleported.", last_name.c_str());
-                break;
-            case 3:
-                handler->PSendSysMessage("Player %s is in instance/battleground/arena.", last_name.c_str());
-                break;
-            case 4:
-                handler->PSendSysMessage("Player %s is in LFG system.", last_name.c_str());
-                break;
-            case 5:
-                handler->PSendSysMessage("Player %s is queued for battleground/arena.", last_name.c_str());
-                break;
-            case 6:
-                handler->PSendSysMessage("Player %s is not in group.", last_name.c_str());
-                break;
-            case 7:
-                handler->PSendSysMessage("Player %s is not in normal group.", last_name.c_str());
-                break;
-            case 8:
-                handler->PSendSysMessage("Group of player %s has invalid member count.", last_name.c_str());
-                break;
-            case 9:
-                handler->PSendSysMessage("Players %s are not in the same group.", last_name.c_str());
-                break;
-            case 10:
-                handler->PSendSysMessage("Player %s is in flight.", last_name.c_str());
-                break;
-            case 11:
-                handler->PSendSysMessage("Player %s is dead.", last_name.c_str());
-                break;
-            case 12:
-                handler->PSendSysMessage("Player %s is in a group.", last_name.c_str());
-                break;
-            case 13:
-                handler->PSendSysMessage("Player %s occurs more than once.", last_name.c_str());
-                break;
+        case 1:
+            handler->PSendSysMessage("Player %s not found.", last_name.c_str());
+            break;
+        case 2:
+            handler->PSendSysMessage("Player %s is being teleported.", last_name.c_str());
+            break;
+        case 3:
+            handler->PSendSysMessage("Player %s is in instance/battleground/arena.", last_name.c_str());
+            break;
+        case 4:
+            handler->PSendSysMessage("Player %s is in LFG system.", last_name.c_str());
+            break;
+        case 5:
+            handler->PSendSysMessage("Player %s is queued for battleground/arena.", last_name.c_str());
+            break;
+        case 6:
+            handler->PSendSysMessage("Player %s is not in group.", last_name.c_str());
+            break;
+        case 7:
+            handler->PSendSysMessage("Player %s is not in normal group.", last_name.c_str());
+            break;
+        case 8:
+            handler->PSendSysMessage("Group of player %s has invalid member count.", last_name.c_str());
+            break;
+        case 9:
+            handler->PSendSysMessage("Players %s are not in the same group.", last_name.c_str());
+            break;
+        case 10:
+            handler->PSendSysMessage("Player %s is in flight.", last_name.c_str());
+            break;
+        case 11:
+            handler->PSendSysMessage("Player %s is dead.", last_name.c_str());
+            break;
+        case 12:
+            handler->PSendSysMessage("Player %s is in a group.", last_name.c_str());
+            break;
+        case 13:
+            handler->PSendSysMessage("Player %s occurs more than once.", last_name.c_str());
+            break;
         }
 
         if (error)
@@ -2017,70 +2054,70 @@ public:
         // Output XI. LANG_PINFO_CHR_RACE
         switch (raceid)
         {
-            case RACE_HUMAN:
-                raceStr = "Human";
-                break;
-            case RACE_ORC:
-                raceStr = "Orc";
-                break;
-            case RACE_DWARF:
-                raceStr = "Dwarf";
-                break;
-            case RACE_NIGHTELF:
-                raceStr = "Night Elf";
-                break;
-            case RACE_UNDEAD_PLAYER:
-                raceStr = "Undead";
-                break;
-            case RACE_TAUREN:
-                raceStr = "Tauren";
-                break;
-            case RACE_GNOME:
-                raceStr = "Gnome";
-                break;
-            case RACE_TROLL:
-                raceStr = "Troll";
-                break;
-            case RACE_BLOODELF:
-                raceStr = "Blood Elf";
-                break;
-            case RACE_DRAENEI:
-                raceStr = "Draenei";
-                break;
+        case RACE_HUMAN:
+            raceStr = "Human";
+            break;
+        case RACE_ORC:
+            raceStr = "Orc";
+            break;
+        case RACE_DWARF:
+            raceStr = "Dwarf";
+            break;
+        case RACE_NIGHTELF:
+            raceStr = "Night Elf";
+            break;
+        case RACE_UNDEAD_PLAYER:
+            raceStr = "Undead";
+            break;
+        case RACE_TAUREN:
+            raceStr = "Tauren";
+            break;
+        case RACE_GNOME:
+            raceStr = "Gnome";
+            break;
+        case RACE_TROLL:
+            raceStr = "Troll";
+            break;
+        case RACE_BLOODELF:
+            raceStr = "Blood Elf";
+            break;
+        case RACE_DRAENEI:
+            raceStr = "Draenei";
+            break;
         }
 
         switch (classid)
         {
-            case CLASS_WARRIOR:
-                classStr = "Warrior";
-                break;
-            case CLASS_PALADIN:
-                classStr = "Paladin";
-                break;
-            case CLASS_HUNTER:
-                classStr = "Hunter";
-                break;
-            case CLASS_ROGUE:
-                classStr = "Rogue";
-                break;
-            case CLASS_PRIEST:
-                classStr = "Priest";
-                break;
-            case CLASS_DEATH_KNIGHT:
-                classStr = "Death Knight";
-                break;
-            case CLASS_SHAMAN:
-                classStr = "Shaman";
-                break;
-            case CLASS_MAGE:
-                classStr = "Mage";
-                break;
-            case CLASS_WARLOCK:
-                classStr = "Warlock";
-                break;
-            case CLASS_DRUID:
-                classStr = "Druid";
-                break;
+        case CLASS_WARRIOR:
+            classStr = "Warrior";
+            break;
+        case CLASS_PALADIN:
+            classStr = "Paladin";
+            break;
+        case CLASS_HUNTER:
+            classStr = "Hunter";
+            break;
+        case CLASS_ROGUE:
+            classStr = "Rogue";
+            break;
+        case CLASS_PRIEST:
+            classStr = "Priest";
+            break;
+        case CLASS_DEATH_KNIGHT:
+            classStr = "Death Knight";
+            break;
+        case CLASS_SHAMAN:
+            classStr = "Shaman";
+            break;
+        case CLASS_MAGE:
+            classStr = "Mage";
+            break;
+        case CLASS_WARLOCK:
+            classStr = "Warlock";
+            break;
+        case CLASS_DRUID:
+            classStr = "Druid";
+            break;
         }
 
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetAcoreString(LANG_CHARACTER_GENDER_MALE) : handler->GetAcoreString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
@@ -2409,81 +2446,81 @@ public:
 
             switch (movementGenerator->GetMovementGeneratorType())
             {
-                case IDLE_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_IDLE);
-                    break;
-                case RANDOM_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_RANDOM);
-                    break;
-                case WAYPOINT_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_WAYPOINT);
-                    break;
-                case ANIMAL_RANDOM_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_ANIMAL_RANDOM);
-                    break;
-                case CONFUSED_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
-                    break;
-                case CHASE_MOTION_TYPE:
-                    {
-                        Unit* target = nullptr;
-                        if (unit->GetTypeId() == TYPEID_PLAYER)
-                            target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
-                        else
-                            target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
+            case IDLE_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_IDLE);
+                break;
+            case RANDOM_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_RANDOM);
+                break;
+            case WAYPOINT_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_WAYPOINT);
+                break;
+            case ANIMAL_RANDOM_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_ANIMAL_RANDOM);
+                break;
+            case CONFUSED_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
+                break;
+            case CHASE_MOTION_TYPE:
+            {
+                Unit* target = nullptr;
+                if (unit->GetTypeId() == TYPEID_PLAYER)
+                    target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
+                else
+                    target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
-                        if (!target)
-                            handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                        else if (target->GetTypeId() == TYPEID_PLAYER)
-                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName().c_str(), target->GetGUIDLow());
-                        else
-                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName().c_str(), target->GetGUIDLow());
-                        break;
-                    }
-                case FOLLOW_MOTION_TYPE:
-                    {
-                        Unit* target = nullptr;
-                        if (unit->GetTypeId() == TYPEID_PLAYER)
-                            target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
-                        else
-                            target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
+                if (!target)
+                    handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
+                else if (target->GetTypeId() == TYPEID_PLAYER)
+                    handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName().c_str(), target->GetGUIDLow());
+                else
+                    handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName().c_str(), target->GetGUIDLow());
+                break;
+            }
+            case FOLLOW_MOTION_TYPE:
+            {
+                Unit* target = nullptr;
+                if (unit->GetTypeId() == TYPEID_PLAYER)
+                    target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
+                else
+                    target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
 
-                        if (!target)
-                            handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                        else if (target->GetTypeId() == TYPEID_PLAYER)
-                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName().c_str(), target->GetGUIDLow());
-                        else
-                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName().c_str(), target->GetGUIDLow());
-                        break;
-                    }
-                case HOME_MOTION_TYPE:
-                    {
-                        if (unit->GetTypeId() == TYPEID_UNIT)
-                            handler->PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE, x, y, z);
-                        else
-                            handler->SendSysMessage(LANG_MOVEGENS_HOME_PLAYER);
-                        break;
-                    }
-                case FLIGHT_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_FLIGHT);
-                    break;
-                case POINT_MOTION_TYPE:
-                    {
-                        handler->PSendSysMessage(LANG_MOVEGENS_POINT, x, y, z);
-                        break;
-                    }
-                case FLEEING_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_FEAR);
-                    break;
-                case DISTRACT_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_DISTRACT);
-                    break;
-                case EFFECT_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_EFFECT);
-                    break;
-                default:
-                    handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, movementGenerator->GetMovementGeneratorType());
-                    break;
+                if (!target)
+                    handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
+                else if (target->GetTypeId() == TYPEID_PLAYER)
+                    handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName().c_str(), target->GetGUIDLow());
+                else
+                    handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName().c_str(), target->GetGUIDLow());
+                break;
+            }
+            case HOME_MOTION_TYPE:
+            {
+                if (unit->GetTypeId() == TYPEID_UNIT)
+                    handler->PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE, x, y, z);
+                else
+                    handler->SendSysMessage(LANG_MOVEGENS_HOME_PLAYER);
+                break;
+            }
+            case FLIGHT_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_FLIGHT);
+                break;
+            case POINT_MOTION_TYPE:
+            {
+                handler->PSendSysMessage(LANG_MOVEGENS_POINT, x, y, z);
+                break;
+            }
+            case FLEEING_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_FEAR);
+                break;
+            case DISTRACT_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_DISTRACT);
+                break;
+            case EFFECT_MOTION_TYPE:
+                handler->SendSysMessage(LANG_MOVEGENS_EFFECT);
+                break;
+            default:
+                handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, movementGenerator->GetMovementGeneratorType());
+                break;
             }
         }
         return true;

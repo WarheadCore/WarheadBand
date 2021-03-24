@@ -567,40 +567,40 @@ bool BossAI::CheckBoundary(Unit* who)
     {
         switch (itr->first)
         {
-            case BOUNDARY_N:
-                if (who->GetPositionX() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_S:
-                if (who->GetPositionX() < itr->second)
-                    return false;
-                break;
-            case BOUNDARY_E:
-                if (who->GetPositionY() < itr->second)
-                    return false;
-                break;
-            case BOUNDARY_W:
-                if (who->GetPositionY() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_NW:
-                if (who->GetPositionX() + who->GetPositionY() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_SE:
-                if (who->GetPositionX() + who->GetPositionY() < itr->second)
-                    return false;
-                break;
-            case BOUNDARY_NE:
-                if (who->GetPositionX() - who->GetPositionY() > itr->second)
-                    return false;
-                break;
-            case BOUNDARY_SW:
-                if (who->GetPositionX() - who->GetPositionY() < itr->second)
-                    return false;
-                break;
-            default:
-                break;
+        case BOUNDARY_N:
+            if (who->GetPositionX() > itr->second)
+                return false;
+            break;
+        case BOUNDARY_S:
+            if (who->GetPositionX() < itr->second)
+                return false;
+            break;
+        case BOUNDARY_E:
+            if (who->GetPositionY() < itr->second)
+                return false;
+            break;
+        case BOUNDARY_W:
+            if (who->GetPositionY() > itr->second)
+                return false;
+            break;
+        case BOUNDARY_NW:
+            if (who->GetPositionX() + who->GetPositionY() > itr->second)
+                return false;
+            break;
+        case BOUNDARY_SE:
+            if (who->GetPositionX() + who->GetPositionY() < itr->second)
+                return false;
+            break;
+        case BOUNDARY_NE:
+            if (who->GetPositionX() - who->GetPositionY() > itr->second)
+                return false;
+            break;
+        case BOUNDARY_SW:
+            if (who->GetPositionX() - who->GetPositionY() < itr->second)
+                return false;
+            break;
+        default:
+            break;
         }
     }
 

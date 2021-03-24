@@ -76,12 +76,22 @@ public:                                                 // statics
 
     static ReputationRank ReputationToRank(int32 standing);
 public:                                                 // accessors
-    uint8 GetVisibleFactionCount() const { return _visibleFactionCount; }
-    uint8 GetHonoredFactionCount() const { return _honoredFactionCount; }
-    uint8 GetReveredFactionCount() const { return _reveredFactionCount; }
-    uint8 GetExaltedFactionCount() const { return _exaltedFactionCount; }
+    uint8 GetVisibleFactionCount() const {
+        return _visibleFactionCount;
+    }
+    uint8 GetHonoredFactionCount() const {
+        return _honoredFactionCount;
+    }
+    uint8 GetReveredFactionCount() const {
+        return _reveredFactionCount;
+    }
+    uint8 GetExaltedFactionCount() const {
+        return _exaltedFactionCount;
+    }
 
-    FactionStateList const& GetStateList() const { return _factions; }
+    FactionStateList const& GetStateList() const {
+        return _factions;
+    }
 
     FactionState const* GetState(FactionEntry const* factionEntry) const
     {

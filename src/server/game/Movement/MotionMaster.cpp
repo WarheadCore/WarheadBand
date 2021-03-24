@@ -31,7 +31,7 @@
 #include "WaypointMovementGenerator.h"
 #include <cassert>
 
- // ---- ChaseRange ---- //
+// ---- ChaseRange ---- //
 
 ChaseRange::ChaseRange(float range) : MinRange(range > CONTACT_DISTANCE ? 0 : range - CONTACT_DISTANCE), MinTolerance(range), MaxRange(range + CONTACT_DISTANCE), MaxTolerance(range) { }
 ChaseRange::ChaseRange(float _minRange, float _maxRange) : MinRange(_minRange), MinTolerance(std::min(_minRange + CONTACT_DISTANCE, (_minRange + _maxRange) / 2)), MaxRange(_maxRange), MaxTolerance(std::max(_maxRange - CONTACT_DISTANCE, MinTolerance)) { }
@@ -339,9 +339,9 @@ void MotionMaster::MoveChase(Unit* target,  std::optional<ChaseRange> dist, std:
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Player (GUID: %u) chase to %s (GUID: %u)",
-                             _owner->GetGUIDLow(),
-                             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-                             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
+                  _owner->GetGUIDLow(),
+                  target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+                  target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
 #endif
         Mutate(new ChaseMovementGenerator<Player>(target, dist, angle), MOTION_SLOT_ACTIVE);
     }
@@ -349,9 +349,9 @@ void MotionMaster::MoveChase(Unit* target,  std::optional<ChaseRange> dist, std:
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) chase to %s (GUID: %u)",
-                             _owner->GetEntry(), _owner->GetGUIDLow(),
-                             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-                             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
+                  _owner->GetEntry(), _owner->GetGUIDLow(),
+                  target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+                  target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
 #endif
         Mutate(new ChaseMovementGenerator<Creature>(target, dist, angle), MOTION_SLOT_ACTIVE);
     }
@@ -417,8 +417,8 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Player (GUID: %u) follow to %s (GUID: %u)", _owner->GetGUIDLow(),
-                             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-                             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
+                  target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+                  target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
 #endif
         Mutate(new FollowMovementGenerator<Player>(target, dist, angle), slot);
     }
@@ -426,9 +426,9 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) follow to %s (GUID: %u)",
-                             _owner->GetEntry(), _owner->GetGUIDLow(),
-                             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-                             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
+                  _owner->GetEntry(), _owner->GetGUIDLow(),
+                  target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+                  target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
 #endif
         Mutate(new FollowMovementGenerator<Creature>(target, dist, angle), slot);
     }
@@ -451,7 +451,7 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) targeted point (ID: %u X: %f Y: %f Z: %f)",
-                             _owner->GetEntry(), _owner->GetGUIDLow(), id, x, y, z);
+                  _owner->GetEntry(), _owner->GetGUIDLow(), id, x, y, z);
 #endif
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, 0.0f, orientation, nullptr, generatePath, forceDestination), slot);
     }
@@ -546,7 +546,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     if (speedXY <= 0.1f)
         return;
 
-     Position dest = _owner->GetPosition();
+    Position dest = _owner->GetPosition();
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
@@ -611,7 +611,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/, bool addFlagForNPC)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "MotionMaster::MoveFall: unable retrive a proper height at map %u (x: %f, y: %f, z: %f).",
-                             _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionX(), _owner->GetPositionZ() + _owner->GetPositionZ());
+                  _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionX(), _owner->GetPositionZ() + _owner->GetPositionZ());
 #endif
         return;
     }
@@ -662,7 +662,7 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id,
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) charge point (X: %f Y: %f Z: %f)",
-                             _owner->GetEntry(), _owner->GetGUIDLow(), x, y, z);
+                  _owner->GetEntry(), _owner->GetGUIDLow(), x, y, z);
 #endif
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, speed, orientation, path, generatePath, generatePath), MOTION_SLOT_CONTROLLED);
     }
@@ -682,7 +682,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) seek assistance (X: %f Y: %f Z: %f)",
-                             _owner->GetEntry(), _owner->GetGUIDLow(), x, y, z);
+                  _owner->GetEntry(), _owner->GetGUIDLow(), x, y, z);
 #endif
         _owner->AttackStop();
         _owner->CastStop(0, false);
@@ -705,7 +705,7 @@ void MotionMaster::MoveSeekAssistanceDistract(uint32 time)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) is distracted after assistance call (Time: %u)",
-                             _owner->GetEntry(), _owner->GetGUIDLow(), time);
+                  _owner->GetEntry(), _owner->GetGUIDLow(), time);
 #endif
         Mutate(new AssistanceDistractMovementGenerator(time), MOTION_SLOT_ACTIVE);
     }
@@ -724,8 +724,8 @@ void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Player (GUID: %u) flee from %s (GUID: %u)", _owner->GetGUIDLow(),
-                             enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-                             enemy->GetTypeId() == TYPEID_PLAYER ? enemy->GetGUIDLow() : enemy->ToCreature()->GetDBTableGUIDLow());
+                  enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+                  enemy->GetTypeId() == TYPEID_PLAYER ? enemy->GetGUIDLow() : enemy->ToCreature()->GetDBTableGUIDLow());
 #endif
         Mutate(new FleeingMovementGenerator<Player>(enemy->GetGUID()), MOTION_SLOT_CONTROLLED);
     }
@@ -733,10 +733,10 @@ void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", "Creature (Entry: %u GUID: %u) flee from %s (GUID: %u)%s",
-                             _owner->GetEntry(), _owner->GetGUIDLow(),
-                             enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
-                             enemy->GetTypeId() == TYPEID_PLAYER ? enemy->GetGUIDLow() : enemy->ToCreature()->GetDBTableGUIDLow(),
-                             time ? " for a limited time" : "");
+                  _owner->GetEntry(), _owner->GetGUIDLow(),
+                  enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
+                  enemy->GetTypeId() == TYPEID_PLAYER ? enemy->GetGUIDLow() : enemy->ToCreature()->GetDBTableGUIDLow(),
+                  time ? " for a limited time" : "");
 #endif
         if (time)
             Mutate(new TimedFleeingMovementGenerator(enemy->GetGUID(), time), MOTION_SLOT_CONTROLLED);
@@ -761,13 +761,13 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
         else
         {
             LOG_ERROR("server", "%s attempt taxi to (not existed Path %u node %u)",
-                           _owner->GetName().c_str(), path, pathnode);
+                      _owner->GetName().c_str(), path, pathnode);
         }
     }
     else
     {
         LOG_ERROR("server", "Creature (Entry: %u GUID: %u) attempt taxi to (Path %u node %u)",
-                       _owner->GetEntry(), _owner->GetGUIDLow(), path, pathnode);
+                  _owner->GetEntry(), _owner->GetGUIDLow(), path, pathnode);
     }
 }
 
@@ -854,8 +854,8 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     LOG_DEBUG("server", "%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)",
-                         _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
-                         _owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO");
+              _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
+              _owner->GetGUIDLow(), path_id, repeatable ? "YES" : "NO");
 #endif
 }
 

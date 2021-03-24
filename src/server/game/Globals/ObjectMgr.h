@@ -521,7 +521,9 @@ typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator
 
 struct PetLevelInfo
 {
-    PetLevelInfo() { for (unsigned short & stat : stats) stat = 0; }
+    PetLevelInfo() {
+        for (unsigned short & stat : stats) stat = 0;
+    }
 
     uint16 stats[MAX_STATS];
     uint16 health{0};
@@ -731,7 +733,9 @@ public:
 
     GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
     bool IsGameObjectStaticTransport(uint32 entry);
-    [[nodiscard]] GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
+    [[nodiscard]] GameObjectTemplateContainer const* GetGameObjectTemplates() const {
+        return &_gameObjectTemplateStore;
+    }
     int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32>* skip_vendors);
 
     void LoadGameObjectTemplate();
@@ -739,7 +743,9 @@ public:
     void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
     CreatureTemplate const* GetCreatureTemplate(uint32 entry);
-    [[nodiscard]] CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
+    [[nodiscard]] CreatureTemplateContainer const* GetCreatureTemplates() const {
+        return &_creatureTemplateStore;
+    }
     CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
     CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
     static uint32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = nullptr);
@@ -750,8 +756,12 @@ public:
     [[nodiscard]] GameObjectTemplateAddon const* GetGameObjectTemplateAddon(uint32 entry) const;
     CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
     ItemTemplate const* GetItemTemplate(uint32 entry);
-    [[nodiscard]] ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
-    [[nodiscard]] std::vector<ItemTemplate*> const* GetItemTemplateStoreFast() const { return &_itemTemplateStoreFast; }
+    [[nodiscard]] ItemTemplateContainer const* GetItemTemplateStore() const {
+        return &_itemTemplateStore;
+    }
+    [[nodiscard]] std::vector<ItemTemplate*> const* GetItemTemplateStoreFast() const {
+        return &_itemTemplateStoreFast;
+    }
 
     ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId)
     {
@@ -794,7 +804,9 @@ public:
             return &itr->second;
         return nullptr;
     }
-    [[nodiscard]] GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
+    [[nodiscard]] GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const {
+        return &_gameObjectQuestItemStore;
+    }
 
     [[nodiscard]] CreatureQuestItemList const* GetCreatureQuestItemList(uint32 id) const
     {
@@ -803,14 +815,18 @@ public:
             return &itr->second;
         return nullptr;
     }
-    [[nodiscard]] CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
+    [[nodiscard]] CreatureQuestItemMap const* GetCreatureQuestItemMap() const {
+        return &_creatureQuestItemStore;
+    }
 
     [[nodiscard]] Quest const* GetQuestTemplate(uint32 quest_id) const
     {
         return quest_id < _questTemplatesFast.size() ? _questTemplatesFast[quest_id] : nullptr;
     }
 
-    [[nodiscard]] QuestMap const& GetQuestTemplates() const { return _questTemplates; }
+    [[nodiscard]] QuestMap const& GetQuestTemplates() const {
+        return _questTemplates;
+    }
 
     [[nodiscard]] uint32 GetQuestForAreaTrigger(uint32 Trigger_ID) const
     {
@@ -1146,7 +1162,9 @@ public:
         if (itr == _creatureDataStore.end()) return nullptr;
         return &itr->second;
     }
-    CreatureData& NewOrExistCreatureData(uint32 guid) { return _creatureDataStore[guid]; }
+    CreatureData& NewOrExistCreatureData(uint32 guid) {
+        return _creatureDataStore[guid];
+    }
     void DeleteCreatureData(uint32 guid);
     [[nodiscard]] uint64 GetLinkedRespawnGuid(uint64 guid) const
     {
@@ -1227,7 +1245,9 @@ public:
         if (itr == _npcTextLocaleStore.end()) return nullptr;
         return &itr->second;
     }
-    GameObjectData& NewGOData(uint32 guid) { return _gameObjectDataStore[guid]; }
+    GameObjectData& NewGOData(uint32 guid) {
+        return _gameObjectDataStore[guid];
+    }
     void DeleteGOData(uint32 guid);
 
     [[nodiscard]] AcoreString const* GetAcoreString(uint32 entry) const
@@ -1239,9 +1259,15 @@ public:
         return &itr->second;
     }
     [[nodiscard]] char const* GetAcoreString(uint32 entry, LocaleConstant locale) const;
-    [[nodiscard]] char const* GetAcoreStringForDBCLocale(uint32 entry) const { return GetAcoreString(entry, DBCLocaleIndex); }
-    [[nodiscard]] LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
-    void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
+    [[nodiscard]] char const* GetAcoreStringForDBCLocale(uint32 entry) const {
+        return GetAcoreString(entry, DBCLocaleIndex);
+    }
+    [[nodiscard]] LocaleConstant GetDBCLocaleIndex() const {
+        return DBCLocaleIndex;
+    }
+    void SetDBCLocaleIndex(LocaleConstant locale) {
+        DBCLocaleIndex = locale;
+    }
 
     void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
     void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
@@ -1274,7 +1300,9 @@ public:
         return &itr->second;
     }
     [[nodiscard]] GameTele const* GetGameTele(std::string const& name) const;
-    [[nodiscard]] GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
+    [[nodiscard]] GameTeleContainer const& GetGameTeleMap() const {
+        return _gameTeleStore;
+    }
     bool AddGameTele(GameTele& data);
     bool DeleteGameTele(std::string const& name);
 
@@ -1301,8 +1329,12 @@ public:
     bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 
     void LoadScriptNames();
-    ScriptNameContainer& GetScriptNames() { return _scriptNamesStore; }
-    [[nodiscard]] const char* GetScriptName(uint32 id) const { return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : ""; }
+    ScriptNameContainer& GetScriptNames() {
+        return _scriptNamesStore;
+    }
+    [[nodiscard]] const char* GetScriptName(uint32 id) const {
+        return id < _scriptNamesStore.size() ? _scriptNamesStore[id].c_str() : "";
+    }
     uint32 GetScriptId(const char* name);
 
     [[nodiscard]] SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const

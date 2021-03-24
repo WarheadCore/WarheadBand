@@ -50,7 +50,7 @@ bool MotionTransport::CreateMoTrans(uint32 guidlow, uint32 entry, uint32 mapid, 
     if (!IsPositionValid())
     {
         LOG_ERROR("server", "Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-                       guidlow, x, y);
+                  guidlow, x, y);
         return false;
     }
 
@@ -552,38 +552,38 @@ void MotionTransport::DelayedTeleportTransport()
 
         switch (obj->GetTypeId())
         {
-            case TYPEID_UNIT:
+        case TYPEID_UNIT:
+            _passengers.erase(obj);
+            if (!obj->ToCreature()->IsPet())
+                obj->ToCreature()->DespawnOrUnsummon();
+            break;
+        case TYPEID_GAMEOBJECT:
+            _passengers.erase(obj);
+            obj->ToGameObject()->Delete();
+            break;
+        case TYPEID_DYNAMICOBJECT:
+            _passengers.erase(obj);
+            if (Unit* caster = obj->ToDynObject()->GetCaster())
+                if (Spell* s = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                    if (obj->ToDynObject()->GetSpellId() == s->GetSpellInfo()->Id)
+                    {
+                        s->SendChannelUpdate(0);
+                        s->SendInterrupted(0);
+                        caster->RemoveOwnedAura(s->GetSpellInfo()->Id, caster->GetGUID());
+                    }
+            obj->AddObjectToRemoveList();
+            break;
+        case TYPEID_PLAYER:
+        {
+            float destX, destY, destZ, destO;
+            obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+            TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
+            if (!obj->ToPlayer()->TeleportTo(newMapId, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                 _passengers.erase(obj);
-                if (!obj->ToCreature()->IsPet())
-                    obj->ToCreature()->DespawnOrUnsummon();
-                break;
-            case TYPEID_GAMEOBJECT:
-                _passengers.erase(obj);
-                obj->ToGameObject()->Delete();
-                break;
-            case TYPEID_DYNAMICOBJECT:
-                _passengers.erase(obj);
-                if (Unit* caster = obj->ToDynObject()->GetCaster())
-                    if (Spell* s = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                        if (obj->ToDynObject()->GetSpellId() == s->GetSpellInfo()->Id)
-                        {
-                            s->SendChannelUpdate(0);
-                            s->SendInterrupted(0);
-                            caster->RemoveOwnedAura(s->GetSpellInfo()->Id, caster->GetGUID());
-                        }
-                obj->AddObjectToRemoveList();
-                break;
-            case TYPEID_PLAYER:
-                {
-                    float destX, destY, destZ, destO;
-                    obj->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
-                    TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
-                    if (!obj->ToPlayer()->TeleportTo(newMapId, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
-                        _passengers.erase(obj);
-                }
-                break;
-            default:
-                break;
+        }
+        break;
+        default:
+            break;
         }
     }
 
@@ -623,28 +623,28 @@ void MotionTransport::UpdatePassengerPositions(PassengerSet& passengers)
 
         switch (passenger->GetTypeId())
         {
-            case TYPEID_UNIT:
-                {
-                    Creature* creature = passenger->ToCreature();
-                    GetMap()->CreatureRelocation(creature, x, y, z, o);
+        case TYPEID_UNIT:
+        {
+            Creature* creature = passenger->ToCreature();
+            GetMap()->CreatureRelocation(creature, x, y, z, o);
 
-                    creature->GetTransportHomePosition(x, y, z, o);
-                    CalculatePassengerPosition(x, y, z, &o);
-                    creature->SetHomePosition(x, y, z, o);
-                }
-                break;
-            case TYPEID_PLAYER:
-                if (passenger->IsInWorld())
-                    GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
-                break;
-            case TYPEID_GAMEOBJECT:
-                GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o);
-                break;
-            case TYPEID_DYNAMICOBJECT:
-                GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
-                break;
-            default:
-                break;
+            creature->GetTransportHomePosition(x, y, z, o);
+            CalculatePassengerPosition(x, y, z, &o);
+            creature->SetHomePosition(x, y, z, o);
+        }
+        break;
+        case TYPEID_PLAYER:
+            if (passenger->IsInWorld())
+                GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
+            break;
+        case TYPEID_GAMEOBJECT:
+            GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o);
+            break;
+        case TYPEID_DYNAMICOBJECT:
+            GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
+            break;
+        default:
+            break;
         }
     }
 }
@@ -924,21 +924,21 @@ void StaticTransport::UpdatePassengerPositions()
 
         switch (passenger->GetTypeId())
         {
-            case TYPEID_UNIT:
-                GetMap()->CreatureRelocation(passenger->ToCreature(), x, y, z, o);
-                break;
-            case TYPEID_PLAYER:
-                if (passenger->IsInWorld())
-                    GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
-                break;
-            case TYPEID_GAMEOBJECT:
-                GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o);
-                break;
-            case TYPEID_DYNAMICOBJECT:
-                GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
-                break;
-            default:
-                break;
+        case TYPEID_UNIT:
+            GetMap()->CreatureRelocation(passenger->ToCreature(), x, y, z, o);
+            break;
+        case TYPEID_PLAYER:
+            if (passenger->IsInWorld())
+                GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
+            break;
+        case TYPEID_GAMEOBJECT:
+            GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o);
+            break;
+        case TYPEID_DYNAMICOBJECT:
+            GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
+            break;
+        default:
+            break;
         }
     }
 }

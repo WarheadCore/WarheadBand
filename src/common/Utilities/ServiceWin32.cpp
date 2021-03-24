@@ -148,36 +148,36 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
 {
     switch (controlCode)
     {
-        case SERVICE_CONTROL_INTERROGATE:
+    case SERVICE_CONTROL_INTERROGATE:
+        break;
+
+    case SERVICE_CONTROL_SHUTDOWN:
+    case SERVICE_CONTROL_STOP:
+        serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+
+        m_ServiceStatus = 0;
+        return;
+
+    case SERVICE_CONTROL_PAUSE:
+        m_ServiceStatus = 2;
+        serviceStatus.dwCurrentState = SERVICE_PAUSED;
+        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        break;
+
+    case SERVICE_CONTROL_CONTINUE:
+        serviceStatus.dwCurrentState = SERVICE_RUNNING;
+        SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        m_ServiceStatus = 1;
+        break;
+
+    default:
+        if ( controlCode >= 128 && controlCode <= 255 )
+            // user defined control code
             break;
-
-        case SERVICE_CONTROL_SHUTDOWN:
-        case SERVICE_CONTROL_STOP:
-            serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
-
-            m_ServiceStatus = 0;
-            return;
-
-        case SERVICE_CONTROL_PAUSE:
-            m_ServiceStatus = 2;
-            serviceStatus.dwCurrentState = SERVICE_PAUSED;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
+        else
+            // unrecognized control code
             break;
-
-        case SERVICE_CONTROL_CONTINUE:
-            serviceStatus.dwCurrentState = SERVICE_RUNNING;
-            SetServiceStatus(serviceStatusHandle, &serviceStatus);
-            m_ServiceStatus = 1;
-            break;
-
-        default:
-            if ( controlCode >= 128 && controlCode <= 255 )
-                // user defined control code
-                break;
-            else
-                // unrecognized control code
-                break;
     }
 
     SetServiceStatus(serviceStatusHandle, &serviceStatus);

@@ -39,7 +39,7 @@ bool DatabaseWorkerPool<T>::Open(const std::string& infoString, uint8 async_thre
     _connectionInfo = MySQLConnectionInfo(infoString);
 
     LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
-                       GetDatabaseName(), async_threads, synch_threads);
+             GetDatabaseName(), async_threads, synch_threads);
 
     //! Open asynchronous connections (delayed operations)
     _connections[IDX_ASYNC].resize(async_threads);
@@ -66,10 +66,10 @@ bool DatabaseWorkerPool<T>::Open(const std::string& infoString, uint8 async_thre
 
     if (res)
         LOG_INFO("sql.driver", "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
-                           (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
+                 (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
     else
         LOG_ERROR("server", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                       "for specific errors.", GetDatabaseName());
+                  "for specific errors.", GetDatabaseName());
 
     return res;
 }
@@ -94,7 +94,7 @@ void DatabaseWorkerPool<T>::Close()
     }
 
     LOG_INFO("sql.driver", "Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
-                       GetDatabaseName());
+             GetDatabaseName());
 
     //! Shut down the synchronous connections
     //! There's no need for locking the connection, because DatabaseWorkerPool<>::Close
@@ -228,14 +228,14 @@ void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
     //! so there's no need to waste these CPU cycles in Release mode.
     switch (transaction->GetSize())
     {
-        case 0:
-            LOG_INFO("sql.driver", "Transaction contains 0 queries. Not executing.");
-            return;
-        case 1:
-            LOG_INFO("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
-            break;
-        default:
-            break;
+    case 0:
+        LOG_INFO("sql.driver", "Transaction contains 0 queries. Not executing.");
+        return;
+    case 1:
+        LOG_INFO("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+        break;
+    default:
+        break;
     }
 #endif // ACORE_DEBUG
 

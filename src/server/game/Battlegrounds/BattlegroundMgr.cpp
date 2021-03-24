@@ -188,24 +188,24 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
     *data << uint32(StatusID);                                  // status
     switch (StatusID)
     {
-        case STATUS_WAIT_QUEUE:                                 // status_in_queue
-            *data << uint32(Time1);                             // average wait time, milliseconds
-            *data << uint32(Time2);                             // time in queue, updated every minute!, milliseconds
-            break;
-        case STATUS_WAIT_JOIN:                                  // status_invite
-            *data << uint32(bg->GetMapId());                    // map id
-            *data << uint64(0);                                 // 3.3.5, unknown
-            *data << uint32(Time1);                             // time to remove from queue, milliseconds
-            break;
-        case STATUS_IN_PROGRESS:                                // status_in_progress
-            *data << uint32(bg->GetMapId());                    // map id
-            *data << uint64(0);                                 // 3.3.5, unknown
-            *data << uint32(Time1);                             // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
-            *data << uint32(Time2);                             // time from bg start, milliseconds
-            *data << uint8(teamId == TEAM_ALLIANCE ? 1 : 0);   // arenafaction (0 for horde, 1 for alliance)
-            break;
-        default:
-            break;
+    case STATUS_WAIT_QUEUE:                                 // status_in_queue
+        *data << uint32(Time1);                             // average wait time, milliseconds
+        *data << uint32(Time2);                             // time in queue, updated every minute!, milliseconds
+        break;
+    case STATUS_WAIT_JOIN:                                  // status_invite
+        *data << uint32(bg->GetMapId());                    // map id
+        *data << uint64(0);                                 // 3.3.5, unknown
+        *data << uint32(Time1);                             // time to remove from queue, milliseconds
+        break;
+    case STATUS_IN_PROGRESS:                                // status_in_progress
+        *data << uint32(bg->GetMapId());                    // map id
+        *data << uint64(0);                                 // 3.3.5, unknown
+        *data << uint32(Time1);                             // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
+        *data << uint32(Time2);                             // time from bg start, milliseconds
+        *data << uint8(teamId == TEAM_ALLIANCE ? 1 : 0);   // arenafaction (0 for horde, 1 for alliance)
+        break;
+    default:
+        break;
     }
 }
 
@@ -281,95 +281,95 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         BattlegroundTypeId bgTypeId = bg->GetBgTypeID();
         switch (bgTypeId)                              // battleground specific things
         {
-            case BATTLEGROUND_RB:
-                switch (bg->GetMapId())
-                {
-                    case 489:
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagCaptures);        // flag captures
-                        *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagReturns);         // flag returns
-                        break;
-                    case 566:
-                        *data << uint32(0x00000001);            // count of next fields
-                        *data << uint32(((BattlegroundEYScore*)itr2->second)->FlagCaptures);        // flag captures
-                        break;
-                    case 529:
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundABScore*)itr2->second)->BasesAssaulted);      // bases asssulted
-                        *data << uint32(((BattlegroundABScore*)itr2->second)->BasesDefended);       // bases defended
-                        break;
-                    case 30:
-                        *data << uint32(0x00000005);            // count of next fields
-                        *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsAssaulted); // GraveyardsAssaulted
-                        *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsDefended);  // GraveyardsDefended
-                        *data << uint32(((BattlegroundAVScore*)itr2->second)->TowersAssaulted);     // TowersAssaulted
-                        *data << uint32(((BattlegroundAVScore*)itr2->second)->TowersDefended);      // TowersDefended
-                        *data << uint32(((BattlegroundAVScore*)itr2->second)->MinesCaptured);       // MinesCaptured
-                        break;
-                    case 607:
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundSAScore*)itr2->second)->demolishers_destroyed);
-                        *data << uint32(((BattlegroundSAScore*)itr2->second)->gates_destroyed);
-                        break;
-                    case 628:                                   // IC
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases asssulted
-                        *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
-                        [[fallthrough]]; // TODO: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
-                    default:
-                        if (BattlegroundMgr::getBgFromMap.find(bg->GetMapId()) != BattlegroundMgr::getBgFromMap.end())
-                            BattlegroundMgr::getBgFromMap[bg->GetMapId()](data, itr2);
-                        else
-                            *data << uint32(0);
-                        break;
-                }
+        case BATTLEGROUND_RB:
+            switch (bg->GetMapId())
+            {
+            case 489:
+                *data << uint32(0x00000002);            // count of next fields
+                *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagCaptures);        // flag captures
+                *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagReturns);         // flag returns
                 break;
-            case BATTLEGROUND_AV:
-                *data << uint32(0x00000005);                    // count of next fields
+            case 566:
+                *data << uint32(0x00000001);            // count of next fields
+                *data << uint32(((BattlegroundEYScore*)itr2->second)->FlagCaptures);        // flag captures
+                break;
+            case 529:
+                *data << uint32(0x00000002);            // count of next fields
+                *data << uint32(((BattlegroundABScore*)itr2->second)->BasesAssaulted);      // bases asssulted
+                *data << uint32(((BattlegroundABScore*)itr2->second)->BasesDefended);       // bases defended
+                break;
+            case 30:
+                *data << uint32(0x00000005);            // count of next fields
                 *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsAssaulted); // GraveyardsAssaulted
                 *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsDefended);  // GraveyardsDefended
                 *data << uint32(((BattlegroundAVScore*)itr2->second)->TowersAssaulted);     // TowersAssaulted
                 *data << uint32(((BattlegroundAVScore*)itr2->second)->TowersDefended);      // TowersDefended
                 *data << uint32(((BattlegroundAVScore*)itr2->second)->MinesCaptured);       // MinesCaptured
                 break;
-            case BATTLEGROUND_WS:
-                *data << uint32(0x00000002);                    // count of next fields
-                *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagCaptures);        // flag captures
-                *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagReturns);         // flag returns
-                break;
-            case BATTLEGROUND_AB:
-                *data << uint32(0x00000002);                    // count of next fields
-                *data << uint32(((BattlegroundABScore*)itr2->second)->BasesAssaulted);      // bases asssulted
-                *data << uint32(((BattlegroundABScore*)itr2->second)->BasesDefended);       // bases defended
-                break;
-            case BATTLEGROUND_EY:
-                *data << uint32(0x00000001);                    // count of next fields
-                *data << uint32(((BattlegroundEYScore*)itr2->second)->FlagCaptures);        // flag captures
-                break;
-            case BATTLEGROUND_SA:
-                *data << uint32(0x00000002);                    // count of next fields
+            case 607:
+                *data << uint32(0x00000002);            // count of next fields
                 *data << uint32(((BattlegroundSAScore*)itr2->second)->demolishers_destroyed);
                 *data << uint32(((BattlegroundSAScore*)itr2->second)->gates_destroyed);
                 break;
-            case BATTLEGROUND_IC:
-                *data << uint32(0x00000002);                // count of next fields
-                *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases assaulted
+            case 628:                                   // IC
+                *data << uint32(0x00000002);            // count of next fields
+                *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases asssulted
                 *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
-                break;
-            case BATTLEGROUND_NA:
-            case BATTLEGROUND_BE:
-            case BATTLEGROUND_AA:
-            case BATTLEGROUND_RL:
-            case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV:
-                *data << uint32(0);
-                break;
+                [[fallthrough]]; // TODO: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
             default:
-                if (BattlegroundMgr::getBgFromTypeID.find(bgTypeId) != BattlegroundMgr::getBgFromTypeID.end())
-                    BattlegroundMgr::getBgFromTypeID[bgTypeId](data, itr2, bg);
+                if (BattlegroundMgr::getBgFromMap.find(bg->GetMapId()) != BattlegroundMgr::getBgFromMap.end())
+                    BattlegroundMgr::getBgFromMap[bg->GetMapId()](data, itr2);
                 else
                     *data << uint32(0);
                 break;
+            }
+            break;
+        case BATTLEGROUND_AV:
+            *data << uint32(0x00000005);                    // count of next fields
+            *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsAssaulted); // GraveyardsAssaulted
+            *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsDefended);  // GraveyardsDefended
+            *data << uint32(((BattlegroundAVScore*)itr2->second)->TowersAssaulted);     // TowersAssaulted
+            *data << uint32(((BattlegroundAVScore*)itr2->second)->TowersDefended);      // TowersDefended
+            *data << uint32(((BattlegroundAVScore*)itr2->second)->MinesCaptured);       // MinesCaptured
+            break;
+        case BATTLEGROUND_WS:
+            *data << uint32(0x00000002);                    // count of next fields
+            *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagCaptures);        // flag captures
+            *data << uint32(((BattlegroundWGScore*)itr2->second)->FlagReturns);         // flag returns
+            break;
+        case BATTLEGROUND_AB:
+            *data << uint32(0x00000002);                    // count of next fields
+            *data << uint32(((BattlegroundABScore*)itr2->second)->BasesAssaulted);      // bases asssulted
+            *data << uint32(((BattlegroundABScore*)itr2->second)->BasesDefended);       // bases defended
+            break;
+        case BATTLEGROUND_EY:
+            *data << uint32(0x00000001);                    // count of next fields
+            *data << uint32(((BattlegroundEYScore*)itr2->second)->FlagCaptures);        // flag captures
+            break;
+        case BATTLEGROUND_SA:
+            *data << uint32(0x00000002);                    // count of next fields
+            *data << uint32(((BattlegroundSAScore*)itr2->second)->demolishers_destroyed);
+            *data << uint32(((BattlegroundSAScore*)itr2->second)->gates_destroyed);
+            break;
+        case BATTLEGROUND_IC:
+            *data << uint32(0x00000002);                // count of next fields
+            *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases assaulted
+            *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
+            break;
+        case BATTLEGROUND_NA:
+        case BATTLEGROUND_BE:
+        case BATTLEGROUND_AA:
+        case BATTLEGROUND_RL:
+        case BATTLEGROUND_DS:
+        case BATTLEGROUND_RV:
+            *data << uint32(0);
+            break;
+        default:
+            if (BattlegroundMgr::getBgFromTypeID.find(bgTypeId) != BattlegroundMgr::getBgFromTypeID.end())
+                BattlegroundMgr::getBgFromTypeID[bgTypeId](data, itr2, bg);
+            else
+                *data << uint32(0);
+            break;
         }
         // should never happen
         if (++scoreCount >= bg->GetMaxPlayersPerTeam() * 2 && itr != bg->GetPlayerScoresEnd())
@@ -482,15 +482,15 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         uint32 maxPlayersPerTeam = 0;
         switch (arenaType)
         {
-            case ARENA_TYPE_2v2:
-                maxPlayersPerTeam = 2;
-                break;
-            case ARENA_TYPE_3v3:
-                maxPlayersPerTeam = 3;
-                break;
-            case ARENA_TYPE_5v5:
-                maxPlayersPerTeam = 5;
-                break;
+        case ARENA_TYPE_2v2:
+            maxPlayersPerTeam = 2;
+            break;
+        case ARENA_TYPE_3v3:
+            maxPlayersPerTeam = 3;
+            break;
+        case ARENA_TYPE_5v5:
+            maxPlayersPerTeam = 5;
+            break;
         }
         sScriptMgr->OnSetArenaMaxPlayersPerTeam(arenaType, maxPlayersPerTeam);
         bg->SetMaxPlayersPerTeam(maxPlayersPerTeam);
@@ -583,14 +583,14 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         if (data.MaxPlayersPerTeam == 0 || data.MinPlayersPerTeam > data.MaxPlayersPerTeam)
         {
             LOG_ERROR("server", "Table `battleground_template` for id %u has bad values for MinPlayersPerTeam (%u) and MaxPlayersPerTeam(%u)",
-                           data.bgTypeId, data.MinPlayersPerTeam, data.MaxPlayersPerTeam);
+                      data.bgTypeId, data.MinPlayersPerTeam, data.MaxPlayersPerTeam);
             continue;
         }
 
         if (data.LevelMin == 0 || data.LevelMax == 0 || data.LevelMin > data.LevelMax)
         {
             LOG_ERROR("server", "Table `battleground_template` for id %u has bad values for LevelMin (%u) and LevelMax(%u)",
-                           data.bgTypeId, data.LevelMin, data.LevelMax);
+                      data.bgTypeId, data.LevelMin, data.LevelMax);
             continue;
         }
 
@@ -762,17 +762,17 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
     if (arenaType) {
         uint32 queueTypeID = BATTLEGROUND_QUEUE_NONE;
         switch (arenaType) {
-            case ARENA_TYPE_2v2:
-                queueTypeID = BATTLEGROUND_QUEUE_2v2;
-                break;
-            case ARENA_TYPE_3v3:
-                queueTypeID = BATTLEGROUND_QUEUE_3v3;
-                break;
-            case ARENA_TYPE_5v5:
-                queueTypeID = BATTLEGROUND_QUEUE_5v5;
-                break;
-            default:
-                break;
+        case ARENA_TYPE_2v2:
+            queueTypeID = BATTLEGROUND_QUEUE_2v2;
+            break;
+        case ARENA_TYPE_3v3:
+            queueTypeID = BATTLEGROUND_QUEUE_3v3;
+            break;
+        case ARENA_TYPE_5v5:
+            queueTypeID = BATTLEGROUND_QUEUE_5v5;
+            break;
+        default:
+            break;
         }
         sScriptMgr->OnArenaTypeIDToQueueID(bgTypeId, arenaType, queueTypeID);
         return BattlegroundQueueTypeId(queueTypeID);
@@ -801,17 +801,17 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
     uint8 arenaType = 0;
     switch (bgQueueTypeId)
     {
-        case BATTLEGROUND_QUEUE_2v2:
-            arenaType = ARENA_TYPE_2v2;
-            break;
-        case BATTLEGROUND_QUEUE_3v3:
-            arenaType = ARENA_TYPE_3v3;
-            break;
-        case BATTLEGROUND_QUEUE_5v5:
-            arenaType = ARENA_TYPE_5v5;
-            break;
-        default:
-            break;
+    case BATTLEGROUND_QUEUE_2v2:
+        arenaType = ARENA_TYPE_2v2;
+        break;
+    case BATTLEGROUND_QUEUE_3v3:
+        arenaType = ARENA_TYPE_3v3;
+        break;
+    case BATTLEGROUND_QUEUE_5v5:
+        arenaType = ARENA_TYPE_5v5;
+        break;
+    default:
+        break;
     }
     sScriptMgr->OnArenaQueueIdToArenaType(bgQueueTypeId, arenaType);
     return arenaType;
@@ -941,20 +941,20 @@ HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId
 {
     switch (bgTypeId)
     {
-        case BATTLEGROUND_AV:
-            return HOLIDAY_CALL_TO_ARMS_AV;
-        case BATTLEGROUND_EY:
-            return HOLIDAY_CALL_TO_ARMS_EY;
-        case BATTLEGROUND_WS:
-            return HOLIDAY_CALL_TO_ARMS_WS;
-        case BATTLEGROUND_SA:
-            return HOLIDAY_CALL_TO_ARMS_SA;
-        case BATTLEGROUND_AB:
-            return HOLIDAY_CALL_TO_ARMS_AB;
-        case BATTLEGROUND_IC:
-            return HOLIDAY_CALL_TO_ARMS_IC;
-        default:
-            return HOLIDAY_NONE;
+    case BATTLEGROUND_AV:
+        return HOLIDAY_CALL_TO_ARMS_AV;
+    case BATTLEGROUND_EY:
+        return HOLIDAY_CALL_TO_ARMS_EY;
+    case BATTLEGROUND_WS:
+        return HOLIDAY_CALL_TO_ARMS_WS;
+    case BATTLEGROUND_SA:
+        return HOLIDAY_CALL_TO_ARMS_SA;
+    case BATTLEGROUND_AB:
+        return HOLIDAY_CALL_TO_ARMS_AB;
+    case BATTLEGROUND_IC:
+        return HOLIDAY_CALL_TO_ARMS_IC;
+    default:
+        return HOLIDAY_NONE;
     }
 }
 
@@ -962,20 +962,20 @@ BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
 {
     switch (holiday)
     {
-        case HOLIDAY_CALL_TO_ARMS_AV:
-            return BATTLEGROUND_AV;
-        case HOLIDAY_CALL_TO_ARMS_EY:
-            return BATTLEGROUND_EY;
-        case HOLIDAY_CALL_TO_ARMS_WS:
-            return BATTLEGROUND_WS;
-        case HOLIDAY_CALL_TO_ARMS_SA:
-            return BATTLEGROUND_SA;
-        case HOLIDAY_CALL_TO_ARMS_AB:
-            return BATTLEGROUND_AB;
-        case HOLIDAY_CALL_TO_ARMS_IC:
-            return BATTLEGROUND_IC;
-        default:
-            return BATTLEGROUND_TYPE_NONE;
+    case HOLIDAY_CALL_TO_ARMS_AV:
+        return BATTLEGROUND_AV;
+    case HOLIDAY_CALL_TO_ARMS_EY:
+        return BATTLEGROUND_EY;
+    case HOLIDAY_CALL_TO_ARMS_WS:
+        return BATTLEGROUND_WS;
+    case HOLIDAY_CALL_TO_ARMS_SA:
+        return BATTLEGROUND_SA;
+    case HOLIDAY_CALL_TO_ARMS_AB:
+        return BATTLEGROUND_AB;
+    case HOLIDAY_CALL_TO_ARMS_IC:
+        return BATTLEGROUND_IC;
+    default:
+        return BATTLEGROUND_TYPE_NONE;
     }
 }
 

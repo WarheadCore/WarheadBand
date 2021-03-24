@@ -450,13 +450,13 @@ uint32 CalendarMgr::GetPlayerNumPending(uint64 guid)
     {
         switch ((*itr)->GetStatus())
         {
-            case CALENDAR_STATUS_INVITED:
-            case CALENDAR_STATUS_TENTATIVE:
-            case CALENDAR_STATUS_NOT_SIGNED_UP:
-                ++pendingNum;
-                break;
-            default:
-                break;
+        case CALENDAR_STATUS_INVITED:
+        case CALENDAR_STATUS_TENTATIVE:
+        case CALENDAR_STATUS_NOT_SIGNED_UP:
+            ++pendingNum;
+            break;
+        default:
+            break;
         }
     }
 
@@ -685,14 +685,14 @@ void CalendarMgr::SendCalendarCommandResult(uint64 guid, CalendarError err, char
         data << uint8(0);
         switch (err)
         {
-            case CALENDAR_ERROR_OTHER_INVITES_EXCEEDED:
-            case CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S:
-            case CALENDAR_ERROR_IGNORING_YOU_S:
-                data << param;
-                break;
-            default:
-                data << uint8(0);
-                break;
+        case CALENDAR_ERROR_OTHER_INVITES_EXCEEDED:
+        case CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S:
+        case CALENDAR_ERROR_IGNORING_YOU_S:
+            data << param;
+            break;
+        default:
+            data << uint8(0);
+            break;
         }
 
         data << uint32(err);

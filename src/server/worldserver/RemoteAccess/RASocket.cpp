@@ -313,20 +313,20 @@ int RASocket::subnegotiate()
             std::stringstream ss;
             switch (command)
             {
-                case 0xFB:        // WILL
-                    ss << "WILL ";
-                    break;
-                case 0xFC:        // WON'T
-                    ss << "WON'T ";
-                    break;
-                case 0xFD:        // DO
-                    ss << "DO ";
-                    break;
-                case 0xFE:        // DON'T
-                    ss << "DON'T ";
-                    break;
-                default:
-                    return -1;      // not allowed
+            case 0xFB:        // WILL
+                ss << "WILL ";
+                break;
+            case 0xFC:        // WON'T
+                ss << "WON'T ";
+                break;
+            case 0xFD:        // DO
+                ss << "DO ";
+                break;
+            case 0xFE:        // DON'T
+                ss << "DON'T ";
+                break;
+            default:
+                return -1;      // not allowed
             }
 
             uint8 param = buf[++i];

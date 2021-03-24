@@ -45,7 +45,7 @@ struct CliCommandHolder
     CommandFinished* m_commandFinished;
 
     CliCommandHolder(void* callbackArg, const char* command, Print* zprint, CommandFinished* commandFinished)
-            : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
+        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
     {
         // TODO: fix Codacy warning
         //  "Does not handle strings that are not \0-terminated; if given one it may perform an over-read (it could cause a crash if unprotected) (CWE-126)."
@@ -54,7 +54,9 @@ struct CliCommandHolder
         memcpy(m_command, command, len);
     }
 
-    ~CliCommandHolder() { delete[] m_command; }
+    ~CliCommandHolder() {
+        delete[] m_command;
+    }
 };
 
 typedef std::unordered_map<uint32, WorldSession*> SessionMap;

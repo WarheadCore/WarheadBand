@@ -102,8 +102,8 @@ void LoadSkillDiscoveryTable()
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
                     LOG_ERROR("sql.sql", "Spell (ID: %u) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc"
-                                     " and not 100%% chance random discovery ability but listed for spellId %u (and maybe more) in `skill_discovery_template` table",
-                                     absReqSkillOrSpell, spellId);
+                              " and not 100%% chance random discovery ability but listed for spellId %u (and maybe more) in `skill_discovery_template` table",
+                              absReqSkillOrSpell, spellId);
                     reportedReqSpells.insert(absReqSkillOrSpell);
                 }
                 continue;

@@ -27,7 +27,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-inline float GetAge(uint64 t) { return float(time(nullptr) - t) / DAY; }
+inline float GetAge(uint64 t) {
+    return float(time(nullptr) - t) / DAY;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GM ticket
@@ -202,16 +204,16 @@ void GmTicket::SetUnassigned()
     _assignedTo = 0;
     switch (_escalatedStatus)
     {
-        case TICKET_ASSIGNED:
-            _escalatedStatus = TICKET_UNASSIGNED;
-            break;
-        case TICKET_ESCALATED_ASSIGNED:
-            _escalatedStatus = TICKET_IN_ESCALATION_QUEUE;
-            break;
-        case TICKET_UNASSIGNED:
-        case TICKET_IN_ESCALATION_QUEUE:
-        default:
-            break;
+    case TICKET_ASSIGNED:
+        _escalatedStatus = TICKET_UNASSIGNED;
+        break;
+    case TICKET_ESCALATED_ASSIGNED:
+        _escalatedStatus = TICKET_IN_ESCALATION_QUEUE;
+        break;
+    case TICKET_UNASSIGNED:
+    case TICKET_IN_ESCALATION_QUEUE:
+    default:
+        break;
     }
 }
 
@@ -264,7 +266,9 @@ TicketMgr* TicketMgr::instance()
     return &instance;
 }
 
-void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
+void TicketMgr::Initialize() {
+    SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS));
+}
 
 void TicketMgr::ResetTickets()
 {

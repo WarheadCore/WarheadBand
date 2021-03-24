@@ -134,8 +134,12 @@ class BfGraveyardWG : public BfGraveyard
 public:
     BfGraveyardWG(BattlefieldWG* Bf);
 
-    void SetTextId(uint32 textid) { m_GossipTextId = textid; }
-    uint32 GetTextId() { return m_GossipTextId; }
+    void SetTextId(uint32 textid) {
+        m_GossipTextId = textid;
+    }
+    uint32 GetTextId() {
+        return m_GossipTextId;
+    }
 protected:
     uint32 m_GossipTextId;
 };
@@ -257,10 +261,14 @@ class WintergraspCapturePoint : public BfCapturePoint
 public:
     WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl);
 
-    void LinkToWorkshop(WGWorkshop* workshop) { m_Workshop = workshop; }
+    void LinkToWorkshop(WGWorkshop* workshop) {
+        m_Workshop = workshop;
+    }
 
     void ChangeTeam(TeamId oldteam) override;
-    TeamId GetTeam() const { return m_team; }
+    TeamId GetTeam() const {
+        return m_team;
+    }
 
 protected:
     WGWorkshop* m_Workshop;
@@ -384,16 +392,22 @@ public:
     bool SetupBattlefield() override;
 
     /// Return pointer to relic object
-    GameObject* GetRelic() { return ObjectAccessor::GetObjectInWorld(m_titansRelic, (GameObject*)nullptr); }
+    GameObject* GetRelic() {
+        return ObjectAccessor::GetObjectInWorld(m_titansRelic, (GameObject*)nullptr);
+    }
 
     /// Define relic object
     //void SetRelic(GameObject* relic) { m_titansRelic = relic; }
 
     /// Check if players can interact with the relic (Only if the last door has been broken)
-    bool CanInteractWithRelic() { return m_isRelicInteractible; }
+    bool CanInteractWithRelic() {
+        return m_isRelicInteractible;
+    }
 
     /// Define if player can interact with the relic
-    void SetRelicInteractible(bool allow) { m_isRelicInteractible = allow; }
+    void SetRelicInteractible(bool allow) {
+        m_isRelicInteractible = allow;
+    }
 
     /// Vehicle world states update
     void UpdateCounterVehicle(bool init);
@@ -426,29 +440,29 @@ public:
     {
         switch (entry)
         {
-            case BATTLEFIELD_WG_NPC_GUARD_H:
-            case BATTLEFIELD_WG_NPC_GUARD_A:
-            case BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER:
-            case BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH:
-            case BATTLEFIELD_WG_NPC_STONE_GUARD_MUKAR:
-            case BATTLEFIELD_WG_NPC_KNIGHT_DAMERON:
-            case BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN:
-            case BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA:
-            case BATTLEFIELD_WG_NPC_CHAMPION_ROS_SLAI:
-            case BATTLEFIELD_WG_NPC_MARSHAL_MAGRUDER:
-            case BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH:
-            case BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH:
-            case BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH:
-            case BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS:
-            case BATTLEFIELD_WG_NPC_HORDE_WARBRINGER:
-            case BATTLEFIELD_WG_NPC_BRIGADIER_GENERAL:
-            case BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF:
-            case BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE:
-            case BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT:
-            case BATTLEFIELD_WG_NPC_ANCHORITE_TESSA:
-            case BATTLEFIELD_WG_NPC_LIEUTENANT_MURP:
-            case BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO:
-                return true;
+        case BATTLEFIELD_WG_NPC_GUARD_H:
+        case BATTLEFIELD_WG_NPC_GUARD_A:
+        case BATTLEFIELD_WG_NPC_VIERON_BLAZEFEATHER:
+        case BATTLEFIELD_WG_NPC_BOWYER_RANDOLPH:
+        case BATTLEFIELD_WG_NPC_STONE_GUARD_MUKAR:
+        case BATTLEFIELD_WG_NPC_KNIGHT_DAMERON:
+        case BATTLEFIELD_WG_NPC_HOODOO_MASTER_FU_JIN:
+        case BATTLEFIELD_WG_NPC_SORCERESS_KAYLANA:
+        case BATTLEFIELD_WG_NPC_CHAMPION_ROS_SLAI:
+        case BATTLEFIELD_WG_NPC_MARSHAL_MAGRUDER:
+        case BATTLEFIELD_WG_NPC_COMMANDER_DARDOSH:
+        case BATTLEFIELD_WG_NPC_COMMANDER_ZANNETH:
+        case BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_KILRATH:
+        case BATTLEFIELD_WG_NPC_TACTICAL_OFFICER_AHBRAMIS:
+        case BATTLEFIELD_WG_NPC_HORDE_WARBRINGER:
+        case BATTLEFIELD_WG_NPC_BRIGADIER_GENERAL:
+        case BATTLEFIELD_WG_NPC_SIEGESMITH_STRONGHOOF:
+        case BATTLEFIELD_WG_NPC_SIEGE_MASTER_STOUTHANDLE:
+        case BATTLEFIELD_WG_NPC_PRIMALIST_MULFORT:
+        case BATTLEFIELD_WG_NPC_ANCHORITE_TESSA:
+        case BATTLEFIELD_WG_NPC_LIEUTENANT_MURP:
+        case BATTLEFIELD_WG_NPC_SENIOR_DEMOLITIONIST_LEGOSO:
+            return true;
         }
         return false;
     }
@@ -1133,18 +1147,18 @@ struct BfWGGameObjectBuilding
     {
         switch (m_Type)
         {
-            case BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER:
-            case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
-            case BATTLEFIELD_WG_OBJECTTYPE_DOOR:
-            case BATTLEFIELD_WG_OBJECTTYPE_WALL:
-                m_Team = m_WG->GetDefenderTeam();           // Objects that are part of the keep should be the defender's
-                break;
-            case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
-                m_Team = m_WG->GetAttackerTeam();           // The towers in the south should be the attacker's
-                break;
-            default:
-                m_Team = TEAM_NEUTRAL;
-                break;
+        case BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER:
+        case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
+        case BATTLEFIELD_WG_OBJECTTYPE_DOOR:
+        case BATTLEFIELD_WG_OBJECTTYPE_WALL:
+            m_Team = m_WG->GetDefenderTeam();           // Objects that are part of the keep should be the defender's
+            break;
+        case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
+            m_Team = m_WG->GetAttackerTeam();           // The towers in the south should be the attacker's
+            break;
+        default:
+            m_Team = TEAM_NEUTRAL;
+            break;
         }
 
         GameObject* go = ObjectAccessor::GetObjectInWorld(m_Build, (GameObject*)nullptr);
@@ -1199,22 +1213,22 @@ struct BfWGGameObjectBuilding
 
         switch (m_Type)
         {
-            // Inform the global wintergrasp script of the destruction of this object
-            case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
-                m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team), ObjectAccessor::GetObjectInWorld(m_Build, (GameObject*)nullptr));
-                break;
-            case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
-                m_WG->SetRelicInteractible(true);
-                if (GameObject* go = m_WG->GetRelic())
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                else
-                    LOG_ERROR("server", "BattlefieldWG: Relic not found.");
-                break;
-            case BATTLEFIELD_WG_OBJECTTYPE_DOOR:
-            case BATTLEFIELD_WG_OBJECTTYPE_WALL:
-            case BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER:
-                m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team), ObjectAccessor::GetObjectInWorld(m_Build, (GameObject*)nullptr));
-                break;
+        // Inform the global wintergrasp script of the destruction of this object
+        case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
+            m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team), ObjectAccessor::GetObjectInWorld(m_Build, (GameObject*)nullptr));
+            break;
+        case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
+            m_WG->SetRelicInteractible(true);
+            if (GameObject* go = m_WG->GetRelic())
+                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            else
+                LOG_ERROR("server", "BattlefieldWG: Relic not found.");
+            break;
+        case BATTLEFIELD_WG_OBJECTTYPE_DOOR:
+        case BATTLEFIELD_WG_OBJECTTYPE_WALL:
+        case BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER:
+            m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team), ObjectAccessor::GetObjectInWorld(m_Build, (GameObject*)nullptr));
+            break;
         }
 
         m_WG->BrokenWallOrTower(TeamId(m_Team));
@@ -1242,18 +1256,18 @@ struct BfWGGameObjectBuilding
 
         switch (m_Type)
         {
-            case BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER:
-            case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
-            case BATTLEFIELD_WG_OBJECTTYPE_DOOR:
-            case BATTLEFIELD_WG_OBJECTTYPE_WALL:
-                m_Team = m_WG->GetDefenderTeam();           // Objects that are part of the keep should be the defender's
-                break;
-            case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
-                m_Team = m_WG->GetAttackerTeam();           // The towers in the south should be the attacker's
-                break;
-            default:
-                m_Team = TEAM_NEUTRAL;
-                break;
+        case BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER:
+        case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
+        case BATTLEFIELD_WG_OBJECTTYPE_DOOR:
+        case BATTLEFIELD_WG_OBJECTTYPE_WALL:
+            m_Team = m_WG->GetDefenderTeam();           // Objects that are part of the keep should be the defender's
+            break;
+        case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
+            m_Team = m_WG->GetAttackerTeam();           // The towers in the south should be the attacker's
+            break;
+        default:
+            m_Team = TEAM_NEUTRAL;
+            break;
         }
 
         m_State = sWorld->getWorldState(m_WorldState);
@@ -1261,45 +1275,45 @@ struct BfWGGameObjectBuilding
         {
             switch (m_State)
             {
-                case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
-                case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
-                    gobj->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
-                    break;
-                case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
-                case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY:
-                    gobj->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-                    break;
-                case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE:
-                case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DAMAGE:
-                    gobj->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
-                    break;
+            case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
+            case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
+                gobj->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
+                break;
+            case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
+            case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY:
+                gobj->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                break;
+            case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE:
+            case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DAMAGE:
+                gobj->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
+                break;
             }
         }
 
         int32 towerid = -1;
         switch (gobj->GetEntry())
         {
-            case GO_WINTERGRASP_FORTRESS_TOWER_1:
-                towerid = 0;
-                break;
-            case GO_WINTERGRASP_FORTRESS_TOWER_2:
-                towerid = 1;
-                break;
-            case GO_WINTERGRASP_FORTRESS_TOWER_3:
-                towerid = 2;
-                break;
-            case GO_WINTERGRASP_FORTRESS_TOWER_4:
-                towerid = 3;
-                break;
-            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
-                towerid = 4;
-                break;
-            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
-                towerid = 5;
-                break;
-            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
-                towerid = 6;
-                break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+            towerid = 0;
+            break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+            towerid = 1;
+            break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+            towerid = 2;
+            break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_4:
+            towerid = 3;
+            break;
+        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+            towerid = 4;
+            break;
+        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+            towerid = 5;
+            break;
+        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+            towerid = 6;
+            break;
         }
 
         if (towerid > 3) // Attacker towers
@@ -1402,17 +1416,17 @@ struct BfWGGameObjectBuilding
         uint32 faction = 0;
         switch (build->GetEntry())
         {
-            case GO_WINTERGRASP_FORTRESS_TOWER_1:
-            case GO_WINTERGRASP_FORTRESS_TOWER_2:
-            case GO_WINTERGRASP_FORTRESS_TOWER_3:
-            case GO_WINTERGRASP_FORTRESS_TOWER_4:
-                faction = WintergraspFaction[m_WG->GetDefenderTeam()];
-                break;
-            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
-            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
-            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
-                faction = WintergraspFaction[m_WG->GetAttackerTeam()];
-                break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+        case GO_WINTERGRASP_FORTRESS_TOWER_4:
+            faction = WintergraspFaction[m_WG->GetDefenderTeam()];
+            break;
+        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+            faction = WintergraspFaction[m_WG->GetAttackerTeam()];
+            break;
         }
 
         for (GuidSet::const_iterator itr = m_TowerCannonBottomList.begin(); itr != m_TowerCannonBottomList.end(); ++itr)
@@ -1477,32 +1491,32 @@ struct WGWorkshop
     {
         switch (team)
         {
-            case TEAM_NEUTRAL:
-                {
-                    // Send warning message to all player to inform a faction attack to a workshop
-                    // alliance / horde attacking a workshop
-                    bf->SendWarningToAllInZone(teamControl ? WorkshopsData[workshopId].attackText : (WorkshopsData[workshopId].attackText + 2));
-                    break;
-                }
-            case TEAM_ALLIANCE:
-            case TEAM_HORDE:
-                {
-                    // Updating worldstate
-                    state = team == TEAM_ALLIANCE ? BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT : BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT;
-                    bf->SendUpdateWorldState(WorkshopsData[workshopId].worldstate, state);
+        case TEAM_NEUTRAL:
+        {
+            // Send warning message to all player to inform a faction attack to a workshop
+            // alliance / horde attacking a workshop
+            bf->SendWarningToAllInZone(teamControl ? WorkshopsData[workshopId].attackText : (WorkshopsData[workshopId].attackText + 2));
+            break;
+        }
+        case TEAM_ALLIANCE:
+        case TEAM_HORDE:
+        {
+            // Updating worldstate
+            state = team == TEAM_ALLIANCE ? BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT : BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT;
+            bf->SendUpdateWorldState(WorkshopsData[workshopId].worldstate, state);
 
-                    // Warning message
-                    if (!init)                              // workshop taken - alliance
-                        bf->SendWarningToAllInZone(team == TEAM_ALLIANCE ? WorkshopsData[workshopId].takenText : (WorkshopsData[workshopId].takenText + 2));
+            // Warning message
+            if (!init)                              // workshop taken - alliance
+                bf->SendWarningToAllInZone(team == TEAM_ALLIANCE ? WorkshopsData[workshopId].takenText : (WorkshopsData[workshopId].takenText + 2));
 
-                    // Found associate graveyard and update it
-                    if (workshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
-                        if (bf->GetGraveyardById(workshopId))
-                            bf->GetGraveyardById(workshopId)->GiveControlTo(team);
+            // Found associate graveyard and update it
+            if (workshopId < BATTLEFIELD_WG_WORKSHOP_KEEP_WEST)
+                if (bf->GetGraveyardById(workshopId))
+                    bf->GetGraveyardById(workshopId)->GiveControlTo(team);
 
-                    teamControl = team;
-                    break;
-                }
+            teamControl = team;
+            break;
+        }
         }
 
         if (!init)

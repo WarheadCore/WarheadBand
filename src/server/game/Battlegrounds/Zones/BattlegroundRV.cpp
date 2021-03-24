@@ -76,65 +76,65 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
     {
         switch (getState())
         {
-            case BG_RV_STATE_OPEN_FENCES:
-                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
-                    DoorOpen(i);
-                setTimer(BG_RV_CLOSE_FIRE_TIMER);
-                setState(BG_RV_STATE_CLOSE_FIRE);
+        case BG_RV_STATE_OPEN_FENCES:
+            for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
+                DoorOpen(i);
+            setTimer(BG_RV_CLOSE_FIRE_TIMER);
+            setState(BG_RV_STATE_CLOSE_FIRE);
 
-                for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-                    if (Player* player = itr->second)
+            for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+                if (Player* player = itr->second)
+                {
+                    // Demonic Circle Summon
+                    if (GameObject* gObj = player->GetGameObject(48018))
                     {
-                        // Demonic Circle Summon
-                        if (GameObject* gObj = player->GetGameObject(48018))
-                        {
-                            gObj->Relocate(gObj->GetPositionX(), gObj->GetPositionY(), 28.28f);
-                            gObj->UpdateObjectVisibility(true);
-                        }
-
-                        if (player->GetPositionZ() < 27.0f)
-                            TeleportUnitToNewZ(player, 28.28f, true);
-
-                        for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
-                            if (player->m_SummonSlot[i])
-                                if (Creature* totem = GetBgMap()->GetCreature(player->m_SummonSlot[i]))
-                                    if (totem->GetPositionZ() < 28.0f)
-                                        TeleportUnitToNewZ(totem, 28.28f, true);
-
-                        for (Unit::ControlSet::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
-                        {
-                            if ((*itr)->GetPositionZ() < 28.0f)
-                                TeleportUnitToNewZ((*itr), 28.28f, true);
-
-                            // Xinef: override stay position
-                            if (CharmInfo* charmInfo = (*itr)->GetCharmInfo())
-                                if (charmInfo->IsAtStay())
-                                {
-                                    (*itr)->StopMovingOnCurrentPos();
-                                    charmInfo->SaveStayPosition(false);
-                                }
-                        }
+                        gObj->Relocate(gObj->GetPositionX(), gObj->GetPositionY(), 28.28f);
+                        gObj->UpdateObjectVisibility(true);
                     }
 
-                // fix ground on elevators (so aoe spells can be casted there)
-                {
-                    uint32 objects[2] = {BG_RV_OBJECT_ELEVATOR_1, BG_RV_OBJECT_ELEVATOR_2};
-                    for (uint8 i = 0; i < 2; ++i)
-                        if (GameObject* go = GetBGObject(objects[i]))
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_TRANSPORT);
+                    if (player->GetPositionZ() < 27.0f)
+                        TeleportUnitToNewZ(player, 28.28f, true);
+
+                    for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+                        if (player->m_SummonSlot[i])
+                            if (Creature* totem = GetBgMap()->GetCreature(player->m_SummonSlot[i]))
+                                if (totem->GetPositionZ() < 28.0f)
+                                    TeleportUnitToNewZ(totem, 28.28f, true);
+
+                    for (Unit::ControlSet::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->GetPositionZ() < 28.0f)
+                            TeleportUnitToNewZ((*itr), 28.28f, true);
+
+                        // Xinef: override stay position
+                        if (CharmInfo* charmInfo = (*itr)->GetCharmInfo())
+                            if (charmInfo->IsAtStay())
+                            {
+                                (*itr)->StopMovingOnCurrentPos();
+                                charmInfo->SaveStayPosition(false);
+                            }
+                    }
                 }
-                break;
-            case BG_RV_STATE_CLOSE_FIRE:
-                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
-                    DoorClose(i);
-                // Fire got closed after five seconds, leaves twenty seconds before toggling pillars
-                setTimer(BG_RV_FIRE_TO_PILLAR_TIMER);
-                setState(BG_RV_STATE_SWITCH_PILLARS);
-                break;
-            case BG_RV_STATE_SWITCH_PILLARS:
-                UpdatePillars();
-                setTimer(BG_RV_PILLAR_SWITCH_TIMER);
-                break;
+
+            // fix ground on elevators (so aoe spells can be casted there)
+            {
+                uint32 objects[2] = {BG_RV_OBJECT_ELEVATOR_1, BG_RV_OBJECT_ELEVATOR_2};
+                for (uint8 i = 0; i < 2; ++i)
+                    if (GameObject* go = GetBGObject(objects[i]))
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_TRANSPORT);
+            }
+            break;
+        case BG_RV_STATE_CLOSE_FIRE:
+            for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
+                DoorClose(i);
+            // Fire got closed after five seconds, leaves twenty seconds before toggling pillars
+            setTimer(BG_RV_FIRE_TO_PILLAR_TIMER);
+            setState(BG_RV_STATE_SWITCH_PILLARS);
+            break;
+        case BG_RV_STATE_SWITCH_PILLARS:
+            UpdatePillars();
+            setTimer(BG_RV_PILLAR_SWITCH_TIMER);
+            break;
         }
     }
     else
@@ -225,20 +225,20 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
 
     switch (trigger)
     {
-        // fire was removed in 3.2.0
-        case 5473:
-        case 5474:
-            break;
-        // OUTSIDE OF ARENA, TELEPORT!
-        case 5224:
-            player->NearTeleportTo(765.0f, -294.0f, 28.3f, player->GetOrientation());
-            break;
-        case 5226:
-            player->NearTeleportTo(765.0f, -272.0f, 28.3f, player->GetOrientation());
-            break;
-        case 5447:
-            player->NearTeleportTo(763.5f, -284, 28.276f, 2.422f);
-            break;
+    // fire was removed in 3.2.0
+    case 5473:
+    case 5474:
+        break;
+    // OUTSIDE OF ARENA, TELEPORT!
+    case 5224:
+        player->NearTeleportTo(765.0f, -294.0f, 28.3f, player->GetOrientation());
+        break;
+    case 5226:
+        player->NearTeleportTo(765.0f, -272.0f, 28.3f, player->GetOrientation());
+        break;
+    case 5447:
+        player->NearTeleportTo(763.5f, -284, 28.276f, 2.422f);
+        break;
     }
 }
 

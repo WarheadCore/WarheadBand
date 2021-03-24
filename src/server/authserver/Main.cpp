@@ -64,10 +64,10 @@ public:
     {
         switch (sigNum)
         {
-            case SIGINT:
-            case SIGTERM:
-                stopEvent = true;
-                break;
+        case SIGINT:
+        case SIGTERM:
+            stopEvent = true;
+            break;
         }
     }
 };
@@ -76,8 +76,8 @@ public:
 void usage(const char* prog)
 {
     LOG_INFO("server.authserver", "Usage: \n %s [<options>]\n"
-                    "    -c config_file           use config_file as configuration file\n\r",
-                    prog);
+             "    -c config_file           use config_file as configuration file\n\r",
+             prog);
 }
 
 /// Launch the auth server

@@ -35,33 +35,33 @@ void WorldSession::SendTradeStatus(TradeStatus status)
 
     switch (status)
     {
-        case TRADE_STATUS_BEGIN_TRADE:
-            data.Initialize(SMSG_TRADE_STATUS, 4 + 8);
-            data << uint32(status);
-            data << uint64(0);
-            break;
-        case TRADE_STATUS_OPEN_WINDOW:
-            data.Initialize(SMSG_TRADE_STATUS, 4 + 4);
-            data << uint32(status);
-            data << uint32(0);                              // added in 2.4.0
-            break;
-        case TRADE_STATUS_CLOSE_WINDOW:
-            data.Initialize(SMSG_TRADE_STATUS, 4 + 4 + 1 + 4);
-            data << uint32(status);
-            data << uint32(0);
-            data << uint8(0);
-            data << uint32(0);
-            break;
-        case TRADE_STATUS_ONLY_CONJURED:
-        case TRADE_STATUS_NOT_ELIGIBLE:
-            data.Initialize(SMSG_TRADE_STATUS, 4 + 1);
-            data << uint32(status);
-            data << uint8(0);
-            break;
-        default:
-            data.Initialize(SMSG_TRADE_STATUS, 4);
-            data << uint32(status);
-            break;
+    case TRADE_STATUS_BEGIN_TRADE:
+        data.Initialize(SMSG_TRADE_STATUS, 4 + 8);
+        data << uint32(status);
+        data << uint64(0);
+        break;
+    case TRADE_STATUS_OPEN_WINDOW:
+        data.Initialize(SMSG_TRADE_STATUS, 4 + 4);
+        data << uint32(status);
+        data << uint32(0);                              // added in 2.4.0
+        break;
+    case TRADE_STATUS_CLOSE_WINDOW:
+        data.Initialize(SMSG_TRADE_STATUS, 4 + 4 + 1 + 4);
+        data << uint32(status);
+        data << uint32(0);
+        data << uint8(0);
+        data << uint32(0);
+        break;
+    case TRADE_STATUS_ONLY_CONJURED:
+    case TRADE_STATUS_NOT_ELIGIBLE:
+        data.Initialize(SMSG_TRADE_STATUS, 4 + 1);
+        data << uint32(status);
+        data << uint8(0);
+        break;
+    default:
+        data.Initialize(SMSG_TRADE_STATUS, 4);
+        data << uint32(status);
+        break;
     }
 
     SendPacket(&data);

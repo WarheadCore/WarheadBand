@@ -118,26 +118,26 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 
         switch (clientIndex)                                 // arenaSlot+1 as received from client (1 from 3 case)
         {
-            case 1:
-                charterid = ARENA_TEAM_CHARTER_2v2;
-                cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_2v2);
-                type = ARENA_TEAM_CHARTER_2v2_TYPE;
-                break;
-            case 2:
-                charterid = ARENA_TEAM_CHARTER_3v3;
-                cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_3v3);
-                type = ARENA_TEAM_CHARTER_3v3_TYPE;
-                break;
-            case 3:
-                charterid = ARENA_TEAM_CHARTER_5v5;
-                cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_5v5);
-                type = ARENA_TEAM_CHARTER_5v5_TYPE;
-                break;
-            default:
+        case 1:
+            charterid = ARENA_TEAM_CHARTER_2v2;
+            cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_2v2);
+            type = ARENA_TEAM_CHARTER_2v2_TYPE;
+            break;
+        case 2:
+            charterid = ARENA_TEAM_CHARTER_3v3;
+            cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_3v3);
+            type = ARENA_TEAM_CHARTER_3v3_TYPE;
+            break;
+        case 3:
+            charterid = ARENA_TEAM_CHARTER_5v5;
+            cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_5v5);
+            type = ARENA_TEAM_CHARTER_5v5_TYPE;
+            break;
+        default:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("network", "unknown selection at buy arena petition: %u", clientIndex);
+            LOG_DEBUG("network", "unknown selection at buy arena petition: %u", clientIndex);
 #endif
-                return;
+            return;
         }
 
         if (_player->GetArenaTeamId(clientIndex - 1))        // arenaSlot+1 as received from client

@@ -1294,26 +1294,26 @@ bool Group::CountRollVote(uint64 playerGUID, uint64 Guid, uint8 Choice)
 
     switch (Choice)
     {
-        case ROLL_PASS:                                     // Player choose pass
-            SendLootRoll(0, playerGUID, 128, ROLL_PASS, *roll);
-            ++roll->totalPass;
-            itr->second = PASS;
-            break;
-        case ROLL_NEED:                                     // player choose Need
-            SendLootRoll(0, playerGUID, 0, 0, *roll);
-            ++roll->totalNeed;
-            itr->second = NEED;
-            break;
-        case ROLL_GREED:                                    // player choose Greed
-            SendLootRoll(0, playerGUID, 128, ROLL_GREED, *roll);
-            ++roll->totalGreed;
-            itr->second = GREED;
-            break;
-        case ROLL_DISENCHANT:                               // player choose Disenchant
-            SendLootRoll(0, playerGUID, 128, ROLL_DISENCHANT, *roll);
-            ++roll->totalGreed;
-            itr->second = DISENCHANT;
-            break;
+    case ROLL_PASS:                                     // Player choose pass
+        SendLootRoll(0, playerGUID, 128, ROLL_PASS, *roll);
+        ++roll->totalPass;
+        itr->second = PASS;
+        break;
+    case ROLL_NEED:                                     // player choose Need
+        SendLootRoll(0, playerGUID, 0, 0, *roll);
+        ++roll->totalNeed;
+        itr->second = NEED;
+        break;
+    case ROLL_GREED:                                    // player choose Greed
+        SendLootRoll(0, playerGUID, 128, ROLL_GREED, *roll);
+        ++roll->totalGreed;
+        itr->second = GREED;
+        break;
+    case ROLL_DISENCHANT:                               // player choose Disenchant
+        SendLootRoll(0, playerGUID, 128, ROLL_DISENCHANT, *roll);
+        ++roll->totalGreed;
+        itr->second = DISENCHANT;
+        break;
     }
 
     if (roll->totalPass + roll->totalNeed + roll->totalGreed >= roll->totalPlayersRolling)
@@ -1957,56 +1957,56 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* leader)
 
     switch (method)
     {
-        case INSTANCE_RESET_ALL:
-            {
-                if (leader->GetDifficulty(false) != DUNGEON_DIFFICULTY_NORMAL)
-                    break;
-                std::vector<InstanceSave*> toUnbind;
-                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(leader->GetGUIDLow(), Difficulty(DUNGEON_DIFFICULTY_NORMAL));
-                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
-                {
-                    InstanceSave* instanceSave = itr->second.save;
-                    const MapEntry* entry = sMapStore.LookupEntry(itr->first);
-                    if (!entry || entry->IsRaid() || !instanceSave->CanReset())
-                        continue;
-
-                    Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-                    if (!map || map->ToInstanceMap()->Reset(method))
-                    {
-                        leader->SendResetInstanceSuccess(instanceSave->GetMapId());
-                        toUnbind.push_back(instanceSave);
-                    }
-                    else
-                        leader->SendResetInstanceFailed(0, instanceSave->GetMapId());
-                }
-                for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
-                    sInstanceSaveMgr->UnbindAllFor(*itr);
-            }
+    case INSTANCE_RESET_ALL:
+    {
+        if (leader->GetDifficulty(false) != DUNGEON_DIFFICULTY_NORMAL)
             break;
-        case INSTANCE_RESET_CHANGE_DIFFICULTY:
-            {
-                std::vector<InstanceSave*> toUnbind;
-                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(leader->GetGUIDLow(), leader->GetDifficulty(isRaid));
-                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
-                {
-                    InstanceSave* instanceSave = itr->second.save;
-                    const MapEntry* entry = sMapStore.LookupEntry(itr->first);
-                    if (!entry || entry->IsRaid() != isRaid || !instanceSave->CanReset())
-                        continue;
+        std::vector<InstanceSave*> toUnbind;
+        BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(leader->GetGUIDLow(), Difficulty(DUNGEON_DIFFICULTY_NORMAL));
+        for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
+        {
+            InstanceSave* instanceSave = itr->second.save;
+            const MapEntry* entry = sMapStore.LookupEntry(itr->first);
+            if (!entry || entry->IsRaid() || !instanceSave->CanReset())
+                continue;
 
-                    Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-                    if (!map || map->ToInstanceMap()->Reset(method))
-                    {
-                        leader->SendResetInstanceSuccess(instanceSave->GetMapId());
-                        toUnbind.push_back(instanceSave);
-                    }
-                    else
-                        leader->SendResetInstanceFailed(0, instanceSave->GetMapId());
-                }
-                for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
-                    sInstanceSaveMgr->UnbindAllFor(*itr);
+            Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
+            if (!map || map->ToInstanceMap()->Reset(method))
+            {
+                leader->SendResetInstanceSuccess(instanceSave->GetMapId());
+                toUnbind.push_back(instanceSave);
             }
-            break;
+            else
+                leader->SendResetInstanceFailed(0, instanceSave->GetMapId());
+        }
+        for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
+            sInstanceSaveMgr->UnbindAllFor(*itr);
+    }
+    break;
+    case INSTANCE_RESET_CHANGE_DIFFICULTY:
+    {
+        std::vector<InstanceSave*> toUnbind;
+        BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(leader->GetGUIDLow(), leader->GetDifficulty(isRaid));
+        for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
+        {
+            InstanceSave* instanceSave = itr->second.save;
+            const MapEntry* entry = sMapStore.LookupEntry(itr->first);
+            if (!entry || entry->IsRaid() != isRaid || !instanceSave->CanReset())
+                continue;
+
+            Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
+            if (!map || map->ToInstanceMap()->Reset(method))
+            {
+                leader->SendResetInstanceSuccess(instanceSave->GetMapId());
+                toUnbind.push_back(instanceSave);
+            }
+            else
+                leader->SendResetInstanceFailed(0, instanceSave->GetMapId());
+        }
+        for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
+            sInstanceSaveMgr->UnbindAllFor(*itr);
+    }
+    break;
     }
 }
 
@@ -2235,16 +2235,16 @@ void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)
     // Do flag specific actions, e.g ensure uniqueness
     switch (flag)
     {
-        case MEMBER_FLAG_MAINASSIST:
-            RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
-            break;
-        case MEMBER_FLAG_MAINTANK:
-            RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main tank flag from current if any.
-            break;
-        case MEMBER_FLAG_ASSISTANT:
-            break;
-        default:
-            return;                                                      // This should never happen
+    case MEMBER_FLAG_MAINASSIST:
+        RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
+        break;
+    case MEMBER_FLAG_MAINTANK:
+        RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main tank flag from current if any.
+        break;
+    case MEMBER_FLAG_ASSISTANT:
+        break;
+    default:
+        return;                                                      // This should never happen
     }
 
     // Switch the actual flag

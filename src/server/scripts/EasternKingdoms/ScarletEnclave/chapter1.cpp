@@ -100,37 +100,37 @@ public:
             events.Update(diff);
             switch (events.ExecuteEvent())
             {
-                case EVENT_REMOVE_CONTROL:
-                    if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                        SetControl(player, false);
-                    }
-                    break;
-                case EVENT_SPEAK_1:
-                    Talk(EYE_TEXT_LAUNCH, me->GetCharmerOrOwnerPlayerOrPlayerItself());
-                    break;
-                case EVENT_LAUNCH:
-                    {
-                        me->SetSpeed(MOVE_FLIGHT, 5.0f, true);
+            case EVENT_REMOVE_CONTROL:
+                if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                {
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                    SetControl(player, false);
+                }
+                break;
+            case EVENT_SPEAK_1:
+                Talk(EYE_TEXT_LAUNCH, me->GetCharmerOrOwnerPlayerOrPlayerItself());
+                break;
+            case EVENT_LAUNCH:
+            {
+                me->SetSpeed(MOVE_FLIGHT, 5.0f, true);
 
-                        const Position EYE_DESTINATION_1 = { me->GetPositionX() - 40.0f, me->GetPositionY(), me->GetPositionZ() + 10.0f, 0.0f };
-                        const Position EYE_DESTINATION_2 = { 1768.0f, -5876.0f, 153.0f, 0.0f };
+                const Position EYE_DESTINATION_1 = { me->GetPositionX() - 40.0f, me->GetPositionY(), me->GetPositionZ() + 10.0f, 0.0f };
+                const Position EYE_DESTINATION_2 = { 1768.0f, -5876.0f, 153.0f, 0.0f };
 
-                        me->GetMotionMaster()->MovePoint(EYE_POINT_DESTINATION_1, EYE_DESTINATION_1);
-                        me->GetMotionMaster()->MovePoint(EYE_POINT_DESTINATION_2, EYE_DESTINATION_2);
-                        break;
-                    }
-                case EVENT_REGAIN_CONTROL:
-                    if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    {
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                        me->SetSpeed(MOVE_FLIGHT, 3.3f, true);
+                me->GetMotionMaster()->MovePoint(EYE_POINT_DESTINATION_1, EYE_DESTINATION_1);
+                me->GetMotionMaster()->MovePoint(EYE_POINT_DESTINATION_2, EYE_DESTINATION_2);
+                break;
+            }
+            case EVENT_REGAIN_CONTROL:
+                if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                {
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                    me->SetSpeed(MOVE_FLIGHT, 3.3f, true);
 
-                        SetControl(player, true);
-                        Talk(EYE_TEXT_CONTROL, player);
-                    }
-                    break;
+                    SetControl(player, true);
+                    Talk(EYE_TEXT_CONTROL, player);
+                }
+                break;
             }
         }
     };
@@ -322,32 +322,32 @@ public:
             events.Update(diff);
             switch (events.ExecuteEvent())
             {
-                case EVENT_SPEAK:
-                    Talk(SAY_DUEL, ObjectAccessor::GetPlayer(*me, _duelGUID));
-                    break;
-                case EVENT_SPEAK+1:
-                    Talk(SAY_DUEL + 1, ObjectAccessor::GetPlayer(*me, _duelGUID));
-                    break;
-                case EVENT_SPEAK+2:
-                    Talk(SAY_DUEL + 2, ObjectAccessor::GetPlayer(*me, _duelGUID));
-                    break;
-                case EVENT_SPEAK+3:
-                    Talk(SAY_DUEL + 3, ObjectAccessor::GetPlayer(*me, _duelGUID));
-                    break;
-                case EVENT_SPEAK+4:
-                    Talk(SAY_DUEL + 4, ObjectAccessor::GetPlayer(*me, _duelGUID));
-                    break;
-                case EVENT_SPEAK+5:
-                    me->setFaction(FACTION_HOSTILE);
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _duelGUID))
-                        AttackStart(player);
-                    return;
-                case EVENT_DUEL_LOST:
-                    me->CastSpell(me, 7267, true);
-                    break;
-                case EVENT_DUEL_LOST+1:
-                    EnterEvadeMode();
-                    return;
+            case EVENT_SPEAK:
+                Talk(SAY_DUEL, ObjectAccessor::GetPlayer(*me, _duelGUID));
+                break;
+            case EVENT_SPEAK+1:
+                Talk(SAY_DUEL + 1, ObjectAccessor::GetPlayer(*me, _duelGUID));
+                break;
+            case EVENT_SPEAK+2:
+                Talk(SAY_DUEL + 2, ObjectAccessor::GetPlayer(*me, _duelGUID));
+                break;
+            case EVENT_SPEAK+3:
+                Talk(SAY_DUEL + 3, ObjectAccessor::GetPlayer(*me, _duelGUID));
+                break;
+            case EVENT_SPEAK+4:
+                Talk(SAY_DUEL + 4, ObjectAccessor::GetPlayer(*me, _duelGUID));
+                break;
+            case EVENT_SPEAK+5:
+                me->setFaction(FACTION_HOSTILE);
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _duelGUID))
+                    AttackStart(player);
+                return;
+            case EVENT_DUEL_LOST:
+                me->CastSpell(me, 7267, true);
+                break;
+            case EVENT_DUEL_LOST+1:
+                EnterEvadeMode();
+                return;
             }
 
             if (!events.Empty() || !UpdateVictim())
@@ -504,29 +504,29 @@ public:
             events.Update(diff);
             switch (events.ExecuteEvent())
             {
-                case EVENT_GHOUL_MOVE_TO_PIT:
-                    me->GetMotionMaster()->MovePoint(1, 2364.77f, -5776.14f, 151.36f);
-                    if (Creature* gothik = ObjectAccessor::GetCreature(*me, gothikGUID))
-                        gothik->AI()->DoAction(SAY_GOTHIK_PIT);
-                    break;
-                case EVENT_GHOUL_EMOTE:
-                    me->CastSpell(me, SPELL_GHOUL_EMERGE, true);
-                    break;
-                case EVENT_GHOUL_RESTORE_STATE:
-                    me->SetReactState(REACT_DEFENSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            case EVENT_GHOUL_MOVE_TO_PIT:
+                me->GetMotionMaster()->MovePoint(1, 2364.77f, -5776.14f, 151.36f);
+                if (Creature* gothik = ObjectAccessor::GetCreature(*me, gothikGUID))
+                    gothik->AI()->DoAction(SAY_GOTHIK_PIT);
+                break;
+            case EVENT_GHOUL_EMOTE:
+                me->CastSpell(me, SPELL_GHOUL_EMERGE, true);
+                break;
+            case EVENT_GHOUL_RESTORE_STATE:
+                me->SetReactState(REACT_DEFENSIVE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, frand(0.0f, 2 * M_PI));
+                events.ScheduleEvent(EVENT_GHOUL_CHECK_COMBAT, 1000);
+                return;
+            case EVENT_GHOUL_CHECK_COMBAT:
+                if (!me->IsInCombat())
                     if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, frand(0.0f, 2 * M_PI));
-                    events.ScheduleEvent(EVENT_GHOUL_CHECK_COMBAT, 1000);
-                    return;
-                case EVENT_GHOUL_CHECK_COMBAT:
-                    if (!me->IsInCombat())
-                        if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                            if (owner->GetVictim())
-                                AttackStart(owner->GetVictim());
+                        if (owner->GetVictim())
+                            AttackStart(owner->GetVictim());
 
-                    events.RepeatEvent(1000);
-                    return;
+                events.RepeatEvent(1000);
+                return;
             }
 
             if (!UpdateVictim())
@@ -549,7 +549,9 @@ public:
 
     struct npc_dkc1_gothikAI : public ScriptedAI
     {
-        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) { spoken = 0; }
+        npc_dkc1_gothikAI(Creature* creature) : ScriptedAI(creature) {
+            spoken = 0;
+        }
 
         int32 spoken;
 
@@ -601,7 +603,9 @@ public:
 
     struct npc_scarlet_cannonAI : public VehicleAI
     {
-        npc_scarlet_cannonAI(Creature* creature) : VehicleAI(creature) { summonAttackers = 0; }
+        npc_scarlet_cannonAI(Creature* creature) : VehicleAI(creature) {
+            summonAttackers = 0;
+        }
 
         uint32 summonAttackers;
         void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
@@ -777,103 +781,103 @@ public:
         {
             switch (phase)
             {
-                case PHASE_CHAINED:
-                    if (!anchorGUID)
+            case PHASE_CHAINED:
+                if (!anchorGUID)
+                {
+                    if (Creature* anchor = me->FindNearestCreature(29521, 30))
                     {
-                        if (Creature* anchor = me->FindNearestCreature(29521, 30))
-                        {
-                            anchor->AI()->SetGUID(me->GetGUID());
-                            anchor->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
-                            anchorGUID = anchor->GetGUID();
-                        }
+                        anchor->AI()->SetGUID(me->GetGUID());
+                        anchor->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
+                        anchorGUID = anchor->GetGUID();
+                    }
 
-                        float dist = 99.0f;
-                        GameObject* prison = nullptr;
+                    float dist = 99.0f;
+                    GameObject* prison = nullptr;
 
-                        for (uint8 i = 0; i < 12; ++i)
+                    for (uint8 i = 0; i < 12; ++i)
+                    {
+                        if (GameObject* temp_prison = me->FindNearestGameObject(acherus_soul_prison[i], 100))
                         {
-                            if (GameObject* temp_prison = me->FindNearestGameObject(acherus_soul_prison[i], 100))
+                            if (temp_prison && me->IsWithinDist(temp_prison, dist, false))
                             {
-                                if (temp_prison && me->IsWithinDist(temp_prison, dist, false))
-                                {
-                                    dist = me->GetDistance2d(temp_prison);
-                                    prison = temp_prison;
-                                }
+                                dist = me->GetDistance2d(temp_prison);
+                                prison = temp_prison;
                             }
                         }
-
-                        if (prison)
-                            prison->ResetDoorOrButton();
                     }
-                    break;
-                case PHASE_TO_EQUIP:
-                    if (wait_timer)
+
+                    if (prison)
+                        prison->ResetDoorOrButton();
+                }
+                break;
+            case PHASE_TO_EQUIP:
+                if (wait_timer)
+                {
+                    if (wait_timer > diff)
+                        wait_timer -= diff;
+                    else
                     {
-                        if (wait_timer > diff)
-                            wait_timer -= diff;
-                        else
-                        {
-                            me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
-                            //LOG_DEBUG("scripts.ai", "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
-                            phase = PHASE_EQUIPING;
-                            wait_timer = 0;
-                        }
+                        me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
+                        //LOG_DEBUG("scripts.ai", "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
+                        phase = PHASE_EQUIPING;
+                        wait_timer = 0;
                     }
-                    break;
-                case PHASE_TO_ATTACK:
-                    if (wait_timer)
+                }
+                break;
+            case PHASE_TO_ATTACK:
+                if (wait_timer)
+                {
+                    if (wait_timer > diff)
+                        wait_timer -= diff;
+                    else
                     {
-                        if (wait_timer > diff)
-                            wait_timer -= diff;
-                        else
-                        {
-                            me->setFaction(14);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                            phase = PHASE_ATTACKING;
+                        me->setFaction(14);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        phase = PHASE_ATTACKING;
 
-                            if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))
-                                AttackStart(target);
-                            wait_timer = 0;
-                        }
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))
+                            AttackStart(target);
+                        wait_timer = 0;
                     }
-                    break;
-                case PHASE_ATTACKING:
-                    if (!UpdateVictim())
-                        return;
+                }
+                break;
+            case PHASE_ATTACKING:
+                if (!UpdateVictim())
+                    return;
 
-                    events.Update(diff);
+                events.Update(diff);
 
-                    while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
                     {
-                        switch (eventId)
-                        {
-                            case EVENT_ICY_TOUCH:
-                                DoCastVictim(SPELL_ICY_TOUCH);
-                                events.DelayEvents(1000, GCD_CAST);
-                                events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
-                                break;
-                            case EVENT_PLAGUE_STRIKE:
-                                DoCastVictim(SPELL_PLAGUE_STRIKE);
-                                events.DelayEvents(1000, GCD_CAST);
-                                events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5000, GCD_CAST);
-                                break;
-                            case EVENT_BLOOD_STRIKE:
-                                DoCastVictim(SPELL_BLOOD_STRIKE);
-                                events.DelayEvents(1000, GCD_CAST);
-                                events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
-                                break;
-                            case EVENT_DEATH_COIL:
-                                DoCastVictim(SPELL_DEATH_COIL);
-                                events.DelayEvents(1000, GCD_CAST);
-                                events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
-                                break;
-                        }
+                    case EVENT_ICY_TOUCH:
+                        DoCastVictim(SPELL_ICY_TOUCH);
+                        events.DelayEvents(1000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
+                        break;
+                    case EVENT_PLAGUE_STRIKE:
+                        DoCastVictim(SPELL_PLAGUE_STRIKE);
+                        events.DelayEvents(1000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 5000, GCD_CAST);
+                        break;
+                    case EVENT_BLOOD_STRIKE:
+                        DoCastVictim(SPELL_BLOOD_STRIKE);
+                        events.DelayEvents(1000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
+                        break;
+                    case EVENT_DEATH_COIL:
+                        DoCastVictim(SPELL_DEATH_COIL);
+                        events.DelayEvents(1000, GCD_CAST);
+                        events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
+                        break;
                     }
+                }
 
-                    DoMeleeAttackIfReady();
-                    break;
-                default:
-                    break;
+                DoMeleeAttackIfReady();
+                break;
+            default:
+                break;
             }
         }
     };
@@ -1076,31 +1080,31 @@ public:
         {
             switch (waypointId)
             {
-                case 1:
-                    if (Unit* car = ObjectAccessor::GetCreature(*me, carGUID))
-                    {
-                        me->SetFacingToObject(car);
-                        // xinef: add some flags
-                        car->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                        car->setFaction(35);
-                    }
-                    Talk(SAY_SCARLET_MINER_0);
-                    SetRun(true);
-                    IntroTimer = 4000;
-                    IntroPhase = 1;
-                    break;
-                case 23:
-                    if (Creature* car = ObjectAccessor::GetCreature(*me, carGUID))
-                    {
-                        car->SetPosition(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1, car->GetOrientation());
-                        car->StopMovingOnCurrentPos();
-                        me->SetFacingToObject(car);
-                        car->RemoveAura(SPELL_CART_DRAG);
-                    }
-                    Talk(SAY_SCARLET_MINER_1);
-                    break;
-                default:
-                    break;
+            case 1:
+                if (Unit* car = ObjectAccessor::GetCreature(*me, carGUID))
+                {
+                    me->SetFacingToObject(car);
+                    // xinef: add some flags
+                    car->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    car->setFaction(35);
+                }
+                Talk(SAY_SCARLET_MINER_0);
+                SetRun(true);
+                IntroTimer = 4000;
+                IntroPhase = 1;
+                break;
+            case 23:
+                if (Creature* car = ObjectAccessor::GetCreature(*me, carGUID))
+                {
+                    car->SetPosition(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1, car->GetOrientation());
+                    car->StopMovingOnCurrentPos();
+                    me->SetFacingToObject(car);
+                    car->RemoveAura(SPELL_CART_DRAG);
+                }
+                Talk(SAY_SCARLET_MINER_1);
+                break;
+            default:
+                break;
             }
         }
 

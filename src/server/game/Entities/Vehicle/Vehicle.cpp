@@ -107,7 +107,7 @@ void Vehicle::Uninstall()
     if (_status == STATUS_UNINSTALLING && !GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
     {
         LOG_ERROR("server", "Vehicle GuidLow: %u, Entry: %u attempts to uninstall, but already has STATUS_UNINSTALLING! "
-                       "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(), _me->GetEntry());
+                  "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(), _me->GetEntry());
         return;
     }
     _status = STATUS_UNINSTALLING;
@@ -182,27 +182,27 @@ void Vehicle::ApplyAllImmunities()
     // Different immunities for vehicles goes below
     switch (GetVehicleInfo()->m_ID)
     {
-        case 160: //Isle of conquest turret
-        case 244: //Wintergrasp turret
-        case 510: // Isle of Conquest
-        case 452: // Isle of Conquest
-        case 543: // Isle of Conquest
-            //_me->SetControlled(true, UNIT_STATE_ROOT);
-            //me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-            //me->SetSpeed(MOVE_TURN_RATE, 0.7f);
-            //me->SetSpeed(MOVE_PITCH_RATE, 0.7f);
-            //me->m_movementInfo.flags2=59;
-            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
-            break;
-        // Ulduar vehicles, remove immunities used in flame leviathan spells
-        case 335:
-        case 336:
-        case 338:
-            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, false);
-            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_SCHOOL_ABSORB, false);
-            break;
-        default:
-            break;
+    case 160: //Isle of conquest turret
+    case 244: //Wintergrasp turret
+    case 510: // Isle of Conquest
+    case 452: // Isle of Conquest
+    case 543: // Isle of Conquest
+        //_me->SetControlled(true, UNIT_STATE_ROOT);
+        //me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        //me->SetSpeed(MOVE_TURN_RATE, 0.7f);
+        //me->SetSpeed(MOVE_PITCH_RATE, 0.7f);
+        //me->m_movementInfo.flags2=59;
+        _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
+        break;
+    // Ulduar vehicles, remove immunities used in flame leviathan spells
+    case 335:
+    case 336:
+    case 338:
+        _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, false);
+        _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_SCHOOL_ABSORB, false);
+        break;
+    default:
+        break;
     }
 }
 
@@ -275,7 +275,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     if (_status == STATUS_UNINSTALLING)
     {
         LOG_ERROR("server", "Vehicle GuidLow: %u, Entry: %u attempts to install accessory Entry: %u on seat %d with STATUS_UNINSTALLING! "
-                       "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(), _me->GetEntry(), entry, (int32)seatId);
+                  "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(), _me->GetEntry(), entry, (int32)seatId);
         return;
     }
 

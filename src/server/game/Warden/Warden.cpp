@@ -236,22 +236,22 @@ void Warden::ApplyPenalty(uint16 checkId, std::string const& reason)
 
     switch (action)
     {
-        case WARDEN_ACTION_LOG:
-            break;
-        case WARDEN_ACTION_KICK:
-        {
-            _session->KickPlayer(causeMsg.find("Warden") != std::string::npos ? causeMsg : "Warden: " + causeMsg);
-            break;
-        }
-        case WARDEN_ACTION_BAN:
-        {
-            std::stringstream duration;
-            duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
-            std::string accountName;
-            AccountMgr::GetName(_session->GetAccountId(), accountName);
-            sBan->BanAccount(accountName, duration.str(), causeMsg, "Server");
-            break;
-        }
+    case WARDEN_ACTION_LOG:
+        break;
+    case WARDEN_ACTION_KICK:
+    {
+        _session->KickPlayer(causeMsg.find("Warden") != std::string::npos ? causeMsg : "Warden: " + causeMsg);
+        break;
+    }
+    case WARDEN_ACTION_BAN:
+    {
+        std::stringstream duration;
+        duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
+        std::string accountName;
+        AccountMgr::GetName(_session->GetAccountId(), accountName);
+        sBan->BanAccount(accountName, duration.str(), causeMsg, "Server");
+        break;
+    }
     }
 
     std::string reportMsg;
@@ -261,8 +261,8 @@ void Warden::ApplyPenalty(uint16 checkId, std::string const& reason)
         {
             std::string const reportFormat = "Player %s (guid %u, account id: %u) failed warden %u check (%s). Action: %s";
             reportMsg = Warhead::StringFormat(reportFormat, plr->GetName().c_str(), plr->GetGUIDLow(), _session->GetAccountId(),
-                                           checkId, ((checkData && !checkData->Comment.empty()) ? checkData->Comment.c_str() : "<warden comment is not set>"),
-                                           GetWardenActionStr(action).c_str());
+                                              checkId, ((checkData && !checkData->Comment.empty()) ? checkData->Comment.c_str() : "<warden comment is not set>"),
+                                              GetWardenActionStr(action).c_str());
         }
         else
         {
@@ -339,33 +339,33 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
 
     switch (opcode)
     {
-        case WARDEN_CMSG_MODULE_MISSING:
-            _warden->SendModuleToClient();
-            break;
-        case WARDEN_CMSG_MODULE_OK:
-            _warden->RequestHash();
-            break;
-        case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
-            _warden->HandleData(recvData);
-            break;
-        case WARDEN_CMSG_MEM_CHECKS_RESULT:
+    case WARDEN_CMSG_MODULE_MISSING:
+        _warden->SendModuleToClient();
+        break;
+    case WARDEN_CMSG_MODULE_OK:
+        _warden->RequestHash();
+        break;
+    case WARDEN_CMSG_CHEAT_CHECKS_RESULT:
+        _warden->HandleData(recvData);
+        break;
+    case WARDEN_CMSG_MEM_CHECKS_RESULT:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+        LOG_DEBUG("warden", "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
 #endif
-            break;
-        case WARDEN_CMSG_HASH_RESULT:
-            _warden->HandleHashResult(recvData);
-            _warden->InitializeModule();
-            break;
-        case WARDEN_CMSG_MODULE_FAILED:
+        break;
+    case WARDEN_CMSG_HASH_RESULT:
+        _warden->HandleHashResult(recvData);
+        _warden->InitializeModule();
+        break;
+    case WARDEN_CMSG_MODULE_FAILED:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
+        LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
 #endif
-            break;
-        default:
+        break;
+    default:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
+        LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
 #endif
-            break;
+        break;
     }
 }

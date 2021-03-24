@@ -182,12 +182,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     switch (etime)
     {
-        case 1*MIN_AUCTION_TIME:
-        case 2*MIN_AUCTION_TIME:
-        case 4*MIN_AUCTION_TIME:
-            break;
-        default:
-            return;
+    case 1*MIN_AUCTION_TIME:
+    case 2*MIN_AUCTION_TIME:
+    case 4*MIN_AUCTION_TIME:
+        break;
+    default:
+        return;
     }
 
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))

@@ -26,89 +26,89 @@
 
 namespace
 {
-    std::string _filename;
-    std::vector<std::string> _additonalFiles;
-    std::vector<std::string> _args;
-    std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
-    std::mutex _configLock;
+std::string _filename;
+std::vector<std::string> _additonalFiles;
+std::vector<std::string> _args;
+std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
+std::mutex _configLock;
 
-    void AddKey(std::string const& optionName, std::string const& optionKey, bool replace = true)
+void AddKey(std::string const& optionName, std::string const& optionKey, bool replace = true)
+{
+    auto const& itr = _configOptions.find(optionName);
+    if (itr != _configOptions.end())
     {
-        auto const& itr = _configOptions.find(optionName);
-        if (itr != _configOptions.end())
+        if (!replace)
         {
-            if (!replace)
-            {
-                LOG_ERROR("server", "> Config: Option '%s' is exist! Option key - '%s'", optionName.c_str(), itr->second.c_str());
-                return;
-            }
-
-            _configOptions.erase(optionName);
+            LOG_ERROR("server", "> Config: Option '%s' is exist! Option key - '%s'", optionName.c_str(), itr->second.c_str());
+            return;
         }
 
-        _configOptions.emplace(optionName, optionKey);
+        _configOptions.erase(optionName);
     }
 
-    void ParseFile(std::string const& file)
+    _configOptions.emplace(optionName, optionKey);
+}
+
+void ParseFile(std::string const& file)
+{
+    std::ifstream in(file);
+
+    if (in.fail())
+        throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '%s'", file.c_str()));
+
+    uint32 count = 0;
+
+    while (in.good())
     {
-        std::ifstream in(file);
+        std::string line;
+        std::getline(in, line);
 
-        if (in.fail())
-            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '%s'", file.c_str()));
+        if (line.empty())
+            continue;
 
-        uint32 count = 0;
+        line = Warhead::String::Trim(line, in.getloc());
 
-        while (in.good())
-        {
-            std::string line;
-            std::getline(in, line);
+        // comments
+        if (line[0] == '#' || line[0] == '[')
+            continue;
 
-            if (line.empty())
-                continue;
+        size_t found = line.find_first_of('#');
+        if (found != std::string::npos)
+            line = line.substr(0, found);
 
-            line = Warhead::String::Trim(line, in.getloc());
+        auto const equal_pos = line.find('=');
 
-            // comments
-            if (line[0] == '#' || line[0] == '[')
-                continue;
+        if (equal_pos == std::string::npos || equal_pos == line.length())
+            return;
 
-            size_t found = line.find_first_of('#');
-            if (found != std::string::npos)
-                line = line.substr(0, found);
+        auto entry = Warhead::String::Trim(line.substr(0, equal_pos), in.getloc());
+        auto value = Warhead::String::Trim(line.substr(equal_pos + 1), in.getloc());
 
-            auto const equal_pos = line.find('=');
+        value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
 
-            if (equal_pos == std::string::npos || equal_pos == line.length())
-                return;
+        AddKey(entry, value);
 
-            auto entry = Warhead::String::Trim(line.substr(0, equal_pos), in.getloc());
-            auto value = Warhead::String::Trim(line.substr(equal_pos + 1), in.getloc());
-
-            value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
-
-            AddKey(entry, value);
-
-            count++;
-        }
-
-        if (!count)
-            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Empty file '%s'", file.c_str()));
+        count++;
     }
 
-    bool LoadFile(std::string const& file)
-    {
-        try
-        {
-            ParseFile(file);
-            return true;
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR("server", "> Config: %s", e.what());
-        }
+    if (!count)
+        throw ConfigException(Warhead::StringFormat("Config::LoadFile: Empty file '%s'", file.c_str()));
+}
 
-        return false;
+bool LoadFile(std::string const& file)
+{
+    try
+    {
+        ParseFile(file);
+        return true;
     }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("server", "> Config: %s", e.what());
+    }
+
+    return false;
+}
 }
 
 bool ConfigMgr::LoadInitial(std::string const& file)
@@ -147,7 +147,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             LOG_ERROR("server", "> Config: Missing name %s in config, add \"%s = %s\"",
-                name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
+                      name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
         }
 
         return def;
@@ -159,7 +159,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             LOG_ERROR("server", "> Config: Bad value defined for name '%s', going to use '%s' instead",
-                name.c_str(), Warhead::ToString(def).c_str());
+                      name.c_str(), Warhead::ToString(def).c_str());
         }
 
         return def;
@@ -177,7 +177,7 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
         if (showLogs)
         {
             LOG_ERROR("server", "> Config: Missing name %s in config, add \"%s = %s\"",
-                name.c_str(), name.c_str(), def.c_str());
+                      name.c_str(), name.c_str(), def.c_str());
         }
 
         return def;
@@ -203,7 +203,7 @@ bool ConfigMgr::GetOption<bool>(std::string const& name, bool const& def, bool s
         if (showLogs)
         {
             LOG_ERROR("server", "> Config: Bad value defined for name '%s', going to use '%s' instead",
-                name.c_str(), def ? "true" : "false");
+                      name.c_str(), def ? "true" : "false");
         }
 
         return def;

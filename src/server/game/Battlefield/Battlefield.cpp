@@ -1097,14 +1097,14 @@ void BfCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
     uint8 team;
     switch (m_State)
     {
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE:
-            team = 0;
-            break;
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE:
-            team = 1;
-            break;
-        default:
-            return;
+    case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE:
+        team = 0;
+        break;
+    case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE:
+        team = 1;
+        break;
+    default:
+        return;
     }
 
     // send to all players present in the area

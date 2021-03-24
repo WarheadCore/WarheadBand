@@ -62,25 +62,25 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
     switch (guid_hi)
     {
-        case HIGHGUID_ITEM:
-            return TYPEID_ITEM;
-        //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER == HIGHGUID_ITEM currently
-        case HIGHGUID_UNIT:
-            return TYPEID_UNIT;
-        case HIGHGUID_PET:
-            return TYPEID_UNIT;
-        case HIGHGUID_PLAYER:
-            return TYPEID_PLAYER;
-        case HIGHGUID_GAMEOBJECT:
-            return TYPEID_GAMEOBJECT;
-        case HIGHGUID_DYNAMICOBJECT:
-            return TYPEID_DYNAMICOBJECT;
-        case HIGHGUID_CORPSE:
-            return TYPEID_CORPSE;
-        case HIGHGUID_MO_TRANSPORT:
-            return TYPEID_GAMEOBJECT;
-        case HIGHGUID_VEHICLE:
-            return TYPEID_UNIT;
+    case HIGHGUID_ITEM:
+        return TYPEID_ITEM;
+    //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER == HIGHGUID_ITEM currently
+    case HIGHGUID_UNIT:
+        return TYPEID_UNIT;
+    case HIGHGUID_PET:
+        return TYPEID_UNIT;
+    case HIGHGUID_PLAYER:
+        return TYPEID_PLAYER;
+    case HIGHGUID_GAMEOBJECT:
+        return TYPEID_GAMEOBJECT;
+    case HIGHGUID_DYNAMICOBJECT:
+        return TYPEID_DYNAMICOBJECT;
+    case HIGHGUID_CORPSE:
+        return TYPEID_CORPSE;
+    case HIGHGUID_MO_TRANSPORT:
+        return TYPEID_GAMEOBJECT;
+    case HIGHGUID_VEHICLE:
+        return TYPEID_UNIT;
     }
     return NUM_CLIENT_OBJECT_TYPES;                         // unknown
 }
@@ -233,16 +233,16 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         {
             switch (((GameObject*)this)->GetGoType())
             {
-                case GAMEOBJECT_TYPE_TRAP:
-                case GAMEOBJECT_TYPE_DUEL_ARBITER:
-                case GAMEOBJECT_TYPE_FLAGSTAND:
-                case GAMEOBJECT_TYPE_FLAGDROP:
+            case GAMEOBJECT_TYPE_TRAP:
+            case GAMEOBJECT_TYPE_DUEL_ARBITER:
+            case GAMEOBJECT_TYPE_FLAGSTAND:
+            case GAMEOBJECT_TYPE_FLAGDROP:
+                updatetype = UPDATETYPE_CREATE_OBJECT2;
+                break;
+            default:
+                if (((GameObject*)this)->GetOwner())
                     updatetype = UPDATETYPE_CREATE_OBJECT2;
-                    break;
-                default:
-                    if (((GameObject*)this)->GetOwner())
-                        updatetype = UPDATETYPE_CREATE_OBJECT2;
-                    break;
+                break;
             }
         }
 
@@ -412,28 +412,28 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         switch (GetTypeId())
         {
-            case TYPEID_OBJECT:
-            case TYPEID_ITEM:
-            case TYPEID_CONTAINER:
-            case TYPEID_GAMEOBJECT:
-            case TYPEID_DYNAMICOBJECT:
-            case TYPEID_CORPSE:
-                *data << uint32(GetGUIDLow());              // GetGUIDLow()
-                break;
-            //! Unit, Player and default here are sending wrong values.
-            /// @todo Research the proper formula
-            case TYPEID_UNIT:
-                *data << uint32(0x0000000B);                // unk
-                break;
-            case TYPEID_PLAYER:
-                if (flags & UPDATEFLAG_SELF)
-                    *data << uint32(0x0000002F);            // unk
-                else
-                    *data << uint32(0x00000008);            // unk
-                break;
-            default:
-                *data << uint32(0x00000000);                // unk
-                break;
+        case TYPEID_OBJECT:
+        case TYPEID_ITEM:
+        case TYPEID_CONTAINER:
+        case TYPEID_GAMEOBJECT:
+        case TYPEID_DYNAMICOBJECT:
+        case TYPEID_CORPSE:
+            *data << uint32(GetGUIDLow());              // GetGUIDLow()
+            break;
+        //! Unit, Player and default here are sending wrong values.
+        /// @todo Research the proper formula
+        case TYPEID_UNIT:
+            *data << uint32(0x0000000B);                // unk
+            break;
+        case TYPEID_PLAYER:
+            if (flags & UPDATEFLAG_SELF)
+                *data << uint32(0x0000002F);            // unk
+            else
+                *data << uint32(0x00000008);            // unk
+            break;
+        default:
+            *data << uint32(0x00000000);                // unk
+            break;
         }
     }
 
@@ -534,45 +534,45 @@ uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 
     switch (GetTypeId())
     {
-        case TYPEID_ITEM:
-        case TYPEID_CONTAINER:
-            flags = ItemUpdateFieldFlags;
-            if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
-                visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
-            break;
-        case TYPEID_UNIT:
-        case TYPEID_PLAYER:
-            {
-                Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
-                flags = UnitUpdateFieldFlags;
-                if (ToUnit()->GetOwnerGUID() == target->GetGUID())
-                    visibleFlag |= UF_FLAG_OWNER;
+    case TYPEID_ITEM:
+    case TYPEID_CONTAINER:
+        flags = ItemUpdateFieldFlags;
+        if (((Item*)this)->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF_FLAG_OWNER | UF_FLAG_ITEM_OWNER;
+        break;
+    case TYPEID_UNIT:
+    case TYPEID_PLAYER:
+    {
+        Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
+        flags = UnitUpdateFieldFlags;
+        if (ToUnit()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF_FLAG_OWNER;
 
-                if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
-                    if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
-                        visibleFlag |= UF_FLAG_SPECIAL_INFO;
+        if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO))
+            if (ToUnit()->HasAuraTypeWithCaster(SPELL_AURA_EMPATHY, target->GetGUID()))
+                visibleFlag |= UF_FLAG_SPECIAL_INFO;
 
-                if (plr && plr->IsInSameRaidWith(target))
-                    visibleFlag |= UF_FLAG_PARTY_MEMBER;
-                break;
-            }
-        case TYPEID_GAMEOBJECT:
-            flags = GameObjectUpdateFieldFlags;
-            if (ToGameObject()->GetOwnerGUID() == target->GetGUID())
-                visibleFlag |= UF_FLAG_OWNER;
-            break;
-        case TYPEID_DYNAMICOBJECT:
-            flags = DynamicObjectUpdateFieldFlags;
-            if (((DynamicObject*)this)->GetCasterGUID() == target->GetGUID())
-                visibleFlag |= UF_FLAG_OWNER;
-            break;
-        case TYPEID_CORPSE:
-            flags = CorpseUpdateFieldFlags;
-            if (ToCorpse()->GetOwnerGUID() == target->GetGUID())
-                visibleFlag |= UF_FLAG_OWNER;
-            break;
-        case TYPEID_OBJECT:
-            break;
+        if (plr && plr->IsInSameRaidWith(target))
+            visibleFlag |= UF_FLAG_PARTY_MEMBER;
+        break;
+    }
+    case TYPEID_GAMEOBJECT:
+        flags = GameObjectUpdateFieldFlags;
+        if (ToGameObject()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF_FLAG_OWNER;
+        break;
+    case TYPEID_DYNAMICOBJECT:
+        flags = DynamicObjectUpdateFieldFlags;
+        if (((DynamicObject*)this)->GetCasterGUID() == target->GetGUID())
+            visibleFlag |= UF_FLAG_OWNER;
+        break;
+    case TYPEID_CORPSE:
+        flags = CorpseUpdateFieldFlags;
+        if (ToCorpse()->GetOwnerGUID() == target->GetGUID())
+            visibleFlag |= UF_FLAG_OWNER;
+        break;
+    case TYPEID_OBJECT:
+        break;
     }
 
     return visibleFlag;
@@ -909,9 +909,9 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 bool Position::operator==(Position const& a)
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
-        G3D::fuzzyEq(a.m_positionY, m_positionY) &&
-        G3D::fuzzyEq(a.m_positionZ, m_positionZ) &&
-        G3D::fuzzyEq(a.m_orientation, m_orientation));
+            G3D::fuzzyEq(a.m_positionY, m_positionY) &&
+            G3D::fuzzyEq(a.m_positionZ, m_positionZ) &&
+            G3D::fuzzyEq(a.m_orientation, m_orientation));
 }
 
 void Position::RelocatePolarOffset(float angle, float dist, float z /*= 0.0f*/)
@@ -1186,7 +1186,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz, LineOfSightChecks ch
 
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj, LineOfSightChecks checks) const
 {
-   if (!IsInMap(obj))
+    if (!IsInMap(obj))
         return false;
 
     float ox, oy, oz;
@@ -1380,8 +1380,8 @@ bool Position::IsWithinBox(const Position& center, float xradius, float yradius,
     float dx = rotX - center.GetPositionX();
     float dy = rotY - center.GetPositionY();
     if ((std::fabs(dx) > xradius) ||
-        (std::fabs(dy) > yradius) ||
-        (std::fabs(dz) > zradius))
+            (std::fabs(dy) > yradius) ||
+            (std::fabs(dz) > zradius))
     {
         return false;
     }
@@ -1554,7 +1554,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float& z, float* grou
                 z = ground_z;
 
             if (groundZ)
-               *groundZ = ground_z;
+                *groundZ = ground_z;
         }
     }
     else
@@ -1966,52 +1966,52 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 
 namespace Warhead
 {
-    class MonsterChatBuilder
+class MonsterChatBuilder
+{
+public:
+    MonsterChatBuilder(WorldObject const* obj, ChatMsg msgtype, int32 textId, uint32 language, WorldObject const* target)
+        : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(Language(language)), i_target(target) { }
+    void operator()(WorldPacket& data, LocaleConstant loc_idx)
     {
-    public:
-        MonsterChatBuilder(WorldObject const* obj, ChatMsg msgtype, int32 textId, uint32 language, WorldObject const* target)
-            : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(Language(language)), i_target(target) { }
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
+        if (BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(i_textId))
         {
-            if (BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(i_textId))
-            {
-                uint8 gender = GENDER_MALE;
-                if (Unit const* unit = i_object->ToUnit())
-                    gender = unit->getGender();
+            uint8 gender = GENDER_MALE;
+            if (Unit const* unit = i_object->ToUnit())
+                gender = unit->getGender();
 
-                std::string text = broadcastText->GetText(loc_idx, gender);
-                ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, text, 0, "", loc_idx);
-            }
-            else
-                LOG_ERROR("server", "MonsterChatBuilder: `broadcast_text` id %i missing", i_textId);
+            std::string text = broadcastText->GetText(loc_idx, gender);
+            ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, text, 0, "", loc_idx);
         }
+        else
+            LOG_ERROR("server", "MonsterChatBuilder: `broadcast_text` id %i missing", i_textId);
+    }
 
-    private:
-        WorldObject const* i_object;
-        ChatMsg i_msgtype;
-        int32 i_textId;
-        Language i_language;
-        WorldObject const* i_target;
-    };
+private:
+    WorldObject const* i_object;
+    ChatMsg i_msgtype;
+    int32 i_textId;
+    Language i_language;
+    WorldObject const* i_target;
+};
 
-    class MonsterCustomChatBuilder
+class MonsterCustomChatBuilder
+{
+public:
+    MonsterCustomChatBuilder(WorldObject const* obj, ChatMsg msgtype, const char* text, uint32 language, WorldObject const* target)
+        : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(Language(language)), i_target(target)
+    {}
+    void operator()(WorldPacket& data, LocaleConstant loc_idx)
     {
-    public:
-        MonsterCustomChatBuilder(WorldObject const* obj, ChatMsg msgtype, const char* text, uint32 language, WorldObject const* target)
-            : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(Language(language)), i_target(target)
-        {}
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, i_text, 0, "", loc_idx);
-        }
+        ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, i_text, 0, "", loc_idx);
+    }
 
-    private:
-        WorldObject const* i_object;
-        ChatMsg i_msgtype;
-        const char* i_text;
-        Language i_language;
-        WorldObject const* i_target;
-    };
+private:
+    WorldObject const* i_object;
+    ChatMsg i_msgtype;
+    const char* i_text;
+    Language i_language;
+    WorldObject const* i_target;
+};
 }                                                           // namespace Warhead
 
 void WorldObject::MonsterSay(const char* text, uint32 language, WorldObject const* target)
@@ -2217,47 +2217,47 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     {
         switch (properties->Category)
         {
-            case SUMMON_CATEGORY_PET:
+        case SUMMON_CATEGORY_PET:
+            mask = UNIT_MASK_GUARDIAN;
+            break;
+        case SUMMON_CATEGORY_PUPPET:
+            mask = UNIT_MASK_PUPPET;
+            break;
+        case SUMMON_CATEGORY_VEHICLE:
+            mask = UNIT_MASK_MINION;
+            break;
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+        {
+            switch (properties->Type)
+            {
+            case SUMMON_TYPE_MINION:
+            case SUMMON_TYPE_GUARDIAN:
+            case SUMMON_TYPE_GUARDIAN2:
                 mask = UNIT_MASK_GUARDIAN;
                 break;
-            case SUMMON_CATEGORY_PUPPET:
-                mask = UNIT_MASK_PUPPET;
+            case SUMMON_TYPE_TOTEM:
+            case SUMMON_TYPE_LIGHTWELL:
+                mask = UNIT_MASK_TOTEM;
                 break;
-            case SUMMON_CATEGORY_VEHICLE:
+            case SUMMON_TYPE_VEHICLE:
+            case SUMMON_TYPE_VEHICLE2:
+                mask = UNIT_MASK_SUMMON;
+                break;
+            case SUMMON_TYPE_MINIPET:
+            case SUMMON_TYPE_JEEVES:
                 mask = UNIT_MASK_MINION;
                 break;
-            case SUMMON_CATEGORY_WILD:
-            case SUMMON_CATEGORY_ALLY:
-            case SUMMON_CATEGORY_UNK:
-                {
-                    switch (properties->Type)
-                    {
-                        case SUMMON_TYPE_MINION:
-                        case SUMMON_TYPE_GUARDIAN:
-                        case SUMMON_TYPE_GUARDIAN2:
-                            mask = UNIT_MASK_GUARDIAN;
-                            break;
-                        case SUMMON_TYPE_TOTEM:
-                        case SUMMON_TYPE_LIGHTWELL:
-                            mask = UNIT_MASK_TOTEM;
-                            break;
-                        case SUMMON_TYPE_VEHICLE:
-                        case SUMMON_TYPE_VEHICLE2:
-                            mask = UNIT_MASK_SUMMON;
-                            break;
-                        case SUMMON_TYPE_MINIPET:
-                        case SUMMON_TYPE_JEEVES:
-                            mask = UNIT_MASK_MINION;
-                            break;
-                        default:
-                            if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
-                                mask = UNIT_MASK_GUARDIAN;
-                            break;
-                    }
-                    break;
-                }
             default:
-                return nullptr;
+                if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                    mask = UNIT_MASK_GUARDIAN;
+                break;
+            }
+            break;
+        }
+        default:
+            return nullptr;
         }
     }
 
@@ -2268,23 +2268,23 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     TempSummon* summon = nullptr;
     switch (mask)
     {
-        case UNIT_MASK_SUMMON:
-            summon = new TempSummon(properties, summoner ? summoner->GetGUID() : 0, false);
-            break;
-        case UNIT_MASK_GUARDIAN:
-            summon = new Guardian(properties, summoner ? summoner->GetGUID() : 0, false);
-            break;
-        case UNIT_MASK_PUPPET:
-            summon = new Puppet(properties, summoner ? summoner->GetGUID() : 0);
-            break;
-        case UNIT_MASK_TOTEM:
-            summon = new Totem(properties, summoner ? summoner->GetGUID() : 0);
-            break;
-        case UNIT_MASK_MINION:
-            summon = new Minion(properties, summoner ? summoner->GetGUID() : 0, false);
-            break;
-        default:
-            return nullptr;
+    case UNIT_MASK_SUMMON:
+        summon = new TempSummon(properties, summoner ? summoner->GetGUID() : 0, false);
+        break;
+    case UNIT_MASK_GUARDIAN:
+        summon = new Guardian(properties, summoner ? summoner->GetGUID() : 0, false);
+        break;
+    case UNIT_MASK_PUPPET:
+        summon = new Puppet(properties, summoner ? summoner->GetGUID() : 0);
+        break;
+    case UNIT_MASK_TOTEM:
+        summon = new Totem(properties, summoner ? summoner->GetGUID() : 0);
+        break;
+    case UNIT_MASK_MINION:
+        summon = new Minion(properties, summoner ? summoner->GetGUID() : 0, false);
+        break;
+    default:
+        return nullptr;
     }
 
     EnsureGridLoaded(Cell(pos.GetPositionX(), pos.GetPositionY()));
@@ -3075,8 +3075,8 @@ float WorldObject::GetMapHeight(float x, float y, float z, bool vmap/* = true*/,
 float WorldObject::GetMapWaterOrGroundLevel(float x, float y, float z, float* ground/* = nullptr*/) const
 {
     return GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, ground,
-        isType(TYPEMASK_UNIT) ? !static_cast<Unit const*>(this)->HasAuraType(SPELL_AURA_WATER_WALK) : false,
-        GetCollisionHeight());
+                                           isType(TYPEMASK_UNIT) ? !static_cast<Unit const*>(this)->HasAuraType(SPELL_AURA_WATER_WALK) : false,
+                                           GetCollisionHeight());
 }
 
 float WorldObject::GetFloorZ() const

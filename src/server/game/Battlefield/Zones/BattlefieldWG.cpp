@@ -505,23 +505,23 @@ uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
 {
     switch (areaId)
     {
-        case AREA_WINTERGRASP_FORTRESS:
-            return BATTLEFIELD_WG_GY_KEEP;
-        case AREA_THE_SUNKEN_RING:
-            return BATTLEFIELD_WG_GY_WORKSHOP_NE;
-        case AREA_THE_BROKEN_TEMPLE:
-            return BATTLEFIELD_WG_GY_WORKSHOP_NW;
-        case AREA_WESTPARK_WORKSHOP:
-            return BATTLEFIELD_WG_GY_WORKSHOP_SW;
-        case AREA_EASTPARK_WORKSHOP:
-            return BATTLEFIELD_WG_GY_WORKSHOP_SE;
-        case AREA_WINTERGRASP:
-            return BATTLEFIELD_WG_GY_ALLIANCE;
-        case AREA_THE_CHILLED_QUAGMIRE:
-            return BATTLEFIELD_WG_GY_HORDE;
-        default:
-            LOG_ERROR("server", "BattlefieldWG::GetSpiritGraveyardId: Unexpected Area Id %u", areaId);
-            break;
+    case AREA_WINTERGRASP_FORTRESS:
+        return BATTLEFIELD_WG_GY_KEEP;
+    case AREA_THE_SUNKEN_RING:
+        return BATTLEFIELD_WG_GY_WORKSHOP_NE;
+    case AREA_THE_BROKEN_TEMPLE:
+        return BATTLEFIELD_WG_GY_WORKSHOP_NW;
+    case AREA_WESTPARK_WORKSHOP:
+        return BATTLEFIELD_WG_GY_WORKSHOP_SW;
+    case AREA_EASTPARK_WORKSHOP:
+        return BATTLEFIELD_WG_GY_WORKSHOP_SE;
+    case AREA_WINTERGRASP:
+        return BATTLEFIELD_WG_GY_ALLIANCE;
+    case AREA_THE_CHILLED_QUAGMIRE:
+        return BATTLEFIELD_WG_GY_HORDE;
+    default:
+        LOG_ERROR("server", "BattlefieldWG::GetSpiritGraveyardId: Unexpected Area Id %u", areaId);
+        break;
     }
 
     return 0;
@@ -531,14 +531,14 @@ uint32 BattlefieldWG::GetAreaByGraveyardId(uint8 gId) const
 {
     switch (gId)
     {
-        case BATTLEFIELD_WG_GY_WORKSHOP_NE:
-            return AREA_THE_SUNKEN_RING;
-        case BATTLEFIELD_WG_GY_WORKSHOP_NW:
-            return AREA_THE_BROKEN_TEMPLE;
-        case BATTLEFIELD_WG_GY_WORKSHOP_SW:
-            return AREA_WESTPARK_WORKSHOP;
-        case BATTLEFIELD_WG_GY_WORKSHOP_SE:
-            return AREA_EASTPARK_WORKSHOP;
+    case BATTLEFIELD_WG_GY_WORKSHOP_NE:
+        return AREA_THE_SUNKEN_RING;
+    case BATTLEFIELD_WG_GY_WORKSHOP_NW:
+        return AREA_THE_BROKEN_TEMPLE;
+    case BATTLEFIELD_WG_GY_WORKSHOP_SW:
+        return AREA_WESTPARK_WORKSHOP;
+    case BATTLEFIELD_WG_GY_WORKSHOP_SE:
+        return AREA_EASTPARK_WORKSHOP;
     }
 
     return 0;
@@ -549,19 +549,19 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
     // Accessing to db spawned creatures
     switch (creature->GetEntry())
     {
-        case NPC_DWARVEN_SPIRIT_GUIDE:
-        case NPC_TAUNKA_SPIRIT_GUIDE:
-            {
-                TeamId teamId = (creature->GetEntry() == NPC_DWARVEN_SPIRIT_GUIDE ? TEAM_ALLIANCE : TEAM_HORDE);
-                uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId(true));
-                // xinef: little workaround, there are 2 spirit guides in same area
-                if (creature->IsWithinDist2d(5103.0f, 3461.5f, 5.0f))
-                    graveyardId = BATTLEFIELD_WG_GY_WORKSHOP_NW;
+    case NPC_DWARVEN_SPIRIT_GUIDE:
+    case NPC_TAUNKA_SPIRIT_GUIDE:
+    {
+        TeamId teamId = (creature->GetEntry() == NPC_DWARVEN_SPIRIT_GUIDE ? TEAM_ALLIANCE : TEAM_HORDE);
+        uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId(true));
+        // xinef: little workaround, there are 2 spirit guides in same area
+        if (creature->IsWithinDist2d(5103.0f, 3461.5f, 5.0f))
+            graveyardId = BATTLEFIELD_WG_GY_WORKSHOP_NW;
 
-                if (m_GraveyardList[graveyardId])
-                    m_GraveyardList[graveyardId]->SetSpirit(creature, teamId);
-                break;
-            }
+        if (m_GraveyardList[graveyardId])
+            m_GraveyardList[graveyardId]->SetSpirit(creature, teamId);
+        break;
+    }
     }
 
     // untested code - not sure if it is valid.
@@ -569,61 +569,61 @@ void BattlefieldWG::OnCreatureCreate(Creature* creature)
     {
         switch (creature->GetEntry())
         {
-            case NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE:
-            case NPC_WINTERGRASP_SIEGE_ENGINE_HORDE:
-            case NPC_WINTERGRASP_CATAPULT:
-            case NPC_WINTERGRASP_DEMOLISHER:
+        case NPC_WINTERGRASP_SIEGE_ENGINE_ALLIANCE:
+        case NPC_WINTERGRASP_SIEGE_ENGINE_HORDE:
+        case NPC_WINTERGRASP_CATAPULT:
+        case NPC_WINTERGRASP_DEMOLISHER:
+        {
+            if (!creature->IsSummon() || !creature->ToTempSummon()->GetSummonerGUID())
+                return;
+
+            Player* creator = ObjectAccessor::FindPlayer(creature->ToTempSummon()->GetSummonerGUID());
+            if (!creator)
+                return;
+            TeamId team = creator->GetTeamId();
+
+            if (team == TEAM_HORDE)
+            {
+                if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
                 {
-                    if (!creature->IsSummon() || !creature->ToTempSummon()->GetSummonerGUID())
-                        return;
-
-                    Player* creator = ObjectAccessor::FindPlayer(creature->ToTempSummon()->GetSummonerGUID());
-                    if (!creator)
-                        return;
-                    TeamId team = creator->GetTeamId();
-
-                    if (team == TEAM_HORDE)
-                    {
-                        if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
-                        {
-                            UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
-                            creature->CastSpell(creature, SPELL_HORDE_FLAG, true);
-                            m_vehicles[team].insert(creature->GetGUID());
-                            UpdateVehicleCountWG();
-                        }
-                        else
-                        {
-                            creature->DespawnOrUnsummon();
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
-                        {
-                            UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
-                            creature->CastSpell(creature, SPELL_ALLIANCE_FLAG, true);
-                            m_vehicles[team].insert(creature->GetGUID());
-                            UpdateVehicleCountWG();
-                        }
-                        else
-                        {
-                            creature->DespawnOrUnsummon();
-                            return;
-                        }
-                    }
-                    break;
+                    UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_H, 1);
+                    creature->CastSpell(creature, SPELL_HORDE_FLAG, true);
+                    m_vehicles[team].insert(creature->GetGUID());
+                    UpdateVehicleCountWG();
                 }
-            case NPC_WINTERGRASP_SIEGE_ENGINE_TURRET_HORDE:
-            case NPC_WINTERGRASP_SIEGE_ENGINE_TURRET_ALLIANCE:
+                else
                 {
-                    if (!creature->IsSummon() || !creature->ToTempSummon()->GetSummonerGUID())
-                        return;
-
-                    if (Unit* owner = creature->ToTempSummon()->GetSummoner())
-                        creature->setFaction(owner->getFaction());
-                    break;
+                    creature->DespawnOrUnsummon();
+                    return;
                 }
+            }
+            else
+            {
+                if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) < GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
+                {
+                    UpdateData(BATTLEFIELD_WG_DATA_VEHICLE_A, 1);
+                    creature->CastSpell(creature, SPELL_ALLIANCE_FLAG, true);
+                    m_vehicles[team].insert(creature->GetGUID());
+                    UpdateVehicleCountWG();
+                }
+                else
+                {
+                    creature->DespawnOrUnsummon();
+                    return;
+                }
+            }
+            break;
+        }
+        case NPC_WINTERGRASP_SIEGE_ENGINE_TURRET_HORDE:
+        case NPC_WINTERGRASP_SIEGE_ENGINE_TURRET_ALLIANCE:
+        {
+            if (!creature->IsSummon() || !creature->ToTempSummon()->GetSummonerGUID())
+                return;
+
+            if (Unit* owner = creature->ToTempSummon()->GetSummoner())
+                creature->setFaction(owner->getFaction());
+            break;
+        }
         }
     }
 }
@@ -667,20 +667,20 @@ void BattlefieldWG::OnGameObjectCreate(GameObject* go)
 
     switch (go->GetEntry())
     {
-        case GO_WINTERGRASP_FACTORY_BANNER_NE:
-            workshopId = BATTLEFIELD_WG_WORKSHOP_NE;
-            break;
-        case GO_WINTERGRASP_FACTORY_BANNER_NW:
-            workshopId = BATTLEFIELD_WG_WORKSHOP_NW;
-            break;
-        case GO_WINTERGRASP_FACTORY_BANNER_SE:
-            workshopId = BATTLEFIELD_WG_WORKSHOP_SE;
-            break;
-        case GO_WINTERGRASP_FACTORY_BANNER_SW:
-            workshopId = BATTLEFIELD_WG_WORKSHOP_SW;
-            break;
-        default:
-            return;
+    case GO_WINTERGRASP_FACTORY_BANNER_NE:
+        workshopId = BATTLEFIELD_WG_WORKSHOP_NE;
+        break;
+    case GO_WINTERGRASP_FACTORY_BANNER_NW:
+        workshopId = BATTLEFIELD_WG_WORKSHOP_NW;
+        break;
+    case GO_WINTERGRASP_FACTORY_BANNER_SE:
+        workshopId = BATTLEFIELD_WG_WORKSHOP_SE;
+        break;
+    case GO_WINTERGRASP_FACTORY_BANNER_SW:
+        workshopId = BATTLEFIELD_WG_WORKSHOP_SW;
+        break;
+    default:
+        return;
     }
 
     for (Workshop::const_iterator itr = WorkshopsList.begin(); itr != WorkshopsList.end(); ++itr)
@@ -875,15 +875,15 @@ uint32 BattlefieldWG::GetData(uint32 data) const
 
     switch (data)
     {
-        // Used to determine when the phasing spells must be casted
-        // See: SpellArea::IsFitToRequirements
-        case AREA_THE_SUNKEN_RING:
-        case AREA_THE_BROKEN_TEMPLE:
-        case AREA_WESTPARK_WORKSHOP:
-        case AREA_EASTPARK_WORKSHOP:
-            // Graveyards and Workshops are controlled by the same team.
-            if (BfGraveyard const* graveyard = GetGraveyardById(GetSpiritGraveyardId(data)))
-                return graveyard->GetControlTeamId();
+    // Used to determine when the phasing spells must be casted
+    // See: SpellArea::IsFitToRequirements
+    case AREA_THE_SUNKEN_RING:
+    case AREA_THE_BROKEN_TEMPLE:
+    case AREA_WESTPARK_WORKSHOP:
+    case AREA_EASTPARK_WORKSHOP:
+        // Graveyards and Workshops are controlled by the same team.
+        if (BfGraveyard const* graveyard = GetGraveyardById(GetSpiritGraveyardId(data)))
+            return graveyard->GetControlTeamId();
     }
 
     return Battlefield::GetData(data);

@@ -373,7 +373,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         }
 
         if (!Warhead::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.transport.pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.transport.pos.GetPositionY(),
-                                    movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
+                                      movementInfo.pos.GetPositionZ() + movementInfo.transport.pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.transport.pos.GetOrientation()))
         {
             recvData.rfinish();                   // prevent warnings spam
             return;
@@ -563,45 +563,45 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket& recvData)
 
     switch (opcode)
     {
-        case CMSG_FORCE_WALK_SPEED_CHANGE_ACK:
-            move_type = MOVE_WALK;
-            force_move_type = MOVE_WALK;
-            break;
-        case CMSG_FORCE_RUN_SPEED_CHANGE_ACK:
-            move_type = MOVE_RUN;
-            force_move_type = MOVE_RUN;
-            break;
-        case CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK:
-            move_type = MOVE_RUN_BACK;
-            force_move_type = MOVE_RUN_BACK;
-            break;
-        case CMSG_FORCE_SWIM_SPEED_CHANGE_ACK:
-            move_type = MOVE_SWIM;
-            force_move_type = MOVE_SWIM;
-            break;
-        case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
-            move_type = MOVE_SWIM_BACK;
-            force_move_type = MOVE_SWIM_BACK;
-            break;
-        case CMSG_FORCE_TURN_RATE_CHANGE_ACK:
-            move_type = MOVE_TURN_RATE;
-            force_move_type = MOVE_TURN_RATE;
-            break;
-        case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:
-            move_type = MOVE_FLIGHT;
-            force_move_type = MOVE_FLIGHT;
-            break;
-        case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
-            move_type = MOVE_FLIGHT_BACK;
-            force_move_type = MOVE_FLIGHT_BACK;
-            break;
-        case CMSG_FORCE_PITCH_RATE_CHANGE_ACK:
-            move_type = MOVE_PITCH_RATE;
-            force_move_type = MOVE_PITCH_RATE;
-            break;
-        default:
-            LOG_ERROR("server", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
-            return;
+    case CMSG_FORCE_WALK_SPEED_CHANGE_ACK:
+        move_type = MOVE_WALK;
+        force_move_type = MOVE_WALK;
+        break;
+    case CMSG_FORCE_RUN_SPEED_CHANGE_ACK:
+        move_type = MOVE_RUN;
+        force_move_type = MOVE_RUN;
+        break;
+    case CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK:
+        move_type = MOVE_RUN_BACK;
+        force_move_type = MOVE_RUN_BACK;
+        break;
+    case CMSG_FORCE_SWIM_SPEED_CHANGE_ACK:
+        move_type = MOVE_SWIM;
+        force_move_type = MOVE_SWIM;
+        break;
+    case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
+        move_type = MOVE_SWIM_BACK;
+        force_move_type = MOVE_SWIM_BACK;
+        break;
+    case CMSG_FORCE_TURN_RATE_CHANGE_ACK:
+        move_type = MOVE_TURN_RATE;
+        force_move_type = MOVE_TURN_RATE;
+        break;
+    case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:
+        move_type = MOVE_FLIGHT;
+        force_move_type = MOVE_FLIGHT;
+        break;
+    case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
+        move_type = MOVE_FLIGHT_BACK;
+        force_move_type = MOVE_FLIGHT_BACK;
+        break;
+    case CMSG_FORCE_PITCH_RATE_CHANGE_ACK:
+        move_type = MOVE_PITCH_RATE;
+        force_move_type = MOVE_PITCH_RATE;
+        break;
+    default:
+        LOG_ERROR("server", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
+        return;
     }
 
     // skip all forced speed changes except last and unexpected
@@ -618,13 +618,13 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket& recvData)
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
             LOG_ERROR("server", "%sSpeedChange player %s is NOT correct (must be %f instead %f), force set to correct value",
-                           move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
+                      move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
             _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
             LOG_INFO("server", "Player %s from account id %u kicked for incorrect speed (must be %f instead %f)",
-                           _player->GetName().c_str(), GetAccountId(), _player->GetSpeed(move_type), newspeed);
+                     _player->GetName().c_str(), GetAccountId(), _player->GetSpeed(move_type), newspeed);
             KickPlayer("Incorrect speed");
         }
     }

@@ -14,7 +14,9 @@
 
 uint32 realmID;
 void AddScripts() {}
-bool ArenaSpectator::HandleSpectatorSpectateCommand(ChatHandler* handler, char const* args) { return false; }
+bool ArenaSpectator::HandleSpectatorSpectateCommand(ChatHandler* handler, char const* args) {
+    return false;
+}
 
 class WorldMock: public IWorld {
 public:

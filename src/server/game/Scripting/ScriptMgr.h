@@ -162,11 +162,17 @@ class ScriptObject
 public:
     // Do not override this in scripts; it should be overridden by the various script type classes. It indicates
     // whether or not this script type must be assigned in the database.
-    [[nodiscard]] virtual bool IsDatabaseBound() const { return false; }
-    [[nodiscard]] virtual bool isAfterLoadScript() const { return IsDatabaseBound(); }
+    [[nodiscard]] virtual bool IsDatabaseBound() const {
+        return false;
+    }
+    [[nodiscard]] virtual bool isAfterLoadScript() const {
+        return IsDatabaseBound();
+    }
     virtual void checkValidity() { }
 
-    [[nodiscard]] const std::string& GetName() const { return _name; }
+    [[nodiscard]] const std::string& GetName() const {
+        return _name;
+    }
 
 protected:
     ScriptObject(const char* name)
@@ -195,13 +201,19 @@ protected:
     SpellScriptLoader(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Should return a fully valid SpellScript pointer.
-    [[nodiscard]] virtual SpellScript* GetSpellScript() const { return nullptr; }
+    [[nodiscard]] virtual SpellScript* GetSpellScript() const {
+        return nullptr;
+    }
 
     // Should return a fully valid AuraScript pointer.
-    [[nodiscard]] virtual AuraScript* GetAuraScript() const { return nullptr; }
+    [[nodiscard]] virtual AuraScript* GetAuraScript() const {
+        return nullptr;
+    }
 };
 
 class ServerScript : public ScriptObject
@@ -321,7 +333,9 @@ public:
     }
 
     // Gets the MapEntry structure associated with this script. Can return nullptr.
-    MapEntry const* GetEntry() { return _mapEntry; }
+    MapEntry const* GetEntry() {
+        return _mapEntry;
+    }
 
     // Called when the map is created.
     virtual void OnCreate(TMap* /*map*/) { }
@@ -351,7 +365,9 @@ protected:
     WorldMapScript(const char* name, uint32 mapId);
 
 public:
-    [[nodiscard]] bool isAfterLoadScript() const override { return true; }
+    [[nodiscard]] bool isAfterLoadScript() const override {
+        return true;
+    }
 
     void checkValidity() override
     {
@@ -368,7 +384,9 @@ protected:
     InstanceMapScript(const char* name, uint32 mapId);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     void checkValidity() override
     {
@@ -379,7 +397,9 @@ public:
     }
 
     // Gets an InstanceScript object for this instance.
-    virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return nullptr; }
+    virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const {
+        return nullptr;
+    }
 };
 
 class BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
@@ -388,7 +408,9 @@ protected:
     BattlegroundMapScript(const char* name, uint32 mapId);
 
 public:
-    [[nodiscard]] bool isAfterLoadScript() const override { return true; }
+    [[nodiscard]] bool isAfterLoadScript() const override {
+        return true;
+    }
 
     void checkValidity() override
     {
@@ -405,22 +427,34 @@ protected:
     ItemScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when a player accepts a quest from the item.
-    virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return false; }
+    virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) {
+        return false;
+    }
 
     // Called when a player uses the item.
-    virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
+    virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) {
+        return false;
+    }
 
     // Called when the item is destroyed.
-    virtual bool OnRemove(Player* /*player*/, Item* /*item*/) { return false; }
+    virtual bool OnRemove(Player* /*player*/, Item* /*item*/) {
+        return false;
+    }
 
     // Called before casting a combat spell from this item (chance on hit spells of item template, can be used to prevent cast if returning false)
-    virtual bool OnCastItemCombatSpell(Player* /*player*/, Unit* /*victim*/, SpellInfo const* /*spellInfo*/, Item* /*item*/) { return true; }
+    virtual bool OnCastItemCombatSpell(Player* /*player*/, Unit* /*victim*/, SpellInfo const* /*spellInfo*/, Item* /*item*/) {
+        return true;
+    }
 
     // Called when the item expires (is destroyed).
-    virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
+    virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) {
+        return false;
+    }
 
     // Called when a player selects an option in an item gossip window
     virtual void OnGossipSelect(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/) { }
@@ -455,7 +489,9 @@ public:
     virtual void ModifyHealRecieved(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
     //Called when Damage is Dealt
-    virtual uint32 DealDamage(Unit* /*AttackerUnit*/, Unit* /*pVictim*/, uint32 damage, DamageEffectType /*damagetype*/) { return damage; }
+    virtual uint32 DealDamage(Unit* /*AttackerUnit*/, Unit* /*pVictim*/, uint32 damage, DamageEffectType /*damagetype*/) {
+        return damage;
+    }
 
     virtual void OnBeforeRollMeleeOutcomeAgainst(const Unit* /*attacker*/, const Unit* /*victim*/, WeaponAttackType /*attType*/, int32& /*attackerMaxSkillValueForLevel*/, int32& /*victimMaxSkillValueForLevel*/, int32& /*attackerWeaponSkill*/, int32& /*victimDefenseSkill*/, int32& /*crit_chance*/, int32& /*miss_chance*/, int32& /*dodge_chance*/, int32& /*parry_chance*/, int32& /*block_chance*/ ) {   };
 };
@@ -502,34 +538,54 @@ protected:
     CreatureScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when a player opens a gossip dialog with the creature.
-    virtual bool OnGossipHello(Player* /*player*/, Creature* /*creature*/) { return false; }
+    virtual bool OnGossipHello(Player* /*player*/, Creature* /*creature*/) {
+        return false;
+    }
 
     // Called when a player selects a gossip item in the creature's gossip menu.
-    virtual bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+    virtual bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) {
+        return false;
+    }
 
     // Called when a player selects a gossip with a code in the creature's gossip menu.
-    virtual bool OnGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+    virtual bool OnGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {
+        return false;
+    }
 
     // Called when a player accepts a quest from the creature.
-    virtual bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+    virtual bool OnQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) {
+        return false;
+    }
 
     // Called when a player selects a quest in the creature's quest menu.
-    virtual bool OnQuestSelect(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+    virtual bool OnQuestSelect(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) {
+        return false;
+    }
 
     // Called when a player completes a quest with the creature.
-    virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+    virtual bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) {
+        return false;
+    }
 
     // Called when a player selects a quest reward.
-    virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+    virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) {
+        return false;
+    }
 
     // Called when the dialog status between a player and the creature is requested.
-    virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+    virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) {
+        return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    }
 
     // Called when a CreatureAI object is needed for the creature.
-    virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
+    virtual CreatureAI* GetAI(Creature* /*creature*/) const {
+        return nullptr;
+    }
 };
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -538,25 +594,39 @@ protected:
     GameObjectScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when a player opens a gossip dialog with the gameobject.
-    virtual bool OnGossipHello(Player* /*player*/, GameObject* /*go*/) { return false; }
+    virtual bool OnGossipHello(Player* /*player*/, GameObject* /*go*/) {
+        return false;
+    }
 
     // Called when a player selects a gossip item in the gameobject's gossip menu.
-    virtual bool OnGossipSelect(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+    virtual bool OnGossipSelect(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) {
+        return false;
+    }
 
     // Called when a player selects a gossip with a code in the gameobject's gossip menu.
-    virtual bool OnGossipSelectCode(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+    virtual bool OnGossipSelectCode(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {
+        return false;
+    }
 
     // Called when a player accepts a quest from the gameobject.
-    virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
+    virtual bool OnQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) {
+        return false;
+    }
 
     // Called when a player selects a quest reward.
-    virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+    virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) {
+        return false;
+    }
 
     // Called when the dialog status between a player and the gameobject is requested.
-    virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+    virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) {
+        return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    }
 
     // Called when the game object is destroyed (destructible buildings only).
     virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }
@@ -571,7 +641,9 @@ public:
     virtual void OnGameObjectStateChanged(GameObject* /*go*/, uint32 /*state*/) { }
 
     // Called when a GameObjectAI object is needed for the gameobject.
-    virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return nullptr; }
+    virtual GameObjectAI* GetAI(GameObject* /*go*/) const {
+        return nullptr;
+    }
 };
 
 class AreaTriggerScript : public ScriptObject
@@ -580,10 +652,14 @@ protected:
     AreaTriggerScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when the area trigger is activated by a player.
-    virtual bool OnTrigger(Player* /*player*/, AreaTrigger const* /*trigger*/) { return false; }
+    virtual bool OnTrigger(Player* /*player*/, AreaTrigger const* /*trigger*/) {
+        return false;
+    }
 };
 
 class BattlegroundScript : public ScriptObject
@@ -592,7 +668,9 @@ protected:
     BattlegroundScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Should return a fully valid Battleground object for the type ID.
     [[nodiscard]] virtual Battleground* GetBattleground() const = 0;
@@ -604,7 +682,9 @@ protected:
     OutdoorPvPScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Should return a fully valid OutdoorPvP object for the type ID.
     [[nodiscard]] virtual OutdoorPvP* GetOutdoorPvP() const = 0;
@@ -626,7 +706,9 @@ protected:
     WeatherScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when the weather changes in the zone this script is associated with.
     virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
@@ -678,10 +760,14 @@ protected:
     ConditionScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when a single condition is checked for a player.
-    virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
+    virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) {
+        return true;
+    }
 };
 
 class VehicleScript : public ScriptObject
@@ -721,7 +807,9 @@ protected:
     TransportScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // Called when a player boards the transport.
     virtual void OnAddPassenger(Transport* /*transport*/, Player* /*player*/) { }
@@ -742,10 +830,14 @@ protected:
     AchievementCriteriaScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return true; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return true;
+    }
 
     // deprecated/legacy
-    virtual bool OnCheck(Player* /*source*/, Unit* /*target*/) { return true; };
+    virtual bool OnCheck(Player* /*source*/, Unit* /*target*/) {
+        return true;
+    };
 };
 
 class PlayerScript : public ScriptObject
@@ -871,7 +963,9 @@ public:
     virtual void OnMapChanged(Player* /*player*/) { }
 
     // Called before a player is being teleported to new coords
-    virtual bool OnBeforeTeleport(Player* /*player*/, uint32 /*mapid*/, float /*x*/, float /*y*/, float /*z*/, float /*orientation*/, uint32 /*options*/, Unit* /*target*/) { return true; }
+    virtual bool OnBeforeTeleport(Player* /*player*/, uint32 /*mapid*/, float /*x*/, float /*y*/, float /*z*/, float /*orientation*/, uint32 /*options*/, Unit* /*target*/) {
+        return true;
+    }
 
     // Called when team/faction is set on player
     virtual void OnUpdateFaction(Player* /*player*/) { }
@@ -953,8 +1047,12 @@ public:
 
     virtual void OnFirstLogin(Player* /*player*/) { }
 
-    virtual bool CanJoinInBattlegroundQueue(Player* /*player*/, uint64 /*BattlemasterGuid*/, BattlegroundTypeId /*BGTypeID*/, uint8 /*joinAsGroup*/, GroupJoinBattlegroundResult& /*err*/) { return true; }
-    virtual bool ShouldBeRewardedWithMoneyInsteadOfExp(Player* /*player*/) { return false; }
+    virtual bool CanJoinInBattlegroundQueue(Player* /*player*/, uint64 /*BattlemasterGuid*/, BattlegroundTypeId /*BGTypeID*/, uint8 /*joinAsGroup*/, GroupJoinBattlegroundResult& /*err*/) {
+        return true;
+    }
+    virtual bool ShouldBeRewardedWithMoneyInsteadOfExp(Player* /*player*/) {
+        return false;
+    }
 
     // Called before the player's temporary summoned creature has initialized it's stats
     virtual void OnBeforeTempSummonInitStats(Player* /*player*/, TempSummon* /*tempSummon*/, uint32& /*duration*/) { }
@@ -1003,7 +1101,9 @@ protected:
     GuildScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return false; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return false;
+    }
 
     // Called when a member is added to the guild.
     virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
@@ -1044,7 +1144,9 @@ protected:
     GroupScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return false; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return false;
+    }
 
     // Called when a member is added to a group.
     virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }
@@ -1097,7 +1199,9 @@ protected:
     BGScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return false; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return false;
+    }
 
     // Start Battlegroud
     virtual void OnBattlegroundStart(Battleground* /*bg*/) { }
@@ -1119,14 +1223,20 @@ public:
 
     virtual void OnAddGroup(BattlegroundQueue* /*queue*/, GroupQueueInfo* /*ginfo*/, uint32& /*index*/, Player* /*leader*/, Group* /*grp*/, PvPDifficultyEntry const* /*bracketEntry*/, bool /*isPremade*/) { }
 
-    virtual bool CanFillPlayersToBG(BattlegroundQueue* /*queue*/, Battleground* /*bg*/, const int32 /*aliFree*/, const int32 /*hordeFree*/, BattlegroundBracketId /*bracket_id*/) { return true; }
+    virtual bool CanFillPlayersToBG(BattlegroundQueue* /*queue*/, Battleground* /*bg*/, const int32 /*aliFree*/, const int32 /*hordeFree*/, BattlegroundBracketId /*bracket_id*/) {
+        return true;
+    }
 
     virtual bool CanFillPlayersToBGWithSpecific(BattlegroundQueue* /*queue*/, Battleground* /*bg*/, const int32 /*aliFree*/, const int32 /*hordeFree*/,
-            BattlegroundBracketId /*thisBracketId*/, BattlegroundQueue* /*specificQueue*/, BattlegroundBracketId /*specificBracketId*/) { return true; }
+            BattlegroundBracketId /*thisBracketId*/, BattlegroundQueue* /*specificQueue*/, BattlegroundBracketId /*specificBracketId*/) {
+        return true;
+    }
 
     virtual void OnCheckNormalMatch(BattlegroundQueue* /*queue*/, uint32& /*Coef*/, Battleground* /*bgTemplate*/, BattlegroundBracketId /*bracket_id*/, uint32& /*minPlayers*/, uint32& /*maxPlayers*/) { }
 
-    virtual bool CanSendMessageQueue(BattlegroundQueue* /*queue*/, Player* /*leader*/, Battleground* /*bg*/, PvPDifficultyEntry const* /*bracketEntry*/) { return true; }
+    virtual bool CanSendMessageQueue(BattlegroundQueue* /*queue*/, Player* /*leader*/, Battleground* /*bg*/, PvPDifficultyEntry const* /*bracketEntry*/) {
+        return true;
+    }
 };
 
 class ArenaTeamScript : public ScriptObject
@@ -1135,7 +1245,9 @@ protected:
     ArenaTeamScript(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return false; };
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return false;
+    };
 
     virtual void OnGetSlotByType(const uint32 /*type*/, uint8& /*slot*/) {}
     virtual void OnGetArenaPoints(ArenaTeam* /*team*/, float& /*points*/) {}
@@ -1150,7 +1262,9 @@ protected:
     SpellSC(const char* name);
 
 public:
-    [[nodiscard]] bool IsDatabaseBound() const override { return false; }
+    [[nodiscard]] bool IsDatabaseBound() const override {
+        return false;
+    }
 
     // Calculate max duration in applying aura
     virtual void OnCalcMaxDuration(Aura const* /*aura*/, int32& /*maxDuration*/) { }
@@ -1203,10 +1317,16 @@ public: /* Initialization */
     void FillSpellSummary();
     void CheckIfScriptsInDatabaseExist();
 
-    const char* ScriptsVersion() const { return "Integrated Trinity Scripts"; }
+    const char* ScriptsVersion() const {
+        return "Integrated Trinity Scripts";
+    }
 
-    void IncrementScriptCount() { ++_scriptCount; }
-    uint32 GetScriptCount() const { return _scriptCount; }
+    void IncrementScriptCount() {
+        ++_scriptCount;
+    }
+    uint32 GetScriptCount() const {
+        return _scriptCount;
+    }
 
 public: /* Unloading */
     void Unload();
@@ -1467,10 +1587,18 @@ public: /* GlobalScript */
     void OnBeforeWorldObjectSetPhaseMask(WorldObject const* worldObject, uint32& oldPhaseMask, uint32& newPhaseMask, bool& useCombinedPhases, bool& update);
 
 public: /* Scheduled scripts */
-    uint32 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }
-    uint32 DecreaseScheduledScriptCount() { return --_scheduledScripts; }
-    uint32 DecreaseScheduledScriptCount(size_t count) { return _scheduledScripts -= count; }
-    bool IsScriptScheduled() const { return _scheduledScripts > 0; }
+    uint32 IncreaseScheduledScriptsCount() {
+        return ++_scheduledScripts;
+    }
+    uint32 DecreaseScheduledScriptCount() {
+        return --_scheduledScripts;
+    }
+    uint32 DecreaseScheduledScriptCount(size_t count) {
+        return _scheduledScripts -= count;
+    }
+    bool IsScriptScheduled() const {
+        return _scheduledScripts > 0;
+    }
 
 public: /* UnitScript */
     void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
@@ -1615,7 +1743,7 @@ public:
                     {
                         // If the script is already assigned -> delete it!
                         LOG_ERROR("server", "Script named '%s' is already assigned (two or more scripts have the same name), so the script can't work, aborting...",
-                                       script->GetName().c_str());
+                                  script->GetName().c_str());
 
                         ABORT(); // Error that should be fixed ASAP.
                     }
@@ -1625,7 +1753,7 @@ public:
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("Smart") == std::string::npos)
                         LOG_ERROR("sql.sql", "Script named '%s' is not assigned in the database.",
-                                         script->GetName().c_str());
+                                  script->GetName().c_str());
                 }
             }
             else
@@ -1659,7 +1787,7 @@ private:
             if (it->second == script)
             {
                 LOG_ERROR("server", "Script '%s' has same memory pointer as '%s'.",
-                               script->GetName().c_str(), it->second->GetName().c_str());
+                          script->GetName().c_str(), it->second->GetName().c_str());
 
                 return false;
             }

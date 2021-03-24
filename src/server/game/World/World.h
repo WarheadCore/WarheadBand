@@ -186,16 +186,32 @@ public:
     bool KickSession(uint32 id);
     /// Get the number of current active sessions
     void UpdateMaxSessionCounters();
-    const SessionMap& GetAllSessions() const { return m_sessions; }
-    uint32 GetActiveAndQueuedSessionCount() const { return m_sessions.size(); }
-    uint32 GetActiveSessionCount() const { return m_sessions.size() - m_QueuedPlayer.size(); }
-    uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
+    const SessionMap& GetAllSessions() const {
+        return m_sessions;
+    }
+    uint32 GetActiveAndQueuedSessionCount() const {
+        return m_sessions.size();
+    }
+    uint32 GetActiveSessionCount() const {
+        return m_sessions.size() - m_QueuedPlayer.size();
+    }
+    uint32 GetQueuedSessionCount() const {
+        return m_QueuedPlayer.size();
+    }
     /// Get the maximum number of parallel sessions on the server since last reboot
-    uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
-    uint32 GetMaxActiveSessionCount() const { return m_maxActiveSessionCount; }
+    uint32 GetMaxQueuedSessionCount() const {
+        return m_maxQueuedSessionCount;
+    }
+    uint32 GetMaxActiveSessionCount() const {
+        return m_maxActiveSessionCount;
+    }
     /// Get number of players
-    inline uint32 GetPlayerCount() const { return m_PlayerCount; }
-    inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
+    inline uint32 GetPlayerCount() const {
+        return m_PlayerCount;
+    }
+    inline uint32 GetMaxPlayerCount() const {
+        return m_MaxPlayerCount;
+    }
 
     /// Increase/Decrease number of players
     inline void IncreasePlayerCount()
@@ -203,7 +219,9 @@ public:
         m_PlayerCount++;
         m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
     }
-    inline void DecreasePlayerCount() { m_PlayerCount--; }
+    inline void DecreasePlayerCount() {
+        m_PlayerCount--;
+    }
 
     Player* FindPlayerInZone(uint32 zone);
 
@@ -214,13 +232,19 @@ public:
     void SetClosed(bool val);
 
     /// Security level limitations
-    AccountTypes GetPlayerSecurityLimit() const { return m_allowedSecurityLevel; }
+    AccountTypes GetPlayerSecurityLimit() const {
+        return m_allowedSecurityLevel;
+    }
     void SetPlayerSecurityLimit(AccountTypes sec);
     void LoadDBAllowedSecurityLevel();
 
     /// Active session server limit
-    void SetPlayerAmountLimit(uint32 limit) { m_playerLimit = limit; }
-    uint32 GetPlayerAmountLimit() const { return m_playerLimit; }
+    void SetPlayerAmountLimit(uint32 limit) {
+        m_playerLimit = limit;
+    }
+    uint32 GetPlayerAmountLimit() const {
+        return m_playerLimit;
+    }
 
     //player Queue
     typedef std::list<WorldSession*> Queue;
@@ -231,36 +255,66 @@ public:
 
     /// \todo Actions on m_allowMovement still to be implemented
     /// Is movement allowed?
-    bool getAllowMovement() const { return m_allowMovement; }
+    bool getAllowMovement() const {
+        return m_allowMovement;
+    }
     /// Allow/Disallow object movements
-    void SetAllowMovement(bool allow) { m_allowMovement = allow; }
+    void SetAllowMovement(bool allow) {
+        m_allowMovement = allow;
+    }
 
     /// Set the string for new characters (first login)
-    void SetNewCharString(std::string const& str) { m_newCharString = str; }
+    void SetNewCharString(std::string const& str) {
+        m_newCharString = str;
+    }
     /// Get the string for new characters (first login)
-    std::string const& GetNewCharString() const { return m_newCharString; }
+    std::string const& GetNewCharString() const {
+        return m_newCharString;
+    }
 
-    LocaleConstant GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
+    LocaleConstant GetDefaultDbcLocale() const {
+        return m_defaultDbcLocale;
+    }
 
     /// Get the path where data (dbc, maps) are stored on disk
-    std::string const& GetDataPath() const { return m_dataPath; }
+    std::string const& GetDataPath() const {
+        return m_dataPath;
+    }
 
     /// When server started?
-    time_t const& GetStartTime() const { return m_startTime; }
+    time_t const& GetStartTime() const {
+        return m_startTime;
+    }
     /// What time is it?
-    time_t const& GetGameTime() const { return m_gameTime; }
+    time_t const& GetGameTime() const {
+        return m_gameTime;
+    }
     /// What time is it? in ms
-    static uint32 GetGameTimeMS() { return m_gameMSTime; }
+    static uint32 GetGameTimeMS() {
+        return m_gameMSTime;
+    }
     /// Uptime (in secs)
-    uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
+    uint32 GetUptime() const {
+        return uint32(m_gameTime - m_startTime);
+    }
     /// Update time
-    uint32 GetUpdateTime() const { return m_updateTime; }
-    void SetRecordDiffInterval(int32 t) { if (t >= 0) m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = (uint32)t; }
+    uint32 GetUpdateTime() const {
+        return m_updateTime;
+    }
+    void SetRecordDiffInterval(int32 t) {
+        if (t >= 0) m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = (uint32)t;
+    }
 
     /// Next daily quests and random bg reset time
-    time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
-    time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
-    time_t GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
+    time_t GetNextDailyQuestsResetTime() const {
+        return m_NextDailyQuestReset;
+    }
+    time_t GetNextWeeklyQuestsResetTime() const {
+        return m_NextWeeklyQuestReset;
+    }
+    time_t GetNextRandomBGResetTime() const {
+        return m_NextRandomBGReset;
+    }
 
     /// Get the maximum skill level a player can reach
     uint16 GetConfigMaxSkillValue() const
@@ -282,22 +336,37 @@ public:
     void SendServerMessage(ServerMessageType type, const char* text = "", Player* player = nullptr);
 
     /// Are we in the middle of a shutdown?
-    bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
-    uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
+    bool IsShuttingDown() const {
+        return m_ShutdownTimer > 0;
+    }
+    uint32 GetShutDownTimeLeft() const {
+        return m_ShutdownTimer;
+    }
     void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
     void ShutdownCancel();
     void ShutdownMsg(bool show = false, Player* player = nullptr);
-    static uint8 GetExitCode() { return m_ExitCode; }
-    static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
-    static bool IsStopped() { return m_stopEvent; }
+    static uint8 GetExitCode() {
+        return m_ExitCode;
+    }
+    static void StopNow(uint8 exitcode) {
+        m_stopEvent = true;
+        m_ExitCode = exitcode;
+    }
+    static bool IsStopped() {
+        return m_stopEvent;
+    }
 
     void Update(uint32 diff);
 
     void UpdateSessions(uint32 diff);
     /// Set a server rate (see #Rates)
-    void setRate(Rates rate, float value) { rate_values[rate] = value; }
+    void setRate(Rates rate, float value) {
+        rate_values[rate] = value;
+    }
     /// Get a server rate (see #Rates)
-    float getRate(Rates rate) const { return rate_values[rate]; }
+    float getRate(Rates rate) const {
+        return rate_values[rate];
+    }
 
     /// Set a server configuration element (see #WorldConfigs)
     void setBoolConfig(WorldBoolConfigs index, bool value)
@@ -343,16 +412,26 @@ public:
     void LoadWorldStates();
 
     /// Are we on a "Player versus Player" server?
-    bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
-    bool IsFFAPvPRealm() const { return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
+    bool IsPvPRealm() const {
+        return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP);
+    }
+    bool IsFFAPvPRealm() const {
+        return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP;
+    }
 
     void KickAll();
     void KickAllLess(AccountTypes sec);
 
     // for max speed access
-    static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
-    static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
-    static float GetMaxVisibleDistanceInBGArenas()      { return m_MaxVisibleDistanceInBGArenas;   }
+    static float GetMaxVisibleDistanceOnContinents()    {
+        return m_MaxVisibleDistanceOnContinents;
+    }
+    static float GetMaxVisibleDistanceInInstances()     {
+        return m_MaxVisibleDistanceInInstances;
+    }
+    static float GetMaxVisibleDistanceInBGArenas()      {
+        return m_MaxVisibleDistanceInBGArenas;
+    }
 
     // our: needed for arena spectator subscriptions
     uint32 GetNextWhoListUpdateDelaySecs()
@@ -378,31 +457,46 @@ public:
     void DeleteGlobalPlayerData(uint32 guid, std::string const& name);
 
     void ProcessCliCommands();
-    void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
+    void QueueCliCommand(CliCommandHolder* commandHolder) {
+        cliCmdQueue.add(commandHolder);
+    }
 
     void ForceGameEventUpdate();
 
     void UpdateRealmCharCount(uint32 accid);
 
-    LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
+    LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const {
+        if (m_availableDbcLocaleMask & (1 << locale)) return locale;
+        else return m_defaultDbcLocale;
+    }
 
     // used World DB version
     void LoadDBVersion();
-    char const* GetDBVersion() const { return m_DBVersion.c_str(); }
+    char const* GetDBVersion() const {
+        return m_DBVersion.c_str();
+    }
 
     void LoadAutobroadcasts();
 
     void UpdateAreaDependentAuras();
 
-    uint32 GetCleaningFlags() const { return m_CleaningFlags; }
-    void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+    uint32 GetCleaningFlags() const {
+        return m_CleaningFlags;
+    }
+    void   SetCleaningFlags(uint32 flags) {
+        m_CleaningFlags = flags;
+    }
     void   ResetEventSeasonalQuests(uint16 event_id);
 
     time_t GetNextTimeWithDayAndHour(int8 dayOfWeek, int8 hour); // pussywizard
     time_t GetNextTimeWithMonthAndHour(int8 month, int8 hour); // pussywizard
 
-    std::string const& GetRealmName() const { return _realmName; } // pussywizard
-    void SetRealmName(std::string name) { _realmName = name; } // pussywizard
+    std::string const& GetRealmName() const {
+        return _realmName;    // pussywizard
+    }
+    void SetRealmName(std::string name) {
+        _realmName = name;    // pussywizard
+    }
 
 protected:
     void _UpdateGameTime();

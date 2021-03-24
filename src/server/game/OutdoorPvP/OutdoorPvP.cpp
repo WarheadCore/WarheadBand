@@ -423,14 +423,14 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
     uint32 team;
     switch (m_State)
     {
-        case OBJECTIVESTATE_ALLIANCE:
-            team = 0;
-            break;
-        case OBJECTIVESTATE_HORDE:
-            team = 1;
-            break;
-        default:
-            return;
+    case OBJECTIVESTATE_ALLIANCE:
+        team = 0;
+        break;
+    case OBJECTIVESTATE_HORDE:
+        team = 1;
+        break;
+    default:
+        return;
     }
 
     // send to all players present in the area

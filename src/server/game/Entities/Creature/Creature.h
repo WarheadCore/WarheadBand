@@ -74,9 +74,9 @@ enum CreatureFlagsExtra : uint32
 
     // Masks
     CREATURE_FLAG_EXTRA_UNUSED              = (CREATURE_FLAG_EXTRA_UNUSED_10 | CREATURE_FLAG_EXTRA_UNUSED_12 |
-                                               CREATURE_FLAG_EXTRA_UNUSED_14 | CREATURE_FLAG_EXTRA_UNUSED_17 | CREATURE_FLAG_EXTRA_UNUSED_22 |
-                                               CREATURE_FLAG_EXTRA_UNUSED_25 | CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 |
-                                               CREATURE_FLAG_EXTRA_UNUSED_28 | CREATURE_FLAG_EXTRA_UNUSED_32),
+            CREATURE_FLAG_EXTRA_UNUSED_14 | CREATURE_FLAG_EXTRA_UNUSED_17 | CREATURE_FLAG_EXTRA_UNUSED_22 |
+            CREATURE_FLAG_EXTRA_UNUSED_25 | CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 |
+            CREATURE_FLAG_EXTRA_UNUSED_28 | CREATURE_FLAG_EXTRA_UNUSED_32),
     CREATURE_FLAG_EXTRA_DB_ALLOWED          = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
 };
 
@@ -360,7 +360,9 @@ struct VendorItem
     uint32 ExtendedCost;
 
     //helpers
-    bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
+    bool IsGoldRequired(ItemTemplate const* pProto) const {
+        return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost;
+    }
 };
 typedef std::vector<VendorItem*> VendorItemList;
 
@@ -375,8 +377,12 @@ struct VendorItemData
 
         return m_items[slot];
     }
-    [[nodiscard]] bool Empty() const { return m_items.empty(); }
-    [[nodiscard]] uint8 GetItemCount() const { return m_items.size(); }
+    [[nodiscard]] bool Empty() const {
+        return m_items.empty();
+    }
+    [[nodiscard]] uint8 GetItemCount() const {
+        return m_items.size();
+    }
     void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost)
     {
         m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost));
@@ -419,7 +425,9 @@ struct TrainerSpell
     uint32 learnedSpell[3];
 
     // helpers
-    [[nodiscard]] bool IsCastable() const { return learnedSpell[0] != spell; }
+    [[nodiscard]] bool IsCastable() const {
+        return learnedSpell[0] != spell;
+    }
 };
 
 typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
@@ -427,7 +435,9 @@ typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
 struct TrainerSpellData
 {
     TrainerSpellData()  {}
-    ~TrainerSpellData() { spellList.clear(); }
+    ~TrainerSpellData() {
+        spellList.clear();
+    }
 
     TrainerSpellMap spellList;
     uint32 trainerType{0};                                     // trainer type based at trainer spells, can be different from creature_template value.
@@ -461,26 +471,50 @@ public:
     void SelectLevel(bool changelevel = true);
     void LoadEquipment(int8 id = 1, bool force = false);
 
-    [[nodiscard]] uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
+    [[nodiscard]] uint32 GetDBTableGUIDLow() const {
+        return m_DBTableGuid;
+    }
 
     void Update(uint32 time) override;                         // overwrited Unit::Update
     void GetRespawnPosition(float& x, float& y, float& z, float* ori = nullptr, float* dist = nullptr) const;
 
-    void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
-    [[nodiscard]] uint32 GetCorpseDelay() const { return m_corpseDelay; }
-    [[nodiscard]] bool IsRacialLeader() const { return GetCreatureTemplate()->RacialLeader; }
-    [[nodiscard]] bool IsCivilian() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
-    [[nodiscard]] bool IsTrigger() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER; }
-    [[nodiscard]] bool IsGuard() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD; }
-    [[nodiscard]] bool CanWalk() const { return GetCreatureTemplate()->InhabitType & INHABIT_GROUND; }
+    void SetCorpseDelay(uint32 delay) {
+        m_corpseDelay = delay;
+    }
+    [[nodiscard]] uint32 GetCorpseDelay() const {
+        return m_corpseDelay;
+    }
+    [[nodiscard]] bool IsRacialLeader() const {
+        return GetCreatureTemplate()->RacialLeader;
+    }
+    [[nodiscard]] bool IsCivilian() const {
+        return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN;
+    }
+    [[nodiscard]] bool IsTrigger() const {
+        return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER;
+    }
+    [[nodiscard]] bool IsGuard() const {
+        return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD;
+    }
+    [[nodiscard]] bool CanWalk() const {
+        return GetCreatureTemplate()->InhabitType & INHABIT_GROUND;
+    }
     [[nodiscard]] bool CanSwim() const override;
     [[nodiscard]] bool CanEnterWater() const override;
     [[nodiscard]] bool CanFly()  const override;
-    [[nodiscard]] bool CanHover() const { return m_originalAnimTier & UNIT_BYTE1_FLAG_HOVER || IsHovering(); }
+    [[nodiscard]] bool CanHover() const {
+        return m_originalAnimTier & UNIT_BYTE1_FLAG_HOVER || IsHovering();
+    }
 
-    void SetReactState(ReactStates st) { m_reactState = st; }
-    [[nodiscard]] ReactStates GetReactState() const { return m_reactState; }
-    [[nodiscard]] bool HasReactState(ReactStates state) const { return (m_reactState == state); }
+    void SetReactState(ReactStates st) {
+        m_reactState = st;
+    }
+    [[nodiscard]] ReactStates GetReactState() const {
+        return m_reactState;
+    }
+    [[nodiscard]] bool HasReactState(ReactStates state) const {
+        return (m_reactState == state);
+    }
     void InitializeReactState();
 
     ///// TODO RENAME THIS!!!!!
@@ -514,17 +548,25 @@ public:
 
     [[nodiscard]] bool IsDungeonBoss() const;
     [[nodiscard]] bool IsImmuneToKnockback() const;
-    [[nodiscard]] bool IsAvoidingAOE() const { return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_AVOID_AOE; }
+    [[nodiscard]] bool IsAvoidingAOE() const {
+        return GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_AVOID_AOE;
+    }
 
     uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
 
-    [[nodiscard]] bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
-    [[nodiscard]] bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
+    [[nodiscard]] bool IsInEvadeMode() const {
+        return HasUnitState(UNIT_STATE_EVADE);
+    }
+    [[nodiscard]] bool IsEvadingAttacks() const {
+        return IsInEvadeMode() || CanNotReachTarget();
+    }
 
     bool AIM_Initialize(CreatureAI* ai = nullptr);
     void Motion_Initialize();
 
-    [[nodiscard]] CreatureAI* AI() const { return (CreatureAI*)i_AI; }
+    [[nodiscard]] CreatureAI* AI() const {
+        return (CreatureAI*)i_AI;
+    }
 
     bool SetWalk(bool enable) override;
     bool SetDisableGravity(bool disable, bool packetOnly = false) override;
@@ -548,8 +590,12 @@ public:
         return (getLevel() / 2 + uint32(GetStat(STAT_STRENGTH) / 20));
     }
 
-    [[nodiscard]] SpellSchoolMask GetMeleeDamageSchoolMask() const override { return m_meleeDamageSchoolMask; }
-    void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
+    [[nodiscard]] SpellSchoolMask GetMeleeDamageSchoolMask() const override {
+        return m_meleeDamageSchoolMask;
+    }
+    void SetMeleeDamageSchool(SpellSchools school) {
+        m_meleeDamageSchoolMask = SpellSchoolMask(1 << school);
+    }
 
     void _AddCreatureSpellCooldown(uint32 spell_id, uint32 end_time);
     void AddSpellCooldown(uint32 spell_id, uint32 /*itemid*/, uint32 end_time, bool needSendToClient = false, bool forceSendToSpectator = false) override;
@@ -571,9 +617,15 @@ public:
     void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) override;
 
     void SetCanDualWield(bool value) override;
-    [[nodiscard]] int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
-    uint8 GetCurrentEquipmentId() { return m_equipmentId; }
-    void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
+    [[nodiscard]] int8 GetOriginalEquipmentId() const {
+        return m_originalEquipmentId;
+    }
+    uint8 GetCurrentEquipmentId() {
+        return m_equipmentId;
+    }
+    void SetCurrentEquipmentId(uint8 id) {
+        m_equipmentId = id;
+    }
 
     float GetSpellDamageMod(int32 Rank);
 
@@ -583,8 +635,12 @@ public:
 
     [[nodiscard]] TrainerSpellData const* GetTrainerSpells() const;
 
-    [[nodiscard]] CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
-    [[nodiscard]] CreatureData const* GetCreatureData() const { return m_creatureData; }
+    [[nodiscard]] CreatureTemplate const* GetCreatureTemplate() const {
+        return m_creatureInfo;
+    }
+    [[nodiscard]] CreatureData const* GetCreatureData() const {
+        return m_creatureData;
+    }
     [[nodiscard]] CreatureAddon const* GetCreatureAddon() const;
 
     [[nodiscard]] std::string GetAIName() const;
@@ -596,7 +652,9 @@ public:
 
     void setDeathState(DeathState s, bool despawn = false) override;                   // override virtual Unit::setDeathState
 
-    bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false, true); }
+    bool LoadFromDB(uint32 guid, Map* map) {
+        return LoadCreatureFromDB(guid, map, false, true);
+    }
     bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true, bool gridLoad = false);
     void SaveToDB();
     // overriden in Pet
@@ -604,24 +662,46 @@ public:
     virtual void DeleteFromDB();                        // overriden in Pet
 
     Loot loot;
-    [[nodiscard]] uint64 GetLootRecipientGUID() const { return m_lootRecipient; }
+    [[nodiscard]] uint64 GetLootRecipientGUID() const {
+        return m_lootRecipient;
+    }
     [[nodiscard]] Player* GetLootRecipient() const;
     [[nodiscard]] Group* GetLootRecipientGroup() const;
-    [[nodiscard]] bool hasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
+    [[nodiscard]] bool hasLootRecipient() const {
+        return m_lootRecipient || m_lootRecipientGroup;
+    }
     bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
-    [[nodiscard]] bool CanGeneratePickPocketLoot() const { return lootPickPocketRestoreTime == 0 || lootPickPocketRestoreTime < time(nullptr); }
-    void SetPickPocketLootTime() { lootPickPocketRestoreTime = time(nullptr) + MINUTE + GetCorpseDelay() + GetRespawnTime(); }
-    void ResetPickPocketLootTime() { lootPickPocketRestoreTime = 0; }
+    [[nodiscard]] bool CanGeneratePickPocketLoot() const {
+        return lootPickPocketRestoreTime == 0 || lootPickPocketRestoreTime < time(nullptr);
+    }
+    void SetPickPocketLootTime() {
+        lootPickPocketRestoreTime = time(nullptr) + MINUTE + GetCorpseDelay() + GetRespawnTime();
+    }
+    void ResetPickPocketLootTime() {
+        lootPickPocketRestoreTime = 0;
+    }
 
     void SetLootRecipient (Unit* unit, bool withGroup = true);
     void AllLootRemovedFromCorpse();
 
-    [[nodiscard]] uint16 GetLootMode() const { return m_LootMode; }
-    [[nodiscard]] bool HasLootMode(uint16 lootMode) const { return m_LootMode & lootMode; }
-    void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
-    void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
-    void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
-    void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
+    [[nodiscard]] uint16 GetLootMode() const {
+        return m_LootMode;
+    }
+    [[nodiscard]] bool HasLootMode(uint16 lootMode) const {
+        return m_LootMode & lootMode;
+    }
+    void SetLootMode(uint16 lootMode) {
+        m_LootMode = lootMode;
+    }
+    void AddLootMode(uint16 lootMode) {
+        m_LootMode |= lootMode;
+    }
+    void RemoveLootMode(uint16 lootMode) {
+        m_LootMode &= ~lootMode;
+    }
+    void ResetLootMode() {
+        m_LootMode = LOOT_MODE_DEFAULT;
+    }
 
     SpellInfo const* reachWithSpellAttack(Unit* victim);
     SpellInfo const* reachWithSpellCure(Unit* victim);
@@ -642,36 +722,62 @@ public:
     void DoFleeToGetAssistance();
     void CallForHelp(float fRadius);
     void CallAssistance();
-    void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
-    void SetNoSearchAssistance(bool val) { m_AlreadySearchedAssistance = val; }
-    bool HasSearchedAssistance() { return m_AlreadySearchedAssistance; }
+    void SetNoCallAssistance(bool val) {
+        m_AlreadyCallAssistance = val;
+    }
+    void SetNoSearchAssistance(bool val) {
+        m_AlreadySearchedAssistance = val;
+    }
+    bool HasSearchedAssistance() {
+        return m_AlreadySearchedAssistance;
+    }
     bool CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction = true) const;
     bool _IsTargetAcceptable(const Unit* target) const;
     bool _CanDetectFeignDeathOf(const Unit* target) const; // pussywizard
 
     // pussywizard: updated at faction change, disable move in line of sight if actual faction is not hostile to anyone
     void UpdateMoveInLineOfSightState();
-    bool IsMoveInLineOfSightDisabled() { return m_moveInLineOfSightDisabled; }
-    bool IsMoveInLineOfSightStrictlyDisabled() { return m_moveInLineOfSightStrictlyDisabled; }
+    bool IsMoveInLineOfSightDisabled() {
+        return m_moveInLineOfSightDisabled;
+    }
+    bool IsMoveInLineOfSightStrictlyDisabled() {
+        return m_moveInLineOfSightStrictlyDisabled;
+    }
 
-    [[nodiscard]] MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
-    void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
+    [[nodiscard]] MovementGeneratorType GetDefaultMovementType() const {
+        return m_defaultMovementType;
+    }
+    void SetDefaultMovementType(MovementGeneratorType mgt) {
+        m_defaultMovementType = mgt;
+    }
 
     void RemoveCorpse(bool setSpawnTime = true, bool skipVisibility = false);
 
     void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
 
-    [[nodiscard]] time_t const& GetRespawnTime() const { return m_respawnTime; }
+    [[nodiscard]] time_t const& GetRespawnTime() const {
+        return m_respawnTime;
+    }
     [[nodiscard]] time_t GetRespawnTimeEx() const;
-    void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(nullptr) + respawn : 0; }
+    void SetRespawnTime(uint32 respawn) {
+        m_respawnTime = respawn ? time(nullptr) + respawn : 0;
+    }
     void Respawn(bool force = false);
     void SaveRespawnTime() override;
 
-    [[nodiscard]] uint32 GetRespawnDelay() const { return m_respawnDelay; }
-    void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
+    [[nodiscard]] uint32 GetRespawnDelay() const {
+        return m_respawnDelay;
+    }
+    void SetRespawnDelay(uint32 delay) {
+        m_respawnDelay = delay;
+    }
 
-    [[nodiscard]] float GetWanderDistance() const { return m_wanderDistance; }
-    void SetWanderDistance(float dist) { m_wanderDistance = dist; }
+    [[nodiscard]] float GetWanderDistance() const {
+        return m_wanderDistance;
+    }
+    void SetWanderDistance(float dist) {
+        m_wanderDistance = dist;
+    }
 
     uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
     uint32 lootingGroupLowGUID;                         // used to find group which is looting corpse
@@ -683,9 +789,15 @@ public:
     [[nodiscard]] bool hasQuest(uint32 quest_id) const override;
     [[nodiscard]] bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-    bool isRegeneratingHealth() { return m_regenHealth; }
-    void SetRegeneratingHealth(bool c) { m_regenHealth = c; }
-    [[nodiscard]] virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
+    bool isRegeneratingHealth() {
+        return m_regenHealth;
+    }
+    void SetRegeneratingHealth(bool c) {
+        m_regenHealth = c;
+    }
+    [[nodiscard]] virtual uint8 GetPetAutoSpellSize() const {
+        return MAX_SPELL_CHARM;
+    }
     [[nodiscard]] virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
     {
         if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
@@ -695,48 +807,96 @@ public:
     }
 
     void SetCannotReachTarget(bool cannotReach);
-    [[nodiscard]] bool CanNotReachTarget() const { return m_cannotReachTarget; }
-    [[nodiscard]] bool IsNotReachable() const { return (m_cannotReachTimer >= (sWorld->getIntConfig(CONFIG_NPC_EVADE_IF_NOT_REACHABLE) * IN_MILLISECONDS)) && m_cannotReachTarget; }
-    [[nodiscard]] bool IsNotReachableAndNeedRegen() const { return (m_cannotReachTimer >= (sWorld->getIntConfig(CONFIG_NPC_REGEN_TIME_IF_NOT_REACHABLE_IN_RAID) * IN_MILLISECONDS)) && m_cannotReachTarget; }
+    [[nodiscard]] bool CanNotReachTarget() const {
+        return m_cannotReachTarget;
+    }
+    [[nodiscard]] bool IsNotReachable() const {
+        return (m_cannotReachTimer >= (sWorld->getIntConfig(CONFIG_NPC_EVADE_IF_NOT_REACHABLE) * IN_MILLISECONDS)) && m_cannotReachTarget;
+    }
+    [[nodiscard]] bool IsNotReachableAndNeedRegen() const {
+        return (m_cannotReachTimer >= (sWorld->getIntConfig(CONFIG_NPC_REGEN_TIME_IF_NOT_REACHABLE_IN_RAID) * IN_MILLISECONDS)) && m_cannotReachTarget;
+    }
 
     void SetPosition(float x, float y, float z, float o);
-    void SetPosition(const Position& pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
+    void SetPosition(const Position& pos) {
+        SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+    }
 
-    void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
-    void SetHomePosition(const Position& pos) { m_homePosition.Relocate(pos); }
-    void GetHomePosition(float& x, float& y, float& z, float& ori) const { m_homePosition.GetPosition(x, y, z, ori); }
-    [[nodiscard]] Position const& GetHomePosition() const { return m_homePosition; }
+    void SetHomePosition(float x, float y, float z, float o) {
+        m_homePosition.Relocate(x, y, z, o);
+    }
+    void SetHomePosition(const Position& pos) {
+        m_homePosition.Relocate(pos);
+    }
+    void GetHomePosition(float& x, float& y, float& z, float& ori) const {
+        m_homePosition.GetPosition(x, y, z, ori);
+    }
+    [[nodiscard]] Position const& GetHomePosition() const {
+        return m_homePosition;
+    }
 
-    void SetTransportHomePosition(float x, float y, float z, float o) { m_transportHomePosition.Relocate(x, y, z, o); }
-    void SetTransportHomePosition(const Position& pos) { m_transportHomePosition.Relocate(pos); }
-    void GetTransportHomePosition(float& x, float& y, float& z, float& ori) const { m_transportHomePosition.GetPosition(x, y, z, ori); }
-    [[nodiscard]] Position const& GetTransportHomePosition() const { return m_transportHomePosition; }
+    void SetTransportHomePosition(float x, float y, float z, float o) {
+        m_transportHomePosition.Relocate(x, y, z, o);
+    }
+    void SetTransportHomePosition(const Position& pos) {
+        m_transportHomePosition.Relocate(pos);
+    }
+    void GetTransportHomePosition(float& x, float& y, float& z, float& ori) const {
+        m_transportHomePosition.GetPosition(x, y, z, ori);
+    }
+    [[nodiscard]] Position const& GetTransportHomePosition() const {
+        return m_transportHomePosition;
+    }
 
-    [[nodiscard]] uint32 GetWaypointPath() const { return m_path_id; }
-    void LoadPath(uint32 pathid) { m_path_id = pathid; }
+    [[nodiscard]] uint32 GetWaypointPath() const {
+        return m_path_id;
+    }
+    void LoadPath(uint32 pathid) {
+        m_path_id = pathid;
+    }
 
-    [[nodiscard]] uint32 GetCurrentWaypointID() const { return m_waypointID; }
-    void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
+    [[nodiscard]] uint32 GetCurrentWaypointID() const {
+        return m_waypointID;
+    }
+    void UpdateWaypointID(uint32 wpID) {
+        m_waypointID = wpID;
+    }
 
     void SearchFormation();
-    [[nodiscard]] CreatureGroup* GetFormation() const { return m_formation; }
-    void SetFormation(CreatureGroup* formation) { m_formation = formation; }
+    [[nodiscard]] CreatureGroup* GetFormation() const {
+        return m_formation;
+    }
+    void SetFormation(CreatureGroup* formation) {
+        m_formation = formation;
+    }
 
     Unit* SelectVictim();
 
-    void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
-    [[nodiscard]] bool IsReputationGainDisabled() const { return DisableReputationGain; }
-    [[nodiscard]] bool IsDamageEnoughForLootingAndReward() const { return m_PlayerDamageReq == 0; }
+    void SetDisableReputationGain(bool disable) {
+        DisableReputationGain = disable;
+    }
+    [[nodiscard]] bool IsReputationGainDisabled() const {
+        return DisableReputationGain;
+    }
+    [[nodiscard]] bool IsDamageEnoughForLootingAndReward() const {
+        return m_PlayerDamageReq == 0;
+    }
     void LowerPlayerDamageReq(uint32 unDamage)
     {
         if (m_PlayerDamageReq)
             m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
     }
-    void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
+    void ResetPlayerDamageReq() {
+        m_PlayerDamageReq = GetHealth() / 2;
+    }
     uint32 m_PlayerDamageReq;
 
-    [[nodiscard]] uint32 GetOriginalEntry() const { return m_originalEntry; }
-    void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
+    [[nodiscard]] uint32 GetOriginalEntry() const {
+        return m_originalEntry;
+    }
+    void SetOriginalEntry(uint32 entry) {
+        m_originalEntry = entry;
+    }
 
     static float _GetDamageMod(int32 Rank);
 
@@ -751,8 +911,12 @@ public:
     bool IsMovementPreventedByCasting() const;
 
     // Part of Evade mechanics
-    [[nodiscard]] time_t GetLastDamagedTime() const { return _lastDamagedTime; }
-    void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
+    [[nodiscard]] time_t GetLastDamagedTime() const {
+        return _lastDamagedTime;
+    }
+    void SetLastDamagedTime(time_t val) {
+        _lastDamagedTime = val;
+    }
 
     bool IsFreeToMove();
     static constexpr uint32 MOVE_CIRCLE_CHECK_INTERVAL = 3000;
@@ -851,7 +1015,9 @@ public:
     AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
     bool Execute(uint64 e_time, uint32 p_time) override;
-    void AddAssistant(uint64 guid) { m_assistants.push_back(guid); }
+    void AddAssistant(uint64 guid) {
+        m_assistants.push_back(guid);
+    }
 private:
     AssistDelayEvent();
 

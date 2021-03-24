@@ -594,18 +594,18 @@ public:
                 std::string st;
                 switch (item->GetState())
                 {
-                    case ITEM_UNCHANGED:
-                        st = "unchanged";
-                        break;
-                    case ITEM_CHANGED:
-                        st = "changed";
-                        break;
-                    case ITEM_NEW:
-                        st = "new";
-                        break;
-                    case ITEM_REMOVED:
-                        st = "removed";
-                        break;
+                case ITEM_UNCHANGED:
+                    st = "unchanged";
+                    break;
+                case ITEM_CHANGED:
+                    st = "changed";
+                    break;
+                case ITEM_NEW:
+                    st = "new";
+                    break;
+                case ITEM_REMOVED:
+                    st = "removed";
+                    break;
                 }
 
                 handler->PSendSysMessage("bag: %d slot: %d guid: %d - state: %s", bagSlot, item->GetSlot(), item->GetGUIDLow(), st.c_str());

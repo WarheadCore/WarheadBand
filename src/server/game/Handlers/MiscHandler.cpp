@@ -562,13 +562,13 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recv_data)
 
     switch (animstate)
     {
-        case UNIT_STAND_STATE_STAND:
-        case UNIT_STAND_STATE_SIT:
-        case UNIT_STAND_STATE_SLEEP:
-        case UNIT_STAND_STATE_KNEEL:
-            break;
-        default:
-            return;
+    case UNIT_STAND_STATE_STAND:
+    case UNIT_STAND_STATE_SIT:
+    case UNIT_STAND_STATE_SLEEP:
+    case UNIT_STAND_STATE_KNEEL:
+        break;
+    default:
+        return;
     }
 
     _player->SetStandState(animstate);
@@ -735,7 +735,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
-                       player->GetName().c_str(), player->GetGUIDLow(), triggerId);
+                  player->GetName().c_str(), player->GetGUIDLow(), triggerId);
 #endif
         return;
     }
@@ -745,7 +745,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
-                       player->GetName().c_str(), player->GetGUIDLow(), triggerId);
+                  player->GetName().c_str(), player->GetGUIDLow(), triggerId);
 #endif
         return;
     }
@@ -754,7 +754,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-                       player->GetName().c_str(), atEntry->map, player->GetMapId(), player->GetGUIDLow(), triggerId);
+                  player->GetName().c_str(), atEntry->map, player->GetMapId(), player->GetGUIDLow(), triggerId);
 #endif
         return;
     }
@@ -940,30 +940,30 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
     {
         switch (type)
         {
-            case ACTION_BUTTON_MACRO:
-            case ACTION_BUTTON_CMACRO:
+        case ACTION_BUTTON_MACRO:
+        case ACTION_BUTTON_CMACRO:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("server", "MISC: Added Macro %u into button %u", action, button);
+            LOG_DEBUG("server", "MISC: Added Macro %u into button %u", action, button);
 #endif
-                break;
-            case ACTION_BUTTON_EQSET:
+            break;
+        case ACTION_BUTTON_EQSET:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("server", "MISC: Added EquipmentSet %u into button %u", action, button);
+            LOG_DEBUG("server", "MISC: Added EquipmentSet %u into button %u", action, button);
 #endif
-                break;
-            case ACTION_BUTTON_SPELL:
+            break;
+        case ACTION_BUTTON_SPELL:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("server", "MISC: Added Spell %u into button %u", action, button);
+            LOG_DEBUG("server", "MISC: Added Spell %u into button %u", action, button);
 #endif
-                break;
-            case ACTION_BUTTON_ITEM:
+            break;
+        case ACTION_BUTTON_ITEM:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                LOG_DEBUG("server", "MISC: Added Item %u into button %u", action, button);
+            LOG_DEBUG("server", "MISC: Added Item %u into button %u", action, button);
 #endif
-                break;
-            default:
-                LOG_ERROR("server", "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName().c_str(), _player->GetGUIDLow());
-                return;
+            break;
+        default:
+            LOG_ERROR("server", "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName().c_str(), _player->GetGUIDLow());
+            return;
         }
         GetPlayer()->addActionButton(button, action, type);
     }
@@ -972,9 +972,9 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recv_data*/)
 {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-{
-    LOG_DEBUG("network", "WORLD: Received CMSG_COMPLETE_CINEMATIC");
-}
+    {
+        LOG_DEBUG("network", "WORLD: Received CMSG_COMPLETE_CINEMATIC");
+    }
 #endif
     // If player has sight bound to visual waypoint NPC we should remove it
     GetPlayer()->EndCinematic();
@@ -983,9 +983,9 @@ void WorldSession::HandleCompleteCinematic(WorldPacket& /*recv_data*/)
 void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recv_data*/)
 {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-{
-    LOG_DEBUG("network", "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
-}
+    {
+        LOG_DEBUG("network", "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
+    }
 #endif
     // Sent by client when cinematic actually begun. So we begin the server side process
     GetPlayer()->BeginCinematic();
@@ -1264,18 +1264,18 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recv_data)
     recv_data >> spammer_guid;                              // player guid
     switch (spam_type)
     {
-        case 0:
-            recv_data >> unk1;                              // const 0
-            recv_data >> unk2;                              // probably mail id
-            recv_data >> unk3;                              // const 0
-            break;
-        case 1:
-            recv_data >> unk1;                              // probably language
-            recv_data >> unk2;                              // message type?
-            recv_data >> unk3;                              // probably channel id
-            recv_data >> unk4;                              // unk random value
-            recv_data >> description;                       // spam description string (messagetype, channel name, player name, message)
-            break;
+    case 0:
+        recv_data >> unk1;                              // const 0
+        recv_data >> unk2;                              // probably mail id
+        recv_data >> unk3;                              // const 0
+        break;
+    case 1:
+        recv_data >> unk1;                              // probably language
+        recv_data >> unk2;                              // message type?
+        recv_data >> unk3;                              // probably channel id
+        recv_data >> unk4;                              // unk random value
+        recv_data >> description;                       // spam description string (messagetype, channel name, player name, message)
+        break;
     }
 
     // NOTE: all chat messages from this spammer automatically ignored by spam reporter until logout in case chat spam.
@@ -1473,13 +1473,13 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recv_data)
             {
                 switch (group->GetDifficultyChangePreventionReason())
                 {
-                    case DIFFICULTY_PREVENTION_CHANGE_BOSS_KILLED:
-                        ChatHandler(this).PSendSysMessage("Raid was in combat recently and may not change difficulty again for %u sec.", preventionTime);
-                        break;
-                    case DIFFICULTY_PREVENTION_CHANGE_RECENTLY_CHANGED:
-                    default:
-                        ChatHandler(this).PSendSysMessage("Raid difficulty has changed recently, and may not change again for %u sec.", preventionTime);
-                        break;
+                case DIFFICULTY_PREVENTION_CHANGE_BOSS_KILLED:
+                    ChatHandler(this).PSendSysMessage("Raid was in combat recently and may not change difficulty again for %u sec.", preventionTime);
+                    break;
+                case DIFFICULTY_PREVENTION_CHANGE_RECENTLY_CHANGED:
+                default:
+                    ChatHandler(this).PSendSysMessage("Raid difficulty has changed recently, and may not change again for %u sec.", preventionTime);
+                    break;
                 }
 
                 _player->SendRaidDifficulty(group != nullptr);

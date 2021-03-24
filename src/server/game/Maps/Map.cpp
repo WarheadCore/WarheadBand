@@ -128,21 +128,21 @@ void Map::LoadMMap(int gx, int gy)
     int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(GetId(), gx, gy);
     switch (mmapLoadResult)
     {
-        case MMAP::MMAP_LOAD_RESULT_OK:
+    case MMAP::MMAP_LOAD_RESULT_OK:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "MMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        LOG_DEBUG("server", "MMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 #endif
-            break;
-        case MMAP::MMAP_LOAD_RESULT_ERROR:
+        break;
+    case MMAP::MMAP_LOAD_RESULT_ERROR:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        LOG_DEBUG("server", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 #endif
-            break;
-        case MMAP::MMAP_LOAD_RESULT_IGNORED:
+        break;
+    case MMAP::MMAP_LOAD_RESULT_IGNORED:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "Ignored MMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        LOG_DEBUG("server", "Ignored MMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 #endif
-            break;
+        break;
     }
 }
 
@@ -152,21 +152,21 @@ void Map::LoadVMap(int gx, int gy)
     int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld->GetDataPath() + "vmaps").c_str(),  GetId(), gx, gy);
     switch (vmapLoadResult)
     {
-        case VMAP::VMAP_LOAD_RESULT_OK:
+    case VMAP::VMAP_LOAD_RESULT_OK:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        LOG_DEBUG("server", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 #endif
-            break;
-        case VMAP::VMAP_LOAD_RESULT_ERROR:
+        break;
+    case VMAP::VMAP_LOAD_RESULT_ERROR:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        LOG_DEBUG("server", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 #endif
-            break;
-        case VMAP::VMAP_LOAD_RESULT_IGNORED:
+        break;
+    case VMAP::VMAP_LOAD_RESULT_IGNORED:
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        LOG_DEBUG("server", "Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
 #endif
-            break;
+        break;
     }
 }
 
@@ -258,12 +258,12 @@ void Map::InitVisibilityDistance()
 
     switch (GetId())
     {
-        case 609: // Scarlet Enclave (DK starting zone)
-            m_VisibleDistance = 125.0f;
-            break;
-        case 25: // Scott Test (box map)
-            m_VisibleDistance = 200.0f;
-            break;
+    case 609: // Scarlet Enclave (DK starting zone)
+        m_VisibleDistance = 125.0f;
+        break;
+    case 25: // Scott Test (box map)
+        m_VisibleDistance = 200.0f;
+        break;
     }
 }
 
@@ -877,8 +877,12 @@ struct ResetNotifier
             iter->GetSource()->ResetAllNotifies();
     }
     template<class T> void Visit(GridRefManager<T>&) {}
-    void Visit(CreatureMapType& m) { resetNotify<Creature>(m);}
-    void Visit(PlayerMapType& m) { resetNotify<Player>(m);}
+    void Visit(CreatureMapType& m) {
+        resetNotify<Creature>(m);
+    }
+    void Visit(PlayerMapType& m) {
+        resetNotify<Player>(m);
+    }
 };
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
@@ -1934,12 +1938,12 @@ float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, fl
         ZLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status, collisionHeight);
         switch (res)
         {
-            case LIQUID_MAP_ABOVE_WATER:
-                return std::max<float>(liquid_status.level, ground_z);
-            case LIQUID_MAP_NO_WATER:
-                return ground_z;
-            default:
-                return liquid_status.level;
+        case LIQUID_MAP_ABOVE_WATER:
+            return std::max<float>(liquid_status.level, ground_z);
+        case LIQUID_MAP_NO_WATER:
+            return ground_z;
+        default:
+            return liquid_status.level;
         }
     }
 
@@ -2471,14 +2475,14 @@ void Map::RemoveAllObjectsInRemoveList()
         {
             switch (obj->GetTypeId())
             {
-                case TYPEID_UNIT:
-                    SwitchGridContainers<Creature>(obj->ToCreature(), on);
-                    break;
-                case TYPEID_GAMEOBJECT:
-                    SwitchGridContainers<GameObject>(obj->ToGameObject(), on);
-                    break;
-                default:
-                    break;
+            case TYPEID_UNIT:
+                SwitchGridContainers<Creature>(obj->ToCreature(), on);
+                break;
+            case TYPEID_GAMEOBJECT:
+                SwitchGridContainers<GameObject>(obj->ToGameObject(), on);
+                break;
+            default:
+                break;
             }
         }
     }
@@ -2492,33 +2496,33 @@ void Map::RemoveAllObjectsInRemoveList()
 
         switch (obj->GetTypeId())
         {
-            case TYPEID_CORPSE:
-                {
-                    Corpse* corpse = ObjectAccessor::GetCorpse(*obj, obj->GetGUID());
-                    if (!corpse)
-                        LOG_ERROR("server", "Tried to delete corpse/bones %u that is not in map.", obj->GetGUIDLow());
-                    else
-                        RemoveFromMap(corpse, true);
-                    break;
-                }
-            case TYPEID_DYNAMICOBJECT:
-                RemoveFromMap((DynamicObject*)obj, true);
-                break;
-            case TYPEID_GAMEOBJECT:
-                if (MotionTransport* transport = obj->ToGameObject()->ToMotionTransport())
-                    RemoveFromMap(transport, true);
-                else
-                    RemoveFromMap(obj->ToGameObject(), true);
-                break;
-            case TYPEID_UNIT:
-                // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
-                // make sure that like sources auras/etc removed before destructor start
-                obj->ToCreature()->CleanupsBeforeDelete();
-                RemoveFromMap(obj->ToCreature(), true);
-                break;
-            default:
-                LOG_ERROR("server", "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
-                break;
+        case TYPEID_CORPSE:
+        {
+            Corpse* corpse = ObjectAccessor::GetCorpse(*obj, obj->GetGUID());
+            if (!corpse)
+                LOG_ERROR("server", "Tried to delete corpse/bones %u that is not in map.", obj->GetGUIDLow());
+            else
+                RemoveFromMap(corpse, true);
+            break;
+        }
+        case TYPEID_DYNAMICOBJECT:
+            RemoveFromMap((DynamicObject*)obj, true);
+            break;
+        case TYPEID_GAMEOBJECT:
+            if (MotionTransport* transport = obj->ToGameObject()->ToMotionTransport())
+                RemoveFromMap(transport, true);
+            else
+                RemoveFromMap(obj->ToGameObject(), true);
+            break;
+        case TYPEID_UNIT:
+            // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
+            // make sure that like sources auras/etc removed before destructor start
+            obj->ToCreature()->CleanupsBeforeDelete();
+            RemoveFromMap(obj->ToCreature(), true);
+            break;
+        default:
+            LOG_ERROR("server", "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
+            break;
         }
     }
 
@@ -2634,25 +2638,25 @@ void InstanceMap::InitVisibilityDistance()
     // pussywizard: this CAN NOT exceed MAX_VISIBILITY_DISTANCE
     switch (GetId())
     {
-        case 429: // Dire Maul
-        case 550: // The Eye
-        case 578: // The Nexus: The Oculus
-            m_VisibleDistance = 175.0f;
-            break;
-        case 649: // Trial of the Crusader
-        case 650: // Trial of the Champion
-        case 595: // Culling of Startholme
-        case 658: // Pit of Saron
-            m_VisibleDistance = 150.0f;
-            break;
-        case 615: // Obsidian Sanctum
-        case 616: // Eye of Eternity
-        case 603: // Ulduar
-        case 668: // Halls of Reflection
-        case 631: // Icecrown Citadel
-        case 724: // Ruby Sanctum
-            m_VisibleDistance = 200.0f;
-            break;
+    case 429: // Dire Maul
+    case 550: // The Eye
+    case 578: // The Nexus: The Oculus
+        m_VisibleDistance = 175.0f;
+        break;
+    case 649: // Trial of the Crusader
+    case 650: // Trial of the Champion
+    case 595: // Culling of Startholme
+    case 658: // Pit of Saron
+        m_VisibleDistance = 150.0f;
+        break;
+    case 615: // Obsidian Sanctum
+    case 616: // Eye of Eternity
+    case 603: // Ulduar
+    case 668: // Halls of Reflection
+    case 631: // Icecrown Citadel
+    case 724: // Ruby Sanctum
+        m_VisibleDistance = 200.0f;
+        break;
     }
 }
 
@@ -3334,12 +3338,12 @@ time_t Map::GetLinkedRespawnTime(uint64 guid) const
     uint64 linkedGuid = sObjectMgr->GetLinkedRespawnGuid(guid);
     switch (GUID_HIPART(linkedGuid))
     {
-        case HIGHGUID_UNIT:
-            return GetCreatureRespawnTime(GUID_LOPART(linkedGuid));
-        case HIGHGUID_GAMEOBJECT:
-            return GetGORespawnTime(GUID_LOPART(linkedGuid));
-        default:
-            break;
+    case HIGHGUID_UNIT:
+        return GetCreatureRespawnTime(GUID_LOPART(linkedGuid));
+    case HIGHGUID_GAMEOBJECT:
+        return GetGORespawnTime(GUID_LOPART(linkedGuid));
+    default:
+        break;
     }
 
     return time_t(0);
@@ -3535,7 +3539,7 @@ bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, float sta
     bool cannotEnterWater = isWaterNext && (creature && !creature->CanEnterWater());
     bool cannotWalkOrFly = !isWaterNext && !source->ToPlayer() && !unit->CanFly() && (creature && !creature->CanWalk());
     if (cannotEnterWater || cannotWalkOrFly ||
-        (failOnSlopes && !PathGenerator::IsWalkableClimb(startX, startY, startZ, destX, destY, destZ, source->GetCollisionHeight())))
+            (failOnSlopes && !PathGenerator::IsWalkableClimb(startX, startY, startZ, destX, destY, destZ, source->GetCollisionHeight())))
     {
         return false;
     }
@@ -3569,7 +3573,7 @@ bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float start
 
     const Unit* unit = source->ToUnit();
     bool notOnGround = path->GetPathType() & PATHFIND_NOT_USING_PATH
-        || isWaterNext || (unit && unit->IsFlying());
+                       || isWaterNext || (unit && unit->IsFlying());
 
     // Check for valid path types before we proceed
     if (!result || (!notOnGround && path->GetPathType() & ~(PATHFIND_NORMAL | PATHFIND_SHORTCUT | PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY_END)))
@@ -3592,9 +3596,9 @@ bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float start
     if (notOnGround)
     {
         bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(source->GetMapId(),
-            startX, startY, startZ + halfHeight,
-            destX, destY, destZ + halfHeight,
-            destX, destY, destZ, -CONTACT_DISTANCE);
+                   startX, startY, startZ + halfHeight,
+                   destX, destY, destZ + halfHeight,
+                   destX, destY, destZ, -CONTACT_DISTANCE);
 
         destZ -= halfHeight;
 
@@ -3607,9 +3611,9 @@ bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float start
 
     // check dynamic collision
     bool col = source->GetMap()->getObjectHitPos(source->GetPhaseMask(),
-        startX, startY, startZ + halfHeight,
-        destX, destY, destZ + halfHeight,
-        destX, destY, destZ, -CONTACT_DISTANCE);
+               startX, startY, startZ + halfHeight,
+               destX, destY, destZ + halfHeight,
+               destX, destY, destZ, -CONTACT_DISTANCE);
 
     destZ -= halfHeight;
 

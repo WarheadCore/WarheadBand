@@ -1740,8 +1740,8 @@ bool ScriptMgr::ShouldBeRewardedWithMoneyInsteadOfExp(Player* player)
     bool ret = false; // return false by default if not scripts
 
     FOR_SCRIPTS_RET(PlayerScript, itr, end, ret)
-        if (itr->second->ShouldBeRewardedWithMoneyInsteadOfExp(player))
-            ret = true; // we change ret value only when a script returns true
+    if (itr->second->ShouldBeRewardedWithMoneyInsteadOfExp(player))
+        ret = true; // we change ret value only when a script returns true
 
     return ret;
 }

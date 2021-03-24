@@ -140,41 +140,41 @@ void UnitAI::DoCast(uint32 spellId)
     //LOG_ERROR("server", "aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
     switch (AISpellInfo[spellId].target)
     {
-        default:
-        case AITARGET_SELF:
-            target = me;
-            break;
-        case AITARGET_VICTIM:
-            target = me->GetVictim();
-            break;
-        case AITARGET_ENEMY:
-            {
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
-                //float range = GetSpellMaxRange(spellInfo, false);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
-                break;
-            }
-        case AITARGET_ALLY:
-            target = me;
-            break;
-        case AITARGET_BUFF:
-            target = me;
-            break;
-        case AITARGET_DEBUFF:
-            {
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-                bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
-                float range = spellInfo->GetMaxRange(false);
+    default:
+    case AITARGET_SELF:
+        target = me;
+        break;
+    case AITARGET_VICTIM:
+        target = me->GetVictim();
+        break;
+    case AITARGET_ENEMY:
+    {
+        const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
+        //float range = GetSpellMaxRange(spellInfo, false);
+        target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
+        break;
+    }
+    case AITARGET_ALLY:
+        target = me;
+        break;
+    case AITARGET_BUFF:
+        target = me;
+        break;
+    case AITARGET_DEBUFF:
+    {
+        const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        bool playerOnly = spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS);
+        float range = spellInfo->GetMaxRange(false);
 
-                DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
-                if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
-                        && targetSelector(me->GetVictim()))
-                    target = me->GetVictim();
-                else
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
-                break;
-            }
+        DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
+        if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
+                && targetSelector(me->GetVictim()))
+            target = me->GetVictim();
+        else
+            target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
+        break;
+    }
     }
 
     if (target)

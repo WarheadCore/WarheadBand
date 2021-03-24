@@ -219,7 +219,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)",
-                       GUID_LOPART(guid), entry);
+                  GUID_LOPART(guid), entry);
 #endif
         WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4);
         data << uint32(entry | 0x80000000);

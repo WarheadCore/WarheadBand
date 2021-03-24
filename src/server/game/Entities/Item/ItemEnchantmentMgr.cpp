@@ -137,65 +137,65 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
     uint32 suffixFactor;
     switch (itemProto->InventoryType)
     {
-        // Items of that type don`t have points
-        case INVTYPE_NON_EQUIP:
-        case INVTYPE_BAG:
-        case INVTYPE_TABARD:
-        case INVTYPE_AMMO:
-        case INVTYPE_QUIVER:
-        case INVTYPE_RELIC:
-            return 0;
-        // Select point coefficient
-        case INVTYPE_HEAD:
-        case INVTYPE_BODY:
-        case INVTYPE_CHEST:
-        case INVTYPE_LEGS:
-        case INVTYPE_2HWEAPON:
-        case INVTYPE_ROBE:
-            suffixFactor = 0;
-            break;
-        case INVTYPE_SHOULDERS:
-        case INVTYPE_WAIST:
-        case INVTYPE_FEET:
-        case INVTYPE_HANDS:
-        case INVTYPE_TRINKET:
-            suffixFactor = 1;
-            break;
-        case INVTYPE_NECK:
-        case INVTYPE_WRISTS:
-        case INVTYPE_FINGER:
-        case INVTYPE_SHIELD:
-        case INVTYPE_CLOAK:
-        case INVTYPE_HOLDABLE:
-            suffixFactor = 2;
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-            suffixFactor = 3;
-            break;
-        case INVTYPE_RANGED:
-        case INVTYPE_THROWN:
-        case INVTYPE_RANGEDRIGHT:
-            suffixFactor = 4;
-            break;
-        default:
-            return 0;
+    // Items of that type don`t have points
+    case INVTYPE_NON_EQUIP:
+    case INVTYPE_BAG:
+    case INVTYPE_TABARD:
+    case INVTYPE_AMMO:
+    case INVTYPE_QUIVER:
+    case INVTYPE_RELIC:
+        return 0;
+    // Select point coefficient
+    case INVTYPE_HEAD:
+    case INVTYPE_BODY:
+    case INVTYPE_CHEST:
+    case INVTYPE_LEGS:
+    case INVTYPE_2HWEAPON:
+    case INVTYPE_ROBE:
+        suffixFactor = 0;
+        break;
+    case INVTYPE_SHOULDERS:
+    case INVTYPE_WAIST:
+    case INVTYPE_FEET:
+    case INVTYPE_HANDS:
+    case INVTYPE_TRINKET:
+        suffixFactor = 1;
+        break;
+    case INVTYPE_NECK:
+    case INVTYPE_WRISTS:
+    case INVTYPE_FINGER:
+    case INVTYPE_SHIELD:
+    case INVTYPE_CLOAK:
+    case INVTYPE_HOLDABLE:
+        suffixFactor = 2;
+        break;
+    case INVTYPE_WEAPON:
+    case INVTYPE_WEAPONMAINHAND:
+    case INVTYPE_WEAPONOFFHAND:
+        suffixFactor = 3;
+        break;
+    case INVTYPE_RANGED:
+    case INVTYPE_THROWN:
+    case INVTYPE_RANGEDRIGHT:
+        suffixFactor = 4;
+        break;
+    default:
+        return 0;
     }
     // Select rare/epic modifier
     switch (itemProto->Quality)
     {
-        case ITEM_QUALITY_UNCOMMON:
-            return randomProperty->UncommonPropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_RARE:
-            return randomProperty->RarePropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_EPIC:
-            return randomProperty->EpicPropertiesPoints[suffixFactor];
-        case ITEM_QUALITY_LEGENDARY:
-        case ITEM_QUALITY_ARTIFACT:
-            return 0;                                       // not have random properties
-        default:
-            break;
+    case ITEM_QUALITY_UNCOMMON:
+        return randomProperty->UncommonPropertiesPoints[suffixFactor];
+    case ITEM_QUALITY_RARE:
+        return randomProperty->RarePropertiesPoints[suffixFactor];
+    case ITEM_QUALITY_EPIC:
+        return randomProperty->EpicPropertiesPoints[suffixFactor];
+    case ITEM_QUALITY_LEGENDARY:
+    case ITEM_QUALITY_ARTIFACT:
+        return 0;                                       // not have random properties
+    default:
+        break;
     }
     return 0;
 }

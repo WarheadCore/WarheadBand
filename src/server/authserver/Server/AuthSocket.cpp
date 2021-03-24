@@ -162,8 +162,12 @@ public:
     typedef std::map<std::string, PATCH_INFO*> Patches;
     ~Patcher();
     Patcher();
-    [[nodiscard]] Patches::const_iterator begin() const { return _patches.begin(); }
-    [[nodiscard]] Patches::const_iterator end() const { return _patches.end(); }
+    [[nodiscard]] Patches::const_iterator begin() const {
+        return _patches.begin();
+    }
+    [[nodiscard]] Patches::const_iterator end() const {
+        return _patches.end();
+    }
     void LoadPatchMD5(char*);
     bool GetHash(char* pat, uint8 mymd5[16]);
 
@@ -692,7 +696,7 @@ bool AuthSocket::_HandleLogonProof()
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
                         LOG_DEBUG("network", "'%s:%d' [AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times",
-                                       socket().getRemoteAddress().c_str(), socket().getRemotePort(), socket().getRemoteAddress().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
+                                  socket().getRemoteAddress().c_str(), socket().getRemotePort(), socket().getRemoteAddress().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
 #endif
                     }
                 }

@@ -575,20 +575,20 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCoun
     data << uint8(strCount);
     switch (strCount)
     {
-        case 0:
-            break;
-        case 1:
-            data << str1;
-            break;
-        case 2:
-            data << str1 << str2;
-            break;
-        case 3:
-            data << str1 << str2 << str3;
-            break;
-        default:
-            LOG_ERROR("server", "Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
-            return;
+    case 0:
+        break;
+    case 1:
+        data << str1;
+        break;
+    case 2:
+        data << str1 << str2;
+        break;
+    case 3:
+        data << str1 << str2 << str3;
+        break;
+    default:
+        LOG_ERROR("server", "Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
+        return;
     }
 
     if (guid)
@@ -623,17 +623,17 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
     uint8 slot = 0xFF;
     switch (type)
     {
-        case ARENA_TEAM_2v2:
-            slot = 0;
-            break;
-        case ARENA_TEAM_3v3:
-            slot = 1;
-            break;
-        case ARENA_TEAM_5v5:
-            slot = 2;
-            break;
-        default:
-            break;
+    case ARENA_TEAM_2v2:
+        slot = 0;
+        break;
+    case ARENA_TEAM_3v3:
+        slot = 1;
+        break;
+    case ARENA_TEAM_5v5:
+        slot = 2;
+        break;
+    default:
+        break;
     }
     //Get the changed slot type
     sScriptMgr->OnGetSlotByType(type, slot);

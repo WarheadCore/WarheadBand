@@ -226,46 +226,46 @@ bool Weather::UpdateWeather()
     char const* wthstr;
     switch (state)
     {
-        case WEATHER_STATE_FOG:
-            wthstr = "fog";
-            break;
-        case WEATHER_STATE_LIGHT_RAIN:
-            wthstr = "light rain";
-            break;
-        case WEATHER_STATE_MEDIUM_RAIN:
-            wthstr = "medium rain";
-            break;
-        case WEATHER_STATE_HEAVY_RAIN:
-            wthstr = "heavy rain";
-            break;
-        case WEATHER_STATE_LIGHT_SNOW:
-            wthstr = "light snow";
-            break;
-        case WEATHER_STATE_MEDIUM_SNOW:
-            wthstr = "medium snow";
-            break;
-        case WEATHER_STATE_HEAVY_SNOW:
-            wthstr = "heavy snow";
-            break;
-        case WEATHER_STATE_LIGHT_SANDSTORM:
-            wthstr = "light sandstorm";
-            break;
-        case WEATHER_STATE_MEDIUM_SANDSTORM:
-            wthstr = "medium sandstorm";
-            break;
-        case WEATHER_STATE_HEAVY_SANDSTORM:
-            wthstr = "heavy sandstorm";
-            break;
-        case WEATHER_STATE_THUNDERS:
-            wthstr = "thunders";
-            break;
-        case WEATHER_STATE_BLACKRAIN:
-            wthstr = "blackrain";
-            break;
-        case WEATHER_STATE_FINE:
-        default:
-            wthstr = "fine";
-            break;
+    case WEATHER_STATE_FOG:
+        wthstr = "fog";
+        break;
+    case WEATHER_STATE_LIGHT_RAIN:
+        wthstr = "light rain";
+        break;
+    case WEATHER_STATE_MEDIUM_RAIN:
+        wthstr = "medium rain";
+        break;
+    case WEATHER_STATE_HEAVY_RAIN:
+        wthstr = "heavy rain";
+        break;
+    case WEATHER_STATE_LIGHT_SNOW:
+        wthstr = "light snow";
+        break;
+    case WEATHER_STATE_MEDIUM_SNOW:
+        wthstr = "medium snow";
+        break;
+    case WEATHER_STATE_HEAVY_SNOW:
+        wthstr = "heavy snow";
+        break;
+    case WEATHER_STATE_LIGHT_SANDSTORM:
+        wthstr = "light sandstorm";
+        break;
+    case WEATHER_STATE_MEDIUM_SANDSTORM:
+        wthstr = "medium sandstorm";
+        break;
+    case WEATHER_STATE_HEAVY_SANDSTORM:
+        wthstr = "heavy sandstorm";
+        break;
+    case WEATHER_STATE_THUNDERS:
+        wthstr = "thunders";
+        break;
+    case WEATHER_STATE_BLACKRAIN:
+        wthstr = "blackrain";
+        break;
+    case WEATHER_STATE_FINE:
+    default:
+        wthstr = "fine";
+        break;
     }
 
     LOG_DEBUG("server", "Change the weather of zone %u to %s.", m_zone, wthstr);
@@ -293,33 +293,33 @@ WeatherState Weather::GetWeatherState() const
 
     switch (m_type)
     {
-        case WEATHER_TYPE_RAIN:
-            if (m_grade < 0.40f)
-                return WEATHER_STATE_LIGHT_RAIN;
-            else if (m_grade < 0.70f)
-                return WEATHER_STATE_MEDIUM_RAIN;
-            else
-                return WEATHER_STATE_HEAVY_RAIN;
-        case WEATHER_TYPE_SNOW:
-            if (m_grade < 0.40f)
-                return WEATHER_STATE_LIGHT_SNOW;
-            else if (m_grade < 0.70f)
-                return WEATHER_STATE_MEDIUM_SNOW;
-            else
-                return WEATHER_STATE_HEAVY_SNOW;
-        case WEATHER_TYPE_STORM:
-            if (m_grade < 0.40f)
-                return WEATHER_STATE_LIGHT_SANDSTORM;
-            else if (m_grade < 0.70f)
-                return WEATHER_STATE_MEDIUM_SANDSTORM;
-            else
-                return WEATHER_STATE_HEAVY_SANDSTORM;
-        case WEATHER_TYPE_BLACKRAIN:
-            return WEATHER_STATE_BLACKRAIN;
-        case WEATHER_TYPE_THUNDERS:
-            return WEATHER_STATE_THUNDERS;
-        case WEATHER_TYPE_FINE:
-        default:
-            return WEATHER_STATE_FINE;
+    case WEATHER_TYPE_RAIN:
+        if (m_grade < 0.40f)
+            return WEATHER_STATE_LIGHT_RAIN;
+        else if (m_grade < 0.70f)
+            return WEATHER_STATE_MEDIUM_RAIN;
+        else
+            return WEATHER_STATE_HEAVY_RAIN;
+    case WEATHER_TYPE_SNOW:
+        if (m_grade < 0.40f)
+            return WEATHER_STATE_LIGHT_SNOW;
+        else if (m_grade < 0.70f)
+            return WEATHER_STATE_MEDIUM_SNOW;
+        else
+            return WEATHER_STATE_HEAVY_SNOW;
+    case WEATHER_TYPE_STORM:
+        if (m_grade < 0.40f)
+            return WEATHER_STATE_LIGHT_SANDSTORM;
+        else if (m_grade < 0.70f)
+            return WEATHER_STATE_MEDIUM_SANDSTORM;
+        else
+            return WEATHER_STATE_HEAVY_SANDSTORM;
+    case WEATHER_TYPE_BLACKRAIN:
+        return WEATHER_STATE_BLACKRAIN;
+    case WEATHER_TYPE_THUNDERS:
+        return WEATHER_STATE_THUNDERS;
+    case WEATHER_TYPE_FINE:
+    default:
+        return WEATHER_STATE_FINE;
     }
 }

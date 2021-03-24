@@ -444,60 +444,60 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
     WorldPacket data;
     switch (action)
     {
-        case 1: // accept
+    case 1: // accept
+    {
+        // set entry point if not in battleground
+        if (!_player->InBattleground())
+            _player->SetEntryPoint();
+
+        // resurrect the player
+        if (!_player->IsAlive())
+        {
+            _player->ResurrectPlayer(1.0f);
+            _player->SpawnCorpseBones();
+        }
+
+        TeamId teamId = ginfo.teamId;
+
+        // remove player from all bg queues
+        for (uint32 qslot = 0; qslot < PLAYER_MAX_BATTLEGROUND_QUEUES; ++qslot)
+            if (BattlegroundQueueTypeId q = _player->GetBattlegroundQueueTypeId(qslot))
             {
-                // set entry point if not in battleground
-                if (!_player->InBattleground())
-                    _player->SetEntryPoint();
-
-                // resurrect the player
-                if (!_player->IsAlive())
-                {
-                    _player->ResurrectPlayer(1.0f);
-                    _player->SpawnCorpseBones();
-                }
-
-                TeamId teamId = ginfo.teamId;
-
-                // remove player from all bg queues
-                for (uint32 qslot = 0; qslot < PLAYER_MAX_BATTLEGROUND_QUEUES; ++qslot)
-                    if (BattlegroundQueueTypeId q = _player->GetBattlegroundQueueTypeId(qslot))
-                    {
-                        BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(q);
-                        queue.RemovePlayer(_player->GetGUID(), (bgQueueTypeId == q), qslot);
-                        _player->RemoveBattlegroundQueueId(q);
-                    }
-
-                // send status packet
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_IN_PROGRESS, 0, bg->GetStartTime(), bg->GetArenaType(), teamId);
-                SendPacket(&data);
-
-                _player->SetBattlegroundId(bg->GetInstanceID(), bg->GetBgTypeID(), queueSlot, true, bgTypeId == BATTLEGROUND_RB, teamId);
-
-                sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+                BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(q);
+                queue.RemovePlayer(_player->GetGUID(), (bgQueueTypeId == q), qslot);
+                _player->RemoveBattlegroundQueueId(q);
             }
-            break;
-        case 0: // leave queue
+
+        // send status packet
+        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_IN_PROGRESS, 0, bg->GetStartTime(), bg->GetArenaType(), teamId);
+        SendPacket(&data);
+
+        _player->SetBattlegroundId(bg->GetInstanceID(), bg->GetBgTypeID(), queueSlot, true, bgTypeId == BATTLEGROUND_RB, teamId);
+
+        sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+    }
+    break;
+    case 0: // leave queue
+    {
+        bgQueue.RemovePlayer(_player->GetGUID(), false, queueSlot);
+        _player->RemoveBattlegroundQueueId(bgQueueTypeId);
+        // track if player refuses to join the BG after being invited
+        if (bg->isBattleground() && (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
+        {
+            if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
             {
-                bgQueue.RemovePlayer(_player->GetGUID(), false, queueSlot);
-                _player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                // track if player refuses to join the BG after being invited
-                if (bg->isBattleground() && (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
-                {
-                    if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
-                    {
-                        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
-                        stmt->setUInt32(0, _player->GetGUIDLow());
-                        stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_QUEUE);
-                        CharacterDatabase.Execute(stmt);
-                    }
-
-                    sScriptMgr->OnBattlegroundDesertion(_player, BG_DESERTION_TYPE_LEAVE_QUEUE);
-                }
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                stmt->setUInt32(0, _player->GetGUIDLow());
+                stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_QUEUE);
+                CharacterDatabase.Execute(stmt);
             }
-            break;
-        default:
-            break;
+
+            sScriptMgr->OnBattlegroundDesertion(_player, BG_DESERTION_TYPE_LEAVE_QUEUE);
+        }
+    }
+    break;
+    default:
+        break;
     }
 }
 
@@ -604,17 +604,17 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     uint8 arenatype = 0;
     switch (arenaslot)
     {
-        case 0:
-            arenatype = ARENA_TYPE_2v2;
-            break;
-        case 1:
-            arenatype = ARENA_TYPE_3v3;
-            break;
-        case 2:
-            arenatype = ARENA_TYPE_5v5;
-            break;
-        default:
-            return;
+    case 0:
+        arenatype = ARENA_TYPE_2v2;
+        break;
+    case 1:
+        arenatype = ARENA_TYPE_3v3;
+        break;
+    case 2:
+        arenatype = ARENA_TYPE_5v5;
+        break;
+    default:
+        return;
     }
 
     // get template for all arenas

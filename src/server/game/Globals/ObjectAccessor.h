@@ -65,9 +65,13 @@ public:
         return (itr != m_objectMap.end()) ? itr->second : nullptr;
     }
 
-    static MapType& GetContainer() { return m_objectMap; }
+    static MapType& GetContainer() {
+        return m_objectMap;
+    }
 
-    static LockType* GetLock() { return &i_lock; }
+    static LockType* GetLock() {
+        return &i_lock;
+    }
 
 private:
     //Non instanceable only static

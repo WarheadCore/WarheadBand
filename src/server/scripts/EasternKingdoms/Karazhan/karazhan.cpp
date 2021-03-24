@@ -177,31 +177,31 @@ public:
         {
             switch (waypointId)
             {
-                case 0:
-                    DoCast(me, SPELL_TUXEDO, false);
-                    instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
-                    break;
-                case 4:
-                    TalkCount = 0;
-                    SetEscortPaused(true);
+            case 0:
+                DoCast(me, SPELL_TUXEDO, false);
+                instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
+                break;
+            case 4:
+                TalkCount = 0;
+                SetEscortPaused(true);
 
-                    if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
-                                              me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
-                                              TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
-                    {
-                        spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
-                        m_uiSpotlightGUID = spotlight->GetGUID();
-                    }
-                    break;
-                case 8:
-                    instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
-                    PerformanceReady = true;
-                    break;
-                case 9:
-                    PrepareEncounter();
-                    instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_CURTAINS));
-                    break;
+                if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
+                                          me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
+                                          TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                {
+                    spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
+                    m_uiSpotlightGUID = spotlight->GetGUID();
+                }
+                break;
+            case 8:
+                instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
+                PerformanceReady = true;
+                break;
+            case 9:
+                PrepareEncounter();
+                instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_CURTAINS));
+                break;
             }
         }
 
@@ -211,26 +211,26 @@ public:
 
             switch (m_uiEventId)
             {
-                case EVENT_OZ:
-                    if (OzDialogue[count].textid)
-                        text = OzDialogue[count].textid;
-                    if (OzDialogue[count].timer)
-                        TalkTimer = OzDialogue[count].timer;
-                    break;
+            case EVENT_OZ:
+                if (OzDialogue[count].textid)
+                    text = OzDialogue[count].textid;
+                if (OzDialogue[count].timer)
+                    TalkTimer = OzDialogue[count].timer;
+                break;
 
-                case EVENT_HOOD:
-                    if (HoodDialogue[count].textid)
-                        text = HoodDialogue[count].textid;
-                    if (HoodDialogue[count].timer)
-                        TalkTimer = HoodDialogue[count].timer;
-                    break;
+            case EVENT_HOOD:
+                if (HoodDialogue[count].textid)
+                    text = HoodDialogue[count].textid;
+                if (HoodDialogue[count].timer)
+                    TalkTimer = HoodDialogue[count].timer;
+                break;
 
-                case EVENT_RAJ:
-                    if (RAJDialogue[count].textid)
-                        text = RAJDialogue[count].textid;
-                    if (RAJDialogue[count].timer)
-                        TalkTimer = RAJDialogue[count].timer;
-                    break;
+            case EVENT_RAJ:
+                if (RAJDialogue[count].textid)
+                    text = RAJDialogue[count].textid;
+                if (RAJDialogue[count].timer)
+                    TalkTimer = RAJDialogue[count].timer;
+                break;
             }
 
             if (text)
@@ -247,18 +247,18 @@ public:
 
             switch (m_uiEventId)
             {
-                case EVENT_OZ:
-                    index = 0;
-                    count = 4;
-                    break;
-                case EVENT_HOOD:
-                    index = 4;
-                    count = index + 1;
-                    break;
-                case EVENT_RAJ:
-                    index = 5;
-                    count = index + 1;
-                    break;
+            case EVENT_OZ:
+                index = 0;
+                count = 4;
+                break;
+            case EVENT_HOOD:
+                index = 4;
+                count = index + 1;
+                break;
+            case EVENT_RAJ:
+                index = 5;
+                count = index + 1;
+                break;
             }
 
             for (; index < count; ++index)
@@ -346,27 +346,27 @@ public:
 
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                SendGossipMenuFor(player, 8971, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                CloseGossipMenuFor(player);
-                pBarnesAI->m_uiEventId = urand(EVENT_OZ, EVENT_RAJ);
-                pBarnesAI->StartEvent();
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                CloseGossipMenuFor(player);
-                pBarnesAI->m_uiEventId = EVENT_OZ;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                CloseGossipMenuFor(player);
-                pBarnesAI->m_uiEventId = EVENT_HOOD;
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                CloseGossipMenuFor(player);
-                pBarnesAI->m_uiEventId = EVENT_RAJ;
-                break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            SendGossipMenuFor(player, 8971, creature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            CloseGossipMenuFor(player);
+            pBarnesAI->m_uiEventId = urand(EVENT_OZ, EVENT_RAJ);
+            pBarnesAI->StartEvent();
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            CloseGossipMenuFor(player);
+            pBarnesAI->m_uiEventId = EVENT_OZ;
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            CloseGossipMenuFor(player);
+            pBarnesAI->m_uiEventId = EVENT_HOOD;
+            break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            CloseGossipMenuFor(player);
+            pBarnesAI->m_uiEventId = EVENT_RAJ;
+            break;
         }
 
         return true;
@@ -491,80 +491,80 @@ public:
         {
             switch(Step)
             {
-                case 1:
-                    me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
-                    return 10000;
-                case 2:
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
-                        arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
-                    return 20000;
-                case 3:
-                    me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
-                    return 10000;
-                case 4:
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
-                        arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
-                    return 20000;
-                case 5:
-                    me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
-                    return 20000;
-                case 6:
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
-                        arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
+            case 1:
+                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
+                return 10000;
+            case 2:
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
+                return 20000;
+            case 3:
+                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
+                return 10000;
+            case 4:
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
+                return 20000;
+            case 5:
+                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
+                return 20000;
+            case 6:
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
 
-                    ATimer = 5500;
-                    MTimer = 6600;
-                    return 10000;
-                case 7:
-                    return 1000;
-                case 8:
-                    me->CastSpell(me, SPELL_MANA_SHIELD, true);
-                    return 5500;
-                case 9:
-                    me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
-                    me->CastSpell(me, 30972, true);
-                    return 10000;
-                case 10:
-                    me->RemoveAurasDueToSpell(30972);
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
-                        me->CastSpell(arca, SPELL_CONFLAGRATION_BLAST, false);
-                    return 1000;
-                case 11:
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
-                        arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
-                    return 5000;
-                case 12:
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                ATimer = 5500;
+                MTimer = 6600;
+                return 10000;
+            case 7:
+                return 1000;
+            case 8:
+                me->CastSpell(me, SPELL_MANA_SHIELD, true);
+                return 5500;
+            case 9:
+                me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
+                me->CastSpell(me, 30972, true);
+                return 10000;
+            case 10:
+                me->RemoveAurasDueToSpell(30972);
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                    me->CastSpell(arca, SPELL_CONFLAGRATION_BLAST, false);
+                return 1000;
+            case 11:
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
+                return 5000;
+            case 12:
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                {
+                    arca->SetSpeed(MOVE_RUN, 2.0f);
+                    arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
+                    arca->InterruptNonMeleeSpells(true);
+                }
+                return 10000;
+            case 13:
+                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
+                return 10000;
+            case 14:
+                if (me->GetMap()->IsDungeon())
+                {
+                    InstanceMap::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
+                    for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        arca->SetSpeed(MOVE_RUN, 2.0f);
-                        arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
-                        arca->InterruptNonMeleeSpells(true);
-                    }
-                    return 10000;
-                case 13:
-                    me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
-                    return 10000;
-                case 14:
-                    if (me->GetMap()->IsDungeon())
-                    {
-                        InstanceMap::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                        for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                        if (i->GetSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if (i->GetSource()->GetQuestStatus(9645) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                i->GetSource()->GroupEventHappens(9645, me);
-                                break;
-                            }
+                            i->GetSource()->GroupEventHappens(9645, me);
+                            break;
                         }
                     }
+                }
 
-                    me->DespawnOrUnsummon(100);
-                    if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
-                        arca->DespawnOrUnsummon(100);
+                me->DespawnOrUnsummon(100);
+                if (Creature* arca = ObjectAccessor::GetCreature((*me), ArcanagosGUID))
+                    arca->DespawnOrUnsummon(100);
 
-                    return 5000;
-                default:
-                    return 2000;
+                return 5000;
+            default:
+                return 2000;
             }
         }
 

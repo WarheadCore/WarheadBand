@@ -142,13 +142,17 @@ public:
     virtual void Initialize() {}
 
     //On load
-    virtual void Load(char const* data) { LoadBossState(data); }
+    virtual void Load(char const* data) {
+        LoadBossState(data);
+    }
 
     //Called when creature is Looted
     virtual void CreatureLooted(Creature* /*creature*/, LootType) {}
 
     //When save is needed, this function generates the data
-    virtual std::string GetSaveData() { return GetBossSaveData(); }
+    virtual std::string GetSaveData() {
+        return GetBossSaveData();
+    }
 
     void SaveToDB();
 
@@ -194,36 +198,52 @@ public:
     void DoCastSpellOnPlayers(uint32 spell);
 
     // Return wether server allow two side groups or not
-    bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
+    bool ServerAllowsTwoSideGroups() {
+        return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP);
+    }
 
     virtual bool SetBossState(uint32 id, EncounterState state);
-    EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
+    EncounterState GetBossState(uint32 id) const {
+        return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED;
+    }
     static std::string GetBossStateName(uint8 state);
-    BossBoundaryMap const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : nullptr; }
-    BossInfo const* GetBossInfo(uint32 id) const { return &bosses[id]; }
+    BossBoundaryMap const* GetBossBoundary(uint32 id) const {
+        return id < bosses.size() ? &bosses[id].boundary : nullptr;
+    }
+    BossInfo const* GetBossInfo(uint32 id) const {
+        return &bosses[id];
+    }
 
     // Achievement criteria additional requirements check
     // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
     virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = nullptr, uint32 /*miscvalue1*/ = 0);
 
     // Checks boss requirements (one boss required to kill other)
-    virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const { return true; }
+    virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = nullptr) const {
+        return true;
+    }
 
     void SetCompletedEncountersMask(uint32 newMask, bool save);
 
     // Returns completed encounters mask for packets
-    uint32 GetCompletedEncounterMask() const { return completedEncounters; }
+    uint32 GetCompletedEncounterMask() const {
+        return completedEncounters;
+    }
 
     void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
     virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
 
-    uint32 GetEncounterCount() const { return bosses.size(); }
+    uint32 GetEncounterCount() const {
+        return bosses.size();
+    }
 
     // Allows to perform particular actions
     virtual void DoAction(int32 /*action*/) {}
 protected:
-    void SetBossNumber(uint32 number) { bosses.resize(number); }
+    void SetBossNumber(uint32 number) {
+        bosses.resize(number);
+    }
     void LoadDoorData(DoorData const* data);
     void LoadMinionData(MinionData const* data);
 

@@ -35,48 +35,48 @@ std::string _GetGuildEventString(GuildEvents event)
 {
     switch (event)
     {
-        case GE_PROMOTION:
-            return "Member promotion";
-        case GE_DEMOTION:
-            return "Member demotion";
-        case GE_MOTD:
-            return "Guild MOTD";
-        case GE_JOINED:
-            return "Member joined";
-        case GE_LEFT:
-            return "Member left";
-        case GE_REMOVED:
-            return "Member removed";
-        case GE_LEADER_IS:
-            return "Leader is";
-        case GE_LEADER_CHANGED:
-            return "Leader changed";
-        case GE_DISBANDED:
-            return "Guild disbanded";
-        case GE_TABARDCHANGE:
-            return "Tabard change";
-        case GE_RANK_UPDATED:
-            return "Rank updated";
-        case GE_RANK_DELETED:
-            return "Rank deleted";
-        case GE_SIGNED_ON:
-            return "Member signed on";
-        case GE_SIGNED_OFF:
-            return "Member signed off";
-        case GE_GUILDBANKBAGSLOTS_CHANGED:
-            return "Bank bag slots changed";
-        case GE_BANK_TAB_PURCHASED:
-            return "Bank tab purchased";
-        case GE_BANK_TAB_UPDATED:
-            return "Bank tab updated";
-        case GE_BANK_MONEY_SET:
-            return "Bank money set";
-        case GE_BANK_TAB_AND_MONEY_UPDATED:
-            return "Bank and money updated";
-        case GE_BANK_TEXT_CHANGED:
-            return "Bank tab text changed";
-        default:
-            break;
+    case GE_PROMOTION:
+        return "Member promotion";
+    case GE_DEMOTION:
+        return "Member demotion";
+    case GE_MOTD:
+        return "Guild MOTD";
+    case GE_JOINED:
+        return "Member joined";
+    case GE_LEFT:
+        return "Member left";
+    case GE_REMOVED:
+        return "Member removed";
+    case GE_LEADER_IS:
+        return "Leader is";
+    case GE_LEADER_CHANGED:
+        return "Leader changed";
+    case GE_DISBANDED:
+        return "Guild disbanded";
+    case GE_TABARDCHANGE:
+        return "Tabard change";
+    case GE_RANK_UPDATED:
+        return "Rank updated";
+    case GE_RANK_DELETED:
+        return "Rank deleted";
+    case GE_SIGNED_ON:
+        return "Member signed on";
+    case GE_SIGNED_OFF:
+        return "Member signed off";
+    case GE_GUILDBANKBAGSLOTS_CHANGED:
+        return "Bank bag slots changed";
+    case GE_BANK_TAB_PURCHASED:
+        return "Bank tab purchased";
+    case GE_BANK_TAB_UPDATED:
+        return "Bank tab updated";
+    case GE_BANK_MONEY_SET:
+        return "Bank money set";
+    case GE_BANK_TAB_AND_MONEY_UPDATED:
+        return "Bank and money updated";
+    case GE_BANK_TEXT_CHANGED:
+        return "Bank tab text changed";
+    default:
+        break;
     }
     return "<None>";
 }
@@ -85,20 +85,20 @@ inline uint32 _GetGuildBankTabPrice(uint8 tabId)
 {
     switch (tabId)
     {
-        case 0:
-            return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_0);
-        case 1:
-            return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_1);
-        case 2:
-            return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_2);
-        case 3:
-            return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_3);
-        case 4:
-            return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_4);
-        case 5:
-            return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_5);
-        default:
-            return 0;
+    case 0:
+        return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_0);
+    case 1:
+        return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_1);
+    case 2:
+        return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_2);
+    case 3:
+        return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_3);
+    case 4:
+        return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_4);
+    case 5:
+        return sWorld->getIntConfig(CONFIG_GUILD_BANK_TAB_COST_5);
+    default:
+        return 0;
     }
 }
 
@@ -246,19 +246,19 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
 
     switch(m_eventType)
     {
-        case GUILD_BANK_LOG_DEPOSIT_ITEM:
-        case GUILD_BANK_LOG_WITHDRAW_ITEM:
-            data << uint32(m_itemOrMoney);
-            data << uint32(m_itemStackCount);
-            break;
-        case GUILD_BANK_LOG_MOVE_ITEM:
-        case GUILD_BANK_LOG_MOVE_ITEM2:
-            data << uint32(m_itemOrMoney);
-            data << uint32(m_itemStackCount);
-            data << uint8(m_destTabId);
-            break;
-        default:
-            data << uint32(m_itemOrMoney);
+    case GUILD_BANK_LOG_DEPOSIT_ITEM:
+    case GUILD_BANK_LOG_WITHDRAW_ITEM:
+        data << uint32(m_itemOrMoney);
+        data << uint32(m_itemStackCount);
+        break;
+    case GUILD_BANK_LOG_MOVE_ITEM:
+    case GUILD_BANK_LOG_MOVE_ITEM2:
+        data << uint32(m_itemOrMoney);
+        data << uint32(m_itemStackCount);
+        data << uint8(m_destTabId);
+        break;
+    default:
+        data << uint32(m_itemOrMoney);
     }
 
     data << uint32(time(nullptr) - m_timestamp);
@@ -583,7 +583,7 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("guild", "MSG_QUERY_GUILD_BANK_TEXT [%s]: Tabid: %u, Text: %s"
-                       , session->GetPlayerInfo().c_str(), m_tabId, m_text.c_str());
+                  , session->GetPlayerInfo().c_str(), m_tabId, m_text.c_str());
 #endif
         session->SendPacket(&data);
     }
@@ -982,7 +982,7 @@ Item* Guild::BankMoveItemData::StoreItem(SQLTransaction& trans, Item* pItem)
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("guild", "GUILD STORAGE: StoreItem tab = %u, slot = %u, item = %u, count = %u",
-                       m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
+                  m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
 #endif
         pLastItem = _StoreItem(trans, pTab, pItem, pos, itr != m_vec.end());
     }
@@ -1087,7 +1087,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     LOG_DEBUG("guild", "GUILD STORAGE: CanStore() tab = %u, slot = %u, item = %u, count = %u",
-                   m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
+              m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
 #endif
     uint32 count = pItem->GetCount();
     // Soulbound items cannot be moved
@@ -1186,7 +1186,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%u)",
-                   name.c_str(), pLeader->GetName().c_str(), GUID_LOPART(m_leaderGuid));
+              name.c_str(), pLeader->GetName().c_str(), GUID_LOPART(m_leaderGuid));
 #endif
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -1282,15 +1282,15 @@ void Guild::UpdateMemberData(Player* player, uint8 dataid, uint32 value)
     {
         switch (dataid)
         {
-            case GUILD_MEMBER_DATA_ZONEID:
-                member->SetZoneID(value);
-                break;
-            case GUILD_MEMBER_DATA_LEVEL:
-                member->SetLevel(value);
-                break;
-            default:
-                LOG_ERROR("server", "Guild::UpdateMemberData: Called with incorrect DATAID %u (value %u)", dataid, value);
-                return;
+        case GUILD_MEMBER_DATA_ZONEID:
+            member->SetZoneID(value);
+            break;
+        case GUILD_MEMBER_DATA_LEVEL:
+            member->SetLevel(value);
+            break;
+        default:
+            LOG_ERROR("server", "Guild::UpdateMemberData: Called with incorrect DATAID %u (value %u)", dataid, value);
+            return;
         }
         //HandleRoster();
     }
@@ -1438,7 +1438,7 @@ void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string
     if (!tab)
     {
         LOG_ERROR("server", "Guild::HandleSetBankTabInfo: Player %s trying to change bank tab info from unexisting tab %d.",
-                       session->GetPlayerInfo().c_str(), tabId);
+                  session->GetPlayerInfo().c_str(), tabId);
         return;
     }
 
@@ -2082,7 +2082,7 @@ bool Guild::LoadBankItemFromDB(Field* fields)
     if (tabId >= _GetPurchasedTabsSize())
     {
         LOG_ERROR("server", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
-                       fields[14].GetUInt32(), fields[15].GetUInt32());
+                  fields[14].GetUInt32(), fields[15].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
@@ -2915,7 +2915,7 @@ void Guild::_SendBankList(WorldSession* session /* = nullptr*/, uint8 tabId /*= 
         session->SendPacket(&data);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("guild", "SMSG_GUILD_BANK_LIST [%s]: TabId: %u, FullSlots: %u, slots: %d",
-                       session->GetPlayerInfo().c_str(), tabId, sendAllSlots, numSlots);
+                  session->GetPlayerInfo().c_str(), tabId, sendAllSlots, numSlots);
 #endif
     }
     else // TODO - Probably this is just sent to session + those that have sent CMSG_GUILD_BANKER_ACTIVATE
@@ -2933,7 +2933,7 @@ void Guild::_SendBankList(WorldSession* session /* = nullptr*/, uint8 tabId /*= 
             player->GetSession()->SendPacket(&data);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
             LOG_DEBUG("guild", "SMSG_GUILD_BANK_LIST [%s]: TabId: %u, FullSlots: %u, slots: %u"
-                           , player->GetName().c_str(), tabId, sendAllSlots, numSlots);
+                      , player->GetName().c_str(), tabId, sendAllSlots, numSlots);
 #endif
         }
     }
