@@ -17,8 +17,8 @@ This capability assumes that the loggers are categorized according to some
 developer-chosen criteria.
 ```
 
-Loggers are named entitites. Logger names are case-sensitive and they follow
-the hierarchical naming rule:
+Loggers are named entitites. Logger names are case-sensitive and they follow the
+hierarchical naming rule:
 
 ```
 A Logger is said to be an ancestor of another logger if its name followed
@@ -27,15 +27,15 @@ a parent of a child logger if there are no ancestors between itself and the
 descendant logger.
 ```
 
-For example, the logger named `"entities.player"` is a parent of the logger named
-`"entities.player.character"`. Similarly, `"entities"` is a parent of `"entities.player"`
-and an ancestor of `"entities.player.character"`.
+For example, the logger named `"entities.player"` is a parent of the logger
+named `"entities.player.character"`. Similarly, `"entities"` is a parent of
+`"entities.player"` and an ancestor of `"entities.player.character"`.
 
 Loggers may be assigned levels. The set of possible levels are `TRACE`, `DEBUG`,
 `INFO`, `WARN`, `ERROR` AND `FATAL`, or be disabled using level `DISABLED`.
 
-By definition the printing method determines the level of a logging request.
-For example:
+By definition the printing method determines the level of a logging request. For
+example:
 
 ```cpp
 LOG_INFO(...) // is a logging request of level INFO.
@@ -71,15 +71,13 @@ any other system.
 ```
 
 More than one appender can be attached to one logger. Each enabled logging
-request for a given logger will be forwarded to all the appenders in that
-logger
-
+request for a given logger will be forwarded to all the appenders in that logger
 
 **CONFIGURATION**
 
 System will read all config elements with prefix `"Logger."` and `"Appender."`
-and configure the logging system. If `"root"` can not be properly configured the core
-will remove all loggers and appenders and create a default set:
+and configure the logging system. If `"root"` can not be properly configured the
+core will remove all loggers and appenders and create a default set:
 
 ```
 - Logger "root" with log level Error
@@ -118,6 +116,7 @@ Its a list of elements separated by comma where each element has its own meaning
 ```
 
 Depending on the type, elements `optional1` and `optional2` will take different
+
 ```
     Colors (read as optional1 if Type = Console)
         Format: "fatal error warn info debug trace"
@@ -152,15 +151,15 @@ Example:
 Appender.Console1=1,5,6
 ```
 
-Creates new appender to log to console any message with log level `DEBUG`
-or less and prefixes log type and level to the message.
+Creates new appender to log to console any message with log level `DEBUG` or
+less and prefixes log type and level to the message.
 
 ```ini
 Appender.Console2=1,2,1,"1 9 3 6 5 8"
 ```
 
-Creates new appender to log to console any message with log level `ERROR`
-or less and prefixes timestamp to the message using colored text.
+Creates new appender to log to console any message with log level `ERROR` or
+less and prefixes timestamp to the message using colored text.
 
 ```ini
 Appender.File=2,5,7,Auth.log,w
@@ -180,6 +179,7 @@ LogLevel,AppenderList
 ```
 
 Its a list of elements separated by comma where each element has its own meaning
+
 ```
     LogLevel
         0 - (Disabled)
@@ -197,9 +197,9 @@ Its a list of elements separated by comma where each element has its own meaning
 
 1. **EXAMPLE 1**
 
-Log errors to console and a file called server.log that only contain
-logs for this server run. File should prefix timestamp, type and log level to
-the messages. Console should prefix type and log level.
+Log errors to console and a file called server.log that only contain logs for
+this server run. File should prefix timestamp, type and log level to the
+messages. Console should prefix type and log level.
 
 ```ini
 Appender.Console=1,2,6
@@ -213,17 +213,19 @@ Lets trace how system will log two different messages:
 LOG_ERROR("guild", "Guild 1 created");
 ```
 
-System will try to find logger of type GUILD, as no logger is configured
-for GUILD it will use Root logger. As message Log Level is equal or less
-than the Log level of logger the message is sent to the Appenders
-configured in the Logger. `"Console"` and `"Server"`.
+System will try to find logger of type GUILD, as no logger is configured for
+GUILD it will use Root logger. As message Log Level is equal or less than the
+Log level of logger the message is sent to the Appenders configured in the
+Logger. `"Console"` and `"Server"`.
 
-Console will write: 
+Console will write:
+
 ```
 "ERROR [GUILD] Guild 1 created"
 ```
 
-Server will write to file 
+Server will write to file
+
 ```
 "2012-08-15 ERROR [GUILD] Guild 1 created"
 ```
@@ -232,9 +234,9 @@ Server will write to file
 LOG_INFO("entities.player.character", "Player Name Logged in");
 ```
 
-System will try to find logger of type `"character"`, as no logger is
-configured for `"character"` it will use Root logger. As message Log Level is
-not equal or less than the Log level of logger the message its discarted.
+System will try to find logger of type `"character"`, as no logger is configured
+for `"character"` it will use Root logger. As message Log Level is not equal or
+less than the Log level of logger the message its discarted.
 
 2. **EXAMPLE 2**
 
@@ -248,6 +250,7 @@ Logger.root=3,Console Server
 ```
 
 Lets trace how system will log two different messages:
+
 ```cpp
 LOG_ERROR("guild", "Guild 1 created");
 ```
@@ -258,13 +261,14 @@ Performs exactly as example 1.
 LOG_INFO("entities.player.character", "Player Name Logged in");
 ```
 
-System will try to find logger of type `"character"`, as no logger is
-configured for `"character"` it will use Root logger. As message Log Level is
-equal or less than the Log level of logger the message is sent to the
-Appenders configured in the Logger. `"Console"` and `"Server"`.
-Console will discard msg as Log Level is not less or equal to this appender
+System will try to find logger of type `"character"`, as no logger is configured
+for `"character"` it will use Root logger. As message Log Level is equal or less
+than the Log level of logger the message is sent to the Appenders configured in
+the Logger. `"Console"` and `"Server"`. Console will discard msg as Log Level is
+not less or equal to this appender
 
 Server will write to file:
+
 ```
 "2012-08-15 INFO [CHARACTER ] Player Name Logged in"
 ```
@@ -273,9 +277,10 @@ Server will write to file:
 
 As a dev, i may be interested in logging just a particular part of the core
 while i'm trying to fix something. So... i want to debug `"guild"` to maximum
-and also some `"character"` events to some point. Also im checking some Waypoints
-so i want SQLDEV to be logged to file without prefixes. All other messages
-should only be logged to console, `"guild"` to `TRACE` and `"character"` to `INFO`
+and also some `"character"` events to some point. Also im checking some
+Waypoints so i want SQLDEV to be logged to file without prefixes. All other
+messages should only be logged to console, `"guild"` to `TRACE` and
+`"character"` to `INFO`
 
 ```ini
 Appender.Console=1,6
@@ -286,8 +291,8 @@ Logger.sql.dev=4,SQLDev
 ```
 
 With this config, any message logger with a Log type different to `"guild"`,
-`"character"` or `"sql.dev"` will be ignored, as we didn't define a logger Root and
-system created a default Root disabled. Appender Console, log level should be
-defined to allow all possible messages of its loggers, in this case `"guild"` uses
-`TRACE (6)`, so Appender should allow it. Logger Characters will limit it's own
-messages to `INFO (4)`
+`"character"` or `"sql.dev"` will be ignored, as we didn't define a logger Root
+and system created a default Root disabled. Appender Console, log level should
+be defined to allow all possible messages of its loggers, in this case `"guild"`
+uses `TRACE (6)`, so Appender should allow it. Logger Characters will limit it's
+own messages to `INFO (4)`
