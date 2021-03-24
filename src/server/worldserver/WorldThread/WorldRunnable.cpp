@@ -75,8 +75,6 @@ void WorldRunnable::run()
 #endif
     }
 
-    sLog->SetLogDB(false);
-
     sScriptMgr->OnShutdown();
 
     sWorld->KickAll();                                       // save and kick all players
@@ -98,7 +96,7 @@ void WorldRunnable::run()
 
 void AuctionListingRunnable::run()
 {
-    sLog->outString("Starting up Auction House Listing thread...");
+    LOG_INFO("server", "Starting up Auction House Listing thread...");
     while (!World::IsStopped())
     {
         if (AsyncAuctionListingMgr::IsAuctionListingAllowed())
@@ -136,5 +134,5 @@ void AuctionListingRunnable::run()
         }
         Warhead::Thread::Sleep(1);
     }
-    sLog->outString("Auction House Listing thread exiting without problems.");
+    LOG_INFO("server", "Auction House Listing thread exiting without problems.");
 }

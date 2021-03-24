@@ -96,7 +96,7 @@ ScriptMgr* ScriptMgr::instance()
 void ScriptMgr::Initialize()
 {
     AddScripts();
-    sLog->outString("Loading C++ scripts");
+    LOG_INFO("server", "Loading C++ scripts");
 }
 
 void ScriptMgr::Unload()
@@ -169,8 +169,8 @@ void ScriptMgr::LoadDatabase()
 
     CheckIfScriptsInDatabaseExist();
 
-    sLog->outString(">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    LOG_INFO("server", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", " ");
 }
 
 struct TSpellSummary
@@ -212,7 +212,7 @@ void ScriptMgr::CheckIfScriptsInDatabaseExist()
                     !ScriptRegistry<ArenaTeamScript>::GetScriptById(sid) &&
                     !ScriptRegistry<SpellSC>::GetScriptById(sid) &&
                     !ScriptRegistry<GroupScript>::GetScriptById(sid))
-                sLog->outErrorDb("Script named '%s' is assigned in the database, but has no code!", (*itr).c_str());
+                LOG_ERROR("sql.sql", "Script named '%s' is assigned in the database, but has no code!", (*itr).c_str());
         }
 }
 

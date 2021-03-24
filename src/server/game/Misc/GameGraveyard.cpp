@@ -36,8 +36,8 @@ void Graveyard::LoadGraveyardFromDB()
     QueryResult result = WorldDatabase.Query("SELECT ID, Map, x, y, z, Comment FROM game_graveyard");
     if (!result)
     {
-        sLog->outString(">> Loaded 0 graveyard. Table `game_graveyard` is empty!");
-        sLog->outString();
+        LOG_INFO("server", ">> Loaded 0 graveyard. Table `game_graveyard` is empty!");
+        LOG_INFO("server", " ");
         return;
     }
 
@@ -58,7 +58,7 @@ void Graveyard::LoadGraveyardFromDB()
 
         if (!Utf8toWStr(Graveyard.name, Graveyard.wnameLow))
         {
-            sLog->outErrorDb("Wrong UTF8 name for id %u in `game_graveyard` table, ignoring.", ID);
+            LOG_ERROR("sql.sql", "Wrong UTF8 name for id %u in `game_graveyard` table, ignoring.", ID);
             continue;
         }
 
@@ -69,8 +69,8 @@ void Graveyard::LoadGraveyardFromDB()
         ++Count;
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %i graveyard in %u ms", Count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    LOG_INFO("server", ">> Loaded %i graveyard in %u ms", Count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", " ");
 }
 
 GraveyardStruct const* Graveyard::GetGraveyard(uint32 ID) const
@@ -102,7 +102,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(float x, float y, float z,
     {
         if (z > -500)
         {
-            sLog->outError("ZoneId not found for map %u coords (%f, %f, %f)", MapId, x, y, z);
+            LOG_ERROR("server", "ZoneId not found for map %u coords (%f, %f, %f)", MapId, x, y, z);
             return GetDefaultGraveyard(teamId);
         }
     }
@@ -120,7 +120,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(float x, float y, float z,
     // not need to check validity of map object; MapId _MUST_ be valid here
     if (range.first == range.second && !map->IsBattlegroundOrArena())
     {
-        sLog->outErrorDb("Table `graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, teamId);
+        LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, teamId);
         return GetDefaultGraveyard(teamId);
     }
 
@@ -145,7 +145,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(float x, float y, float z,
         GraveyardStruct const* entry = sGraveyard->GetGraveyard(data.safeLocId);
         if (!entry)
         {
-            sLog->outErrorDb("Table `graveyard_zone` has record for not existing `game_graveyard` table %u, skipped.", data.safeLocId);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has record for not existing `game_graveyard` table %u, skipped.", data.safeLocId);
             continue;
         }
 
@@ -262,7 +262,7 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
     GraveyardMapBoundsNonConst range = GraveyardStore.equal_range(zoneId);
     if (range.first == range.second)
     {
-        sLog->outError("Table `graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, teamId);
+        LOG_ERROR("server", "Table `graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, teamId);
         return;
     }
 
@@ -317,8 +317,8 @@ void Graveyard::LoadGraveyardZones()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 graveyard-zone links. DB table `graveyard_zone` is empty.");
-        sLog->outString();
+        LOG_INFO("server", ">> Loaded 0 graveyard-zone links. DB table `graveyard_zone` is empty.");
+        LOG_INFO("server", " ");
         return;
     }
 
@@ -338,35 +338,35 @@ void Graveyard::LoadGraveyardZones()
         GraveyardStruct const* entry = sGraveyard->GetGraveyard(safeLocId);
         if (!entry)
         {
-            sLog->outErrorDb("Table `graveyard_zone` has a record for not existing `game_graveyard` table %u, skipped.", safeLocId);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for not existing `game_graveyard` table %u, skipped.", safeLocId);
             continue;
         }
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
         if (!areaEntry)
         {
-            sLog->outErrorDb("Table `graveyard_zone` has a record for not existing zone id (%u), skipped.", zoneId);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for not existing zone id (%u), skipped.", zoneId);
             continue;
         }
 
         if (areaEntry->zone != 0)
         {
-            sLog->outErrorDb("Table `graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.", zoneId);
             continue;
         }
 
         if (team != 0 && team != HORDE && team != ALLIANCE)
         {
-            sLog->outErrorDb("Table `graveyard_zone` has a record for non player faction (%u), skipped.", team);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for non player faction (%u), skipped.", team);
             continue;
         }
 
         if (!AddGraveyardLink(safeLocId, zoneId, teamId, false))
-            sLog->outErrorDb("Table `graveyard_zone` has a duplicate record for Graveyard (ID: %u) and Zone (ID: %u), skipped.", safeLocId, zoneId);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: %u) and Zone (ID: %u), skipped.", safeLocId, zoneId);
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %u graveyard-zone links in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    LOG_INFO("server", ">> Loaded %u graveyard-zone links in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", " ");
 }
 
 GraveyardStruct const* Graveyard::GetGraveyard(const std::string& name) const
