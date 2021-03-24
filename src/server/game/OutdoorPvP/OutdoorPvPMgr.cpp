@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,237 +16,236 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "OutdoorPvPMgr.h"
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
-#include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
-OutdoorPvPMgr::OutdoorPvPMgr()
-{
-    m_UpdateTimer = 0;
-    //LOG_DEBUG("outdoorpvp", "Instantiating OutdoorPvPMgr");
+OutdoorPvPMgr::OutdoorPvPMgr() {
+  m_UpdateTimer = 0;
+  // LOG_DEBUG("outdoorpvp", "Instantiating OutdoorPvPMgr");
 }
 
-OutdoorPvPMgr* OutdoorPvPMgr::instance()
-{
-    static OutdoorPvPMgr instance;
-    return &instance;
+OutdoorPvPMgr *OutdoorPvPMgr::instance() {
+  static OutdoorPvPMgr instance;
+  return &instance;
 }
 
-void OutdoorPvPMgr::Die()
-{
-    //LOG_DEBUG("outdoorpvp", "Deleting OutdoorPvPMgr");
-    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-        delete *itr;
+void OutdoorPvPMgr::Die() {
+  // LOG_DEBUG("outdoorpvp", "Deleting OutdoorPvPMgr");
+  for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+       itr != m_OutdoorPvPSet.end(); ++itr)
+    delete *itr;
 
-    for (OutdoorPvPDataMap::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
-        delete itr->second;
+  for (OutdoorPvPDataMap::iterator itr = m_OutdoorPvPDatas.begin();
+       itr != m_OutdoorPvPDatas.end(); ++itr)
+    delete itr->second;
 }
 
-void OutdoorPvPMgr::InitOutdoorPvP()
-{
-    uint32 oldMSTime = getMSTime();
+void OutdoorPvPMgr::InitOutdoorPvP() {
+  uint32 oldMSTime = getMSTime();
 
-    //                                                 0       1
-    QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
+  //                                                 0       1
+  QueryResult result =
+      WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
 
-    if (!result)
-    {
-        LOG_ERROR("sql.sql", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
-        LOG_INFO("server", " ");
-        return;
-    }
-
-    uint32 count = 0;
-    uint32 typeId = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        typeId = fields[0].GetUInt8();
-
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, nullptr))
-            continue;
-
-        if (typeId >= MAX_OUTDOORPVP_TYPES)
-        {
-            LOG_ERROR("sql.sql", "Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
-            continue;
-        }
-
-        OutdoorPvPData* data = new OutdoorPvPData();
-        OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
-        data->TypeId = realTypeId;
-        data->ScriptId = sObjectMgr->GetScriptId(fields[1].GetCString());
-        m_OutdoorPvPDatas[realTypeId] = data;
-
-        ++count;
-    } while (result->NextRow());
-
-    OutdoorPvP* pvp;
-    for (uint8 i = 1; i < MAX_OUTDOORPVP_TYPES; ++i)
-    {
-        OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
-        if (iter == m_OutdoorPvPDatas.end())
-        {
-            LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
-            continue;
-        }
-
-        pvp = sScriptMgr->CreateOutdoorPvP(iter->second);
-        if (!pvp)
-        {
-            LOG_ERROR("server", "Could not initialize OutdoorPvP object for type ID %u; got nullptr pointer from script.", uint32(i));
-            continue;
-        }
-
-        if (!pvp->SetupOutdoorPvP())
-        {
-            LOG_ERROR("server", "Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
-            delete pvp;
-            continue;
-        }
-
-        m_OutdoorPvPSet.push_back(pvp);
-    }
-
-    LOG_INFO("server", ">> Loaded %u outdoor PvP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+  if (!result) {
+    LOG_ERROR("sql.sql", ">> Loaded 0 outdoor PvP definitions. DB table "
+                         "`outdoorpvp_template` is empty.");
     LOG_INFO("server", " ");
-}
+    return;
+  }
 
-void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)
-{
-    m_OutdoorPvPMap[zoneid] = handle;
-}
+  uint32 count = 0;
+  uint32 typeId = 0;
 
-void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
-{
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if (itr == m_OutdoorPvPMap.end())
-        return;
+  do {
+    Field *fields = result->Fetch();
 
-    ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
+    typeId = fields[0].GetUInt8();
 
-    if (itr->second->HasPlayer(player))
-        return;
+    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, nullptr))
+      continue;
 
-    itr->second->HandlePlayerEnterZone(player, zoneid);
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("outdoorpvp", "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
-#endif
-}
-
-void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
-{
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if (itr == m_OutdoorPvPMap.end())
-        return;
-
-    ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
-
-    // teleport: remove once in removefromworld, once in updatezone
-    if (!itr->second->HasPlayer(player))
-        return;
-
-    itr->second->HandlePlayerLeaveZone(player, zoneid);
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("outdoorpvp", "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
-#endif
-}
-
-OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
-{
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if (itr == m_OutdoorPvPMap.end())
-    {
-        // no handle for this zone, return
-        return nullptr;
+    if (typeId >= MAX_OUTDOORPVP_TYPES) {
+      LOG_ERROR(
+          "sql.sql",
+          "Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.",
+          typeId);
+      continue;
     }
+
+    OutdoorPvPData *data = new OutdoorPvPData();
+    OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
+    data->TypeId = realTypeId;
+    data->ScriptId = sObjectMgr->GetScriptId(fields[1].GetCString());
+    m_OutdoorPvPDatas[realTypeId] = data;
+
+    ++count;
+  } while (result->NextRow());
+
+  OutdoorPvP *pvp;
+  for (uint8 i = 1; i < MAX_OUTDOORPVP_TYPES; ++i) {
+    OutdoorPvPDataMap::iterator iter =
+        m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
+    if (iter == m_OutdoorPvPDatas.end()) {
+      LOG_ERROR("sql.sql",
+                "Could not initialize OutdoorPvP object for type ID %u; no "
+                "entry in database.",
+                uint32(i));
+      continue;
+    }
+
+    pvp = sScriptMgr->CreateOutdoorPvP(iter->second);
+    if (!pvp) {
+      LOG_ERROR("server",
+                "Could not initialize OutdoorPvP object for type ID %u; got "
+                "nullptr pointer from script.",
+                uint32(i));
+      continue;
+    }
+
+    if (!pvp->SetupOutdoorPvP()) {
+      LOG_ERROR("server",
+                "Could not initialize OutdoorPvP object for type ID %u; "
+                "SetupOutdoorPvP failed.",
+                uint32(i));
+      delete pvp;
+      continue;
+    }
+
+    m_OutdoorPvPSet.push_back(pvp);
+  }
+
+  LOG_INFO("server", ">> Loaded %u outdoor PvP definitions in %u ms", count,
+           GetMSTimeDiffToNow(oldMSTime));
+  LOG_INFO("server", " ");
+}
+
+void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP *handle) {
+  m_OutdoorPvPMap[zoneid] = handle;
+}
+
+void OutdoorPvPMgr::HandlePlayerEnterZone(Player *player, uint32 zoneid) {
+  OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+  if (itr == m_OutdoorPvPMap.end())
+    return;
+
+  ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
+
+  if (itr->second->HasPlayer(player))
+    return;
+
+  itr->second->HandlePlayerEnterZone(player, zoneid);
+#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
+  LOG_DEBUG("outdoorpvp", "Player %u entered outdoorpvp id %u",
+            player->GetGUIDLow(), itr->second->GetTypeId());
+#endif
+}
+
+void OutdoorPvPMgr::HandlePlayerLeaveZone(Player *player, uint32 zoneid) {
+  OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+  if (itr == m_OutdoorPvPMap.end())
+    return;
+
+  ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
+
+  // teleport: remove once in removefromworld, once in updatezone
+  if (!itr->second->HasPlayer(player))
+    return;
+
+  itr->second->HandlePlayerLeaveZone(player, zoneid);
+#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
+  LOG_DEBUG("outdoorpvp", "Player %u left outdoorpvp id %u",
+            player->GetGUIDLow(), itr->second->GetTypeId());
+#endif
+}
+
+OutdoorPvP *OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid) {
+  OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+  if (itr == m_OutdoorPvPMap.end()) {
+    // no handle for this zone, return
+    return nullptr;
+  }
+  return itr->second;
+}
+
+void OutdoorPvPMgr::Update(uint32 diff) {
+  m_UpdateTimer += diff;
+  if (m_UpdateTimer > OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL) {
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+         itr != m_OutdoorPvPSet.end(); ++itr)
+      (*itr)->Update(m_UpdateTimer);
+    m_UpdateTimer = 0;
+  }
+}
+
+bool OutdoorPvPMgr::HandleCustomSpell(Player *player, uint32 spellId,
+                                      GameObject *go) {
+  // pussywizard: no mutex because not affecting other players
+  for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+       itr != m_OutdoorPvPSet.end(); ++itr) {
+    if ((*itr)->HandleCustomSpell(player, spellId, go))
+      return true;
+  }
+  return false;
+}
+
+ZoneScript *OutdoorPvPMgr::GetZoneScript(uint32 zoneId) {
+  OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneId);
+  if (itr != m_OutdoorPvPMap.end())
     return itr->second;
+  else
+    return nullptr;
 }
 
-void OutdoorPvPMgr::Update(uint32 diff)
-{
-    m_UpdateTimer += diff;
-    if (m_UpdateTimer > OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL)
-    {
-        for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-            (*itr)->Update(m_UpdateTimer);
-        m_UpdateTimer = 0;
-    }
+bool OutdoorPvPMgr::HandleOpenGo(Player *player, uint64 guid) {
+  ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
+  for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+       itr != m_OutdoorPvPSet.end(); ++itr) {
+    if ((*itr)->HandleOpenGo(player, guid))
+      return true;
+  }
+  return false;
 }
 
-bool OutdoorPvPMgr::HandleCustomSpell(Player* player, uint32 spellId, GameObject* go)
-{
-    // pussywizard: no mutex because not affecting other players
-    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-    {
-        if ((*itr)->HandleCustomSpell(player, spellId, go))
-            return true;
-    }
-    return false;
+void OutdoorPvPMgr::HandleGossipOption(Player *player, uint64 guid,
+                                       uint32 gossipid) {
+  ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
+  for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+       itr != m_OutdoorPvPSet.end(); ++itr) {
+    if ((*itr)->HandleGossipOption(player, guid, gossipid))
+      return;
+  }
 }
 
-ZoneScript* OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
-{
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneId);
-    if (itr != m_OutdoorPvPMap.end())
-        return itr->second;
-    else
-        return nullptr;
+bool OutdoorPvPMgr::CanTalkTo(Player *player, Creature *creature,
+                              GossipMenuItems const &gso) {
+  for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+       itr != m_OutdoorPvPSet.end(); ++itr) {
+    if ((*itr)->CanTalkTo(player, creature, gso))
+      return true;
+  }
+  return false;
 }
 
-bool OutdoorPvPMgr::HandleOpenGo(Player* player, uint64 guid)
-{
-    ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
-    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-    {
-        if ((*itr)->HandleOpenGo(player, guid))
-            return true;
-    }
-    return false;
+void OutdoorPvPMgr::HandleDropFlag(Player *player, uint32 spellId) {
+  // pussywizard: no mutex because not affecting other players
+  for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin();
+       itr != m_OutdoorPvPSet.end(); ++itr) {
+    if ((*itr)->HandleDropFlag(player, spellId))
+      return;
+  }
 }
 
-void OutdoorPvPMgr::HandleGossipOption(Player* player, uint64 guid, uint32 gossipid)
-{
-    ACORE_GUARD(ACE_Thread_Mutex, _lock); // pussywizard
-    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-    {
-        if ((*itr)->HandleGossipOption(player, guid, gossipid))
-            return;
-    }
-}
+void OutdoorPvPMgr::HandlePlayerResurrects(Player *player, uint32 zoneid) {
+  OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+  if (itr == m_OutdoorPvPMap.end())
+    return;
 
-bool OutdoorPvPMgr::CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso)
-{
-    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-    {
-        if ((*itr)->CanTalkTo(player, creature, gso))
-            return true;
-    }
-    return false;
-}
+  // pussywizard: no mutex because not affecting other players
 
-void OutdoorPvPMgr::HandleDropFlag(Player* player, uint32 spellId)
-{
-    // pussywizard: no mutex because not affecting other players
-    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
-    {
-        if ((*itr)->HandleDropFlag(player, spellId))
-            return;
-    }
-}
-
-void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, uint32 zoneid)
-{
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if (itr == m_OutdoorPvPMap.end())
-        return;
-
-    // pussywizard: no mutex because not affecting other players
-
-    if (itr->second->HasPlayer(player))
-        itr->second->HandlePlayerResurrects(player, zoneid);
+  if (itr->second->HasPlayer(player))
+    itr->second->HandlePlayerResurrects(player, zoneid);
 }

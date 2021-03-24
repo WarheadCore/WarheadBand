@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,72 +28,65 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
-{
-    uint64 guid;
-    recvData >> guid;
+void WorldSession::HandleAttackSwingOpcode(WorldPacket &recvData) {
+  uint64 guid;
+  recvData >> guid;
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("network", "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
+  LOG_DEBUG("network",
+            "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u",
+            GUID_LOPART(guid), GUID_HIPART(guid));
 #endif
 
-    Unit* pEnemy = ObjectAccessor::GetUnit(*_player, guid);
+  Unit *pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
-    if (!pEnemy)
-    {
-        // stop attack state at client
-        SendAttackStop(nullptr);
-        return;
+  if (!pEnemy) {
+    // stop attack state at client
+    SendAttackStop(nullptr);
+    return;
+  }
+
+  if (!_player->IsValidAttackTarget(pEnemy)) {
+    // stop attack state at client
+    SendAttackStop(pEnemy);
+    return;
+  }
+
+  //! Client explicitly checks the following before sending CMSG_ATTACKSWING
+  //! packet, so we'll place the same check here. Note that it might be possible
+  //! to reuse this snippet in other places as well.
+  if (Vehicle *vehicle = _player->GetVehicle()) {
+    VehicleSeatEntry const *seat = vehicle->GetSeatForPassenger(_player);
+    ASSERT(seat);
+    if (!(seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK)) {
+      SendAttackStop(pEnemy);
+      return;
     }
+  }
 
-    if (!_player->IsValidAttackTarget(pEnemy))
-    {
-        // stop attack state at client
-        SendAttackStop(pEnemy);
-        return;
-    }
-
-    //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
-    //! so we'll place the same check here. Note that it might be possible to reuse this snippet
-    //! in other places as well.
-    if (Vehicle* vehicle = _player->GetVehicle())
-    {
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(_player);
-        ASSERT(seat);
-        if (!(seat->m_flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
-        {
-            SendAttackStop(pEnemy);
-            return;
-        }
-    }
-
-    _player->Attack(pEnemy, true);
+  _player->Attack(pEnemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket& /*recvData*/)
-{
-    GetPlayer()->AttackStop();
+void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/) {
+  GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
-{
-    uint32 sheathed;
-    recvData >> sheathed;
+void WorldSession::HandleSetSheathedOpcode(WorldPacket &recvData) {
+  uint32 sheathed;
+  recvData >> sheathed;
 
-    if (sheathed >= MAX_SHEATH_STATE)
-    {
-        LOG_ERROR("server", "Unknown sheath state %u ??", sheathed);
-        return;
-    }
+  if (sheathed >= MAX_SHEATH_STATE) {
+    LOG_ERROR("server", "Unknown sheath state %u ??", sheathed);
+    return;
+  }
 
-    GetPlayer()->SetSheath(SheathState(sheathed));
+  GetPlayer()->SetSheath(SheathState(sheathed));
 }
 
-void WorldSession::SendAttackStop(Unit const* enemy)
-{
-    WorldPacket data(SMSG_ATTACKSTOP, (8 + 8 + 4));         // we guess size
-    data.append(GetPlayer()->GetPackGUID());
-    data.append(enemy ? enemy->GetPackGUID() : 0);          // must be packed guid
-    data << uint32(0);                                      // unk, can be 1 also
-    SendPacket(&data);
+void WorldSession::SendAttackStop(Unit const *enemy) {
+  WorldPacket data(SMSG_ATTACKSTOP, (8 + 8 + 4)); // we guess size
+  data.append(GetPlayer()->GetPackGUID());
+  data.append(enemy ? enemy->GetPackGUID() : 0); // must be packed guid
+  data << uint32(0);                             // unk, can be 1 also
+  SendPacket(&data);
 }

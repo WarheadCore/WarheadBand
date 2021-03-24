@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,49 +22,46 @@
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
 
-#include "RealmSocket.h"
 #include "AuthSocket.h"
+#include "RealmSocket.h"
 
-class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor>
-{
+class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor> {
 public:
-    RealmAcceptor() = default;
-    virtual ~RealmAcceptor()
-    {
-        if (reactor())
-            reactor()->cancel_timer(this, 1);
-    }
+  RealmAcceptor() = default;
+  virtual ~RealmAcceptor() {
+    if (reactor())
+      reactor()->cancel_timer(this, 1);
+  }
 
 protected:
-    virtual int make_svc_handler(RealmSocket*& sh)
-    {
-        if (sh == nullptr)
-            ACE_NEW_RETURN(sh, RealmSocket, -1);
+  virtual int make_svc_handler(RealmSocket *&sh) {
+    if (sh == nullptr)
+      ACE_NEW_RETURN(sh, RealmSocket, -1);
 
-        sh->reactor(reactor());
-        sh->set_session(new AuthSocket(*sh));
-        return 0;
-    }
+    sh->reactor(reactor());
+    sh->set_session(new AuthSocket(*sh));
+    return 0;
+  }
 
-    virtual int handle_timeout(const ACE_Time_Value& /*current_time*/, const void* /*act = 0*/)
-    {
-        LOG_INFO("server", "Resuming acceptor");
-        reactor()->cancel_timer(this, 1);
-        return reactor()->register_handler(this, ACE_Event_Handler::ACCEPT_MASK);
-    }
+  virtual int handle_timeout(const ACE_Time_Value & /*current_time*/,
+                             const void * /*act = 0*/) {
+    LOG_INFO("server", "Resuming acceptor");
+    reactor()->cancel_timer(this, 1);
+    return reactor()->register_handler(this, ACE_Event_Handler::ACCEPT_MASK);
+  }
 
-    virtual int handle_accept_error()
-    {
+  virtual int handle_accept_error() {
 #if defined(ENFILE) && defined(EMFILE)
-        if (errno == ENFILE || errno == EMFILE)
-        {
-            LOG_ERROR("server", "Out of file descriptors, suspending incoming connections for 10 seconds");
-            reactor()->remove_handler(this, ACE_Event_Handler::ACCEPT_MASK | ACE_Event_Handler::DONT_CALL);
-            reactor()->schedule_timer(this, nullptr, ACE_Time_Value(10));
-        }
-#endif
-        return 0;
+    if (errno == ENFILE || errno == EMFILE) {
+      LOG_ERROR("server", "Out of file descriptors, suspending incoming "
+                          "connections for 10 seconds");
+      reactor()->remove_handler(this, ACE_Event_Handler::ACCEPT_MASK |
+                                          ACE_Event_Handler::DONT_CALL);
+      reactor()->schedule_timer(this, nullptr, ACE_Time_Value(10));
     }
+#endif
+    return 0;
+  }
 };
 
 #endif

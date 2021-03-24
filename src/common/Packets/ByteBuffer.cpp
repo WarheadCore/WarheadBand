@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,58 +24,52 @@
 #include <sstream>
 
 ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
-        size_t size, size_t valueSize)
-{
-    std::ostringstream ss;
+                                                         size_t size,
+                                                         size_t valueSize) {
+  std::ostringstream ss;
 
-    ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
-       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")";
+  ss << "Attempted to " << (add ? "put" : "get")
+     << " value with size: " << valueSize << " in ByteBuffer (pos: " << pos
+     << " size: " << size << ")";
 
-    message().assign(ss.str());
+  message().assign(ss.str());
 }
 
 ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
-        size_t valueSize)
-{
-    std::ostringstream ss;
+                                                     size_t valueSize) {
+  std::ostringstream ss;
 
-    ss << "Attempted to put a "
-       << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
-       << " in ByteBuffer (pos: " << pos << " size: " << size << ")";
+  ss << "Attempted to put a "
+     << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
+     << " in ByteBuffer (pos: " << pos << " size: " << size << ")";
 
-    message().assign(ss.str());
+  message().assign(ss.str());
 }
 
-void ByteBuffer::hexlike(bool outString) const
-{
-    if (!outString)
-        return;
+void ByteBuffer::hexlike(bool outString) const {
+  if (!outString)
+    return;
 
-    uint32 j = 1, k = 1;
+  uint32 j = 1, k = 1;
 
-    std::ostringstream o;
-    o << "STORAGE_SIZE: " << size() << "\nCONTENTS:\n";
+  std::ostringstream o;
+  o << "STORAGE_SIZE: " << size() << "\nCONTENTS:\n";
 
-    for (uint32 i = 0; i < size(); ++i)
-    {
-        char buf[3];
-        snprintf(buf, 3, "%02X", read<uint8>(i));
-        if ((i == (j * 8)) && ((i != (k * 16))))
-        {
-            o << "| ";
-            ++j;
-        }
-        else if (i == (k * 16))
-        {
-            o << "\n";
-            ++k;
-            ++j;
-        }
-
-        o << buf << " ";
+  for (uint32 i = 0; i < size(); ++i) {
+    char buf[3];
+    snprintf(buf, 3, "%02X", read<uint8>(i));
+    if ((i == (j * 8)) && ((i != (k * 16)))) {
+      o << "| ";
+      ++j;
+    } else if (i == (k * 16)) {
+      o << "\n";
+      ++k;
+      ++j;
     }
-    o << " ";
 
-    LOG_INFO("server", "%s", o.str().c_str());
+    o << buf << " ";
+  }
+  o << " ";
+
+  LOG_INFO("server", "%s", o.str().c_str());
 }

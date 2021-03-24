@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,59 +24,59 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
-{
-    uint64 guid;
-    Player* player;
-    Player* plTarget;
+void WorldSession::HandleDuelAcceptedOpcode(WorldPacket &recvPacket) {
+  uint64 guid;
+  Player *player;
+  Player *plTarget;
 
-    recvPacket >> guid;
+  recvPacket >> guid;
 
-    if (!GetPlayer()->duel)                                  // ignore accept from duel-sender
-        return;
+  if (!GetPlayer()->duel) // ignore accept from duel-sender
+    return;
 
-    player       = GetPlayer();
-    plTarget = player->duel->opponent;
+  player = GetPlayer();
+  plTarget = player->duel->opponent;
 
-    if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
-        return;
+  if (player == player->duel->initiator || !plTarget || player == plTarget ||
+      player->duel->startTime != 0 || plTarget->duel->startTime != 0)
+    return;
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("server", "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
-    LOG_DEBUG("server", "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
+  LOG_DEBUG("server", "Player 1 is: %u (%s)", player->GetGUIDLow(),
+            player->GetName().c_str());
+  LOG_DEBUG("server", "Player 2 is: %u (%s)", plTarget->GetGUIDLow(),
+            plTarget->GetName().c_str());
 #endif
 
-    time_t now = time(nullptr);
-    player->duel->startTimer = now;
-    plTarget->duel->startTimer = now;
+  time_t now = time(nullptr);
+  player->duel->startTimer = now;
+  plTarget->duel->startTimer = now;
 
-    player->SendDuelCountdown(3000);
-    plTarget->SendDuelCountdown(3000);
+  player->SendDuelCountdown(3000);
+  plTarget->SendDuelCountdown(3000);
 }
 
-void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
-{
+void WorldSession::HandleDuelCancelledOpcode(WorldPacket &recvPacket) {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_CANCELLED");
+  LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_CANCELLED");
 #endif
-    uint64 guid;
-    recvPacket >> guid;
+  uint64 guid;
+  recvPacket >> guid;
 
-    // no duel requested
-    if (!GetPlayer()->duel)
-        return;
+  // no duel requested
+  if (!GetPlayer()->duel)
+    return;
 
-    // player surrendered in a duel using /forfeit
-    if (GetPlayer()->duel->startTime != 0)
-    {
-        GetPlayer()->CombatStopWithPets(true);
-        if (GetPlayer()->duel->opponent)
-            GetPlayer()->duel->opponent->CombatStopWithPets(true);
+  // player surrendered in a duel using /forfeit
+  if (GetPlayer()->duel->startTime != 0) {
+    GetPlayer()->CombatStopWithPets(true);
+    if (GetPlayer()->duel->opponent)
+      GetPlayer()->duel->opponent->CombatStopWithPets(true);
 
-        GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
-        GetPlayer()->DuelComplete(DUEL_WON);
-        return;
-    }
+    GetPlayer()->CastSpell(GetPlayer(), 7267, true); // beg
+    GetPlayer()->DuelComplete(DUEL_WON);
+    return;
+  }
 
-    GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
+  GetPlayer()->DuelComplete(DUEL_INTERRUPTED);
 }

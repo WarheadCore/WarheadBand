@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,36 +29,35 @@
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
 
-class WorldSocketAcceptor : public ACE_Acceptor<WorldSocket, ACE_SOCK_Acceptor>
-{
+class WorldSocketAcceptor
+    : public ACE_Acceptor<WorldSocket, ACE_SOCK_Acceptor> {
 public:
-    WorldSocketAcceptor(void) { }
-    virtual ~WorldSocketAcceptor(void)
-    {
-        if (reactor())
-            reactor()->cancel_timer(this, 1);
-    }
+  WorldSocketAcceptor(void) {}
+  virtual ~WorldSocketAcceptor(void) {
+    if (reactor())
+      reactor()->cancel_timer(this, 1);
+  }
 
 protected:
-    virtual int handle_timeout(const ACE_Time_Value& /*current_time*/, const void* /*act = 0*/)
-    {
-        LOG_INFO("server", "Resuming acceptor");
-        reactor()->cancel_timer(this, 1);
-        return reactor()->register_handler(this, ACE_Event_Handler::ACCEPT_MASK);
-    }
+  virtual int handle_timeout(const ACE_Time_Value & /*current_time*/,
+                             const void * /*act = 0*/) {
+    LOG_INFO("server", "Resuming acceptor");
+    reactor()->cancel_timer(this, 1);
+    return reactor()->register_handler(this, ACE_Event_Handler::ACCEPT_MASK);
+  }
 
-    virtual int handle_accept_error(void)
-    {
+  virtual int handle_accept_error(void) {
 #if defined(ENFILE) && defined(EMFILE)
-        if (errno == ENFILE || errno == EMFILE)
-        {
-            LOG_ERROR("server", "Out of file descriptors, suspending incoming connections for 10 seconds");
-            reactor()->remove_handler(this, ACE_Event_Handler::ACCEPT_MASK | ACE_Event_Handler::DONT_CALL);
-            reactor()->schedule_timer(this, nullptr, ACE_Time_Value(10));
-        }
-#endif
-        return 0;
+    if (errno == ENFILE || errno == EMFILE) {
+      LOG_ERROR("server", "Out of file descriptors, suspending incoming "
+                          "connections for 10 seconds");
+      reactor()->remove_handler(this, ACE_Event_Handler::ACCEPT_MASK |
+                                          ACE_Event_Handler::DONT_CALL);
+      reactor()->schedule_timer(this, nullptr, ACE_Time_Value(10));
     }
+#endif
+    return 0;
+  }
 };
 
 #endif /* __WORLDSOCKETACCEPTOR_H_ */

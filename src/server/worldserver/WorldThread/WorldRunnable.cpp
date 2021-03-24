@@ -1,5 +1,6 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright
+ * information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +20,7 @@
     \ingroup Trinityd
 */
 
+#include "WorldRunnable.h"
 #include "AsyncAuctionListing.h"
 #include "AvgDiffTracker.h"
 #include "BattlegroundMgr.h"
@@ -30,7 +32,6 @@
 #include "ScriptMgr.h"
 #include "Timer.h"
 #include "World.h"
-#include "WorldRunnable.h"
 #include "WorldSocketMgr.h"
 
 #ifdef ELUNA
@@ -43,96 +44,98 @@ extern int m_ServiceStatus;
 #endif
 
 /// Heartbeat for the World
-void WorldRunnable::run()
-{
-    uint32 realCurrTime = 0;
-    uint32 realPrevTime = getMSTime();
+void WorldRunnable::run() {
+  uint32 realCurrTime = 0;
+  uint32 realPrevTime = getMSTime();
 
-    ///- While we have not World::m_stopEvent, update the world
-    while (!World::IsStopped())
-    {
-        ++World::m_worldLoopCounter;
-        realCurrTime = getMSTime();
+  ///- While we have not World::m_stopEvent, update the world
+  while (!World::IsStopped()) {
+    ++World::m_worldLoopCounter;
+    realCurrTime = getMSTime();
 
-        uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
 
-        sWorld->Update( diff );
-        realPrevTime = realCurrTime;
+    sWorld->Update(diff);
+    realPrevTime = realCurrTime;
 
-        uint32 executionTimeDiff = getMSTimeDiff(realCurrTime, getMSTime());
-        devDiffTracker.Update(executionTimeDiff);
-        avgDiffTracker.Update(executionTimeDiff > WORLD_SLEEP_CONST ? executionTimeDiff : WORLD_SLEEP_CONST);
+    uint32 executionTimeDiff = getMSTimeDiff(realCurrTime, getMSTime());
+    devDiffTracker.Update(executionTimeDiff);
+    avgDiffTracker.Update(executionTimeDiff > WORLD_SLEEP_CONST
+                              ? executionTimeDiff
+                              : WORLD_SLEEP_CONST);
 
-        if (executionTimeDiff < WORLD_SLEEP_CONST)
-            Warhead::Thread::Sleep(WORLD_SLEEP_CONST - executionTimeDiff);
+    if (executionTimeDiff < WORLD_SLEEP_CONST)
+      Warhead::Thread::Sleep(WORLD_SLEEP_CONST - executionTimeDiff);
 
 #ifdef _WIN32
-        if (m_ServiceStatus == 0)
-            World::StopNow(SHUTDOWN_EXIT_CODE);
+    if (m_ServiceStatus == 0)
+      World::StopNow(SHUTDOWN_EXIT_CODE);
 
-        while (m_ServiceStatus == 2)
-            Sleep(1000);
+    while (m_ServiceStatus == 2)
+      Sleep(1000);
 #endif
-    }
+  }
 
-    sScriptMgr->OnShutdown();
+  sScriptMgr->OnShutdown();
 
-    sWorld->KickAll();                                       // save and kick all players
-    sWorld->UpdateSessions( 1 );                             // real players unload required UpdateSessions call
+  sWorld->KickAll();         // save and kick all players
+  sWorld->UpdateSessions(1); // real players unload required UpdateSessions call
 
-    // unload battleground templates before different singletons destroyed
-    sBattlegroundMgr->DeleteAllBattlegrounds();
+  // unload battleground templates before different singletons destroyed
+  sBattlegroundMgr->DeleteAllBattlegrounds();
 
-    sWorldSocketMgr->StopNetwork();
+  sWorldSocketMgr->StopNetwork();
 
-    sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
-    sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
-    sScriptMgr->Unload();
-    sOutdoorPvPMgr->Die();
+  sMapMgr->UnloadAll(); // unload all grids (including locked in memory)
+  sObjectAccessor
+      ->UnloadAll(); // unload 'i_player2corpse' storage and remove from world
+  sScriptMgr->Unload();
+  sOutdoorPvPMgr->Die();
 #ifdef ELUNA
-    Eluna::Uninitialize();
+  Eluna::Uninitialize();
 #endif
 }
 
-void AuctionListingRunnable::run()
-{
-    LOG_INFO("server", "Starting up Auction House Listing thread...");
-    while (!World::IsStopped())
-    {
-        if (AsyncAuctionListingMgr::IsAuctionListingAllowed())
+void AuctionListingRunnable::run() {
+  LOG_INFO("server", "Starting up Auction House Listing thread...");
+  while (!World::IsStopped()) {
+    if (AsyncAuctionListingMgr::IsAuctionListingAllowed()) {
+      uint32 diff = AsyncAuctionListingMgr::GetDiff();
+      AsyncAuctionListingMgr::ResetDiff();
+
+      if (AsyncAuctionListingMgr::GetTempList().size() ||
+          AsyncAuctionListingMgr::GetList().size()) {
+        ACORE_GUARD(ACE_Thread_Mutex, AsyncAuctionListingMgr::GetLock());
+
         {
-            uint32 diff = AsyncAuctionListingMgr::GetDiff();
-            AsyncAuctionListingMgr::ResetDiff();
-
-            if (AsyncAuctionListingMgr::GetTempList().size() || AsyncAuctionListingMgr::GetList().size())
-            {
-                ACORE_GUARD(ACE_Thread_Mutex, AsyncAuctionListingMgr::GetLock());
-
-                {
-                    ACORE_GUARD(ACE_Thread_Mutex, AsyncAuctionListingMgr::GetTempLock());
-                    for (std::list<AuctionListItemsDelayEvent>::iterator itr = AsyncAuctionListingMgr::GetTempList().begin(); itr != AsyncAuctionListingMgr::GetTempList().end(); ++itr)
-                        AsyncAuctionListingMgr::GetList().push_back( (*itr) );
-                    AsyncAuctionListingMgr::GetTempList().clear();
-                }
-
-                for (std::list<AuctionListItemsDelayEvent>::iterator itr = AsyncAuctionListingMgr::GetList().begin(); itr != AsyncAuctionListingMgr::GetList().end(); ++itr)
-                {
-                    if ((*itr)._msTimer <= diff)
-                        (*itr)._msTimer = 0;
-                    else
-                        (*itr)._msTimer -= diff;
-                }
-
-                for (std::list<AuctionListItemsDelayEvent>::iterator itr = AsyncAuctionListingMgr::GetList().begin(); itr != AsyncAuctionListingMgr::GetList().end(); ++itr)
-                    if ((*itr)._msTimer == 0)
-                    {
-                        if ((*itr).Execute())
-                            AsyncAuctionListingMgr::GetList().erase(itr);
-                        break;
-                    }
-            }
+          ACORE_GUARD(ACE_Thread_Mutex, AsyncAuctionListingMgr::GetTempLock());
+          for (std::list<AuctionListItemsDelayEvent>::iterator itr =
+                   AsyncAuctionListingMgr::GetTempList().begin();
+               itr != AsyncAuctionListingMgr::GetTempList().end(); ++itr)
+            AsyncAuctionListingMgr::GetList().push_back((*itr));
+          AsyncAuctionListingMgr::GetTempList().clear();
         }
-        Warhead::Thread::Sleep(1);
+
+        for (std::list<AuctionListItemsDelayEvent>::iterator itr =
+                 AsyncAuctionListingMgr::GetList().begin();
+             itr != AsyncAuctionListingMgr::GetList().end(); ++itr) {
+          if ((*itr)._msTimer <= diff)
+            (*itr)._msTimer = 0;
+          else
+            (*itr)._msTimer -= diff;
+        }
+
+        for (std::list<AuctionListItemsDelayEvent>::iterator itr =
+                 AsyncAuctionListingMgr::GetList().begin();
+             itr != AsyncAuctionListingMgr::GetList().end(); ++itr)
+          if ((*itr)._msTimer == 0) {
+            if ((*itr).Execute())
+              AsyncAuctionListingMgr::GetList().erase(itr);
+            break;
+          }
+      }
     }
-    LOG_INFO("server", "Auction House Listing thread exiting without problems.");
+    Warhead::Thread::Sleep(1);
+  }
+  LOG_INFO("server", "Auction House Listing thread exiting without problems.");
 }
