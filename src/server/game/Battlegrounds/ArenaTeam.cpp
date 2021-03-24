@@ -115,7 +115,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
     // Check if player is already in a similar arena team
     if ((player && player->GetArenaTeamId(GetSlot())) || Player::GetArenaTeamIdFromStorage(GUID_LOPART(playerGuid), GetSlot()) != 0)
     {
-        sLog->outError("Arena: Player %s (guid: %u) already has an arena team of type %u", playerName.c_str(), GUID_LOPART(playerGuid), GetType());
+        LOG_ERROR("server", "Arena: Player %s (guid: %u) already has an arena team of type %u", playerName.c_str(), GUID_LOPART(playerGuid), GetType());
         return false;
     }
 
@@ -250,7 +250,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         // Delete member if character information is missing
         if (fields[6].GetString().empty())
         {
-            sLog->outErrorDb("ArenaTeam %u has member with empty name - probably player %u doesn't exist, deleting him from memberlist!", arenaTeamId, GUID_LOPART(newMember.Guid));
+            LOG_INFO("sql.sql", "ArenaTeam %u has member with empty name - probably player %u doesn't exist, deleting him from memberlist!", arenaTeamId, GUID_LOPART(newMember.Guid));
             this->DelMember(newMember.Guid, true);
             continue;
         }
@@ -268,7 +268,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
     {
         // Arena team is empty or captain is not in team, delete from db
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
+        LOG_DEBUG("bg.battleground", "ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", TeamId);
 #endif
         return false;
     }
@@ -311,7 +311,7 @@ void ArenaTeam::SetCaptain(uint64 guid)
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         /*if (oldCaptain)
         {
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
+            LOG_DEBUG("bg.battleground", "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
                 oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
                 newCaptain->GetGUIDLow(), GetId(), GetType());
         }*/
@@ -468,7 +468,7 @@ void ArenaTeam::Roster(WorldSession* session)
 
     session->SendPacket(&data);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_ROSTER");
+    LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_ROSTER");
 #endif
 }
 
@@ -485,7 +485,7 @@ void ArenaTeam::Query(WorldSession* session)
     data << uint32(BorderColor);                            // border color
     session->SendPacket(&data);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_QUERY_RESPONSE");
+    LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_QUERY_RESPONSE");
 #endif
 }
 
@@ -587,7 +587,7 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCoun
             data << str1 << str2 << str3;
             break;
         default:
-            sLog->outError("Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
+            LOG_ERROR("server", "Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);
             return;
     }
 
@@ -597,7 +597,7 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCoun
     BroadcastPacket(&data);
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
+    LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
 #endif
 }
 
@@ -642,7 +642,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
     {
         return slot;
     }
-    sLog->outError("FATAL: Unknown arena team type %u for some arena team", type);
+    LOG_ERROR("server", "FATAL: Unknown arena team type %u for some arena team", type);
     return 0xFF;
 }
 

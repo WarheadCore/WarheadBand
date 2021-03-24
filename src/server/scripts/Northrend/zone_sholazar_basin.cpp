@@ -28,7 +28,6 @@ npc_vekjik
 avatar_of_freya
 EndContentData */
 
-
 #include "CombatAI.h"
 #include "PassiveAI.h"
 #include "Player.h"

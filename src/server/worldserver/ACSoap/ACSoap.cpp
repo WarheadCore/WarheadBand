@@ -34,11 +34,11 @@ void ACSoapRunnable::run()
     soap.send_timeout = 5;
     if (!soap_valid_socket(soap_bind(&soap, _host.c_str(), _port, 100)))
     {
-        sLog->outError("ACSoap: couldn't bind to %s:%d", _host.c_str(), _port);
+        LOG_ERROR("server", "ACSoap: couldn't bind to %s:%d", _host.c_str(), _port);
         exit(-1);
     }
 
-    sLog->outString("ACSoap: bound to http://%s:%d", _host.c_str(), _port);
+    LOG_INFO("server", "ACSoap: bound to http://%s:%d", _host.c_str(), _port);
 
     while (!World::IsStopped())
     {
@@ -46,7 +46,7 @@ void ACSoapRunnable::run()
             continue;   // ran into an accept timeout
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF, (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
+        LOG_DEBUG("network", "ACSoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF, (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
 #endif
         struct soap* thread_soap = soap_copy(&soap);// make a safe copy
 
@@ -83,7 +83,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     if (!soap->userid || !soap->passwd)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: Client didn't provide login information");
+        LOG_DEBUG("network", "ACSoap: Client didn't provide login information");
 #endif
         return 401;
     }
@@ -92,7 +92,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     if (!accountId)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: Client used invalid username '%s'", soap->userid);
+        LOG_DEBUG("network", "ACSoap: Client used invalid username '%s'", soap->userid);
 #endif
         return 401;
     }
@@ -100,7 +100,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     if (!AccountMgr::CheckPassword(accountId, soap->passwd))
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: invalid password for account '%s'", soap->userid);
+        LOG_DEBUG("network", "ACSoap: invalid password for account '%s'", soap->userid);
 #endif
         return 401;
     }
@@ -108,7 +108,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: %s's gmlevel is too low", soap->userid);
+        LOG_DEBUG("network", "ACSoap: %s's gmlevel is too low", soap->userid);
 #endif
         return 403;
     }
@@ -117,7 +117,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return soap_sender_fault(soap, "Command can not be empty", "The supplied command was an empty string");
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: got command '%s'", command);
+    LOG_DEBUG("network", "ACSoap: got command '%s'", command);
 #endif
     SOAPCommand connection;
 
@@ -133,7 +133,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     int acc = connection.pendingCommands.acquire();
     if (acc)
     {
-        sLog->outError("ACSoap: Error while acquiring lock, acc = %i, errno = %u", acc, errno);
+        LOG_ERROR("server", "ACSoap: Error while acquiring lock, acc = %i, errno = %u", acc, errno);
     }
 
     // alright, command finished

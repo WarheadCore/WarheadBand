@@ -18,7 +18,6 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-
 #include "Battleground.h"
 #include "DBCStores.h"
 #include "GroupReference.h"

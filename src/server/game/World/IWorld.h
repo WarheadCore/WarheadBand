@@ -28,6 +28,7 @@
 #include <map>
 #include <set>
 
+class WorldPacket;
 class WorldSession;
 class Player;
 
