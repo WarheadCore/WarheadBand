@@ -1029,20 +1029,20 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket &recv_data) {
                        /*
                            uint64 guid;
                            recv_data >> guid;
-                     
+
                            // now can skip not our packet
                            if (_player->GetGUID() != guid)
                            {
                                recv_data.rfinish();                   // prevent warnings spam
                                return;
                            }
-                     
+
                        #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
                            LOG_DEBUG("network.opcode", "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK");
                        #endif
-                     
+
                            recv_data.read_skip<uint32>();                          // unk
-                     
+
                            MovementInfo movementInfo;
                            movementInfo.guid = guid;
                            ReadMovementInfo(recv_data, &movementInfo);
@@ -1056,20 +1056,20 @@ void WorldSession::HandleMoveRootAck(WorldPacket &recv_data) {
                        /*
                            uint64 guid;
                            recv_data >> guid;
-                     
+
                            // now can skip not our packet
                            if (_player->GetGUID() != guid)
                            {
                                recv_data.rfinish();                   // prevent warnings spam
                                return;
                            }
-                     
+
                        #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
                            LOG_DEBUG("network.opcode", "WORLD: CMSG_FORCE_MOVE_ROOT_ACK");
                        #endif
-                     
+
                            recv_data.read_skip<uint32>();                          // unk
-                     
+
                            MovementInfo movementInfo;
                            ReadMovementInfo(recv_data, &movementInfo);
                        */
