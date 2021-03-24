@@ -401,7 +401,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_RESPAWN_BY_SPAWNID:
-            sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has an action type that is not yet supported on AzerothCore (%u), skipped.",
+            sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has an action type that is not yet supported on WarheadCore (%u), skipped.",
                              e.entryOrGuid, e.event_id, e.GetActionType());
             return false;
         default:
@@ -415,7 +415,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     }
     if (e.target.type == SMART_TARGET_LOOT_RECIPIENTS || e.target.type == SMART_TARGET_VEHICLE_PASSENGER)
     {
-        sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has a target type that is not yet supported on AzerothCore (%u), skipped.",
+        sLog->outErrorDb("SmartAIMgr: EntryOrGuid %d using event(%u) has a target type that is not yet supported on WarheadCore (%u), skipped.",
                          e.entryOrGuid, e.event_id, e.GetTargetType());
         return false;
     }

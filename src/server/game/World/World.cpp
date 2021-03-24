@@ -456,7 +456,7 @@ void World::LoadConfigSettings(bool reload)
         SetPlayerAmountLimit(sConfigMgr->GetOption<int32>("PlayerLimit", 1000));
     }
 
-    Motd::SetMotd(sConfigMgr->GetOption<std::string>("Motd", "Welcome to an AzerothCore server"));
+    Motd::SetMotd(sConfigMgr->GetOption<std::string>("Motd", "Welcome to an WarheadCore server"));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfigMgr->GetOption<bool>("AllowTickets", true);
@@ -2103,7 +2103,7 @@ void World::SetInitialWorldSettings()
 
     if (sConfigMgr->isDryRun())
     {
-        sLog->outString("AzerothCore dry run completed, terminating.");
+        sLog->outString("WarheadCore dry run completed, terminating.");
         exit(0);
     }
 }

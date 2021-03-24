@@ -164,7 +164,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         case SCRIPT_COMMAND_KILL:
             res = "SCRIPT_COMMAND_KILL";
             break;
-        // AzerothCore only
+        // WarheadCore only
         case SCRIPT_COMMAND_ORIENTATION:
             res = "SCRIPT_COMMAND_ORIENTATION";
             break;
