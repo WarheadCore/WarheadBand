@@ -1,5 +1,7 @@
-from os import getcwd, walk
-from re import MULTILINE, compile
+from os import getcwd
+from os import walk
+from re import compile
+from re import MULTILINE
 
 notice = """/*
  * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
