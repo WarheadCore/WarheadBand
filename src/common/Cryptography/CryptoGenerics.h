@@ -25,7 +25,7 @@
 #include <iterator>
 #include <vector>
 
-namespace acore::Impl
+namespace Warhead::Impl
 {
     struct CryptoGenericsImpl
     {
@@ -33,7 +33,7 @@ namespace acore::Impl
         static typename Cipher::IV GenerateRandomIV()
         {
             typename Cipher::IV iv;
-            acore::Crypto::GetRandomBytes(iv);
+            Warhead::Crypto::GetRandomBytes(iv);
             return iv;
         }
 
@@ -56,7 +56,7 @@ namespace acore::Impl
     };
 }
 
-namespace acore::Crypto
+namespace Warhead::Crypto
 {
     template <typename Cipher>
     void AEEncryptWithRandomIV(std::vector<uint8>& data, typename Cipher::Key const& key)
@@ -64,7 +64,7 @@ namespace acore::Crypto
         using IV = typename Cipher::IV;
         using Tag = typename Cipher::Tag;
         // select random IV
-        IV iv = acore::Impl::CryptoGenericsImpl::GenerateRandomIV<Cipher>();
+        IV iv = Warhead::Impl::CryptoGenericsImpl::GenerateRandomIV<Cipher>();
         Tag tag;
 
         // encrypt data
@@ -74,8 +74,8 @@ namespace acore::Crypto
         ASSERT(success);
 
         // append trailing IV and tag
-        acore::Impl::CryptoGenericsImpl::AppendToBack(data, iv);
-        acore::Impl::CryptoGenericsImpl::AppendToBack(data, tag);
+        Warhead::Impl::CryptoGenericsImpl::AppendToBack(data, iv);
+        Warhead::Impl::CryptoGenericsImpl::AppendToBack(data, tag);
     }
 
     template <typename Cipher>
@@ -92,8 +92,8 @@ namespace acore::Crypto
         // extract trailing IV and tag
         IV iv;
         Tag tag;
-        acore::Impl::CryptoGenericsImpl::SplitFromBack(data, tag);
-        acore::Impl::CryptoGenericsImpl::SplitFromBack(data, iv);
+        Warhead::Impl::CryptoGenericsImpl::SplitFromBack(data, tag);
+        Warhead::Impl::CryptoGenericsImpl::SplitFromBack(data, iv);
 
         // decrypt data
         Cipher cipher(false);

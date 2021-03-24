@@ -69,7 +69,7 @@ private:
     RealmSocket& socket_;
     RealmSocket& socket() { return socket_; }
 
-    std::optional<acore::Crypto::SRP6> _srp6;
+    std::optional<Warhead::Crypto::SRP6> _srp6;
     SessionKey _sessionKey = {};
     std::array<uint8, 16> _reconnectProof = {};
 

@@ -171,13 +171,13 @@ public:
     {
         GameObject* gameObject = nullptr;
 
-        CellCoord p(acore::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
+        CellCoord p(Warhead::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
         Cell cell(p);
 
-        acore::GameObjectWithDbGUIDCheck goCheck(guid);
-        acore::GameObjectSearcher<acore::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
+        Warhead::GameObjectWithDbGUIDCheck goCheck(guid);
+        Warhead::GameObjectSearcher<Warhead::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
 
-        TypeContainerVisitor<acore::GameObjectSearcher<acore::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
+        TypeContainerVisitor<Warhead::GameObjectSearcher<Warhead::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
         cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetVisibilityRange());
 
         return gameObject;
@@ -186,13 +186,13 @@ public:
     Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
     {
         Creature* creature = nullptr;
-        CellCoord p(acore::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
+        CellCoord p(Warhead::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
         Cell cell(p);
 
-        acore::CreatureWithDbGUIDCheck target_check(guid);
-        acore::CreatureSearcher<acore::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
+        Warhead::CreatureWithDbGUIDCheck target_check(guid);
+        Warhead::CreatureSearcher<Warhead::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
 
-        TypeContainerVisitor<acore::CreatureSearcher <acore::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
+        TypeContainerVisitor<Warhead::CreatureSearcher <Warhead::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
         cell.Visit(p, unit_checker, *searchObject->GetMap(), *searchObject, searchObject->GetVisibilityRange());
 
         return creature;

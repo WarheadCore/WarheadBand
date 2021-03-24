@@ -486,7 +486,7 @@ typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMa
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
 // Acore string ranges
-#define MIN_ACORE_STRING_ID           1                    // 'acore_string'
+#define MIN_ACORE_STRING_ID           1                    // 'warhead_string'
 #define MAX_ACORE_STRING_ID           2000000000
 #define MIN_CREATURE_AI_TEXT_STRING_ID (-1)                 // 'creature_ai_texts'
 #define MAX_CREATURE_AI_TEXT_STRING_ID (-1000000)

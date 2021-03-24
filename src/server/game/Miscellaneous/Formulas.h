@@ -24,7 +24,7 @@
 #include "SharedDefines.h"
 #include "World.h"
 
-namespace acore
+namespace Warhead
 {
     namespace Honor
     {

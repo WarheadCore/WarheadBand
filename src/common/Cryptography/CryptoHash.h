@@ -28,7 +28,7 @@
 
 class BigNumber;
 
-namespace acore::Impl
+namespace Warhead::Impl
 {
     struct GenericHashImpl
     {
@@ -110,10 +110,10 @@ namespace acore::Impl
     };
 }
 
-namespace acore::Crypto
+namespace Warhead::Crypto
 {
-    using SHA1 = acore::Impl::GenericHash<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
-    using SHA256 = acore::Impl::GenericHash<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
+    using SHA1 = Warhead::Impl::GenericHash<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
+    using SHA256 = Warhead::Impl::GenericHash<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
 }
 
 #endif

@@ -25,7 +25,7 @@
 
 #include "Define.h"
 
-namespace acore
+namespace Warhead
 {
     template<typename MUTEX>
     class GeneralLock
@@ -137,9 +137,9 @@ namespace acore
     };
 }
 
-template<class T, class MUTEX> MUTEX acore::ClassLevelLockable<T, MUTEX>::si_mtx;
+template<class T, class MUTEX> MUTEX Warhead::ClassLevelLockable<T, MUTEX>::si_mtx;
 
 #define INSTANTIATE_CLASS_MUTEX(CTYPE, MUTEX) \
-    template class acore::ClassLevelLockable<CTYPE, MUTEX>
+    template class Warhead::ClassLevelLockable<CTYPE, MUTEX>
 
 #endif

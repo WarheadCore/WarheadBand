@@ -551,7 +551,7 @@ public:
 
             if (PlayerInDalaranList.empty())
                 return nullptr;
-            return acore::Containers::SelectRandomContainerElement(PlayerInDalaranList);
+            return Warhead::Containers::SelectRandomContainerElement(PlayerInDalaranList);
         }
 
         void SendMailToPlayer(Player* player)

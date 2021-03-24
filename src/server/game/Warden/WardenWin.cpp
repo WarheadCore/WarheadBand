@@ -50,7 +50,7 @@ static constexpr uint8 GetCheckPacketBaseSize(uint8 type)
     case LUA_EVAL_CHECK: return 1 + sizeof(_luaEvalPrefix) - 1 + sizeof(_luaEvalMidfix) - 1 + 4 + sizeof(_luaEvalPostfix) - 1;
     case PAGE_CHECK_A: return (4 + 1);
     case PAGE_CHECK_B: return (4 + 1);
-    case MODULE_CHECK: return (4 + acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);
+    case MODULE_CHECK: return (4 + Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);
     case MEM_CHECK: return (1 + 4 + 1);
     default: return 0;
     }
@@ -106,7 +106,7 @@ void WardenWin::Init(WorldSession* session, SessionKey const& k)
 {
     _session = session;
     // Generate Warden Key
-    SessionKeyGenerator<acore::Crypto::SHA1> WK(k);
+    SessionKeyGenerator<Warhead::Crypto::SHA1> WK(k);
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
 
@@ -116,17 +116,17 @@ void WardenWin::Init(WorldSession* session, SessionKey const& k)
     _outputCrypto.Init(_outputKey);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     sLog->outDebug(LOG_FILTER_WARDEN, "Server side warden for client %u initializing...", session->GetAccountId());
-    sLog->outDebug(LOG_FILTER_WARDEN, "C->S Key: %s", acore::Impl::ByteArrayToHexStr(_inputKey).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "S->C Key: %s", acore::Impl::ByteArrayToHexStr(_outputKey).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "  Seed: %s", acore::Impl::ByteArrayToHexStr(_seed).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "C->S Key: %s", Warhead::Impl::ByteArrayToHexStr(_inputKey).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "S->C Key: %s", Warhead::Impl::ByteArrayToHexStr(_outputKey).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "  Seed: %s", Warhead::Impl::ByteArrayToHexStr(_seed).c_str());
     sLog->outDebug(LOG_FILTER_WARDEN, "Loading Module...");
 #endif
 
     _module = GetModuleForClient();
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_WARDEN, "Module Key: %s", acore::Impl::ByteArrayToHexStr(_module->Key).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "Module ID: %s", acore::Impl::ByteArrayToHexStr(_module->Id).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "Module Key: %s", Warhead::Impl::ByteArrayToHexStr(_module->Key).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "Module ID: %s", Warhead::Impl::ByteArrayToHexStr(_module->Id).c_str());
 #endif
     RequestModule();
 }
@@ -170,7 +170,7 @@ void WardenWin::InitializeModule()
     Request.Function1[1] = 0x000218C0;                      // 0x00400000 + 0x000218C0 SFileGetFileSize
     Request.Function1[2] = 0x00022530;                      // 0x00400000 + 0x00022530 SFileReadFile
     Request.Function1[3] = 0x00022910;                      // 0x00400000 + 0x00022910 SFileCloseFile
-    Request.CheckSumm1 = BuildChecksum(&Request.Unk1, acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);
+    Request.CheckSumm1 = BuildChecksum(&Request.Unk1, Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);
 
     Request.Command2 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size2 = 8;
@@ -235,7 +235,7 @@ void WardenWin::HandleHashResult(ByteBuffer& buff)
     buff.rpos(buff.wpos());
 
     // Verify key
-    if (memcmp(buff.contents() + 1, Module.ClientKeySeedHash, acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES) != 0)
+    if (memcmp(buff.contents() + 1, Module.ClientKeySeedHash, Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES) != 0)
     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         sLog->outDebug(LOG_FILTER_WARDEN, "Request hash reply: failed");
@@ -342,7 +342,7 @@ void WardenWin::RequestChecks()
     // Filtered checks will get passed in next checks
     uint16 expectedSize = 4;
     _PendingChecks.clear();
-    acore::Containers::EraseIf(_CurrentChecks,
+    Warhead::Containers::EraseIf(_CurrentChecks,
         [this, &expectedSize](uint16 id)
         {
             uint16 const thisSize = GetCheckPacketSize(sWardenCheckMgr->GetWardenDataById(id));
@@ -429,9 +429,9 @@ void WardenWin::RequestChecks()
             }
             case MODULE_CHECK:
             {
-                std::array<uint8, 4> seed = acore::Crypto::GetRandomBytes<4>();
+                std::array<uint8, 4> seed = Warhead::Crypto::GetRandomBytes<4>();
                 buff.append(seed);
-                buff.append(acore::Crypto::HMAC_SHA1::GetDigestOf(seed, check->Str));
+                buff.append(Warhead::Crypto::HMAC_SHA1::GetDigestOf(seed, check->Str));
                 break;
             }
             /*case PROC_CHECK:
@@ -632,17 +632,17 @@ void WardenWin::HandleData(ByteBuffer& buff)
                     }
 
                     WardenCheckResult const* rs = sWardenCheckMgr->GetWardenResultById(checkId);
-                    if (memcmp(buff.contents() + buff.rpos(), rs->Result.ToByteArray<20>(false).data(), acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES) != 0) // SHA1
+                    if (memcmp(buff.contents() + buff.rpos(), rs->Result.ToByteArray<20>(false).data(), Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES) != 0) // SHA1
                     {
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
                         sLog->outDebug(LOG_FILTER_WARDEN, "RESULT MPQ_CHECK fail, CheckId %u account Id %u", checkId, _session->GetAccountId());
 #endif
                         checkFailed = checkId;
-                        buff.rpos(buff.rpos() + acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);            // 20 bytes SHA1
+                        buff.rpos(buff.rpos() + Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);            // 20 bytes SHA1
                         continue;
                     }
 
-                    buff.rpos(buff.rpos() + acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);                // 20 bytes SHA1
+                    buff.rpos(buff.rpos() + Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);                // 20 bytes SHA1
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
                     sLog->outDebug(LOG_FILTER_WARDEN, "RESULT MPQ_CHECK passed, CheckId %u account Id %u", checkId, _session->GetAccountId());
 #endif

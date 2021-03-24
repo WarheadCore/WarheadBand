@@ -54,7 +54,7 @@ namespace
         std::ifstream in(file);
 
         if (in.fail())
-            throw ConfigException(acore::StringFormat("Config::LoadFile: Failed open file '%s'", file.c_str()));
+            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '%s'", file.c_str()));
 
         uint32 count = 0;
 
@@ -66,7 +66,7 @@ namespace
             if (line.empty())
                 continue;
 
-            line = acore::String::Trim(line, in.getloc());
+            line = Warhead::String::Trim(line, in.getloc());
 
             // comments
             if (line[0] == '#' || line[0] == '[')
@@ -81,8 +81,8 @@ namespace
             if (equal_pos == std::string::npos || equal_pos == line.length())
                 return;
 
-            auto entry = acore::String::Trim(line.substr(0, equal_pos), in.getloc());
-            auto value = acore::String::Trim(line.substr(equal_pos + 1), in.getloc());
+            auto entry = Warhead::String::Trim(line.substr(0, equal_pos), in.getloc());
+            auto value = Warhead::String::Trim(line.substr(equal_pos + 1), in.getloc());
 
             value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
 
@@ -92,7 +92,7 @@ namespace
         }
 
         if (!count)
-            throw ConfigException(acore::StringFormat("Config::LoadFile: Empty file '%s'", file.c_str()));
+            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Empty file '%s'", file.c_str()));
     }
 
     bool LoadFile(std::string const& file)
@@ -147,19 +147,19 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             sLog->outError("> Config: Missing name %s in config, add \"%s = %s\"",
-                name.c_str(), name.c_str(), acore::ToString(def).c_str());
+                name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
         }
 
         return def;
     }
 
-    auto value = acore::StringTo<T>(itr->second);
+    auto value = Warhead::StringTo<T>(itr->second);
     if (!value)
     {
         if (showLogs)
         {
             sLog->outError("> Config: Bad value defined for name '%s', going to use '%s' instead",
-                name.c_str(), acore::ToString(def).c_str());
+                name.c_str(), Warhead::ToString(def).c_str());
         }
 
         return def;
@@ -197,7 +197,7 @@ bool ConfigMgr::GetOption<bool>(std::string const& name, bool const& def, bool s
 {
     std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), showLogs);
 
-    auto boolVal = acore::StringTo<bool>(val);
+    auto boolVal = Warhead::StringTo<bool>(val);
     if (!boolVal)
     {
         if (showLogs)
@@ -240,7 +240,7 @@ std::string const ConfigMgr::GetConfigPath()
 {
     std::lock_guard<std::mutex> lock(_configLock);
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
     return "configs/";
 #else
     return std::string(_CONF_DIR) + "/";

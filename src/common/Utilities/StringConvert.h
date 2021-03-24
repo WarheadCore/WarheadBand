@@ -28,11 +28,11 @@
 #include <string_view>
 #include <type_traits>
 
-namespace acore::Impl::StringConvertImpl
+namespace Warhead::Impl::StringConvertImpl
 {
     template <typename T, typename = void> struct For
     {
-        static_assert(acore::dependant_false_v<T>, "Unsupported type used for ToString or StringTo");
+        static_assert(Warhead::dependant_false_v<T>, "Unsupported type used for ToString or StringTo");
     };
 
     template <typename T>
@@ -167,7 +167,7 @@ namespace acore::Impl::StringConvertImpl
         }
     };
 
-#if AC_COMPILER == AC_COMPILER_MICROSOFT
+#if WH_COMPILER == WH_COMPILER_MICROSOFT
     template <typename T>
     struct For<T, std::enable_if_t<std::is_floating_point_v<T>>>
     {
@@ -253,18 +253,18 @@ namespace acore::Impl::StringConvertImpl
 #endif
 }
 
-namespace acore
+namespace Warhead
 {
     template <typename Result, typename... Params>
     Optional<Result> StringTo(std::string_view str, Params&&... params)
     {
-        return acore::Impl::StringConvertImpl::For<Result>::FromString(str, std::forward<Params>(params)...);
+        return Warhead::Impl::StringConvertImpl::For<Result>::FromString(str, std::forward<Params>(params)...);
     }
 
     template <typename Type, typename... Params>
     std::string ToString(Type&& val, Params&&... params)
     {
-        return acore::Impl::StringConvertImpl::For<std::decay_t<Type>>::ToString(std::forward<Type>(val), std::forward<Params>(params)...);
+        return Warhead::Impl::StringConvertImpl::For<std::decay_t<Type>>::ToString(std::forward<Type>(val), std::forward<Params>(params)...);
     }
 }
 

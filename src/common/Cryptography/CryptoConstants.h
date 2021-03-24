@@ -20,7 +20,7 @@
 
 #include "Define.h"
 
-namespace acore::Crypto
+namespace Warhead::Crypto
 {
     struct Constants
     {

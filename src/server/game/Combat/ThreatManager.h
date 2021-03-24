@@ -267,7 +267,7 @@ private:
 
 //=================================================
 
-namespace acore
+namespace Warhead
 {
     // Binary predicate for sorting HostileReferences based on threat value
     class ThreatOrderPred

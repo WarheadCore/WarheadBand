@@ -30,7 +30,7 @@ string(REGEX REPLACE "/W[0-4] " "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 string(REGEX REPLACE "/W[0-4]$" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 
 # https://tinyurl.com/jxnc4s83
-target_compile_options(acore-compile-option-interface
+target_compile_options(warhead-compile-option-interface
     INTERFACE
       /utf-8)
 
@@ -38,7 +38,7 @@ if(PLATFORM EQUAL 64)
   # This definition is necessary to work around a bug with Intellisense described
   # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
   # debugger functionality.
-  target_compile_definitions(acore-compile-option-interface
+  target_compile_definitions(warhead-compile-option-interface
     INTERFACE
       -D_WIN64)
   message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
@@ -51,7 +51,7 @@ else()
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   message(STATUS "MSVC: Enabled large address awareness")
 
-  target_compile_options(acore-compile-option-interface
+  target_compile_options(warhead-compile-option-interface
     INTERFACE
       /arch:SSE2)
   message(STATUS "MSVC: Enabled SSE2 support")
@@ -60,41 +60,41 @@ endif()
 # Set build-directive (used in core to tell which buildtype we used)
 # msbuild/devenv don't set CMAKE_MAKE_PROGRAM, you can choose build type from a dropdown after generating projects
 if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-  target_compile_definitions(acore-compile-option-interface
+  target_compile_definitions(warhead-compile-option-interface
     INTERFACE
       -D_BUILD_DIRECTIVE="$(ConfigurationName)")
 else()
   # while all make-like generators do (nmake, ninja)
-  target_compile_definitions(acore-compile-option-interface
+  target_compile_definitions(warhead-compile-option-interface
     INTERFACE
       -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
 endif()
 
 # multithreaded compiling on VS
-target_compile_options(acore-compile-option-interface
+target_compile_options(warhead-compile-option-interface
   INTERFACE
     /MP)
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
 message(STATUS "MSVC: Overloaded standard names")
 
 # Ignore warnings about older, less secure functions
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -D_CRT_SECURE_NO_WARNINGS)
 message(STATUS "MSVC: Disabled NON-SECURE warnings")
 
 # Ignore warnings about POSIX deprecation
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "MSVC: Disabled POSIX warnings")
 
 # Ignore warnings about INTMAX_MAX
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -D__STDC_LIMIT_MACROS)
 message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
@@ -102,7 +102,7 @@ message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
 # disable warnings in Visual Studio 8 and above if not wanted
 if(NOT WITH_WARNINGS)
   if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-  target_compile_options(acore-warning-interface
+  target_compile_options(warhead-warning-interface
     INTERFACE
       /wd4996
       /wd4355
@@ -125,7 +125,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm500")
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function
 # 'virtual_function' : no override available for virtual member function from base 'class'; function is hidden
-target_compile_options(acore-warning-interface
+target_compile_options(warhead-warning-interface
   INTERFACE
     /we4263
     /we4264)

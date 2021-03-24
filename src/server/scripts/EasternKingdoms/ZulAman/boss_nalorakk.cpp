@@ -152,14 +152,14 @@ public:
             me->GetPosition(x, y, z);
 
             {
-                CellCoord pair(acore::ComputeCellCoord(x, y));
+                CellCoord pair(Warhead::ComputeCellCoord(x, y));
                 Cell cell(pair);
                 cell.SetNoCreate();
 
-                acore::AllFriendlyCreaturesInGrid check(me);
-                acore::CreatureListSearcher<acore::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
+                Warhead::AllFriendlyCreaturesInGrid check(me);
+                Warhead::CreatureListSearcher<Warhead::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
 
-                TypeContainerVisitor<acore::CreatureListSearcher<acore::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+                TypeContainerVisitor<Warhead::CreatureListSearcher<Warhead::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
                 cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
             }
@@ -179,14 +179,14 @@ public:
             me->GetPosition(x, y, z);
 
             {
-                CellCoord pair(acore::ComputeCellCoord(x, y));
+                CellCoord pair(Warhead::ComputeCellCoord(x, y));
                 Cell cell(pair);
                 cell.SetNoCreate();
 
-                acore::AllFriendlyCreaturesInGrid check(me);
-                acore::CreatureListSearcher<acore::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
+                Warhead::AllFriendlyCreaturesInGrid check(me);
+                Warhead::CreatureListSearcher<Warhead::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
 
-                TypeContainerVisitor<acore::CreatureListSearcher<acore::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+                TypeContainerVisitor<Warhead::CreatureListSearcher<Warhead::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
                 cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
             }

@@ -26,7 +26,7 @@
 #include <array>
 #include <optional>
 
-namespace acore::Crypto
+namespace Warhead::Crypto
 {
     class SRP6
     {

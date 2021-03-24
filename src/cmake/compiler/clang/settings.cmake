@@ -14,7 +14,7 @@
 #
 
 # Set build-directive (used in core to tell which buildtype we used)
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
 
@@ -37,13 +37,13 @@ int main()
 
 if (NOT CLANG_HAVE_PROPER_CHARCONV)
   message(STATUS "Clang: Detected from_chars bug for 64-bit integers, workaround enabled")
-  target_compile_definitions(acore-compile-option-interface
+  target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -DACORE_NEED_CHARCONV_WORKAROUND)
 endif()
 
 if(WITH_WARNINGS)
-  target_compile_options(acore-warning-interface
+  target_compile_options(warhead-warning-interface
     INTERFACE
       -W
       -Wall
@@ -56,7 +56,7 @@ if(WITH_WARNINGS)
 endif()
 
 if(WITH_COREDEBUG)
-  target_compile_options(acore-compile-option-interface
+  target_compile_options(warhead-compile-option-interface
     INTERFACE
       -g3)
   message(STATUS "Clang: Debug-flags set (-g3)")
@@ -64,11 +64,11 @@ endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress gsoap warnings on Unix systems.
-target_compile_options(acore-compile-option-interface
+target_compile_options(warhead-compile-option-interface
   INTERFACE
     -Wno-narrowing
     -Wno-deprecated-register)
 
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -DDEBUG=1)

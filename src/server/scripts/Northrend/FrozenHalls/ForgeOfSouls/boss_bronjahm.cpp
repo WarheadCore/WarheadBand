@@ -380,7 +380,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            targets.remove_if(acore::AllWorldObjectsInExactRange(GetCaster(), 10.0f, false));
+            targets.remove_if(Warhead::AllWorldObjectsInExactRange(GetCaster(), 10.0f, false));
         }
 
         void Register() override

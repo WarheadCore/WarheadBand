@@ -446,9 +446,9 @@ public:
                         Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
                             targets.push_back(itr->GetSource());
-                        targets.remove_if(acore::ObjectTypeIdCheck(TYPEID_PLAYER, false));
-                        targets.remove_if(acore::UnitAuraCheck(true, SPELL_FLASH_FREEZE_TRAPPED_PLAYER));
-                        acore::Containers::RandomResizeList(targets, (RAID_MODE(2,3)));
+                        targets.remove_if(Warhead::ObjectTypeIdCheck(TYPEID_PLAYER, false));
+                        targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_FLASH_FREEZE_TRAPPED_PLAYER));
+                        Warhead::Containers::RandomResizeList(targets, (RAID_MODE(2,3)));
                         for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                         {
                             float prevZ = (*itr)->GetPositionZ();
@@ -1293,9 +1293,9 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            targets.remove_if(acore::ObjectTypeIdCheck(TYPEID_PLAYER, false));
-            targets.remove_if(acore::UnitAuraCheck(true, SPELL_FLASH_FREEZE_TRAPPED_PLAYER));
-            acore::Containers::RandomResizeList(targets, 1);
+            targets.remove_if(Warhead::ObjectTypeIdCheck(TYPEID_PLAYER, false));
+            targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_FLASH_FREEZE_TRAPPED_PLAYER));
+            Warhead::Containers::RandomResizeList(targets, 1);
         }
 
         void Register() override

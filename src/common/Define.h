@@ -41,7 +41,7 @@
 #  endif //ACE_BYTE_ORDER
 #endif //ACORE_ENDIAN
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
 #  define ACORE_PATH_MAX MAX_PATH
 #  define _USE_MATH_DEFINES
 #  ifndef DECLSPEC_NORETURN
@@ -50,11 +50,11 @@
 #  ifndef DECLSPEC_DEPRECATED
 #    define DECLSPEC_DEPRECATED __declspec(deprecated)
 #  endif //DECLSPEC_DEPRECATED
-#else //AC_PLATFORM != AC_PLATFORM_WINDOWS
+#else //WH_PLATFORM != WH_PLATFORM_WINDOWS
 #  define ACORE_PATH_MAX PATH_MAX
 #  define DECLSPEC_NORETURN
 #  define DECLSPEC_DEPRECATED
-#endif //AC_PLATFORM
+#endif //WH_PLATFORM
 
 #if !defined(COREDEBUG)
 #  define ACORE_INLINE inline
@@ -65,15 +65,15 @@
 #  define ACORE_INLINE
 #endif //!COREDEBUG
 
-#if AC_COMPILER == AC_COMPILER_GNU
+#if WH_COMPILER == WH_COMPILER_GNU
 #  define ATTR_NORETURN __attribute__((noreturn))
 #  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
 #  define ATTR_DEPRECATED __attribute__((deprecated))
-#else //AC_COMPILER != AC_COMPILER_GNU
+#else //WH_COMPILER != WH_COMPILER_GNU
 #  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
-#endif //AC_COMPILER == AC_COMPILER_GNU
+#endif //WH_COMPILER == WH_COMPILER_GNU
 
 #define UI64FMTD "%" PRIu64
 #define UI64LIT(N) UINT64_C(N)

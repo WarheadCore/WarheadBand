@@ -76,9 +76,9 @@ typedef struct AUTH_LOGON_CHALLENGE_C
 typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
-    acore::Crypto::SRP6::EphemeralKey A;
-    acore::Crypto::SHA1::Digest clientM;
-    acore::Crypto::SHA1::Digest crc_hash;
+    Warhead::Crypto::SRP6::EphemeralKey A;
+    Warhead::Crypto::SHA1::Digest clientM;
+    Warhead::Crypto::SHA1::Digest crc_hash;
     uint8   number_of_keys;
     uint8   securityFlags;                                  // 0x00-0x04
 } sAuthLogonProof_C;
@@ -87,7 +87,7 @@ typedef struct AUTH_LOGON_PROOF_S
 {
     uint8   cmd;
     uint8   error;
-    acore::Crypto::SHA1::Digest M2;
+    Warhead::Crypto::SHA1::Digest M2;
     uint32  unk1;
     uint32  unk2;
     uint16  unk3;
@@ -97,7 +97,7 @@ typedef struct AUTH_LOGON_PROOF_S_OLD
 {
     uint8   cmd;
     uint8   error;
-    acore::Crypto::SHA1::Digest M2;
+    Warhead::Crypto::SHA1::Digest M2;
     uint32  unk2;
 } sAuthLogonProof_S_Old;
 
@@ -105,7 +105,7 @@ typedef struct AUTH_RECONNECT_PROOF_C
 {
     uint8   cmd;
     uint8   R1[16];
-    acore::Crypto::SHA1::Digest R2, R3;
+    Warhead::Crypto::SHA1::Digest R2, R3;
     uint8   number_of_keys;
 } sAuthReconnectProof_C;
 
@@ -140,7 +140,7 @@ typedef struct AuthHandler
 #endif
 
 // Launch a thread to transfer a patch to the client
-class PatcherRunnable: public acore::Runnable
+class PatcherRunnable: public Warhead::Runnable
 {
 public:
     PatcherRunnable(class AuthSocket*);
@@ -473,7 +473,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 }
                 else
                 {
-                    _srp6.emplace(_login, fields[5].GetBinary<acore::Crypto::SRP6::SALT_LENGTH>(), fields[6].GetBinary<acore::Crypto::SRP6::VERIFIER_LENGTH>());
+                    _srp6.emplace(_login, fields[5].GetBinary<Warhead::Crypto::SRP6::SALT_LENGTH>(), fields[6].GetBinary<Warhead::Crypto::SRP6::VERIFIER_LENGTH>());
 
                     BigNumber unk3;
                     unk3.SetRand(16 * 8);
@@ -586,7 +586,7 @@ bool AuthSocket::_HandleLogonProof()
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
-        acore::Crypto::SHA1::Digest M2 = acore::Crypto::SRP6::GetSessionVerifier(lp.A, lp.clientM, _sessionKey);
+        Warhead::Crypto::SHA1::Digest M2 = Warhead::Crypto::SRP6::GetSessionVerifier(lp.A, lp.clientM, _sessionKey);
 
         // Check auth token
         if ((lp.securityFlags & 0x04) || !_tokenKey.empty())
@@ -774,7 +774,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
     _sessionKey = fields[0].GetBinary<SESSION_KEY_LENGTH>();
-    acore::Crypto::GetRandomBytes(_reconnectProof);
+    Warhead::Crypto::GetRandomBytes(_reconnectProof);
 
     ///- All good, await client's proof
     _status = STATUS_RECON_PROOF;
@@ -808,7 +808,7 @@ bool AuthSocket::_HandleReconnectProof()
     BigNumber t1;
     t1.SetBinary(lp.R1, 16);
 
-    acore::Crypto::SHA1 sha;
+    Warhead::Crypto::SHA1 sha;
     sha.UpdateData(_login);
     sha.UpdateData(t1.ToByteArray<16>());
     sha.UpdateData(_reconnectProof);
@@ -1010,7 +1010,7 @@ bool AuthSocket::_HandleXferResume()
     socket().recv((char*)&start, sizeof(start));
     fseek(pPatch, long(start), 0);
 
-    acore::Thread u(new PatcherRunnable(this));
+    Warhead::Thread u(new PatcherRunnable(this));
     return true;
 }
 
@@ -1046,7 +1046,7 @@ bool AuthSocket::_HandleXferAccept()
     socket().recv_skip(1);                                         // clear input buffer
     fseek(pPatch, 0, 0);
 
-    acore::Thread u(new PatcherRunnable(this));
+    Warhead::Thread u(new PatcherRunnable(this));
     return true;
 }
 

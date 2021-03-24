@@ -291,7 +291,7 @@ void ThreatContainer::modifyThreatPercent(Unit* victim, int32 percent)
 void ThreatContainer::update()
 {
     if (iDirty && iThreatList.size() > 1)
-        iThreatList.sort(acore::ThreatOrderPred());
+        iThreatList.sort(Warhead::ThreatOrderPred());
 
     iDirty = false;
 }

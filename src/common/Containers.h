@@ -31,7 +31,7 @@
 extern uint32 urand(uint32 min, uint32 max);
 extern uint32 urandweighted(size_t count, double const* chances);
 
-namespace acore
+namespace Warhead
 {
     template<class T>
     constexpr inline T* AddressOrSelf(T* ptr)
@@ -156,6 +156,6 @@ namespace acore
     }
     //! namespace Containers
 }
-//! namespace acore
+//! namespace Warhead
 
 #endif //! #ifdef ACORE_CONTAINERS_H

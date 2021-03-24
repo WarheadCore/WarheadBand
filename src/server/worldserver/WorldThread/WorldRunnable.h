@@ -23,13 +23,13 @@
 #define __WORLDRUNNABLE_H
 
 /// Heartbeat thread for the World
-class WorldRunnable : public acore::Runnable
+class WorldRunnable : public Warhead::Runnable
 {
 public:
     void run() override;
 };
 
-class AuctionListingRunnable : public acore::Runnable
+class AuctionListingRunnable : public Warhead::Runnable
 {
 public:
     void run() override;

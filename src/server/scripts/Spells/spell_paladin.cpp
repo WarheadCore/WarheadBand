@@ -663,7 +663,7 @@ public:
 
         void CountTargets(std::list<WorldObject*>& targetList)
         {
-            acore::Containers::RandomResizeList(targetList, GetSpellValue()->MaxAffectedTargets);
+            Warhead::Containers::RandomResizeList(targetList, GetSpellValue()->MaxAffectedTargets);
             _targetCount = targetList.size();
         }
 
@@ -778,7 +778,7 @@ public:
 
             if (targets.size() > maxTargets)
             {
-                targets.sort(acore::HealthPctOrderPred());
+                targets.sort(Warhead::HealthPctOrderPred());
                 targets.resize(maxTargets);
             }
         }

@@ -54,7 +54,7 @@ extern int m_ServiceStatus;
 #endif
 
 /// Handle worldservers's termination signals
-class WorldServerSignalHandler : public acore::SignalHandler
+class WorldServerSignalHandler : public Warhead::SignalHandler
 {
 public:
     void HandleSignal(int sigNum) override
@@ -79,7 +79,7 @@ public:
     }
 };
 
-class FreezeDetectorRunnable : public acore::Runnable
+class FreezeDetectorRunnable : public Warhead::Runnable
 {
 private:
     uint32 _loops;
@@ -109,7 +109,7 @@ public:
                 ABORT();
             }
 
-            acore::Thread::Sleep(1000);
+            Warhead::Thread::Sleep(1000);
         }
         sLog->outString("Anti-freeze thread exiting without problems.");
     }
@@ -190,10 +190,10 @@ int Master::Run()
     //handle.register_handler(SIGSEGV, &signalSEGV);
 
     ///- Launch WorldRunnable thread
-    acore::Thread worldThread(new WorldRunnable);
-    worldThread.setPriority(acore::Priority_Highest);
+    Warhead::Thread worldThread(new WorldRunnable);
+    worldThread.setPriority(Warhead::Priority_Highest);
 
-    acore::Thread* cliThread = nullptr;
+    Warhead::Thread* cliThread = nullptr;
 
 #ifdef _WIN32
     if (sConfigMgr->GetOption<bool>("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
@@ -202,14 +202,14 @@ int Master::Run()
 #endif
     {
         ///- Launch CliRunnable thread
-        cliThread = new acore::Thread(new CliRunnable);
+        cliThread = new Warhead::Thread(new CliRunnable);
     }
 
-    acore::Thread rarThread(new RARunnable);
+    Warhead::Thread rarThread(new RARunnable);
 
     // pussywizard:
-    acore::Thread auctionLising_thread(new AuctionListingRunnable);
-    auctionLising_thread.setPriority(acore::Priority_High);
+    Warhead::Thread auctionLising_thread(new AuctionListingRunnable);
+    auctionLising_thread.setPriority(Warhead::Priority_High);
 
 #if defined(_WIN32) || defined(__linux__)
 
@@ -280,21 +280,21 @@ int Master::Run()
 #endif
 
     // Start soap serving thread
-    acore::Thread* soapThread = nullptr;
+    Warhead::Thread* soapThread = nullptr;
     if (sConfigMgr->GetOption<bool>("SOAP.Enabled", false))
     {
         ACSoapRunnable* runnable = new ACSoapRunnable();
         runnable->SetListenArguments(sConfigMgr->GetOption<std::string>("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetOption<int32>("SOAP.Port", 7878)));
-        soapThread = new acore::Thread(runnable);
+        soapThread = new Warhead::Thread(runnable);
     }
 
     // Start up freeze catcher thread
-    acore::Thread* freezeThread = nullptr;
+    Warhead::Thread* freezeThread = nullptr;
     if (uint32 freezeDelay = sConfigMgr->GetOption<int32>("MaxCoreStuckTime", 0))
     {
         FreezeDetectorRunnable* runnable = new FreezeDetectorRunnable(freezeDelay * 1000);
-        freezeThread = new acore::Thread(runnable);
-        freezeThread->setPriority(acore::Priority_Highest);
+        freezeThread = new Warhead::Thread(runnable);
+        freezeThread->setPriority(Warhead::Priority_Highest);
     }
 
     ///- Launch the world listener socket

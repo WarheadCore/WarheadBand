@@ -954,7 +954,7 @@ public:
         void SelectTarget(std::list<WorldObject*>& targets)
         {
             if (Unit* victim = GetCaster()->GetVictim())
-                targets.remove_if(acore::ObjectGUIDCheck(victim->GetGUID(), true));
+                targets.remove_if(Warhead::ObjectGUIDCheck(victim->GetGUID(), true));
         }
 
         void Register() override
@@ -1036,7 +1036,7 @@ public:
         void SelectTarget(std::list<WorldObject*>& targets)
         {
             if (Unit* victim = GetCaster()->GetVictim())
-                targets.remove_if(acore::ObjectGUIDCheck(victim->GetGUID(), true));
+                targets.remove_if(Warhead::ObjectGUIDCheck(victim->GetGUID(), true));
         }
 
         void Register() override

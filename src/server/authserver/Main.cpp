@@ -58,7 +58,7 @@ bool stopEvent = false;                                     // Setting it to tru
 LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the authserver database
 
 /// Handle authserver's termination signals
-class AuthServerSignalHandler : public acore::SignalHandler
+class AuthServerSignalHandler : public Warhead::SignalHandler
 {
 public:
     void HandleSignal(int sigNum) override

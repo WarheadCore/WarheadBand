@@ -23,7 +23,7 @@
 #include <array>
 #include <openssl/evp.h>
 
-namespace acore::Crypto
+namespace Warhead::Crypto
 {
     class ARC4
     {

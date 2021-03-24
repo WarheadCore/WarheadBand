@@ -21,7 +21,7 @@
 #include "Define.h"
 #include <array>
 
-namespace acore::Crypto
+namespace Warhead::Crypto
 {
     void GetRandomBytes(uint8* buf, size_t len);
 

@@ -20,7 +20,7 @@
 
 #include "advstd.h"
 
-namespace acore
+namespace Warhead
 {
     // end "iterator" tag for find_type_if
     struct find_type_end;
@@ -47,11 +47,11 @@ namespace acore
         template<typename... Ts>
         struct Example
         {
-            using TupleArg = acore::find_type_if_t<acore::is_tuple, Ts...>;
+            using TupleArg = Warhead::find_type_if_t<Warhead::is_tuple, Ts...>;
 
             bool HasTuple()
             {
-                return !std::is_same_v<TupleArg, acore::find_type_end>;
+                return !std::is_same_v<TupleArg, Warhead::find_type_end>;
             }
         };
 
@@ -59,7 +59,7 @@ namespace acore
         example.HasTuple() == true; // TupleArg is std::tuple<int, int, int>
 
         Example<int, std::string, char> example2;
-        example2.HasTuple() == false; // TupleArg is acore::find_type_end
+        example2.HasTuple() == false; // TupleArg is Warhead::find_type_end
     */
 
     template<template<typename...> typename Check, typename... Ts>

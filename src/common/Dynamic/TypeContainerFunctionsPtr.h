@@ -28,7 +28,7 @@
 #include "Utilities/TypeList.h"
 #include <map>
 
-namespace acore
+namespace Warhead
 {
     /* ContainerMapList Helpers */
     // count functions

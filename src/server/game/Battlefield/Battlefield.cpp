@@ -989,8 +989,8 @@ bool BfCapturePoint::Update(uint32 diff)
     }
 
     std::list<Player*> players;
-    acore::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
-    acore::PlayerListSearcher<acore::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
+    Warhead::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
+    Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
     capturePoint->VisitNearbyWorldObject(radius, searcher);
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)

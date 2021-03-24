@@ -20,7 +20,7 @@
 
 #include <fmt/printf.h>
 
-namespace acore
+namespace Warhead
 {
     /// Default AC string format function.
     template<typename Format, typename... Args>
@@ -50,7 +50,7 @@ namespace acore
     }
 }
 
-namespace acore::String
+namespace Warhead::String
 {
     template<class Str>
     Str Trim(const Str& s, const std::locale& loc = std::locale());

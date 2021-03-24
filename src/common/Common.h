@@ -71,7 +71,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
 #define STRCASECMP stricmp
 #else
 #define STRCASECMP strcasecmp
@@ -94,7 +94,7 @@
 #include <ace/Thread_Mutex.h>
 #include <ace/Stack_Trace.h>
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
 #  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h
 // uncomment later if needed
@@ -110,7 +110,7 @@
 #  include <netdb.h>
 #endif
 
-#if AC_COMPILER == AC_COMPILER_MICROSOFT
+#if WH_COMPILER == WH_COMPILER_MICROSOFT
 
 #include <float.h>
 
@@ -214,7 +214,7 @@ typedef std::vector<std::string> StringVector;
   ACE_Read_Guard< MUTEX > ACORE_GUARD_OBJECT (LOCK); \
     if (ACORE_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
-namespace acore
+namespace Warhead
 {
     template<class ArgumentType, class ResultType>
     struct unary_function

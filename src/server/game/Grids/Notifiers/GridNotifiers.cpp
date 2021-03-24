@@ -27,7 +27,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-using namespace acore;
+using namespace Warhead;
 
 void VisibleNotifier::Visit(GameObjectMapType& m)
 {

@@ -7,8 +7,8 @@
 #include "LogMock.h"
 #include "WorldMock.h"
 
-using namespace acore::Honor;
-using namespace acore::XP;
+using namespace Warhead::Honor;
+using namespace Warhead::XP;
 
 TEST(FormulasTest, hk_honor_at_level)
 {

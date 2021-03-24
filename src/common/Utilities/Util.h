@@ -357,7 +357,7 @@ uint32 GetPID();
 
 bool StringEqualI(std::string_view str1, std::string_view str2);
 
-namespace acore::Impl
+namespace Warhead::Impl
 {
     std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
     void HexStrToByteArray(std::string const& str, uint8* out, size_t outlen, bool reverse = false);
@@ -366,13 +366,13 @@ namespace acore::Impl
 template<typename Container>
 std::string ByteArrayToHexStr(Container const& c, bool reverse = false)
 {
-    return acore::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
+    return Warhead::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
 }
 
 template<size_t Size>
 void HexStrToByteArray(std::string const& str, std::array<uint8, Size>& buf, bool reverse = false)
 {
-    acore::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
+    Warhead::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
 }
 template<size_t Size>
 std::array<uint8, Size> HexStrToByteArray(std::string const& str, bool reverse = false)

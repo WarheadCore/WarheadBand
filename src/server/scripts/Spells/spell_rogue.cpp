@@ -405,7 +405,7 @@ public:
         {
             while (!_targets.empty())
             {
-                uint64 guid = acore::Containers::SelectRandomContainerElement(_targets);
+                uint64 guid = Warhead::Containers::SelectRandomContainerElement(_targets);
                 if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), guid))
                 {
                     // xinef: target may be no longer valid

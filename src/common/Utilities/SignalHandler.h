@@ -20,7 +20,7 @@
 
 #include <ace/Event_Handler.h>
 
-namespace acore
+namespace Warhead
 {
 
     /// Handle termination signals

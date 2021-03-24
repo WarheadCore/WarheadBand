@@ -21,7 +21,7 @@
 #include <thread>
 #include <atomic>
 
-namespace acore
+namespace Warhead
 {
     class Runnable
     {

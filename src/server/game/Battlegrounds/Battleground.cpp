@@ -48,7 +48,7 @@
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
-namespace acore
+namespace Warhead
 {
     class BattlegroundChatBuilder
     {
@@ -112,7 +112,7 @@ namespace acore
         uint32 _arg1;
         uint32 _arg2;
     };
-}                                                           // namespace acore
+}                                                           // namespace Warhead
 
 template<class Do>
 void Battleground::BroadcastWorker(Do& _do)
@@ -1077,7 +1077,7 @@ uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
     uint32 maxLevel = std::min<uint32>(GetMaxLevel(), 80U);
-    return acore::Honor::hk_honor_at_level(maxLevel, float(kills));
+    return Warhead::Honor::hk_honor_at_level(maxLevel, float(kills));
 }
 
 void Battleground::BlockMovement(Player* player)
@@ -1755,8 +1755,8 @@ void Battleground::SendMessageToAll(uint32 entry, ChatMsg type, Player const* so
     if (!entry)
         return;
 
-    acore::BattlegroundChatBuilder bg_builder(type, entry, source);
-    acore::LocalizedPacketDo<acore::BattlegroundChatBuilder> bg_do(bg_builder);
+    Warhead::BattlegroundChatBuilder bg_builder(type, entry, source);
+    Warhead::LocalizedPacketDo<Warhead::BattlegroundChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
 }
 
@@ -1768,8 +1768,8 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg type, Player const* s
     va_list ap;
     va_start(ap, source);
 
-    acore::BattlegroundChatBuilder bg_builder(type, entry, source, &ap);
-    acore::LocalizedPacketDo<acore::BattlegroundChatBuilder> bg_do(bg_builder);
+    Warhead::BattlegroundChatBuilder bg_builder(type, entry, source, &ap);
+    Warhead::LocalizedPacketDo<Warhead::BattlegroundChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
 
     va_end(ap);
@@ -1802,8 +1802,8 @@ void Battleground::SendWarningToAll(uint32 entry, ...)
 
 void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 arg1, uint32 arg2)
 {
-    acore::Battleground2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
-    acore::LocalizedPacketDo<acore::Battleground2ChatBuilder> bg_do(bg_builder);
+    Warhead::Battleground2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
+    Warhead::LocalizedPacketDo<Warhead::Battleground2ChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
 }
 

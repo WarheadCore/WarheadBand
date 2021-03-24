@@ -2009,7 +2009,7 @@ public:
             if (targets.size() < 2)
                 return;
 
-            targets.sort(acore::HealthPctOrderPred());
+            targets.sort(Warhead::HealthPctOrderPred());
 
             WorldObject* target = targets.front();
             targets.clear();

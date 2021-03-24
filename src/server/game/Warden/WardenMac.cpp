@@ -41,7 +41,7 @@ void WardenMac::Init(WorldSession* pClient, SessionKey const& K)
 {
     _session = pClient;
     // Generate Warden Key
-    SessionKeyGenerator<acore::Crypto::SHA1> WK(K);
+    SessionKeyGenerator<Warhead::Crypto::SHA1> WK(K);
     WK.Generate(_inputKey, 16);
     WK.Generate(_outputKey, 16);
     /*
@@ -59,17 +59,17 @@ void WardenMac::Init(WorldSession* pClient, SessionKey const& K)
     _outputCrypto.Init(_outputKey);
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     sLog->outDebug(LOG_FILTER_WARDEN, "Server side warden for client %u initializing...", pClient->GetAccountId());
-    sLog->outDebug(LOG_FILTER_WARDEN, "C->S Key: %s", acore::Impl::ByteArrayToHexStr(_inputKey).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "S->C Key: %s", acore::Impl::ByteArrayToHexStr(_outputKey).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "  Seed: %s", acore::Impl::ByteArrayToHexStr(_seed).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "C->S Key: %s", Warhead::Impl::ByteArrayToHexStr(_inputKey).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "S->C Key: %s", Warhead::Impl::ByteArrayToHexStr(_outputKey).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "  Seed: %s", Warhead::Impl::ByteArrayToHexStr(_seed).c_str());
     sLog->outDebug(LOG_FILTER_WARDEN, "Loading Module...");
 #endif
 
     _module = GetModuleForClient();
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_WARDEN, "Module Key: %s", acore::Impl::ByteArrayToHexStr(_module->Key).c_str());
-    sLog->outDebug(LOG_FILTER_WARDEN, "Module ID: %s", acore::Impl::ByteArrayToHexStr(_module->Id).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "Module Key: %s", Warhead::Impl::ByteArrayToHexStr(_module->Key).c_str());
+    sLog->outDebug(LOG_FILTER_WARDEN, "Module ID: %s", Warhead::Impl::ByteArrayToHexStr(_module->Id).c_str());
 #endif
     RequestModule();
 }
@@ -165,7 +165,7 @@ void WardenMac::HandleHashResult(ByteBuffer& buff)
 
     buff.rpos(buff.wpos());
 
-    acore::Crypto::SHA1 sha1;
+    Warhead::Crypto::SHA1 sha1;
     sha1.UpdateData((uint8*)keyIn, 16);
     sha1.Finalize();
 
@@ -253,13 +253,13 @@ void WardenMac::HandleData(ByteBuffer& buff)
 
     std::string str = "Test string!";
 
-    acore::Crypto::SHA1 sha1;
+    Warhead::Crypto::SHA1 sha1;
     sha1.UpdateData(str);
     uint32 magic = 0xFEEDFACE;                              // unsure
     sha1.UpdateData((uint8*)&magic, 4);
     sha1.Finalize();
 
-    std::array<uint8, acore::Crypto::SHA1::DIGEST_LENGTH> sha1Hash;
+    std::array<uint8, Warhead::Crypto::SHA1::DIGEST_LENGTH> sha1Hash;
     buff.read(sha1Hash.data(), sha1Hash.size());
 
     if (sha1Hash != sha1.GetDigest())
