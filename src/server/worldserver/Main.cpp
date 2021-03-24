@@ -19,7 +19,6 @@
 /// @{
 /// \file
 
-#include "AppenderDB.h"
 #include "Common.h"
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
@@ -130,7 +129,7 @@ extern int main(int argc, char** argv)
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
 
-    sLog->RegisterAppender<AppenderDB>();
+    // Init all logs
     sLog->Initialize();
 
     LOG_INFO("server.worldserver", "Using configuration file %s.", configFile.c_str());

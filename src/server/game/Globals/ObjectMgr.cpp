@@ -613,8 +613,8 @@ void ObjectMgr::LoadCreatureTemplateResistances()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 creature template resistance definitions. DB table `creature_template_resistance` is empty.");
-        sLog->outString();
+        LOG_INFO("server", ">> Loaded 0 creature template resistance definitions. DB table `creature_template_resistance` is empty.");
+        LOG_INFO("server", " ");
         return;
     }
 
@@ -629,14 +629,14 @@ void ObjectMgr::LoadCreatureTemplateResistances()
 
         if (school == SPELL_SCHOOL_NORMAL || school >= MAX_SPELL_SCHOOL)
         {
-            sLog->outErrorDb("creature_template_resistance has resistance definitions for creature %u but this school %u doesn't exist", creatureID, school);
+            LOG_ERROR("sql.sql", "creature_template_resistance has resistance definitions for creature %u but this school %u doesn't exist", creatureID, school);
             continue;
         }
 
         CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
         {
-            sLog->outErrorDb("creature_template_resistance has resistance definitions for creature %u but this creature doesn't exist", creatureID);
+            LOG_ERROR("sql.sql", "creature_template_resistance has resistance definitions for creature %u but this creature doesn't exist", creatureID);
             continue;
         }
 
@@ -646,8 +646,8 @@ void ObjectMgr::LoadCreatureTemplateResistances()
         ++count;
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %u creature template resistances in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    LOG_INFO("server", ">> Loaded %u creature template resistances in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", " ");
 }
 
 void ObjectMgr::LoadCreatureTemplateSpells()
@@ -659,8 +659,8 @@ void ObjectMgr::LoadCreatureTemplateSpells()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 creature template spell definitions. DB table `creature_template_spell` is empty.");
-        sLog->outString();
+        LOG_INFO("server", ">> Loaded 0 creature template spell definitions. DB table `creature_template_spell` is empty.");
+        LOG_INFO("server", " ");
         return;
     }
 
@@ -675,14 +675,14 @@ void ObjectMgr::LoadCreatureTemplateSpells()
 
         if (index >= MAX_CREATURE_SPELLS)
         {
-            sLog->outErrorDb("creature_template_spell has spell definitions for creature %u with a incorrect index %u", creatureID, index);
+            LOG_ERROR("sql.sql", "creature_template_spell has spell definitions for creature %u with a incorrect index %u", creatureID, index);
             continue;
         }
 
         CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
         {
-            sLog->outErrorDb("creature_template_spell has spell definitions for creature %u but this creature doesn't exist", creatureID);
+            LOG_ERROR("sql.sql", "creature_template_spell has spell definitions for creature %u but this creature doesn't exist", creatureID);
             continue;
         }
 
@@ -692,8 +692,8 @@ void ObjectMgr::LoadCreatureTemplateSpells()
         ++count;
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %u creature template spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    LOG_INFO("server", ">> Loaded %u creature template spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", " ");
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()

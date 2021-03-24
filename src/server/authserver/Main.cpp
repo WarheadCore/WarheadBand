@@ -23,14 +23,6 @@
 * authentication server
 */
 
-#include <ace/Dev_Poll_Reactor.h>
-#include <ace/TP_Reactor.h>
-#include <ace/ACE.h>
-#include <ace/Sig_Handler.h>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-
-#include "AppenderDB.h"
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Configuration/Config.h"
@@ -40,6 +32,12 @@
 #include "SignalHandler.h"
 #include "RealmList.h"
 #include "RealmAcceptor.h"
+#include <ace/Dev_Poll_Reactor.h>
+#include <ace/TP_Reactor.h>
+#include <ace/ACE.h>
+#include <ace/Sig_Handler.h>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 #ifdef __linux__
 #include <sched.h>
@@ -111,7 +109,6 @@ extern int main(int argc, char** argv)
         return 1;
 
     // Init logging
-    sLog->RegisterAppender<AppenderDB>();
     sLog->Initialize();
 
     LOG_INFO("server.authserver", "%s (authserver)", GitRevision::GetFullVersion());
@@ -327,7 +324,6 @@ bool StartDB()
     }
 
     LOG_INFO("server.authserver", "Started auth database connection pool.");
-    sLog->SetRealmId(0); // Enables DB appenders when realm is set.
     return true;
 }
 

@@ -5,7 +5,7 @@
 
 #include "Tokenize.h"
 
-std::vector<std::string_view> acore::Tokenize(std::string_view str, char sep, bool keepEmpty)
+std::vector<std::string_view> Warhead::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
     std::vector<std::string_view> tokens;
 

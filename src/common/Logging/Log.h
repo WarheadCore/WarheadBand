@@ -1,37 +1,74 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
- * Copyright (C) 2008-2021 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LOG_H__
-#define _LOG_H__
+#ifndef _LOG_H_
+#define _LOG_H_
 
-#include "Define.h"
-#include "LogCommon.h"
+#include "Common.h"
 #include "StringFormat.h"
 
-#include <memory>
-#include <unordered_map>
-#include <vector>
-
-class Appender;
-class Logger;
-struct LogMessage;
-
-#define LOGGER_ROOT "root"
-
-typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
-
-template <class AppenderImpl>
-Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
+enum class LogLevel : uint8
 {
-    return new AppenderImpl(id, name, level, flags, extraArgs);
-}
+    LOG_LEVEL_DISABLED,
+    LOG_LEVEL_FATAL,
+    LOG_LEVEL_CRITICAL,
+    LOG_LEVEL_ERROR,
+    LOG_LEVEL_WARNING,
+    LOG_LEVEL_NOTICE,
+    LOG_LEVEL_INFO,
+    LOG_LEVEL_DEBUG,
+    LOG_LEVEL_TRACE,
+
+    LOG_LEVEL_MAX
+};
+
+// For create LogChannel
+enum ChannelOptions
+{
+    CHANNEL_OPTIONS_TYPE,
+    CHANNEL_OPTIONS_TIMES,
+    CHANNEL_OPTIONS_PATTERN,
+    CHANNEL_OPTIONS_OPTION_1,
+    CHANNEL_OPTIONS_OPTION_2,
+    CHANNEL_OPTIONS_OPTION_3,
+    CHANNEL_OPTIONS_OPTION_4,
+    CHANNEL_OPTIONS_OPTION_5,
+    CHANNEL_OPTIONS_OPTION_6,
+
+    CHANNEL_OPTIONS_MAX
+};
+
+enum class FormattingChannelType : uint8
+{
+    FORMATTING_CHANNEL_TYPE_CONSOLE = 1,
+    FORMATTING_CHANNEL_TYPE_FILE
+};
+
+// For create Logger
+enum LoggerOptions
+{
+    LOGGER_OPTIONS_LOG_LEVEL,
+    LOGGER_OPTIONS_CHANNELS_NAME,
+
+    LOGGER_OPTIONS_UNKNOWN
+};
 
 class Log
 {
-typedef std::unordered_map<std::string, Logger> LoggerMap;
-
 private:
     Log();
     ~Log();
@@ -45,139 +82,43 @@ public:
 
     void Initialize();
     void LoadFromConfig();
-    void Close();
-    bool ShouldLog(std::string const& type, LogLevel level) const;
-    bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
+
+    bool ShouldLog(std::string_view type, LogLevel level) const;
+
+    void outCharDump(std::string const& str, uint32 accountId, uint64 guid, std::string const& name);
 
     template<typename Format, typename... Args>
-    inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
+    inline void outMessage(std::string_view filter, LogLevel const level, Format&& fmt, Args&& ... args)
     {
-        outMessage(filter, level, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+        outMessage(filter, level, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
     }
 
     template<typename Format, typename... Args>
-    void outCommand(uint32 account, Format&& fmt, Args&&... args)
+    void outCommand(uint32 account, Format&& fmt, Args&& ... args)
     {
-        if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
+        if (!ShouldLog("commands.gm", LogLevel::LOG_LEVEL_INFO))
             return;
 
-        outCommand(acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...), std::to_string(account));
-    }
-
-    void outCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
-
-    void SetRealmId(uint32 id);
-
-    template<class AppenderImpl>
-    void RegisterAppender()
-    {
-        RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
-    }
-
-    std::string const& GetLogsDir() const { return m_logsDir; }
-    std::string const& GetLogsTimestamp() const { return m_logsTimestamp; }
-
-    // Deprecated functions
-    template<typename Format, typename... Args>
-    inline void outString(Format&& fmt, Args&& ... args)
-    {
-        outMessage("server", LOG_LEVEL_INFO, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    inline void outString()
-    {
-        outMessage("server", LOG_LEVEL_INFO, " ");
-    }
-
-    template<typename Format, typename... Args>
-    inline void outError(Format&& fmt, Args&& ... args)
-    {
-        outMessage("server", LOG_LEVEL_ERROR, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    void outErrorDb(Format&& fmt, Args&& ... args)
-    {
-        if (!ShouldLog("sql.sql", LOG_LEVEL_ERROR))
-            return;
-
-        outMessage("sql.sql", LOG_LEVEL_ERROR, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    inline void outBasic(Format&& fmt, Args&& ... args)
-    {
-        outMessage("server", LOG_LEVEL_INFO, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    inline void outDetail(Format&& fmt, Args&& ... args)
-    {
-        outMessage("server", LOG_LEVEL_INFO, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    void outSQLDev(Format&& fmt, Args&& ... args)
-    {
-        if (!ShouldLog("sql.dev", LOG_LEVEL_INFO))
-            return;
-
-        outMessage("sql.dev", LOG_LEVEL_INFO, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    void outSQLDriver(Format&& fmt, Args&& ... args)
-    {
-        if (!ShouldLog("sql.driver", LOG_LEVEL_INFO))
-            return;
-
-        outMessage("sql.driver", LOG_LEVEL_INFO, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    inline void outMisc(Format&& fmt, Args&& ... args)
-    {
-        outMessage("server", LOG_LEVEL_INFO, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
-    template<typename Format, typename... Args>
-    void outDebug(DebugLogFilters filter, Format&& fmt, Args&& ... args)
-    {
-        if (!(_debugLogMask & filter))
-            return;
-
-        if (!ShouldLog("server", LOG_LEVEL_DEBUG))
-            return;
-
-        outMessage("server", LOG_LEVEL_DEBUG, acore::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+        outCommand(std::to_string(account), Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
     }
 
 private:
-    static std::string GetTimestampStr();
-    void write(std::unique_ptr<LogMessage>&& msg) const;
+    void _Write(std::string_view filter, LogLevel const level, std::string const&& message);
+    void _writeCommand(std::string&& message, [[maybe_unused]] std::string const&& accountid);
 
-    Logger const* GetLoggerByType(std::string const& type) const;
-    Appender* GetAppenderByName(std::string_view name);
-    uint8 NextAppenderId();
-    void CreateAppenderFromConfig(std::string const& name);
-    void CreateLoggerFromConfig(std::string const& name);
-    void ReadAppendersFromConfig();
+    void outMessage(std::string_view filter, LogLevel const level, std::string&& message);
+    void outCommand(std::string&& accountID, std::string&& message);
+
+    void CreateLoggerFromConfig(std::string const& configLoggerName);
+    void CreateChannelsFromConfig(std::string const& logChannelName);
     void ReadLoggersFromConfig();
-    void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-    void outMessage(std::string const& filter, LogLevel level, std::string&& message);
-    void outCommand(std::string&& message, std::string&& param1);
+    void ReadChannelsFromConfig();
 
-    std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
-    std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
-    std::unordered_map<std::string, std::unique_ptr<Logger>> loggers;
-    uint8 AppenderId;
-    LogLevel highestLogLevel;
+    void InitLogsDir();
+    void Clear();
 
-    std::string m_logsDir;
-    std::string m_logsTimestamp;
-
-    // Deprecated debug filter logs
-    DebugLogFilters _debugLogMask;
+    std::string_view GetPositionOptions(std::string_view options, uint8 position, std::string_view _default = "");
+    std::string const GetChannelsFromLogger(std::string const& loggerName);
 };
 
 #define sLog Log::instance()
@@ -188,21 +129,19 @@ private:
         { \
             sLog->outMessage(filterType__, level__, __VA_ARGS__); \
         } \
-        catch (std::exception const& e) \
+        catch (const std::exception& e) \
         { \
-            sLog->outMessage("server", LOG_LEVEL_ERROR, "Wrong format occurred (%s) at %s:%u.", \
+            sLog->outMessage("server", LogLevel::LOG_LEVEL_ERROR, "Wrong format occurred (%s) at %s:%u.", \
                 e.what(), __FILE__, __LINE__); \
         } \
     }
 
-#ifdef PERFORMANCE_PROFILING
-#define LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
-#elif AC_PLATFORM != AC_PLATFORM_WINDOWS
+#if WH_PLATFORM != WH_PLATFORM_WINDOWS
 void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 
 // This will catch format errors on build time
-#define LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
+#define LOG_MSG_BODY(filterType__, level__, ...)                        \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
             {                                                           \
@@ -213,39 +152,47 @@ void check_args(std::string const&, ...);
             }                                                           \
         } while (0)
 #else
-#define LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
-        __pragma(warning(push))                                         \
-        __pragma(warning(disable:4127))                                 \
+#define LOG_MSG_BODY(filterType__, level__, ...)                        \
+        /*__pragma(warning(push))*/                                     \
+        /*__pragma(warning(disable:4127))*/                             \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
                 LOG_EXCEPTION_FREE(filterType__, level__, __VA_ARGS__); \
         } while (0)                                                     \
-        __pragma(warning(pop))
+        /*__pragma(warning(pop))*/
 #endif
 
 // Fatal - 1
 #define LOG_FATAL(filterType__, ...) \
-    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_FATAL, __VA_ARGS__)
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_FATAL, __VA_ARGS__)
 
-// Error - 2
+// Critical - 2
+#define LOG_CRIT(filterType__, ...) \
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
+
+// Error - 3
 #define LOG_ERROR(filterType__, ...) \
-    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
 
-// Warning - 3
+// Warning - 4
 #define LOG_WARN(filterType__, ...)  \
-    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
 
-// Info - 4
+// Notice - 5
+#define LOG_NOTICE(filterType__, ...)  \
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_NOTICE, __VA_ARGS__)
+
+// Info - 6
 #define LOG_INFO(filterType__, ...)  \
-    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
 
-// Debug - 5
+// Debug - 7
 #define LOG_DEBUG(filterType__, ...) \
-    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_DEBUG, __VA_ARGS__)
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_DEBUG, __VA_ARGS__)
 
-// Trace - 6
+// Trace - 8
 #define LOG_TRACE(filterType__, ...) \
-    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
+    LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
 
 #define LOG_CHAR_DUMP(message__, accountId__, guid__, name__) \
     sLog->outCharDump(message__, accountId__, guid__, name__)
@@ -253,4 +200,4 @@ void check_args(std::string const&, ...);
 #define LOG_GM(accountId__, ...) \
     sLog->outCommand(accountId__, __VA_ARGS__)
 
-#endif // _LOG_H__
+#endif

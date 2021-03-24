@@ -2091,15 +2091,6 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", "WORLD: World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000)); // outError for red color in console
     LOG_INFO("server", " ");
 
-    // possibly enable db logging; avoid massive startup spam by doing it here.
-    if (sConfigMgr->GetOption<bool>("EnableLogDB", false))
-    {
-        LOG_INFO("server", "Enabling database logging...");
-
-        if (uint32 realmId = sConfigMgr->GetOption<uint32>("RealmID", 0)) // 0 reserved for auth
-            sLog->SetRealmId(realmId);
-    }
-
     if (sConfigMgr->isDryRun())
     {
         LOG_INFO("server", "AzerothCore dry run completed, terminating.");

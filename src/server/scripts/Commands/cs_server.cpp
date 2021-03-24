@@ -67,7 +67,6 @@ public:
         static std::vector<ChatCommand> serverSetCommandTable =
         {
             { "difftime",       SEC_CONSOLE,        true,  &HandleServerSetDiffTimeCommand,         "" },
-            { "loglevel",       SEC_CONSOLE,        true,  &HandleServerSetLogLevelCommand,         "" },
             { "motd",           SEC_ADMINISTRATOR,  true,  &HandleServerSetMotdCommand,             "" },
             { "closed",         SEC_CONSOLE,        true,  &HandleServerSetClosedCommand,           "" }
         };
@@ -322,23 +321,6 @@ public:
         handler->SendSysMessage(LANG_USE_BOL);
         handler->SetSentErrorMessage(true);
         return false;
-    }
-
-    // Set the level of logging
-    static bool HandleServerSetLogLevelCommand(ChatHandler* /*handler*/, char const* args)
-    {
-       if (!*args)
-            return false;
-
-        char* type = strtok((char*)args, " ");
-        char* name = strtok(nullptr, " ");
-        char* level = strtok(nullptr, " ");
-
-        if (!type || !name || !level || *name == '\0' || *level == '\0' || (*type != 'a' && *type != 'l'))
-            return false;
-
-        sLog->SetLogLevel(name, *acore::StringTo<uint32>(level), *type == 'l');
-        return true;
     }
 
     // set diff time record interval
