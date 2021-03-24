@@ -57,6 +57,7 @@ target_link_libraries(common
   PUBLIC
     warhead-core-interface
     ace
+    Poco::Foundation
     mysql
     g3dlib
     Detour
