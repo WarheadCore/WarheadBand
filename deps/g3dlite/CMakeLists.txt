@@ -66,7 +66,7 @@ target_include_directories(g3dlib
 
 target_link_libraries(g3dlib
   PRIVATE
-    acore-dependency-interface
+    warhead-dependency-interface
   PUBLIC
     zlib
     threads)
