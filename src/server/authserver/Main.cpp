@@ -56,22 +56,6 @@ bool stopEvent = false;                                     // Setting it to tru
 
 LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the authserver database
 
-/// Handle authserver's termination signals
-class AuthServerSignalHandler : public Warhead::SignalHandler
-{
-public:
-    void HandleSignal(int sigNum) override
-    {
-        switch (sigNum)
-        {
-            case SIGINT:
-            case SIGTERM:
-                stopEvent = true;
-                break;
-        }
-    }
-};
-
 /// Print out the usage string for this program on the console.
 void usage(const char* prog)
 {
@@ -187,12 +171,15 @@ extern int main(int argc, char** argv)
     LOG_INFO("server.authserver", "Authserver listening to %s:%d", bind_ip.c_str(), rmport);
 
     // Initialize the signal handlers
-    AuthServerSignalHandler SignalINT, SignalTERM;
+    acore::SignalHandler signalHandler;
+    auto const _handler = [](int) { stopEvent = true; };
 
     // Register authservers's signal handlers
-    ACE_Sig_Handler Handler;
-    Handler.register_handler(SIGINT, &SignalINT);
-    Handler.register_handler(SIGTERM, &SignalTERM);
+    signalHandler.handle_signal(SIGINT, _handler);
+    signalHandler.handle_signal(SIGTERM, _handler);
+#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+    signalHandler.handle_signal(SIGBREAK, _handler);
+#endif
 
 #if defined(_WIN32) || defined(__linux__)
 

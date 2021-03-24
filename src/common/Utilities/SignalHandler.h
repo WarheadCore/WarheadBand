@@ -15,26 +15,41 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SIGNAL_HANDLER_H__
-#define __SIGNAL_HANDLER_H__
+#ifndef _SIGNAL_HANDLER_H_
+#define _SIGNAL_HANDLER_H_
 
-#include <ace/Event_Handler.h>
+#include <csignal>
+#include <unordered_set>
+#include <mutex>
 
 namespace Warhead
 {
-
     /// Handle termination signals
-    class SignalHandler : public ACE_Event_Handler
+    class SignalHandler
     {
-    public:
-        int handle_signal(int SigNum, siginfo_t* = nullptr, ucontext_t* = nullptr) override
-        {
-            HandleSignal(SigNum);
-            return 0;
-        }
-        virtual void HandleSignal(int /*SigNum*/) { };
-    };
+    private:
+        std::unordered_set<int> _handled;
+        mutable std::mutex _mutex;
 
+    public:
+        bool handle_signal(int sig, void (*func)(int))
+        {
+            std::lock_guard lock(_mutex);
+
+            if (_handled.find(sig) != _handled.end())
+                return false;
+
+            _handled.insert(sig);
+            signal(sig, func);
+            return true;
+        }
+
+        ~SignalHandler()
+        {
+            for (auto const& sig : _handled)
+                signal(sig, nullptr);
+        }
+    };
 }
 
-#endif /* __SIGNAL_HANDLER_H__ */
+#endif // _SIGNAL_HANDLER_H_
