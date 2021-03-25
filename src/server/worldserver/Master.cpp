@@ -68,10 +68,10 @@ void HandleSignal(int sigNum)
 #endif
                 World::StopNow(SHUTDOWN_EXIT_CODE);
             break;
-            /*case SIGSEGV:
-                sLog->outString("ZOMG! SIGSEGV handled!");
-                World::StopNow(SHUTDOWN_EXIT_CODE);
-                break;*/
+        /*case SIGSEGV:
+            sLog->outString("ZOMG! SIGSEGV handled!");
+            World::StopNow(SHUTDOWN_EXIT_CODE);
+            break;*/
         default:
             break;
     }
@@ -173,12 +173,12 @@ int Master::Run()
     sScriptMgr->OnStartup();
 
     ///- Initialize the signal handlers
-    acore::SignalHandler signalHandler;
+    Warhead::SignalHandler signalHandler;
 
     signalHandler.handle_signal(SIGINT, &HandleSignal);
     signalHandler.handle_signal(SIGTERM, &HandleSignal);
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
     signalHandler.handle_signal(SIGBREAK, &HandleSignal);
 #endif
 

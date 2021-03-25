@@ -171,7 +171,7 @@ extern int main(int argc, char** argv)
     LOG_INFO("server.authserver", "Authserver listening to %s:%d", bind_ip.c_str(), rmport);
 
     // Initialize the signal handlers
-    acore::SignalHandler signalHandler;
+    Warhead::SignalHandler signalHandler;
     auto const _handler = [](int) { stopEvent = true; };
 
     // Register authservers's signal handlers
