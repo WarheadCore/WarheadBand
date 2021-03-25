@@ -27,15 +27,13 @@
 #include "Database/DatabaseEnv.h"
 #include "Configuration/Config.h"
 #include "Log.h"
-#include "GitRevision.h"
 #include "Util.h"
 #include "SignalHandler.h"
 #include "RealmList.h"
 #include "RealmAcceptor.h"
+#include "Logo.h"
 #include <ace/Dev_Poll_Reactor.h>
 #include <ace/TP_Reactor.h>
-#include <ace/ACE.h>
-#include <ace/Sig_Handler.h>
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 
@@ -95,25 +93,10 @@ extern int main(int argc, char** argv)
     // Init logging
     sLog->Initialize();
 
-    LOG_INFO("server.authserver", "%s (authserver)", GitRevision::GetFullVersion());
-    LOG_INFO("server.authserver", "<Ctrl-C> to stop.");
-    LOG_INFO("server.authserver", " ");
-    LOG_INFO("server.authserver", "   █████╗ ███████╗███████╗██████╗  ██████╗ ████████╗██╗  ██╗");
-    LOG_INFO("server.authserver", "  ██╔══██╗╚══███╔╝██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝██║  ██║");
-    LOG_INFO("server.authserver", "  ███████║  ███╔╝ █████╗  ██████╔╝██║   ██║   ██║   ███████║");
-    LOG_INFO("server.authserver", "  ██╔══██║ ███╔╝  ██╔══╝  ██╔══██╗██║   ██║   ██║   ██╔══██║");
-    LOG_INFO("server.authserver", "  ██║  ██║███████╗███████╗██║  ██║╚██████╔╝   ██║   ██║  ██║");
-    LOG_INFO("server.authserver", "  ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝");
-    LOG_INFO("server.authserver", "                                ██████╗ ██████╗ ██████╗ ███████╗");
-    LOG_INFO("server.authserver", "                                ██╔════╝██╔═══██╗██╔══██╗██╔═══╝");
-    LOG_INFO("server.authserver", "                                ██║     ██║   ██║██████╔╝█████╗");
-    LOG_INFO("server.authserver", "                                ██║     ██║   ██║██╔══██╗██╔══╝");
-    LOG_INFO("server.authserver", "                                ╚██████╗╚██████╔╝██║  ██║███████╗");
-    LOG_INFO("server.authserver", "                                 ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝\n");
-    LOG_INFO("server.authserver", "     AzerothCore 3.3.5a  -  www.azerothcore.org");
-    LOG_INFO("server.authserver", " ");
-    LOG_INFO("server.authserver", "Using configuration file %s.", configFile.c_str());
-    LOG_INFO("server.authserver", "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    Warhead::Logo::Show("authserver", configFile.c_str(), [](char const* text)
+    {
+        LOG_INFO("server.authserver", "%s", text);
+    });
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
@@ -177,7 +160,8 @@ extern int main(int argc, char** argv)
     // Register authservers's signal handlers
     signalHandler.handle_signal(SIGINT, _handler);
     signalHandler.handle_signal(SIGTERM, _handler);
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
     signalHandler.handle_signal(SIGBREAK, _handler);
 #endif
 

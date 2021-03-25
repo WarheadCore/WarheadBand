@@ -40,7 +40,6 @@
 #include "WorldRunnable.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include <ace/Sig_Handler.h>
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -125,24 +124,6 @@ int Master::Run()
     OpenSSLCrypto::threadsSetup();
     BigNumber seed1;
     seed1.SetRand(16 * 8);
-
-    LOG_INFO("server", "%s (worldserver-daemon)", GitRevision::GetFullVersion());
-    LOG_INFO("server", "<Ctrl-C> to stop.\n");
-
-    LOG_INFO("server", "   █████╗ ███████╗███████╗██████╗  ██████╗ ████████╗██╗  ██╗");
-    LOG_INFO("server", "  ██╔══██╗╚══███╔╝██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝██║  ██║");
-    LOG_INFO("server", "  ███████║  ███╔╝ █████╗  ██████╔╝██║   ██║   ██║   ███████║");
-    LOG_INFO("server", "  ██╔══██║ ███╔╝  ██╔══╝  ██╔══██╗██║   ██║   ██║   ██╔══██║");
-    LOG_INFO("server", "  ██║  ██║███████╗███████╗██║  ██║╚██████╔╝   ██║   ██║  ██║");
-    LOG_INFO("server", "  ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝");
-    LOG_INFO("server", "                                ██████╗ ██████╗ ██████╗ ███████╗");
-    LOG_INFO("server", "                                ██╔════╝██╔═══██╗██╔══██╗██╔═══╝");
-    LOG_INFO("server", "                                ██║     ██║   ██║██████╔╝█████╗");
-    LOG_INFO("server", "                                ██║     ██║   ██║██╔══██╗██╔══╝");
-    LOG_INFO("server", "                                ╚██████╗╚██████╔╝██║  ██║███████╗");
-    LOG_INFO("server", "                                 ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝\n");
-
-    LOG_INFO("server", "     AzerothCore 3.3.5a  -  www.azerothcore.org\n");
 
     /// worldserver PID file creation
     std::string pidFile = sConfigMgr->GetOption<std::string>("PidFile", "");

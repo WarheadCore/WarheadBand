@@ -24,7 +24,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "Master.h"
-#include <ace/Version.h>
+#include "Logo.h"
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
@@ -132,9 +132,10 @@ extern int main(int argc, char** argv)
     // Init all logs
     sLog->Initialize();
 
-    LOG_INFO("server.worldserver", "Using configuration file %s.", configFile.c_str());
-    LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    LOG_INFO("server.worldserver", "Using ACE version: %s", ACE_VERSION);
+    Warhead::Logo::Show("worldserver", configFile.c_str(), [](char const* text)
+    {
+        LOG_INFO("server.worldserver", "%s", text);
+    });
 
     ///- and run the 'Master'
     /// @todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
