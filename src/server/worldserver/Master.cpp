@@ -61,16 +61,12 @@ void HandleSignal(int sigNum)
             World::StopNow(RESTART_EXIT_CODE);
             break;
         case SIGTERM:
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if WH_PLATFORM == WH_PLATFORM_WINDOWS
         case SIGBREAK:
             if (m_ServiceStatus != 1)
 #endif
                 World::StopNow(SHUTDOWN_EXIT_CODE);
             break;
-        /*case SIGSEGV:
-            sLog->outString("ZOMG! SIGSEGV handled!");
-            World::StopNow(SHUTDOWN_EXIT_CODE);
-            break;*/
         default:
             break;
     }
