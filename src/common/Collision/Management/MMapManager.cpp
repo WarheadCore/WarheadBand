@@ -87,7 +87,7 @@ namespace MMAP
         fclose(file);
         if (count != 1)
         {
-            LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName);
+            LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName.c_str());
             return false;
         }
 
