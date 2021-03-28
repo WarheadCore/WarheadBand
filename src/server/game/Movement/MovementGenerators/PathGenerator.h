@@ -20,6 +20,7 @@
 
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "MapDefines.h"
 #include "MMapFactory.h"
 #include "MMapManager.h"
 #include "MoveSplineInitArgs.h"
