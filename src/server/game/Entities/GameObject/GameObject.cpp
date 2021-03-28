@@ -2291,7 +2291,7 @@ void GameObject::UpdateModel()
     if (m_model)
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
-    
+
     delete m_model;
     m_model = CreateModel();
 
