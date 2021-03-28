@@ -52,8 +52,6 @@ target_include_directories(common
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(common
-  PRIVATE
-    game-interface
   PUBLIC
     warhead-core-interface
     ace

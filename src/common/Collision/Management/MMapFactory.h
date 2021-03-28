@@ -21,8 +21,7 @@
 #include "MMapManager.h"
 #include "DetourAlloc.h"
 #include "DetourNavMesh.h"
-#include "Navigation/DetourExtended.h"
-#include "Map.h"
+#include "DetourExtended.h"
 #include <unordered_map>
 
 namespace MMAP
@@ -42,7 +41,6 @@ namespace MMAP
     public:
         static MMapManager* createOrGetMMapManager();
         static void clear();
-        static bool IsPathfindingEnabled(const Map* map);
         static void InitializeDisabledMaps();
         static bool forbiddenMaps[1000];
     };

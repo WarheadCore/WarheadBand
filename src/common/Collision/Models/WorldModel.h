@@ -18,13 +18,12 @@
 #ifndef _WORLDMODEL_H
 #define _WORLDMODEL_H
 
+#include "Define.h"
+#include "BoundingIntervalHierarchy.h"
 #include <G3D/HashTrait.h>
 #include <G3D/Vector3.h>
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
-#include "BoundingIntervalHierarchy.h"
-
-#include "Define.h"
 
 namespace VMAP
 {
@@ -57,6 +56,7 @@ namespace VMAP
         uint32 GetFileSize();
         bool writeToFile(FILE* wf);
         static bool readFromFile(FILE* rf, WmoLiquid*& liquid);
+        void getPosInfo(uint32& tilesX, uint32& tilesY, G3D::Vector3& corner) const;
     private:
         WmoLiquid() { }
         uint32 iTilesX{0};       //!< number of tiles in x direction, each
@@ -65,8 +65,6 @@ namespace VMAP
         uint32 iType{0};         //!< liquid type
         float* iHeight{nullptr}; //!< (tilesX + 1)*(tilesY + 1) height values
         uint8* iFlags{nullptr};  //!< info if liquid tile is used
-    public:
-        void getPosInfo(uint32& tilesX, uint32& tilesY, G3D::Vector3& corner) const;
     };
 
     /*! holding additional info for WMO group files */
@@ -91,6 +89,7 @@ namespace VMAP
         [[nodiscard]] const G3D::AABox& GetBound() const { return iBound; }
         [[nodiscard]] uint32 GetMogpFlags() const { return iMogpFlags; }
         [[nodiscard]] uint32 GetWmoID() const { return iGroupWMOID; }
+        void getMeshData(std::vector<G3D::Vector3>& outVertices, std::vector<MeshTriangle>& outTriangles, WmoLiquid*& liquid);
     protected:
         G3D::AABox iBound;
         uint32 iMogpFlags{0};// 0x8 outdor; 0x2000 indoor
@@ -99,8 +98,6 @@ namespace VMAP
         std::vector<MeshTriangle> triangles;
         BIH meshTree;
         WmoLiquid* iLiquid{nullptr};
-    public:
-        void getMeshData(std::vector<G3D::Vector3>& vertices, std::vector<MeshTriangle>& triangles, WmoLiquid*& liquid);
     };
     /*! Holds a model (converted M2 or WMO) in its original coordinate space */
     class WorldModel
@@ -116,12 +113,11 @@ namespace VMAP
         bool GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, LocationInfo& info) const;
         bool writeFile(const std::string& filename);
         bool readFile(const std::string& filename);
+        void getGroupModels(std::vector<GroupModel>& outGroupModels);
     protected:
         uint32 RootWMOID{0};
         std::vector<GroupModel> groupModels;
         BIH groupTree;
-    public:
-        void getGroupModels(std::vector<GroupModel>& groupModels);
     };
 } // namespace VMAP
 

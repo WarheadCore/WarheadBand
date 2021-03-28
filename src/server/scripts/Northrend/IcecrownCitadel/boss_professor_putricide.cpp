@@ -888,7 +888,7 @@ public:
 
         void ScaleRange(std::list<WorldObject*>& targets)
         {
-            targets.remove_if(Warhead::AllWorldObjectsInExactRange(GetCaster(), 2.5f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X), true));
+            targets.remove_if(Warhead::AllWorldObjectsInExactRange(GetCaster(), 2.5f * GetCaster()->GetObjectScale(), true));
         }
 
         // big hax to unlock Abomination Eat Ooze ability, requires caster aura spell from difficulty X, but unlocks clientside when got base aura
