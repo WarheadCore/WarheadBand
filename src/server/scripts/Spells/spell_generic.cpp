@@ -1182,7 +1182,7 @@ public:
 
         bool Load() override
         {
-            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, 10000.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X));
+            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, 10000.0f * GetCaster()->GetObjectScale());
             return true;
         }
 

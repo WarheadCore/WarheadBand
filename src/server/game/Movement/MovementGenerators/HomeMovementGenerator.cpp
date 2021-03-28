@@ -21,6 +21,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "WorldPacket.h"
+#include "DisableMgr.h"
 
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
@@ -66,7 +67,7 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     }
 
     owner->UpdateAllowedPositionZ(x, y, z);
-    init.MoveTo(x, y, z, MMAP::MMapFactory::IsPathfindingEnabled(owner->FindMap()), true);
+    init.MoveTo(x, y, z, DisableMgr::IsPathfindingEnabled(owner->FindMap()), true);
     init.SetWalk(false);
     init.Launch();
 

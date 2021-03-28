@@ -27,7 +27,7 @@
 
     @brief This file contains definitions of functions used for reporting critical application errors
 
-    It is very important that (std::)abort is NEVER called in place of *((volatile int*)nullptr) = 0;
+    It is very important that (std::)abort is NEVER called in place of *((volatile int*)NULL) = 0;
     Calling abort() on Windows does not invoke unhandled exception filters - a mechanism used by WheatyExceptionReport
     to log crashes. exit(1) calls here are for static analysis tools to indicate that calling functions defined in this file
     terminates the application.
@@ -70,7 +70,7 @@ namespace Warhead
 
     void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message)
     {
-        std::string formattedMessage = Warhead::StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + debugInfo + '\n';
+        std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + debugInfo + '\n';
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());
@@ -81,7 +81,7 @@ namespace Warhead
         va_list args;
         va_start(args, format);
 
-        std::string formattedMessage = Warhead::StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
+        std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
         va_end(args);
 
         fprintf(stderr, "%s", formattedMessage.c_str());
@@ -95,7 +95,7 @@ namespace Warhead
         va_list args;
         va_start(args, message);
 
-        std::string formattedMessage = Warhead::StringFormat("\n%s:%i in %s FATAL ERROR:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+        std::string formattedMessage = StringFormat("\n%s:%i in %s FATAL ERROR:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
         va_end(args);
 
         fprintf(stderr, "%s", formattedMessage.c_str());
@@ -107,7 +107,7 @@ namespace Warhead
 
     void Error(char const* file, int line, char const* function, char const* message)
     {
-        std::string formattedMessage = Warhead::StringFormat("\n%s:%i in %s ERROR:\n  %s\n", file, line, function, message);
+        std::string formattedMessage = StringFormat("\n%s:%i in %s ERROR:\n  %s\n", file, line, function, message);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());
@@ -121,16 +121,30 @@ namespace Warhead
 
     void Abort(char const* file, int line, char const* function)
     {
-        std::string formattedMessage = Warhead::StringFormat("\n%s:%i in %s ABORTED.\n", file, line, function);
+        std::string formattedMessage = StringFormat("\n%s:%i in %s ABORTED.\n", file, line, function);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
+        Crash(formattedMessage.c_str());
+    }
+
+    void Abort(char const* file, int line, char const* function, char const* message, ...)
+    {
+        va_list args;
+        va_start(args, message);
+
+        std::string formattedMessage = StringFormat("\n%s:%i in %s ABORTED:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+        va_end(args);
+
+        fprintf(stderr, "%s", formattedMessage.c_str());
+        fflush(stderr);
+
         Crash(formattedMessage.c_str());
     }
 
     void AbortHandler(int sigval)
     {
         // nothing useful to log here, no way to pass args
-        std::string formattedMessage = Warhead::StringFormat("Caught signal %i\n", sigval);
+        std::string formattedMessage = StringFormat("Caught signal %i\n", sigval);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());

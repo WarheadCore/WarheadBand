@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ACORE_ERRORS_H_
-#define _ACORE_ERRORS_H_
+#ifndef _WARHEAD_ERRORS_H_
+#define _WARHEAD_ERRORS_H_
 
 #include "Define.h"
 #include <string>
@@ -31,6 +31,8 @@ namespace Warhead
     DECLSPEC_NORETURN void Error(char const* file, int line, char const* function, char const* message) ATTR_NORETURN;
 
     DECLSPEC_NORETURN void Abort(char const* file, int line, char const* function) ATTR_NORETURN;
+
+    DECLSPEC_NORETURN void Abort(char const* file, int line, char const* function, char const* message, ...) ATTR_NORETURN;
 
     void Warning(char const* file, int line, char const* function, char const* message);
 
@@ -58,6 +60,7 @@ std::string GetDebugInfo();
 #define WPError(cond, msg) ASSERT_BEGIN do { if (!(cond)) Warhead::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
 #define WPWarning(cond, msg) ASSERT_BEGIN do { if (!(cond)) Warhead::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
 #define WPAbort() ASSERT_BEGIN do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__); } while(0) ASSERT_END
+#define WPAbort_MSG(msg, ...) ASSERT_BEGIN do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__, (msg), ##__VA_ARGS__); } while(0) ASSERT_END
 
 #ifdef PERFORMANCE_PROFILING
 #define ASSERT(cond, ...) ((void)0)
@@ -68,6 +71,7 @@ std::string GetDebugInfo();
 #endif
 
 #define ABORT WPAbort
+#define ABORT_MSG WPAbort_MSG
 
 template <typename T>
 inline T* ASSERT_NOTNULL_IMPL(T* pointer, char const* expr)

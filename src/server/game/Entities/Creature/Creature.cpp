@@ -3013,7 +3013,7 @@ void Creature::SetObjectScale(float scale)
     if (IsPet())
         combatReach = DEFAULT_COMBAT_REACH;
 
-    SetFloatValue(UNIT_FIELD_COMBATREACH, combatReach * GetFloatValue(OBJECT_FIELD_SCALE_X) * scale);
+    SetFloatValue(UNIT_FIELD_COMBATREACH, combatReach * GetObjectScale() * scale);
 }
 
 void Creature::SetDisplayId(uint32 modelId)
