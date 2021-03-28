@@ -156,7 +156,6 @@ void ScriptMgr::Unload()
 #undef SCR_CLEAR
 
     delete[] SpellSummary;
-    delete[] UnitAI::AISpellInfo;
 }
 
 void ScriptMgr::LoadDatabase()
