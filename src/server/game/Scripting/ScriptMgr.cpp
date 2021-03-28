@@ -32,6 +32,7 @@
 #include "SpellScript.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "SmartAI.h"
 #include "WorldPacket.h"
 
 #ifdef ELUNA
@@ -166,6 +167,8 @@ void ScriptMgr::LoadDatabase()
     ScriptRegistry<AchievementCriteriaScript>::AddALScripts();
 
     FillSpellSummary();
+
+    AddSC_SmartScripts();
 
     CheckIfScriptsInDatabaseExist();
 

@@ -16,6 +16,7 @@
 #
 # AC_ADD_SCRIPT
 #
+
 MACRO(AC_ADD_SCRIPT path)
     CU_ADD_GLOBAL("AC_SCRIPTS_SOURCES" "${path}")
 ENDMACRO()
@@ -23,6 +24,7 @@ ENDMACRO()
 #
 # AC_ADD_SCRIPT_LOADER
 #
+
 MACRO(AC_ADD_SCRIPT_LOADER script_dec include)
     set (lower_prio_scripts ${ARGN})
     list(LENGTH lower_prio_scripts num_lower_prio_scripts)
@@ -53,9 +55,39 @@ MACRO(AC_ADD_SCRIPT_LOADER script_dec include)
 ENDMACRO()
 
 #
-#AC_ADD_CONFIG_FILE
+# AC_ADD_CONFIG_FILE
 #
 MACRO(AC_ADD_CONFIG_FILE configFilePath)
     CU_GET_GLOBAL("MODULE_CONFIG_FILE_LIST")
     CU_ADD_GLOBAL("MODULE_CONFIG_FILE_LIST" "${configFilePath}")
 ENDMACRO()
+
+#
+#   WH_ADD_DEF_SCRIPT_LOADER
+#
+
+macro(WH_ADD_DEF_SCRIPT_LOADER script_dec)
+    CU_GET_GLOBAL("WH_DEF_SCRIPTS_LIST")
+    CU_ADD_GLOBAL("WH_DEF_SCRIPTS_LIST" "void Add${script_dec}Scripts();")
+endmacro()
+
+#
+#   WH_ADD_MODULES_SOURCE
+#
+
+macro(WH_ADD_MODULES_SOURCE scriptName)
+    CU_SUBDIRLIST(sub_DIRS ${CMAKE_CURRENT_LIST_DIR}/src/ TRUE TRUE)
+
+    WH_ADD_DEF_SCRIPT_LOADER("${scriptName}")
+    WH_ADD_SCRIPT_LOADER("${scriptName}" "")
+    message(STATUS "  -> Prepared module script: ${scriptName}")
+ENDMACRO()
+
+#
+#   WH_ADD_MODULE
+#
+
+macro(WH_ADD_MODULE modulename)
+    CU_GET_GLOBAL("WH_MODULE_LIST")
+    CU_ADD_GLOBAL("WH_MODULE_LIST" "${modulename}")
+endmacro()
