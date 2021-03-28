@@ -1490,7 +1490,7 @@ void World::SetInitialWorldSettings()
     std::vector<uint32> mapIds;
     for (auto const& map : sMapStore)
         mapIds.emplace_back(map->MapID);
-    
+
     vmmgr2->InitializeThreadUnsafe(mapIds);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();

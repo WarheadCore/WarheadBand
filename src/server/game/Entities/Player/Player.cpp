@@ -2753,7 +2753,6 @@ void Player::Regenerate(Powers power)
         }
     }
 
-
     uint32 curValue = GetPower(power);
 
     // TODO: possible use of miscvalueb instead of amount

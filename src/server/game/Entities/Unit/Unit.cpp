@@ -5867,7 +5867,6 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
                     damage = 0;
                 }
 
-
                 data << uint32(damage);                         // damage
                 data << uint32(pInfo->overDamage);              // overkill?
                 data << uint32(aura->GetSpellInfo()->GetSchoolMask());
