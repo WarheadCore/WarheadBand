@@ -34,6 +34,7 @@
 #include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SignalHandler.h"
+#include "ScriptLoader.h"
 #include "Timer.h"
 #include "Util.h"
 #include "World.h"
@@ -145,6 +146,7 @@ int Master::Run()
     sConfigMgr->LoadModulesConfigs();
 
     ///- Initialize the World
+    sScriptMgr->SetScriptLoader(AddScripts);
     sWorld->SetInitialWorldSettings();
 
     sScriptMgr->OnStartup();
