@@ -61,7 +61,7 @@ target_link_libraries(worldserver
     warhead-core-interface
   PUBLIC
     scripts
-    game    
+    game
     gsoap
     readline
     ${GPERFTOOLS_LIBRARIES})
