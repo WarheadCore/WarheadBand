@@ -60,6 +60,7 @@ target_link_libraries(common
     Poco::Foundation
     mysql
     g3dlib
+    Detour
     sfmt
     utf8cpp
     openssl
