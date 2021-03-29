@@ -52,14 +52,14 @@ target_include_directories(common
     ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(common
-  PUBLIC
+  PRIVATE
     warhead-core-interface
+  PUBLIC
     ace
     boost
     Poco::Foundation
     mysql
     g3dlib
-    Detour
     sfmt
     utf8cpp
     openssl

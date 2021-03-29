@@ -41,6 +41,8 @@ add_executable(authserver
 add_dependencies(authserver revision.h)
 
 target_link_libraries(authserver
+  PRIVATE
+    warhead-core-interface
   PUBLIC
     shared)
 

@@ -58,6 +58,7 @@ target_include_directories(worldserver
 
 target_link_libraries(worldserver
   PRIVATE
+    warhead-core-interface
     game-interface
   PUBLIC
     game

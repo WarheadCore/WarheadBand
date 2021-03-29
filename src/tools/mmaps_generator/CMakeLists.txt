@@ -20,6 +20,8 @@ CollectSourceFiles(
 add_executable(mmaps_generator ${PRIVATE_SOURCES})
 
 target_link_libraries(mmaps_generator
+  PRIVATE
+    warhead-core-interface
   PUBLIC
     common
     Recast
