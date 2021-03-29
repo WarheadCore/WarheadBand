@@ -105,6 +105,7 @@ target_include_directories(scripts
 target_link_libraries(scripts
   PRIVATE
     warhead-core-interface
+  PUBLIC
     game-interface)
 
 set_target_properties(scripts
