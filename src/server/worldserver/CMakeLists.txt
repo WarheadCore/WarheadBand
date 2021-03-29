@@ -58,11 +58,10 @@ target_include_directories(worldserver
 
 target_link_libraries(worldserver
   PRIVATE
-    game-interface
+    warhead-core-interface
   PUBLIC
-    game
-    shared
     scripts
+    game
     gsoap
     readline
     ${GPERFTOOLS_LIBRARIES})

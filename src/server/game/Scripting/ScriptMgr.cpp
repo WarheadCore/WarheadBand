@@ -25,13 +25,13 @@
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
-#include "ScriptLoader.h"
 #include "ScriptMgr.h"
 #include "ScriptSystem.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "SmartAI.h"
 #include "WorldPacket.h"
 
 #ifdef ELUNA
@@ -78,8 +78,14 @@ template class ScriptRegistry<MailScript>;
 
 #include "ScriptMgrMacros.h"
 
+struct TSpellSummary
+{
+    uint8 Targets;                                          // set of enum SelectTarget
+    uint8 Effects;                                          // set of enum SelectEffect
+}*SpellSummary;
+
 ScriptMgr::ScriptMgr()
-    : _scriptCount(0), _scheduledScripts(0)
+    : _scriptCount(0), _scheduledScripts(0), _script_loader_callback(nullptr)
 {
 }
 
@@ -95,8 +101,15 @@ ScriptMgr* ScriptMgr::instance()
 
 void ScriptMgr::Initialize()
 {
-    AddScripts();
-    LOG_INFO("server", "Loading C++ scripts");
+    LOG_INFO("server.loading", "> Loading C++ scripts");
+    LOG_INFO("server.loading", "");
+
+    AddSC_SmartScripts();
+
+    ASSERT(_script_loader_callback,
+        "Script loader callback wasn't registered!");
+
+    _script_loader_callback();
 }
 
 void ScriptMgr::Unload()
@@ -141,6 +154,8 @@ void ScriptMgr::Unload()
     SCR_CLEAR(MailScript);
 
 #undef SCR_CLEAR
+
+    delete[] SpellSummary;
 }
 
 void ScriptMgr::LoadDatabase()
@@ -171,13 +186,10 @@ void ScriptMgr::LoadDatabase()
 
     LOG_INFO("server", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server", " ");
-}
 
-struct TSpellSummary
-{
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
-}* SpellSummary;
+    ASSERT(_script_loader_callback,
+        "Script loader callback wasn't registered!");
+}
 
 void ScriptMgr::CheckIfScriptsInDatabaseExist()
 {
@@ -218,6 +230,8 @@ void ScriptMgr::CheckIfScriptsInDatabaseExist()
 
 void ScriptMgr::FillSpellSummary()
 {
+    UnitAI::FillAISpellInfo();
+
     SpellSummary = new TSpellSummary[sSpellMgr->GetSpellInfoStoreSize()];
 
     SpellInfo const* pTempSpell;

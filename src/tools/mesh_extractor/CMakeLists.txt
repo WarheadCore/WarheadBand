@@ -20,6 +20,8 @@ CollectSourceFiles(
 add_executable(MeshExtractor ${PRIVATE_SOURCES})
 
 target_link_libraries(MeshExtractor
+  PRIVATE
+    warhead-core-interface
   PUBLIC
     common
     Recast

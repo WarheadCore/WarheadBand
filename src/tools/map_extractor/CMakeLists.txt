@@ -27,6 +27,8 @@ target_include_directories(mapextractor
     ${CMAKE_CURRENT_SOURCE_DIR}/loadlib)
 
 target_link_libraries(mapextractor
+  PRIVATE
+    warhead-core-interface
   PUBLIC
     common
     mpq)

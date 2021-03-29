@@ -20,8 +20,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 target_link_libraries(vmap4assembler
-  common
-  zlib)
+  PRIVATE
+    warhead-core-interface
+  PUBLIC
+    common
+    zlib)
 
 # Group sources
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
