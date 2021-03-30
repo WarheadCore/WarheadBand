@@ -75,6 +75,45 @@
 #  define ATTR_DEPRECATED
 #endif //WH_COMPILER == WH_COMPILER_GNU
 
+#ifdef WARHEAD_API_USE_DYNAMIC_LINKING
+#  if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
+#    define WH_API_EXPORT __declspec(dllexport)
+#    define WH_API_IMPORT __declspec(dllimport)
+#  elif WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#    define WH_API_EXPORT __attribute__((visibility("default")))
+#    define WH_API_IMPORT
+#  else
+#    error compiler not supported!
+#  endif
+#else
+#  define WH_API_EXPORT
+#  define WH_API_IMPORT
+#endif
+
+#ifdef WARHEAD_API_EXPORT_COMMON
+#  define WH_COMMON_API WH_API_EXPORT
+#else
+#  define WH_COMMON_API WH_API_IMPORT
+#endif
+
+#ifdef WARHEAD_API_EXPORT_DATABASE
+#  define WH_DATABASE_API WH_API_EXPORT
+#else
+#  define WH_DATABASE_API WH_API_IMPORT
+#endif
+
+#ifdef WARHEAD_API_EXPORT_SHARED
+#  define WH_SHARED_API WH_API_EXPORT
+#else
+#  define WH_SHARED_API WH_API_IMPORT
+#endif
+
+#ifdef WARHEAD_API_EXPORT_GAME
+#  define WH_GAME_API WH_API_EXPORT
+#else
+#  define WH_GAME_API WH_API_IMPORT
+#endif
+
 #define UI64FMTD "%" PRIu64
 #define UI64LIT(N) UINT64_C(N)
 

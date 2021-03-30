@@ -159,4 +159,18 @@ else()
   message("* Show source tree                : No (For UNIX default)")
 endif()
 
+if(BUILD_SHARED_LIBS)
+  message("")
+  message(" *** WITH_DYNAMIC_LINKING - INFO!")
+  message(" *** Will link against shared libraries!")
+  message(" *** Please note that this is an experimental feature!")
+  if(WITH_DYNAMIC_LINKING_FORCED)
+    message("")
+    message(" *** Dynamic linking was enforced through a dynamic script module!")
+  endif()
+  add_definitions(-DWARHEAD_API_USE_DYNAMIC_LINKING)
+
+  WarnAboutSpacesInBuildPath()
+endif()
+
 message("")
