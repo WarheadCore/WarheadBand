@@ -83,14 +83,14 @@ if(BUILD_SHARED_LIBS)
     target_compile_options(warhead-compile-option-interface
       INTERFACE
         -fPIC)
-  
+
     target_compile_options(warhead-hidden-symbols-interface
       INTERFACE
         -fvisibility=hidden)
-  
+
     # --no-undefined to throw errors when there are undefined symbols
     # (caused through missing WARHEAD_*_API macros).
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --no-undefined")
-  
+
     message(STATUS "Clang: Disallow undefined symbols")
   endif()
