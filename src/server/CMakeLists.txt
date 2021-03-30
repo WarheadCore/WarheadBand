@@ -13,11 +13,17 @@
 # This is done EACH compile so they can be alerted about the consequences.
 #
 
-# Crash logs for windows
+# Specified files for Windows
 if (WIN32)
+# Crash logs
 set(winDebugging
   ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
   ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h)
+
+# Service
+set(winService
+  ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.cpp
+  ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.h)
 endif()
 
 add_subdirectory(shared)

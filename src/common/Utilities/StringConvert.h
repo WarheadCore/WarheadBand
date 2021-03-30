@@ -82,7 +82,7 @@ namespace Warhead::Impl::StringConvertImpl
         }
     };
 
-#ifdef ACORE_NEED_CHARCONV_WORKAROUND
+#ifdef WARHEAD_NEED_CHARCONV_WORKAROUND
     /*
         If this is defined, std::from_chars will cause linkage errors for 64-bit types.
         (This is a bug in clang-7.)
