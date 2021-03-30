@@ -14,12 +14,7 @@
 #
 
 # Require a min version Cmake
-cmake_minimum_required(VERSION 3.8...3.19)
-
-# Fallback for using newer policies on CMake <3.12.
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
+cmake_minimum_required(VERSION 3.16...3.21)
 
 message(STATUS "CMake version: ${CMAKE_VERSION}")
 
@@ -43,8 +38,7 @@ set(AC_PATH_ROOT "${CMAKE_SOURCE_DIR}")
 
 # set macro-directory
 list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}/src/cmake/macros"
-        "${CMAKE_SOURCE_DIR}/deps/cotire/CMake")
+    "${CMAKE_SOURCE_DIR}/src/cmake/macros")
 
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
