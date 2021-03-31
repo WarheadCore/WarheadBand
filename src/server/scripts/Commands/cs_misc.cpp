@@ -1919,7 +1919,7 @@ public:
         std::string nameLink = handler->playerLink(targetName);
 
         // Returns banType, banTime, bannedBy, banreason
-        PreparedStatement* banQuery = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO_BANS);
+        LoginDatabasePreparedStatement* banQuery = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO_BANS);
         banQuery->setUInt32(0, accId);
         PreparedQueryResult accBannedResult = LoginDatabase.Query(banQuery);
         if (!accBannedResult)
@@ -1950,7 +1950,7 @@ public:
         }
 
         // Can be used to query data from Characters database
-        PreparedStatement* charXpQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
+        CharacterDatabasePreparedStatement* charXpQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
         charXpQuery->setUInt32(0, lowguid);
         PreparedQueryResult charXpResult = CharacterDatabase.Query(charXpQuery);
 
@@ -1962,7 +1962,7 @@ public:
 
             if (gguid != 0)
             {
-                PreparedStatement* guildQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
+                CharacterDatabasePreparedStatement* guildQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
                 guildQuery->setUInt32(0, lowguid);
                 PreparedQueryResult guildInfoResult = CharacterDatabase.Query(guildQuery);
                 if (guildInfoResult)
@@ -2220,7 +2220,7 @@ public:
         if (handler->HasLowerSecurity (target, targetGuid, true))
             return false;
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         std::string muteBy = "";
         if (handler->GetSession())
             muteBy = handler->GetSession()->GetPlayerName();
@@ -2306,7 +2306,7 @@ public:
             target->GetSession()->m_muteTime = 0;
         }
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
         stmt->setString(1, "");
         stmt->setString(2, "");

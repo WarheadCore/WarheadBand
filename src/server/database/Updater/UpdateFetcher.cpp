@@ -22,7 +22,8 @@
 #include "Log.h"
 #include "QueryResult.h"
 #include "Tokenize.h"
-#include "SHA1.h"
+#include "CryptoHash.h"
+#include "Util.h"
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <sstream>
@@ -242,7 +243,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             }
         }
 
-        std::string const hash = CalculateSHA1Hash(ReadSQLUpdate(availableQuery.first));
+        std::string const hash = ByteArrayToHexStr(Warhead::Crypto::SHA1::GetDigestOf(ReadSQLUpdate(availableQuery.first)));
 
         UpdateMode mode = MODE_APPLY;
 

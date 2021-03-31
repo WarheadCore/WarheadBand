@@ -66,6 +66,7 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "QuestDef.h"
+#include "QueryHolder.h"
 #include "ReputationMgr.h"
 #include "revision.h"
 #include "SavingSystem.h"
@@ -1670,7 +1671,7 @@ void Player::Update(uint32 p_time)
     if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
     {
         GetSession()->m_muteTime = 0;
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0); // Set the mute time to 0
         stmt->setString(1, "");
         stmt->setString(2, "");
@@ -1862,7 +1863,7 @@ void Player::Update(uint32 p_time)
     {
         if (m_additionalSaveTimer <= p_time)
         {
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
             if (m_additionalSaveMask & ADDITIONAL_SAVING_INVENTORY_AND_GOLD)
                 SaveInventoryAndGoldToDB(trans);
@@ -3402,7 +3403,7 @@ void Player::GiveLevel(uint8 level)
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
     {
         //- TODO: Poor design of mail system
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
         CharacterDatabase.CommitTransaction(trans);
     }
@@ -3731,7 +3732,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     //Update the next delivery time and unread mails
     time_t cTime = time(nullptr);
     //Get the next delivery time
-    PreparedStatement* stmtNextDeliveryTime = CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
+    CharacterDatabasePreparedStatement* stmtNextDeliveryTime = CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
     stmtNextDeliveryTime->setUInt64(0, GetGUIDLow());
     stmtNextDeliveryTime->setUInt64(1, cTime);
     PreparedQueryResult resultNextDeliveryTime = CharacterDatabase.Query(stmtNextDeliveryTime);
@@ -3742,7 +3743,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     }
 
     //Get unread mails count
-    PreparedStatement* stmtUnreadAmount = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT_UNREAD_SYNCH);
+    CharacterDatabasePreparedStatement* stmtUnreadAmount = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT_UNREAD_SYNCH);
     stmtUnreadAmount->setUInt64(0, GetGUIDLow());
     stmtUnreadAmount->setUInt64(1, cTime);
     PreparedQueryResult resultUnreadAmount = CharacterDatabase.Query(stmtUnreadAmount);
@@ -4479,9 +4480,9 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
     }
 }
 
-void Player::_SaveSpellCooldowns(SQLTransaction& trans, bool logout)
+void Player::_SaveSpellCooldowns(CharacterDatabaseTransaction trans, bool logout)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -4871,14 +4872,14 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // Remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
 
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     switch (charDelete_method)
     {
         // Completely remove from the database
         case CHAR_DELETE_REMOVE:
             {
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_COD_ITEM_MAIL);
                 stmt->setUInt32(0, guid);
@@ -5191,7 +5192,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
     LOG_INFO("server", "Player::DeleteOldChars: Deleting all characters which have been deleted %u days before...", keepDays);
     LOG_INFO("server", " ");
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
     stmt->setUInt32(0, uint32(time(nullptr) - time_t(keepDays * DAY)));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -5483,10 +5484,10 @@ void Player::SpawnCorpseBones()
         if (!GetSession()->PlayerLogoutWithSave())          // at logout we will already store the player
         {
             // prevent loading as ghost without corpse
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
             // pussywizard: update only ghost flag instead of whole character table entry! data integrity is crucial
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REMOVE_GHOST);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REMOVE_GHOST);
             stmt->setUInt32(0, GetGUIDLow());
             trans->Append(stmt);
 
@@ -7590,7 +7591,7 @@ void Player::SetArenaPoints(uint32 value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
 }
 
-void Player::ModifyHonorPoints(int32 value, SQLTransaction* trans /*=nullptr*/)
+void Player::ModifyHonorPoints(int32 value, CharacterDatabaseTransaction trans /*=nullptr*/)
 {
     int32 newValue = int32(GetHonorPoints()) + value;
     if (newValue < 0)
@@ -7599,14 +7600,14 @@ void Player::ModifyHonorPoints(int32 value, SQLTransaction* trans /*=nullptr*/)
 
     if (trans)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_HONOR_POINTS);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_HONOR_POINTS);
         stmt->setUInt32(0, newValue);
         stmt->setUInt32(1, GetGUIDLow());
-        (*trans)->Append(stmt);
+        trans->Append(stmt);
     }
 }
 
-void Player::ModifyArenaPoints(int32 value, SQLTransaction* trans /*=nullptr*/)
+void Player::ModifyArenaPoints(int32 value, CharacterDatabaseTransaction trans /*=nullptr*/)
 {
     int32 newValue = int32(GetArenaPoints()) + value;
     if (newValue < 0)
@@ -7615,10 +7616,10 @@ void Player::ModifyArenaPoints(int32 value, SQLTransaction* trans /*=nullptr*/)
 
     if (trans)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_ARENA_POINTS);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_ARENA_POINTS);
         stmt->setUInt32(0, newValue);
         stmt->setUInt32(1, GetGUIDLow());
-        (*trans)->Append(stmt);
+        trans->Append(stmt);
     }
 }
 
@@ -7659,7 +7660,7 @@ void Player::SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 va
 
 uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_TEAM_ID_BY_PLAYER_GUID);
     stmt->setUInt32(0, GUID_LOPART(guid));
     stmt->setUInt8(1, type);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -7674,7 +7675,7 @@ uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
 uint32 Player::GetZoneIdFromDB(uint64 guid)
 {
     uint32 guidLow = GUID_LOPART(guid);
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ZONE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_ZONE);
     stmt->setUInt32(0, guidLow);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -12749,7 +12750,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             for (++itr; itr != allowedLooters.end(); ++itr)
                 ss << ' ' << *itr;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
             stmt->setUInt32(0, pItem->GetGUIDLow());
             stmt->setString(1, ss.str());
             CharacterDatabase.Execute(stmt);
@@ -13226,7 +13227,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
             stmt->setUInt32(0, pItem->GetGUIDLow());
 
@@ -16093,7 +16094,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // Xinef: send items that couldn't be added properly by mail
     if (!problematicItems.empty())
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailSender sender(MAIL_CREATURE, 34337 /* The Postmaster */ );
         MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
 
@@ -16172,7 +16173,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
     {
         //- TODO: Poor design of mail system
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         if (quest->GetRewMailSenderEntry() != 0)
             MailDraft(mail_template_id).SendMailTo(trans, this, quest->GetRewMailSenderEntry(), MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
         else
@@ -17907,7 +17908,7 @@ void Player::_LoadEntryPointData(PreparedQueryResult result)
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_POSITION);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_POSITION);
     stmt->setUInt32(0, GUID_LOPART(guid));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -17933,7 +17934,7 @@ void Player::SetHomebind(WorldLocation const& loc, uint32 areaId)
     m_homebindAreaId = areaId;
 
     // update sql homebind
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
     stmt->setUInt16(0, m_homebindMapId);
     stmt->setUInt16(1, m_homebindAreaId);
     stmt->setFloat (2, m_homebindX);
@@ -17965,7 +17966,7 @@ bool Player::isBeingLoaded() const
     return GetSession()->PlayerLoading();
 }
 
-bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
+bool Player::LoadFromDB(uint32 guid, CharacterDatabaseQueryHolder const& holder)
 {
     ////                                                     0     1        2     3     4        5      6    7      8     9    10    11         12         13           14         15         16
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, skin, face, hairStyle, hairColor, facialStyle, bankSlots, restState, playerFlags, "
@@ -17977,7 +17978,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, "
     // 55      56      57      58      59      60      61      62      63           64                 65                 66             67              68      69           70          71
     //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", guid);
-    PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
+    PreparedQueryResult result = holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
 
     if (!result)
     {
@@ -17997,7 +17998,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
         return false;
     }
 
-    if (holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BANNED))
+    if (holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BANNED))
     {
         LOG_ERROR("server", "Player (GUID: %u) is banned, can't load.", guid);
         return false;
@@ -18011,7 +18012,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     if (ObjectMgr::CheckPlayerName(m_name) != CHAR_NAME_SUCCESS ||
             (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && sObjectMgr->IsReservedName(m_name)))
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
         stmt->setUInt32(1, guid);
         CharacterDatabase.Execute(stmt);
@@ -18048,7 +18049,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
 
     // load achievements before anything else to prevent multiple gains for the same achievement/criteria on every loading (as loading does call UpdateAchievementCriteria)
-    m_achievementMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS));
+    m_achievementMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS));
 
     uint32 money = fields[8].GetUInt32();
     if (money > MAX_MONEY_AMOUNT)
@@ -18099,7 +18100,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     sInstanceSaveMgr->PlayerCreateBoundInstancesMaps(guid);
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
-    if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
+    if (!_LoadHomeBind(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
         return false;
 
     InitPrimaryProfessions();                               // to max set before any spell loaded
@@ -18136,8 +18137,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[49].GetUInt16());
     SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[50].GetUInt16());
 
-    _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
-    _LoadEntryPointData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ENTRY_POINT));
+    _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
+    _LoadEntryPointData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ENTRY_POINT));
 
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
@@ -18439,7 +18440,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     }
 
     // load skills after InitStatsForLevel because it triggering aura apply also
-    _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SKILLS));
+    _LoadSkills(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SKILLS));
     UpdateSkillsForLevel(); //update skills after load, to make sure they are correctly update at player load
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
@@ -18451,12 +18452,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     m_activeSpec = fields[65].GetUInt8();
 
     learnDefaultSpells(); // pussywizard: move before loading spells and talents
-    _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
-    _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
+    _LoadSpells(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELLS));
+    _LoadTalents(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TALENTS));
 
-    _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
+    _LoadGlyphs(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GLYPHS));
     _LoadGlyphAuras();
-    _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), time_diff);
+    _LoadAuras(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURAS), time_diff);
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
     {
@@ -18468,32 +18469,32 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP);
 
     // after spell load, learn rewarded spell if need also
-    _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
-    _LoadQuestStatusRewarded(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW));
-    _LoadDailyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS));
-    _LoadWeeklyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS));
-    _LoadSeasonalQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS));
-    _LoadMonthlyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS));
-    _LoadRandomBGStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG));
+    _LoadQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
+    _LoadQuestStatusRewarded(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_REW));
+    _LoadDailyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DAILY_QUEST_STATUS));
+    _LoadWeeklyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_WEEKLY_QUEST_STATUS));
+    _LoadSeasonalQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS));
+    _LoadMonthlyQuestStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS));
+    _LoadRandomBGStatus(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_RANDOM_BG));
 
     // after spell and quest load
     InitTalentForLevel();
 
     // must be before inventory (some items required reputation check)
-    m_reputationMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
+    m_reputationMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
 
     // xinef: load mails before inventory, so problematic items can be added to already loaded mails
     // unread mails and next delivery time, actual mails not loaded
-    _LoadMailInit(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_UNREAD_COUNT), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE));
+    _LoadMailInit(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_UNREAD_COUNT), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE));
 
-    _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY), time_diff);
+    _LoadInventory(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY), time_diff);
 
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
-    _LoadActions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACTIONS));
+    _LoadActions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACTIONS));
 
-    m_social = sSocialMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST), GetGUIDLow());
+    m_social = sSocialMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST), GetGUIDLow());
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
     // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
@@ -18506,7 +18507,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(time(nullptr), GetPositionZ());
 
-    _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS));
+    _LoadSpellCooldowns(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -18601,13 +18602,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder)
     if (m_grantableLevels > 0)
         SetByteValue(PLAYER_FIELD_BYTES, 1, 0x01);
 
-    _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
+    _LoadDeclinedNames(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
 
     //m_achievementMgr->CheckAllAchievementCriteria(); // pussywizard: ZOMG! disabled this bullshit
 
-    _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
+    _LoadEquipmentSets(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
-    _LoadBrewOfTheMonth(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BREW_OF_THE_MONTH));
+    _LoadBrewOfTheMonth(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BREW_OF_THE_MONTH));
 
     // Players are immune to taunt
     ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -18868,7 +18869,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         std::map<uint32, Bag*> bagMap;                               // fast guid lookup for bags
         std::map<uint32, Item*> invalidBagMap;                       // fast guid lookup for bags
         std::list<Item*> problematicItems;
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         // Prevent items from being added to the queue while loading
         m_itemUpdateQueueBlocked = true;
@@ -18982,7 +18983,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
     _ApplyAllItemMods();
 }
 
-Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
+Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = nullptr;
     uint32 itemGuid  = fields[13].GetUInt32();
@@ -18993,7 +18994,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
         item = NewItemOrBag(proto);
         if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry))
         {
-            PreparedStatement* stmt = nullptr;
+            CharacterDatabasePreparedStatement* stmt = nullptr;
 
             // Do not allow to have item limited to another map/zone in alive state
             if (IsAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
@@ -19123,7 +19124,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
 void Player::_LoadMailedItems(Mail* mail)
 {
     // data needs to be at first place for Item::LoadFromDB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
     stmt->setUInt32(0, mail->messageID);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
@@ -19166,7 +19167,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
             item->FSetState(ITEM_REMOVED);
 
-            SQLTransaction temp = SQLTransaction(nullptr);
+            CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
             item->SaveToDB(temp);                               // it also deletes item object !
             continue;
         }
@@ -19206,7 +19207,7 @@ void Player::_LoadMail()
     if (m_mailsUpdated)
     {
         //Save changed data to the sql before refreshing so we always get up to date data
-        SQLTransaction saveTransaction = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction saveTransaction = CharacterDatabase.BeginTransaction();
         _SaveMail(saveTransaction);
         CharacterDatabase.CommitTransaction(saveTransaction);
     }
@@ -19223,7 +19224,7 @@ void Player::_LoadMail()
 
     //Now load the new ones
     m_mailCache.clear();
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
     stmt->setUInt32(0, GetGUIDLow());
     stmt->setUInt64(1, time(nullptr));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -20056,7 +20057,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
             ok = true;
         else
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
             stmt->setUInt32(0, GetGUIDLow());
             CharacterDatabase.Execute(stmt);
         }
@@ -20070,7 +20071,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         m_homebindY = info->positionY;
         m_homebindZ = info->positionZ;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
         stmt->setUInt32(0, GetGUIDLow());
         stmt->setUInt16(1, m_homebindMapId);
         stmt->setUInt16(2, m_homebindAreaId);
@@ -20118,7 +20119,7 @@ void Player::SaveToDB(bool create, bool logout)
     if (!create)
         sScriptMgr->OnPlayerSave(this);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     _SaveCharacter(create, trans);
 
@@ -20168,23 +20169,23 @@ void Player::SaveToDB(bool create, bool logout)
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
-void Player::SaveInventoryAndGoldToDB(SQLTransaction& trans)
+void Player::SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans)
 {
     _SaveInventory(trans);
     SaveGoldToDB(trans);
 }
 
-void Player::SaveGoldToDB(SQLTransaction& trans)
+void Player::SaveGoldToDB(CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY);
     stmt->setUInt32(0, GetMoney());
     stmt->setUInt32(1, GetGUIDLow());
     trans->Append(stmt);
 }
 
-void Player::_SaveActions(SQLTransaction& trans)
+void Player::_SaveActions(CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end();)
     {
@@ -20230,9 +20231,9 @@ void Player::_SaveActions(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveAuras(SQLTransaction& trans, bool logout)
+void Player::_SaveAuras(CharacterDatabaseTransaction trans, bool logout)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -20288,9 +20289,9 @@ void Player::_SaveAuras(SQLTransaction& trans, bool logout)
     }
 }
 
-void Player::_SaveInventory(SQLTransaction& trans)
+void Player::_SaveInventory(CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
     // force items in buyback slots to new state
     // and remove those that aren't already
     for (uint8 i = BUYBACK_SLOT_START; i < BUYBACK_SLOT_END; ++i)
@@ -20424,14 +20425,14 @@ void Player::_SaveInventory(SQLTransaction& trans)
     m_itemUpdateQueue.clear();
 }
 
-void Player::_SaveMail(SQLTransaction& trans)
+void Player::_SaveMail(CharacterDatabaseTransaction trans)
 {
     if (!GetMailCacheSize() || !m_mailsUpdated)
     {
         return;
     }
 
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     for (PlayerMails::iterator itr = m_mailCache.begin(); itr != m_mailCache.end(); ++itr)
     {
@@ -20501,7 +20502,7 @@ void Player::_SaveMail(SQLTransaction& trans)
     m_mailsUpdated = false;
 }
 
-void Player::_SaveQuestStatus(SQLTransaction& trans)
+void Player::_SaveQuestStatus(CharacterDatabaseTransaction trans)
 {
     bool isTransaction = static_cast<bool>(trans);
     if (!isTransaction)
@@ -20509,7 +20510,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
 
     QuestStatusSaveMap::iterator saveItr;
     QuestStatusMap::iterator statusItr;
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     bool keepAbandoned = !(sWorld->GetCleaningFlags() & CharacterDatabaseCleaner::CLEANING_FLAG_QUESTSTATUS);
 
@@ -20568,7 +20569,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         CharacterDatabase.CommitTransaction(trans);
 }
 
-void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
+void Player::_SaveDailyQuestStatus(CharacterDatabaseTransaction trans)
 {
     if (!m_DailyQuestChanged)
         return;
@@ -20578,7 +20579,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     // save last daily quest time for all quests: we need only mostly reset time for reset check anyway
 
     // we don't need transactions here.
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
     for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
@@ -20606,13 +20607,13 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
+void Player::_SaveWeeklyQuestStatus(CharacterDatabaseTransaction trans)
 {
     if (!m_WeeklyQuestChanged || m_weeklyquests.empty())
         return;
 
     // we don't need transactions here.
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY_CHAR);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -20629,13 +20630,13 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
     m_WeeklyQuestChanged = false;
 }
 
-void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
+void Player::_SaveSeasonalQuestStatus(CharacterDatabaseTransaction trans)
 {
     if (!m_SeasonalQuestChanged || m_seasonalquests.empty())
         return;
 
     // we don't need transactions here.
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -20657,13 +20658,13 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
     m_SeasonalQuestChanged = false;
 }
 
-void Player::_SaveMonthlyQuestStatus(SQLTransaction& trans)
+void Player::_SaveMonthlyQuestStatus(CharacterDatabaseTransaction trans)
 {
     if (!m_MonthlyQuestChanged || m_monthlyquests.empty())
         return;
 
     // we don't need transactions here.
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY_CHAR);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY_CHAR);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -20679,9 +20680,10 @@ void Player::_SaveMonthlyQuestStatus(SQLTransaction& trans)
     m_MonthlyQuestChanged = false;
 }
 
-void Player::_SaveSkills(SQLTransaction& trans)
+void Player::_SaveSkills(CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
+
     // we don't need transactions here.
     for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end();)
     {
@@ -20735,9 +20737,9 @@ void Player::_SaveSkills(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveSpells(SQLTransaction& trans)
+void Player::_SaveSpells(CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end();)
     {
@@ -20782,13 +20784,13 @@ void Player::_SaveSpells(SQLTransaction& trans)
 
 // save player stats -- only for external usage
 // real stats will be recalculated on player login
-void Player::_SaveStats(SQLTransaction& trans)
+void Player::_SaveStats(CharacterDatabaseTransaction trans)
 {
     // check if stat saving is enabled and if char level is high enough
     if (!sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE))
         return;
 
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
     stmt->setUInt32(0, GetGUIDLow());
@@ -20895,7 +20897,7 @@ void Player::SendAttackSwingNotInRange()
 
 void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
 
     stmt->setFloat(0, x);
     stmt->setFloat(1, y);
@@ -20906,6 +20908,21 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
     stmt->setUInt32(6, GUID_LOPART(guid));
 
     CharacterDatabase.Execute(stmt);
+}
+
+void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, uint64 guid, CharacterDatabaseTransaction trans)
+{
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+
+    stmt->setFloat(0, loc.GetPositionX());
+    stmt->setFloat(1, loc.GetPositionY());
+    stmt->setFloat(2, loc.GetPositionZ());
+    stmt->setFloat(3, loc.GetOrientation());
+    stmt->setUInt16(4, uint16(loc.GetMapId()));
+    stmt->setUInt16(5, zoneId);
+    stmt->setUInt32(6, GUID_LOPART(guid));
+
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value)
@@ -20919,20 +20936,19 @@ void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value
     tokens[index] = buf;
 }
 
-void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair)
+void Player::Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction trans)
 {
-    // xinef: zomg! sync query
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
 
-    stmt->setUInt8(0, gender);
-    stmt->setUInt8(1, skin);
-    stmt->setUInt8(2, face);
-    stmt->setUInt8(3, hairStyle);
-    stmt->setUInt8(4, hairColor);
-    stmt->setUInt8(5, facialHair);
-    stmt->setUInt32(6, GUID_LOPART(guid));
+    stmt->setUInt8(0, customizeInfo->Gender);
+    stmt->setUInt8(1, customizeInfo->Skin);
+    stmt->setUInt8(2, customizeInfo->Face);
+    stmt->setUInt8(3, customizeInfo->HairStyle);
+    stmt->setUInt8(4, customizeInfo->HairColor);
+    stmt->setUInt8(5, customizeInfo->FacialHair);
+    stmt->setUInt32(6, GUID_LOPART(customizeInfo->Guid));
 
-    CharacterDatabase.Execute(stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Player::SendAttackSwingDeadTarget()
@@ -21945,22 +21961,22 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
 
     if (type == 10)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PETITION_SIGNATURES);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PETITION_SIGNATURES);
         stmt->setUInt32(0, playerGuid);
         CharacterDatabase.Execute(stmt);
     }
     else
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE);
         stmt->setUInt32(0, playerGuid);
         stmt->setUInt8(1, uint8(type));
         CharacterDatabase.Execute(stmt);
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (type == 10)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
         stmt->setUInt32(0, playerGuid);
         trans->Append(stmt);
 
@@ -21973,7 +21989,7 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
     }
     else
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER_AND_TYPE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER_AND_TYPE);
         stmt->setUInt32(0, playerGuid);
         stmt->setUInt8(1, uint8(type));
         trans->Append(stmt);
@@ -21992,7 +22008,7 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
 void Player::LeaveAllArenaTeams(uint64 guid)
 {
     // xinef: zomg! sync query
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ARENA_TEAMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_ARENA_TEAMS);
     stmt->setUInt32(0, GUID_LOPART(guid));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -23202,7 +23218,7 @@ void Player::LeaveBattleground(Battleground* bg)
     {
         if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
             stmt->setUInt32(0, GetGUIDLow());
             stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_BG);
             CharacterDatabase.Execute(stmt);
@@ -24396,7 +24412,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     else
     {
         MoveItemFromInventory(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND, true);
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
@@ -25883,7 +25899,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             {
                 LOG_ERROR("server", "Character %u has skill %u with value 0. Will be deleted.", GetGUIDLow(), skill);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
 
                 stmt->setUInt32(0, GetGUIDLow());
                 stmt->setUInt16(1, skill);
@@ -26704,13 +26720,13 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
     eqslot.state = old_state == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
 }
 
-void Player::_SaveEquipmentSets(SQLTransaction& trans)
+void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
 {
     for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end();)
     {
         uint32 index = itr->first;
         EquipmentSet& eqset = itr->second;
-        PreparedStatement* stmt = nullptr;
+        CharacterDatabasePreparedStatement* stmt = nullptr;
         uint8 j = 0;
         switch (eqset.state)
         {
@@ -26755,14 +26771,14 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
     }
 }
 
-void Player::_SaveEntryPoint(SQLTransaction& trans)
+void Player::_SaveEntryPoint(CharacterDatabaseTransaction trans)
 {
     // xinef: dont save joinpos with invalid mapid
     MapEntry const* mEntry = sMapStore.LookupEntry(m_entryPointData.joinPos.GetMapId());
     if (!mEntry)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ENTRY_POINT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_ENTRY_POINT);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_ENTRY_POINT);
@@ -26806,7 +26822,7 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
     if (persist)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
 
         stmt->setUInt16(0, uint16(flags));
         stmt->setUInt32(1, GetGUIDLow());
@@ -26844,9 +26860,9 @@ void Player::SetMap(Map* map)
     m_mapRef.link(map, this);
 }
 
-void Player::_SaveCharacter(bool create, SQLTransaction& trans)
+void Player::_SaveCharacter(bool create, CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
     uint8 index = 0;
 
     if (create)
@@ -27125,12 +27141,12 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void Player::_SaveGlyphs(SQLTransaction& trans)
+void Player::_SaveGlyphs(CharacterDatabaseTransaction trans)
 {
     if (!NeedToSaveGlyphs())
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
@@ -27172,9 +27188,9 @@ void Player::_LoadTalents(PreparedQueryResult result)
     }
 }
 
-void Player::_SaveTalents(SQLTransaction& trans)
+void Player::_SaveTalents(CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     for (PlayerTalentMap::iterator itr = m_talents.begin(); itr != m_talents.end();)
     {
@@ -27226,8 +27242,8 @@ void Player::UpdateSpecCount(uint8 count)
     if (m_activeSpec >= count)
         ActivateSpec(0);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     // Copy spec data
     if (count > curCount)
@@ -27278,7 +27294,7 @@ void Player::ActivateSpec(uint8 spec)
         InterruptNonMeleeSpells(false);
 
     // xinef: save current actions order
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveActions(trans);
     CharacterDatabase.CommitTransaction(trans);
 
@@ -27365,11 +27381,22 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
-    // xinef: optimization, use callback to read the data
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);
-    stmt->setUInt32(0, GetGUIDLow());
-    stmt->setUInt8(1, m_activeSpec);
-    GetSession()->_loadActionsSwitchSpecCallback = CharacterDatabase.AsyncQuery(stmt); // FutureResult
+    // load them asynchronously
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);
+        stmt->setUInt32(0, GetGUIDLow());
+        stmt->setUInt8(1, m_activeSpec);
+
+        WorldSession* mySess = GetSession();
+        mySess->GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(stmt)
+            .WithPreparedCallback([mySess](PreparedQueryResult result)
+        {
+            // safe callback, we can't pass this pointer directly
+            // in case player logs out before db response (player would be deleted in that case)
+            if (Player* thisPlayer = mySess->GetPlayer())
+                thisPlayer->LoadActions(result);
+        }));
+    }
 
     // xinef: reset power
     Powers pw = getPowerType();
@@ -27800,7 +27827,7 @@ void Player::RefundItem(Item* item)
     uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
 
     // Save all relevant data to DB to prevent desynchronisation exploits
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Delete any references to the refund data
     item->SetNotRefundable(this, true, &trans);
@@ -27829,11 +27856,11 @@ void Player::RefundItem(Item* item)
 
     // Grant back Honor points
     if (uint32 honorRefund = iece->reqhonorpoints)
-        ModifyHonorPoints(honorRefund, &trans);
+        ModifyHonorPoints(honorRefund, trans);
 
     // Grant back Arena points
     if (uint32 arenaRefund = iece->reqarenapoints)
-        ModifyArenaPoints(arenaRefund, &trans);
+        ModifyArenaPoints(arenaRefund, trans);
 
     SaveInventoryAndGoldToDB(trans);
 
@@ -27845,7 +27872,7 @@ void Player::SetRandomWinner(bool isWinner)
     m_IsBGRandomWinner = isWinner;
     if (m_IsBGRandomWinner)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
         stmt->setUInt32(0, GetGUIDLow());
         CharacterDatabase.Execute(stmt);
     }
@@ -27942,13 +27969,13 @@ void Player::_LoadBrewOfTheMonth(PreparedQueryResult result)
     if (lastEventId != eventId && IsEventActive(eventId) && HasAchieved(2796 /* Brew of the Month*/))
     {
         // Send Mail
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailSender sender(MAIL_CREATURE, 27487 /*NPC_BREW_OF_THE_MONTH_CLUB*/);
         MailDraft draft(uint16(212 + month)); // 212 is starting template id
         draft.SendMailTo(trans, MailReceiver(this, GetGUIDLow()), sender);
 
         // Update Event Id
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_BREW_OF_THE_MONTH);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_BREW_OF_THE_MONTH);
         stmt->setUInt32(0, GetGUIDLow());
         stmt->setUInt32(1, uint32(eventId));
         trans->Append(stmt);
@@ -27957,12 +27984,12 @@ void Player::_LoadBrewOfTheMonth(PreparedQueryResult result)
     }
 }
 
-void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
+void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans)
 {
     if (_instanceResetTimes.empty())
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
     stmt->setUInt32(0, GetSession()->GetAccountId());
     trans->Append(stmt);
 

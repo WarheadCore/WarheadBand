@@ -22,17 +22,7 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
-#include "Callback.h"
-#include "Common.h"
-#include "AsyncCallbackProcessor.h"
 #include "IWorld.h"
-#include "DatabaseEnvFwd.h"
-#include "SharedDefines.h"
-#include "Timer.h"
-#include <atomic>
-#include <list>
-#include <map>
-#include <set>
 
 class Object;
 class WorldPacket;

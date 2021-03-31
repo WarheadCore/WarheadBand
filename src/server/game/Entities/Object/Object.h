@@ -679,10 +679,13 @@ public:
     WorldLocation& operator=(WorldLocation&&) = default;
 #endif
 
-    void WorldRelocate(const WorldLocation& loc)
+    void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
+    void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
+    void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
+    void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
     {
-        m_mapId = loc.GetMapId();
-        Relocate(loc);
+        m_mapId = mapId;
+        Relocate(x, y, z, o);
     }
 
     [[nodiscard]] uint32 GetMapId() const

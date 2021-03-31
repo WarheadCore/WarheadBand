@@ -18,6 +18,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "RealmList.h"
+#include "Log.h"
 
 RealmList::RealmList() :  m_NextUpdateTime(time(nullptr)) { }
 

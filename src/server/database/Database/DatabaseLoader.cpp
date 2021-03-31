@@ -36,14 +36,14 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
 
     _open.push([this, name, updatesEnabledForThis, &pool]() -> bool
     {
-        std::string const dbString = sConfigMgr->GetStringDefault(name + "DatabaseInfo", "");
+        std::string const dbString = sConfigMgr->GetOption<std::string>(name + "DatabaseInfo", "");
         if (dbString.empty())
         {
             LOG_ERROR(_logger, "Database %s not specified in configuration file!", name.c_str());
             return false;
         }
 
-        uint8 const asyncThreads = uint8(sConfigMgr->GetIntDefault(name + "Database.WorkerThreads", 1));
+        uint8 const asyncThreads = sConfigMgr->GetOption<uint8>(name + "Database.WorkerThreads", 1);
         if (asyncThreads < 1 || asyncThreads > 32)
         {
             LOG_ERROR(_logger, "%s database: invalid number of worker threads specified. "
@@ -51,7 +51,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             return false;
         }
 
-        uint8 const synchThreads = uint8(sConfigMgr->GetIntDefault(name + "Database.SynchThreads", 1));
+        uint8 const synchThreads = sConfigMgr->GetOption<uint8>(name + "Database.SynchThreads", 1);
 
         pool.SetConnectionInfo(dbString, asyncThreads, synchThreads);
 

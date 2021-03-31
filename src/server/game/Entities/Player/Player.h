@@ -18,7 +18,9 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "Unit.h"
 #include "Battleground.h"
+#include "DatabaseEnvFwd.h"
 #include "DBCStores.h"
 #include "GroupReference.h"
 #include "InstanceSaveMgr.h"
@@ -28,7 +30,6 @@
 #include "PetDefines.h"
 #include "QuestDef.h"
 #include "SpellMgr.h"
-#include "Unit.h"
 #include "WorldSession.h"
 #include <string>
 #include <vector>
@@ -2161,8 +2162,8 @@ public:
     bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool awardXP = true);
     [[nodiscard]] uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
     [[nodiscard]] uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
-    void ModifyHonorPoints(int32 value, SQLTransaction* trans = nullptr);      //! If trans is specified, honor save query will be added to trans
-    void ModifyArenaPoints(int32 value, SQLTransaction* trans = nullptr);      //! If trans is specified, arena point save query will be added to trans
+    void ModifyHonorPoints(int32 value, CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr));      //! If trans is specified, honor save query will be added to trans
+    void ModifyArenaPoints(int32 value, CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr));      //! If trans is specified, arena point save query will be added to trans
     [[nodiscard]] uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
     void SetHonorPoints(uint32 value);
     void SetArenaPoints(uint32 value);

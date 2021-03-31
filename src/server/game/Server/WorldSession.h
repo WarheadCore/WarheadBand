@@ -22,12 +22,12 @@
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
 
+#include "Common.h"
 #include "AccountMgr.h"
 #include "AuthDefines.h"
 #include "AddonMgr.h"
 #include "BanManager.h"
-#include "Common.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "GossipDef.h"
 #include "Opcodes.h"
 #include "SharedDefines.h"
@@ -177,11 +177,6 @@ class CharacterCreateInfo
     friend class Player;
 
 protected:
-    CharacterCreateInfo(std::string  name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId,
-                        WorldPacket& data) : Name(std::move(name)), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair),
-        OutfitId(outfitId), Data(data), CharCount(0)
-    {}
-
     /// User specified variables
     std::string Name;
     uint8 Race = 0;
@@ -198,8 +193,13 @@ protected:
     uint8 CharCount = 0;
 };
 
-private:
-    virtual ~CharacterCreateInfo() = default;;
+struct CharacterRenameInfo
+{
+    friend class WorldSession;
+
+protected:
+    uint64 Guid;
+    std::string Name;
 };
 
 struct CharacterCustomizeInfo : public CharacterRenameInfo

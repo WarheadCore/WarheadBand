@@ -206,7 +206,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
         if (!surveyIds.insert(subSurveyId).second)
             continue;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->setUInt32(0, nextSurveyID);
         stmt->setUInt32(1, subSurveyId);
         stmt->setUInt32(2, rank);
@@ -217,7 +217,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
     std::string comment; // just a guess
     recv_data >> comment;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GUID_LOPART(GetPlayer()->GetGUID()));
     stmt->setUInt32(1, nextSurveyID);
     stmt->setUInt32(2, mainSurvey);

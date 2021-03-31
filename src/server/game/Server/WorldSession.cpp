@@ -45,6 +45,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "QueryHolder.h"
 #include "zlib.h"
 
 #ifdef ELUNA
@@ -526,7 +527,7 @@ void WorldSession::LogoutPlayer(bool save)
                 {
                     if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
                     {
-                        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                         stmt->setUInt32(0, _player->GetGUIDLow());
                         stmt->setUInt8(1, BG_DESERTION_TYPE_INVITE_LOGOUT);
                         CharacterDatabase.Execute(stmt);

@@ -126,9 +126,9 @@ namespace AccountMgr
         loginStmt->setUInt32(0, accountId);
         trans->Append(loginStmt);
 
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTED);
-        stmt->setUInt32(0, accountId);
-        trans->Append(stmt);
+        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTED);
+        loginStmt->setUInt32(0, accountId);
+        trans->Append(loginStmt);
 
         LoginDatabase.CommitTransaction(trans);
 
@@ -190,7 +190,7 @@ namespace AccountMgr
 
         auto [salt, verifier] = Warhead::Crypto::SRP6::MakeRegistrationData(username, newPassword);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
         stmt->setBinary(0, salt);
         stmt->setBinary(1, verifier);
         stmt->setUInt32(2, accountId);;
