@@ -37,7 +37,7 @@ target_link_libraries(shared
   PRIVATE
     warhead-core-interface
   PUBLIC
-    common)
+    database)
 
 set_target_properties(shared
   PROPERTIES

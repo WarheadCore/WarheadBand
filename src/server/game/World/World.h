@@ -24,8 +24,9 @@
 
 #include "Callback.h"
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
 #include "IWorld.h"
-#include "QueryResult.h"
+#include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 #include <atomic>
@@ -502,7 +503,7 @@ private:
     AutobroadcastsWeightMap m_AutobroadcastsWeights;
 
     void ProcessQueryCallbacks();
-    ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
+    QueryCallbackProcessor _queryProcessor;
 };
 
 std::unique_ptr<IWorld>& getWorldInstance();

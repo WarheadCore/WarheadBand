@@ -107,12 +107,11 @@ void Pet::RemoveFromWorld()
 
 SpellCastResult Pet::TryLoadFromDB(Player* owner, bool current /*= false*/, PetType mandatoryPetType /*= MAX_PET_TYPE*/)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_SYNS);
     stmt->setUInt32(0, owner->GetGUIDLow());
     stmt->setUInt8(1, uint8(current ? PET_SAVE_AS_CURRENT : PET_SAVE_NOT_IN_SLOT));
 
-    PreparedQueryResult result = CharacterDatabase.AsyncQuery(stmt);
-
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return SPELL_FAILED_NO_PET;
 
@@ -168,7 +167,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint8 asynchLoadType, uint32 petentry, ui
             return false;
 
     uint32 ownerid = owner->GetGUIDLow();
-    PreparedStatement* stmt;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
 
     if (petnumber)
     {
@@ -202,12 +201,21 @@ bool Pet::LoadPetFromDB(Player* owner, uint8 asynchLoadType, uint32 petentry, ui
         stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
     }
 
-    if (AsynchPetSummon* info = owner->GetSession()->_loadPetFromDBFirstCallback.GetSecondParam())
-        delete info;
-    owner->GetSession()->_loadPetFromDBFirstCallback.Reset();
-    owner->GetSession()->_loadPetFromDBFirstCallback.SetFirstParam(asynchLoadType);
-    owner->GetSession()->_loadPetFromDBFirstCallback.SetSecondParam(info);
-    owner->GetSession()->_loadPetFromDBFirstCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
+    // load them asynchronously
+    {
+        WorldSession* mySess = owner->GetSession();
+        mySess->GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(stmt)
+            .WithPreparedCallback([mySess, &asynchLoadType, info, owner](PreparedQueryResult result)
+        {
+            // process only if player is in world (teleport crashes?)
+            // otherwise wait with result till he logs in
+            uint8 loadResult = mySess->HandleLoadPetFromDBFirstCallback(result, asynchLoadType);
+
+            if (loadResult != PET_LOAD_OK)
+                Pet::HandleAsynchLoadFailed(info, owner, asynchLoadType, loadResult);
+        }));
+    }
+
     return true;
 }
 
@@ -237,7 +245,7 @@ void Pet::SavePetToDB(PetSaveMode mode, bool logout)
     uint32 curhealth = GetHealth();
     uint32 curmana = GetPower(POWER_MANA);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     // save auras before possibly removing them
     _SaveAuras(trans, logout);
 
@@ -256,7 +264,7 @@ void Pet::SavePetToDB(PetSaveMode mode, bool logout)
         trans = CharacterDatabase.BeginTransaction();
         // remove current data
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_ID);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_ID);
         stmt->setUInt32(0, m_charmInfo->GetPetNumber());
         trans->Append(stmt);
 
@@ -318,9 +326,9 @@ void Pet::SavePetToDB(PetSaveMode mode, bool logout)
 
 void Pet::DeleteFromDB(uint32 guidlow)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_ID);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_ID);
     stmt->setUInt32(0, guidlow);
     trans->Append(stmt);
 
@@ -1174,9 +1182,9 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult result)
     }
 }
 
-void Pet::_SaveSpellCooldowns(SQLTransaction& trans, bool logout)
+void Pet::_SaveSpellCooldowns(CharacterDatabaseTransaction trans, bool logout)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_COOLDOWNS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_COOLDOWNS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
     trans->Append(stmt);
 
@@ -1216,7 +1224,7 @@ void Pet::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Pet::_SaveSpells(SQLTransaction& trans)
+void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
 {
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
@@ -1226,7 +1234,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
         if (itr->second.type == PETSPELL_FAMILY)
             continue;
 
-        PreparedStatement* stmt;
+        CharacterDatabasePreparedStatement* stmt = nullptr;
 
         switch (itr->second.state)
         {
@@ -1235,7 +1243,6 @@ void Pet::_SaveSpells(SQLTransaction& trans)
                 stmt->setUInt32(0, m_charmInfo->GetPetNumber());
                 stmt->setUInt32(1, itr->first);
                 trans->Append(stmt);
-
                 m_spells.erase(itr);
                 continue;
             case PETSPELL_CHANGED:
@@ -1249,7 +1256,6 @@ void Pet::_SaveSpells(SQLTransaction& trans)
                 stmt->setUInt32(1, itr->first);
                 stmt->setUInt8(2, itr->second.active);
                 trans->Append(stmt);
-
                 break;
             case PETSPELL_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
@@ -1261,6 +1267,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
             case PETSPELL_UNCHANGED:
                 continue;
         }
+
         itr->second.state = PETSPELL_UNCHANGED;
     }
 }
@@ -1347,9 +1354,9 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     }
 }
 
-void Pet::_SaveAuras(SQLTransaction& trans, bool logout)
+void Pet::_SaveAuras(CharacterDatabaseTransaction trans, bool logout)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
     trans->Append(stmt);
 
@@ -1409,7 +1416,7 @@ void Pet::_SaveAuras(SQLTransaction& trans, bool logout)
 
         uint8 index = 0;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt64(index++, casterGUID);
         stmt->setUInt32(index++, itr->second->GetId());
@@ -1440,7 +1447,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         {
             LOG_ERROR("server", "Pet::addSpell: Non-existed in SpellStore spell #%u request, deleting for all pets in `pet_spell`.", spellId);
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_PET_SPELL);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_PET_SPELL);
 
             stmt->setUInt32(0, spellId);
 
@@ -1806,7 +1813,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= nullptr*/)
     uint32 except_petnumber = online_pet ? online_pet->GetCharmInfo()->GetPetNumber() : 0;
 
     // xinef: zomg! sync query
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET);
     stmt->setUInt32(0, owner->GetGUIDLow());
     stmt->setUInt32(1, except_petnumber);
     PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);

@@ -32,6 +32,8 @@
 #include "RealmList.h"
 #include "RealmAcceptor.h"
 #include "Logo.h"
+#include "DatabaseLoader.h"
+#include "MySQLThreading.h"
 #include <ace/Dev_Poll_Reactor.h>
 #include <ace/TP_Reactor.h>
 #include <openssl/opensslv.h>

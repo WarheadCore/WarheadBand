@@ -781,11 +781,10 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
     else
         SetWinner(TEAM_NEUTRAL);
 
-    PreparedStatement* stmt = nullptr;
     uint64 battlegroundId = 1;
     if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
@@ -832,8 +831,8 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
                 uint32 fightId = sArenaTeamMgr->GetNextArenaLogId();
                 uint32 currOnline = (uint32)(sWorld->GetActiveSessionCount());
 
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_LOG_FIGHT);
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_LOG_FIGHT);
                 stmt->setUInt32(0, fightId);
                 stmt->setUInt8(1, m_ArenaType);
                 stmt->setUInt32(2, ((GetStartTime() <= startDelay ? 0 : GetStartTime() - startDelay) / 1000));
@@ -891,8 +890,8 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
                 uint32 fightId = sArenaTeamMgr->GetNextArenaLogId();
                 uint32 currOnline = (uint32)(sWorld->GetActiveSessionCount());
 
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_LOG_FIGHT);
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_LOG_FIGHT);
                 stmt->setUInt32(0, fightId);
                 stmt->setUInt8(1, m_ArenaType);
                 stmt->setUInt32(2, ((GetStartTime() <= startDelay ? 0 : GetStartTime() - startDelay) / 1000));
@@ -1026,7 +1025,7 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
 
         if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
             BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUID());
 
             stmt->setUInt32(0, battlegroundId);
