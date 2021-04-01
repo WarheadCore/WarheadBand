@@ -2577,3 +2577,21 @@ void WorldSession::SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, u
     data << uint64(guid);
     SendPacket(&data);
 }
+
+void WorldSession::SendCharCustomize(ResponseCodes result, CharacterCustomizeInfo const* customizeInfo)
+{
+    WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1 + 8 + customizeInfo->Name.size() + 1 + 6);
+    data << uint8(result);
+    if (result == RESPONSE_SUCCESS)
+    {
+        data << customizeInfo->Guid;
+        data << customizeInfo->Name;
+        data << uint8(customizeInfo->Gender);
+        data << uint8(customizeInfo->Skin);
+        data << uint8(customizeInfo->Face);
+        data << uint8(customizeInfo->HairStyle);
+        data << uint8(customizeInfo->HairColor);
+        data << uint8(customizeInfo->FacialHair);
+    }
+    SendPacket(&data);
+}

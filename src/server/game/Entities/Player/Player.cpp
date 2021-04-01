@@ -6404,7 +6404,7 @@ float getProbabilityOfLevelUp(uint32 SkillValue)
     std::array bounds{ 115, 135, 160, 190, 215, 295, 315, 355, 425, 450 };
     std::array<float, 11> dens{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 9.0f, 10.0f, 11.0f, 12.0f, 1.0f };
     auto it = std::lower_bound(std::begin(bounds), std::end(bounds), SkillValue);
-    return 100 / dens[std::distance(std::begin(bounds), it)];
+    return 100 / dens.at(std::distance(std::begin(bounds), it));
 }
 
 bool Player::UpdateFishingSkill()
@@ -18122,7 +18122,12 @@ bool Player::LoadFromDB(uint32 guid, CharacterDatabaseQueryHolder const& holder)
 
     std::string taxi_nodes = fields[42].GetString();
 
-#define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
+    auto RelocateToHomebind = [this, &mapId, &instanceId]()
+    {
+        mapId = m_homebindMapId;
+        instanceId = 0;
+        Relocate(m_homebindX, m_homebindY, m_homebindZ);
+    };
 
     _LoadGroup();
 
@@ -20091,8 +20096,16 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 /*********************************************************/
 /***                   SAVE SYSTEM                     ***/
 /*********************************************************/
-
 void Player::SaveToDB(bool create, bool logout)
+{
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    SaveToDB(trans, create, logout);
+
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create, bool logout)
 {
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
@@ -20118,8 +20131,6 @@ void Player::SaveToDB(bool create, bool logout)
 
     if (!create)
         sScriptMgr->OnPlayerSave(this);
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     _SaveCharacter(create, trans);
 
@@ -20150,8 +20161,6 @@ void Player::SaveToDB(bool create, bool logout)
     // save stats can be out of transaction
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
-
-    CharacterDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
@@ -27430,6 +27439,14 @@ void Player::ActivateSpec(uint8 spec)
         else
             ++iter;
     }
+}
+
+void Player::LoadActions(PreparedQueryResult result)
+{
+    if (result)
+        _LoadActions(result);
+
+    SendActionButtons(1);
 }
 
 void Player::GetTalentTreePoints(uint8 (&specPoints)[3]) const
