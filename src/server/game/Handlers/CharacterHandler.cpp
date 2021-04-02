@@ -1678,9 +1678,9 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
 
     Field* fields = result->Fetch();
     std::string oldName = fields[0].GetString();
-    uint8 plrRace = fields[1].GetUInt8();
-    uint8 plrClass = fields[2].GetUInt8();
-    uint8 plrGender = fields[3].GetUInt8();
+    //uint8 plrRace = fields[1].GetUInt8();
+    //uint8 plrClass = fields[2].GetUInt8();
+    //uint8 plrGender = fields[3].GetUInt8();
     uint32 atLoginFlags = fields[4].GetUInt16();
 
     if (!(atLoginFlags & AT_LOGIN_CUSTOMIZE))
