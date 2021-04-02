@@ -250,7 +250,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
             }
 
             return true;
-        }        
+        }
 
         return true;
     };
