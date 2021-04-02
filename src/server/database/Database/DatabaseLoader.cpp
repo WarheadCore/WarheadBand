@@ -24,8 +24,8 @@
 #include <errmsg.h>
 
 DatabaseLoader::DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask)
-    : _logger(logger), _autoSetup(sConfigMgr->GetBoolDefault("Updates.AutoSetup", true)),
-      _updateFlags(sConfigMgr->GetIntDefault("Updates.EnableDatabases", defaultUpdateMask))
+    : _logger(logger), _autoSetup(sConfigMgr->GetOption<bool>("Updates.AutoSetup", true)),
+      _updateFlags(sConfigMgr->GetOption<uint32>("Updates.EnableDatabases", defaultUpdateMask))
 {
 }
 

@@ -40,10 +40,10 @@ std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 bool DBUpdaterUtil::CheckExecutable()
 {
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
-    if (!exists(exe))
+    if (!is_regular_file(exe))
     {
         exe = Warhead::SearchExecutableInPath("mysql");
-        if (!exe.empty() && exists(exe))
+        if (!exe.empty() && is_regular_file(exe))
         {
             // Correct the path to the cli
             corrected_path() = absolute(exe).generic_string();
@@ -51,7 +51,7 @@ bool DBUpdaterUtil::CheckExecutable()
         }
 
         LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
-                  absolute(exe).generic_string().c_str());
+            absolute(exe).generic_string().c_str());
 
         return false;
     }
@@ -191,14 +191,14 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
         return false;
     }
 
-    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci\n\n";
+    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_general_ci;\n\n";
 
     file.close();
 
     try
     {
         DBUpdater<T>::ApplyFile(pool, pool.GetConnectionInfo()->host, pool.GetConnectionInfo()->user, pool.GetConnectionInfo()->password,
-                                pool.GetConnectionInfo()->port_or_socket, "", temp);
+                                pool.GetConnectionInfo()->port_or_socket, "", pool.GetConnectionInfo()->ssl, temp);
     }
     catch (UpdateException&)
     {
@@ -208,7 +208,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     }
 
     LOG_INFO("sql.updates", "Done.");
-    LOG_INFO("sql.updates", "");
+    LOG_INFO("sql.updates", " ");
     boost::filesystem::remove(temp);
     return true;
 }
@@ -229,6 +229,34 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
                   sourceDirectory.generic_string().c_str());
         return false;
     }
+
+    auto CheckUpdateTable = [&](std::string const& tableName)
+    {
+        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '%s'", tableName.c_str()));
+        if (!checkTable)
+        {
+            LOG_WARN("sql.updates", "> Table '%s' not exist! Try add based table", tableName.c_str());
+
+            Path const temp(GetBaseFilesDirectory() + tableName + ".sql");
+
+            try
+            {
+                DBUpdater<T>::ApplyFile(pool, temp);
+            }
+            catch (UpdateException&)
+            {
+                LOG_FATAL("sql.updates", "Failed apply file to database %s! Does the user (named in *.conf) have `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
+                return false;
+            }
+
+            return true;
+        }        
+
+        return true;
+    };
+
+    if (!CheckUpdateTable("updates") || !CheckUpdateTable("updates_include"))
+        return false;
 
     UpdateFetcher updateFetcher(sourceDirectory, [&](std::string const & query) { DBUpdater<T>::Apply(pool, query); },
     [&](Path const & file) { DBUpdater<T>::ApplyFile(pool, file); },
@@ -343,64 +371,71 @@ template<class T>
 void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, Path const& path)
 {
     DBUpdater<T>::ApplyFile(pool, pool.GetConnectionInfo()->host, pool.GetConnectionInfo()->user, pool.GetConnectionInfo()->password,
-                            pool.GetConnectionInfo()->port_or_socket, pool.GetConnectionInfo()->database, path);
+                            pool.GetConnectionInfo()->port_or_socket, pool.GetConnectionInfo()->database, pool.GetConnectionInfo()->ssl, path);
 }
 
 template<class T>
 void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& host, std::string const& user,
-                             std::string const& password, std::string const& port_or_socket, std::string const& database, Path const& path)
+                             std::string const& password, std::string const& port_or_socket, std::string const& database, std::string const& ssl, Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(8);
-
-    // args[0] represents the program name
-    args.push_back("mysql");
+    args.reserve(7);
 
     // CLI Client connection info
-    args.push_back("-h" + host);
-    args.push_back("-u" + user);
+    args.emplace_back("-h" + host);
+    args.emplace_back("-u" + user);
 
     if (!password.empty())
-        args.push_back("-p" + password);
+        args.emplace_back("-p" + password);
 
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32
-    args.push_back("-P" + port_or_socket);
+
+    if (host == ".")
+        args.emplace_back("--protocol=PIPE");
+    else
+        args.emplace_back("-P" + port_or_socket);
+
 #else
+
     if (!std::isdigit(port_or_socket[0]))
     {
         // We can't check if host == "." here, because it is named localhost if socket option is enabled
-        args.push_back("-P0");
-        args.push_back("--protocol=SOCKET");
-        args.push_back("-S" + port_or_socket);
+        args.emplace_back("-P0");
+        args.emplace_back("--protocol=SOCKET");
+        args.emplace_back("-S" + port_or_socket);
     }
     else
         // generic case
-        args.push_back("-P" + port_or_socket);
+        args.emplace_back("-P" + port_or_socket);
+
 #endif
 
     // Set the default charset to utf8
-    args.push_back("--default-character-set=utf8");
+    args.emplace_back("--default-character-set=utf8");
 
     // Set max allowed packet to 1 GB
-    args.push_back("--max-allowed-packet=1GB");
+    args.emplace_back("--max-allowed-packet=1GB");
+
+    if (ssl == "ssl")
+        args.emplace_back("--ssl");
 
     // Database
     if (!database.empty())
-        args.push_back(database);
+        args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
     int const ret = Warhead::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
-                                          "sql.updates", path.generic_string(), true);
+        "sql.updates", path.generic_string(), true);
 
     if (ret != EXIT_SUCCESS)
     {
         LOG_FATAL("sql.updates", "Applying of file \'%s\' to database \'%s\' failed!" \
-                  /*" If you are a user, please pull the latest revision from the repository. "
-                  "Also make sure you have not applied any of the databases with your sql client. "
-                  "You cannot use auto-update system and import sql files from TrinityCore repository with your sql client. "
-                  "If you are a developer, please fix your sql query."*/,
-                  path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
+            " If you are a user, please pull the latest revision from the repository. "
+            "Also make sure you have not applied any of the databases with your sql client. "
+            "You cannot use auto-update system and import sql files from WarheadCore repository with your sql client. "
+            "If you are a developer, please fix your sql query.",
+            path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
 
         throw UpdateException("update failed");
     }
