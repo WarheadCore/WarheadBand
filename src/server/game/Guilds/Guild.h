@@ -416,7 +416,7 @@ private:
 
         ~EventLogEntry() override { }
 
-        void SaveToDB(CharacterDatabaseTransaction trans) const;
+        void SaveToDB(CharacterDatabaseTransaction trans) const override;
         void WritePacket(WorldPacket& data) const override;
 
     private:
