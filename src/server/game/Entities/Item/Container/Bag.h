@@ -54,7 +54,7 @@ public:
     // overwrite virtual Item::LoadFromDB
     bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry) override;
     // overwrite virtual Item::DeleteFromDB
-    void DeleteFromDB(CharacterDatabaseTransaction trans);
+    void DeleteFromDB(CharacterDatabaseTransaction trans) override;
 
     void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
 

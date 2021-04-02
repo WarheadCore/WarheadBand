@@ -630,9 +630,9 @@ private:
 
         bool IsBank() const override { return false; }
         bool InitItem() override;
-        void RemoveItem(CharacterDatabaseTransaction trans, MoveItemData* pOther, uint32 splitedAmount = 0);
-        Item* StoreItem(CharacterDatabaseTransaction trans, Item* pItem);
-        void LogBankEvent(CharacterDatabaseTransaction trans, MoveItemData* pFrom, uint32 count) const;
+        void RemoveItem(CharacterDatabaseTransaction trans, MoveItemData* pOther, uint32 splitedAmount = 0) override;
+        Item* StoreItem(CharacterDatabaseTransaction trans, Item* pItem) override;
+        void LogBankEvent(CharacterDatabaseTransaction trans, MoveItemData* pFrom, uint32 count) const override;
     protected:
         InventoryResult CanStore(Item* pItem, bool swap) override;
     };
@@ -647,9 +647,9 @@ private:
         bool InitItem() override;
         bool HasStoreRights(MoveItemData* pOther) const override;
         bool HasWithdrawRights(MoveItemData* pOther) const override;
-        void RemoveItem(CharacterDatabaseTransaction trans, MoveItemData* pOther, uint32 splitedAmount);
-        Item* StoreItem(CharacterDatabaseTransaction trans, Item* pItem);
-        void LogBankEvent(CharacterDatabaseTransaction trans, MoveItemData* pFrom, uint32 count) const;
+        void RemoveItem(CharacterDatabaseTransaction trans, MoveItemData* pOther, uint32 splitedAmount) override;
+        Item* StoreItem(CharacterDatabaseTransaction trans, Item* pItem) override;
+        void LogBankEvent(CharacterDatabaseTransaction trans, MoveItemData* pFrom, uint32 count) const override;
         void LogAction(MoveItemData* pFrom) const override;
 
     protected:
