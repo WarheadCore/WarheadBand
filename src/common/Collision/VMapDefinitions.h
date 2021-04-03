@@ -17,6 +17,8 @@
 
 #ifndef _VMAPDEFINITIONS_H
 #define _VMAPDEFINITIONS_H
+
+#include "Define.h"
 #include <cstring>
 
 #define LIQUID_TILE_SIZE (533.333f / 128.f)
@@ -28,6 +30,7 @@ namespace VMAP
     const char GAMEOBJECT_MODELS[] = "GameObjectModels.dtree";
 
     // defined in TileAssembler.cpp currently...
-    bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len);
+    WH_COMMON_API bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len);
 }
+
 #endif

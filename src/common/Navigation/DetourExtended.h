@@ -18,9 +18,10 @@
 #ifndef _ACORE_DETOUR_EXTENDED_H
 #define _ACORE_DETOUR_EXTENDED_H
 
+#include "Define.h"
 #include "DetourNavMeshQuery.h"
 
-class dtQueryFilterExt: public dtQueryFilter
+class WH_COMMON_API dtQueryFilterExt : public dtQueryFilter
 {
 public:
     float getCost(const float* pa, const float* pb,

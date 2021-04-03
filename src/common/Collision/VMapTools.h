@@ -18,6 +18,7 @@
 #ifndef _VMAPTOOLS_H
 #define _VMAPTOOLS_H
 
+#include "Define.h"
 #include <G3D/CollisionDetection.h>
 #include <G3D/AABox.h>
 
@@ -30,7 +31,7 @@ The collision detection is modified to return true, if we are inside an object.
 namespace VMAP
 {
     template<class TValue>
-    class IntersectionCallBack
+    class WH_COMMON_API IntersectionCallBack
     {
     public:
         TValue*      closestEntity;
@@ -47,7 +48,7 @@ namespace VMAP
     //==============================================================
     //==============================================================
 
-    class MyCollisionDetection
+    class WH_COMMON_API MyCollisionDetection
     {
     public:
         static bool collisionLocationForMovingPointFixedAABox(

@@ -28,8 +28,8 @@
 #include <type_traits>
 
 //! Because circular includes are bad
-extern uint32 urand(uint32 min, uint32 max);
-extern uint32 urandweighted(size_t count, double const* chances);
+WH_COMMON_API extern uint32 urand(uint32 min, uint32 max);
+WH_COMMON_API extern uint32 urandweighted(size_t count, double const* chances);
 
 namespace Warhead
 {

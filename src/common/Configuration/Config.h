@@ -23,7 +23,7 @@
 #include <vector>
 #include <stdexcept>
 
-class ConfigMgr
+class WH_COMMON_API ConfigMgr
 {
     ConfigMgr() = default;
     ConfigMgr(ConfigMgr const&) = delete;
@@ -81,7 +81,7 @@ private:
     bool dryRun = false;
 };
 
-class ConfigException : public std::length_error
+class WH_COMMON_API ConfigException : public std::length_error
 {
 public:
     explicit ConfigException(std::string const& message) : std::length_error(message) { }

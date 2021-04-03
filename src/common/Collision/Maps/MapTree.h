@@ -36,7 +36,7 @@ namespace VMAP
         float ground_Z;
     };
 
-    class StaticMapTree
+    class WH_COMMON_API StaticMapTree
     {
         typedef std::unordered_map<uint32, bool> loadedTileMap;
         typedef std::unordered_map<uint32, uint32> loadedSpawnMap;

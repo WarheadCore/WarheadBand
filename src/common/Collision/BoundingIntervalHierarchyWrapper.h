@@ -24,7 +24,7 @@
 #include "BoundingIntervalHierarchy.h"
 
 template<class T, class BoundsFunc = BoundsTrait<T>>
-class BIHWrap
+class WH_COMMON_API BIHWrap
 {
     template<class RayCallback>
     struct MDLCallback

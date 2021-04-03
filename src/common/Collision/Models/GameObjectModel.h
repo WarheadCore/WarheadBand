@@ -32,7 +32,7 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
-class GameObjectModelOwnerBase
+class WH_COMMON_API GameObjectModelOwnerBase
 {
 public:
     virtual bool IsSpawned() const { return false; }
@@ -45,7 +45,7 @@ public:
     virtual ~GameObjectModelOwnerBase() { }
 };
 
-class GameObjectModel
+class WH_COMMON_API GameObjectModel
 {
     GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr) { }
 
@@ -83,6 +83,6 @@ private:
     std::unique_ptr<GameObjectModelOwnerBase> owner;
 };
 
-void LoadGameObjectModelList(std::string const& dataPath);
+WH_COMMON_API void LoadGameObjectModelList(std::string const& dataPath);
 
 #endif // _GAMEOBJECT_MODEL_H

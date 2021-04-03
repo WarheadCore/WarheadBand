@@ -127,4 +127,5 @@ namespace Warhead::Crypto
     using HMAC_SHA1 = Warhead::Impl::GenericHMAC<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
     using HMAC_SHA256 = Warhead::Impl::GenericHMAC<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
 }
+
 #endif

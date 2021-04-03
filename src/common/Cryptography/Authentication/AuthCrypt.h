@@ -22,7 +22,7 @@
 #include "AuthDefines.h"
 #include <array>
 
-class AuthCrypt
+class WH_COMMON_API AuthCrypt
 {
 public:
     AuthCrypt();

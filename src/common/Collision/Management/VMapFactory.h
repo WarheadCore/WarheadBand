@@ -25,7 +25,7 @@ namespace VMAP
 {
     class VMapManager2;
 
-    class VMapFactory
+    class WH_COMMON_API VMapFactory
     {
     public:
         static VMapManager2* createOrGetVMapManager();

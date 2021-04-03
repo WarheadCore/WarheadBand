@@ -67,7 +67,7 @@ enum LoggerOptions
     LOGGER_OPTIONS_UNKNOWN
 };
 
-class Log
+class WH_COMMON_API Log
 {
 private:
     Log();

@@ -19,12 +19,11 @@
 #define __EVENTPROCESSOR_H
 
 #include "Define.h"
-
 #include <map>
 
 // Note. All times are in milliseconds here.
 
-class BasicEvent
+class WH_COMMON_API BasicEvent
 {
 public:
     BasicEvent()
@@ -54,7 +53,7 @@ public:
 
 typedef std::multimap<uint64, BasicEvent*> EventList;
 
-class EventProcessor
+class WH_COMMON_API EventProcessor
 {
 public:
     EventProcessor();

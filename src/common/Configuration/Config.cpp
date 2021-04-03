@@ -193,7 +193,7 @@ T ConfigMgr::GetOption(std::string const& name, T const& def, bool showLogs /*= 
 }
 
 template<>
-bool ConfigMgr::GetOption<bool>(std::string const& name, bool const& def, bool showLogs /*= true*/) const
+WH_COMMON_API bool ConfigMgr::GetOption<bool>(std::string const& name, bool const& def, bool showLogs /*= true*/) const
 {
     std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), showLogs);
 
@@ -355,7 +355,7 @@ float ConfigMgr::GetFloatDefault(std::string const& name, float def, bool showLo
  */
 
 #define TEMPLATE_CONFIG_OPTION(__typename) \
-    template __typename ConfigMgr::GetOption<__typename>(std::string const& name, __typename const& def, bool showLogs /*= true*/) const;
+    template WH_COMMON_API __typename ConfigMgr::GetOption<__typename>(std::string const& name, __typename const& def, bool showLogs /*= true*/) const;
 
 TEMPLATE_CONFIG_OPTION(std::string)
 TEMPLATE_CONFIG_OPTION(uint8)

@@ -34,7 +34,7 @@ namespace VMAP
     */
     //===============================================
 
-    class ModelPosition
+    class WH_COMMON_API ModelPosition
     {
     private:
         G3D::Matrix3 iRotation;
@@ -89,7 +89,7 @@ namespace VMAP
         bool Read(const char* path);
     };
 
-    class TileAssembler
+    class WH_COMMON_API TileAssembler
     {
     private:
         std::string iDestDir;

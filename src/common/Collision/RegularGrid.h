@@ -26,7 +26,7 @@
 #include "Errors.h"
 
 template <class Node>
-class NodeArray
+class WH_COMMON_API NodeArray
 {
 public:
     explicit NodeArray() { memset(&_nodes, 0, sizeof(_nodes)); }
@@ -56,7 +56,7 @@ template<class T,
          /*class BoundsFunc = BoundsTrait<T>,*/
          class PositionFunc = PositionTrait<T>
          >
-class RegularGrid2D
+class WH_COMMON_API RegularGrid2D
 {
 public:
     enum

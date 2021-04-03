@@ -21,7 +21,7 @@
 #include "Common.h"
 #include "StringFormat.h"
 
-class SystemLog
+class WH_COMMON_API SystemLog
 {
 private:
     SystemLog();

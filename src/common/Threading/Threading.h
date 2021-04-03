@@ -18,12 +18,13 @@
 #ifndef THREADING_H
 #define THREADING_H
 
+#include "Define.h"
 #include <thread>
 #include <atomic>
 
 namespace Warhead
 {
-    class Runnable
+    class WH_COMMON_API Runnable
     {
     public:
         virtual ~Runnable() = default;
@@ -50,7 +51,7 @@ namespace Warhead
         Priority_Realtime,
     };
 
-    class Thread
+    class WH_COMMON_API Thread
     {
     public:
         Thread();

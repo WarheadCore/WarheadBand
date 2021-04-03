@@ -23,7 +23,7 @@
 
 namespace Warhead::Crypto
 {
-    void GetRandomBytes(uint8* buf, size_t len);
+    WH_COMMON_API void GetRandomBytes(uint8* buf, size_t len);
 
     template <typename Container>
     void GetRandomBytes(Container& c)

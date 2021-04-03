@@ -76,10 +76,10 @@
 #endif //WH_COMPILER == WH_COMPILER_GNU
 
 #ifdef WARHEAD_API_USE_DYNAMIC_LINKING
-#  if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
+#  if WH_COMPILER == WH_COMPILER_MICROSOFT
 #    define WH_API_EXPORT __declspec(dllexport)
 #    define WH_API_IMPORT __declspec(dllimport)
-#  elif WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#  elif WH_COMPILER == WH_COMPILER_GNU
 #    define WH_API_EXPORT __attribute__((visibility("default")))
 #    define WH_API_IMPORT
 #  else
