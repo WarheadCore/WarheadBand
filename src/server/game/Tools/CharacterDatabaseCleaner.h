@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Define.h"
-
 #ifndef CHARACTERDATABASECLEANER_H
 #define CHARACTERDATABASECLEANER_H
+
+#include "Common.h"
 
 namespace CharacterDatabaseCleaner
 {
