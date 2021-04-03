@@ -20,6 +20,8 @@ CollectSourceFiles(
 # Group sources
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_definitions(-DWARHEAD_API_EXPORT_SHARED)
+
 add_library(shared
   ${PRIVATE_SOURCES})
 
@@ -43,3 +45,6 @@ set_target_properties(shared
   PROPERTIES
     FOLDER
       "server")
+
+# Install dynamic lib
+InstallDynamicLibrary(shared)

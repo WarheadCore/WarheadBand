@@ -51,7 +51,7 @@ struct Realm
 };
 
 /// Storage object for the list of realms on the server
-class RealmList
+class WH_SHARED_API RealmList
 {
 public:
     typedef std::map<std::string, Realm> RealmMap;

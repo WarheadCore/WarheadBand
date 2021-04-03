@@ -138,7 +138,7 @@ struct FlyByCamera
 };
 
 /// Interface class for common access
-class DBCStorageBase
+class WH_SHARED_API DBCStorageBase
 {
 public:
     DBCStorageBase(char const* fmt);
