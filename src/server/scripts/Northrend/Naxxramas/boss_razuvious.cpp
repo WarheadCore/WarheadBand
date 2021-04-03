@@ -102,12 +102,9 @@ public:
             {
                 Talk(SAY_SLAY);
             }
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER && pInstance)
             {
-                if (pInstance)
-                {
-                    pInstance->SetData(DATA_IMMORTAL_FAIL, 0);
-                }
+                pInstance->SetData(DATA_IMMORTAL_FAIL, 0);
             }
         }
 
@@ -200,12 +197,9 @@ public:
 
         void KilledUnit(Unit* who) override
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER && me->GetInstanceScript())
             {
-                if (me->GetInstanceScript())
-                {
-                    me->GetInstanceScript()->SetData(DATA_IMMORTAL_FAIL, 0);
-                }
+                me->GetInstanceScript()->SetData(DATA_IMMORTAL_FAIL, 0);
             }
         }
 

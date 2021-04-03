@@ -13,7 +13,7 @@
 # This is done EACH compile so they can be alerted about the consequences.
 #
 
-# Require a min version Cmake
+# Require version Cmake
 cmake_minimum_required(VERSION 3.16...3.21)
 
 message(STATUS "CMake version: ${CMAKE_VERSION}")
