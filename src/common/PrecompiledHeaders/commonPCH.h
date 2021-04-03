@@ -17,7 +17,20 @@
 
 // Add here most rarely modified headers to speed up debug build compilation
 
+#include "Define.h"
 #include "Common.h"
+#include "Config.h"
+#include "GitRevision.h"
 #include "Log.h"
 #include "Errors.h"
 #include "TypeList.h"
+#include "Util.h"
+#include <algorithm>
+#include <cstring>
+#include <memory>
+#include <mutex>
+#include <set>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
