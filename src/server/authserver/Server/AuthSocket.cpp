@@ -380,7 +380,7 @@ bool AuthSocket::_HandleLogonChallenge()
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
 
     std::string const& ip_address = socket().getRemoteAddress();
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED);
     stmt->setString(0, ip_address);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (result)
@@ -576,7 +576,7 @@ bool AuthSocket::_HandleLogonProof()
 
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setBinary(0, _sessionKey);
         stmt->setString(1, socket().getRemoteAddress().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
@@ -644,7 +644,7 @@ bool AuthSocket::_HandleLogonProof()
         // We can not include the failed account login hook. However, this is a workaround to still log this.
         if (sConfigMgr->GetOption<bool>("WrongPass.Logging", false))
         {
-            PreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
+            LoginDatabasePreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
             logstmt->setString(0, _login);
             logstmt->setString(1, socket().getRemoteAddress());
             logstmt->setString(2, "Logged on failed AccountLogin due wrong password");
@@ -655,7 +655,7 @@ bool AuthSocket::_HandleLogonProof()
         if (MaxWrongPassCount > 0)
         {
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
             stmt->setString(0, _login);
             LoginDatabase.Execute(stmt);
 
@@ -745,7 +745,7 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     _login = (const char*)ch->I;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
     stmt->setString(0, _login);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -871,7 +871,7 @@ bool AuthSocket::_HandleRealmList()
 
     // Get the user id (else close the connection)
     // No SQL injection (prepared statement)
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME);
     stmt->setString(0, _login);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)

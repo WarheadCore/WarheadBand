@@ -214,7 +214,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     Petition const* petition = sPetitionMgr->GetPetitionByOwnerWithType(_player->GetGUIDLow(), type);
 
     CharacterDatabase.EscapeString(name);
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     if (petition)
     {
@@ -230,7 +230,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 
     // xinef: petition pointer is invalid from now on
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt32(1, charter->GetGUIDLow());
     stmt->setString(2, name);
@@ -406,7 +406,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
         }
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
 
     stmt->setString(0, newName);
     stmt->setUInt32(1, GUID_LOPART(petitionGuid));
@@ -533,7 +533,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
         return;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
 
     stmt->setUInt32(0, GUID_LOPART(ownerGuid));
     stmt->setUInt32(1, GUID_LOPART(petitionGuid));
@@ -840,9 +840,9 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
             }
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_GUID);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_GUID);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     trans->Append(stmt);
 

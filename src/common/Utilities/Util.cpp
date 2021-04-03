@@ -19,10 +19,9 @@
 #include "Common.h"
 #include "utf8.h"
 #include "Log.h"
-#include "DatabaseWorker.h"
-#include "SQLOperation.h"
 #include "Errors.h"
 #include "TypeList.h"
+#include <ace/Task.h>
 #include "SFMT.h"
 #include "Errors.h" // for ASSERT
 #include <ace/TSS_T.h>

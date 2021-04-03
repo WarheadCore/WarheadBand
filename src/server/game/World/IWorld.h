@@ -18,8 +18,8 @@
 #ifndef AZEROTHCORE_IWORLD_H
 #define AZEROTHCORE_IWORLD_H
 
-#include "Callback.h"
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
 #include "Timer.h"

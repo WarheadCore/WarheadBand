@@ -25,10 +25,12 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
 #include "DatabaseWorkerPool.h"
 #include "GitRevision.h"
 #include "Log.h"
 #include "Master.h"
+#include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
 #include "RARunnable.h"
 #include "RealmList.h"
@@ -377,86 +379,21 @@ bool Master::_StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring;
-    uint8 async_threads, synch_threads;
+    // Load databases
+    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE);
+    loader
+        .AddDatabase(LoginDatabase, "Login")
+        .AddDatabase(CharacterDatabase, "Character")
+        .AddDatabase(WorldDatabase, "World");
 
-    dbstring = sConfigMgr->GetOption<std::string>("WorldDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        LOG_ERROR("server", "World database not specified in configuration file");
+    if (!loader.Load())
         return false;
-    }
-
-    async_threads = uint8(sConfigMgr->GetOption<int32>("WorldDatabase.WorkerThreads", 1));
-    if (async_threads < 1 || async_threads > 32)
-    {
-        LOG_ERROR("server", "World database: invalid number of worker threads specified. "
-                       "Please pick a value between 1 and 32.");
-        return false;
-    }
-
-    synch_threads = uint8(sConfigMgr->GetOption<int32>("WorldDatabase.SynchThreads", 1));
-    ///- Initialise the world database
-    if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
-    {
-        LOG_ERROR("server", "Cannot connect to world database %s", dbstring.c_str());
-        return false;
-    }
-
-    ///- Get character database info from configuration file
-    dbstring = sConfigMgr->GetOption<std::string>("CharacterDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        LOG_ERROR("server", "Character database not specified in configuration file");
-        return false;
-    }
-
-    async_threads = uint8(sConfigMgr->GetOption<int32>("CharacterDatabase.WorkerThreads", 1));
-    if (async_threads < 1 || async_threads > 32)
-    {
-        LOG_ERROR("server", "Character database: invalid number of worker threads specified. "
-                       "Please pick a value between 1 and 32.");
-        return false;
-    }
-
-    synch_threads = uint8(sConfigMgr->GetOption<int32>("CharacterDatabase.SynchThreads", 2));
-
-    ///- Initialise the Character database
-    if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
-    {
-        LOG_ERROR("server", "Cannot connect to Character database %s", dbstring.c_str());
-        return false;
-    }
-
-    ///- Get login database info from configuration file
-    dbstring = sConfigMgr->GetOption<std::string>("LoginDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        LOG_ERROR("server", "Login database not specified in configuration file");
-        return false;
-    }
-
-    async_threads = uint8(sConfigMgr->GetOption<int32>("LoginDatabase.WorkerThreads", 1));
-    if (async_threads < 1 || async_threads > 32)
-    {
-        LOG_ERROR("server", "Login database: invalid number of worker threads specified. "
-                       "Please pick a value between 1 and 32.");
-        return false;
-    }
-
-    synch_threads = uint8(sConfigMgr->GetOption<int32>("LoginDatabase.SynchThreads", 1));
-    ///- Initialise the login database
-    if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
-    {
-        LOG_ERROR("server", "Cannot connect to login database %s", dbstring.c_str());
-        return false;
-    }
 
     ///- Get the realm Id from the configuration file
-    realmID = sConfigMgr->GetOption<int32>("RealmID", 0);
+    realmID = sConfigMgr->GetIntDefault("RealmID", 0);
     if (!realmID)
     {
-        LOG_ERROR("server", "Realm ID not defined in configuration file");
+        LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
         return false;
     }
     else if (realmID > 255)
@@ -466,11 +403,12 @@ bool Master::_StartDB()
          * with a size of uint8 we can "only" store up to 255 realms
          * anything further the client will behave anormaly
         */
-        LOG_ERROR("server", "Realm ID must range from 1 to 255");
+        LOG_ERROR("server.worldserver", "Realm ID must range from 1 to 255");
         return false;
     }
 
-    LOG_INFO("server", "Realm running as realm ID %d", realmID);
+    LOG_INFO("server.loading", "Loading world information...");
+    LOG_INFO("server.loading", "> RealmID:              %u", realmID);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
@@ -480,7 +418,9 @@ bool Master::_StartDB()
 
     sWorld->LoadDBVersion();
 
-    LOG_INFO("server", "Using World DB: %s", sWorld->GetDBVersion());
+    LOG_INFO("server.loading", "> Version DB world:     %s", sWorld->GetDBVersion());
+    LOG_INFO("server.loading", "");
+
     return true;
 }
 

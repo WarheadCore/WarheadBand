@@ -22,16 +22,7 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
-#include "Callback.h"
-#include "Common.h"
 #include "IWorld.h"
-#include "QueryResult.h"
-#include "SharedDefines.h"
-#include "Timer.h"
-#include <atomic>
-#include <list>
-#include <map>
-#include <set>
 
 class Object;
 class WorldPacket;
@@ -502,7 +493,7 @@ private:
     AutobroadcastsWeightMap m_AutobroadcastsWeights;
 
     void ProcessQueryCallbacks();
-    ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
+    QueryCallbackProcessor _queryProcessor;
 };
 
 std::unique_ptr<IWorld>& getWorldInstance();

@@ -60,7 +60,7 @@ public:
     void SaveToDB();
     bool LoadCorpseFromDB(uint32 guid, Field* fields);
 
-    void DeleteFromDB(SQLTransaction& trans);
+    void DeleteFromDB(CharacterDatabaseTransaction trans);
 
     [[nodiscard]] uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
 
