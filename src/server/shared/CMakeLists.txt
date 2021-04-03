@@ -15,7 +15,13 @@
 
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
+  PRIVATE_SOURCES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+if(USE_COREPCH)
+  set(PRIVATE_PCH_HEADER PrecompiledHeaders/sharedPCH.h)
+endif()
 
 # Group sources
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -27,7 +33,9 @@ add_library(shared
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
+  PUBLIC_INCLUDES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 target_include_directories(shared
   PUBLIC
@@ -48,3 +56,8 @@ set_target_properties(shared
 
 # Install dynamic lib
 InstallDynamicLibrary(shared)
+
+# Generate precompiled header
+if(USE_COREPCH)
+  add_cxx_pch(shared ${PRIVATE_PCH_HEADER})
+endif()
