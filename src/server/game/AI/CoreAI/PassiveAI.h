@@ -21,7 +21,7 @@
 #include "CreatureAI.h"
 //#include "CreatureAIImpl.h"
 
-class PassiveAI : public CreatureAI
+class WH_GAME_API PassiveAI : public CreatureAI
 {
 public:
     explicit PassiveAI(Creature* c);
@@ -33,7 +33,7 @@ public:
     static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 
-class PossessedAI : public CreatureAI
+class WH_GAME_API PossessedAI : public CreatureAI
 {
 public:
     explicit PossessedAI(Creature* c);
@@ -49,7 +49,7 @@ public:
     static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 
-class NullCreatureAI : public CreatureAI
+class WH_GAME_API NullCreatureAI : public CreatureAI
 {
 public:
     explicit NullCreatureAI(Creature* c);
@@ -63,7 +63,7 @@ public:
     static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 
-class CritterAI : public PassiveAI
+class WH_GAME_API CritterAI : public PassiveAI
 {
 public:
     explicit CritterAI(Creature* c) : PassiveAI(c) { _combatTimer = 0; }
@@ -77,7 +77,7 @@ private:
     uint32 _combatTimer;
 };
 
-class TriggerAI : public NullCreatureAI
+class WH_GAME_API TriggerAI : public NullCreatureAI
 {
 public:
     explicit TriggerAI(Creature* c) : NullCreatureAI(c) {}

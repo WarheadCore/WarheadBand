@@ -82,23 +82,23 @@ enum eTradeskill
 class Creature;
 
 // Clear menu
-void ClearGossipMenuFor(Player* player);
+WH_GAME_API void ClearGossipMenuFor(Player* player);
 
 // Using provided text, not from DB
-void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action);
+WH_GAME_API void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action);
 
 // Using provided texts, not from DB
-void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded);
+WH_GAME_API void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded);
 
 // Uses gossip item info from DB
-void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action);
+WH_GAME_API void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action);
 
 // Send menu text
-void SendGossipMenuFor(Player* player, uint32 npcTextID, uint64 const& guid);
-void SendGossipMenuFor(Player* player, uint32 npcTextID, Creature const* creature);
+WH_GAME_API void SendGossipMenuFor(Player* player, uint32 npcTextID, uint64 const& guid);
+WH_GAME_API void SendGossipMenuFor(Player* player, uint32 npcTextID, Creature const* creature);
 
 // Close menu
-void CloseGossipMenuFor(Player* player);
+WH_GAME_API void CloseGossipMenuFor(Player* player);
 
 /// Old macro. Need delete later
 // This fuction add's a menu item,

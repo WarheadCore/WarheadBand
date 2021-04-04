@@ -160,7 +160,7 @@ enum LineOfSightChecks
     LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
 };
 
-class GridMap
+class WH_GAME_API GridMap
 {
     uint32  _flags;
     union
@@ -274,7 +274,7 @@ enum EncounterCreditType
     ENCOUNTER_CREDIT_CAST_SPELL     = 1,
 };
 
-class Map : public GridRefManager<NGridType>
+class WH_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
 public:
@@ -685,7 +685,7 @@ enum InstanceResetMethod
     INSTANCE_RESET_GROUP_LEAVE          // on leaving group
 };
 
-class InstanceMap : public Map
+class WH_GAME_API InstanceMap : public Map
 {
 public:
     InstanceMap(uint32 id, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
@@ -714,7 +714,7 @@ private:
     uint32 i_script_id;
 };
 
-class BattlegroundMap : public Map
+class WH_GAME_API BattlegroundMap : public Map
 {
 public:
     BattlegroundMap(uint32 id, uint32 InstanceId, Map* _parent, uint8 spawnMode);

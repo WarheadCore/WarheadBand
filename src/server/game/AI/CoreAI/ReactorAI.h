@@ -22,7 +22,7 @@
 
 class Unit;
 
-class ReactorAI : public CreatureAI
+class WH_GAME_API ReactorAI : public CreatureAI
 {
 public:
     explicit ReactorAI(Creature* c) : CreatureAI(c) {}
@@ -32,4 +32,5 @@ public:
 
     static int Permissible(const Creature*);
 };
+
 #endif

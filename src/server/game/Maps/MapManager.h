@@ -30,7 +30,7 @@ class StaticTransport;
 class MotionTransport;
 struct TransportCreatureProto;
 
-class MapManager
+class WH_GAME_API MapManager
 {
 public:
     static MapManager* instance();

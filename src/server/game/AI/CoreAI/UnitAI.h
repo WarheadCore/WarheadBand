@@ -39,57 +39,26 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct WH_GAME_API DefaultTargetSelector
 {
-    const Unit* me;
-    float m_dist;
-    bool m_playerOnly;
-    int32 m_aura;
-
+public:
     // unit: the reference unit
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura);
+    bool operator()(Unit const* target) const;
 
-    bool operator()(Unit const* target) const
-    {
-        if (!me)
-            return false;
-
-        if (!target)
-            return false;
-
-        if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
-            return false;
-
-        if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
-            return false;
-
-        if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
-            return false;
-
-        if (m_aura)
-        {
-            if (m_aura > 0)
-            {
-                if (!target->HasAura(m_aura))
-                    return false;
-            }
-            else
-            {
-                if (target->HasAura(-m_aura))
-                    return false;
-            }
-        }
-
-        return true;
-    }
+private:
+    const Unit* me;
+    float m_dist;
+    bool m_playerOnly;
+    int32 m_aura;
 };
 
 // Target selector for spell casts checking range, auras and attributes
 // TODO: Add more checks from Spell::CheckCast
-struct SpellTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct WH_GAME_API SpellTargetSelector
 {
 public:
     SpellTargetSelector(Unit* caster, uint32 spellId);
@@ -103,10 +72,10 @@ private:
 // Very simple target selector, will just skip main target
 // NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
 //       because tank will not be in the temporary list
-struct NonTankTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct WH_GAME_API NonTankTargetSelector
 {
 public:
-    NonTankTargetSelector(Creature* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
+    NonTankTargetSelector(Creature* source, bool playerOnly = true);
     bool operator()(Unit const* target) const;
 
 private:
@@ -115,56 +84,24 @@ private:
 };
 
 // Simple selector for units using mana
-struct PowerUsersSelector : public Warhead::unary_function<Unit*, bool>
+struct WH_GAME_API PowerUsersSelector
 {
+public:
+    PowerUsersSelector(Unit const* unit, Powers power, float dist, bool playerOnly);
+    bool operator()(Unit const* target) const;
+
+private:
     Unit const* _me;
     Powers const _power;
     float const _dist;
     bool const _playerOnly;
-
-    PowerUsersSelector(Unit const* unit, Powers power, float dist, bool playerOnly) : _me(unit), _power(power), _dist(dist), _playerOnly(playerOnly) { }
-
-    bool operator()(Unit const* target) const
-    {
-        if (!_me || !target)
-            return false;
-
-        if (target->getPowerType() != _power)
-            return false;
-
-        if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
-            return false;
-
-        if (_dist < 0.0f && _me->IsWithinCombatRange(target, -_dist))
-            return false;
-
-        return true;
-    }
 };
 
-struct FarthestTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct WH_GAME_API FarthestTargetSelector
 {
-    FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos) : _me(unit), _dist(dist), _playerOnly(playerOnly), _inLos(inLos) {}
-
-    bool operator()(Unit const* target) const
-    {
-        if (!_me || !target)
-            return false;
-
-        if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
-            return false;
-
-        if (_inLos && !_me->IsWithinLOSInMap(target))
-            return false;
-
-        return true;
-    }
+public:
+    FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos);
+    bool operator()(Unit const* target) const;
 
 private:
     const Unit* _me;
@@ -173,7 +110,7 @@ private:
     bool _inLos;
 };
 
-class UnitAI
+class WH_GAME_API UnitAI
 {
 protected:
     Unit* const me;
@@ -319,7 +256,7 @@ public:
     virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
 };
 
-class PlayerAI : public UnitAI
+class WH_GAME_API PlayerAI : public UnitAI
 {
 protected:
     Player* const me;
@@ -329,7 +266,7 @@ public:
     void OnCharmed(bool apply) override;
 };
 
-class SimpleCharmedAI : public PlayerAI
+class WH_GAME_API SimpleCharmedAI : public PlayerAI
 {
 public:
     void UpdateAI(uint32 diff) override;

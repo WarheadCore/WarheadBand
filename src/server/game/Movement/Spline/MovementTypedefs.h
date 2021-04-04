@@ -43,8 +43,8 @@ namespace Movement
         return ms / 1000.f;
     }
 
-    float computeFallTime(float path_length, bool isSafeFall);
-    float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
+    WH_GAME_API float computeFallTime(float path_length, bool isSafeFall);
+    WH_GAME_API float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
 
     template<class T, T limit>
     class counter
@@ -70,8 +70,8 @@ namespace Movement
 
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
-    extern double gravity;
-    extern UInt32Counter splineIdGen;
+    WH_GAME_API extern double gravity;
+    WH_GAME_API extern UInt32Counter splineIdGen;
 }
 
 #endif // TRINITYSERVER_TYPEDEFS_H

@@ -33,7 +33,7 @@ class Quest;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // ChatLink - abstract base class for various links
-class ChatLink
+class WH_GAME_API ChatLink
 {
 public:
     ChatLink() : _color(0), _startPos(0), _endPos(0) { }
@@ -53,7 +53,7 @@ protected:
 };
 
 // ItemChatLink - link to item
-class ItemChatLink : public ChatLink
+class WH_GAME_API ItemChatLink : public ChatLink
 {
 public:
     ItemChatLink() : ChatLink(), _item(nullptr), _suffix(nullptr), _property(nullptr)
@@ -73,7 +73,7 @@ protected:
 };
 
 // QuestChatLink - link to quest
-class QuestChatLink : public ChatLink
+class WH_GAME_API QuestChatLink : public ChatLink
 {
 public:
     QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0) { }
@@ -86,7 +86,7 @@ protected:
 };
 
 // SpellChatLink - link to quest
-class SpellChatLink : public ChatLink
+class WH_GAME_API SpellChatLink : public ChatLink
 {
 public:
     SpellChatLink() : ChatLink(), _spell(nullptr) { }
@@ -98,7 +98,7 @@ protected:
 };
 
 // AchievementChatLink - link to quest
-class AchievementChatLink : public ChatLink
+class WH_GAME_API AchievementChatLink : public ChatLink
 {
 public:
     AchievementChatLink() : ChatLink(), _guid(0), _achievement(nullptr)
@@ -115,7 +115,7 @@ protected:
 };
 
 // TradeChatLink - link to trade info
-class TradeChatLink : public SpellChatLink
+class WH_GAME_API TradeChatLink : public SpellChatLink
 {
 public:
     TradeChatLink() : SpellChatLink(), _minSkillLevel(0), _maxSkillLevel(0), _guid(0) { }
@@ -128,7 +128,7 @@ private:
 };
 
 // TalentChatLink - link to talent
-class TalentChatLink : public SpellChatLink
+class WH_GAME_API TalentChatLink : public SpellChatLink
 {
 public:
     TalentChatLink() : SpellChatLink(), _talentId(0), _rankId(0) { }
@@ -140,7 +140,7 @@ private:
 };
 
 // EnchantmentChatLink - link to enchantment
-class EnchantmentChatLink : public SpellChatLink
+class WH_GAME_API EnchantmentChatLink : public SpellChatLink
 {
 public:
     EnchantmentChatLink() : SpellChatLink() { }
@@ -148,7 +148,7 @@ public:
 };
 
 // GlyphChatLink - link to glyph
-class GlyphChatLink : public SpellChatLink
+class WH_GAME_API GlyphChatLink : public SpellChatLink
 {
 public:
     GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(nullptr) { }
@@ -158,7 +158,7 @@ private:
     GlyphPropertiesEntry const* _glyph;
 };
 
-class LinkExtractor
+class WH_GAME_API LinkExtractor
 {
 public:
     explicit LinkExtractor(const char* msg);

@@ -83,8 +83,8 @@ private:
     uint32 average;
 };
 
-extern AvgDiffTracker avgDiffTracker;
-extern AvgDiffTracker lfgDiffTracker;
-extern AvgDiffTracker devDiffTracker;
+WH_GAME_API extern AvgDiffTracker avgDiffTracker;
+WH_GAME_API extern AvgDiffTracker lfgDiffTracker;
+WH_GAME_API extern AvgDiffTracker devDiffTracker;
 
 #endif

@@ -898,7 +898,7 @@ struct BattlegroundICScore : public BattlegroundScore
     uint32 GetAttr2() const final { return BasesDefended; }
 };
 
-class BattlegroundIC : public Battleground
+class WH_GAME_API BattlegroundIC : public Battleground
 {
 public:
     BattlegroundIC();

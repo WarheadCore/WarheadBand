@@ -22,7 +22,7 @@
 #include "Errors.h"
 #include "UpdateFields.h"
 
-class UpdateMask
+class WH_GAME_API UpdateMask
 {
 public:
     /// Type representing how client reads update mask

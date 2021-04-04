@@ -281,7 +281,7 @@ struct BattlegroundScore
     [[nodiscard]] virtual uint32 GetAttr5() const { return 0; }
 };
 
-class ArenaLogEntryData
+class WH_GAME_API ArenaLogEntryData
 {
 public:
     ArenaLogEntryData()  {}
@@ -330,7 +330,7 @@ enum BattlegroundQueueInvitationType
     BG_QUEUE_INVITATION_TYPE_EVEN       = 2  // teams even: N vs N players
 };
 
-class Battleground
+class WH_GAME_API Battleground
 {
 public:
     Battleground();

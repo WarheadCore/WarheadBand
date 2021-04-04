@@ -56,7 +56,7 @@ enum PathType
     PATHFIND_FARFROMPOLY       = PATHFIND_FARFROMPOLY_START | PATHFIND_FARFROMPOLY_END, // start or end positions are far from the mmap poligon
 };
 
-class PathGenerator
+class WH_GAME_API PathGenerator
 {
     public:
         explicit PathGenerator(WorldObject const* owner);

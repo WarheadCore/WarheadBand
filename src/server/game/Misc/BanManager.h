@@ -29,7 +29,7 @@ enum BanReturn
     BAN_LONGER_EXISTS
 };
 
-class BanManager
+class WH_GAME_API BanManager
 {
 public:
     static BanManager* instance();

@@ -1570,7 +1570,7 @@ struct BattlegroundAVScore : public BattlegroundScore
     uint32 GetAttr5() const final { return MinesCaptured; }
 };
 
-class BattlegroundAV : public Battleground
+class WH_GAME_API BattlegroundAV : public Battleground
 {
 public:
     BattlegroundAV();

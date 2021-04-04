@@ -25,7 +25,7 @@
 
 struct CreatureData;
 
-class Transport : public GameObject, public TransportBase
+class WH_GAME_API Transport : public GameObject, public TransportBase
 {
 public:
     Transport() : GameObject() {}
@@ -44,7 +44,7 @@ protected:
     PassengerSet _passengers;
 };
 
-class MotionTransport : public Transport
+class WH_GAME_API MotionTransport : public Transport
 {
     friend MotionTransport* TransportMgr::CreateTransport(uint32, uint32, Map*);
     MotionTransport();
@@ -107,7 +107,7 @@ private:
     bool _delayedTeleport;
 };
 
-class StaticTransport : public Transport
+class WH_GAME_API StaticTransport : public Transport
 {
 public:
     StaticTransport();

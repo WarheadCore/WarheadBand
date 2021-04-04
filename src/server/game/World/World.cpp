@@ -102,6 +102,8 @@ float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;
 float World::m_MaxVisibleDistanceInBGArenas   = DEFAULT_VISIBILITY_BGARENAS;
 
+uint32 realmID; ///< Id of the realm
+
 /// World constructor
 World::World()
 {
@@ -167,10 +169,10 @@ World::~World()
     //TODO free addSessQueue
 }
 
-std::unique_ptr<IWorld>& getWorldInstance()
+/*static*/ World* World::instance()
 {
-    static std::unique_ptr<IWorld> instance = std::make_unique<World>();
-    return instance;
+    static World instance;
+    return &instance;
 }
 
 /// Find a player in a specified zone

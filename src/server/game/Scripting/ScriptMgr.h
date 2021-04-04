@@ -155,7 +155,7 @@ struct GroupQueueInfo;
     event on all registered scripts of that type.
 */
 
-class ScriptObject
+class WH_GAME_API ScriptObject
 {
     friend class ScriptMgr;
 
@@ -189,7 +189,7 @@ public:
     virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
 };
 
-class SpellScriptLoader : public ScriptObject
+class WH_GAME_API SpellScriptLoader : public ScriptObject
 {
 protected:
     SpellScriptLoader(const char* name);
@@ -204,7 +204,7 @@ public:
     [[nodiscard]] virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
-class ServerScript : public ScriptObject
+class WH_GAME_API ServerScript : public ScriptObject
 {
 protected:
     ServerScript(const char* name);
@@ -232,7 +232,7 @@ public:
     virtual void OnPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { }
 };
 
-class WorldScript : public ScriptObject
+class WH_GAME_API WorldScript : public ScriptObject
 {
 protected:
     WorldScript(const char* name);
@@ -269,7 +269,7 @@ public:
     virtual void OnShutdown() { }
 };
 
-class FormulaScript : public ScriptObject
+class WH_GAME_API FormulaScript : public ScriptObject
 {
 protected:
     FormulaScript(const char* name);
@@ -345,7 +345,7 @@ public:
     void OnUpdate(TMap* /*map*/, uint32 /*diff*/) override { }
 };
 
-class WorldMapScript : public ScriptObject, public MapScript<Map>
+class WH_GAME_API WorldMapScript : public ScriptObject, public MapScript<Map>
 {
 protected:
     WorldMapScript(const char* name, uint32 mapId);
@@ -362,7 +362,7 @@ public:
     }
 };
 
-class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
+class WH_GAME_API InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 {
 protected:
     InstanceMapScript(const char* name, uint32 mapId);
@@ -382,7 +382,7 @@ public:
     virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return nullptr; }
 };
 
-class BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
+class WH_GAME_API BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
 {
 protected:
     BattlegroundMapScript(const char* name, uint32 mapId);
@@ -399,7 +399,7 @@ public:
     }
 };
 
-class ItemScript : public ScriptObject
+class WH_GAME_API ItemScript : public ScriptObject
 {
 protected:
     ItemScript(const char* name);
@@ -429,7 +429,7 @@ public:
     virtual void OnGossipSelectCode(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
 };
 
-class UnitScript : public ScriptObject
+class WH_GAME_API UnitScript : public ScriptObject
 {
 protected:
     UnitScript(const char* name, bool addToScripts = true);
@@ -460,7 +460,7 @@ public:
     virtual void OnBeforeRollMeleeOutcomeAgainst(const Unit* /*attacker*/, const Unit* /*victim*/, WeaponAttackType /*attType*/, int32& /*attackerMaxSkillValueForLevel*/, int32& /*victimMaxSkillValueForLevel*/, int32& /*attackerWeaponSkill*/, int32& /*victimDefenseSkill*/, int32& /*crit_chance*/, int32& /*miss_chance*/, int32& /*dodge_chance*/, int32& /*parry_chance*/, int32& /*block_chance*/ ) {   };
 };
 
-class MovementHandlerScript : public ScriptObject
+class WH_GAME_API MovementHandlerScript : public ScriptObject
 {
 protected:
     MovementHandlerScript(const char* name);
@@ -470,7 +470,7 @@ public:
     virtual void OnPlayerMove(Player* /*player*/, MovementInfo /*movementInfo*/, uint32 /*opcode*/) { }
 };
 
-class AllMapScript : public ScriptObject
+class WH_GAME_API AllMapScript : public ScriptObject
 {
 protected:
     AllMapScript(const char* name);
@@ -483,7 +483,7 @@ public:
     virtual void OnPlayerLeaveAll(Map* /*map*/, Player* /*player*/) { }
 };
 
-class AllCreatureScript : public ScriptObject
+class WH_GAME_API AllCreatureScript : public ScriptObject
 {
 protected:
     AllCreatureScript(const char* name);
@@ -496,7 +496,7 @@ public:
     virtual void Creature_SelectLevel(const CreatureTemplate* /*cinfo*/, Creature* /*creature*/) { }
 };
 
-class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
+class WH_GAME_API CreatureScript : public ScriptObject, public UpdatableScript<Creature>
 {
 protected:
     CreatureScript(const char* name);
@@ -532,7 +532,7 @@ public:
     virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
 };
 
-class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
+class WH_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 {
 protected:
     GameObjectScript(const char* name);
@@ -574,7 +574,7 @@ public:
     virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return nullptr; }
 };
 
-class AreaTriggerScript : public ScriptObject
+class WH_GAME_API AreaTriggerScript : public ScriptObject
 {
 protected:
     AreaTriggerScript(const char* name);
@@ -586,7 +586,7 @@ public:
     virtual bool OnTrigger(Player* /*player*/, AreaTrigger const* /*trigger*/) { return false; }
 };
 
-class BattlegroundScript : public ScriptObject
+class WH_GAME_API BattlegroundScript : public ScriptObject
 {
 protected:
     BattlegroundScript(const char* name);
@@ -598,7 +598,7 @@ public:
     [[nodiscard]] virtual Battleground* GetBattleground() const = 0;
 };
 
-class OutdoorPvPScript : public ScriptObject
+class WH_GAME_API OutdoorPvPScript : public ScriptObject
 {
 protected:
     OutdoorPvPScript(const char* name);
@@ -610,7 +610,7 @@ public:
     [[nodiscard]] virtual OutdoorPvP* GetOutdoorPvP() const = 0;
 };
 
-class CommandScript : public ScriptObject
+class WH_GAME_API CommandScript : public ScriptObject
 {
 protected:
     CommandScript(const char* name);
@@ -620,7 +620,7 @@ public:
     [[nodiscard]] virtual std::vector<ChatCommand> GetCommands() const = 0;
 };
 
-class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
+class WH_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 {
 protected:
     WeatherScript(const char* name);
@@ -632,7 +632,7 @@ public:
     virtual void OnChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
 };
 
-class AuctionHouseScript : public ScriptObject
+class WH_GAME_API AuctionHouseScript : public ScriptObject
 {
 protected:
     AuctionHouseScript(const char* name);
@@ -672,7 +672,7 @@ public:
     virtual void OnBeforeAuctionHouseMgrUpdate() { }
 };
 
-class ConditionScript : public ScriptObject
+class WH_GAME_API ConditionScript : public ScriptObject
 {
 protected:
     ConditionScript(const char* name);
@@ -684,7 +684,7 @@ public:
     virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
 };
 
-class VehicleScript : public ScriptObject
+class WH_GAME_API VehicleScript : public ScriptObject
 {
 protected:
     VehicleScript(const char* name);
@@ -709,13 +709,13 @@ public:
     virtual void OnRemovePassenger(Vehicle* /*veh*/, Unit* /*passenger*/) { }
 };
 
-class DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
+class WH_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
 {
 protected:
     DynamicObjectScript(const char* name);
 };
 
-class TransportScript : public ScriptObject, public UpdatableScript<Transport>
+class WH_GAME_API TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
 protected:
     TransportScript(const char* name);
@@ -736,7 +736,7 @@ public:
     virtual void OnRelocate(Transport* /*transport*/, uint32 /*waypointId*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/) { }
 };
 
-class AchievementCriteriaScript : public ScriptObject
+class WH_GAME_API AchievementCriteriaScript : public ScriptObject
 {
 protected:
     AchievementCriteriaScript(const char* name);
@@ -748,7 +748,7 @@ public:
     virtual bool OnCheck(Player* /*source*/, Unit* /*target*/) { return true; };
 };
 
-class PlayerScript : public ScriptObject
+class WH_GAME_API PlayerScript : public ScriptObject
 {
 protected:
     PlayerScript(const char* name);
@@ -969,7 +969,7 @@ public:
     virtual void OnBeforeLoadPetFromDB(Player* /*player*/, uint32& /*petentry*/, uint32& /*petnumber*/, bool& /*current*/, bool& /*forceLoadFromDB*/) { }
 };
 
-class AccountScript : public ScriptObject
+class WH_GAME_API AccountScript : public ScriptObject
 {
 protected:
     AccountScript(const char* name);
@@ -997,7 +997,7 @@ public:
     virtual void OnFailedPasswordChange(uint32 /*accountId*/) { }
 };
 
-class GuildScript : public ScriptObject
+class WH_GAME_API GuildScript : public ScriptObject
 {
 protected:
     GuildScript(const char* name);
@@ -1038,7 +1038,7 @@ public:
     virtual void OnBankEvent(Guild* /*guild*/, uint8 /*eventType*/, uint8 /*tabId*/, uint32 /*playerGuid*/, uint32 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/) { }
 };
 
-class GroupScript : public ScriptObject
+class WH_GAME_API GroupScript : public ScriptObject
 {
 protected:
     GroupScript(const char* name);
@@ -1063,7 +1063,7 @@ public:
 };
 
 // following hooks can be used anywhere and are not db bounded
-class GlobalScript : public ScriptObject
+class WH_GAME_API GlobalScript : public ScriptObject
 {
 protected:
     GlobalScript(const char* name);
@@ -1091,7 +1091,7 @@ public:
     virtual void OnBeforeWorldObjectSetPhaseMask(WorldObject const* /*worldObject*/, uint32& /*oldPhaseMask*/, uint32& /*newPhaseMask*/, bool& /*useCombinedPhases*/, bool& /*update*/) { }
 };
 
-class BGScript : public ScriptObject
+class WH_GAME_API BGScript : public ScriptObject
 {
 protected:
     BGScript(const char* name);
@@ -1129,7 +1129,7 @@ public:
     virtual bool CanSendMessageQueue(BattlegroundQueue* /*queue*/, Player* /*leader*/, Battleground* /*bg*/, PvPDifficultyEntry const* /*bracketEntry*/) { return true; }
 };
 
-class ArenaTeamScript : public ScriptObject
+class WH_GAME_API ArenaTeamScript : public ScriptObject
 {
 protected:
     ArenaTeamScript(const char* name);
@@ -1144,7 +1144,7 @@ public:
     virtual void OnSetArenaMaxPlayersPerTeam(const uint8 /*arenaType*/, uint32& /*maxPlayerPerTeam*/) {}
 };
 
-class SpellSC : public ScriptObject
+class WH_GAME_API SpellSC : public ScriptObject
 {
 protected:
     SpellSC(const char* name);
@@ -1158,13 +1158,13 @@ public:
 
 // this class can be used to be extended by Modules
 // creating their own custom hooks inside module itself
-class ModuleScript : public ScriptObject
+class WH_GAME_API ModuleScript : public ScriptObject
 {
 protected:
     ModuleScript(const char* name);
 };
 
-class GameEventScript : public ScriptObject
+class WH_GAME_API GameEventScript : public ScriptObject
 {
 protected:
     GameEventScript(const char* name);
@@ -1177,7 +1177,7 @@ public:
     virtual void OnStop(uint16 /*EventID*/) { }
 };
 
-class MailScript : public ScriptObject
+class WH_GAME_API MailScript : public ScriptObject
 {
 protected:
     MailScript(const char* name);
@@ -1188,7 +1188,7 @@ public:
 };
 
 // Manages registration, loading, and execution of scripts.
-class ScriptMgr
+class WH_GAME_API ScriptMgr
 {
     friend class ScriptObject;
 

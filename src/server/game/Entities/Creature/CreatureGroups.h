@@ -38,7 +38,7 @@ struct FormationInfo
 
 typedef std::unordered_map<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
-class FormationMgr
+class WH_GAME_API FormationMgr
 {
 public:
     FormationMgr() { }
@@ -52,7 +52,7 @@ public:
     CreatureGroupInfoType CreatureGroupMap;
 };
 
-class CreatureGroup
+class WH_GAME_API CreatureGroup
 {
 public:
     // pussywizard: moved public to the top so it compiles and typedef is public

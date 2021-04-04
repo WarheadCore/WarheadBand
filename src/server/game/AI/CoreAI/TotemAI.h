@@ -24,7 +24,7 @@
 class Creature;
 class Totem;
 
-class TotemAI : public CreatureAI
+class WH_GAME_API TotemAI : public CreatureAI
 {
 public:
     explicit TotemAI(Creature* c);
@@ -42,7 +42,7 @@ private:
     uint64 i_victimGuid;
 };
 
-class KillMagnetEvent : public BasicEvent
+class WH_GAME_API KillMagnetEvent : public BasicEvent
 {
 public:
     KillMagnetEvent(Unit& self) : _self(self) { }

@@ -28,7 +28,7 @@
 #include <ace/Acceptor.h>
 #include <ace/SOCK_Acceptor.h>
 
-class WorldSocketAcceptor : public ACE_Acceptor<WorldSocket, ACE_SOCK_Acceptor>
+class WH_GAME_API WorldSocketAcceptor : public ACE_Acceptor<WorldSocket, ACE_SOCK_Acceptor>
 {
 public:
     WorldSocketAcceptor(void) { }

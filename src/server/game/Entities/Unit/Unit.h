@@ -537,8 +537,8 @@ enum UnitMoveType
 
 #define MAX_MOVE_TYPE     9
 
-extern float baseMoveSpeed[MAX_MOVE_TYPE];
-extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
+WH_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
+WH_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
 enum WeaponAttackType
 {
@@ -853,7 +853,7 @@ enum MeleeHitOutcome
     MELEE_HIT_GLANCING, MELEE_HIT_CRIT, MELEE_HIT_CRUSHING, MELEE_HIT_NORMAL
 };
 
-class DispelInfo
+class WH_GAME_API DispelInfo
 {
 public:
     explicit DispelInfo(Unit* dispeller, uint32 dispellerSpellId, uint8 chargesRemoved) :
@@ -886,7 +886,7 @@ struct CleanDamage
 
 struct CalcDamageInfo;
 
-class DamageInfo
+class WH_GAME_API DamageInfo
 {
 private:
     Unit* const m_attacker;
@@ -920,7 +920,7 @@ public:
     [[nodiscard]] uint32 GetBlock() const { return m_block; };
 };
 
-class HealInfo
+class WH_GAME_API HealInfo
 {
 private:
     Unit* const m_healer;
@@ -950,7 +950,7 @@ public:
     [[nodiscard]] SpellSchoolMask GetSchoolMask() const { return m_schoolMask; };
 };
 
-class ProcEventInfo
+class WH_GAME_API ProcEventInfo
 {
 private:
     Unit* const _actor;
@@ -1042,8 +1042,8 @@ struct SpellPeriodicAuraLogInfo
     bool   critical;
 };
 
-void createProcFlags(const SpellInfo* spellInfo, WeaponAttackType attackType, bool positive, uint32& procAttacker, uint32& procVictim);
-uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
+WH_GAME_API void createProcFlags(const SpellInfo* spellInfo, WeaponAttackType attackType, bool positive, uint32& procAttacker, uint32& procVictim);
+WH_GAME_API uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
 
 struct RedirectThreatInfo
 {
@@ -1095,7 +1095,7 @@ struct GlobalCooldown
 
 typedef std::unordered_map<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
 
-class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
+class WH_GAME_API GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
 public:
     GlobalCooldownMgr() = default;
@@ -1191,7 +1191,7 @@ enum ActionBarIndex
 
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
-struct CharmInfo
+struct WH_GAME_API CharmInfo
 {
 public:
     explicit CharmInfo(Unit* unit);
@@ -1340,7 +1340,7 @@ typedef std::unordered_map<uint32, uint32> PacketCooldowns;
 struct SpellProcEventEntry;                                 // used only privately
 
 // pussywizard:
-class MMapTargetData
+class WH_GAME_API MMapTargetData
 {
 public:
     MMapTargetData() = default;
@@ -1371,7 +1371,7 @@ public:
     Position _posTarget;
 };
 
-class SafeUnitPointer
+class WH_GAME_API SafeUnitPointer
 {
 public:
     explicit SafeUnitPointer(Unit* defVal) :  ptr(defVal), defaultValue(defVal) {}
@@ -1388,7 +1388,7 @@ private:
     Unit* defaultValue;
 };
 
-class Unit : public WorldObject
+class WH_GAME_API Unit : public WorldObject
 {
 public:
     typedef std::unordered_set<Unit*> AttackerSet;
@@ -2625,7 +2625,7 @@ private:
 namespace Warhead
 {
     // Binary predicate for sorting Units based on percent value of a power
-    class PowerPctOrderPred
+    class WH_GAME_API PowerPctOrderPred
     {
     public:
         PowerPctOrderPred(Powers power, bool ascending = true) : _power(power), _ascending(ascending) { }
@@ -2652,7 +2652,7 @@ namespace Warhead
     };
 
     // Binary predicate for sorting Units based on percent value of health
-    class HealthPctOrderPred
+    class WH_GAME_API HealthPctOrderPred
     {
     public:
         HealthPctOrderPred(bool ascending = true) : _ascending(ascending) { }
@@ -2678,7 +2678,7 @@ namespace Warhead
     };
 }
 
-class ConflagrateAuraStateDelayEvent : public BasicEvent
+class WH_GAME_API ConflagrateAuraStateDelayEvent : public BasicEvent
 {
 public:
     ConflagrateAuraStateDelayEvent(uint64 ownerGUID, uint64 casterGUID) : BasicEvent(), m_owner(ownerGUID), m_caster(casterGUID) { }
@@ -2689,7 +2689,7 @@ private:
     uint64 m_caster;
 };
 
-class RedirectSpellEvent : public BasicEvent
+class WH_GAME_API RedirectSpellEvent : public BasicEvent
 {
 public:
     RedirectSpellEvent(Unit& self, uint64 auraOwnerGUID, AuraEffect* auraEffect) : _self(self), _auraOwnerGUID(auraOwnerGUID), _auraEffect(auraEffect) { }
@@ -2701,7 +2701,7 @@ protected:
     AuraEffect* _auraEffect;
 };
 
-class VehicleDespawnEvent : public BasicEvent
+class WH_GAME_API VehicleDespawnEvent : public BasicEvent
 {
 public:
     VehicleDespawnEvent(Unit& self, uint32 duration) : _self(self), _duration(duration) { }

@@ -39,7 +39,7 @@ struct StoredLootItem
 typedef std::list<StoredLootItem> StoredLootItemList;
 typedef std::unordered_map<uint32, StoredLootItemList> LootItemContainer;
 
-class LootItemStorage
+class WH_GAME_API LootItemStorage
 {
 private:
     LootItemStorage();

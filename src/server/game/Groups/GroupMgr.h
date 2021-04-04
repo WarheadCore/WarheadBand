@@ -20,7 +20,7 @@
 
 #include "Group.h"
 
-class GroupMgr
+class WH_GAME_API GroupMgr
 {
 private:
     GroupMgr();

@@ -26,7 +26,7 @@
 
 class ObjectWorldLoader;
 
-class ObjectGridLoader
+class WH_GAME_API ObjectGridLoader
 {
     friend class ObjectWorldLoader;
 
@@ -54,14 +54,14 @@ private:
 };
 
 //Clean up and remove from world
-class ObjectGridCleaner
+class WH_GAME_API ObjectGridCleaner
 {
 public:
     template<class T> void Visit(GridRefManager<T>&);
 };
 
 //Delete objects before deleting NGrid
-class ObjectGridUnloader
+class WH_GAME_API ObjectGridUnloader
 {
 public:
     template<class T> void Visit(GridRefManager<T>& m);

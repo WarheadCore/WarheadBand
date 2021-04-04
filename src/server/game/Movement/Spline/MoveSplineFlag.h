@@ -29,7 +29,7 @@ namespace Movement
 #pragma pack(push, 1)
 #endif
 
-    class MoveSplineFlag
+    class WH_GAME_API MoveSplineFlag
     {
     public:
         enum eFlags

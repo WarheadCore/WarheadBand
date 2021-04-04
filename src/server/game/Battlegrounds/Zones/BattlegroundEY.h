@@ -327,7 +327,7 @@ struct BattlegroundEYScore : public BattlegroundScore
     uint32 GetAttr1() const final { return FlagCaptures; }
 };
 
-class BattlegroundEY : public Battleground
+class WH_GAME_API BattlegroundEY : public Battleground
 {
 public:
     BattlegroundEY();

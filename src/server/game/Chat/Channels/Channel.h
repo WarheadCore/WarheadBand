@@ -117,7 +117,7 @@ enum ChannelMemberFlags
                               // 0x80
 };
 
-class ChannelRights
+class WH_GAME_API ChannelRights
 {
 public:
     ChannelRights() : flags(0), speakDelay(0) {}
@@ -142,7 +142,7 @@ enum eChannelRights
     CHANNEL_RIGHT_DONT_PRESERVE             = 0x100,
 };
 
-class Channel
+class WH_GAME_API Channel
 {
     struct PlayerInfo
     {

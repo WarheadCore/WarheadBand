@@ -159,7 +159,7 @@ struct BattlegroundWGScore : public BattlegroundScore
     uint32 GetAttr2() const final { return FlagReturns; }
 };
 
-class BattlegroundWS : public Battleground
+class WH_GAME_API BattlegroundWS : public Battleground
 {
 public:
     /* Construction */

@@ -25,7 +25,7 @@
 #include "QuestDef.h"
 #include <list>
 
-class GameObjectAI
+class WH_GAME_API GameObjectAI
 {
 protected:
     GameObject* const go;

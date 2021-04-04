@@ -69,7 +69,7 @@ struct WardenInitModuleRequest
 class WorldSession;
 class Warden;
 
-class WardenWin : public Warden
+class WH_GAME_API WardenWin : public Warden
 {
 public:
     WardenWin();

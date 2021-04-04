@@ -269,11 +269,12 @@ private:
     std::string _title;
     std::string _description;
 };
+
 typedef std::vector<CalendarInvite*> CalendarInviteStore;
 typedef std::unordered_set<CalendarEvent*> CalendarEventStore;
 typedef std::unordered_map<uint64 /* eventId */, CalendarInviteStore > CalendarEventInviteStore;
 
-class CalendarMgr
+class WH_GAME_API CalendarMgr
 {
 private:
     CalendarMgr();

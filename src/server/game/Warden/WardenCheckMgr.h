@@ -59,7 +59,7 @@ struct WardenCheckResult
     BigNumber Result;                                       // MEM_CHECK
 };
 
-class WardenCheckMgr
+class WH_GAME_API WardenCheckMgr
 {
     WardenCheckMgr();
     ~WardenCheckMgr();

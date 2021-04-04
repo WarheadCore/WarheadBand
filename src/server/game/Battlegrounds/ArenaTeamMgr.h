@@ -20,7 +20,7 @@
 
 #include "ArenaTeam.h"
 
-class ArenaTeamMgr
+class WH_GAME_API ArenaTeamMgr
 {
     ArenaTeamMgr();
     ~ArenaTeamMgr();

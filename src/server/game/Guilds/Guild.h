@@ -222,7 +222,7 @@ enum GuildMemberFlags
 };
 
 // Emblem info
-class EmblemInfo
+class WH_GAME_API EmblemInfo
 {
 public:
     EmblemInfo() : m_style(0), m_color(0), m_borderStyle(0), m_borderColor(0), m_backgroundColor(0) { }
@@ -247,7 +247,7 @@ private:
 };
 
 // Structure for storing guild bank rights and remaining slots together.
-class GuildBankRightsAndSlots
+class WH_GAME_API GuildBankRightsAndSlots
 {
 public:
     GuildBankRightsAndSlots() : tabId(TAB_UNDEFINED), rights(0), slots(0) { }
@@ -278,11 +278,11 @@ typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
 
 typedef std::set <uint8> SlotIds;
 
-class Guild
+class WH_GAME_API Guild
 {
 public: // pussywizard: public class Member
     // Class representing guild member
-    class Member
+    class WH_GAME_API Member
     {
     public:
         Member(uint32 guildId, uint64 guid, uint8 rankId):

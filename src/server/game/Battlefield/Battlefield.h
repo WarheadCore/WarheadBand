@@ -80,7 +80,7 @@ typedef std::unordered_set<uint64> GuidSet;
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<uint64, time_t> PlayerTimerMap;
 
-class BfCapturePoint
+class WH_GAME_API BfCapturePoint
 {
 public:
     BfCapturePoint(Battlefield* bf);
@@ -147,7 +147,7 @@ protected:
     uint64 m_capturePoint;
 };
 
-class BfGraveyard
+class WH_GAME_API BfGraveyard
 {
 public:
     BfGraveyard(Battlefield* Bf);
@@ -205,7 +205,7 @@ protected:
     Battlefield* m_Bf;
 };
 
-class Battlefield : public ZoneScript
+class WH_GAME_API Battlefield : public ZoneScript
 {
     friend class BattlefieldMgr;
 

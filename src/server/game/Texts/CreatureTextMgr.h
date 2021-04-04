@@ -81,7 +81,7 @@ typedef std::vector<uint8> CreatureTextRepeatIds;
 typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
 typedef std::unordered_map<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
 
-class CreatureTextMgr
+class WH_GAME_API CreatureTextMgr
 {
     CreatureTextMgr() { }
 

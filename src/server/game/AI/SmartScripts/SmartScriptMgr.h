@@ -1713,7 +1713,7 @@ typedef std::unordered_map<uint32, WayPoint*> WPPath;
 typedef std::list<WorldObject*> ObjectList;
 typedef std::list<uint64> GuidList;
 
-class ObjectGuidList
+class WH_GAME_API ObjectGuidList
 {
     ObjectList* m_objectList;
     GuidList* m_guidList;
@@ -1766,7 +1766,7 @@ public:
 
 typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
 
-class SmartWaypointMgr
+class WH_GAME_API SmartWaypointMgr
 {
     SmartWaypointMgr() {}
 public:
@@ -1794,7 +1794,7 @@ typedef std::list<SmartScriptHolder> SmartAIEventStoredList;
 // all events for all entries / guids
 typedef std::unordered_map<int32, SmartAIEventList> SmartAIEventMap;
 
-class SmartAIMgr
+class WH_GAME_API SmartAIMgr
 {
     SmartAIMgr() {};
 public:

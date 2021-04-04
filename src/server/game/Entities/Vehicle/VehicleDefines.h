@@ -103,7 +103,7 @@ typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryContainer;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
-class TransportBase
+class WH_GAME_API TransportBase
 {
 protected:
     TransportBase() = default;

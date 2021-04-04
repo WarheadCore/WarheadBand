@@ -330,6 +330,46 @@ bool SpellTargetSelector::operator()(Unit const* target) const
     return true;
 }
 
+DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : 
+    me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) { }
+
+bool DefaultTargetSelector::operator()(Unit const* target) const
+{
+    if (!me)
+        return false;
+
+    if (!target)
+        return false;
+
+    if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+        return false;
+
+    if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
+        return false;
+
+    if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
+        return false;
+
+    if (m_aura)
+    {
+        if (m_aura > 0)
+        {
+            if (!target->HasAura(m_aura))
+                return false;
+        }
+        else
+        {
+            if (target->HasAura(-m_aura))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+NonTankTargetSelector::NonTankTargetSelector(Creature* source, bool playerOnly /*= true*/) :
+    _source(source), _playerOnly(playerOnly) { }
+
 bool NonTankTargetSelector::operator()(Unit const* target) const
 {
     if (!target)
@@ -339,4 +379,47 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
         return false;
 
     return target != _source->GetVictim();
+}
+
+PowerUsersSelector::PowerUsersSelector(Unit const* unit, Powers power, float dist, bool playerOnly) :
+    _me(unit), _power(power), _dist(dist), _playerOnly(playerOnly) { }
+
+bool PowerUsersSelector::operator()(Unit const* target) const
+{
+    if (!_me || !target)
+        return false;
+
+    if (target->getPowerType() != _power)
+        return false;
+
+    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
+        return false;
+
+    if (_dist < 0.0f && _me->IsWithinCombatRange(target, -_dist))
+        return false;
+
+    return true;
+}
+
+FarthestTargetSelector::FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos) :
+    _me(unit), _dist(dist), _playerOnly(playerOnly), _inLos(inLos) { }
+
+bool FarthestTargetSelector::operator()(Unit const* target) const
+{
+    if (!_me || !target)
+        return false;
+
+    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
+        return false;
+
+    if (_inLos && !_me->IsWithinLOSInMap(target))
+        return false;
+
+    return true;
 }

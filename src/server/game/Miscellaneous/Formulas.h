@@ -107,9 +107,9 @@ namespace Warhead::XP
         return diff;
     }
 
-    uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content);
+    WH_GAME_API uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content);
 
-    uint32 Gain(Player* player, Unit* unit, bool isBattleGround = false);
+    WH_GAME_API uint32 Gain(Player* player, Unit* unit, bool isBattleGround = false);
 
     inline float xp_in_group_rate(uint32 count, bool isRaid)
     {

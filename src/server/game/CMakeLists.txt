@@ -28,6 +28,8 @@ endif ()
 # Group sources
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_definitions(-DWARHEAD_API_EXPORT_GAME)
+
 add_library(game-interface INTERFACE)
 
 CollectIncludeDirectories(
@@ -44,7 +46,7 @@ target_link_libraries(game-interface
   INTERFACE
     shared)
 
-add_library(game STATIC
+add_library(game
   ${PRIVATE_SOURCES}
   ${ElunaLuaEngineFiles})
 
@@ -64,6 +66,9 @@ set_target_properties(game
   PROPERTIES
     FOLDER
       "server")
+
+# Install dynamic lib
+InstallDynamicLibrary(game)
 
 # Generate precompiled header
 if (USE_COREPCH)

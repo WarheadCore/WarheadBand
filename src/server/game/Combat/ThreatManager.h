@@ -43,7 +43,7 @@ struct ThreatCalcHelper
 };
 
 //==============================================================
-class HostileReference : public Reference<Unit, ThreatManager>
+class WH_GAME_API HostileReference : public Reference<Unit, ThreatManager>
 {
 public:
     HostileReference(Unit* refUnit, ThreatManager* threatManager, float threat);
@@ -131,7 +131,7 @@ private:
 //==============================================================
 class ThreatManager;
 
-class ThreatContainer
+class WH_GAME_API ThreatContainer
 {
     friend class ThreatManager;
 
@@ -188,7 +188,7 @@ private:
 
 //=================================================
 
-class ThreatManager
+class WH_GAME_API ThreatManager
 {
 public:
     friend class HostileReference;
@@ -270,7 +270,7 @@ private:
 namespace Warhead
 {
     // Binary predicate for sorting HostileReferences based on threat value
-    class ThreatOrderPred
+    class WH_GAME_API ThreatOrderPred
     {
     public:
         ThreatOrderPred(bool ascending = false) : m_ascending(ascending) {}

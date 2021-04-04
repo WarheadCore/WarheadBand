@@ -41,7 +41,7 @@ enum SmartEscortVars
     SMART_MAX_AID_DIST                  = SMART_ESCORT_MAX_PLAYER_DIST / 2,
 };
 
-class SmartAI : public CreatureAI
+class WH_GAME_API SmartAI : public CreatureAI
 {
 public:
     ~SmartAI() override {};
@@ -242,7 +242,7 @@ private:
     uint32 m_ConditionsTimer;
 };
 
-class SmartGameObjectAI : public GameObjectAI
+class WH_GAME_API SmartGameObjectAI : public GameObjectAI
 {
 public:
     SmartGameObjectAI(GameObject* g) : GameObjectAI(g) {}

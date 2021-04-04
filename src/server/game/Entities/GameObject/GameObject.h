@@ -737,7 +737,7 @@ class GameObjectModel;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
-class GameObject : public WorldObject, public GridObject<GameObject>, public MovableMapObject
+class WH_GAME_API GameObject : public WorldObject, public GridObject<GameObject>, public MovableMapObject
 {
 public:
     explicit GameObject();

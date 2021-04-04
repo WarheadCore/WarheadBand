@@ -53,11 +53,11 @@ enum SpellDisableTypes
 
 namespace DisableMgr
 {
-    void LoadDisables();
-    bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
-    void CheckQuestDisables();
-    bool IsVMAPDisabledFor(uint32 entry, uint8 flags);
-    bool IsPathfindingEnabled(const Map* map);
+    WH_GAME_API void LoadDisables();
+    WH_GAME_API bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
+    WH_GAME_API void CheckQuestDisables();
+    WH_GAME_API bool IsVMAPDisabledFor(uint32 entry, uint8 flags);
+    WH_GAME_API bool IsPathfindingEnabled(const Map* map);
 }
 
 #endif //ACORE_DISABLEMGR_H

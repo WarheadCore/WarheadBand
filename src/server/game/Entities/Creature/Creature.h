@@ -442,7 +442,7 @@ typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
 
-class Creature : public Unit, public GridObject<Creature>, public MovableMapObject
+class WH_GAME_API Creature : public Unit, public GridObject<Creature>, public MovableMapObject
 {
 public:
     explicit Creature(bool isWorldObject = false);
@@ -845,7 +845,7 @@ private:
     void applyInhabitFlags();
 };
 
-class AssistDelayEvent : public BasicEvent
+class WH_GAME_API AssistDelayEvent : public BasicEvent
 {
 public:
     AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
@@ -860,7 +860,7 @@ private:
     Unit&             m_owner;
 };
 
-class ForcedDespawnDelayEvent : public BasicEvent
+class WH_GAME_API ForcedDespawnDelayEvent : public BasicEvent
 {
 public:
     ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }

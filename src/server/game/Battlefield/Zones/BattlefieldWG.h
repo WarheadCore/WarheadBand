@@ -130,7 +130,7 @@ enum WintergraspAreaIds
  *####### Graveyards ######
  *#########################*/
 
-class BfGraveyardWG : public BfGraveyard
+class WH_GAME_API BfGraveyardWG : public BfGraveyard
 {
 public:
     BfGraveyardWG(BattlefieldWG* Bf);
@@ -253,7 +253,7 @@ const BfWGCoordGY WGGraveYard[BATTLEFIELD_WG_GRAVEYARD_MAX] =
  *  WintergraspCapturePoint  *
  * ######################### */
 
-class WintergraspCapturePoint : public BfCapturePoint
+class WH_GAME_API WintergraspCapturePoint : public BfCapturePoint
 {
 public:
     WintergraspCapturePoint(BattlefieldWG* battlefield, TeamId teamInControl);
@@ -271,7 +271,7 @@ protected:
  * WinterGrasp Battlefield   *
  * ######################### */
 
-class BattlefieldWG : public Battlefield
+class WH_GAME_API BattlefieldWG : public Battlefield
 {
 public:
     ~BattlefieldWG() override;

@@ -66,7 +66,7 @@ enum UNIT_EVENT_TYPE
 
 //==============================================================
 
-class UnitBaseEvent
+class WH_GAME_API UnitBaseEvent
 {
 private:
     uint32 iType;
@@ -80,7 +80,7 @@ public:
 
 //==============================================================
 
-class ThreatRefStatusChangeEvent : public UnitBaseEvent
+class WH_GAME_API ThreatRefStatusChangeEvent : public UnitBaseEvent
 {
 private:
     HostileReference* iHostileReference;
@@ -117,7 +117,7 @@ public:
 
 //==============================================================
 
-class ThreatManagerEvent : public ThreatRefStatusChangeEvent
+class WH_GAME_API ThreatManagerEvent : public ThreatRefStatusChangeEvent
 {
 private:
     ThreatContainer* iThreatContainer;
