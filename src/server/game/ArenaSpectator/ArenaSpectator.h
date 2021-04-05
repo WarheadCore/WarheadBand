@@ -42,6 +42,15 @@ class WorldPacket;
 namespace ArenaSpectator
 {
     template<class T>
+    WH_GAME_API void SendPacketTo(const T* object, std::string&& message);
+
+    template<class T, typename Format, typename... Args>
+    inline void SendCommand(T* o, Format&& fmt, Args&& ... args)
+    {
+        SendPacketTo(o, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+    }
+    
+    template<class T>
     inline void SendCommand_String(T* o, uint64 targetGUID, const char* prefix, const char* c)
     {
         if (!IS_PLAYER_GUID(targetGUID))
@@ -101,16 +110,6 @@ namespace ArenaSpectator
 
     WH_GAME_API bool HandleSpectatorSpectateCommand(ChatHandler* handler, char const* args);
     WH_GAME_API bool HandleSpectatorWatchCommand(ChatHandler* handler, char const* args);
-
-    template<class T>
-    WH_GAME_API void SendPacketTo(const T* object, std::string&& message);
-
-    template<class T, typename Format, typename... Args>
-    inline void SendCommand(T* o, Format&& fmt, Args&& ... args)
-    {
-        SendPacketTo(o, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
-    }
-
     WH_GAME_API void CreatePacket(WorldPacket& data, std::string const& message);
     WH_GAME_API void HandleResetCommand(Player* player);
     WH_GAME_API bool ShouldSendAura(Aura* aura, uint8 effMask, uint64 targetGUID, bool remove);
