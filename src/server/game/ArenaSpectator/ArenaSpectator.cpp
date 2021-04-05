@@ -20,6 +20,7 @@
 #include "LFGMgr.h"
 #include "Map.h"
 #include "Pet.h"
+#include "Player.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "World.h"
