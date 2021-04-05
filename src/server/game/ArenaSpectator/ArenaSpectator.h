@@ -49,7 +49,7 @@ namespace ArenaSpectator
     {
         SendPacketTo(o, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
     }
-    
+
     template<class T>
     inline void SendCommand_String(T* o, uint64 targetGUID, const char* prefix, const char* c)
     {
