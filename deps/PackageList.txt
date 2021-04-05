@@ -32,10 +32,6 @@ OpenSSL (general-purpose cryptography library)
   https://www.openssl.org/
   Version: external
 
-MySQL (the world's most popular open source database software)
-  http://www.mysql.com/
-  Version: 5.5.9 (GA)
-
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
   Version: 2010-Aug-03

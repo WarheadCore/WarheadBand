@@ -13,12 +13,6 @@
 # This is done EACH compile so they can be alerted about the consequences.
 #
 
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-  if(USE_MYSQL_SOURCES)
-      add_subdirectory(mysqllite)
-  endif()
-endif()
-
 add_subdirectory(threads)
 add_subdirectory(acelite)
 add_subdirectory(fmt)
