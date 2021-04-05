@@ -26,6 +26,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
