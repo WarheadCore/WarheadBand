@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "Chat.h"
+#include "ObjectDefines.h"
 #include "StringFormat.h"
 
 class Aura;
