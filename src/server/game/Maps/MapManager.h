@@ -131,6 +131,11 @@ public:
 
     MapUpdater* GetMapUpdater() { return &m_updater; }
 
+    uint32 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }
+    uint32 DecreaseScheduledScriptCount() { return --_scheduledScripts; }
+    uint32 DecreaseScheduledScriptCount(size_t count) { return _scheduledScripts -= count; }
+    bool IsScriptScheduled() const { return _scheduledScripts > 0; }
+
 private:
     typedef std::unordered_map<uint32, Map*> MapMapType;
     typedef std::vector<bool> InstanceIds;
@@ -149,6 +154,9 @@ private:
     InstanceIds _instanceIds;
     uint32 _nextInstanceId;
     MapUpdater m_updater;
+
+    // atomic op counter for active scripts amount
+    std::atomic<uint32> _scheduledScripts;
 };
 
 #define sMapMgr MapManager::instance()

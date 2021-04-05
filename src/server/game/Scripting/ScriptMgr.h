@@ -1475,12 +1475,6 @@ public: /* GlobalScript */
     void OnAfterUpdateEncounterState(Map* map, EncounterCreditType type, uint32 creditEntry, Unit* source, Difficulty difficulty_fixed, DungeonEncounterList const* encounters, uint32 dungeonCompleted, bool updated);
     void OnBeforeWorldObjectSetPhaseMask(WorldObject const* worldObject, uint32& oldPhaseMask, uint32& newPhaseMask, bool& useCombinedPhases, bool& update);
 
-public: /* Scheduled scripts */
-    uint32 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }
-    uint32 DecreaseScheduledScriptCount() { return --_scheduledScripts; }
-    uint32 DecreaseScheduledScriptCount(size_t count) { return _scheduledScripts -= count; }
-    bool IsScriptScheduled() const { return _scheduledScripts > 0; }
-
 public: /* UnitScript */
     void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
     void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
@@ -1537,9 +1531,6 @@ public: /* MailScript */
 
 private:
     uint32 _scriptCount;
-
-    //atomic op counter for active scripts amount
-    std::atomic<long> _scheduledScripts;
 
     ScriptLoaderCallbackType _script_loader_callback;
 };
