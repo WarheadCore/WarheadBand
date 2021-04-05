@@ -102,14 +102,14 @@ namespace ArenaSpectator
     WH_GAME_API bool HandleSpectatorSpectateCommand(ChatHandler* handler, char const* args);
     WH_GAME_API bool HandleSpectatorWatchCommand(ChatHandler* handler, char const* args);
 
+    template<class T>
+    WH_GAME_API void SendPacketTo(const T* object, std::string&& message);
+
     template<class T, typename Format, typename... Args>
     inline void SendCommand(T* o, Format&& fmt, Args&& ... args)
     {
         SendPacketTo(o, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
     }
-
-    template<class T>
-    WH_GAME_API void SendPacketTo(const T* object, std::string&& message);
 
     WH_GAME_API void CreatePacket(WorldPacket& data, std::string const& message);
     WH_GAME_API void HandleResetCommand(Player* player);
