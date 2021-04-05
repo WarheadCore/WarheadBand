@@ -110,7 +110,7 @@ class MotionTransport;
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 typedef std::unordered_set<uint32> UpdatePlayerSet;
 
-class Object
+class WH_GAME_API Object
 {
 public:
     virtual ~Object();
@@ -362,7 +362,7 @@ private:
     Object& operator=(Object const&);                   // prevent generation assigment operator
 };
 
-struct Position
+struct WH_GAME_API Position
 {
     Position(float x = 0, float y = 0, float z = 0, float o = 0)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
@@ -743,7 +743,7 @@ enum MapObjectCellMoveState
     MAP_OBJECT_CELL_MOVE_INACTIVE, //in move list but should not move
 };
 
-class MovableMapObject
+class WH_GAME_API MovableMapObject
 {
     friend class Map; //map for moving creatures
     friend class ObjectGridLoader; //grid loader for loading creatures
@@ -760,7 +760,7 @@ private:
     MapObjectCellMoveState _moveState{MAP_OBJECT_CELL_MOVE_NONE};
 };
 
-class WorldObject : public Object, public WorldLocation
+class WH_GAME_API WorldObject : public Object, public WorldLocation
 {
 protected:
     explicit WorldObject(bool isWorldObject); //note: here it means if it is in grid object list or world object list
@@ -1120,7 +1120,7 @@ private:
 namespace Warhead
 {
     // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
-    class ObjectDistanceOrderPred
+    class WH_GAME_API ObjectDistanceOrderPred
     {
     public:
         ObjectDistanceOrderPred(const WorldObject* pRefObj, bool ascending = true) : m_refObj(pRefObj), m_ascending(ascending) {}

@@ -129,7 +129,7 @@ typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> Door
 
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 
-class InstanceScript : public ZoneScript
+class WH_GAME_API InstanceScript : public ZoneScript
 {
 public:
     explicit InstanceScript(Map* map) : instance(map), completedEncounters(0) {}

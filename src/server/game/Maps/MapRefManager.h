@@ -22,7 +22,7 @@
 
 class MapReference;
 
-class MapRefManager : public RefManager<Map, Player>
+class WH_GAME_API MapRefManager : public RefManager<Map, Player>
 {
 public:
     typedef LinkedListHead::Iterator< MapReference > iterator;

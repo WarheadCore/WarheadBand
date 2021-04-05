@@ -23,7 +23,7 @@
 
 class GameObject;
 
-class ZoneScript
+class WH_GAME_API ZoneScript
 {
 public:
     ZoneScript() {}

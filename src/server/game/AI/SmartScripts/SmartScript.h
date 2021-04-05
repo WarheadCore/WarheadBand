@@ -26,7 +26,7 @@
 #include "Spell.h"
 #include "Unit.h"
 
-class SmartScript
+class WH_GAME_API SmartScript
 {
 public:
     SmartScript();

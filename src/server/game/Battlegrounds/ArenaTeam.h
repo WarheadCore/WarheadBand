@@ -113,7 +113,7 @@ struct ArenaTeamStats
 
 #define MAX_ARENA_SLOT 3                                    // 0..2 slots
 
-class ArenaTeam
+class WH_GAME_API ArenaTeam
 {
 public:
     ArenaTeam();

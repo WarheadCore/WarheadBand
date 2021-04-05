@@ -31,7 +31,7 @@ enum DynamicObjectType
     DYNAMIC_OBJECT_FARSIGHT_FOCUS   = 0x2,
 };
 
-class DynamicObject : public WorldObject, public GridObject<DynamicObject>, public MovableMapObject
+class WH_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicObject>, public MovableMapObject
 {
 public:
     DynamicObject(bool isWorldObject);

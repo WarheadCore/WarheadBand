@@ -22,7 +22,7 @@
 #include "EventProcessor.h"
 #include "WorldPacket.h"
 
-class AuctionListOwnerItemsDelayEvent : public BasicEvent
+class WH_GAME_API AuctionListOwnerItemsDelayEvent : public BasicEvent
 {
 public:
     AuctionListOwnerItemsDelayEvent(uint64 _creatureGuid, uint64 guid, bool o) : creatureGuid(_creatureGuid), playerguid(guid), owner(o) {}
@@ -38,7 +38,7 @@ private:
     bool owner;
 };
 
-class AuctionListItemsDelayEvent
+class WH_GAME_API AuctionListItemsDelayEvent
 {
 public:
     AuctionListItemsDelayEvent(uint32 msTimer, uint64 playerguid, uint64 creatureguid, std::string searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 auctionSlotID, uint32 auctionMainCategory, uint32 auctionSubCategory, uint32 quality, uint8 getAll) :
@@ -61,7 +61,7 @@ public:
     uint8 _getAll;
 };
 
-class AsyncAuctionListingMgr
+class WH_GAME_API AsyncAuctionListingMgr
 {
 public:
     static void Update(uint32 diff) { auctionListingDiff += diff; }

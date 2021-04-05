@@ -658,7 +658,7 @@ enum SkillRangeType
     SKILL_RANGE_NONE,                                       // 0..0 always
 };
 
-SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial);
+WH_GAME_API SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
 #define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
@@ -666,7 +666,7 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial);
 #define MAX_CHARTER_NAME         24                         // max allowed by client name length
 #define MAX_CHANNEL_NAME         50                         // pussywizard
 
-bool normalizePlayerName(std::string& name);
+WH_GAME_API bool normalizePlayerName(std::string& name);
 
 struct LanguageDesc
 {
@@ -675,8 +675,8 @@ struct LanguageDesc
     uint32   skill_id;
 };
 
-extern LanguageDesc lang_description[LANGUAGES_COUNT];
-LanguageDesc const* GetLanguageDescByID(uint32 lang);
+WH_GAME_API extern LanguageDesc lang_description[LANGUAGES_COUNT];
+WH_GAME_API LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 struct DungeonEncounter
 {
@@ -694,7 +694,7 @@ typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContain
 
 class PlayerDumpReader;
 
-class ObjectMgr
+class WH_GAME_API ObjectMgr
 {
     friend class PlayerDumpReader;
 

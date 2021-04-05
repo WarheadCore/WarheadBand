@@ -36,22 +36,22 @@ enum AccountOpResult
 
 namespace AccountMgr
 {
-    AccountOpResult CreateAccount(std::string username, std::string password);
-    AccountOpResult DeleteAccount(uint32 accountId);
-    AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
-    AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
-    bool CheckPassword(uint32 accountId, std::string password);
+    WH_GAME_API AccountOpResult CreateAccount(std::string username, std::string password);
+    WH_GAME_API AccountOpResult DeleteAccount(uint32 accountId);
+    WH_GAME_API AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
+    WH_GAME_API AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
+    WH_GAME_API bool CheckPassword(uint32 accountId, std::string password);
 
-    uint32 GetId(std::string const& username);
-    uint32 GetSecurity(uint32 accountId);
-    uint32 GetSecurity(uint32 accountId, int32 realmId);
-    bool GetName(uint32 accountId, std::string& name);
-    uint32 GetCharactersCount(uint32 accountId);
+    WH_GAME_API uint32 GetId(std::string const& username);
+    WH_GAME_API uint32 GetSecurity(uint32 accountId);
+    WH_GAME_API uint32 GetSecurity(uint32 accountId, int32 realmId);
+    WH_GAME_API bool GetName(uint32 accountId, std::string& name);
+    WH_GAME_API uint32 GetCharactersCount(uint32 accountId);
 
-    bool IsPlayerAccount(uint32 gmlevel);
-    bool IsGMAccount(uint32 gmlevel);
-    bool IsAdminAccount(uint32 gmlevel);
-    bool IsConsoleAccount(uint32 gmlevel);
+    WH_GAME_API bool IsPlayerAccount(uint32 gmlevel);
+    WH_GAME_API bool IsGMAccount(uint32 gmlevel);
+    WH_GAME_API bool IsAdminAccount(uint32 gmlevel);
+    WH_GAME_API bool IsConsoleAccount(uint32 gmlevel);
 };
 
 #endif

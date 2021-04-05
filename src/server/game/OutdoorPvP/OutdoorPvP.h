@@ -85,7 +85,7 @@ class OutdoorPvP;
 
 typedef std::set<uint64> PlayerSet;
 
-class OPvPCapturePoint
+class WH_GAME_API OPvPCapturePoint
 {
 public:
     OPvPCapturePoint(OutdoorPvP* pvp);
@@ -183,7 +183,7 @@ protected:
 };
 
 // base class for specific outdoor pvp handlers
-class OutdoorPvP : public ZoneScript
+class WH_GAME_API OutdoorPvP : public ZoneScript
 {
     friend class OutdoorPvPMgr;
 

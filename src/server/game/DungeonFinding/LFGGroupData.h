@@ -22,7 +22,6 @@
 
 namespace lfg
 {
-
     enum LfgGroupEnum
     {
         LFG_GROUP_MAX_KICKS                           = 3,
@@ -31,7 +30,7 @@ namespace lfg
     /**
         Stores all lfg data needed about a group.
     */
-    class LfgGroupData
+    class WH_GAME_API LfgGroupData
     {
     public:
         LfgGroupData();

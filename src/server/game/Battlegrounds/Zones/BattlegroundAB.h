@@ -234,7 +234,7 @@ struct BattlegroundABScore : public BattlegroundScore
     uint32 GetAttr2() const final { return BasesDefended; }
 };
 
-class BattlegroundAB : public Battleground
+class WH_GAME_API BattlegroundAB : public Battleground
 {
 public:
     BattlegroundAB();

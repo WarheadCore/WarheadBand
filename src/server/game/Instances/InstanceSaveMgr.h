@@ -52,7 +52,7 @@ struct BoundInstancesMapWrapper
 
 typedef std::unordered_map< uint32 /*guidLow*/, BoundInstancesMapWrapper* > PlayerBindStorage;
 
-class InstanceSave
+class WH_GAME_API InstanceSave
 {
     friend class InstanceSaveManager;
 public:
@@ -104,7 +104,7 @@ private:
 
 typedef std::unordered_map<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
-class InstanceSaveManager
+class WH_GAME_API InstanceSaveManager
 {
     friend class InstanceSave;
 

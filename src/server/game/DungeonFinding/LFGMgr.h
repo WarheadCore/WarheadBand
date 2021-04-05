@@ -32,7 +32,6 @@ class Quest;
 
 namespace lfg
 {
-
     enum LfgOptions
     {
         LFG_OPTION_ENABLE_DUNGEON_FINDER             = 0x01,
@@ -405,7 +404,7 @@ namespace lfg
         uint32 Entry() const { return id + (type << 24); }
     };
 
-    class LFGMgr
+    class WH_GAME_API LFGMgr
     {
     private:
         LFGMgr();

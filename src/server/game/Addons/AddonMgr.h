@@ -58,12 +58,12 @@ struct BannedAddon
 
 namespace AddonMgr
 {
-    void LoadFromDB();
-    void SaveAddon(AddonInfo const& addon);
-    SavedAddon const* GetAddonInfo(const std::string& name);
+    WH_GAME_API void LoadFromDB();
+    WH_GAME_API void SaveAddon(AddonInfo const& addon);
+    WH_GAME_API SavedAddon const* GetAddonInfo(const std::string& name);
 
-    typedef std::list<BannedAddon> BannedAddonList;
-    BannedAddonList const* GetBannedAddons();
+    WH_GAME_API typedef std::list<BannedAddon> BannedAddonList;
+    WH_GAME_API BannedAddonList const* GetBannedAddons();
 }
 
 #endif

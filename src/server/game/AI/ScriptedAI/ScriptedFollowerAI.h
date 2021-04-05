@@ -31,7 +31,7 @@ enum eFollowState
     STATE_FOLLOW_POSTEVENT  = 0x020                         //can be set at complete and allow post event to run
 };
 
-class FollowerAI : public ScriptedAI
+class WH_GAME_API FollowerAI : public ScriptedAI
 {
 public:
     explicit FollowerAI(Creature* creature);

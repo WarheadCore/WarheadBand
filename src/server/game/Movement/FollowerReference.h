@@ -23,7 +23,7 @@
 class TargetedMovementGeneratorBase;
 class Unit;
 
-class FollowerReference : public Reference<Unit, TargetedMovementGeneratorBase>
+class WH_GAME_API FollowerReference : public Reference<Unit, TargetedMovementGeneratorBase>
 {
 protected:
     void targetObjectBuildLink() override;

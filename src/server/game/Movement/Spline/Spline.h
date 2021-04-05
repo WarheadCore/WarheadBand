@@ -24,8 +24,7 @@
 
 namespace Movement
 {
-
-    class SplineBase
+    class WH_GAME_API SplineBase
     {
     public:
         typedef int index_type;
@@ -207,7 +206,6 @@ namespace Movement
         void set_length(index_type i, length_type length) { lengths[i] = length;}
         void clear();
     };
-
 }
 
 #include "SplineImpl.h"

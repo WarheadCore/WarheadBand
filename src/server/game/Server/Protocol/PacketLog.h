@@ -28,7 +28,7 @@ enum Direction
 
 class WorldPacket;
 
-class PacketLog
+class WH_GAME_API PacketLog
 {
 private:
     PacketLog();

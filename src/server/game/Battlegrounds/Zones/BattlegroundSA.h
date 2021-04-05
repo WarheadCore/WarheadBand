@@ -428,7 +428,7 @@ const float SOTADefPortalDest[5][4] =
 };
 
 /// Class for manage Strand of Ancient battleground
-class BattlegroundSA : public Battleground
+class WH_GAME_API BattlegroundSA : public Battleground
 {
 public:
     BattlegroundSA();

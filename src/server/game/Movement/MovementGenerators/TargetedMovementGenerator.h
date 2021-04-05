@@ -25,7 +25,7 @@
 #include "Unit.h"
 #include <optional>
 
-class TargetedMovementGeneratorBase
+class WH_GAME_API TargetedMovementGeneratorBase
 {
 public:
     TargetedMovementGeneratorBase(Unit* target) { i_target.link(target, this); }

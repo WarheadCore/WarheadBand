@@ -584,7 +584,7 @@ typedef std::vector<SpellInfo*> SpellInfoMap;
 
 typedef std::map<int32, std::vector<int32> > SpellLinkedMap;
 
-bool IsPrimaryProfessionSkill(uint32 skill);
+WH_GAME_API bool IsPrimaryProfessionSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
@@ -596,18 +596,18 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
     return  IsProfessionSkill(skill) || skill == SKILL_RIDING;
 }
 
-bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
+WH_GAME_API bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
-DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
-DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+WH_GAME_API DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
+WH_GAME_API DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
+WH_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
+WH_GAME_API int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
+WH_GAME_API bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 
 typedef std::set<uint32> TalentAdditionalSet;
 
-class SpellMgr
+class WH_GAME_API SpellMgr
 {
     // Constructors
 private:

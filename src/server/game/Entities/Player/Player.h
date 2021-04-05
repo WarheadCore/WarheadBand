@@ -932,7 +932,7 @@ enum EmoteBroadcastTextID
     EMOTE_BROADCAST_TEXT_ID_STRANGE_GESTURES = 91243
 };
 
-class PlayerTaxi
+class WH_GAME_API PlayerTaxi
 {
 public:
     PlayerTaxi();
@@ -1027,7 +1027,7 @@ struct EntryPointData
     [[nodiscard]] bool HasTaxiPath() const { return !taxiPath.empty(); }
 };
 
-class TradeData
+class WH_GAME_API TradeData
 {
 public:                                                 // constructors
     TradeData(Player* player, Player* trader) :
@@ -1075,7 +1075,7 @@ private:                                                // fields
     uint64     m_items[TRADE_SLOT_COUNT];               // traded itmes from m_player side including non-traded slot
 };
 
-class KillRewarder
+class WH_GAME_API KillRewarder
 {
 public:
     KillRewarder(Player* killer, Unit* victim, bool isBattleGround);
@@ -1107,7 +1107,7 @@ private:
     bool _isPvP;
 };
 
-class Player : public Unit, public GridObject<Player>
+class WH_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player* player);

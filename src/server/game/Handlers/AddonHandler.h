@@ -22,7 +22,7 @@
 #include "Config.h"
 #include "WorldPacket.h"
 
-class AddonHandler
+class WH_GAME_API AddonHandler
 {
 public:
     AddonHandler();

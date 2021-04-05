@@ -97,9 +97,9 @@ struct TransportAnimation
 
 typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
-class TransportMgr
+class WH_GAME_API TransportMgr
 {
-    friend void LoadDBCStores(std::string const&);
+    friend WH_GAME_API void LoadDBCStores(std::string const&);
 
 public:
     static TransportMgr* instance();

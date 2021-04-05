@@ -40,7 +40,7 @@ struct Signatures
 typedef std::map<uint32, Signatures> SignatureContainer;
 typedef std::map<uint32, Petition> PetitionContainer;
 
-class PetitionMgr
+class WH_GAME_API PetitionMgr
 {
 private:
     PetitionMgr();

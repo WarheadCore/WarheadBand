@@ -31,7 +31,8 @@ namespace Movement
     using G3D::Vector3;
 
     class MoveSpline;
-    class PacketBuilder
+
+    class WH_GAME_API PacketBuilder
     {
         static void WriteCommonMonsterMovePart(const MoveSpline& mov, ByteBuffer& data);
     public:

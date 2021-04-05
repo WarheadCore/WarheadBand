@@ -26,7 +26,7 @@
 struct VehicleEntry;
 class Unit;
 
-class Vehicle : public TransportBase
+class WH_GAME_API Vehicle : public TransportBase
 {
 public:
     void Install();

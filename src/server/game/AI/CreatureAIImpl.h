@@ -62,6 +62,6 @@ struct AISpellInfoType
     float maxRange;
 };
 
-AISpellInfoType* GetAISpellInfo(uint32 i);
+WH_GAME_API AISpellInfoType* GetAISpellInfo(uint32 i);
 
 #endif

@@ -28,7 +28,7 @@ class SpellInfo;
 
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
-class AuraEffect
+class WH_GAME_API AuraEffect
 {
     friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32* baseAmount);
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, uint64 casterGUID, bool noPeriodicReset);
@@ -334,7 +334,7 @@ public:
 namespace Warhead
 {
     // Binary predicate for sorting the priority of absorption aura effects
-    class AbsorbAuraOrderPred
+    class WH_GAME_API AbsorbAuraOrderPred
     {
     public:
         AbsorbAuraOrderPred() { }

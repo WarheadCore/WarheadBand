@@ -574,7 +574,7 @@ namespace Warhead
 
     // WorldObject check classes
 
-    class AnyDeadUnitObjectInRangeCheck
+    class WH_GAME_API AnyDeadUnitObjectInRangeCheck
     {
     public:
         AnyDeadUnitObjectInRangeCheck(Unit* searchObj, float range) : i_searchObj(searchObj), i_range(range) {}
@@ -587,7 +587,7 @@ namespace Warhead
         float i_range;
     };
 
-    class AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
+    class WH_GAME_API AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
     {
     public:
         AnyDeadUnitSpellTargetInRangeCheck(Unit* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check)

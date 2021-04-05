@@ -59,7 +59,7 @@ struct CreateBattlegroundData
 
 struct GroupQueueInfo;
 
-class BattlegroundMgr
+class WH_GAME_API BattlegroundMgr
 {
 private:
     BattlegroundMgr();

@@ -4,7 +4,7 @@
 
 #include "Formulas.h"
 #include "gtest/gtest.h"
-#include "WorldMock.h"
+// #include "WorldMock.h"
 
 using namespace Warhead::Honor;
 using namespace Warhead::XP;
@@ -86,10 +86,10 @@ TEST(FormulasTest, BaseGain)
     EXPECT_EQ(BaseGain(79, 1, ContentLevels(999)), 0);
 }
 
-TEST(FormulasTest, Gain)
-{
-    auto worldMock = new WorldMock();
-    sWorld.reset((worldMock));
-    // TODO: create mocks of Player and Creature
-    // Gain(nullptr, nullptr);
-}
+// TEST(FormulasTest, Gain)
+// {
+//     auto worldMock = new WorldMock();
+//     sWorld.reset((worldMock));
+//     // TODO: create mocks of Player and Creature
+//     // Gain(nullptr, nullptr);
+// }

@@ -60,13 +60,13 @@ enum DumpReturn
     DUMP_CHARACTER_DELETED
 };
 
-class PlayerDump
+class WH_GAME_API PlayerDump
 {
 protected:
     PlayerDump() {}
 };
 
-class PlayerDumpWriter : public PlayerDump
+class WH_GAME_API PlayerDumpWriter : public PlayerDump
 {
 public:
     PlayerDumpWriter() {}
@@ -85,7 +85,7 @@ private:
     GUIDs items;
 };
 
-class PlayerDumpReader : public PlayerDump
+class WH_GAME_API PlayerDumpReader : public PlayerDump
 {
 public:
     PlayerDumpReader() {}

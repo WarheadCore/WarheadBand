@@ -32,7 +32,7 @@ class ReactorRunnable;
 class ACE_Event_Handler;
 
 /// Manages all sockets connected to peers and network threads
-class WorldSocketMgr
+class WH_GAME_API WorldSocketMgr
 {
 public:
     friend class WorldSocket;

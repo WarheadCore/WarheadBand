@@ -26,7 +26,7 @@
 
 class Unit;
 
-class MovementGenerator
+class WH_GAME_API MovementGenerator
 {
 public:
     virtual ~MovementGenerator();

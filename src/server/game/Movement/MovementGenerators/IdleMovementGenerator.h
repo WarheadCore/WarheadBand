@@ -20,7 +20,7 @@
 
 #include "MovementGenerator.h"
 
-class IdleMovementGenerator : public MovementGenerator
+class WH_GAME_API IdleMovementGenerator : public MovementGenerator
 {
 public:
     void Initialize(Unit*) override;
@@ -30,9 +30,9 @@ public:
     MovementGeneratorType GetMovementGeneratorType() override { return IDLE_MOTION_TYPE; }
 };
 
-extern IdleMovementGenerator si_idleMovement;
+WH_GAME_API extern IdleMovementGenerator si_idleMovement;
 
-class RotateMovementGenerator : public MovementGenerator
+class WH_GAME_API RotateMovementGenerator : public MovementGenerator
 {
 public:
     explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_maxDuration(time), m_direction(direction) {}
@@ -48,7 +48,7 @@ private:
     RotateDirection m_direction;
 };
 
-class DistractMovementGenerator : public MovementGenerator
+class WH_GAME_API DistractMovementGenerator : public MovementGenerator
 {
 public:
     explicit DistractMovementGenerator(uint32 timer) : m_timer(timer) {}
@@ -63,7 +63,7 @@ private:
     uint32 m_timer;
 };
 
-class AssistanceDistractMovementGenerator : public DistractMovementGenerator
+class WH_GAME_API AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
 public:
     AssistanceDistractMovementGenerator(uint32 timer) :

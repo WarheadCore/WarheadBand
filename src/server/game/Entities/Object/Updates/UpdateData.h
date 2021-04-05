@@ -47,7 +47,7 @@ enum OBJECT_UPDATE_FLAGS
     UPDATEFLAG_ROTATION             = 0x0200
 };
 
-class UpdateData
+class WH_GAME_API UpdateData
 {
 public:
     UpdateData();

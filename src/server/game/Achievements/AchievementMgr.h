@@ -262,7 +262,7 @@ class Unit;
 class Player;
 class WorldPacket;
 
-class AchievementMgr
+class WH_GAME_API AchievementMgr
 {
 public:
     AchievementMgr(Player* player);
@@ -304,7 +304,7 @@ private:
     TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
 };
 
-class AchievementGlobalMgr
+class WH_GAME_API AchievementGlobalMgr
 {
     AchievementGlobalMgr() = default;
     ~AchievementGlobalMgr() = default;

@@ -22,7 +22,6 @@
 
 namespace lfg
 {
-
     enum LfgCompatibility
     {
         LFG_COMPATIBILITY_PENDING,
@@ -72,7 +71,7 @@ namespace lfg
     /**
         Stores all data related to queue
     */
-    class LFGQueue
+    class WH_GAME_API LFGQueue
     {
     public:
         // Add/Remove from queue

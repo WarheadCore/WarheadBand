@@ -93,7 +93,7 @@ struct AuctionEntry
 };
 
 //this class is used as auctionhouse instance
-class AuctionHouseObject
+class WH_GAME_API AuctionHouseObject
 {
 public:
     // Initialize storage
@@ -139,7 +139,7 @@ private:
     AuctionEntryMap::const_iterator next;
 };
 
-class AuctionHouseMgr
+class WH_GAME_API AuctionHouseMgr
 {
 private:
     AuctionHouseMgr();

@@ -81,7 +81,7 @@ typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> WorldHandler;
  * notification.
  *
  */
-class WorldSocket : public WorldHandler
+class WH_GAME_API WorldSocket : public WorldHandler
 {
 public:
     WorldSocket (void);

@@ -1950,3 +1950,20 @@ void LoadLootTemplates_Reference()
     LOG_INFO("server", ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server", " ");
 }
+
+void LoadLootTables()
+{
+    LoadLootTemplates_Creature();
+    LoadLootTemplates_Fishing();
+    LoadLootTemplates_Gameobject();
+    LoadLootTemplates_Item();
+    LoadLootTemplates_Mail();
+    LoadLootTemplates_Milling();
+    LoadLootTemplates_Pickpocketing();
+    LoadLootTemplates_Skinning();
+    LoadLootTemplates_Disenchant();
+    LoadLootTemplates_Prospecting();
+    LoadLootTemplates_Spell();
+
+    LoadLootTemplates_Reference();
+}

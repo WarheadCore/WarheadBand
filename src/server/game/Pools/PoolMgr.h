@@ -42,7 +42,7 @@ class Pool                                                  // for Pool of Pool 
 typedef std::unordered_set<uint32> ActivePoolObjects;
 typedef std::map<uint32, uint32> ActivePoolPools;
 
-class ActivePoolData
+class WH_GAME_API ActivePoolData
 {
 public:
     template<typename T>
@@ -100,7 +100,7 @@ typedef std::multimap<uint32, uint32> PooledQuestRelation;
 typedef std::pair<PooledQuestRelation::const_iterator, PooledQuestRelation::const_iterator> PooledQuestRelationBounds;
 typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> PooledQuestRelationBoundsNC;
 
-class PoolMgr
+class WH_GAME_API PoolMgr
 {
 private:
     PoolMgr();

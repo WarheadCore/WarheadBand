@@ -32,7 +32,7 @@ enum TotemType
 #define SENTRY_TOTEM_ENTRY    3968
 #define EARTHBIND_TOTEM_ENTRY 2630
 
-class Totem : public Minion
+class WH_GAME_API Totem : public Minion
 {
 public:
     explicit Totem(SummonPropertiesEntry const* properties, uint64 owner);

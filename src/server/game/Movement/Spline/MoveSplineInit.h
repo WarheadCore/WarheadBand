@@ -27,7 +27,7 @@ class Unit;
 namespace Movement
 {
     // xinef: moved declaration here so it can be accessed out of MoveSplineInit.cpp
-    UnitMoveType SelectSpeedType(uint32 moveFlags);
+    WH_GAME_API UnitMoveType SelectSpeedType(uint32 moveFlags);
 
     enum AnimType
     {
@@ -38,7 +38,7 @@ namespace Movement
     };
 
     // Transforms coordinates from global to transport offsets
-    class TransportPathTransform
+    class WH_GAME_API TransportPathTransform
     {
     public:
         TransportPathTransform(Unit* owner, bool transformForTransport)
@@ -51,7 +51,7 @@ namespace Movement
     };
 
     // Xinef: transforms z coordinate with hover offset
-    class HoverMovementTransform
+    class WH_GAME_API HoverMovementTransform
     {
     public:
         HoverMovementTransform(float z_offset) : _offset(z_offset) { }
@@ -67,7 +67,7 @@ namespace Movement
 
     /*  Initializes and launches spline movement
      */
-    class MoveSplineInit
+    class WH_GAME_API MoveSplineInit
     {
     public:
         explicit MoveSplineInit(Unit* m);

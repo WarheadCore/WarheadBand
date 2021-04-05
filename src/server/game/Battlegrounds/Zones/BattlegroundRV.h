@@ -85,7 +85,7 @@ enum BattlegroundRVData
     BG_RV_WORLD_STATE                            = 0xe1a,
 };
 
-class BattlegroundRV : public Battleground
+class WH_GAME_API BattlegroundRV : public Battleground
 {
 public:
     BattlegroundRV();

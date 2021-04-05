@@ -22,7 +22,7 @@
 #include "InstanceSaveMgr.h"
 #include "Map.h"
 
-class MapInstanced : public Map
+class WH_GAME_API MapInstanced : public Map
 {
     friend class MapManager;
 public:

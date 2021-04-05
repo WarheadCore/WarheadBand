@@ -32,7 +32,7 @@ struct PetSpell
     PetSpellType type;
 };
 
-class AsynchPetSummon
+class WH_GAME_API AsynchPetSummon
 {
 public:
     AsynchPetSummon(uint32 entry, Position position, PetType petType, uint32 duration, uint32 createdBySpell, uint64 casterGUID) :
@@ -51,7 +51,7 @@ typedef std::vector<uint32> AutoSpellList;
 
 class Player;
 
-class Pet : public Guardian
+class WH_GAME_API Pet : public Guardian
 {
 public:
     explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);

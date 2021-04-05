@@ -35,10 +35,10 @@ enum UpdatefieldFlags
     UF_FLAG_DYNAMIC      = 0x100,
 };
 
-extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
-extern uint32 UnitUpdateFieldFlags[PLAYER_END];
-extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
-extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
-extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
+WH_GAME_API extern uint32 ItemUpdateFieldFlags[CONTAINER_END];
+WH_GAME_API extern uint32 UnitUpdateFieldFlags[PLAYER_END];
+WH_GAME_API extern uint32 GameObjectUpdateFieldFlags[GAMEOBJECT_END];
+WH_GAME_API extern uint32 DynamicObjectUpdateFieldFlags[DYNAMICOBJECT_END];
+WH_GAME_API extern uint32 CorpseUpdateFieldFlags[CORPSE_END];
 
 #endif // _UPDATEFIELDFLAGS_H
