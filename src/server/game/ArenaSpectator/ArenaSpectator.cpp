@@ -233,7 +233,7 @@ namespace ArenaSpectator
         data << uint32(len + 1);
         data << message;
         data << uint8(0);
-    }   
+    }
 
     void HandleResetCommand(Player* player)
     {

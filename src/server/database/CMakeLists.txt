@@ -78,4 +78,3 @@ InstallDynamicLibrary(database)
 if(USE_COREPCH)
   add_cxx_pch(database ${PRIVATE_PCH_HEADER})
 endif()
-

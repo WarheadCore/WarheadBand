@@ -330,7 +330,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
     return true;
 }
 
-DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : 
+DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) :
     me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) { }
 
 bool DefaultTargetSelector::operator()(Unit const* target) const
