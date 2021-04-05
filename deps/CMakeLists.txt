@@ -33,6 +33,7 @@ if(SERVERS)
   add_subdirectory(readline)
   add_subdirectory(jemalloc)
   add_subdirectory(gsoap)
+  add_subdirectory(efsw)
 endif()
 
 if(TOOLS)
