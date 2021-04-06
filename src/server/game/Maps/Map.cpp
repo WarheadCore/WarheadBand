@@ -27,6 +27,7 @@
 #include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "Map.h"
+#include "MapManager.h"
 #include "MapInstanced.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
