@@ -26,7 +26,7 @@
 
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
-struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
+struct WH_GAME_API GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
 {
     std::set<uint64> Players;                               // player guid set
     TeamId  teamId;                                         // Player team (TEAM_ALLIANCE/TEAM_HORDE)
@@ -106,7 +106,7 @@ public:
     GroupsQueueType m_QueuedGroups[MAX_BATTLEGROUND_BRACKETS][BG_QUEUE_MAX];
 
     // class to select and invite groups to bg
-    class SelectionPool
+    class WH_GAME_API SelectionPool
     {
     public:
         SelectionPool(): PlayerCount(0) {};
