@@ -42,6 +42,7 @@ CU_GET_GLOBAL("AC_SCRIPTS_SOURCES")
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  ${AC_SCRIPTS_SOURCES}
   ScriptLoader.h
   ${BUILDDIR}/GenLoader.cpp)
 
