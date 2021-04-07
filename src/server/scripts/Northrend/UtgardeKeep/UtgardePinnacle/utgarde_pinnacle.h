@@ -19,6 +19,9 @@
 #define DEF_PINNACLE_H
 
 #include "Opcodes.h"
+#include "CreatureAIImpl.h"
+
+#define UtgardePinnacleScriptName "instance_utgarde_pinnacle"
 
 enum Data
 {
@@ -68,5 +71,11 @@ enum Objects
     NPC_FEROCIOUS_RHINO                 = 26686,
     NPC_GARUF                           = 26893,
 };
+
+template <class AI, class T>
+inline AI* GetUtgardePinnacleAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, UtgardePinnacleScriptName);
+}
 
 #endif

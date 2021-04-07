@@ -18,6 +18,10 @@
 #ifndef DEF_ARCHAVON_H
 #define DEF_ARCHAVON_H
 
+#include "CreatureAIImpl.h"
+
+#define VaultOfArchavonScriptName "instance_vault_of_archavon"
+
 enum Creatures
 {
     CREATURE_ARCHAVON                           = 31125,
@@ -47,5 +51,11 @@ enum AchievementSpells
     SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
     SPELL_STONED_AURA                       = 63080,
 };
+
+template <class AI, class T>
+inline AI* GetVaultOfArchavonAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, VaultOfArchavonScriptName);
+}
 
 #endif

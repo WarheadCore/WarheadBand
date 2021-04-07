@@ -20,6 +20,12 @@
 
 #include "CreatureAIImpl.h"
 
-#define TheUndebogScriptName "instance_the_underbog"
+#define TheUnderbogScriptName "instance_the_underbog"
+
+template <class AI, class T>
+inline AI* GetTheUnderbogAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TheUnderbogScriptName);
+}
 
 #endif // the_underbog_h__

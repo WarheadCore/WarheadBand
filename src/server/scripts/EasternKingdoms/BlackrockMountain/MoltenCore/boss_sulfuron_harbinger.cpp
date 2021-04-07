@@ -128,7 +128,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_sulfuronAI(creature);
+        return GetMoltenCoreAI<boss_sulfuronAI>(creature);
     }
 };
 
@@ -204,7 +204,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_flamewaker_priestAI(creature);
+        return GetMoltenCoreAI<npc_flamewaker_priestAI>(creature);
     }
 };
 

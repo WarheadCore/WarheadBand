@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "temple_of_ahnqiraj.h"
 
 #define SOUND_SENTENCE_YOU 8588
 #define SOUND_SERVE_TO     8589
@@ -47,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_fankrissAI(creature);
+        return GetTempleOfAhnQirajAI<boss_fankrissAI>(creature);
     }
 
     struct boss_fankrissAI : public ScriptedAI

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -31,7 +32,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_gorosh_the_dervishAI(creature);
+        return GetBlackrockDepthsAI<boss_gorosh_the_dervishAI>(creature);
     }
 
     struct boss_gorosh_the_dervishAI : public ScriptedAI

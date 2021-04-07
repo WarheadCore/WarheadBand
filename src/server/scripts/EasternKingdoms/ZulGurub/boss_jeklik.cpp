@@ -247,7 +247,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_batriderAI(creature);
+        return GetZulGurubAI<npc_batriderAI>(creature);
     }
 };
 

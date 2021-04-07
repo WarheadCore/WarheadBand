@@ -20,6 +20,10 @@
 
 #define MAX_ENCOUNTER 3
 
+#include "CreatureAIImpl.h"
+
+#define VioletHoldScriptName "instance_violet_hold"
+
 enum Creatures
 {
     NPC_TELEPORTATION_PORTAL        = 31011,
@@ -294,5 +298,11 @@ const float SaboteurFinalPos6[5][3] =
     {1929.338989f, 837.593933f, 47.137596f},
     {1931.063354f, 848.468445f, 47.190434f}
 };
+
+template <class AI, class T>
+inline AI* GetVioletHoldAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, VioletHoldScriptName);
+}
 
 #endif

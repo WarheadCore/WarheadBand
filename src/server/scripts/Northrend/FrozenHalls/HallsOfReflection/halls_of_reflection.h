@@ -18,6 +18,7 @@
 #ifndef DEF_HALLS_OF_REFLECTION_H
 #define DEF_HALLS_OF_REFLECTION_H
 
+#include "CreatureAIImpl.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -26,6 +27,8 @@
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+
+#define HallsOfReflectionScriptName "instance_halls_of_reflection"
 
 enum Data
 {
@@ -345,5 +348,11 @@ const Position StairsPos[2][3] =
         {5243.42f, 1624.8f, 784.361f, 5.76592f}
     }
 };
+
+template <class AI, class T>
+inline AI* GetHallsOfReflectionAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, HallsOfReflectionScriptName);
+}
 
 #endif

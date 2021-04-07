@@ -306,7 +306,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_pyroguard_emberseerAI>(creature);
+        return GetBlackrockSpireAI<boss_pyroguard_emberseerAI>(creature);
     }
 };
 
@@ -427,7 +427,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_blackhand_incarceratorAI(creature);
+        return GetBlackrockSpireAI<npc_blackhand_incarceratorAI>(creature);
     }
 };
 

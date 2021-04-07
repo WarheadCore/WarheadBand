@@ -96,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_drakkari_colossusAI (creature);
+        return GetGundrakAI<boss_drakkari_colossusAI>(creature);
     }
     struct boss_drakkari_colossusAI : public BossAI
     {
@@ -246,7 +246,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_drakkari_elementalAI (pCreature);
+        return GetGundrakAI<boss_drakkari_elementalAI>(pCreature);
     }
 
     struct boss_drakkari_elementalAI : public ScriptedAI
@@ -326,7 +326,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_living_mojoAI (pCreature);
+        return GetGundrakAI<npc_living_mojoAI>(pCreature);
     }
 
     struct npc_living_mojoAI : public ScriptedAI

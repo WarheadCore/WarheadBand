@@ -45,7 +45,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_ambassador_hellmawAI(creature);
+        return GetShadowLabyrinthAI<boss_ambassador_hellmawAI>(creature);
     }
 
     struct boss_ambassador_hellmawAI : public npc_escortAI

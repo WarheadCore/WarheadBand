@@ -280,7 +280,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_ickAI(creature);
+        return GetPitOfSaronAI<boss_ickAI>(creature);
     }
 };
 
@@ -458,7 +458,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_krickAI(creature);
+        return GetPitOfSaronAI<boss_krickAI>(creature);
     }
 };
 

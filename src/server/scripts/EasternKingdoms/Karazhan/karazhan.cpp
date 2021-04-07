@@ -406,7 +406,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_barnesAI(creature);
+        return GetKarazhanAI<npc_barnesAI>(creature);
     }
 };
 
@@ -434,7 +434,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_image_of_medivhAI(creature);
+        return GetKarazhanAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI

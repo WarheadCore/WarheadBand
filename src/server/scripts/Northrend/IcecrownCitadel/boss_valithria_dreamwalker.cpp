@@ -692,7 +692,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_the_lich_king_controllerAI(creature);
+        return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
     }
 };
 

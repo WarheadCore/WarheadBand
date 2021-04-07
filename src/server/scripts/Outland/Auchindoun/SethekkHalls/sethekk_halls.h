@@ -18,6 +18,10 @@
 #ifndef DEF_SETHEKK_HALLS_H
 #define DEF_SETHEKK_HALLS_H
 
+#include "CreatureAIImpl.h"
+
+#define SethekkHallsScriptName "instance_sethekk_halls"
+
 enum eTypes
 {
     DATA_IKISSDOOREVENT = 1,
@@ -32,5 +36,11 @@ enum eIds
     GO_IKISS_DOOR               = 177203,
     GO_THE_TALON_KINGS_COFFER   = 187372
 };
+
+template <class AI, class T>
+inline AI* GetSethekkHallsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SethekkHallsScriptName);
+}
 
 #endif

@@ -169,7 +169,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_leaderAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_leaderAI>(creature);
     }
 
     struct npc_hor_leaderAI : public NullCreatureAI
@@ -671,7 +671,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_ghostly_priestAI(creature);
+        return GetHallsOfReflectionAI<npc_ghostly_priestAI>(creature);
     }
 
     struct npc_ghostly_priestAI: public ScriptedAI
@@ -767,7 +767,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phantom_mageAI(creature);
+        return GetHallsOfReflectionAI<npc_phantom_mageAI>(creature);
     }
 
     struct npc_phantom_mageAI: public ScriptedAI
@@ -863,7 +863,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phantom_hallucinationAI(creature);
+        return GetHallsOfReflectionAI<npc_phantom_hallucinationAI>(creature);
     }
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
@@ -911,7 +911,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadowy_mercenaryAI(creature);
+        return GetHallsOfReflectionAI<npc_shadowy_mercenaryAI>(creature);
     }
 
     struct npc_shadowy_mercenaryAI: public ScriptedAI
@@ -1006,7 +1006,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_spectral_footmanAI(creature);
+        return GetHallsOfReflectionAI<npc_spectral_footmanAI>(creature);
     }
 
     struct npc_spectral_footmanAI: public ScriptedAI
@@ -1089,7 +1089,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_tortured_riflemanAI(creature);
+        return GetHallsOfReflectionAI<npc_tortured_riflemanAI>(creature);
     }
 
     struct npc_tortured_riflemanAI  : public ScriptedAI
@@ -1243,7 +1243,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_frostsworn_generalAI(creature);
+        return GetHallsOfReflectionAI<boss_frostsworn_generalAI>(creature);
     }
 };
 
@@ -1306,7 +1306,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_spiritual_reflectionAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_spiritual_reflectionAI>(creature);
     }
 };
 
@@ -1362,7 +1362,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_lich_kingAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_lich_kingAI>(creature);
     }
 
     struct npc_hor_lich_kingAI : public NullCreatureAI
@@ -1637,7 +1637,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_leader_secondAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_leader_secondAI>(creature);
     }
 
     struct npc_hor_leader_secondAI : public NullCreatureAI
@@ -1851,7 +1851,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_raging_ghoulAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_raging_ghoulAI>(creature);
     }
 };
 
@@ -1920,7 +1920,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_risen_witch_doctorAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_risen_witch_doctorAI>(creature);
     }
 };
 
@@ -1985,7 +1985,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hor_lumbering_abominationAI(creature);
+        return GetHallsOfReflectionAI<npc_hor_lumbering_abominationAI>(creature);
     }
 };
 

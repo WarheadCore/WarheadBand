@@ -325,7 +325,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_black_knightAI (pCreature);
+        return GetTrialOfTheChampionAI<boss_black_knightAI>(pCreature);
     }
 };
 
@@ -378,7 +378,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_black_knight_skeletal_gryphonAI(pCreature);
+        return GetTrialOfTheChampionAI<npc_black_knight_skeletal_gryphonAI>(pCreature);
     }
 };
 
@@ -477,7 +477,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_black_knight_ghoulAI (pCreature);
+        return GetTrialOfTheChampionAI<npc_black_knight_ghoulAI>(pCreature);
     }
 };
 

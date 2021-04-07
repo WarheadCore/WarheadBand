@@ -267,7 +267,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_baltharus_the_warbornAI>(creature);
+        return GetRubySanctumAI<boss_baltharus_the_warbornAI>(creature);
     }
 };
 
@@ -326,7 +326,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_baltharus_the_warborn_cloneAI>(creature);
+        return GetRubySanctumAI<npc_baltharus_the_warborn_cloneAI>(creature);
     }
 };
 
@@ -454,7 +454,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_xerestraszaAI>(creature);
+        return GetRubySanctumAI<npc_xerestraszaAI>(creature);
     }
 };
 

@@ -269,7 +269,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_druidAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_druidAI>(pCreature);
     }
 
     struct npc_toc_druidAI : public boss_faction_championsAI
@@ -399,7 +399,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_shamanAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_shamanAI>(pCreature);
     }
 
     struct npc_toc_shamanAI : public boss_faction_championsAI
@@ -521,7 +521,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_paladinAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_paladinAI>(pCreature);
     }
 
     struct npc_toc_paladinAI : public boss_faction_championsAI
@@ -656,7 +656,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_priestAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_priestAI>(pCreature);
     }
 
     struct npc_toc_priestAI : public boss_faction_championsAI
@@ -776,7 +776,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_shadow_priestAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_shadow_priestAI>(pCreature);
     }
 
     struct npc_toc_shadow_priestAI : public boss_faction_championsAI
@@ -930,7 +930,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_warlockAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_warlockAI>(pCreature);
     }
 
     struct npc_toc_warlockAI : public boss_faction_championsAI
@@ -1074,7 +1074,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_mageAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_mageAI>(pCreature);
     }
 
     struct npc_toc_mageAI : public boss_faction_championsAI
@@ -1221,7 +1221,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_hunterAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_hunterAI>(pCreature);
     }
 
     struct npc_toc_hunterAI : public boss_faction_championsAI
@@ -1374,7 +1374,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_boomkinAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_boomkinAI>(pCreature);
     }
 
     struct npc_toc_boomkinAI : public boss_faction_championsAI
@@ -1519,7 +1519,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_warriorAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_warriorAI>(pCreature);
     }
 
     struct npc_toc_warriorAI : public boss_faction_championsAI
@@ -1713,7 +1713,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_dkAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_dkAI>(pCreature);
     }
 
     struct npc_toc_dkAI : public boss_faction_championsAI
@@ -1869,7 +1869,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_rogueAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_rogueAI>(pCreature);
     }
 
     struct npc_toc_rogueAI : public boss_faction_championsAI
@@ -2027,7 +2027,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_enh_shamanAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_enh_shamanAI>(pCreature);
     }
 
     struct npc_toc_enh_shamanAI : public boss_faction_championsAI
@@ -2165,7 +2165,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_retro_paladinAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_retro_paladinAI>(pCreature);
     }
 
     struct npc_toc_retro_paladinAI : public boss_faction_championsAI
@@ -2317,7 +2317,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_pet_warlockAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_pet_warlockAI>(pCreature);
     }
 
     struct npc_toc_pet_warlockAI : public boss_faction_championsAI
@@ -2392,7 +2392,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_toc_pet_hunterAI (pCreature);
+        return GetTrialOfTheCrusaderAI<npc_toc_pet_hunterAI>(pCreature);
     }
 
     struct npc_toc_pet_hunterAI : public boss_faction_championsAI

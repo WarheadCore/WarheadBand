@@ -106,7 +106,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_ingvar_the_plundererAI(pCreature);
+        return GetUtgardeKeepAI<boss_ingvar_the_plundererAI>(pCreature);
     }
 
     struct boss_ingvar_the_plundererAI : public ScriptedAI

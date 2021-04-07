@@ -270,7 +270,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_taldaramAI(creature);
+        return GetAhnkahetAI<boss_taldaramAI>(creature);
     }
 };
 
@@ -332,7 +332,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_taldaram_flamesphereAI(creature);
+        return GetAhnkahetAI<npc_taldaram_flamesphereAI>(creature);
     }
 };
 

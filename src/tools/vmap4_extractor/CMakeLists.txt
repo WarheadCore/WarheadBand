@@ -23,6 +23,7 @@ target_link_libraries(vmap4extractor
   PRIVATE
     warhead-core-interface
   PUBLIC
+    g3dlib
     mpq)
 
 # Group sources

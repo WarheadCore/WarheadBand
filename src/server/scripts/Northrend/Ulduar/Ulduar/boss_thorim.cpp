@@ -321,7 +321,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorimAI (pCreature);
+        return GetUlduarAI<boss_thorimAI>(pCreature);
     }
 
     struct boss_thorimAI : public ScriptedAI
@@ -831,7 +831,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_sifAI (pCreature);
+        return GetUlduarAI<boss_thorim_sifAI>(pCreature);
     }
 
     struct boss_thorim_sifAI : public ScriptedAI
@@ -942,7 +942,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_lightning_orbAI (pCreature);
+        return GetUlduarAI<boss_thorim_lightning_orbAI>(pCreature);
     }
 
     struct boss_thorim_lightning_orbAI : public npc_escortAI
@@ -990,7 +990,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_trapAI (pCreature);
+        return GetUlduarAI<boss_thorim_trapAI>(pCreature);
     }
 
     struct boss_thorim_trapAI : public NullCreatureAI
@@ -1028,7 +1028,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_sif_blizzardAI (pCreature);
+        return GetUlduarAI<boss_thorim_sif_blizzardAI>(pCreature);
     }
 
     struct boss_thorim_sif_blizzardAI : public npc_escortAI
@@ -1077,7 +1077,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_pillarAI (pCreature);
+        return GetUlduarAI<boss_thorim_pillarAI>(pCreature);
     }
 
     struct boss_thorim_pillarAI : public NullCreatureAI
@@ -1120,7 +1120,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_start_npcsAI (pCreature);
+        return GetUlduarAI<boss_thorim_start_npcsAI>(pCreature);
     }
 
     struct boss_thorim_start_npcsAI : public ScriptedAI
@@ -1274,7 +1274,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_gauntlet_npcsAI (pCreature);
+        return GetUlduarAI<boss_thorim_gauntlet_npcsAI>(pCreature);
     }
 
     struct boss_thorim_gauntlet_npcsAI : public ScriptedAI
@@ -1381,7 +1381,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_runic_colossusAI (pCreature);
+        return GetUlduarAI<boss_thorim_runic_colossusAI>(pCreature);
     }
 
     struct boss_thorim_runic_colossusAI : public ScriptedAI
@@ -1515,7 +1515,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_ancient_rune_giantAI (pCreature);
+        return GetUlduarAI<boss_thorim_ancient_rune_giantAI>(pCreature);
     }
 
     struct boss_thorim_ancient_rune_giantAI : public ScriptedAI
@@ -1600,7 +1600,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_thorim_arena_npcsAI (pCreature);
+        return GetUlduarAI<boss_thorim_arena_npcsAI>(pCreature);
     }
 
     struct boss_thorim_arena_npcsAI : public ScriptedAI

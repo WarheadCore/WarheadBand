@@ -99,7 +99,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_gehennasAI(creature);
+        return GetMoltenCoreAI<boss_gehennasAI>(creature);
     }
 };
 

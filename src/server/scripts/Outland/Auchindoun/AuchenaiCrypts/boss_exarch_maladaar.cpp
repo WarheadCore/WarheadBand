@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "auchenai_crypts.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -48,7 +49,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_exarch_maladaarAI (creature);
+        return GetAuchenaiCryptsAI<boss_exarch_maladaarAI>(creature);
     }
 
     struct boss_exarch_maladaarAI : public ScriptedAI
@@ -175,7 +176,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_stolen_soulAI (creature);
+        return GetAuchenaiCryptsAI<npc_stolen_soulAI>(creature);
     }
 
     struct npc_stolen_soulAI : public ScriptedAI

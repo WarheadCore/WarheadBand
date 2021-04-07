@@ -96,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_jaraxxusAI(pCreature);
+        return GetTrialOfTheCrusaderAI<boss_jaraxxusAI>(pCreature);
     }
 
     struct boss_jaraxxusAI : public ScriptedAI
@@ -299,7 +299,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_fel_infernalAI(pCreature);
+        return GetTrialOfTheCrusaderAI<npc_fel_infernalAI>(pCreature);
     }
 
     struct npc_fel_infernalAI : public ScriptedAI
@@ -369,7 +369,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_mistress_of_painAI(pCreature);
+        return GetTrialOfTheCrusaderAI<npc_mistress_of_painAI>(pCreature);
     }
 
     struct npc_mistress_of_painAI : public ScriptedAI

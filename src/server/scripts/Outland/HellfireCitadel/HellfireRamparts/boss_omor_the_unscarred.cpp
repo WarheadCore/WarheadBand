@@ -178,7 +178,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_omor_the_unscarredAI>(creature);
+        return GetHellfireRampartsAI<boss_omor_the_unscarredAI>(creature);
     }
 };
 

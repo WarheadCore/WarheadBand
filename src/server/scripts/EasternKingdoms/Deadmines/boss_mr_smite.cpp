@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "deadmines.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -46,7 +47,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_mr_smiteAI>(creature);
+        return GetDeadminesAI<boss_mr_smiteAI>(creature);
     }
 
     struct boss_mr_smiteAI : public ScriptedAI

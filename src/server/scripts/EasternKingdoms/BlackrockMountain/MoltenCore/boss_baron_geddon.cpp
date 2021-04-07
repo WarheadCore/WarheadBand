@@ -114,7 +114,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_baron_geddonAI(creature);
+        return GetMoltenCoreAI<boss_baron_geddonAI>(creature);
     }
 };
 

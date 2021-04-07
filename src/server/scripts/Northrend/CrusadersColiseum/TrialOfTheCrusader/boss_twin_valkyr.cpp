@@ -519,7 +519,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_eydisAI(pCreature);
+        return GetTrialOfTheCrusaderAI<boss_eydisAI>(pCreature);
     }
 
     struct boss_eydisAI : public boss_twin_valkyrAI
@@ -545,7 +545,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_fjolaAI(pCreature);
+        return GetTrialOfTheCrusaderAI<boss_fjolaAI>(pCreature);
     }
 
     struct boss_fjolaAI : public boss_twin_valkyrAI
@@ -680,7 +680,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_concentrated_ballAI(pCreature);
+        return GetTrialOfTheCrusaderAI<npc_concentrated_ballAI>(pCreature);
     }
 
     struct npc_concentrated_ballAI : public NullCreatureAI

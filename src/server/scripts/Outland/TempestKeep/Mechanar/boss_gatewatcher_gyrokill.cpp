@@ -104,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_gatewatcher_gyrokillAI(creature);
+        return GetMechanarAI<boss_gatewatcher_gyrokillAI>(creature);
     }
 };
 

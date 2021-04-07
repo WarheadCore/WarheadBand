@@ -113,7 +113,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_skadiAI (pCreature);
+        return GetUtgardePinnacleAI<boss_skadiAI>(pCreature);
     }
 
     struct boss_skadiAI : public ScriptedAI
@@ -273,7 +273,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_skadi_graufAI (pCreature);
+        return GetUtgardePinnacleAI<boss_skadi_graufAI>(pCreature);
     }
 
     struct boss_skadi_graufAI : public VehicleAI

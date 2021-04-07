@@ -128,7 +128,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_nethermancer_sepethreaAI(creature);
+        return GetMechanarAI<boss_nethermancer_sepethreaAI>(creature);
     }
 };
 
@@ -192,7 +192,7 @@ public:
     };
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_ragin_flamesAI(creature);
+        return GetMechanarAI<npc_ragin_flamesAI>(creature);
     }
 };
 

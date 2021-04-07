@@ -62,7 +62,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_drakosAI (pCreature);
+        return GetOculusAI<boss_drakosAI>(pCreature);
     }
 
     struct boss_drakosAI : public ScriptedAI
@@ -187,7 +187,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_oculus_unstable_sphereAI (pCreature);
+        return GetOculusAI<npc_oculus_unstable_sphereAI>(pCreature);
     }
 
     struct npc_oculus_unstable_sphereAI : public ScriptedAI

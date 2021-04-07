@@ -18,8 +18,11 @@
 #ifndef DEF_DRAK_THARON_H
 #define DEF_DRAK_THARON_H
 
+#include "CreatureAIImpl.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+
+#define DraktharonKeepScriptName "instance_drak_tharon_keep"
 
 enum Data
 {
@@ -51,5 +54,11 @@ enum DTKSpells
     SPELL_SUMMON_DRAKKARI_SHAMAN    = 49958,
     SPELL_SUMMON_DRAKKARI_GUARDIAN  = 49959
 };
+
+template <class AI, class T>
+inline AI* GetDraktharonKeepAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, DraktharonKeepScriptName);
+}
 
 #endif

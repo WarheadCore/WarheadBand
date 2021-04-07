@@ -259,7 +259,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_magtheridonAI>(creature);
+        return GetMagtheridonsLairAI<boss_magtheridonAI>(creature);
     }
 };
 

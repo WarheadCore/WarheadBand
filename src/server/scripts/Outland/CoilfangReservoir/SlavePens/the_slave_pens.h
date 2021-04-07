@@ -49,6 +49,11 @@ enum SPCreaturesIds
 {
     NPC_AHUNE                            = 25740,
     NPC_FROZEN_CORE                      = 25865,
+    NPC_AHUNE_SUMMON_LOC_BUNNY           = 25745,
+    NPC_TOTEM                            = 25961,
+    NPC_TOTEM_BUNNY_1                    = 25971,
+    NPC_TOTEM_BUNNY_2                    = 25972,
+    NPC_TOTEM_BUNNY_3                    = 25973,
     NPC_LUMA_SKYMOTHER                   = 25697,
     NPC_AHUNE_LOC_BUNNY                  = 25745,
     NPC_EARTHEN_RING_FLAMECALLER         = 25754,
@@ -67,5 +72,11 @@ enum SPGameObjectIds
     GO_ICE_SPEAR                         = 188077,
     GO_ICE_STONE                         = 187882
 };
+
+template <class AI, class T>
+inline AI* GetTheSlavePensAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SPScriptName);
+}
 
 #endif // SLAVE_PENS_H

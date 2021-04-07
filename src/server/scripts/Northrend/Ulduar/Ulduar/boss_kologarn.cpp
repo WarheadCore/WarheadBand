@@ -145,7 +145,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_kologarnAI (pCreature);
+        return GetUlduarAI<boss_kologarnAI>(pCreature);
     }
 
     struct boss_kologarnAI : public ScriptedAI
@@ -500,7 +500,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_kologarn_armsAI (pCreature);
+        return GetUlduarAI<boss_kologarn_armsAI>(pCreature);
     }
 
     struct boss_kologarn_armsAI : public ScriptedAI
@@ -600,7 +600,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_kologarn_eyebeamAI (pCreature);
+        return GetUlduarAI<boss_kologarn_eyebeamAI>(pCreature);
     }
     struct boss_kologarn_eyebeamAI : public ScriptedAI
     {

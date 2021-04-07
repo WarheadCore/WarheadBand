@@ -18,6 +18,10 @@
 #ifndef DEF_ZULAMAN_H
 #define DEF_ZULAMAN_H
 
+#include "CreatureAIImpl.h"
+
+#define ZulAmanScriptName "instance_zulaman"
+
 enum DataTypes
 {
     DATA_GONGEVENT                      = 0,
@@ -56,5 +60,11 @@ enum GameobjectIds
     GO_KRAZS_PACKAGE                    = 186667,
     GO_STRANGE_GONG                     = 187359
 };
+
+template <class AI, class T>
+inline AI* GetZulAmanAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, ZulAmanScriptName);
+}
 
 #endif

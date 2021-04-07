@@ -28,7 +28,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_dragonflayer_forge_masterAI(pCreature);
+        return GetUtgardeKeepAI<npc_dragonflayer_forge_masterAI>(pCreature);
     }
 
     struct npc_dragonflayer_forge_masterAI : public ScriptedAI
@@ -200,7 +200,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_enslaved_proto_drakeAI(creature);
+        return GetUtgardeKeepAI<npc_enslaved_proto_drakeAI>(creature);
     }
 };
 

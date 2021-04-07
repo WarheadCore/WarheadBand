@@ -144,7 +144,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_temporusAI(creature);
+        return GetTheBlackMorassAI<boss_temporusAI>(creature);
     }
 };
 

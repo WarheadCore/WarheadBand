@@ -138,7 +138,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_kelthuzadAI (pCreature);
+        return GetNaxxramasAI<boss_kelthuzadAI>(pCreature);
     }
 
     struct boss_kelthuzadAI : public BossAI
@@ -518,7 +518,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_kelthuzad_minionAI (pCreature);
+        return GetNaxxramasAI<boss_kelthuzad_minionAI>(pCreature);
     }
 
     struct boss_kelthuzad_minionAI : public ScriptedAI

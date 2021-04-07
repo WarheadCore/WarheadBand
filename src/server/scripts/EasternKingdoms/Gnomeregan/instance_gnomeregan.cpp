@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "gnomeregan.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"
 #include "Player.h"
@@ -51,7 +52,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_kernobeeAI(creature);
+        return GetGnomereganAI<npc_kernobeeAI>(creature);
     }
 
     bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override

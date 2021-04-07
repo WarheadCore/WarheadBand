@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "auchenai_crypts.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -52,7 +53,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_shirrak_the_dead_watcherAI (creature);
+        return GetAuchenaiCryptsAI<boss_shirrak_the_dead_watcherAI>(creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI

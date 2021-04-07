@@ -108,7 +108,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_auriayaAI (pCreature);
+        return GetUlduarAI<boss_auriayaAI>(pCreature);
     }
 
     struct boss_auriayaAI : public ScriptedAI
@@ -291,7 +291,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_auriaya_sanctum_sentryAI (pCreature);
+        return GetUlduarAI<npc_auriaya_sanctum_sentryAI>(pCreature);
     }
 
     struct npc_auriaya_sanctum_sentryAI : public ScriptedAI
@@ -353,7 +353,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_auriaya_feral_defenderAI (pCreature);
+        return GetUlduarAI<npc_auriaya_feral_defenderAI>(pCreature);
     }
 
     struct npc_auriaya_feral_defenderAI : public ScriptedAI

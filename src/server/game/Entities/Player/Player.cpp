@@ -5318,6 +5318,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     SetMovement(MOVE_LAND_WALK);
     SetMovement(MOVE_UNROOT);
 
+    SetWaterWalking(false);
+
     m_deathTimer = 0;
 
     // set health/powers (0- will be set in caller)

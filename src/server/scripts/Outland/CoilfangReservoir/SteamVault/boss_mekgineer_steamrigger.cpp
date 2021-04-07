@@ -49,7 +49,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_mekgineer_steamriggerAI (creature);
+        return GetSteamVaultAI<boss_mekgineer_steamriggerAI>(creature);
     }
 
     struct boss_mekgineer_steamriggerAI : public ScriptedAI
@@ -160,7 +160,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_steamrigger_mechanicAI (creature);
+        return GetSteamVaultAI<npc_steamrigger_mechanicAI>(creature);
     }
 
     struct npc_steamrigger_mechanicAI : public ScriptedAI

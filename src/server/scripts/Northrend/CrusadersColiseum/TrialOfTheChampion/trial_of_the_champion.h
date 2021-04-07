@@ -19,6 +19,9 @@
 #define DEF_TOC_H
 
 #include "CombatAI.h"
+#include "CreatureAIImpl.h"
+
+#define TrialOfTheChampionScriptName "instance_trial_of_the_champion"
 
 enum eData
 {
@@ -234,5 +237,11 @@ enum eTexts
     TEXT_BK_GHOST_RES                               = 55,
     TEXT_BK_DEATH                                   = 56,
 };
+
+template <class AI, class T>
+inline AI* GetTrialOfTheChampionAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TrialOfTheChampionScriptName);
+}
 
 #endif

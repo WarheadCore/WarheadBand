@@ -224,7 +224,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_krik_thirAI(creature);
+        return GetAzjolNerubAI<boss_krik_thirAI>(creature);
     }
 };
 

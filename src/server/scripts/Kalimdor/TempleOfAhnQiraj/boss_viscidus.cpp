@@ -247,7 +247,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_viscidusAI(creature);
+        return GetTempleOfAhnQirajAI<boss_viscidusAI>(creature);
     }
 };
 
@@ -295,7 +295,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_glob_of_viscidusAI>(creature);
+        return GetTempleOfAhnQirajAI<npc_glob_of_viscidusAI>(creature);
     }
 };
 

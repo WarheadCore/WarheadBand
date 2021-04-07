@@ -32,4 +32,10 @@ enum ACDataTypes
     DATA_EXARCH_MALADAAR            = 1
 };
 
+template <class AI, class T>
+inline AI* GetAuchenaiCryptsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, ACScriptName);
+}
+
 #endif // AUCHENAI_CRYPTS_H_

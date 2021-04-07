@@ -84,7 +84,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_felblood_kaelthasAI(creature);
+        return GetMagistersTerraceAI<boss_felblood_kaelthasAI>(creature);
     }
 
     struct boss_felblood_kaelthasAI : public ScriptedAI

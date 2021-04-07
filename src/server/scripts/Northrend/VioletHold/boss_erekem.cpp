@@ -65,7 +65,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_erekemAI (pCreature);
+        return GetVioletHoldAI<boss_erekemAI>(pCreature);
     }
 
     struct boss_erekemAI : public ScriptedAI
@@ -239,7 +239,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new npc_erekem_guardAI (pCreature);
+        return GetVioletHoldAI<npc_erekem_guardAI>(pCreature);
     }
 
     struct npc_erekem_guardAI : public ScriptedAI

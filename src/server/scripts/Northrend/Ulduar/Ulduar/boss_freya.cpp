@@ -262,7 +262,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freyaAI (pCreature);
+        return GetUlduarAI<boss_freyaAI>(pCreature);
     }
 
     struct boss_freyaAI : public ScriptedAI
@@ -682,7 +682,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_elder_stonebarkAI (pCreature);
+        return GetUlduarAI<boss_freya_elder_stonebarkAI>(pCreature);
     }
 
     struct boss_freya_elder_stonebarkAI : public ScriptedAI
@@ -788,7 +788,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_elder_brightleafAI (pCreature);
+        return GetUlduarAI<boss_freya_elder_brightleafAI>(pCreature);
     }
 
     struct boss_freya_elder_brightleafAI : public ScriptedAI
@@ -911,7 +911,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_elder_ironbranchAI (pCreature);
+        return GetUlduarAI<boss_freya_elder_ironbranchAI>(pCreature);
     }
 
     struct boss_freya_elder_ironbranchAI : public ScriptedAI
@@ -1005,7 +1005,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_iron_rootAI (pCreature);
+        return GetUlduarAI<boss_freya_iron_rootAI>(pCreature);
     }
 
     struct boss_freya_iron_rootAI : public NullCreatureAI
@@ -1035,7 +1035,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_lifebinderAI (pCreature);
+        return GetUlduarAI<boss_freya_lifebinderAI>(pCreature);
     }
 
     struct boss_freya_lifebinderAI : public NullCreatureAI
@@ -1075,7 +1075,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_healthy_sporeAI (pCreature);
+        return GetUlduarAI<boss_freya_healthy_sporeAI>(pCreature);
     }
 
     struct boss_freya_healthy_sporeAI : public NullCreatureAI
@@ -1114,7 +1114,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_summonsAI (pCreature);
+        return GetUlduarAI<boss_freya_summonsAI>(pCreature);
     }
 
     struct boss_freya_summonsAI : public ScriptedAI
@@ -1257,7 +1257,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_freya_nature_bombAI (pCreature);
+        return GetUlduarAI<boss_freya_nature_bombAI>(pCreature);
     }
 
     struct boss_freya_nature_bombAI : public NullCreatureAI

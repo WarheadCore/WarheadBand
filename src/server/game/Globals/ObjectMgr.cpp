@@ -5299,7 +5299,7 @@ void ObjectMgr::ValidateSpellScripts()
             bool valid = true;
             if (!spellScript && !auraScript)
             {
-                LOG_ERROR("server", "TSCR: Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                sLog->outError("TSCR: Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second).c_str());
                 valid = false;
             }
             if (spellScript)
@@ -8856,6 +8856,12 @@ void ObjectMgr::LoadScriptNames()
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
     LOG_INFO("server", ">> Loaded %d Script Names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server", " ");
+}
+
+std::string const& ObjectMgr::GetScriptName(uint32 id) const
+{
+    static std::string const empty = "";
+    return (id < _scriptNamesStore.size()) ? _scriptNamesStore[id] : empty;
 }
 
 uint32 ObjectMgr::GetScriptId(const char* name)

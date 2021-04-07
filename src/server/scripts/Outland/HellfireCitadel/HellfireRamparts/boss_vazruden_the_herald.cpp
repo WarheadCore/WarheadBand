@@ -141,7 +141,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vazruden_the_heraldAI(creature);
+        return GetHellfireRampartsAI<boss_vazruden_the_heraldAI>(creature);
     }
 };
 
@@ -249,7 +249,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_nazanAI(creature);
+        return GetHellfireRampartsAI<boss_nazanAI>(creature);
     }
 };
 
@@ -320,7 +320,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vazrudenAI(creature);
+        return GetHellfireRampartsAI<boss_vazrudenAI>(creature);
     }
 };
 

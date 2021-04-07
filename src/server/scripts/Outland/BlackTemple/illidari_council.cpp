@@ -139,7 +139,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_illidari_councilAI>(creature);
+        return GetBlackTempleAI<boss_illidari_councilAI>(creature);
     }
 
     struct boss_illidari_councilAI : public BossAI
@@ -282,7 +282,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gathios_the_shattererAI>(creature);
+        return GetBlackTempleAI<boss_gathios_the_shattererAI>(creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_council_memberAI
@@ -370,7 +370,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_high_nethermancer_zerevorAI>(creature);
+        return GetBlackTempleAI<boss_high_nethermancer_zerevorAI>(creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_council_memberAI
@@ -443,7 +443,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_malandeAI>(creature);
+        return GetBlackTempleAI<boss_lady_malandeAI>(creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_council_memberAI
@@ -507,7 +507,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veras_darkshadowAI>(creature);
+        return GetBlackTempleAI<boss_veras_darkshadowAI>(creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_council_memberAI

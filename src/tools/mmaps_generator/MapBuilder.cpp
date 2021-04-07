@@ -24,7 +24,7 @@
 #include <DetourNavMeshBuilder.h>
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 10
+#define MMAP_VERSION 11
 
 struct MmapTileHeader
 {

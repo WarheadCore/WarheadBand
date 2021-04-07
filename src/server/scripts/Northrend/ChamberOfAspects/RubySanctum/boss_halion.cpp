@@ -424,7 +424,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_halionAI>(creature);
+        return GetRubySanctumAI<boss_halionAI>(creature);
     }
 };
 
@@ -577,7 +577,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_twilight_halionAI>(creature);
+        return GetRubySanctumAI<boss_twilight_halionAI>(creature);
     }
 };
 
@@ -745,7 +745,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_halion_controllerAI>(creature);
+        return GetRubySanctumAI<npc_halion_controllerAI>(creature);
     }
 };
 
@@ -797,7 +797,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_orb_carrierAI>(creature);
+        return GetRubySanctumAI<npc_orb_carrierAI>(creature);
     }
 };
 
@@ -1474,7 +1474,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_living_infernoAI>(creature);
+        return GetRubySanctumAI<npc_living_infernoAI>(creature);
     }
 };
 

@@ -18,6 +18,9 @@
 #ifndef DEF_BRD_H
 #define DEF_BRD_H
 
+#include "CreatureAIImpl.h"
+#define BRDScriptName "instance_blackrock_depths"
+
 enum FactionIds
 {
     FACTION_NEUTRAL            = 734,
@@ -66,5 +69,11 @@ enum DataTypes
 
     DATA_OPEN_COFFER_DOORS  = 30
 };
+
+template <class AI, class T>
+inline AI* GetBlackrockDepthsAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, BRDScriptName);
+}
 
 #endif

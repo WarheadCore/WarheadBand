@@ -104,7 +104,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ancient_wispAI>(creature);
+        return GetHyjalAI<npc_ancient_wispAI>(creature);
     }
 
     struct npc_ancient_wispAI : public ScriptedAI
@@ -162,7 +162,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_doomfireAI(creature);
+        return GetHyjalAI<npc_doomfireAI>(creature);
     }
 
     struct npc_doomfireAI : public ScriptedAI
@@ -191,7 +191,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_doomfire_targettingAI(creature);
+        return GetHyjalAI<npc_doomfire_targettingAI>(creature);
     }
 
     struct npc_doomfire_targettingAI : public ScriptedAI
@@ -261,7 +261,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_archimondeAI>(creature);
+        return GetHyjalAI<boss_archimondeAI>(creature);
     }
 
     struct boss_archimondeAI : public BossAI

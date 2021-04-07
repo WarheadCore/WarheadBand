@@ -80,7 +80,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_magus_telestraAI>(creature);
+        return GetNexusAI<boss_magus_telestraAI>(creature);
     }
 
     struct boss_magus_telestraAI : public BossAI

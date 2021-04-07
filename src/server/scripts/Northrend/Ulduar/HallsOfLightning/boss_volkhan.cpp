@@ -85,7 +85,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_volkhanAI (creature);
+        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
     }
 
     struct boss_volkhanAI : public ScriptedAI
@@ -326,7 +326,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_golemAI (creature);
+        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
     }
 
     struct npc_molten_golemAI : public ScriptedAI
@@ -450,7 +450,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_hol_monumentAI(creature);
+        return GetHallsOfLightningAI<npc_hol_monumentAI>(creature);
     }
 
     struct npc_hol_monumentAI : public ScriptedAI

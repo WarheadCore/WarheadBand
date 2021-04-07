@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -32,7 +33,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_grizzleAI(creature);
+        return GetBlackrockDepthsAI<boss_grizzleAI>(creature);
     }
 
     struct boss_grizzleAI : public ScriptedAI

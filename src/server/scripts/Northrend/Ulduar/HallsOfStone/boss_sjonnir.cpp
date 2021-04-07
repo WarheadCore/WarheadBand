@@ -111,7 +111,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_sjonnirAI (pCreature);
+        return GetHallsOfStoneAI<boss_sjonnirAI>(pCreature);
     }
 
     struct boss_sjonnirAI : public ScriptedAI
@@ -392,7 +392,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_sjonnir_dwarfAI (pCreature);
+        return GetHallsOfStoneAI<boss_sjonnir_dwarfAI>(pCreature);
     }
 
     struct boss_sjonnir_dwarfAI : public ScriptedAI
@@ -416,7 +416,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_sjonnir_iron_sludgeAI (pCreature);
+        return GetHallsOfStoneAI<boss_sjonnir_iron_sludgeAI>(pCreature);
     }
 
     struct boss_sjonnir_iron_sludgeAI : public ScriptedAI
@@ -472,7 +472,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const override
     {
-        return new boss_sjonnir_malformed_oozeAI (pCreature);
+        return GetHallsOfStoneAI<boss_sjonnir_malformed_oozeAI>(pCreature);
     }
 
     struct boss_sjonnir_malformed_oozeAI : public ScriptedAI

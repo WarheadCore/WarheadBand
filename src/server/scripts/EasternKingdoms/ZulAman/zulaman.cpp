@@ -439,7 +439,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_forest_frogAI>(creature);
+        return GetZulAmanAI<npc_forest_frogAI>(creature);
     }
 };
 
@@ -486,7 +486,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_zulaman_hostageAI(creature);
+        return GetZulAmanAI<npc_zulaman_hostageAI>(creature);
     }
 
     bool OnGossipHello(Player* player, Creature* creature) override
@@ -779,7 +779,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_harrison_jonesAI>(creature);
+        return GetZulAmanAI<npc_harrison_jonesAI>(creature);
     }
 };
 

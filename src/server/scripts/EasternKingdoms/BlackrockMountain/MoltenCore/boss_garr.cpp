@@ -96,7 +96,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_garrAI(creature);
+        return GetMoltenCoreAI<boss_garrAI>(creature);
     }
 };
 
@@ -148,7 +148,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_fireswornAI(creature);
+        return GetMoltenCoreAI<npc_fireswornAI>(creature);
     }
 };
 

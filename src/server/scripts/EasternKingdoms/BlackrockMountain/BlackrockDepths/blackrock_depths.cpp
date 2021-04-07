@@ -145,7 +145,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_grimstoneAI>(creature);
+        return GetBlackrockDepthsAI<npc_grimstoneAI>(creature);
     }
 
     struct npc_grimstoneAI : public npc_escortAI
@@ -342,7 +342,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phalanxAI(creature);
+        return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
     struct npc_phalanxAI : public ScriptedAI
@@ -511,7 +511,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_rocknotAI>(creature);
+        return GetBlackrockDepthsAI<npc_rocknotAI>(creature);
     }
 
     struct npc_rocknotAI : public npc_escortAI

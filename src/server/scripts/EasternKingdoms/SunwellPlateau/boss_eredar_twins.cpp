@@ -222,7 +222,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_sacrolashAI>(creature);
+        return GetSunwellPlateauAI<boss_sacrolashAI>(creature);
     };
 };
 
@@ -360,7 +360,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_alythessAI>(creature);
+        return GetSunwellPlateauAI<boss_alythessAI>(creature);
     };
 };
 

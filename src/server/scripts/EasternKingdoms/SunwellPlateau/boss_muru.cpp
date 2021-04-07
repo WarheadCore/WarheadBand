@@ -151,7 +151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_muruAI>(creature);
+        return GetSunwellPlateauAI<boss_muruAI>(creature);
     }
 };
 
@@ -261,7 +261,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_entropiusAI>(creature);
+        return GetSunwellPlateauAI<boss_entropiusAI>(creature);
     }
 };
 
@@ -272,7 +272,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_singularityAI>(creature);
+        return GetSunwellPlateauAI<npc_singularityAI>(creature);
     }
 
     struct npc_singularityAI : public NullCreatureAI

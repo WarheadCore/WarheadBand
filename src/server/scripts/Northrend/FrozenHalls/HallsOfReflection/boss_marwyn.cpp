@@ -163,7 +163,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_marwynAI(creature);
+        return GetHallsOfReflectionAI<boss_marwynAI>(creature);
     }
 };
 

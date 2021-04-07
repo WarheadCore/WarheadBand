@@ -18,6 +18,10 @@
 #ifndef DEF_TEMPLE_OF_AHNQIRAJ_H
 #define DEF_TEMPLE_OF_AHNQIRAJ_H
 
+#include "CreatureAIImpl.h"
+
+#define TempleOfAhnQirajScriptName "instance_temple_of_ahnqiraj"
+
 enum DataTypes
 {
     DATA_SKERAM             = 1,
@@ -58,4 +62,11 @@ enum Creatures
     NPC_VEKLOR              = 15276,
     NPC_VEKNILASH           = 15275
 };
+
+template <class AI, class T>
+inline AI* GetTempleOfAhnQirajAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, TempleOfAhnQirajScriptName);
+}
+
 #endif
