@@ -491,8 +491,8 @@ public:
                                     {
                                         if (!c->IsAlive())
                                             c->Respawn();
-                                        c->SetDisableGravity(true);
                                         c->SetCanFly(true);
+                                        c->SetDisableGravity(true);
                                         c->SetVisible(true);
 
                                         Item* i;
@@ -514,8 +514,8 @@ public:
                                 if (c->IsVisible())
                                 {
                                     c->SetInCombatWithZone();
-                                    c->SetDisableGravity(false);
                                     c->SetCanFly(false);
+                                    c->SetDisableGravity(false);
                                     c->GetMotionMaster()->MoveJump(fg->GetPositionX(), fg->GetPositionY(), fg->GetPositionZ(), 20.0f, 10.0f);
                                 }
                     break;
