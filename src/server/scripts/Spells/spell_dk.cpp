@@ -441,8 +441,8 @@ public:
         {
             if (Unit* target = GetExplTargetUnit())
             {
-                std::list<Spell::TargetInfo> const* targetsInfo = GetSpell()->GetUniqueTargetInfo();
-                for (std::list<Spell::TargetInfo>::const_iterator ihit = targetsInfo->begin(); ihit != targetsInfo->end(); ++ihit)
+                std::list<TargetInfo> const* targetsInfo = GetSpell()->GetUniqueTargetInfo();
+                for (std::list<TargetInfo>::const_iterator ihit = targetsInfo->begin(); ihit != targetsInfo->end(); ++ihit)
                     if (ihit->missCondition == SPELL_MISS_NONE && ihit->targetGUID == target->GetGUID())
                         GetCaster()->CastSpell(target, 55095 /*SPELL_FROST_FEVER*/, true);
             }
@@ -621,8 +621,8 @@ public:
 
         void RecalculateDamage()
         {
-            std::list<Spell::TargetInfo>* targetsInfo = GetSpell()->GetUniqueTargetInfo();
-            for (std::list<Spell::TargetInfo>::iterator ihit = targetsInfo->begin(); ihit != targetsInfo->end(); ++ihit)
+            std::list<TargetInfo>* targetsInfo = GetSpell()->GetUniqueTargetInfo();
+            for (std::list<TargetInfo>::iterator ihit = targetsInfo->begin(); ihit != targetsInfo->end(); ++ihit)
                 if (ihit->targetGUID == GetCaster()->GetGUID())
                     ihit->crit = roll_chance_f(GetCaster()->GetFloatValue(PLAYER_CRIT_PERCENTAGE));
         }

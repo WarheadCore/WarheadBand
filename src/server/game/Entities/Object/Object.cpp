@@ -98,6 +98,8 @@ Object::Object() : m_PackGUID(sizeof(uint64) + 1)
     m_objectUpdated     = false;
 
     m_PackGUID.appendPackGUID(0);
+
+    sScriptMgr->OnConstructObject(this);
 }
 
 WorldObject::~WorldObject()
@@ -121,6 +123,8 @@ WorldObject::~WorldObject()
 
 Object::~Object()
 {
+    sScriptMgr->OnDestructObject(this);
+
     if (IsInWorld())
     {
         LOG_FATAL("server", "Object::~Object - guid=" UI64FMTD ", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());

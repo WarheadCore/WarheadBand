@@ -24,8 +24,8 @@
 */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Configuration/Config.h"
+#include "DatabaseEnv.h"
+#include "Config.h"
 #include "Log.h"
 #include "Util.h"
 #include "SignalHandler.h"
@@ -267,8 +267,8 @@ bool StartDB()
     MySQL::Library_Init();
 
     // Load databases
-     // NOTE: While authserver is singlethreaded you should keep synch_threads == 1.
-     // Increasing it is just silly since only 1 will be used ever.
+    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1.
+    // Increasing it is just silly since only 1 will be used ever.
     DatabaseLoader loader("server.authserver", DatabaseLoader::DATABASE_NONE);
     loader
         .AddDatabase(LoginDatabase, "Login");

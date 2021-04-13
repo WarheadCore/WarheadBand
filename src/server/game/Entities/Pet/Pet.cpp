@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -1093,6 +1094,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
     }
 
+    sScriptMgr->OnInitStatsForLevel(this, petlevel);
+
     UpdateAllStats();
 
     SetFullHealth();
@@ -1604,7 +1607,7 @@ void Pet::InitLevelupSpellsForLevel()
         for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
         {
             // will called first if level down
-            if (itr->first > level)
+            if (itr->first > level && sScriptMgr->CanUnlearnSpellSet(this, itr->first, itr->second))
                 unlearnSpell(itr->second, true);                 // will learn prev rank if any
             // will called if level up
             else
@@ -1624,7 +1627,7 @@ void Pet::InitLevelupSpellsForLevel()
                 continue;
 
             // will called first if level down
-            if (spellEntry->SpellLevel > level)
+            if (spellEntry->SpellLevel > level && sScriptMgr->CanUnlearnSpellDefault(this, spellEntry))
                 unlearnSpell(spellEntry->Id, true);
             // will called if level up
             else
@@ -1727,6 +1730,9 @@ bool Pet::resetTalents()
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if (!sScriptMgr->CanResetTalents(this))
         return false;
 
     // not need after this call
@@ -1882,15 +1888,16 @@ void Pet::InitTalentForLevel()
 {
     uint8 level = getLevel();
     uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
+
+    Unit* owner = GetOwner();
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+        return;
+
     // Reset talents in case low level (on level down) or wrong points for level (hunter can unlearn TP increase talent)
     if (talentPointsForLevel == 0 || m_usedTalentCount > talentPointsForLevel)
         resetTalents(); // Remove all talent points
 
     SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
-
-    Unit* owner = GetOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-        return;
 
     if (!m_loading)
         owner->ToPlayer()->SendTalentsInfoData(true);
@@ -1902,6 +1909,9 @@ uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)
     // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS
     if (Unit* owner = GetOwner())
         points += owner->GetTotalAuraModifier(SPELL_AURA_MOD_PET_TALENT_POINTS);
+
+    sScriptMgr->OnCalculateMaxTalentPointsForLevel(this, level, points);
+
     return points;
 }
 
