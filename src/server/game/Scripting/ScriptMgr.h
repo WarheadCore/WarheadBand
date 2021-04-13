@@ -1017,7 +1017,7 @@ public:
 
     [[nodiscard]] virtual bool CanGiveMailRewardAtGiveLevel(Player* /*player*/, uint8 /*level*/) { return true; }
 
-    virtual void OnDeleteFromDB(SQLTransaction& /*trans*/, uint32 /*guid*/) { }
+    virtual void OnDeleteFromDB(CharacterDatabaseTransaction /*trans*/, uint32 /*guid*/) { }
 
     [[nodiscard]] virtual bool CanRepopAtGraveyard(Player* /*player*/) { return true; }
 
@@ -1715,7 +1715,7 @@ public: /* PlayerScript */
     void PetitionShowList(Player* player, Creature* creature, uint32& CharterEntry, uint32& CharterDispayID, uint32& CharterCost);
     void OnRewardKillRewarder(Player* player, bool isDungeon, float& rate);
     bool CanGiveMailRewardAtGiveLevel(Player* player, uint8 level);
-    void OnDeleteFromDB(SQLTransaction& trans, uint32 guid);
+    void OnDeleteFromDB(CharacterDatabaseTransaction trans, uint32 guid);
     bool CanRepopAtGraveyard(Player* player);
     void OnGetMaxSkillValue(Player* player, uint32 skill, int32& result, bool IsPure);
     bool CanAreaExploreAndOutdoor(Player* player);

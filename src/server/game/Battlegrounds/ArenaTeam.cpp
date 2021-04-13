@@ -628,7 +628,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
     auto const& itr = ArenaSlotByType.find(type);
     if (itr == ArenaSlotByType.end())
     {
-        sLog->outError("FATAL: Unknown arena team type %u for some arena team", type);
+        LOG_ERROR("server", "FATAL: Unknown arena team type %u for some arena team", type);
         return slot;
     }
 
@@ -1019,7 +1019,7 @@ uint8 ArenaTeam::GetReqPlayersForType(uint32 type)
     auto const& itr = ArenaReqPlayersForType.find(type);
     if (itr == ArenaReqPlayersForType.end())
     {
-        sLog->outError("FATAL: Unknown arena type %u!", type);
+        LOG_ERROR("server", "FATAL: Unknown arena type %u!", type);
         return 0xFF;
     }
 

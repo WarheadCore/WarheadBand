@@ -2346,7 +2346,7 @@ bool ScriptMgr::CanGiveMailRewardAtGiveLevel(Player* player, uint8 level)
     return ret;
 }
 
-void ScriptMgr::OnDeleteFromDB(SQLTransaction& trans, uint32 guid)
+void ScriptMgr::OnDeleteFromDB(CharacterDatabaseTransaction trans, uint32 guid)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDeleteFromDB(trans, guid);
 }
