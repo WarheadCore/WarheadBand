@@ -1117,6 +1117,11 @@ public:
         SetFloatValue(UNIT_FIELD_COMBATREACH, scale * DEFAULT_COMBAT_REACH);
     }
 
+    [[nodiscard]] bool hasSpanishClient()
+    {
+        return GetSession()->GetSessionDbLocaleIndex() == LOCALE_esES || GetSession()->GetSessionDbLocaleIndex() == LOCALE_esMX;
+    }
+
     bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, Unit* target = nullptr);
     bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Unit* target = nullptr)
     {
@@ -2831,7 +2836,7 @@ protected:
     EnchantDurationList m_enchantDuration;
     ItemDurationList m_itemDuration;
     ItemDurationList m_itemSoulboundTradeable;
-    ACE_Thread_Mutex m_soulboundTradableLock;
+    std::mutex m_soulboundTradableLock;
 
     void ResetTimeSync();
     void SendTimeSync();

@@ -19,6 +19,7 @@
 /// @{
 /// \file
 
+#include "AppenderDB.h"
 #include "Common.h"
 #include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"

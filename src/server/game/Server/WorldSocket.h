@@ -31,8 +31,8 @@
 #include <ace/SOCK_Stream.h>
 #include <ace/Svc_Handler.h>
 #include <ace/Synch_Traits.h>
-#include <ace/Thread_Mutex.h>
 #include <ace/Unbounded_Queue.h>
+#include <mutex>
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
@@ -89,10 +89,6 @@ public:
 
     friend class WorldSocketMgr;
 
-    /// Mutex type used for various synchronizations.
-    typedef ACE_Thread_Mutex LockType;
-    typedef ACE_Guard<LockType> GuardType;
-
     /// Check if socket is closed.
     bool IsClosed (void) const;
 
@@ -142,11 +138,11 @@ private:
 
     /// Help functions to mark/unmark the socket for output.
     /// @param g the guard is for m_OutBufferLock, the function will release it
-    int cancel_wakeup_output (GuardType& g);
-    int schedule_wakeup_output (GuardType& g);
+    int cancel_wakeup_output();
+    int schedule_wakeup_output();
 
     /// Drain the queue if its not empty.
-    int handle_output_queue (GuardType& g);
+    int handle_output_queue();
 
     /// process one incoming packet.
     /// @param new_pct received packet, note that you need to delete it.
@@ -172,7 +168,7 @@ private:
     AuthCrypt m_Crypt;
 
     /// Mutex lock to protect m_Session
-    LockType m_SessionLock;
+    std::mutex m_SessionLock;
 
     /// Session to which received packets are routed
     WorldSession* m_Session;
@@ -189,7 +185,7 @@ private:
     ACE_Message_Block m_Header;
 
     /// Mutex for protecting output related data.
-    LockType m_OutBufferLock;
+    std::mutex m_OutBufferLock;
 
     /// Buffer used for writing output.
     ACE_Message_Block* m_OutBuffer;

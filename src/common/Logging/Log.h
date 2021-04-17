@@ -201,3 +201,19 @@ void check_args(std::string const&, ...);
     sLog->outCommand(accountId__, __VA_ARGS__)
 
 #endif
+
+// Debug - 5
+#define LOG_DEBUG(filterType__, ...) \
+    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_DEBUG, __VA_ARGS__)
+
+// Trace - 6
+#define LOG_TRACE(filterType__, ...) \
+    LOG_MESSAGE_BODY(filterType__, LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
+
+#define LOG_CHAR_DUMP(message__, accountId__, guid__, name__) \
+    sLog->outCharDump(message__, accountId__, guid__, name__)
+
+#define LOG_GM(accountId__, ...) \
+    sLog->outCommand(accountId__, __VA_ARGS__)
+
+#endif // _LOG_H__
