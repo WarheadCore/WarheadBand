@@ -317,7 +317,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetDisplayId(goinfo->displayId);
 
     if (!m_model)
-        m_model = GameObjectModel::Create(*this);
+        m_model = CreateModel();
 
     switch (goinfo->type)
     {
