@@ -199,13 +199,13 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
 
     switch (pet->getPetType())
     {
-    case SUMMON_PET:
-        petlevel = owner->getLevel();
+        case SUMMON_PET:
+            petlevel = owner->getLevel();
 
-        if (pet->IsPetGhoul())
-            pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 0x400); // class = rogue
-        else
-            pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); // class = mage
+            if (pet->IsPetGhoul())
+                pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 0x400); // class = rogue
+            else
+                pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); // class = mage
 
             pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
             // this enables popup window (pet dismiss, cancel)

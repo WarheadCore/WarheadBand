@@ -24,7 +24,6 @@
 */
 
 #include "Common.h"
-#include "AppenderDB.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
 #include "Log.h"
