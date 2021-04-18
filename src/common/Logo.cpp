@@ -1,18 +1,26 @@
 /*
- *  Copyright (C) 2019+ WarheadCore
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Logo.h"
 #include "Log.h"
 #include "GitRevision.h"
 #include "StringFormat.h"
-#include "Config.h"
-#include <ace/Version.h>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-#include <boost/version.hpp>
 
-void Warhead::Logo::Show(char const* applicationName, char const* configName, void(*log)(char const* text))
+void Warhead::Logo::Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)())
 {
     log(Warhead::StringFormat("%s (%s)", GitRevision::GetFullVersion(), applicationName).c_str());
     log("<Ctrl-C> to stop");
@@ -30,9 +38,9 @@ void Warhead::Logo::Show(char const* applicationName, char const* configName, vo
     log("                                ╚██████╗ ╚██████╔╝ ██║  ██║ ███████╗");
     log("                                 ╚═════╝  ╚═════╝  ╚═╝  ╚═╝ ╚══════╝");
     log("");
-    log(Warhead::StringFormat("> Using configuration file:       %s", configName).c_str());
-    log(Warhead::StringFormat("> Using SSL version:              %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION)).c_str());
-    log(Warhead::StringFormat("> Using ACE version:              %s", ACE_VERSION).c_str());
-    log(Warhead::StringFormat("> Using Boost version:            %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100).c_str());
+
+    if (logExtraInfo)
+        logExtraInfo();
+
     log("");
 }
