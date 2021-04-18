@@ -23,6 +23,7 @@
 * authentication server
 */
 
+#include "Banner.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Config.h"

@@ -67,7 +67,6 @@ namespace
 
 namespace Warhead
 {
-
     void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message)
     {
         std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + debugInfo + '\n';
