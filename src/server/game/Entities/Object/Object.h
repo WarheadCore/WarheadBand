@@ -666,7 +666,7 @@ struct MovementInfo
 
 #define MAPID_INVALID 0xFFFFFFFF
 
-class WorldLocation : public Position
+class WH_GAME_API WorldLocation : public Position
 {
 public:
     explicit WorldLocation(uint32 _mapid = MAPID_INVALID, float _x = 0, float _y = 0, float _z = 0, float _o = 0)

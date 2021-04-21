@@ -42,22 +42,22 @@ template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
     std::unique_lock<std::shared_mutex> lock(*GetLock());
-    m_objectMap[o->GetGUID()] = o;
+    GetContainer()[o->GetGUID()] = o;
 }
 
 template<class T>
 void HashMapHolder<T>::Remove(T* o)
 {
     std::unique_lock<std::shared_mutex> lock(*GetLock());
-    m_objectMap.erase(o->GetGUID());
+    GetContainer().erase(o->GetGUID());
 }
 
 template<class T>
 T* HashMapHolder<T>::Find(uint64 guid)
 {
     std::shared_lock<std::shared_mutex> lock(*GetLock());
-    typename MapType::iterator itr = m_objectMap.find(guid);
-    return (itr != m_objectMap.end()) ? itr->second : nullptr;
+    typename MapType::iterator itr = GetContainer().find(guid);
+    return (itr != GetContainer().end()) ? itr->second : nullptr;
 }
 
 template<class T>
@@ -65,6 +65,13 @@ std::shared_mutex* HashMapHolder<T>::GetLock()
 {
     static std::shared_mutex _lock;
     return &_lock;
+}
+
+template<class T>
+auto HashMapHolder<T>::GetContainer() -> MapType&
+{
+    static MapType _objectMap;
+    return _objectMap;
 }
 
 ObjectAccessor::ObjectAccessor()
@@ -589,12 +596,12 @@ std::map<std::string, Player*> ObjectAccessor::playerNameToPlayerPointer;
 
 /// Global definitions for the hashmap storage
 
-template class HashMapHolder<Player>;
-template class HashMapHolder<Pet>;
-template class HashMapHolder<GameObject>;
-template class HashMapHolder<DynamicObject>;
-template class HashMapHolder<Creature>;
-template class HashMapHolder<Corpse>;
+template class WH_GAME_API HashMapHolder<Player>;
+template class WH_GAME_API HashMapHolder<Pet>;
+template class WH_GAME_API HashMapHolder<GameObject>;
+template class WH_GAME_API HashMapHolder<DynamicObject>;
+template class WH_GAME_API HashMapHolder<Creature>;
+template class WH_GAME_API HashMapHolder<Corpse>;
 
 template Player* ObjectAccessor::GetObjectInWorld<Player>(uint32 mapid, float x, float y, uint64 guid, Player* /*fake*/);
 template Pet* ObjectAccessor::GetObjectInWorld<Pet>(uint32 mapid, float x, float y, uint64 guid, Pet* /*fake*/);

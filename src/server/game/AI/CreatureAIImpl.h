@@ -62,7 +62,7 @@ struct AISpellInfoType
     float maxRange;
 };
 
-WH_GAME_API AISpellInfoType* GetAISpellInfo(uint32 i);
+AISpellInfoType* GetAISpellInfo(uint32 i);
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName);
 

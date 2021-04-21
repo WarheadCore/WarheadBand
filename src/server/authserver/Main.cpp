@@ -23,7 +23,6 @@
 * authentication server
 */
 
-#include "Banner.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
@@ -37,6 +36,7 @@
 #include "MySQLThreading.h"
 #include <ace/Dev_Poll_Reactor.h>
 #include <ace/TP_Reactor.h>
+#include <boost/version.hpp>
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 
@@ -94,11 +94,6 @@ extern int main(int argc, char** argv)
     // Init logging
     sLog->Initialize();
 
-    Warhead::Logo::Show("authserver", configFile.c_str(), [](char const* text)
-    {
-        LOG_INFO("server.authserver", "%s", text);
-    });
-
     Warhead::Logo::Show("authserver",
         [](char const* text)
         {
@@ -108,7 +103,7 @@ extern int main(int argc, char** argv)
         {
             LOG_INFO("server.authserver", "> Using configuration file:       %s", sConfigMgr->GetFilename().c_str());
             LOG_INFO("server.authserver", "> Using SSL version:              %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-            LOG_INFO("server.authserver", "> Using ACE version:              %s", ACE_VERSION).c_str());
+            LOG_INFO("server.authserver", "> Using ACE version:              %s", ACE_VERSION);
             LOG_INFO("server.authserver", "> Using Boost version:            %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );

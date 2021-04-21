@@ -41,7 +41,7 @@ class StaticTransport;
 class MotionTransport;
 
 template <class T>
-class HashMapHolder
+class WH_GAME_API HashMapHolder
 {
 public:
     typedef std::unordered_map<uint64, T*> MapType;
@@ -50,19 +50,13 @@ public:
     static void Remove(T* o);
     static T* Find(uint64 guid);
 
-    static MapType& GetContainer() { return m_objectMap; }
+    static MapType& GetContainer();
     static std::shared_mutex* GetLock();
 
 private:
     //Non instanceable only static
     HashMapHolder() = default;
-
-    static MapType m_objectMap;
 };
-
-/// Define the static members of HashMapHolder
-
-template <class T> std::unordered_map< uint64, T* > HashMapHolder<T>::m_objectMap;
 
 // pussywizard:
 class WH_GAME_API DelayedCorpseAction

@@ -63,7 +63,7 @@ public:
     virtual void SpellHit(Unit* /*unit*/, const SpellInfo* /*spellInfo*/) {}
 };
 
-class NullGameObjectAI : public GameObjectAI
+class WH_GAME_API NullGameObjectAI : public GameObjectAI
 {
 public:
     explicit NullGameObjectAI(GameObject* g);
