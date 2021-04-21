@@ -1,4 +1,3 @@
-#
 # This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
@@ -8,100 +7,206 @@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-#
-# User has manually chosen to ignore the git-tests, so throw them a warning.
-# This is done EACH compile so they can be alerted about the consequences.
-#
 
-# Enable precompiled headers when using the GCC compiler.
-
-CU_RUN_HOOK(BEFORE_SCRIPTS_LIBRARY)
-
-CU_SET_PATH("AC_SCRIPTS_DIR" "${CMAKE_CURRENT_LIST_DIR}")
-
-message(STATUS "SCRIPT PREPARATIONS")
-
-set("AC_DEF_SCRIPTS_LIST" "")
-
-macro(AC_ADD_DEF_SCRIPT_LOADER script_dec)
-  set("AC_DEF_SCRIPTS_LIST" "void Add${script_dec}Scripts();${AC_DEF_SCRIPTS_LIST}")
-endmacro()
-
-macro(PrepareScripts name out)
-  file(GLOB_RECURSE found
-    ${name}/*.h
-    ${name}/*.cpp)
-
-  list(APPEND ${out} ${found})
-  AC_ADD_DEF_SCRIPT_LOADER("${name}")
-  AC_ADD_SCRIPT_LOADER("${name}" "")
-  message(STATUS "  -> Prepared: ${name}")
-endmacro(PrepareScripts)
-
-CU_GET_GLOBAL("AC_SCRIPTS_SOURCES")
-
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
-  ${AC_SCRIPTS_SOURCES}
-  ScriptLoader.h
-  ${BUILDDIR}/GenLoader.cpp)
-
-CU_SET_PATH("CMAKE_AC_MODULE_DIR" "${CMAKE_CURRENT_LIST_DIR}")
-
-PrepareScripts(Spells scripts_STAT_SRCS)
-PrepareScripts(Commands scripts_STAT_SRCS)
-
-if(SCRIPTS)
-  PrepareScripts(Custom scripts_STAT_SRCS)
-  PrepareScripts(World scripts_STAT_SRCS)
-  PrepareScripts(OutdoorPvP scripts_STAT_SRCS)
-  PrepareScripts(EasternKingdoms scripts_STAT_SRCS)
-  PrepareScripts(Kalimdor scripts_STAT_SRCS)
-  PrepareScripts(Outland scripts_STAT_SRCS)
-  PrepareScripts(Northrend scripts_STAT_SRCS)
-  PrepareScripts(Events scripts_STAT_SRCS)
-  PrepareScripts(Pet scripts_STAT_SRCS)
-endif()
-
-CU_GET_GLOBAL("AC_ADD_SCRIPTS_LIST")
-CU_GET_GLOBAL("AC_ADD_SCRIPTS_INCLUDE")
-
-set("AC_SCRIPTS_INCLUDES" "")
-set("AC_MODULE_LIST" "")
-set("AC_SCRIPTS_LIST" "")
-
-FOREACH (include ${AC_ADD_SCRIPTS_INCLUDE})
-  set("AC_SCRIPTS_INCLUDES" "#include \"${include}\"\n${AC_SCRIPTS_INCLUDES}")
-ENDFOREACH()
-
-FOREACH (void ${AC_ADD_SCRIPTS_LIST})
-  set("AC_MODULE_LIST" "void ${void};\n${AC_MODULE_LIST}")
-ENDFOREACH()
-
-FOREACH (scpript_list ${AC_DEF_SCRIPTS_LIST})
-  set("AC_SCRIPTS_LIST" "${scpript_list};\n${AC_SCRIPTS_LIST}")
-ENDFOREACH()
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GenLoader.cpp.cmake ${BUILDDIR}/GenLoader.cpp)
-
-message(STATUS "SCRIPT PREPARATION COMPLETE")
 message("")
 
-if (USE_SCRIPTPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/ScriptPCH.h)
-endif ()
+# Make the script module list available in the current scope
+GetScriptModuleList(SCRIPT_MODULE_LIST)
 
-# Group sources
+# Make the native install offset available in this scope
+GetInstallOffset(INSTALL_OFFSET)
+
+# Sets the SCRIPTS_${SCRIPT_MODULE} variables
+# when using predefined templates for script building
+# like dynamic, static, minimal-static...
+# Sets SCRIPTS_DEFAULT_LINKAGE
+if(SCRIPTS MATCHES "dynamic")
+  set(SCRIPTS_DEFAULT_LINKAGE "dynamic")
+elseif(SCRIPTS MATCHES "static")
+  set(SCRIPTS_DEFAULT_LINKAGE "static")
+else()
+  set(SCRIPTS_DEFAULT_LINKAGE "disabled")
+endif()
+# Sets SCRIPTS_USE_WHITELIST
+# Sets SCRIPTS_WHITELIST
+if(SCRIPTS MATCHES "minimal")
+  set(SCRIPTS_USE_WHITELIST ON)
+  # Whitelist which is used when minimal is selected
+  list(APPEND SCRIPTS_WHITELIST Commands Spells)
+endif()
+
+# Set the SCRIPTS_${SCRIPT_MODULE} variables from the
+# variables set above
+foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
+  ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+  if(${SCRIPT_MODULE_VARIABLE} STREQUAL "default")
+    if(SCRIPTS_USE_WHITELIST)
+      list(FIND SCRIPTS_WHITELIST "${SCRIPT_MODULE}" INDEX)
+      if(${INDEX} GREATER -1)
+        set(${SCRIPT_MODULE_VARIABLE} ${SCRIPTS_DEFAULT_LINKAGE})
+      else()
+        set(${SCRIPT_MODULE_VARIABLE} "disabled")
+      endif()
+    else()
+      set(${SCRIPT_MODULE_VARIABLE} ${SCRIPTS_DEFAULT_LINKAGE})
+    endif()
+  endif()
+  # Build the Graph values
+  if(${SCRIPT_MODULE_VARIABLE} MATCHES "dynamic")
+    GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
+    GetNativeSharedLibraryName(${SCRIPT_MODULE_PROJECT_NAME} SCRIPT_PROJECT_LIBRARY)
+    list(APPEND GRAPH_KEYS ${SCRIPT_MODULE_PROJECT_NAME})
+    set(GRAPH_VALUE_DISPLAY_${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_PROJECT_LIBRARY})
+    list(APPEND GRAPH_VALUE_CONTAINS_MODULES_${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_MODULE})
+  elseif(${SCRIPT_MODULE_VARIABLE} MATCHES "static")
+    list(APPEND GRAPH_KEYS worldserver)
+    set(GRAPH_VALUE_DISPLAY_worldserver worldserver)
+    list(APPEND GRAPH_VALUE_CONTAINS_MODULES_worldserver ${SCRIPT_MODULE})
+  else()
+    list(APPEND GRAPH_KEYS disabled)
+    set(GRAPH_VALUE_DISPLAY_disabled disabled)
+    list(APPEND GRAPH_VALUE_CONTAINS_MODULES_disabled ${SCRIPT_MODULE})
+  endif()
+endforeach()
+
+list(SORT GRAPH_KEYS)
+list(REMOVE_DUPLICATES GRAPH_KEYS)
+
+# Display the script graph
+message("* Script configuration (${SCRIPTS}):
+    |")
+
+foreach(GRAPH_KEY ${GRAPH_KEYS})
+  if(NOT GRAPH_KEY STREQUAL "disabled")
+    message("    +- ${GRAPH_VALUE_DISPLAY_${GRAPH_KEY}}")
+  else()
+    message("    |  ${GRAPH_VALUE_DISPLAY_${GRAPH_KEY}}")
+  endif()
+  foreach(GRAPH_PROJECT_ENTRY ${GRAPH_VALUE_CONTAINS_MODULES_${GRAPH_KEY}})
+    message("    |   +- ${GRAPH_PROJECT_ENTRY}")
+  endforeach()
+  message("    |")
+endforeach()
+
+# Base sources which are used by every script project
+if(USE_SCRIPTPCH)
+  set(PRIVATE_PCH_HEADER ScriptPCH.h)
+endif()
+
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_library(scripts STATIC
-  ${scripts_STAT_SRCS})
+# Configures the scriptloader with the given name and stores the output in the LOADER_OUT variable.
+# It is possible to expose multiple subdirectories from the same scriptloader through passing
+# it to the variable arguments
+function(ConfigureScriptLoader SCRIPTLOADER_NAME LOADER_OUT IS_DYNAMIC_SCRIPTLOADER)
+  # Deduces following variables which are referenced by thge template:
+  # WARHEAD_IS_DYNAMIC_SCRIPTLOADER
+  # WARHEAD_SCRIPTS_FORWARD_DECL
+  # WARHEAD_SCRIPTS_INVOKE
+  # WARHEAD_CURRENT_SCRIPT_PROJECT
 
-target_include_directories(scripts
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
+  # To generate export macros
+  set(WARHEAD_IS_DYNAMIC_SCRIPTLOADER ${IS_DYNAMIC_SCRIPTLOADER})
+  # To generate forward declarations of the loading functions
+  unset(WARHEAD_SCRIPTS_FORWARD_DECL)
+  unset(WARHEAD_SCRIPTS_INVOKE)
+  # The current script project which is built in
+  set(WARHEAD_CURRENT_SCRIPT_PROJECT ${SCRIPTLOADER_NAME})
+  foreach(LOCALE_SCRIPT_MODULE ${ARGN})
+    # Determine the loader function ("Add##${NameOfDirectory}##Scripts()")
+    set(LOADER_FUNCTION
+      "Add${LOCALE_SCRIPT_MODULE}Scripts()")
+    # Generate the funciton call and the forward declarations
+    set(WARHEAD_SCRIPTS_FORWARD_DECL
+      "${WARHEAD_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
+    set(WARHEAD_SCRIPTS_INVOKE
+      "${WARHEAD_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
+  endforeach()
+  set(GENERATED_LOADER ${CMAKE_CURRENT_BINARY_DIR}/gen_scriptloader/${SCRIPTLOADER_NAME}/ScriptLoader.cpp)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ScriptLoader.cpp.in.cmake ${GENERATED_LOADER})
+  set(${LOADER_OUT} ${GENERATED_LOADER} PARENT_SCOPE)
+endfunction()
+
+# Generates the actual script projects
+# Fills the STATIC_SCRIPT_MODULES and DYNAMIC_SCRIPT_MODULE_PROJECTS variables
+# which contain the names which scripts are linked statically/dynamically and
+# adds the sources of the static modules to the PRIVATE_SOURCES variable.
+foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
+  GetPathToScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PATH)
+  ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+
+  if((${SCRIPT_MODULE_VARIABLE} STREQUAL "disabled") OR
+      (${SCRIPT_MODULE_VARIABLE} STREQUAL "static"))
+    # Uninstall disabled modules
+    GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
+    GetNativeSharedLibraryName(${SCRIPT_MODULE_PROJECT_NAME} SCRIPT_MODULE_OUTPUT_NAME)
+    list(APPEND DISABLED_SCRIPT_MODULE_PROJECTS ${INSTALL_OFFSET}/${SCRIPT_MODULE_OUTPUT_NAME})
+    if(${SCRIPT_MODULE_VARIABLE} STREQUAL "static")
+      # Add the module name to STATIC_SCRIPT_MODULES
+      list(APPEND STATIC_SCRIPT_MODULES ${SCRIPT_MODULE})
+      # Add the module content to the whole static module
+      CollectSourceFiles(${SCRIPT_MODULE_PATH} PRIVATE_SOURCES)
+    endif()
+  elseif(${SCRIPT_MODULE_VARIABLE} STREQUAL "dynamic")
+    # Generate an own dynamic module which is loadable on runtime
+    # Add the module content to the whole static module
+    unset(SCRIPT_MODULE_PRIVATE_SOURCES)
+    CollectSourceFiles(${SCRIPT_MODULE_PATH} SCRIPT_MODULE_PRIVATE_SOURCES)
+    # Configure the scriptloader
+    ConfigureScriptLoader(${SCRIPT_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER ON ${SCRIPT_MODULE})
+    GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
+    # Add the module name to DYNAMIC_SCRIPT_MODULES
+    list(APPEND DYNAMIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
+    # Create the script module project
+    add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED
+      ${SCRIPT_MODULE_PRIVATE_SOURCES}
+      ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
+    target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
+      PRIVATE
+        warhead-core-interface
+      PUBLIC
+        game)
+
+    target_include_directories(${SCRIPT_MODULE_PROJECT_NAME}
+      PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR})
+
+    set_target_properties(${SCRIPT_MODULE_PROJECT_NAME}
+      PROPERTIES
+        FOLDER
+          "scripts")
+
+    if(UNIX)
+      install(TARGETS ${SCRIPT_MODULE_PROJECT_NAME}
+        DESTINATION ${INSTALL_OFFSET}
+        COMPONENT ${SCRIPT_MODULE_PROJECT_NAME})
+    elseif(WIN32)
+      install(TARGETS ${SCRIPT_MODULE_PROJECT_NAME}
+        RUNTIME DESTINATION ${INSTALL_OFFSET}
+        COMPONENT ${SCRIPT_MODULE_PROJECT_NAME})
+      if(MSVC)
+        # Place the script modules in the script subdirectory
+        set_target_properties(${SCRIPT_MODULE_PROJECT_NAME} PROPERTIES
+          RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin/Debug/scripts
+          RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin/Release/scripts
+          RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin/RelWithDebInfo/scripts
+          RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/bin/MinSizeRel/scripts)
+      endif()
+    endif()
+  else()
+    message(FATAL_ERROR "Unknown value \"${${SCRIPT_MODULE_VARIABLE}}\"!")
+  endif()
+endforeach()
+
+# Add the dynamic script modules to the worldserver as dependency
+set(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES ${DYNAMIC_SCRIPT_MODULE_PROJECTS} PARENT_SCOPE)
+
+ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_SCRIPT_MODULES})
+
+add_library(scripts STATIC
+  ScriptLoader.h
+  ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
+  ${PRIVATE_SOURCES})
 
 target_link_libraries(scripts
   PRIVATE
@@ -109,14 +214,32 @@ target_link_libraries(scripts
   PUBLIC
     game-interface)
 
+target_include_directories(scripts
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR})
+
 set_target_properties(scripts
   PROPERTIES
     FOLDER
-      "server")
-
-add_dependencies(scripts revision.h)
+      "scripts")
 
 # Generate precompiled header
-if (USE_SCRIPTPCH)
-  add_cxx_pch(scripts ${PRIVATE_PCH_HEADER})
+if(USE_SCRIPTPCH)
+  list(APPEND ALL_SCRIPT_PROJECTS scripts ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
+  add_cxx_pch("${ALL_SCRIPT_PROJECTS}" ${PRIVATE_PCH_HEADER})
 endif()
+
+# Remove all shared libraries in the installl directory which
+# are contained in the static library already.
+if(DISABLED_SCRIPT_MODULE_PROJECTS)
+  install(CODE "
+    foreach(SCRIPT_TO_UNINSTALL ${DISABLED_SCRIPT_MODULE_PROJECTS})
+      if(EXISTS \"\${SCRIPT_TO_UNINSTALL}\")
+        message(STATUS \"Uninstalling: \${SCRIPT_TO_UNINSTALL}\")
+        file(REMOVE \"\${SCRIPT_TO_UNINSTALL}\")
+      endif()
+    endforeach()
+  ")
+endif()
+
+message("")
