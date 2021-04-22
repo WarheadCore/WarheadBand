@@ -1,5 +1,61 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+
 option(SERVERS             "Build worldserver and authserver"                            1)
-option(SCRIPTS             "Build core with scripts included"                            1)
+
+set(SCRIPTS_AVAILABLE_OPTIONS none static dynamic minimal-static minimal-dynamic)
+set(MODULES_AVAILABLE_OPTIONS none static dynamic)
+
+set(SCRIPTS "static" CACHE STRING "Build core with scripts")
+set(MODULES "static" CACHE STRING "Build core with modules")
+set_property(CACHE SCRIPTS PROPERTY STRINGS ${SCRIPTS_AVAILABLE_OPTIONS})
+set_property(CACHE MODULES PROPERTY STRINGS ${MODULES_AVAILABLE_OPTIONS})
+
+# Log a fatal error when the value of the SCRIPTS variable isn't a valid option.
+if(SCRIPTS)
+  list(FIND SCRIPTS_AVAILABLE_OPTIONS "${SCRIPTS}" SCRIPTS_INDEX)
+  if(${SCRIPTS_INDEX} EQUAL -1)
+    message("The value (${SCRIPTS}) of your SCRIPTS variable is invalid! "
+                        "Allowed values are: ${SCRIPTS_AVAILABLE_OPTIONS}. Set static")
+  set(${SCRIPTS} "static")
+  endif()
+endif()
+
+# Log a fatal error when the value of the SCRIPTS variable isn't a valid option.
+if(MODULES)
+  list(FIND MODULES_AVAILABLE_OPTIONS "${MODULES}" MODULES_INDEX)
+  if(${MODULES_INDEX} EQUAL -1)
+    message("The value (${MODULES}) of your MODULES variable is invalid! "
+                        "Allowed values are: ${MODULES_AVAILABLE_OPTIONS}. Set static")
+    set(${MODULES} "static")
+  endif()
+endif()
+
+# Build a list of all script modules when -DSCRIPT="custom" is selected
+GetScriptModuleList(SCRIPT_MODULE_LIST)
+foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
+  ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+  set(${SCRIPT_MODULE_VARIABLE} "default" CACHE STRING "Build type of the ${SCRIPT_MODULE} module.")
+  set_property(CACHE ${SCRIPT_MODULE_VARIABLE} PROPERTY STRINGS default disabled static dynamic)
+endforeach()
+
+# Build a list of all modules script when -DSCRIPT="custom" is selected
+GetModuleSourceList(SCRIPT_MODULE_LIST)
+foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
+  ModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+  set(${SCRIPT_MODULE_VARIABLE} "default" CACHE STRING "Build type of the ${SCRIPT_MODULE} module.")
+  set_property(CACHE ${SCRIPT_MODULE_VARIABLE} PROPERTY STRINGS default disabled static dynamic)
+endforeach()
+
 option(BUILD_TESTING       "Build unit tests"                                            0)
 option(TOOLS               "Build map/vmap/mmap extraction/assembler tools"              0)
 option(USE_SCRIPTPCH       "Use precompiled headers when compiling scripts"              1)
@@ -15,6 +71,7 @@ option(ENABLE_EXTRA_LOGS   "Enable extra log functions that can be CPU intensive
 option(WITH_DYNAMIC_LINKING "Enable dynamic library linking."                            0)
 
 IsDynamicLinkingRequired(WITH_DYNAMIC_LINKING_FORCED)
+IsDynamicLinkingModulesRequired(WITH_DYNAMIC_LINKING_FORCED)
 
 if(WITH_DYNAMIC_LINKING AND WITH_DYNAMIC_LINKING_FORCED)
   set(WITH_DYNAMIC_LINKING_FORCED OFF)

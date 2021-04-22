@@ -43,6 +43,7 @@ list(APPEND CMAKE_MODULE_PATH
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
 include(ConfigureScripts)
+include(ConfigureModules)
 include(DynamicLibInstall)
 
 # some utils for cmake
