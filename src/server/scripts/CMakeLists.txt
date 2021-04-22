@@ -49,10 +49,31 @@ if(SCRIPTS MATCHES "minimal")
   list(APPEND SCRIPTS_WHITELIST Commands Spells)
 endif()
 
+# Add support old api modules
+CU_GET_GLOBAL("AC_ADD_SCRIPTS_LIST")
+CU_GET_GLOBAL("AC_ADD_SCRIPTS_INCLUDE")
+
+set("AC_SCRIPTS_INCLUDES" "")
+set("AC_MODULE_LIST" "")
+set("AC_SCRIPTS_LIST" "")
+
+foreach(include ${AC_ADD_SCRIPTS_INCLUDE})
+  set("AC_SCRIPTS_INCLUDES" "#include \"${include}\"\n${AC_SCRIPTS_INCLUDES}")
+endforeach()
+
+foreach(void ${AC_ADD_SCRIPTS_LIST})
+  set("AC_MODULE_LIST" "void ${void};\n${AC_MODULE_LIST}")
+endforeach()
+
+foreach(scriptName ${AC_ADD_SCRIPTS_LIST})
+  set("AC_SCRIPTS_LIST" "    ${scriptName};\n${AC_SCRIPTS_LIST}")
+endforeach()
+
 # Set the SCRIPTS_${SCRIPT_MODULE} variables from the
 # variables set above
 foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
   ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+  
   if(${SCRIPT_MODULE_VARIABLE} STREQUAL "default")
     if(SCRIPTS_USE_WHITELIST)
       list(FIND SCRIPTS_WHITELIST "${SCRIPT_MODULE}" INDEX)
@@ -88,8 +109,19 @@ endforeach()
 # variables set above
 foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
   ModuleNameToVariable(${SOURCE_MODULE} MODULE_MODULE_VARIABLE)
+
   if(${MODULE_MODULE_VARIABLE} STREQUAL "default")    
     set(${MODULE_MODULE_VARIABLE} ${MODULES_DEFAULT_LINKAGE})
+  endif()
+
+  # Use only static for deprecated api loaders
+  if (AC_SCRIPTS_INCLUDES MATCHES "${SOURCE_MODULE}")
+    set(${MODULE_MODULE_VARIABLE} "static")
+  endif()
+
+  # Use only static for mod-eluna-lua-engine
+  if (SOURCE_MODULE MATCHES "mod-eluna-lua-engine")
+    set(${MODULE_MODULE_VARIABLE} "static")
   endif()
 
   # Build the Graph values
@@ -149,6 +181,8 @@ foreach(MODULE_GRAPH_KEY ${MODULE_GRAPH_KEYS})
   message("    |")
 endforeach()
 
+message("")
+
 # Base sources which are used by every script project
 if(USE_SCRIPTPCH)
   set(PRIVATE_PCH_HEADER ScriptPCH.h)
@@ -175,54 +209,20 @@ function(ConfigureScriptLoader SCRIPTLOADER_NAME LOADER_OUT IS_DYNAMIC_SCRIPTLOA
 
   # The current script project which is built in
   set(WARHEAD_CURRENT_SCRIPT_PROJECT ${SCRIPTLOADER_NAME})
-  foreach(LOCALE_SCRIPT_MODULE ${ARGN})
-    
-    string(REGEX REPLACE - "_" LOCALE_SCRIPT_MODULE ${LOCALE_SCRIPT_MODULE})
-    
-    # Determine the loader function ("Add##${NameOfDirectory}##Scripts()")
-    set(LOADER_FUNCTION
-      "Add${LOCALE_SCRIPT_MODULE}Scripts()")
-    # Generate the funciton call and the forward declarations
-    set(WARHEAD_SCRIPTS_FORWARD_DECL
-      "${WARHEAD_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
-    set(WARHEAD_SCRIPTS_INVOKE
-      "${WARHEAD_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
-  endforeach()
   
-  set(GENERATED_LOADER ${CMAKE_CURRENT_BINARY_DIR}/gen_scriptloader/${SCRIPTLOADER_NAME}/ScriptLoader.cpp)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ScriptLoader.cpp.in.cmake ${GENERATED_LOADER})
-  set(${LOADER_OUT} ${GENERATED_LOADER} PARENT_SCOPE)
-endfunction()
-
-# Configures the scriptloader with the given name and stores the output in the LOADER_OUT variable.
-# It is possible to expose multiple subdirectories from the same scriptloader through passing
-# it to the variable arguments
-function(ConfigureScriptLoader SCRIPTLOADER_NAME LOADER_OUT IS_DYNAMIC_SCRIPTLOADER)
-  # Deduces following variables which are referenced by thge template:
-  # WARHEAD_IS_DYNAMIC_SCRIPTLOADER
-  # WARHEAD_SCRIPTS_FORWARD_DECL
-  # WARHEAD_SCRIPTS_INVOKE
-  # WARHEAD_CURRENT_SCRIPT_PROJECT
-
-  # To generate export macros
-  set(WARHEAD_IS_DYNAMIC_SCRIPTLOADER ${IS_DYNAMIC_SCRIPTLOADER})
-
-  # To generate forward declarations of the loading functions
-  unset(WARHEAD_SCRIPTS_FORWARD_DECL)
-  unset(WARHEAD_SCRIPTS_INVOKE)
-
-  # The current script project which is built in
-  set(WARHEAD_CURRENT_SCRIPT_PROJECT ${SCRIPTLOADER_NAME})
   foreach(LOCALE_SCRIPT_MODULE ${ARGN})
     
+    # Replace bad words
     string(REGEX REPLACE - "_" LOCALE_SCRIPT_MODULE ${LOCALE_SCRIPT_MODULE})
     
     # Determine the loader function ("Add##${NameOfDirectory}##Scripts()")
     set(LOADER_FUNCTION
       "Add${LOCALE_SCRIPT_MODULE}Scripts()")
+    
     # Generate the funciton call and the forward declarations
     set(WARHEAD_SCRIPTS_FORWARD_DECL
       "${WARHEAD_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
+    
     set(WARHEAD_SCRIPTS_INVOKE
       "${WARHEAD_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
   endforeach()
@@ -253,19 +253,24 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
       CollectSourceFiles(${SCRIPT_MODULE_PATH} PRIVATE_SOURCES)
     endif()
   elseif(${SCRIPT_MODULE_VARIABLE} STREQUAL "dynamic")
+    
     # Generate an own dynamic module which is loadable on runtime
     # Add the module content to the whole static module
     unset(SCRIPT_MODULE_PRIVATE_SOURCES)
     CollectSourceFiles(${SCRIPT_MODULE_PATH} SCRIPT_MODULE_PRIVATE_SOURCES)
+    
     # Configure the scriptloader
     ConfigureScriptLoader(${SCRIPT_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER ON ${SCRIPT_MODULE})
     GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
+    
     # Add the module name to DYNAMIC_SCRIPT_MODULES
     list(APPEND DYNAMIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
+    
     # Create the script module project
     add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED
       ${SCRIPT_MODULE_PRIVATE_SOURCES}
       ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
+    
     target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
       PRIVATE
         warhead-core-interface
@@ -283,12 +288,10 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
 
     if(UNIX)
       install(TARGETS ${SCRIPT_MODULE_PROJECT_NAME}
-        DESTINATION ${INSTALL_OFFSET}
-        COMPONENT ${SCRIPT_MODULE_PROJECT_NAME})
+        DESTINATION ${INSTALL_OFFSET} COMPONENT ${SCRIPT_MODULE_PROJECT_NAME})
     elseif(WIN32)
       install(TARGETS ${SCRIPT_MODULE_PROJECT_NAME}
-        RUNTIME DESTINATION ${INSTALL_OFFSET}
-        COMPONENT ${SCRIPT_MODULE_PROJECT_NAME})
+        RUNTIME DESTINATION ${INSTALL_OFFSET} COMPONENT ${SCRIPT_MODULE_PROJECT_NAME})
       if(MSVC)
         # Place the script modules in the script subdirectory
         set_target_properties(${SCRIPT_MODULE_PROJECT_NAME} PROPERTIES
@@ -313,15 +316,30 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
 
   if((${MODULE_MODULE_VARIABLE} STREQUAL "disabled") OR
       (${MODULE_MODULE_VARIABLE} STREQUAL "static"))
+    
     # Uninstall disabled modules
     GetProjectNameOfModuleName(${SOURCE_MODULE} MODULE_SOURCE_PROJECT_NAME)
     GetNativeSharedLibraryName(${MODULE_SOURCE_PROJECT_NAME} SCRIPT_MODULE_OUTPUT_NAME)
     list(APPEND DISABLED_SCRIPT_MODULE_PROJECTS ${INSTALL_OFFSET}/${SCRIPT_MODULE_OUTPUT_NAME})
     if(${MODULE_MODULE_VARIABLE} STREQUAL "static")
+      
+      # Add the module content to the whole static module
+      CollectSourceFiles(${MODULE_SOURCE_PATH} PRIVATE_SOURCES)  
+
+      # Skip deprecated api loaders
+      if (AC_SCRIPTS_INCLUDES MATCHES "${SOURCE_MODULE}")
+        message("> Module (${SOURCE_MODULE}) using deprecated loader api")
+        continue()
+      endif()
+
+      # Skip mod-eluna-lua-engine
+      if (SOURCE_MODULE MATCHES "mod-eluna-lua-engine")
+        continue()
+      endif()
+    
       # Add the module name to STATIC_SCRIPT_MODULES
       list(APPEND STATIC_SCRIPT_MODULES ${SOURCE_MODULE})
-      # Add the module content to the whole static module
-      CollectSourceFiles(${MODULE_SOURCE_PATH} PRIVATE_SOURCES)
+      
     endif()
   elseif(${MODULE_MODULE_VARIABLE} STREQUAL "dynamic")
     
@@ -331,7 +349,7 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
     CollectSourceFiles(${MODULE_SOURCE_PATH} MODULE_SOURCE_PRIVATE_SOURCES)
     
     # Configure the scriptloader
-    ConfigureScriptLoader(${SOURCE_MODULE} MODULE_SOURCE_PRIVATE_SCRIPTLOADER ON ${SOURCE_MODULE})
+    ConfigureScriptLoader(${SOURCE_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER ON ${SOURCE_MODULE})
     GetProjectNameOfModuleName(${SOURCE_MODULE} MODULE_SOURCE_PROJECT_NAME)
     
     # Add the module name to DYNAMIC_SCRIPT_MODULES
@@ -340,7 +358,7 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
     # Create the script module project
     add_library(${MODULE_SOURCE_PROJECT_NAME} SHARED
       ${MODULE_SOURCE_PRIVATE_SOURCES}
-      ${MODULE_SOURCE_PRIVATE_SCRIPTLOADER})
+      ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
     
     target_link_libraries(${MODULE_SOURCE_PROJECT_NAME}
       PRIVATE
@@ -381,12 +399,12 @@ endforeach()
 set(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES ${DYNAMIC_SCRIPT_MODULE_PROJECTS} PARENT_SCOPE)
 
 ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_SCRIPT_MODULES})
-# ConfigureModulesScriptLoaderStatic(MODULE_SOURCE_PRIVATE_SCRIPTLOADER ${STATIC_SCRIPT_MODULES})
+
+list(REMOVE_DUPLICATES SCRIPT_MODULE_PRIVATE_SCRIPTLOADER)
 
 add_library(scripts STATIC
   ScriptLoader.h
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${MODULE_SOURCE_PRIVATE_SCRIPTLOADER}
   ${PRIVATE_SOURCES})
 
 target_link_libraries(scripts
