@@ -13,8 +13,8 @@ if [[ $CONTINUOUS_INTEGRATION ]]; then
   libboost-system1.6*-dev libboost-filesystem1.6*-dev libboost-program-options1.6*-dev libboost-iostreams1.6*-dev \
   libncurses5-dev ccache
 else
-  sudo apt-get install -y git cmake make gcc g++ clang libmysqlclient-dev \
+  sudo apt-get install -y git gcc g++ \
   libssl-dev libbz2-dev libreadline-dev libncurses-dev \
-  mysql-server libace-6.* libace-dev curl unzip
+  mysql-server libace-6.*
 fi
-  
+

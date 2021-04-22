@@ -47,7 +47,7 @@ include(ConfigureModules)
 include(DynamicLibInstall)
 
 # some utils for cmake
-include(deps/drassil/cmake-utils/utils.cmake)
+include(deps/acore/cmake-utils/utils.cmake)
 
 include(src/cmake/ac_macros.cmake)
 

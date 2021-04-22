@@ -148,7 +148,7 @@ else()
   message("* Enable extra logging functions  : No (default)")
 endif()
 
-if(WIN32 AND NOT CMAKE_VERSION VERSION_LESS 2.8.12)
+if(WIN32)
   if(NOT WITH_SOURCE_TREE STREQUAL "no")
   message("* Show source tree                : Yes - \"${WITH_SOURCE_TREE}\"")
   else()
