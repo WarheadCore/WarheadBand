@@ -24,7 +24,7 @@ set_property(CACHE MODULES PROPERTY STRINGS ${MODULES_AVAILABLE_OPTIONS})
 if(SCRIPTS)
   list(FIND SCRIPTS_AVAILABLE_OPTIONS "${SCRIPTS}" SCRIPTS_INDEX)
   if(${SCRIPTS_INDEX} EQUAL -1)
-    message(FATAL_ERROR "The value (${SCRIPTS}) of your SCRIPTS variable is invalid! "
+    message("The value (${SCRIPTS}) of your SCRIPTS variable is invalid! "
                         "Allowed values are: ${SCRIPTS_AVAILABLE_OPTIONS}. Set static")
   set(${SCRIPTS} "static")
   endif()
@@ -34,7 +34,7 @@ endif()
 if(MODULES)
   list(FIND MODULES_AVAILABLE_OPTIONS "${MODULES}" MODULES_INDEX)
   if(${MODULES_INDEX} EQUAL -1)
-    message(FATAL_ERROR "The value (${MODULES}) of your MODULES variable is invalid! "
+    message("The value (${MODULES}) of your MODULES variable is invalid! "
                         "Allowed values are: ${MODULES_AVAILABLE_OPTIONS}. Set static")
     set(${MODULES} "static")
   endif()
