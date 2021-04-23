@@ -18,6 +18,7 @@
 #define CREATUREAIIMPL_H
 
 #include "Util.h"
+#include "Object.h"
 #include "Map.h"
 #include <functional>
 #include <type_traits>
