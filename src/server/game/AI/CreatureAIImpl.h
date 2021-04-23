@@ -18,10 +18,6 @@
 #define CREATUREAIIMPL_H
 
 #include "Common.h"
-#include "CreatureAI.h"
-#include "Define.h"
-#include "SpellMgr.h"
-#include "TemporarySummon.h"
 #include <functional>
 #include <type_traits>
 
@@ -64,7 +60,15 @@ struct AISpellInfoType
 
 AISpellInfoType* GetAISpellInfo(uint32 i);
 
-bool InstanceHasScript(WorldObject const* obj, char const* scriptName);
+inline bool InstanceHasScript(WorldObject const* obj, char const* scriptName)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+    {
+        return instance->GetScriptName() == scriptName;
+    }
+
+    return false;
+}
 
 template<class AI, class T>
 inline AI* GetInstanceAI(T* obj, char const* scriptName)
