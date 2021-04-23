@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 
 enum Yells
 {

@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 
 enum PrinceSay
 {
