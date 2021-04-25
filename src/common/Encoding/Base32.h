@@ -15,15 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TOTP_H
-#define _TOTP_H
+#ifndef WARHEAD_BASE32_H
+#define WARHEAD_BASE32_H
 
-#include "openssl/hmac.h"
-#include "openssl/evp.h"
+#include "Define.h"
+#include "Optional.h"
+#include <string>
+#include <vector>
 
-namespace TOTP
+namespace Warhead
 {
-    unsigned int GenerateToken(const char* b32key);
+namespace Encoding
+{
+struct WH_COMMON_API Base32
+{
+    static std::string Encode(std::vector<uint8> const& data);
+    static Optional<std::vector<uint8>> Decode(std::string const& data);
+};
+}
 }
 
 #endif

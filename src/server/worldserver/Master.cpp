@@ -35,6 +35,7 @@
 #include "RARunnable.h"
 #include "RealmList.h"
 #include "ScriptMgr.h"
+#include "SecretMgr.h"
 #include "SignalHandler.h"
 #include "ScriptLoader.h"
 #include "Timer.h"
@@ -148,6 +149,7 @@ int Master::Run()
     sConfigMgr->LoadModulesConfigs();
 
     ///- Initialize the World
+    sSecretMgr->Initialize();
     sScriptMgr->SetScriptLoader(AddScripts);
     sWorld->SetInitialWorldSettings();
 
