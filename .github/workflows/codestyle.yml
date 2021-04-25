@@ -1,6 +1,8 @@
 name: check-codestyle
 on:
   push:
+    branches:
+      - 'master'  # only default branch
   pull_request:
 
 jobs:
