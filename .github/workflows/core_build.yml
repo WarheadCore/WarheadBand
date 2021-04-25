@@ -48,9 +48,9 @@ jobs:
         os: [ubuntu-latest]
         compiler: [clang11]
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.compiler }}
+    name: ${{ matrix.compiler }}-no-pch
     env:
-      COMPILER: ${{ matrix.compiler }}-no-pch
+      COMPILER: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v2
       - name: Cache
