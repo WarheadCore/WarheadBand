@@ -278,7 +278,7 @@ WHERE LENGTH(`remaining_key`)=7;
 -- assert that we actually converted everything properly
 SET @mode := @@session.sql_mode;
 SET SESSION sql_mode='STRICT_TRANS_TABLES';
-CREATE TEMPORARY TABLE `_temp_assert_check` (`v` char(1) not null);
+CREATE TEMPORARY TABLE `_temp_assert_check` (`v` char(1));
 INSERT INTO `_temp_assert_check` SELECT CONV(MAX(LENGTH(`remaining_key`)+1),10,2) FROM `_temp_totp_conversion`;
 SET SESSION sql_mode=@mode;
 
@@ -288,7 +288,7 @@ SET SESSION sql_mode=@mode;
 --  can stop skipping the unnecessarily complex stuff) --
 -- =================================================== --
 
-ALTER TABLE `account` ADD COLUMN `totp_secret` VARBINARY(128) DEFAULT NULL AFTER `salt`;
+ALTER TABLE `account` ADD COLUMN `totp_secret` VARBINARY(128) DEFAULT NULL AFTER `session_key`;
 UPDATE `account` a LEFT JOIN `_temp_totp_conversion` c ON a.`token_key`=c.`original_key` SET a.`totp_secret`=c.`totp_secret`;
 ALTER TABLE `account` DROP COLUMN `token_key`;
 
