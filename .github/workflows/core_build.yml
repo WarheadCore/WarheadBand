@@ -2,8 +2,7 @@ name: core-build
 on:
   push:
     branches:
-      - '**'         # matches every branch
-      - '!coverity_scan'   # excludes coverity_scan
+      - 'master'  # only default branch
   pull_request:
 
 jobs:
@@ -15,7 +14,7 @@ jobs:
         os: [ubuntu-latest]
         compiler: [clang, clang11]
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }}-${{ matrix.compiler }}
+    name: ${{ matrix.compiler }}
     env:
       COMPILER: ${{ matrix.compiler }}
     steps:
@@ -40,5 +39,37 @@ jobs:
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run
         run: source ./apps/ci/ci-worldserver-dry-run.sh
-      # - name: Run unit tests
-        # run: source ./apps/ci/ci-run-unit-tests.sh
+
+  no-pch-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        # the result of the matrix will be the combination of all attributes, so we get os*compiler*modules builds
+        os: [ubuntu-latest]
+        compiler: [clang11]
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.compiler }}-no-pch
+    env:
+      COMPILER: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.ccache
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}
+      - name: Configure OS
+        run: source ./acore.sh install-deps
+        env:
+          CONTINUOUS_INTEGRATION: true
+      - name: Create conf/config.sh
+        run: source ./apps/ci/ci-conf-no-pch.sh
+      - name: Import db
+        run: source ./apps/ci/ci-import-db.sh
+      - name: Build
+        run: source ./apps/ci/ci-compile.sh
+      - name: Dry run
+        run: source ./apps/ci/ci-worldserver-dry-run.sh
