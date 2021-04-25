@@ -38,4 +38,4 @@ target_link_libraries(argon2
 set_target_properties(argon2
   PROPERTIES
     FOLDER
-      "dep")
+      "deps")
