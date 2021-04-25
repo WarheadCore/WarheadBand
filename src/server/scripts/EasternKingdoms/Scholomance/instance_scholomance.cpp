@@ -649,7 +649,6 @@ public:
     }
 };
 
-
 void AddSC_instance_scholomance()
 {
     new instance_scholomance();

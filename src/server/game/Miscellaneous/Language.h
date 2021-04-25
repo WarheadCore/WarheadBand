@@ -115,7 +115,7 @@ enum AcoreStrings
     LANG_2FA_NOT_SETUP                  = 93,
     LANG_2FA_REMOVE_NEED_TOKEN          = 94,
     LANG_2FA_REMOVE_COMPLETE            = 95,
-    
+
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
     LANG_GUILD_RENAME_DONE              = 97,
     LANG_RENAME_PLAYER_ALREADY_EXISTS   = 98,

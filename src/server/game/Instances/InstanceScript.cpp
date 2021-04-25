@@ -479,4 +479,3 @@ std::string InstanceScript::GetBossStateName(uint8 state)
             return "INVALID";
     }
 }
-
