@@ -154,7 +154,7 @@ public:
         }
 
         // new suggestion, or no token specified, output TOTP parameters
-        handler->PSendSysMessage(LANG_2FA_SECRET_SUGGESTION, Warhead::Encoding::Base32::Encode(pair.first->second));
+        handler->PSendSysMessage(LANG_2FA_SECRET_SUGGESTION, Warhead::Encoding::Base32::Encode(pair.first->second).c_str());
         handler->SetSentErrorMessage(true);
         return false;
     }
