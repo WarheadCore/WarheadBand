@@ -62,11 +62,11 @@ class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
 private:
     uint32 m_accountId;
-    uint64 m_guid;
+    ObjectGuid m_guid;
 public:
-    LoginQueryHolder(uint32 accountId, uint64 guid)
+    LoginQueryHolder(uint32 accountId, ObjectGuid guid)
         : m_accountId(accountId), m_guid(guid) { }
-    uint64 GetGuid() const { return m_guid; }
+    ObjectGuid GetGuid() const { return m_guid; }
     uint32 GetAccountId() const { return m_accountId; }
     bool Initialize();
 };
@@ -76,7 +76,7 @@ bool LoginQueryHolder::Initialize()
     SetSize(MAX_PLAYER_LOGIN_QUERY);
 
     bool res = true;
-    uint32 lowGuid = GUID_LOPART(m_guid);
+    ObjectGuid::LowType lowGuid = m_guid.GetCounter();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
     stmt->setUInt32(0, lowGuid);
@@ -207,6 +207,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, m_accountId);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_LOCATION);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
+
     return res;
 }
 
@@ -223,13 +227,13 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     {
         do
         {
-            uint32 guidlow = (*result)[0].GetUInt32();
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt32());
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("server", "Loading char guid %u from account %u.", guidlow, GetAccountId());
+            LOG_DEBUG("server", "Loading char %s from account %u.", guid.ToString().c_str(), GetAccountId());
 #endif
             if (Player::BuildEnumData(result, &data))
             {
-                _legitCharacters.insert(guidlow);
+                _legitCharacters.insert(guid);
                 ++num;
             }
         } while (result->NextRow());
@@ -540,7 +544,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                     });
 
                 newChar->GetMotionMaster()->Initialize();
-                if (!newChar->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo.get()))
+                if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo))
                 {
                     // Player not create (race/class/etc problem?)
                     SendCharCreate(CHAR_CREATE_ERROR);
@@ -602,14 +606,14 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recvData >> guid;
 
     // Initiating
     uint32 initAccountId = GetAccountId();
 
     // can't delete loaded character
-    if (ObjectAccessor::FindPlayerInOrOutOfWorld(guid) || sWorld->FindOfflineSessionForCharacterGUID(GUID_LOPART(guid)))
+    if (ObjectAccessor::FindConnectedPlayer(guid) || sWorld->FindOfflineSessionForCharacterGUID(guid.GetCounter()))
     {
         sScriptMgr->OnPlayerFailedDelete(guid, initAccountId);
         SendCharDelete(CHAR_DELETE_FAILED);
@@ -635,7 +639,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (GlobalPlayerData const* playerData = sWorld->GetGlobalPlayerData(GUID_LOPART(guid)))
+    if (GlobalPlayerData const* playerData = sWorld->GetGlobalPlayerData(guid.GetCounter()))
     {
         accountId     = playerData->accountId;
         name          = playerData->name;
@@ -650,9 +654,9 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 
     std::string IP_str = GetRemoteAddress();
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("server", "Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
+    LOG_DEBUG("server", "Account: %d (IP: %s) Delete Character:[%s] (%s)", GetAccountId(), IP_str.c_str(), name.c_str(), guid.ToString().c_str());
 #endif
-    LOG_INFO("entities.player", "Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
+    LOG_INFO("entities.player", "Account: %d (IP: %s) Delete Character:[%s] (%s)", GetAccountId(), IP_str.c_str(), name.c_str(), guid.ToString().c_str());
 
     // To prevent hook failure, place hook before removing reference from DB
     sScriptMgr->OnPlayerDelete(guid, initAccountId); // To prevent race conditioning, but as it also makes sense, we hand the accountId over for successful delete.
@@ -661,15 +665,14 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     if (sLog->ShouldLog("entities.player.dump", LogLevel::LOG_LEVEL_INFO)) // optimize GetPlayerDump call
     {
         std::string dump;
-
-        if (PlayerDumpWriter().GetDump(GUID_LOPART(guid), dump))\
-            LOG_CHAR_DUMP(dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
+        if (PlayerDumpWriter().GetDump(guid.GetCounter(), dump))
+            LOG_CHAR_DUMP(dump.c_str(), GetAccountId(), guid.GetCounter(), name.c_str());
     }
 
     sCalendarMgr->RemoveAllPlayerEventsAndInvites(guid);
-    Player::DeleteFromDB(guid, GetAccountId(), true, false);
+    Player::DeleteFromDB(guid.GetCounter(), GetAccountId(), true, false);
 
-    sWorld->DeleteGlobalPlayerData(GUID_LOPART(guid), name);
+    sWorld->DeleteGlobalPlayerData(guid.GetCounter(), name);
     SendCharDelete(CHAR_DELETE_SUCCESS);
 }
 
@@ -682,18 +685,18 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         return;
     }
 
-    uint64 playerGuid = 0;
+    ObjectGuid playerGuid;
     recvData >> playerGuid;
 
-    if (!IsLegitCharacterForAccount(GUID_LOPART(playerGuid)))
+    if (!playerGuid.IsPlayer() || !IsLegitCharacterForAccount(playerGuid))
     {
-        LOG_ERROR("server", "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(playerGuid));
+        LOG_ERROR("server", "Account (%u) can't login with that character (%s).", GetAccountId(), playerGuid.ToString().c_str());
         KickPlayer("Account can't login with this character");
         return;
     }
 
     // pussywizard:
-    if (WorldSession* sess = sWorld->FindOfflineSessionForCharacterGUID(GUID_LOPART(playerGuid)))
+    if (WorldSession* sess = sWorld->FindOfflineSessionForCharacterGUID(playerGuid.GetCounter()))
         if (sess->GetAccountId() != GetAccountId())
         {
             WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED, 1);
@@ -754,7 +757,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
                     if (!plMover)
                         break;
                     WorldPacket pkt(MSG_MOVE_TELEPORT_ACK, 20);
-                    pkt.append(plMover->GetPackGUID());
+                    pkt << plMover->GetPackGUID();
                     pkt << uint32(0); // flags
                     pkt << uint32(0); // time
                     sess->HandleMoveTeleportAck(pkt);
@@ -795,14 +798,14 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
 {
-    uint64 playerGuid = holder.GetGuid();
+    ObjectGuid playerGuid = holder->GetGuid();
 
     Player* pCurrChar = new Player(this);
     // for send server info and strings (config)
     ChatHandler chH = ChatHandler(this);
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
-    if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder))
+    if (!pCurrChar->LoadFromDB(playerGuid, holder))
     {
         SetPlayer(nullptr);
         KickPlayer("HandlePlayerLoginFromDB");              // disconnect client, player no set to session and it will not deleted or saved at kick
@@ -844,7 +847,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
 #endif
     }
 
-    if (uint32 guildId = Player::GetGuildIdFromStorage(pCurrChar->GetGUIDLow()))
+    if (uint32 guildId = Player::GetGuildIdFromStorage(pCurrChar->GetGUID().GetCounter()))
     {
         Guild* guild = sGuildMgr->GetGuildById(guildId);
         Guild::Member const* member = guild ? guild->GetMember(pCurrChar->GetGUID()) : nullptr;
@@ -856,7 +859,8 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
         }
         else
         {
-            LOG_ERROR("server", "Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.", pCurrChar->GetName().c_str(), pCurrChar->GetGUIDLow(), guildId);
+            LOG_ERROR("server", "Player %s (%s) marked as member of not existing guild (id: %u), removing guild membership for player.",
+                pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), guildId);
             pCurrChar->SetInGuild(0);
             pCurrChar->SetRank(0);
         }
@@ -893,7 +897,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
     }
 
     // Xinef: moved this from below
-    sObjectAccessor->AddObject(pCurrChar);
+    ObjectAccessor::AddObject(pCurrChar);
 
     if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar) || !pCurrChar->CheckInstanceLoginValid())
     {
@@ -904,15 +908,10 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
             pCurrChar->TeleportTo(pCurrChar->m_homebindMapId, pCurrChar->m_homebindX, pCurrChar->m_homebindY, pCurrChar->m_homebindZ, pCurrChar->GetOrientation());
     }
 
-    // pussywizard: optimization
-    std::string charName = pCurrChar->GetName();
-    std::transform(charName.begin(), charName.end(), charName.begin(), ::tolower);
-    sObjectAccessor->playerNameToPlayerPointer[charName] = pCurrChar;
-
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
-    stmt->setUInt32(0, pCurrChar->GetGUIDLow());
+    stmt->setUInt32(0, pCurrChar->GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 
     LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_ONLINE);
@@ -950,10 +949,10 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
         }
 
     // friend status
-    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUIDLow(), true);
+    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUID(), true);
 
     // Place character in world (and load zone) before some object loading
-    pCurrChar->LoadCorpse();
+    pCurrChar->LoadCorpse(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));
 
     // setting Ghost+speed if dead
     if (pCurrChar->m_deathState != ALIVE)
@@ -1048,8 +1047,8 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
         SendNotification(LANG_GM_ON);
 
     std::string IP_str = GetRemoteAddress();
-    LOG_INFO("entities.player", "Account: %d (IP: %s) Login Character:[%s] (GUID: %u) Level: %d",
-                  GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUIDLow(), pCurrChar->getLevel());
+    LOG_INFO("entities.player", "Account: %d (IP: %s) Login Character:[%s] (%s) Level: %d",
+                  GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), pCurrChar->getLevel());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1371,6 +1370,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // and that there is no character with the desired new name
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_FREE_NAME);
 
+    stmt->setUInt32(0, guid.GetCounter());
     stmt->setUInt32(0, GUID_LOPART(renameInfo->Guid));
     stmt->setUInt32(1, GetAccountId());
     stmt->setString(2, renameInfo->Name);
@@ -1389,7 +1389,7 @@ void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo>
 
     Field* fields = result->Fetch();
 
-    uint32 guidLow      = fields[0].GetUInt32();
+    ObjectGuid::LowType guidLow = fields[0].GetUInt32();
     std::string oldName = fields[1].GetString();
     uint16 atLoginFlags = fields[2].GetUInt16();
 
@@ -1401,10 +1401,10 @@ void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo>
 
     atLoginFlags &= ~AT_LOGIN_RENAME;
 
-    uint64 guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(guidLow);
 
     // pussywizard:
-    if (ObjectAccessor::FindPlayerInOrOutOfWorld(guid) || sWorld->FindOfflineSessionForCharacterGUID(guidLow))
+    if (ObjectAccessor::FindConnectedPlayer(guid) || sWorld->FindOfflineSessionForCharacterGUID(guidLow))
     {
         SendCharRename(CHAR_CREATE_ERROR, renameInfo.get());
         return;
@@ -1443,13 +1443,13 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
     if (!sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
         return;
 
-    uint64 guid;
+    ObjectGuid guid;
 
     recvData >> guid;
 
     // not accept declined names for unsupported languages
     std::string name;
-    if (!sObjectMgr->GetPlayerNameByGUID(guid, name))
+    if (!sObjectMgr->GetPlayerNameByGUID(guid.GetCounter(), name))
     {
         SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
         return;
@@ -1501,11 +1501,11 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_DECLINED_NAME);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, guid.GetCounter());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_DECLINED_NAME);
-    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(0, guid.GetCounter());
 
     for (uint8 i = 0; i < 5; i++)
         stmt->setString(i + 1, declinedname.name[i]);
@@ -1625,8 +1625,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
 
     if (!IsLegitCharacterForAccount(guidLow))
     {
-        LOG_ERROR("network.opcode", "Account %u, IP: %s tried to customise character %u, but it does not belong to their account!",
-            GetAccountId(), GetRemoteAddress().c_str(), guidLow);
+        LOG_ERROR("server", "Account %u, IP: %s tried to customise character %s, but it does not belong to their account!",
+                       GetAccountId(), GetRemoteAddress().c_str(), guid.ToString().c_str());
 
         recvData.rfinish();
         KickPlayer("HandleCharCustomize");
@@ -1634,7 +1634,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     }
 
     // pussywizard:
-    if (ObjectAccessor::FindPlayerInOrOutOfWorld(customizeInfo->Guid) || sWorld->FindOfflineSessionForCharacterGUID(guidLow))
+    if (ObjectAccessor::FindConnectedPlayer(guid) || sWorld->FindOfflineSessionForCharacterGUID(guid.GetCounter()))
     {
         recvData.rfinish();
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
@@ -1668,7 +1668,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     }
 
     // get the players old (at this moment current) race
-    GlobalPlayerData const* playerData = sWorld->GetGlobalPlayerData(GUID_LOPART(customizeInfo->Guid));
+    GlobalPlayerData const* playerData = sWorld->GetGlobalPlayerData(guid.GetCounter());
     if (!playerData)
     {
         SendCharCustomize(CHAR_CREATE_ERROR, customizeInfo.get());
@@ -1712,7 +1712,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(customizeInfo->Name))
+    if (ObjectGuid newguid = sObjectMgr->GetPlayerGUIDByName(newName))
     {
         if (newguid != customizeInfo->Guid)
         {
@@ -1723,6 +1723,8 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
 
     CharacterDatabasePreparedStatement* stmt = nullptr;
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    LOG_INFO("entities.player", "Account: %d (IP: %s), Character [%s] (%s) Customized to: %s",
+        GetAccountId(), GetRemoteAddress().c_str(), playerData->name.c_str(), guid.ToString().c_str(), newName.c_str());
 
     uint32 lowGuid = GUID_LOPART(customizeInfo->Guid);
 
@@ -1754,7 +1756,6 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     sWorld->UpdateGlobalPlayerData(lowGuid, PLAYER_UPDATE_DATA_NAME | PLAYER_UPDATE_DATA_GENDER, customizeInfo->Name, 0, customizeInfo->Gender);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
-
     LOG_INFO("entities.player.character", "Account: %d (IP: %s), Character [%s] (%u), Customized to: %s",
         GetAccountId(), GetRemoteAddress().c_str(), playerData->name.c_str(), lowGuid, customizeInfo->Name.c_str());
 }
@@ -1788,18 +1789,18 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        uint64 itemGuid;
-        recvData.readPackGUID(itemGuid);
+        ObjectGuid itemGuid;
+        recvData >> itemGuid.ReadAsPacked();
 
         // xinef: if client sends 0, it means empty slot
-        if (itemGuid == 0)
+        if (!itemGuid)
         {
-            eqSet.Items[i] = 0;
+            eqSet.Items[i].Clear();
             continue;
         }
 
         // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (itemGuid == 1)
+        if (itemGuid.GetRawValue() == 1)
         {
             // ignored slots saved as bit mask because we have no free special values for Items[i]
             eqSet.IgnoreMask |= 1 << i;
@@ -1810,11 +1811,11 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
         Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (!item || item->GetGUID() != itemGuid)
         {
-            eqSet.Items[i] = 0;
+            eqSet.Items[i].Clear();
             continue;
         }
 
-        eqSet.Items[i] = GUID_LOPART(itemGuid);
+        eqSet.Items[i] = itemGuid;
     }
 
     _player->SetEquipmentSet(index, eqSet);
@@ -1840,18 +1841,18 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        uint64 itemGuid;
-        recvData.readPackGUID(itemGuid);
+        ObjectGuid itemGuid;
+        recvData >> itemGuid.ReadAsPacked();
 
         uint8 srcbag, srcslot;
         recvData >> srcbag >> srcslot;
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        LOG_DEBUG("entities.player.items", "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
+        LOG_DEBUG("entities.player.items", "Item %s: srcbag %u, srcslot %u", itemGuid.ToString().c_str(), srcbag, srcslot);
 #endif
 
         // check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
-        if (itemGuid == 1)
+        if (itemGuid.GetRawValue() == 1)
             continue;
 
         // Only equip weapons in combat
@@ -1859,7 +1860,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             continue;
 
         Item* item = nullptr;
-        if (itemGuid > 0)
+        if (itemGuid)
             item = _player->GetItemByGuid(itemGuid);
 
         uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
@@ -1930,8 +1931,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     if (!IsLegitCharacterForAccount(lowGuid))
     {
-        LOG_ERROR("network.opcode", "Account %u, IP: %s tried to factionchange character %u, but it does not belong to their account!",
-            GetAccountId(), GetRemoteAddress().c_str(), lowGuid);
+        LOG_ERROR("server", "Account %u, IP: %s tried to factionchange character %s, but it does not belong to their account!",
+                       GetAccountId(), GetRemoteAddress().c_str(), guid.ToString().c_str());
 
         recvData.rfinish();
         KickPlayer("HandleCharFactionOrRaceChange");
@@ -1948,7 +1949,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         >> factionChangeInfo->Race;
 
     // pussywizard:
-    if (ObjectAccessor::FindPlayerInOrOutOfWorld(factionChangeInfo->Guid) || sWorld->FindOfflineSessionForCharacterGUID(lowGuid))
+    if (ObjectAccessor::FindConnectedPlayer(guid) || sWorld->FindOfflineSessionForCharacterGUID(guid.GetCounter()))
     {
         SendCharFactionChange(CHAR_CREATE_ERROR, factionChangeInfo.get());
         return;
@@ -2025,7 +2026,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
 
             for (auto const& [auID, Aentry] : auctionHouse->GetAuctions())
             {
-                if (Aentry && (Aentry->owner == lowGuid || Aentry->bidder == lowGuid))
+                if (Aentry && (Aentry->owner == guid || Aentry->bidder == guid))
                 {
                     has_auctions = true;
                     break;
@@ -2117,7 +2118,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(factionChangeInfo->Name))
+    if (ObjectGuid newguid = sObjectMgr->GetPlayerGUIDByName(newname))
     {
         if (newguid != factionChangeInfo->Guid)
         {
@@ -2263,7 +2264,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
             {
                 if (uint32 guildId = playerData->guildId)
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                        guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER), false, false, true);
+                        guild->DeleteMember(guid, false, false, true);
             }
 
             if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
@@ -2345,7 +2346,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
 
             // Delete all current quests
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
-            stmt->setUInt32(0, lowGuid);
+            stmt->setUInt32(0, guid.GetCounter());
             trans->Append(stmt);
 
             // Quest conversion

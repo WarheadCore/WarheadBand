@@ -222,7 +222,7 @@ public:
         InstanceScript* pInstance;
         EventMap events;
         SummonList summons;
-        uint64 Helpers[8]{ };
+        ObjectGuid Helpers[8];
         bool berserk{ false };
         bool bAchievCheese{ true };
         bool bAchievGettingCold{ true };
@@ -485,7 +485,7 @@ public:
 
         Creature* GetHelper(uint8 index)
         {
-            return (Helpers[index] ? ObjectAccessor::GetCreature(*me, Helpers[index]) : nullptr);
+            return Helpers[index] ? ObjectAccessor::GetCreature(*me, Helpers[index]) : nullptr;
         }
 
         void SpawnHelpers()
@@ -660,7 +660,7 @@ public:
         {
             if (pInstance && doneBy)
                 if (pInstance->GetData(TYPE_HODIR) == NOT_STARTED)
-                    if (Creature* hodir = ObjectAccessor::GetCreature(*me, pInstance->GetData64(TYPE_HODIR)))
+                    if (Creature* hodir = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(TYPE_HODIR)))
                         hodir->AI()->AttackStart(doneBy);
         }
 
@@ -718,7 +718,7 @@ public:
             {
                 if( GameObject* fire = me->FindNearestGameObject(194300, 1.0f) )
                 {
-                    fire->SetOwnerGUID(0);
+                    fire->SetOwnerGUID(ObjectGuid::Empty);
                     fire->Delete();
                 }
                 me->DespawnOrUnsummon(); // this will remove DynObjects
@@ -796,7 +796,7 @@ public:
                     {
                         if( !me->HasAura(SPELL_FLASH_FREEZE_TRAPPED_NPC) )
                             if( pInstance )
-                                if( uint64 g = pInstance->GetData64(TYPE_HODIR) )
+                                if( ObjectGuid g = pInstance->GetGuidData(TYPE_HODIR) )
                                     if( Creature* hodir = ObjectAccessor::GetCreature(*me, g) )
                                     {
                                         AttackStart(hodir);
@@ -829,7 +829,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (pInstance)
-                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetData64(TYPE_HODIR)))
+                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR)))
                     hodir->AI()->SetData(4, 1);
         }
     };
@@ -892,7 +892,7 @@ public:
                     {
                         if( !me->HasAura(SPELL_FLASH_FREEZE_TRAPPED_NPC) )
                             if( pInstance )
-                                if( uint64 g = pInstance->GetData64(TYPE_HODIR) )
+                                if( ObjectGuid g = pInstance->GetGuidData(TYPE_HODIR) )
                                     if( Creature* hodir = ObjectAccessor::GetCreature(*me, g) )
                                     {
                                         AttackStart(hodir);
@@ -926,7 +926,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (pInstance)
-                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetData64(TYPE_HODIR)))
+                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR)))
                     hodir->AI()->SetData(4, 1);
         }
     };
@@ -996,7 +996,7 @@ public:
                     {
                         if( !me->HasAura(SPELL_FLASH_FREEZE_TRAPPED_NPC) )
                             if( pInstance )
-                                if( uint64 g = pInstance->GetData64(TYPE_HODIR) )
+                                if( ObjectGuid g = pInstance->GetGuidData(TYPE_HODIR) )
                                     if( Creature* hodir = ObjectAccessor::GetCreature(*me, g) )
                                     {
                                         AttackStart(hodir);
@@ -1026,7 +1026,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (pInstance)
-                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetData64(TYPE_HODIR)))
+                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR)))
                     hodir->AI()->SetData(4, 1);
         }
     };
@@ -1090,7 +1090,7 @@ public:
                     {
                         if( !me->HasAura(SPELL_FLASH_FREEZE_TRAPPED_NPC) )
                             if( pInstance )
-                                if( uint64 g = pInstance->GetData64(TYPE_HODIR) )
+                                if( ObjectGuid g = pInstance->GetGuidData(TYPE_HODIR) )
                                     if( Creature* hodir = ObjectAccessor::GetCreature(*me, g) )
                                     {
                                         AttackStart(hodir);
@@ -1141,7 +1141,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (pInstance)
-                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetData64(TYPE_HODIR)))
+                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR)))
                     hodir->AI()->SetData(4, 1);
         }
     };
@@ -1249,7 +1249,7 @@ public:
                     {
                         if (GetStackAmount() == 2) // increasing from 2 to 3 (not checking >= to improve performance)
                             if (InstanceScript* pInstance = target->GetInstanceScript())
-                                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetData64(TYPE_HODIR)))
+                                if (Creature* hodir = pInstance->instance->GetCreature(pInstance->GetGuidData(TYPE_HODIR)))
                                     hodir->AI()->SetData(2, 1);
                         ModStackAmount(1);
                         counter = 0;

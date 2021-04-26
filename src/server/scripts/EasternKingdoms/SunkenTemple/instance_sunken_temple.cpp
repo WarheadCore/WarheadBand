@@ -38,9 +38,6 @@ public:
             _statuePhase = 0;
             _defendersKilled = 0;
             memset(&_encounters, 0, sizeof(_encounters));
-
-            _forcefieldGUID = 0;
-            _jammalanGUID = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -52,7 +49,7 @@ public:
                     break;
             }
 
-            if (creature->IsAlive() && creature->GetDBTableGUIDLow() && creature->GetCreatureType() == CREATURE_TYPE_DRAGONKIN && creature->GetEntry() != NPC_SHADE_OF_ERANIKUS)
+            if (creature->IsAlive() && creature->GetSpawnId() && creature->GetCreatureType() == CREATURE_TYPE_DRAGONKIN && creature->GetEntry() != NPC_SHADE_OF_ERANIKUS)
                 _dragonkinList.push_back(creature->GetGUID());
         }
 
@@ -112,9 +109,9 @@ public:
                     }
                     break;
                 case DATA_ERANIKUS_FIGHT:
-                    for (std::list<uint64>::const_iterator itr = _dragonkinList.begin(); itr != _dragonkinList.end(); ++itr)
+                    for (ObjectGuid const guid : _dragonkinList)
                     {
-                        if (Creature* creature = instance->GetCreature(*itr))
+                        if (Creature* creature = instance->GetCreature(guid))
                             if (instance->IsGridLoaded(creature->GetPositionX(), creature->GetPositionY()))
                                 creature->SetInCombatWithZone();
                     }
@@ -193,9 +190,9 @@ public:
         uint32 _defendersKilled;
         uint32 _encounters[MAX_ENCOUNTERS];
 
-        uint64 _forcefieldGUID;
-        uint64 _jammalanGUID;
-        std::list<uint64> _dragonkinList;
+        ObjectGuid _forcefieldGUID;
+        ObjectGuid _jammalanGUID;
+        GuidList _dragonkinList;
         EventMap _events;
     };
 

@@ -22,7 +22,7 @@ namespace lfg
 {
 
     LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE), m_canOverrideRBState(false),
-        m_TeamId(TEAM_ALLIANCE), m_Group(0), m_Roles(0), m_Comment("")
+        m_TeamId(TEAM_ALLIANCE), m_Roles(0), m_Comment("")
     {}
 
     LfgPlayerData::~LfgPlayerData()
@@ -73,7 +73,7 @@ namespace lfg
         m_TeamId = teamId;
     }
 
-    void LfgPlayerData::SetGroup(uint64 group)
+    void LfgPlayerData::SetGroup(ObjectGuid group)
     {
         m_Group = group;
     }
@@ -123,7 +123,7 @@ namespace lfg
         return m_TeamId;
     }
 
-    uint64 LfgPlayerData::GetGroup() const
+    ObjectGuid LfgPlayerData::GetGroup() const
     {
         return m_Group;
     }

@@ -19,6 +19,7 @@
 #define __UPDATEDATA_H
 
 #include "ByteBuffer.h"
+#include "ObjectGuid.h"
 
 class WorldPacket;
 
@@ -52,7 +53,7 @@ class WH_GAME_API UpdateData
 public:
     UpdateData();
 
-    void AddOutOfRangeGUID(uint64 guid);
+    void AddOutOfRangeGUID(ObjectGuid guid);
     void AddUpdateBlock(const ByteBuffer& block);
     void AddUpdateBlock(const UpdateData& block);
     bool BuildPacket(WorldPacket* packet);
@@ -61,7 +62,7 @@ public:
 
 protected:
     uint32 m_blockCount;
-    std::vector<uint64> m_outOfRangeGUIDs;
+    GuidVector m_outOfRangeGUIDs;
     ByteBuffer m_data;
 
     void Compress(void* dst, uint32* dst_size, void* src, int src_size);

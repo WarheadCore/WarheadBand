@@ -327,7 +327,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void EnterEvadeMode() override
     {
-        if (Creature* delrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_DELRISSA)))
+        if (Creature* delrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_DELRISSA)))
             if (!delrissa->IsAlive())
             {
                 delrissa->Respawn();
@@ -338,7 +338,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void EnterCombat(Unit* who) override
     {
-        if (Creature* delrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_DELRISSA)))
+        if (Creature* delrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_DELRISSA)))
             if (delrissa->IsAlive() && !delrissa->IsInCombat())
                 delrissa->AI()->AttackStart(who);
 
@@ -357,7 +357,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void KilledUnit(Unit* victim) override
     {
-        if (Creature* delrissa = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_DELRISSA)))
+        if (Creature* delrissa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_DELRISSA)))
             delrissa->AI()->KilledUnit(victim);
     }
 

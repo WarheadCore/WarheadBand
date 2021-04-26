@@ -39,7 +39,7 @@ public:
     static int Permissible(Creature const* creature);
 
 private:
-    uint64 i_victimGuid;
+    ObjectGuid i_victimGuid;
 };
 
 class WH_GAME_API KillMagnetEvent : public BasicEvent

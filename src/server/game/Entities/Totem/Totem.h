@@ -37,7 +37,7 @@ constexpr uint32 SPELL_CYCLONE = 33786;
 class WH_GAME_API Totem : public Minion
 {
 public:
-    explicit Totem(SummonPropertiesEntry const* properties, uint64 owner);
+    explicit Totem(SummonPropertiesEntry const* properties, ObjectGuid owner);
     ~Totem() override {};
     void Update(uint32 time) override;
     void InitStats(uint32 duration) override;

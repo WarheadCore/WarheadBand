@@ -23,6 +23,8 @@
 #include "Map.h"
 #include "MapUpdater.h"
 #include "Object.h"
+#include "MapInstanced.h"
+
 #include <mutex>
 
 class Transport;
@@ -131,6 +133,12 @@ public:
 
     MapUpdater* GetMapUpdater() { return &m_updater; }
 
+    template<typename Worker>
+    void DoForAllMaps(Worker&& worker);
+
+    template<typename Worker>
+    void DoForAllMapsWithMapId(uint32 mapId, Worker&& worker);
+
     uint32 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }
     uint32 DecreaseScheduledScriptCount() { return --_scheduledScripts; }
     uint32 DecreaseScheduledScriptCount(size_t count) { return _scheduledScripts -= count; }
@@ -158,6 +166,45 @@ private:
     // atomic op counter for active scripts amount
     std::atomic<uint32> _scheduledScripts;
 };
+
+template<typename Worker>
+void MapManager::DoForAllMaps(Worker&& worker)
+{
+    std::lock_guard<std::mutex> guard(Lock);
+
+    for (auto& mapPair : i_maps)
+    {
+        Map* map = mapPair.second;
+        if (MapInstanced* mapInstanced = map->ToMapInstanced())
+        {
+            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
+            for (auto& instancePair : instances)
+                worker(instancePair.second);
+        }
+        else
+            worker(map);
+    }
+}
+
+template<typename Worker>
+inline void MapManager::DoForAllMapsWithMapId(uint32 mapId, Worker&& worker)
+{
+    std::lock_guard<std::mutex> guard(Lock);
+
+    auto itr = i_maps.find(mapId);
+    if (itr != i_maps.end())
+    {
+        Map* map = itr->second;
+        if (MapInstanced* mapInstanced = map->ToMapInstanced())
+        {
+            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
+            for (auto& p : instances)
+                worker(p.second);
+        }
+        else
+            worker(map);
+    }
+}
 
 #define sMapMgr MapManager::instance()
 

@@ -64,6 +64,7 @@ public:
 class WH_GAME_API ObjectGridUnloader
 {
 public:
+    void Visit(CorpseMapType&) { }    // corpses are deleted with Map
     template<class T> void Visit(GridRefManager<T>& m);
 };
 #endif

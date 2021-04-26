@@ -146,14 +146,14 @@ public:
         uint32 uiTimer;
         uint32 uiPhase;
 
-        uint64 MarzonGUID;
+        ObjectGuid MarzonGUID;
 
         void Reset() override
         {
             uiTimer = 0;
             uiPhase = 0;
 
-            MarzonGUID = 0;
+            MarzonGUID.Clear();
         }
 
         void EnterEvadeMode() override

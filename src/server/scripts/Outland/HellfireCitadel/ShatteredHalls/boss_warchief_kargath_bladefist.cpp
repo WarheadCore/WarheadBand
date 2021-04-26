@@ -69,7 +69,7 @@ public:
         {
             BossAI::InitializeAI();
             if (instance)
-                if (Creature* executioner = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXECUTIONER)))
+                if (Creature* executioner = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXECUTIONER)))
                     executioner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
@@ -79,7 +79,7 @@ public:
             _JustDied();
 
             if (instance)
-                if (Creature* executioner = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_EXECUTIONER)))
+                if (Creature* executioner = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EXECUTIONER)))
                     executioner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 

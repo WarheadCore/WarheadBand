@@ -133,7 +133,7 @@ public:
             if (pInstance)
             {
                 pInstance->SetData(DATA_DALRONN_AND_SKARVALD, IN_PROGRESS);
-                if (Creature* dalronn = pInstance->instance->GetCreature(pInstance->GetData64(DATA_DALRONN)))
+                if (Creature* dalronn = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_DALRONN)))
                 {
                     if (!dalronn->IsInCombat() && who)
                     {
@@ -159,7 +159,7 @@ public:
 
             if (pInstance)
             {
-                if (Creature* dalronn = pInstance->instance->GetCreature(pInstance->GetData64(DATA_DALRONN)))
+                if (Creature* dalronn = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_DALRONN)))
                 {
                     if (dalronn->isDead())
                     {
@@ -301,7 +301,7 @@ public:
             if (pInstance)
             {
                 pInstance->SetData(DATA_DALRONN_AND_SKARVALD, IN_PROGRESS);
-                if (Creature* skarvald = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SKARVALD)))
+                if (Creature* skarvald = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_SKARVALD)))
                 {
                     if (!skarvald->IsInCombat() && who)
                     {
@@ -333,7 +333,7 @@ public:
 
             if (pInstance)
             {
-                if (Creature* skarvald = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SKARVALD)))
+                if (Creature* skarvald = pInstance->instance->GetCreature(pInstance->GetGuidData(DATA_SKARVALD)))
                 {
                     if (skarvald->isDead())
                     {

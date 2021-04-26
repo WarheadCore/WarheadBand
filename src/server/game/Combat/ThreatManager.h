@@ -95,7 +95,7 @@ public:
 
     //=================================================
 
-    [[nodiscard]] uint64 getUnitGuid() const { return iUnitGuid; }
+    [[nodiscard]] ObjectGuid getUnitGuid() const { return iUnitGuid; }
 
     //=================================================
     // reference is not needed anymore. realy delete it !
@@ -124,7 +124,7 @@ private:
 private:
     float iThreat;
     float iTempThreatModifier;                          // used for taunt
-    uint64 iUnitGuid;
+    ObjectGuid iUnitGuid;
     bool iOnline;
 };
 

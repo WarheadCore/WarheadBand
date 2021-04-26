@@ -16,6 +16,7 @@
  */
 
 #include "Language.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPHP.h"
@@ -73,6 +74,8 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     // add the zones affected by the pvp buff
     for (int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPHPBuffZones[i]);
+
+    SetMapFromZone(OutdoorPvPHPBuffZones[0]);
 
     AddCapturePoint(new OPvPCapturePointHP(this, HP_TOWER_BROKEN_HILL));
 
@@ -252,16 +255,14 @@ void OPvPCapturePointHP::ChangeState()
             break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
-    GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
-    if (flag)
-    {
-        flag->SetGoArtKit(artkit);
-    }
-    if (flag2)
-    {
-        flag2->SetGoArtKit(artkit2);
-    }
+    Map* map = sMapMgr->FindMap(530, 0);
+    auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        itr->second->SetGoArtKit(artkit);
+
+    bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_Objects[m_TowerType]);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        itr->second->SetGoArtKit(artkit2);
 
     // send world state update
     if (field)
@@ -269,7 +270,7 @@ void OPvPCapturePointHP::ChangeState()
 
     // complete quest objective
     if (m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
-        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], 0);
+        SendObjectiveComplete(HP_CREDITMARKER[m_TowerType]);
 }
 
 void OPvPCapturePointHP::SendChangePhase()

@@ -28,7 +28,7 @@ class CreatureGroup;
 
 struct FormationInfo
 {
-    uint32 leaderGUID;
+    ObjectGuid::LowType leaderGUID;
     float follow_dist;
     float follow_angle;
     uint8 groupAI;
@@ -36,7 +36,7 @@ struct FormationInfo
     uint32 point_2;
 };
 
-typedef std::unordered_map<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
+typedef std::unordered_map<ObjectGuid::LowType/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
 class WH_GAME_API FormationMgr
 {

@@ -181,11 +181,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                             case INSTANCE_INFO_DATA:
                                 condMeets = instance->GetData(ConditionValue1) == ConditionValue2;
                                 break;
-                            case INSTANCE_INFO_DATA64:
-                                condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
+                            case INSTANCE_INFO_GUID_DATA:
+                                condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
                                 break;
                             case INSTANCE_INFO_BOSS_STATE:
                                 condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
+                                break;
+                            case INSTANCE_INFO_DATA64:
+                                condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
                                 break;
                         }
                     }
@@ -241,10 +244,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                         switch (object->GetTypeId())
                         {
                             case TYPEID_UNIT:
-                                condMeets &= object->ToCreature()->GetDBTableGUIDLow() == ConditionValue3;
+                                condMeets &= object->ToCreature()->GetSpawnId() == ConditionValue3;
                                 break;
                             case TYPEID_GAMEOBJECT:
-                                condMeets &= object->ToGameObject()->GetDBTableGUIDLow() == ConditionValue3;
+                                condMeets &= object->ToGameObject()->GetSpawnId() == ConditionValue3;
                                 break;
                             default:
                                 break;

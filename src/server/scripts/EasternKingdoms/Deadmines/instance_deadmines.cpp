@@ -45,7 +45,7 @@ public:
                     break;
                 case GO_IRON_CLAD_DOOR:
                     if (_encounters[TYPE_CANNON] == DONE)
-                        HandleGameObject(0, true, gameobject);
+                        HandleGameObject(ObjectGuid::Empty, true, gameobject);
                     break;
             }
         }

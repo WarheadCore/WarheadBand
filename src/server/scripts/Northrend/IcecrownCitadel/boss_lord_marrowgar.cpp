@@ -111,7 +111,7 @@ public:
 
         bool _introDone;
         bool _boneSlice;
-        uint64 _lastBoneSliceTargets[3];
+        ObjectGuid _lastBoneSliceTargets[3];
 
         void Reset() override
         {
@@ -124,7 +124,9 @@ public:
             events.ScheduleEvent(EVENT_ENRAGE, 600000);
 
             _boneSlice = false;
-            memset(_lastBoneSliceTargets, 0, 3 * sizeof(uint64));
+
+            for (uint8 i = 0; i < 3; ++i)
+                _lastBoneSliceTargets[i].Clear();
 
             instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(true));
         }
@@ -148,12 +150,12 @@ public:
                     }
         }
 
-        uint64 GetGUID(int32 id) const override
+        ObjectGuid GetGUID(int32 id) const override
         {
             if (id >= 0 && id <= 2)
                 return _lastBoneSliceTargets[id];
 
-            return (uint64)0;
+            return ObjectGuid::Empty;
         }
 
         void UpdateAI(uint32 diff) override
@@ -256,7 +258,10 @@ public:
                 DoCastVictim(SPELL_BONE_SLICE);
 
             if (_boneSlice && me->isAttackReady() && me->GetVictim() && !me->HasUnitState(UNIT_STATE_CASTING) && me->IsWithinMeleeRange(me->GetVictim()))
-                memset(_lastBoneSliceTargets, 0, 3 * sizeof(uint64));
+            {
+                for (uint8 i = 0; i < 3; ++i)
+                    _lastBoneSliceTargets[i].Clear();
+            }
 
             DoMeleeAttackIfReady();
         }
@@ -419,8 +424,8 @@ public:
                     if (u->GetEntry() == NPC_BONE_SPIKE && u->GetTypeId() == TYPEID_UNIT)
                         u->ToCreature()->AI()->DoAction(-1337);
 
-            uint64 petGUID = summoner->GetPetGUID();
-            summoner->SetPetGUID(0);
+            ObjectGuid petGUID = summoner->GetPetGUID();
+            summoner->SetPetGUID(ObjectGuid::Empty);
             me->CastSpell(summoner, SPELL_IMPALED, true);
             summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
             //summoner->ClearUnitState(UNIT_STATE_ONVEHICLE);

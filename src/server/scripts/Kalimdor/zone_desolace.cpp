@@ -89,19 +89,17 @@ public:
     {
         npc_cork_gizeltonAI(Creature* creature) : npc_escortAI(creature)
         {
-            memset(&summons, 0, sizeof(summons));
         }
 
         EventMap events;
-        uint64 summons[MAX_CARAVAN_SUMMONS];
+        ObjectGuid summons[MAX_CARAVAN_SUMMONS];
         bool headNorth;
 
-        uint64 _playerGUID;
+        ObjectGuid _playerGUID;
         uint32 _faction;
 
         void Initialize()
         {
-            _playerGUID = 0;
             _faction = 35;
             headNorth = true;
             me->setActive(true);
@@ -140,12 +138,12 @@ public:
                     if (me->IsWithinDist(player, 60.0f))
                         return;
 
-            _playerGUID = 0;
+            _playerGUID.Clear();
             _faction = 35;
             ImmuneFlagSet(false, _faction);
         }
 
-        void SetGUID(uint64 playerGUID, int32 faction) override
+        void SetGUID(ObjectGuid playerGUID, int32 faction) override
         {
             _playerGUID = playerGUID;
             _faction = faction;
@@ -166,7 +164,7 @@ public:
         {
             for (uint8 i = 0; i < MAX_CARAVAN_SUMMONS; ++i)
             {
-                if (summons[i] == 0)
+                if (!summons[i])
                 {
                     SummonHelpers();
                     return false;
@@ -189,7 +187,7 @@ public:
                 if (Creature* summon = ObjectAccessor::GetCreature(*me, summons[i]))
                     summon->DespawnOrUnsummon();
 
-                summons[i] = 0;
+                summons[i].Clear();
             }
         }
 
@@ -215,21 +213,21 @@ public:
         void SummonedCreatureDies(Creature* creature, Unit*) override
         {
             if (creature->GetGUID() == summons[0])
-                summons[0] = 0;
+                summons[0].Clear();
             else if (creature->GetGUID() == summons[1])
-                summons[1] = 0;
+                summons[1].Clear();
             else if (creature->GetGUID() == summons[2])
-                summons[2] = 0;
+                summons[2].Clear();
         }
 
         void SummonedCreatureDespawn(Creature* creature) override
         {
             if (creature->GetGUID() == summons[0])
-                summons[0] = 0;
+                summons[0].Clear();
             else if (creature->GetGUID() == summons[1])
-                summons[1] = 0;
+                summons[1].Clear();
             else if (creature->GetGUID() == summons[2])
-                summons[2] = 0;
+                summons[2].Clear();
         }
 
         void SummonsFollow()
@@ -315,7 +313,7 @@ public:
                         else
                             player->FailQuest(QUEST_BODYGUARD_FOR_HIRE);
                     }
-                    _playerGUID = 0;
+                    _playerGUID.Clear();
                     CheckPlayer();
                     break;
                 // South -> North - complete
@@ -327,7 +325,7 @@ public:
                         else
                             player->FailQuest(QUEST_GIZELTON_CARAVAN);
                     }
-                    _playerGUID = 0;
+                    _playerGUID.Clear();
                     CheckPlayer();
                     break;
                 // North -> South - spawn attackers
@@ -409,7 +407,7 @@ public:
                 case EVENT_RESTART_ESCORT:
                     CheckCaravan();
                     SetDespawnAtEnd(false);
-                    Start(true, true, 0, 0, false, false, true);
+                    Start(true, true, ObjectGuid::Empty, 0, false, false, true);
                     break;
             }
 
@@ -494,7 +492,7 @@ public:
     {
         if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
         {
-            player->TalkedToCreature(creature->GetEntry(), 0);
+            player->TalkedToCreature(creature->GetEntry(), ObjectGuid::Empty);
             player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
         }
 

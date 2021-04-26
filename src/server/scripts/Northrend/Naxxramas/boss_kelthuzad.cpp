@@ -223,12 +223,12 @@ public:
             summons.DespawnAll();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
             me->SetReactState(REACT_AGGRESSIVE);
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_FLOOR)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_FLOOR)))
             {
                 go->SetPhaseMask(1, true);
                 go->SetGoState(GO_STATE_READY);
             }
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_GATE)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_GATE)))
             {
                 if(!_justSpawned) // Don't open the door if we just spawned and are still doing the conversation
                 {
@@ -236,19 +236,19 @@ public:
                 }
             }
             _justSpawned = false;
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_1)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_1)))
             {
                 go->SetGoState(GO_STATE_READY);
             }
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_2)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_2)))
             {
                 go->SetGoState(GO_STATE_READY);
             }
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_3)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_3)))
             {
                 go->SetGoState(GO_STATE_READY);
             }
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_4)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_4)))
             {
                 go->SetGoState(GO_STATE_READY);
             }
@@ -283,7 +283,7 @@ public:
             Talk(SAY_DEATH);
             if (pInstance)
             {
-                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_GATE)))
+                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_GATE)))
                 {
                     go->SetGoState(GO_STATE_ACTIVE);
                 }
@@ -302,7 +302,7 @@ public:
             Talk(SAY_SUMMON_MINIONS);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
             me->RemoveAllAttackers();
-            me->SetTarget(0);
+            me->SetTarget();
             me->SetReactState(REACT_PASSIVE);
             me->CastSpell(me, SPELL_KELTHUZAD_CHANNEL, false);
             events.ScheduleEvent(EVENT_SPAWN_POOL, 5000);
@@ -313,13 +313,13 @@ public:
             events.ScheduleEvent(EVENT_ENRAGE, 900000);
             if (pInstance)
             {
-                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_FLOOR)))
+                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_FLOOR)))
                 {
                     events.ScheduleEvent(EVENT_FLOOR_CHANGE, 15000);
                     go->SetGoState(GO_STATE_ACTIVE);
                 }
             }
-            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_GATE)))
+            if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_GATE)))
             {
                 go->SetGoState(GO_STATE_READY);
             }
@@ -355,7 +355,7 @@ public:
                 case EVENT_FLOOR_CHANGE:
                     if (pInstance)
                     {
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_FLOOR)))
+                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_FLOOR)))
                         {
                             events.ScheduleEvent(EVENT_FLOOR_CHANGE, 15000);
                             go->SetGoState(GO_STATE_READY);
@@ -464,19 +464,19 @@ public:
                         Talk(SAY_REQUEST_AID);
                         events.DelayEvents(5500);
                         events.ScheduleEvent(EVENT_P3_LICH_KING_SAY, 5000);
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_1)))
+                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_1)))
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
                         }
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_2)))
+                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_2)))
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
                         }
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_3)))
+                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_3)))
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
                         }
-                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_PORTAL_4)))
+                        if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_KELTHUZAD_PORTAL_4)))
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -487,7 +487,7 @@ public:
                 case EVENT_P3_LICH_KING_SAY:
                     if (pInstance)
                     {
-                        if (Creature* cr = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_LICH_KING_BOSS)))
+                        if (Creature* cr = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_LICH_KING_BOSS)))
                         {
                             cr->AI()->Talk(SAY_ANSWER_REQUEST);
                         }

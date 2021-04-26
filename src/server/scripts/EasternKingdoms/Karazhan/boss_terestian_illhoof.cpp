@@ -81,13 +81,13 @@ public:
 
         InstanceScript* instance;
 
-        uint64 TerestianGUID;
+        ObjectGuid TerestianGUID;
 
         uint32 AmplifyTimer;
 
         void Reset() override
         {
-            TerestianGUID = 0;
+            TerestianGUID.Clear();
             AmplifyTimer = 2000;
         }
 
@@ -97,7 +97,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
+            ObjectGuid TerestianGUID = instance->GetGuidData(DATA_TERESTIAN);
             if (TerestianGUID)
             {
                 Unit* Terestian = ObjectAccessor::GetUnit(*me, TerestianGUID);
@@ -141,11 +141,11 @@ public:
     {
         npc_demon_chainAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 SacrificeGUID;
+        ObjectGuid SacrificeGUID;
 
         void Reset() override
         {
-            SacrificeGUID = 0;
+            SacrificeGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -254,14 +254,12 @@ public:
     {
         boss_terestianAI(Creature* creature) : ScriptedAI(creature)
         {
-            for (uint8 i = 0; i < 2; ++i)
-                PortalGUID[i] = 0;
             instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
 
-        uint64 PortalGUID[2];
+        ObjectGuid PortalGUID[2];
         uint8 PortalsCount;
 
         uint32 SacrificeTimer;
@@ -285,7 +283,7 @@ public:
                         pPortal->DespawnOrUnsummon();
                     }
 
-                    PortalGUID[i] = 0;
+                    PortalGUID[i].Clear();
                 }
             }
 
@@ -350,7 +348,7 @@ public:
                     if (Creature* pPortal = ObjectAccessor::GetCreature((*me), PortalGUID[i]))
                         pPortal->DespawnOrUnsummon();
 
-                    PortalGUID[i] = 0;
+                    PortalGUID[i].Clear();
                 }
             }
 

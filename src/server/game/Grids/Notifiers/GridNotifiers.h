@@ -39,7 +39,7 @@ namespace Warhead
     struct VisibleNotifier
     {
         Player& i_player;
-        Player::ClientGUIDs vis_guids;
+        GuidUnorderedSet vis_guids;
         std::vector<Unit*>& i_visibleNow;
         bool i_gobjOnly;
         bool i_largeOnly;
@@ -729,18 +729,6 @@ namespace Warhead
         NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&);
     };
 
-    class GameObjectWithDbGUIDCheck
-    {
-    public:
-        GameObjectWithDbGUIDCheck(uint32 db_guid) : i_db_guid(db_guid) {}
-        bool operator()(GameObject const* go) const
-        {
-            return go->GetDBTableGUIDLow() == i_db_guid;
-        }
-    private:
-        uint32 i_db_guid;
-    };
-
     // Unit checks
 
     class MostHPMissingInRange
@@ -868,18 +856,6 @@ namespace Warhead
     private:
         Unit const* i_funit;
         float i_range;
-    };
-
-    class CreatureWithDbGUIDCheck
-    {
-    public:
-        CreatureWithDbGUIDCheck(uint32 lowguid) : i_lowguid(lowguid) {}
-        bool operator()(Creature* u)
-        {
-            return u->GetDBTableGUIDLow() == i_lowguid;
-        }
-    private:
-        uint32 i_lowguid;
     };
 
     class AnyFriendlyUnitInObjectRangeCheck
@@ -1413,21 +1389,21 @@ namespace Warhead
     class ObjectGUIDCheck
     {
     public:
-        ObjectGUIDCheck(uint64 GUID, bool equals) : _GUID(GUID), _equals(equals) {}
+        ObjectGUIDCheck(ObjectGuid GUID, bool equals) : _GUID(GUID), _equals(equals) {}
         bool operator()(WorldObject const* object)
         {
             return (object->GetGUID() == _GUID) == _equals;
         }
 
     private:
-        uint64 _GUID;
+        ObjectGuid _GUID;
         bool _equals;
     };
 
     class UnitAuraCheck
     {
     public:
-        UnitAuraCheck(bool present, uint32 spellId, uint64 casterGUID = 0) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
+        UnitAuraCheck(bool present, uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
         bool operator()(Unit const* unit) const
         {
             return unit->HasAura(_spellId, _casterGUID) == _present;
@@ -1441,7 +1417,7 @@ namespace Warhead
     private:
         bool _present;
         uint32 _spellId;
-        uint64 _casterGUID;
+        ObjectGuid _casterGUID;
     };
 
     class AllWorldObjectsInExactRange

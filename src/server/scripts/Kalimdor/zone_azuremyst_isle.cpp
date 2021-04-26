@@ -61,7 +61,7 @@ public:
     {
         npc_draenei_survivorAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint64 pCaster;
+        ObjectGuid pCaster;
 
         uint32 SayThanksTimer;
         uint32 RunAwayTimer;
@@ -71,7 +71,7 @@ public:
 
         void Reset() override
         {
-            pCaster = 0;
+            pCaster.Clear();
 
             SayThanksTimer = 0;
             RunAwayTimer = 0;
@@ -395,7 +395,7 @@ public:
                 cage->SetGoState(GO_STATE_READY);
             }
             _events.Reset();
-            _playerGUID = 0;
+            _playerGUID.Clear();
             _movementComplete = false;
         }
 
@@ -435,7 +435,7 @@ public:
         }
 
     private:
-        uint64 _playerGUID;
+        ObjectGuid _playerGUID;
         EventMap _events;
         bool _movementComplete;
     };

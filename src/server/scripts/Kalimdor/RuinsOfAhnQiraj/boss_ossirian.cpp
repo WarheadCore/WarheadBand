@@ -91,8 +91,8 @@ public:
             SaidIntro = false;
         }
 
-        uint64 TriggerGUID;
-        uint64 CrystalGUID;
+        ObjectGuid TriggerGUID;
+        ObjectGuid CrystalGUID;
         uint8 CrystalIterator;
         bool SaidIntro;
 
@@ -100,8 +100,8 @@ public:
         {
             _Reset();
             CrystalIterator = 0;
-            TriggerGUID = 0;
-            CrystalGUID = 0;
+            TriggerGUID.Clear();
+            CrystalGUID.Clear();
         }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -195,7 +195,7 @@ public:
                 {
                     CrystalGUID = Crystal->GetGUID();
                     ++CrystalIterator;
-                    Crystal->SetOwnerGUID(0);
+                    Crystal->SetOwnerGUID(ObjectGuid::Empty);
                 }
             }
         }

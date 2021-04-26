@@ -1305,7 +1305,7 @@ public:
 class CorpseExplosionCheck
 {
 public:
-    explicit CorpseExplosionCheck(uint64 casterGUID, bool allowGhoul) : _casterGUID(casterGUID), _allowGhoul(allowGhoul) { }
+    explicit CorpseExplosionCheck(ObjectGuid casterGUID, bool allowGhoul) : _casterGUID(casterGUID), _allowGhoul(allowGhoul) { }
 
     bool operator()(WorldObject* obj) const
     {
@@ -1321,7 +1321,7 @@ public:
     }
 
 private:
-    uint64 _casterGUID;
+    ObjectGuid _casterGUID;
     bool _allowGhoul;
 };
 
@@ -2384,12 +2384,12 @@ public:
     {
         PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
         float multiplier;
-        uint64 guid;
+        ObjectGuid guid;
 
         bool Load() override
         {
             multiplier = 1.0f;
-            guid = 0;
+            guid.Clear();
             return true;
         }
 

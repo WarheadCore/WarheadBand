@@ -55,7 +55,7 @@ public:
         npc_midsummer_bonfireAI(Creature* c) : ScriptedAI(c)
         {
             me->IsAIEnabled = true;
-            goGUID = 0;
+            goGUID.Clear();
             if (GameObject* go = me->SummonGameObject(GO_MIDSUMMER_BONFIRE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
             {
                 goGUID = go->GetGUID();
@@ -63,7 +63,7 @@ public:
             }
         }
 
-        uint64 goGUID;
+        ObjectGuid goGUID;
 
         void SpellHit(Unit*, SpellInfo const* spellInfo) override
         {
@@ -105,20 +105,20 @@ public:
             teleTimer = 0;
             startTimer = 1;
             posVec.clear();
-            playerGUID = 0;
+            playerGUID.Clear();
             me->CastSpell(me, 43313, true);
             counter = 0;
             maxCount = 0;
         }
 
-        uint64 playerGUID;
+        ObjectGuid playerGUID;
         uint32 startTimer;
         uint32 teleTimer;
         std::vector<Position> posVec;
         uint8 counter;
         uint8 maxCount;
 
-        void SetPlayerGUID(uint64 guid, uint8 cnt)
+        void SetPlayerGUID(ObjectGuid guid, uint8 cnt)
         {
             playerGUID = guid;
             maxCount = cnt;
@@ -345,11 +345,11 @@ public:
 
         bool Load() override
         {
-            torchGUID = 0;
+            torchGUID.Clear();
             return true;
         }
 
-        uint64 torchGUID;
+        ObjectGuid torchGUID;
 
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
