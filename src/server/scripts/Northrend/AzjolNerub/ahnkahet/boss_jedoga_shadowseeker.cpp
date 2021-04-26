@@ -157,7 +157,7 @@ public:
 
             uint8 rnd = urand(0, summons.size() - 1);
             uint8 loop = 0;
-            for (std::list<uint64>::iterator i = summons.begin(); i != summons.end();)
+            for (GuidList::iterator i = summons.begin(); i != summons.end();)
             {
                 Creature* summon = ObjectAccessor::GetCreature(*me, *i);
                 if (summon && summon->GetEntry() == NPC_INITIATE && loop >= rnd)
@@ -463,7 +463,7 @@ public:
             if (!pInstance || Killer == me)
                 return;
 
-            Creature* boss = me->GetMap()->GetCreature(pInstance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
+            Creature* boss = me->GetMap()->GetCreature(pInstance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
             if (boss)
             {
                 if (Timer)
@@ -488,7 +488,7 @@ public:
             {
                 Unit::Kill(me, me);
                 me->DespawnOrUnsummon(5000);
-                Creature* boss = me->GetMap()->GetCreature(pInstance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
+                Creature* boss = me->GetMap()->GetCreature(pInstance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
                 if (boss)
                     boss->AI()->DoAction(ACTION_HERALD);
             }

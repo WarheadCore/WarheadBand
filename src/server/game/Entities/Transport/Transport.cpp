@@ -43,7 +43,7 @@ MotionTransport::~MotionTransport()
     UnloadStaticPassengers();
 }
 
-bool MotionTransport::CreateMoTrans(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress)
+bool MotionTransport::CreateMoTrans(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress)
 {
     Relocate(x, y, z, ang);
 
@@ -54,7 +54,7 @@ bool MotionTransport::CreateMoTrans(uint32 guidlow, uint32 entry, uint32 mapid, 
         return false;
     }
 
-    Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);
+    Object::_Create(guidlow, 0, HighGuid::Mo_Transport);
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
@@ -303,7 +303,7 @@ void MotionTransport::RemovePassenger(WorldObject* passenger, bool withAll)
         {
             passenger->SetTransport(nullptr);
             passenger->m_movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
-            passenger->m_movementInfo.transport.guid = 0;
+            passenger->m_movementInfo.transport.guid.Clear();
             passenger->m_movementInfo.transport.pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             if (passenger->ToUnit())
             {
@@ -313,7 +313,7 @@ void MotionTransport::RemovePassenger(WorldObject* passenger, bool withAll)
     }
 }
 
-Creature* MotionTransport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
+Creature* MotionTransport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
 {
     Map* map = GetMap();
     Creature* creature = new Creature();
@@ -344,7 +344,8 @@ Creature* MotionTransport::CreateNPCPassenger(uint32 guid, CreatureData const* d
 
     if (!creature->IsPositionValid())
     {
-        LOG_ERROR("server", "Creature (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)", creature->GetGUIDLow(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
+        LOG_ERROR("server", "Creature (%s) not created. Suggested coordinates aren't valid (X: %f Y: %f)",
+            creature->GetGUID().ToString().c_str(), creature->GetPositionX(), creature->GetPositionY());
         delete creature;
         return nullptr;
     }
@@ -360,7 +361,7 @@ Creature* MotionTransport::CreateNPCPassenger(uint32 guid, CreatureData const* d
     return creature;
 }
 
-GameObject* MotionTransport::CreateGOPassenger(uint32 guid, GameObjectData const* data)
+GameObject* MotionTransport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     Map* map = GetMap();
     GameObject* go = new GameObject();
@@ -385,7 +386,8 @@ GameObject* MotionTransport::CreateGOPassenger(uint32 guid, GameObjectData const
 
     if (!go->IsPositionValid())
     {
-        LOG_ERROR("server", "GameObject (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)", go->GetGUIDLow(), go->GetEntry(), go->GetPositionX(), go->GetPositionY());
+        LOG_ERROR("server", "GameObject (%s) not created. Suggested coordinates aren't valid (X: %f Y: %f)",
+            go->GetGUID().ToString().c_str(), go->GetPositionX(), go->GetPositionY());
         delete go;
         return nullptr;
     }
@@ -671,7 +673,7 @@ StaticTransport::~StaticTransport()
     ASSERT(_passengers.empty());
 }
 
-bool StaticTransport::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit)
+bool StaticTransport::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -701,7 +703,7 @@ bool StaticTransport::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 ph
         return false;
     }
 
-    Object::_Create(guidlow, 0, HIGHGUID_TRANSPORT);
+    Object::_Create(guidlow, 0, HighGuid::Transport);
 
     m_goInfo = goinfo;
 
@@ -981,7 +983,7 @@ void StaticTransport::RemovePassenger(WorldObject* passenger, bool withAll)
         {
             passenger->SetTransport(nullptr);
             passenger->m_movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
-            passenger->m_movementInfo.transport.guid = 0;
+            passenger->m_movementInfo.transport.guid.Clear();
             passenger->m_movementInfo.transport.pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         }
     }

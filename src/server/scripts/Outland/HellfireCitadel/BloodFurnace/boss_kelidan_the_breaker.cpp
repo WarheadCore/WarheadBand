@@ -76,12 +76,11 @@ public:
         boss_kelidan_the_breakerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            memset(&channelers, 0, sizeof(channelers));
         }
 
         InstanceScript* instance;
         EventMap events;
-        uint64 channelers[5];
+        ObjectGuid channelers[5];
         uint32 checkTimer;
         bool addYell;
 
@@ -185,7 +184,7 @@ public:
                 if (!channeler)
                     channeler = me->SummonCreature(NPC_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
 
-                channelers[i] = channeler ? channeler->GetGUID() : 0;
+                channelers[i] = channeler ? channeler->GetGUID() : ObjectGuid::Empty;
             }
         }
 
@@ -197,8 +196,8 @@ public:
                 // Xinef: load grid with start doors
                 me->GetMap()->LoadGrid(0, -111.0f);
                 instance->SetData(DATA_KELIDAN, DONE);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR1), true);
-                instance->HandleGameObject(instance->GetData64(DATA_DOOR6), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_DOOR1), true);
+                instance->HandleGameObject(instance->GetGuidData(DATA_DOOR6), true);
             }
         }
 
@@ -301,7 +300,7 @@ public:
         Creature* GetKelidan()
         {
             if (me->GetInstanceScript())
-                return ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(DATA_KELIDAN));
+                return ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_KELIDAN));
             return nullptr;
         }
 

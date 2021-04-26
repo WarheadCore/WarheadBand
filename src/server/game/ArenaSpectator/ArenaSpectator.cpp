@@ -246,11 +246,11 @@ namespace ArenaSpectator
         Battleground::BattlegroundPlayerMap const& pl = bg->GetPlayers();
         for (Battleground::BattlegroundPlayerMap::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
         {
-            if (player->HasReceivedSpectatorResetFor(GUID_LOPART(itr->first)))
+            if (player->HasReceivedSpectatorResetFor(itr->first))
                 continue;
 
             Player* plr = itr->second;
-            player->AddReceivedSpectatorResetFor(GUID_LOPART(itr->first));
+            player->AddReceivedSpectatorResetFor(itr->first);
 
             SendCommand_String(player, itr->first, "NME", plr->GetName().c_str());
             // Xinef: addon compatibility
@@ -290,7 +290,7 @@ namespace ArenaSpectator
         }
     }
 
-    bool ShouldSendAura(Aura* aura, uint8 effMask, uint64 targetGUID, bool remove)
+    bool ShouldSendAura(Aura* aura, uint8 effMask, ObjectGuid targetGUID, bool remove)
     {
         if (aura->GetSpellInfo()->SpellIconID == 1 || aura->GetSpellInfo()->HasAttribute(SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR))
             return false;

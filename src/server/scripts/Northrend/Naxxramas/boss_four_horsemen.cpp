@@ -206,7 +206,7 @@ public:
             }
             if (pInstance)
             {
-                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_HORSEMEN_GATE)))
+                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_HORSEMEN_GATE)))
                 {
                     if (pInstance->GetBossState(BOSS_GOTHIK) == DONE)
                     {
@@ -283,7 +283,7 @@ public:
                             player->SummonGameObject(RAID_MODE(GO_HORSEMEN_CHEST_10, GO_HORSEMEN_CHEST_25), 2514.8f, -2944.9f, 245.55f, 5.51f, 0, 0, 0, 0, 0);
                         }
                     }
-                    if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_HORSEMEN_GATE)))
+                    if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_HORSEMEN_GATE)))
                     {
                         go->SetGoState(GO_STATE_ACTIVE);
                     }
@@ -305,7 +305,7 @@ public:
             }
             if (pInstance)
             {
-                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetData64(DATA_HORSEMEN_GATE)))
+                if (GameObject* go = me->GetMap()->GetGameObject(pInstance->GetGuidData(DATA_HORSEMEN_GATE)))
                 {
                     go->SetGoState(GO_STATE_READY);
                 }

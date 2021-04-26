@@ -126,7 +126,7 @@ public:
         InstanceScript* m_pInstance;
         EventMap events;
         SummonList summons;
-        uint64 GraufGUID;
+        ObjectGuid GraufGUID;
         bool SecondPhase, EventStarted;
 
         void Reset() override
@@ -252,7 +252,7 @@ public:
             if (m_pInstance)
             {
                 m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS, DONE);
-                m_pInstance->HandleGameObject(m_pInstance->GetData64(SKADI_DOOR), true);
+                m_pInstance->HandleGameObject(m_pInstance->GetGuidData(SKADI_DOOR), true);
             }
         }
 
@@ -508,7 +508,7 @@ public:
                 uint8 count = m_pInstance->GetData(SKADI_HITS) + 1;
                 m_pInstance->SetData(SKADI_HITS, count);
 
-                if (Creature* grauf = ObjectAccessor::GetCreature(*pPlayer, m_pInstance->GetData64(DATA_GRAUF)))
+                if (Creature* grauf = ObjectAccessor::GetCreature(*pPlayer, m_pInstance->GetGuidData(DATA_GRAUF)))
                 {
                     if (count >= 3)
                     {

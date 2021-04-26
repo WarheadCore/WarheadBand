@@ -66,7 +66,7 @@ public:
 
             me->RemoveAurasDueToSpell(SPELL_BANISH);
             Talk(SAY_INTRO);
-            Start(true, false, 0, nullptr, false, true);
+            Start(true, false, ObjectGuid::Empty, nullptr, false, true);
             isBanished = false;
         }
 
@@ -83,7 +83,7 @@ public:
                     me->CastSpell(me, SPELL_BANISH, true);
                 }
                 else
-                    Start(true, false, 0, nullptr, false, true);
+                    Start(true, false, ObjectGuid::Empty, nullptr, false, true);
             }
         }
 

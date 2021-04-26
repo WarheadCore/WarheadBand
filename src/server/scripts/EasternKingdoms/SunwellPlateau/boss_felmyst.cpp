@@ -206,7 +206,7 @@ public:
             }
             else if (point == POINT_AIR_BREATH_START1)
             {
-                me->SetTarget(0);
+                me->SetTarget();
                 me->SetFacingTo(4.71f);
                 events.ScheduleEvent(EVENT_FLIGHT_EMOTE, 2000);
                 events.ScheduleEvent(EVENT_CORRUPT_TRIGGERS, 5000);
@@ -221,7 +221,7 @@ public:
             }
             else if (point == POINT_AIR_BREATH_START2)
             {
-                me->SetTarget(0);
+                me->SetTarget();
                 me->SetFacingTo(1.57f);
                 events.ScheduleEvent(EVENT_FLIGHT_EMOTE, 2000);
                 events.ScheduleEvent(EVENT_CORRUPT_TRIGGERS, 5000);
@@ -321,7 +321,7 @@ public:
                     break;
                 case EVENT_FLIGHT_SEQ:
                     Talk(YELL_TAKEOFF);
-                    me->SetTarget(0);
+                    me->SetTarget();
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->SetDisableGravity(true);
                     me->SendMovementFlagUpdate();
@@ -547,7 +547,7 @@ public:
             return true;
 
         Creature* cr = object->ToCreature();
-        return cr->GetDBTableGUIDLow() != 54780 && cr->GetDBTableGUIDLow() != 54787 && cr->GetDBTableGUIDLow() != 54801;
+        return cr->GetSpawnId() != 54780 && cr->GetSpawnId() != 54787 && cr->GetSpawnId() != 54801;
     }
 };
 

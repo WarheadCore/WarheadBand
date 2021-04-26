@@ -993,7 +993,7 @@ uint32 AuraScript::GetId() const
     return m_aura->GetId();
 }
 
-uint64 AuraScript::GetCasterGUID() const
+ObjectGuid AuraScript::GetCasterGUID() const
 {
     return m_aura->GetCasterGUID();
 }

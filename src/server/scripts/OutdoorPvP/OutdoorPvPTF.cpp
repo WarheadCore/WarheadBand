@@ -16,6 +16,7 @@
  */
 
 #include "Language.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
@@ -261,6 +262,8 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     for (uint8 i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPTFBuffZones[i]);
 
+    SetMapFromZone(OutdoorPvPTFBuffZones[0]);
+
     AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_NW));
     AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_N));
     AddCapturePoint(new OPvPCapturePointTF(this, TF_TOWER_NE));
@@ -340,9 +343,9 @@ void OPvPCapturePointTF::ChangeState()
             break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
-    if (flag)
-        flag->SetGoArtKit(artkit);
+    auto bounds = sMapMgr->FindMap(530, 0)->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        itr->second->SetGoArtKit(artkit);
 
     UpdateTowerState();
 }

@@ -99,8 +99,8 @@ public:
         InstanceScript* pInstance;
         uint8 iceboltCount{};
         uint32 spawnTimer{};
-        std::list<uint64> blockList;
-        uint64 currentTarget{};
+        GuidList blockList;
+        ObjectGuid currentTarget;
 
         void InitializeAI() override
         {
@@ -131,7 +131,7 @@ public:
             events.Reset();
             iceboltCount = 0;
             spawnTimer = 0;
-            currentTarget = 0;
+            currentTarget.Clear();
             blockList.clear();
         }
 
@@ -204,12 +204,12 @@ public:
 
         bool IsValidExplosionTarget(WorldObject* target)
         {
-            for (std::list<uint64>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
+            for (ObjectGuid const guid : blockList)
             {
-                if (target->GetGUID() == (*itr))
+                if (target->GetGUID() == guid)
                     return false;
 
-                if (Unit* block = ObjectAccessor::GetUnit(*me, *itr))
+                if (Unit* block = ObjectAccessor::GetUnit(*me, guid))
                 {
                     if (block->IsInBetween(me, target, 2.0f) && block->IsWithinDist(target, 10.0f))
                         return false;
@@ -306,7 +306,7 @@ public:
                     me->SendMeleeAttackStop(me->GetVictim());
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->SetDisableGravity(true);
-                    currentTarget = 0;
+                    currentTarget.Clear();
                     events.ScheduleEvent(EVENT_FLIGHT_ICEBOLT, 3000);
                     iceboltCount = RAID_MODE(2, 3);
                     return;
@@ -329,7 +329,7 @@ public:
                                 bool inList = false;
                                 if (!blockList.empty())
                                 {
-                                    for (std::list<uint64>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
+                                    for (GuidList::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                                     {
                                         if ((*i)->getTarget()->GetGUID() == *itr)
                                         {
@@ -362,7 +362,7 @@ public:
                         return;
                     }
                 case EVENT_FLIGHT_BREATH:
-                    currentTarget = 0;
+                    currentTarget.Clear();
                     Talk(EMOTE_BREATH);
                     me->CastSpell(me, SPELL_FROST_MISSILE, false);
                     events.ScheduleEvent(EVENT_FLIGHT_SPELL_EXPLOSION, 8500);
@@ -374,7 +374,7 @@ public:
                 case EVENT_FLIGHT_START_LAND:
                     if (!blockList.empty())
                     {
-                        for (std::list<uint64>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
+                        for (GuidList::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                         {
                             if (Unit* block = ObjectAccessor::GetUnit(*me, *itr))
                             {

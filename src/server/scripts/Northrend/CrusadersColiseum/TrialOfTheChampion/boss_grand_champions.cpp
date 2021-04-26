@@ -276,7 +276,7 @@ public:
                     break;
                 case EVENT_MOUNT_CHARGE:
                     {
-                        std::vector<uint64> LIST;
+                        GuidVector LIST;
                         Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                         for( Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr )
                             if( Player* plr = itr->GetSource() )
@@ -307,7 +307,7 @@ public:
                     break;
                 case EVENT_SHIELD_BREAKER:
                     {
-                        std::vector<uint64> LIST;
+                        GuidVector LIST;
                         Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                         for( Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr )
                             if( Player* plr = itr->GetSource() )
@@ -359,7 +359,7 @@ public:
             SetDespawnAtEnd(false);
             me->SetReactState(REACT_PASSIVE);
             BossOrder = 0;
-            NewMountGUID = 0;
+            NewMountGUID.Clear();
             me->CastSpell(me, SPELL_BOSS_DEFEND_PERIODIC, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
 
@@ -392,8 +392,8 @@ public:
         EventMap events;
         uint32 BossOrder;
         bool MountPhase;
-        uint64 NewMountGUID;
-        uint64 UnitTargetGUID;
+        ObjectGuid NewMountGUID;
+        ObjectGuid UnitTargetGUID;
 
         void Reset() override
         {
@@ -484,7 +484,7 @@ public:
             if( param == 1 )
             {
                 MountPhase = false;
-                NewMountGUID = 0;
+                NewMountGUID.Clear();
                 me->SetHealth(me->GetMaxHealth());
                 me->SetRegeneratingHealth(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
@@ -535,7 +535,7 @@ public:
                     return;
             }
 
-            Start(false, true, 0, nullptr);
+            Start(false, true);
         }
 
         void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
@@ -634,7 +634,7 @@ public:
                             me->CastSpell(me, SPELL_TRAMPLE_AURA, true);
                             if( pInstance )
                                 pInstance->SetData(DATA_REACHED_NEW_MOUNT, 0);
-                            NewMountGUID = 0;
+                            NewMountGUID.Clear();
                         }
                 }
                 else if( id == 9 )
@@ -729,7 +729,7 @@ public:
                     break;
                 case EVENT_MOUNT_CHARGE:
                     {
-                        std::vector<uint64> LIST;
+                        GuidVector LIST;
                         Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                         for( Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr )
                             if( Player* plr = itr->GetSource() )
@@ -760,7 +760,7 @@ public:
                     break;
                 case EVENT_SHIELD_BREAKER:
                     {
-                        std::vector<uint64> LIST;
+                        GuidVector LIST;
                         Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                         for( Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr )
                             if( Player* plr = itr->GetSource() )
@@ -878,7 +878,7 @@ public:
                                     }
                                 }
                             }
-                            UnitTargetGUID = 0;
+                            UnitTargetGUID.Clear();
                         }
                         events.RepeatEvent(urand(15000, 20000));
                     }

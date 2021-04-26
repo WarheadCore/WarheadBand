@@ -223,7 +223,7 @@ public:
         InstanceScript* pInstance;
         EventMap events;
         bool summoned;
-        uint64 MemoryGUID;
+        ObjectGuid MemoryGUID;
 
         void Reset() override
         {
@@ -233,7 +233,7 @@ public:
             {
                 if( Creature* memory = ObjectAccessor::GetCreature(*me, MemoryGUID) )
                     memory->DespawnOrUnsummon();
-                MemoryGUID = 0;
+                MemoryGUID.Clear();
             }
             me->SetReactState(REACT_PASSIVE);
             if( pInstance )
@@ -272,7 +272,7 @@ public:
         {
             if( param == 1 )
             {
-                MemoryGUID = 0;
+                MemoryGUID.Clear();
                 me->RemoveAura(SPELL_SHIELD);
                 Talk(TEXT_PALETRESS_MEMORY_DEFEATED);
             }
@@ -282,7 +282,7 @@ public:
                     if( Creature* memory = ObjectAccessor::GetCreature(*me, MemoryGUID) )
                     {
                         memory->DespawnOrUnsummon();
-                        MemoryGUID = 0;
+                        MemoryGUID.Clear();
                     }
             }
         }
@@ -416,7 +416,7 @@ public:
         {
             me->DespawnOrUnsummon(20000);
             if( pInstance )
-                if( Creature* paletress = ObjectAccessor::GetCreature(*me, pInstance->GetData64(DATA_PALETRESS)) )
+                if( Creature* paletress = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_PALETRESS)) )
                     paletress->AI()->DoAction(1);
         }
 
@@ -611,7 +611,7 @@ public:
                     break;
             }
 
-            Start(false, true, 0);
+            Start(false, true);
             uiWaypoint = uiType;
         }
 

@@ -89,13 +89,13 @@ public:
         npc_snobold_vassalAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
-            TargetGUID = 0;
+            TargetGUID.Clear();
             me->SetReactState(REACT_PASSIVE);
         }
 
         InstanceScript* pInstance;
         EventMap events;
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
 
         void Reset() override
         {
@@ -137,7 +137,7 @@ public:
                 me->CombatStop(true);
                 me->SetHealth(me->GetMaxHealth());
                 if( pInstance )
-                    if( Creature* gormok = ObjectAccessor::GetCreature(*me, pInstance->GetData64(TYPE_GORMOK)) )
+                    if( Creature* gormok = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(TYPE_GORMOK)) )
                         if( gormok->IsAlive() )
                             if( Vehicle* vk = gormok->GetVehicleKit() )
                                 for( uint8 i = 0; i < 4; ++i )
@@ -147,7 +147,7 @@ public:
                                         Reset();
                                         break;
                                     }
-                TargetGUID = 0;
+                TargetGUID.Clear();
                 return;
             }
 
@@ -174,9 +174,9 @@ public:
                     {
                         if( t->GetTypeId() != TYPEID_PLAYER && pInstance )
                         {
-                            std::vector<uint64> validPlayers;
+                            GuidVector validPlayers;
                             Map::PlayerList const& pl = me->GetMap()->GetPlayers();
-                            Creature* gormok = ObjectAccessor::GetCreature(*me, pInstance->GetData64(TYPE_GORMOK));
+                            Creature* gormok = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(TYPE_GORMOK));
 
                             for( Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr )
                             {
@@ -247,13 +247,13 @@ public:
         InstanceScript* pInstance;
         EventMap events;
         SummonList summons;
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         void Reset() override
         {
             events.Reset();
             summons.DespawnAll();
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -311,7 +311,7 @@ public:
                         for( uint8 i = 0; i < 4; ++i )
                             if( Unit* snobold = vk->GetPassenger(i) )
                             {
-                                std::vector<uint64> validPlayers;
+                                GuidVector validPlayers;
                                 Map::PlayerList const& pl = me->GetMap()->GetPlayers();
                                 for( Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr )
                                 {
@@ -371,7 +371,7 @@ public:
                                         snobold->ToCreature()->DespawnOrUnsummon();
                                 }
                         }
-                        PlayerGUID = 0;
+                        PlayerGUID.Clear();
                     }
                     break;
             }
@@ -574,7 +574,7 @@ struct boss_jormungarAI : public ScriptedAI
 
                     // second one submerge 1.5sec after the first one, used also for synchronizing
                     if( pInstance )
-                        if( Creature* c = ObjectAccessor::GetCreature(*me, pInstance->GetData64(_TYPE_OTHER)) )
+                        if( Creature* c = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(_TYPE_OTHER)) )
                             c->AI()->DoAction(-1);
 
                     events.Reset();
@@ -660,7 +660,7 @@ struct boss_jormungarAI : public ScriptedAI
     {
         if( pInstance )
         {
-            if( Creature* c = pInstance->instance->GetCreature(pInstance->GetData64(_TYPE_OTHER)) )
+            if( Creature* c = pInstance->instance->GetCreature(pInstance->GetGuidData(_TYPE_OTHER)) )
                 if( c->IsAlive() )
                     c->AI()->DoAction(-2);
             pInstance->SetData(TYPE_JORMUNGAR, DONE);
@@ -789,7 +789,7 @@ public:
 
         InstanceScript* pInstance;
         EventMap events;
-        uint64 TargetGUID;
+        ObjectGuid TargetGUID;
         float destX, destY, destZ;
 
         void AttackStart(Unit* who) override
@@ -895,7 +895,7 @@ public:
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MoveJump(Locs[LOC_CENTER].GetPositionX(), Locs[LOC_CENTER].GetPositionY(), Locs[LOC_CENTER].GetPositionZ(), 40.0f, 12.0f);
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
                     events.Reset();
                     events.RescheduleEvent(EVENT_SPELL_MASSIVE_CRASH, 2000);
                     break;
@@ -906,10 +906,10 @@ public:
                     events.RescheduleEvent(EVENT_GAZE, 2000);
                     break;
                 case EVENT_GAZE:
-                    if( Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 500.0f, true) )
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 500.0f, true) )
                     {
                         TargetGUID = target->GetGUID();
-                        me->SetUInt64Value(UNIT_FIELD_TARGET, TargetGUID);
+                        me->SetGuidValue(UNIT_FIELD_TARGET, TargetGUID);
                         me->SetFacingToObject(target);
                         Talk(EMOTE_TRAMPLE_STARE, target);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
@@ -971,7 +971,7 @@ public:
                     me->DisableSpline();
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MoveCharge(destX, destY, destZ + 1.0f, 65.0f);
-                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
                     events.RescheduleEvent(EVENT_CHECK_TRAMPLE_PLAYERS, 100);
 
                     break;

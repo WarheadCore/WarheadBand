@@ -36,9 +36,6 @@ public:
         void Initialize() override
         {
             memset(&_encounters, 0, sizeof(_encounters));
-
-            DiscipleOfNaralexGUID = 0;
-            SerpentisGUID = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -122,8 +119,8 @@ public:
 
     private:
         uint32 _encounters[MAX_ENCOUNTERS];
-        uint64 DiscipleOfNaralexGUID;
-        uint64 SerpentisGUID;
+        ObjectGuid DiscipleOfNaralexGUID;
+        ObjectGuid SerpentisGUID;
     };
 };
 

@@ -215,12 +215,12 @@ public:
 
     Item();
 
-    virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+    virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
 
     [[nodiscard]] ItemTemplate const* GetTemplate() const;
 
-    [[nodiscard]] uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
-    void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
+    [[nodiscard]] ObjectGuid GetOwnerGUID() const { return GetGuidValue(ITEM_FIELD_OWNER); }
+    void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
     [[nodiscard]] Player* GetOwner() const;
 
     void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
@@ -230,10 +230,10 @@ public:
     [[nodiscard]] bool IsBoundByEnchant() const;
     [[nodiscard]] bool IsBoundByTempEnchant() const;
     virtual void SaveToDB(CharacterDatabaseTransaction trans);
-    virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry);
-    static void DeleteFromDB(CharacterDatabaseTransaction trans, uint32 itemGuid);
+    virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
+    static void DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
     virtual void DeleteFromDB(CharacterDatabaseTransaction trans);
-    static void DeleteFromInventoryDB(CharacterDatabaseTransaction trans, uint32 itemGuid);
+    static void DeleteFromInventoryDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
     void DeleteFromInventoryDB(CharacterDatabaseTransaction trans);
     void SaveRefundDataToDB();
     void DeleteRefundDataFromDB(CharacterDatabaseTransaction* trans);
@@ -285,7 +285,7 @@ public:
     void SetItemRandomProperties(int32 randomPropId);
     void UpdateItemSuffixFactor();
     static int32 GenerateItemRandomPropertyId(uint32 item_id);
-    void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, uint64 caster = 0);
+    void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
     void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
     void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
     void ClearEnchantment(EnchantmentSlot slot);
@@ -329,10 +329,10 @@ public:
 
     // Item Refund system
     void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr);
-    void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
+    void SetRefundRecipient(ObjectGuid::LowType pGuidLow) { m_refundRecipient = pGuidLow; }
     void SetPaidMoney(uint32 money) { m_paidMoney = money; }
     void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
-    uint32 GetRefundRecipient() { return m_refundRecipient; }
+    ObjectGuid::LowType GetRefundRecipient() { return m_refundRecipient; }
     uint32 GetPaidMoney() { return m_paidMoney; }
     uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
 
@@ -346,6 +346,8 @@ public:
     bool CheckSoulboundTradeExpire();
 
     void BuildUpdate(UpdateDataMapType& data_map, UpdatePlayerSet&) override;
+    void AddToObjectUpdate() override;
+    void RemoveFromObjectUpdate() override;
 
     [[nodiscard]] uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 private:

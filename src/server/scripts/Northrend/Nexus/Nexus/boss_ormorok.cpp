@@ -197,7 +197,7 @@ public:
         }
 
         int32 _damageTimer;
-        uint64 _gameObjectGUID;
+        ObjectGuid _gameObjectGUID;
 
         void Reset() override
         {

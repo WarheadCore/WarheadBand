@@ -35,7 +35,6 @@ public:
             _pylonsState = 0;
             _northWingProgress = 0;
             _northWingBosses = 0;
-            _immoltharGUID = 0;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -153,7 +152,7 @@ public:
         uint32 _northWingProgress;
         uint32 _northWingBosses;
 
-        uint64 _immoltharGUID;
+        ObjectGuid _immoltharGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -137,8 +137,8 @@ public:
                     {
                         bool found = false;
                         if (pInstance)
-                            for (std::list<uint64>::iterator itr = spheres.begin(); itr != spheres.end(); ++itr)
-                                if (Creature* c = pInstance->instance->GetCreature(*itr))
+                            for (ObjectGuid guid : spheres)
+                                if (Creature* c = pInstance->instance->GetCreature(guid))
                                     if (me->GetDistance(c) < 3.0f)
                                     {
                                         c->CastSpell(me, SPELL_ARCANE_POWER, false);
@@ -168,7 +168,7 @@ public:
                 pSummoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 spheres.Summon(pSummoned);
                 if (pInstance)
-                    pInstance->SetData64(DATA_ADD_TRASH_MOB, pSummoned->GetGUID());
+                    pInstance->SetGuidData(DATA_ADD_TRASH_MOB, pSummoned->GetGUID());
             }
         }
 
@@ -178,7 +178,7 @@ public:
             {
                 spheres.Despawn(pSummoned);
                 if (pInstance)
-                    pInstance->SetData64(DATA_DELETE_TRASH_MOB, pSummoned->GetGUID());
+                    pInstance->SetGuidData(DATA_DELETE_TRASH_MOB, pSummoned->GetGUID());
             }
         }
 

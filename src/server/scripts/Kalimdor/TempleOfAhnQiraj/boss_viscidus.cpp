@@ -264,7 +264,7 @@ public:
         {
             InstanceScript* Instance = me->GetInstanceScript();
 
-            if (Creature* Viscidus = me->GetMap()->GetCreature(Instance->GetData64(DATA_VISCIDUS)))
+            if (Creature* Viscidus = me->GetMap()->GetCreature(Instance->GetGuidData(DATA_VISCIDUS)))
             {
                 if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                     ViscidusAI->SummonedCreatureDespawn(me);

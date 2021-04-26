@@ -62,9 +62,9 @@ void GroupMgr::RegisterGroupId(uint32 groupId)
         ++_nextGroupId;
 }
 
-uint32 GroupMgr::GenerateGroupId()
+ObjectGuid::LowType GroupMgr::GenerateGroupId()
 {
-    uint32 newGroupId = _nextGroupId;
+    ObjectGuid::LowType newGroupId = _nextGroupId;
 
     // find the lowest available id starting from the current _nextGroupId
     while (_nextGroupId < 0xFFFFFFFF && ++_nextGroupId < _groupIds.size() && _groupIds[_nextGroupId]);
@@ -78,7 +78,7 @@ uint32 GroupMgr::GenerateGroupId()
     return newGroupId;
 }
 
-Group* GroupMgr::GetGroupByGUID(uint32 groupId) const
+Group* GroupMgr::GetGroupByGUID(ObjectGuid::LowType groupId) const
 {
     GroupContainer::const_iterator itr = GroupStore.find(groupId);
     if (itr != GroupStore.end())
@@ -89,12 +89,12 @@ Group* GroupMgr::GetGroupByGUID(uint32 groupId) const
 
 void GroupMgr::AddGroup(Group* group)
 {
-    GroupStore[group->GetLowGUID()] = group;
+    GroupStore[group->GetGUID().GetCounter()] = group;
 }
 
 void GroupMgr::RemoveGroup(Group* group)
 {
-    GroupStore.erase(group->GetLowGUID());
+    GroupStore.erase(group->GetGUID().GetCounter());
 }
 
 void GroupMgr::LoadGroups()
@@ -138,7 +138,7 @@ void GroupMgr::LoadGroups()
                 }
                 AddGroup(group);
 
-                RegisterGroupId(group->GetLowGUID());
+                RegisterGroupId(group->GetGUID().GetCounter());
 
                 ++count;
             } while (result->NextRow());

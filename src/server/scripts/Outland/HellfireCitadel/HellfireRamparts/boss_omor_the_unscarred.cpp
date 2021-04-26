@@ -65,7 +65,7 @@ public:
         {
             Talk(SAY_WIPE);
             BossAI::Reset();
-            _targetGUID = 0;
+            _targetGUID.Clear();
         }
 
         void EnterCombat(Unit* who) override
@@ -152,7 +152,7 @@ public:
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
                     if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
                         me->CastSpell(target, SPELL_SHADOW_WHIP, false);
-                    _targetGUID = 0;
+                    _targetGUID.Clear();
                     break;
             }
 
@@ -173,7 +173,7 @@ public:
         }
 
     private:
-        uint64 _targetGUID;
+        ObjectGuid _targetGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

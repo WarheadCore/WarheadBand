@@ -35,7 +35,7 @@ struct PetSpell
 class WH_GAME_API AsynchPetSummon
 {
 public:
-    AsynchPetSummon(uint32 entry, Position position, PetType petType, uint32 duration, uint32 createdBySpell, uint64 casterGUID) :
+    AsynchPetSummon(uint32 entry, Position position, PetType petType, uint32 duration, uint32 createdBySpell, ObjectGuid casterGUID) :
         m_entry(entry), pos(position), m_petType(petType),
         m_duration(duration), m_createdBySpell(createdBySpell), m_casterGUID(casterGUID) { }
 
@@ -43,7 +43,7 @@ public:
     Position pos;
     PetType m_petType;
     uint32 m_duration, m_createdBySpell;
-    uint64 m_casterGUID;
+    ObjectGuid m_casterGUID;
 };
 
 typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
@@ -69,7 +69,7 @@ public:
 
     bool IsPermanentPetFor(Player* owner) const;              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-    bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
+    bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
     bool CreateBaseAtCreature(Creature* creature);
     bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
     bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
@@ -78,7 +78,7 @@ public:
     bool isBeingLoaded() const override { return m_loading;}
     void SavePetToDB(PetSaveMode mode, bool logout);
     void Remove(PetSaveMode mode, bool returnreagent = false);
-    static void DeleteFromDB(uint32 guidlow);
+    static void DeleteFromDB(ObjectGuid::LowType guidlow);
 
     void setDeathState(DeathState s, bool despawn = false) override;                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
     void Update(uint32 diff) override;                           // overwrite virtual Creature::Update and Unit::Update

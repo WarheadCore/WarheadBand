@@ -223,7 +223,7 @@ BanReturn BanManager::BanCharacter(std::string const& CharacterName, std::string
 {
     Player* target = ObjectAccessor::FindPlayerByName(CharacterName, false);
     uint32 DurationSecs = TimeStringToSecs(Duration);
-    uint32 TargetGUID = 0;
+    ObjectGuid TargetGUID;
 
     /// Pick a player to ban if not online
     if (!target)
@@ -233,15 +233,15 @@ BanReturn BanManager::BanCharacter(std::string const& CharacterName, std::string
             return BAN_NOTFOUND;
     }
     else
-        TargetGUID = target->GetGUIDLow();
+        TargetGUID = target->GetGUID();
 
     // make sure there is only one active ban
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
-    stmt->setUInt32(0, TargetGUID);
+    stmt->setUInt32(0, TargetGUID.GetCounter());
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
-    stmt->setUInt32(0, TargetGUID);
+    stmt->setUInt32(0, TargetGUID.GetCounter());
     stmt->setUInt32(1, DurationSecs);
     stmt->setString(2, Author);
     stmt->setString(3, Reason);
@@ -310,19 +310,19 @@ bool BanManager::RemoveBanIP(std::string const& IP)
 bool BanManager::RemoveBanCharacter(std::string const& CharacterName)
 {
     Player* pBanned = ObjectAccessor::FindPlayerByName(CharacterName, false);
-    uint32 guid = 0;
+    ObjectGuid guid;
 
     /// Pick a player to ban if not online
     if (!pBanned)
         guid = sWorld->GetGlobalPlayerGUID(CharacterName);
     else
-        guid = pBanned->GetGUIDLow();
+        guid = pBanned->GetGUID();
 
     if (!guid)
         return false;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
-    stmt->setUInt32(0, guid);
+    stmt->setUInt32(0, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
     return true;
 }

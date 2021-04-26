@@ -25,7 +25,7 @@
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
-    uint64 guid;
+    ObjectGuid guid;
     Player* player;
     Player* plTarget;
 
@@ -41,8 +41,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
         return;
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("server", "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
-    LOG_DEBUG("server", "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
+    LOG_DEBUG("server", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
+    LOG_DEBUG("server", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
 #endif
 
     time_t now = time(nullptr);
@@ -58,7 +58,7 @@ void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_CANCELLED");
 #endif
-    uint64 guid;
+    ObjectGuid guid;
     recvPacket >> guid;
 
     // no duel requested

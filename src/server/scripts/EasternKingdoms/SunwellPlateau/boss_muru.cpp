@@ -179,7 +179,7 @@ public:
         void EnterEvadeMode() override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
-                if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MURU)))
+                if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MURU)))
                     if (!muru->IsInEvadeMode())
                         muru->AI()->EnterEvadeMode();
 
@@ -208,7 +208,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
-                if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetData64(NPC_MURU)))
+                if (Creature* muru = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_MURU)))
                     Unit::Kill(muru, muru);
         }
 

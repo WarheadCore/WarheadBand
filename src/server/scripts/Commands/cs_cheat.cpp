@@ -152,7 +152,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(player, 0))
+        if (handler->HasLowerSecurity(player))
             return false;
 
         if (strncmp(args, "on", 3) == 0)
@@ -203,7 +203,7 @@ public:
 
         if (!chr)
             chr = handler->GetSession()->GetPlayer();
-        else if (handler->HasLowerSecurity(chr, 0)) // check online security
+        else if (handler->HasLowerSecurity(chr)) // check online security
             return false;
 
         if (!*args)
