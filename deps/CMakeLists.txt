@@ -34,6 +34,7 @@ if(SERVERS)
   add_subdirectory(jemalloc)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
+  add_subdirectory(argon2)
 endif()
 
 if(TOOLS)

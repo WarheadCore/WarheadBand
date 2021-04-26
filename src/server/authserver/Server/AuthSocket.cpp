@@ -15,21 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <algorithm>
-#include <openssl/md5.h>
-
+#include "AES.h"
 #include "Common.h"
 #include "CryptoRandom.h"
 #include "CryptoHash.h"
-#include "Database/DatabaseEnv.h"
+#include "CryptoGenerics.h"
+#include "DatabaseEnv.h"
 #include "ByteBuffer.h"
-#include "Configuration/Config.h"
+#include "Config.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "AuthSocket.h"
 #include "AuthCodes.h"
+#include "SecretMgr.h"
 #include "TOTP.h"
-#include "openssl/crypto.h"
+#include <algorithm>
+#include <openssl/crypto.h>
+#include <openssl/md5.h>
 
 #define ChunkSize 2048
 
@@ -492,45 +494,58 @@ bool AuthSocket::_HandleLogonChallenge()
                     pkt.append(_srp6->N);
                     pkt.append(_srp6->s);
                     pkt.append(unk3.ToByteArray<16>());
+
                     uint8 securityFlags = 0;
-
-                    // Check if token is used
-                    _tokenKey = fields[7].GetString();
-                    if (!_tokenKey.empty())
+                    // Check if a TOTP token is needed
+                    if (!fields[7].IsNull())
+                    {
                         securityFlags = 4;
+                        _totpSecret = fields[7].GetBinary();
 
-                    pkt << uint8(securityFlags);            // security flags (0x0...0x04)
-
-                    if (securityFlags & 0x01)               // PIN input
-                    {
-                        pkt << uint32(0);
-                        pkt << uint64(0) << uint64(0);      // 16 bytes hash?
+                        if (auto const& secret = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY))
+                        {
+                            if (!Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(*_totpSecret, *secret))
+                            {
+                                pkt << uint8(WOW_FAIL_DB_BUSY);
+                                LOG_ERROR("server.authserver", "[AuthChallenge] Account '%s' has invalid ciphertext for TOTP token key stored", _login.c_str());
+                            }
+                        }
                     }
-
-                    if (securityFlags & 0x02)               // Matrix input
+                    else
                     {
-                        pkt << uint8(0);
-                        pkt << uint8(0);
-                        pkt << uint8(0);
-                        pkt << uint8(0);
-                        pkt << uint64(0);
-                    }
+                        pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
-                    if (securityFlags & 0x04)               // Security token input
-                        pkt << uint8(1);
+                        if (securityFlags & 0x01)               // PIN input
+                        {
+                            pkt << uint32(0);
+                            pkt << uint64(0) << uint64(0);      // 16 bytes hash?
+                        }
 
-                    uint8 secLevel = fields[4].GetUInt8();
-                    _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
+                        if (securityFlags & 0x02)               // Matrix input
+                        {
+                            pkt << uint8(0);
+                            pkt << uint8(0);
+                            pkt << uint8(0);
+                            pkt << uint8(0);
+                            pkt << uint64(0);
+                        }
 
-                    _localizationName.resize(4);
-                    for (int i = 0; i < 4; ++i)
-                        _localizationName[i] = ch->country[4 - i - 1];
+                        if (securityFlags & 0x04)               // Security token input
+                            pkt << uint8(1);
+
+                        uint8 secLevel = fields[4].GetUInt8();
+                        _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
+
+                        _localizationName.resize(4);
+                        for (int i = 0; i < 4; ++i)
+                            _localizationName[i] = ch->country[4 - i - 1];
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-                    LOG_DEBUG("network", "'%s:%d' [AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName) );
+                        LOG_DEBUG("network", "'%s:%d' [AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str(), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
 #endif
-                    ///- All good, await client's proof
-                    _status = STATUS_LOGON_PROOF;
+                        ///- All good, await client's proof
+                        _status = STATUS_LOGON_PROOF;
+                    }
                 }
             }
         }
@@ -588,22 +603,29 @@ bool AuthSocket::_HandleLogonProof()
         Warhead::Crypto::SHA1::Digest M2 = Warhead::Crypto::SRP6::GetSessionVerifier(lp.A, lp.clientM, _sessionKey);
 
         // Check auth token
-        if ((lp.securityFlags & 0x04) || !_tokenKey.empty())
+        bool tokenSuccess = false;
+        bool sentToken = (lp.securityFlags & 0x04);
+
+        if (sentToken && _totpSecret)
         {
             uint8 size;
             socket().recv((char*)&size, 1);
             char* token = new char[size + 1];
             token[size] = '\0';
             socket().recv(token, size);
-            unsigned int validToken = TOTP::GenerateToken(_tokenKey.c_str());
             unsigned int incomingToken = atoi(token);
             delete[] token;
-            if (validToken != incomingToken)
-            {
-                char data[] = { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
-                socket().send(data, sizeof(data));
-                return false;
-            }
+
+            tokenSuccess = Warhead::Crypto::TOTP::ValidateToken(*_totpSecret, incomingToken);
+            memset(_totpSecret->data(), 0, _totpSecret->size());
+        }
+        else if (!sentToken && !_totpSecret)
+            tokenSuccess = true;
+
+        if (!tokenSuccess)
+        {
+            char data[4] = { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
+            socket().send(data, sizeof(data));
         }
 
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients

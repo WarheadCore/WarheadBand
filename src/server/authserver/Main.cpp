@@ -34,6 +34,8 @@
 #include "Logo.h"
 #include "DatabaseLoader.h"
 #include "MySQLThreading.h"
+#include "SecretMgr.h"
+#include "SharedDefines.h"
 #include <ace/Dev_Poll_Reactor.h>
 #include <ace/TP_Reactor.h>
 #include <boost/version.hpp>
@@ -66,6 +68,8 @@ void usage(const char* prog)
 /// Launch the auth server
 extern int main(int argc, char** argv)
 {
+    Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
+
     // Command line parsing to get the configuration file name
     std::string configFile = sConfigMgr->GetConfigPath() + std::string(_ACORE_REALM_CONFIG);
     int count = 1;
@@ -132,6 +136,8 @@ extern int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    sSecretMgr->Initialize();
 
     // Get the list of realms for the server
     sRealmList->Initialize(sConfigMgr->GetOption<int32>("RealmsStateUpdateDelay", 20));

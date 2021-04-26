@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Master.h"
 #include "Logo.h"
+#include "SharedDefines.h"
 #include <boost/version.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
@@ -64,6 +65,8 @@ void usage(const char* prog)
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
+    Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
+
     ///- Command line parsing to get the configuration file name
     std::string configFile = sConfigMgr->GetConfigPath() + std::string(_ACORE_CORE_CONFIG);
     int c = 1;
