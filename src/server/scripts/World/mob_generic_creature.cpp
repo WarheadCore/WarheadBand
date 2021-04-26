@@ -25,6 +25,7 @@ EndScriptData */
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellMgr.h"
 
 #define GENERIC_CREATURE_COOLDOWN   5000
 

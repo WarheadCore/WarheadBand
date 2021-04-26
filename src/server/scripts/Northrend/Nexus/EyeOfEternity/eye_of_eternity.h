@@ -20,6 +20,7 @@
 
 #include "Chat.h"
 #include "CreatureAIImpl.h"
+#include "EventProcessor.h"
 
 #define EyeOfEternityScriptName "instance_eye_of_eternity"
 
