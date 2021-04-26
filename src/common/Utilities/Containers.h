@@ -79,13 +79,10 @@ namespace Warhead::Containers
     void RandomResize(C& container, std::size_t requestedSize)
     {
         static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Warhead::Containers::RandomResize");
-
         if (std::size(container) <= requestedSize)
             return;
-
         auto keepIt = std::begin(container), curIt = std::begin(container);
         uint32 elementsToKeep = requestedSize, elementsToProcess = std::size(container);
-
         while (elementsToProcess)
         {
             // this element has chance (elementsToKeep / elementsToProcess) of being kept
@@ -93,15 +90,12 @@ namespace Warhead::Containers
             {
                 if (keepIt != curIt)
                     *keepIt = std::move(*curIt);
-
                 ++keepIt;
                 --elementsToKeep;
             }
-
             ++curIt;
             --elementsToProcess;
         }
-
         container.erase(keepIt, std::end(container));
     }
 
@@ -131,7 +125,7 @@ namespace Warhead::Containers
         return *it;
     }
 
-    /*
+    /**
      * Select a random element from a container where each element has a different chance to be selected.
      *
      * @param container Container to select an element from
@@ -148,7 +142,7 @@ namespace Warhead::Containers
         return it;
     }
 
-    /*
+    /**
      * Select a random element from a container where each element has a different chance to be selected.
      *
      * @param container Container to select an element from
@@ -162,21 +156,19 @@ namespace Warhead::Containers
         std::vector<double> weights;
         weights.reserve(std::size(container));
         double weightSum = 0.0;
-
         for (auto& val : container)
         {
             double weight = weightExtractor(val);
             weights.push_back(weight);
             weightSum += weight;
         }
-
         if (weightSum <= 0.0)
             weights.assign(std::size(container), 1.0);
 
         return SelectRandomWeightedContainerElement(container, weights);
     }
 
-    /*
+    /**
      * @fn void Warhead::Containers::RandomShuffle(C& container)
      *
      * @brief Reorder the elements of the container randomly.
@@ -189,6 +181,57 @@ namespace Warhead::Containers
         std::shuffle(std::begin(container), std::end(container), RandomEngine::Instance());
     }
 
+    /**
+     * @fn bool Warhead::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
+     *
+     * @brief Checks if two SORTED containers have a common element
+     *
+     * @param first1 Iterator pointing to start of the first container
+     * @param last1 Iterator pointing to end of the first container
+     * @param first2 Iterator pointing to start of the second container
+     * @param last2 Iterator pointing to end of the second container
+     *
+     * @return true if containers have a common element, false otherwise.
+    */
+    template<class Iterator1, class Iterator2>
+    bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+    {
+        while (first1 != last1 && first2 != last2)
+        {
+            if (*first1 < *first2)
+                ++first1;
+            else if (*first2 < *first1)
+                ++first2;
+            else
+                return true;
+        }
+
+        return false;
+    }
+
+    /*
+     * Returns a pointer to mapped value (or the value itself if map stores pointers)
+     */
+    template<class M>
+    inline auto MapGetValuePtr(M& map, typename M::key_type const& key) -> decltype(AddressOrSelf(map.find(key)->second))
+    {
+        auto itr = map.find(key);
+        return itr != map.end() ? AddressOrSelf(itr->second) : nullptr;
+    }
+
+    template<class K, class V, template<class, class, class...> class M, class... Rest>
+    void MultimapErasePair(M<K, V, Rest...>& multimap, K const& key, V const& value)
+    {
+        auto range = multimap.equal_range(key);
+        for (auto itr = range.first; itr != range.second;)
+        {
+            if (itr->second == value)
+                itr = multimap.erase(itr);
+            else
+                ++itr;
+        }
+    }
+
     template <typename Container, typename Predicate>
     std::enable_if_t<std::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
     {
@@ -198,9 +241,7 @@ namespace Warhead::Containers
             if (!p(*rpos))
             {
                 if (rpos != wpos)
-                {
                     std::swap(*rpos, *wpos);
-                }
                 ++wpos;
             }
         }
@@ -213,13 +254,9 @@ namespace Warhead::Containers
         for (auto it = c.begin(); it != c.end();)
         {
             if (p(*it))
-            {
                 it = c.erase(it);
-            }
             else
-            {
                 ++it;
-            }
         }
     }
 }
