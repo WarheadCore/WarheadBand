@@ -1204,7 +1204,7 @@ public:
         void FilterTargets(std::list<WorldObject*>& targets)
         {
             targets.remove_if(GhoulTargetCheck(GetSpellInfo()->Id == 70790));
-            Warhead::Containers::RandomResizeList(targets, 2);
+            Warhead::Containers::RandomResize(targets, 2);
         }
 
         void HandleScript(SpellEffIndex effIndex)

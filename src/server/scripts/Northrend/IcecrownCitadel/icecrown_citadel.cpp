@@ -2172,7 +2172,7 @@ public:
         void RemoveAliveTarget(std::list<WorldObject*>& targets)
         {
             targets.remove_if(AliveCheck());
-            Warhead::Containers::RandomResizeList(targets, 2);
+            Warhead::Containers::RandomResize(targets, 2);
         }
 
         void Land(SpellEffIndex /*effIndex*/)

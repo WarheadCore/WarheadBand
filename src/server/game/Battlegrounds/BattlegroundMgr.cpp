@@ -982,7 +982,7 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
             }
         }
 
-        return Warhead::Containers::SelectRandomWeightedContainerElement(ids, weights);
+        return *Warhead::Containers::SelectRandomWeightedContainerElement(ids, weights);
     }
 
     return BATTLEGROUND_TYPE_NONE;

@@ -779,7 +779,7 @@ public:
         void FilterTargets(std::list<WorldObject*>& targets)
         {
             targets.remove(GetCaster());
-            Warhead::Containers::RandomResizeList(targets, _count);
+            Warhead::Containers::RandomResize(targets, _count);
         }
 
         void Register() override

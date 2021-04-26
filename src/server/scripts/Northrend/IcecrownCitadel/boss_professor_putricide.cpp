@@ -1270,7 +1270,7 @@ public:
             }
 
             targets.remove_if(Warhead::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
-            Warhead::Containers::RandomResizeList(targets, 1);
+            Warhead::Containers::RandomResize(targets, 1);
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)

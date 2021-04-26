@@ -921,10 +921,10 @@ public:
             uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 3 : 1);
             healList.remove_if(UnchainedMagicTargetSelector(false));
             if (healList.size() > maxSize)
-                Warhead::Containers::RandomResizeList(healList, maxSize);
+                Warhead::Containers::RandomResize(healList, maxSize);
             dpsList.remove_if(UnchainedMagicTargetSelector(true));
             if (dpsList.size() > maxSize)
-                Warhead::Containers::RandomResizeList(dpsList, maxSize);
+                Warhead::Containers::RandomResize(dpsList, maxSize);
             unitList.splice(unitList.begin(), healList);
             unitList.splice(unitList.begin(), dpsList);
         }

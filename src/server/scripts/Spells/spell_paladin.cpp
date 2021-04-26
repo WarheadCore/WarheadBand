@@ -663,7 +663,7 @@ public:
 
         void CountTargets(std::list<WorldObject*>& targetList)
         {
-            Warhead::Containers::RandomResizeList(targetList, GetSpellValue()->MaxAffectedTargets);
+            Warhead::Containers::RandomResize(targetList, GetSpellValue()->MaxAffectedTargets);
             _targetCount = targetList.size();
         }
 
