@@ -93,6 +93,8 @@ public:
 
     ByteBuffer(MessageBuffer&& buffer);
 
+    virtual ~ByteBuffer() = default;
+
     ByteBuffer& operator=(ByteBuffer const& right)
     {
         if (this != &right)
@@ -119,15 +121,14 @@ public:
         return *this;
     }
 
-    virtual ~ByteBuffer() = default;
-
     void clear()
     {
         _storage.clear();
         _rpos = _wpos = 0;
     }
 
-    template <typename T> void append(T value)
+    template <typename T>
+    void append(T value)
     {
         static_assert(std::is_fundamental<T>::value, "append(compound)");
         EndianConvert(value);
@@ -148,69 +149,69 @@ public:
         return *this;
     }
 
-    ByteBuffer &operator<<(uint8 value)
+    ByteBuffer& operator<<(uint8 value)
     {
         append<uint8>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(uint16 value)
+    ByteBuffer& operator<<(uint16 value)
     {
         append<uint16>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(uint32 value)
+    ByteBuffer& operator<<(uint32 value)
     {
         append<uint32>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(uint64 value)
+    ByteBuffer& operator<<(uint64 value)
     {
         append<uint64>(value);
         return *this;
     }
 
     // signed as in 2e complement
-    ByteBuffer &operator<<(int8 value)
+    ByteBuffer& operator<<(int8 value)
     {
         append<int8>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(int16 value)
+    ByteBuffer& operator<<(int16 value)
     {
         append<int16>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(int32 value)
+    ByteBuffer& operator<<(int32 value)
     {
         append<int32>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(int64 value)
+    ByteBuffer& operator<<(int64 value)
     {
         append<int64>(value);
         return *this;
     }
 
     // floating points
-    ByteBuffer &operator<<(float value)
+    ByteBuffer& operator<<(float value)
     {
         append<float>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(double value)
+    ByteBuffer& operator<<(double value)
     {
         append<double>(value);
         return *this;
     }
 
-    ByteBuffer &operator<<(std::string_view value)
+    ByteBuffer& operator<<(std::string_view value)
     {
         if (size_t len = value.length())
             append(reinterpret_cast<uint8 const*>(value.data()), len);
@@ -223,68 +224,68 @@ public:
         return operator<<(std::string_view(str));
     }
 
-    ByteBuffer &operator<<(char const* str)
+    ByteBuffer& operator<<(char const* str)
     {
         return operator<<(std::string_view(str ? str : ""));
     }
 
-    ByteBuffer &operator>>(bool &value)
+    ByteBuffer& operator>>(bool& value)
     {
         value = read<char>() > 0 ? true : false;
         return *this;
     }
 
-    ByteBuffer &operator>>(uint8 &value)
+    ByteBuffer& operator>>(uint8& value)
     {
         value = read<uint8>();
         return *this;
     }
 
-    ByteBuffer &operator>>(uint16 &value)
+    ByteBuffer& operator>>(uint16& value)
     {
         value = read<uint16>();
         return *this;
     }
 
-    ByteBuffer &operator>>(uint32 &value)
+    ByteBuffer& operator>>(uint32& value)
     {
         value = read<uint32>();
         return *this;
     }
 
-    ByteBuffer &operator>>(uint64 &value)
+    ByteBuffer& operator>>(uint64& value)
     {
         value = read<uint64>();
         return *this;
     }
 
     //signed as in 2e complement
-    ByteBuffer &operator>>(int8 &value)
+    ByteBuffer& operator>>(int8& value)
     {
         value = read<int8>();
         return *this;
     }
 
-    ByteBuffer &operator>>(int16 &value)
+    ByteBuffer& operator>>(int16& value)
     {
         value = read<int16>();
         return *this;
     }
 
-    ByteBuffer &operator>>(int32 &value)
+    ByteBuffer& operator>>(int32& value)
     {
         value = read<int32>();
         return *this;
     }
 
-    ByteBuffer &operator>>(int64 &value)
+    ByteBuffer& operator>>(int64& value)
     {
         value = read<int64>();
         return *this;
     }
 
-    ByteBuffer &operator>>(float &value);
-    ByteBuffer &operator>>(double &value);
+    ByteBuffer& operator>>(float& value);
+    ByteBuffer& operator>>(double& value);
 
     ByteBuffer& operator>>(std::string& value)
     {
@@ -296,6 +297,7 @@ public:
     {
         if (pos >= size())
             throw ByteBufferPositionException(false, pos, 1, size());
+
         return _storage[pos];
     }
 
@@ -303,6 +305,7 @@ public:
     {
         if (pos >= size())
             throw ByteBufferPositionException(false, pos, 1, size());
+
         return _storage[pos];
     }
 
@@ -334,6 +337,7 @@ public:
     {
         if (_rpos + skip > size())
             throw ByteBufferPositionException(false, _rpos, skip, size());
+
         _rpos += skip;
     }
 
@@ -348,6 +352,7 @@ public:
     {
         if (pos + sizeof(T) > size())
             throw ByteBufferPositionException(false, pos, sizeof(T), size());
+
         T val = *((T const*)&_storage[pos]);
         EndianConvert(val);
         return val;
@@ -357,6 +362,7 @@ public:
     {
         if (_rpos  + len > size())
             throw ByteBufferPositionException(false, _rpos, len, size());
+
         std::memcpy(dest, &_storage[_rpos], len);
         _rpos += len;
     }
@@ -405,6 +411,7 @@ public:
     {
         if (_storage.empty())
             throw ByteBufferException();
+
         return _storage.data();
     }
 
@@ -412,6 +419,7 @@ public:
     {
         if (_storage.empty())
             throw ByteBufferException();
+
         return _storage.data();
     }
 
