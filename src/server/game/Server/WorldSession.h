@@ -200,7 +200,7 @@ struct CharacterRenameInfo
     friend class WorldSession;
 
 protected:
-    uint64 Guid;
+    ObjectGuid Guid;
     std::string Name;
 };
 
@@ -341,7 +341,7 @@ public:
     // Pet
     void SendPetNameQuery(ObjectGuid guid, uint32 petnumber);
     void SendStablePet(ObjectGuid guid);
-    void SendStablePetCallback(PreparedQueryResult result, ObjectGuid guid);
+    void SendStablePetCallback(ObjectGuid guid, PreparedQueryResult result);
     void SendStableResult(uint8 guid);
     bool CheckStableMaster(ObjectGuid guid);
 
@@ -454,7 +454,7 @@ public:                                                 // opcodes handlers
     void SendCharRename(ResponseCodes result, CharacterRenameInfo const* renameInfo);
     void SendCharCustomize(ResponseCodes result, CharacterCustomizeInfo const* customizeInfo);
     void SendCharFactionChange(ResponseCodes result, CharacterFactionChangeInfo const* factionChangeInfo);
-    void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, uint64 guid);
+    void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid);
 
     // played time
     void HandlePlayedTime(WorldPacket& recvPacket);
@@ -642,7 +642,7 @@ public:                                                 // opcodes handlers
     void HandleStableRevivePet(WorldPacket& recvPacket);
     void HandleStableSwapPet(WorldPacket& recvPacket);
     void HandleStableSwapPetCallback(uint32 petId, PreparedQueryResult result);
-    void HandleOpenWrappedItemCallback(PreparedQueryResult result, uint8 bagIndex, uint8 slot, ObjectGuid::LowType itemLowGUID);
+    void HandleOpenWrappedItemCallback(uint8 bagIndex, uint8 slot, ObjectGuid::LowType itemLowGUID, PreparedQueryResult result);
     void HandleLoadActionsSwitchSpec(PreparedQueryResult result);
     void HandleCharacterAuraFrozen(PreparedQueryResult result);
     uint8 HandleLoadPetFromDBFirstCallback(PreparedQueryResult result, uint8 asynchLoadType);

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -210,12 +210,10 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 
     if (petition)
     {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("network", "Invalid petition: %s", petition->petitionGuid.ToString().c_str());
-#endif
 
-        trans->PAppend("DELETE FROM petition WHERE petitionguid = %u", petition->petitionGuid);
-        trans->PAppend("DELETE FROM petition_sign WHERE petitionguid = %u", petition->petitionGuid);
+        trans->PAppend("DELETE FROM petition WHERE petitionguid = %u", petition->petitionGuid.GetCounter());
+        trans->PAppend("DELETE FROM petition_sign WHERE petitionguid = %u", petition->petitionGuid.GetCounter());
         // xinef: clear petition store
         sPetitionMgr->RemovePetition(petition->petitionGuid);
     }

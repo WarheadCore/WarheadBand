@@ -94,8 +94,8 @@ WH_GAME_API void AddGossipItemFor(Player* player, uint32 icon, std::string const
 WH_GAME_API void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action);
 
 // Send menu text
-void SendGossipMenuFor(Player* player, uint32 npcTextID, ObjectGuid const guid);
-void SendGossipMenuFor(Player* player, uint32 npcTextID, Creature const* creature);
+WH_GAME_API void SendGossipMenuFor(Player* player, uint32 npcTextID, ObjectGuid const guid);
+WH_GAME_API void SendGossipMenuFor(Player* player, uint32 npcTextID, Creature const* creature);
 
 // Close menu
 WH_GAME_API void CloseGossipMenuFor(Player* player);

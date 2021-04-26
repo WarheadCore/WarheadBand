@@ -1559,7 +1559,7 @@ public:
     /***                   LOAD SYSTEM                     ***/
     /*********************************************************/
 
-    bool LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder);
+    bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& holder);
     [[nodiscard]] bool isBeingLoaded() const override;
 
     void Initialize(ObjectGuid::LowType guid);
@@ -1584,7 +1584,7 @@ public:
     static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
     static void Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction trans);
     static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, ObjectGuid guid);
-    static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, uint64 guid, CharacterDatabaseTransaction trans);
+    static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
 
     static void DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool updateRealmChars, bool deleteFinally);
     static void DeleteOldCharacters();
@@ -2045,7 +2045,7 @@ public:
     void SpawnCorpseBones(bool triggerSave = true);
     Corpse* CreateCorpse();
     void KillPlayer();
-    static void OfflineResurrect(ObjectGuid const guid, SQLTransaction& trans);
+    static void OfflineResurrect(ObjectGuid const playerGuid, CharacterDatabaseTransaction trans);
     bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
     WorldLocation GetCorpseLocation() const { return _corpseLocation; }
     uint32 GetResurrectionSpellId();

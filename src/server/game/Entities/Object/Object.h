@@ -669,12 +669,6 @@ public:
         Relocate(x, y, z, o);
     }
 
-    void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
-    {
-        m_mapId = mapId;
-        Relocate(x, y, z, o);
-    }
-
     [[nodiscard]] uint32 GetMapId() const
     {
         return m_mapId;

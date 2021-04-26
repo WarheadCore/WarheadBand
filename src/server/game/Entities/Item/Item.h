@@ -229,12 +229,12 @@ public:
     bool IsBindedNotWith(Player const* player) const;
     [[nodiscard]] bool IsBoundByEnchant() const;
     [[nodiscard]] bool IsBoundByTempEnchant() const;
-    virtual void SaveToDB(SQLTransaction& trans);
+    virtual void SaveToDB(CharacterDatabaseTransaction trans);
     virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry);
-    static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
-    virtual void DeleteFromDB(SQLTransaction& trans);
-    static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
-    void DeleteFromInventoryDB(SQLTransaction& trans);
+    static void DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
+    virtual void DeleteFromDB(CharacterDatabaseTransaction trans);
+    static void DeleteFromInventoryDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
+    void DeleteFromInventoryDB(CharacterDatabaseTransaction trans);
     void SaveRefundDataToDB();
     void DeleteRefundDataFromDB(CharacterDatabaseTransaction* trans);
 

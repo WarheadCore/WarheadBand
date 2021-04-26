@@ -85,7 +85,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     SetObjectScale(1);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
 
-    _cellCoord = acore::ComputeCellCoord(GetPositionX(), GetPositionY());
+    _cellCoord = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
 
     return true;
 }
@@ -124,9 +124,9 @@ void Corpse::DeleteFromDB(CharacterDatabaseTransaction trans)
     DeleteFromDB(GetOwnerGUID(), trans);
 }
 
-void Corpse::DeleteFromDB(ObjectGuid const ownerGuid, SQLTransaction& trans)
+void Corpse::DeleteFromDB(ObjectGuid const ownerGuid, CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
     stmt->setUInt32(0, ownerGuid.GetCounter());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -173,7 +173,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
         return false;
     }
 
-    _cellCoord = acore::ComputeCellCoord(GetPositionX(), GetPositionY());
+    _cellCoord = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
     return true;
 }
 

@@ -24,6 +24,7 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "ObjectGuid.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
 #include "Timer.h"
@@ -500,7 +501,7 @@ enum Rates
 // xinef: global storage
 struct GlobalPlayerData
 {
-    uint32 guidLow;
+    ObjectGuid::LowType guidLow;
     uint32 accountId;
     std::string name;
     uint8 race;

@@ -134,19 +134,19 @@ public:
     template<class SPECIFIC_TYPE>
     bool Insert(KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
     {
-        return acore::Insert(_elements, handle, obj);
+        return Warhead::Insert(_elements, handle, obj);
     }
 
     template<class SPECIFIC_TYPE>
     bool Remove(KEY_TYPE const& handle)
     {
-        return acore::Remove(_elements, handle, (SPECIFIC_TYPE*)nullptr);
+        return Warhead::Remove(_elements, handle, (SPECIFIC_TYPE*)nullptr);
     }
 
     template<class SPECIFIC_TYPE>
     SPECIFIC_TYPE* Find(KEY_TYPE const& handle)
     {
-        return acore::Find(_elements, handle, (SPECIFIC_TYPE*)nullptr);
+        return Warhead::Find(_elements, handle, (SPECIFIC_TYPE*)nullptr);
     }
 
     ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE>& GetElements() { return _elements; }

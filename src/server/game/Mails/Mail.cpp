@@ -140,7 +140,7 @@ void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction trans, bool inD
     m_items.clear();
 }
 
-void MailDraft::SendReturnToSender(uint32 /*sender_acc*/, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, SQLTransaction& trans)
+void MailDraft::SendReturnToSender(uint32 /*sender_acc*/, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans)
 {
     Player* receiver = ObjectAccessor::FindPlayerByLowGUID(receiver_guid);
 
