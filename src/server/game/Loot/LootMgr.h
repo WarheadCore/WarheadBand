@@ -28,7 +28,6 @@
 #include <map>
 #include <vector>
 
-
 enum RollType
 {
     ROLL_PASS         = 0,
