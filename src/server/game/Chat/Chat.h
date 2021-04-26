@@ -20,6 +20,7 @@
 
 #include "SharedDefines.h"
 #include "WorldSession.h"
+#include "Errors.h"
 #include <vector>
 
 class ChatHandler;
