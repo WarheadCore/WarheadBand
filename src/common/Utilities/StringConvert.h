@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ACORE_STRINGCONVERT_H_
-#define _ACORE_STRINGCONVERT_H_
+#ifndef _WARHEAD_STRINGCONVERT_H_
+#define _WARHEAD_STRINGCONVERT_H_
 
 #include "Define.h"
 #include "Errors.h"
@@ -167,7 +167,7 @@ namespace Warhead::Impl::StringConvertImpl
         }
     };
 
-#if WH_COMPILER == WH_COMPILER_MICROSOFT
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
     template <typename T>
     struct For<T, std::enable_if_t<std::is_floating_point_v<T>>>
     {
@@ -268,4 +268,4 @@ namespace Warhead
     }
 }
 
-#endif // _ACORE_STRINGCONVERT_H_
+#endif // _WARHEAD_STRINGCONVERT_H_

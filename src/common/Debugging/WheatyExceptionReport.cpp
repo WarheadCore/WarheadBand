@@ -22,7 +22,7 @@
 //==========================================
 #include "CompilerDefs.h"
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS && !defined(__MINGW32__)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

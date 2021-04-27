@@ -30,8 +30,8 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
-#ifndef _ACORE_CORE_CONFIG
-#define _ACORE_CORE_CONFIG "worldserver.conf"
+#ifndef _WARHEAD_CORE_CONFIG
+#define _WARHEAD_CORE_CONFIG "worldserver.conf"
 #endif
 
 #ifdef _WIN32
@@ -68,7 +68,7 @@ extern int main(int argc, char** argv)
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
 
     ///- Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_ACORE_CORE_CONFIG);
+    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG);
     int c = 1;
     while (c < argc)
     {

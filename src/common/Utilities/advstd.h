@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ACORE_ADV_STD_H_
-#define _ACORE_ADV_STD_H_
+#ifndef _WARHEAD_ADV_STD_H_
+#define _WARHEAD_ADV_STD_H_
 
 #include <cstddef>
 #include <type_traits>

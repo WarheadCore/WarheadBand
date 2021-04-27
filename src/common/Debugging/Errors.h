@@ -42,7 +42,7 @@ namespace Warhead
 
 WH_COMMON_API std::string GetDebugInfo();
 
-#if WH_COMPILER == WH_COMPILER_MICROSOFT
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
 #define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
 #define ASSERT_END __pragma(warning(pop))
 #else
@@ -50,7 +50,7 @@ WH_COMMON_API std::string GetDebugInfo();
 #define ASSERT_END
 #endif
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
 #endif
 

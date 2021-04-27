@@ -1951,7 +1951,7 @@ public:
                 } **/
 
                 uint32 ip = inet_addr(lastIp.c_str());
-#if ACORE_ENDIAN == BIGENDIAN
+#if WARHEAD_ENDIAN == BIGENDIAN
                 EndianConvertReverse(ip);
 #endif
                 loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);

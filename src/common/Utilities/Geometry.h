@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef _ACORE_GEOMETRY_H
-#define _ACORE_GEOMETRY_H
+#ifndef _WARHEAD_GEOMETRY_H
+#define _WARHEAD_GEOMETRY_H
 
 #include <cmath>
 #include <iostream>
@@ -66,4 +66,4 @@ using namespace std;
     return height * getCircleAreaByRadius(radius);
 }
 
-#endif // _ACORE_GEOMETRY_H
+#endif // _WARHEAD_GEOMETRY_H

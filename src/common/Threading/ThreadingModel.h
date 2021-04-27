@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_THREADINGMODEL_H
-#define ACORE_THREADINGMODEL_H
+#ifndef WARHEAD_THREADINGMODEL_H
+#define WARHEAD_THREADINGMODEL_H
 
 /**
  * @class ThreadingModel<T>

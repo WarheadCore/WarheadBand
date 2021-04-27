@@ -33,7 +33,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-#if WH_PLATFORM != WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -89,7 +89,7 @@ int cli_hook_func()
 
 void utf8print(void* /*arg*/, const char* str)
 {
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     wchar_t wtemp_buf[6000];
     size_t wtemp_len = 6000 - 1;
     if (!Utf8toWStr(str, strlen(str), wtemp_buf, wtemp_len))
@@ -132,7 +132,7 @@ void CliRunnable::run()
 {
     ///- Display the list of available CLI functions then beep
     //TC_LOG_INFO("server.worldserver", "");
-#if WH_PLATFORM != WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;
 #endif
@@ -151,7 +151,7 @@ void CliRunnable::run()
 
         char* command_str ;             // = fgets(commandbuf, sizeof(commandbuf), stdin);
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
         char commandbuf[256];
         command_str = fgets(commandbuf, sizeof(commandbuf), stdin);
 #else
@@ -170,7 +170,7 @@ void CliRunnable::run()
 
             if (!*command_str)
             {
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
                 printf("AC>");
 #else
                 free(command_str);
@@ -181,7 +181,7 @@ void CliRunnable::run()
             std::string command;
             if (!consoleToUtf8(command_str, command))         // convert from console encoding to utf8
             {
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
                 printf("AC>");
 #else
                 free(command_str);
@@ -191,7 +191,7 @@ void CliRunnable::run()
 
             fflush(stdout);
             sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &utf8print, &commandFinished));
-#if WH_PLATFORM != WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
             add_history(command.c_str());
             free(command_str);
 #endif

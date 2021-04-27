@@ -212,7 +212,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     if (!m_Socket)
         return;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS) && defined(ACORE_DEBUG)
+#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS) && defined(WARHEAD_DEBUG)
     // Code for network use statistic
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
@@ -246,7 +246,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketCount = 1;
         sendLastPacketBytes = packet->wpos();               // wpos is real written size
     }
-#endif                                                      // !ACORE_DEBUG
+#endif                                                      // !WARHEAD_DEBUG
 
     sScriptMgr->OnPacketSend(this, *packet);
 
@@ -933,7 +933,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
 
     //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
     //! Might be subject to latency, so just remove improper flags.
-#ifdef ACORE_DEBUG
+#ifdef WARHEAD_DEBUG
 #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
     { \
         if (check) \

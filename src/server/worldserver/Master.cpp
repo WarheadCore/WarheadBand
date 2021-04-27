@@ -65,7 +65,7 @@ void HandleSignal(int sigNum)
             World::StopNow(RESTART_EXIT_CODE);
             break;
         case SIGTERM:
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
         case SIGBREAK:
             if (m_ServiceStatus != 1)
 #endif
@@ -161,7 +161,7 @@ int Master::Run()
     signalHandler.handle_signal(SIGINT, &HandleSignal);
     signalHandler.handle_signal(SIGTERM, &HandleSignal);
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     signalHandler.handle_signal(SIGBREAK, &HandleSignal);
 #endif
 

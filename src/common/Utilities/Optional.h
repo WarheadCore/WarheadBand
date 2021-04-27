@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_OPTIONAL_H
-#define ACORE_OPTIONAL_H
+#ifndef WARHEAD_OPTIONAL_H
+#define WARHEAD_OPTIONAL_H
 
 #include <optional>
 
@@ -24,4 +24,4 @@
 template <class T>
 using Optional = std::optional<T>;
 
-#endif // ACORE_OPTIONAL_H
+#endif // WARHEAD_OPTIONAL_H

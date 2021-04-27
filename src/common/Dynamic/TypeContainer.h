@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_TYPECONTAINER_H
-#define ACORE_TYPECONTAINER_H
+#ifndef WARHEAD_TYPECONTAINER_H
+#define WARHEAD_TYPECONTAINER_H
 
 /*
  * Here, you'll find a series of containers that allow you to hold multiple

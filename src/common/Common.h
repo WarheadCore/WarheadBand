@@ -71,7 +71,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #define STRCASECMP stricmp
 #else
 #define STRCASECMP strcasecmp
@@ -91,7 +91,7 @@
 #include "Threading/Threading.h"
 #include <ace/Stack_Trace.h>
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h
 // uncomment later if needed
@@ -107,7 +107,7 @@
 #  include <netdb.h>
 #endif
 
-#if WH_COMPILER == WH_COMPILER_MICROSOFT
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
 
 #include <float.h>
 

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef _ACORE_PHYSICS_H
-#define _ACORE_PHYSICS_H
+#ifndef _WARHEAD_PHYSICS_H
+#define _WARHEAD_PHYSICS_H
 
 #include "Geometry.h"
 #include <cmath>
@@ -52,4 +52,4 @@ using namespace std;
     return weight / (baseArea * density);
 }
 
-#endif // _ACORE_PHYSICS_H
+#endif // _WARHEAD_PHYSICS_H

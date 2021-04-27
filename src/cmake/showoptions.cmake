@@ -80,7 +80,7 @@ endif()
 
 if( WITH_COREDEBUG )
   message("* Use coreside debug              : Yes")
-  add_definitions(-DACORE_DEBUG)
+  add_definitions(-DWARHEAD_DEBUG)
 else()
   message("* Use coreside debug              : No  (default)")
 endif()
