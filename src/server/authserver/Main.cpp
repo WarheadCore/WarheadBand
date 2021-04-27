@@ -31,6 +31,7 @@
 #include "SignalHandler.h"
 #include "RealmList.h"
 #include "RealmAcceptor.h"
+#include "IPLocation.h"
 #include "Logo.h"
 #include "DatabaseLoader.h"
 #include "MySQLThreading.h"
@@ -136,6 +137,9 @@ extern int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    // Load IP Location Database
+    sIPLocation->Load();
 
     sSecretMgr->Initialize();
 

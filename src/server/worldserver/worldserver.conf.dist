@@ -158,6 +158,16 @@ BindIP = "0.0.0.0"
 PidFile = ""
 
 #
+#    IPLocationFile
+#        Description: The path to your IP2Location database CSV file.
+#        Example:     "C:/Warhead/IP2LOCATION-LITE-DB1.CSV"
+#                     "/home/warhead/IP2LOCATION-LITE-DB1.CSV"
+#        Default:     ""  - (Disabled)
+#
+
+IPLocationFile = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################

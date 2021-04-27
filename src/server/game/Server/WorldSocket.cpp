@@ -23,6 +23,7 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Player.h"
@@ -931,8 +932,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         return -1;
     }
 
-    /*if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(address))
-        _ipCountry = location->CountryCode;*/
+    if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(address))
+        _ipCountry = location->CountryCode;
 
     ///- Re-check ip locking (same check as in auth).
     if (account.IsLockedToIP)
@@ -948,18 +949,18 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
             return -1;
         }
     }
-    //else if (!account.LockCountry.empty() && account.LockCountry != "00" && !_ipCountry.empty())
-    //{
-    //    if (account.LockCountry != _ipCountry)
-    //    {
-    //        packet.Initialize(SMSG_AUTH_RESPONSE, 1);
-    //        packet << uint8(AUTH_REJECT);
-    //        LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account country differs. Original country: %s, new country: %s).", account.LockCountry.c_str(), _ipCountry.c_str());
-    //        // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
-    //        sScriptMgr->OnFailedAccountLogin(account.Id);
-    //        return -1;
-    //    }
-    //}
+    else if (!account.LockCountry.empty() && account.LockCountry != "00" && !_ipCountry.empty())
+    {
+        if (account.LockCountry != _ipCountry)
+        {
+            packet.Initialize(SMSG_AUTH_RESPONSE, 1);
+            packet << uint8(AUTH_REJECT);
+            LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Sent Auth Response (Account country differs. Original country: %s, new country: %s).", account.LockCountry.c_str(), _ipCountry.c_str());
+            // We could log on hook only instead of an additional db log, however action logger is config based. Better keep DB logging as well
+            sScriptMgr->OnFailedAccountLogin(account.Id);
+            return -1;
+        }
+    }
 
     if (account.IsBanned)
     {
