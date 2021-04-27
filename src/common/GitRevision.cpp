@@ -65,17 +65,17 @@ char const* GitRevision::GetMySQLExecutable()
 
 #if WH_PLATFORM == WH_PLATFORM_WINDOWS
 #  ifdef _WIN64
-#    define WARHEAD_PLATFORM_STR "Win64"
+#    define WH_PLATFORM_STR "Win64"
 #  else
-#    define WARHEAD_PLATFORM_STR "Win32"
+#    define WH_PLATFORM_STR "Win32"
 #  endif
 #else // WH_PLATFORM
-#  define WARHEAD_PLATFORM_STR "Unix"
+#  define WH_PLATFORM_STR "Unix"
 #endif
 
 char const* GitRevision::GetFullVersion()
 {
-    return VER_COMPANYNAME_STR " rev. " VER_PRODUCTVERSION_STR " (" WARHEAD_PLATFORM_STR ", " _BUILD_DIRECTIVE ")";
+    return VER_COMPANYNAME_STR " rev. " VER_PRODUCTVERSION_STR " (" WH_PLATFORM_STR ", " _BUILD_DIRECTIVE ")";
 }
 
 char const* GitRevision::GetCompanyNameStr()
