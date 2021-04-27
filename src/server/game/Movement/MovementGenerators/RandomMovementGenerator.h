@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_RANDOMMOTIONGENERATOR_H
-#define ACORE_RANDOMMOTIONGENERATOR_H
+#ifndef WARHEAD_RANDOMMOTIONGENERATOR_H
+#define WARHEAD_RANDOMMOTIONGENERATOR_H
 
 #include "MovementGenerator.h"
 #include "PathGenerator.h"

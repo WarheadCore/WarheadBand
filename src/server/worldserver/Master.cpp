@@ -65,7 +65,7 @@ void HandleSignal(int sigNum)
             World::StopNow(RESTART_EXIT_CODE);
             break;
         case SIGTERM:
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
         case SIGBREAK:
             if (m_ServiceStatus != 1)
 #endif
@@ -143,7 +143,7 @@ int Master::Run()
         return 1;
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realmID);
 
     // Loading modules configs
     sConfigMgr->LoadModulesConfigs();
@@ -161,7 +161,7 @@ int Master::Run()
     signalHandler.handle_signal(SIGINT, &HandleSignal);
     signalHandler.handle_signal(SIGTERM, &HandleSignal);
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     signalHandler.handle_signal(SIGBREAK, &HandleSignal);
 #endif
 
@@ -284,7 +284,7 @@ int Master::Run()
     }
 
     // set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_VERSION_MISMATCH, realmID);
 
     LOG_INFO("server", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 

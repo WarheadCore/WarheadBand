@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ACORE_DBCSFRM_H
-#define ACORE_DBCSFRM_H
+#ifndef WARHEAD_DBCSFRM_H
+#define WARHEAD_DBCSFRM_H
 
 char constexpr Achievementfmt[] = "niixssssssssssssssssxxxxxxxxxxxxxxxxxxiixixxxxxxxxxxxxxxxxxxii";
 char constexpr AchievementCategoryfmt[] = "nixxxxxxxxxxxxxxxxxx";

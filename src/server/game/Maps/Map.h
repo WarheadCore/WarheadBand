@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_MAP_H
-#define ACORE_MAP_H
+#ifndef WARHEAD_MAP_H
+#define WARHEAD_MAP_H
 
 #include "Cell.h"
 #include "DataMap.h"

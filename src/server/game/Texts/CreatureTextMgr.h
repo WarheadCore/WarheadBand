@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_CREATURE_TEXT_MGR_H
-#define ACORE_CREATURE_TEXT_MGR_H
+#ifndef WARHEAD_CREATURE_TEXT_MGR_H
+#define WARHEAD_CREATURE_TEXT_MGR_H
 
 #include "Creature.h"
 #include "GridNotifiers.h"

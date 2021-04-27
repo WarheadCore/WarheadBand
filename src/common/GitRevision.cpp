@@ -63,13 +63,13 @@ char const* GitRevision::GetMySQLExecutable()
     return _MYSQL_EXECUTABLE;
 }
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #  ifdef _WIN64
 #    define WARHEAD_PLATFORM_STR "Win64"
 #  else
 #    define WARHEAD_PLATFORM_STR "Win32"
 #  endif
-#else // WH_PLATFORM
+#else // WARHEAD_PLATFORM
 #  define WARHEAD_PLATFORM_STR "Unix"
 #endif
 

@@ -49,8 +49,8 @@
 #define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0
 #endif
 
-#ifndef _ACORE_REALM_CONFIG
-#define _ACORE_REALM_CONFIG "authserver.conf"
+#ifndef _WARHEAD_REALM_CONFIG
+#define _WARHEAD_REALM_CONFIG "authserver.conf"
 #endif
 
 bool StartDB();
@@ -72,7 +72,7 @@ extern int main(int argc, char** argv)
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
 
     // Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_ACORE_REALM_CONFIG);
+    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_REALM_CONFIG);
     int count = 1;
     while (count < argc)
     {
@@ -145,7 +145,7 @@ extern int main(int argc, char** argv)
 
     // Get the list of realms for the server
     sRealmList->Initialize(sConfigMgr->GetOption<int32>("RealmsStateUpdateDelay", 20));
-    if (sRealmList->size() == 0)
+    if (sRealmList->GetRealms().empty())
     {
         LOG_ERROR("server.authserver", "No valid realms specified.");
         return 1;
@@ -181,7 +181,7 @@ extern int main(int argc, char** argv)
     signalHandler.handle_signal(SIGINT, _handler);
     signalHandler.handle_signal(SIGTERM, _handler);
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     signalHandler.handle_signal(SIGBREAK, _handler);
 #endif
 

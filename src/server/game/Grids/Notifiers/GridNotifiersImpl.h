@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_GRIDNOTIFIERSIMPL_H
-#define ACORE_GRIDNOTIFIERSIMPL_H
+#ifndef WARHEAD_GRIDNOTIFIERSIMPL_H
+#define WARHEAD_GRIDNOTIFIERSIMPL_H
 
 #include "Corpse.h"
 #include "CreatureAI.h"
@@ -581,4 +581,4 @@ void Warhead::LocalizedPacketListDo<Builder>::operator()(Player* p)
         p->SendDirectMessage((*data_list)[i]);
 }
 
-#endif                                                      // ACORE_GRIDNOTIFIERSIMPL_H
+#endif                                                      // WARHEAD_GRIDNOTIFIERSIMPL_H

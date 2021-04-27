@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ACORE_DETOUR_EXTENDED_H
-#define _ACORE_DETOUR_EXTENDED_H
+#ifndef _WARHEAD_DETOUR_EXTENDED_H
+#define _WARHEAD_DETOUR_EXTENDED_H
 
 #include "Define.h"
 #include "DetourNavMeshQuery.h"
@@ -30,4 +30,4 @@ public:
         const dtPolyRef nextRef, const dtMeshTile* nextTile, const dtPoly* nextPoly) const override;
 };
 
-#endif // _ACORE_DETOUR_EXTENDED_H
+#endif // _WARHEAD_DETOUR_EXTENDED_H

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_DEFINE_H
-#define ACORE_DEFINE_H
+#ifndef WARHEAD_DEFINE_H
+#define WARHEAD_DEFINE_H
 
 #include <cstddef>
 #include <cstdint>
@@ -30,19 +30,19 @@
 #define OS_WIN
 #endif
 
-#define ACORE_LITTLEENDIAN 0
-#define ACORE_BIGENDIAN    1
+#define WARHEAD_LITTLEENDIAN 0
+#define WARHEAD_BIGENDIAN    1
 
-#if !defined(ACORE_ENDIAN)
+#if !defined(WARHEAD_ENDIAN)
 #  if defined (ACE_BIG_ENDIAN)
-#    define ACORE_ENDIAN ACORE_BIGENDIAN
+#    define WARHEAD_ENDIAN WARHEAD_BIGENDIAN
 #  else //ACE_BYTE_ORDER != ACE_BIG_ENDIAN
-#    define ACORE_ENDIAN ACORE_LITTLEENDIAN
+#    define WARHEAD_ENDIAN WARHEAD_LITTLEENDIAN
 #  endif //ACE_BYTE_ORDER
-#endif //ACORE_ENDIAN
+#endif //WARHEAD_ENDIAN
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
-#  define ACORE_PATH_MAX MAX_PATH
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+#  define WARHEAD_PATH_MAX MAX_PATH
 #  define _USE_MATH_DEFINES
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
@@ -50,36 +50,36 @@
 #  ifndef DECLSPEC_DEPRECATED
 #    define DECLSPEC_DEPRECATED __declspec(deprecated)
 #  endif //DECLSPEC_DEPRECATED
-#else //WH_PLATFORM != WH_PLATFORM_WINDOWS
-#  define ACORE_PATH_MAX PATH_MAX
+#else //WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
+#  define WARHEAD_PATH_MAX PATH_MAX
 #  define DECLSPEC_NORETURN
 #  define DECLSPEC_DEPRECATED
-#endif //WH_PLATFORM
+#endif //WARHEAD_PLATFORM
 
 #if !defined(COREDEBUG)
-#  define ACORE_INLINE inline
+#  define WARHEAD_INLINE inline
 #else //COREDEBUG
-#  if !defined(ACORE_DEBUG)
-#    define ACORE_DEBUG
-#  endif //ACORE_DEBUG
-#  define ACORE_INLINE
+#  if !defined(WARHEAD_DEBUG)
+#    define WARHEAD_DEBUG
+#  endif //WARHEAD_DEBUG
+#  define WARHEAD_INLINE
 #endif //!COREDEBUG
 
-#if WH_COMPILER == WH_COMPILER_GNU
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #  define ATTR_NORETURN __attribute__((noreturn))
 #  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
 #  define ATTR_DEPRECATED __attribute__((deprecated))
-#else //WH_COMPILER != WH_COMPILER_GNU
+#else //WARHEAD_COMPILER != WARHEAD_COMPILER_GNU
 #  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
-#endif //WH_COMPILER == WH_COMPILER_GNU
+#endif //WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 
 #ifdef WARHEAD_API_USE_DYNAMIC_LINKING
-#  if WH_COMPILER == WH_COMPILER_MICROSOFT
+#  if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
 #    define WH_API_EXPORT __declspec(dllexport)
 #    define WH_API_IMPORT __declspec(dllimport)
-#  elif WH_COMPILER == WH_COMPILER_GNU
+#  elif WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #    define WH_API_EXPORT __attribute__((visibility("default")))
 #    define WH_API_IMPORT
 #  else
@@ -114,43 +114,43 @@
 #  define WH_GAME_API WH_API_IMPORT
 #endif
 
-#ifdef ACORE_API_USE_DYNAMIC_LINKING
-#  if AC_COMPILER == AC_COMPILER_MICROSOFT
-#    define AC_API_EXPORT __declspec(dllexport)
-#    define AC_API_IMPORT __declspec(dllimport)
-#  elif AC_COMPILER == AC_COMPILER_GNU
-#    define AC_API_EXPORT __attribute__((visibility("default")))
-#    define AC_API_IMPORT
+#ifdef WARHEAD_API_USE_DYNAMIC_LINKING
+#  if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
+#    define WH_API_EXPORT __declspec(dllexport)
+#    define WH_API_IMPORT __declspec(dllimport)
+#  elif WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#    define WH_API_EXPORT __attribute__((visibility("default")))
+#    define WH_API_IMPORT
 #  else
 #    error compiler not supported!
 #  endif
 #else
-#  define AC_API_EXPORT
-#  define AC_API_IMPORT
+#  define WH_API_EXPORT
+#  define WH_API_IMPORT
 #endif
 
-#ifdef ACORE_API_EXPORT_COMMON
-#  define AC_COMMON_API AC_API_EXPORT
+#ifdef WARHEAD_API_EXPORT_COMMON
+#  define WH_COMMON_API WH_API_EXPORT
 #else
-#  define AC_COMMON_API AC_API_IMPORT
+#  define WH_COMMON_API WH_API_IMPORT
 #endif
 
-#ifdef ACORE_API_EXPORT_DATABASE
-#  define AC_DATABASE_API AC_API_EXPORT
+#ifdef WARHEAD_API_EXPORT_DATABASE
+#  define WH_DATABASE_API WH_API_EXPORT
 #else
-#  define AC_DATABASE_API AC_API_IMPORT
+#  define WH_DATABASE_API WH_API_IMPORT
 #endif
 
-#ifdef ACORE_API_EXPORT_SHARED
-#  define AC_SHARED_API AC_API_EXPORT
+#ifdef WARHEAD_API_EXPORT_SHARED
+#  define WH_SHARED_API WH_API_EXPORT
 #else
-#  define AC_SHARED_API AC_API_IMPORT
+#  define WH_SHARED_API WH_API_IMPORT
 #endif
 
-#ifdef ACORE_API_EXPORT_GAME
-#  define AC_GAME_API AC_API_EXPORT
+#ifdef WARHEAD_API_EXPORT_GAME
+#  define WH_GAME_API WH_API_EXPORT
 #else
-#  define AC_GAME_API AC_API_IMPORT
+#  define WH_GAME_API WH_API_IMPORT
 #endif
 
 #define UI64FMTD "%" PRIu64
@@ -172,4 +172,4 @@ typedef std::uint32_t uint32;
 typedef std::uint16_t uint16;
 typedef std::uint8_t uint8;
 
-#endif //ACORE_DEFINE_H
+#endif //WARHEAD_DEFINE_H

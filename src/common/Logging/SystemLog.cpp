@@ -24,7 +24,7 @@
 #include <Poco/Logger.h>
 #include <Poco/AutoPtr.h>
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <Poco/WindowsConsoleChannel.h>
 #define CONSOLE_CHANNEL WindowsColorConsoleChannel
 #else

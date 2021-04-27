@@ -19,8 +19,8 @@
 /// @{
 /// \file
 
-#ifndef _ACORE_RARUNNABLE_H_
-#define _ACORE_RARUNNABLE_H_
+#ifndef _WARHEAD_RARUNNABLE_H_
+#define _WARHEAD_RARUNNABLE_H_
 
 #include "Common.h"
 #include <ace/Reactor.h>
@@ -36,6 +36,6 @@ private:
     ACE_Reactor* m_Reactor;
 };
 
-#endif /* _ACORE_RARUNNABLE_H_ */
+#endif /* _WARHEAD_RARUNNABLE_H_ */
 
 /// @}

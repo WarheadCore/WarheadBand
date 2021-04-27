@@ -136,7 +136,7 @@ private:
         } \
     }
 
-#if WH_PLATFORM != WH_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
 void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_OBJECTACCESSOR_H
-#define ACORE_OBJECTACCESSOR_H
+#ifndef WARHEAD_OBJECTACCESSOR_H
+#define WARHEAD_OBJECTACCESSOR_H
 
 #include "Define.h"
 #include "GridDefines.h"

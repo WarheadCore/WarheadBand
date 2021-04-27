@@ -67,6 +67,7 @@
 #include "PoolMgr.h"
 #include "QuestDef.h"
 #include "QueryHolder.h"
+#include "Realm.h"
 #include "ReputationMgr.h"
 #include "revision.h"
 #include "SavingSystem.h"

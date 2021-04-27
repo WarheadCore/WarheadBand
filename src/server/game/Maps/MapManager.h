@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_MAPMANAGER_H
-#define ACORE_MAPMANAGER_H
+#ifndef WARHEAD_MAPMANAGER_H
+#define WARHEAD_MAPMANAGER_H
 
 #include "Common.h"
 #include "Define.h"

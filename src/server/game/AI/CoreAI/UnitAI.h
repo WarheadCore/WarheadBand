@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ACORE_UNITAI_H
-#define ACORE_UNITAI_H
+#ifndef WARHEAD_UNITAI_H
+#define WARHEAD_UNITAI_H
 
 #include "Containers.h"
 #include "Define.h"

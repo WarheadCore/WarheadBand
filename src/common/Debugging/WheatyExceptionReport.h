@@ -18,7 +18,7 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#if WH_PLATFORM == WH_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS && !defined(__MINGW32__)
 
 #include <winnt.h>
 #include <winternl.h>
