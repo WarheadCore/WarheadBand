@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "UpdateData.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "Errors.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "UpdateData.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "zlib.h"
