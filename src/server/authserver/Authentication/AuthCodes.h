@@ -18,6 +18,9 @@
 #ifndef _AUTHCODES_H
 #define _AUTHCODES_H
 
+#include "Define.h"
+#include <array>
+
 enum AuthResult
 {
     WOW_SUCCESS                                  = 0x00,
