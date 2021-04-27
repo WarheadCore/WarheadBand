@@ -407,7 +407,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            Warhead::Containers::RandomResizeList(targets, GetCaster()->GetAI()->GetData(DATA_NEGATIVE_ENERGY_TARGETS));
+            Warhead::Containers::RandomResize(targets, GetCaster()->GetAI()->GetData(DATA_NEGATIVE_ENERGY_TARGETS));
         }
 
         void HandleScriptEffect(SpellEffIndex effIndex)

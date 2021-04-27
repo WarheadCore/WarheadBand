@@ -209,7 +209,7 @@ public:
             targetList.reverse();
 
         if (targetType == SELECT_TARGET_RANDOM)
-            Warhead::Containers::RandomResizeList(targetList, maxTargets);
+            Warhead::Containers::RandomResize(targetList, maxTargets);
         else
             targetList.resize(maxTargets);
     }

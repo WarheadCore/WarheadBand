@@ -1328,7 +1328,7 @@ public:
                 targets.push_back(target);
             }
             else
-                Warhead::Containers::RandomResizeList(targets, 3);
+                Warhead::Containers::RandomResize(targets, 3);
         }
 
         void Register() override

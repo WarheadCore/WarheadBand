@@ -212,7 +212,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& unitList)
         {
-            Warhead::Containers::RandomResizeList(unitList, 1);
+            Warhead::Containers::RandomResize(unitList, 1);
         }
 
         void HandleDummy(SpellEffIndex effIndex)

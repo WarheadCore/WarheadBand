@@ -117,7 +117,7 @@ public:
             std::list<uint32> helpersList;
             for (uint8 i = 0; i < MAX_HELPERS_COUNT; ++i)
                 helpersList.push_back(helpersEntries[i]);
-            Warhead::Containers::RandomResizeList(helpersList, MAX_ACTIVE_HELPERS);
+            Warhead::Containers::RandomResize(helpersList, MAX_ACTIVE_HELPERS);
 
             uint8 j = 0;
             for (std::list<uint32>::const_iterator itr = helpersList.begin(); itr != helpersList.end(); ++itr, ++j)

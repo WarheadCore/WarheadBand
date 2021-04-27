@@ -439,7 +439,7 @@ public:
                             targets.push_back(itr->GetSource());
                         targets.remove_if(Warhead::ObjectTypeIdCheck(TYPEID_PLAYER, false));
                         targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_FLASH_FREEZE_TRAPPED_PLAYER));
-                        Warhead::Containers::RandomResizeList(targets, (RAID_MODE(2,3)));
+                        Warhead::Containers::RandomResize(targets, (RAID_MODE(2,3)));
                         for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                         {
                             float prevZ = (*itr)->GetPositionZ();
@@ -1286,7 +1286,7 @@ public:
         {
             targets.remove_if(Warhead::ObjectTypeIdCheck(TYPEID_PLAYER, false));
             targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_FLASH_FREEZE_TRAPPED_PLAYER));
-            Warhead::Containers::RandomResizeList(targets, 1);
+            Warhead::Containers::RandomResize(targets, 1);
         }
 
         void Register() override

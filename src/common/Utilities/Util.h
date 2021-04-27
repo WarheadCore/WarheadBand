@@ -82,38 +82,6 @@ WH_COMMON_API uint32 TimeStringToSecs(const std::string& timestring);
 WH_COMMON_API std::string TimeToTimestampStr(time_t t);
 WH_COMMON_API std::string TimeToHumanReadable(time_t t);
 
-/* Return a random number in the range min..max. */
-WH_COMMON_API int32 irand(int32 min, int32 max);
-
-/* Return a random number in the range min..max (inclusive). */
-WH_COMMON_API uint32 urand(uint32 min, uint32 max);
-
-/* Return a random number in the range 0 .. UINT32_MAX. */
-WH_COMMON_API uint32 rand32();
-
-/* Return a random number in the range min..max */
-WH_COMMON_API float frand(float min, float max);
-
-/* Return a random double from 0.0 to 1.0 (exclusive). */
-WH_COMMON_API double rand_norm();
-
-/* Return a random double from 0.0 to 100.0 (exclusive). */
-WH_COMMON_API double rand_chance();
-
-WH_COMMON_API uint32 urandweighted(size_t count, double const* chances);
-
-/* Return true if a random roll fits in the specified chance (range 0-100). */
-inline bool roll_chance_f(float chance)
-{
-    return chance > rand_chance();
-}
-
-/* Return true if a random roll fits in the specified chance (range 0-100). */
-inline bool roll_chance_i(int32 chance)
-{
-    return chance > irand(0, 99);
-}
-
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
     if (val == -100.0f)     // prevent set var to zero
@@ -594,21 +562,6 @@ bool CompareValues(ComparisionType type, T val1, T val2)
             return false;
     }
 }
-
-/*
-* SFMT wrapper satisfying UniformRandomNumberGenerator concept for use in <random> algorithms
-*/
-class SFMTEngine
-{
-public:
-    typedef uint32 result_type;
-
-    static constexpr result_type min() { return std::numeric_limits<result_type>::min(); }
-    static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
-    result_type operator()() const { return rand32(); }
-
-    static SFMTEngine& Instance();
-};
 
 class EventMap
 {
