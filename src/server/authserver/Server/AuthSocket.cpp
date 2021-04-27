@@ -29,6 +29,7 @@
 #include "AuthCodes.h"
 #include "SecretMgr.h"
 #include "TOTP.h"
+#include "Util.h"
 #include <algorithm>
 #include <openssl/crypto.h>
 #include <openssl/md5.h>
