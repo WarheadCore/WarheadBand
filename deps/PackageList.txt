@@ -4,10 +4,6 @@ argon2
   https://github.com/P-H-C/phc-winner-argon2
   Version: 62358ba
 
-ACE (ADAPTIVE Communication Environment)
-  http://www.cs.wustl.edu/~schmidt/ACE.html
-  Version: 6.1.4
-
 Boost (external)
   http://www.boost.org
   Version: external

@@ -58,7 +58,6 @@ target_link_libraries(common
   PRIVATE
     warhead-core-interface
   PUBLIC
-    ace
     argon2
     boost
     Poco::Foundation

@@ -47,7 +47,6 @@
 #include <vector>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-#  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h
 // uncomment later if needed
 //#define _WIN32_WINNT 0x0501

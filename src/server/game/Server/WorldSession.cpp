@@ -19,7 +19,7 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include "WorldSession.h"
 #include "AccountMgr.h"
 #include "BattlegroundMgr.h"
 #include "Common.h"
@@ -45,7 +45,7 @@
 #include "WardenWin.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
+#include "WorldSocket.h" 
 #include "QueryHolder.h"
 #include "zlib.h"
 

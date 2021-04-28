@@ -17,8 +17,6 @@
 
 //add here most rarely modified headers to speed up debug build compilation
 
-#include "WorldSocket.h"        // must be first to make ACE happy with ACE includes in it
-
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Chat.h"
@@ -47,4 +45,5 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldSocket.h" 
 #include "WorldSession.h"
