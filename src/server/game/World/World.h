@@ -24,8 +24,9 @@
 
 #include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "DatabaseEnvFwd.h"
+#include "LockedQueue.h"
 #include "ObjectGuid.h"
-#include "QueryResult.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 #include <atomic>
@@ -41,7 +42,7 @@ class WorldPacket;
 class WorldSession;
 class Player;
 
-WH_GAME_API extern uint32 realmID;
+struct Realm;
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
@@ -968,6 +969,8 @@ private:
     void ProcessQueryCallbacks();
     QueryCallbackProcessor _queryProcessor;
 };
+
+WH_GAME_API extern Realm realm;
 
 #define sWorld World::instance()
 

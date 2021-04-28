@@ -12,6 +12,6 @@ echo "!!README!!: Please install openssl and mysql libraries manually following 
 # mysql 5.6
 
 choco install -y --skip-checksums cmake git git.install microsoft-build-tools
-choco install -y --skip-checksums  mysql --version 5.6.12
+choco install -y --skip-checksums mysql --version 5.6.12
 
 echo "!!README!!: Please remember to install openssl and mysql libraries manually following our wiki"

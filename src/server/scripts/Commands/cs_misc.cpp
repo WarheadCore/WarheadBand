@@ -16,7 +16,6 @@
  */
 
 #include "AccountMgr.h"
-#include "ace/INET_Addr.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
@@ -36,6 +35,7 @@
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
@@ -1926,7 +1926,7 @@ public:
 
         // Query the prepared statement for login data
         loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        loginStmt->setInt32(0, int32(realmID));
+        loginStmt->setInt32(0, int32(realm.Id.Realm));
         loginStmt->setUInt32(1, accId);
 
         PreparedQueryResult accInfoResult = LoginDatabase.Query(loginStmt);

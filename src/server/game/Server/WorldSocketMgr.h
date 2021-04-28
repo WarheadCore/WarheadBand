@@ -24,49 +24,40 @@
 #ifndef __WORLDSOCKETMGR_H
 #define __WORLDSOCKETMGR_H
 
-#include "Common.h"
+#include "SocketMgr.h"
 
 class WorldSocket;
-class ReactorRunnable;
-class ACE_Event_Handler;
 
 /// Manages all sockets connected to peers and network threads
-class WH_GAME_API WorldSocketMgr
+class WH_GAME_API WorldSocketMgr : public SocketMgr<WorldSocket>
 {
-public:
-    friend class WorldSocket;
+    typedef SocketMgr<WorldSocket> BaseSocketMgr;
 
-    static WorldSocketMgr* instance();
+public:
+    static WorldSocketMgr& Instance();
 
     /// Start network, listen at address:port .
-    int StartNetwork(uint16 port, const char* address);
+    bool StartWorldNetwork(Warhead::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int networkThreads);
 
     /// Stops all network threads, It will wait for all running threads .
-    void StopNetwork();
+    void StopNetwork() override;
 
-    /// Wait untill all network threads have "joined" .
-    void Wait();
+    void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex) override;
 
-private:
-    int OnSocketOpen(WorldSocket* sock);
+    std::size_t GetApplicationSendBufferSize() const { return _socketApplicationSendBufferSize; }
 
-    int StartReactiveIO(uint16 port, const char* address);
-
-private:
+protected:
     WorldSocketMgr();
-    virtual ~WorldSocketMgr();
 
-    ReactorRunnable* m_NetThreads;
-    size_t m_NetThreadsCount;
+    NetworkThread<WorldSocket>* CreateThreads() const override;
 
-    int m_SockOutKBuff;
-    int m_SockOutUBuff;
-    bool m_UseNoDelay;
-
-    class WorldSocketAcceptor* m_Acceptor;
+private:
+    int32 _socketSystemSendBufferSize;
+    int32 _socketApplicationSendBufferSize;
+    bool _tcpNoDelay;
 };
 
-#define sWorldSocketMgr WorldSocketMgr::instance()
+#define sWorldSocketMgr WorldSocketMgr::Instance()
 
 #endif
 /// @}

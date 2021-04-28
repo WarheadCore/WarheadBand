@@ -69,7 +69,6 @@
 #include "QueryHolder.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
-#include "revision.h"
 #include "SavingSystem.h"
 #include "ScriptMgr.h"
 #include "SkillDiscovery.h"
@@ -16029,8 +16028,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_TRACK);
         stmt->setUInt32(0, quest_id);
         stmt->setUInt32(1, GetGUID().GetCounter());
-        stmt->setString(2, _HASH);
-        stmt->setString(3, _DATE);
+        stmt->setString(2, GitRevision::GetHash());
+        stmt->setString(3, GitRevision::GetDate());
 
         // add to Quest Tracker
         CharacterDatabase.Execute(stmt);

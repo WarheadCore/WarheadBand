@@ -29,7 +29,7 @@ public:
     // just container for later use
     WorldPacket() : ByteBuffer(0), m_opcode(NULL_OPCODE) { }
 
-    WorldPacket(uint16 opcode, size_t res = 200) :
+    explicit WorldPacket(uint16 opcode, size_t res = 200) :
         ByteBuffer(res), m_opcode(opcode) { }
 
     WorldPacket(WorldPacket&& packet) noexcept :
@@ -73,10 +73,10 @@ public:
         m_opcode = opcode;
     }
 
-    uint16 GetOpcode() const { return m_opcode; }
+    [[nodiscard]] uint16 GetOpcode() const { return m_opcode; }
     void SetOpcode(uint16 opcode) { m_opcode = opcode; }
 
-    TimePoint GetReceivedTime() const { return m_receivedTime; }
+    [[nodiscard]] TimePoint GetReceivedTime() const { return m_receivedTime; }
 
 protected:
     uint16 m_opcode;

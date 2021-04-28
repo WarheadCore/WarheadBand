@@ -19,6 +19,8 @@
 #define WARHEAD_PACKETLOG_H
 
 #include "Common.h"
+#include <boost/asio/ip/address.hpp>
+#include <mutex>
 
 enum Direction
 {
@@ -30,21 +32,22 @@ class WorldPacket;
 
 class WH_GAME_API PacketLog
 {
-private:
-    PacketLog();
-    ~PacketLog();
+    private:
+        PacketLog();
+        ~PacketLog();
+        std::mutex _logPacketLock;
+        std::once_flag _initializeFlag;
 
-public:
-    static PacketLog* instance();
+    public:
+        static PacketLog* instance();
 
-    void Initialize();
-    bool CanLogPacket() const { return (_file != nullptr); }
-    void LogPacket(WorldPacket const& packet, Direction direction);
+        void Initialize();
+        bool CanLogPacket() const { return (_file != nullptr); }
+        void LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port);
 
-private:
-    FILE* _file;
+    private:
+        FILE* _file;
 };
 
 #define sPacketLog PacketLog::instance()
-
 #endif

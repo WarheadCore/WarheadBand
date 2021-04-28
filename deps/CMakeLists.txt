@@ -14,7 +14,6 @@
 #
 
 add_subdirectory(threads)
-add_subdirectory(acelite)
 add_subdirectory(fmt)
 add_subdirectory(boost)
 add_subdirectory(poco)

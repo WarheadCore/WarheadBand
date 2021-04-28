@@ -27,7 +27,6 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <ace/INET_Addr.h>
 #include <array>
 
 // Searcher for map of structs
@@ -313,12 +312,6 @@ WH_COMMON_API void vutf8printf(FILE* out, const char* str, va_list* ap);
 WH_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
 WH_COMMON_API bool IsIPAddress(char const* ipaddress);
-
-/// Checks if address belongs to the a network with specified submask
-WH_COMMON_API bool IsIPAddrInNetwork(ACE_INET_Addr const& net, ACE_INET_Addr const& addr, ACE_INET_Addr const& subnetMask);
-
-/// Transforms ACE_INET_Addr address into string format "dotted_ip:port"
-WH_COMMON_API std::string GetAddressString(ACE_INET_Addr const& addr);
 
 WH_COMMON_API uint32 CreatePIDFile(const std::string& filename);
 WH_COMMON_API uint32 GetPID();

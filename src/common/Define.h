@@ -26,20 +26,16 @@
 #include <sys/types.h>
 #include "CompilerDefs.h"
 
-#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
-#define OS_WIN
-#endif
-
 #define WARHEAD_LITTLEENDIAN 0
 #define WARHEAD_BIGENDIAN    1
 
 #if !defined(WARHEAD_ENDIAN)
-#  if defined (ACE_BIG_ENDIAN)
+#  if defined (BOOST_BIG_ENDIAN)
 #    define WARHEAD_ENDIAN WARHEAD_BIGENDIAN
-#  else //ACE_BYTE_ORDER != ACE_BIG_ENDIAN
+#  else
 #    define WARHEAD_ENDIAN WARHEAD_LITTLEENDIAN
-#  endif //ACE_BYTE_ORDER
-#endif //WARHEAD_ENDIAN
+#  endif
+#endif
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #  define WARHEAD_PATH_MAX MAX_PATH
