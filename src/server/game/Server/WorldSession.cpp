@@ -283,8 +283,8 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
     ///- Before we process anything:
-     /// If necessary, kick the player because the client didn't send anything for too long
-     /// (or they've been idling in character select)
+    /// If necessary, kick the player because the client didn't send anything for too long
+    /// (or they've been idling in character select)
     if (sWorld->getBoolConfig(CONFIG_CLOSE_IDLE_CONNECTIONS) && IsConnectionIdle() && m_Socket)
         m_Socket->CloseSocket();
 
@@ -296,7 +296,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = nullptr;
-    WorldPacket* movementPacket = nullptr;
+
     //! Delete packet after processing by default
     bool deletePacket = true;
     std::vector<WorldPacket*> requeuePackets;
@@ -333,12 +333,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
-                        if (movementPacket)
-                        {
-                            HandleMovementOpcodes(*movementPacket);
-                            delete movementPacket;
-                            movementPacket = nullptr;
-                        }
                         sScriptMgr->OnPacketReceive(this, *packet);
 #ifdef ELUNA
                         if (!sEluna->OnPacketReceive(this, *packet))
@@ -351,11 +345,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                 case STATUS_TRANSFER:
                     if (_player && !_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
-                        if (movementPacket)
-                        {
-                            delete movementPacket;
-                            movementPacket = nullptr;
-                        }
                         sScriptMgr->OnPacketReceive(this, *packet);
 #ifdef ELUNA
                         if (!sEluna->OnPacketReceive(this, *packet))
@@ -417,14 +406,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         //Any leftover will be processed in next update
         if (processedPackets > MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
             break;
-    }
-
-    if (movementPacket)
-    {
-        if (_player && _player->IsInWorld())
-            HandleMovementOpcodes(*movementPacket);
-
-        delete movementPacket;
     }
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
