@@ -105,7 +105,7 @@ void ServerAutoShutdown::Init()
 
     if (diffToShutdown < 10)
     {
-        LOG_INFO("modules", "> ServerAutoShutdown: Next time to shutdown < 10 seconds, Set next day", TimeToHumanReadable(nextResetTime).c_str());
+        LOG_INFO("modules", "> ServerAutoShutdown: Next time to shutdown < 10 seconds, Set next day");
         nextResetTime += DAY;
     }
 
