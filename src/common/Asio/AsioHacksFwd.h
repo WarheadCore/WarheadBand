@@ -15,31 +15,49 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup Trinityd
-/// @{
-/// \file
+#ifndef AsioHacksFwd_h__
+#define AsioHacksFwd_h__
 
-#ifndef _MASTER_H
-#define _MASTER_H
+#include <boost/version.hpp>
 
-#include "Common.h"
-
-/// Start the server
-class Master
+/**
+  Collection of forward declarations to improve compile time
+ */
+namespace boost
 {
-public:
-    static Master* instance();
-    int Run();
+    namespace posix_time
+    {
+        class ptime;
+    }
 
-private:
-    bool _StartDB();
-    void _StopDB();
+    namespace asio
+    {
+        template <typename Time>
+        struct time_traits;
 
-    void ClearOnlineAccounts();
-};
+        namespace ip
+        {
+            class address;
 
-#define sMaster Master::instance()
+            class tcp;
 
-#endif
+            template <typename InternetProtocol>
+            class basic_endpoint;
 
-/// @}
+            typedef basic_endpoint<tcp> tcp_endpoint;
+        }
+    }
+}
+
+namespace Warhead
+{
+    namespace Asio
+    {
+        class DeadlineTimer;
+        class IoContext;
+        class Resolver;
+        class Strand;
+    }
+}
+
+#endif // AsioHacksFwd_h__

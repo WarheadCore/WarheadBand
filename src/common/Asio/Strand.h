@@ -15,41 +15,39 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SIGNAL_HANDLER_H_
-#define _SIGNAL_HANDLER_H_
+#ifndef Strand_h__
+#define Strand_h__
 
-#include <csignal>
-#include <unordered_set>
-#include <mutex>
+#include "IoContext.h"
+#include <boost/asio/strand.hpp>
+
+#if BOOST_VERSION >= 106600
+#include <boost/asio/bind_executor.hpp>
+#endif
 
 namespace Warhead
 {
-    /// Handle termination signals
-    class SignalHandler
+    namespace Asio
     {
-    private:
-        std::unordered_set<int> _handled;
-        mutable std::mutex _mutex;
-
-    public:
-        bool handle_signal(int sig, void (*func)(int))
+        /**
+          Hack to make it possible to forward declare strand (which is a inner class)
+        */
+        class Strand : public IoContextBaseNamespace::IoContextBase::strand
         {
-            std::lock_guard lock(_mutex);
+        public:
+            Strand(IoContext& ioContext) : IoContextBaseNamespace::IoContextBase::strand(ioContext) { }
+        };
 
-            if (_handled.find(sig) != _handled.end())
-                return false;
-
-            _handled.insert(sig);
-            signal(sig, func);
-            return true;
-        }
-
-        ~SignalHandler()
+#if BOOST_VERSION >= 106600
+        using boost::asio::bind_executor;
+#else
+        template<typename T>
+        inline decltype(auto) bind_executor(Strand& strand, T&& t)
         {
-            for (auto const& sig : _handled)
-                signal(sig, nullptr);
+            return strand.wrap(std::forward<T>(t));
         }
-    };
+#endif
+    }
 }
 
-#endif // _SIGNAL_HANDLER_H_
+#endif // Strand_h__

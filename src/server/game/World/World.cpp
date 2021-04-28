@@ -104,7 +104,7 @@ float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;
 float World::m_MaxVisibleDistanceInBGArenas   = DEFAULT_VISIBILITY_BGARENAS;
 
-uint32 realmID; ///< Id of the realm
+Realm realm;
 
 /// World constructor
 World::World()
@@ -1484,7 +1484,7 @@ void World::SetInitialWorldSettings()
 
     uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
 
-    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmID);      // One-time query
+    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     ///- Custom Hook for loading DB items
     sScriptMgr->OnLoadCustomDatabaseTable();
@@ -1937,7 +1937,7 @@ void World::SetInitialWorldSettings()
     m_startTime = m_gameTime;
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
-                           realmID, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
+                           realm.Id.Realm, uint32(m_startTime), GitRevision::GetFullVersion());       // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
@@ -2301,7 +2301,7 @@ void World::Update(uint32 diff)
 
         stmt->setUInt32(0, tmpDiff);
         stmt->setUInt16(1, uint16(maxOnlinePlayers));
-        stmt->setUInt32(2, realmID);
+        stmt->setUInt32(2, realm.Id.Realm);
         stmt->setUInt32(3, uint32(m_startTime));
 
         LoginDatabase.Execute(stmt);
@@ -2837,13 +2837,13 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
         stmt->setUInt32(0, accountId);
-        stmt->setUInt32(1, realmID);
+        stmt->setUInt32(1, realm.Id.Realm);
         trans->Append(stmt);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
         stmt->setUInt8(0, charCount);
         stmt->setUInt32(1, accountId);
-        stmt->setUInt32(2, realmID);
+        stmt->setUInt32(2, realm.Id.Realm);
         trans->Append(stmt);
 
         LoginDatabase.CommitTransaction(trans);
@@ -2971,7 +2971,7 @@ void World::ResetDailyQuests()
 void World::LoadDBAllowedSecurityLevel()
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
-    stmt->setInt32(0, int32(realmID));
+    stmt->setInt32(0, int32(realm.Id.Realm));
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (result)
@@ -3414,6 +3414,8 @@ ObjectGuid World::GetGlobalPlayerGUID(std::string const& name) const
     // Player not found
     return ObjectGuid::Empty;
 }
+
+
 
 void World::RemoveOldCorpses()
 {

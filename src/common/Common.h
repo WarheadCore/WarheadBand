@@ -18,48 +18,7 @@
 #ifndef AZEROTHCORE_COMMON_H
 #define AZEROTHCORE_COMMON_H
 
-// config.h needs to be included 1st
-/// @todo this thingy looks like hack, but its not, need to
-// make separate header however, because It makes mess here.
-#ifdef HAVE_CONFIG_H
-// Remove Some things that we will define
-// This is in case including another config.h
-// before trinity config.h
-#ifdef PACKAGE
-#undef PACKAGE
-#endif //PACKAGE
-#ifdef PACKAGE_BUGREPORT
-#undef PACKAGE_BUGREPORT
-#endif //PACKAGE_BUGREPORT
-#ifdef PACKAGE_NAME
-#undef PACKAGE_NAME
-#endif //PACKAGE_NAME
-#ifdef PACKAGE_STRING
-#undef PACKAGE_STRING
-#endif //PACKAGE_STRING
-#ifdef PACKAGE_TARNAME
-#undef PACKAGE_TARNAME
-#endif //PACKAGE_TARNAME
-#ifdef PACKAGE_VERSION
-#undef PACKAGE_VERSION
-#endif //PACKAGE_VERSION
-#ifdef VERSION
-#undef VERSION
-#endif //VERSION
-
-# include "Config.h"
-
-#undef PACKAGE
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-#undef VERSION
-#endif //HAVE_CONFIG_H
-
 #include "Define.h"
-
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -86,10 +45,6 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
-
-#include "Threading/LockedQueue.h"
-#include "Threading/Threading.h"
-#include <ace/Stack_Trace.h>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #  include <ace/config-all.h>

@@ -3923,12 +3923,11 @@ void Unit::HandleSafeUnitPointersOnDelete(Unit* thisUnit)
 {
     if (thisUnit->SafeUnitPointerSet.empty())
         return;
+
     for (std::set<SafeUnitPointer*>::iterator itr = thisUnit->SafeUnitPointerSet.begin(); itr != thisUnit->SafeUnitPointerSet.end(); ++itr)
         (*itr)->UnitDeleted();
-    thisUnit->SafeUnitPointerSet.clear();
 
-    ACE_Stack_Trace trace(0, 50);
-    LOG_INFO("misc", "Unit::HandleSafeUnitPointersOnDelete CALL STACK (1):\n%s\n", trace.c_str());
+    thisUnit->SafeUnitPointerSet.clear();
 }
 
 bool Unit::IsInWater(bool allowAbove) const
@@ -17576,8 +17575,6 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     if (!charmer->IsInWorld() || charmer->IsDuringRemoveFromWorld())
     {
-        ACE_Stack_Trace trace(0, 50);
-        LOG_INFO("misc", "Unit::SetCharmedBy CALL STACK (1):\n%s\n", trace.c_str());
         return false;
     }
 
