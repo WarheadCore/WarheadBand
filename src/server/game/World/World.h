@@ -26,7 +26,7 @@
 #include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
-#include "ObjectGuid.h" 
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 #include <atomic>

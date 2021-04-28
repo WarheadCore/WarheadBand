@@ -255,7 +255,7 @@ struct AccountInfo
     std::string OS;
     bool IsRectuiter;
     AccountTypes Security;
-    bool IsBanned;    
+    bool IsBanned;
     uint32 TotalTime;
 
     explicit AccountInfo(Field* fields)
@@ -604,7 +604,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         _worldSession->InitWarden(account.SessionKey, account.OS);
 
     sWorld->AddSession(_worldSession);
-    
+
     AsyncRead();
 }
 

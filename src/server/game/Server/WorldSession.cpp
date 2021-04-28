@@ -45,7 +45,7 @@
 #include "WardenWin.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSocket.h" 
+#include "WorldSocket.h"
 #include "QueryHolder.h"
 #include "zlib.h"
 

@@ -45,5 +45,5 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSocket.h" 
+#include "WorldSocket.h"
 #include "WorldSession.h"
