@@ -1,0 +1,47 @@
+#
+# Copyright (С) since 2019 Andrei Guluaev (Winfidonarleyan/Kargatum) https://github.com/Winfidonarleyan
+# Copyright (С) since 2019+ AzerothCore <www.azerothcore.org>
+# Licence MIT https://opensource.org/MIT
+#
+
+#############################
+# CFBG configuration system #
+#############################
+[worldserver]
+
+###################################################################################################
+#   CFBG
+#
+#   CFBG.Enable
+#       Description: Enable mixed alliance and horde in one battleground
+#       Default: 1
+#
+#   CFBG.Include.Avg.Ilvl.Enable
+#       Description: Enable check average item level for bg
+#       Default: 0
+#
+#   CFBG.BalancedTeams
+#       Description: Enable check average player level for bg
+#       Default: 1
+#
+#   CFBG.Players.Count.In.Group
+#       Description: Maximum players in party for enter queue
+#       Default: 3
+#
+#   CFBG.EvenTeams.Enabled
+#        Description: Set Battleground invitation type.
+#        Default:     0 - (Disabled, one team can have one extra player if an odd number of players queues)
+#                     1 - (Enabled. Get even teams.)
+#
+#   CFBG.EvenTeams.MaxPlayersThreshold
+#       Description: team member quantity until the EvenTeams rule is valid
+#       Default: 5 - (Quantity of players per team after the EvenTeams rule will be ignored)
+#                0 - (No treshold)
+#
+
+CFBG.Enable = 1
+CFBG.BalancedTeams = 1
+CFBG.Include.Avg.Ilvl.Enable = 0
+CFBG.Players.Count.In.Group = 3
+CFBG.EvenTeams.Enabled = 0
+CFBG.EvenTeams.MaxPlayersThreshold = 5
