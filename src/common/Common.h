@@ -29,6 +29,9 @@
 #include <ctime>
 #include <unordered_map>
 #include <unordered_set>
+#include <array>
+#include <memory>
+#include <utility>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #define STRCASECMP stricmp
