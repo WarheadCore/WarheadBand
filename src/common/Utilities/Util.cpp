@@ -17,14 +17,13 @@
 
 #include "Util.h"
 #include "Common.h"
-#include "utf8.h"
-#include "Log.h"
 #include "Errors.h"
+#include "IpAddress.h"
 #include "TypeList.h"
-#include "Errors.h" // for ASSERT
 #include <array>
 #include <cwchar>
 #include <string>
+#include <utf8.h>
 
 Tokenizer::Tokenizer(const std::string& src, const char sep, uint32 vectorReserve)
 {
@@ -265,9 +264,9 @@ bool IsIPAddress(char const* ipaddress)
     if (!ipaddress)
         return false;
 
-    // Let the big boys do it.
-    // Drawback: all valid ip address formats are recognized e.g.: 12.23, 121234, 0xABCD)
-    return inet_addr(ipaddress) != INADDR_NONE;
+    boost::system::error_code error;
+    Warhead::Net::make_address(ipaddress, error);
+    return !error;
 }
 
 /// create PID file
