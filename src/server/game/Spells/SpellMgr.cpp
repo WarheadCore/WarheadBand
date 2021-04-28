@@ -2143,7 +2143,7 @@ void SpellMgr::LoadEnchantCustomAttr()
 
         // TODO: find a better check
         // Xinef: commented second part, fixes warlock enchants like firestone, spellstone
-        if (!spellInfo->HasAttribute(SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA)/* || !spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFT)*/)
+        if (!spellInfo->HasAttribute(SPELL_ATTR2_ENCHANT_OWN_ITEM_ONLY)/* || !spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFTED)*/)
             continue;
 
         for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
@@ -2487,7 +2487,7 @@ void SpellMgr::LoadSpellAreas()
         if (SpellInfo const* spellInfo = GetSpellInfo(spell))
         {
             if (spellArea.autocast)
-                const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
+                const_cast<SpellInfo*>(spellInfo)->Attributes |= SPELL_ATTR0_NO_AURA_CANCEL;
         }
         else
         {
@@ -2786,7 +2786,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
                         if (spellInfo->Effects[k].Effect == SPELL_EFFECT_LEARN_SPELL)
                             if (const SpellInfo* learnSpell = GetSpellInfo(spellInfo->Effects[k].TriggerSpell))
-                                if (learnSpell->IsRanked() && !learnSpell->HasAttribute(SpellAttr0(SPELL_ATTR0_PASSIVE | SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
+                                if (learnSpell->IsRanked() && !learnSpell->HasAttribute(SpellAttr0(SPELL_ATTR0_PASSIVE | SPELL_ATTR0_DO_NOT_DISPLAY)))
                                     mTalentSpellAdditionalSet.insert(learnSpell->Id);
     }
 
@@ -2891,7 +2891,7 @@ void SpellMgr::LoadSpellCustomAttr()
         }
 
         // Xinef: spells ignoring hit result should not be binary
-        if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+        if (!spellInfo->HasAttribute(SPELL_ATTR3_ALWAYS_HIT))
         {
             for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
@@ -2924,7 +2924,7 @@ void SpellMgr::LoadSpellCustomAttr()
                                 continue;
                             [[fallthrough]]; // TODO: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
                         default:
-                            if (spellInfo->Effects[j].CalcValue() || ((spellInfo->Effects[j].Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH)) && !spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
+                            if (spellInfo->Effects[j].CalcValue() || ((spellInfo->Effects[j].Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH)) && !spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)))
                                 if (spellInfo->Id != 69649 && spellInfo->Id != 71056 && spellInfo->Id != 71057 && spellInfo->Id != 71058 && spellInfo->Id != 73061 && spellInfo->Id != 73062 && spellInfo->Id != 73063 && spellInfo->Id != 73064) // Sindragosa Frost Breath
                                     if (spellInfo->SpellFamilyName != SPELLFAMILY_MAGE || !(spellInfo->SpellFamilyFlags[0] & 0x20)) // frostbolt
                                         if (spellInfo->Id != 55095) // frost fever
@@ -3338,7 +3338,7 @@ void SpellMgr::LoadDbcDataCorrections()
         53352   // Explosive Shot (trigger)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Elixir of Minor Fortitude
@@ -3394,7 +3394,7 @@ void SpellMgr::LoadDbcDataCorrections()
         45634   // Neural Needle
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;    // Crashes client on pressing ESC
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING;    // Crashes client on pressing ESC
     });
 
     ApplySpellFix({
@@ -3455,7 +3455,7 @@ void SpellMgr::LoadDbcDataCorrections()
         53232,  // Rapid Killing (Rank 2)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED; // Entries were not updated after spell effect change, we have to do that manually
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_FROM_PROCS; // Entries were not updated after spell effect change, we have to do that manually
     });
 
     ApplySpellFix({
@@ -3547,7 +3547,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Oscillation Field
     ApplySpellFix({ 37408 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Ascendance (Talisman of Ascendance trinket)
@@ -3609,7 +3609,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Improved Shadowform (Rank 1)
     ApplySpellFix({ 47569 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;   // with this spell atrribute aura can be stacked several times
+        spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFTED;   // with this spell atrribute aura can be stacked several times
     });
 
     // Nether Portal - Perseverence
@@ -3629,7 +3629,7 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->SpellFamilyFlags[2] = 0x10;
         spellInfo->EffectApplyAuraName[1] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Parasitic Shadowfiend Passive
@@ -3671,7 +3671,7 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 63675 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectBonusMultiplier[0] = 0;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     ApplySpellFix({
@@ -3679,7 +3679,7 @@ void SpellMgr::LoadDbcDataCorrections()
         6474    // Earthbind Totem (instant pulse)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_EXTRA_INITIAL_PERIOD;
     });
 
     // Marked for Death
@@ -3832,13 +3832,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Light's Beacon, Beacon of Light
     ApplySpellFix({ 53651 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Hand of Reckoning
     ApplySpellFix({ 62124 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_REDIRECTION;
     });
 
     // Redemption
@@ -3856,7 +3856,7 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         // hack for seal of light and few spells, judgement consists of few single casts and each of them can proc
         // some spell, base one has disabled proc flag but those dont have this flag
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_CASTER_PROCS;
     });
 
     // Blessing of sanctuary stats
@@ -3870,7 +3870,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Seal of Command trigger
     ApplySpellFix({ 20424 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_SUPRESS_CASTER_PROCS;
     });
 
     ApplySpellFix({
@@ -3879,7 +3879,7 @@ void SpellMgr::LoadDbcDataCorrections()
         53654
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
         spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
     });
 
@@ -3913,8 +3913,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Intervene
     ApplySpellFix({ 3411 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_STOP_ATTACK_TARGET;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->Attributes |= SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Roar of Sacrifice
@@ -3944,7 +3944,7 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 1130, 14323, 14324, 14325, 53338 }, [](SpellEntry* spellInfo)
     {
         spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Cobra Strikes
@@ -3963,13 +3963,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Kindred Spirits, damage aura
     ApplySpellFix({ 57458 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_DONT_REMOVE_IN_ARENA;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_ALLOW_ENETRING_ARENA;
     });
 
     // Chimera Shot - Serpent trigger
     ApplySpellFix({ 53353 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     // Entrapment trigger
@@ -3977,7 +3977,7 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->EffectImplicitTargetA[EFFECT_0] = TARGET_DEST_TARGET_ENEMY;
         spellInfo->EffectImplicitTargetB[EFFECT_0] = TARGET_UNIT_DEST_AREA_ENEMY;
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT;
     });
 
     // Improved Stings (Rank 2)
@@ -3989,7 +3989,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Heart of the Phoenix (triggered)
     ApplySpellFix({ 54114 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_DISMISS_PET;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_DISMISS_PET_FIRST;
         spellInfo->RecoveryTime = 8 * 60 * IN_MILLISECONDS; // prev 600000
     });
 
@@ -4019,7 +4019,7 @@ void SpellMgr::LoadDbcDataCorrections()
         1725    // Distract
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Envenom
@@ -4045,7 +4045,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Killing Spree
     ApplySpellFix({ 51690 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_NOT_BREAK_STEALTH;
+        spellInfo->AttributesEx |= SPELL_ATTR1_ALLOW_WHILE_STEALTHED;
     });
 
     // Blood Tap visual cd reset
@@ -4086,8 +4086,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Wandering Plague
     ApplySpellFix({ 50526 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Dancing Rune Weapon
@@ -4100,8 +4100,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Death and Decay
     ApplySpellFix({ 52212 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     // T9 blood plague crit bonus
@@ -4125,13 +4125,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Scourge Strike trigger
     ApplySpellFix({ 70890 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_CASTER_PROCS;
     });
 
     // Blood-caked Blade - Blood-caked Strike trigger
     ApplySpellFix({ 50463 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_CASTER_PROCS;
     });
 
     // Blood Gorged
@@ -4152,25 +4152,25 @@ void SpellMgr::LoadDbcDataCorrections()
     // Death Grip Jump Dest
     ApplySpellFix({ 57604 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Death Pact
     ApplySpellFix({ 48743 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_TARGET_SELF;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_EXCLUDE_CASTER;
     });
 
     // Raise Ally (trigger)
     ApplySpellFix({ 46619 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes &= ~SPELL_ATTR0_CANT_CANCEL;
+        spellInfo->Attributes &= ~SPELL_ATTR0_NO_AURA_CANCEL;
     });
 
     // Frost Strike
     ApplySpellFix({ 49143, 51416, 51417, 51418, 51419, 55268 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_BLOCKABLE_SPELL;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_COMPLETELY_BLOCKED;
     });
 
     // Death Knight T10 Tank 2p Bonus
@@ -4183,7 +4183,7 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->CategoryRecoveryTime = 0;
         spellInfo->RecoveryTime = 0;
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_DAMAGE_MODIFIERS;
     });
 
     // Improved Earth Shield
@@ -4213,13 +4213,13 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->SpellLevel = 0;
         spellInfo->BaseLevel = 0;
         spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     // Stormstrike
     ApplySpellFix({ 17364 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Strength of Earth totem effect
@@ -4246,29 +4246,29 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 6277 }, [](SpellEntry* spellInfo)
     {
         // because it is passive, needs this to be properly removed at death in RemoveAllAurasOnDeath()
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELED;
         spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
-        spellInfo->AttributesEx7 |= SPELL_ATTR7_REACTIVATE_AT_RESURRECT;
+        spellInfo->AttributesEx7 |= SPELL_ATTR7_DISABLE_AURA_WHILE_DEAD;
     });
 
     // Ancestral Awakening Heal
     ApplySpellFix({ 52752 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     // Heroism
     ApplySpellFix({ 32182 }, [](SpellEntry* spellInfo)
     {
         spellInfo->ExcludeTargetAuraSpell = 57723; // Exhaustion
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Bloodlust
     ApplySpellFix({ 2825 }, [](SpellEntry* spellInfo)
     {
         spellInfo->ExcludeTargetAuraSpell = 57724; // Sated
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Improved Succubus
@@ -4289,7 +4289,7 @@ void SpellMgr::LoadDbcDataCorrections()
         61291   // r2
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_REDIRECTION;
     });
 
     // Curse of Doom
@@ -4356,8 +4356,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Living Bomb
     ApplySpellFix({ 44461, 55361, 55362 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_REACTIVE_DAMAGE_PROC;
     });
 
     // Evocation
@@ -4407,7 +4407,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Arcane Blast, can't be dispelled
     ApplySpellFix({ 36032 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Chilled (frost armor, ice armor proc)
@@ -4428,7 +4428,7 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 44544 }, [](SpellEntry* spellInfo)
     {
         spellInfo->Dispel = DISPEL_NONE;
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_CANNOT_BE_STOLEN;
         spellInfo->EffectSpellClassMask[0] = flag96(685904631, 1151040, 32);
     });
 
@@ -4448,7 +4448,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Sweeping Strikes stance change
     ApplySpellFix({ 12328 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
+        spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFTED;
     });
 
     // Damage Shield
@@ -4465,7 +4465,7 @@ void SpellMgr::LoadDbcDataCorrections()
         }, [](SpellEntry* spellInfo)
     {
         // Strange shared cooldown
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS;
     });
 
     // Vigilance
@@ -4563,13 +4563,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Owlkin Frenzy
     ApplySpellFix({ 48391 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFT;
+        spellInfo->Attributes |= SPELL_ATTR0_NOT_SHAPESHIFTED;
     });
 
     // Item T10 Restoration 4P Bonus
     ApplySpellFix({ 70691 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     ApplySpellFix({
@@ -4577,13 +4577,13 @@ void SpellMgr::LoadDbcDataCorrections()
         16857   // Faerie Fire (Feral)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS;
     });
 
     // Feral Charge - Cat
     ApplySpellFix({ 49376, 61138, 61132, 50259 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Glyph of Barkskin
@@ -4753,7 +4753,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Teleport To Molten Core
     ApplySpellFix({ 25139 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD;
     });
 
     // Landen Stilwell Transform
@@ -4787,7 +4787,7 @@ void SpellMgr::LoadDbcDataCorrections()
         38834   // Heroic
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Curse of the Doomsayer NORMAL
@@ -4806,13 +4806,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Debris
     ApplySpellFix({ 36449 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
     // Soul Channel
     ApplySpellFix({ 30531 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Debris Visual
@@ -4830,7 +4830,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Break Ice
     ApplySpellFix({ 46638 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS; // Obvious fail, it targets gameobject...
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_ON_PLAYER; // Obvious fail, it targets gameobject...
     });
 
     // Sinister Reflection Clone
@@ -4857,7 +4857,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Shared Bonds
     ApplySpellFix({ 41363 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELED;
     });
 
     ApplySpellFix({
@@ -4865,14 +4865,14 @@ void SpellMgr::LoadDbcDataCorrections()
         41487   // Envenom
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     // Parasitic Shadowfiend
     ApplySpellFix({ 41914 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Teleport Maiev
@@ -4884,7 +4884,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Watery Grave Explosion
     ApplySpellFix({ 37852 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_WHILE_STUNNED;
     });
 
     // Amplify Damage
@@ -4905,7 +4905,7 @@ void SpellMgr::LoadDbcDataCorrections()
         }, [](SpellEntry* spellInfo)
     {
         // Spell doesn't need to ignore invulnerabilities
-        spellInfo->Attributes = SPELL_ATTR0_ABILITY;
+        spellInfo->Attributes = SPELL_ATTR0_IS_ABILITY;
     });
 
     // Finger of Death
@@ -4917,7 +4917,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Flame Breath, catapult spell
     ApplySpellFix({ 50989 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes &= ~SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION;
+        spellInfo->Attributes &= ~SPELL_ATTR0_SCALES_WITH_CREATURE_LEVEL;
     });
 
     // Koralon, Flaming Cinder
@@ -4950,7 +4950,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Infected Wound
     ApplySpellFix({ 29306 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Hopeless
@@ -4962,7 +4962,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Jagged Knife
     ApplySpellFix({ 55550 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_REQ_AMMO;
+        spellInfo->Attributes |= SPELL_ATTR0_USES_RANGED_SLOT;
     });
 
     // Moorabi - Transformation
@@ -4978,7 +4978,7 @@ void SpellMgr::LoadDbcDataCorrections()
         58966   // Throw (Heroic)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_REQ_AMMO;
+        spellInfo->Attributes |= SPELL_ATTR0_USES_RANGED_SLOT;
     });
 
     // Charged Chaotic rift aura, trigger
@@ -5035,7 +5035,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Ingvar the Plunderer, Ingvar transform
     ApplySpellFix({ 42796 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD;
     });
 
     ApplySpellFix({
@@ -5043,7 +5043,7 @@ void SpellMgr::LoadDbcDataCorrections()
         59685   // Hurl Dagger (Heroic)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_REQ_AMMO;
+        spellInfo->Attributes |= SPELL_ATTR0_USES_RANGED_SLOT;
     });
 
     // Control Crystal Activation
@@ -5062,7 +5062,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Ichoron, Water Blast
     ApplySpellFix({ 54237, 59520 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Krik'thir - Mind Flay
@@ -5099,7 +5099,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Gift of Twilight Shadow/Fire
     ApplySpellFix({ 57835, 58766 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELED;
     });
 
     // Pyrobuffet
@@ -5124,13 +5124,13 @@ void SpellMgr::LoadDbcDataCorrections()
         56438,  // Arcane Overload (-50% dmg taken) - this is to prevent apply -> unapply -> apply ... dunno whether it's correct
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Vortex (Control Vehicle)
     ApplySpellFix({ 56263 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Haste (Nexus Lord, increase run Speed of the disk)
@@ -5174,10 +5174,10 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->MaxAffectedTargets = 1;
         spellInfo->InterruptFlags = 0;
         spellInfo->EffectRadiusIndex[0] = 28;
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING;
         spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
         spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Surge of Power (Phase 3)
@@ -5188,10 +5188,10 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->MaxAffectedTargets = 3;
         spellInfo->InterruptFlags = 0;
         spellInfo->EffectRadiusIndex[0] = 28;
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING;
         spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
         spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Wyrmrest Drake - Life Burst
@@ -5205,7 +5205,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectPointsPerComboPoint[1] = 2500;
         spellInfo->EffectBasePoints[1] = 2499;
         spellInfo->RangeIndex = 1;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     //Alexstrasza - Gift
@@ -5241,8 +5241,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Ulduar, Mimiron, Summon Flames Initial
     ApplySpellFix({ 64563 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
         spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
         spellInfo->EffectImplicitTargetB[0] = 0;
     });
@@ -5250,8 +5250,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Ulduar, Mimiron, Flames (damage)
     ApplySpellFix({ 64566 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_NO_CAST_LOG;
     });
 
     // Ulduar, Hodir, Starlight
@@ -5281,7 +5281,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Supercharge
     ApplySpellFix({ 61920 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Lightning Whirl
@@ -5310,7 +5310,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Potent Pheromones
     ApplySpellFix({ 62619 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+        spellInfo->AttributesEx |= SPELL_ATTR1_IMMUNITY_PURGES_EFFECT;
     });
 
     // Healthy spore summon periodic
@@ -5329,8 +5329,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Potent Pheromones
     ApplySpellFix({ 64321 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
-        spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_ON_PLAYER;
+        spellInfo->AttributesEx |= SPELL_ATTR1_IMMUNITY_PURGES_EFFECT;
     });
 
     // Lightning Orb Charged
@@ -5368,13 +5368,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Sanity
     ApplySpellFix({ 63050 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
     });
 
     // Shadow Nova
     ApplySpellFix({ 62714, 65209 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Cosmic Smash (Algalon the Observer)
@@ -5386,7 +5386,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Cosmic Smash (Algalon the Observer)
     ApplySpellFix({ 62311, 64596 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
         spellInfo->EffectRadiusIndex[0] = 12; // 100yd
         spellInfo->RangeIndex = 13;  // 50000yd
     });
@@ -5400,7 +5400,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Black Hole
     ApplySpellFix({ 62168, 65250, 62169 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
     });
 
     // Ground Slam
@@ -5473,7 +5473,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Oculus, Drake spell Stop Time
     ApplySpellFix({ 49838 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
         spellInfo->ExcludeTargetAuraSpell = 51162; // exclude planar shift
         spellInfo->EffectRadiusIndex[EFFECT_0] = EFFECT_RADIUS_150_YARDS;
     });
@@ -5494,7 +5494,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Halls of Lightning, Arcing Burn
     ApplySpellFix({ 52671, 59834 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Trial of the Champion, Death's Respite
@@ -5508,7 +5508,7 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 68197 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ALLY;
-        spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
+        spellInfo->Attributes |= SPELL_ATTR0_ALLOW_CAST_WHILE_DEAD;
     });
 
     // Trial of the Champion, Earth Shield
@@ -5526,7 +5526,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Trial of the Champion, Summon Risen Jaeren/Arelas
     ApplySpellFix({ 67705, 67715 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_ALLOW_DEAD_TARGET;
     });
 
     // Trial of the Champion, Ghoul Explode
@@ -5558,9 +5558,9 @@ void SpellMgr::LoadDbcDataCorrections()
     // Trial of the Crusader, Jaraxxus Intro spell
     ApplySpellFix({ 67888 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_STOP_ATTACK_TARGET;
+        spellInfo->Attributes |= SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT;
         spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Trial of the Crusader, Lich King Intro spell
@@ -5594,9 +5594,9 @@ void SpellMgr::LoadDbcDataCorrections()
 
     ApplySpellFix({ 66317 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes |= SPELL_ATTR0_STOP_ATTACK_TARGET;
+        spellInfo->Attributes |= SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT;
         spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     ApplySpellFix({ 66318 }, [](SpellEntry* spellInfo)
@@ -5604,9 +5604,9 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
         spellInfo->EffectImplicitTargetB[0] = 0;
         spellInfo->Speed = 14.0f;
-        spellInfo->Attributes |= SPELL_ATTR0_STOP_ATTACK_TARGET;
+        spellInfo->Attributes |= SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT;
         spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     ApplySpellFix({ 66320, 67472, 67473, 67475 }, [](SpellEntry* spellInfo)
@@ -5618,7 +5618,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Trial of the Crusader, Acidmaw & Dreadscale, Emerge
     ApplySpellFix({ 66947 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_WHILE_STUNNED;
     });
 
     // Trial of the Crusader, Jaraxxus, Curse of the Nether
@@ -5659,7 +5659,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // tempfix, make Nether Power not stealable
     ApplySpellFix({ 66228, 67106, 67107, 67108 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_CANNOT_BE_STOLEN;
     });
 
     // Trial of the Crusader, Faction Champions, Druid - Tranquality
@@ -5855,7 +5855,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Trial of the Crusader, Anub'arak, Emerge
     ApplySpellFix({ 65982 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALLOW_WHILE_STUNNED;
     });
 
     // Trial of the Crusader, Anub'arak, Penetrating Cold
@@ -5894,13 +5894,13 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
         spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
-        spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
+        spellInfo->Attributes |= SPELL_ATTR0_ALLOW_CAST_WHILE_DEAD;
     });
 
     // Trial of the Crusader, Anub'arak, Spider Frenzy
     ApplySpellFix({ 66129 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Soul Sickness
@@ -5968,7 +5968,7 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 69604, 70286 }, [](SpellEntry* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
-        spellInfo->AttributesEx3 |= (SPELL_ATTR3_IGNORE_HIT_RESULT | SPELL_ATTR3_ONLY_TARGET_PLAYERS);
+        spellInfo->AttributesEx3 |= (SPELL_ATTR3_ALWAYS_HIT | SPELL_ATTR3_ONLY_ON_PLAYER);
     });
 
     // Chilling Wave
@@ -5980,7 +5980,7 @@ void SpellMgr::LoadDbcDataCorrections()
 
     ApplySpellFix({ 68786, 70336 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= (SPELL_ATTR3_IGNORE_HIT_RESULT | SPELL_ATTR3_ONLY_TARGET_PLAYERS);
+        spellInfo->AttributesEx3 |= (SPELL_ATTR3_ALWAYS_HIT | SPELL_ATTR3_ONLY_ON_PLAYER);
         spellInfo->Effect[2] = SPELL_EFFECT_DUMMY;
     });
 
@@ -5994,7 +5994,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_CASTER;
         spellInfo->EffectImplicitTargetB[2] = 0;
         spellInfo->RangeIndex = 6; // 100yd
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     ApplySpellFix({ 69029, 70850 }, [](SpellEntry* spellInfo)
@@ -6019,12 +6019,12 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 69232 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectTriggerSpell[1] = 69238;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     ApplySpellFix({ 69233, 69646 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     ApplySpellFix({ 69238, 69628 }, [](SpellEntry* spellInfo)
@@ -6033,13 +6033,13 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetB[0] = TARGET_DEST_DYNOBJ_NONE;
         spellInfo->EffectImplicitTargetA[1] = TARGET_DEST_DEST;
         spellInfo->EffectImplicitTargetB[1] = TARGET_DEST_DYNOBJ_NONE;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Hoarfrost
     ApplySpellFix({ 69246, 69245, 69645 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Devour Humanoid
@@ -6116,7 +6116,7 @@ void SpellMgr::LoadDbcDataCorrections()
         71258   // Adrenaline Rush (Ymirjar Battle-Maiden)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_SELF_CHANNELED;
     });
 
     // Saber Lash (Lord Marrowgar)
@@ -6150,13 +6150,13 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 69146, 70823, 70824, 70825 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectRadiusIndex[0] = 15;   // 3yd instead of 5yd
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_NO_CAST_LOG;
     });
 
     // Dark Martyrdom (Lady Deathwhisper)
     ApplySpellFix({ 70897 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_ALLOW_DEAD_TARGET;
     });
 
     ApplySpellFix({
@@ -6183,13 +6183,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Shadow's Fate
     ApplySpellFix({ 71169 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     // Lock Players and Tap Chest
     ApplySpellFix({ 72347 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Award Reputation - Boss Kill
@@ -6207,7 +6207,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Gunship Battle, spell Below Zero
     ApplySpellFix({ 69705 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Resistant Skin (Deathbringer Saurfang adds)
@@ -6222,7 +6222,7 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         // Patch 3.3.2 (2010-01-02): Deathbringer Saurfang will no longer gain blood power from Mark of the Fallen Champion.
         // prevented in script, effect needed for Prayer of Mending
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_SUPRESS_CASTER_PROCS;
     });
 
     // Coldflame Jets (Traps after Saurfang)
@@ -6236,7 +6236,7 @@ void SpellMgr::LoadDbcDataCorrections()
         71289   // Dominate Mind (Lady Deathwhisper)
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Severed Essence (Val'kyr Herald)
@@ -6270,7 +6270,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Ooze Flood (Rotface)
     ApplySpellFix({ 69783, 69797, 69799, 69802 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+        spellInfo->AttributesEx |= SPELL_ATTR1_EXCLUDE_CASTER;
     });
 
     // Volatile Ooze Beam Protection
@@ -6283,8 +6283,8 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 70672, 72455, 72832, 72833 }, [](SpellEntry* spellInfo)
     {
         // copied attributes from Green Ooze Channel
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     ApplySpellFix({
@@ -6312,7 +6312,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Mutated Plague (Professor Putricide)
     ApplySpellFix({ 72454, 72464, 72506, 72507 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_NO_CAST_LOG;
         spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS;   // 50000yd
     });
 
@@ -6331,7 +6331,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Empowered Flare (Blood Prince Council)
     ApplySpellFix({ 71708, 72785, 72786, 72787 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     ApplySpellFix({
@@ -6380,7 +6380,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Corruption
     ApplySpellFix({ 70602 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DOT_STACKING_RULE;
     });
 
     ApplySpellFix({
@@ -6421,7 +6421,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Sindragosa, Frost Aura
     ApplySpellFix({ 70084, 71050, 71051, 71052 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes &= ~SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes &= ~SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Ice Lock
@@ -6433,13 +6433,13 @@ void SpellMgr::LoadDbcDataCorrections()
     // Lich King, Infest
     ApplySpellFix({ 70541, 73779, 73780, 73781 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Lich King, Necrotic Plague
     ApplySpellFix({ 70337, 73912, 73913, 73914, 70338, 73785, 73786, 73787 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     ApplySpellFix({
@@ -6450,7 +6450,7 @@ void SpellMgr::LoadDbcDataCorrections()
         }, [](SpellEntry* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_NO_CAST_LOG;
     });
 
     // Fury of Frostmourne
@@ -6519,8 +6519,8 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 69198 }, [](SpellEntry* spellInfo)
     {
         spellInfo->RangeIndex = 13; // 50000yd
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
     });
 
     // Defile
@@ -6528,8 +6528,8 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->DurationIndex = 559; // 53 seconds
         spellInfo->ExcludeCasterAuraSpell = 0;
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
-        spellInfo->AttributesEx6 |= (SPELL_ATTR6_CAN_TARGET_INVISIBLE | SPELL_ATTR6_CAN_TARGET_UNTARGETABLE);
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
+        spellInfo->AttributesEx6 |= (SPELL_ATTR6_IGNORE_PHASE_SHIFT | SPELL_ATTR6_CAN_TARGET_UNTARGETABLE);
     });
 
     // Defile
@@ -6549,7 +6549,7 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_200_YARDS;   // 200yd
         spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;   // 200yd
-        spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes |= SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Harvest Souls
@@ -6575,7 +6575,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Harvest Soul
     ApplySpellFix({ 73655 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_CASTER_MODIFIERS;
     });
 
     // Destroy Soul
@@ -6661,7 +6661,7 @@ void SpellMgr::LoadDbcDataCorrections()
         74792   // Soul Consumption
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REDIRECTED;
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_REDIRECTION;
     });
 
     // Combustion
@@ -6695,8 +6695,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Twilight Mending
     ApplySpellFix({ 75509 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_PHASE_SHIFT;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
         spellInfo->EffectRadiusIndex[EFFECT_0] = EFFECT_RADIUS_100_YARDS;
         spellInfo->EffectRadiusIndex[EFFECT_1] = EFFECT_RADIUS_100_YARDS;
     });
@@ -6710,7 +6710,7 @@ void SpellMgr::LoadDbcDataCorrections()
     //Blazing Aura
     ApplySpellFix({ 75885, 75886 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_NO_CAST_LOG;
     });
 
     ApplySpellFix({
@@ -6718,7 +6718,7 @@ void SpellMgr::LoadDbcDataCorrections()
         74629   //Combustion Periodic
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_NO_CAST_LOG;
     });
 
     // Going Bearback
@@ -6727,7 +6727,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->Effect[1] = SPELL_EFFECT_DUMMY;
         spellInfo->EffectRadiusIndex[1] = spellInfo->EffectRadiusIndex[0];
         spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_DEST_AREA_ENTRY;
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING;
     });
 
     // Still At It
@@ -6746,7 +6746,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // A Tangled Skein
     ApplySpellFix({ 51165, 51173 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     ApplySpellFix({
@@ -6781,7 +6781,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Weakness to Lightning
     ApplySpellFix({ 46432 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD;
     });
 
     // Wrangle Some Aether Rays!
@@ -6873,7 +6873,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Kaw the Mammoth Destroyer
     ApplySpellFix({ 46260 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // That's Abominable
@@ -6978,7 +6978,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Leading the Charge (13380), All Infra-Green bomber quests
     ApplySpellFix({ 59059 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAN_CAST_WHILE_CASTING;
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING;
     });
 
     // Dark Horizon (12664), Reunited (12663)
@@ -6996,19 +6996,19 @@ void SpellMgr::LoadDbcDataCorrections()
     // Not a Bug (13342)
     ApplySpellFix({ 60531 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_ALLOW_DEAD_TARGET;
     });
 
     // Frankly,  It Makes No Sense... (10672)
     ApplySpellFix({ 37851 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Honor Challenge (12939)
     ApplySpellFix({ 21855 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });
 
     // Convocation at Zol'Heb (12730)
@@ -7020,8 +7020,8 @@ void SpellMgr::LoadDbcDataCorrections()
     // Mangletooth Quests (http://www.wowhead.com/npc=3430)
     ApplySpellFix({ 7764, 10767, 16610, 16612, 16618, 17013 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_SKIP_CHECKCAST_LOS_CHECK;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+        spellInfo->AttributesEx5 |= SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT;
     });
 
     //Crushing the Crown
@@ -7037,8 +7037,8 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->Effect[EFFECT_0] = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
         spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS;
-        spellInfo->AttributesEx &= ~SPELL_ATTR0_CANT_CANCEL;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+        spellInfo->AttributesEx &= ~SPELL_ATTR0_NO_AURA_CANCEL;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_ON_PLAYER;
     });
 
     // enchant Lightweave Embroidery
@@ -7088,7 +7088,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Precious's Ribbon
     ApplySpellFix({ 72968 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD;
     });
 
     ApplySpellFix({
@@ -7113,13 +7113,13 @@ void SpellMgr::LoadDbcDataCorrections()
         }, [](SpellEntry* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_NO_CAST_LOG;
     });
 
     // Alchemist's Stone
     ApplySpellFix({ 17619 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_ALLOW_AURA_WHILE_DEAD;
     });
 
     // Gnomish Death Ray
@@ -7138,7 +7138,7 @@ void SpellMgr::LoadDbcDataCorrections()
     // Savory Deviate Delight (transformations), allow to mount while transformed
     ApplySpellFix({ 8219, 8220, 8221, 8222 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->Attributes &= ~SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+        spellInfo->Attributes &= ~SPELL_ATTR0_NO_IMMUNITIES;
     });
 
     // Clamlette Magnifique
@@ -7271,13 +7271,13 @@ void SpellMgr::LoadDbcDataCorrections()
     {
         spellInfo->Effect[1] = SPELL_EFFECT_DUMMY;
         spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_NEARBY_ENTRY;
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Light Bonfire (DND)
     ApplySpellFix({ 29831 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
     });
 
     // Infernal
@@ -7288,7 +7288,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetA[EFFECT_2] = TARGET_UNIT_TARGET_ANY;
     });
 
-    // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
+    // Check for SPELL_ATTR7_CAN_CAUSE_INTERRUPT
     ApplySpellFix({
         47476,  // Deathknight - Strangulate
         15487,  // Priest - Silence
@@ -7297,7 +7297,7 @@ void SpellMgr::LoadDbcDataCorrections()
         8983    // Druid - Bash  - R3
         }, [](SpellEntry* spellInfo)
     {
-        spellInfo->AttributesEx7 |= SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
+        spellInfo->AttributesEx7 |= SPELL_ATTR7_CAN_CAUSE_INTERRUPT;
     });
 
     // Clicking on Warlock Summoning portal should not require mana
