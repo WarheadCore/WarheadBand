@@ -172,4 +172,12 @@ if(BUILD_SHARED_LIBS)
   WarnAboutSpacesInBuildPath()
 endif()
 
+if(HELGRIND)
+  message("")
+  message(" *** HELGRIND - WARNING!")
+  message(" *** Please specify the valgrind include directory in VALGRIND_INCLUDE_DIR option if you get build errors")
+  message(" *** Please note that this is for DEBUGGING WITH HELGRIND only!")
+  add_definitions(-DHELGRIND)
+endif()
+
 message("")

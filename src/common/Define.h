@@ -26,6 +26,25 @@
 #include <sys/types.h>
 #include "CompilerDefs.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#  if !defined(__STDC_FORMAT_MACROS)
+#    define __STDC_FORMAT_MACROS
+#  endif
+#  if !defined(__STDC_CONSTANT_MACROS)
+#    define __STDC_CONSTANT_MACROS
+#  endif
+#  if !defined(_GLIBCXX_USE_NANOSLEEP)
+#    define _GLIBCXX_USE_NANOSLEEP
+#  endif
+#  if defined(HELGRIND)
+#    include <valgrind/helgrind.h>
+#    undef _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE
+#    undef _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER
+#    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(A) ANNOTATE_HAPPENS_BEFORE(A)
+#    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(A)  ANNOTATE_HAPPENS_AFTER(A)
+#  endif
+#endif
+
 #define WARHEAD_LITTLEENDIAN 0
 #define WARHEAD_BIGENDIAN    1
 

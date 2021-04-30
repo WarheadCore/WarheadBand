@@ -14,26 +14,27 @@
 #
 
 add_subdirectory(threads)
-add_subdirectory(fmt)
-add_subdirectory(boost)
-add_subdirectory(poco)
 
 if(SERVERS OR TOOLS)
+  add_subdirectory(boost)
   add_subdirectory(zlib)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
+  add_subdirectory(fmt)
   add_subdirectory(SFMT)
   add_subdirectory(utf8cpp)
+  add_subdirectory(valgrind)
   add_subdirectory(openssl)
+  add_subdirectory(jemalloc)
+  add_subdirectory(argon2)
+  add_subdirectory(poco)
 endif()
 
 if(SERVERS)
   add_subdirectory(mysql)
   add_subdirectory(readline)
-  add_subdirectory(jemalloc)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
-  add_subdirectory(argon2)
 endif()
 
 if(TOOLS)
