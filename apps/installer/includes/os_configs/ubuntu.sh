@@ -13,7 +13,7 @@ if [[ $CONTINUOUS_INTEGRATION ]]; then
   libboost-system1.7*-dev libboost-filesystem1.7*-dev libboost-program-options1.7*-dev libboost-iostreams1.7*-dev \
   libncurses5-dev ccache
 else
-  sudo apt-get install -y git gcc g++ \
+  sudo apt-get install -y git gcc g++ gdb gdbserver \
   libssl-dev libbz2-dev libreadline-dev libncurses-dev \
   libboost-system1.7*-dev libboost-filesystem1.7*-dev libboost-program-options1.7*-dev libboost-iostreams1.7*-dev \
   mysql-server
