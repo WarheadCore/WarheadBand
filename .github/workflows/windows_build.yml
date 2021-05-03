@@ -9,13 +9,14 @@ jobs:
   windows-build:
     strategy:
       fail-fast: false
-    runs-on: windows-2019
-    name: windows-2019-MSVC16
-    if: github.repository == 'azerothcore/azerothcore-wotlk'
+    runs-on: windows-latest
+    name: ${{ matrix.compiler }}
+    env:
+      BOOST_ROOT: C:\local\boost_1_74_0
     steps:
       - uses: actions/checkout@v2
       - name: Configure OS
-        run: choco install --no-progress openssl
+        run: choco install --no-progress openssl boost-msvc-14.2
       - name: Build
         shell: bash
         run: |
