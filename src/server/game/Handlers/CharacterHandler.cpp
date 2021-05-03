@@ -987,7 +987,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
     {
         ReputationMgr& repMgr = pCurrChar->GetReputationMgr();
 
-        auto SendFullReputation = [this, &repMgr](std::initializer_list<uint32> factionsList)
+        auto SendFullReputation = [&repMgr](std::initializer_list<uint32> factionsList)
         {
             for (auto const& itr : factionsList)
             {
