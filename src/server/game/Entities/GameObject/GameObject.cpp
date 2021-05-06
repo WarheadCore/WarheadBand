@@ -2530,7 +2530,7 @@ void GameObject::UpdateModelPosition()
     }
 }
 
-std::unordered_map<int, goEventFlag> GameObject::gameObjectToEventFlag = {};
+std::unordered_map<int, goEventFlag> GameObject::gameObjectToEventFlag = { };
 
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase
 {

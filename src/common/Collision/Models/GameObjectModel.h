@@ -35,17 +35,18 @@ struct GameObjectDisplayInfoEntry;
 class WH_COMMON_API GameObjectModelOwnerBase
 {
 public:
-    virtual bool IsSpawned() const { return false; }
-    virtual uint32 GetDisplayId() const { return 0; }
-    virtual uint32 GetPhaseMask() const { return 0; }
-    virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
-    virtual float GetOrientation() const { return 0.0f; }
-    virtual float GetScale() const { return 1.0f; }
-    virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
-    virtual ~GameObjectModelOwnerBase() { }
+    virtual ~GameObjectModelOwnerBase() = default;
+
+    virtual bool IsSpawned() const = 0;
+    virtual uint32 GetDisplayId() const = 0;
+    virtual uint32 GetPhaseMask() const = 0;
+    virtual G3D::Vector3 GetPosition() const = 0;
+    virtual float GetOrientation() const = 0;
+    virtual float GetScale() const = 0;
+    virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const = 0;
 };
 
-class WH_COMMON_API GameObjectModel
+class GameObjectModel
 {
     GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr) { }
 

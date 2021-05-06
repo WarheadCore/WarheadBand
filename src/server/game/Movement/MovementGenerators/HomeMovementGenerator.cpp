@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "HomeMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "HomeMovementGenerator.h"
+#include "DisableMgr.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "WorldPacket.h"
