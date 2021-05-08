@@ -101,7 +101,7 @@ function(CollectModulesConfig)
       ${MODULE_CONFIG_PATH}/*.conf.dist)
 
     foreach(configFileName ${MODULE_CONFIG_LIST})
-      CopyModuleConfig(${configDir} ${configFileName})
+      CopyModuleConfig("${MODULE_CONFIG_PATH}/${configFileName}")
       set(CONFIG_LIST ${CONFIG_LIST}${configFileName},)
       message(STATUS "  |- ${configFileName}")
     endforeach()
