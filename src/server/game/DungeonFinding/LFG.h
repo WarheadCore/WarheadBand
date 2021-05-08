@@ -23,8 +23,8 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
-
 #include <array>
+#include <map>
 
 namespace lfg
 {

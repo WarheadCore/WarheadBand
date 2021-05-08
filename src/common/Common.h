@@ -19,42 +19,19 @@
 #define AZEROTHCORE_COMMON_H
 
 #include "Define.h"
-#include <cassert>
-#include <cerrno>
-#include <cmath>
-#include <csignal>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <unordered_map>
-#include <unordered_set>
 #include <array>
 #include <memory>
+#include <string>
 #include <utility>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-#define STRCASECMP stricmp
-#else
-#define STRCASECMP strcasecmp
-#endif
-
-#include <set>
-#include <list>
-#include <string>
-#include <map>
-#include <queue>
-#include <sstream>
-#include <fstream>
-#include <algorithm>
-#include <vector>
-
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-// XP winver - needed to compile with standard leak check in MemoryLeaks.h
-// uncomment later if needed
-//#define _WIN32_WINNT 0x0501
 #  include <ws2tcpip.h>
-//#undef WIN32_WINNT
+
+#  if WARHEAD_COMPILER == WARHEAD_COMPILER_INTEL
+#    if !defined(BOOST_ASIO_HAS_MOVE)
+#      define BOOST_ASIO_HAS_MOVE
+#    endif // !defined(BOOST_ASIO_HAS_MOVE)
+#  endif // if WARHEAD_COMPILER == WARHEAD_COMPILER_INTEL
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -62,36 +39,22 @@
 #  include <netinet/in.h>
 #  include <unistd.h>
 #  include <netdb.h>
+#  include <cstdlib>
 #endif
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
-
-#include <float.h>
-
-#define I32FMT "%08I32X"
-#define I64FMT "%016I64X"
 #define atoll _atoi64
-#define vsnprintf _vsnprintf
 #define llabs _abs64
-
 #else
-
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
-#define I32FMT "%08X"
-#define I64FMT "%016llX"
-
 #endif
 
-using namespace std;
+// inline float finiteAlways(float f) { return isfinite(f) ? f : 0.0f; }
 
-inline float finiteAlways(float f) { return isfinite(f) ? f : 0.0f; }
-
-inline bool myisfinite(float f) { return isfinite(f) && !isnan(f); }
+// inline bool myisfinite(float f) { return isfinite(f) && !isnan(f); }
 
 #define STRINGIZE(a) #a
-
-#define MAX_NETCLIENT_PACKET_SIZE (32767 - 1)               // Client hardcap: int16 with trailing zero space otherwise crash on memory free
 
 enum TimeConstants
 {
@@ -123,10 +86,11 @@ enum LocaleConstant
     LOCALE_zhTW = 5,
     LOCALE_esES = 6,
     LOCALE_esMX = 7,
-    LOCALE_ruRU = 8
+    LOCALE_ruRU = 8,
+
+    TOTAL_LOCALES
 };
 
-const uint8 TOTAL_LOCALES = 9;
 #define DEFAULT_LOCALE LOCALE_enUS
 
 #define MAX_LOCALES 8
@@ -136,8 +100,6 @@ WH_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
 WH_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 WH_COMMON_API void CleanStringForMysqlQuery(std::string& str);
-
-typedef std::vector<std::string> StringVector;
 
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max

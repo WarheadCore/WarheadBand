@@ -27018,6 +27018,8 @@ void Player::_SaveCharacter(bool create, CharacterDatabaseTransaction trans)
     CharacterDatabasePreparedStatement* stmt = nullptr;
     uint8 index = 0;
 
+    auto finiteAlways = [](float f) { return std::isfinite(f) ? f : 0.0f; };
+
     if (create)
     {
         //! Insert query
