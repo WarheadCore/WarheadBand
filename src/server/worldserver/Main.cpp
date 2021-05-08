@@ -194,7 +194,7 @@ int main(int argc, char** argv)
     }
 
     // Add file and args in config
-    sConfigMgr->Configure(configFile, std::vector<std::string>(argv, argv + argc), CONFIG_FILE_LIST);
+    sConfigMgr->Configure(configFile, std::vector<std::string>(argv, argv + argc), WH_MODULE_CONFIG_LIST);
 
     if (!sConfigMgr->LoadAppConfigs())
         return 1;

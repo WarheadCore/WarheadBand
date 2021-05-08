@@ -68,14 +68,15 @@ MACRO(AC_ADD_SCRIPT_LOADER script_dec include)
             CU_ADD_GLOBAL("AC_ADD_SCRIPTS_INCLUDE" "${include}\;")
         endif()
     endif()
+
+    message("> Warning: module using deprecated script loader api")
 ENDMACRO()
 
 #
 # AC_ADD_CONFIG_FILE
 #
 MACRO(AC_ADD_CONFIG_FILE configFilePath)
-    CU_GET_GLOBAL("MODULE_CONFIG_FILE_LIST")
-    CU_ADD_GLOBAL("MODULE_CONFIG_FILE_LIST" "${configFilePath}")
+    message("> Warning: module using deprecated config api")
 ENDMACRO()
 
 #

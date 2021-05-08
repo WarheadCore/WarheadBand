@@ -149,39 +149,37 @@ list(REMOVE_DUPLICATES MODULE_GRAPH_KEYS)
 
 # Display the script graph
 message("* Script configuration (${SCRIPTS}):
-    |")
+  |")
 
 foreach(SCRIPT_GRAPH_KEY ${SCRIPT_GRAPH_KEYS})
   if(NOT SCRIPT_GRAPH_KEY STREQUAL "disabled")
-    message("    +- ${SCRIPT_GRAPH_VALUE_DISPLAY_${SCRIPT_GRAPH_KEY}}")
+    message("  +- ${SCRIPT_GRAPH_VALUE_DISPLAY_${SCRIPT_GRAPH_KEY}}")
   else()
-    message("    |  ${SCRIPT_GRAPH_VALUE_DISPLAY_${SCRIPT_GRAPH_KEY}}")
+    message("  |  ${SCRIPT_GRAPH_VALUE_DISPLAY_${SCRIPT_GRAPH_KEY}}")
   endif()
   foreach(SCRIPT_GRAPH_PROJECT_ENTRY ${SCRIPT_GRAPH_VALUE_CONTAINS_MODULES_${SCRIPT_GRAPH_KEY}})
-    message("    |   +- ${SCRIPT_GRAPH_PROJECT_ENTRY}")
+    message("  |   +- ${SCRIPT_GRAPH_PROJECT_ENTRY}")
   endforeach()
-  message("    |")
+  message("  |")
 endforeach()
 
 message("")
 
 # Display the module graph
 message("* Modules configuration (${MODULES}):
-    |")
+  |")
 
 foreach(MODULE_GRAPH_KEY ${MODULE_GRAPH_KEYS})
   if(NOT MODULE_GRAPH_KEY STREQUAL "disabled")
-    message("    +- ${MODULE_GRAPH_VALUE_DISPLAY_${MODULE_GRAPH_KEY}}")
+    message("  +- ${MODULE_GRAPH_VALUE_DISPLAY_${MODULE_GRAPH_KEY}}")
   else()
-    message("    |  ${MODULE_GRAPH_VALUE_DISPLAY_${MODULE_GRAPH_KEY}}")
+    message("  |  ${MODULE_GRAPH_VALUE_DISPLAY_${MODULE_GRAPH_KEY}}")
   endif()
   foreach(MODULE_GRAPH_PROJECT_ENTRY ${MODULE_GRAPH_VALUE_CONTAINS_MODULES_${MODULE_GRAPH_KEY}})
-    message("    |   +- ${MODULE_GRAPH_PROJECT_ENTRY}")
+    message("  |   +- ${MODULE_GRAPH_PROJECT_ENTRY}")
   endforeach()
-  message("    |")
+  message("  |")
 endforeach()
-
-message("")
 
 # Base sources which are used by every script project
 if(USE_SCRIPTPCH)
