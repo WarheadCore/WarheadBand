@@ -99,12 +99,3 @@ macro(WH_ADD_MODULES_SOURCE scriptName)
     WH_ADD_SCRIPT_LOADER("${scriptName}" "")
     message(STATUS "  -> Prepared module script: ${scriptName}")
 ENDMACRO()
-
-#
-#   WH_ADD_MODULE
-#
-
-macro(WH_ADD_MODULE modulename)
-    CU_GET_GLOBAL("WH_MODULE_LIST")
-    CU_ADD_GLOBAL("WH_MODULE_LIST" "${modulename}")
-endmacro()
