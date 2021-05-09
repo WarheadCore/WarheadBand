@@ -2393,6 +2393,11 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
+
     if (apply)
     {
         /*
@@ -2885,6 +2890,11 @@ void AuraEffect::HandleAuraWaterWalk(AuraApplication const* aurApp, uint8 mode, 
 
     Unit* target = aurApp->GetTarget();
 
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
+
     if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
@@ -2901,6 +2911,11 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 
     if (!apply)
     {
@@ -2922,6 +2937,11 @@ void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool
         return;
 
     Unit* target = aurApp->GetTarget();
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 
     if (!apply)
     {
@@ -3237,6 +3257,11 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
     Unit* target = aurApp->GetTarget();
 
     target->UpdateSpeed(MOVE_RUN, true);
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3277,6 +3302,11 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
                 target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 16314);
         }
     }
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 }
 
 void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3287,6 +3317,11 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, u
     Unit* target = aurApp->GetTarget();
 
     target->UpdateSpeed(MOVE_SWIM, true);
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 }
 
 void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3302,6 +3337,11 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8
     target->UpdateSpeed(MOVE_RUN_BACK, true);
     target->UpdateSpeed(MOVE_SWIM_BACK, true);
     target->UpdateSpeed(MOVE_FLIGHT_BACK, true);
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 }
 
 void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3314,6 +3354,11 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
     target->UpdateSpeed(MOVE_RUN,  true);
     target->UpdateSpeed(MOVE_SWIM, true);
     target->UpdateSpeed(MOVE_FLIGHT,  true);
+
+    if (Player* targetPlayer = target->ToPlayer())
+    {
+        sScriptMgr->AnticheatSetUnderACKmount(targetPlayer);
+    }
 }
 
 /*********************************************************/
