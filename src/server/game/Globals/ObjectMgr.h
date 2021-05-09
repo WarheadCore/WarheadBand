@@ -1311,7 +1311,7 @@ public:
     void LoadScriptNames();
     ScriptNameContainer& GetScriptNames() { return _scriptNamesStore; }
     [[nodiscard]] std::string const& GetScriptName(uint32 id) const;
-    uint32 GetScriptId(const char* name);
+    uint32 GetScriptId(std::string const& name);
 
     [[nodiscard]] SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
     {

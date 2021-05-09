@@ -627,7 +627,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.MechanicImmuneMask    = fields[57].GetUInt32();
     creatureTemplate.SpellSchoolImmuneMask = fields[58].GetUInt8();
     creatureTemplate.flags_extra           = fields[59].GetUInt32();
-    creatureTemplate.ScriptID              = GetScriptId(fields[60].GetCString());
+    creatureTemplate.ScriptID              = GetScriptId(fields[60].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -2562,7 +2562,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Duration                = fields[129].GetUInt32();
         itemTemplate.ItemLimitCategory       = uint32(fields[130].GetInt16());
         itemTemplate.HolidayId               = fields[131].GetUInt32();
-        itemTemplate.ScriptId                = sObjectMgr->GetScriptId(fields[132].GetCString());
+        itemTemplate.ScriptId                = sObjectMgr->GetScriptId(fields[132].GetString());
         itemTemplate.DisenchantID            = fields[133].GetUInt32();
         itemTemplate.FoodType                = uint32(fields[134].GetUInt8());
         itemTemplate.MinMoneyLoot            = fields[135].GetUInt32();
@@ -5417,7 +5417,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
         instanceTemplate.AllowMount = fields[3].GetBool();
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetCString());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -6627,7 +6627,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[8 + i].GetInt32(); // data1 and data6 can be -1
 
         got.AIName = fields[32].GetString();
-        got.ScriptId = GetScriptId(fields[33].GetCString());
+        got.ScriptId = GetScriptId(fields[33].GetString());
         got.IsForQuests = false;
 
         // Checks
@@ -8691,14 +8691,14 @@ void ObjectMgr::LoadScriptNames()
 std::string const& ObjectMgr::GetScriptName(uint32 id) const
 {
     static std::string const empty = "";
-    return (id < _scriptNamesStore.size()) ? _scriptNamesStore[id] : empty;
+    return id < _scriptNamesStore.size() ? _scriptNamesStore[id] : empty;
 }
 
-uint32 ObjectMgr::GetScriptId(const char* name)
+uint32 ObjectMgr::GetScriptId(std::string const& name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
-    if (!name)
+    if (name.empty())
         return 0;
 
     ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);

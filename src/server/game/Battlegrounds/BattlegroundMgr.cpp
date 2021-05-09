@@ -564,7 +564,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         data.StartMaxDist = dist * dist;
         data.Weight = fields[10].GetUInt8();
 
-        data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
+        data.scriptId = sObjectMgr->GetScriptId(fields[11].GetString());
         data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
         data.MapID = bl->mapid[0];
 

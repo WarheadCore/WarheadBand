@@ -205,7 +205,7 @@ void ScriptMgr::CheckIfScriptsInDatabaseExist()
 {
     ObjectMgr::ScriptNameContainer& sn = sObjectMgr->GetScriptNames();
     for (ObjectMgr::ScriptNameContainer::iterator itr = sn.begin(); itr != sn.end(); ++itr)
-        if (uint32 sid = sObjectMgr->GetScriptId((*itr).c_str()))
+        if (uint32 sid = sObjectMgr->GetScriptId((*itr)))
         {
             if (!ScriptRegistry<SpellScriptLoader>::GetScriptById(sid) &&
                     !ScriptRegistry<ServerScript>::GetScriptById(sid) &&
