@@ -91,6 +91,7 @@
 #include "WorldSession.h"
 #include "VMapManager2.h"
 #include <boost/asio/ip/address.hpp>
+#include <cmath>
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -3429,4 +3430,15 @@ bool World::IsPvPRealm() const
 bool World::IsFFAPvPRealm() const
 {
     return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP;
+}
+
+uint32 World::GetNextWhoListUpdateDelaySecs()
+{
+    if (m_timers[WUPDATE_5_SECS].Passed())
+        return 1;
+
+    uint32 t = m_timers[WUPDATE_5_SECS].GetInterval() - m_timers[WUPDATE_5_SECS].GetCurrent();
+    t = std::min(t, (uint32)m_timers[WUPDATE_5_SECS].GetInterval());
+
+    return uint32(ceil(t / 1000.0f));
 }
