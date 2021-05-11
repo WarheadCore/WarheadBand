@@ -55,6 +55,7 @@ target_include_directories(database
 target_link_libraries(database
   PRIVATE
     warhead-core-interface
+    mysql
   PUBLIC
     common)
 

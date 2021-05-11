@@ -61,7 +61,6 @@ target_link_libraries(common
     argon2
     boost
     Poco::Foundation
-    mysql
     g3dlib
     Detour
     sfmt
