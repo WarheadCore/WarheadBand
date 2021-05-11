@@ -17,11 +17,12 @@
 
 #include "DatabaseLoader.h"
 #include "Config.h"
-#include "DatabaseEnv.h"
 #include "DBUpdater.h"
+#include "DatabaseEnv.h"
+#include "Duration.h"
 #include "Log.h"
-#include <mysqld_error.h>
 #include <errmsg.h>
+#include <mysqld_error.h>
 
 DatabaseLoader::DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask)
     : _logger(logger), _autoSetup(sConfigMgr->GetOption<bool>("Updates.AutoSetup", true)),
@@ -60,23 +61,24 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             // Try reconnect
             if (error == CR_CONNECTION_ERROR)
             {
-                uint8 const ATTEMPTS = sConfigMgr->GetOption<uint8>("Database.Reconnect.Attempts", 20);
-                Seconds RECONNECT_SECONDS = Seconds(sConfigMgr->GetOption<uint8>("Database.Reconnect.Seconds", 15));
-                uint8 count = 0;
+                uint8 const attempts = sConfigMgr->GetOption<uint8>("Database.Reconnect.Attempts", 20);
+                Seconds reconnectSeconds = Seconds(sConfigMgr->GetOption<uint8>("Database.Reconnect.Seconds", 15));
+                uint8 reconnectCount = 0;
 
-                while (count < ATTEMPTS)
+                while (reconnectCount < attempts)
                 {
-                    LOG_INFO("sql.driver", "> Retrying after %u seconds", static_cast<uint32>(RECONNECT_SECONDS.count()));
-                    std::this_thread::sleep_for(RECONNECT_SECONDS);
+                    LOG_WARN(_logger, "> Retrying after %u seconds", static_cast<uint32>(reconnectSeconds.count()));
+                    std::this_thread::sleep_for(reconnectSeconds);
                     error = pool.Open();
 
                     if (error == CR_CONNECTION_ERROR)
                     {
-                        count++;
+                        reconnectCount++;
                     }
                     else
+                    {
                         break;
-
+                    }
                 }
             }
 
