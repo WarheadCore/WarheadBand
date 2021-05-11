@@ -46,7 +46,7 @@ public:
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const = 0;
 };
 
-class GameObjectModel
+class WH_COMMON_API GameObjectModel
 {
     GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr) { }
 
