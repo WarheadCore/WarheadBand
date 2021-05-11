@@ -20,6 +20,8 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include <map>
+#include <unordered_map>
 
 struct GraveyardStruct
 {

@@ -89,7 +89,8 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include <VMapManager2.h>
+#include "VMapManager2.h"
+#include <boost/asio/ip/address.hpp>
 
 #ifdef ELUNA
 #include "LuaEngine.h"

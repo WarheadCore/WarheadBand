@@ -345,7 +345,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
                  return /*object.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(object.guid);
             });
 
-            acore::Containers::RandomResize(rolledObjects, count);
+            Warhead::Containers::RandomResize(rolledObjects, count);
         }
 
         // try to spawn rolled objects

@@ -528,7 +528,7 @@ inline void KillRewarder::_InitGroupData()
                         }
                         // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
                         //      for whom victim is not gray;
-                        uint32 grayLevel = acore::XP::GetGrayLevel(lvl);
+                        uint32 grayLevel = Warhead::XP::GetGrayLevel(lvl);
                         if (_victim->getLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
                         {
                             _maxNotGrayMember = member;

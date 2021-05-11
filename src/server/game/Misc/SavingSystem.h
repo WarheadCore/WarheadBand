@@ -19,6 +19,7 @@
 #define __SAVINGSYSTEM_H
 
 #include "Common.h"
+#include <list>
 #include <mutex>
 
 // to evenly distribute saving players to db
