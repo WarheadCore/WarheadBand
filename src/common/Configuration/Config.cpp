@@ -19,6 +19,7 @@
 #include "Log.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
+#include "SystemLog.h"
 #include "Util.h"
 #include <mutex>
 #include <fstream>
@@ -31,6 +32,30 @@ namespace
     std::vector<std::string> _args;
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
     std::mutex _configLock;
+
+    bool IsAppConfig(std::string_view fileName)
+    {
+        size_t found = fileName.find_first_of("authserver.conf");
+        if (found != std::string::npos)
+            return true;
+
+        found = fileName.find_first_of("worldserver.conf");
+        if (found != std::string::npos)
+            return true;
+
+        return false;
+    }
+
+    template<typename Format, typename... Args>
+    inline void PrintError(std::string_view filename, Format&& fmt, Args&& ... args)
+    {
+        std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
+
+        if (IsAppConfig(filename))
+            SYS_LOG_ERROR("%s", message.c_str());
+        else
+            LOG_ERROR("server.loading", "%s", message.c_str());
+    }
 
     void AddKey(std::string const& optionName, std::string const& optionKey, bool replace = true)
     {
@@ -57,9 +82,11 @@ namespace
             throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '%s'", file.c_str()));
 
         uint32 count = 0;
+        uint32 lineNumber = 0;
 
         while (in.good())
         {
+            lineNumber++;
             std::string line;
             std::getline(in, line);
 
@@ -79,7 +106,10 @@ namespace
             auto const equal_pos = line.find('=');
 
             if (equal_pos == std::string::npos || equal_pos == line.length())
-                return;
+            {
+                PrintError(file, "> Config::LoadFile: Failure to read line number %u in file '%s'. Skip this line", lineNumber, file.c_str());
+                continue;
+            }
 
             auto entry = Warhead::String::Trim(line.substr(0, equal_pos), in.getloc());
             auto value = Warhead::String::Trim(line.substr(equal_pos + 1), in.getloc());
@@ -104,7 +134,7 @@ namespace
         }
         catch (const std::exception& e)
         {
-            LOG_ERROR("server", "> Config: %s", e.what());
+            PrintError(file, "> %s", e.what());
         }
 
         return false;
