@@ -5,17 +5,23 @@ fi
 
 UBUNTU_VERSION=$(lsb_release -sr);
 
-sudo apt-get update -y
+# Added repo for newest lib
+sudo add-apt-repository -y ppa:mhier/libboost-latest
+sudo apt update
+
+# Insstall boost 1.74 from ppa:mhier/libboost-latest for all os versions
+sudo apt-get -y install libboost1.7
+
+# sudo apt-get -y install libboost1.75-dev
+# sudo apt-get -y install libboost1.76-dev
 
 if [[ $CONTINUOUS_INTEGRATION ]]; then
   sudo apt-get -y install build-essential libtool make cmake cmake-data clang openssl libgoogle-perftools-dev \
   libssl-dev libmysqlclient-dev libmysql++-dev libreadline6-dev zlib1g-dev libbz2-dev mysql-client \
-  libboost-system1.7*-dev libboost-filesystem1.7*-dev libboost-program-options1.7*-dev libboost-iostreams1.7*-dev \
   libncurses5-dev ccache
 else
   sudo apt-get install -y git gcc g++ gdb gdbserver \
   libssl-dev libbz2-dev libreadline-dev libncurses-dev \
-  libboost-system1.7*-dev libboost-filesystem1.7*-dev libboost-program-options1.7*-dev libboost-iostreams1.7*-dev \
   mysql-server
 fi
 
