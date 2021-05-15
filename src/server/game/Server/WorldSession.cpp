@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameLocale.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -36,6 +37,7 @@
 #include "PacketUtilities.h"
 #include "Pet.h"
 #include "Player.h"
+#include "QueryHolder.h"
 #include "SavingSystem.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
@@ -46,8 +48,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
-#include "QueryHolder.h"
-#include "zlib.h"
+#include <zlib.h>
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -709,7 +710,7 @@ void WorldSession::SendNotification(const char* format, ...)
 
 void WorldSession::SendNotification(uint32 string_id, ...)
 {
-    char const* format = GetAcoreString(string_id);
+    char const* format = GetWarheadString(string_id);
     if (format)
     {
         va_list ap;
@@ -725,9 +726,9 @@ void WorldSession::SendNotification(uint32 string_id, ...)
     }
 }
 
-char const* WorldSession::GetAcoreString(uint32 entry) const
+char const* WorldSession::GetWarheadString(uint32 entry) const
 {
-    return sObjectMgr->GetAcoreString(entry, GetSessionDbLocaleIndex());
+    return sGameLocale->GetWarheadString(entry, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::Handle_NULL(WorldPacket& null)

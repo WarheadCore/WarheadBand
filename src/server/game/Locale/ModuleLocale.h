@@ -65,6 +65,11 @@ public:
     void SendPlayerMessage(Player* player, std::string const& moduleName, uint32 id, ...);
     void SendGlobalMessage(bool gmOnly, std::string const& moduleName, uint32 id, ...);
 
+    ModuleLocale(ModuleLocale const&) = delete;
+    ModuleLocale(ModuleLocale&&) = delete;
+    ModuleLocale& operator= (ModuleLocale const&) = delete;
+    ModuleLocale& operator= (ModuleLocale&&) = delete;
+
 private:
     using ModuleStringContainer = std::unordered_map<uint32, ModuleString>;
     using AllModulesStringContainer = std::unordered_map<std::string, ModuleStringContainer>;

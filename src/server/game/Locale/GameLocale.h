@@ -196,7 +196,7 @@ struct ClassString
     std::vector<std::string> NameMale;
     std::vector<std::string> NameFemale;
 
-    std::string const& GetText(LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE) const
+    [[nodiscard]] std::string const& GetText(LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE) const
     {
         if (gender == GENDER_FEMALE)
         {
@@ -265,20 +265,20 @@ public:
     void LoadPointOfInterestLocales();
     void LoadQuestGreetingLocales();
 
-    AchievementRewardLocale const* GetAchievementRewardLocale(uint32 entry) const;
-    BroadcastText const* GetBroadcastText(uint32 id) const;
-    CreatureLocale const* GetCreatureLocale(uint32 entry) const;
-    GameObjectLocale const* GetGameObjectLocale(uint32 entry) const;
-    GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 entry) const;
-    ItemLocale const* GetItemLocale(uint32 entry) const;
-    ItemSetNameLocale const* GetItemSetNameLocale(uint32 entry) const;
-    NpcTextLocale const* GetNpcTextLocale(uint32 entry) const;
-    PageTextLocale const* GetPageTextLocale(uint32 entry) const;
-    PointOfInterestLocale const* GetPointOfInterestLocale(uint32 entry) const;
-    QuestLocale const* GetQuestLocale(uint32 entry) const;
-    QuestOfferRewardLocale const* GetQuestOfferRewardLocale(uint32 entry) const;
-    QuestRequestItemsLocale const* GetQuestRequestItemsLocale(uint32 entry) const;
-    QuestGreetingLocale const* GetQuestGreetingLocale(uint32 id) const;
+    [[nodiscard]] AchievementRewardLocale const* GetAchievementRewardLocale(uint32 entry) const;
+    [[nodiscard]] BroadcastText const* GetBroadcastText(uint32 id) const;
+    [[nodiscard]] CreatureLocale const* GetCreatureLocale(uint32 entry) const;
+    [[nodiscard]] GameObjectLocale const* GetGameObjectLocale(uint32 entry) const;
+    [[nodiscard]] GossipMenuItemsLocale const* GetGossipMenuItemsLocale(uint32 entry) const;
+    [[nodiscard]] ItemLocale const* GetItemLocale(uint32 entry) const;
+    [[nodiscard]] ItemSetNameLocale const* GetItemSetNameLocale(uint32 entry) const;
+    [[nodiscard]] NpcTextLocale const* GetNpcTextLocale(uint32 entry) const;
+    [[nodiscard]] PageTextLocale const* GetPageTextLocale(uint32 entry) const;
+    [[nodiscard]] PointOfInterestLocale const* GetPointOfInterestLocale(uint32 entry) const;
+    [[nodiscard]] QuestLocale const* GetQuestLocale(uint32 entry) const;
+    [[nodiscard]] QuestOfferRewardLocale const* GetQuestOfferRewardLocale(uint32 entry) const;
+    [[nodiscard]] QuestRequestItemsLocale const* GetQuestRequestItemsLocale(uint32 entry) const;
+    [[nodiscard]] QuestGreetingLocale const* GetQuestGreetingLocale(uint32 id) const;
 
     //
     std::string const GetItemNameLocale(uint32 itemID, int8 index_loc = DEFAULT_LOCALE);
@@ -293,48 +293,33 @@ public:
     RaceString const* GetRaseString(uint32 id) const;
     ClassString const* GetClassString(uint32 id) const;
 
-private:
-    using WarheadStringContainer = std::unordered_map<uint32, WarheadString>;
+    GameLocale(GameLocale const&) = delete;
+    GameLocale(GameLocale&&) = delete;
+    GameLocale& operator= (GameLocale const&) = delete;
+    GameLocale& operator= (GameLocale&&) = delete;
 
-    WarheadStringContainer _warheadStringStore;
+private:
+    std::unordered_map<uint32, WarheadString> _warheadStringStore;
     LocaleConstant DBCLocaleIndex = LOCALE_enUS;
 
-    using AchievementRewardLocales = std::unordered_map<uint32, AchievementRewardLocale>;
-    using BroadcastTextContainer = std::unordered_map<uint32, BroadcastText>;
-    using CreatureLocaleContainer = std::unordered_map<uint32, CreatureLocale>;
-    using GameObjectLocaleContainer = std::unordered_map<uint32, GameObjectLocale>;
-    using GossipMenuItemsLocaleContainer = std::unordered_map<uint32, GossipMenuItemsLocale>;
-    using ItemLocaleContainer = std::unordered_map<uint32, ItemLocale>;
-    using ItemSetNameLocaleContainer = std::unordered_map<uint32, ItemSetNameLocale>;
-    using NpcTextLocaleContainer = std::unordered_map<uint32, NpcTextLocale>;
-    using PageTextLocaleContainer = std::unordered_map<uint32, PageTextLocale>;
-    using PointOfInterestLocaleContainer = std::unordered_map<uint32, PointOfInterestLocale>;
-    using QuestLocaleContainer = std::unordered_map<uint32, QuestLocale>;
-    using QuestGreetingLocaleContainer = std::unordered_map<uint32, QuestGreetingLocale>;
-    using QuestOfferRewardLocaleContainer = std::unordered_map<uint32, QuestOfferRewardLocale>;
-    using QuestRequestItemsLocaleContainer = std::unordered_map<uint32, QuestRequestItemsLocale>;
-
-    AchievementRewardLocales _achievementRewardLocales;
-    BroadcastTextContainer _broadcastTextStore;
-    CreatureLocaleContainer _creatureLocaleStore;
-    GameObjectLocaleContainer _gameObjectLocaleStore;
-    GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
-    ItemLocaleContainer _itemLocaleStore;
-    ItemSetNameLocaleContainer _itemSetNameLocaleStore;
-    NpcTextLocaleContainer _npcTextLocaleStore;
-    PageTextLocaleContainer _pageTextLocaleStore;
-    PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
-    QuestLocaleContainer _questLocaleStore;
-    QuestGreetingLocaleContainer _questGreetingLocaleStore;
-    QuestOfferRewardLocaleContainer _questOfferRewardLocaleStore;
-    QuestRequestItemsLocaleContainer _questRequestItemsLocaleStore;
+    std::unordered_map<uint32, AchievementRewardLocale> _achievementRewardLocales;
+    std::unordered_map<uint32, BroadcastText> _broadcastTextStore;
+    std::unordered_map<uint32, CreatureLocale> _creatureLocaleStore;
+    std::unordered_map<uint32, GameObjectLocale> _gameObjectLocaleStore;
+    std::unordered_map<uint32, GossipMenuItemsLocale> _gossipMenuItemsLocaleStore;
+    std::unordered_map<uint32, ItemLocale> _itemLocaleStore;
+    std::unordered_map<uint32, ItemSetNameLocale> _itemSetNameLocaleStore;
+    std::unordered_map<uint32, NpcTextLocale> _npcTextLocaleStore;
+    std::unordered_map<uint32, PageTextLocale> _pageTextLocaleStore;
+    std::unordered_map<uint32, PointOfInterestLocale> _pointOfInterestLocaleStore;
+    std::unordered_map<uint32, QuestLocale> _questLocaleStore;
+    std::unordered_map<uint32, QuestGreetingLocale> _questGreetingLocaleStore;
+    std::unordered_map<uint32, QuestOfferRewardLocale> _questOfferRewardLocaleStore;
+    std::unordered_map<uint32, QuestRequestItemsLocale> _questRequestItemsLocaleStore;
 
     // New strings and locales
-    using RaceStringContainer = std::unordered_map<uint32, RaceString>;
-    using ClassStringContainer = std::unordered_map<uint32, ClassString>;
-
-    RaceStringContainer _raceStringStore;
-    ClassStringContainer _classStringStore;
+    std::unordered_map<uint32, RaceString> _raceStringStore;
+    std::unordered_map<uint32, ClassString> _classStringStore;
 };
 
 #define sGameLocale GameLocale::instance()

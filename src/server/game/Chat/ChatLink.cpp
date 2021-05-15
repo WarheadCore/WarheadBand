@@ -17,6 +17,7 @@
 
 #include "ChatLink.h"
 #include "DBCStores.h"
+#include "GameLocale.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -203,7 +204,7 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
 
     if (!res)
     {
-        ItemLocale const* il = sObjectMgr->GetItemLocale(_item->ItemId);
+        ItemLocale const* il = sGameLocale->GetItemLocale(_item->ItemId);
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
             if (FormatName(index, il, suffixStrings) == buffer)
@@ -271,7 +272,7 @@ bool QuestChatLink::ValidateName(char* buffer, const char* context)
 
     bool res = (_quest->GetTitle() == buffer);
     if (!res)
-        if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
+        if (QuestLocale const* ql = sGameLocale->GetQuestLocale(_quest->GetQuestId()))
             for (uint8 i = 0; i < ql->Title.size(); i++)
                 if (ql->Title[i] == buffer)
                 {

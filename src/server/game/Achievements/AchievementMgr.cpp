@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
 #include "AchievementMgr.h"
+#include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
@@ -24,10 +24,11 @@
 #include "CellImpl.h"
 #include "Chat.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "DBCEnums.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -53,7 +54,7 @@ namespace Warhead
 
         void operator()(WorldPacket& data, LocaleConstant loc_idx)
         {
-            std::string text = sObjectMgr->GetAcoreString(i_textId, loc_idx);
+            std::string text = sGameLocale->GetWarheadString(i_textId, loc_idx);
             ChatHandler::BuildChatPacket(data, i_msgtype, LANG_UNIVERSAL, &i_player, &i_player, text, i_achievementId);
         }
 
@@ -2263,7 +2264,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
             LocaleConstant localeConstant = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
             {
-                if(AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
+                if (AchievementRewardLocale const* loc = sGameLocale->GetAchievementRewardLocale(achievement->ID))
                 {
                     sGameLocale->GetLocaleString(loc->Subject, localeConstant, subject);
                     sGameLocale->GetLocaleString(loc->Text, localeConstant, text);
@@ -2931,45 +2932,5 @@ void AchievementGlobalMgr::LoadRewards()
     } while (result->NextRow());
 
     LOG_INFO("server", ">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
-}
-
-void AchievementGlobalMgr::LoadRewardLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    m_achievementRewardLocales.clear();                       // need for reload case
-
-    //                                               0   1       2        3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Text FROM achievement_reward_locale");
-
-    if (!result)
-    {
-        LOG_INFO("server", ">> Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty");
-        LOG_INFO("server", " ");
-        return;
-    }
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 ID = fields[0].GetUInt32();
-        if (m_achievementRewards.find(ID) == m_achievementRewards.end())
-        {
-            LOG_ERROR("sql.sql", "Table `achievement_reward_locale` (Entry: %u) has locale strings for non-existing achievement reward.", ID);
-            continue;
-        }
-
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
-        if (locale == LOCALE_enUS)
-            continue;
-
-        AchievementRewardLocale& data = m_achievementRewardLocales[ID];
-        ObjectMgr::AddLocaleString(fields[2].GetString(), locale, data.Subject);
-        ObjectMgr::AddLocaleString(fields[3].GetString(), locale, data.Text);
-    } while (result->NextRow());
-
-    LOG_INFO("server", ">> Loaded %lu Achievement Reward Locale strings in %u ms", (unsigned long)m_achievementRewardLocales.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server", " ");
 }

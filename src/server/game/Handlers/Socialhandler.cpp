@@ -40,7 +40,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recv_data)
 {
     LOG_DEBUG("network", "WORLD: Received CMSG_ADD_FRIEND");
 
-    std::string friendName = GetAcoreString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string friendName = GetWarheadString(LANG_FRIEND_IGNORE_UNKNOWN);
     std::string friendNote;
 
     recv_data >> friendName;
@@ -109,7 +109,7 @@ void WorldSession::HandleDelFriendOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recv_data)
 {
-    std::string ignoreName = GetAcoreString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string ignoreName = GetWarheadString(LANG_FRIEND_IGNORE_UNKNOWN);
 
     recv_data >> ignoreName;
 

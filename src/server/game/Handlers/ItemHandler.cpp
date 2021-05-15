@@ -16,6 +16,7 @@
  */
 
 #include "Common.h"
+#include "GameLocale.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -450,7 +451,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (ItemLocale const* il = sObjectMgr->GetItemLocale(pProto->ItemId))
+            if (ItemLocale const* il = sGameLocale->GetItemLocale(pProto->ItemId))
             {
                 sGameLocale->GetLocaleString(il->Name, loc_idx, Name);
                 sGameLocale->GetLocaleString(il->Description, loc_idx, Description);
@@ -1270,7 +1271,7 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket& recvData)
         std::string Name = pName->name;
         LocaleConstant loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
-            if (ItemSetNameLocale const* isnl = sObjectMgr->GetItemSetNameLocale(itemid))
+            if (ItemSetNameLocale const* isnl = sGameLocale->GetItemSetNameLocale(itemid))
                 sGameLocale->GetLocaleString(isnl->Name, loc_idx, Name);
 
         WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4 + Name.size() + 1 + 4));

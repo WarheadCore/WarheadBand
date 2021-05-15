@@ -208,7 +208,7 @@ public:
         target->SetPower(POWER_ENERGY, energy);
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        LOG_DEBUG("server", handler->GetAcoreString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        LOG_DEBUG("server", handler->GetWarheadString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
 #endif
 
         return true;
@@ -1026,7 +1026,7 @@ public:
             int32 newmoney = int32(targetMoney) + moneyToAdd;
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-            LOG_DEBUG("chat.system", handler->GetAcoreString(LANG_CURRENT_MONEY), targetMoney, moneyToAdd, newmoney);
+            LOG_DEBUG("chat.system", handler->GetWarheadString(LANG_CURRENT_MONEY), targetMoney, moneyToAdd, newmoney);
 #endif
             if (newmoney <= 0)
             {
@@ -1063,7 +1063,7 @@ public:
         }
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        LOG_DEBUG("chat.system", handler->GetAcoreString(LANG_NEW_MONEY), targetMoney, moneyToAdd, target->GetMoney());
+        LOG_DEBUG("chat.system", handler->GetWarheadString(LANG_NEW_MONEY), targetMoney, moneyToAdd, target->GetMoney());
 #endif
 
         return true;
@@ -1206,7 +1206,7 @@ public:
             amount = -42000;
             for (; r < MAX_REPUTATION_RANK; ++r)
             {
-                std::string rank = handler->GetAcoreString(ReputationRankStrIndex[r]);
+                std::string rank = handler->GetWarheadString(ReputationRankStrIndex[r]);
                 if (rank.empty())
                     continue;
 

@@ -25,7 +25,7 @@ void Warhead::Game::Locale::AddLocaleString(std::string&& str, LocaleConstant lo
         return;
 
     if (data.size() <= size_t(locale))
-        data.resize(locale + 1);
+        data.resize(size_t(locale) + 1);
 
     data[locale] = std::move(str);
 }

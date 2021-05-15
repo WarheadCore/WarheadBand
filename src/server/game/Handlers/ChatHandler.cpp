@@ -110,7 +110,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
-        SendNotification(GetAcoreString(LANG_GM_SILENCE), sender->GetName().c_str());
+        SendNotification(GetWarheadString(LANG_GM_SILENCE), sender->GetName().c_str());
         recvData.rfinish();
         return;
     }
@@ -279,7 +279,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         if (!_player->CanSpeak())
         {
             std::string timeStr = secsToTimeString(m_muteTime - time(nullptr));
-            SendNotification(GetAcoreString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+            SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
             return;
         }
 
@@ -333,7 +333,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
                 if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ))
                 {
-                    SendNotification(GetAcoreString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
+                    SendNotification(GetWarheadString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
                     return;
                 }
 
@@ -349,7 +349,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             {
                 if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ))
                 {
-                    SendNotification(GetAcoreString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
+                    SendNotification(GetWarheadString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
                     return;
                 }
 
@@ -378,7 +378,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 // pussywizard: optimization
                 if (GetPlayer()->HasAura(1852) && !receiver->IsGameMaster())
                 {
-                    SendNotification(GetAcoreString(LANG_GM_SILENCE), GetPlayer()->GetName().c_str());
+                    SendNotification(GetWarheadString(LANG_GM_SILENCE), GetPlayer()->GetName().c_str());
                     return;
                 }
 
@@ -547,7 +547,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 {
                     if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
                     {
-                        SendNotification(GetAcoreString(LANG_CHANNEL_REQ), sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
+                        SendNotification(GetWarheadString(LANG_CHANNEL_REQ), sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
                         return;
                     }
                 }
@@ -580,7 +580,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     }
                     else                                        // New AFK mode
                     {
-                        sender->autoReplyMsg = msg.empty() ? GetAcoreString(LANG_PLAYER_AFK_DEFAULT) : msg;
+                        sender->autoReplyMsg = msg.empty() ? GetWarheadString(LANG_PLAYER_AFK_DEFAULT) : msg;
 
                         if (sender->isDND())
                             sender->ToggleDND();
@@ -607,7 +607,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 }
                 else                                            // New DND mode
                 {
-                    sender->autoReplyMsg = msg.empty() ? GetAcoreString(LANG_PLAYER_DND_DEFAULT) : msg;
+                    sender->autoReplyMsg = msg.empty() ? GetWarheadString(LANG_PLAYER_DND_DEFAULT) : msg;
 
                     if (sender->isAFK())
                         sender->ToggleAFK();
@@ -689,7 +689,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     if (!GetPlayer()->CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(nullptr));
-        SendNotification(GetAcoreString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+        SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
 

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaSpectator.h"
@@ -39,6 +40,7 @@
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
+#include "GameLocale.h"
 #include "GameObjectAI.h"
 #include "GitRevision.h"
 #include "GossipDef.h"
@@ -50,8 +52,8 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
-#include "Language.h"
 #include "LFGMgr.h"
+#include "Language.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "MapInstanced.h"
@@ -63,10 +65,9 @@
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PetitionMgr.h"
-#include "Player.h"
 #include "PoolMgr.h"
-#include "QuestDef.h"
 #include "QueryHolder.h"
+#include "QuestDef.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "SavingSystem.h"
@@ -5876,7 +5877,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     char const* currentNameExt;
 
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                        currentNameExt = sObjectMgr->GetAcoreStringForDBCLocale(LANG_CHANNEL_CITY);
+                        currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
                         currentNameExt = current_zone_name.c_str();
 
@@ -15234,17 +15235,17 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (canTalk)
         {
             std::string strOptionText, strBoxText;
-            BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextID);
-            BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID);
+            BroadcastText const* optionBroadcastText = sGameLocale->GetBroadcastText(itr->second.OptionBroadcastTextID);
+            BroadcastText const* boxBroadcastText = sGameLocale->GetBroadcastText(itr->second.BoxBroadcastTextID);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->MaleText : optionBroadcastText->FemaleText, locale, strOptionText);
+                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->Text : optionBroadcastText->Text1, locale, strOptionText);
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->MaleText : boxBroadcastText->FemaleText, locale, strBoxText);
+                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->Text : boxBroadcastText->Text1, locale, strBoxText);
             else
                 strBoxText = itr->second.BoxText;
 
@@ -15253,14 +15254,14 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 if (!optionBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sGameLocale->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
                         sGameLocale->GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (!boxBroadcastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sGameLocale->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
                         sGameLocale->GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
@@ -15271,7 +15272,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
     }
 
     if (sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 2 && npcflags & UNIT_NPC_FLAG_FLIGHTMASTER)
-        menu->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_INTERACT_1, GetSession()->GetAcoreString(LANG_TOGGLE_INSTANT_FLIGHT), 0, GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT, "", 0, false); // instant flight toggle option
+        menu->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_INTERACT_1, GetSession()->GetWarheadString(LANG_TOGGLE_INSTANT_FLIGHT), 0, GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT, "", 0, false); // instant flight toggle option
 }
 
 void Player::SendPreparedGossip(WorldObject* source)
@@ -15639,7 +15640,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
 
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
-                        if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
+                        if (NpcTextLocale const* nl = sGameLocale->GetNpcTextLocale(textid))
                             sGameLocale->GetLocaleString(nl->Text_0[0], loc_idx, title);
                 }
                 else
@@ -15648,7 +15649,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
 
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
-                        if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
+                        if (NpcTextLocale const* nl = sGameLocale->GetNpcTextLocale(textid))
                             sGameLocale->GetLocaleString(nl->Text_1[0], loc_idx, title);
                 }
             }
@@ -17789,7 +17790,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
 
         int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
-            if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+            if (const QuestLocale* pLocale = sGameLocale->GetQuestLocale(quest->GetQuestId()))
                 sGameLocale->GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + quest->GetTitle().size() + 8));
@@ -19085,7 +19086,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
         // Send problematic items by mail
         while (!problematicItems.empty())
         {
-            std::string subject = GetSession()->GetAcoreString(LANG_NOT_EQUIPPED_ITEM);
+            std::string subject = GetSession()->GetWarheadString(LANG_NOT_EQUIPPED_ITEM);
 
             MailDraft draft(subject, "There were problems with equipping item(s).");
             for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
@@ -19787,7 +19788,7 @@ void Player::PrettyPrintRequirementsQuestList(const std::vector<const Progressio
         }
 
         std::string questTitle = questTemplate->GetTitle();
-        if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplate->GetQuestId()))
+        if (QuestLocale const* questLocale = sGameLocale->GetQuestLocale(questTemplate->GetQuestId()))
         {
             sGameLocale->GetLocaleString(questLocale->Title, loc_idx, questTitle);
         }
@@ -19807,7 +19808,7 @@ void Player::PrettyPrintRequirementsQuestList(const std::vector<const Progressio
         }
         else
         {
-            ChatHandler(GetSession()).PSendSysMessage("    - %s %s %s", stream.str().c_str(), sObjectMgr->GetAcoreString(LANG_ACCESS_REQUIREMENT_NOTE, loc_idx), missingReq->note.c_str());
+            ChatHandler(GetSession()).PSendSysMessage("    - %s %s %s", stream.str().c_str(), sGameLocale->GetWarheadString(LANG_ACCESS_REQUIREMENT_NOTE, loc_idx), missingReq->note.c_str());
         }
     }
 }
@@ -19840,7 +19841,7 @@ void Player::PrettyPrintRequirementsAchievementsList(const std::vector<const Pro
         }
         else
         {
-            ChatHandler(GetSession()).PSendSysMessage("    - %s %s %s", stream.str().c_str(), sObjectMgr->GetAcoreString(LANG_ACCESS_REQUIREMENT_NOTE, loc_idx), missingReq->note.c_str());
+            ChatHandler(GetSession()).PSendSysMessage("    - %s %s %s", stream.str().c_str(), sGameLocale->GetWarheadString(LANG_ACCESS_REQUIREMENT_NOTE, loc_idx), missingReq->note.c_str());
         }
     }
 }
@@ -19858,7 +19859,7 @@ void Player::PrettyPrintRequirementsItemsList(const std::vector<const Progressio
 
         //Get the localised name
         std::string name = itemTemplate->Name1;
-        if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplate->ItemId))
+        if (ItemLocale const* il = sGameLocale->GetItemLocale(itemTemplate->ItemId))
         {
             sGameLocale->GetLocaleString(il->Name, loc_idx, name);
         }
@@ -19878,7 +19879,7 @@ void Player::PrettyPrintRequirementsItemsList(const std::vector<const Progressio
         }
         else
         {
-            ChatHandler(GetSession()).PSendSysMessage("    - %s %s %s", stream.str().c_str(), sObjectMgr->GetAcoreString(LANG_ACCESS_REQUIREMENT_NOTE, loc_idx), missingReq->note.c_str());
+            ChatHandler(GetSession()).PSendSysMessage("    - %s %s %s", stream.str().c_str(), sGameLocale->GetWarheadString(LANG_ACCESS_REQUIREMENT_NOTE, loc_idx), missingReq->note.c_str());
         }
     }
 }
@@ -19904,12 +19905,12 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
         {
-            GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetAcoreString(LANG_INSTANCE_CLOSED));
+            GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetWarheadString(LANG_INSTANCE_CLOSED));
             return false;
         }
 
         Player* partyLeader = this;
-        std::string leaderName = m_session->GetAcoreString(LANG_YOU);
+        std::string leaderName = m_session->GetWarheadString(LANG_YOU);
         {
             ObjectGuid leaderGuid = GetGroup() ? GetGroup()->GetLeaderGUID() : GetGUID();
             Player* tempLeader = HashMapHolder<Player>::Find(leaderGuid);
@@ -20031,11 +20032,11 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
                     }
                     else if (missingPlayerItems.size())
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetAcoreString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, sObjectMgr->GetItemTemplate(missingPlayerItems[0]->id)->Name1.c_str());
+                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, sObjectMgr->GetItemTemplate(missingPlayerItems[0]->id)->Name1.c_str());
                     }
                     else if (LevelMin)
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetAcoreString(LANG_LEVEL_MINREQUIRED), LevelMin);
+                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_LEVEL_MINREQUIRED), LevelMin);
                     }
                     else if (ilvlRequirementNotMet)
                     {
@@ -20093,11 +20094,11 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
 
                     if (LevelMin)
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetAcoreString(LANG_LEVEL_MINREQUIRED), LevelMin);
+                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_LEVEL_MINREQUIRED), LevelMin);
                     }
                     else if (LevelMax)
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetAcoreString(LANG_ACCESS_REQUIREMENT_MAX_LEVEL), LevelMax);
+                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_ACCESS_REQUIREMENT_MAX_LEVEL), LevelMax);
                     }
                     else if (mapDiff->hasErrorMessage && !errorAlreadyPrinted)
                     {
@@ -21552,7 +21553,7 @@ void Player::TextEmote(const std::string& text)
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_EMOTE) && this->GetTeamId() != itr->GetTeamId())
         {
             LocaleConstant loc_idx = itr->GetSession()->GetSessionDbLocaleIndex();
-            if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(EMOTE_BROADCAST_TEXT_ID_STRANGE_GESTURES))
+            if (BroadcastText const* bct = sGameLocale->GetBroadcastText(EMOTE_BROADCAST_TEXT_ID_STRANGE_GESTURES))
             {
                 ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, bct->GetText(loc_idx, this->getGender()));
                 itr->SendDirectMessage(&data);
@@ -24591,7 +24592,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 
-        std::string subject = GetSession()->GetAcoreString(LANG_NOT_EQUIPPED_ITEM);
+        std::string subject = GetSession()->GetWarheadString(LANG_NOT_EQUIPPED_ITEM);
         MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
 
         CharacterDatabase.CommitTransaction(trans);

@@ -19,6 +19,7 @@
     \ingroup world
 */
 
+#include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
@@ -40,26 +41,28 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicVisibility.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
+#include "GameLocale.h"
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
+#include "IPLocation.h"
 #include "InstanceSaveMgr.h"
 #include "ItemEnchantmentMgr.h"
-#include "IPLocation.h"
-#include "Language.h"
 #include "LFGMgr.h"
+#include "Language.h"
+#include "LocaleCommon.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
-#include "MapManager.h"
 #include "MMapFactory.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -79,17 +82,16 @@
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "Util.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
+#include "Vehicle.h"
 #include "Warden.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WhoListCache.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "VMapManager2.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
@@ -1471,7 +1473,7 @@ void World::SetInitialWorldSettings()
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
     LOG_INFO("server", " ");
     LOG_INFO("server", "Loading Warhead strings...");
-    if (!sObjectMgr->LoadAcoreStrings())
+    if (!sGameLocale->LoadWarheadStrings())
         exit(1);                                            // Error message displayed in function already
 
     ///- Update the realm entry in the database with the realm type from the config file
@@ -1546,27 +1548,8 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
 
-    LOG_INFO("server", "Loading Broadcast texts...");
-    sObjectMgr->LoadBroadcastTexts();
-    sObjectMgr->LoadBroadcastTextLocales();
-
-    LOG_INFO("server", "Loading Localization strings...");
-    uint32 oldMSTime = getMSTime();
-    sObjectMgr->LoadCreatureLocales();
-    sObjectMgr->LoadGameObjectLocales();
-    sObjectMgr->LoadItemLocales();
-    sObjectMgr->LoadItemSetNameLocales();
-    sObjectMgr->LoadQuestLocales();
-    sObjectMgr->LoadQuestOfferRewardLocale();
-    sObjectMgr->LoadQuestRequestItemsLocale();
-    sObjectMgr->LoadNpcTextLocales();
-    sObjectMgr->LoadPageTextLocales();
-    sObjectMgr->LoadGossipMenuItemsLocales();
-    sObjectMgr->LoadPointOfInterestLocales();
-
-    sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
-    LOG_INFO("server", ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", "Loading Game locale texts...");
+    sGameLocale->LoadAllLocales();
 
     LOG_INFO("server", "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
@@ -1795,20 +1778,23 @@ void World::SetInitialWorldSettings()
 
     LOG_INFO("server", "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
+
     LOG_INFO("server", "Loading Achievement Criteria Lists...");
     sAchievementMgr->LoadAchievementCriteriaList();
+
     LOG_INFO("server", "Loading Achievement Criteria Data...");
     sAchievementMgr->LoadAchievementCriteriaData();
+
     LOG_INFO("server", "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
-    LOG_INFO("server", "Loading Achievement Reward Locales...");
-    sAchievementMgr->LoadRewardLocales();
+
     LOG_INFO("server", "Loading Completed Achievements...");
     sAchievementMgr->LoadCompletedAchievements();
 
     ///- Load dynamic data tables from the database
     LOG_INFO("server", "Loading Item Auctions...");
     sAuctionMgr->LoadAuctionItems();
+
     LOG_INFO("server", "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
@@ -2400,7 +2386,7 @@ namespace Warhead
         explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) {}
         void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
         {
-            char const* text = sObjectMgr->GetAcoreString(i_textId, loc_idx);
+            char const* text = sGameLocale->GetWarheadString(i_textId, loc_idx);
 
             if (i_args)
             {
@@ -2442,7 +2428,7 @@ void World::SendWorldText(uint32 string_id, ...)
     va_start(ap, string_id);
 
     Warhead::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Warhead::LocalizedPacketListDo<Warhead::WorldWorldTextBuilder> wt_do(wt_builder);
+    Warhead::Game::Locale::LocalizedPacketListDo<Warhead::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
@@ -2461,7 +2447,7 @@ void World::SendGMText(uint32 string_id, ...)
     va_start(ap, string_id);
 
     Warhead::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Warhead::LocalizedPacketListDo<Warhead::WorldWorldTextBuilder> wt_do(wt_builder);
+    Warhead::Game::Locale::LocalizedPacketListDo<Warhead::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())

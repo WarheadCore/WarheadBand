@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SmartScript.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
+#include "GameLocale.h"
 #include "GossipDef.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"
@@ -34,21 +36,20 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SmartAI.h"
-#include "SmartScript.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
 
-class AcoreStringTextBuilder
+class WarheadStringTextBuilder
 {
 public:
-    AcoreStringTextBuilder(WorldObject* obj, ChatMsg msgtype, int32 id, uint32 language, WorldObject* target)
+    WarheadStringTextBuilder(WorldObject* obj, ChatMsg msgtype, int32 id, uint32 language, WorldObject* target)
         : _source(obj), _msgType(msgtype), _textId(id), _language(language), _target(target)
     {
     }
 
     size_t operator()(WorldPacket* data, LocaleConstant locale) const
     {
-        std::string text = sObjectMgr->GetAcoreString(_textId, locale);
+        std::string text = sGameLocale->GetWarheadString(_textId, locale);
         return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
     }
 
@@ -1049,7 +1050,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->DoFleeToGetAssistance();
                 if (e.action.flee.withEmote)
                 {
-                    AcoreStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_FLEE, LANG_UNIVERSAL, nullptr);
+                    WarheadStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_FLEE, LANG_UNIVERSAL, nullptr);
                     sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
@@ -1362,7 +1363,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToCreature()->CallForHelp((float)e.action.callHelp.range);
                         if (e.action.callHelp.withEmote)
                         {
-                            AcoreStringTextBuilder builder(*itr, CHAT_MSG_MONSTER_EMOTE, LANG_CALL_FOR_HELP, LANG_UNIVERSAL, nullptr);
+                            WarheadStringTextBuilder builder(*itr, CHAT_MSG_MONSTER_EMOTE, LANG_CALL_FOR_HELP, LANG_UNIVERSAL, nullptr);
                             sCreatureTextMgr->SendChatPacket(*itr, builder, CHAT_MSG_MONSTER_EMOTE);
                         }
                     }
@@ -3120,7 +3121,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_PLAYER_TALK:
             {
                 ObjectList* targets = GetTargets(e, unit);
-                char const* text = sObjectMgr->GetAcoreString(e.action.playerTalk.textId, DEFAULT_LOCALE);
+                char const* text = sGameLocale->GetWarheadString(e.action.playerTalk.textId, DEFAULT_LOCALE);
 
                 if (targets)
                     for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)

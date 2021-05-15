@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Battleground.h"
 #include "ArenaSpectator.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
-#include "Battleground.h"
 #include "BattlegroundBE.h"
 #include "BattlegroundDS.h"
 #include "BattlegroundMgr.h"
@@ -29,6 +29,7 @@
 #include "Creature.h"
 #include "Formulas.h"
 #include "GameGraveyard.h"
+#include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "MapManager.h"
@@ -48,6 +49,7 @@
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
+
 namespace Warhead
 {
     class BattlegroundChatBuilder
@@ -58,7 +60,7 @@ namespace Warhead
 
         void operator()(WorldPacket& data, LocaleConstant loc_idx)
         {
-            char const* text = sObjectMgr->GetAcoreString(_textId, loc_idx);
+            char const* text = sGameLocale->GetWarheadString(_textId, loc_idx);
             if (_args)
             {
                 // we need copy va_list before use or original va_list will corrupted
@@ -95,9 +97,9 @@ namespace Warhead
 
         void operator()(WorldPacket& data, LocaleConstant loc_idx)
         {
-            char const* text = sObjectMgr->GetAcoreString(_textId, loc_idx);
-            char const* arg1str = _arg1 ? sObjectMgr->GetAcoreString(_arg1, loc_idx) : "";
-            char const* arg2str = _arg2 ? sObjectMgr->GetAcoreString(_arg2, loc_idx) : "";
+            char const* text = sGameLocale->GetWarheadString(_textId, loc_idx);
+            char const* arg1str = _arg1 ? sGameLocale->GetWarheadString(_arg1, loc_idx) : "";
+            char const* arg2str = _arg2 ? sGameLocale->GetWarheadString(_arg2, loc_idx) : "";
 
             char str[2048];
             snprintf(str, 2048, text, arg1str, arg2str);
@@ -1789,7 +1791,7 @@ void Battleground::SendWarningToAll(uint32 entry, ...)
     {
         if (localizedPackets.find(itr->second->GetSession()->GetSessionDbLocaleIndex()) == localizedPackets.end())
         {
-            char const* format = sObjectMgr->GetAcoreString(entry, itr->second->GetSession()->GetSessionDbLocaleIndex());
+            char const* format = sGameLocale->GetWarheadString(entry, itr->second->GetSession()->GetSessionDbLocaleIndex());
 
             char str[1024];
             va_list ap;
@@ -1818,10 +1820,10 @@ void Battleground::EndNow()
 }
 
 // To be removed
-char const* Battleground::GetAcoreString(int32 entry)
+char const* Battleground::GetWarheadString(int32 entry)
 {
     // FIXME: now we have different DBC locales and need localized message for each target client
-    return sObjectMgr->GetAcoreStringForDBCLocale(entry);
+    return sGameLocale->GetWarheadStringForDBCLocale(entry);
 }
 
 void Battleground::HandleTriggerBuff(GameObject* gameObject)

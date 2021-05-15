@@ -25,6 +25,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "GameEventMgr.h"
+#include "GameLocale.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -177,7 +178,7 @@ public:
         {
             uint32 id = itr->second.Entry;
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(id))
+            if (CreatureLocale const* creatureLocale = sGameLocale->GetCreatureLocale(id))
             {
                 if (creatureLocale->Name.size() > localeIndex && !creatureLocale->Name[localeIndex].empty())
                 {
@@ -269,7 +270,7 @@ public:
                     return true;
                 }
 
-                char const* active = activeEvents.find(id) != activeEvents.end() ? handler->GetAcoreString(LANG_ACTIVE) : "";
+                char const* active = activeEvents.find(id) != activeEvents.end() ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
                 if (handler->GetSession())
                     handler->PSendSysMessage(LANG_EVENT_ENTRY_LIST_CHAT, id, id, eventData.description.c_str(), active);
@@ -356,25 +357,25 @@ public:
                     if (factionState) // and then target != nullptr also
                     {
                         uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
-                        std::string rankName = handler->GetAcoreString(index);
+                        std::string rankName = handler->GetWarheadString(index);
 
                         ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
                         if (factionState->Flags & FACTION_FLAG_VISIBLE)
-                            ss << handler->GetAcoreString(LANG_FACTION_VISIBLE);
+                            ss << handler->GetWarheadString(LANG_FACTION_VISIBLE);
                         if (factionState->Flags & FACTION_FLAG_AT_WAR)
-                            ss << handler->GetAcoreString(LANG_FACTION_ATWAR);
+                            ss << handler->GetWarheadString(LANG_FACTION_ATWAR);
                         if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
-                            ss << handler->GetAcoreString(LANG_FACTION_PEACE_FORCED);
+                            ss << handler->GetWarheadString(LANG_FACTION_PEACE_FORCED);
                         if (factionState->Flags & FACTION_FLAG_HIDDEN)
-                            ss << handler->GetAcoreString(LANG_FACTION_HIDDEN);
+                            ss << handler->GetWarheadString(LANG_FACTION_HIDDEN);
                         if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                            ss << handler->GetAcoreString(LANG_FACTION_INVISIBLE_FORCED);
+                            ss << handler->GetWarheadString(LANG_FACTION_INVISIBLE_FORCED);
                         if (factionState->Flags & FACTION_FLAG_INACTIVE)
-                            ss << handler->GetAcoreString(LANG_FACTION_INACTIVE);
+                            ss << handler->GetWarheadString(LANG_FACTION_INACTIVE);
                     }
                     else
-                        ss << handler->GetAcoreString(LANG_FACTION_NOREPUTATION);
+                        ss << handler->GetWarheadString(LANG_FACTION_NOREPUTATION);
 
                     handler->SendSysMessage(ss.str().c_str());
 
@@ -415,7 +416,7 @@ public:
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itr->second.ItemId))
+                if (ItemLocale const* il = sGameLocale->GetItemLocale(itr->second.ItemId))
                 {
                     if (il->Name.size() > ulocaleIndex && !il->Name[ulocaleIndex].empty())
                     {
@@ -564,7 +565,7 @@ public:
         for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
         {
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (GameObjectLocale const* objectLocalte = sObjectMgr->GetGameObjectLocale(itr->second.entry))
+            if (GameObjectLocale const* objectLocalte = sGameLocale->GetGameObjectLocale(itr->second.entry))
             {
                 if (objectLocalte->Name.size() > localeIndex && !objectLocalte->Name[localeIndex].empty())
                 {
@@ -649,7 +650,7 @@ public:
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
-                if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(qInfo->GetQuestId()))
+                if (QuestLocale const* questLocale = sGameLocale->GetQuestLocale(qInfo->GetQuestId()))
                 {
                     if (questLocale->Title.size() > ulocaleIndex && !questLocale->Title[ulocaleIndex].empty())
                     {
@@ -672,13 +673,13 @@ public:
                                 switch (status)
                                 {
                                     case QUEST_STATUS_COMPLETE:
-                                        statusStr = handler->GetAcoreString(LANG_COMMAND_QUEST_COMPLETE);
+                                        statusStr = handler->GetWarheadString(LANG_COMMAND_QUEST_COMPLETE);
                                         break;
                                     case QUEST_STATUS_INCOMPLETE:
-                                        statusStr = handler->GetAcoreString(LANG_COMMAND_QUEST_ACTIVE);
+                                        statusStr = handler->GetWarheadString(LANG_COMMAND_QUEST_ACTIVE);
                                         break;
                                     case QUEST_STATUS_REWARDED:
-                                        statusStr = handler->GetAcoreString(LANG_COMMAND_QUEST_REWARDED);
+                                        statusStr = handler->GetWarheadString(LANG_COMMAND_QUEST_REWARDED);
                                         break;
                                     default:
                                         break;
@@ -719,13 +720,13 @@ public:
                     switch (status)
                     {
                         case QUEST_STATUS_COMPLETE:
-                            statusStr = handler->GetAcoreString(LANG_COMMAND_QUEST_COMPLETE);
+                            statusStr = handler->GetWarheadString(LANG_COMMAND_QUEST_COMPLETE);
                             break;
                         case QUEST_STATUS_INCOMPLETE:
-                            statusStr = handler->GetAcoreString(LANG_COMMAND_QUEST_ACTIVE);
+                            statusStr = handler->GetWarheadString(LANG_COMMAND_QUEST_ACTIVE);
                             break;
                         case QUEST_STATUS_REWARDED:
-                            statusStr = handler->GetAcoreString(LANG_COMMAND_QUEST_REWARDED);
+                            statusStr = handler->GetWarheadString(LANG_COMMAND_QUEST_REWARDED);
                             break;
                         default:
                             break;
@@ -809,13 +810,13 @@ public:
                     char const* knownStr = "";
                     if (target && target->HasSkill(id))
                     {
-                        knownStr = handler->GetAcoreString(LANG_KNOWN);
+                        knownStr = handler->GetWarheadString(LANG_KNOWN);
                         uint32 curValue = target->GetPureSkillValue(id);
                         uint32 maxValue  = target->GetPureMaxSkillValue(id);
                         uint32 permValue = target->GetSkillPermBonusValue(id);
                         uint32 tempValue = target->GetSkillTempBonusValue(id);
 
-                        char const* valFormat = handler->GetAcoreString(LANG_SKILL_VALUES);
+                        char const* valFormat = handler->GetWarheadString(LANG_SKILL_VALUES);
                         snprintf(valStr, 50, valFormat, curValue, maxValue, permValue, tempValue);
                     }
 
@@ -917,7 +918,7 @@ public:
 
                     // include rank in link name
                     if (rank)
-                        ss << handler->GetAcoreString(LANG_SPELL_RANK) << rank;
+                        ss << handler->GetWarheadString(LANG_SPELL_RANK) << rank;
 
                     if (handler->GetSession())
                         ss << ' ' << localeNames[locale] << "]|h|r";
@@ -925,15 +926,15 @@ public:
                         ss << ' ' << localeNames[locale];
 
                     if (talent)
-                        ss << handler->GetAcoreString(LANG_TALENT);
+                        ss << handler->GetWarheadString(LANG_TALENT);
                     if (passive)
-                        ss << handler->GetAcoreString(LANG_PASSIVE);
+                        ss << handler->GetWarheadString(LANG_PASSIVE);
                     if (learn)
-                        ss << handler->GetAcoreString(LANG_LEARN);
+                        ss << handler->GetWarheadString(LANG_LEARN);
                     if (known)
-                        ss << handler->GetAcoreString(LANG_KNOWN);
+                        ss << handler->GetWarheadString(LANG_KNOWN);
                     if (active)
-                        ss << handler->GetAcoreString(LANG_ACTIVE);
+                        ss << handler->GetWarheadString(LANG_ACTIVE);
 
                     handler->SendSysMessage(ss.str().c_str());
 
@@ -1005,7 +1006,7 @@ public:
 
                 // include rank in link name
                 if (rank)
-                    ss << handler->GetAcoreString(LANG_SPELL_RANK) << rank;
+                    ss << handler->GetWarheadString(LANG_SPELL_RANK) << rank;
 
                 if (handler->GetSession())
                     ss << ' ' << localeNames[locale] << "]|h|r";
@@ -1013,15 +1014,15 @@ public:
                     ss << ' ' << localeNames[locale];
 
                 if (talent)
-                    ss << handler->GetAcoreString(LANG_TALENT);
+                    ss << handler->GetWarheadString(LANG_TALENT);
                 if (passive)
-                    ss << handler->GetAcoreString(LANG_PASSIVE);
+                    ss << handler->GetWarheadString(LANG_PASSIVE);
                 if (learn)
-                    ss << handler->GetAcoreString(LANG_LEARN);
+                    ss << handler->GetWarheadString(LANG_LEARN);
                 if (known)
-                    ss << handler->GetAcoreString(LANG_KNOWN);
+                    ss << handler->GetWarheadString(LANG_KNOWN);
                 if (active)
-                    ss << handler->GetAcoreString(LANG_ACTIVE);
+                    ss << handler->GetWarheadString(LANG_ACTIVE);
 
                 handler->SendSysMessage(ss.str().c_str());
 
@@ -1227,10 +1228,10 @@ public:
                         return true;
                     }
 
-                    char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetAcoreString(LANG_KNOWN) : "";
+                    char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetWarheadString(LANG_KNOWN) : "";
 
                     char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
-                                            ? handler->GetAcoreString(LANG_ACTIVE)
+                                            ? handler->GetWarheadString(LANG_ACTIVE)
                                             : "";
 
                     char titleNameStr[80];
@@ -1290,21 +1291,21 @@ public:
                     ss << id << " - [" << name << ']';
 
                     if (mapInfo->IsContinent())
-                        ss << handler->GetAcoreString(LANG_CONTINENT);
+                        ss << handler->GetWarheadString(LANG_CONTINENT);
 
                     switch (mapInfo->map_type)
                     {
                         case MAP_INSTANCE:
-                            ss << handler->GetAcoreString(LANG_INSTANCE);
+                            ss << handler->GetWarheadString(LANG_INSTANCE);
                             break;
                         case MAP_RAID:
-                            ss << handler->GetAcoreString(LANG_RAID);
+                            ss << handler->GetWarheadString(LANG_RAID);
                             break;
                         case MAP_BATTLEGROUND:
-                            ss << handler->GetAcoreString(LANG_BATTLEGROUND);
+                            ss << handler->GetWarheadString(LANG_BATTLEGROUND);
                             break;
                         case MAP_ARENA:
-                            ss << handler->GetAcoreString(LANG_ARENA);
+                            ss << handler->GetWarheadString(LANG_ARENA);
                             break;
                     }
 

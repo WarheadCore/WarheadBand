@@ -204,7 +204,7 @@ public:
 
         if (!*args)
         {
-            handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetAcoreString(LANG_VISIBLE) : handler->GetAcoreString(LANG_INVISIBLE));
+            handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetWarheadString(LANG_VISIBLE) : handler->GetWarheadString(LANG_INVISIBLE));
             handler->SetSentErrorMessage(true);
             return false;
         }

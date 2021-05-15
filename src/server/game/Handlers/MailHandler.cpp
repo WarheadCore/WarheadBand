@@ -16,8 +16,9 @@
  */
 
 #include "AccountMgr.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
+#include "GameLocale.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -117,7 +118,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
     {
-        SendNotification(GetAcoreString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
+        SendNotification(GetWarheadString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
         return;
     }
 
@@ -524,7 +525,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                 {
                     std::string senderName;
                     if (!sObjectMgr->GetPlayerNameByGUID(m->sender, senderName))
-                        senderName = sObjectMgr->GetAcoreStringForDBCLocale(LANG_UNKNOWN);
+                        senderName = sGameLocale->GetWarheadStringForDBCLocale(LANG_UNKNOWN);
                     std::string subj = m->subject;
                     CleanStringForMysqlQuery(subj);
                     CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"<COD> %s\", NOW())",
