@@ -33,6 +33,7 @@ namespace
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
     std::mutex _configLock;
 
+    // Check system configs like *server.conf*
     bool IsAppConfig(std::string_view fileName)
     {
         size_t found = fileName.find_first_of("authserver.conf");
@@ -111,15 +112,21 @@ namespace
             line = Warhead::String::Trim(line, in.getloc());
 
             if (line.empty())
+            {
                 continue;
+            }
 
             // comments
             if (line[0] == '#' || line[0] == '[')
+            {
                 continue;
+            }
 
             size_t found = line.find_first_of('#');
             if (found != std::string::npos)
+            {
                 line = line.substr(0, found);
+            }
 
             auto const equal_pos = line.find('=');
 

@@ -38,13 +38,9 @@
 class LoadPetFromDBQueryHolder : public CharacterDatabaseQueryHolder
 {
 public:
-    LoadPetFromDBQueryHolder(uint32 petNumber, bool current, uint32 diffTime, std::string actionBar, uint32 health, uint32 mana)
-        : _petNumber(petNumber),
-        _current(current),
-        _diffTime(diffTime),
-        _actionBar(actionBar),
-        _savedHealth(health),
-        _savedMana(mana) { }
+    LoadPetFromDBQueryHolder(uint32 petNumber, bool current, uint32 diffTime, std::string&& actionBar, uint32 health, uint32 mana)
+        : m_petNumber(petNumber), m_current(current), m_diffTime(diffTime), m_actionBar(std::move(actionBar)),
+          m_savedHealth(health), m_savedMana(mana) { }
 
     uint32 GetPetNumber() const { return _petNumber; }
     uint32 GetDiffTime() const { return _diffTime; }
@@ -154,10 +150,14 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
     Map* map = owner->GetMap();
     ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
     Pet* pet = new Pet(owner, pet_type);
+    if (!pet->Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
+    {
+        delete pet;
+        return PET_LOAD_ERROR;
+    }
 
     std::shared_ptr<LoadPetFromDBQueryHolder> holder = std::make_shared<LoadPetFromDBQueryHolder>(pet_number, current, uint32(time(nullptr) - fields[14].GetUInt32()), fields[13].GetString(), savedhealth, savedmana);
-
-    if (!pet->Create(guid, map, owner->GetPhaseMask(), petentry, pet_number) || !holder->Initialize())
+    if (!holder->Initialize())
     {
         delete pet;
         return PET_LOAD_ERROR;

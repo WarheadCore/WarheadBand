@@ -40,7 +40,7 @@ class ChaseMovementGenerator : public MovementGeneratorMedium<T, ChaseMovementGe
 public:
     ChaseMovementGenerator(Unit* target, std::optional<ChaseRange> range = {}, std::optional<ChaseAngle> angle = {})
         : TargetedMovementGeneratorBase(target), i_path(nullptr), i_recheckDistance(0), i_recalculateTravel(true), _range(range), _angle(angle) {}
-    ~ChaseMovementGenerator() { delete i_path; }
+    ~ChaseMovementGenerator() { }
 
     MovementGeneratorType GetMovementGeneratorType() { return CHASE_MOTION_TYPE; }
 
@@ -59,7 +59,7 @@ public:
     bool HasLostTarget(Unit* unit) const { return unit->GetVictim() != this->GetTarget(); }
 
 private:
-    PathGenerator* i_path;
+    std::unique_ptr<PathGenerator> i_path;
     TimeTrackerSmall i_recheckDistance;
     bool i_recalculateTravel;
 
@@ -76,7 +76,7 @@ class FollowMovementGenerator : public MovementGeneratorMedium<T, FollowMovement
 public:
     FollowMovementGenerator(Unit* target, float range, ChaseAngle angle)
         : TargetedMovementGeneratorBase(target), i_path(nullptr), i_recheckDistance(0), i_recalculateTravel(true), _range(range), _angle(angle) {}
-    ~FollowMovementGenerator() { delete i_path; }
+    ~FollowMovementGenerator() { }
 
     MovementGeneratorType GetMovementGeneratorType() { return FOLLOW_MOTION_TYPE; }
 
@@ -98,7 +98,7 @@ public:
     void _updateSpeed(T* owner);
 
 private:
-    PathGenerator* i_path;
+    std::unique_ptr<PathGenerator> i_path;
     TimeTrackerSmall i_recheckDistance;
     bool i_recalculateTravel;
 

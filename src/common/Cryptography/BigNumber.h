@@ -48,6 +48,9 @@ public:
     bool SetHexStr(char const* str);
     bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
 
+    bool SetHexStr(char const* str);
+    bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
+
     void SetRand(int32 numbits);
 
     BigNumber& operator=(BigNumber const& bn);
