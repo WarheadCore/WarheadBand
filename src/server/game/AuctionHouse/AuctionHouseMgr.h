@@ -186,7 +186,7 @@ public:
     void LoadAuctions();
 
     void AddAItem(Item* it);
-    bool RemoveAItem(ObjectGuid itemGuid, bool deleteFromDB = false, SQLTransaction* trans = nullptr);
+    bool RemoveAItem(ObjectGuid itemGuid, bool deleteFromDB = false, CharacterDatabaseTransaction* trans = nullptr);
 
     void Update();
 

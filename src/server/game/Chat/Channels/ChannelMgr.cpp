@@ -105,7 +105,7 @@ void ChannelMgr::LoadChannels()
 
     for (auto pair : toDelete)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
         stmt->setString(0, pair.first);
         stmt->setUInt32(1, pair.second);
         CharacterDatabase.Execute(stmt);

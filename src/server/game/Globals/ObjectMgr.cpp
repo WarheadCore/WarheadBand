@@ -372,7 +372,7 @@ ObjectMgr* ObjectMgr::instance()
     return &instance;
 }
 
-void ObjectMgr::AddLocaleString(std::string&& s, LocaleConstant locale, StringVector& data)
+void ObjectMgr::AddLocaleString(std::string&& s, LocaleConstant locale, std::vector<std::string>& data)
 {
     if (!s.empty())
     {
@@ -7797,7 +7797,7 @@ bool ObjectMgr::LoadAcoreStrings()
     QueryResult result = WorldDatabase.PQuery("SELECT entry, content_default, locale_koKR, locale_frFR, locale_deDE, locale_zhCN, locale_zhTW, locale_esES, locale_esMX, locale_ruRU FROM acore_string");
     if (!result)
     {
-        LOG_INFO("server", ">> Loaded 0 acore strings. DB table `acore_strings` is empty.");
+        LOG_INFO("server", ">> Loaded 0 Warhead strings. DB table `acore_strings` is empty.");
         LOG_INFO("server", " ");
         return false;
     }
@@ -7816,7 +7816,7 @@ bool ObjectMgr::LoadAcoreStrings()
             AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     } while (result->NextRow());
 
-    LOG_INFO("server", ">> Loaded %u acore strings in %u ms", (uint32)_acoreStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", ">> Loaded %u Warhead strings in %u ms", (uint32)_acoreStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server", " ");
 
     return true;

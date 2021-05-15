@@ -39,8 +39,12 @@ class LoadPetFromDBQueryHolder : public CharacterDatabaseQueryHolder
 {
 public:
     LoadPetFromDBQueryHolder(uint32 petNumber, bool current, uint32 diffTime, std::string&& actionBar, uint32 health, uint32 mana)
-        : m_petNumber(petNumber), m_current(current), m_diffTime(diffTime), m_actionBar(std::move(actionBar)),
-          m_savedHealth(health), m_savedMana(mana) { }
+        : _petNumber(petNumber),
+        _current(current),
+        _diffTime(diffTime),
+        _actionBar(std::move(actionBar)),
+        _savedHealth(health),
+        _savedMana(mana) { }
 
     uint32 GetPetNumber() const { return _petNumber; }
     uint32 GetDiffTime() const { return _diffTime; }
