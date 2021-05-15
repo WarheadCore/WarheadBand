@@ -502,7 +502,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 gender, 
     {
         LocaleCreatureTextMap::const_iterator locItr = mLocaleTextMap.find(CreatureTextId(entry, uint32(textGroup), id));
         if (locItr != mLocaleTextMap.end())
-            ObjectMgr::GetLocaleString(locItr->second.Text, locale, baseText);
+            sGameLocale->GetLocaleString(locItr->second.Text, locale, baseText);
     }
 
     return baseText;

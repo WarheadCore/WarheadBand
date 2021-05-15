@@ -15239,12 +15239,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                ObjectMgr::GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->MaleText : optionBroadcastText->FemaleText, locale, strOptionText);
+                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->MaleText : optionBroadcastText->FemaleText, locale, strOptionText);
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                ObjectMgr::GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->MaleText : boxBroadcastText->FemaleText, locale, strBoxText);
+                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->MaleText : boxBroadcastText->FemaleText, locale, strBoxText);
             else
                 strBoxText = itr->second.BoxText;
 
@@ -15254,14 +15254,14 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 {
                     /// Find localizations from database.
                     if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
-                        ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
+                        sGameLocale->GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (!boxBroadcastText)
                 {
                     /// Find localizations from database.
                     if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
-                        ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
+                        sGameLocale->GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
 
@@ -15640,7 +15640,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
+                            sGameLocale->GetLocaleString(nl->Text_0[0], loc_idx, title);
                 }
                 else
                 {
@@ -15649,7 +15649,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
+                            sGameLocale->GetLocaleString(nl->Text_1[0], loc_idx, title);
                 }
             }
         }
@@ -17790,7 +17790,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
         int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
+                sGameLocale->GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + quest->GetTitle().size() + 8));
         data << uint32(quest->GetQuestId());
@@ -19789,7 +19789,7 @@ void Player::PrettyPrintRequirementsQuestList(const std::vector<const Progressio
         std::string questTitle = questTemplate->GetTitle();
         if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplate->GetQuestId()))
         {
-            ObjectMgr::GetLocaleString(questLocale->Title, loc_idx, questTitle);
+            sGameLocale->GetLocaleString(questLocale->Title, loc_idx, questTitle);
         }
 
         std::stringstream stream;
@@ -19860,7 +19860,7 @@ void Player::PrettyPrintRequirementsItemsList(const std::vector<const Progressio
         std::string name = itemTemplate->Name1;
         if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplate->ItemId))
         {
-            ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+            sGameLocale->GetLocaleString(il->Name, loc_idx, name);
         }
 
         std::stringstream stream;
