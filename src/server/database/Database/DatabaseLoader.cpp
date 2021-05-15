@@ -23,6 +23,7 @@
 #include "Log.h"
 #include <errmsg.h>
 #include <mysqld_error.h>
+#include <thread>
 
 DatabaseLoader::DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask)
     : _logger(logger), _autoSetup(sConfigMgr->GetOption<bool>("Updates.AutoSetup", true)),
