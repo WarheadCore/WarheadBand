@@ -1,4 +1,4 @@
-AzerothCore uses (parts of or in whole) the following opensource software:
+WarheadCore uses (parts of or in whole) the following opensource software:
 
 argon2
   https://github.com/P-H-C/phc-winner-argon2
@@ -63,3 +63,7 @@ POCO (Portable Components) C++ Libraries are:
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
   Version: 1.0.0 e6afbec564e249771046c714b0c7f2154e4c7fef
+
+{fmt} is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.
+  https://github.com/fmtlib/fmt
+  Version: 7.1.3
