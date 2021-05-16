@@ -280,7 +280,7 @@ public:
 
         LocaleConstant loc = handler->GetSessionDbcLocale();
         char const* targetName = target->GetName().c_str();
-        char const* knownStr = handler->GetAcoreString(LANG_KNOWN);
+        char const* knownStr = handler->GetWarheadString(LANG_KNOWN);
 
         // Search in CharTitles.dbc
         for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
@@ -294,7 +294,7 @@ public:
                     continue;
 
                 char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
-                                        ? handler->GetAcoreString(LANG_ACTIVE)
+                                        ? handler->GetWarheadString(LANG_ACTIVE)
                                         : "";
 
                 char titleNameStr[80];
@@ -487,7 +487,7 @@ public:
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
             char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-            std::string rankName = handler->GetAcoreString(ReputationRankStrIndex[rank]);
+            std::string rankName = handler->GetWarheadString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
             if (handler->GetSession())
                 ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
@@ -497,17 +497,17 @@ public:
             ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
             if (faction.Flags & FACTION_FLAG_VISIBLE)
-                ss << handler->GetAcoreString(LANG_FACTION_VISIBLE);
+                ss << handler->GetWarheadString(LANG_FACTION_VISIBLE);
             if (faction.Flags & FACTION_FLAG_AT_WAR)
-                ss << handler->GetAcoreString(LANG_FACTION_ATWAR);
+                ss << handler->GetWarheadString(LANG_FACTION_ATWAR);
             if (faction.Flags & FACTION_FLAG_PEACE_FORCED)
-                ss << handler->GetAcoreString(LANG_FACTION_PEACE_FORCED);
+                ss << handler->GetWarheadString(LANG_FACTION_PEACE_FORCED);
             if (faction.Flags & FACTION_FLAG_HIDDEN)
-                ss << handler->GetAcoreString(LANG_FACTION_HIDDEN);
+                ss << handler->GetWarheadString(LANG_FACTION_HIDDEN);
             if (faction.Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                ss << handler->GetAcoreString(LANG_FACTION_INVISIBLE_FORCED);
+                ss << handler->GetWarheadString(LANG_FACTION_INVISIBLE_FORCED);
             if (faction.Flags & FACTION_FLAG_INACTIVE)
-                ss << handler->GetAcoreString(LANG_FACTION_INACTIVE);
+                ss << handler->GetWarheadString(LANG_FACTION_INACTIVE);
 
             handler->SendSysMessage(ss.str().c_str());
         }

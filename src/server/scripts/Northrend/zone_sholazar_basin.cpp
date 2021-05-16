@@ -29,16 +29,18 @@ avatar_of_freya
 EndContentData */
 
 #include "CombatAI.h"
+#include "GameLocale.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "WaypointManager.h"
+
 // Ours
 enum songOfWindandWater
 {
@@ -1481,10 +1483,10 @@ public:
                 switch (GetSpellInfo()->Id)
                 {
                     case SPELL_CORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetAcoreStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        player->MonsterSay(sGameLocale->GetWarheadStringForDBCLocale(SAY_CORRECT_TRACKS), LANG_UNIVERSAL, player);
                         break;
                     case SPELL_INCORRECT_TRACKS:
-                        player->MonsterSay(sObjectMgr->GetAcoreStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
+                        player->MonsterSay(sGameLocale->GetWarheadStringForDBCLocale(SAY_INCORRECT_TRACKS), LANG_UNIVERSAL, player);
                         break;
                     default:
                         break;

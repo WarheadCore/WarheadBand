@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Language.h"
 #include "LFG.h"
+#include "GameLocale.h"
+#include "Language.h"
 #include "ObjectMgr.h"
 
 namespace lfg
 {
-
     std::string ConcatenateDungeons(LfgDungeonSet const& dungeons)
     {
         std::string dungeonstr = "";
@@ -42,31 +42,31 @@ namespace lfg
         std::string rolesstr = "";
 
         if (roles & PLAYER_ROLE_TANK)
-            rolesstr.append(sObjectMgr->GetAcoreStringForDBCLocale(LANG_LFG_ROLE_TANK));
+            rolesstr.append(sGameLocale->GetWarheadStringForDBCLocale(LANG_LFG_ROLE_TANK));
 
         if (roles & PLAYER_ROLE_HEALER)
         {
             if (!rolesstr.empty())
                 rolesstr.append(", ");
-            rolesstr.append(sObjectMgr->GetAcoreStringForDBCLocale(LANG_LFG_ROLE_HEALER));
+            rolesstr.append(sGameLocale->GetWarheadStringForDBCLocale(LANG_LFG_ROLE_HEALER));
         }
 
         if (roles & PLAYER_ROLE_DAMAGE)
         {
             if (!rolesstr.empty())
                 rolesstr.append(", ");
-            rolesstr.append(sObjectMgr->GetAcoreStringForDBCLocale(LANG_LFG_ROLE_DAMAGE));
+            rolesstr.append(sGameLocale->GetWarheadStringForDBCLocale(LANG_LFG_ROLE_DAMAGE));
         }
 
         if (roles & PLAYER_ROLE_LEADER)
         {
             if (!rolesstr.empty())
                 rolesstr.append(", ");
-            rolesstr.append(sObjectMgr->GetAcoreStringForDBCLocale(LANG_LFG_ROLE_LEADER));
+            rolesstr.append(sGameLocale->GetWarheadStringForDBCLocale(LANG_LFG_ROLE_LEADER));
         }
 
         if (rolesstr.empty())
-            rolesstr.append(sObjectMgr->GetAcoreStringForDBCLocale(LANG_LFG_ROLE_NONE));
+            rolesstr.append(sGameLocale->GetWarheadStringForDBCLocale(LANG_LFG_ROLE_NONE));
 
         return rolesstr;
     }
@@ -102,7 +102,7 @@ namespace lfg
                 break;
         }
 
-        return std::string(sObjectMgr->GetAcoreStringForDBCLocale(entry));
+        return std::string(sGameLocale->GetWarheadStringForDBCLocale(entry));
     }
 
 } // namespace lfg

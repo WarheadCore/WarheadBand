@@ -18,7 +18,7 @@
 #ifndef __WARHEAD_LANGUAGE_H
 #define __WARHEAD_LANGUAGE_H
 
-enum AcoreStrings
+enum WarheadStrings
 {
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,

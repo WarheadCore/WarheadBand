@@ -16,6 +16,7 @@
  */
 
 #include "CellImpl.h"
+#include "GameLocale.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -24,8 +25,8 @@
 #include "MapRefManager.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Transport.h"
 #include "WaypointManager.h"
 #include "World.h"
@@ -370,7 +371,7 @@ void Map::ScriptsProcess()
                     if (Player* player = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
                         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-                        BroadcastText const* broadcastText = sObjectMgr->GetBroadcastText(step.script->Talk.TextID);
+                        BroadcastText const* broadcastText = sGameLocale->GetBroadcastText(step.script->Talk.TextID);
                         std::string text = broadcastText->GetText(loc_idx, player->getGender());
 
                         switch (step.script->Talk.ChatType)

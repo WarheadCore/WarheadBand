@@ -15,19 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "AccountMgr.h"
 #include "CellImpl.h"
-#include "Chat.h"
 #include "ChatLink.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "Realm.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
 #include "UpdateMask.h"
@@ -71,7 +72,7 @@ std::vector<ChatCommand> const& ChatHandler::getCommandTable()
 
 std::string ChatHandler::PGetParseString(uint32 entry, ...) const
 {
-    const char* format = GetAcoreString(entry);
+    const char* format = GetWarheadString(entry);
     char str[1024];
     va_list ap;
     va_start(ap, entry);
@@ -80,9 +81,9 @@ std::string ChatHandler::PGetParseString(uint32 entry, ...) const
     return std::string(str);
 }
 
-char const* ChatHandler::GetAcoreString(uint32 entry) const
+char const* ChatHandler::GetWarheadString(uint32 entry) const
 {
-    return m_session->GetAcoreString(entry);
+    return m_session->GetWarheadString(entry);
 }
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
@@ -222,12 +223,12 @@ void ChatHandler::SendGlobalGMSysMessage(const char* str)
 
 void ChatHandler::SendSysMessage(uint32 entry)
 {
-    SendSysMessage(GetAcoreString(entry));
+    SendSysMessage(GetWarheadString(entry));
 }
 
 void ChatHandler::PSendSysMessage(uint32 entry, ...)
 {
-    const char* format = GetAcoreString(entry);
+    const char* format = GetWarheadString(entry);
     va_list ap;
     char str [2048];
     va_start(ap, entry);
@@ -1240,9 +1241,9 @@ std::string ChatHandler::GetNameLink(Player* chr) const
     return playerLink(chr->GetName());
 }
 
-char const* CliHandler::GetAcoreString(uint32 entry) const
+char const* CliHandler::GetWarheadString(uint32 entry) const
 {
-    return sObjectMgr->GetAcoreStringForDBCLocale(entry);
+    return sGameLocale->GetWarheadStringForDBCLocale(entry);
 }
 
 bool CliHandler::isAvailable(ChatCommand const& cmd) const
@@ -1259,7 +1260,7 @@ void CliHandler::SendSysMessage(const char* str)
 
 std::string CliHandler::GetNameLink() const
 {
-    return GetAcoreString(LANG_CONSOLE_COMMAND);
+    return GetWarheadString(LANG_CONSOLE_COMMAND);
 }
 
 bool CliHandler::needReportToTarget(Player* /*chr*/) const
@@ -1318,5 +1319,5 @@ LocaleConstant CliHandler::GetSessionDbcLocale() const
 
 int CliHandler::GetSessionDbLocaleIndex() const
 {
-    return sObjectMgr->GetDBCLocaleIndex();
+    return sGameLocale->GetDBCLocaleIndex();
 }
