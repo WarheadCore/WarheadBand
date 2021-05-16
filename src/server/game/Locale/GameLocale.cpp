@@ -57,7 +57,7 @@ void GameLocale::LoadAllLocales()
     LoadQuestLocales();
     LoadQuestOfferRewardLocale();
     LoadQuestRequestItemsLocale();
-    LoadQuestGreetingLocales();
+    //LoadQuestGreetingLocales(); // not implement
 
     // Load new strings
     LoadRaceStrings();
@@ -76,7 +76,7 @@ bool GameLocale::LoadWarheadStrings()
 
     _warheadStringStore.clear(); // for reload case
 
-    QueryResult result = WorldDatabase.PQuery("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM warhead_string");
+    QueryResult result = WorldDatabase.PQuery("SELECT entry, content_default, locale_koKR, locale_frFR, locale_deDE, locale_zhCN, locale_zhTW, locale_esES, locale_esMX, locale_ruRU FROM acore_string");
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 warhead strings. DB table `warhead_strings` is empty.");
@@ -135,7 +135,7 @@ void GameLocale::LoadAchievementRewardLocales()
     _achievementRewardLocales.clear();                       // need for reload case
 
     //                                               0   1       2        3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Text FROM achievement_reward_locale");
 
     if (!result)
     {

@@ -118,7 +118,7 @@ void ModuleLocale::LoadModuleString()
     QueryResult result = WorldDatabase.Query("SELECT DISTINCT `ModuleName` FROM `string_module`");
     if (!result)
     {
-        LOG_WARN("sql.sql", "> DB table `string_module` is empty");
+        LOG_WARN("server.loading", "> DB table `string_module` is empty");
         return;
     }
 
