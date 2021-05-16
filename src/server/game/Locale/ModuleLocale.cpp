@@ -20,9 +20,9 @@
 #include "Chat.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
-// #include "GameLocale.h"
 #include "LocaleCommon.h"
 #include "Log.h"
+#include "Optional.h"
 #include "Player.h"
 #include "World.h"
 
@@ -68,7 +68,7 @@ void ModuleLocale::AddModuleString(std::string const& moduleName, ModuleStringCo
     LOG_DEBUG("locale.module", "> ModulesLocales: added %u strings for (%s) module", static_cast<uint32>(data.size()), moduleName.c_str());
 }
 
-std::optional<std::string> ModuleLocale::GetModuleString(std::string const& moduleName, uint32 id, uint8 _locale) const
+Optional<std::string> ModuleLocale::GetModuleString(std::string const& moduleName, uint32 id, uint8 _locale) const
 {
     if (moduleName.empty())
     {

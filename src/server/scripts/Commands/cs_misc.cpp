@@ -21,14 +21,15 @@
 #include "CellImpl.h"
 #include "Chat.h"
 #include "GameGraveyard.h"
+#include "GameLocale.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
-#include "InstanceSaveMgr.h"
 #include "IPLocation.h"
-#include "Language.h"
+#include "InstanceSaveMgr.h"
 #include "LFG.h"
+#include "Language.h"
 #include "MapManager.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
@@ -2063,74 +2064,12 @@ public:
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_HIGH, level);
 
         // Output XI. LANG_PINFO_CHR_RACE
-        switch (raceid)
-        {
-            case RACE_HUMAN:
-                raceStr = "Human";
-                break;
-            case RACE_ORC:
-                raceStr = "Orc";
-                break;
-            case RACE_DWARF:
-                raceStr = "Dwarf";
-                break;
-            case RACE_NIGHTELF:
-                raceStr = "Night Elf";
-                break;
-            case RACE_UNDEAD_PLAYER:
-                raceStr = "Undead";
-                break;
-            case RACE_TAUREN:
-                raceStr = "Tauren";
-                break;
-            case RACE_GNOME:
-                raceStr = "Gnome";
-                break;
-            case RACE_TROLL:
-                raceStr = "Troll";
-                break;
-            case RACE_BLOODELF:
-                raceStr = "Blood Elf";
-                break;
-            case RACE_DRAENEI:
-                raceStr = "Draenei";
-                break;
-        }
+        auto _race = sGameLocale->GetRaseString(raceid);
+        auto _class = sGameLocale->GetClassString(classid);
 
-        switch (classid)
-        {
-            case CLASS_WARRIOR:
-                classStr = "Warrior";
-                break;
-            case CLASS_PALADIN:
-                classStr = "Paladin";
-                break;
-            case CLASS_HUNTER:
-                classStr = "Hunter";
-                break;
-            case CLASS_ROGUE:
-                classStr = "Rogue";
-                break;
-            case CLASS_PRIEST:
-                classStr = "Priest";
-                break;
-            case CLASS_DEATH_KNIGHT:
-                classStr = "Death Knight";
-                break;
-            case CLASS_SHAMAN:
-                classStr = "Shaman";
-                break;
-            case CLASS_MAGE:
-                classStr = "Mage";
-                break;
-            case CLASS_WARLOCK:
-                classStr = "Warlock";
-                break;
-            case CLASS_DRUID:
-                classStr = "Druid";
-                break;
-        }
-
+        raceStr = _race ? _race->GetText(handler->GetSessionDbcLocale(), gender) : handler->GetWarheadString(LANG_UNKNOWN);
+        classStr = _class ? _class->GetText(handler->GetSessionDbcLocale(), gender) : handler->GetWarheadString(LANG_UNKNOWN);
+        
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetWarheadString(LANG_CHARACTER_GENDER_MALE) : handler->GetWarheadString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
@@ -2139,6 +2078,7 @@ public:
         // Output XIII. LANG_PINFO_CHR_PHASE if player is not in GM mode (GM is in every phase)
         if (target && !target->IsGameMaster())                            // IsInWorld() returns false on loadingscreen, so it's more
             handler->PSendSysMessage(LANG_PINFO_CHR_PHASE, phase);        // precise than just target (safer ?).
+
         // However, as we usually just require a target here, we use target instead.
         // Output XIV. LANG_PINFO_CHR_MONEY
         uint32 gold                   = money / GOLD;

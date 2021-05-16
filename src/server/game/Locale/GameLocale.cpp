@@ -58,8 +58,12 @@ void GameLocale::LoadAllLocales()
     LoadQuestOfferRewardLocale();
     LoadQuestRequestItemsLocale();
     LoadQuestGreetingLocales();
+
+    // Load new strings
     LoadRaceStrings();
     LoadClassStrings();
+
+    // Load modules strings
     sModuleLocale->Init();
 
     LOG_INFO("server.loading", ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
