@@ -170,14 +170,6 @@ WorldServerPort = 8085
 BindIP = "0.0.0.0"
 
 #
-#    PidFile
-#        Description: World daemon PID file
-#        Example:     "./world.pid" - (Enabled)
-#        Default:     ""            - (Disabled)
-
-PidFile = ""
-
-#
 #    IPLocationFile
 #        Description: The path to your IP2Location database CSV file.
 #        Example:     "C:/Warhead/IP2LOCATION-LITE-DB1.CSV"
