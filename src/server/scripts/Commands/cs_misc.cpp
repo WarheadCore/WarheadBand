@@ -2069,7 +2069,7 @@ public:
 
         raceStr = _race ? _race->GetText(handler->GetSessionDbcLocale(), gender) : handler->GetWarheadString(LANG_UNKNOWN);
         classStr = _class ? _class->GetText(handler->GetSessionDbcLocale(), gender) : handler->GetWarheadString(LANG_UNKNOWN);
-        
+
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetWarheadString(LANG_CHARACTER_GENDER_MALE) : handler->GetWarheadString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
