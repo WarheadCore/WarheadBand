@@ -24,7 +24,6 @@
 #include "Log.h"
 #include "ModuleLocale.h"
 #include "ObjectMgr.h"
-#include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"

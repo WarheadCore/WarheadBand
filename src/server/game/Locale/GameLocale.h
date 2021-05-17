@@ -19,7 +19,6 @@
 #define _GAME_LOCALE_H_
 
 #include "Common.h"
-#include "Player.h"
 #include <vector>
 
 struct WarheadString

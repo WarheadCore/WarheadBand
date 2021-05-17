@@ -140,7 +140,7 @@ void ModuleLocale::LoadModuleString()
         result = WorldDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `string_module` WHERE `ModuleName` = '%s'", moduleName.c_str());
         if (!result)
         {
-            LOG_WARN("sql.sql", "> Strings for module %s is bad!", moduleName.c_str());
+            LOG_ERROR("sql.sql", "> Strings for module %s is bad!", moduleName.c_str());
             return;
         }
 
