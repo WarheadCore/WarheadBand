@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "Optional.h"
 #include <unordered_map>
+#include <vector>
 
 class Player;
 
