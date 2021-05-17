@@ -18,4 +18,29 @@
 #ifndef _LOW_LEVEL_ARENA_H_
 #define _LOW_LEVEL_ARENA_H_
 
+#include "Common.h"
+#include "SharedDefines.h"
+
+class Battleground;
+
+class LLA
+{
+    LLA() = default;
+    ~LLA() = default;
+
+public:
+    static LLA* instance();
+
+    void Reward(Battleground* bg, TeamId winnerTeamId);
+
+    LLA(LLA const&) = delete;
+    LLA(LLA&&) = delete;
+    LLA& operator= (LLA const&) = delete;
+    LLA& operator= (LLA&&) = delete;
+
+private:
+};
+
+#define sLLA LLA::instance()
+
 #endif /* _LOW_LEVEL_ARENA_H_ */

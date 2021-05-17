@@ -21,7 +21,8 @@
 #
 #
 #
+LLA.Enable = 1
 
 LLA.10.14.Enable = 1
-LLA.10.14.Rating.Enable = 1
-LLA.10.14.ArenaPoint.Enable = 1
+LLA.10.14.ArenaPoint.Count.Winner = 10
+LLA.10.14.ArenaPoint.Count.Loser = 5

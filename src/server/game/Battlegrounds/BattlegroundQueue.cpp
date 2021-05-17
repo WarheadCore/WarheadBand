@@ -1034,8 +1034,8 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
     if (!sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
         return;
 
-    //if (!sScriptMgr->CanSendMessageArenaQueue(this, ginfo, IsJoin))
-        //return;
+    if (!sScriptMgr->CanSendJoinMessageArenaQueue(this, leader, ginfo, bracketEntry, isRated))
+        return;
 
     if (!isRated)
     {
@@ -1091,6 +1091,9 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
 void BattlegroundQueue::SendExitMessageArenaQueue(GroupQueueInfo* ginfo)
 {
     if (!sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
+        return;
+
+    if (!sScriptMgr->CanExitJoinMessageArenaQueue(this, ginfo))
         return;
 
     ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(ginfo->ArenaTeamId);

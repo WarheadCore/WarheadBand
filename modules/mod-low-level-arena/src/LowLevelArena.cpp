@@ -17,4 +17,37 @@
 
 #include "LowLevelArena.h"
 #include "Log.h"
-//#include "GameConfig.h"
+#include "BattlegroundMgr.h"
+#include "Config.h"
+#include "StringConvert.h"
+#include "StringFormat.h"
+
+LLA* LLA::instance()
+{
+    static LLA instance;
+    return &instance;
+}
+
+void LLA::Reward(Battleground* bg, TeamId winnerTeamId)
+{
+    LOG_INFO("module", "> Reward start");
+
+    for (auto const& [guid, player] : bg->GetPlayers())
+    {
+        auto bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->getLevel());
+        auto levelsString = Warhead::ToString(bracketEntry->minLevel) + "." + Warhead::ToString(bracketEntry->minLevel);
+        auto configIsEnable = Warhead::StringFormat("LLA.%s.Enable", levelsString.c_str());
+
+        // If disable reward for this bracket - skip
+        if (sConfigMgr->GetOption<bool>(configIsEnable, false))
+        {
+            break;
+        }
+
+        bool isWinner = player->GetBgTeamId() == winnerTeamId;
+        auto configCountWinner = sConfigMgr->GetOption<uint32>(Warhead::StringFormat("LLA.%s.ArenaPoint.Count.Winner", levelsString.c_str()), 0);
+        auto configCountLoser = sConfigMgr->GetOption<uint32>(Warhead::StringFormat("LLA.%s.ArenaPoint.Count.Loser", levelsString.c_str()), 0);
+
+        player->ModifyArenaPoints(isWinner ? configCountWinner : configCountLoser);
+    }
+}

@@ -2122,6 +2122,11 @@ void ScriptMgr::OnBattlegroundStart(Battleground* bg)
     FOREACH_SCRIPT(BGScript)->OnBattlegroundStart(bg);
 }
 
+void ScriptMgr::OnBattlegroundEnd(Battleground* bg, TeamId winnerTeamId)
+{
+    FOREACH_SCRIPT(BGScript)->OnBattlegroundEnd(bg, winnerTeamId);
+}
+
 void ScriptMgr::OnBattlegroundEndReward(Battleground* bg, Player* player, TeamId winnerTeamId)
 {
     FOREACH_SCRIPT(BGScript)->OnBattlegroundEndReward(bg, player, winnerTeamId);
@@ -2822,12 +2827,23 @@ bool ScriptMgr::CanSendMessageBGQueue(BattlegroundQueue* queue, Player* leader, 
     return ret;
 }
 
-bool ScriptMgr::CanSendMessageArenaQueue(BattlegroundQueue* queue, GroupQueueInfo* ginfo, bool IsJoin)
+bool ScriptMgr::CanSendJoinMessageArenaQueue(BattlegroundQueue* queue, Player* leader, GroupQueueInfo* ginfo, PvPDifficultyEntry const* bracketEntry, bool isRated)
 {
     bool ret = true;
 
     FOR_SCRIPTS_RET(BGScript, itr, end, ret) // return true by default if not scripts
-        if (!itr->second->CanSendMessageArenaQueue(queue, ginfo, IsJoin))
+        if (!itr->second->CanSendJoinMessageArenaQueue(queue, leader, ginfo, bracketEntry, isRated))
+            ret = false; // we change ret value only when scripts return false
+
+    return ret;
+}
+
+bool ScriptMgr::CanExitJoinMessageArenaQueue(BattlegroundQueue* queue, GroupQueueInfo* ginfo)
+{
+    bool ret = true;
+
+    FOR_SCRIPTS_RET(BGScript, itr, end, ret) // return true by default if not scripts
+        if (!itr->second->CanExitJoinMessageArenaQueue(queue, ginfo))
             ret = false; // we change ret value only when scripts return false
 
     return ret;

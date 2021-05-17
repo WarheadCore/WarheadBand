@@ -18,10 +18,30 @@
 #include "LowLevelArena.h"
 #include "Log.h"
 #include "ScriptMgr.h"
-//#include "GameConfig.h"
+#include "Config.h"
 #include "Chat.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
+
+class LowLevelArena_BG : public BGScript
+{
+public:
+    LowLevelArena_BG() : BGScript("LowLevelArena_BG") { }
+
+    void OnBattlegroundEnd(Battleground* bg, TeamId winnerTeamId) override
+    {
+        if (!sConfigMgr->GetOption<bool>("LLA.Enable", false))
+            return;
+
+        // Not reward for bg or rated arena
+        if (bg->isBattleground() || bg->isRated())
+        {
+            return;
+        }
+
+        sLLA->Reward(bg, winnerTeamId);
+    }
+};
 
 class LowLevelArena_World : public WorldScript
 {
@@ -37,5 +57,6 @@ public:
 // Group all custom scripts
 void AddSC_LowLevelArena()
 {
+    new LowLevelArena_BG();
     new LowLevelArena_World();
 }
