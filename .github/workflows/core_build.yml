@@ -46,7 +46,7 @@ jobs:
       matrix:
         # the result of the matrix will be the combination of all attributes, so we get os*compiler*modules builds
         os: [ubuntu-latest]
-        compiler: [clang11]
+        compiler: [clang7, clang11]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.compiler }}-no-pch
     env:
