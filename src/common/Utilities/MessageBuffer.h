@@ -24,7 +24,7 @@
 
 class MessageBuffer
 {
-    typedef std::vector<uint8>::size_type size_type;
+    using size_type = std::vector<uint8>::size_type;
 
 public:
     MessageBuffer() : _wpos(0), _rpos(0), _storage()
@@ -37,11 +37,11 @@ public:
         _storage.resize(initialSize);
     }
 
-    MessageBuffer(MessageBuffer const& right) : _wpos(right._wpos), _rpos(right._rpos), _storage(right._storage)
-    {
-    }
+    MessageBuffer(MessageBuffer const& right) :
+        _wpos(right._wpos), _rpos(right._rpos), _storage(right._storage) { }
 
-    MessageBuffer(MessageBuffer&& right) : _wpos(right._wpos), _rpos(right._rpos), _storage(right.Move()) { }
+    MessageBuffer(MessageBuffer&& right) noexcept :
+        _wpos(right._wpos), _rpos(right._rpos), _storage(right.Move()) { }
 
     void Reset()
     {
@@ -55,20 +55,15 @@ public:
     }
 
     uint8* GetBasePointer() { return _storage.data(); }
-
     uint8* GetReadPointer() { return GetBasePointer() + _rpos; }
-
     uint8* GetWritePointer() { return GetBasePointer() + _wpos; }
 
     void ReadCompleted(size_type bytes) { _rpos += bytes; }
-
     void WriteCompleted(size_type bytes) { _wpos += bytes; }
 
-    size_type GetActiveSize() const { return _wpos - _rpos; }
-
-    size_type GetRemainingSpace() const { return _storage.size() - _wpos; }
-
-    size_type GetBufferSize() const { return _storage.size(); }
+    [[nodiscard]] size_type GetActiveSize() const { return _wpos - _rpos; }
+    [[nodiscard]] size_type GetRemainingSpace() const { return _storage.size() - _wpos; }
+    [[nodiscard]] size_type GetBufferSize() const { return _storage.size(); }
 
     // Discards inactive data
     void Normalize()
@@ -76,7 +71,10 @@ public:
         if (_rpos)
         {
             if (_rpos != _wpos)
+            {
                 memmove(GetBasePointer(), GetReadPointer(), GetActiveSize());
+            }
+
             _wpos -= _rpos;
             _rpos = 0;
         }
@@ -87,7 +85,9 @@ public:
     {
         // resize buffer if it's already full
         if (GetRemainingSpace() == 0)
+        {
             _storage.resize(_storage.size() * 3 / 2);
+        }
     }
 
     void Write(void const* data, std::size_t size)
@@ -103,6 +103,7 @@ public:
     {
         _wpos = 0;
         _rpos = 0;
+
         return std::move(_storage);
     }
 
@@ -118,7 +119,7 @@ public:
         return *this;
     }
 
-    MessageBuffer& operator=(MessageBuffer&& right)
+    MessageBuffer& operator=(MessageBuffer&& right) noexcept
     {
         if (this != &right)
         {

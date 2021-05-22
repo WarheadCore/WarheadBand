@@ -1274,7 +1274,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             return true;
         case POLICY_KICK:
             {
-                LOG_INFO("server", "AntiDOS: Player %s kicked!", Session->GetPlayerName().c_str());
+                LOG_INFO("network", "AntiDOS: Player %s kicked!", Session->GetPlayerName().c_str());
                 Session->KickPlayer();
                 return false;
             }
@@ -1295,7 +1295,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
                         break;
                 }
 
-                LOG_INFO("server", "AntiDOS: Player automatically banned for %u seconds.", duration);
+                LOG_INFO("network", "AntiDOS: Player automatically banned for %u seconds.", duration);
                 return false;
             }
         default: // invalid policy
