@@ -3,7 +3,7 @@ if ! command -v lsb_release &>/dev/null ; then
   sudo apt-get install -y lsb-release
 fi
 
-UBUNTU_VERSION=$(lsb_release -sr);
+# UBUNTU_VERSION=$(lsb_release -sr);
 
 # Added repo for newest lib
 sudo add-apt-repository -y ppa:mhier/libboost-latest
