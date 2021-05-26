@@ -44,6 +44,21 @@
 #include "LuaEngine.h"
 #endif
 
+inline bool isNasty(uint8 c)
+{
+    if (c == '\t')
+    {
+        return false;
+    }
+
+    if (c <= '\037') // ASCII control block
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {
     uint32 type;
@@ -59,10 +74,49 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (lang == LANG_UNIVERSAL && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
+    {
+        LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        SendNotification(LANG_UNKNOWN_LANGUAGE);
+        recvData.rfinish();
+        return;
+    }
+
     Player* sender = GetPlayer();
+
+    // prevent talking at unknown language (cheating)
+    LanguageDesc const* langDesc = GetLanguageDescByID(lang);
+    if (!langDesc)
+    {
+        SendNotification(LANG_UNKNOWN_LANGUAGE);
+        recvData.rfinish();
+        return;
+    }
+
+    if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
+    {
+        // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
+        bool foundAura = false;
+        for (auto const& auraEff : sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE))
+        {
+            if (auraEff->GetMiscValue() == int32(lang))
+            {
+                foundAura = true;
+                break;
+            }
+        }
+
+        if (!foundAura)
+        {
+            SendNotification(LANG_NOT_LEARNED_LANGUAGE);
+            recvData.rfinish();
+            return;
+        }
+    }
 
     // pussywizard: chatting on most chat types requires 2 hours played to prevent spam/abuse
     if (AccountMgr::IsPlayerAccount(GetSecurity()))
+    {
         switch (type)
         {
             case CHAT_MSG_ADDON:
@@ -79,6 +133,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             case CHAT_MSG_PARTY_LEADER:
                 break;
             default:
+            {
                 if (sWorld->getBoolConfig(CONFIG_CHAT_MUTE_FIRST_LOGIN))
                 {
                     uint32 minutes = sWorld->getIntConfig(CONFIG_CHAT_TIME_MUTE_FIRST_LOGIN);
@@ -90,7 +145,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                         return;
                     }
                 }
+            }
         }
+    }
 
     // pussywizard:
     switch (type)
@@ -101,11 +158,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_TEXT_EMOTE:
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
-            if (sender->IsSpectator())
-            {
-                recvData.rfinish();
-                return;
-            }
+        if (sender->IsSpectator())
+        {
+            recvData.rfinish();
+            return;
+        }
     }
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
@@ -113,36 +170,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         SendNotification(GetWarheadString(LANG_GM_SILENCE), sender->GetName().c_str());
         recvData.rfinish();
         return;
-    }
-
-    // prevent talking at unknown language (cheating)
-    LanguageDesc const* langDesc = GetLanguageDescByID(lang);
-    if (!langDesc)
-    {
-        SendNotification(LANG_UNKNOWN_LANGUAGE);
-        recvData.rfinish();
-        return;
-    }
-
-    if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
-    {
-        // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
-        Unit::AuraEffectList const& langAuras = sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);
-        bool foundAura = false;
-        for (Unit::AuraEffectList::const_iterator i = langAuras.begin(); i != langAuras.end(); ++i)
-        {
-            if ((*i)->GetMiscValue() == int32(lang))
-            {
-                foundAura = true;
-                break;
-            }
-        }
-        if (!foundAura)
-        {
-            SendNotification(LANG_NOT_LEARNED_LANGUAGE);
-            recvData.rfinish();
-            return;
-        }
     }
 
     if (lang == LANG_ADDON)
@@ -237,29 +264,25 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_RAID_WARNING:
         case CHAT_MSG_BATTLEGROUND:
         case CHAT_MSG_BATTLEGROUND_LEADER:
-            recvData >> msg;
+            msg = recvData.ReadCString(lang != LANG_ADDON);
             break;
         case CHAT_MSG_WHISPER:
             recvData >> to;
-            recvData >> msg;
+            msg = recvData.ReadCString(lang != LANG_ADDON);
             break;
         case CHAT_MSG_CHANNEL:
             recvData >> channel;
-            recvData >> msg;
+            msg = recvData.ReadCString(lang != LANG_ADDON);
             break;
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
-            recvData >> msg;
+            msg = recvData.ReadCString(lang != LANG_ADDON);
             ignoreChecks = true;
             break;
     }
 
-    // Strip invisible characters for non-addon messages
-    if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
-        stripLineInvisibleChars(msg);
-
     // Our Warden module also uses SendAddonMessage as a way to communicate Lua check results to the server, see if this is that
-    if ((type == CHAT_MSG_GUILD) && (lang == LANG_ADDON) && _warden && _warden->ProcessLuaCheckResponse(msg))
+    if (type == CHAT_MSG_GUILD && lang == LANG_ADDON && _warden && _warden->ProcessLuaCheckResponse(msg))
     {
         return;
     }
@@ -295,6 +318,40 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
                 return;
             }
+        }
+    }
+
+    // do message validity checks
+    if (lang != LANG_ADDON)
+    {
+        // cut at the first newline or carriage return
+        std::string::size_type pos = msg.find_first_of("\n\r");
+
+        if (pos == 0)
+        {
+            return;
+        }
+        else if (pos != std::string::npos)
+        {
+            msg.erase(pos);
+        }
+
+        // abort on any sort of nasty character
+        for (uint8 c : msg)
+        {
+            if (isNasty(c))
+            {
+                LOG_ERROR("network", "Player %s %s sent a message containing invalid character %u - blocked", GetPlayer()->GetName().c_str(),
+                    GetPlayer()->GetGUID().ToString().c_str(), uint8(c));
+                return;
+            }
+        }
+
+        // collapse multiple spaces into one
+        if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
+        {
+            auto end = std::unique(msg.begin(), msg.end(), [](char c1, char c2) { return (c1 == ' ') && (c2 == ' '); });
+            msg.erase(end, msg.end());
         }
     }
 

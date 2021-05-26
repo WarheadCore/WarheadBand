@@ -187,9 +187,14 @@ std::string WorldSession::GetPlayerInfo() const
 {
     std::ostringstream ss;
 
-    ss << "[Player: " << GetPlayerName()
-       << " (Guid: " << (_player != nullptr ? _player->GetGUID() : 0)
-       << ", Account: " << GetAccountId() << ")]";
+    ss << "[Player: ";
+
+    if (!m_playerLoading && _player)
+    {
+        ss << _player->GetName() << ' ' << _player->GetGUID().ToString() << ", ";
+    }
+
+    ss << "Account: " << GetAccountId() << "]";
 
     return ss.str();
 }
@@ -205,7 +210,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 {
     if (packet->GetOpcode() == NULL_OPCODE)
     {
-        LOG_ERROR("server", "WorldSession::SendPacket(packet) called, but packet->GetOpcode() was NULL_OPCODE");
+        LOG_ERROR("network.opcode", "%s send NULL_OPCODE", GetPlayerInfo().c_str());
         return;
     }
 
