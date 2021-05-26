@@ -19,6 +19,7 @@
 #define AZEROTHCORE_CHATLINK_H
 
 #include "SharedDefines.h"
+#include <cstring>
 #include <list>
 #include <sstream>
 

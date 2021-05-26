@@ -17,6 +17,7 @@
 
 #include "MMapFactory.h"
 #include <set>
+#include <cstring>
 
 namespace MMAP
 {

@@ -16,7 +16,6 @@
  */
 
 #include "MapTree.h"
-#include "Common.h"
 #include "ModelInstance.h"
 #include "VMapManager2.h"
 #include "VMapDefinitions.h"
@@ -31,7 +30,6 @@ using G3D::Vector3;
 
 namespace VMAP
 {
-
     class MapRayCallback
     {
     public:

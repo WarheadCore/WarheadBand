@@ -18,6 +18,7 @@
 #include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include <vector>
 
 enum Spells
 {

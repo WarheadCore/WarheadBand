@@ -19,6 +19,7 @@
 #define __AVGDIFFTRACKER_H
 
 #include "Common.h"
+#include <cstring>
 
 #define AVG_DIFF_COUNT 500
 

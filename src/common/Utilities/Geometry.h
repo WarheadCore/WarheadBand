@@ -24,11 +24,10 @@
 #ifndef _WARHEAD_GEOMETRY_H
 #define _WARHEAD_GEOMETRY_H
 
-#include <cmath>
+#include "Define.h"
 #include <iostream>
 #include <cstdlib>
-
-using namespace std;
+#include <math.h>
 
 [[nodiscard]] inline float getAngle(float startX, float startY, float destX, float destY)
 {

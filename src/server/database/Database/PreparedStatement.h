@@ -126,4 +126,5 @@ class WH_DATABASE_API PreparedStatementTask : public SQLOperation
         bool m_has_result;
         PreparedQueryResultPromise* m_result;
 };
+
 #endif

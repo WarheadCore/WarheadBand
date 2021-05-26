@@ -18,13 +18,10 @@
 #ifndef WARHEAD_DEFINE_H
 #define WARHEAD_DEFINE_H
 
+#include "CompilerDefs.h"
 #include <cstddef>
-#include <cstdint>
 #include <cinttypes>
 #include <climits>
-#include <cstring>
-#include <sys/types.h>
-#include "CompilerDefs.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
