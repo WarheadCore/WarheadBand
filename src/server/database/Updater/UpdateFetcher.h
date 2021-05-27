@@ -25,12 +25,9 @@
 #include <unordered_map>
 #include <vector>
 
-namespace boost
+namespace boost::filesystem
 {
-    namespace filesystem
-    {
-        class path;
-    }
+    class path;
 }
 
 struct WH_DATABASE_API UpdateResult
@@ -70,6 +67,7 @@ private:
     enum State
     {
         RELEASED,
+        CUSTOM,
         ARCHIVED
     };
 
@@ -79,21 +77,33 @@ private:
             : name(name_), hash(hash_), state(state_), timestamp(timestamp_) { }
 
         std::string const name;
-
         std::string const hash;
-
         State const state;
-
         uint64 const timestamp;
 
         static inline State StateConvert(std::string const& state)
         {
-            return (state == "RELEASED") ? RELEASED : ARCHIVED;
+            if (state == "RELEASED")
+                return RELEASED;
+            else if (state == "CUSTOM")
+                return CUSTOM;
+
+            return ARCHIVED;
         }
 
         static inline std::string StateConvert(State const state)
         {
-            return (state == RELEASED) ? "RELEASED" : "ARCHIVED";
+            switch (state)
+            {
+            case RELEASED:
+                return "RELEASED";
+            case CUSTOM:
+                return "CUSTOM";
+            case ARCHIVED:
+                return "ARCHIVED";
+            default:
+                return "";
+            }
         }
 
         std::string GetStateAsString() const
