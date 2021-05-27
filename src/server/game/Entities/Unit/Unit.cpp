@@ -29,7 +29,6 @@
 #include "CreatureGroups.h"
 #include "DisableMgr.h"
 #include "DynamicVisibility.h"
-#include "DisableMgr.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"

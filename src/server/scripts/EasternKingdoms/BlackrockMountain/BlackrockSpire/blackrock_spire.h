@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreatureAIImpl.h"
-
 #ifndef DEF_BLACKROCK_SPIRE_H
 #define DEF_BLACKROCK_SPIRE_H
 

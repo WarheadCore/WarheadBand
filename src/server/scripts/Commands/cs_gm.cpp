@@ -29,7 +29,6 @@ EndScriptData */
 #include "Opcodes.h"
 #include "Realm.h"
 #include "Player.h"
-#include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
 

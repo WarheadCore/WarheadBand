@@ -57,8 +57,6 @@ public:
 
     RealmBuildInfo const* GetBuildInfo(uint32 build) const;
 
-    RealmBuildInfo const* GetBuildInfo(uint32 build) const;
-
 private:
     RealmList();
     ~RealmList() = default;

@@ -29,7 +29,6 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapManager.h"
-#include "MapManager.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"

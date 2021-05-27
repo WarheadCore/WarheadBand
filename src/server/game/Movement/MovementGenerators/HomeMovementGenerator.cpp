@@ -22,7 +22,6 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "WorldPacket.h"
-#include "DisableMgr.h"
 
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
