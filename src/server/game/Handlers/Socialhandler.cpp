@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "Realm.h"
 #include "Player.h"
+#include "Realm.h"
 #include "SocialMgr.h"
 #include "World.h"
 #include "WorldSession.h"
