@@ -22,6 +22,10 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 void GetPlayerInfo(ChatHandler*  handler, Player* player)
 {
     if (!player)

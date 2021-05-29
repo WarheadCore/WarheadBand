@@ -38,6 +38,10 @@ EndScriptData */
 #include <unordered_map>
 #include <openssl/rand.h>
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class account_commandscript : public CommandScript

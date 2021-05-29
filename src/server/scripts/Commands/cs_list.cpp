@@ -30,6 +30,10 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class list_commandscript : public CommandScript

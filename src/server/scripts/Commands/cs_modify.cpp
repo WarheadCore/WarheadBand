@@ -31,6 +31,10 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class modify_commandscript : public CommandScript

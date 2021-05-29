@@ -39,6 +39,10 @@ enum BanMode
     BAN_IP
 };
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class ban_commandscript : public CommandScript

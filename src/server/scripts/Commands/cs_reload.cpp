@@ -43,6 +43,10 @@ EndScriptData */
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class reload_commandscript : public CommandScript

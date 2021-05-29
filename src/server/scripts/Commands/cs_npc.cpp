@@ -34,6 +34,10 @@ EndScriptData */
 #include "Transport.h"
 #include <string>
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 struct NpcFlagText
 {
     uint32 flag;

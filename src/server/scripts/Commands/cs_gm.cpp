@@ -32,6 +32,10 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "World.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class gm_commandscript : public CommandScript

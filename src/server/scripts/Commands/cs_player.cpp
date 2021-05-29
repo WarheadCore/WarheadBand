@@ -21,6 +21,10 @@
 #include "PlayerCommand.h"
 #include "ScriptMgr.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class player_commandscript : public CommandScript, public PlayerCommand

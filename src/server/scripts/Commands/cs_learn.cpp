@@ -32,6 +32,10 @@ EndScriptData */
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class learn_commandscript : public CommandScript, public PlayerCommand

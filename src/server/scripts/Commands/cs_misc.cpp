@@ -42,6 +42,10 @@
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Warhead::ChatCommands;
 
 class misc_commandscript : public CommandScript
