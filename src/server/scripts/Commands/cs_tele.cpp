@@ -142,7 +142,7 @@ public:
             {
                 target->GetMotionMaster()->MovementExpired();
                 target->CleanupAfterTaxiFlight();
-            }            
+            }
             else // save only in non-flight case
                 target->SaveRecallPosition();
 

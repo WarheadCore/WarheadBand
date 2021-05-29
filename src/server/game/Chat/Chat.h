@@ -36,7 +36,7 @@ struct GameTele;
 
 class WH_GAME_API ChatHandler
 {
-public:    
+public:
     explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) {}
     virtual ~ChatHandler() { }
 

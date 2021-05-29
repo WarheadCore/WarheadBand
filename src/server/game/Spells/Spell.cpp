@@ -921,7 +921,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             }
             processedEffectMask |= effectMask;
             break;
-        }            
+        }
         default:
             break;
     }
