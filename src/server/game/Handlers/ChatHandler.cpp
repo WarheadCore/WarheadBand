@@ -345,6 +345,40 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             return;
     }
 
+    // do message validity checks
+    if (lang != LANG_ADDON)
+    {
+        // cut at the first newline or carriage return
+        std::string::size_type pos = msg.find_first_of("\n\r");
+
+        if (pos == 0)
+        {
+            return;
+        }
+        else if (pos != std::string::npos)
+        {
+            msg.erase(pos);
+        }
+
+        // abort on any sort of nasty character
+        for (uint8 c : msg)
+        {
+            if (isNasty(c))
+            {
+                LOG_ERROR("network", "Player %s %s sent a message containing invalid character %u - blocked", GetPlayer()->GetName().c_str(),
+                    GetPlayer()->GetGUID().ToString().c_str(), uint8(c));
+                return;
+            }
+        }
+
+        // collapse multiple spaces into one
+        if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
+        {
+            auto end = std::unique(msg.begin(), msg.end(), [](char c1, char c2) { return (c1 == ' ') && (c2 == ' '); });
+            msg.erase(end, msg.end());
+        }
+    }
+
     // exploit
     size_t found1 = msg.find("|Hquest");
     if (found1 != std::string::npos)
