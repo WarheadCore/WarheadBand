@@ -56,6 +56,7 @@ nbproject/
 .sync.ffs_db
 *.kate-swp
 .browse.VC*
+.vscode
 .idea
 cmake-build-debug/*
 cmake-build-debug-coverage/*
