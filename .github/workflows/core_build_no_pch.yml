@@ -1,4 +1,4 @@
-name: core-build
+name: core-build-no-pch
 on:
   push:
     branches:
@@ -6,13 +6,13 @@ on:
   pull_request:
 
 jobs:
-  build:
+  no-pch-build:
     strategy:
       fail-fast: false
       matrix:
         # the result of the matrix will be the combination of all attributes, so we get os*compiler*modules builds
         os: [ubuntu-latest]
-        compiler: [clang, clang11]
+        compiler: [clang]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.compiler }}
     env:
@@ -32,7 +32,7 @@ jobs:
         env:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf.sh ON
+        run: source ./apps/ci/ci-conf.sh OFF
       - name: Import db
         run: source ./apps/ci/ci-import-db.sh
       - name: Build
