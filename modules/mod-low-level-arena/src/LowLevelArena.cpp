@@ -201,10 +201,6 @@ void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
             }
         }
 
-        uint32 ateamId = 0;
-        uint32 arenaRating = 0;
-        uint32 matchmakerRating = 0;
-
         err = group->CanJoinBattlegroundQueue(bgt, bgQueueTypeId, arenaType, arenaType, false, arenaSlot);
 
         uint32 avgWaitTime = 0;
@@ -243,12 +239,13 @@ void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
     }
 }
 
+/*
 void LLA::LoadConfig()
 {
     if (!sConfigMgr->GetOption<bool>("LLA.Enable", false))
         return;
 
-    /*auto AddReward = [](std::string const& levels)
+    auto AddReward = [](std::string const& levels)
     {
         if (levels.empty())
             return;
@@ -257,7 +254,7 @@ void LLA::LoadConfig()
         std::string const& levelbrackets = options.substr(6);
     };
 
-    auto const& keys = sConfigMgr->GetKeysByString("LLA.Levels.");*/
+    auto const& keys = sConfigMgr->GetKeysByString("LLA.Levels.");
 }
 
 void LLA::Reward(Battleground* bg, TeamId winnerTeamId)
@@ -283,3 +280,4 @@ void LLA::Reward(Battleground* bg, TeamId winnerTeamId)
     //    player->ModifyArenaPoints(isWinner ? configCountWinner : configCountLoser);
     //}
 }
+*/

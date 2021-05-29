@@ -32,8 +32,8 @@ class LLA
 public:
     static LLA* instance();
 
-    void Reward(Battleground* bg, TeamId winnerTeamId);
-    void LoadConfig();
+    // void Reward(Battleground* bg, TeamId winnerTeamId);
+    // void LoadConfig();
     void AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup);
 
     LLA(LLA const&) = delete;

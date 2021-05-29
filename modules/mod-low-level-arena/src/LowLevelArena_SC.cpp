@@ -23,9 +23,8 @@
 #include "Player.h"
 #include "ScriptedGossip.h"
 
-#ifndef STRING_VIEW_FMT
-#define STRING_VIEW_FMT "%.*s"
-#define STRING_VIEW_FMT_ARG(str) static_cast<int>((str).length()), (str).data()
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 //class LowLevelArena_BG : public BGScript
