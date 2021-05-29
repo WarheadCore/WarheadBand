@@ -53,11 +53,17 @@ public:
         Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
         return m->GetAreaId(x, y, z);
     }
+    uint32 GetAreaId(uint32 mapid, Position const& pos) const { return GetAreaId(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+    uint32 GetAreaId(WorldLocation const& loc) const { return GetAreaId(loc.GetMapId(), loc); }
+
     uint32 GetZoneId(uint32 mapid, float x, float y, float z) const
     {
         Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
         return m->GetZoneId(x, y, z);
     }
+    uint32 GetZoneId(uint32 mapid, Position const& pos) const { return GetZoneId(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+    uint32 GetZoneId(WorldLocation const& loc) const { return GetZoneId(loc.GetMapId(), loc); }
+
     void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
     {
         Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
@@ -95,6 +101,11 @@ public:
     static bool IsValidMapCoord(uint32 mapid, float x, float y, float z, float o)
     {
         return IsValidMAP(mapid, false) && Warhead::IsValidMapCoord(x, y, z, o);
+    }
+
+    static bool IsValidMapCoord(uint32 mapid, Position const& pos)
+    {
+        return IsValidMapCoord(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
     }
 
     static bool IsValidMapCoord(WorldLocation const& loc)

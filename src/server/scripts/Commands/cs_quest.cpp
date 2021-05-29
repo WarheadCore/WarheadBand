@@ -28,21 +28,23 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 
+using namespace Warhead::ChatCommands;
+
 class quest_commandscript : public CommandScript
 {
 public:
     quest_commandscript() : CommandScript("quest_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> questCommandTable =
+        static ChatCommandTable questCommandTable =
         {
             { "add",            SEC_GAMEMASTER,  false, &HandleQuestAdd,                    "" },
             { "complete",       SEC_GAMEMASTER,  false, &HandleQuestComplete,               "" },
             { "remove",         SEC_GAMEMASTER,  false, &HandleQuestRemove,                 "" },
             { "reward",         SEC_GAMEMASTER,  false, &HandleQuestReward,                 "" },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "quest",          SEC_GAMEMASTER,  false, nullptr, "", questCommandTable },
         };

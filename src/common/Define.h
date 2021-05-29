@@ -173,7 +173,8 @@
 
 #define SZFMTD "%" PRIuPTR
 
-#define UNUSED(x) (void)(x)
+#define STRING_VIEW_FMT "%.*s"
+#define STRING_VIEW_FMT_ARG(str) static_cast<int>((str).length()), (str).data()
 
 typedef std::int64_t int64;
 typedef std::int32_t int32;

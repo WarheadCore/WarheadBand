@@ -1129,10 +1129,10 @@ public:
         if (itr == _gameTeleStore.end()) return nullptr;
         return &itr->second;
     }
-    [[nodiscard]] GameTele const* GetGameTele(std::string const& name) const;
+    [[nodiscard]] GameTele const* GetGameTele(std::string_view name) const;
     [[nodiscard]] GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
     bool AddGameTele(GameTele& data);
-    bool DeleteGameTele(std::string const& name);
+    bool DeleteGameTele(std::string_view name);
 
     [[nodiscard]] TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
     {
@@ -1199,6 +1199,8 @@ public:
     void LoadFactionChangeReputations();
     void LoadFactionChangeSpells();
     void LoadFactionChangeTitles();
+
+    bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
 private:
     // first free id for selected id type

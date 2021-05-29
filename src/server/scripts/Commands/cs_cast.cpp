@@ -29,14 +29,16 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 
+using namespace Warhead::ChatCommands;
+
 class cast_commandscript : public CommandScript
 {
 public:
     cast_commandscript() : CommandScript("cast_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> castCommandTable =
+        static ChatCommandTable castCommandTable =
         {
             { "back",           SEC_GAMEMASTER,  false, &HandleCastBackCommand,              "" },
             { "dist",           SEC_GAMEMASTER,  false, &HandleCastDistCommand,              "" },
@@ -45,7 +47,7 @@ public:
             { "dest",           SEC_GAMEMASTER,  false, &HandleCastDestCommand,              "" },
             { "",               SEC_GAMEMASTER,  false, &HandleCastCommand,                  "" }
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "cast",           SEC_GAMEMASTER,  false, nullptr,                                "", castCommandTable }
         };

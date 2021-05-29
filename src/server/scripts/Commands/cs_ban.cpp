@@ -39,14 +39,16 @@ enum BanMode
     BAN_IP
 };
 
+using namespace Warhead::ChatCommands;
+
 class ban_commandscript : public CommandScript
 {
 public:
     ban_commandscript() : CommandScript("ban_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> unbanCommandTable =
+        static ChatCommandTable unbanCommandTable =
         {
             { "account",        SEC_GAMEMASTER,  true,  &HandleUnBanAccountCommand,          "" },
             { "character",      SEC_GAMEMASTER,  true,  &HandleUnBanCharacterCommand,        "" },
@@ -54,21 +56,21 @@ public:
             { "ip",             SEC_GAMEMASTER,  true,  &HandleUnBanIPCommand,               "" }
         };
 
-        static std::vector<ChatCommand> banlistCommandTable =
+        static ChatCommandTable banlistCommandTable =
         {
             { "account",        SEC_GAMEMASTER,  true,  &HandleBanListAccountCommand,        "" },
             { "character",      SEC_GAMEMASTER,  true,  &HandleBanListCharacterCommand,      "" },
             { "ip",             SEC_GAMEMASTER,  true,  &HandleBanListIPCommand,             "" }
         };
 
-        static std::vector<ChatCommand> baninfoCommandTable =
+        static ChatCommandTable baninfoCommandTable =
         {
             { "account",        SEC_GAMEMASTER,  true,  &HandleBanInfoAccountCommand,        "" },
             { "character",      SEC_GAMEMASTER,  true,  &HandleBanInfoCharacterCommand,      "" },
             { "ip",             SEC_GAMEMASTER,  true,  &HandleBanInfoIPCommand,             "" }
         };
 
-        static std::vector<ChatCommand> banCommandTable =
+        static ChatCommandTable banCommandTable =
         {
             { "account",        SEC_GAMEMASTER,  true,  &HandleBanAccountCommand,            "" },
             { "character",      SEC_GAMEMASTER,  true,  &HandleBanCharacterCommand,          "" },
@@ -76,7 +78,7 @@ public:
             { "ip",             SEC_GAMEMASTER,  true,  &HandleBanIPCommand,                 "" }
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "ban",            SEC_GAMEMASTER,  true,  nullptr,                             "", banCommandTable },
             { "baninfo",        SEC_GAMEMASTER,  true,  nullptr,                             "", baninfoCommandTable },
