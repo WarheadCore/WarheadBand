@@ -29,7 +29,7 @@ typedef std::vector<FlyByCamera> FlyByCameraCollection;
 
 WH_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
-WH_GAME_API char* GetPetName(uint32 petfamily, uint32 dbclang);
+WH_GAME_API char const* GetPetName(uint32 petfamily, uint32 dbclang);
 WH_GAME_API uint32 GetTalentSpellCost(uint32 spellId);
 WH_GAME_API TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 
