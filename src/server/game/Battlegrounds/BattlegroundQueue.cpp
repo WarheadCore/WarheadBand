@@ -1008,7 +1008,7 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
     }
 
     LOG_DEBUG("bg.battleground", "> Queue status for %s (Lvl: %u to %u) Queued: %u (Need at least %u more)",
-        bgName, bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
+        bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
 }
 
 void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo* ginfo, PvPDifficultyEntry const* bracketEntry, bool isRated)
