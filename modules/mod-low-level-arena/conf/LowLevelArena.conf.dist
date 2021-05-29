@@ -1,0 +1,46 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# LowLevelArena module configuration
+########################################
+[worldserver]
+
+#
+#
+#
+
+LLA.Enable = 1
+
+#
+# NOT IMPLEMENT
+# Levels 10-14
+#
+
+LLA.Reward.Enable = 0
+LLA.Levels.10.14.Configurable = 1,10,5
+LLA.Levels.15.19.Configurable = 1,10,5
+LLA.Levels.20.24.Configurable = 1,10,5
+LLA.Levels.25.29.Configurable = 1,10,5
+LLA.Levels.30.34.Configurable = 1,10,5
+LLA.Levels.35.39.Configurable = 1,10,5
+LLA.Levels.40.44.Configurable = 1,10,5
+LLA.Levels.45.49.Configurable = 1,10,5
+LLA.Levels.50.54.Configurable = 1,10,5
+LLA.Levels.55.59.Configurable = 1,10,5
+LLA.Levels.60.64.Configurable = 1,10,5
+LLA.Levels.65.69.Configurable = 1,10,5
+LLA.Levels.70.74.Configurable = 1,10,5
+LLA.Levels.75.79.Configurable = 1,10,5
