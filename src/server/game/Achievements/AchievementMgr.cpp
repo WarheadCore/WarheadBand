@@ -2934,3 +2934,8 @@ void AchievementGlobalMgr::LoadRewards()
     LOG_INFO("server", ">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server", " ");
 }
+
+AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementId) const
+{
+    return sAchievementStore.LookupEntry(achievementId);
+}
