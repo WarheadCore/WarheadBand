@@ -43,6 +43,8 @@ EndScriptData */
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 
+using namespace Warhead::ChatCommands;
+
 class reload_commandscript : public CommandScript
 {
 public:
@@ -404,9 +406,13 @@ public:
 
     static bool HandleReloadCommandCommand(ChatHandler* handler, const char* /*args*/)
     {
-        handler->SetLoadCommandTable(true);
-        handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
-        return true;
+        LOG_INFO("misc", "Reloading .command information...");
+        Warhead::ChatCommands::LoadCommandMap();
+        handler->SendGlobalGMSysMessage("DB table `command` reloaded.");
+
+        // do not log this invocation, otherwise we might crash (the command table we used to get here is no longer valid!)
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, const char* /*args*/)

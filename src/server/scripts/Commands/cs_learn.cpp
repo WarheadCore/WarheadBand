@@ -32,14 +32,16 @@ EndScriptData */
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
+using namespace Warhead::ChatCommands;
+
 class learn_commandscript : public CommandScript, public PlayerCommand
 {
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> learnAllMyCommandTable =
+        static ChatCommandTable learnAllMyCommandTable =
         {
             { "class",          SEC_GAMEMASTER,  false, &HandleLearnAllMyClassCommand,       "" },
             { "pettalents",     SEC_GAMEMASTER,  false, &HandleLearnAllMyPetTalentsCommand,  "" },
@@ -47,7 +49,7 @@ public:
             { "talents",        SEC_GAMEMASTER,  false, &HandleLearnAllMyTalentsCommand,     "" }
         };
 
-        static std::vector<ChatCommand> learnAllCommandTable =
+        static ChatCommandTable learnAllCommandTable =
         {
             { "my",             SEC_GAMEMASTER,  false, nullptr,                             "", learnAllMyCommandTable },
             { "gm",             SEC_GAMEMASTER,  false, &HandleLearnAllGMCommand,            "" },
@@ -57,13 +59,13 @@ public:
             { "recipes",        SEC_GAMEMASTER,  false, &HandleLearnAllRecipesCommand,       "" }
         };
 
-        static std::vector<ChatCommand> learnCommandTable =
+        static ChatCommandTable learnCommandTable =
         {
             { "all",            SEC_GAMEMASTER,  false, nullptr,                             "", learnAllCommandTable },
             { "",               SEC_GAMEMASTER,  false, &HandleLearnCommand,                 "" }
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "learn",          SEC_GAMEMASTER,  false, nullptr,                             "", learnCommandTable },
             { "unlearn",        SEC_GAMEMASTER,  false, &HandleUnLearnCommand,               "" }

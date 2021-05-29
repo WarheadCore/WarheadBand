@@ -31,14 +31,16 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "TicketMgr.h"
 
+using namespace Warhead::ChatCommands;
+
 class go_commandscript : public CommandScript
 {
 public:
     go_commandscript() : CommandScript("go_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> goCommandTable =
+        static ChatCommandTable goCommandTable =
         {
             { "creature",       SEC_MODERATOR,      false, &HandleGoCreatureCommand,          "" },
             { "graveyard",      SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         "" },
@@ -53,7 +55,7 @@ public:
             { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               "" }
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "go",             SEC_MODERATOR,      false, nullptr,                     "", goCommandTable }
         };

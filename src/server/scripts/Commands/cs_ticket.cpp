@@ -32,19 +32,21 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "TicketMgr.h"
 
+using namespace Warhead::ChatCommands;
+
 class ticket_commandscript : public CommandScript
 {
 public:
     ticket_commandscript() : CommandScript("ticket_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> ticketResponseCommandTable =
+        static ChatCommandTable ticketResponseCommandTable =
         {
             { "append",         SEC_GAMEMASTER,      true,  &HandleGMTicketResponseAppendCommand,    "" },
             { "appendln",       SEC_GAMEMASTER,      true,  &HandleGMTicketResponseAppendLnCommand,  "" }
         };
-        static std::vector<ChatCommand> ticketCommandTable =
+        static ChatCommandTable ticketCommandTable =
         {
             { "assign",         SEC_GAMEMASTER,      true,  &HandleGMTicketAssignToCommand,          "" },
             { "close",          SEC_GAMEMASTER,      true,  &HandleGMTicketCloseByIdCommand,         "" },
@@ -63,7 +65,7 @@ public:
             { "viewid",         SEC_GAMEMASTER,      true,  &HandleGMTicketGetByIdCommand,           "" },
             { "viewname",       SEC_GAMEMASTER,      true,  &HandleGMTicketGetByNameCommand,         "" }
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "ticket",         SEC_GAMEMASTER,      false, nullptr,                                 "", ticketCommandTable }
         };

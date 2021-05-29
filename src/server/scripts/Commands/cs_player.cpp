@@ -21,20 +21,22 @@
 #include "PlayerCommand.h"
 #include "ScriptMgr.h"
 
+using namespace Warhead::ChatCommands;
+
 class player_commandscript : public CommandScript, public PlayerCommand
 {
 public:
     player_commandscript() : CommandScript("player_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> playerCommandTable =
+        static ChatCommandTable playerCommandTable =
         {
             { "learn",               SEC_GAMEMASTER,  true, &HandlePlayerLearnCommand,           "" },
             { "unlearn",             SEC_GAMEMASTER,  true, &HandlePlayerUnLearnCommand,         "" }
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "player",              SEC_GAMEMASTER,  true, nullptr,                             "", playerCommandTable }
         };

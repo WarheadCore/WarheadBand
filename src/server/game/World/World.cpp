@@ -1919,6 +1919,9 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", " ");
     sObjectMgr->InitializeSpellInfoPrecomputedData();
 
+    LOG_INFO("server.loading", "Initialize commands...");
+    Warhead::ChatCommands::LoadCommandMap();
+
     ///- Initialize game time and timers
     LOG_INFO("server", "Initialize game time and timers");
     LOG_INFO("server", " ");
@@ -2724,20 +2727,22 @@ void World::UpdateSessions(uint32 diff)
 // This handles the issued and queued CLI commands
 void World::ProcessCliCommands()
 {
-    CliCommandHolder::Print* zprint = nullptr;
+    CliCommandHolder::Print zprint = nullptr;
     void* callbackArg = nullptr;
     CliCommandHolder* command = nullptr;
+
     while (cliCmdQueue.next(command))
     {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        LOG_DEBUG("server", "CLI command under processing...");
-#endif
+        LOG_INFO("server.worldserver", "CLI command under processing...");
+
         zprint = command->m_print;
         callbackArg = command->m_callbackArg;
         CliHandler handler(callbackArg, zprint);
         handler.ParseCommands(command->m_command);
+
         if (command->m_commandFinished)
             command->m_commandFinished(callbackArg, !handler.HasSentErrorMessage());
+
         delete command;
     }
 }
@@ -3425,4 +3430,14 @@ uint32 World::GetNextWhoListUpdateDelaySecs()
     t = std::min(t, (uint32)m_timers[WUPDATE_5_SECS].GetInterval());
 
     return uint32(ceil(t / 1000.0f));
+}
+
+CliCommandHolder::CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished)
+    : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
+{
+}
+
+CliCommandHolder::~CliCommandHolder()
+{
+    free(m_command);
 }

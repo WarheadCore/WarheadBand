@@ -28,25 +28,27 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 
+using namespace Warhead::ChatCommands;
+
 class titles_commandscript : public CommandScript
 {
 public:
     titles_commandscript() : CommandScript("titles_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> titlesSetCommandTable =
+        static ChatCommandTable titlesSetCommandTable =
         {
             { "mask",           SEC_GAMEMASTER,     false, &HandleTitlesSetMaskCommand,        "" }
         };
-        static std::vector<ChatCommand> titlesCommandTable =
+        static ChatCommandTable titlesCommandTable =
         {
             { "add",            SEC_GAMEMASTER,     false, &HandleTitlesAddCommand,            "" },
             { "current",        SEC_GAMEMASTER,     false, &HandleTitlesCurrentCommand,        "" },
             { "remove",         SEC_GAMEMASTER,     false, &HandleTitlesRemoveCommand,         "" },
             { "set",            SEC_GAMEMASTER,     false, nullptr,                            "", titlesSetCommandTable }
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "titles",         SEC_GAMEMASTER,     false, nullptr,                            "", titlesCommandTable }
         };

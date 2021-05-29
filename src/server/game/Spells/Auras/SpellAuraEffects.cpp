@@ -466,13 +466,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         {
                             for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
                             {
-                                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
+                                SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->Enchantment[k]);
                                 if (pEnchant)
                                 {
                                     for (int t = 0; t < MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS; t++)
                                         if (pEnchant->spellid[t] == m_spellInfo->Id)
                                         {
-                                            amount = uint32((item_rand_suffix->prefix[k] * castItem->GetItemSuffixFactor()) / 10000);
+                                            amount = uint32((item_rand_suffix->AllocationPct[k] * castItem->GetItemSuffixFactor()) / 10000);
                                             break;
                                         }
                                 }
@@ -6823,7 +6823,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         // used only with EXTRA_LOGS
-        UNUSED(triggeredSpellInfo);
+        (void)triggeredSpellInfo;
 
         int32 basepoints0 = GetAmount();
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)

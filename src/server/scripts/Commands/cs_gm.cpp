@@ -32,14 +32,16 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "World.h"
 
+using namespace Warhead::ChatCommands;
+
 class gm_commandscript : public CommandScript
 {
 public:
     gm_commandscript() : CommandScript("gm_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> gmCommandTable =
+        static ChatCommandTable gmCommandTable =
         {
             { "chat",           SEC_GAMEMASTER,      false, &HandleGMChatCommand,              "" },
             { "fly",            SEC_GAMEMASTER,      false, &HandleGMFlyCommand,               "" },
@@ -48,7 +50,7 @@ public:
             { "visible",        SEC_GAMEMASTER,      false, &HandleGMVisibleCommand,           "" },
             { "",               SEC_GAMEMASTER,      false, &HandleGMCommand,                  "" }
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "gm",             SEC_MODERATOR,      false, nullptr,                     "", gmCommandTable }
         };

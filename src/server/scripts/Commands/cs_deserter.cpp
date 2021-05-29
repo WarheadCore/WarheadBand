@@ -28,32 +28,34 @@ enum Spells
     BG_SPELL_DESERTER = 26013
 };
 
+using namespace Warhead::ChatCommands;
+
 class deserter_commandscript : public CommandScript
 {
 public:
     deserter_commandscript() : CommandScript("deserter_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> deserterinstanceCommandTable =
+        static ChatCommandTable deserterinstanceCommandTable =
         {
             { "add",            SEC_ADMINISTRATOR, false, &HandleDeserterInstanceAdd,          "" },
             { "remove",         SEC_ADMINISTRATOR, false, &HandleDeserterInstanceRemove,       "" }
         };
 
-        static std::vector<ChatCommand> deserterBGCommandTable =
+        static ChatCommandTable deserterBGCommandTable =
         {
             { "add",            SEC_ADMINISTRATOR, false, &HandleDeserterBGAdd,                "" },
             { "remove",         SEC_ADMINISTRATOR, false, &HandleDeserterBGRemove,             "" }
         };
 
-        static std::vector<ChatCommand> deserterCommandTable =
+        static ChatCommandTable deserterCommandTable =
         {
             { "instance",       SEC_ADMINISTRATOR,  false, nullptr,  "", deserterinstanceCommandTable },
             { "bg",             SEC_ADMINISTRATOR,  false, nullptr,  "", deserterBGCommandTable }
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "deserter",       SEC_ADMINISTRATOR,  false, nullptr,               "", deserterCommandTable }
         };
