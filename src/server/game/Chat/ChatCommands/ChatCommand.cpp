@@ -152,7 +152,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name
     }
 }
 
-static void LogCommandUsage(WorldSession const& session, uint32 permission, std::string_view cmdStr)
+static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr)
 {
     if (AccountMgr::IsPlayerAccount(session.GetSecurity()))
         return;
@@ -316,7 +316,7 @@ namespace Warhead::Impl::ChatCommands
         if (cmd->IsInvokerVisible(handler) && cmd->_invoker(&handler, oldTail))
         { /* invocation succeeded, log this */
             if (!handler.IsConsole())
-                LogCommandUsage(*handler.GetSession(), cmd->_permission.RequiredLevel, cmdStr);
+                LogCommandUsage(*handler.GetSession(), cmdStr);
         }
         else if (!handler.HasSentErrorMessage())
         { /* invocation failed, we should show usage */
