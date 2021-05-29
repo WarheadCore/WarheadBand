@@ -1067,6 +1067,8 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
         loserArenaTeam->NotifyStatsChanged();
     }
 
+    sScriptMgr->OnBattlegroundEnd(this, winnerTeamId);
+
     if (winmsg_id)
         SendMessageToAll(winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
 

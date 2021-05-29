@@ -2122,6 +2122,11 @@ void ScriptMgr::OnBattlegroundStart(Battleground* bg)
     FOREACH_SCRIPT(BGScript)->OnBattlegroundStart(bg);
 }
 
+void ScriptMgr::OnBattlegroundEnd(Battleground* bg, TeamId winnerTeamId)
+{
+    FOREACH_SCRIPT(BGScript)->OnBattlegroundEnd(bg, winnerTeamId);
+}
+
 void ScriptMgr::OnBattlegroundEndReward(Battleground* bg, Player* player, TeamId winnerTeamId)
 {
     FOREACH_SCRIPT(BGScript)->OnBattlegroundEndReward(bg, player, winnerTeamId);

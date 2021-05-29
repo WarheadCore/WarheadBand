@@ -1182,6 +1182,9 @@ public:
     virtual void OnBattlegroundStart(Battleground* /*bg*/) { }
 
     // End Battleground
+    virtual void OnBattlegroundEnd(Battleground* /*bg*/, TeamId /*winnerTeamId*/) { }
+
+    // End Battleground reward
     virtual void OnBattlegroundEndReward(Battleground* /*bg*/, Player* /*player*/, TeamId /*winnerTeamId*/) { }
 
     // Update Battlegroud
