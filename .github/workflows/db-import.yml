@@ -1,0 +1,25 @@
+name: db-import
+on:
+  push:
+    branches:
+      - 'master'  # only default branch
+  pull_request:
+
+jobs:
+  import:
+    strategy:
+      fail-fast: false
+      matrix:
+        # the result of the matrix will be the combination of all attributes, so we get os*compiler*modules builds
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure OS
+        run: source ./acore.sh install-deps
+        env:
+          CONTINUOUS_INTEGRATION: true
+      - name: Create conf/config.sh
+        run: source ./apps/ci/ci-conf-db.sh
+      - name: Import db
+        run: source ./apps/ci/ci-import-db.sh
