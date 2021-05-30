@@ -16,18 +16,19 @@
  */
 
 #include "LowLevelArena.h"
-#include "Log.h"
 #include "BattlegroundMgr.h"
+#include "Chat.h"
 #include "Config.h"
+#include "DisableMgr.h"
+#include "GroupMgr.h"
+#include "Log.h"
+#include "Player.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
-#include "DisableMgr.h"
-#include "GroupMgr.h"
-#include "Player.h"
+#include <unordered_set>
 //#include <unordered_map>
 //#include <tuple>
-#include <unordered_set>
 
 //namespace
 //{
