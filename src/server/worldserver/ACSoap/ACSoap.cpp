@@ -53,6 +53,7 @@ void ACSoapThread(const std::string& host, uint16 port)
 
         LOG_DEBUG("network.soap", "Accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF, (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
         struct soap* thread_soap = soap_copy(&soap);// make a safe copy
+
         process_message(thread_soap);
     }
 
