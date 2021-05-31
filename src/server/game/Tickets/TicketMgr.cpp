@@ -265,7 +265,7 @@ TicketMgr* TicketMgr::instance()
     return &instance;
 }
 
-void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
+void TicketMgr::Initialize() { SetStatus(CONF_GET_BOOL("AllowTickets")); }
 
 void TicketMgr::ResetTickets()
 {

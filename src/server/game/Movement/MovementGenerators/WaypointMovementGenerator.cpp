@@ -244,7 +244,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     else
     {
         if (creature->IsStopped())
-            Stop(sWorld->getIntConfig(CONFIG_WAYPOINT_MOVEMENT_STOP_TIME_FOR_PLAYER) * IN_MILLISECONDS);
+            Stop(CONF_GET_INT("WaypointMovementStopTimeForPlayer") * IN_MILLISECONDS);
         else
         {
             bool finished = creature->movespline->Finalized();

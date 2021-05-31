@@ -422,9 +422,9 @@ public:
     void ResetTimeOutTime(bool onlyActive)
     {
         if (GetPlayer())
-            m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME_ACTIVE));
+            m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTimeActive"));
         else if (!onlyActive)
-            m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+            m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTime"));
     }
     bool IsConnectionIdle() const
     {

@@ -33,7 +33,7 @@
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)
     : m_zone(zone), m_weatherChances(weatherChances)
 {
-    m_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_CHANGEWEATHER));
+    m_timer.SetInterval(CONF_GET_INT("ChangeWeatherInterval"));
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 

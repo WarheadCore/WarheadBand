@@ -295,7 +295,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     ///- Before we process anything:
     /// If necessary, kick the player because the client didn't send anything for too long
     /// (or they've been idling in character select)
-    if (sWorld->getBoolConfig(CONFIG_CLOSE_IDLE_CONNECTIONS) && IsConnectionIdle() && m_Socket)
+    if (CONF_GET_BOOL("CloseIdleConnections") && IsConnectionIdle() && m_Socket)
         m_Socket->CloseSocket();
 
     if (updater.ProcessUnsafe())
@@ -494,13 +494,13 @@ void WorldSession::HandleTeleportTimeout(bool updateInSessions)
         time_t currTime = time(nullptr);
         if (updateInSessions) // session update from World::UpdateSessions
         {
-            if (GetPlayer()->IsBeingTeleportedFar() && GetPlayer()->GetSemaphoreTeleportFar() + sWorld->getIntConfig(CONFIG_TELEPORT_TIMEOUT_FAR) < currTime)
+            if (GetPlayer()->IsBeingTeleportedFar() && GetPlayer()->GetSemaphoreTeleportFar() + CONF_GET_INT("TeleportTimeoutFar") < currTime)
                 while (GetPlayer() && GetPlayer()->IsBeingTeleportedFar())
                     HandleMoveWorldportAck();
         }
         else // session update from Map::Update
         {
-            if (GetPlayer()->IsBeingTeleportedNear() && GetPlayer()->GetSemaphoreTeleportNear() + sWorld->getIntConfig(CONFIG_TELEPORT_TIMEOUT_NEAR) < currTime)
+            if (GetPlayer()->IsBeingTeleportedNear() && GetPlayer()->GetSemaphoreTeleportNear() + CONF_GET_INT("TeleportTimeoutNear") < currTime)
                 while (GetPlayer() && GetPlayer()->IsInWorld() && GetPlayer()->IsBeingTeleportedNear())
                 {
                     Player* plMover = GetPlayer()->m_mover->ToPlayer();
@@ -572,7 +572,7 @@ void WorldSession::LogoutPlayer(bool save)
                 // track if player logs out after invited to join BG
                 if (_player->IsInvitedForBattlegroundInstance())
                 {
-                    if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+                    if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                         stmt->setUInt32(0, _player->GetGUID().GetCounter());
@@ -708,7 +708,7 @@ bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
     LOG_ERROR("network", "Player %s%s sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
         GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
 
-    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+    if (CONF_GET_INT("ChatStrictLinkChecking.Kick"))
         KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
 
     return false;
@@ -722,7 +722,7 @@ bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
     LOG_ERROR("network", "Player %s %s sent a message which illegally contained a hyperlink:\n%s", GetPlayer()->GetName().c_str(),
         GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
 
-    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
+    if (CONF_GET_INT("ChatStrictLinkChecking.Kick"))
         KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
 
     return false;
@@ -1317,8 +1317,8 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             }
         case POLICY_BAN:
             {
-                uint32 bm = sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANMODE);
-                uint32 duration = sWorld->getIntConfig(CONFIG_PACKET_SPOOF_BANDURATION); // in seconds
+                uint32 bm = CONF_GET_INT("PacketSpoof.BanMode");
+                uint32 duration = CONF_GET_INT("PacketSpoof.BanDuration"); // in seconds
                 std::string nameOrIp = "";
                 switch (bm)
                 {
@@ -1587,7 +1587,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
 }
 
 WorldSession::DosProtection::DosProtection(WorldSession* s) :
-    Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
+    Session(s), _policy((Policy)CONF_GET_INT("PacketSpoof.Policy")) { }
 
 void WorldSession::ResetTimeSync()
 {

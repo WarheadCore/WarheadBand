@@ -194,7 +194,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PvPDiffi
     if (!bg)
         return ginfo;
 
-    if (!isRated && !isPremade && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
+    if (!isRated && !isPremade && CONF_GET_BOOL("Battleground.QueueAnnouncer.Enable"))
         SendMessageBGQueue(leader, bg, bracketEntry);
 
     return ginfo;
@@ -400,7 +400,7 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, const int32 aliFree, c
     int32 aliDiff = aliFree - int32(m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount());
     int32 hordeDiff = hordeFree - int32(m_SelectionPools[TEAM_HORDE].GetPlayerCount());
 
-    int32 invType = sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE);
+    int32 invType = CONF_GET_INT("Battleground.InvitationType");
     int32 invDiff = 0;
 
     // check balance configuration and set the max difference between teams
@@ -483,7 +483,7 @@ void BattlegroundQueue::FillPlayersToBGWithSpecific(Battleground* bg, const int3
     int32 aliDiff = aliFree - int32(m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount());
     int32 hordeDiff = hordeFree - int32(m_SelectionPools[TEAM_HORDE].GetPlayerCount());
 
-    int32 invType = sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE);
+    int32 invType = CONF_GET_INT("Battleground.InvitationType");
     int32 invDiff = 0;
 
     // check balance configuration and set the max difference between teams
@@ -601,7 +601,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bgTemplate, BattlegroundB
     if (sBattlegroundMgr->isTesting() && bgTemplate->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
         return true;
 
-    switch (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE))
+    switch (CONF_GET_INT("Battleground.InvitationType"))
     {
         case BG_QUEUE_INVITATION_TYPE_NO_BALANCE: // in this case, as soon as both teams have > mincount, start
             return m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers;
@@ -992,7 +992,7 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
     auto qTotal = qHorde + qAlliance;
 
     // Show queue status to player only (when joining battleground queue or Arena and arena world announcer is disabled)
-    if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY))
+    if (CONF_GET_BOOL("Battleground.QueueAnnouncer.PlayerOnly"))
     {
         ChatHandler(leader->GetSession()).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF, bgName, q_min_level, q_max_level,
                 qAlliance, (MinPlayers > qAlliance) ? MinPlayers - qAlliance : (uint32)0, qHorde, (MinPlayers > qHorde) ? MinPlayers - qHorde : (uint32)0);
@@ -1164,7 +1164,7 @@ bool BGQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
             // track if player leaves the BG by not clicking enter button
             if (bg && bg->isBattleground() && (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
             {
-                if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+                if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
                 {
                     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                     stmt->setUInt32(0, player->GetGUID().GetCounter());

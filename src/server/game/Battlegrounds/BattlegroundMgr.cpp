@@ -140,7 +140,7 @@ void BattlegroundMgr::Update(uint32 diff)
         m_NextPeriodicQueueUpdateTime -= diff;
 
     // arena points auto-distribution
-    if (sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
+    if (CONF_GET_BOOL("Arena.AutoDistributePoints"))
     {
         if (m_AutoDistributionTimeChecker < diff)
         {
@@ -641,7 +641,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
 void BattlegroundMgr::InitAutomaticArenaPointDistribution()
 {
-    if (!sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
+    if (!CONF_GET_BOOL("Arena.AutoDistributePoints"))
         return;
 
     time_t wstime = time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
@@ -662,9 +662,9 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     if (!player)
         return;
 
-    uint32 winner_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
-    uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
-    uint32 loser_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
+    uint32 winner_kills = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardWinnerHonorLast") : CONF_GET_INT("Battleground.RewardWinnerHonorFirst");
+    uint32 winner_arena = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardWinnerArenaLast") : CONF_GET_INT("Battleground.RewardWinnerArenaFirst");
+    uint32 loser_kills = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardLoserHonorLast") : CONF_GET_INT("Battleground.RewardLoserHonorFirst");
 
     winner_kills = Warhead::Honor::hk_honor_at_level(player->getLevel(), float(winner_kills));
     loser_kills = Warhead::Honor::hk_honor_at_level(player->getLevel(), float(loser_kills));
@@ -795,7 +795,7 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
 
 void BattlegroundMgr::ToggleTesting()
 {
-    if (sWorld->getBoolConfig(CONFIG_DEBUG_BATTLEGROUND))
+    if (CONF_GET_BOOL("Debug.Battleground"))
     {
         m_Testing = true;
         sWorld->SendWorldText(LANG_DEBUG_BG_CONF);
@@ -809,7 +809,7 @@ void BattlegroundMgr::ToggleTesting()
 
 void BattlegroundMgr::ToggleArenaTesting()
 {
-    if (sWorld->getBoolConfig(CONFIG_DEBUG_ARENA))
+    if (CONF_GET_BOOL("Debug.Arena"))
     {
         m_ArenaTesting = true;
         sWorld->SendWorldText(LANG_DEBUG_ARENA_CONF);

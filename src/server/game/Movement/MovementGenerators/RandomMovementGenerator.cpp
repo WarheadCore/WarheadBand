@@ -207,7 +207,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature* creature)
     init.SetWalk(true);
     init.Launch();
 
-    if (sWorld->getBoolConfig(CONFIG_DONT_CACHE_RANDOM_MOVEMENT_PATHS))
+    if (CONF_GET_BOOL("DontCacheRandomMovementPaths"))
         _preComputedPaths.erase(pathIdx);
 
     //Call for creature group update

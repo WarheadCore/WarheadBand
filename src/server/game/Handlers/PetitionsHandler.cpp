@@ -94,15 +94,15 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
             return;
 
         charterid = GUILD_CHARTER;
-        cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_GUILD);
+        cost = CONF_GET_INT("Guild.CharterCost");
         type = GUILD_CHARTER_TYPE;
     }
     else
     {
         // TODO: find correct opcode
-        if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (_player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
-            SendNotification(LANG_ARENA_ONE_TOOLOW, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+            SendNotification(LANG_ARENA_ONE_TOOLOW, CONF_GET_INT("MaxPlayerLevel"));
             return;
         }
 
@@ -110,17 +110,17 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         {
             case 1:
                 charterid = ARENA_TEAM_CHARTER_2v2;
-                cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_2v2);
+                cost = CONF_GET_INT("ArenaTeam.CharterCost.2v2");
                 type = ARENA_TEAM_CHARTER_2v2_TYPE;
                 break;
             case 2:
                 charterid = ARENA_TEAM_CHARTER_3v3;
-                cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_3v3);
+                cost = CONF_GET_INT("ArenaTeam.CharterCost.3v3");
                 type = ARENA_TEAM_CHARTER_3v3_TYPE;
                 break;
             case 3:
                 charterid = ARENA_TEAM_CHARTER_5v5;
-                cost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_5v5);
+                cost = CONF_GET_INT("ArenaTeam.CharterCost.5v5");
                 type = ARENA_TEAM_CHARTER_5v5_TYPE;
                 break;
             default:
@@ -310,7 +310,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     data << uint8(0);                                       // some string
     if (type == GUILD_CHARTER_TYPE)
     {
-        uint32 needed = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+        uint32 needed = CONF_GET_INT("MinPetitionSigns");
         data << uint32(needed);
         data << uint32(needed);
         data << uint32(0);                                  // bypass client - side limitation, a different value is needed here for each petition
@@ -440,7 +440,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
         return;
 
     // not let enemies sign guild charter
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeamId() != sObjectMgr->GetPlayerTeamIdByGUID(petition->ownerGuid.GetCounter()))
+    if (!CONF_GET_BOOL("AllowTwoSide.Interaction.Guild") && GetPlayer()->GetTeamId() != sObjectMgr->GetPlayerTeamIdByGUID(petition->ownerGuid.GetCounter()))
     {
         if (type != GUILD_CHARTER_TYPE)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
@@ -451,7 +451,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     if (type != GUILD_CHARTER_TYPE)
     {
-        if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (_player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName().c_str(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
@@ -609,7 +609,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 
     if (petition->petitionType != GUILD_CHARTER_TYPE)
     {
-        if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
             // player is too low level to join an arena team
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
@@ -754,7 +754,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 
     uint32 requiredSignatures;
     if (type == GUILD_CHARTER_TYPE)
-        requiredSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
+        requiredSignatures = CONF_GET_INT("MinPetitionSigns");
     else
         requiredSignatures = type - 1;
 
@@ -879,7 +879,7 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
     // For guild default
     uint32 CharterEntry = GUILD_CHARTER;
     uint32 CharterDispayID = CHARTER_DISPLAY_ID;
-    uint32 CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_GUILD);
+    uint32 CharterCost = CONF_GET_INT("Guild.CharterCost");
 
     if (creature->IsTabardDesigner())
     {
@@ -891,14 +891,14 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
         data << CharterDispayID;                            // charter display id
         data << CharterCost;                                // charter cost
         data << uint32(0);                                  // unknown
-        data << uint32(sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS)); // required signs
+        data << uint32(CONF_GET_INT("MinPetitionSigns")); // required signs
     }
     else
     {
         // For 2v2 default
         CharterEntry = ARENA_TEAM_CHARTER_2v2;
         CharterDispayID = CHARTER_DISPLAY_ID;
-        CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_2v2);
+        CharterCost = CONF_GET_INT("ArenaTeam.CharterCost.2v2");
 
         // 2v2
         data << uint8(3);                                   // count
@@ -913,7 +913,7 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
         // For 3v3 default
         CharterEntry = ARENA_TEAM_CHARTER_3v3;
         CharterDispayID = CHARTER_DISPLAY_ID;
-        CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_3v3);
+        CharterCost = CONF_GET_INT("ArenaTeam.CharterCost.3v3");
 
         // 3v3
         sScriptMgr->PetitionShowList(_player, creature, CharterEntry, CharterDispayID, CharterCost);
@@ -927,7 +927,7 @@ void WorldSession::SendPetitionShowList(ObjectGuid guid)
         // For 3v3 default
         CharterEntry = ARENA_TEAM_CHARTER_5v5;
         CharterDispayID = CHARTER_DISPLAY_ID;
-        CharterCost = sWorld->getIntConfig(CONFIG_CHARTER_COST_ARENA_5v5);
+        CharterCost = CONF_GET_INT("ArenaTeam.CharterCost.5v5");
 
         // 5v5
         sScriptMgr->PetitionShowList(_player, creature, CharterEntry, CharterDispayID, CharterCost);

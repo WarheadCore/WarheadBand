@@ -657,6 +657,6 @@ void WardenWin::HandleData(ByteBuffer& buff)
     }
 
     // Set hold off timer, minimum timer should at least be 1 second
-    uint32 const holdOff = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF);
+    uint32 const holdOff = CONF_GET_INT("Warden.ClientCheckHoldOff");
     _checkTimer = (holdOff < 1 ? 1 : holdOff) * IN_MILLISECONDS;
 }

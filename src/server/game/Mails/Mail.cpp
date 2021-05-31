@@ -203,7 +203,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
 
     // auction mail without any items and money
     if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !m_money)
-        expire_delay = sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY);
+        expire_delay = CONF_GET_INT("MailDeliveryDelay");
     // mail from battlemaster (rewardmarks) should last only one day
     else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;

@@ -284,7 +284,7 @@ struct AccountInfo
         IsBanned = fields[12].GetUInt64() != 0;
         IsRectuiter = fields[13].GetUInt32() != 0;
 
-        uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
+        uint32 world_expansion = CONF_GET_INT("Expansion");
         if (Expansion > world_expansion)
             Expansion = world_expansion;
 
@@ -489,7 +489,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     }
 
     // Must be done before WorldSession is created
-    bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
+    bool wardenActive = CONF_GET_BOOL("Warden.Enabled");
     if (wardenActive && account.OS != "Win" && account.OS != "OSX")
     {
         SendAuthResponseError(AUTH_REJECT);
@@ -642,7 +642,7 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
         {
             ++_OverSpeedPings;
 
-            uint32 maxAllowed = sWorld->getIntConfig(CONFIG_MAX_OVERSPEED_PINGS);
+            uint32 maxAllowed = CONF_GET_INT("MaxOverspeedPings");
 
             if (maxAllowed && _OverSpeedPings > maxAllowed)
             {

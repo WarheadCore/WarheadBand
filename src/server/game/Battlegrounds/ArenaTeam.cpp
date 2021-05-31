@@ -550,7 +550,7 @@ void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
     if (mod < 0)
     {
         // pussywizard: prevent lowering MMR too much from max achieved MMR
-        int32 maxAllowedDrop = (int32)sWorld->getIntConfig(CONFIG_MAX_ALLOWED_MMR_DROP);
+        int32 maxAllowedDrop = (int32)CONF_GET_INT("MaxAllowedMMRDrop");
         mod = std::min<int32>(std::max<int32>(-((int32)MatchMakerRating - (int32)MaxMMR + maxAllowedDrop), mod), 0);
     }
 
@@ -679,7 +679,7 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
 
     sScriptMgr->OnGetArenaPoints(this, points);
 
-    points *= sWorld->getRate(RATE_ARENA_POINTS);
+    points *= CONF_GET_FLOAT("Rate.ArenaPoints");
 
     return (uint32) points;
 }
@@ -742,7 +742,7 @@ int32 ArenaTeam::GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating,
     */
 
     // Real rating modification
-    mod *= sWorld->getFloatConfig(CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER);
+    mod *= CONF_GET_FLOAT("Arena.ArenaMatchmakerRatingModifier");
 
     return (int32)ceil(mod);
 }
@@ -761,7 +761,7 @@ int32 ArenaTeam::GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won 
     {
         if (ownRating < 1300)
         {
-            float win_rating_modifier1 = sWorld->getFloatConfig(CONFIG_ARENA_WIN_RATING_MODIFIER_1);
+            float win_rating_modifier1 = CONF_GET_FLOAT("Arena.ArenaWinRatingModifier1");
 
             if (ownRating < 1000)
                 mod =  win_rating_modifier1 * (1.0f - chance);
@@ -769,10 +769,10 @@ int32 ArenaTeam::GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won 
                 mod = ((win_rating_modifier1 / 2.0f) + ((win_rating_modifier1 / 2.0f) * (1300.0f - float(ownRating)) / 300.0f)) * (1.0f - chance);
         }
         else
-            mod = sWorld->getFloatConfig(CONFIG_ARENA_WIN_RATING_MODIFIER_2) * (1.0f - chance);
+            mod = CONF_GET_FLOAT("Arena.ArenaWinRatingModifier2") * (1.0f - chance);
     }
     else
-        mod = sWorld->getFloatConfig(CONFIG_ARENA_LOSE_RATING_MODIFIER) * (-chance);
+        mod = CONF_GET_FLOAT("Arena.ArenaLoseRatingModifier") * (-chance);
 
     return (int32)ceil(mod);
 }

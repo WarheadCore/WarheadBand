@@ -56,7 +56,7 @@ void UpdateData::Compress(void* dst, uint32* dst_size, void* src, int src_size)
     c_stream.opaque = (voidpf)0;
 
     // default Z_BEST_SPEED (1)
-    int z_res = deflateInit(&c_stream, sWorld->getIntConfig(CONFIG_COMPRESSION));
+    int z_res = deflateInit(&c_stream, CONF_GET_INT("Compression"));
     if (z_res != Z_OK)
     {
         LOG_ERROR("server", "Can't compress update packet (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));

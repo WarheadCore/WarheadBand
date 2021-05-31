@@ -83,7 +83,7 @@ uint32 Warhead::XP::Gain(Player* player, Unit* unit, bool isBattleGround /*= fal
             // xpMod *= creature->GetCreatureTemplate()->ModExperience;
         }
 
-        xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL);
+        xpMod *= isBattleGround ? CONF_GET_FLOAT("Rate.XP.BattlegroundKill") : CONF_GET_FLOAT("Rate.XP.Kill");
         gain = uint32(gain * xpMod);
     }
 

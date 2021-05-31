@@ -42,7 +42,7 @@ namespace
     bool IsCorrectDelay(ObjectGuid guid)
     {
         // Skip if spam time < 30 secs (default)
-        if (sWorld->GetGameTime() - GetTime(guid) < sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_SPAM_DELAY))
+        if (sWorld->GetGameTime() - GetTime(guid) < CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay"))
         {
             return false;
         }
@@ -70,13 +70,13 @@ bool BGSpamProtect::CanAnnounce(Player* player, Battleground* bg, uint32 minLeve
     if (bg)
     {
         // When limited, it announces only if there are at least CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_PLAYERS in queue
-        auto limitQueueMinLevel = sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_LEVEL);
+        auto limitQueueMinLevel = CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinLevel");
         if (limitQueueMinLevel && minLevel >= limitQueueMinLevel)
         {
             // limit only RBG for 80, WSG for lower levels
             auto bgTypeToLimit = minLevel == 80 ? BATTLEGROUND_RB : BATTLEGROUND_WS;
 
-            if (bg->GetBgTypeID() == bgTypeToLimit && queueTotal < sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_PLAYERS))
+            if (bg->GetBgTypeID() == bgTypeToLimit && queueTotal < CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinPlayers"))
             {
                 return false;
             }
