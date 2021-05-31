@@ -76,7 +76,7 @@ ENDMACRO()
 # AC_ADD_CONFIG_FILE
 #
 MACRO(AC_ADD_CONFIG_FILE configFilePath)
-    message("> Warning: module using deprecated config api")
+    message("> Warning: module using deprecated add config file api")
 ENDMACRO()
 
 #

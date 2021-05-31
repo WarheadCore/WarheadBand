@@ -80,7 +80,6 @@ endfunction()
 
 # Stores the absolut path of the given config module in the variable
 function(GetPathToModuleConfig module variable)
-  GetModulesBasePath(MODULE_BASE_PATH)
   set(${variable} "${CMAKE_SOURCE_DIR}/modules/${module}/conf" PARENT_SCOPE)
 endfunction()
 

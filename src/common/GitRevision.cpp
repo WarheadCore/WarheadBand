@@ -73,6 +73,12 @@ char const* GitRevision::GetMySQLExecutable()
 #  define WARHEAD_PLATFORM_STR "Unix"
 #endif
 
+#ifndef ACORE_API_USE_DYNAMIC_LINKING
+#  define ACORE_LINKAGE_TYPE_STR "Static"
+#else
+#  define ACORE_LINKAGE_TYPE_STR "Dynamic"
+#endif
+
 char const* GitRevision::GetFullVersion()
 {
     return VER_COMPANYNAME_STR " rev. " VER_PRODUCTVERSION_STR " (" WARHEAD_PLATFORM_STR ", " _BUILD_DIRECTIVE ")";
