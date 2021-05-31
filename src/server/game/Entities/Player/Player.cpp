@@ -5503,7 +5503,7 @@ void Player::RemoveCorpse()
         GetCorpse()->RemoveFromWorld();
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     Corpse::DeleteFromDB(GetGUID(), trans);
     CharacterDatabase.CommitTransaction(trans);
 }
