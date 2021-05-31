@@ -23,44 +23,41 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <string>
 
-namespace Warhead
+namespace Warhead::Asio
 {
-    namespace Asio
+    /**
+     Hack to make it possible to forward declare resolver (one of its template arguments is a typedef to something super long and using nested classes)
+    */
+    class Resolver
     {
-        /**
-          Hack to make it possible to forward declare resolver (one of its template arguments is a typedef to something super long and using nested classes)
-        */
-        class Resolver
+    public:
+        explicit Resolver(IoContext& ioContext) : _impl(ioContext) { }
+
+        Optional<boost::asio::ip::tcp::endpoint> Resolve(boost::asio::ip::tcp const& protocol, std::string const& host, std::string const& service)
         {
-        public:
-            explicit Resolver(IoContext& ioContext) : _impl(ioContext) { }
-
-            Optional<boost::asio::ip::tcp::endpoint> Resolve(boost::asio::ip::tcp const& protocol, std::string const& host, std::string const& service)
-            {
-                boost::system::error_code ec;
+            boost::system::error_code ec;
 #if BOOST_VERSION >= 106600
-                boost::asio::ip::resolver_base::flags flagsResolver = boost::asio::ip::resolver_base::all_matching;
-                boost::asio::ip::tcp::resolver::results_type results = _impl.resolve(protocol, host, service, flagsResolver, ec);
-                if (results.begin() == results.end() || ec)
-                    return {};
+            boost::asio::ip::resolver_base::flags flagsResolver = boost::asio::ip::resolver_base::all_matching;
+            boost::asio::ip::tcp::resolver::results_type results = _impl.resolve(protocol, host, service, flagsResolver, ec);
+            if (results.begin() == results.end() || ec)
+                return {};
 
-                return results.begin()->endpoint();
+            return results.begin()->endpoint();
 #else
-                boost::asio::ip::resolver_query_base::flags flagsQuery = boost::asio::ip::tcp::resolver::query::all_matching;
-                boost::asio::ip::tcp::resolver::query query(std::move(protocol), std::move(host), std::move(service), flagsQuery);
-                boost::asio::ip::tcp::resolver::iterator itr = _impl.resolve(query, ec);
-                boost::asio::ip::tcp::resolver::iterator end;
-                if (itr == end || ec)
-                    return {};
+            boost::asio::ip::resolver_query_base::flags flagsQuery = boost::asio::ip::tcp::resolver::query::all_matching;
+            boost::asio::ip::tcp::resolver::query query(std::move(protocol), std::move(host), std::move(service), flagsQuery);
+            boost::asio::ip::tcp::resolver::iterator itr = _impl.resolve(query, ec);
+            boost::asio::ip::tcp::resolver::iterator end;
+            if (itr == end || ec)
+                return {};
 
-                return itr->endpoint();
+            return itr->endpoint();
 #endif
-            }
+        }
 
-        private:
-            boost::asio::ip::tcp::resolver _impl;
-        };
-    }
+    private:
+        boost::asio::ip::tcp::resolver _impl;
+    };
 }
 
 #endif // Resolver_h__

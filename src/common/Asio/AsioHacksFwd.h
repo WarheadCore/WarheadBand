@@ -23,41 +23,34 @@
 /**
   Collection of forward declarations to improve compile time
  */
-namespace boost
+namespace boost::posix_time
 {
-    namespace posix_time
-    {
-        class ptime;
-    }
-
-    namespace asio
-    {
-        template <typename Time>
-        struct time_traits;
-
-        namespace ip
-        {
-            class address;
-
-            class tcp;
-
-            template <typename InternetProtocol>
-            class basic_endpoint;
-
-            typedef basic_endpoint<tcp> tcp_endpoint;
-        }
-    }
+    class ptime;
 }
 
-namespace Acore::Asio
+namespace boost::asio
 {
-    namespace Asio
-    {
-        class DeadlineTimer;
-        class IoContext;
-        class Resolver;
-        class Strand;
-    }
+    template <typename Time>
+    struct time_traits;
+}
+
+namespace boost::asio::ip
+{
+    class address;
+    class tcp;
+
+    template <typename InternetProtocol>
+    class basic_endpoint;
+
+    typedef basic_endpoint<tcp> tcp_endpoint;
+}
+
+namespace Warhead::Asio
+{
+    class DeadlineTimer;
+    class IoContext;
+    class Resolver;
+    class Strand;
 }
 
 #endif // AsioHacksFwd_h__

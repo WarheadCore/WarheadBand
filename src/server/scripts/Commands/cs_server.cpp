@@ -29,6 +29,7 @@ EndScriptData */
 #include "VMapManager2.h"
 #include "VMapFactory.h"
 #include "Language.h"
+#include "MySQLThreading.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Realm.h"
@@ -125,14 +126,13 @@ public:
                 dbPort = (*res)[0].GetUInt16();
 
             if (dbPort)
-                dbPortOutput = acore::StringFormat("Realmlist (Realm Id: %u) configured in port %" PRIu16, realm.Id.Realm, dbPort);
+                dbPortOutput = Warhead::StringFormat("Realmlist (Realm Id: %u) configured in port %" PRIu16, realm.Id.Realm, dbPort);
             else
-                dbPortOutput = acore::StringFormat("Realm Id: %u not found in `realmlist` table. Please check your setup", realm.Id.Realm);
+                dbPortOutput = Warhead::StringFormat("Realm Id: %u not found in `realmlist` table. Please check your setup", realm.Id.Realm);
         }
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-        handler->PSendSysMessage("Using ACE version: %s", ACE_VERSION);
         handler->PSendSysMessage("Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         handler->PSendSysMessage("Using MySQL version: %u", MySQL::GetLibraryVersion());
         handler->PSendSysMessage("Using CMake version: %s", GitRevision::GetCMakeVersion());
