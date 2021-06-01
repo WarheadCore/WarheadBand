@@ -45,6 +45,7 @@
 #include "SharedDefines.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 #include <random>
 #include <unordered_map>
 
@@ -147,7 +148,7 @@ void BattlegroundMgr::Update(uint32 diff)
             if (time(nullptr) > m_NextAutoDistributionTime)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
-                m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
+                m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * CONF_GET_INT("Arena.AutoDistributeInterval");
                 sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionTime));
             }
             m_AutoDistributionTimeChecker = 600000; // 10 minutes check
@@ -728,7 +729,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time_ = RESURRECTION_INTERVAL - bg->GetLastResurrectTime();      // resurrect every X seconds
+    uint32 time_ = CONF_GET_INT("Battleground.PlayerRespawn") * IN_MILLISECONDS - bg->GetLastResurrectTime();      // resurrect every X seconds
     if (time_ == uint32(-1))
         time_ = 0;
     data << guid << time_;
@@ -841,12 +842,12 @@ void BattlegroundMgr::ScheduleArenaQueueUpdate(uint32 arenaRatedTeamId, Battlegr
 
 uint32 BattlegroundMgr::GetRatingDiscardTimer() const
 {
-    return sWorld->getIntConfig(CONFIG_ARENA_RATING_DISCARD_TIMER);
+    return CONF_GET_UINT("Arena.RatingDiscardTimer");
 }
 
 uint32 BattlegroundMgr::GetPrematureFinishTime() const
 {
-    return sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER);
+    return CONF_GET_UINT("Battleground.PrematureFinishTimer");
 }
 
 void BattlegroundMgr::LoadBattleMastersEntry()

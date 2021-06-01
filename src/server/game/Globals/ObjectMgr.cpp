@@ -49,6 +49,7 @@
 #include "Vehicle.h"
 #include "WaypointManager.h"
 #include "World.h"
+#include "GameConfig.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -2333,8 +2334,8 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Flags                     = fields[7].GetUInt32();
         itemTemplate.Flags2                    = fields[8].GetUInt32();
         itemTemplate.BuyCount                  = uint32(fields[9].GetUInt8());
-        itemTemplate.BuyPrice                  = int32(fields[10].GetInt64() * sWorld->getRate((Rates)(RATE_BUYVALUE_ITEM_POOR + itemTemplate.Quality)));
-        itemTemplate.SellPrice                 = uint32(fields[11].GetUInt32() * sWorld->getRate((Rates)(RATE_SELLVALUE_ITEM_POOR + itemTemplate.Quality)));
+        itemTemplate.BuyPrice                  = int32(fields[10].GetInt64());
+        itemTemplate.SellPrice                 = uint32(fields[11].GetUInt32());
         itemTemplate.InventoryType             = uint32(fields[12].GetUInt8());
         itemTemplate.AllowableClass            = fields[13].GetInt32();
         itemTemplate.AllowableRace             = fields[14].GetInt32();
@@ -2351,6 +2352,45 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Stackable                 = fields[25].GetInt32();
         itemTemplate.ContainerSlots            = uint32(fields[26].GetUInt8());
         itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
+
+        // Rate.BuyValue and Rate.SellValue
+        switch (itemTemplate.Quality)
+        {
+        case ITEM_QUALITY_POOR:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Poor"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Poor"));
+            break;
+        case ITEM_QUALITY_NORMAL:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Normal"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Normal"));
+            break;
+        case ITEM_QUALITY_UNCOMMON:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Uncommon"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Uncommon"));
+            break;
+        case ITEM_QUALITY_RARE:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Rare"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Rare"));
+            break;
+        case ITEM_QUALITY_EPIC:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Epic"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Epic"));
+            break;
+        case ITEM_QUALITY_LEGENDARY:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Legendary"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Legendary"));
+            break;
+        case ITEM_QUALITY_ARTIFACT:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Artifact"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Artifact"));
+            break;
+        case ITEM_QUALITY_HEIRLOOM:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Heirloom"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Heirloom"));
+            break;
+        default:
+            break;
+        }
 
         for (uint8 i = 0; i < itemTemplate.StatsCount; ++i)
         {
@@ -7312,11 +7352,11 @@ uint8 ObjectMgr::CheckPlayerName(const std::string& name, bool create)
     if (wname.size() > MAX_PLAYER_NAME)
         return CHAR_NAME_TOO_LONG;
 
-    uint32 minName = sWorld->getIntConfig(CONFIG_MIN_PLAYER_NAME);
+    uint32 minName = CONF_GET_UINT("MinPlayerName");
     if (wname.size() < minName)
         return CHAR_NAME_TOO_SHORT;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_PLAYER_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictPlayerNames");
     if (!isValidString(wname, strictMask, false, create))
         return CHAR_NAME_MIXED_LANGUAGES;
 
@@ -7337,11 +7377,11 @@ bool ObjectMgr::IsValidCharterName(const std::string& name)
     if (wname.size() > MAX_CHARTER_NAME)
         return false;
 
-    uint32 minName = sWorld->getIntConfig(CONFIG_MIN_CHARTER_NAME);
+    uint32 minName = CONF_GET_UINT("MinCharterName");
     if (wname.size() < minName)
         return false;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_CHARTER_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictCharterNames");
 
     return isValidString(wname, strictMask, true);
 }
@@ -7355,7 +7395,7 @@ bool ObjectMgr::IsValidChannelName(const std::string& name)
     if (wname.size() > MAX_CHANNEL_NAME)
         return false;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_CHANNEL_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictChannelNames");
 
     return isValidString(wname, strictMask, true);
 }
@@ -7369,11 +7409,11 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
     if (wname.size() > MAX_PET_NAME)
         return PET_NAME_TOO_LONG;
 
-    uint32 minName = sWorld->getIntConfig(CONFIG_MIN_PET_NAME);
+    uint32 minName = CONF_GET_UINT("MinPetName");
     if (wname.size() < minName)
         return PET_NAME_TOO_SHORT;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_PET_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictPetNames");
     if (!isValidString(wname, strictMask, false))
         return PET_NAME_MIXED_LANGUAGES;
 

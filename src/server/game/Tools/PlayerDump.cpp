@@ -22,6 +22,7 @@
 #include "PlayerDump.h"
 #include "UpdateFields.h"
 #include "World.h"
+#include "GameConfig.h"
 
 #define DUMP_TABLE_COUNT 27
 struct DumpTable

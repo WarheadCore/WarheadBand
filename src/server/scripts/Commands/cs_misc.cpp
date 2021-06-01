@@ -41,6 +41,7 @@
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
+#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -729,7 +730,7 @@ public:
             else if (map->IsDungeon())
             {
                 // Allow GM to summon players or only other GM accounts inside instances.
-                if (!sWorld->getBoolConfig(CONFIG_INSTANCE_GMSUMMON_PLAYER))
+                if (!CONF_GET_BOOL("Instance.GMSummonPlayer"))
                 {
                     // pussywizard: prevent unbinding normal player's perm bind by just summoning him >_>
                     if (!target->GetSession()->GetSecurity())
@@ -915,7 +916,7 @@ public:
 
         if (target->IsAlive())
         {
-            if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
+            if (CONF_GET_BOOL("Die.Command.Mode"))
             {
                 if (target->GetTypeId() == TYPEID_UNIT && handler->GetSession()->GetSecurity() == SEC_CONSOLE) // pussywizard
                     target->ToCreature()->LowerPlayerDamageReq(target->GetMaxHealth());
@@ -1181,7 +1182,7 @@ public:
         }
 
         // save if the player has last been saved over 20 seconds ago
-        uint32 saveInterval = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
+        uint32 saveInterval = CONF_GET_INT("PlayerSaveInterval");
         if (saveInterval == 0 || (saveInterval > 20 * IN_MILLISECONDS && player->GetSaveTimer() <= saveInterval - 20 * IN_MILLISECONDS))
         {
             player->SaveToDB(false, false);
@@ -1225,7 +1226,7 @@ public:
                 kickReasonStr = kickReason;
         }
 
-        if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+        if (CONF_GET_BOOL("ShowKickInWorld"))
             sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
         else
             handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
@@ -1687,7 +1688,7 @@ public:
             return false;
 
         // Weather is OFF
-        if (!sWorld->getBoolConfig(CONFIG_WEATHER))
+        if (!CONF_GET_BOOL("ActivateWeather"))
         {
             handler->SendSysMessage(LANG_WEATHER_DISABLED);
             handler->SetSentErrorMessage(true);
@@ -2057,7 +2058,7 @@ public:
         handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO));
 
         // Output X. LANG_PINFO_CHR_LEVEL
-        if (level != sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (level != CONF_GET_INT("MaxPlayerLevel"))
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_LOW, level, xp, xptotal, (xptotal - xp));
         else
             handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL_HIGH, level);
@@ -2219,7 +2220,7 @@ public:
             stmt->setInt64(0, muteTime);
             std::string nameLink = handler->playerLink(player->GetName());
 
-            if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
+            if (CONF_GET_BOOL("ShowMuteInWorld"))
                 sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
 
             ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
@@ -2244,7 +2245,7 @@ public:
 
         std::string nameLink = handler->playerLink(player->GetName());
 
-        if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
+        if (CONF_GET_BOOL("ShowMuteInWorld") && !target)
             sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
         else
         {

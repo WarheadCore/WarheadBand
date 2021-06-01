@@ -24,6 +24,7 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "World.h"
+#include "GameConfig.h"
 #include <fstream>
 #include <iomanip>
 #include <iostream>

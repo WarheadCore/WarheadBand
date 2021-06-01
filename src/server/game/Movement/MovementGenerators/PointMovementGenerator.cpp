@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "PointMovementGenerator.h"
 #include "World.h"
+#include "GameConfig.h"
 
 //----- Point Movement Generator
 template<class T>

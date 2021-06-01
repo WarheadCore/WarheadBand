@@ -68,6 +68,7 @@
 #include "VMapFactory.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

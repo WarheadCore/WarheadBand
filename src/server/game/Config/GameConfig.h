@@ -23,6 +23,14 @@
 
 class WH_GAME_API GameConfig
 {
+    GameConfig(GameConfig const&) = delete;
+    GameConfig(GameConfig&&) = delete;
+    GameConfig& operator= (GameConfig const&) = delete;
+    GameConfig& operator= (GameConfig&&) = delete;
+
+    GameConfig() = default;
+    ~GameConfig() = default;
+
 public:
     static GameConfig* instance();
 

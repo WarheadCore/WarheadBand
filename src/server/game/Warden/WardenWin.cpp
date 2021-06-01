@@ -32,6 +32,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 #include <openssl/md5.h>
 
 // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
@@ -78,7 +79,7 @@ static uint16 GetCheckPacketSize(WardenCheck const* check)
 }
 
 // Returns config id for specific type id
-static WorldIntConfigs GetMaxWardenChecksForType(uint8 type)
+std::string GetMaxWardenChecksForType(uint8 type)
 {
     // Should never be higher type than defined
     ASSERT(type < MAX_WARDEN_CHECK_TYPES);
@@ -86,14 +87,14 @@ static WorldIntConfigs GetMaxWardenChecksForType(uint8 type)
     switch (type)
     {
     case WARDEN_CHECK_MEM_TYPE:
-        return CONFIG_WARDEN_NUM_MEM_CHECKS;
+        return "Warden.NumMemChecks";
     case WARDEN_CHECK_LUA_TYPE:
-        return CONFIG_WARDEN_NUM_LUA_CHECKS;
+        return "Warden.NumLuaChecks";
     default:
         break;
     }
 
-    return CONFIG_WARDEN_NUM_OTHER_CHECKS;
+    return "Warden.NumOtherChecks";
 }
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) { }
@@ -279,7 +280,7 @@ void WardenWin::RequestChecks()
     {
         for (uint8 checkType = 0; checkType < MAX_WARDEN_CHECK_TYPES; ++checkType)
         {
-            for (uint32 y = 0; y < sWorld->getIntConfig(GetMaxWardenChecksForType(checkType)); ++y)
+            for (uint32 y = 0; y < CONF_GET_UINT(GetMaxWardenChecksForType(checkType)); ++y)
             {
                 // If todo list is done break loop (will be filled on next Update() run)
                 if (_ChecksTodo[checkType].empty())
@@ -320,7 +321,7 @@ void WardenWin::RequestChecks()
         // Always include lua checks
         if (!hasLuaChecks)
         {
-            for (uint32 i = 0; i < sWorld->getIntConfig(GetMaxWardenChecksForType(WARDEN_CHECK_LUA_TYPE)); ++i)
+            for (uint32 i = 0; i < CONF_GET_UINT(GetMaxWardenChecksForType(WARDEN_CHECK_LUA_TYPE)); ++i)
             {
                 // If todo list is done break loop (will be filled on next Update() run)
                 if (_ChecksTodo[WARDEN_CHECK_LUA_TYPE].empty())

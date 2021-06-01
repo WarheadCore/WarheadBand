@@ -35,6 +35,7 @@ EndScriptData */
 #include "SecretMgr.h"
 #include "StringConvert.h"
 #include "TOTP.h"
+#include "GameConfig.h"
 #include <unordered_map>
 #include <openssl/rand.h>
 
@@ -258,7 +259,7 @@ public:
         uint32 accountId = handler->GetSession()->GetAccountId();
 
         int expansion = atoi(exp); //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
+        if (expansion < 0 || uint8(expansion) > CONF_GET_INT("Expansion"))
         {
             handler->SendSysMessage(LANG_IMPROPER_VALUE);
             handler->SetSentErrorMessage(true);
@@ -712,7 +713,7 @@ public:
             return false;
 
         int expansion = atoi(exp); //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
+        if (expansion < 0 || uint8(expansion) > CONF_GET_INT("Expansion"))
             return false;
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);

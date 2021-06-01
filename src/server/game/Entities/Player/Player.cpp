@@ -90,6 +90,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -2126,7 +2127,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
         charFlags |= CHARACTER_FLAG_RENAME;
     if (fields[23].GetUInt32())
         charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    if (CONF_GET_BOOL("DeclinedNames"))
     {
         if (!fields[25].GetString().empty())
             charFlags |= CHARACTER_FLAG_DECLINED;
@@ -5357,7 +5358,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     //Characters from level 11-19 will suffer from one minute of sickness
     //for each level they are above 10.
     //Characters level 20 and up suffer from ten minutes of sickness.
-    int32 startLevel = sWorld->getIntConfig(CONFIG_DEATH_SICKNESS_LEVEL);
+    int32 startLevel = CONF_GET_INT("Death.SicknessLevel");
 
     if (int32(getLevel()) >= startLevel)
     {
@@ -9699,7 +9700,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     // 7 1 - Arena season in progress, 0 - end of season
     data << uint32(0xC77) << uint32(CONF_GET_BOOL("Arena.ArenaSeason.InProgress"));
     // 8 Arena season id
-    data << uint32(0xF3D) << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+    data << uint32(0xF3D) << uint32(CONF_GET_UINT("Arena.ArenaSeason.ID"));
 
     if (mapid == 530)                                       // Outland
     {

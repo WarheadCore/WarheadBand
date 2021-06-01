@@ -21,6 +21,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "Log.h"
+#include "GameConfig.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {

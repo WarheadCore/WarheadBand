@@ -23,7 +23,8 @@
 #include "Opcodes.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "zlib.h"
+#include "GameConfig.h"
+#include <zlib.h>
 
 UpdateData::UpdateData() : m_blockCount(0)
 {

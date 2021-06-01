@@ -30,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 Battlefield::Battlefield()
 {
@@ -54,7 +55,7 @@ Battlefield::Battlefield()
 
     m_uiKickAfkPlayersTimer = 1000;
 
-    m_LastResurectTimer = RESURRECTION_INTERVAL;
+    m_LastResurectTimer = CONF_GET_INT("Battleground.PlayerRespawn") * IN_MILLISECONDS;
     m_StartGroupingTimer = 0;
     m_StartGrouping = false;
 }
@@ -203,7 +204,7 @@ bool Battlefield::Update(uint32 diff)
         for (uint8 i = 0; i < m_GraveyardList.size(); i++)
             if (GetGraveyardById(i))
                 m_GraveyardList[i]->Resurrect();
-        m_LastResurectTimer = RESURRECTION_INTERVAL;
+        m_LastResurectTimer = CONF_GET_INT("Battleground.PlayerRespawn") * IN_MILLISECONDS;
     }
     else
         m_LastResurectTimer -= diff;

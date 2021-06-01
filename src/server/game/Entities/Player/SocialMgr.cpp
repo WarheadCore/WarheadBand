@@ -23,6 +23,7 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 PlayerSocial::PlayerSocial(): m_playerGUID() { }
 

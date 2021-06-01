@@ -45,6 +45,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -337,7 +338,7 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
     // *********************************************************
     // this should be handled by spell system
     m_LastResurrectTime += diff;
-    if (m_LastResurrectTime >= RESURRECTION_INTERVAL)
+    if (m_LastResurrectTime >= CONF_GET_INT("Battleground.PlayerRespawn") * IN_MILLISECONDS)
     {
         if (GetReviveQueueSize())
         {
@@ -1854,7 +1855,7 @@ void Battleground::HandleTriggerBuff(GameObject* gameObject)
         }
     }
 
-    SpawnBGObject(index, BUFF_RESPAWN_TIME);
+    SpawnBGObject(index, CONF_GET_INT("Battleground.BuffRespawn"));
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)

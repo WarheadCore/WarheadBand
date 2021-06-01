@@ -24,6 +24,7 @@
 #include "SRP6.h"
 #include "Util.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 namespace AccountMgr
 {

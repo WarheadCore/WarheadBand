@@ -32,6 +32,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 #include <vector>
 
 enum eAuctionHouse

@@ -200,7 +200,7 @@ public:
     void DoCastSpellOnPlayers(uint32 spell);
 
     // Return wether server allow two side groups or not
-    bool ServerAllowsTwoSideGroups() { return CONF_GET_BOOL("AllowTwoSide.Interaction.Group"); }
+    bool ServerAllowsTwoSideGroups();
 
     virtual bool SetBossState(uint32 id, EncounterState state);
     EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }

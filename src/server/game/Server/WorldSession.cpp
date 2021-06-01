@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "Group.h"
 #include "Guild.h"
@@ -1606,4 +1607,12 @@ void WorldSession::SendTimeSync()
     // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
     _timeSyncNextCounter++;
+}
+
+void WorldSession::ResetTimeOutTime(bool onlyActive)
+{
+    if (GetPlayer())
+        m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTimeActive"));
+    else if (!onlyActive)
+        m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTime"));
 }

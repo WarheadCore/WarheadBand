@@ -24,6 +24,7 @@
 #include "CreatureGroups.h"
 #include "DatabaseEnv.h"
 #include "Formulas.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
 #include "GossipDef.h"
@@ -3281,4 +3282,14 @@ bool Creature::CanPeriodicallyCallForAssistance() const
         return false;
 
     return true;
+}
+
+bool Creature::IsNotReachable() const
+{
+    return (m_cannotReachTimer >= (CONF_GET_INT("NpcEvadeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
+}
+
+bool Creature::IsNotReachableAndNeedRegen() const
+{
+    return (m_cannotReachTimer >= (CONF_GET_INT("NpcRegenHPTimeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
 }

@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 BanManager* BanManager::instance()
 {

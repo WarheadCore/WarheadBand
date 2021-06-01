@@ -419,13 +419,8 @@ public:
         else
             m_timeOutTime -= diff;
     }
-    void ResetTimeOutTime(bool onlyActive)
-    {
-        if (GetPlayer())
-            m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTimeActive"));
-        else if (!onlyActive)
-            m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTime"));
-    }
+
+    void ResetTimeOutTime(bool onlyActive);
     bool IsConnectionIdle() const
     {
         return (m_timeOutTime <= 0 && !m_inQueue);

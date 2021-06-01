@@ -20,6 +20,7 @@
 #include "MoveSpline.h"
 #include "Transport.h"
 #include "TransportMgr.h"
+#include "GameConfig.h"
 
 TransportTemplate::~TransportTemplate()
 {

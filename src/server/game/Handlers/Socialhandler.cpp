@@ -25,6 +25,7 @@
 #include "SocialMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recv_data)
 {

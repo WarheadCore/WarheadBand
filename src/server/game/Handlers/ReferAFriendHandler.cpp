@@ -20,6 +20,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {

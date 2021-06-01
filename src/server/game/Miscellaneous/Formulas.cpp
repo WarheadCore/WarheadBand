@@ -8,7 +8,7 @@
 #include "Log.h"
 #include "Creature.h"
 #include "Player.h"
-#include "World.h"
+#include "GameConfig.h"
 
 uint32 Warhead::XP::BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
 {

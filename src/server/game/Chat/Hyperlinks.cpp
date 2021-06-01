@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "QuestDef.h"
+#include "GameConfig.h"
 
 using namespace Warhead::Hyperlinks;
 

@@ -23,6 +23,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "GameConfig.h"
 
 namespace DisableMgr
 {

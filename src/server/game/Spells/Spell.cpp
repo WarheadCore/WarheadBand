@@ -63,6 +63,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 

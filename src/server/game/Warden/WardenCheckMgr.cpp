@@ -16,13 +16,14 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Util.h"
 #include "Warden.h"
 #include "WardenCheckMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 WardenCheckMgr::WardenCheckMgr()
 {

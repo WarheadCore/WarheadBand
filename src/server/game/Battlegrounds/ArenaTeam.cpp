@@ -26,6 +26,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
@@ -34,7 +35,7 @@ ArenaTeam::ArenaTeam()
     Stats.WeekGames   = 0;
     Stats.SeasonGames = 0;
     Stats.Rank        = 0;
-    Stats.Rating      = sWorld->getIntConfig(CONFIG_ARENA_START_RATING);
+    Stats.Rating      = CONF_GET_INT("Arena.ArenaStartRating");
     Stats.WeekWins    = 0;
     Stats.SeasonWins  = 0;
 }
@@ -124,8 +125,8 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     // Set player's personal rating
     uint32 personalRating = 0;
 
-    if (sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
-        personalRating = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+    if (CONF_GET_INT("Arena.ArenaStartPersonalRating") > 0)
+        personalRating = CONF_GET_INT("Arena.ArenaStartPersonalRating");
     else if (GetRating() >= 1000)
         personalRating = 1000;
 
@@ -146,7 +147,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     }
     else
     {
-        matchMakerRating = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
+        matchMakerRating = CONF_GET_INT("Arena.ArenaStartMatchmakerRating");
         maxMMR = matchMakerRating;
     }
 
@@ -246,7 +247,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         //newMember.Name             = fields[6].GetString();
         newMember.Class            = fields[7].GetUInt8();
         newMember.PersonalRating   = fields[8].GetUInt16();
-        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);;
+        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : CONF_GET_INT("Arena.ArenaStartMatchmakerRating");
         newMember.MaxMMR           = std::max(fields[10].GetUInt16(), newMember.MatchMakerRating);
 
         // Delete member if character information is missing
@@ -663,7 +664,7 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
 
     if (rating <= 1500)
     {
-        if (sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
+        if (CONF_GET_INT("Arena.ArenaSeason.ID") < 6)
             points = (float)rating * 0.22f + 14.0f;
         else
             points = 344;
@@ -907,7 +908,7 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<ObjectGuid, uint32>& playerPoin
     // Called after a match has ended and the stats are already modified
     // Helper function for arena point distribution (this way, when distributing, no actual calculation is required, just a few comparisons)
     // 10 played games per week is a minimum
-    if (Stats.WeekGames < sWorld->getIntConfig(CONFIG_ARENA_GAMES_REQUIRED))
+    if (Stats.WeekGames < CONF_GET_INT("Arena.GamesRequired"))
         return;
 
     // To get points, a player has to participate in at least 30% of the matches

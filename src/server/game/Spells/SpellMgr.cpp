@@ -33,6 +33,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "GameConfig.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -2634,9 +2635,9 @@ void SpellMgr::LoadSpellAreas()
 
     if (CONF_GET_INT("ICC.Buff.Horde") > 0)
     {
-        LOG_INFO("server", ">> Using ICC buff Horde: %u", CONF_GET_INT("ICC.Buff.Horde"));
-        SpellArea spellAreaICCBuffHorde = { CONF_GET_INT("ICC.Buff.Horde"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_HORDE, Gender(2), 64, 11, 1 };
-        SpellArea const* saICCBuffHorde = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_INT("ICC.Buff.Horde"), spellAreaICCBuffHorde))->second;
+        LOG_INFO("server", ">> Using ICC buff Horde: %u", CONF_GET_UINT("ICC.Buff.Horde"));
+        SpellArea spellAreaICCBuffHorde = { CONF_GET_UINT("ICC.Buff.Horde"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_HORDE, Gender(2), 64, 11, 1 };
+        SpellArea const* saICCBuffHorde = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_UINT("ICC.Buff.Horde"), spellAreaICCBuffHorde))->second;
         mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(ICC_AREA, saICCBuffHorde));
         ++count;
     }
@@ -2645,9 +2646,9 @@ void SpellMgr::LoadSpellAreas()
 
     if (CONF_GET_INT("ICC.Buff.Alliance") > 0)
     {
-        LOG_INFO("server", ">> Using ICC buff Alliance: %u", CONF_GET_INT("ICC.Buff.Alliance"));
-        SpellArea spellAreaICCBuffAlliance = { CONF_GET_INT("ICC.Buff.Alliance"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_ALLIANCE, Gender(2), 64, 11, 1 };
-        SpellArea const* saICCBuffAlliance = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_INT("ICC.Buff.Alliance"), spellAreaICCBuffAlliance))->second;
+        LOG_INFO("server", ">> Using ICC buff Alliance: %u", CONF_GET_UINT("ICC.Buff.Alliance"));
+        SpellArea spellAreaICCBuffAlliance = { CONF_GET_UINT("ICC.Buff.Alliance"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_ALLIANCE, Gender(2), 64, 11, 1 };
+        SpellArea const* saICCBuffAlliance = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_UINT("ICC.Buff.Alliance"), spellAreaICCBuffAlliance))->second;
         mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(ICC_AREA, saICCBuffAlliance));
         ++count;
     }

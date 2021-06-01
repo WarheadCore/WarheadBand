@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "GameConfig.h"
 #include <unordered_map>
 
 /*********************************************************/
@@ -566,7 +567,7 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
     // now check if we can move groups from premade queue to normal queue
     // this happens if timer has expired or group size lowered
 
-    uint32 premade_time = sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH);
+    uint32 premade_time = CONF_GET_INT("Battleground.PremadeGroupWaitForMatch");
     uint32 time_before = World::GetGameTimeMS() >= premade_time ? World::GetGameTimeMS() - premade_time : 0;
 
     for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
@@ -1013,7 +1014,7 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
 
 void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo* ginfo, PvPDifficultyEntry const* bracketEntry, bool isRated)
 {
-    if (!sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
+    if (!CONF_GET_BOOL("Arena.QueueAnnouncer.Enable"))
         return;
 
     if (!sScriptMgr->CanSendJoinMessageArenaQueue(this, leader, ginfo, bracketEntry, isRated))
@@ -1044,7 +1045,7 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
         LOG_DEBUG("bg.arena", "> Queue status for %s (skirmish %s) (Lvl: %u to %u) Queued: %u (Need at least %u more)",
             bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
 
-        if (sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY))
+        if (CONF_GET_BOOL("Arena.QueueAnnouncer.PlayerOnly"))
         {
             ChatHandler(leader->GetSession()).PSendSysMessage(LANG_ARENA_QUEUE_ANNOUNCE_SELF,
                 bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
@@ -1078,7 +1079,7 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
 
 void BattlegroundQueue::SendExitMessageArenaQueue(GroupQueueInfo* ginfo)
 {
-    if (!sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
+    if (!CONF_GET_BOOL("Arena.QueueAnnouncer.Enable"))
         return;
 
     if (!sScriptMgr->CanExitJoinMessageArenaQueue(this, ginfo))

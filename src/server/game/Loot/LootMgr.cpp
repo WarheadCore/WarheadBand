@@ -27,16 +27,17 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
+#include "GameConfig.h"
 
-static Rates const qualityToRate[MAX_ITEM_QUALITY] =
+static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {
-    RATE_DROP_ITEM_POOR,                                    // ITEM_QUALITY_POOR
-    RATE_DROP_ITEM_NORMAL,                                  // ITEM_QUALITY_NORMAL
-    RATE_DROP_ITEM_UNCOMMON,                                // ITEM_QUALITY_UNCOMMON
-    RATE_DROP_ITEM_RARE,                                    // ITEM_QUALITY_RARE
-    RATE_DROP_ITEM_EPIC,                                    // ITEM_QUALITY_EPIC
-    RATE_DROP_ITEM_LEGENDARY,                               // ITEM_QUALITY_LEGENDARY
-    RATE_DROP_ITEM_ARTIFACT,                                // ITEM_QUALITY_ARTIFACT
+    "Rate.Drop.Item.Poor",                                    // ITEM_QUALITY_POOR
+    "Rate.Drop.Item.Normal",                                  // ITEM_QUALITY_NORMAL
+    "Rate.Drop.Item.Uncommon",                                // ITEM_QUALITY_UNCOMMON
+    "Rate.Drop.Item.Rare",                                    // ITEM_QUALITY_RARE
+    "Rate.Drop.Item.Epic",                                    // ITEM_QUALITY_EPIC
+    "Rate.Drop.Item.Legendary",                               // ITEM_QUALITY_LEGENDARY
+    "Rate.Drop.Item.Artifact",                                // ITEM_QUALITY_ARTIFACT
 };
 
 LootStore LootTemplates_Creature("creature_loot_template",           "creature entry",                  true);
@@ -310,7 +311,7 @@ bool LootStoreItem::Roll(bool rate, Player const* player, Loot& loot, LootStore 
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
 
-    float qualityModifier = pProto && rate ? sWorld->getRate(qualityToRate[pProto->Quality]) : 1.0f;
+    float qualityModifier = pProto && rate ? CONF_GET_FLOAT(qualityToRate[pProto->Quality]) : 1.0f;
 
     return roll_chance_f(_chance * qualityModifier);
 }

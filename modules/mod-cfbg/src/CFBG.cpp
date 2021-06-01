@@ -14,6 +14,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
+#include "GameConfig.h"
 
 CFBG* CFBG::instance()
 {
@@ -789,7 +790,7 @@ bool CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
     uint32 MinPlayers = bg->GetMinPlayersPerTeam() * 2;
     uint32 qTotal = bgQueue->GetPlayersCountInGroupsQueue(bracketId, (BattlegroundQueueGroupTypes)BG_QUEUE_CFBG);
 
-    if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY))
+    if (CONF_GET_BOOL("Battleground.QueueAnnouncer.PlayerOnly"))
     {
         ChatHandler(leader->GetSession()).PSendSysMessage("CFBG %s (Levels: %u - %u). Registered: %u/%u", bgName, q_min_level, q_max_level, qTotal, MinPlayers);
     }
@@ -801,19 +802,19 @@ bool CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
             BGSpamProtectionCFBG[leader->GetGUID()] = 0;
 
         // Skip if spam time < 30 secs (default)
-        if (sWorld->GetGameTime() - BGSpamProtectionCFBG[leader->GetGUID()] < sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_SPAM_DELAY))
+        if (sWorld->GetGameTime() - BGSpamProtectionCFBG[leader->GetGUID()] < CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay"))
         {
             return false;
         }
 
         // When limited, it announces only if there are at least CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_PLAYERS in queue
-        auto limitQueueMinLevel = sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_LEVEL);
+        auto limitQueueMinLevel = CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinLevel");
         if (limitQueueMinLevel != 0 && q_min_level >= limitQueueMinLevel)
         {
             // limit only RBG for 80, WSG for lower levels
             auto bgTypeToLimit = q_min_level == 80 ? BATTLEGROUND_RB : BATTLEGROUND_WS;
 
-            if (bg->GetBgTypeID() == bgTypeToLimit && qTotal < sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_PLAYERS))
+            if (bg->GetBgTypeID() == bgTypeToLimit && qTotal < CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinPlayers"))
             {
                 return false;
             }

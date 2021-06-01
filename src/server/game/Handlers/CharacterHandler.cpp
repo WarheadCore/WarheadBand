@@ -54,6 +54,7 @@
 #include "QueryHolder.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -150,7 +151,7 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_SPELL_COOLDOWNS, stmt);
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    if (CONF_GET_BOOL("DeclinedNames"))
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_DECLINEDNAMES);
         stmt->setUInt32(0, lowGuid);
@@ -252,7 +253,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
 
     /// get all the data necessary for loading all characters (along with their pets) on the account
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    if (CONF_GET_BOOL("DeclinedNames"))
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM_DECLINED_NAME);
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
@@ -1391,7 +1392,7 @@ void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo>
     CharacterDatabase.Execute(stmt);
 
     // Removed declined name from db
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    if (CONF_GET_BOOL("DeclinedNames"))
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
         stmt->setUInt32(0, guidLow);
@@ -1411,7 +1412,7 @@ void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo>
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
 {
     // pussywizard:
-    if (!sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    if (CONF_GET_BOOL("DeclinedNames"))
         return;
 
     ObjectGuid guid;
@@ -1704,7 +1705,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
 
         trans->Append(stmt);
 
-        if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+        if (CONF_GET_BOOL("DeclinedNames"))
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
             stmt->setUInt32(0, lowGuid);

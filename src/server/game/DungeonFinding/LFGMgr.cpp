@@ -34,6 +34,7 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 namespace lfg
 {

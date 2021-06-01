@@ -28,6 +28,7 @@
 #include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
+#include "GameConfig.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD

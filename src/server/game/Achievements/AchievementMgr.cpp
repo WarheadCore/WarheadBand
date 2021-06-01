@@ -43,6 +43,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 namespace Warhead
 {

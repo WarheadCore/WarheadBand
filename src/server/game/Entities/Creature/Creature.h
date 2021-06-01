@@ -294,8 +294,8 @@ public:
 
     void SetCannotReachTarget(bool cannotReach);
     [[nodiscard]] bool CanNotReachTarget() const { return m_cannotReachTarget; }
-    [[nodiscard]] bool IsNotReachable() const { return (m_cannotReachTimer >= (CONF_GET_INT("NpcEvadeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget; }
-    [[nodiscard]] bool IsNotReachableAndNeedRegen() const { return (m_cannotReachTimer >= (CONF_GET_INT("NpcRegenHPTimeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget; }
+    [[nodiscard]] bool IsNotReachable() const;
+    [[nodiscard]] bool IsNotReachableAndNeedRegen() const;
 
     void SetPosition(float x, float y, float z, float o);
     void SetPosition(const Position& pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }

@@ -22,7 +22,7 @@
 #include "Player.h"
 #include "ServerMotd.h"
 #include "World.h"
-//#include "Types.h"
+#include "StringConvert.h"
 #include <unordered_map>
 
 namespace
@@ -47,6 +47,7 @@ void GameConfig::Load(bool reload)
     LOG_INFO("server.loading", "%s game configuraton:", reload ? "Reloading" : "Loading");
 
     LoadConfigs(reload);
+    CheckOptions(reload);
 
     LOG_INFO("server.loading", " ");
 }
@@ -55,7 +56,7 @@ void GameConfig::Load(bool reload)
 template<typename T>
 WH_GAME_API void GameConfig::AddOption(std::string const& optionName, Optional<T> def /*= std::nullopt*/) const
 {
-    static_assert(std::is_fundamental<T>::value, "Bad config template. Use only fundamental");
+    static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
 
     // Check exist option
     auto itr = _configOptions.find(optionName);
@@ -127,14 +128,14 @@ void GameConfig::AddOption(std::string const& optionName, Optional<std::string> 
 void GameConfig::AddOption(std::initializer_list<std::string> optionList) const
 {
     for (auto const& option : optionList)
-        AddOption(optionList);
+        AddOption(option);
 }
 
 // Get option
 template<typename T>
 WH_GAME_API T GameConfig::GetOption(std::string const& optionName, Optional<T> def /*= std::nullopt*/) const
 {
-    static_assert(std::is_fundamental<T>::value, "Bad config template. Use only fundamental");
+    static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
 
     auto retValueDef = def == std::nullopt ? CONF_DEFAULT_INT : *def;
 
@@ -222,6 +223,53 @@ WH_GAME_API std::string GameConfig::GetOption<std::string>(std::string const& op
 template<typename T>
 WH_GAME_API void GameConfig::SetOption(std::string const& optionName, T value) const
 {
+    static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
+
+    // Check exist option
+    auto itr = _configOptions.find(optionName);
+    if (itr == _configOptions.end())
+    {
+        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        return;
+    }
+
+    _configOptions.erase(optionName);
+    _configOptions.emplace(optionName, Warhead::ToString(int32(value)));
+}
+
+template<>
+WH_GAME_API void GameConfig::SetOption<bool>(std::string const& optionName, bool value) const
+{
+    // Check exist option
+    auto itr = _configOptions.find(optionName);
+    if (itr == _configOptions.end())
+    {
+        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        return;
+    }
+
+    _configOptions.erase(optionName);
+    _configOptions.emplace(optionName, Warhead::ToString(value));
+}
+
+template<>
+WH_GAME_API void GameConfig::SetOption<std::string>(std::string const& optionName, std::string value) const
+{
+    // Check exist option
+    auto itr = _configOptions.find(optionName);
+    if (itr == _configOptions.end())
+    {
+        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        return;
+    }
+
+    _configOptions.erase(optionName);
+    _configOptions.emplace(optionName, value);
+}
+
+template<>
+WH_GAME_API void GameConfig::SetOption<float>(std::string const& optionName, float value) const
+{
     // Check exist option
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
@@ -249,9 +297,9 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
             { "MaxPlayerLevel", GetOption<int32>("MaxPlayerLevel") },
             { "Expansion", GetOption<int32>("Expansion") }
         };
-
-        _configOptions.clear();
     }
+
+    _configOptions.clear();
 
     /*
      * bool configs
@@ -276,6 +324,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "AllowTwoSide.WhoList",
     "AlwaysMaxSkillForLevel",
     "AlwaysMaxWeaponSkill",
+    "Arena.ArenaSeason.ID",
     "Arena.ArenaSeason.InProgress",
     "Arena.AutoDistributePoints",
     "AutoBroadcast.On",
@@ -354,13 +403,9 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "ShowMuteInWorld",
     "SkillChance.Milling",
     "SkillChance.Prospecting",
-    "StrictVersionCheck",
     "TalentsInspecting",
-    "Updates.AutoSetup",
     "Warden.Enabled",
     "Wintergrasp.Enable",
-    "WrongPass.BanType",
-    "WrongPass.Logging",
     "vmap.enableHeight",
     "vmap.enableIndoorCheck",
     "vmap.enableLOS",
@@ -381,7 +426,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "SOAP.IP" });
 
     /*
-     * int32 configs
+     * int configs
      */
     AddOption({ "AccountInstancesPerHour",
     "ArenaTeam.CharterCost.2v2",
@@ -389,7 +434,6 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "ArenaTeam.CharterCost.5v5",
     "AutoBroadcast.Center",
     "AutoBroadcast.Timer",
-    "BanExpiryCheckInterval",
     "Battleground.BuffRespawn",
     "Battleground.InvitationType",
     "Battleground.PlayerRespawn",
@@ -490,12 +534,16 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "MaxPlayerLevel",
     "MaxPrimaryTradeSkill",
     "MaxWhoListReturns",
+    "MinCharterName",
     "MinDualSpecLevel",
+    "MinPetName",
     "MinPetitionSigns",
+    "MinPlayerName",
     "MinRecordUpdateTimeDiff",
     "Network.OutKBuff",
     "Network.OutUBuff",
     "Network.Threads",
+    "PlayerStart.AllSpells",
     "NpcEvadeIfTargetIsUnreachable",
     "NpcRegenHPTimeIfTargetIsUnreachable",
     "PacketSpoof.BanDuration",
@@ -516,9 +564,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "Ra.MinLevel",
     "Ra.Port",
     "RealmID",
-    "RealmServerPort",
     "RealmZone",
-    "RealmsStateUpdateDelay",
     "RecordUpdateTimeDiffInterval",
     "RecruitAFriend.MaxDifference",
     "RecruitAFriend.MaxLevel",
@@ -564,17 +610,10 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "Wintergrasp.PlayerMin",
     "Wintergrasp.PlayerMinLvl",
     "WorldBossLevelDiff",
-    "WorldServerPort",
-    "WrongPass.BanTime",
-    "WrongPass.MaxCount" });
-
-    /*
-     * uint32 configs
-     */
-    AddOption({ "Battleground.QueueAnnouncer.Limit.MinLevel",
+    "Battleground.QueueAnnouncer.Limit.MinLevel",
     "Battleground.QueueAnnouncer.Limit.MinPlayers",
     "Battleground.QueueAnnouncer.SpamProtection.Delay",
-    "Updates.EnableDatabases" });
+    "WorldServerPort" });
 
     /*
      * float configs
@@ -1071,9 +1110,5 @@ TEMPLATE_GAME_CONFIG_OPTION(uint32)
 TEMPLATE_GAME_CONFIG_OPTION(int32)
 TEMPLATE_GAME_CONFIG_OPTION(uint64)
 TEMPLATE_GAME_CONFIG_OPTION(int64)
-
-template WH_GAME_API void GameConfig::SetOption(std::string const& optionName, bool value) const;
-template WH_GAME_API void GameConfig::SetOption(std::string const& optionName, std::string value) const;
-template WH_GAME_API void GameConfig::SetOption(std::string const& optionName, float value) const;
 
 #undef TEMPLATE_GAME_CONFIG_OPTION

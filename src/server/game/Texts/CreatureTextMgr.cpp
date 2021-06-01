@@ -25,6 +25,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "LocaleCommon.h"
+#include "GameConfig.h"
 
 class CreatureTextBuilder
 {

@@ -53,6 +53,7 @@
 #include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "ElunaEventMgr.h"

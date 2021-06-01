@@ -27,6 +27,7 @@
 #include "Transport.h"
 #include "WaypointMovementGenerator.h"
 #include "World.h"
+#include "GameConfig.h"
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 {

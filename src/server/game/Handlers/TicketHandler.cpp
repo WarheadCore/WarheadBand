@@ -26,7 +26,8 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "zlib.h"
+#include "GameConfig.h"
+#include <zlib.h>
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {

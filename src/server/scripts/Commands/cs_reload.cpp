@@ -42,6 +42,7 @@ EndScriptData */
 #include "TicketMgr.h"
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
+#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -675,7 +676,7 @@ public:
 
     static bool HandleReloadWardenactionCommand(ChatHandler* handler, const char* /*args*/)
     {
-        if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+        if (!CONF_GET_BOOL("Warden.Enabled"))
         {
             handler->SendSysMessage("Warden system disabled by config - reloading warden_action skipped.");
             handler->SetSentErrorMessage(true);

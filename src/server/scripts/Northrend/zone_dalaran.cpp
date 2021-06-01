@@ -30,6 +30,7 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 // Ours
 class npc_steam_powered_auctioneer : public CreatureScript
@@ -564,7 +565,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!sWorld->getBoolConfig(CONFIG_MINIGOB_MANABONK))
+            if (!CONF_GET_BOOL("Minigob.Manabonk.Enable"))
                 return;
 
             events.Update(diff);

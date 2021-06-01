@@ -27,6 +27,7 @@ EndScriptData */
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -249,7 +250,7 @@ public:
             player->ModifyMoney(-ReqOrRewMoney);
 
         // check if Quest Tracker is enabled
-        if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER))
+        if (CONF_GET_BOOL("Quests.EnableQuestTracker"))
         {
             // prepare Quest Tracker datas
             auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_GM_COMPLETE);

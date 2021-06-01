@@ -25,6 +25,7 @@
 #include "RandomMovementGenerator.h"
 #include "Spell.h"
 #include "Util.h"
+#include "GameConfig.h"
 
 template<class T>
 RandomMovementGenerator<T>::~RandomMovementGenerator() { }

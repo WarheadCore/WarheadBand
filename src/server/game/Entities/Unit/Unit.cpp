@@ -64,6 +64,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 #include <math.h>
 
 #ifdef ELUNA

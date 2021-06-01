@@ -38,6 +38,7 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -2670,7 +2671,7 @@ InstanceMap::InstanceMap(uint32 id, uint32 InstanceId, uint8 SpawnMode, Map* _pa
 
     // the timer is started by default, and stopped when the first player joins
     // this make sure it gets unloaded if for some reason no player joins
-    m_unloadTimer = std::max(CONF_GET_INT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
+    m_unloadTimer = std::max(CONF_GET_UINT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
 
     // pussywizard:
     if (IsRaid())
@@ -2882,7 +2883,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 void InstanceMap::AfterPlayerUnlinkFromMap()
 {
     if (!m_unloadTimer && !HavePlayers())
-        m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(CONF_GET_INT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
+        m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(CONF_GET_UINT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
     Map::AfterPlayerUnlinkFromMap();
 }
 

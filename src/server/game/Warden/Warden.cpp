@@ -28,6 +28,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 #include <openssl/md5.h>
 #include <openssl/sha.h>
 

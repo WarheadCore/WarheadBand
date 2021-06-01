@@ -51,7 +51,8 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "zlib.h"
+#include "GameConfig.h"
+#include <zlib.h>
 
 #ifdef ELUNA
 #include "LuaEngine.h"

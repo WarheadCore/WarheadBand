@@ -28,6 +28,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 BattlefieldWG::~BattlefieldWG()
 {

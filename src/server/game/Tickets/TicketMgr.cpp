@@ -26,6 +26,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 inline float GetAge(uint64 t) { return float(time(nullptr) - t) / DAY; }
 

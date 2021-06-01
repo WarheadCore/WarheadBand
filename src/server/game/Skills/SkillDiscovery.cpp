@@ -23,6 +23,7 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
+#include "GameConfig.h"
 #include <map>
 
 struct SkillDiscoveryEntry
