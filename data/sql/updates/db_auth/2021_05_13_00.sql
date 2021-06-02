@@ -8,8 +8,6 @@ FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'version_db_auth' AND COLUMN_NAME = '2021_03_23_00';
 IF @COLEXISTS = 0 THEN LEAVE proc; END IF;
 START TRANSACTION;
-SET collation_connection = 'utf8mb4_general_ci';
--- ALTER DATABASE acore_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ALTER TABLE version_db_auth CHANGE COLUMN 2021_03_23_00 2021_05_13_00 bit;
 SELECT sql_rev INTO OK FROM version_db_auth WHERE sql_rev = '1620079951672711500'; IF OK <> 'FALSE' THEN LEAVE proc; END IF;
 --
