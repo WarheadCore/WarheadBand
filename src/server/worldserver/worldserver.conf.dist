@@ -1289,7 +1289,7 @@ TOTPMasterSecret =
 #                     4  - (Enable world only)
 #                     0  - (All disabled)
 
-Updates.EnableDatabases = 7
+Updates.EnableDatabases = 6
 
 #
 #    Updates.AutoSetup
