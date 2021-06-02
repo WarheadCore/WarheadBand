@@ -7,6 +7,7 @@
 # Info about repo
 - It's crazy.
 - Continue [WarheadCore_AC_Arhive](https://github.com/WarheadCore/WarheadCore_AC_Arhive)
+- Supported OS: Win10(for help you can write to @Winfidonarleyan in our discrod). FreeBSD and all Linux Distributives except Debian-based(for help you can write to @Viste in our discrod)
 
 ## Links
 - Discord https://discord.gg/EakzBBB
