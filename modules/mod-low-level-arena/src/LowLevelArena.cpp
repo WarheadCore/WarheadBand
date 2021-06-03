@@ -23,6 +23,7 @@
 #include "GroupMgr.h"
 #include "Log.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "Tokenize.h"

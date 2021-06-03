@@ -84,7 +84,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             }
 
             // Database does not exist
-            if ((error == ER_BAD_DB_ERROR) && updatesEnabledForThis && _autoSetup)
+            if ((error == ER_BAD_DB_ERROR) && updatesEnabledForThis && _autoSetup && !sConfigMgr->isDryRun())
             {
                 // Try to create the database and connect again if auto setup is enabled
                 if (DBUpdater<T>::Create(pool) && (!pool.Open()))
@@ -110,7 +110,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
     });
 
     // Populate and update only if updates are enabled for this pool
-    if (updatesEnabledForThis)
+    if (updatesEnabledForThis && !sConfigMgr->isDryRun())
     {
         _populate.push([this, name, &pool]() -> bool
         {
