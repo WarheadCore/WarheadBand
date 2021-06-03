@@ -2939,8 +2939,3 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementI
 {
     return sAchievementStore.LookupEntry(achievementId);
 }
-
-AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementId) const
-{
-    return sAchievementStore.LookupEntry(achievementId);
-}
