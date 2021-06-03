@@ -21568,8 +21568,7 @@ void Player::TextEmote(const std::string& text)
     std::list<Player*> players;
     Warhead::AnyPlayerInObjectRangeCheck checker(this, CONF_GET_FLOAT("ListenRange.TextEmote"));
     Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(this, players, checker);
-    Cell::VisitWorldObjects(this, searcher, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
-    this->VisitNearbyWorldObject(CONF_GET_FLOAT("ListenRange.TextEmote"), searcher);
+    Cell::VisitWorldObjects(this, searcher, CONF_GET_FLOAT("ListenRange.TextEmote"));
 
     for (auto const& itr : players)
     {
