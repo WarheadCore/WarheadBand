@@ -18,6 +18,7 @@
 #include "BattlegroundSpamProtect.h"
 #include "Battleground.h"
 #include "GameConfig.h"
+#include "Player.h"
 #include "World.h"
 
 namespace

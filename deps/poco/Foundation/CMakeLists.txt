@@ -120,6 +120,14 @@ if (UNIX)
   target_link_libraries(Foundation 
     PRIVATE 
       ${CMAKE_DL_LIBS})
+  elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+  target_compile_definitions(Foundation
+    PUBLIC
+      POCO_HAVE_FD_POLL)
+  target_link_libraries(Foundation
+    PUBLIC
+      pthread ${CMAKE_DL_LIBS} rt)
+
   else()
   target_compile_definitions(Foundation 
     PRIVATE 

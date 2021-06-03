@@ -35,6 +35,7 @@
 #include "World.h"
 #include <utility>
 #include <map>
+#include <unordered_map>
 
 class Creature;
 class GameObject;

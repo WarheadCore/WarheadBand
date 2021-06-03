@@ -68,7 +68,6 @@ private:
 };
 
 WH_COMMON_API struct tm* localtime_r(time_t const* time, struct tm* result);
-WH_COMMON_API time_t LocalTimeToUTCTime(time_t time);
 WH_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
 WH_COMMON_API tm TimeBreakdown(time_t t);
 

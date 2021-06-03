@@ -1,6 +1,5 @@
-
 if ! command -v lsb_release &>/dev/null ; then
-  sudo apt-get install -y lsb-release
+    sudo apt-get install -y lsb-release
 fi
 
 # UBUNTU_VERSION=$(lsb_release -sr);
@@ -21,4 +20,3 @@ else
   libssl-dev libbz2-dev libreadline-dev libncurses-dev \
   mysql-server
 fi
-

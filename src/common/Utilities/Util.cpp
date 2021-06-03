@@ -80,15 +80,6 @@ tm TimeBreakdown(time_t time)
     return timeLocal;
 }
 
-time_t LocalTimeToUTCTime(time_t time)
-{
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-    return time + _timezone;
-#else
-    return time + timezone;
-#endif
-}
-
 time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
 {
     tm timeLocal = TimeBreakdown(time);

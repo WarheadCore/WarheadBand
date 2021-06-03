@@ -26,8 +26,6 @@ EndScriptData */
 #include "Chat.h"
 #include "Config.h"
 #include "GitRevision.h"
-#include "VMapManager2.h"
-#include "VMapFactory.h"
 #include "Language.h"
 #include "MySQLThreading.h"
 #include "ObjectAccessor.h"
@@ -37,6 +35,8 @@ EndScriptData */
 #include "ServerMotd.h"
 #include "StringConvert.h"
 #include "GameConfig.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/version.hpp>
 #include <openssl/crypto.h>
