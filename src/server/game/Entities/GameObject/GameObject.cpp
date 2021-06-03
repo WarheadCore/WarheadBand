@@ -620,8 +620,8 @@ void GameObject::Update(uint32 diff)
                         // search unfriendly creature
                         if (owner)                    // hunter trap
                         {
-                            Acore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
-                            Acore::UnitSearcher<Acore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
+                            Warhead::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
+                            Warhead::UnitSearcher<Warhead::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
                             Cell::VisitAllObjects(this, searcher, radius);
                         }
                         else                                        // environmental trap
@@ -629,8 +629,8 @@ void GameObject::Update(uint32 diff)
                             // environmental damage spells already have around enemies targeting but this not help in case not existed GO casting support
                             // affect only players
                             Player* player = nullptr;
-                            Acore::AnyPlayerInObjectRangeCheck checker(this, radius, true, true);
-                            Acore::PlayerSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+                            Warhead::AnyPlayerInObjectRangeCheck checker(this, radius, true, true);
+                            Warhead::PlayerSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
                             Cell::VisitWorldObjects(this, searcher, radius);
                             target = player;
                         }
@@ -1219,8 +1219,8 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
 {
     GameObject* ok = nullptr;
 
-    Acore::NearestGameObjectFishingHole u_check(*this, range);
-    Acore::GameObjectSearcher<Acore::NearestGameObjectFishingHole> checker(this, ok, u_check);
+    Warhead::NearestGameObjectFishingHole u_check(*this, range);
+    Warhead::GameObjectSearcher<Warhead::NearestGameObjectFishingHole> checker(this, ok, u_check);
 
     Cell::VisitGridObjects(this, checker, range);
     return ok;
@@ -1983,7 +1983,7 @@ void GameObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*s
     dist += GetObjectSize();
     if (includeMargin)
         dist += VISIBILITY_COMPENSATION * 2.0f; // pussywizard: to ensure everyone receives all important packets
-    Acore::MessageDistDeliverer notifier(this, data, dist, false, skipped_rcvr);
+    Warhead::MessageDistDeliverer notifier(this, data, dist, false, skipped_rcvr);
     Cell::VisitWorldObjects(this, notifier, dist);
 }
 

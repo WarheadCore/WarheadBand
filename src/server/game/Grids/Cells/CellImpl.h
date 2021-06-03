@@ -178,7 +178,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
 template<class T>
 inline void Cell::VisitGridObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Acore::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
+    CellCoord p(Warhead::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
     {
@@ -192,7 +192,7 @@ inline void Cell::VisitGridObjects(WorldObject const* center_obj, T& visitor, fl
 template<class T>
 inline void Cell::VisitWorldObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Acore::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
+    CellCoord p(Warhead::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
     {
@@ -206,7 +206,7 @@ inline void Cell::VisitWorldObjects(WorldObject const* center_obj, T& visitor, f
 template<class T>
 inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Acore::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
+    CellCoord p(Warhead::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
     {
@@ -222,7 +222,7 @@ inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, flo
 template<class T>
 inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Acore::ComputeCellCoord(x, y));
+    CellCoord p(Warhead::ComputeCellCoord(x, y));
     Cell cell(p);
     if (dont_load)
     {
@@ -236,7 +236,7 @@ inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float
 template<class T>
 inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Acore::ComputeCellCoord(x, y));
+    CellCoord p(Warhead::ComputeCellCoord(x, y));
     Cell cell(p);
     if (dont_load)
     {
@@ -250,7 +250,7 @@ inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, floa
 template<class T>
 inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Acore::ComputeCellCoord(x, y));
+    CellCoord p(Warhead::ComputeCellCoord(x, y));
     Cell cell(p);
     if (dont_load)
     {

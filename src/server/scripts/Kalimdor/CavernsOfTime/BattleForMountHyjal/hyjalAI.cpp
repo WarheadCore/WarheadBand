@@ -918,8 +918,8 @@ void hyjalAI::HideNearPos(float x, float y)
 
 void hyjalAI::RespawnNearPos(float x, float y)
 {
-    Acore::RespawnDo u_do;
-    Acore::WorldObjectWorker<Acore::RespawnDo> worker(me, u_do);
+    Warhead::RespawnDo u_do;
+    Warhead::WorldObjectWorker<Warhead::RespawnDo> worker(me, u_do);
     Cell::VisitGridObjects(x, y, me->GetMap(), worker, me->GetGridActivationRange());
 }
 
@@ -946,8 +946,8 @@ void hyjalAI::WaypointReached(uint32 waypointId)
         //all alive guards walk near here
         // First get all creatures.
         std::list<Creature*> creatures;
-        Acore::AllFriendlyCreaturesInGrid creature_check(me);
-        Acore::CreatureListSearcher<Acore::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
+        Warhead::AllFriendlyCreaturesInGrid creature_check(me);
+        Warhead::CreatureListSearcher<Warhead::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
         Cell::VisitGridObjects(me, creature_searcher, me->GetGridActivationRange());
 
         if (!creatures.empty())
@@ -978,8 +978,8 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
         if (TeleportTimer <= diff)
         {
             std::list<Creature*> creatures;
-            Acore::AllFriendlyCreaturesInGrid creature_check(me);
-            Acore::CreatureListSearcher<Acore::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
+            Warhead::AllFriendlyCreaturesInGrid creature_check(me);
+            Warhead::CreatureListSearcher<Warhead::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
             Cell::VisitGridObjects(me, creature_searcher, me->GetGridActivationRange());
 
             if (!creatures.empty())

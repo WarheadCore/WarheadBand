@@ -360,8 +360,8 @@ public:
             {
                 timer = 0;
                 std::list<Player*> players;
-                Acore::AnyPlayerExactPositionInGameObjectRangeCheck checker(go, 0.3f);
-                Acore::PlayerListSearcher<Acore::AnyPlayerExactPositionInGameObjectRangeCheck> searcher(go, players, checker);
+                Warhead::AnyPlayerExactPositionInGameObjectRangeCheck checker(go, 0.3f);
+                Warhead::PlayerListSearcher<Warhead::AnyPlayerExactPositionInGameObjectRangeCheck> searcher(go, players, checker);
                 Cell::VisitWorldObjects(go, searcher, 0.3f);
 
                 if (players.size() > 0)
@@ -407,8 +407,8 @@ public:
             {
                 timer = 0;
                 std::list<Player*> players;
-                Acore::AnyPlayerExactPositionInGameObjectRangeCheck checker(go, 0.3f);
-                Acore::PlayerListSearcher<Acore::AnyPlayerExactPositionInGameObjectRangeCheck> searcher(go, players, checker);
+                Warhead::AnyPlayerExactPositionInGameObjectRangeCheck checker(go, 0.3f);
+                Warhead::PlayerListSearcher<Warhead::AnyPlayerExactPositionInGameObjectRangeCheck> searcher(go, players, checker);
                 Cell::VisitWorldObjects(go, searcher, 0.3f);
 
                 if (players.size() > 0)

@@ -162,8 +162,8 @@ public:
 
                 std::list<Unit*> tempUnitMap;
 
-                Acore::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
-                Acore::UnitListSearcher<Acore::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
+                Warhead::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
+                Warhead::UnitListSearcher<Warhead::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
                 Cell::VisitAllObjects(me, searcher, SIZE_OF_GRIDS);
 
                 // deal damage

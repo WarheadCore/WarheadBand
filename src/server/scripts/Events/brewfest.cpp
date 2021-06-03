@@ -1122,8 +1122,8 @@ public:
             {
                 timer = 0;
                 Player* player = nullptr;
-                Acore::AnyPlayerInObjectRangeCheck checker(me, 2.0f);
-                Acore::PlayerSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, player, checker);
+                Warhead::AnyPlayerInObjectRangeCheck checker(me, 2.0f);
+                Warhead::PlayerSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, player, checker);
                 Cell::VisitWorldObjects(me, searcher, 2.0f);
                 if (player)
                 {

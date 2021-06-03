@@ -218,7 +218,7 @@ public:
 
     bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
     {
-        Acore::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
+        Warhead::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
         Cell::VisitGridObjects(_creature, worker, 333.0f);
         _creature->AI()->Reset();
         _creature->setActive(false);
@@ -538,7 +538,7 @@ public:
 
             std::list<Creature*> archmages;
             RisenArchmageCheck check;
-            Acore::CreatureListSearcher<RisenArchmageCheck> searcher(me, archmages, check);
+            Warhead::CreatureListSearcher<RisenArchmageCheck> searcher(me, archmages, check);
             Cell::VisitGridObjects(me, searcher, 100.0f);
             for (std::list<Creature*>::iterator itr = archmages.begin(); itr != archmages.end(); ++itr)
                 (*itr)->AI()->DoAction(ACTION_ENTER_COMBAT);

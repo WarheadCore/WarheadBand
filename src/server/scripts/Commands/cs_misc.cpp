@@ -2166,8 +2166,8 @@ public:
         Cell cell(p);
         cell.SetNoCreate();
 
-        Acore::RespawnDo u_do;
-        Acore::WorldObjectWorker<Acore::RespawnDo> worker(player, u_do);
+        Warhead::RespawnDo u_do;
+        Warhead::WorldObjectWorker<Warhead::RespawnDo> worker(player, u_do);
         Cell::VisitGridObjects(player, worker, player->GetGridActivationRange());
 
         return true;

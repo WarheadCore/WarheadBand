@@ -1014,8 +1014,8 @@ bool BfCapturePoint::Update(uint32 diff)
     }
 
     std::list<Player*> players;
-    Acore::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
-    Acore::PlayerListSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
+    Warhead::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
+    Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
     Cell::VisitWorldObjects(capturePoint, searcher, radius);
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)

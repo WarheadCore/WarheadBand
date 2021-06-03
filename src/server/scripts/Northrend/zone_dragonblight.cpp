@@ -784,7 +784,7 @@ public:
             if (GameObject* go = me->FindNearestGameObject(GO_SAC_LIGHTS_VENGEANCE_2, 150.0f))
                 go->Delete();
             WretchedGhoulCleaner cleaner;
-            Acore::CreatureWorker<WretchedGhoulCleaner> worker(me, cleaner);
+            Warhead::CreatureWorker<WretchedGhoulCleaner> worker(me, cleaner);
             Cell::VisitGridObjects(me, worker, 150.0f);
         }
 
@@ -998,7 +998,7 @@ public:
                 case 17: // kill vegard
                     {
                         WretchedGhoulCleaner cleaner;
-                        Acore::CreatureWorker<WretchedGhoulCleaner> worker(me, cleaner);
+                        Warhead::CreatureWorker<WretchedGhoulCleaner> worker(me, cleaner);
                         Cell::VisitGridObjects(me, worker, 150.0f);
 
                         if (Creature* c = me->FindNearestCreature(NPC_SAC_LIGHTS_VENGEANCE, 150.0f, true))

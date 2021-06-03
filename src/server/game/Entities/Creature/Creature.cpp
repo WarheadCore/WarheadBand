@@ -900,8 +900,8 @@ void Creature::DoFleeToGetAssistance()
     {
         Creature* creature = nullptr;
 
-        Acore::NearestAssistCreatureInCreatureRangeCheck u_check(this, GetVictim(), radius);
-        Acore::CreatureLastSearcher<Acore::NearestAssistCreatureInCreatureRangeCheck> searcher(this, creature, u_check);
+        Warhead::NearestAssistCreatureInCreatureRangeCheck u_check(this, GetVictim(), radius);
+        Warhead::CreatureLastSearcher<Warhead::NearestAssistCreatureInCreatureRangeCheck> searcher(this, creature, u_check);
 
         Cell::VisitGridObjects(this, searcher, radius);
 
@@ -2091,8 +2091,8 @@ Unit* Creature::SelectNearestTarget(float dist, bool playerOnly /* = false */) c
 
     Unit* target = nullptr;
 
-    Acore::NearestHostileUnitCheck u_check(this, dist, playerOnly);
-    Acore::UnitLastSearcher<Acore::NearestHostileUnitCheck> searcher(this, target, u_check);
+    Warhead::NearestHostileUnitCheck u_check(this, dist, playerOnly);
+    Warhead::UnitLastSearcher<Warhead::NearestHostileUnitCheck> searcher(this, target, u_check);
     Cell::VisitAllObjects(this, searcher, dist);
     return target;
 }
@@ -2106,8 +2106,8 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
         dist = MAX_SEARCHER_DISTANCE;
 
     Unit* target = nullptr;
-    Acore::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
-    Acore::UnitLastSearcher<Acore::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
+    Warhead::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
+    Warhead::UnitLastSearcher<Warhead::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
     Cell::VisitAllObjects(this, searcher, std::max(dist, ATTACK_DISTANCE));
 
     return target;
@@ -2139,8 +2139,8 @@ void Creature::CallAssistance()
         {
             std::list<Creature*> assistList;
 
-            Acore::AnyAssistCreatureInRangeCheck u_check(this, GetVictim(), radius);
-            Acore::CreatureListSearcher<Acore::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
+            Warhead::AnyAssistCreatureInRangeCheck u_check(this, GetVictim(), radius);
+            Warhead::CreatureListSearcher<Warhead::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
             Cell::VisitGridObjects(this, searcher, radius);
 
             if (!assistList.empty())
@@ -2163,8 +2163,8 @@ void Creature::CallForHelp(float radius)
     if (radius <= 0.0f || !GetVictim() || IsPet() || IsCharmed())
         return;
 
-    Acore::CallOfHelpCreatureInRangeDo u_do(this, GetVictim(), radius);
-    Acore::CreatureWorker<Acore::CallOfHelpCreatureInRangeDo> worker(this, u_do);
+    Warhead::CallOfHelpCreatureInRangeDo u_do(this, GetVictim(), radius);
+    Warhead::CreatureWorker<Warhead::CallOfHelpCreatureInRangeDo> worker(this, u_do);
 
     Cell::VisitGridObjects(this, worker, radius);
 }

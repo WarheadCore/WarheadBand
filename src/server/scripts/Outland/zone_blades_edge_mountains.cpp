@@ -708,8 +708,8 @@ public:
             me->SetObjectScale(large ? 2.0f : 1.0f);
 
             std::list<WorldObject*> ClusterList;
-            Acore::AllWorldObjectsInRange objects(me, searchDistance);
-            Acore::WorldObjectListSearcher<Acore::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
+            Warhead::AllWorldObjectsInRange objects(me, searchDistance);
+            Warhead::WorldObjectListSearcher<Warhead::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
             Cell::VisitAllObjects(me, searcher, searchDistance);
 
             for (std::list<WorldObject*>::const_iterator i = ClusterList.begin(); i != ClusterList.end(); ++i)

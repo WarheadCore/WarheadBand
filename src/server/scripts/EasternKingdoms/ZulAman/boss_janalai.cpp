@@ -234,8 +234,8 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            Acore::AllCreaturesOfEntryInRange check(me, NPC_EGG, 100);
-            Acore::CreatureListSearcher<Acore::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+            Warhead::AllCreaturesOfEntryInRange check(me, NPC_EGG, 100);
+            Warhead::CreatureListSearcher<Warhead::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
             //TC_LOG_ERROR("scripts", "Eggs %d at middle", templist.size());
@@ -258,8 +258,8 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            Acore::AllCreaturesOfEntryInRange check(me, NPC_FIRE_BOMB, 100);
-            Acore::CreatureListSearcher<Acore::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+            Warhead::AllCreaturesOfEntryInRange check(me, NPC_FIRE_BOMB, 100);
+            Warhead::CreatureListSearcher<Warhead::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
             for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
@@ -511,8 +511,8 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            Acore::AllCreaturesOfEntryInRange check(me, 23817, 50);
-            Acore::CreatureListSearcher<Acore::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+            Warhead::AllCreaturesOfEntryInRange check(me, 23817, 50);
+            Warhead::CreatureListSearcher<Warhead::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
             //TC_LOG_ERROR("scripts", "Eggs %d at %d", templist.size(), side);
