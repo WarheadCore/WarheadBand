@@ -1732,9 +1732,15 @@ public:
             // search for nearby enemy corpse in range
             Warhead::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_CORPSE);
             Warhead::WorldObjectSearcher<Warhead::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-            caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+            Cell::VisitWorldObjects(caster, searcher, max_range);
             if (!result)
+            {
+                Cell::VisitGridObjects(caster, searcher, max_range);
+            }
+            if (!result)
+            {
                 return SPELL_FAILED_NO_EDIBLE_CORPSES;
+            }
             return SPELL_CAST_OK;
         }
 
@@ -3601,7 +3607,7 @@ public:
 
         void Register() override
         {
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+            SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
             if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
                 OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
@@ -3674,7 +3680,7 @@ public:
 
         void Register() override
         {
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
+            SpellInfo const* spell = sSpellMgr->AssertSpellInfo(m_scriptSpellId);
 
             // Defend spells cast by NPCs (add visuals)
             if (spell->Effects[EFFECT_0].ApplyAuraName == SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN)

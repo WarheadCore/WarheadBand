@@ -195,7 +195,7 @@ public:
                             std::list<WorldObject*> ClusterList;
                             Warhead::AllWorldObjectsInRange objects(me, 50.0f);
                             Warhead::WorldObjectListSearcher<Warhead::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
-                            me->VisitNearbyObject(50.0f, searcher);
+                            Cell::VisitAllObjects(me, searcher, 50.0f);
                             for (std::list<WorldObject*>::const_iterator itr = ClusterList.begin(); itr != ClusterList.end(); ++itr)
                             {
                                 if (Player* player = (*itr)->ToPlayer())

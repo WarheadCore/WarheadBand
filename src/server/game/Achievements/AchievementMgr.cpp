@@ -728,6 +728,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
         Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> say_do(say_builder);
         Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> > say_worker(GetPlayer(), CONF_GET_FLOAT("ListenRange.Say"), say_do);
         TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
+        Cell::VisitWorldObjects(GetPlayer(), say_worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
         cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), CONF_GET_FLOAT("ListenRange.Say"));
     }
 

@@ -362,7 +362,7 @@ public:
                 std::list<Player*> players;
                 Warhead::AnyPlayerExactPositionInGameObjectRangeCheck checker(go, 0.3f);
                 Warhead::PlayerListSearcher<Warhead::AnyPlayerExactPositionInGameObjectRangeCheck> searcher(go, players, checker);
-                go->VisitNearbyWorldObject(0.3f, searcher);
+                Cell::VisitWorldObjects(go, searcher, 0.3f);
 
                 if (players.size() > 0)
                 {
@@ -409,7 +409,7 @@ public:
                 std::list<Player*> players;
                 Warhead::AnyPlayerExactPositionInGameObjectRangeCheck checker(go, 0.3f);
                 Warhead::PlayerListSearcher<Warhead::AnyPlayerExactPositionInGameObjectRangeCheck> searcher(go, players, checker);
-                go->VisitNearbyWorldObject(0.3f, searcher);
+                Cell::VisitWorldObjects(go, searcher, 0.3f);
 
                 if (players.size() > 0)
                 {
@@ -792,27 +792,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_midsummer_musicAI(go);
-    }
-};
-
-/*######
-## go_cat_figurine
-######*/
-
-enum CatFigurine
-{
-    SPELL_SUMMON_GHOST_SABER    = 5968,
-};
-
-class go_cat_figurine : public GameObjectScript
-{
-public:
-    go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
-
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
-        return false;
     }
 };
 
@@ -1666,7 +1645,6 @@ void AddSC_go_scripts()
     new go_pirate_day_music();
     new go_darkmoon_faire_music();
     new go_midsummer_music();
-    new go_cat_figurine();
     new go_gilded_brazier();
     //new go_shrine_of_the_birds();
     new go_southfury_moonstone();

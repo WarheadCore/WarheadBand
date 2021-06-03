@@ -785,7 +785,7 @@ public:
                 go->Delete();
             WretchedGhoulCleaner cleaner;
             Warhead::CreatureWorker<WretchedGhoulCleaner> worker(me, cleaner);
-            me->VisitNearbyGridObject(150.0f, worker);
+            Cell::VisitGridObjects(me, worker, 150.0f);
         }
 
         void Reset() override
@@ -999,7 +999,7 @@ public:
                     {
                         WretchedGhoulCleaner cleaner;
                         Warhead::CreatureWorker<WretchedGhoulCleaner> worker(me, cleaner);
-                        me->VisitNearbyGridObject(150.0f, worker);
+                        Cell::VisitGridObjects(me, worker, 150.0f);
 
                         if (Creature* c = me->FindNearestCreature(NPC_SAC_LIGHTS_VENGEANCE, 150.0f, true))
                             if (Creature* v = me->FindNearestCreature(NPC_SAC_VEGARD_1, 50.0f, true))

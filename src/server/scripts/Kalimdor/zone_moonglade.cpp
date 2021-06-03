@@ -324,7 +324,7 @@ public:
             std::list<Player*> playerOnQuestList;
             Warhead::AnyPlayerInObjectRangeCheck checker(me, 5.0f);
             Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, playerOnQuestList, checker);
-            me->VisitNearbyWorldObject(5.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 5.0f);
             for (std::list<Player*>::const_iterator itr = playerOnQuestList.begin(); itr != playerOnQuestList.end(); ++itr)
             {
                 // Check if found player target has active quest

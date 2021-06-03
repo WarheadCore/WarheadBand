@@ -3153,7 +3153,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             // unless target is outside spell range, out of mana, or LOS.
 
                             bool _allowMove = false;
-                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.castCustom.spell);
+                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.castCustom.spell); // AssertSpellInfo?
                             int32 mana = me->GetPower(POWER_MANA);
 
                             if (me->GetDistance((*itr)->ToUnit()) > spellInfo->GetMaxRange(true) ||
@@ -3893,7 +3893,7 @@ ObjectList* SmartScript::GetWorldObjectsInDist(float dist)
     {
         Warhead::AllWorldObjectsInRange u_check(obj, dist);
         Warhead::WorldObjectListSearcher<Warhead::AllWorldObjectsInRange> searcher(obj, *targets, u_check);
-        obj->VisitNearbyObject(dist, searcher);
+        Cell::VisitAllObjects(obj, searcher, dist);
     }
     return targets;
 }
@@ -4876,7 +4876,7 @@ Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 
     Warhead::MostHPMissingInRange u_check(me, range, MinHPDiff);
     Warhead::UnitLastSearcher<Warhead::MostHPMissingInRange> searcher(me, unit, u_check);
-    me->VisitNearbyObject(range, searcher);
+    Cell::VisitGridObjects(me, searcher, range);
     return unit;
 }
 
@@ -4887,7 +4887,7 @@ void SmartScript::DoFindFriendlyCC(std::list<Creature*>& _list, float range)
 
     Warhead::FriendlyCCedInRange u_check(me, range);
     Warhead::CreatureListSearcher<Warhead::FriendlyCCedInRange> searcher(me, _list, u_check);
-    me->VisitNearbyObject(range, searcher);
+    Cell::VisitGridObjects(me, searcher, range);
 }
 
 void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float range, uint32 spellid)
@@ -4897,7 +4897,7 @@ void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float ra
 
     Warhead::FriendlyMissingBuffInRange u_check(me, range, spellid);
     Warhead::CreatureListSearcher<Warhead::FriendlyMissingBuffInRange> searcher(me, list, u_check);
-    me->VisitNearbyObject(range, searcher);
+    Cell::VisitGridObjects(me, searcher, range);
 }
 
 Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly)
@@ -4908,7 +4908,7 @@ Unit* SmartScript::DoFindClosestFriendlyInRange(float range, bool playerOnly)
     Unit* unit = nullptr;
     Warhead::AnyFriendlyNotSelfUnitInObjectRangeCheck u_check(me, me, range, playerOnly);
     Warhead::UnitLastSearcher<Warhead::AnyFriendlyNotSelfUnitInObjectRangeCheck> searcher(me, unit, u_check);
-    me->VisitNearbyObject(range, searcher);
+    Cell::VisitAllObjects(me, searcher, range);
     return unit;
 }
 

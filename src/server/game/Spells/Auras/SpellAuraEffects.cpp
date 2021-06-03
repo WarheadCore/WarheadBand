@@ -2410,7 +2410,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
         UnitList targets;
         Warhead::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetVisibilityRange()); // no VISIBILITY_COMPENSATION, distance is enough
         Warhead::UnitListSearcher<Warhead::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
-        target->VisitNearbyObject(target->GetVisibilityRange(), searcher); // no VISIBILITY_COMPENSATION, distance is enough
+        Cell::VisitAllObjects(target, searcher, target->GetMap()->GetVisibilityRange());
         for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
         {
             if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
@@ -5217,7 +5217,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                                 Player* player = nullptr;
                                 Warhead::AnyPlayerInObjectRangeCheck checker(target, 10.0f);
                                 Warhead::PlayerSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(target, player, checker);
-                                target->VisitNearbyWorldObject(10.0f, searcher);
+                                Cell::VisitWorldObjects(target, searcher, 10.0f);
 
                                 if( player && player->GetGUID() != target->GetGUID() )
                                     target->CastSpell(player, 52921, true);
@@ -5267,7 +5267,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             uint32 spellId = 24659;
                             if (apply && caster)
                             {
-                                SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId);
+                                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(spellId);
 
                                 for (uint32 i = 0; i < spell->StackAmount; ++i)
                                     caster->CastSpell(target, spell->Id, true, nullptr, nullptr, GetCasterGUID());
@@ -5282,7 +5282,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             uint32 spellId = 24662;
                             if (apply && caster)
                             {
-                                SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId);
+                                SpellInfo const* spell = sSpellMgr->AssertSpellInfo(spellId);
                                 for (uint32 i = 0; i < spell->StackAmount; ++i)
                                     caster->CastSpell(target, spell->Id, true, nullptr, nullptr, GetCasterGUID());
                                 break;

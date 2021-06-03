@@ -1211,7 +1211,7 @@ public:
                 Unit* target = nullptr;
                 Warhead::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 0.5f);
                 Warhead::UnitLastSearcher<Warhead::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, target, u_check);
-                me->VisitNearbyObject(1.5f, searcher);
+                Cell::VisitAllObjects(me, searcher, 1.5f);
                 if (target)
                 {
                     me->CastSpell(me, SPELL_FROGGER_EXPLODE, true);

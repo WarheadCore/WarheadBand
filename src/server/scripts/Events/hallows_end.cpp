@@ -827,7 +827,7 @@ public:
             std::list<Player*> players;
             Warhead::AnyPlayerInObjectRangeCheck checker(me, radius);
             Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            me->VisitNearbyWorldObject(radius, searcher);
+            Cell::VisitWorldObjects(me, searcher, radius);
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {

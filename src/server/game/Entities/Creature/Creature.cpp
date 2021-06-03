@@ -901,15 +901,10 @@ void Creature::DoFleeToGetAssistance()
     {
         Creature* creature = nullptr;
 
-        CellCoord p(Warhead::ComputeCellCoord(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
         Warhead::NearestAssistCreatureInCreatureRangeCheck u_check(this, GetVictim(), radius);
         Warhead::CreatureLastSearcher<Warhead::NearestAssistCreatureInCreatureRangeCheck> searcher(this, creature, u_check);
 
-        TypeContainerVisitor<Warhead::CreatureLastSearcher<Warhead::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
-
-        cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
+        Cell::VisitGridObjects(this, searcher, radius);
 
         SetNoSearchAssistance(true);
         UpdateSpeed(MOVE_RUN, false);
@@ -2090,53 +2085,31 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
 // select nearest hostile unit within the given distance (regardless of threat list).
 Unit* Creature::SelectNearestTarget(float dist, bool playerOnly /* = false */) const
 {
-    CellCoord p(Warhead::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
+    if (dist == 0.0f)
+    {
+        dist = MAX_VISIBILITY_DISTANCE;
+    }
 
     Unit* target = nullptr;
 
-    {
-        if (dist == 0.0f)
-            dist = MAX_SEARCHER_DISTANCE;
-
-        Warhead::NearestHostileUnitCheck u_check(this, dist, playerOnly);
-        Warhead::UnitLastSearcher<Warhead::NearestHostileUnitCheck> searcher(this, target, u_check);
-
-        TypeContainerVisitor<Warhead::UnitLastSearcher<Warhead::NearestHostileUnitCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-        TypeContainerVisitor<Warhead::UnitLastSearcher<Warhead::NearestHostileUnitCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-        cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
-        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
-    }
-
+    Warhead::NearestHostileUnitCheck u_check(this, dist, playerOnly);
+    Warhead::UnitLastSearcher<Warhead::NearestHostileUnitCheck> searcher(this, target, u_check);
+    Cell::VisitAllObjects(this, searcher, dist);
     return target;
 }
 
 // select nearest hostile unit within the given attack distance (i.e. distance is ignored if > than ATTACK_DISTANCE), regardless of threat list.
 Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
 {
-    CellCoord p(Warhead::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Unit* target = nullptr;
-
     if (dist < ATTACK_DISTANCE)
         dist = ATTACK_DISTANCE;
     if (dist > MAX_SEARCHER_DISTANCE)
         dist = MAX_SEARCHER_DISTANCE;
 
-    {
-        Warhead::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
-        Warhead::UnitLastSearcher<Warhead::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
-
-        TypeContainerVisitor<Warhead::UnitLastSearcher<Warhead::NearestHostileUnitInAttackDistanceCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-        TypeContainerVisitor<Warhead::UnitLastSearcher<Warhead::NearestHostileUnitInAttackDistanceCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-        cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
-        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
-    }
+    Unit* target = nullptr;
+    Warhead::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
+    Warhead::UnitLastSearcher<Warhead::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
+    Cell::VisitAllObjects(this, searcher, std::max(dist, ATTACK_DISTANCE));
 
     return target;
 }
@@ -2167,18 +2140,9 @@ void Creature::CallAssistance()
         {
             std::list<Creature*> assistList;
 
-            {
-                CellCoord p(Warhead::ComputeCellCoord(GetPositionX(), GetPositionY()));
-                Cell cell(p);
-                cell.SetNoCreate();
-
-                Warhead::AnyAssistCreatureInRangeCheck u_check(this, GetVictim(), radius);
-                Warhead::CreatureListSearcher<Warhead::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
-
-                TypeContainerVisitor<Warhead::CreatureListSearcher<Warhead::AnyAssistCreatureInRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-                cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
-            }
+            Warhead::AnyAssistCreatureInRangeCheck u_check(this, GetVictim(), radius);
+            Warhead::CreatureListSearcher<Warhead::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
+            Cell::VisitGridObjects(this, searcher, radius);
 
             if (!assistList.empty())
             {
@@ -2200,16 +2164,10 @@ void Creature::CallForHelp(float radius)
     if (radius <= 0.0f || !GetVictim() || IsPet() || IsCharmed())
         return;
 
-    CellCoord p(Warhead::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
-
     Warhead::CallOfHelpCreatureInRangeDo u_do(this, GetVictim(), radius);
     Warhead::CreatureWorker<Warhead::CallOfHelpCreatureInRangeDo> worker(this, u_do);
 
-    TypeContainerVisitor<Warhead::CreatureWorker<Warhead::CallOfHelpCreatureInRangeDo>, GridTypeMapContainer >  grid_creature_searcher(worker);
-
-    cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
+    Cell::VisitGridObjects(this, worker, radius);
 }
 
 bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /*= true*/) const

@@ -710,7 +710,7 @@ public:
             std::list<WorldObject*> ClusterList;
             Warhead::AllWorldObjectsInRange objects(me, searchDistance);
             Warhead::WorldObjectListSearcher<Warhead::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
-            me->VisitNearbyObject(searchDistance, searcher);
+            Cell::VisitAllObjects(me, searcher, searchDistance);
 
             for (std::list<WorldObject*>::const_iterator i = ClusterList.begin(); i != ClusterList.end(); ++i)
             {

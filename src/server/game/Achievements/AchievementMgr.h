@@ -365,8 +365,7 @@ public:
     void LoadCompletedAchievements();
     void LoadRewards();
 
-    AchievementEntry const* GetAchievement(uint32 achievementId) const;
-
+    [[nodiscard]] AchievementEntry const* GetAchievement(uint32 achievementId) const;
 private:
     AchievementCriteriaDataMap m_criteriaDataMap;
 

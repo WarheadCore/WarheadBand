@@ -488,7 +488,7 @@ GameObject* ChatHandler::GetNearbyGameObject()
     GameObject* obj = nullptr;
     Warhead::NearestGameObjectCheck check(*pl);
     Warhead::GameObjectLastSearcher<Warhead::NearestGameObjectCheck> searcher(pl, obj, check);
-    pl->VisitNearbyGridObject(SIZE_OF_GRIDS, searcher);
+    Cell::VisitGridObjects(pl, searcher, SIZE_OF_GRIDS);
     return obj;
 }
 

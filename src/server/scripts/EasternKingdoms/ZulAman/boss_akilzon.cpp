@@ -160,22 +160,11 @@ public:
                 for (uint8 i = 2; i < StormCount; ++i)
                     bp0 *= 2;
 
-                CellCoord p(Warhead::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
-                Cell cell(p);
-                cell.SetNoCreate();
-
                 std::list<Unit*> tempUnitMap;
 
-                {
-                    Warhead::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
-                    Warhead::UnitListSearcher<Warhead::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
-
-                    TypeContainerVisitor<Warhead::UnitListSearcher<Warhead::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-                    TypeContainerVisitor<Warhead::UnitListSearcher<Warhead::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-                    cell.Visit(p, world_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
-                    cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
-                }
+                Warhead::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
+                Warhead::UnitListSearcher<Warhead::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
+                Cell::VisitAllObjects(me, searcher, SIZE_OF_GRIDS);
 
                 // deal damage
                 for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
