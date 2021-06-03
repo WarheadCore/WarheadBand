@@ -28,6 +28,7 @@
 #include "SRP6.h"
 #include "QueryResult.h"
 #include <memory>
+#include <unordered_map>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
