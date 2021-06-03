@@ -699,8 +699,8 @@ public:
 
             // Reset The Frozen Throne gameobjects
             FrozenThroneResetWorker reset;
-            Warhead::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
-            me->VisitNearbyGridObject(333.0f, worker);
+            Acore::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
+            Cell::VisitGridObjects(me, worker, 333.0f);
 
             me->AddAura(SPELL_EMOTE_SIT_NO_SHEATH, me);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

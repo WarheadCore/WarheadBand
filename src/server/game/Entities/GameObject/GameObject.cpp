@@ -620,20 +620,18 @@ void GameObject::Update(uint32 diff)
                         // search unfriendly creature
                         if (owner)                    // hunter trap
                         {
-                            Warhead::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
-                            Warhead::UnitSearcher<Warhead::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
-                            VisitNearbyGridObject(radius, searcher);
-                            if (!target)
-                                VisitNearbyWorldObject(radius, searcher);
+                            Acore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
+                            Acore::UnitSearcher<Acore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
+                            Cell::VisitAllObjects(this, searcher, radius);
                         }
                         else                                        // environmental trap
                         {
                             // environmental damage spells already have around enemies targeting but this not help in case not existed GO casting support
                             // affect only players
                             Player* player = nullptr;
-                            Warhead::AnyPlayerInObjectRangeCheck checker(this, radius, true, true);
-                            Warhead::PlayerSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
-                            VisitNearbyWorldObject(radius, searcher);
+                            Acore::AnyPlayerInObjectRangeCheck checker(this, radius, true, true);
+                            Acore::PlayerSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+                            Cell::VisitWorldObjects(this, searcher, radius);
                             target = player;
                         }
 
@@ -1221,14 +1219,10 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
 {
     GameObject* ok = nullptr;
 
-    CellCoord p(Warhead::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    Warhead::NearestGameObjectFishingHole u_check(*this, range);
-    Warhead::GameObjectSearcher<Warhead::NearestGameObjectFishingHole> checker(this, ok, u_check);
+    Acore::NearestGameObjectFishingHole u_check(*this, range);
+    Acore::GameObjectSearcher<Acore::NearestGameObjectFishingHole> checker(this, ok, u_check);
 
-    TypeContainerVisitor<Warhead::GameObjectSearcher<Warhead::NearestGameObjectFishingHole>, GridTypeMapContainer > grid_object_checker(checker);
-    cell.Visit(p, grid_object_checker, *GetMap(), *this, range);
-
+    Cell::VisitGridObjects(this, checker, range);
     return ok;
 }
 
@@ -1989,8 +1983,8 @@ void GameObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*s
     dist += GetObjectSize();
     if (includeMargin)
         dist += VISIBILITY_COMPENSATION * 2.0f; // pussywizard: to ensure everyone receives all important packets
-    Warhead::MessageDistDeliverer notifier(this, data, dist, false, skipped_rcvr);
-    VisitNearbyWorldObject(dist, notifier);
+    Acore::MessageDistDeliverer notifier(this, data, dist, false, skipped_rcvr);
+    Cell::VisitWorldObjects(this, notifier, dist);
 }
 
 void GameObject::EventInform(uint32 eventId)

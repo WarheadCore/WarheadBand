@@ -853,8 +853,8 @@ public:
                 // get all nearby vrykul
                 std::list<Creature*> temp;
                 FrostwingVrykulSearcher check(me, 150.0f);
-                Warhead::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
-                me->VisitNearbyGridObject(150.0f, searcher);
+                Acore::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
+                Cell::VisitGridObjects(me, searcher, 150.0f);
 
                 _aliveTrash.clear();
                 for (std::list<Creature*>::iterator itr = temp.begin(); itr != temp.end(); ++itr)
@@ -897,16 +897,16 @@ public:
                 _wipeCheckTimer = 3000;
 
                 Player* player = nullptr;
-                Warhead::AnyPlayerInObjectRangeCheck check(me, 140.0f);
-                Warhead::PlayerSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
-                me->VisitNearbyWorldObject(140.0f, searcher);
+                Acore::AnyPlayerInObjectRangeCheck check(me, 140.0f);
+                Acore::PlayerSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+                Cell::VisitWorldObjects(me, searcher, 140.0f);
                 // wipe
                 if (!player || me->GetExactDist(4357.0f, 2606.0f, 350.0f) > 125.0f)
                 {
                     //Talk(SAY_CROK_DEATH);
                     FrostwingGauntletRespawner respawner;
-                    Warhead::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
-                    me->VisitNearbyGridObject(333.0f, worker);
+                    Acore::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
+                    Cell::VisitGridObjects(me, worker, 333.0f);
                     return;
                 }
             }
@@ -1374,9 +1374,9 @@ public:
         Creature* FindFriendlyCreature() const
         {
             Creature* target = nullptr;
-            Warhead::MostHPMissingInRange u_check(me, 60.0f, 0);
-            Warhead::CreatureLastSearcher<Warhead::MostHPMissingInRange> searcher(me, target, u_check);
-            me->VisitNearbyGridObject(60.0f, searcher);
+            Acore::MostHPMissingInRange u_check(me, 60.0f, 0);
+            Acore::CreatureLastSearcher<Acore::MostHPMissingInRange> searcher(me, target, u_check);
+            Cell::VisitGridObjects(me, searcher, 60.0f);
             return target;
         }
     };
@@ -2345,8 +2345,8 @@ public:
                     if (!crok->IsAlive())
                     {
                         FrostwingGauntletRespawner respawner;
-                        Warhead::CreatureWorker<FrostwingGauntletRespawner> worker(crok, respawner);
-                        crok->VisitNearbyGridObject(333.0f, worker);
+                        Acore::CreatureWorker<FrostwingGauntletRespawner> worker(crok, respawner);
+                        Cell::VisitGridObjects(crok, worker, 333.0f);
                         return true;
                     }
                     else

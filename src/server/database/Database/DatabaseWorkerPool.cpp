@@ -38,8 +38,8 @@
 #include <boost/stacktrace.hpp>
 #endif
 
-#define MIN_MYSQL_SERVER_VERSION 50100u
-#define MIN_MYSQL_CLIENT_VERSION 50100u
+#define MIN_MYSQL_SERVER_VERSION 50700u
+#define MIN_MYSQL_CLIENT_VERSION 50700u
 
 class PingOperation : public SQLOperation
 {
