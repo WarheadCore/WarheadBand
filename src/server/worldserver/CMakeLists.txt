@@ -60,8 +60,8 @@ target_link_libraries(worldserver
   PRIVATE
     warhead-core-interface
   PUBLIC
-    scripts
     game
+    scripts
     gsoap
     readline
     gperftools)
