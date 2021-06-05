@@ -70,6 +70,8 @@ public:
     bool isDryRun() { return dryRun; }
     void setDryRun(bool mode) { dryRun = mode; }
 
+    void PrintLoadedModulesConfigs();
+
 private:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
     bool LoadInitial(std::string const& file);
@@ -79,6 +81,8 @@ private:
     T GetValueDefault(std::string const& name, T const& def, bool showLogs = true) const;
 
     bool dryRun = false;
+
+    std::vector<std::string /*config variant*/> _moduleConfigFiles;
 };
 
 class WH_COMMON_API ConfigException : public std::length_error
