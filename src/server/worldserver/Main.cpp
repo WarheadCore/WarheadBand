@@ -200,6 +200,9 @@ int main(int argc, char** argv)
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
 
+    // Loading modules configs
+    sConfigMgr->LoadModulesConfigs();
+
     std::shared_ptr<Warhead::Asio::IoContext> ioContext = std::make_shared<Warhead::Asio::IoContext>();
 
     // Init all logs
