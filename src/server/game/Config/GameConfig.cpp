@@ -143,14 +143,14 @@ WH_GAME_API T GameConfig::GetOption(std::string const& optionName, Optional<T> d
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%d)", optionName.c_str(), retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%lu)", optionName.c_str(), retValueDef);
         return retValueDef;
     }
 
     Optional<T> result = Warhead::StringTo<T>(_configOptions.at(optionName));
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%d' instead", optionName.c_str(), retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%lu' instead", optionName.c_str(), retValueDef);
         return retValueDef;
     }
 
