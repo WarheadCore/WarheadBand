@@ -138,19 +138,20 @@ WH_GAME_API T GameConfig::GetOption(std::string const& optionName, Optional<T> d
     static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
 
     auto retValueDef = def == std::nullopt ? CONF_DEFAULT_INT : *def;
+    std::string defStr = fmt::format("{}", retValueDef);
 
     // Check exist option
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%lu)", optionName.c_str(), retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%s)", optionName.c_str(), defStr.c_str());
         return retValueDef;
     }
 
     Optional<T> result = Warhead::StringTo<T>(_configOptions.at(optionName));
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%lu' instead", optionName.c_str(), retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%s' instead", optionName.c_str(), defStr.c_str());
         return retValueDef;
     }
 
