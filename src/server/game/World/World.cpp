@@ -1302,7 +1302,7 @@ void World::Update(uint32 diff)
 {
     m_updateTime = diff;
 
-    if (auto interval = CONF_GET_INT("RecordUpdateTimeDiffInterval"))
+    if (auto interval = CONF_GET_UINT("RecordUpdateTimeDiffInterval"))
     {
         m_updateTimeSum += diff;
         if (m_updateTimeSum > interval)
