@@ -7644,8 +7644,8 @@ void Player::SetHonorPoints(uint32 value)
 
 void Player::SetArenaPoints(uint32 value)
 {
-    if (value > CONF_GET_INT("MaxArenaPoints"))
-        value = CONF_GET_INT("MaxArenaPoints");
+    if (value > CONF_GET_UINT("MaxArenaPoints"))
+        value = CONF_GET_UINT("MaxArenaPoints");
     SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, value);
     if (value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
