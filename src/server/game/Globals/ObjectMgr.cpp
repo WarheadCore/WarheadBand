@@ -49,6 +49,7 @@
 #include "Vehicle.h"
 #include "WaypointManager.h"
 #include "World.h"
+#include "GameConfig.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -1864,7 +1865,7 @@ void ObjectMgr::LoadCreatures()
             data.phaseMask = 1;
         }
 
-        if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
+        if (CONF_GET_BOOL("Calculate.Creature.Zone.Area.Data"))
         {
             uint32 zoneId = sMapMgr->GetZoneId(data.mapid, data.posX, data.posY, data.posZ);
             uint32 areaId = sMapMgr->GetAreaId(data.mapid, data.posX, data.posY, data.posZ);
@@ -2167,7 +2168,7 @@ void ObjectMgr::LoadGameobjects()
             data.phaseMask = 1;
         }
 
-        if (sWorld->getBoolConfig(CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA))
+        if (CONF_GET_BOOL("Calculate.Gameoject.Zone.Area.Data"))
         {
             uint32 zoneId = sMapMgr->GetZoneId(data.mapid, data.posX, data.posY, data.posZ);
             uint32 areaId = sMapMgr->GetAreaId(data.mapid, data.posX, data.posY, data.posZ);
@@ -2333,8 +2334,8 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Flags                     = fields[7].GetUInt32();
         itemTemplate.Flags2                    = fields[8].GetUInt32();
         itemTemplate.BuyCount                  = uint32(fields[9].GetUInt8());
-        itemTemplate.BuyPrice                  = int32(fields[10].GetInt64() * sWorld->getRate((Rates)(RATE_BUYVALUE_ITEM_POOR + itemTemplate.Quality)));
-        itemTemplate.SellPrice                 = uint32(fields[11].GetUInt32() * sWorld->getRate((Rates)(RATE_SELLVALUE_ITEM_POOR + itemTemplate.Quality)));
+        itemTemplate.BuyPrice                  = int32(fields[10].GetInt64());
+        itemTemplate.SellPrice                 = uint32(fields[11].GetUInt32());
         itemTemplate.InventoryType             = uint32(fields[12].GetUInt8());
         itemTemplate.AllowableClass            = fields[13].GetInt32();
         itemTemplate.AllowableRace             = fields[14].GetInt32();
@@ -2351,6 +2352,45 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Stackable                 = fields[25].GetInt32();
         itemTemplate.ContainerSlots            = uint32(fields[26].GetUInt8());
         itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
+
+        // Rate.BuyValue and Rate.SellValue
+        switch (itemTemplate.Quality)
+        {
+        case ITEM_QUALITY_POOR:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Poor"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Poor"));
+            break;
+        case ITEM_QUALITY_NORMAL:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Normal"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Normal"));
+            break;
+        case ITEM_QUALITY_UNCOMMON:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Uncommon"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Uncommon"));
+            break;
+        case ITEM_QUALITY_RARE:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Rare"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Rare"));
+            break;
+        case ITEM_QUALITY_EPIC:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Epic"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Epic"));
+            break;
+        case ITEM_QUALITY_LEGENDARY:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Legendary"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Legendary"));
+            break;
+        case ITEM_QUALITY_ARTIFACT:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Artifact"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Artifact"));
+            break;
+        case ITEM_QUALITY_HEIRLOOM:
+            itemTemplate.BuyCount = itemTemplate.BuyCount * static_cast<uint32>(CONF_GET_FLOAT("Rate.BuyValue.Item.Heirloom"));
+            itemTemplate.SellPrice = itemTemplate.SellPrice * static_cast<uint32>(CONF_GET_FLOAT("Rate.SellValue.Item.Heirloom"));
+            break;
+        default:
+            break;
+        }
 
         for (uint8 i = 0; i < itemTemplate.StatsCount; ++i)
         {
@@ -3074,7 +3114,7 @@ void ObjectMgr::LoadPetLevelInfo()
         }
 
         uint32 current_level = fields[1].GetUInt8();
-        if (current_level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
         {
             if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
                 LOG_ERROR("sql.sql", "Wrong (> %u) level %u in `pet_levelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
@@ -3096,7 +3136,7 @@ void ObjectMgr::LoadPetLevelInfo()
         PetLevelInfo*& pInfoMapEntry = _petInfoStore[creature_id];
 
         if (pInfoMapEntry == nullptr)
-            pInfoMapEntry = new PetLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+            pInfoMapEntry = new PetLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
 
         // data for level 1 stored in [0] array element, ...
         PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level - 1];
@@ -3127,7 +3167,7 @@ void ObjectMgr::LoadPetLevelInfo()
         }
 
         // fill level gaps
-        for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
         {
             if (pInfo[level].health == 0)
             {
@@ -3143,8 +3183,8 @@ void ObjectMgr::LoadPetLevelInfo()
 
 PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) const
 {
-    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    if (level > CONF_GET_INT("MaxPlayerLevel"))
+        level = CONF_GET_INT("MaxPlayerLevel");
 
     PetLevelInfoContainer::const_iterator itr = _petInfoStore.find(creature_id);
     if (itr == _petInfoStore.end())
@@ -3351,12 +3391,12 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        std::string tableName = sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell";
+        std::string tableName = CONF_GET_BOOL("PlayerStart.CustomSpells") ? "playercreateinfo_spell_custom" : "playercreateinfo_spell";
         QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM %s", tableName.c_str());
 
         if (!result)
         {
-            LOG_ERROR("sql.sql", ">> Loaded 0 player create spells. DB table `%s` is empty.", sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
+            LOG_ERROR("sql.sql", ">> Loaded 0 player create spells. DB table `%s` is empty.", CONF_GET_BOOL("PlayerStart.CustomSpells") ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
         }
         else
         {
@@ -3483,7 +3523,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
 
             uint8 current_level = fields[1].GetUInt8();      // Can't be > than STRONG_MAX_LEVEL (hardcoded level maximum) due to var type
-            if (current_level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 LOG_INFO("server", "Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_classlevelstats` table, ignoring.", current_level);
                 ++count;                                    // make result loading percent "expected" correct in case disabled detail mode for example.
@@ -3494,7 +3534,7 @@ void ObjectMgr::LoadPlayerInfo()
             if (!info)
             {
                 info = new PlayerClassInfo();
-                info->levelInfo = new PlayerClassLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+                info->levelInfo = new PlayerClassLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
                 _playerClassInfo[current_class] = info;
             }
 
@@ -3523,7 +3563,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
 
             // fill level gaps
-            for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
             {
                 if (pClassInfo->levelInfo[level].basehealth == 0)
                 {
@@ -3573,7 +3613,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
 
             uint32 current_level = fields[2].GetUInt8();
-            if (current_level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
                     LOG_ERROR("sql.sql", "Wrong (> %u) level %u in `player_levelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
@@ -3590,7 +3630,7 @@ void ObjectMgr::LoadPlayerInfo()
             if (PlayerInfo* info = _playerInfo[current_race][current_class])
             {
                 if (!info->levelInfo)
-                    info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+                    info->levelInfo = new PlayerLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
 
                 PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
                 for (int i = 0; i < MAX_STATS; i++)
@@ -3618,11 +3658,11 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // skip expansion races if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_THE_BURNING_CRUSADE && (race == RACE_BLOODELF || race == RACE_DRAENEI))
+                if (CONF_GET_INT("Expansion") < EXPANSION_THE_BURNING_CRUSADE && (race == RACE_BLOODELF || race == RACE_DRAENEI))
                     continue;
 
                 // skip expansion classes if not playing with expansion
-                if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_WRATH_OF_THE_LICH_KING && class_ == CLASS_DEATH_KNIGHT)
+                if (CONF_GET_INT("Expansion") < EXPANSION_WRATH_OF_THE_LICH_KING && class_ == CLASS_DEATH_KNIGHT)
                     continue;
 
                 // fatal error if no level 1 data
@@ -3633,7 +3673,7 @@ void ObjectMgr::LoadPlayerInfo()
                 }
 
                 // fill level gaps
-                for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+                for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
                 {
                     if (info->levelInfo[level].stats[0] == 0)
                     {
@@ -3653,8 +3693,8 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        _playerXPperLevel.resize(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-        for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        _playerXPperLevel.resize(CONF_GET_INT("MaxPlayerLevel"));
+        for (uint8 level = 0; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
             _playerXPperLevel[level] = 0;
 
         //                                                 0    1
@@ -3676,7 +3716,7 @@ void ObjectMgr::LoadPlayerInfo()
             uint32 current_level = fields[0].GetUInt8();
             uint32 current_xp    = fields[1].GetUInt32();
 
-            if (current_level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (current_level >= CONF_GET_UINT("MaxPlayerLevel"))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
                     LOG_ERROR("sql.sql", "Wrong (> %u) level %u in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL, current_level);
@@ -3695,7 +3735,7 @@ void ObjectMgr::LoadPlayerInfo()
         } while (result->NextRow());
 
         // fill level gaps
-        for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
         {
             if (_playerXPperLevel[level] == 0)
             {
@@ -3716,8 +3756,8 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassL
 
     PlayerClassInfo const* pInfo = _playerClassInfo[class_];
 
-    if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+    if (level > CONF_GET_INT("MaxPlayerLevel"))
+        level = CONF_GET_INT("MaxPlayerLevel");
 
     *info = pInfo->levelInfo[level - 1];
 }
@@ -3731,7 +3771,7 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
     if (!pInfo)
         return;
 
-    if (level <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (level <= CONF_GET_INT("MaxPlayerLevel"))
         *info = pInfo->levelInfo[level - 1];
     else
         BuildPlayerLevelInfo(race, class_, level, info);
@@ -3740,10 +3780,10 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
 void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, PlayerLevelInfo* info) const
 {
     // base data (last known level)
-    *info = _playerInfo[race][_class]->levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 1];
+    *info = _playerInfo[race][_class]->levelInfo[CONF_GET_INT("MaxPlayerLevel") - 1];
 
     // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
-    for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 1; lvl < level; ++lvl)
+    for (uint8 lvl = CONF_GET_INT("MaxPlayerLevel") - 1; lvl < level; ++lvl)
     {
         switch (_class)
         {
@@ -7241,7 +7281,7 @@ enum LanguageType
 
 static LanguageType GetRealmLanguageType(bool create)
 {
-    switch (sWorld->getIntConfig(CONFIG_REALM_ZONE))
+    switch (CONF_GET_INT("RealmZone"))
     {
         case REALM_ZONE_UNKNOWN:                            // any language
         case REALM_ZONE_DEVELOPMENT:
@@ -7312,11 +7352,11 @@ uint8 ObjectMgr::CheckPlayerName(const std::string& name, bool create)
     if (wname.size() > MAX_PLAYER_NAME)
         return CHAR_NAME_TOO_LONG;
 
-    uint32 minName = sWorld->getIntConfig(CONFIG_MIN_PLAYER_NAME);
+    uint32 minName = CONF_GET_UINT("MinPlayerName");
     if (wname.size() < minName)
         return CHAR_NAME_TOO_SHORT;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_PLAYER_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictPlayerNames");
     if (!isValidString(wname, strictMask, false, create))
         return CHAR_NAME_MIXED_LANGUAGES;
 
@@ -7337,11 +7377,11 @@ bool ObjectMgr::IsValidCharterName(const std::string& name)
     if (wname.size() > MAX_CHARTER_NAME)
         return false;
 
-    uint32 minName = sWorld->getIntConfig(CONFIG_MIN_CHARTER_NAME);
+    uint32 minName = CONF_GET_UINT("MinCharterName");
     if (wname.size() < minName)
         return false;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_CHARTER_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictCharterNames");
 
     return isValidString(wname, strictMask, true);
 }
@@ -7355,7 +7395,7 @@ bool ObjectMgr::IsValidChannelName(const std::string& name)
     if (wname.size() > MAX_CHANNEL_NAME)
         return false;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_CHANNEL_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictChannelNames");
 
     return isValidString(wname, strictMask, true);
 }
@@ -7369,11 +7409,11 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
     if (wname.size() > MAX_PET_NAME)
         return PET_NAME_TOO_LONG;
 
-    uint32 minName = sWorld->getIntConfig(CONFIG_MIN_PET_NAME);
+    uint32 minName = CONF_GET_UINT("MinPetName");
     if (wname.size() < minName)
         return PET_NAME_TOO_SHORT;
 
-    uint32 strictMask = sWorld->getIntConfig(CONFIG_STRICT_PET_NAMES);
+    uint32 strictMask = CONF_GET_UINT("StrictPetNames");
     if (!isValidString(wname, strictMask, false))
         return PET_NAME_MIXED_LANGUAGES;
 

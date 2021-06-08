@@ -45,6 +45,7 @@
 #include "SharedDefines.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 #include <random>
 #include <unordered_map>
 
@@ -140,14 +141,14 @@ void BattlegroundMgr::Update(uint32 diff)
         m_NextPeriodicQueueUpdateTime -= diff;
 
     // arena points auto-distribution
-    if (sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
+    if (CONF_GET_BOOL("Arena.AutoDistributePoints"))
     {
         if (m_AutoDistributionTimeChecker < diff)
         {
             if (time(nullptr) > m_NextAutoDistributionTime)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
-                m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
+                m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * CONF_GET_INT("Arena.AutoDistributeInterval");
                 sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionTime));
             }
             m_AutoDistributionTimeChecker = 600000; // 10 minutes check
@@ -641,7 +642,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
 void BattlegroundMgr::InitAutomaticArenaPointDistribution()
 {
-    if (!sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
+    if (!CONF_GET_BOOL("Arena.AutoDistributePoints"))
         return;
 
     time_t wstime = time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
@@ -662,9 +663,9 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
     if (!player)
         return;
 
-    uint32 winner_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST);
-    uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
-    uint32 loser_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
+    uint32 winner_kills = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardWinnerHonorLast") : CONF_GET_INT("Battleground.RewardWinnerHonorFirst");
+    uint32 winner_arena = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardWinnerArenaLast") : CONF_GET_INT("Battleground.RewardWinnerArenaFirst");
+    uint32 loser_kills = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardLoserHonorLast") : CONF_GET_INT("Battleground.RewardLoserHonorFirst");
 
     winner_kills = Warhead::Honor::hk_honor_at_level(player->getLevel(), float(winner_kills));
     loser_kills = Warhead::Honor::hk_honor_at_level(player->getLevel(), float(loser_kills));
@@ -728,7 +729,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time_ = RESURRECTION_INTERVAL - bg->GetLastResurrectTime();      // resurrect every X seconds
+    uint32 time_ = CONF_GET_INT("Battleground.PlayerRespawn") * IN_MILLISECONDS - bg->GetLastResurrectTime();      // resurrect every X seconds
     if (time_ == uint32(-1))
         time_ = 0;
     data << guid << time_;
@@ -795,7 +796,7 @@ uint8 BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId bgQueueTypeId)
 
 void BattlegroundMgr::ToggleTesting()
 {
-    if (sWorld->getBoolConfig(CONFIG_DEBUG_BATTLEGROUND))
+    if (CONF_GET_BOOL("Debug.Battleground"))
     {
         m_Testing = true;
         sWorld->SendWorldText(LANG_DEBUG_BG_CONF);
@@ -809,7 +810,7 @@ void BattlegroundMgr::ToggleTesting()
 
 void BattlegroundMgr::ToggleArenaTesting()
 {
-    if (sWorld->getBoolConfig(CONFIG_DEBUG_ARENA))
+    if (CONF_GET_BOOL("Debug.Arena"))
     {
         m_ArenaTesting = true;
         sWorld->SendWorldText(LANG_DEBUG_ARENA_CONF);
@@ -841,12 +842,12 @@ void BattlegroundMgr::ScheduleArenaQueueUpdate(uint32 arenaRatedTeamId, Battlegr
 
 uint32 BattlegroundMgr::GetRatingDiscardTimer() const
 {
-    return sWorld->getIntConfig(CONFIG_ARENA_RATING_DISCARD_TIMER);
+    return CONF_GET_UINT("Arena.RatingDiscardTimer");
 }
 
 uint32 BattlegroundMgr::GetPrematureFinishTime() const
 {
-    return sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER);
+    return CONF_GET_UINT("Battleground.PrematureFinishTimer");
 }
 
 void BattlegroundMgr::LoadBattleMastersEntry()

@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 BanManager* BanManager::instance()
 {
@@ -78,7 +79,7 @@ BanReturn BanManager::BanAccount(std::string const& AccountName, std::string con
 
     LoginDatabase.CommitTransaction(trans);
 
-    if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
+    if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         bool IsPermanetly = true;
 
@@ -140,7 +141,7 @@ BanReturn BanManager::BanAccountByPlayerName(std::string const& CharacterName, s
 
     LoginDatabase.CommitTransaction(trans);
 
-    if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
+    if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         bool IsPermanetly = true;
 
@@ -180,7 +181,7 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string const& Duration, 
     stmt->setString(3, Reason);
     LoginDatabase.Execute(stmt);
 
-    if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
+    if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         bool IsPermanetly = true;
 
@@ -250,7 +251,7 @@ BanReturn BanManager::BanCharacter(std::string const& CharacterName, std::string
     if (target)
         target->GetSession()->KickPlayer("Ban");
 
-    if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
+    if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         bool IsPermanetly = true;
 

@@ -20,6 +20,7 @@
 #include "MoveSpline.h"
 #include "Transport.h"
 #include "TransportMgr.h"
+#include "GameConfig.h"
 
 TransportTemplate::~TransportTemplate()
 {
@@ -427,7 +428,7 @@ void TransportMgr::SpawnContinentTransports()
     oldMSTime = getMSTime();
     QueryResult result;
 
-    if (sWorld->getBoolConfig(CONFIG_ENABLE_CONTINENT_TRANSPORT))
+    if (CONF_GET_BOOL("IsContinentTransport.Enabled"))
     {
         result = WorldDatabase.Query("SELECT guid, entry FROM transports");
         if (result)
@@ -448,7 +449,7 @@ void TransportMgr::SpawnContinentTransports()
         LOG_INFO("server", ">> Spawned %u continent motion transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         LOG_INFO("server", " ");
 
-        if (sWorld->getBoolConfig(CONFIG_ENABLE_CONTINENT_TRANSPORT_PRELOADING))
+        if (CONF_GET_BOOL("IsPreloadedContinentTransport.Enabled"))
         {
             // pussywizard: preload grids for continent static transports
             oldMSTime = getMSTime();

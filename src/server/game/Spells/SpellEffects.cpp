@@ -68,6 +68,7 @@
 #include "VMapFactory.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -5680,7 +5681,7 @@ void Spell::EffectProspecting(SpellEffIndex /*effIndex*/)
     if (itemTarget->GetCount() < 5)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_SKILL_PROSPECTING))
+    if (CONF_GET_BOOL("SkillChance.Prospecting"))
     {
         uint32 SkillValue = p_caster->GetPureSkillValue(SKILL_JEWELCRAFTING);
         uint32 reqSkillValue = itemTarget->GetTemplate()->RequiredSkillRank;
@@ -5705,7 +5706,7 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     if (itemTarget->GetCount() < 5)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_SKILL_MILLING))
+    if (CONF_GET_BOOL("SkillChance.Milling"))
     {
         uint32 SkillValue = p_caster->GetPureSkillValue(SKILL_INSCRIPTION);
         uint32 reqSkillValue = itemTarget->GetTemplate()->RequiredSkillRank;
@@ -6146,7 +6147,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
             }
         }
 
-    summonLevel = std::min<uint8>(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF), std::max<uint8>(1U, summonLevel));
+    summonLevel = std::min<uint8>(CONF_GET_INT("MaxPlayerLevel") + CONF_GET_INT("WorldBossLevelDiff"), std::max<uint8>(1U, summonLevel));
 
     float radius = 5.0f;
     int32 duration = m_spellInfo->GetDuration();

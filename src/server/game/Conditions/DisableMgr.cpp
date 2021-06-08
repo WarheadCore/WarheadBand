@@ -23,6 +23,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "GameConfig.h"
 
 namespace DisableMgr
 {
@@ -381,7 +382,7 @@ namespace DisableMgr
         if (!map)
             return false;
 
-        return !MMAP::MMapFactory::forbiddenMaps[map->GetId()] && (sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS) ? true : map->IsBattlegroundOrArena());
+        return !MMAP::MMapFactory::forbiddenMaps[map->GetId()] && (CONF_GET_BOOL("MoveMaps.Enable") ? true : map->IsBattlegroundOrArena());
     }
 
 } // Namespace

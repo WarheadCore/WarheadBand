@@ -43,6 +43,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GameConfig.h"
 
 namespace Warhead
 {
@@ -438,7 +439,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return source->GetMapId() == map_id.mapId;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
             {
-                time_t birthday_start = time_t(sWorld->getIntConfig(CONFIG_BIRTHDAY_TIME));
+                time_t birthday_start = time_t(CONF_GET_INT("BirthdayTime"));
                 tm birthday_tm;
                 localtime_r(&birthday_start, &birthday_tm);
 
@@ -725,9 +726,9 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
 
         Warhead::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED, achievement->ID);
         Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> say_do(say_builder);
-        Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> > say_worker(GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), say_do);
+        Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> > say_worker(GetPlayer(), CONF_GET_FLOAT("ListenRange.Say"), say_do);
         TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-        Cell::VisitWorldObjects(GetPlayer(), say_worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+        Cell::VisitWorldObjects(GetPlayer(), say_worker, CONF_GET_FLOAT("ListenRange.Say"));
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8 + 4 + 8);
@@ -735,7 +736,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     data << uint32(achievement->ID);
     data.AppendPackedTime(time(nullptr));
     data << uint32(0);
-    GetPlayer()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    GetPlayer()->SendMessageToSetInRange(&data, CONF_GET_FLOAT("ListenRange.Say"), true);
 }
 
 void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const

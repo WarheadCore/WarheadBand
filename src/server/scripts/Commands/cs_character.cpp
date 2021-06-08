@@ -30,6 +30,7 @@ EndScriptData */
 #include "PlayerDump.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -650,7 +651,7 @@ public:
      */
     static bool HandleCharacterDeletedPurgeCommand(ChatHandler* /*handler*/, char const* args)
     {
-        int32 keepDays = sWorld->getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS);
+        int32 keepDays = CONF_GET_INT("CharDelete.KeepDays");
 
         char* daysStr = strtok((char*)args, " ");
         if (daysStr)

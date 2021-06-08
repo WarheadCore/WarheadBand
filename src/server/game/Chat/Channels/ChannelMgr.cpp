@@ -18,6 +18,7 @@
 #include "ChannelMgr.h"
 #include "Player.h"
 #include "World.h"
+#include "GameConfig.h"
 
 ChannelMgr::~ChannelMgr()
 {
@@ -32,7 +33,7 @@ ChannelMgr* ChannelMgr::forTeam(TeamId teamId)
     static ChannelMgr allianceChannelMgr(TEAM_ALLIANCE);
     static ChannelMgr hordeChannelMgr(TEAM_HORDE);
 
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    if (CONF_GET_BOOL("AllowTwoSide.Interaction.Channel"))
         return &allianceChannelMgr;        // cross-faction
 
     if (teamId == TEAM_ALLIANCE)

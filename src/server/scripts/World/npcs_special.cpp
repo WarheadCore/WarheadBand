@@ -57,6 +57,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "WaypointManager.h"
 #include "World.h"
+#include "GameConfig.h"
 
 enum elderClearwater
 {
@@ -1981,7 +1982,7 @@ public:
         ClearGossipMenuFor(player);
         bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
         bool doSwitch = false;
-        auto toggleXpCost = sWorld->getIntConfig(CONFIG_TOGGLE_XP_COST);
+        auto toggleXpCost = CONF_GET_INT("ToggleXP.Cost");
 
         switch (action)
         {

@@ -33,6 +33,7 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."
@@ -279,7 +280,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (!sWorld->getBoolConfig(CONFIG_MINIGOB_MANABONK))
+        if (!CONF_GET_BOOL("Wintergrasp.Enable"))
             return false;
 
         if (creature->IsQuestGiver())
@@ -344,7 +345,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
+            if (!CONF_GET_BOOL("Wintergrasp.Enable"))
                 return;
 
             ScriptedAI::UpdateAI(diff);
@@ -664,7 +665,7 @@ public:
                     {
                         if (quest->IsAutoComplete())
                             result2 = DIALOG_STATUS_REWARD_REP;
-                        else if (player->getLevel() <= (player->GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
+                        else if (player->getLevel() <= (player->GetQuestLevel(quest) + CONF_GET_INT("Quests.LowLevelHideDiff")))
                         {
                             if (quest->IsDaily())
                                 result2 = DIALOG_STATUS_AVAILABLE_REP;

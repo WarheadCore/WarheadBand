@@ -16,13 +16,14 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Util.h"
 #include "Warden.h"
 #include "WardenCheckMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 WardenCheckMgr::WardenCheckMgr()
 {
@@ -41,7 +42,7 @@ WardenCheckMgr* WardenCheckMgr::instance()
 void WardenCheckMgr::LoadWardenChecks()
 {
     // Check if Warden is enabled by config before loading anything
-    if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+    if (!CONF_GET_BOOL("Warden.Enabled"))
     {
         LOG_INFO("server", ">> Warden disabled, loading checks skipped.");
         LOG_INFO("server", " ");
@@ -92,7 +93,7 @@ void WardenCheckMgr::LoadWardenChecks()
         wardenCheck.CheckId = id;
 
         // Initialize action with default action from config
-        wardenCheck.Action = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION);
+        wardenCheck.Action = CONF_GET_INT("Warden.ClientCheckFailAction");
         if (wardenCheck.Action > MAX_WARDEN_ACTION)
         {
             wardenCheck.Action = WARDEN_ACTION_BAN;
@@ -166,7 +167,7 @@ void WardenCheckMgr::LoadWardenChecks()
 void WardenCheckMgr::LoadWardenOverrides()
 {
     // Check if Warden is enabled by config before loading anything
-    if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+    if (!CONF_GET_BOOL("Warden.Enabled"))
     {
         LOG_INFO("server", ">> Warden disabled, loading check overrides skipped.");
         LOG_INFO("server", " ");

@@ -33,6 +33,7 @@
 #include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
@@ -487,7 +488,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
                 // track if player refuses to join the BG after being invited
                 if (bg->isBattleground() && (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
                 {
-                    if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+                    if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                         stmt->setUInt32(0, _player->GetGUID().GetCounter());
@@ -748,7 +749,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
         if (isRated)
         {
             // pussywizard: for rated matches check if season is in progress!
-            if (!sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS))
+            if (!CONF_GET_BOOL("Arena.ArenaSeason.InProgress"))
                 return;
 
             ateamId = _player->GetArenaTeamId(arenaslot);

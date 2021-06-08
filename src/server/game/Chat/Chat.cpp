@@ -35,6 +35,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -85,7 +86,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
         return false;
 
     // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
+    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !strong && !CONF_GET_BOOL("GM.LowerSecurity"))
         return false;
 
     if (target)
@@ -163,7 +164,7 @@ bool ChatHandler::_ParseCommands(std::string_view text)
         return true;
 
     // Pretend commands don't exist for regular players
-    if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
+    if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !CONF_GET_BOOL("AllowPlayerCommands"))
         return false;
 
     // Send error message for GMs

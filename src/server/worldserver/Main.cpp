@@ -51,6 +51,7 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+#include "GameConfig.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/signal_set.hpp>
@@ -325,7 +326,7 @@ int main(int argc, char** argv)
     }
 
     // Launch the worldserver listener socket
-    uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
+    uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
     std::string worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetOption<int32>("Network.Threads", 1);

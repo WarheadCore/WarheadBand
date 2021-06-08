@@ -34,6 +34,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "QueryHolder.h"
+#include "GameConfig.h"
 
 class LoadPetFromDBQueryHolder : public CharacterDatabaseQueryHolder
 {
@@ -1203,7 +1204,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (isdeclined)
     {
-        if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+        if (CONF_GET_BOOL("DeclinedNames"))
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_DECLINEDNAME);
             stmt->setUInt32(0, pet->GetCharmInfo()->GetPetNumber());

@@ -19,6 +19,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "ScriptMgr.h"
+#include "GameConfig.h"
 
 enum IPLoggingTypes
 {
@@ -90,7 +91,7 @@ public:
     // ACCOUNT_LOGOUT = 6
     void AccountIPLogAction(uint32 accountId, IPLoggingTypes aType)
     {
-        if (!sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
+        if (!CONF_GET_BOOL("Allow.IP.Based.Action.Logging"))
             return;
 
         // Action IP Logger is only intialized if config is set up
@@ -198,7 +199,7 @@ public:
     /// Logs a number of actions done by players with an IP
     void CharacterIPLogAction(Player* player, IPLoggingTypes aType)
     {
-        if (!sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
+        if (!CONF_GET_BOOL("Allow.IP.Based.Action.Logging"))
             return;
 
         // Action IP Logger is only intialized if config is set up
@@ -270,7 +271,7 @@ public:
 
     void DeleteIPLogAction(ObjectGuid guid, ObjectGuid::LowType playerGuid, IPLoggingTypes aType)
     {
-        if (!sWorld->getBoolConfig(CONFIG_IP_BASED_ACTION_LOGGING))
+        if (!CONF_GET_BOOL("Allow.IP.Based.Action.Logging"))
             return;
 
         // Action IP Logger is only intialized if config is set up

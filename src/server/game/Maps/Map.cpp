@@ -38,6 +38,7 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -987,7 +988,7 @@ void Map::RemoveFromMap(MotionTransport* obj, bool remove)
     if (remove)
     {
         // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
+        if (!CONF_GET_BOOL("SaveRespawnTimeImmediately"))
             obj->SaveRespawnTime();
         DeleteFromWorld(obj);
     }
@@ -2297,7 +2298,7 @@ bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, floa
     if ((checks & LINEOFSIGHT_CHECK_VMAP) && !VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2))
         return false;
 
-    if (sWorld->getBoolConfig(CONFIG_CHECK_GOBJECT_LOS) && (checks & LINEOFSIGHT_CHECK_GOBJECT)
+    if (CONF_GET_BOOL("CheckGameObjectLoS") && (checks & LINEOFSIGHT_CHECK_GOBJECT)
             && !_dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask))
         return false;
     return true;
@@ -2648,7 +2649,7 @@ InstanceMap::InstanceMap(uint32 id, uint32 InstanceId, uint8 SpawnMode, Map* _pa
 
     // the timer is started by default, and stopped when the first player joins
     // this make sure it gets unloaded if for some reason no player joins
-    m_unloadTimer = std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+    m_unloadTimer = std::max(CONF_GET_UINT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
 
     // pussywizard:
     if (IsRaid())
@@ -2853,14 +2854,14 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 {
     // pussywizard: moved m_unloadTimer to InstanceMap::AfterPlayerUnlinkFromMap(), in this function if 2 players run out at the same time the instance won't close
     //if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
-    //    m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+    //    m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(CONF_GET_INT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
     Map::RemovePlayerFromMap(player, remove);
 }
 
 void InstanceMap::AfterPlayerUnlinkFromMap()
 {
     if (!m_unloadTimer && !HavePlayers())
-        m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+        m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(CONF_GET_UINT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
     Map::AfterPlayerUnlinkFromMap();
 }
 
@@ -3438,7 +3439,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const ownerGuid, bool insignia /*= 
     // create the bones only if the map and the grid is loaded at the corpse's location
     // ignore bones creating option in case insignia
     if ((insignia ||
-        (IsBattlegroundOrArena() ? sWorld->getBoolConfig(CONFIG_DEATH_BONES_BG_OR_ARENA) : sWorld->getBoolConfig(CONFIG_DEATH_BONES_WORLD))) &&
+        (IsBattlegroundOrArena() ? CONF_GET_BOOL("Death.Bones.BattlegroundOrArena") : CONF_GET_BOOL("Death.Bones.World"))) &&
         !IsRemovalGrid(corpse->GetPositionX(), corpse->GetPositionY()))
     {
         // Create bones, don't change Corpse

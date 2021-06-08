@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "QuestDef.h"
+#include "GameConfig.h"
 
 using namespace Warhead::Hyperlinks;
 
@@ -332,7 +333,7 @@ static bool ValidateAs(HyperlinkInfo const& info)
     if (!TAG::StoreTo(t, info.data))
         return false;
 
-    int32 const severity = static_cast<int32>(sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY));
+    int32 const severity = static_cast<int32>(CONF_GET_INT("ChatStrictLinkChecking.Severity"));
     if (severity >= 0)
     {
         if (!LinkValidator<TAG>::IsColorValid(t, info.color))

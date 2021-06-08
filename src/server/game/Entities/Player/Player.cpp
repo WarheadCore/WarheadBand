@@ -90,6 +90,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -766,7 +767,7 @@ Player::Player(WorldSession* session): Unit(true), m_mover(this)
     m_zoneUpdateId = uint32(-1);
     m_zoneUpdateTimer = 0;
 
-    m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
+    m_nextSave = CONF_GET_INT("PlayerSaveInterval");
 
     m_areaUpdateId = 0;
     m_team = TEAM_NEUTRAL;
@@ -1108,7 +1109,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     SetUInt32Value(UNIT_FIELD_BYTES_0, (RaceClassGender | (powertype << 24)));
     InitDisplayIds();
-    if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
+    if (CONF_GET_INT("GameType") == REALM_TYPE_PVP || CONF_GET_INT("GameType") == REALM_TYPE_RPPVP)
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
@@ -1143,12 +1144,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     // set starting level
     uint32 start_level = getClass() != CLASS_DEATH_KNIGHT
-                         ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-                         : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+                         ? CONF_GET_INT("StartPlayerLevel")
+                         : CONF_GET_INT("StartHeroicPlayerLevel");
 
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
     {
-        uint32 gm_level = sWorld->getIntConfig(CONFIG_START_GM_LEVEL);
+        uint32 gm_level = CONF_GET_INT("GM.StartLevel");
         if (gm_level > start_level)
             start_level = gm_level;
     }
@@ -1157,12 +1158,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     InitRunes();
 
-    SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
-    SetHonorPoints(sWorld->getIntConfig(CONFIG_START_HONOR_POINTS));
-    SetArenaPoints(sWorld->getIntConfig(CONFIG_START_ARENA_POINTS));
+    SetUInt32Value(PLAYER_FIELD_COINAGE, CONF_GET_INT("StartPlayerMoney"));
+    SetHonorPoints(CONF_GET_INT("StartHonorPoints"));
+    SetArenaPoints(CONF_GET_INT("StartArenaPoints"));
 
     // start with every map explored
-    if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
+    if (CONF_GET_BOOL("PlayerStart.MapsExplored"))
     {
         for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
             SetFlag(PLAYER_EXPLORED_ZONES_1 + i, 0xFFFFFFFF);
@@ -1407,7 +1408,7 @@ int32 Player::getMaxTimer(MirrorTimerType timer)
             return MINUTE * IN_MILLISECONDS;
         case BREATH_TIMER:
             {
-                if (!IsAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_DISABLE_BREATHING)))
+                if (!IsAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= AccountTypes(CONF_GET_INT("DisableWaterBreath")))
                     return DISABLED_MIRROR_TIMER;
                 int32 UnderWaterTime = 3 * MINUTE * IN_MILLISECONDS;
                 AuraEffectList const& mModWaterBreathing = GetAuraEffectsByType(SPELL_AURA_MOD_WATER_BREATHING);
@@ -1792,7 +1793,7 @@ void Player::Update(uint32 p_time)
             {
                 _restTime = currTime;
 
-                float bubble = 0.125f * sWorld->getRate(RATE_REST_INGAME);
+                float bubble = 0.125f * CONF_GET_FLOAT("Rate.Rest.InGame");
                 float extraPerSec = ((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000.0f) * bubble;
 
                 // speed collect rest bonus (section/in hour)
@@ -2126,7 +2127,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
         charFlags |= CHARACTER_FLAG_RENAME;
     if (fields[23].GetUInt32())
         charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+    if (CONF_GET_BOOL("DeclinedNames"))
     {
         if (!fields[25].GetString().empty())
             charFlags |= CHARACTER_FLAG_DECLINED;
@@ -2779,10 +2780,10 @@ void Player::Regenerate(Powers power)
         case POWER_MANA:
             {
                 bool recentCast = IsUnderLastManaUseEffect();
-                float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
+                float ManaIncreaseRate = CONF_GET_FLOAT("Rate.Mana");
 
                 if (getLevel() < 15)
-                    ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA) * (2.066f - (getLevel() * 0.066f));
+                    ManaIncreaseRate = CONF_GET_FLOAT("Rate.Mana") * (2.066f - (getLevel() * 0.066f));
 
                 if (recentCast) // Trinity Updates Mana in intervals of 2s, which is correct
                     addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * 0.001f * m_regenTimer;
@@ -2794,19 +2795,19 @@ void Player::Regenerate(Powers power)
             {
                 if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    float RageDecreaseRate = sWorld->getRate(RATE_POWER_RAGE_LOSS);
+                    float RageDecreaseRate = CONF_GET_FLOAT("Rate.Rage.Loss");
                     addvalue += -20 * RageDecreaseRate;               // 2 rage by tick (= 2 seconds => 1 rage/sec)
                 }
             }
             break;
         case POWER_ENERGY:                                  // Regenerate energy (rogue)
-            addvalue += 0.01f * m_regenTimer * sWorld->getRate(RATE_POWER_ENERGY);
+            addvalue += 0.01f * m_regenTimer * CONF_GET_FLOAT("Rate.Energy");
             break;
         case POWER_RUNIC_POWER:
             {
                 if (!IsInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
-                    float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
+                    float RunicPowerDecreaseRate = CONF_GET_FLOAT("Rate.RunicPower.Loss");
                     addvalue += -30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
                 }
             }
@@ -2889,10 +2890,10 @@ void Player::RegenerateHealth()
     if (curValue >= maxValue)
         return;
 
-    float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
+    float HealthIncreaseRate = CONF_GET_FLOAT("Rate.Health");
 
     if (getLevel() < 15)
-        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
+        HealthIncreaseRate = CONF_GET_FLOAT("Rate.Health") * (2.066f - (getLevel() * 0.066f));
 
     float addvalue = 0.0f;
 
@@ -3204,7 +3205,7 @@ void Player::SetGMVisible(bool on)
 
 bool Player::IsGroupVisibleFor(Player const* p) const
 {
-    switch (sWorld->getIntConfig(CONFIG_GROUP_VISIBILITY))
+    switch (CONF_GET_INT("Visibility.GroupMode"))
     {
         default:
             return IsInSameGroupWith(p);
@@ -3304,7 +3305,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     // Favored experience increase END
 
     // XP to money conversion processed in Player::RewardQuest
-    if (level >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (level >= CONF_GET_INT("MaxPlayerLevel"))
         return;
 
     uint32 bonus_xp = 0;
@@ -3322,11 +3323,11 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
     uint32 newXP = curXP + xp + bonus_xp;
 
-    while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    while (newXP >= nextLvlXP && level < CONF_GET_INT("MaxPlayerLevel"))
     {
         newXP -= nextLvlXP;
 
-        if (level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (level < CONF_GET_INT("MaxPlayerLevel"))
             GiveLevel(level + 1);
 
         level = getLevel();
@@ -3395,7 +3396,7 @@ void Player::GiveLevel(uint8 level)
 
     UpdateAllStats();
 
-    if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
+    if (CONF_GET_BOOL("AlwaysMaxWeaponSkill")) // Max weapon skill when leveling up
         UpdateSkillsToMaxSkillsForLevel();
 
     _ApplyAllLevelScaleItemMods(true);
@@ -3426,7 +3427,7 @@ void Player::GiveLevel(uint8 level)
 
     // Refer-A-Friend
     if (GetSession()->GetRecruiterId())
-        if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+        if (level < CONF_GET_INT("RecruitAFriend.MaxLevel"))
             if (level % 2 == 0)
             {
                 ++m_grantableLevels;
@@ -3464,7 +3465,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(true), getClass(), getLevel(), &info);
 
-    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, CONF_GET_INT("MaxPlayerLevel"));
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
 
     // reset before any aura state sources (health set/aura apply)
@@ -4280,7 +4281,7 @@ void Player::removeSpell(uint32 spellId, uint8 removeSpecMask, bool onlyTemporar
     if (spellInfo->IsPrimaryProfessionFirstRank())
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints() + 1;
-        if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
+        if (freeProfs <= CONF_GET_UINT("MaxPrimaryTradeSkill"))
             SetFreePrimaryProfessions(freeProfs);
     }
 
@@ -4591,7 +4592,7 @@ bool Player::resetTalents(bool noResetCost)
 
     // xinef: check if we have enough money
     uint32 resetCost = 0;
-    if (!noResetCost && !sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
+    if (!noResetCost && !CONF_GET_BOOL("NoResetTalentsCost"))
     {
         resetCost = resetTalentsCost();
         if (!HasEnoughMoney(resetCost))
@@ -4852,8 +4853,8 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
 
     ObjectGuid playerGuid = ObjectGuid::Create<HighGuid::Player>(lowGuid);
 
-    uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
-    uint32 charDelete_minLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
+    uint32 charDelete_method = CONF_GET_INT("CharDelete.Method");
+    uint32 charDelete_minLvl = CONF_GET_INT("CharDelete.MinLevel");
 
     // if we want to finally delete the character or the character does not meet the level requirement,
     // we set it to mode CHAR_DELETE_REMOVE
@@ -5064,7 +5065,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
                 stmt->setUInt32(0, lowGuid);
                 trans->Append(stmt);
 
-                if (sWorld->getBoolConfig(CONFIG_DELETE_CHARACTER_TICKET_TRACE))
+                if (CONF_GET_BOOL("DeletedCharacterTicketTrace"))
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_GM_TICKETS_ON_CHAR_DELETION);
                     stmt->setUInt32(0, lowGuid);
@@ -5189,7 +5190,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
  */
 void Player::DeleteOldCharacters()
 {
-    uint32 keepDays = sWorld->getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS);
+    uint32 keepDays = CONF_GET_INT("CharDelete.KeepDays");
     if (!keepDays)
         return;
 
@@ -5355,7 +5356,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     //Characters from level 11-19 will suffer from one minute of sickness
     //for each level they are above 10.
     //Characters level 20 and up suffer from ten minutes of sickness.
-    int32 startLevel = sWorld->getIntConfig(CONFIG_DEATH_SICKNESS_LEVEL);
+    int32 startLevel = CONF_GET_INT("Death.SicknessLevel");
 
     if (int32(getLevel()) >= startLevel)
     {
@@ -5694,7 +5695,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             uint32 dmultiplier = dcost->multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->Class, ditemProto->SubClass)];
             uint32 costs = uint32(LostDurability * dmultiplier * double(dQualitymodEntry->quality_mod));
 
-            costs = uint32(costs * discountMod * sWorld->getRate(RATE_REPAIRCOST));
+            costs = uint32(costs * discountMod * CONF_GET_FLOAT("Rate.RepairCost"));
 
             if (costs == 0)                                   //fix for ITEM_QUALITY_ARTIFACT
                 costs = 1;
@@ -5797,7 +5798,7 @@ void Player::RepopAtGraveyard()
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
 {
     // Player can join LFG anywhere
-    if (channel->flags & CHANNEL_DBC_FLAG_LFG && sWorld->getBoolConfig(CONFIG_LFG_LOCATION_ALL))
+    if (channel->flags & CHANNEL_DBC_FLAG_LFG && CONF_GET_BOOL("LFG.Location.All"))
         return true;
 
     if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
@@ -5926,7 +5927,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
 void Player::UpdateDefense()
 {
-    if (UpdateSkill(SKILL_DEFENSE, sWorld->getIntConfig(CONFIG_SKILL_GAIN_DEFENSE)))
+    if (UpdateSkill(SKILL_DEFENSE, CONF_GET_INT("SkillGain.Defense")))
         UpdateDefenseBonusesMod(); // update dependent from defense skill part
 }
 
@@ -6354,12 +6355,12 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
 inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
 {
     if (SkillValue >= GrayLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY) * 10;
+        return CONF_GET_INT("SkillChance.Grey") * 10;
     if (SkillValue >= GreenLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN) * 10;
+        return CONF_GET_INT("SkillChance.Green") * 10;
     if (SkillValue >= YellowLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW) * 10;
-    return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE) * 10;
+        return CONF_GET_INT("SkillChance.Yellow") * 10;
+    return CONF_GET_INT("SkillChance.Orange") * 10;
 }
 
 bool Player::UpdateCraftSkill(uint32 spellid)
@@ -6384,7 +6385,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
                     learnSpell(discoveredSpell);
             }
 
-            uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
+            uint32 craft_skill_gain = CONF_GET_INT("SkillGain.Crafting");
 
             return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
                                   _spell_idx->second->max_value,
@@ -6402,7 +6403,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     LOG_DEBUG("entities.player.skills", "UpdateGatherSkill(SkillId %d SkillLevel %d RedLevel %d)", SkillId, SkillValue, RedLevel);
 #endif
 
-    uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
+    uint32 gathering_skill_gain = CONF_GET_INT("SkillGain.Gathering");
 
     // For skinning and Mining chance decrease with level. 1-74 - no decrease, 75-149 - 2 times, 225-299 - 8 times
     switch (SkillId)
@@ -6413,15 +6414,15 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
         case SKILL_INSCRIPTION:
             return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator, gathering_skill_gain);
         case SKILL_SKINNING:
-            if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS) == 0)
+            if (CONF_GET_INT("SkillChance.SkinningSteps") == 0)
                 return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator, gathering_skill_gain);
             else
-                return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator) >> (SkillValue / sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)), gathering_skill_gain);
+                return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator) >> (SkillValue / CONF_GET_INT("SkillChance.SkinningSteps")), gathering_skill_gain);
         case SKILL_MINING:
-            if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS) == 0)
+            if (CONF_GET_INT("SkillChance.MiningSteps") == 0)
                 return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator, gathering_skill_gain);
             else
-                return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator) >> (SkillValue / sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS)), gathering_skill_gain);
+                return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator) >> (SkillValue / CONF_GET_INT("SkillChance.MiningSteps")), gathering_skill_gain);
     }
     return false;
 }
@@ -6460,7 +6461,7 @@ bool Player::UpdateFishingSkill()
     /* Whenever the player clicks on the fishing gameobject the
      * core will decide based on a probability if the skill raises or not.
      */
-    return UpdateSkillPro(SKILL_FISHING, static_cast<int32>(getProbabilityOfLevelUp(SkillValue)) * 10, sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING));
+    return UpdateSkillPro(SKILL_FISHING, static_cast<int32>(getProbabilityOfLevelUp(SkillValue)) * 10, CONF_GET_INT("SkillGain.Gathering"));
 }
 
 // levels sync. with spell requirement for skill levels to learn
@@ -6544,7 +6545,7 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
     if (victim->GetTypeId() == TYPEID_UNIT && (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SKILL_GAINS))
         return;
 
-    uint32 weapon_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_WEAPON);
+    uint32 weapon_skill_gain = CONF_GET_INT("SkillGain.Weapon");
 
     Item* tmpitem = GetWeaponForAttack(attType, true);
     if (!tmpitem && attType == BASE_ATTACK)
@@ -6631,7 +6632,7 @@ void Player::UpdateSkillsForLevel()
     uint16 maxconfskill = sWorld->GetConfigMaxSkillValue();
     uint32 maxSkill = GetMaxSkillValueForLevel();
 
-    bool alwaysMaxSkill = sWorld->getBoolConfig(CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL);
+    bool alwaysMaxSkill = CONF_GET_BOOL("AlwaysMaxSkillForLevel");
 
     for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
     {
@@ -7129,7 +7130,7 @@ void Player::CheckAreaExploreAndOutdoor()
     uint32 areaId = GetBaseMap()->GetAreaId(GetPositionX(), GetPositionY(), GetPositionZ(), &isOutdoor);
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && !isOutdoor)
+    if (CONF_GET_BOOL("vmap.enableIndoorCheck") && !isOutdoor)
         RemoveAurasWithAttribute(SPELL_ATTR0_ONLY_OUTDOORS);
 
     if (!sScriptMgr->CanAreaExploreAndOutdoor(this))
@@ -7166,7 +7167,7 @@ void Player::CheckAreaExploreAndOutdoor()
 
         if (areaEntry->area_level > 0)
         {
-            if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+            if (getLevel() >= CONF_GET_INT("MaxPlayerLevel"))
             {
                 SendExplorationExperience(areaId, 0);
             }
@@ -7176,7 +7177,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 uint32 XP = 0;
                 if (diff < -5)
                 {
-                    XP = uint32(sObjectMgr->GetBaseXP(getLevel() + 5) * sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(getLevel() + 5) * CONF_GET_FLOAT("Rate.XP.Explore"));
                 }
                 else if (diff > 5)
                 {
@@ -7186,11 +7187,11 @@ void Player::CheckAreaExploreAndOutdoor()
                     else if (exploration_percent < 0)
                         exploration_percent = 0;
 
-                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * exploration_percent / 100 * sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * exploration_percent / 100 * CONF_GET_FLOAT("Rate.XP.Explore"));
                 }
                 else
                 {
-                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * sWorld->getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(areaEntry->area_level) * CONF_GET_FLOAT("Rate.XP.Explore"));
                 }
 
                 GiveXP(XP, nullptr);
@@ -7258,14 +7259,14 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
     switch (source)
     {
         case REPUTATION_SOURCE_KILL:
-            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+            rate = CONF_GET_FLOAT("Rate.Reputation.LowLevel.Kill");
             break;
         case REPUTATION_SOURCE_QUEST:
         case REPUTATION_SOURCE_DAILY_QUEST:
         case REPUTATION_SOURCE_WEEKLY_QUEST:
         case REPUTATION_SOURCE_MONTHLY_QUEST:
         case REPUTATION_SOURCE_REPEATABLE_QUEST:
-            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
+            rate = CONF_GET_FLOAT("Rate.Reputation.LowLevel.Quest");
             break;
         case REPUTATION_SOURCE_SPELL:
         default:
@@ -7316,7 +7317,7 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
     }
 
     if (source != REPUTATION_SOURCE_SPELL && GetsRecruitAFriendBonus(false))
-        percent *= 1.0f + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS);
+        percent *= 1.0f + CONF_GET_FLOAT("Rate.Reputation.RecruitAFriendBonus");
 
     return CalculatePct(rep, percent);
 }
@@ -7575,7 +7576,7 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
         AddPct(honor_f, GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT));
     }
 
-    honor_f *= sWorld->getRate(RATE_HONOR);
+    honor_f *= CONF_GET_FLOAT("Rate.Honor");
     // Back to int now
     honor = int32(honor_f);
     // honor - for show honor points in log
@@ -7607,7 +7608,7 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
                 GiveXP(uint32(honor * (3 + getLevel() * 0.30f)), nullptr);
         }
 
-    if (sWorld->getBoolConfig(CONFIG_PVP_TOKEN_ENABLE))
+    if (CONF_GET_BOOL("PvPToken.Enable"))
     {
         if (!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
@@ -7615,14 +7616,14 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
         if (uVictim->GetTypeId() == TYPEID_PLAYER)
         {
             // Check if allowed to receive it in current map
-            uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
+            uint8 MapType = CONF_GET_INT("PvPToken.MapAllowType");
             if ((MapType == 1 && !InBattleground() && !IsFFAPvP())
                     || (MapType == 2 && !IsFFAPvP())
                     || (MapType == 3 && !InBattleground()))
                 return true;
 
-            uint32 itemID = sWorld->getIntConfig(CONFIG_PVP_TOKEN_ID);
-            int32 count = sWorld->getIntConfig(CONFIG_PVP_TOKEN_COUNT);
+            uint32 itemID = CONF_GET_INT("PvPToken.ItemID");
+            int32 count = CONF_GET_INT("PvPToken.ItemCount");
 
             if (AddItem(itemID, count))
                 ChatHandler(GetSession()).PSendSysMessage("You have been awarded a token for slaying another player.");
@@ -7634,8 +7635,8 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
 
 void Player::SetHonorPoints(uint32 value)
 {
-    if (value > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
-        value = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+    if (value > CONF_GET_UINT("MaxHonorPoints"))
+        value = CONF_GET_UINT("MaxHonorPoints");
     SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, value);
     if (value)
         AddKnownCurrency(ITEM_HONOR_POINTS_ID);
@@ -7643,8 +7644,8 @@ void Player::SetHonorPoints(uint32 value)
 
 void Player::SetArenaPoints(uint32 value)
 {
-    if (value > sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS))
-        value = sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS);
+    if (value > CONF_GET_UINT("MaxArenaPoints"))
+        value = CONF_GET_UINT("MaxArenaPoints");
     SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, value);
     if (value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
@@ -7873,7 +7874,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if (!zone)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_WEATHER))
+    if (CONF_GET_BOOL("ActivateWeather"))
     {
         if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
             weather->SendWeatherUpdateToPlayer(this);
@@ -8026,7 +8027,7 @@ void Player::DuelComplete(DuelCompleteType type)
                 duel->opponent->CastSpell(duel->opponent, 52994, true);
 
             // Honor points after duel (the winner) - ImpConfig
-            if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
+            if (uint32 amount = CONF_GET_INT("HonorPointsAfterDuel"))
                 duel->opponent->RewardHonor(nullptr, 1, amount);
 
             break;
@@ -9453,7 +9454,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel) / 5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            bones->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel) / 5.76f, 2.5f) * CONF_GET_FLOAT("Rate.Drop.Money"));
         }
 
         if (bones->lootRecipient != this)
@@ -9495,7 +9496,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     // Generate extra money for pick pocket loot
                     const uint32 a = urand(0, creature->getLevel() / 2);
                     const uint32 b = urand(0, getLevel() / 2);
-                    loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
+                    loot->gold = uint32(10 * (a + b) * CONF_GET_FLOAT("Rate.Drop.Money"));
                     permission = OWNER_PERMISSION;
                 }
                 else
@@ -9695,9 +9696,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     data << uint32(0x8d4) << uint32(0x0);                   // 5
     data << uint32(0x8d3) << uint32(0x0);                   // 6
     // 7 1 - Arena season in progress, 0 - end of season
-    data << uint32(0xC77) << uint32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS));
+    data << uint32(0xC77) << uint32(CONF_GET_BOOL("Arena.ArenaSeason.InProgress"));
     // 8 Arena season id
-    data << uint32(0xF3D) << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+    data << uint32(0xF3D) << uint32(CONF_GET_UINT("Arena.ArenaSeason.ID"));
 
     if (mapid == 530)                                       // Outland
     {
@@ -10328,7 +10329,7 @@ void Player::SendBGWeekendWorldStates()
 void Player::SendBattlefieldWorldStates()
 {
     /// Send misc stuff that needs to be sent on every login, like the battle timers.
-    if (sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE))
+    if (CONF_GET_BOOL("Wintergrasp.Enable"))
     {
         if (BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
         {
@@ -10369,7 +10370,7 @@ void Player::SendTalentWipeConfirm(ObjectGuid guid)
 {
     WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8 + 4));
     data << guid;
-    uint32 cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : resetTalentsCost();
+    uint32 cost = CONF_GET_BOOL("NoResetTalentsCost") ? 0 : resetTalentsCost();
     data << cost;
     GetSession()->SendPacket(&data);
 }
@@ -12842,7 +12843,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, item, count);
         pItem = StoreItem(dest, pItem, update);
 
-        if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound() && sWorld->getBoolConfig(CONFIG_SET_BOP_ITEM_TRADEABLE))
+        if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound() && CONF_GET_BOOL("Item.SetItemTradeable"))
         {
             pItem->SetSoulboundTradeable(allowedLooters);
             pItem->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, GetTotalPlayedTime());
@@ -15189,7 +15190,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     }
                 case GOSSIP_OPTION_LEARNDUALSPEC:
                 case GOSSIP_OPTION_DUALSPEC_INFO:
-                    if (!(GetSpecsCount() == 1 && creature->isCanTrainingAndResetTalentsOf(this) && !(getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))))
+                    if (!(GetSpecsCount() == 1 && creature->isCanTrainingAndResetTalentsOf(this) && !(getLevel() < CONF_GET_INT("MinDualSpecLevel"))))
                         canTalk = false;
                     break;
                 case GOSSIP_OPTION_UNLEARNTALENTS:
@@ -15292,7 +15293,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         }
     }
 
-    if (sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 2 && npcflags & UNIT_NPC_FLAG_FLIGHTMASTER)
+    if (CONF_GET_INT("InstantFlightPaths") == 2 && npcflags & UNIT_NPC_FLAG_FLIGHTMASTER)
         menu->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_INTERACT_1, GetSession()->GetWarheadString(LANG_TOGGLE_INSTANT_FLIGHT), 0, GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT, "", 0, false); // instant flight toggle option
 }
 
@@ -15346,7 +15347,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     uint32 gossipOptionId = item->OptionType;
     ObjectGuid guid = source->GetGUID();
 
-    if (sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 2 && source->GetTypeId() == TYPEID_UNIT)
+    if (CONF_GET_INT("InstantFlightPaths") == 2 && source->GetTypeId() == TYPEID_UNIT)
     {
         if (gossipOptionId == GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT && source->GetUInt32Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_FLIGHTMASTER)
         {
@@ -15421,7 +15422,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             GetSession()->SendTrainerList(guid);
             break;
         case GOSSIP_OPTION_LEARNDUALSPEC:
-            if (GetSpecsCount() == 1 && getLevel() >= sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))
+            if (GetSpecsCount() == 1 && getLevel() >= CONF_GET_INT("MinDualSpecLevel"))
             {
                 // Cast spells that teach dual spec
                 // Both are also ImplicitTarget self and must be cast by player
@@ -15722,7 +15723,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
             SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
             SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
-        return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= quest->GetMinLevel();
+        return getLevel() + CONF_GET_UINT("Quests.HighLevelHideDiff") >= quest->GetMinLevel();
     }
 
     return false;
@@ -16062,7 +16063,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     SendQuestUpdate(quest_id);
 
     // check if Quest Tracker is enabled
-    if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER))
+    if (CONF_GET_BOOL("Quests.EnableQuestTracker"))
     {
         // prepare Quest Tracker datas
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_TRACK);
@@ -16107,7 +16108,7 @@ void Player::CompleteQuest(uint32 quest_id)
     AdditionalSavingAddMask(ADDITIONAL_SAVING_INVENTORY_AND_GOLD | ADDITIONAL_SAVING_QUEST_STATUS);
 
     // check if Quest Tracker is enabled
-    if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER))
+    if (CONF_GET_BOOL("Quests.EnableQuestTracker"))
     {
         // prepare Quest Tracker datas
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_COMPLETE_TIME);
@@ -16237,7 +16238,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         AddPct(XP, (*i)->GetAmount());
 
     int32 moneyRew = 0;
-    if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(this))
+    if (getLevel() >= CONF_GET_INT("MaxPlayerLevel") || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(this))
     {
         moneyRew = quest->GetRewMoneyMaxLevel();
     }
@@ -17136,7 +17137,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             {
                 if (SatisfyQuestLevel(quest, false))
                 {
-                    bool isLowLevel = (getLevel() > (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)));
+                    bool isLowLevel = (getLevel() > (GetQuestLevel(quest) + CONF_GET_INT("Quests.LowLevelHideDiff")));
 
                     if (quest->IsAutoComplete())
                     {
@@ -17748,7 +17749,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
     data << uint32(questid);
 
-    if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (getLevel() < CONF_GET_INT("MaxPlayerLevel"))
     {
         data << uint32(XP);
         data << uint32(quest->GetRewOrReqMoney());
@@ -18566,8 +18567,8 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
         //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
         float bubble1 = 0.125f;
         float bubble = fields[28].GetUInt8() > 0
-                       ? bubble1 * sWorld->getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
-                       : bubble0 * sWorld->getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
+                       ? bubble1 * CONF_GET_FLOAT("Rate.Rest.Offline.InTavernOrCity")
+                       : bubble0 * CONF_GET_FLOAT("Rate.Rest.Offline.InWilderness");
 
         SetRestBonus(GetRestBonus() + time_diff * ((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000)*bubble);
     }
@@ -18670,7 +18671,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     // GM state
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
     {
-        switch (sWorld->getIntConfig(CONFIG_GM_LOGIN_STATE))
+        switch (CONF_GET_INT("GM.LoginState"))
         {
             default:
             case 0:
@@ -18684,7 +18685,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
                 break;
         }
 
-        switch (sWorld->getIntConfig(CONFIG_GM_VISIBLE_STATE))
+        switch (CONF_GET_INT("GM.Visible"))
         {
             default:
             case 0:
@@ -18698,7 +18699,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
                 break;
         }
 
-        switch (sWorld->getIntConfig(CONFIG_GM_CHAT))
+        switch (CONF_GET_INT("GM.Chat"))
         {
             default:
             case 0:
@@ -18712,7 +18713,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
                 break;
         }
 
-        switch (sWorld->getIntConfig(CONFIG_GM_WHISPERING_TO))
+        switch (CONF_GET_INT("GM.WhisperingTo"))
         {
             default:
             case 0:
@@ -19916,7 +19917,7 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
         if (!mapEntry)
             return false;
 
-        if (!sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+        if (!CONF_GET_BOOL("Instance.IgnoreLevel"))
         {
             if (ar->levelMin && getLevel() < ar->levelMin)
                 LevelMin = ar->levelMin;
@@ -20013,7 +20014,7 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
 
         //Check if avg ILVL requirement is allowed
         bool ilvlRequirementNotMet = false;
-        if (sWorld->getBoolConfig(CONFIG_DUNGEON_ACCESS_REQUIREMENTS_PORTAL_CHECK_ILVL))
+        if (CONF_GET_BOOL("DungeonAccessRequirements.PortalAvgIlevelCheck"))
         {
             const int32 currentIlvl = (int32)GetAverageItemLevelForDF();
             if (ar->reqItemLevel > currentIlvl)
@@ -20033,7 +20034,7 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
 
             if (report)
             {
-                uint8 requirementPrintMode = sWorld->getIntConfig(CONFIG_DUNGEON_ACCESS_REQUIREMENTS_PRINT_MODE);
+                uint8 requirementPrintMode = CONF_GET_INT("DungeonAccessRequirements.PrintMode");
 
                 if (requirementPrintMode == 0)
                 {
@@ -20128,7 +20129,7 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
                 }
 
                 //Print the extra string
-                uint32 optionalStringID = sWorld->getIntConfig(CONFIG_DUNGEON_ACCESS_REQUIREMENTS_OPTIONAL_STRING_ID);
+                uint32 optionalStringID = CONF_GET_INT("DungeonAccessRequirements.OptionalStringID");
                 if (optionalStringID > 0)
                 {
                     ChatHandler(GetSession()).SendSysMessage(optionalStringID);
@@ -20171,7 +20172,7 @@ bool Player::CheckInstanceLoginValid()
 
 bool Player::CheckInstanceCount(uint32 instanceId) const
 {
-    if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
+    if (_instanceResetTimes.size() < CONF_GET_UINT("AccountInstancesPerHour"))
         return true;
     return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
 }
@@ -20251,7 +20252,7 @@ void Player::SaveToDB(bool create, bool logout)
 void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create, bool logout)
 {
     // delay auto save at any saves (manual, in code, or autosave)
-    m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
+    m_nextSave = CONF_GET_INT("PlayerSaveInterval");
 
     //lets allow only players in world to be saved
     if (IsBeingTeleportedFar())
@@ -20302,7 +20303,7 @@ void Player::SaveToDB(CharacterDatabaseTransaction trans, bool create, bool logo
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
-    if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
+    if (m_session->isLogingOut() || !CONF_GET_BOOL("PlayerSave.Stats.SaveOnlyOnLogout"))
         _SaveStats(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
@@ -20941,7 +20942,7 @@ void Player::_SaveSpells(CharacterDatabaseTransaction trans)
 void Player::_SaveStats(CharacterDatabaseTransaction trans)
 {
     // check if stat saving is enabled and if char level is high enough
-    if (!sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE) || getLevel() < sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE))
+    if (!CONF_GET_INT("PlayerSave.Stats.MinLevel") || getLevel() < CONF_GET_INT("PlayerSave.Stats.MinLevel"))
         return;
 
     CharacterDatabasePreparedStatement* stmt = nullptr;
@@ -21013,7 +21014,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
     time_t current = time (nullptr);
     if (m_speakTime > current)
     {
-        uint32 max_count = specialMessageLimit ? specialMessageLimit : sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
+        uint32 max_count = specialMessageLimit ? specialMessageLimit : CONF_GET_INT("ChatFlood.MessageCount");
         if (!max_count)
             return;
 
@@ -21021,7 +21022,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         if (m_speakCount >= max_count)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
-            time_t new_mute = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MUTE_TIME);
+            time_t new_mute = current + CONF_GET_INT("ChatFlood.MuteTime");
             if (GetSession()->m_muteTime < new_mute)
                 GetSession()->m_muteTime = new_mute;
 
@@ -21031,7 +21032,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
     else
         m_speakCount = 1;
 
-    m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+    m_speakTime = current + CONF_GET_INT("ChatFlood.MessageDelay");
 }
 
 bool Player::CanSpeak() const
@@ -21540,7 +21541,7 @@ void Player::Say(const std::string& text, const uint32 language)
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_SAY, Language(language), this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    SendMessageToSetInRange(&data, CONF_GET_FLOAT("ListenRange.Say"), true);
 }
 
 void Player::Yell(const std::string& text, const uint32 language)
@@ -21554,7 +21555,7 @@ void Player::Yell(const std::string& text, const uint32 language)
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_YELL, Language(language), this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+    SendMessageToSetInRange(&data, CONF_GET_FLOAT("ListenRange.Yell"), true);
 }
 
 void Player::TextEmote(const std::string& text)
@@ -21568,13 +21569,13 @@ void Player::TextEmote(const std::string& text)
 
     WorldPacket data;
     std::list<Player*> players;
-    Warhead::AnyPlayerInObjectRangeCheck checker(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    Warhead::AnyPlayerInObjectRangeCheck checker(this, CONF_GET_FLOAT("ListenRange.TextEmote"));
     Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(this, players, checker);
-    Cell::VisitWorldObjects(this, searcher, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+    Cell::VisitWorldObjects(this, searcher, CONF_GET_FLOAT("ListenRange.TextEmote"));
 
     for (auto const& itr : players)
     {
-        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_EMOTE) && this->GetTeamId() != itr->GetTeamId())
+        if (!CONF_GET_BOOL("AllowTwoSide.Interaction.Emote") && this->GetTeamId() != itr->GetTeamId())
         {
             LocaleConstant loc_idx = itr->GetSession()->GetSessionDbLocaleIndex();
             if (BroadcastText const* bct = sGameLocale->GetBroadcastText(EMOTE_BROADCAST_TEXT_ID_STRANGE_GESTURES))
@@ -22215,7 +22216,7 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
 void Player::SetRestBonus(float rest_bonus_new)
 {
     // Prevent resting on max level
-    if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (getLevel() >= CONF_GET_INT("MaxPlayerLevel"))
         rest_bonus_new = 0;
 
     if (rest_bonus_new < 0)
@@ -22415,7 +22416,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
     // Xinef: dont use instant flight paths if spellid is present (custom calls use spellid = 1)
-    if ((sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 1 || (sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 2 && m_isInstantFlightOn)) && !spellid)
+    if ((CONF_GET_INT("InstantFlightPaths") == 1 || (CONF_GET_INT("InstantFlightPaths") == 2 && m_isInstantFlightOn)) && !spellid)
     {
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size() - 1]);
         m_taxi.ClearTaxiDestinations();
@@ -22991,7 +22992,7 @@ void Player::UpdateFFAPvPState(bool reset /*= true*/)
             // Being recently in PvP combat
             if (!pvpInfo.IsInFFAPvPArea && !sWorld->IsFFAPvPRealm() && !pvpInfo.FFAPvPEndTimer)
             {
-                pvpInfo.FFAPvPEndTimer = sWorld->GetGameTime() + sWorld->getIntConfig(CONFIG_FFA_PVP_TIMER);
+                pvpInfo.FFAPvPEndTimer = sWorld->GetGameTime() + CONF_GET_INT("FFAPvPTimer");
             }
         }
     }
@@ -23418,7 +23419,7 @@ void Player::LeaveBattleground(Battleground* bg)
     // Deserter tracker - leave BG
     if (bg->isBattleground() && (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
     {
-        if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+        if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
             stmt->setUInt32(0, GetGUID().GetCounter());
@@ -23464,7 +23465,7 @@ void Player::ReportedAfkBy(Player* reporter)
         return;
 
     // Xinef: 2 minutes startup + 2 minute of match
-    if (bg->GetStartTime() < sWorld->getIntConfig(CONFIG_BATTLEGROUND_REPORT_AFK_TIMER) * MINUTE * IN_MILLISECONDS)
+    if (bg->GetStartTime() < CONF_GET_UINT("Battleground.ReportAFK.Timer") * MINUTE * IN_MILLISECONDS)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff
@@ -23472,7 +23473,7 @@ void Player::ReportedAfkBy(Player* reporter)
     {
         m_bgData.bgAfkReporter.insert(reporter->GetGUID());
         // by default 3 players have to complain to apply debuff
-        if (m_bgData.bgAfkReporter.size() >= sWorld->getIntConfig(CONFIG_BATTLEGROUND_REPORT_AFK))
+        if (m_bgData.bgAfkReporter.size() >= CONF_GET_UINT("Battleground.ReportAFK"))
         {
             // cast 'Idle' spell
             CastSpell(this, 43680, true);
@@ -23730,7 +23731,7 @@ void Player::UpdateVisibilityForPlayer(bool mapChange)
 
 void Player::InitPrimaryProfessions()
 {
-    SetFreePrimaryProfessions(sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
+    SetFreePrimaryProfessions(CONF_GET_INT("MaxPrimaryTradeSkill"));
 }
 
 bool Player::ModifyMoney(int32 amount, bool sendError /*= true*/)
@@ -24809,7 +24810,7 @@ bool Player::isHonorOrXPTarget(Unit* victim) const
 bool Player::GetsRecruitAFriendBonus(bool forXP)
 {
     bool recruitAFriend = false;
-    if (getLevel() <= sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL) || !forXP)
+    if (getLevel() <= CONF_GET_INT("RecruitAFriend.MaxLevel") || !forXP)
     {
         if (Group* group = this->GetGroup())
         {
@@ -24825,12 +24826,12 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
                 if (forXP)
                 {
                     // level must be allowed to get RaF bonus
-                    if (player->getLevel() > sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+                    if (player->getLevel() > CONF_GET_INT("RecruitAFriend.MaxLevel"))
                         continue;
 
                     // level difference must be small enough to get RaF bonus, UNLESS we are lower level
                     if (player->getLevel() < getLevel())
-                        if (uint8(getLevel() - player->getLevel()) > sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE))
+                        if (uint8(getLevel() - player->getLevel()) > CONF_GET_INT("RecruitAFriend.MaxDifference"))
                             continue;
                 }
 
@@ -24891,7 +24892,7 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     if (pRewardSource->GetMap()->IsDungeon())
         return true;
 
-    return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
+    return pRewardSource->GetDistance(player) <= CONF_GET_FLOAT("MaxGroupXPDistance");
 }
 
 bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
@@ -24905,7 +24906,7 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
     if (player->GetMapId() != pOther->GetMapId() || player->GetInstanceId() != pOther->GetInstanceId())
         return false;
 
-    return pOther->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE);
+    return pOther->GetDistance(player) <= CONF_GET_FLOAT("MaxRecruitAFriendBonusDistance");
 }
 
 uint32 Player::GetBaseWeaponSkillValue (WeaponAttackType attType) const
@@ -25075,10 +25076,10 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 {
     if (pvp)
     {
-        if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP))
+        if (!CONF_GET_BOOL("Death.CorpseReclaimDelay.PvP"))
             return copseReclaimDelay[0];
     }
-    else if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE))
+    else if (!CONF_GET_BOOL("Death.CorpseReclaimDelay.PvE"))
         return 0;
 
     time_t now = time(nullptr);
@@ -25092,8 +25093,8 @@ void Player::UpdateCorpseReclaimDelay()
 {
     bool pvp = m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH;
 
-    if ((pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
-            (!pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
+    if ((pvp && !CONF_GET_BOOL("Death.CorpseReclaimDelay.PvP")) ||
+            (!pvp && !CONF_GET_BOOL("Death.CorpseReclaimDelay.PvE")))
         return;
 
     time_t now = time(nullptr);
@@ -25130,8 +25131,8 @@ int32 Player::CalculateCorpseReclaimDelay(bool load)
 
         uint64 count = 0;
 
-        if ((pvp && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
-                (!pvp && sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
+        if ((pvp && CONF_GET_BOOL("Death.CorpseReclaimDelay.PvP")) ||
+                (!pvp && CONF_GET_BOOL("Death.CorpseReclaimDelay.PvE")))
         {
             count = (m_deathExpireTime - corpse->GetGhostTime()) / DEATH_EXPIRE_STEP;
 
@@ -26034,7 +26035,7 @@ uint32 Player::CalculateTalentsPoints() const
     uint32 base_talent = getLevel() < 10 ? 0 : getLevel() - 9;
 
     if (getClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT));
+        return uint32(base_talent * CONF_GET_FLOAT("Rate.Talent"));
 
     uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55;
     talentPointsForLevel += m_questRewardTalentCount;
@@ -26043,7 +26044,7 @@ uint32 Player::CalculateTalentsPoints() const
         talentPointsForLevel = base_talent;
 
     talentPointsForLevel += m_extraBonusTalentCount;
-    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+    return uint32(talentPointsForLevel * CONF_GET_FLOAT("Rate.Talent"));
 }
 
 bool Player::canFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const
@@ -26150,7 +26151,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
     // special settings
     if (getClass() == CLASS_DEATH_KNIGHT)
     {
-        uint8 base_level = std::min(getLevel(), uint8(sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL)));
+        uint8 base_level = std::min(getLevel(), uint8(CONF_GET_INT("StartHeroicPlayerLevel")));
         if (base_level < 1)
             base_level = 1;
         uint16 base_skill = (base_level - 1) * 5;           // 270 at starting level 55
@@ -26273,7 +26274,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
 
         if (damageperc > 0 && !IsImmunedToDamageOrSchool(SPELL_SCHOOL_MASK_NORMAL))
         {
-            uint32 damage = (uint32)(damageperc * GetMaxHealth() * sWorld->getRate(RATE_DAMAGE_FALL));
+            uint32 damage = (uint32)(damageperc * GetMaxHealth() * CONF_GET_FLOAT("Rate.Damage.Fall"));
 
             //float height = movementInfo.pos.m_positionZ;
             //UpdateGroundPositionZ(movementInfo.pos.m_positionX, movementInfo.pos.m_positionY, height);
@@ -28708,7 +28709,7 @@ uint16 Player::GetMaxSkillValueForLevel() const
 
 float Player::GetQuestRate()
 {
-    float result = sWorld->getRate(RATE_XP_QUEST);
+    float result = CONF_GET_FLOAT("Rate.XP.Quest");
 
     sScriptMgr->OnGetQuestRate(this, result);
 

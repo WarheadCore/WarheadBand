@@ -34,6 +34,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ServerMotd.h"
 #include "StringConvert.h"
+#include "GameConfig.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include <boost/filesystem/operations.hpp>
@@ -117,7 +118,7 @@ public:
 
     static bool HandleServerDebugCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
+        uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
         std::string dbPortOutput;
 
         {
@@ -142,11 +143,10 @@ public:
         handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, worldPort);
         handler->PSendSysMessage("%s", dbPortOutput.c_str());
 
-        bool vmapIndoorCheck = sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK);
+        bool vmapIndoorCheck = CONF_GET_BOOL("vmap.enableIndoorCheck");
         bool vmapLOSCheck = VMAP::VMapFactory::createOrGetVMapManager()->isLineOfSightCalcEnabled();
         bool vmapHeightCheck = VMAP::VMapFactory::createOrGetVMapManager()->isHeightCalcEnabled();
-
-        bool mmapEnabled = sWorld->getBoolConfig(CONFIG_ENABLE_MMAPS);
+        bool mmapEnabled = CONF_GET_BOOL("MoveMaps.Enable");
 
         std::string dataDir = sWorld->GetDataPath();
         std::vector<std::string> subDirs;

@@ -24,6 +24,7 @@
 #include "SRP6.h"
 #include "Util.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 namespace AccountMgr
 {
@@ -48,7 +49,7 @@ namespace AccountMgr
         auto [salt, verifier] = Warhead::Crypto::SRP6::MakeRegistrationData(username, password);
         stmt->setBinary(1, salt);
         stmt->setBinary(2, verifier);
-        stmt->setInt8(3, uint8(sWorld->getIntConfig(CONFIG_EXPANSION)));
+        stmt->setInt8(3, uint8(CONF_GET_INT("Expansion")));
 
         LoginDatabase.Execute(stmt);
 

@@ -18,6 +18,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -478,4 +479,9 @@ std::string InstanceScript::GetBossStateName(uint8 state)
         default:
             return "INVALID";
     }
+}
+
+bool InstanceScript::ServerAllowsTwoSideGroups()
+{
+    return CONF_GET_BOOL("AllowTwoSide.Interaction.Group");
 }

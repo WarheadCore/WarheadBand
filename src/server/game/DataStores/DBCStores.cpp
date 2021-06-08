@@ -24,6 +24,7 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "World.h"
+#include "GameConfig.h"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -1047,7 +1048,7 @@ uint32 const* GetTalentTabPages(uint8 cls)
 
 bool IsSharedDifficultyMap(uint32 mapid)
 {
-    return sWorld->getBoolConfig(CONFIG_INSTANCE_SHARED_ID) && (mapid == 631 || mapid == 724);
+    return CONF_GET_BOOL("Instance.SharedNormalHeroicId") && (mapid == 631 || mapid == 724);
 }
 
 uint32 GetLiquidFlags(uint32 liquidType)

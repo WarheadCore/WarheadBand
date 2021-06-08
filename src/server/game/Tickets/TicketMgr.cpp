@@ -26,6 +26,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
 inline float GetAge(uint64 t) { return float(time(nullptr) - t) / DAY; }
 
@@ -265,7 +266,7 @@ TicketMgr* TicketMgr::instance()
     return &instance;
 }
 
-void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
+void TicketMgr::Initialize() { SetStatus(CONF_GET_BOOL("AllowTickets")); }
 
 void TicketMgr::ResetTickets()
 {
