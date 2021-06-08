@@ -338,7 +338,7 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
     // *********************************************************
     // this should be handled by spell system
     m_LastResurrectTime += diff;
-    if (m_LastResurrectTime >= CONF_GET_INT("Battleground.PlayerRespawn") * IN_MILLISECONDS)
+    if (m_LastResurrectTime >= CONF_GET_UINT("Battleground.PlayerRespawn") * IN_MILLISECONDS)
     {
         if (GetReviveQueueSize())
         {
