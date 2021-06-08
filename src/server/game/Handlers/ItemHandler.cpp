@@ -1736,8 +1736,8 @@ bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
 bool WorldSession::recoveryItem(Item* pItem)
 {
     if (CONF_GET_BOOL("ItemDelete.Method")
-            && pItem->GetTemplate()->Quality >= CONF_GET_INT("ItemDelete.Quality")
-            && pItem->GetTemplate()->ItemLevel >= CONF_GET_INT("ItemDelete.ItemLevel"))
+        && pItem->GetTemplate()->Quality >= CONF_GET_UINT("ItemDelete.Quality")
+        && pItem->GetTemplate()->ItemLevel >= CONF_GET_UINT("ItemDelete.ItemLevel"))
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_RECOVERY_ITEM);
 
