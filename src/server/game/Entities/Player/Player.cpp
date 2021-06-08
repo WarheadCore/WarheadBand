@@ -23465,7 +23465,7 @@ void Player::ReportedAfkBy(Player* reporter)
         return;
 
     // Xinef: 2 minutes startup + 2 minute of match
-    if (bg->GetStartTime() < CONF_GET_INT("Battleground.ReportAFK.Timer") * MINUTE * IN_MILLISECONDS)
+    if (bg->GetStartTime() < CONF_GET_UINT("Battleground.ReportAFK.Timer") * MINUTE * IN_MILLISECONDS)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff
