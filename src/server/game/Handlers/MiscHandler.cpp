@@ -431,7 +431,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recv_data*/)
     if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
 
-    bool instantLogout = ((GetSecurity() >= 0 && uint32(GetSecurity()) >= CONF_GET_INT("InstantLogout"))
+    bool instantLogout = ((GetSecurity() >= 0 && uint32(GetSecurity()) >= CONF_GET_UINT("InstantLogout"))
                           || (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat())) || GetPlayer()->IsInFlight();
 
     bool preventAfkSanctuaryLogout = CONF_GET_INT("PreventAFKLogout") == 1
