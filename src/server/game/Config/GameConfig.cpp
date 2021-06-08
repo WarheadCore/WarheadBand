@@ -17,12 +17,13 @@
 
 #include "GameConfig.h"
 #include "Config.h"
-#include "Object.h"
 #include "Log.h"
+#include "MapMgr.h"
+#include "Object.h"
 #include "Player.h"
 #include "ServerMotd.h"
-#include "World.h"
 #include "StringConvert.h"
+#include "World.h"
 #include <unordered_map>
 
 namespace
