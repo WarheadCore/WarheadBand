@@ -372,7 +372,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
     // speedup check for heroic class disabled case
     uint32 req_level_for_heroic = CONF_GET_INT("CharacterCreating.MinLevelForHeroicCharacter");
-    if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT && req_level_for_heroic > CONF_GET_INT("MaxPlayerLevel"))
+    if (AccountMgr::IsPlayerAccount(GetSecurity()) && createInfo->Class == CLASS_DEATH_KNIGHT && req_level_for_heroic > CONF_GET_UINT("MaxPlayerLevel"))
     {
         SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
         return;
