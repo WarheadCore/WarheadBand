@@ -7635,8 +7635,8 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
 
 void Player::SetHonorPoints(uint32 value)
 {
-    if (value > CONF_GET_INT("MaxHonorPoints"))
-        value = CONF_GET_INT("MaxHonorPoints");
+    if (value > CONF_GET_UINT("MaxHonorPoints"))
+        value = CONF_GET_UINT("MaxHonorPoints");
     SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, value);
     if (value)
         AddKnownCurrency(ITEM_HONOR_POINTS_ID);
