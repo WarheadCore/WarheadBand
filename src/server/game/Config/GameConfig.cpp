@@ -725,12 +725,12 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     {
         for (auto const& [optionName, optionValue] : _notChangeConfigs)
         {
-            uint32 configValue = sConfigMgr->GetOption<int32>(optionName, optionValue);
+            uint32 configValue = sConfigMgr->GetOption<uint32>(optionName, optionValue);
 
             if (configValue != optionValue)
                 LOG_ERROR("server.loading", "%s option can't be changed at worldserver.conf reload, using current value (%u)", optionName.c_str(), optionValue);
 
-            SetOption<int32>(optionName, optionValue);
+            SetOption<uint32>(optionName, optionValue);
         }
     }
 
