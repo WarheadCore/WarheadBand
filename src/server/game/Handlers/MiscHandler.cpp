@@ -401,7 +401,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         // 49 is maximum player count sent to client - can be overridden
         // through config, but is unstable
-        if ((matchcount++) >= CONF_GET_INT("MaxWhoListReturns"))
+        if ((matchcount++) >= CONF_GET_UINT("MaxWhoListReturns"))
             continue;
 
         data << pname;                                    // player name
