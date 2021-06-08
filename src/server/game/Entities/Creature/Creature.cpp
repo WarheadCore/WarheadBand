@@ -3244,10 +3244,10 @@ bool Creature::CanPeriodicallyCallForAssistance() const
 
 bool Creature::IsNotReachable() const
 {
-    return (m_cannotReachTimer >= (CONF_GET_INT("NpcEvadeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
+    return (m_cannotReachTimer >= (CONF_GET_UINT("NpcEvadeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
 }
 
 bool Creature::IsNotReachableAndNeedRegen() const
 {
-    return (m_cannotReachTimer >= (CONF_GET_INT("NpcRegenHPTimeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
+    return (m_cannotReachTimer >= (CONF_GET_UINT("NpcRegenHPTimeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
 }
