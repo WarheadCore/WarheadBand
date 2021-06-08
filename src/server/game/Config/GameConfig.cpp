@@ -18,7 +18,7 @@
 #include "GameConfig.h"
 #include "Config.h"
 #include "Log.h"
-#include "MapMgr.h"
+#include "MapManager.h"
 #include "Object.h"
 #include "Player.h"
 #include "ServerMotd.h"
