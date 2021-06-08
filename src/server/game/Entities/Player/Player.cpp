@@ -15723,7 +15723,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
             SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
             SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
-        return getLevel() + CONF_GET_INT("Quests.HighLevelHideDiff") >= quest->GetMinLevel();
+        return getLevel() + CONF_GET_UINT("Quests.HighLevelHideDiff") >= quest->GetMinLevel();
     }
 
     return false;
