@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blackrock_spire.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -23,8 +22,9 @@
 #include "InstanceScript.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "blackrock_spire.h"
 
 //uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 

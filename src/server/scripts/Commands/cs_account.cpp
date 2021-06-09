@@ -22,11 +22,12 @@ Comment: All account related commands
 Category: commandscripts
 EndScriptData */
 
-#include "AccountMgr.h"
 #include "AES.h"
+#include "AccountMgr.h"
 #include "Base32.h"
 #include "Chat.h"
 #include "CryptoGenerics.h"
+#include "GameConfig.h"
 #include "IPLocation.h"
 #include "Language.h"
 #include "Player.h"
@@ -35,9 +36,8 @@ EndScriptData */
 #include "SecretMgr.h"
 #include "StringConvert.h"
 #include "TOTP.h"
-#include "GameConfig.h"
-#include <unordered_map>
 #include <openssl/rand.h>
+#include <unordered_map>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

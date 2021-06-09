@@ -27,8 +27,10 @@
 #include "DBCEnums.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -43,8 +45,6 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 namespace Warhead
 {

@@ -17,6 +17,7 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Language.h"
@@ -33,7 +34,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 class Aura;
 

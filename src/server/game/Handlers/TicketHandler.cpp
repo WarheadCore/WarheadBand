@@ -17,6 +17,8 @@
 
 #include "Chat.h"
 #include "Common.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -26,8 +28,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <zlib.h>
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)

@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameConfig.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "utgarde_pinnacle.h"
-#include "GameConfig.h"
 
 enum Misc
 {

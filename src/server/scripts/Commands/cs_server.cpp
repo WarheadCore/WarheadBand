@@ -24,6 +24,8 @@ EndScriptData */
 
 #include "Chat.h"
 #include "Config.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "Language.h"
 #include "MySQLThreading.h"
@@ -33,16 +35,14 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ServerMotd.h"
 #include "StringConvert.h"
-#include "GameConfig.h"
+#include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include "GameTime.h"
-#include "UpdateTime.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/version.hpp>
+#include <numeric>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
-#include <numeric>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

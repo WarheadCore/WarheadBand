@@ -21,15 +21,15 @@
 #include "IpAddress.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
-#include <utf8.h>
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
-#include <string>
+#include <boost/core/demangle.hpp>
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
-#include <boost/core/demangle.hpp>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <utf8.h>
 
 Tokenizer::Tokenizer(const std::string& src, const char sep, uint32 vectorReserve)
 {

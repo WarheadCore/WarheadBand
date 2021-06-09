@@ -22,15 +22,15 @@ SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
+#include "hyjalAI.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "hyjal_trash.h"
-#include "hyjalAI.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptMgr.h"
+#include "hyjal_trash.h"
 
 enum Spawns
 {

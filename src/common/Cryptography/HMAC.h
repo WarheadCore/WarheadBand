@@ -22,9 +22,9 @@
 #include "Define.h"
 #include "Errors.h"
 #include <array>
+#include <openssl/hmac.h>
 #include <string>
 #include <string_view>
-#include <openssl/hmac.h>
 
 class BigNumber;
 

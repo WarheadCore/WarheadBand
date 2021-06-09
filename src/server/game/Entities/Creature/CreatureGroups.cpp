@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CreatureGroups.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "CreatureGroups.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
 

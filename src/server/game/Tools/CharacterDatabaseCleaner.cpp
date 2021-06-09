@@ -16,12 +16,12 @@
  */
 
 #include "CharacterDatabaseCleaner.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
+#include "GameConfig.h"
+#include "Log.h"
 #include "SpellMgr.h"
 #include "World.h"
-#include "Log.h"
-#include "GameConfig.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {

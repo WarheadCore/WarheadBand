@@ -18,6 +18,7 @@
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "Common.h"
+#include "GameConfig.h"
 #include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -31,7 +32,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {

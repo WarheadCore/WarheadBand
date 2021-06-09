@@ -15,20 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Warden.h"
 #include "AccountMgr.h"
 #include "BanManager.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "GameConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
 #include "Util.h"
-#include "Warden.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 #include <openssl/md5.h>
 #include <openssl/sha.h>
 

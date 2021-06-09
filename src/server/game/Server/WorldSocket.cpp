@@ -18,9 +18,11 @@
 #include "WorldSocket.h"
 #include "AccountMgr.h"
 #include "BigNumber.h"
-#include "DatabaseEnv.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
+#include "DatabaseEnv.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
@@ -29,8 +31,6 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <memory>
 
 using boost::asio::ip::tcp;

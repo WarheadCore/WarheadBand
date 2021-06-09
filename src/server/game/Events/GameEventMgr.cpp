@@ -15,9 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundMgr.h"
 #include "GameEventMgr.h"
+#include "BattlegroundMgr.h"
+#include "GameConfig.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "Language.h"
 #include "Log.h"
@@ -31,8 +33,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <time.h>
 
 #ifdef ELUNA

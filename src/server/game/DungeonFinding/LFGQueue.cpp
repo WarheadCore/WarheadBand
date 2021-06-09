@@ -15,18 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "LFGQueue.h"
 #include "Containers.h"
 #include "DBCStores.h"
 #include "DBCStructure.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "LFGMgr.h"
-#include "LFGQueue.h"
 #include "Log.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "GameTime.h"
 
 namespace lfg
 {

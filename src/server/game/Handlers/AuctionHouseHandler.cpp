@@ -19,19 +19,19 @@
 #include "AsyncAuctionListing.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "ScriptMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)

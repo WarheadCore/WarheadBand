@@ -21,15 +21,15 @@
 #include "Chat.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD

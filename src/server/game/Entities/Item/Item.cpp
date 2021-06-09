@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Item.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "DatabaseEnv.h"
-#include "Item.h"
+#include "GameTime.h"
 #include "ItemEnchantmentMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -27,7 +28,6 @@
 #include "SpellMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {

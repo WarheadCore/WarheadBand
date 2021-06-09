@@ -26,6 +26,7 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -50,7 +51,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
-#include "GameTime.h"
 #include <zlib.h>
 
 #ifdef ELUNA

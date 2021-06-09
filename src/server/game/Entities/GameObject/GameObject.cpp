@@ -24,6 +24,7 @@
 #include "GameLocale.h"
 #include "GameObjectAI.h"
 #include "GameObjectModel.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -35,7 +36,6 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
-#include "GameTime.h"
 #include <G3D/Quat.h>
 
 #ifdef ELUNA

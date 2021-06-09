@@ -16,9 +16,9 @@
  */
 
 #include "ChannelMgr.h"
+#include "GameConfig.h"
 #include "Player.h"
 #include "World.h"
-#include "GameConfig.h"
 
 ChannelMgr::~ChannelMgr()
 {

@@ -20,22 +20,23 @@
  /// \file
 
 #include "ACSoap.h"
-#include "AsyncAuctionListing.h"
-#include "Common.h"
-#include "Config.h"
 #include "AsyncAcceptor.h"
+#include "AsyncAuctionListing.h"
 #include "BattlegroundMgr.h"
 #include "BigNumber.h"
 #include "CliRunnable.h"
+#include "Common.h"
+#include "Config.h"
 #include "Configuration/Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
+#include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
+#include "Logo.h"
 #include "MapManager.h"
 #include "MySQLThreading.h"
-#include "Logo.h"
 #include "ObjectAccessor.h"
 #include "OpenSSLCrypto.h"
 #include "OutdoorPvPMgr.h"
@@ -50,14 +51,13 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "GameConfig.h"
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
 #include <boost/asio/signal_set.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
 #include <iostream>
+#include <openssl/crypto.h>
+#include <openssl/opensslv.h>
 
 #ifdef ELUNA
 #include "LuaEngine.h"

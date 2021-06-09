@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptedCreature.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "ObjectMgr.h"
-#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "TemporarySummon.h"
-#include "GameTime.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary

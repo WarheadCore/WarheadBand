@@ -18,8 +18,11 @@
 #ifndef WARHEAD_CREATUREAIREGISTRY_H
 #define WARHEAD_CREATUREAIREGISTRY_H
 
+#include "Define.h"
+
 namespace AIRegistry
 {
     WH_GAME_API void Initialize(void);
 }
+
 #endif

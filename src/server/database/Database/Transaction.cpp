@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
 #include "Transaction.h"
+#include "Log.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "Timer.h"

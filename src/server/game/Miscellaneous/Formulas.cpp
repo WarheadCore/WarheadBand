@@ -5,10 +5,10 @@
  */
 
 #include "Formulas.h"
-#include "Log.h"
 #include "Creature.h"
-#include "Player.h"
 #include "GameConfig.h"
+#include "Log.h"
+#include "Player.h"
 
 uint32 Warhead::XP::BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
 {

@@ -20,6 +20,7 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
@@ -35,7 +36,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

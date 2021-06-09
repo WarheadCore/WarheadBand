@@ -23,9 +23,9 @@ SDCategory: Thunder Bluff
 EndScriptData */
 
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 
 /*#####
 # npc_cairne_bloodhoof

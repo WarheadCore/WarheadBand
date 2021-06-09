@@ -18,11 +18,11 @@
 #ifndef WARHEAD_INSTANCE_DATA_H
 #define WARHEAD_INSTANCE_DATA_H
 
-//#include "GameObject.h"
-//#include "Map.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "ZoneScript.h"
+//#include "GameObject.h"
+//#include "Map.h"
 
 #define OUT_SAVE_INST_DATA             LOG_DEBUG("scripts.ai", "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    LOG_DEBUG("scripts.ai", "TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())

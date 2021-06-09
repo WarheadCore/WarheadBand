@@ -20,10 +20,10 @@
 /// \file
 
 #include "Common.h"
+#include "Configuration/Config.h"
 #include "Errors.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "Configuration/Config.h"
 
 #include "CliRunnable.h"
 #include "Log.h"
@@ -33,8 +33,8 @@
 #include "Chat.h"
 #include "ChatCommand.h"
 #include <cstring>
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 #endif
 
 static constexpr char CLI_PREFIX[] = "AC> ";

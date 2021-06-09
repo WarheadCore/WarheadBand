@@ -16,8 +16,8 @@
  */
 
 #include "MPQManager.h"
-#include "MPQ.h"
 #include "DBC.h"
+#include "MPQ.h"
 #include "Utils.h"
 
 char const* MPQManager::Files[] =

@@ -24,14 +24,14 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "GameConfig.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "Realm.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
-#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

@@ -14,17 +14,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "DBCStores.h"
 #include "BattlegroundMgr.h"
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
-#include "DBCStores.h"
 #include "Errors.h"
+#include "GameConfig.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "World.h"
-#include "GameConfig.h"
 #include <fstream>
 #include <iomanip>
 #include <iostream>

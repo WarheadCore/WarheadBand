@@ -16,13 +16,13 @@
  */
 
 #include "Common.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "UpdateData.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {

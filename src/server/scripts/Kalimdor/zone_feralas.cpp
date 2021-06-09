@@ -23,10 +23,10 @@ SDCategory: Feralas
 EndScriptData */
 
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "WorldSession.h"
 

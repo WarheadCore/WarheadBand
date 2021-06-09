@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBCStructure.h"
 #include "HostileRefManager.h"
+#include "DBCStructure.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "ThreatManager.h"

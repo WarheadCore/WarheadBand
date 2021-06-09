@@ -18,16 +18,16 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#include "Containers.h"
 #include "Define.h"
 #include "Errors.h"
-#include "Containers.h"
 #include <algorithm>
+#include <array>
 #include <cctype>
-#include <string>
-#include <vector>
 #include <list>
 #include <map>
-#include <array>
+#include <string>
+#include <vector>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder

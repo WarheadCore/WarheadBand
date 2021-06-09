@@ -29,21 +29,21 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
+#include "IPLocation.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Logo.h"
-#include "RealmList.h"
-#include "IPLocation.h"
 #include "MySQLThreading.h"
 #include "ProcessPriority.h"
+#include "RealmList.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "Util.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/version.hpp>
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
 #include <csignal>
+#include <openssl/crypto.h>
+#include <openssl/opensslv.h>
 
 #ifndef _WARHEAD_REALM_CONFIG
 #define _WARHEAD_REALM_CONFIG "authserver.conf"

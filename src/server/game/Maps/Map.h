@@ -19,8 +19,8 @@
 #define WARHEAD_MAP_H
 
 #include "Cell.h"
-#include "DataMap.h"
 #include "DBCStructure.h"
+#include "DataMap.h"
 #include "Define.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"

@@ -23,11 +23,11 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "GameConfig.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

@@ -17,12 +17,12 @@
 
 #include "SystemLog.h"
 #include "Config.h"
+#include <Poco/AutoPtr.h>
+#include <Poco/FileChannel.h>
 #include <Poco/FormattingChannel.h>
+#include <Poco/Logger.h>
 #include <Poco/PatternFormatter.h>
 #include <Poco/SplitterChannel.h>
-#include <Poco/FileChannel.h>
-#include <Poco/Logger.h>
-#include <Poco/AutoPtr.h>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <Poco/WindowsConsoleChannel.h>

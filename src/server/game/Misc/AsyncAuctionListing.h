@@ -20,8 +20,8 @@
 
 #include "Common.h"
 #include "EventProcessor.h"
-#include "WorldPacket.h"
 #include "ObjectGuid.h"
+#include "WorldPacket.h"
 #include <mutex>
 
 class WH_GAME_API AuctionListOwnerItemsDelayEvent : public BasicEvent

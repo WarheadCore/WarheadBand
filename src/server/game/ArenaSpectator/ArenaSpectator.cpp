@@ -21,8 +21,8 @@
 #include "Map.h"
 #include "Pet.h"
 #include "Player.h"
-#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "World.h"
 
 namespace ArenaSpectator

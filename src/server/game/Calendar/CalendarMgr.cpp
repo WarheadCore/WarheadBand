@@ -16,13 +16,13 @@
  */
 
 #include "CalendarMgr.h"
+#include "GameTime.h"
 #include "GuildMgr.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "QueryResult.h"
-#include "GameTime.h"
 
 CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _statusTime(GameTime::GetGameTime()),
 _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }

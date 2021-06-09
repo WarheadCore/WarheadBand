@@ -16,17 +16,17 @@
  */
 
 #include "Hyperlinks.h"
-#include "advstd.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "Errors.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "ObjectMgr.h"
+#include "QuestDef.h"
 #include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "QuestDef.h"
-#include "GameConfig.h"
+#include "advstd.h"
 
 using namespace Warhead::Hyperlinks;
 

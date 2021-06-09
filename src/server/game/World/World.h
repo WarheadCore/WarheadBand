@@ -22,8 +22,8 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
-#include "Common.h"
 #include "AsyncCallbackProcessor.h"
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"

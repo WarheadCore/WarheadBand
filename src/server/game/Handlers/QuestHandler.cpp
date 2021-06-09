@@ -18,6 +18,7 @@
 #include "Battleground.h"
 #include "BattlegroundAV.h"
 #include "Common.h"
+#include "GameConfig.h"
 #include "GameObjectAI.h"
 #include "GossipDef.h"
 #include "Group.h"
@@ -32,7 +33,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

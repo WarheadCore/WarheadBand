@@ -23,13 +23,13 @@ SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "Chat.h"
-#include "hyjal_trash.h"
 #include "InstanceScript.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "WorldPacket.h"
+#include "hyjal_trash.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event

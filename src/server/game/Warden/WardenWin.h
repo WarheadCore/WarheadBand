@@ -18,10 +18,11 @@
 #ifndef _WARDEN_WIN_H
 #define _WARDEN_WIN_H
 
+#include "ARC4.h"
+#include "BigNumber.h"
 #include "ByteBuffer.h"
-#include "Cryptography/ARC4.h"
-#include "Cryptography/BigNumber.h"
 #include "Warden.h"
+#include <list>
 #include <map>
 
 #if defined(__GNUC__)

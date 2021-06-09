@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "InstanceSaveMgr.h"
 #include "CellImpl.h"
 #include "Common.h"
 #include "Config.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
@@ -33,8 +35,6 @@
 #include "Timer.h"
 #include "Transport.h"
 #include "World.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 uint16 InstanceSaveManager::ResetTimeDelay[] = {3600, 900, 300, 60, 0};
 PlayerBindStorage InstanceSaveManager::playerBindStorage;

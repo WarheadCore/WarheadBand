@@ -19,9 +19,9 @@
 #define CONFIG_H
 
 #include "Define.h"
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 class WH_COMMON_API ConfigMgr
 {

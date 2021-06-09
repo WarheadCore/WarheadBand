@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AuctionHouseMgr.h"
 #include "AccountMgr.h"
 #include "AsyncAuctionListing.h"
-#include "AuctionHouseMgr.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -31,8 +33,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <vector>
 
 enum eAuctionHouse

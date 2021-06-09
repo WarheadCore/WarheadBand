@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include <vector>
 
 struct WhoListPlayerInfo
 {

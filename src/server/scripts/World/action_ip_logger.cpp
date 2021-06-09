@@ -16,10 +16,10 @@
  */
 
 #include "Channel.h"
+#include "GameConfig.h"
 #include "Group.h"
 #include "Guild.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
 
 enum IPLoggingTypes
 {

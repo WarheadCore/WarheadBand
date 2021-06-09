@@ -48,6 +48,7 @@
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
@@ -81,6 +82,7 @@
 #include "TicketMgr.h"
 #include "Transport.h"
 #include "TransportMgr.h"
+#include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
@@ -92,8 +94,6 @@
 #include "WhoListCache.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
-#include "UpdateTime.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 

@@ -18,12 +18,12 @@
 #ifndef WARHEAD_DBCSTRUCTURE_H
 #define WARHEAD_DBCSTRUCTURE_H
 
-#include "Define.h"
 #include "DBCEnums.h"
+#include "Define.h"
 #include "SharedDefines.h"
 #include "Util.h"
-#include <set>
 #include <map>
+#include <set>
 
 // Structures using to access raw DBC data and required packing to portability
 

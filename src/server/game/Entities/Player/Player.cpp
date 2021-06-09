@@ -38,10 +38,12 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
@@ -90,8 +92,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

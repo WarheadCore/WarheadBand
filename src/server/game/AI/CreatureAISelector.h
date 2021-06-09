@@ -18,6 +18,8 @@
 #ifndef WARHEAD_CREATUREAISELECTOR_H
 #define WARHEAD_CREATUREAISELECTOR_H
 
+#include "Define.h"
+
 class CreatureAI;
 class Creature;
 class MovementGenerator;

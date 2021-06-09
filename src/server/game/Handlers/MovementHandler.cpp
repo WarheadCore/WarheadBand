@@ -23,11 +23,12 @@
 #include "Common.h"
 #include "Corpse.h"
 #include "GameGraveyard.h"
+#include "GameTime.h"
 #include "InstanceSaveMgr.h"
 #include "Language.h"
 #include "Log.h"
-#include "MathUtil.h"
 #include "MapManager.h"
+#include "MathUtil.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -35,11 +36,10 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "Transport.h"
+#include "Vehicle.h"
 #include "WaypointMovementGenerator.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "GameTime.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 

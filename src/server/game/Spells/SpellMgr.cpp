@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "BattlegroundIC.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "DBCStores.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "InstanceScript.h"
 #include "MapManager.h"
@@ -31,9 +33,7 @@
 #include "SpellAuraDefines.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "World.h"
-#include "GameConfig.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {

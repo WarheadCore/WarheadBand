@@ -19,6 +19,7 @@
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -27,7 +28,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 {

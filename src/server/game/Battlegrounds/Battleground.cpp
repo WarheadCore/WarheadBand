@@ -28,6 +28,7 @@
 #include "Chat.h"
 #include "Creature.h"
 #include "Formulas.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
@@ -45,7 +46,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

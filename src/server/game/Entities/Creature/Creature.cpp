@@ -27,6 +27,7 @@
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -54,7 +55,6 @@
 #include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameTime.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

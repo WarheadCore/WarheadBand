@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectAccessor.h"
 #include "CellImpl.h"
 #include "Corpse.h"
 #include "Creature.h"
@@ -27,7 +28,6 @@
 #include "Map.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
-#include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

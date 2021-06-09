@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WhoListCache.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "WhoListCache.h"
 #include "World.h"
 
 std::vector<WhoListPlayerInfo> WhoListCacheMgr::m_whoOpcodeList;

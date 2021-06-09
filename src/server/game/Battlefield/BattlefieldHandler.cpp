@@ -18,13 +18,13 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Common.h"
+#include "GameTime.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
 
 //This send to player windows for invite player to join the war
 //Param1:(BattleId) the BattleId of Bf

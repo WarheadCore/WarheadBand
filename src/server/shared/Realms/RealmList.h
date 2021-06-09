@@ -22,8 +22,8 @@
 #include "Realm.h"
 #include <array>
 #include <map>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 struct RealmBuildInfo
 {

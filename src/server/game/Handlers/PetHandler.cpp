@@ -19,6 +19,8 @@
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -26,6 +28,7 @@
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
+#include "QueryHolder.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -33,9 +36,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "QueryHolder.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 class LoadPetFromDBQueryHolder : public CharacterDatabaseQueryHolder
 {

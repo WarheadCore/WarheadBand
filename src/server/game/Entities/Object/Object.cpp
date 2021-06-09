@@ -24,7 +24,9 @@
 #include "Creature.h"
 #include "DynamicTree.h"
 #include "DynamicVisibility.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -53,8 +55,6 @@
 #include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #ifdef ELUNA
 #include "ElunaEventMgr.h"

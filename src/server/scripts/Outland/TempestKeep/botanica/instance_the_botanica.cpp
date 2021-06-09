@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "the_botanica.h"
-#include "GameTime.h"
 
 class instance_the_botanica : public InstanceMapScript
 {

@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundMgr.h"
 #include "BattlegroundWS.h"
+#include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
 #include "Language.h"
@@ -26,7 +27,6 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
 
 BattlegroundWS::BattlegroundWS()
 {

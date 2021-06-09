@@ -16,6 +16,7 @@
  */
 
 #include "Common.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "Item.h"
 #include "Log.h"
@@ -28,7 +29,6 @@
 #include "UpdateData.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
