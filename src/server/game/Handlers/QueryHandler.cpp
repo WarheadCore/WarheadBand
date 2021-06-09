@@ -30,6 +30,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -86,8 +87,8 @@ void WorldSession::HandleQueryTimeOpcode(WorldPacket& /*recvData*/)
 void WorldSession::SendQueryTimeResponse()
 {
     WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4 + 4);
-    data << uint32(time(nullptr));
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(nullptr));
+    data << uint32(GameTime::GetGameTime());
+    data << uint32(sWorld->GetNextDailyQuestsResetTime() - GameTime::GetGameTime());
     SendPacket(&data);
 }
 

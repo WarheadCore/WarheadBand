@@ -26,6 +26,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 BanManager* BanManager::instance()
 {
@@ -53,7 +54,7 @@ BanReturn BanManager::BanAccount(std::string const& AccountName, std::string con
     stmtAccountBanned->setUInt32(0, AccountID);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmtAccountBanned);
-    if (banresult && ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32() || ((*banresult)[1].GetUInt32() > time(nullptr) + DurationSecs && DurationSecs)))
+    if (banresult && ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32() || ((*banresult)[1].GetUInt32() > GameTime::GetGameTime() + DurationSecs && DurationSecs)))
         return BAN_LONGER_EXISTS;
 
     // make sure there is only one active ban
@@ -115,7 +116,7 @@ BanReturn BanManager::BanAccountByPlayerName(std::string const& CharacterName, s
     stmtAccountBanned->setUInt32(0, AccountID);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmtAccountBanned);
-    if (banresult && ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32() || ((*banresult)[1].GetUInt32() > time(nullptr) + DurationSecs && DurationSecs)))
+    if (banresult && ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32() || ((*banresult)[1].GetUInt32() > GameTime::GetGameTime() + DurationSecs && DurationSecs)))
         return BAN_LONGER_EXISTS;
 
     // make sure there is only one active ban

@@ -29,6 +29,7 @@
 #include "RandomMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
+#include "GameTime.h"
 #include <cassert>
 
  // ---- ChaseRange ---- //
@@ -605,7 +606,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/, bool addFlagForNPC)
     {
         _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
         _owner->m_movementInfo.SetFallTime(0);
-        _owner->ToPlayer()->SetFallInformation(time(nullptr), _owner->GetPositionZ());
+        _owner->ToPlayer()->SetFallInformation(GameTime::GetGameTime(), _owner->GetPositionZ());
     }
     else if (_owner->GetTypeId() == TYPEID_UNIT && addFlagForNPC) // pussywizard
     {

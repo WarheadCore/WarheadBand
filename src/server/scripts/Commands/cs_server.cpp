@@ -22,7 +22,6 @@ Comment: All server related commands
 Category: commandscripts
 EndScriptData */
 
-#include "AvgDiffTracker.h"
 #include "Chat.h"
 #include "Config.h"
 #include "GitRevision.h"
@@ -37,6 +36,8 @@ EndScriptData */
 #include "GameConfig.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
+#include "GameTime.h"
+#include "UpdateTime.h"
 #include <boost/filesystem/operations.hpp>
 #include <boost/version.hpp>
 #include <openssl/crypto.h>
@@ -229,9 +230,8 @@ public:
         uint32 activeSessionCount = sWorld->GetActiveSessionCount();
         uint32 queuedSessionCount = sWorld->GetQueuedSessionCount();
         uint32 connPeak = sWorld->GetMaxActiveSessionCount();
-        std::string uptime = secsToTimeString(sWorld->GetUptime()).append(".");
-        uint32 updateTime = sWorld->GetUpdateTime();
-        uint32 avgUpdateTime = avgDiffTracker.getAverage();
+        std::string uptime = secsToTimeString(GameTime::GetUptime());
+        uint32 updateTime = sWorldUpdateTime.GetLastUpdateTime();
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         if (!queuedSessionCount)
@@ -240,12 +240,7 @@ public:
             handler->PSendSysMessage("Connected players: %u. Characters in world: %u. Queue: %u.", activeSessionCount, playerCount, queuedSessionCount);
         handler->PSendSysMessage("Connection peak: %u.", connPeak);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
-        handler->PSendSysMessage("Update time diff: %ums, average: %ums.", updateTime, avgUpdateTime);
-
-        if (handler->GetSession())
-            if (Player* p = handler->GetSession()->GetPlayer())
-                if (p->IsDeveloper())
-                    handler->PSendSysMessage("DEV wavg: %ums, nsmax: %ums, nsavg: %ums. LFG avg: %ums, max: %ums.", avgDiffTracker.getTimeWeightedAverage(), devDiffTracker.getMax(), devDiffTracker.getAverage(), lfgDiffTracker.getAverage(), lfgDiffTracker.getMax());
+        handler->PSendSysMessage("Update time diff: %ums,", updateTime);
 
         //! Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
@@ -460,7 +455,7 @@ public:
         if (newTime < 0)
             return false;
 
-        sWorld->SetRecordDiffInterval(newTime);
+        sWorldUpdateTime.SetRecordUpdateTimeInterval(newTime);
         printf("Record diff every %u ms\n", newTime);
 
         return true;

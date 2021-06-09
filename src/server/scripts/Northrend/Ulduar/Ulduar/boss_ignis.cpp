@@ -276,10 +276,10 @@ public:
             if (id == 1337)
             {
                 if (lastShatterMSTime)
-                    if (getMSTimeDiff(lastShatterMSTime, World::GetGameTimeMS()) <= 5000)
+                    if (getMSTimeDiff(lastShatterMSTime, getMSTime()) <= 5000)
                         bShattered = true;
 
-                lastShatterMSTime = World::GetGameTimeMS();
+                lastShatterMSTime = getMSTime();
             }
         }
 

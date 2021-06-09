@@ -2775,12 +2775,12 @@ public:
         {
             if (GetStackAmount() > stackAmount)
             {
-                _applyTimes.push_back(World::GetGameTimeMS());
+                _applyTimes.push_back(getMSTime());
                 stackAmount++;
             }
 
             // pop stack if it expired for us
-            if (_applyTimes.front() + GetMaxDuration() < World::GetGameTimeMS())
+            if (_applyTimes.front() + GetMaxDuration() < getMSTime())
             {
                 stackAmount--;
                 ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);

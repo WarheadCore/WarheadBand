@@ -136,7 +136,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PvPDiffi
     ginfo->ArenaTeamId                  = arenateamid;
     ginfo->IsRated                      = isRated;
     ginfo->IsInvitedToBGInstanceGUID    = 0;
-    ginfo->JoinTime                     = World::GetGameTimeMS();
+    ginfo->JoinTime                     = getMSTime();
     ginfo->RemoveInviteTime             = 0;
     ginfo->teamId                       = leader->GetTeamId();
     ginfo->RealTeamID                   = leader->GetTeamId(true);
@@ -203,7 +203,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, PvPDiffi
 
 void BattlegroundQueue::PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo)
 {
-    uint32 timeInQueue = std::max<uint32>(1, getMSTimeDiff(ginfo->JoinTime, World::GetGameTimeMS()));
+    uint32 timeInQueue = std::max<uint32>(1, getMSTimeDiff(ginfo->JoinTime, getMSTime()));
 
     // team_index: bg alliance - TEAM_ALLIANCE, bg horde - TEAM_HORDE, arena skirmish - TEAM_ALLIANCE, arena rated - TEAM_HORDE
     uint8 team_index;
@@ -568,7 +568,7 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
     // this happens if timer has expired or group size lowered
 
     uint32 premade_time = CONF_GET_INT("Battleground.PremadeGroupWaitForMatch");
-    uint32 time_before = World::GetGameTimeMS() >= premade_time ? World::GetGameTimeMS() - premade_time : 0;
+    uint32 time_before = getMSTime() >= premade_time ? getMSTime() - premade_time : 0;
 
     for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
         if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE + i].empty())
@@ -795,7 +795,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(BattlegroundBracketId bracket_id
     {
         // pussywizard: everything inside this section is mine, do NOT destroy!
 
-        const uint32 currMSTime = World::GetGameTimeMS();
+        const uint32 currMSTime = getMSTime();
         const uint32 discardTime = sBattlegroundMgr->GetRatingDiscardTimer();
         const uint32 maxDefaultRatingDifference = (MaxPlayersPerTeam > 2 ? 300 : 200);
         const uint32 maxCountedMMR = 2500;

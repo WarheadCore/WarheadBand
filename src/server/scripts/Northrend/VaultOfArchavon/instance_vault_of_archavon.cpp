@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
+#include "GameTime.h"
 
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event
@@ -190,13 +191,13 @@ public:
                 switch (type)
                 {
                     case EVENT_ARCHAVON:
-                        ArchavonDeath = time(nullptr);
+                        ArchavonDeath = GameTime::GetGameTime();
                         break;
                     case EVENT_EMALON:
-                        EmalonDeath = time(nullptr);
+                        EmalonDeath = GameTime::GetGameTime();
                         break;
                     case EVENT_KORALON:
-                        KoralonDeath = time(nullptr);
+                        KoralonDeath = GameTime::GetGameTime();
                         break;
                     default:
                         return;

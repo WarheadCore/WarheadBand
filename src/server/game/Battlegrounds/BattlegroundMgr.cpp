@@ -46,6 +46,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include <random>
 #include <unordered_map>
 
@@ -145,7 +146,7 @@ void BattlegroundMgr::Update(uint32 diff)
     {
         if (m_AutoDistributionTimeChecker < diff)
         {
-            if (time(nullptr) > m_NextAutoDistributionTime)
+            if (GameTime::GetGameTime() > m_NextAutoDistributionTime)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
                 m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * CONF_GET_INT("Arena.AutoDistributeInterval");
@@ -646,7 +647,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
         return;
 
     time_t wstime = time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
-    time_t curtime = time(nullptr);
+    time_t curtime = GameTime::GetGameTime();
     LOG_INFO("server", "AzerothCore Battleground: Initializing Automatic Arena Point Distribution");
     if (wstime < curtime)
     {
@@ -1027,7 +1028,7 @@ void BattlegroundMgr::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, T
     if (bg->isArena() && bg->isRated())
         bg->SetArenaTeamIdForTeam(ginfo->teamId, ginfo->ArenaTeamId);
 
-    ginfo->RemoveInviteTime = World::GetGameTimeMS() + INVITE_ACCEPT_WAIT_TIME;
+    ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
 
     // loop through the players
     for (auto itr : ginfo->Players)

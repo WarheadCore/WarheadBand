@@ -33,6 +33,7 @@ EndScriptData */
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "Transport.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include <string>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
@@ -741,7 +742,7 @@ public:
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
 
-        int64 curRespawnDelay = target->GetRespawnTimeEx() - time(nullptr);
+        int64 curRespawnDelay = target->GetRespawnTimeEx() - GameTime::GetGameTime();
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
         std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);

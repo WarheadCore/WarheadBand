@@ -40,6 +40,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -2367,4 +2368,15 @@ void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
         slot->flags |= flag;
     else
         slot->flags &= ~flag;
+}
+
+uint32 Group::GetDifficultyChangePreventionTime() const
+{
+    return _difficultyChangePreventionTime > GameTime::GetGameTime() ? _difficultyChangePreventionTime - GameTime::GetGameTime() : 0;
+}
+
+void Group::SetDifficultyChangePrevention(DifficultyPreventionChangeType type)
+{
+    _difficultyChangePreventionTime = GameTime::GetGameTime() + MINUTE;
+    _difficultyChangePreventionType = type;
 }

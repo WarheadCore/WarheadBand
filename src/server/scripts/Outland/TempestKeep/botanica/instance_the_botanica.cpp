@@ -18,6 +18,7 @@
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "the_botanica.h"
+#include "GameTime.h"
 
 class instance_the_botanica : public InstanceMapScript
 {
@@ -163,7 +164,7 @@ public:
         {
             if (SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo())
             {
-                if ((spellInfo->GetSchoolMask() & _lastSchool) && _swapTime > time(nullptr))
+                if ((spellInfo->GetSchoolMask() & _lastSchool) && _swapTime > GameTime::GetGameTime())
                     return false;
 
                 uint32 form = 0;
@@ -187,7 +188,7 @@ public:
 
                 if (form)
                 {
-                    _swapTime = time(nullptr) + 6;
+                    _swapTime = GameTime::GetGameTime() + 6;
                     _lastSchool = spellInfo->GetSchoolMask();
                     GetUnitOwner()->RemoveAurasDueToSpell(_lastForm);
                     _lastForm = form;

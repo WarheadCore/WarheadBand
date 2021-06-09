@@ -39,6 +39,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
+#include "GameTime.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -2928,7 +2929,7 @@ void AuraEffect::HandleAuraFeatherFall(AuraApplication const* aurApp, uint8 mode
 
     // start fall from current height
     if (!apply && target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->SetFallInformation(time(nullptr), target->GetPositionZ());
+        target->ToPlayer()->SetFallInformation(GameTime::GetGameTime(), target->GetPositionZ());
 }
 
 void AuraEffect::HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool apply) const

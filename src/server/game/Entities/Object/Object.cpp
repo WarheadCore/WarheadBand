@@ -54,6 +54,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 #ifdef ELUNA
 #include "ElunaEventMgr.h"
@@ -928,7 +929,7 @@ void MovementInfo::OutDebug()
     LOG_INFO("server", "guid %s", guid.ToString().c_str());
     LOG_INFO("server", "flags %u", flags);
     LOG_INFO("server", "flags2 %u", flags2);
-    LOG_INFO("server", "time %u current time " UI64FMTD "", flags2, uint64(::time(nullptr)));
+    LOG_INFO("server", "time %u current time " UI64FMTD "", flags2, uint64(::GameTime::GetGameTime()));
     LOG_INFO("server", "position: `%s`", pos.ToString().c_str());
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
@@ -2879,13 +2880,13 @@ void WorldObject::AddToNotify(uint16 f)
             {
                 uint32 EVENT_VISIBILITY_DELAY = u->FindMap() ? DynamicVisibilityMgr::GetVisibilityNotifyDelay(u->FindMap()->GetEntry()->map_type) : 1000;
 
-                uint32 diff = getMSTimeDiff(u->m_last_notify_mstime, World::GetGameTimeMS());
+                uint32 diff = getMSTimeDiff(u->m_last_notify_mstime, getMSTime());
                 if (diff >= EVENT_VISIBILITY_DELAY / 2)
                     EVENT_VISIBILITY_DELAY /= 2;
                 else
                     EVENT_VISIBILITY_DELAY -= diff;
                 u->m_delayed_unit_relocation_timer = EVENT_VISIBILITY_DELAY;
-                u->m_last_notify_mstime = World::GetGameTimeMS() + EVENT_VISIBILITY_DELAY - 1;
+                u->m_last_notify_mstime = getMSTime() + EVENT_VISIBILITY_DELAY - 1;
             }
             else if (f & NOTIFY_AI_RELOCATION)
             {

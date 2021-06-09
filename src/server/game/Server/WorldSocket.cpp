@@ -30,6 +30,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include <memory>
 
 using boost::asio::ip::tcp;
@@ -350,11 +351,9 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             if (_worldSession)
                 _worldSession->ResetTimeOutTime(true);
             return ReadDataHandlerResult::Ok;
-
         case CMSG_TIME_SYNC_RESP:
-            packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
+            packetToQueue = new WorldPacket(std::move(packet), GameTime::GetGameTimeSteadyPoint());
             break;
-
         default:
             packetToQueue = new WorldPacket(std::move(packet));
             break;
@@ -551,7 +550,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(nullptr) + llabs(mutetime);
+        mutetime = GameTime::GetGameTime() + llabs(mutetime);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);

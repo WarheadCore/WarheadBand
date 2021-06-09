@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AvgDiffTracker.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "Config.h"
@@ -272,10 +271,7 @@ void MapManager::Update(uint32 diff)
             m_updater.schedule_lfg_update(diff);
         else
         {
-            uint32 startTime = getMSTime();
             sLFGMgr->Update(diff, 1);
-            uint32 totalTime = getMSTimeDiff(startTime, getMSTime());
-            lfgDiffTracker.Update(10000 + totalTime); // +10k to mark it was NOT multithreaded
         }
     }
 
