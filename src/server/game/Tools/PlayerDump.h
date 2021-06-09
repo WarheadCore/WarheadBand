@@ -18,6 +18,7 @@
 #ifndef _PLAYER_DUMP_H
 #define _PLAYER_DUMP_H
 
+#include "Define.h"
 #include <map>
 #include <set>
 #include <string>
@@ -63,7 +64,7 @@ enum DumpReturn
 class WH_GAME_API PlayerDump
 {
 protected:
-    PlayerDump() {}
+    PlayerDump() { }
 };
 
 class WH_GAME_API PlayerDumpWriter : public PlayerDump
