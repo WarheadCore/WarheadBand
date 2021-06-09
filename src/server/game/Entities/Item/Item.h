@@ -18,9 +18,9 @@
 #ifndef AZEROTHCORE_ITEM_H
 #define AZEROTHCORE_ITEM_H
 
-#include "ItemTemplate.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "Object.h"
 

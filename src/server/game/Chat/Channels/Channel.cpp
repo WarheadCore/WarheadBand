@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ChannelMgr.h"
 #include "AccountMgr.h"
+#include "ChannelMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"

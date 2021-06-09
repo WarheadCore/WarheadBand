@@ -19,7 +19,7 @@
     \ingroup world
 */
 
-#include "WorldSession.h"
+#include "World.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
@@ -92,8 +92,8 @@
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WhoListCache.h"
-#include "World.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 

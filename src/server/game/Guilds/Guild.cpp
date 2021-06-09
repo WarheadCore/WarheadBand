@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GuildMgr.h"
+#include "Guild.h"
 #include "AccountMgr.h"
 #include "CalendarMgr.h"
 #include "Chat.h"
@@ -24,7 +24,7 @@
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameTime.h"
-#include "Guild.h"
+#include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"

@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "OutdoorPvPMgr.h"
+#include "OutdoorPvP.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -24,7 +24,7 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "OutdoorPvP.h"
+#include "OutdoorPvPMgr.h"
 #include "WorldPacket.h"
 
 OPvPCapturePoint::OPvPCapturePoint(OutdoorPvP* pvp):

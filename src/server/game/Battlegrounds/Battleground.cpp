@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundRV.h"
+#include "Battleground.h"
 #include "ArenaSpectator.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
-#include "Battleground.h"
 #include "BattlegroundBE.h"
 #include "BattlegroundDS.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundNA.h"
 #include "BattlegroundRL.h"
+#include "BattlegroundRV.h"
 #include "Chat.h"
 #include "Creature.h"
 #include "Formulas.h"

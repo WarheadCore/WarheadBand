@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapInstanced.h"
+#include "Map.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Chat.h"
@@ -29,7 +29,7 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
-#include "Map.h"
+#include "MapInstanced.h"
 #include "MapManager.h"
 #include "Object.h"
 #include "ObjectAccessor.h"

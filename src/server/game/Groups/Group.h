@@ -18,8 +18,8 @@
 #ifndef AZEROTHCORE_GROUP_H
 #define AZEROTHCORE_GROUP_H
 
-#include "GroupRefManager.h"
 #include "DBCEnums.h"
+#include "GroupRefManager.h"
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"

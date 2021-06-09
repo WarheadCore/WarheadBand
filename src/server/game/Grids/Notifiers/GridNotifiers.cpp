@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Map.h"
 #include "ObjectAccessor.h"

@@ -18,8 +18,8 @@
 #ifndef WARHEAD_CHATCOMMAND_H
 #define WARHEAD_CHATCOMMAND_H
 
-#include "ChatCommandTags.h"
 #include "ChatCommandArgs.h"
+#include "ChatCommandTags.h"
 #include "Define.h"
 #include "Errors.h"
 #include "Language.h"

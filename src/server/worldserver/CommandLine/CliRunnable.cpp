@@ -33,8 +33,8 @@
 #include "Chat.h"
 #include "ChatCommand.h"
 #include <cstring>
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 #endif
 
 static constexpr char CLI_PREFIX[] = "AC> ";

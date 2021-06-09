@@ -18,13 +18,13 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
-#include "ObjectGuid.h"
 #include "Common.h"
 #include "DataMap.h"
 #include "GridDefines.h"
 #include "GridReference.h"
 #include "Map.h"
 #include "ObjectDefines.h"
+#include "ObjectGuid.h"
 #include "UpdateData.h"
 #include "UpdateMask.h"
 #include <set>

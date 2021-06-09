@@ -18,11 +18,11 @@
 #ifndef WARHEAD_SMARTSCRIPT_H
 #define WARHEAD_SMARTSCRIPT_H
 
-#include "SmartScriptMgr.h"
 #include "Common.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GridNotifiers.h"
+#include "SmartScriptMgr.h"
 #include "Spell.h"
 #include "Unit.h"
 

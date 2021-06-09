@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObjectModel.h"
 #include "AccountMgr.h"
 #include "BattlegroundAV.h"
 #include "CellImpl.h"
@@ -24,6 +23,7 @@
 #include "DynamicTree.h"
 #include "GameLocale.h"
 #include "GameObjectAI.h"
+#include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
