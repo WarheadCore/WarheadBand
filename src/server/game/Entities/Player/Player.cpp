@@ -60,6 +60,7 @@
 #include "LootItemStorage.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MuteManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -1679,16 +1680,7 @@ void Player::Update(uint32 p_time)
     }
 
     // If mute expired, remove it from the DB
-    if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
-    {
-        GetSession()->m_muteTime = 0;
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
-        stmt->setInt64(0, 0); // Set the mute time to 0
-        stmt->setString(1, "");
-        stmt->setString(2, "");
-        stmt->setUInt32(3, GetSession()->GetAccountId());
-        LoginDatabase.Execute(stmt);
-    }
+    sMute->CheckMuteExpired(GetSession()->GetAccountId());
 
     if (!m_timedquests.empty())
     {
@@ -21024,8 +21016,8 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
             time_t new_mute = current + CONF_GET_INT("ChatFlood.MuteTime");
-            if (GetSession()->m_muteTime < new_mute)
-                GetSession()->m_muteTime = new_mute;
+            if (sMute->GetMuteTime(GetSession()->GetAccountId()) < new_mute)
+                sMute->SetMuteTime(GetSession()->GetAccountId(), new_mute);
 
             m_speakCount = 0;
         }
@@ -21034,11 +21026,6 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         m_speakCount = 1;
 
     m_speakTime = current + CONF_GET_INT("ChatFlood.MessageDelay");
-}
-
-bool Player::CanSpeak() const
-{
-    return  GetSession()->m_muteTime <= time (nullptr);
 }
 
 /*********************************************************/

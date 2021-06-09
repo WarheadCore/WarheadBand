@@ -251,7 +251,6 @@ struct AccountInfo
     bool IsLockedToIP;
     std::string LockCountry;
     uint8 Expansion;
-    int64 MuteTime;
     LocaleConstant Locale;
     uint32 Recruiter;
     std::string OS;
@@ -262,8 +261,8 @@ struct AccountInfo
 
     explicit AccountInfo(Field* fields)
     {
-        //           0             1          2         3               4            5           6         7            8     9           10          11
-        // SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, a.totaltime, aa.gmLevel,
+        //           0             1          2         3               4            5         6            7     8            9          10
+        // SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.locale, a.recruiter, a.os, a.totaltime, aa.gmLevel,
         //                                                           12    13
         // ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
         // FROM account a
@@ -277,14 +276,13 @@ struct AccountInfo
         IsLockedToIP = fields[3].GetBool();
         LockCountry = fields[4].GetString();
         Expansion = fields[5].GetUInt8();
-        MuteTime = fields[6].GetInt64();
-        Locale = LocaleConstant(fields[7].GetUInt8());
-        Recruiter = fields[8].GetUInt32();
-        OS = fields[9].GetString();
-        TotalTime = fields[10].GetUInt32();
-        Security = AccountTypes(fields[11].GetUInt8());
-        IsBanned = fields[12].GetUInt64() != 0;
-        IsRectuiter = fields[13].GetUInt32() != 0;
+        Locale = LocaleConstant(fields[6].GetUInt8());
+        Recruiter = fields[7].GetUInt32();
+        OS = fields[8].GetString();
+        TotalTime = fields[9].GetUInt32();
+        Security = AccountTypes(fields[10].GetUInt8());
+        IsBanned = fields[11].GetUInt64() != 0;
+        IsRectuiter = fields[12].GetUInt32() != 0;
 
         uint32 world_expansion = CONF_GET_INT("Expansion");
         if (Expansion > world_expansion)
@@ -546,18 +544,6 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         }
     }
 
-    int64 mutetime = account.MuteTime;
-    //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
-    if (mutetime < 0)
-    {
-        mutetime = GameTime::GetGameTime() + llabs(mutetime);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
-        stmt->setInt64(0, mutetime);
-        stmt->setUInt32(1, account.Id);
-        LoginDatabase.Execute(stmt);
-    }
-
     if (account.IsBanned)
     {
         SendAuthResponseError(AUTH_BANNED);
@@ -594,7 +580,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     _authed = true;
 
     _worldSession = new WorldSession(account.Id, std::move(authSession->Account), shared_from_this(), account.Security,
-        account.Expansion, mutetime, account.Locale, account.Recruiter, account.IsRectuiter, account.Security ? true : false, account.TotalTime);
+        account.Expansion, account.Locale, account.Recruiter, account.IsRectuiter, account.Security ? true : false, account.TotalTime);
 
     _worldSession->ReadAddonsInfo(authSession->AddonInfo);
 
