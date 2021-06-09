@@ -44,16 +44,16 @@ uint32 UpdateTime::GetAverageUpdateTime() const
 uint32 UpdateTime::GetTimeWeightedAverageUpdateTime() const
 {
     uint32 sum = 0, weightsum = 0;
-    
+
     for (uint32 diff : _updateTimeDataTable)
     {
         sum += diff * diff;
         weightsum += diff;
     }
-    
+
     if (weightsum == 0)
         return 0;
-    
+
     return sum / weightsum;
 }
 

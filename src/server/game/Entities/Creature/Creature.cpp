@@ -3270,4 +3270,3 @@ void Creature::SetRespawnTime(uint32 respawn)
 {
     m_respawnTime = respawn ? GameTime::GetGameTime() + respawn : 0;
 }
-

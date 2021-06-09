@@ -1375,7 +1375,7 @@ void World::Update(uint32 diff)
         UpdateSessions(diff);
         sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
     }
-    
+
     // end of section with mutex
     AsyncAuctionListingMgr::SetAuctionListingAllowed(true);
 
