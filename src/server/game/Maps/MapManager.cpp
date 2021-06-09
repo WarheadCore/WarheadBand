@@ -271,9 +271,7 @@ void MapManager::Update(uint32 diff)
             m_updater.schedule_lfg_update(diff);
         else
         {
-            uint32 startTime = getMSTime();
             sLFGMgr->Update(diff, 1);
-            uint32 totalTime = getMSTimeDiff(startTime, getMSTime());
         }
     }
 

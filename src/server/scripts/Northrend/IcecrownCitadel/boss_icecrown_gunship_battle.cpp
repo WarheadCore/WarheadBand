@@ -24,7 +24,7 @@
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
-#include "GameTIme.h"
+#include "GameTime.h"
 
 enum Texts
 {

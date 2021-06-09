@@ -55,9 +55,7 @@ public:
 
     void call() override
     {
-        uint32 startTime = getMSTime();
         sLFGMgr->Update(m_diff, 1);
-        uint32 totalTime = getMSTimeDiff(startTime, getMSTime());
         m_updater.update_finished();
     }
 private:
