@@ -18,7 +18,7 @@
 #ifndef SC_FOLLOWERAI_H
 #define SC_FOLLOWERAI_H
 
-#include "Define.h"
+#include "ScriptedCreature.h"
 #include "ScriptSystem.h"
 
 enum eFollowState
