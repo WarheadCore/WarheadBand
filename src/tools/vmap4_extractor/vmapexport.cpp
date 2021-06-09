@@ -16,6 +16,7 @@
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
+
 #include <cerrno>
 #include <cstdio>
 #include <iostream>
@@ -33,18 +34,12 @@
 #undef min
 #undef max
 
-//#pragma warning(disable : 4505)
-//#pragma comment(lib, "Winmm.lib")
-
-#include <map>
-
 //From Extractor
 #include "adtfile.h"
 #include "wdtfile.h"
 #include "dbcfile.h"
 #include "wmo.h"
 #include "mpq_libmpq04.h"
-
 #include "vmapexport.h"
 
 //------------------------------------------------------------------------------
