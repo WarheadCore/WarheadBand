@@ -18,6 +18,7 @@
 #ifndef WARHEAD_SHAREDDEFINES_H
 #define WARHEAD_SHAREDDEFINES_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include <cassert>
