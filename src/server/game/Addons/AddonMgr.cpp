@@ -18,7 +18,7 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "GameTime.h"
+#include "Timer.h"
 #include <list>
 #include <openssl/md5.h>
 
