@@ -19,6 +19,7 @@
 #define WARHEAD_MAIL_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include <map>
 #include <utility>
 
@@ -103,7 +104,7 @@ private:
 class WH_GAME_API MailReceiver
 {
 public:                                                 // Constructors
-    explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(nullptr), m_receiver_lowguid(receiver_lowguid) {}
+    explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(nullptr), m_receiver_lowguid(receiver_lowguid) { }
     MailReceiver(Player* receiver);
     MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
 public:                                                 // Accessors
