@@ -24,6 +24,7 @@
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "TemporarySummon.h"
+#include "GameTime.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
@@ -462,9 +463,9 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea()
     if (me->IsInEvadeMode() || !me->IsInCombat())
         return false;
 
-    if (_evadeCheckCooldown == time(nullptr))
+    if (_evadeCheckCooldown == GameTime::GetGameTime())
         return false;
-    _evadeCheckCooldown = time(nullptr);
+    _evadeCheckCooldown = GameTime::GetGameTime();
 
     if (!CheckEvadeIfOutOfCombatArea())
         return false;

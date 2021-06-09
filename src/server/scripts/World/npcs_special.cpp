@@ -58,6 +58,7 @@ EndContentData */
 #include "WaypointManager.h"
 #include "World.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 enum elderClearwater
 {
@@ -117,7 +118,7 @@ public:
             {
                 case EVENT_CLEARWATER_ANNOUNCE:
                     {
-                        time_t curtime = time(nullptr);
+                        time_t curtime = GameTime::GetGameTime();
                         tm strdate;
                         localtime_r(&curtime, &strdate);
 
@@ -261,7 +262,7 @@ public:
             {
                 case EVENT_RIGGLE_ANNOUNCE:
                     {
-                        time_t curtime = time(nullptr);
+                        time_t curtime = GameTime::GetGameTime();
                         tm strdate;
                         localtime_r(&curtime, &strdate);
                         if (!startWarning && strdate.tm_hour == 14 && strdate.tm_min == 0)

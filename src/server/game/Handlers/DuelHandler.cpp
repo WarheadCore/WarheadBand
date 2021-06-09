@@ -22,6 +22,7 @@
 #include "UpdateData.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
@@ -45,7 +46,7 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     LOG_DEBUG("server", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
 #endif
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 

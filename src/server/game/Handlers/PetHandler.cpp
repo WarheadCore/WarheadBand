@@ -35,6 +35,7 @@
 #include "WorldSession.h"
 #include "QueryHolder.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 class LoadPetFromDBQueryHolder : public CharacterDatabaseQueryHolder
 {
@@ -161,7 +162,7 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
         return PET_LOAD_ERROR;
     }
 
-    std::shared_ptr<LoadPetFromDBQueryHolder> holder = std::make_shared<LoadPetFromDBQueryHolder>(pet_number, current, uint32(time(nullptr) - fields[14].GetUInt32()), fields[13].GetString(), savedhealth, savedmana);
+    std::shared_ptr<LoadPetFromDBQueryHolder> holder = std::make_shared<LoadPetFromDBQueryHolder>(pet_number, current, uint32(GameTime::GetGameTime() - fields[14].GetUInt32()), fields[13].GetString(), savedhealth, savedmana);
     if (!holder->Initialize())
     {
         delete pet;
@@ -232,7 +233,7 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
             break;
     }
 
-    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
+    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped here
     pet->SetCreatorGUID(owner->GetGUID());
     owner->SetMinion(pet, true);
 
@@ -1228,7 +1229,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped
+    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped
 }
 
 void WorldSession::HandlePetAbandon(WorldPacket& recvData)

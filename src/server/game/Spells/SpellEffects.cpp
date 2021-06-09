@@ -69,6 +69,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -719,7 +720,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     case 17731:
                     case 69294:
                         {
-                            if( !gameObjTarget || gameObjTarget->GetRespawnTime() > time(nullptr) )
+                            if( !gameObjTarget || gameObjTarget->GetRespawnTime() > GameTime::GetGameTime() )
                                 return;
 
                             gameObjTarget->SetRespawnTime(10);
@@ -4341,7 +4342,7 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     }
 
     // Xinef: Set last sanctuary time
-    unitTarget->m_lastSanctuaryTime = World::GetGameTimeMS();
+    unitTarget->m_lastSanctuaryTime = getMSTime();
 
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
     if (m_caster->GetTypeId() == TYPEID_PLAYER
@@ -5096,7 +5097,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
         // charge changes fall time
         if( m_caster->GetTypeId() == TYPEID_PLAYER )
-            m_caster->ToPlayer()->SetFallInformation(time(nullptr), m_caster->GetPositionZ());
+            m_caster->ToPlayer()->SetFallInformation(GameTime::GetGameTime(), m_caster->GetPositionZ());
 
         if (m_pathFinder)
         {
@@ -5258,7 +5259,7 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     // xinef: changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetFallInformation(time(nullptr), m_caster->GetPositionZ());
+        m_caster->ToPlayer()->SetFallInformation(GameTime::GetGameTime(), m_caster->GetPositionZ());
 }
 
 void Spell::EffectQuestClear(SpellEffIndex effIndex)

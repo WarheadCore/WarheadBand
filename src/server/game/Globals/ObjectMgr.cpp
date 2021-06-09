@@ -50,6 +50,7 @@
 #include "WaypointManager.h"
 #include "World.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -5421,7 +5422,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
 
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
     stmt->setUInt32(0, curTime);

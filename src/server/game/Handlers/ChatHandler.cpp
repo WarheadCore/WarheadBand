@@ -40,6 +40,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -302,7 +303,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
         if (!_player->CanSpeak())
         {
-            std::string timeStr = secsToTimeString(m_muteTime - time(nullptr));
+            std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
             SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
             return;
         }
@@ -770,7 +771,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
     if (!GetPlayer()->CanSpeak())
     {
-        std::string timeStr = secsToTimeString(m_muteTime - time(nullptr));
+        std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
         SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }

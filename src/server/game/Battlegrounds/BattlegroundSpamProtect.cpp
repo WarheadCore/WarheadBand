@@ -20,6 +20,7 @@
 #include "GameConfig.h"
 #include "Player.h"
 #include "World.h"
+#include "GameTime.h"
 
 namespace
 {
@@ -27,7 +28,7 @@ namespace
 
     void AddTime(ObjectGuid guid)
     {
-        _players.insert_or_assign(guid, sWorld->GetGameTime());
+        _players.insert_or_assign(guid, GameTime::GetGameTime());
     }
 
     uint32 GetTime(ObjectGuid guid)
@@ -44,7 +45,7 @@ namespace
     bool IsCorrectDelay(ObjectGuid guid)
     {
         // Skip if spam time < 30 secs (default)
-        if (sWorld->GetGameTime() - GetTime(guid) < CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay"))
+        if (GameTime::GetGameTime() - GetTime(guid) < CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay"))
         {
             return false;
         }

@@ -18,7 +18,6 @@
 #include "AccountMgr.h"
 #include "AsyncAuctionListing.h"
 #include "AuctionHouseMgr.h"
-#include "AvgDiffTracker.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -33,6 +32,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include <vector>
 
 enum eAuctionHouse
@@ -466,7 +466,7 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 
 void AuctionHouseObject::Update()
 {
-    time_t checkTime = sWorld->GetGameTime() + 60;
+    time_t checkTime = GameTime::GetGameTime() + 60;
     ///- Handle expired auctions
 
     // If storage is empty, no need to update. next == nullptr in this case.
@@ -564,7 +564,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         return true;
     }
 
-    time_t curTime = sWorld->GetGameTime();
+    time_t curTime = GameTime::GetGameTime();
 
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
@@ -573,7 +573,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     {
         if (AsyncAuctionListingMgr::IsAuctionListingAllowed() == false) // pussywizard: World::Update is waiting for us...
             if ((itrcounter++) % 100 == 0) // check condition every 100 iterations
-                if (avgDiffTracker.getAverage() >= 30 || getMSTimeDiff(World::GetGameTimeMS(), getMSTime()) >= 10) // pussywizard: stop immediately if diff is high or waiting too long
+                if (getMSTimeDiff(getMSTime(), getMSTime()) >= 10) // pussywizard: stop immediately if diff is high or waiting too long
                     return false;
 
         AuctionEntry* Aentry = itr->second;
@@ -711,7 +711,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
     data << uint32(bid ? GetAuctionOutBid() : 0);
     // Minimal outbid
     data << uint32(buyout);                                         // Auction->buyout
-    data << uint32((expire_time - time(nullptr)) * IN_MILLISECONDS); // time left
+    data << uint32((expire_time - GameTime::GetGameTime()) * IN_MILLISECONDS); // time left
     data << bidder;                                                 // auction->bidder current
     data << uint32(bid);                                            // current bid
     return true;

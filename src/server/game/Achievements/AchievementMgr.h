@@ -17,15 +17,14 @@
 #ifndef __WARHEAD_ACHIEVEMENTMGR_H
 #define __WARHEAD_ACHIEVEMENTMGR_H
 
-#include <map>
-#include <string>
-#include <chrono>
-
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
+#include <map>
+#include <string>
 
 typedef std::list<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;
 typedef std::list<AchievementEntry const*>         AchievementEntryList;
@@ -377,7 +376,7 @@ private:
     // store achievements by referenced achievement id to speed up lookup
     AchievementListByReferencedId m_AchievementListByReferencedId;
 
-    typedef std::unordered_map<uint32 /*achievementId*/, std::chrono::system_clock::time_point /*completionTime*/> AllCompletedAchievements;
+    typedef std::unordered_map<uint32 /*achievementId*/, SystemTimePoint /*completionTime*/> AllCompletedAchievements;
     AllCompletedAchievements m_allCompletedAchievements;
 
     AchievementRewards m_achievementRewards;

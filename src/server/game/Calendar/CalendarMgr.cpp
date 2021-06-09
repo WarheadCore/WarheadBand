@@ -22,6 +22,10 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "QueryResult.h"
+#include "GameTime.h"
+
+CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _statusTime(GameTime::GetGameTime()),
+_status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
 
 CalendarInvite::~CalendarInvite()
 {
@@ -357,7 +361,7 @@ uint64 CalendarMgr::GetFreeInviteId()
 
 void CalendarMgr::DeleteOldEvents()
 {
-    time_t oldEventsTime = time(nullptr) - CALENDAR_OLD_EVENTS_DELETION_TIME;
+    time_t oldEventsTime = GameTime::GetGameTime() - CALENDAR_OLD_EVENTS_DELETION_TIME;
 
     for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end();)
     {

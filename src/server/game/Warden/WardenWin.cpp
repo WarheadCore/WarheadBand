@@ -272,7 +272,7 @@ void WardenWin::RequestChecks()
             _ChecksTodo[i].assign(sWardenCheckMgr->CheckIdPool[i].begin(), sWardenCheckMgr->CheckIdPool[i].end());
     }
 
-    _serverTicks = World::GetGameTimeMS();
+    _serverTicks = getMSTime();
     _CurrentChecks.clear();
 
     // No pending checks
@@ -519,7 +519,7 @@ void WardenWin::HandleData(ByteBuffer& buff)
         buff >> newClientTicks;
 
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        uint32 ticksNow = World::GetGameTimeMS();
+        uint32 ticksNow = getMSTime();
         uint32 ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
         LOG_DEBUG("warden", "ServerTicks %u", ticksNow);         // Now

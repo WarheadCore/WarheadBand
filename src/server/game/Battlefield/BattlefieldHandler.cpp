@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 
 //This send to player windows for invite player to join the war
 //Param1:(BattleId) the BattleId of Bf
@@ -35,7 +36,7 @@ void WorldSession::SendBfInvitePlayerToWar(uint32 BattleId, uint32 ZoneId, uint3
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 12);
     data << uint32(BattleId);
     data << uint32(ZoneId);
-    data << uint32((time(nullptr) + p_time));
+    data << uint32((GameTime::GetGameTime() + p_time));
 
     //Sending the packet to player
     SendPacket(&data);
