@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "magisters_terrace.h"
 #include "Opcodes.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "WorldPacket.h"
+#include "magisters_terrace.h"
 
 enum Says
 {

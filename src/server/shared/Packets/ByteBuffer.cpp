@@ -16,14 +16,14 @@
  */
 
 #include "ByteBuffer.h"
-#include "Errors.h"
-#include "MessageBuffer.h"
 #include "Common.h"
+#include "Errors.h"
 #include "Log.h"
+#include "MessageBuffer.h"
 #include "Util.h"
-#include <utf8.h>
-#include <sstream>
 #include <ctime>
+#include <sstream>
+#include <utf8.h>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) :
     _rpos(0), _wpos(0), _storage(buffer.Move()) { }

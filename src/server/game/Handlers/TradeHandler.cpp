@@ -17,6 +17,7 @@
 
 #include "AccountMgr.h"
 #include "Common.h"
+#include "GameConfig.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -29,7 +30,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 void WorldSession::SendTradeStatus(TradeStatus status)
 {

@@ -19,8 +19,8 @@
 #define WARHEAD_GRIDDEFINES_H
 
 #include "Common.h"
-#include "NGrid.h"
 #include "MapDefines.h"
+#include "NGrid.h"
 #include <cmath>
 
 // Forward class definitions

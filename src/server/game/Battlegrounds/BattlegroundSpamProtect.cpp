@@ -18,9 +18,9 @@
 #include "BattlegroundSpamProtect.h"
 #include "Battleground.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include "Player.h"
 #include "World.h"
-#include "GameTime.h"
 
 namespace
 {

@@ -16,11 +16,11 @@
  */
 
 #include "GridNotifiers.h"
-#include "icecrown_citadel.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "icecrown_citadel.h"
 
 enum Texts
 {

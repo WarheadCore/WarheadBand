@@ -25,6 +25,7 @@ EndScriptData */
 #include "Chat.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
@@ -33,7 +34,6 @@ EndScriptData */
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
-#include "GameTime.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

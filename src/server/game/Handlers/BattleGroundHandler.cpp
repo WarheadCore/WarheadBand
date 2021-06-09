@@ -22,6 +22,7 @@
 #include "Chat.h"
 #include "Common.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "Group.h"
 #include "Language.h"
 #include "Log.h"
@@ -33,7 +34,6 @@
 #include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {

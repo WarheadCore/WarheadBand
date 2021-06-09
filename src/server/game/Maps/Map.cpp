@@ -15,11 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MapInstanced.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "Geometry.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -28,18 +31,15 @@
 #include "LFGMgr.h"
 #include "Map.h"
 #include "MapManager.h"
-#include "MapInstanced.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include "GameConfig.h"
-#include "GameTime.h"
+#include "Vehicle.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Unit.h"
 #include "AccountMgr.h"
 #include "ArenaSpectator.h"
 #include "Battlefield.h"
@@ -30,6 +31,8 @@
 #include "DisableMgr.h"
 #include "DynamicVisibility.h"
 #include "Formulas.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
@@ -57,20 +60,17 @@
 #include "Totem.h"
 #include "TotemAI.h"
 #include "Transport.h"
-#include "Unit.h"
 #include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <math.h>
 
 #ifdef ELUNA
-#include "LuaEngine.h"
 #include "ElunaEventMgr.h"
+#include "LuaEngine.h"
 #endif
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =

@@ -18,7 +18,9 @@
 #include "AccountMgr.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -30,8 +32,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 constexpr uint32 MAX_INBOX_CLIENT_CAPACITY = 50;
 constexpr uint32 MAX_NETCLIENT_PACKET_SIZE = 32767 - 1; // Client hardcap: int16 with trailing zero space otherwise crash on memory free

@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PointMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Errors.h"
+#include "GameConfig.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Player.h"
-#include "PointMovementGenerator.h"
 #include "World.h"
-#include "GameConfig.h"
 
 //----- Point Movement Generator
 template<class T>

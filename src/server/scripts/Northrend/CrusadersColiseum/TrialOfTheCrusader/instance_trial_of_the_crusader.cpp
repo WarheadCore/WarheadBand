@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "Group.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
-#include "GameTime.h"
 
 #define CLEANUP_CHECK_INTERVAL  5000
 std::map<uint32, bool> validDedicatedInsanityItems;

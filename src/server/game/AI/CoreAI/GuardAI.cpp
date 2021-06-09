@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GuardAI.h"
 #include "CreatureAIImpl.h"
 #include "Errors.h"
-#include "GuardAI.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"

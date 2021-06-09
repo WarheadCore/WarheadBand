@@ -17,6 +17,7 @@
 
 #include "CellImpl.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -30,7 +31,6 @@
 #include "Transport.h"
 #include "WaypointManager.h"
 #include "World.h"
-#include "GameTime.h"
 
 /// Put scripts in the execution queue
 void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)

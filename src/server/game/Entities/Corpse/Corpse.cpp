@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Corpse.h"
+#include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "UpdateMask.h"
 #include "World.h"
-#include "GameTime.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {

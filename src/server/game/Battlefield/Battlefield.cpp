@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battlefield.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -30,8 +32,6 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 Battlefield::Battlefield()
 {

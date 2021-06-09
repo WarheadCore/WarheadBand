@@ -15,21 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "MotionMaster.h"
 #include "ConfusedMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "EscortMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
+#include "GameTime.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
-#include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
-#include "GameTime.h"
 #include <cassert>
 
  // ---- ChaseRange ---- //

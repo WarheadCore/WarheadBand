@@ -21,11 +21,11 @@
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "LocaleCommon.h"
-#include "GameConfig.h"
 
 class CreatureTextBuilder
 {

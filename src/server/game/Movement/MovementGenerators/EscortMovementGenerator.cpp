@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "EscortMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Errors.h"
-#include "EscortMovementGenerator.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Player.h"

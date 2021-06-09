@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellScript.h"
 #include "ArenaSpectator.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -25,16 +26,18 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicObject.h"
+#include "GameConfig.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
-#include "MapManager.h"
 #include "MMapFactory.h"
 #include "MMapManager.h"
+#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -46,24 +49,21 @@
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Unit.h"
 #include "UpdateData.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
+#include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #ifdef ELUNA
-#include "LuaEngine.h"
 #include "ElunaUtility.h"
+#include "LuaEngine.h"
 #endif
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];

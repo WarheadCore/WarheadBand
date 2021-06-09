@@ -24,9 +24,11 @@
 #include "Chat.h"
 #include "Common.h"
 #include "CreatureAI.h"
-#include "DatabaseEnv.h"
 #include "DBCEnums.h"
+#include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "Group.h"
 #include "GuildMgr.h"
@@ -51,8 +53,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <zlib.h>
 
 #ifdef ELUNA

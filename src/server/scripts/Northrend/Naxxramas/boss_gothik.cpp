@@ -17,10 +17,10 @@
 
 #include "CombatAI.h"
 #include "GridNotifiers.h"
-#include "naxxramas.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "naxxramas.h"
 
 enum Yells
 {

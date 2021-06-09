@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "InstanceScript.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameObject.h"
 #include "Group.h"
-#include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"

@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "RandomMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
+#include "GameConfig.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
-#include "RandomMovementGenerator.h"
 #include "Spell.h"
 #include "Util.h"
-#include "GameConfig.h"
 
 template<class T>
 RandomMovementGenerator<T>::~RandomMovementGenerator() { }

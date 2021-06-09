@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blackrock_depths.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "blackrock_depths.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6

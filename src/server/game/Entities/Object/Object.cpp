@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Object.h"
+#include "ObjectMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "CellImpl.h"
@@ -24,15 +24,17 @@
 #include "Creature.h"
 #include "DynamicTree.h"
 #include "DynamicVisibility.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "MovementPacketBuilder.h"
+#include "Object.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
 #include "Physics.h"
@@ -53,8 +55,6 @@
 #include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #ifdef ELUNA
 #include "ElunaEventMgr.h"

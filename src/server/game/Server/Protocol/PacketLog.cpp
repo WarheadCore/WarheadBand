@@ -17,10 +17,10 @@
 
 #include "PacketLog.h"
 #include "Config.h"
+#include "GameTime.h"
 #include "IpAddress.h"
 #include "Timer.h"
 #include "WorldPacket.h"
-#include "GameTime.h"
 
 #pragma pack(push, 1)
 

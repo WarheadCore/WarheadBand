@@ -18,12 +18,12 @@
 #ifndef AZEROTHCORE_CREATURE_H
 #define AZEROTHCORE_CREATURE_H
 
-#include "Unit.h"
+#include "CreatureData.h"
 #include "Cell.h"
 #include "Common.h"
-#include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
 #include "LootMgr.h"
+#include "Unit.h"
 #include "World.h"
 #include <list>
 

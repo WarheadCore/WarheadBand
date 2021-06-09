@@ -15,19 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
+#include "BattlegroundRV.h"
 #include "ArenaSpectator.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "Battleground.h"
 #include "BattlegroundBE.h"
 #include "BattlegroundDS.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundNA.h"
 #include "BattlegroundRL.h"
-#include "BattlegroundRV.h"
 #include "Chat.h"
 #include "Creature.h"
 #include "Formulas.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
@@ -45,7 +46,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

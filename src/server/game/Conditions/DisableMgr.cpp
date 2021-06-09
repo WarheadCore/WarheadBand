@@ -16,6 +16,7 @@
  */
 
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "MMapFactory.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
@@ -23,7 +24,6 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
-#include "GameConfig.h"
 
 namespace DisableMgr
 {

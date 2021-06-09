@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
 #include "ObjectAccessor.h"
@@ -32,7 +33,6 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
-#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AchievementMgr.h"
 #include "ConditionMgr.h"
+#include "AchievementMgr.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"

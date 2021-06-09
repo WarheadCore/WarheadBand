@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
+#include "GameConfig.h"
 #include "Group.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -26,7 +27,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),

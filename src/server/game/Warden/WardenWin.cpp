@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WardenWin.h"
 #include "AccountMgr.h"
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "CryptoRandom.h"
 #include "Database/DatabaseEnv.h"
+#include "GameConfig.h"
 #include "HMAC.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -28,11 +30,9 @@
 #include "Util.h"
 #include "WardenCheckMgr.h"
 #include "WardenModuleWin.h"
-#include "WardenWin.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 #include <openssl/md5.h>
 
 // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)

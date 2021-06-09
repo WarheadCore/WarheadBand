@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundIC.h"
+#include "Battleground.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -27,7 +28,6 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
 
 BattlegroundIC::BattlegroundIC()
 {

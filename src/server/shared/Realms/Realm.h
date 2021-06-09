@@ -18,8 +18,8 @@
 #ifndef Realm_h__
 #define Realm_h__
 
-#include "Common.h"
 #include "AsioHacksFwd.h"
+#include "Common.h"
 
 enum RealmFlags
 {

@@ -25,12 +25,12 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PlayerDump.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

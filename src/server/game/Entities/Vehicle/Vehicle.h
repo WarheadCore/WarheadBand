@@ -18,10 +18,10 @@
 #ifndef __WARHEAD_VEHICLE_H
 #define __WARHEAD_VEHICLE_H
 
+#include "VehicleDefines.h"
 #include "EventProcessor.h"
 #include "ObjectDefines.h"
 #include "Unit.h"
-#include "VehicleDefines.h"
 
 struct VehicleEntry;
 class Unit;

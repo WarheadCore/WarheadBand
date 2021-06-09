@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cstring>
 #include "CryptoHash.h"
+#include <cstring>
 
 #ifndef AZEROTHCORE_SESSIONKEYGENERATOR_HPP
 #define AZEROTHCORE_SESSIONKEYGENERATOR_HPP

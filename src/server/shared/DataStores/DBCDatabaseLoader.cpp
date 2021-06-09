@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "DBCDatabaseLoader.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DBCDatabaseLoader.h"
 #include "Errors.h"
 #include "Log.h"
 #include "StringFormat.h"

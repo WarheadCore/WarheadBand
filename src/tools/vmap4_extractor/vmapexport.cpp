@@ -21,8 +21,8 @@
 #include <iostream>
 #include <list>
 #include <map>
-#include <vector>
 #include <sys/stat.h>
+#include <vector>
 
 #ifdef WIN32
 #include <Windows.h>

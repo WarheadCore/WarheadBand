@@ -27,9 +27,9 @@ npc_mist
 EndContentData */
 
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
-#include "ScriptMgr.h"
 
 void AddSC_teldrassil()
 {

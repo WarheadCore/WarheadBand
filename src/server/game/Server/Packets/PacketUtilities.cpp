@@ -16,11 +16,11 @@
  */
 
 #include "PacketUtilities.h"
-//#include "Hyperlinks.h"
 #include "Errors.h"
-#include <utf8.h>
-#include <sstream>
 #include <array>
+#include <sstream>
+#include <utf8.h>
+//#include "Hyperlinks.h"
 
 WorldPackets::InvalidStringValueException::InvalidStringValueException(std::string const& value) :
     ByteBufferInvalidValueException("string", value.c_str()) { }

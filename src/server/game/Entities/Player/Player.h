@@ -18,19 +18,19 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "Unit.h"
+#include "ArenaTeam.h"
 #include "Battleground.h"
-#include "DatabaseEnvFwd.h"
 #include "DBCStores.h"
+#include "DatabaseEnvFwd.h"
 #include "GroupReference.h"
 #include "InstanceSaveMgr.h"
-#include "ArenaTeam.h"
 #include "Item.h"
 #include "MapReference.h"
 #include "ObjectMgr.h"
 #include "PetDefines.h"
 #include "QuestDef.h"
 #include "SpellMgr.h"
+#include "Unit.h"
 #include "WorldSession.h"
 #include <string>
 #include <vector>

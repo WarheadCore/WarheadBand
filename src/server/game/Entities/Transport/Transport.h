@@ -18,8 +18,8 @@
 #ifndef TRANSPORTS_H
 #define TRANSPORTS_H
 
-#include "GameObject.h"
 #include "TransportMgr.h"
+#include "GameObject.h"
 #include "VehicleDefines.h"
 #include "ZoneScript.h"
 

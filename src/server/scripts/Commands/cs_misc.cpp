@@ -20,8 +20,10 @@
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -41,8 +43,6 @@
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

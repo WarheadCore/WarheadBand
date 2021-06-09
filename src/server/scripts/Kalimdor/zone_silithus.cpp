@@ -31,9 +31,9 @@ EndContentData */
 #include "BanManager.h"
 #include "Group.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 

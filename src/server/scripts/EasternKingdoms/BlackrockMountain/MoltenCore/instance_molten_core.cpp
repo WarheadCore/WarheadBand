@@ -24,10 +24,10 @@ EndScriptData */
 
 #include "CreatureAI.h"
 #include "InstanceScript.h"
-#include "molten_core.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
+#include "molten_core.h"
 
 Position const SummonPositions[10] =
 {

@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MPQ.h"
 #include "MPQManager.h"
-#include <deque>
+#include "MPQ.h"
 #include <cstdio>
+#include <deque>
 
 MPQArchive::MPQArchive(const char* filename)
 {

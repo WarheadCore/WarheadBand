@@ -18,6 +18,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -30,7 +31,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {

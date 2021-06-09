@@ -16,16 +16,16 @@
  */
 
 #include "AccountMgr.h"
+#include "GameConfig.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Realm.h"
 #include "Player.h"
+#include "Realm.h"
 #include "SocialMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recv_data)
 {

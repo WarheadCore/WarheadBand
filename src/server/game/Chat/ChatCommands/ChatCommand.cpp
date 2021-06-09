@@ -18,14 +18,14 @@
 #include "ChatCommand.h"
 #include "AccountMgr.h"
 #include "Chat.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "WorldSession.h"
 #include "Tokenize.h"
+#include "WorldSession.h"
 
 using ChatSubCommandMap = std::map<std::string_view, Warhead::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
 

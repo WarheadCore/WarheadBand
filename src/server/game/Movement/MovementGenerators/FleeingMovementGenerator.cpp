@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "FleeingMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "FleeingMovementGenerator.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"

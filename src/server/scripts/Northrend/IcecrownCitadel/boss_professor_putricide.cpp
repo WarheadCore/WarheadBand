@@ -17,13 +17,13 @@
 
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "icecrown_citadel.h"
 #include "ObjectMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
+#include "icecrown_citadel.h"
 
 enum ScriptTexts
 {

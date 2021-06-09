@@ -15,21 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Guild.h"
+#include "GuildMgr.h"
 #include "AccountMgr.h"
 #include "CalendarMgr.h"
 #include "Chat.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
-#include "GuildMgr.h"
+#include "GameTime.h"
+#include "Guild.h"
 #include "Language.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD

@@ -20,9 +20,9 @@
 #include "Chat.h"
 #include "Language.h"
 #include "ObjectMgr.h"
+#include "Optional.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "Optional.h"
 #include <tuple>
 #include <vector>
 

@@ -27,8 +27,8 @@ EndScriptData */
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "Realm.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "TicketMgr.h"
 

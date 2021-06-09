@@ -7,8 +7,8 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_warlock_".
  */
 
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum WarlockSpells
 {

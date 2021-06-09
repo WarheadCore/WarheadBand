@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MPQManager.h"
-#include "WDT.h"
-#include "ContinentBuilder.h"
 #include "Cache.h"
-#include "DBC.h"
 #include "Constants.h"
+#include "ContinentBuilder.h"
+#include "DBC.h"
+#include "MPQManager.h"
 #include "Model.h"
+#include "WDT.h"
 
-#include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "Recast.h"
 
 #include <stdio.h>
 

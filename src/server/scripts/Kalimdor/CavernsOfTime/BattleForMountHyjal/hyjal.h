@@ -18,8 +18,8 @@
 #ifndef DEF_HYJAL_H
 #define DEF_HYJAL_H
 
-#include "GridNotifiers.h"
 #include "CreatureAIImpl.h"
+#include "GridNotifiers.h"
 
 #define HyjalScriptName "instance_hyjal"
 #define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy."

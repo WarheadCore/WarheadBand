@@ -21,8 +21,8 @@
 #include "Define.h"
 #include "SQLOperation.h"
 #include <future>
-#include <vector>
 #include <variant>
+#include <vector>
 
 struct PreparedStatementData
 {

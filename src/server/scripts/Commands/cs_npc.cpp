@@ -25,6 +25,8 @@ EndScriptData */
 #include "Chat.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -32,8 +34,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "Transport.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <string>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

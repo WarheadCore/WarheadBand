@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlegroundMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundAB.h"
@@ -23,7 +24,6 @@
 #include "BattlegroundDS.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundIC.h"
-#include "BattlegroundMgr.h"
 #include "BattlegroundNA.h"
 #include "BattlegroundQueue.h"
 #include "BattlegroundRL.h"
@@ -34,8 +34,10 @@
 #include "Common.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
+#include "GameTime.h"
 #include "Map.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
@@ -45,8 +47,6 @@
 #include "SharedDefines.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include <random>
 #include <unordered_map>
 

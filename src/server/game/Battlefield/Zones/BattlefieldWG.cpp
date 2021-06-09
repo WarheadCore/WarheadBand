@@ -20,6 +20,8 @@
 // TODO: Add proper implement of achievement
 
 #include "BattlefieldWG.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -28,8 +30,6 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 BattlefieldWG::~BattlefieldWG()
 {

@@ -18,10 +18,10 @@
 #ifndef _WARDEN_BASE_H
 #define _WARDEN_BASE_H
 
+#include "WardenCheckMgr.h"
 #include "ARC4.h"
 #include "AuthDefines.h"
 #include "ByteBuffer.h"
-#include "WardenCheckMgr.h"
 #include <array>
 
 enum WardenOpcodes

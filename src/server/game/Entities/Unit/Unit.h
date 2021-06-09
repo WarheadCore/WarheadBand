@@ -19,8 +19,8 @@
 #define __UNIT_H
 
 #include "EventProcessor.h"
-#include "FollowerReference.h"
 #include "FollowerRefManager.h"
+#include "FollowerReference.h"
 #include "HostileRefManager.h"
 #include "MotionMaster.h"
 #include "Object.h"

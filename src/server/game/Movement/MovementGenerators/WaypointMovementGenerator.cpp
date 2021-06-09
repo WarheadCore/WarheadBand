@@ -15,9 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WaypointMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
@@ -25,10 +28,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "Transport.h"
-#include "WaypointMovementGenerator.h"
 #include "World.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 {

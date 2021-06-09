@@ -24,8 +24,10 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
@@ -49,8 +51,6 @@
 #include "Vehicle.h"
 #include "WaypointManager.h"
 #include "World.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;

@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Transport.h"
-#include "ulduar.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameTime.h"
+#include "ulduar.h"
 
 class instance_ulduar : public InstanceMapScript
 {

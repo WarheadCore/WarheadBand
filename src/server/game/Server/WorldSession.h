@@ -22,20 +22,20 @@
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
 
-#include "Common.h"
 #include "AccountMgr.h"
-#include "AuthDefines.h"
 #include "AddonMgr.h"
+#include "AuthDefines.h"
 #include "BanManager.h"
 #include "CircularBuffer.h"
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "GossipDef.h"
 #include "Packet.h"
 #include "SharedDefines.h"
 #include "World.h"
-#include <utility>
 #include <map>
 #include <unordered_map>
+#include <utility>
 
 class Creature;
 class GameObject;

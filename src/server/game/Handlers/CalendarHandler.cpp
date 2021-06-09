@@ -36,7 +36,9 @@ Copied events should probably have a new owner
 #include "ArenaTeamMgr.h"
 #include "CalendarMgr.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
@@ -44,10 +46,8 @@ Copied events should probably have a new owner
 #include "Opcodes.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "utf8.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
+#include "utf8.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {

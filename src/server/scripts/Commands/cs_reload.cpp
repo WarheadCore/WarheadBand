@@ -28,6 +28,7 @@ EndScriptData */
 #include "Chat.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "LFGMgr.h"
@@ -42,7 +43,6 @@ EndScriptData */
 #include "TicketMgr.h"
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
-#include "GameConfig.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

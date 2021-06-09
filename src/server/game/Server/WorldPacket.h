@@ -18,10 +18,10 @@
 #ifndef WARHEADCORE_WORLDPACKET_H
 #define WARHEADCORE_WORLDPACKET_H
 
-#include "Common.h"
-#include "Opcodes.h"
 #include "ByteBuffer.h"
+#include "Common.h"
 #include "Duration.h"
+#include "Opcodes.h"
 
 class WorldPacket : public ByteBuffer
 {

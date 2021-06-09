@@ -16,8 +16,8 @@
  */
 
 #include "ObjectMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "zulgurub.h"
 

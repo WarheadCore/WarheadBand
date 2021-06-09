@@ -17,12 +17,12 @@
 
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "GameTime.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
-#include "GameTime.h"
 
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event

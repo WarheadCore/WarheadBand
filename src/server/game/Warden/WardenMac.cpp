@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WardenMac.h"
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "Log.h"
@@ -22,7 +23,6 @@
 #include "Player.h"
 #include "SessionKeyGenerator.h"
 #include "Util.h"
-#include "WardenMac.h"
 #include "WardenModuleMac.h"
 #include "World.h"
 #include "WorldPacket.h"

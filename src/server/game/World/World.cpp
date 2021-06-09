@@ -19,7 +19,7 @@
     \ingroup world
 */
 
-#include "World.h"
+#include "WorldSession.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
@@ -48,6 +48,7 @@
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
@@ -81,6 +82,7 @@
 #include "TicketMgr.h"
 #include "Transport.h"
 #include "TransportMgr.h"
+#include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
@@ -90,10 +92,8 @@
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WhoListCache.h"
+#include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "GameTime.h"
-#include "UpdateTime.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 

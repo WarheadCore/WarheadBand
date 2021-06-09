@@ -19,11 +19,11 @@
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "Errors.h"
+#include "GameConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameConfig.h"
 #include <zlib.h>
 
 UpdateData::UpdateData() : m_blockCount(0)

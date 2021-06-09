@@ -15,20 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlegroundQueue.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundSpamProtect.h"
-#include "BattlegroundQueue.h"
 #include "Channel.h"
 #include "Chat.h"
+#include "GameConfig.h"
 #include "Group.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
 #include <unordered_map>
 
 /*********************************************************/

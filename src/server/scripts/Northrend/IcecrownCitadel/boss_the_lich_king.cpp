@@ -18,18 +18,18 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "icecrown_citadel.h"
 #include "ObjectMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Vehicle.h"
-#include "GameTime.h"
+#include "icecrown_citadel.h"
 
 enum Texts
 {

@@ -18,15 +18,15 @@
 #ifndef WARHEAD_MAP_H
 #define WARHEAD_MAP_H
 
+#include "MapRefManager.h"
 #include "Cell.h"
-#include "DataMap.h"
 #include "DBCStructure.h"
+#include "DataMap.h"
 #include "Define.h"
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GridDefines.h"
 #include "GridRefManager.h"
-#include "MapRefManager.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
 #include "PathGenerator.h"

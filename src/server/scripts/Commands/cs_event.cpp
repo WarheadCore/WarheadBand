@@ -24,10 +24,10 @@ EndScriptData */
 
 #include "Chat.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "GameTime.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

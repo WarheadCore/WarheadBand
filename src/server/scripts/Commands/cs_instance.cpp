@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
@@ -30,7 +31,6 @@ EndScriptData */
 #include "MapManager.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "GameTime.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

@@ -15,9 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
 #include "BanManager.h"
+#include "AccountMgr.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -25,8 +27,6 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 
 BanManager* BanManager::instance()
 {

@@ -28,8 +28,8 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "WorldPacket.h"
 

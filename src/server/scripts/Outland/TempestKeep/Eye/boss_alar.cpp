@@ -16,10 +16,10 @@
  */
 
 #include "MoveSplineInit.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "the_eye.h"
+#include "ScriptedCreature.h"
 #include "WaypointManager.h"
+#include "the_eye.h"
 
 enum Spells
 {

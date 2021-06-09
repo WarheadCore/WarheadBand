@@ -16,7 +16,7 @@
  */
 
 #include "CreatureTextMgr.h"
-#include "icecrown_citadel.h"
+#include "GameTime.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ScriptMgr.h"
@@ -24,7 +24,7 @@
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
-#include "GameTime.h"
+#include "icecrown_citadel.h"
 
 enum Texts
 {

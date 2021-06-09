@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "DynamicObject.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
@@ -35,7 +36,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
-#include "GameTime.h"
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 static constexpr int32 UPDATE_TARGET_MAP_INTERVAL = 500;

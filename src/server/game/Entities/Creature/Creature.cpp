@@ -15,18 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
+#include "CreatureGroups.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Common.h"
+#include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
-#include "CreatureGroups.h"
 #include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -54,7 +55,6 @@
 #include "WaypointMovementGenerator.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameTime.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

@@ -20,10 +20,10 @@
 /// \file
 
 #include "Common.h"
+#include "Configuration/Config.h"
 #include "Errors.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "Configuration/Config.h"
 
 #include "CliRunnable.h"
 #include "Log.h"

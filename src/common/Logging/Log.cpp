@@ -16,16 +16,16 @@
  */
 
 #include "Log.h"
-#include "SystemLog.h"
 #include "Config.h"
 #include "StringConvert.h"
+#include "SystemLog.h"
 #include "Tokenize.h"
-#include <Poco/Logger.h>
-#include <Poco/FormattingChannel.h>
-#include <Poco/PatternFormatter.h>
-#include <Poco/FileChannel.h>
-#include <Poco/SplitterChannel.h>
 #include <Poco/AutoPtr.h>
+#include <Poco/FileChannel.h>
+#include <Poco/FormattingChannel.h>
+#include <Poco/Logger.h>
+#include <Poco/PatternFormatter.h>
+#include <Poco/SplitterChannel.h>
 #include <sstream>
 #include <unordered_map>
 

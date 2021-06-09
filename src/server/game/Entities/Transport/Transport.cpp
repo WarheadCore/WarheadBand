@@ -15,23 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Transport.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "MapManager.h"
 #include "MapReference.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
-#include "Transport.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldModel.h"
 #include "WorldPacket.h"
-#include "GameTime.h"
 
 MotionTransport::MotionTransport() : Transport(), _transportInfo(nullptr), _isMoving(true), _pendingStop(false), _triggeredArrivalEvent(false), _triggeredDepartureEvent(false), _passengersLoaded(false), _delayedTeleport(false)
 {

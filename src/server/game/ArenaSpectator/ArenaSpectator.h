@@ -19,8 +19,8 @@
 #ifndef WH_ARENASPECTATOR_H
 #define WH_ARENASPECTATOR_H
 
-#include "Common.h"
 #include "Chat.h"
+#include "Common.h"
 #include "ObjectDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"

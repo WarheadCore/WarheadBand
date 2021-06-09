@@ -23,13 +23,13 @@
 
 #include "Battleground.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "GameTime.h"
 
 class spell_item_massive_seaforium_charge : public SpellScriptLoader
 {

@@ -19,10 +19,10 @@
  * Interaction between core and LFGScripts
  */
 
+#include "LFGScripts.h"
 #include "Common.h"
 #include "Group.h"
 #include "LFGMgr.h"
-#include "LFGScripts.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"

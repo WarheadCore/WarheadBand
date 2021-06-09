@@ -19,9 +19,9 @@
 #define WARHEAD_DEFINE_H
 
 #include "CompilerDefs.h"
-#include <cstddef>
 #include <cinttypes>
 #include <climits>
+#include <cstddef>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
