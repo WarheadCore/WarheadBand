@@ -65,61 +65,6 @@ Tokenizer::Tokenizer(const std::string& src, const char sep, uint32 vectorReserv
     }
 }
 
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-struct tm* localtime_r(time_t const* time, struct tm* result)
-{
-    localtime_s(result, time);
-    return result;
-}
-#endif
-
-tm TimeBreakdown(time_t time)
-{
-    tm timeLocal;
-    localtime_r(&time, &timeLocal);
-    return timeLocal;
-}
-
-time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
-{
-    tm timeLocal = TimeBreakdown(time);
-    timeLocal.tm_hour = 0;
-    timeLocal.tm_min = 0;
-    timeLocal.tm_sec = 0;
-    time_t midnightLocal = mktime(&timeLocal);
-    time_t hourLocal = midnightLocal + hour * HOUR;
-
-    if (onlyAfterTime && hourLocal <= time)
-        hourLocal += DAY;
-
-    return hourLocal;
-}
-
-std::string secsToTimeString(uint64 timeInSecs, bool shortText)
-{
-    uint64 secs    = timeInSecs % MINUTE;
-    uint64 minutes = timeInSecs % HOUR / MINUTE;
-    uint64 hours   = timeInSecs % DAY  / HOUR;
-    uint64 days    = timeInSecs / DAY;
-
-    std::ostringstream ss;
-    if (days)
-        ss << days << (shortText ? "d" : " day(s) ");
-    if (hours)
-        ss << hours << (shortText ? "h" : " hour(s) ");
-    if (minutes)
-        ss << minutes << (shortText ? "m" : " minute(s) ");
-    if (secs || (!days && !hours && !minutes) )
-        ss << secs << (shortText ? "s" : " second(s) ");
-
-    std::string str = ss.str();
-
-    if (!shortText && !str.empty() && str[str.size() - 1] == ' ')
-        str.resize(str.size() - 1);
-
-    return str;
-}
-
 int32 MoneyStringToMoney(const std::string& moneyString)
 {
     int32 money = 0;
@@ -149,77 +94,6 @@ int32 MoneyStringToMoney(const std::string& moneyString)
     }
 
     return money;
-}
-
-uint32 TimeStringToSecs(const std::string& timestring)
-{
-    uint32 secs       = 0;
-    uint32 buffer     = 0;
-    uint32 multiplier = 0;
-
-    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); ++itr)
-    {
-        if (isdigit(*itr))
-        {
-            buffer *= 10;
-            buffer += (*itr) - '0';
-        }
-        else
-        {
-            switch (*itr)
-            {
-                case 'd':
-                    multiplier = DAY;
-                    break;
-                case 'h':
-                    multiplier = HOUR;
-                    break;
-                case 'm':
-                    multiplier = MINUTE;
-                    break;
-                case 's':
-                    multiplier = 1;
-                    break;
-                default :
-                    return 0;                         //bad format
-            }
-            buffer *= multiplier;
-            secs += buffer;
-            buffer = 0;
-        }
-    }
-
-    return secs;
-}
-
-std::string TimeToTimestampStr(time_t t)
-{
-    tm aTm;
-    localtime_r(&t, &aTm);
-    //       YYYY   year
-    //       MM     month (2 digits 01-12)
-    //       DD     day (2 digits 01-31)
-    //       HH     hour (2 digits 00-23)
-    //       MM     minutes (2 digits 00-59)
-    //       SS     seconds (2 digits 00-59)
-    char buf[20];
-    int ret = snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-
-    if (ret < 0)
-    {
-        return std::string("ERROR");
-    }
-
-    return std::string(buf);
-}
-
-std::string TimeToHumanReadable(time_t t)
-{
-    tm time;
-    localtime_r(&t, &time);
-    char buf[30];
-    strftime(buf, 30, "%c", &time);
-    return std::string(buf);
 }
 
 /// Check if the string is a valid ip address representation

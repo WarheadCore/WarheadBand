@@ -32,6 +32,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Timer.h"
 
 /// Ban function modes
 enum BanMode
@@ -132,7 +133,7 @@ public:
                 if (atoi(durationStr) > 0)
                 {
                     if (!CONF_GET_BOOL("ShowBanInWorld"))
-                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(durationStr), true).c_str(), reasonStr);
                 }
                 else
                 {
@@ -228,7 +229,7 @@ public:
                 if (atoi(durationStr) > 0)
                 {
                     if (!CONF_GET_BOOL("ShowBanInWorld"))
-                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(durationStr), true).c_str(), reasonStr);
                 }
                 else
                 {
@@ -309,7 +310,7 @@ public:
             if (fields[2].GetBool() && (fields[1].GetUInt64() == uint64(0) || unbanDate >= GameTime::GetGameTime()))
                 active = true;
             bool permanent = (fields[1].GetUInt64() == uint64(0));
-            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
+            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString<Seconds>(fields[1].GetUInt64(), true);
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
                                      fields[0].GetCString(), banTime.c_str(), active ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO), fields[4].GetCString(), fields[5].GetCString());
         } while (result->NextRow());
@@ -356,7 +357,7 @@ public:
             if (fields[2].GetUInt8() && (!fields[1].GetUInt32() || unbanDate >= GameTime::GetGameTime()))
                 active = true;
             bool permanent = (fields[1].GetUInt32() == uint32(0));
-            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
+            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString<Seconds>(fields[1].GetUInt64(), true);
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
                                      fields[0].GetCString(), banTime.c_str(), active ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO), fields[4].GetCString(), fields[5].GetCString());
         } while (result->NextRow());
@@ -390,7 +391,7 @@ public:
         bool permanent = !fields[6].GetUInt64();
         handler->PSendSysMessage(LANG_BANINFO_IPENTRY,
                                  fields[0].GetCString(), fields[1].GetCString(), permanent ? handler->GetWarheadString(LANG_BANINFO_NEVER) : fields[2].GetCString(),
-                                 permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[3].GetUInt64(), true).c_str(), fields[4].GetCString(), fields[5].GetCString());
+                                 permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString<Seconds>(fields[3].GetUInt64(), true).c_str(), fields[4].GetCString(), fields[5].GetCString());
 
         return true;
     }

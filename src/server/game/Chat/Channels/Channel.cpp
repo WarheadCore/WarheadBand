@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
+#include "Timer.h"
 #include "World.h"
 
 Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, TeamId teamId, bool announce, bool ownership):
@@ -814,7 +815,7 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
 
         if (!IsAllowedToSpeak(speakDelay))
         {
-            std::string timeStr = secsToTimeString(lastSpeakTime + speakDelay - GameTime::GetGameTime());
+            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(lastSpeakTime + speakDelay - GameTime::GetGameTime());
             if (_channelRights.speakMessage.length() > 0)
                 player->GetSession()->SendNotification("%s", _channelRights.speakMessage.c_str());
             player->GetSession()->SendNotification("You must wait %s before speaking again.", timeStr.c_str());

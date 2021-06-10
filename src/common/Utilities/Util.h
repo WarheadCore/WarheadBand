@@ -67,18 +67,7 @@ private:
     StorageType m_storage;
 };
 
-WH_COMMON_API struct tm* localtime_r(time_t const* time, struct tm* result);
-WH_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
-WH_COMMON_API tm TimeBreakdown(time_t t);
-
-WH_COMMON_API void stripLineInvisibleChars(std::string& src);
-
 WH_COMMON_API int32 MoneyStringToMoney(const std::string& moneyString);
-
-WH_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false);
-WH_COMMON_API uint32 TimeStringToSecs(const std::string& timestring);
-WH_COMMON_API std::string TimeToTimestampStr(time_t t);
-WH_COMMON_API std::string TimeToHumanReadable(time_t t);
 
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {

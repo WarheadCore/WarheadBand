@@ -34,15 +34,15 @@ class WH_GAME_API BanManager
 public:
     static BanManager* instance();
 
-    BanReturn BanAccount(std::string const& AccountName, std::string const& Duration, std::string const& Reason, std::string const& Author);
-    BanReturn BanAccountByPlayerName(std::string const& CharacterName, std::string const& Duration, std::string const& Reason, std::string const& Author);
-    BanReturn BanIP(std::string const& IP, std::string const& Duration, std::string const& Reason, std::string const& Author);
-    BanReturn BanCharacter(std::string const& CharacterName, std::string const& Duration, std::string const& Reason, std::string const& Author);
+    BanReturn BanAccount(std::string const& accountName, std::string_view duration, std::string const& reason, std::string const& author);
+    BanReturn BanAccountByPlayerName(std::string const& characterName, std::string_view duration, std::string const& reason, std::string const& author);
+    BanReturn BanIP(std::string const& IP, std::string_view duration, std::string const& reason, std::string const& author);
+    BanReturn BanCharacter(std::string const& characterName, std::string_view duration, std::string const& reason, std::string const& author);
 
-    bool RemoveBanAccount(std::string const& AccountName);
-    bool RemoveBanAccountByPlayerName(std::string const& CharacterName);
+    bool RemoveBanAccount(std::string const& accountName);
+    bool RemoveBanAccountByPlayerName(std::string const& characterName);
     bool RemoveBanIP(std::string const& IP);
-    bool RemoveBanCharacter(std::string const& CharacterName);
+    bool RemoveBanCharacter(std::string const& characterName);
 };
 
 #define sBan BanManager::instance()

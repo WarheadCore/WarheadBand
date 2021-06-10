@@ -28,6 +28,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Timer.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -118,15 +119,15 @@ public:
         bool active = activeEvents.find(eventId) != activeEvents.end();
         char const* activeStr = active ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
-        std::string startTimeStr = TimeToTimestampStr(eventData.start);
-        std::string endTimeStr = TimeToTimestampStr(eventData.end);
+        std::string startTimeStr = Warhead::Time::TimeToTimestampStr(eventData.start);
+        std::string endTimeStr = Warhead::Time::TimeToTimestampStr(eventData.end);
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
         time_t nextTime = GameTime::GetGameTime() + delay;
         std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
 
-        std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE, true);
-        std::string lengthStr = secsToTimeString(eventData.length * MINUTE, true);
+        std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE, true);
+        std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE, true);
 
         handler->PSendSysMessage(LANG_EVENT_INFO, eventId, eventData.description.c_str(), activeStr,
                                  startTimeStr.c_str(), endTimeStr.c_str(), occurenceStr.c_str(), lengthStr.c_str(),

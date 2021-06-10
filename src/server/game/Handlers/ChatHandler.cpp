@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "Timer.h"
 #include "Util.h"
 #include "Warden.h"
 #include "World.h"
@@ -303,7 +304,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
         if (!_player->CanSpeak())
         {
-            std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
+            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(m_muteTime - GameTime::GetGameTime());
             SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
             return;
         }
@@ -771,7 +772,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
     if (!GetPlayer()->CanSpeak())
     {
-        std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
+        std::string timeStr = Warhead::Time::ToTimeString<Seconds>(m_muteTime - GameTime::GetGameTime());
         SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
