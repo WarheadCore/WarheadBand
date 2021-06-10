@@ -22229,7 +22229,7 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
 void Player::SetRestBonus(float rest_bonus_new)
 {
     // Prevent resting on max level
-    if ((IsMaxLevel())
+    if ((IsMaxLevel()))
         rest_bonus_new = 0;
 
     if (rest_bonus_new < 0)
