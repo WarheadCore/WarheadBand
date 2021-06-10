@@ -39,25 +39,29 @@
 #include "SpellMgr.h"
 #include "Vehicle.h"
 
-class WarheadStringTextBuilder
+class BroadcastTextBuilder
 {
 public:
-    WarheadStringTextBuilder(WorldObject* obj, ChatMsg msgtype, int32 id, uint32 language, WorldObject* target)
-        : _source(obj), _msgType(msgtype), _textId(id), _language(language), _target(target)
-    {
-    }
+    BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgtype, uint32 id, WorldObject const* target, uint32 gender = GENDER_MALE)
+        : _source(obj), _msgType(msgtype), _textId(id), _target(target), _gender(gender) { }
 
     size_t operator()(WorldPacket* data, LocaleConstant locale) const
     {
-        std::string text = sGameLocale->GetWarheadString(_textId, locale);
-        return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
+        BroadcastText const* bct = sGameLocale->GetBroadcastText(_textId);
+
+        std::string text = "";
+
+        if (bct)
+            sGameLocale->GetLocaleString(_gender == GENDER_MALE ? bct->Text : bct->Text1, locale, text);
+
+        return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
     }
 
-    WorldObject* _source;
+    WorldObject const* _source;
     ChatMsg _msgType;
-    int32 _textId;
-    uint32 _language;
-    WorldObject* _target;
+    uint32 _textId;
+    WorldObject const* _target;
+    uint32 _gender;
 };
 
 SmartScript::SmartScript()
@@ -1050,7 +1054,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->DoFleeToGetAssistance();
                 if (e.action.flee.withEmote)
                 {
-                    WarheadStringTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, LANG_FLEE, LANG_UNIVERSAL, nullptr);
+                    BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, nullptr, me->getGender());
                     sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
 #if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
@@ -1363,7 +1367,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToCreature()->CallForHelp((float)e.action.callHelp.range);
                         if (e.action.callHelp.withEmote)
                         {
-                            WarheadStringTextBuilder builder(*itr, CHAT_MSG_MONSTER_EMOTE, LANG_CALL_FOR_HELP, LANG_UNIVERSAL, nullptr);
+                            BroadcastTextBuilder builder(*itr, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, nullptr, me->getGender());
                             sCreatureTextMgr->SendChatPacket(*itr, builder, CHAT_MSG_MONSTER_EMOTE);
                         }
                     }
