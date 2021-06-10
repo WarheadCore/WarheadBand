@@ -61,7 +61,7 @@ namespace Warhead
             BroadcastText const* bct = sGameLocale->GetBroadcastText(_textId);
 
             if (bct)
-                sGameLocale->GetLocaleString(_player->getGender() == GENDER_MALE ? bct->Text : bct->Text1, locale, text);
+                sGameLocale->GetLocaleString(_player->getGender() == GENDER_MALE ? bct->Text : bct->Text1, loc_idx, text);
 
             ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _player, _player, text, _achievementId);
         }
