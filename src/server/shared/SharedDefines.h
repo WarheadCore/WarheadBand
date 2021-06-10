@@ -18,6 +18,7 @@
 #ifndef WARHEAD_SHAREDDEFINES_H
 #define WARHEAD_SHAREDDEFINES_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include <cassert>
@@ -54,6 +55,23 @@ enum Expansions
     EXPANSION_WRATH_OF_THE_LICH_KING   = 2,
     MAX_EXPANSIONS                     = 3
 };
+
+inline uint32 GetMaxLevelForExpansion(uint32 expansion)
+{
+    switch (expansion)
+    {
+        case EXPANSION_CLASSIC:
+            return 60;
+        case EXPANSION_THE_BURNING_CRUSADE:
+            return 70;
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
+            return 80;
+        default:
+            break;
+    }
+
+    return DEFAULT_MAX_LEVEL;
+}
 
 enum Gender
 {
