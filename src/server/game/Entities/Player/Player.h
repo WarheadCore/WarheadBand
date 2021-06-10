@@ -2338,7 +2338,7 @@ public:
     /*********************************************************/
 
     void UpdateSpeakTime(uint32 specialMessageLimit = 0);
-    [[nodiscard]] bool CanSpeak() const;
+
     void ChangeSpeakTime(int utime);
 
     /*********************************************************/

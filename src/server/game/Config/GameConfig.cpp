@@ -379,6 +379,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "LFG.Location.All",
     "Minigob.Manabonk.Enable",
     "MoveMaps.Enable",
+    "Mute.AddAfterLogin.Enable",
     "Network.TcpNodelay",
     "NoResetTalentsCost",
     "NpcRegenHPIfTargetIsUnreachable",

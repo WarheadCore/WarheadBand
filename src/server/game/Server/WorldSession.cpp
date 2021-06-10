@@ -33,6 +33,7 @@
 #include "Hyperlinks.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MuteManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -106,8 +107,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool skipQueue, uint32 TotalTime) :
-    m_muteTime(mute_time),
+WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool skipQueue, uint32 TotalTime) :
     m_timeOutTime(0),
     _lastAuctionListItemsMSTime(0),
     _lastAuctionListOwnerItemsMSTime(0),
@@ -159,6 +159,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
 /// WorldSession destructor
 WorldSession::~WorldSession()
 {
+    sScriptMgr->OnAccountLogout(GetAccountId());
+
     LoginDatabase.PExecute("UPDATE account SET totaltime = %u WHERE id = %u", GetTotalTime(), GetAccountId());
 
     ///- unload player if not unloaded
@@ -764,6 +766,11 @@ void WorldSession::SendNotification(uint32 string_id, ...)
         data << szStr;
         SendPacket(&data);
     }
+}
+
+bool WorldSession::CanSpeak() const
+{
+    return sMute->CanSpeak(GetAccountId());
 }
 
 char const* WorldSession::GetWarheadString(uint32 entry) const

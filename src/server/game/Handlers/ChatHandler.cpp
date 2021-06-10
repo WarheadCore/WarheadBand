@@ -29,6 +29,7 @@
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "MuteManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -301,10 +302,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         if (ChatHandler(this).ParseCommands(msg.c_str()))
             return;
 
-        if (!_player->CanSpeak())
+        if (!CanSpeak())
         {
-            std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
-            SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+            SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()).c_str());
             return;
         }
     }
@@ -769,10 +769,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
     GetPlayer()->UpdateSpeakTime();
 
-    if (!GetPlayer()->CanSpeak())
+    if (!CanSpeak())
     {
-        std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
-        SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+        SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()).c_str());
         return;
     }
 
