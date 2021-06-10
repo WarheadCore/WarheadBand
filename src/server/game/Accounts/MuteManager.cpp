@@ -16,7 +16,7 @@
  */
 
 #include "MuteManager.h"
-#include "CharacterCache.h"
+//#include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "World.h"
 #include "Timer.h"
+#include "ObjectMgr.h"
 
 MuteManager* MuteManager::instance()
 {
@@ -34,7 +35,7 @@ MuteManager* MuteManager::instance()
 
 void MuteManager::MutePlayer(std::string const& targetName, uint32 notSpeakTime, std::string const& muteBy, std::string const& muteReason)
 {
-    uint32 accountId = sCharacterCache->GetCharacterAccountIdByName(targetName);
+    uint32 accountId = sObjectMgr->GetPlayerAccountIdByPlayerName(targetName);
     auto targetSession = sWorld->FindSession(accountId);
 
     // INSERT INTO `account_muted` (`accountid`, `mutedate`, `mutetime`, `mutedby`, `mutereason`, `active`) VALUES (?, ?, ?, ?, ?, 1)
@@ -72,11 +73,11 @@ void MuteManager::MutePlayer(std::string const& targetName, uint32 notSpeakTime,
 
 void MuteManager::UnMutePlayer(std::string const& targetName)
 {
-    uint32 accID = sCharacterCache->GetCharacterAccountIdByName(targetName);
+    uint32 accountId = sObjectMgr->GetPlayerAccountIdByPlayerName(targetName);
 
-    DeleteMuteTime(accID);
+    DeleteMuteTime(accountId);
 
-    if (auto targetSession = sWorld->FindSession(accID))
+    if (auto targetSession = sWorld->FindSession(accountId))
         ChatHandler(targetSession).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
 }
 
@@ -147,7 +148,8 @@ std::string const MuteManager::GetMuteTimeString(uint32 accountID)
     if (!_muteTime)
         return "";
 
-    return Warhead::Time::ToTimeString<Seconds>(_muteTime - GameTime::GetGameTime());
+    //return Warhead::Time::ToTimeString<Seconds>(_muteTime - GameTime::GetGameTime());
+    return secsToTimeString(_muteTime - GameTime::GetGameTime());
 }
 
 bool MuteManager::CanSpeak(uint32 accountID)
@@ -192,8 +194,7 @@ void MuteManager::UpdateMuteAccount(uint32 accountID, uint32 muteDate, int32 mut
     stmt->setUInt32(2, accountID);
     LoginDatabase.Execute(stmt);
 
-    auto session = sWorld->FindSession(accountID);
-    if (session)
+    if (auto session = sWorld->FindSession(accountID))
         SetMuteTime(accountID, muteDate);
 }
 
