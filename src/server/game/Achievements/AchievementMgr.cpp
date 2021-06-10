@@ -726,12 +726,10 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     // if player is in world he can tell his friends about new achievement
     else if (GetPlayer()->IsInWorld())
     {
-        float sayRange = CONF_GET_FLOAT("ListenRange.Say");
-
-        Warhead::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
+        Warhead::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, GetPlayer()->GetNativeGender(), GetPlayer(), achievement->ID);
         Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> _localizer(_builder);
-        Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder>> _worker(GetPlayer(), sayRange, _localizer);
-        GetPlayer()->VisitNearbyWorldObject(sayRange, _worker);
+        Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder>> _worker(GetPlayer(), CONF_GET_FLOAT("ListenRange.Say"), _localizer);
+        Cell::VisitWorldObjects(GetPlayer(), _worker, CONF_GET_FLOAT("ListenRange.Say"));
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8 + 4 + 8);
