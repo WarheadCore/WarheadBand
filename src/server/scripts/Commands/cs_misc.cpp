@@ -2215,10 +2215,10 @@ public:
         if (handler->HasLowerSecurity(target, player->GetGUID(), true))
             return false;
 
-        sMute->MutePlayer(player->GetName(), muteTime, handler->GetSession() ? handler->GetSession()->GetPlayerName() : handler->GetWarheadString(LANG_CONSOLE), muteReasonStr);
+        sMute->MutePlayer(player->GetName(), notSpeakTime, handler->GetSession() ? handler->GetSession()->GetPlayerName() : handler->GetWarheadString(LANG_CONSOLE), muteReasonStr);
 
         if (!CONF_GET_BOOL("ShowMuteInWorld"))
-            handler->PSendSysMessage(LANG_YOU_DISABLE_CHAT, handler->playerLink(player->GetName()).c_str(), muteTime, muteReasonStr.c_str());
+            handler->PSendSysMessage(LANG_YOU_DISABLE_CHAT, handler->playerLink(player->GetName()).c_str(), notSpeakTime, muteReasonStr.c_str());
 
         return true;
     }
