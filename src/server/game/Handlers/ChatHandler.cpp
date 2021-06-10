@@ -302,7 +302,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         if (ChatHandler(this).ParseCommands(msg.c_str()))
             return;
 
-        if (!_player->CanSpeak())
+        if (!CanSpeak())
         {
             SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()).c_str());
             return;
@@ -769,7 +769,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
     GetPlayer()->UpdateSpeakTime();
 
-    if (!GetPlayer()->CanSpeak())
+    if (!CanSpeak())
     {
         SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()).c_str());
         return;
