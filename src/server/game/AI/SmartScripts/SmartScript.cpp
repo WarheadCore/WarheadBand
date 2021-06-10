@@ -54,7 +54,7 @@ public:
         if (bct)
             sGameLocale->GetLocaleString(_gender == GENDER_MALE ? bct->Text : bct->Text1, locale, text);
 
-        return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
+        return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
     }
 
     WorldObject const* _source;
