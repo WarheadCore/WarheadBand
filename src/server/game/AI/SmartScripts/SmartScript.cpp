@@ -52,7 +52,7 @@ public:
         std::string text = "";
 
         if (bct)
-            sGameLocale->GetLocaleString(_gender == GENDER_MALE ? bct->MaleText : bct->FemaleText, locale, text);
+            sGameLocale->GetLocaleString(_gender == GENDER_MALE ? bct->Text : bct->Text1, locale, text);
 
         return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
     }
