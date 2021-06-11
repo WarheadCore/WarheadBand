@@ -592,6 +592,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "StartHonorPoints",
     "StartPlayerLevel",
     "StartPlayerMoney",
+    "StrictPlayerNames",
     "TeleportTimeoutFar",
     "TeleportTimeoutNear",
     "ThreadPool",
