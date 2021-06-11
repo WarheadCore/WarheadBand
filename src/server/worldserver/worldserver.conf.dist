@@ -3655,6 +3655,7 @@ Logger.sql = 4,Console DBErrors
 Logger.sql.updates = 6,Console Server
 Logger.mmaps= 6,Server
 Logger.module = 6,Console Modules
+Logger.time.update = 7,Console Server
 
 #Logger.achievement=4,Console Server
 #Logger.addon=4,Console Server
