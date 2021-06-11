@@ -3213,9 +3213,9 @@ RecordUpdateTimeDiffInterval = 300000
 #
 #     MinRecordUpdateTimeDiff
 #        Description: Only record update time diff which is greater than this value.
-#        Default:     100
+#        Default:     1000
 
-MinRecordUpdateTimeDiff = 100
+MinRecordUpdateTimeDiff = 1000
 
 #
 #     PlayerStart.String

@@ -16,7 +16,7 @@
  */
 
 #include "UpdateTime.h"
-#include "Config.h"
+#include "GameConfig.h"
 #include "Log.h"
 #include "Timer.h"
 
@@ -114,8 +114,8 @@ void UpdateTime::_RecordUpdateTimeDuration(std::string const& text, uint32 minUp
 
 void WorldUpdateTime::LoadFromConfig()
 {
-    _recordUpdateTimeInverval = sConfigMgr->GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
-    _recordUpdateTimeMin = sConfigMgr->GetIntDefault("MinRecordUpdateTimeDiff", 100);
+    _recordUpdateTimeInverval = CONF_GET_UINT("RecordUpdateTimeDiffInterval");
+    _recordUpdateTimeMin = CONF_GET_UINT("MinRecordUpdateTimeDiff");
 }
 
 void WorldUpdateTime::SetRecordUpdateTimeInterval(uint32 t)
