@@ -24,7 +24,6 @@
 #include "Player.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
-#include "World.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool /*apply*/)
@@ -114,8 +113,10 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
 // MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
 void CreatureAI::MoveInLineOfSight_Safe(Unit* who)
 {
-    if (m_MoveInLineOfSight_locked == true)
+    if (m_MoveInLineOfSight_locked)
+    {
         return;
+    }
     m_MoveInLineOfSight_locked = true;
     MoveInLineOfSight(who);
     m_MoveInLineOfSight_locked = false;

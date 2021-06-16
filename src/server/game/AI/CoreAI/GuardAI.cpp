@@ -20,7 +20,6 @@
 #include "Errors.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "World.h"
 
 int GuardAI::Permissible(Creature const* creature)
 {
