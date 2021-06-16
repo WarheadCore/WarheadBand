@@ -2778,8 +2778,8 @@ Arena.GamesRequired = 10
 Arena.QueueAnnouncer.Enable = 0
 
 #
-#    Battleground.QueueAnnouncer.PlayerOnly
-#        Description: Battleground queue announcement type.
+#    Arena.QueueAnnouncer.PlayerOnly
+#        Description: Arena queue announcement type.
 #        Default:     0 - (System message, Anyone can see it)
 #                     1 - (Private, Only queued players can see it)
 
