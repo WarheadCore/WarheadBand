@@ -126,7 +126,7 @@ namespace AccountMgr
         loginStmt->setUInt32(0, accountId);
         trans->Append(loginStmt);
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTED);
+        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
         loginStmt->setUInt32(0, accountId);
         trans->Append(loginStmt);
 
@@ -193,7 +193,7 @@ namespace AccountMgr
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
         stmt->setBinary(0, salt);
         stmt->setBinary(1, verifier);
-        stmt->setUInt32(2, accountId);;
+        stmt->setUInt32(2, accountId);
         LoginDatabase.Execute(stmt);
 
         sScriptMgr->OnPasswordChange(accountId);

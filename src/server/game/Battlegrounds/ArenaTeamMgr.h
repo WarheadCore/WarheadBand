@@ -20,6 +20,9 @@
 
 #include "ArenaTeam.h"
 
+constexpr uint32 MAX_ARENA_TEAM_ID = 0xFFF00000;
+constexpr uint32 MAX_TEMP_ARENA_TEAM_ID = 0xFFFFFFFE;
+
 class WH_GAME_API ArenaTeamMgr
 {
     ArenaTeamMgr();

@@ -18,9 +18,7 @@
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
-#include "DatabaseEnv.h"
 #include "GameConfig.h"
-#include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -110,7 +108,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
+    if (!player->IsMaxLevel())
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", invitedName, ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
         return;

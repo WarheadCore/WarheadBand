@@ -2778,8 +2778,8 @@ Arena.GamesRequired = 10
 Arena.QueueAnnouncer.Enable = 0
 
 #
-#    Battleground.QueueAnnouncer.PlayerOnly
-#        Description: Battleground queue announcement type.
+#    Arena.QueueAnnouncer.PlayerOnly
+#        Description: Arena queue announcement type.
 #        Default:     0 - (System message, Anyone can see it)
 #                     1 - (Private, Only queued players can see it)
 
@@ -3183,6 +3183,15 @@ ShowKickInWorld = 0
 ShowMuteInWorld = 0
 
 #
+#     Mute.AddAfterLogin.Enable
+#        Description: Add mute time after login player.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+
+Mute.AddAfterLogin.Enable = 1
+
+#
 #     ShowBanInWorld
 #        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets banned.
@@ -3204,9 +3213,9 @@ RecordUpdateTimeDiffInterval = 300000
 #
 #     MinRecordUpdateTimeDiff
 #        Description: Only record update time diff which is greater than this value.
-#        Default:     100
+#        Default:     1000
 
-MinRecordUpdateTimeDiff = 100
+MinRecordUpdateTimeDiff = 1000
 
 #
 #     PlayerStart.String
@@ -3646,6 +3655,7 @@ Logger.sql = 4,Console DBErrors
 Logger.sql.updates = 6,Console Server
 Logger.mmaps= 6,Server
 Logger.module = 6,Console Modules
+Logger.time.update = 7,Console Server
 
 #Logger.achievement=4,Console Server
 #Logger.addon=4,Console Server

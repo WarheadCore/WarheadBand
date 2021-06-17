@@ -17,9 +17,7 @@
 
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
-#include "Common.h"
 #include "GameConfig.h"
-#include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Language.h"
@@ -610,7 +608,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 
     if (petition->petitionType != GUILD_CHARTER_TYPE)
     {
-        if (player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
+        if (!player->IsMaxLevel())
         {
             // player is too low level to join an arena team
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);

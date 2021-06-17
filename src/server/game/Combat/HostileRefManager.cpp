@@ -16,7 +16,6 @@
  */
 
 #include "HostileRefManager.h"
-#include "DBCStructure.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "ThreatManager.h"

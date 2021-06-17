@@ -96,7 +96,7 @@ class WH_GAME_API GameEventMgr
 {
 private:
     GameEventMgr();
-    ~GameEventMgr() = default;;
+    ~GameEventMgr() = default;
 
 public:
     static GameEventMgr* instance();

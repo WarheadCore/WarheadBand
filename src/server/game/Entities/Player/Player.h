@@ -1193,6 +1193,7 @@ public:
 
     void GiveXP(uint32 xp, Unit* victim, float group_rate = 1.0f);
     void GiveLevel(uint8 level);
+    bool IsMaxLevel() const;
 
     void InitStatsForLevel(bool reapplyMods = false);
 
@@ -2337,7 +2338,7 @@ public:
     /*********************************************************/
 
     void UpdateSpeakTime(uint32 specialMessageLimit = 0);
-    [[nodiscard]] bool CanSpeak() const;
+
     void ChangeSpeakTime(int utime);
 
     /*********************************************************/

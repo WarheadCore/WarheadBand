@@ -826,7 +826,7 @@ class achievement_kologarn_looks_could_kill : public AchievementCriteriaScript
 public:
     achievement_kologarn_looks_could_kill() : AchievementCriteriaScript("achievement_kologarn_looks_could_kill") {}
 
-    bool OnCheck(Player*  /*player*/, Unit* target) override
+    bool OnCheck(Player*  /*player*/, Unit* target, uint32 /*criteria_id*/) override
     {
         if (target)
             if (InstanceScript* instance = target->GetInstanceScript())
@@ -842,7 +842,7 @@ class achievement_kologarn_rubble_and_roll : public AchievementCriteriaScript
 public:
     achievement_kologarn_rubble_and_roll() : AchievementCriteriaScript("achievement_kologarn_rubble_and_roll") {}
 
-    bool OnCheck(Player*  /*player*/, Unit* target) override
+    bool OnCheck(Player*  /*player*/, Unit* target, uint32 /*criteria_id*/) override
     {
         if (target)
             if (InstanceScript* instance = target->GetInstanceScript())
@@ -858,7 +858,7 @@ class achievement_kologarn_with_open_arms : public AchievementCriteriaScript
 public:
     achievement_kologarn_with_open_arms() : AchievementCriteriaScript("achievement_kologarn_with_open_arms") {}
 
-    bool OnCheck(Player*  /*player*/, Unit* target) override
+    bool OnCheck(Player*  /*player*/, Unit* target, uint32 /*criteria_id*/) override
     {
         if (target)
             if (InstanceScript* instance = target->GetInstanceScript())

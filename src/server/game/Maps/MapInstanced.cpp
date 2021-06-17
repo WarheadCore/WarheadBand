@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "VMapFactory.h"
-#include "World.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

@@ -17,7 +17,6 @@
 
 #include "BattlegroundWS.h"
 #include "BattlegroundMgr.h"
-#include "Creature.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"

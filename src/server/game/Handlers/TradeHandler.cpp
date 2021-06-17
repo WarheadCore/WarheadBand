@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
-#include "Common.h"
 #include "GameConfig.h"
 #include "Item.h"
 #include "Language.h"
@@ -117,7 +115,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             data << item->GetGuidValue(ITEM_FIELD_CREATOR);
             data << uint32(item->GetSpellCharges());        // charges
             data << uint32(item->GetItemSuffixFactor());    // SuffixFactor
-            data << uint32(item->GetItemRandomPropertyId());// random properties id
+            data << int32(item->GetItemRandomPropertyId()); // random properties id
             data << uint32(item->GetTemplate()->LockID);       // lock id
             // max durability
             data << uint32(item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));

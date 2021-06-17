@@ -243,7 +243,7 @@ public:
                 return;
 
             if (summoner->ToCreature())
-                casterGUID = summoner->ToCreature()->GetGUID();;
+                casterGUID = summoner->ToCreature()->GetGUID();
         }
 
         void JustDied(Unit* /*killer*/) override

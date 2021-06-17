@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
-#include "GossipDef.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"

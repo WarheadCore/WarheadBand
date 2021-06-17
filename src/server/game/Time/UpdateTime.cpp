@@ -16,7 +16,7 @@
  */
 
 #include "UpdateTime.h"
-#include "Config.h"
+#include "GameConfig.h"
 #include "Log.h"
 #include "Timer.h"
 
@@ -107,15 +107,15 @@ void UpdateTime::_RecordUpdateTimeDuration(std::string const& text, uint32 minUp
     uint32 diff = getMSTimeDiff(_recordedTime, thisTime);
 
     if (diff > minUpdateTime)
-        LOG_INFO("misc", "Recored Update Time of %s: %u.", text.c_str(), diff);
+        LOG_DEBUG("time.update", "Recored Update Time of %s: %ums.", text.c_str(), diff);
 
     _recordedTime = thisTime;
 }
 
 void WorldUpdateTime::LoadFromConfig()
 {
-    _recordUpdateTimeInverval = sConfigMgr->GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
-    _recordUpdateTimeMin = sConfigMgr->GetIntDefault("MinRecordUpdateTimeDiff", 100);
+    _recordUpdateTimeInverval = CONF_GET_UINT("RecordUpdateTimeDiffInterval");
+    _recordUpdateTimeMin = CONF_GET_UINT("MinRecordUpdateTimeDiff");
 }
 
 void WorldUpdateTime::SetRecordUpdateTimeInterval(uint32 t)
@@ -129,7 +129,7 @@ void WorldUpdateTime::RecordUpdateTime(uint32 gameTimeMs, uint32 diff, uint32 se
     {
         if (getMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
         {
-            LOG_DEBUG("misc", "Update time diff: %u. Players online: %u.", GetAverageUpdateTime(), sessionCount);
+            LOG_DEBUG("time.update", "Update time diff: %u. Players online: %u.", GetAverageUpdateTime(), sessionCount);
             _lastRecordTime = gameTimeMs;
         }
     }

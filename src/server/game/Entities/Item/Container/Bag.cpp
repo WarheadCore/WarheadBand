@@ -16,7 +16,6 @@
  */
 
 #include "Bag.h"
-#include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"

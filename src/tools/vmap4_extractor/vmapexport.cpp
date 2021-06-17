@@ -35,12 +35,12 @@
 #undef max
 
 //From Extractor
-#include "adtfile.h"
-#include "wdtfile.h"
-#include "dbcfile.h"
-#include "wmo.h"
-#include "mpq_libmpq04.h"
 #include "vmapexport.h"
+#include "adtfile.h"
+#include "dbcfile.h"
+#include "mpq_libmpq04.h"
+#include "wdtfile.h"
+#include "wmo.h"
 
 //------------------------------------------------------------------------------
 // Defines

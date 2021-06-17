@@ -60,6 +60,7 @@
 #include "LootItemStorage.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MuteManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -1679,16 +1680,7 @@ void Player::Update(uint32 p_time)
     }
 
     // If mute expired, remove it from the DB
-    if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
-    {
-        GetSession()->m_muteTime = 0;
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
-        stmt->setInt64(0, 0); // Set the mute time to 0
-        stmt->setString(1, "");
-        stmt->setString(2, "");
-        stmt->setUInt32(3, GetSession()->GetAccountId());
-        LoginDatabase.Execute(stmt);
-    }
+    sMute->CheckMuteExpired(GetSession()->GetAccountId());
 
     if (!m_timedquests.empty())
     {
@@ -3306,7 +3298,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     // Favored experience increase END
 
     // XP to money conversion processed in Player::RewardQuest
-    if (level >= CONF_GET_INT("MaxPlayerLevel"))
+    if (IsMaxLevel())
         return;
 
     uint32 bonus_xp = 0;
@@ -3318,17 +3310,24 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     else
         bonus_xp = victim ? GetXPRestBonus(xp) : 0; // XP resting bonus
 
+    // hooks and multipliers can modify the xp with a zero or negative value
+    // check again before sending invalid xp to the client
+    if (xp < 1)
+    {
+        return;
+    }
+
     SendLogXPGain(xp, victim, bonus_xp, recruitAFriend, group_rate);
 
     uint32 curXP = GetUInt32Value(PLAYER_XP);
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
     uint32 newXP = curXP + xp + bonus_xp;
 
-    while (newXP >= nextLvlXP && level < CONF_GET_INT("MaxPlayerLevel"))
+    while (newXP >= nextLvlXP && !IsMaxLevel())
     {
         newXP -= nextLvlXP;
 
-        if (level < CONF_GET_INT("MaxPlayerLevel"))
+        if (!IsMaxLevel())
             GiveLevel(level + 1);
 
         level = getLevel();
@@ -3440,6 +3439,11 @@ void Player::GiveLevel(uint8 level)
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
+bool Player::IsMaxLevel() const
+{
+    return getLevel() >= GetUInt32Value(PLAYER_FIELD_MAX_LEVEL);
+}
+
 void Player::InitTalentForLevel()
 {
     uint32 talentPointsForLevel = CalculateTalentsPoints();
@@ -3466,7 +3470,14 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(true), getClass(), getLevel(), &info);
 
-    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, CONF_GET_INT("MaxPlayerLevel"));
+    uint32 exp_max_lvl = GetMaxLevelForExpansion(GetSession()->Expansion());
+    uint32 conf_max_lvl = CONF_GET_UINT("MaxPlayerLevel");
+
+    if (exp_max_lvl == DEFAULT_MAX_LEVEL || exp_max_lvl >= conf_max_lvl)
+        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, conf_max_lvl);
+    else
+        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, exp_max_lvl);
+
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
 
     // reset before any aura state sources (health set/aura apply)
@@ -4236,8 +4247,10 @@ void Player::removeSpell(uint32 spellId, uint8 removeSpecMask, bool onlyTemporar
     if (GetTalentSpellCost(firstRankSpellId))
     {
         SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spellId);
-        for (SpellsRequiringSpellMap::const_iterator itr = spellsRequiringSpell.first; itr != spellsRequiringSpell.second; ++itr)
-            removeSpell(itr->second, removeSpecMask, onlyTemporary);
+        for (auto spellsItr = spellsRequiringSpell.first; spellsItr != spellsRequiringSpell.second; ++spellsItr)
+        {
+            removeSpell(spellsItr->second, removeSpecMask, onlyTemporary);
+        }
     }
 
     // pussywizard: re-search, it can be corrupted in prev loop
@@ -7168,7 +7181,7 @@ void Player::CheckAreaExploreAndOutdoor()
 
         if (areaEntry->area_level > 0)
         {
-            if (getLevel() >= CONF_GET_INT("MaxPlayerLevel"))
+            if (IsMaxLevel())
             {
                 SendExplorationExperience(areaId, 0);
             }
@@ -7744,12 +7757,14 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
         // stored zone is zero, use generic and slow zone detection
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_POSITION_XYZ);
         stmt->setUInt32(0, guidLow);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        PreparedQueryResult posResult = CharacterDatabase.Query(stmt);
 
-        if (!result)
+        if (!posResult)
+        {
             return 0;
+        }
 
-        fields = result->Fetch();
+        fields = posResult->Fetch();
         uint32 map = fields[0].GetUInt16();
         float posx = fields[1].GetFloat();
         float posy = fields[2].GetFloat();
@@ -8637,8 +8652,21 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
             continue;
 
         // wrong triggering type
-        if ((apply || form_change) && spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
-            continue;
+        if (apply)
+        {
+            if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
+            {
+                continue;
+            }
+        }
+        else
+        {
+            // Auras activated by use should not be removed on unequip
+            if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
+            {
+                continue;
+            }
+        }
 
         // check if it is valid spell
         SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(spellData.SpellId);
@@ -16239,7 +16267,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         AddPct(XP, (*i)->GetAmount());
 
     int32 moneyRew = 0;
-    if (getLevel() >= CONF_GET_INT("MaxPlayerLevel") || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(this))
+    if (IsMaxLevel() || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(this))
     {
         moneyRew = quest->GetRewMoneyMaxLevel();
     }
@@ -17750,7 +17778,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
     data << uint32(questid);
 
-    if (getLevel() < CONF_GET_INT("MaxPlayerLevel"))
+    if (!IsMaxLevel())
     {
         data << uint32(XP);
         data << uint32(quest->GetRewOrReqMoney());
@@ -19077,9 +19105,11 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     }
                     else if (invalidBagMap.find(bagGuid) != invalidBagMap.end())
                     {
-                        std::map<ObjectGuid::LowType, Item*>::iterator itr = invalidBagMap.find(bagGuid);
-                        if (std::find(problematicItems.begin(), problematicItems.end(), itr->second) != problematicItems.end())
+                        std::map<ObjectGuid::LowType, Item*>::iterator iterator = invalidBagMap.find(bagGuid);
+                        if (std::find(problematicItems.begin(), problematicItems.end(), iterator->second) != problematicItems.end())
+                        {
                             err = EQUIP_ERR_INT_BAG_ERROR;
+                        }
                     }
                     else
                     {
@@ -21024,8 +21054,8 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
             time_t new_mute = current + CONF_GET_INT("ChatFlood.MuteTime");
-            if (GetSession()->m_muteTime < new_mute)
-                GetSession()->m_muteTime = new_mute;
+            if (sMute->GetMuteTime(GetSession()->GetAccountId()) < new_mute)
+                sMute->SetMuteTime(GetSession()->GetAccountId(), new_mute);
 
             m_speakCount = 0;
         }
@@ -21034,11 +21064,6 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         m_speakCount = 1;
 
     m_speakTime = current + CONF_GET_INT("ChatFlood.MessageDelay");
-}
-
-bool Player::CanSpeak() const
-{
-    return  GetSession()->m_muteTime <= time (nullptr);
 }
 
 /*********************************************************/
@@ -21136,9 +21161,6 @@ void Player::SendAutoRepeatCancel(Unit* target)
     WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
     data << target->GetPackGUID();                  // may be it's target guid
     SendMessageToSet(&data, true);
-
-    // To properly cancel autoshot done by client
-    SendAttackSwingCancelAttack();
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
@@ -22217,7 +22239,7 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
 void Player::SetRestBonus(float rest_bonus_new)
 {
     // Prevent resting on max level
-    if (getLevel() >= CONF_GET_INT("MaxPlayerLevel"))
+    if (IsMaxLevel())
         rest_bonus_new = 0;
 
     if (rest_bonus_new < 0)
@@ -23123,6 +23145,13 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             {
                 if (*i_scset == spellInfo->Id)                    // skip main spell, already handled above
                     continue;
+
+                // Only within the same spellfamily
+                SpellInfo const* categorySpellInfo = sSpellMgr->GetSpellInfo(*i_scset);
+                if (!categorySpellInfo || categorySpellInfo->SpellFamilyName != spellInfo->SpellFamilyName)
+                {
+                    continue;
+                }
 
                 AddSpellCooldown(*i_scset, itemId, catrecTime, !spellInfo->IsCooldownStartedOnEvent() && spellInfo->CategoryRecoveryTime != spellInfo->RecoveryTime && spellInfo->RecoveryTime && spellInfo->CategoryRecoveryTime); // Xinef: send category cooldowns on login if category cooldown is different from base cooldown
             }
@@ -26851,7 +26880,7 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
         data->put<uint16>(enchantmentMaskPos, enchantmentMask);
 
-        *data << uint16(item->GetItemRandomPropertyId());                   // item random property id
+        *data << int16(item->GetItemRandomPropertyId());                    // item random property id
         *data << item->GetGuidValue(ITEM_FIELD_CREATOR).WriteAsPacked();    // item creator
         *data << uint32(item->GetItemSuffixFactor());                       // item suffix factor
     }

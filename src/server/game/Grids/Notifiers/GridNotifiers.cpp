@@ -18,14 +18,12 @@
 #include "GridNotifiers.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "Item.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"
 #include "Transport.h"
 #include "UpdateData.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 using namespace Warhead;
 
