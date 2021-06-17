@@ -106,6 +106,6 @@ namespace ObjectAccessor
 
     template<>
     void RemoveObject(Player* player);
-};
+}
 
 #endif

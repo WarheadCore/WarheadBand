@@ -29,7 +29,6 @@
 #include "Pet.h"
 #include "Player.h"
 #include "Spell.h"
-#include "WorldSession.h"
 
 void InstanceScript::SaveToDB()
 {

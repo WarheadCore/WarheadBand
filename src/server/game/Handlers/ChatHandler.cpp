@@ -20,7 +20,6 @@
 #include "ChannelMgr.h"
 #include "Chat.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"

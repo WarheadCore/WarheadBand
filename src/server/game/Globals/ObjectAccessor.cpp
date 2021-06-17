@@ -16,14 +16,12 @@
  */
 
 #include "ObjectAccessor.h"
-#include "CellImpl.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Item.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -35,9 +33,7 @@
 #include "Player.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include <cmath>
+
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {

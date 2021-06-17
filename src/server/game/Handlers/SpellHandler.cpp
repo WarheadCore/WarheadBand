@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "CreatureAI.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "Log.h"

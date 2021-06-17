@@ -16,7 +16,6 @@
  */
 
 #include "AccountMgr.h"
-#include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Battleground.h"
@@ -30,7 +29,6 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"

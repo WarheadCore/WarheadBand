@@ -21,7 +21,6 @@
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "Unit.h"
 

@@ -20,14 +20,12 @@
  */
 
 #include "LFGScripts.h"
-#include "Common.h"
 #include "Group.h"
 #include "LFGMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
-#include "WorldSession.h"
 
 namespace lfg
 {

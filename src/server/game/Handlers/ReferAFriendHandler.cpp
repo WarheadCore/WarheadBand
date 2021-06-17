@@ -16,7 +16,6 @@
  */
 
 #include "GameConfig.h"
-#include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"

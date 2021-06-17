@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DisableMgr.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "WorldPacket.h"
 

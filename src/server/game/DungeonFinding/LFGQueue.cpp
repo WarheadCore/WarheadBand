@@ -17,11 +17,8 @@
 
 #include "LFGQueue.h"
 #include "Containers.h"
-#include "DBCStores.h"
-#include "DBCStructure.h"
 #include "GameTime.h"
 #include "Group.h"
-#include "GroupMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "ObjectDefines.h"

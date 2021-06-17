@@ -16,7 +16,6 @@
  */
 
 #include "Guild.h"
-#include "AccountMgr.h"
 #include "CalendarMgr.h"
 #include "Chat.h"
 #include "Config.h"

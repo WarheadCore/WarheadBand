@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"

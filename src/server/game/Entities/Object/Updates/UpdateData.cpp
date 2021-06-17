@@ -17,7 +17,6 @@
 
 #include "UpdateData.h"
 #include "ByteBuffer.h"
-#include "Common.h"
 #include "Errors.h"
 #include "GameConfig.h"
 #include "Log.h"

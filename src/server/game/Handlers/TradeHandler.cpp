@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
-#include "Common.h"
 #include "GameConfig.h"
 #include "Item.h"
 #include "Language.h"
