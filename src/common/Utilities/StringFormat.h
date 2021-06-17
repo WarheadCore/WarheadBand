@@ -18,6 +18,7 @@
 #ifndef _STRING_FORMAT_H_
 #define _STRING_FORMAT_H_
 
+#include "Define.h"
 #include <fmt/printf.h>
 
 namespace Warhead
