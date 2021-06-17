@@ -16,10 +16,11 @@
  */
 
 #include "StringFormat.h"
+#include <Poco/String.h>
 #include <locale>
 
 template<class Str>
-Str Warhead::String::Trim(const Str& s, const std::locale& loc /*= std::locale()*/)
+WH_COMMON_API Str Warhead::String::Trim(const Str& s, const std::locale& loc /*= std::locale()*/)
 {
     typename Str::const_iterator first = s.begin();
     typename Str::const_iterator end = s.end();
@@ -42,5 +43,35 @@ Str Warhead::String::Trim(const Str& s, const std::locale& loc /*= std::locale()
     return s;
 }
 
+std::string Warhead::String::TrimLeft(std::string& str)
+{
+    return Poco::trimLeft(str);
+}
+
+std::string Warhead::String::TrimLeftInPlace(std::string& str)
+{
+    return Poco::trimLeftInPlace(str);
+}
+
+std::string Warhead::String::TrimRight(std::string& str)
+{
+    return Poco::trimRight(str);
+}
+
+std::string Warhead::String::TrimRightInPlace(std::string& str)
+{
+    return Poco::trimRightInPlace(str);
+}
+
+std::string Warhead::String::Replace(std::string& str, std::string const& from, std::string const& to)
+{
+    return Poco::replace(str, from, to);
+}
+
+std::string Warhead::String::ReplaceInPlace(std::string& str, std::string const& from, std::string const& to)
+{
+    return Poco::replaceInPlace(str, from, to);
+}
+
 // Template Trim
-template std::string Warhead::String::Trim<std::string>(const std::string& s, const std::locale& loc /*= std::locale()*/);
+template WH_COMMON_API std::string Warhead::String::Trim<std::string>(const std::string& s, const std::locale& loc /*= std::locale()*/);

@@ -18,6 +18,7 @@
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameGraveyard.h"
 #include "Language.h"
