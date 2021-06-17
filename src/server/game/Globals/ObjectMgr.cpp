@@ -30,7 +30,6 @@
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
-#include "Language.h"
 #include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
