@@ -16,16 +16,16 @@
  */
 
 #include "MuteManager.h"
-//#include "CharacterCache.h"
+#include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
-#include "Chat.h"
 #include "Language.h"
-#include "Player.h"
-#include "World.h"
-#include "Timer.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "Timer.h"
+#include "World.h"
+//#include "CharacterCache.h"
 
 MuteManager* MuteManager::instance()
 {

@@ -16,11 +16,8 @@
  */
 
 #include "ReactorAI.h"
-#include "ByteBuffer.h"
 #include "CreatureAIImpl.h"
 #include "Errors.h"
-#include "Log.h"
-#include "ObjectAccessor.h"
 
 int ReactorAI::Permissible(const Creature* creature)
 {
