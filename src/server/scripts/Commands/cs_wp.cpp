@@ -262,7 +262,6 @@ public:
                 target->UpdateWaypointID(0);
 
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
-
                 stmt->setUInt8(0, uint8(IDLE_MOTION_TYPE));
                 stmt->setUInt32(1, guildLow);
 
@@ -658,14 +657,12 @@ public:
                 }
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
-
             stmt->setUInt32(0, pathid);
             stmt->setUInt32(1, point);
 
             WorldDatabase.Execute(stmt);
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_POINT);
-
             stmt->setUInt32(0, pathid);
             stmt->setUInt32(1, point);
 
@@ -880,7 +877,6 @@ public:
                         hasError = true;
 
                         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-
                         stmt->setUInt32(0, wpguid);
 
                         WorldDatabase.Execute(stmt);
@@ -925,7 +921,6 @@ public:
 
                 // Set "wpguid" column to the visual waypoint
                 WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
-
                 stmt->setInt32(0, int32(wpCreature->GetSpawnId()));
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
@@ -959,8 +954,8 @@ public:
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
             stmt->setUInt32(0, pathid);
-            PreparedQueryResult result = WorldDatabase.Query(stmt);
 
+            PreparedQueryResult result = WorldDatabase.Query(stmt);
             if (!result)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUND, pathid);
@@ -1009,14 +1004,15 @@ public:
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
             stmt->setUInt32(0, pathid);
-            PreparedQueryResult result = WorldDatabase.Query(stmt);
 
+            PreparedQueryResult result = WorldDatabase.Query(stmt);
             if (!result)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDLAST, pathid);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
+
             Field* fields = result->Fetch();
             float x = fields[0].GetFloat();
             float y = fields[1].GetFloat();
@@ -1056,15 +1052,17 @@ public:
         {
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_BY_ID);
             stmt->setUInt32(0, 1);
-            PreparedQueryResult result = WorldDatabase.Query(stmt);
 
+            PreparedQueryResult result = WorldDatabase.Query(stmt);
             if (!result)
             {
                 handler->SendSysMessage(LANG_WAYPOINT_VP_NOTFOUND);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
+
             bool hasError = false;
+
             do
             {
                 Field* fields = result->Fetch();
@@ -1088,11 +1086,11 @@ public:
                     creature->AddObjectToRemoveList();
                 }
             } while (result->NextRow());
+
             // set "wpguid" column to "empty" - no visual waypoint spawned
             stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_ALL_WPGUID);
 
             WorldDatabase.Execute(stmt);
-            //WorldDatabase.PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
 
             if (hasError)
             {

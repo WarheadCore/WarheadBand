@@ -54,8 +54,8 @@ struct WH_DATABASE_API MySQLConnectionInfo
 
 class WH_DATABASE_API MySQLConnection
 {
-    template <class T> friend class DatabaseWorkerPool;
-    friend class PingOperation;
+template <class T> friend class DatabaseWorkerPool;
+friend class PingOperation;
 
     public:
         MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchronous connections.

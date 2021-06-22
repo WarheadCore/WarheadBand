@@ -43,18 +43,16 @@ namespace AccountMgr
         if (GetId(username))
             return AOR_NAME_ALREADY_EXIST;                      // username does already exist
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
-
-        stmt->setString(0, username);
         auto [salt, verifier] = Warhead::Crypto::SRP6::MakeRegistrationData(username, password);
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
+        stmt->setString(0, username);
         stmt->setBinary(1, salt);
         stmt->setBinary(2, verifier);
-        stmt->setInt8(3, uint8(CONF_GET_INT("Expansion")));
-
+        stmt->setInt8(3, sGameConfig->GetOption<uint8>("Expansion"));
         LoginDatabase.Execute(stmt);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
-
         LoginDatabase.Execute(stmt);
 
         return AOR_OK;                                          // everything's fine
@@ -65,14 +63,13 @@ namespace AccountMgr
         // Check if accounts exists
         LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
         loginStmt->setUInt32(0, accountId);
-        PreparedQueryResult result = LoginDatabase.Query(loginStmt);
 
+        PreparedQueryResult result = LoginDatabase.Query(loginStmt);
         if (!result)
             return AOR_NAME_NOT_EXIST;
 
         // Obtain accounts characters
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
-
         stmt->setUInt32(0, accountId);
 
         result = CharacterDatabase.Query(stmt);

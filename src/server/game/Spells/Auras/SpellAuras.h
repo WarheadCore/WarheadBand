@@ -32,7 +32,6 @@ class AuraEffect;
 class Aura;
 class DynamicObject;
 class AuraScript;
-class ProcInfo;
 
 class WH_GAME_API AuraApplication
 {

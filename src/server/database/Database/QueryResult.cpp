@@ -349,6 +349,12 @@ bool ResultSet::NextRow()
     return true;
 }
 
+std::string ResultSet::GetFieldName(uint32 index) const
+{
+    ASSERT(index < _fieldCount);
+    return _fields[index].name;
+}
+
 bool PreparedResultSet::NextRow()
 {
     /// Only updates the m_rowPosition so upper level code knows in which element

@@ -40,18 +40,18 @@ void ACSoapThread(const std::string& host, uint16 port)
 
     if (!soap_valid_socket(soap_bind(&soap, host.c_str(), port, 100)))
     {
-        LOG_ERROR("network.soap", "Couldn't bind to %s:%d", host.c_str(), port);
+        LOG_ERROR("network.soap", "ACSoap: couldn't bind to %s:%d", host.c_str(), port);
         exit(-1);
     }
 
-    LOG_INFO("network.soap", "Bound to http://%s:%d", host.c_str(), port);
+    LOG_INFO("network.soap", "ACSoap: bound to http://%s:%d", host.c_str(), port);
 
     while (!World::IsStopped())
     {
         if (!soap_valid_socket(soap_accept(&soap)))
             continue;   // ran into an accept timeout
 
-        LOG_DEBUG("network.soap", "Accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF, (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
+        LOG_DEBUG("network.soap", "ACSoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip >> 24) & 0xFF, (int)(soap.ip >> 16) & 0xFF, (int)(soap.ip >> 8) & 0xFF, (int)soap.ip & 0xFF);
         struct soap* thread_soap = soap_copy(&soap);// make a safe copy
 
         process_message(thread_soap);
@@ -62,7 +62,7 @@ void ACSoapThread(const std::string& host, uint16 port)
 
 void process_message(struct soap* soap_message)
 {
-    //LOG_TRACE("network.soap", "SOAPWorkingThread::process_message");
+    LOG_TRACE("network.soap", "SOAPWorkingThread::process_message");
 
     soap_serve(soap_message);
     soap_destroy(soap_message); // dealloc C++ data
@@ -80,43 +80,33 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     // security check
     if (!soap->userid || !soap->passwd)
     {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: Client didn't provide login information");
-#endif
+        LOG_DEBUG("network.soap", "ACSoap: Client didn't provide login information");
         return 401;
     }
 
     uint32 accountId = AccountMgr::GetId(soap->userid);
     if (!accountId)
     {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: Client used invalid username '%s'", soap->userid);
-#endif
+        LOG_DEBUG("network", "ACSoap: Client used invalid username '%s'", soap->userid);
         return 401;
     }
 
     if (!AccountMgr::CheckPassword(accountId, soap->passwd))
     {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: invalid password for account '%s'", soap->userid);
-#endif
+        LOG_DEBUG("network.soap", "ACSoap: invalid password for account '%s'", soap->userid);
         return 401;
     }
 
     if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
     {
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: %s's gmlevel is too low", soap->userid);
-#endif
+        LOG_DEBUG("network.soap", "ACSoap: %s's gmlevel is too low", soap->userid);
         return 403;
     }
 
     if (!command || !*command)
         return soap_sender_fault(soap, "Command can not be empty", "The supplied command was an empty string");
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "ACSoap: got command '%s'", command);
-#endif
+    LOG_DEBUG("network.soap", "ACSoap: got command '%s'", command);
     SOAPCommand connection;
 
     // commands are executed in the world thread. We have to wait for them to be completed

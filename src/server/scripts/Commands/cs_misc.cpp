@@ -134,7 +134,8 @@ public:
             { "unbindsight",        SEC_ADMINISTRATOR,      false, HandleUnbindSightCommand,            "" },
             { "playall",            SEC_GAMEMASTER,         false, HandlePlayAllCommand,                "" },
             { "skirmish",           SEC_ADMINISTRATOR,      false, HandleSkirmishCommand,               "" },
-            { "mailbox",            SEC_MODERATOR,          false, &HandleMailBoxCommand,               "" }
+            { "mailbox",            SEC_MODERATOR,          false, &HandleMailBoxCommand,               "" },
+            { "string",             SEC_GAMEMASTER,         false, &HandleStringCommand,                "" }
         };
         return commandTable;
     }
@@ -1542,9 +1543,7 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", handler->GetWarheadString(LANG_ADDITEM), itemId, count);
-#endif
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         if (!itemTemplate)
@@ -1642,9 +1641,7 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
         LOG_DEBUG("server", handler->GetWarheadString(LANG_ADDITEMSET), itemSetId);
-#endif
 
         bool found = false;
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
@@ -2026,6 +2023,7 @@ public:
             {
                 CharacterDatabasePreparedStatement* guildQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
                 guildQuery->setUInt32(0, lowguid);
+
                 PreparedQueryResult guildInfoResult = CharacterDatabase.Query(guildQuery);
                 if (guildInfoResult)
                 {
@@ -2818,7 +2816,7 @@ public:
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
-            LOG_ERROR("server", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+            LOG_ERROR("misc", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
             handler->PSendSysMessage("Error 2");
             delete pet;
             return false;
@@ -3245,6 +3243,42 @@ public:
 
         handler->GetSession()->SendShowMailBox(player->GetGUID());
         return true;
+    }
+
+    static bool HandleStringCommand(ChatHandler *handler, char const *args)
+    {
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            return false;
+        }
+
+        uint32 id = atoi(strtok((char*)args, " "));
+        if (id == 0)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            return false;
+        }
+
+        uint32 locale = 0;
+        char* localeString = strtok(nullptr, " ");
+        if (localeString != nullptr)
+        {
+            locale = atoi(localeString);
+        }
+
+        const char* str = sGameLocale->GetWarheadString(id, static_cast<LocaleConstant>(locale));
+
+        if (strcmp(str, "<error>") == 0)
+        {
+            handler->PSendSysMessage(LANG_NO_ACORE_STRING_FOUND, id);
+            return true;
+        }
+        else
+        {
+            handler->SendSysMessage(str);
+            return true;
+        }
     }
 };
 

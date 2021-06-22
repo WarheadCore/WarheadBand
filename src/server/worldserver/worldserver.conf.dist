@@ -69,14 +69,6 @@ RealmID = 1
 DataDir = "."
 
 #
-#    PidFile
-#        Description: World daemon PID file
-#        Example:     "./world.pid" - (Enabled)
-#        Default:     ""            - (Disabled)
-
-PidFile = ""
-
-#
 #    LogsDir
 #        Description: Logs directory setting.
 #        Important:   LogsDir needs to be quoted, as the string might contain space characters.
@@ -507,6 +499,29 @@ PreloadAllNonInstancedMapGrids = 0
 
 SetAllCreaturesWithWaypointMovementActive = 0
 
+#
+###################################################################################################
+
+###################################################################################################
+# SERVER LOGGING
+#
+#    PidFile
+#        Description: World daemon PID file.
+#        Example:     "./world.pid" - (Enabled)
+#        Default:     ""            - (Disabled)
+
+PidFile = ""
+
+#
+#    PacketLogFile
+#        Description: Binary packet logging file for the world server.
+#                     Filename extension must be .pkt to be parsable with WowPacketParser.
+#        Example:     "World.pkt" - (Enabled)
+#        Default:     ""          - (Disabled)
+
+PacketLogFile = ""
+
+# Extended Logging system configuration moved to end of file (on purpose)
 #
 ###################################################################################################
 
@@ -3665,29 +3680,37 @@ Logger.time.update = 7,Console Server
 #Logger.bg.battlefield=4,Console Server
 #Logger.bg.battleground=4,Console Server
 #Logger.bg.reportpvpafk=4,Console Server
-#Logger.chat.log=4,Console Server
 #Logger.calendar=4,Console Server
+#Logger.chat.log=4,Console Server
 #Logger.chat.system=4,Console Server
 #Logger.cheat=4,Console Server
 #Logger.commands.ra=4,Console Server
 #Logger.condition=4,Console Server
+#Logger.dbc=4,Console Server
+#Logger.disable=4,Console Server
+#Logger.entities.dyobject=4,Console Server
 #Logger.entities.faction=4,Console Server
 #Logger.entities.gameobject=4,Console Server
+#Logger.entities.object=4,Console Server
 #Logger.entities.pet=4,Console Server
-#Logger.entities.player=4,Console Server
 #Logger.entities.player.character=4,Console Server
 #Logger.entities.player.dump=4,Console Server
 #Logger.entities.player.items=4,Console Server
 #Logger.entities.player.loading=4,Console Server
 #Logger.entities.player.skills=4,Console Server
+#Logger.entities.player=4,Console Server
 #Logger.entities.transport=4,Console Server
-#Logger.entities.unit=4,Console Server
 #Logger.entities.unit.ai=4,Console Server
+#Logger.entities.unit=4,Console Server
 #Logger.entities.vehicle=4,Console Server
 #Logger.gameevent=4,Console Server
+#Logger.group=4,Console Server
 #Logger.guild=4,Console Server
+#Logger.instance.save=4,Console Server
+#Logger.instance.script=4,Console Server
 #Logger.lfg=4,Console Server
 #Logger.loot=4,Console Server
+#Logger.mail=4,Console Server
 #Logger.maps.script=4,Console Server
 #Logger.maps=4,Console Server
 #Logger.misc=4,Console Server
@@ -3695,30 +3718,34 @@ Logger.time.update = 7,Console Server
 #Logger.movement.flightpath=4,Console Server
 #Logger.movement.motionmaster=4,Console Server
 #Logger.movement.splinechain=4,Console Server
-#Logger.network=4,Console Server
+#Logger.movement=4,Console Server
 #Logger.network.kick=4,Console Server
 #Logger.network.opcode=4,Console Server
 #Logger.network.soap=4,Console Server
+#Logger.network=4,Console Server
 #Logger.outdoorpvp=4,Console Server
 #Logger.pool=4,Console Server
 #Logger.rbac=4,Console Server
-#Logger.scripts=4,Console Server
-#Logger.scripts.ai=4,Console Server
+#Logger.reputation=4,Console Server
 #Logger.scripts.ai.escortai=4,Console Server
 #Logger.scripts.ai.followerai=4,Console Server
 #Logger.scripts.ai.petai=4,Console Server
 #Logger.scripts.ai.sai=4,Console Server
+#Logger.scripts.ai=4,Console Server
 #Logger.scripts.cos=4,Console Server
+#Logger.scripts=4,Console Server
 #Logger.server.authserver=4,Console Server
-#Logger.spells=4,Console Server
-#Logger.spells.aura.effect=4,Console Server
 #Logger.spells.aura.effect.nospell=4,Console Server
-#Logger.spells.effect=4,Console Server
+#Logger.spells.aura.effect=4,Console Server
 #Logger.spells.effect.nospell=4,Console Server
+#Logger.spells.effect=4,Console Server
+#Logger.spells.scripts=4,Console Server
+#Logger.spells=4,Console Server
 #Logger.sql.dev=4,Console Server
 #Logger.sql.driver=4,Console Server
-#Logger.warden=4,Console Server
 #Logger.vehicles=4,Console Server
+#Logger.warden=4,Console Server
+#Logger.weather=4,Console Server
 ###################################################################################################
 
 ###################################################################################################

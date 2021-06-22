@@ -31,6 +31,7 @@ class WH_DATABASE_API ResultSet
         bool NextRow();
         uint64 GetRowCount() const { return _rowCount; }
         uint32 GetFieldCount() const { return _fieldCount; }
+        std::string GetFieldName(uint32 index) const;
 
         Field* Fetch() const { return _currentRow; }
         Field const& operator[](std::size_t index) const;

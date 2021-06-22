@@ -650,7 +650,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             if (!criteria)
             {
                 // we will remove not existed criteria for all characters
-                LOG_ERROR("server", "Non-existing achievement criteria %u data removed from table `character_achievement_progress`.", id);
+                LOG_ERROR("achievement", "Non-existing achievement criteria %u data removed from table `character_achievement_progress`.", id);
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
 
@@ -681,9 +681,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     if (achievement->flags & ACHIEVEMENT_FLAG_HIDDEN)
         return;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS) && defined(WARHEAD_DEBUG)
     LOG_DEBUG("achievement", "AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
-#endif
 
     Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId());
     if (guild)
@@ -790,7 +788,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     if (m_player->IsGameMaster())
         return;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     if (type >= ACHIEVEMENT_CRITERIA_TYPE_TOTAL)
     {
         LOG_DEBUG("achievement", "UpdateAchievementCriteria: Wrong criteria type %u", type);
@@ -798,7 +795,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     }
 
     LOG_DEBUG("achievement", "AchievementMgr::UpdateAchievementCriteria(%u, %u, %u)", type, miscValue1, miscValue2);
-#endif
 
     AchievementCriteriaEntryList const* achievementCriteriaList = nullptr;
 
@@ -1496,7 +1492,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                         for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                         {
-                            if (skillIter->second->skillId == achievementCriteria->learn_skillline_spell.skillLine)
+                            if (skillIter->second->SkillLine == achievementCriteria->learn_skillline_spell.skillLine)
                             {
                                 // xinef: do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
                                 ++spellCount;
@@ -1558,7 +1554,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                         for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                         {
-                            if (skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
+                            if (skillIter->second->SkillLine == achievementCriteria->learn_skill_line.skillLine)
                             {
                                 // xinef: do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
                                 ++spellCount;
@@ -2044,9 +2040,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
         return;
     }
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
     LOG_DEBUG("achievement", "AchievementMgr::SetCriteriaProgress(%u, %u) for %s", entry->ID, changeValue, m_player->GetGUID().ToString().c_str());
-#endif
 
     CriteriaProgress* progress = GetCriteriaProgress(entry);
     if (!progress)
@@ -2194,7 +2188,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     // disable for gamemasters with GM-mode enabled
     if (m_player->IsGameMaster())
     {
-        LOG_INFO("server", "Not available in GM mode.");
+        LOG_INFO("achievement", "Not available in GM mode.");
         ChatHandler(m_player->GetSession()).PSendSysMessage("Not available in GM mode");
         return;
     }
@@ -2207,9 +2201,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     if (achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID))
         return;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-    LOG_DEBUG("server", "AchievementMgr::CompletedAchievement(%u)", achievement->ID);
-#endif
+    LOG_DEBUG("achievement", "AchievementMgr::CompletedAchievement(%u)", achievement->ID);
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
@@ -2473,8 +2465,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
-        LOG_ERROR("sql.sql", ">> Loaded 0 achievement criteria.");
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Loaded 0 achievement criteria.");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
@@ -2612,8 +2604,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         ++loaded;
     }
 
-    LOG_INFO("server", ">> Loaded %u achievement criteria in %u ms", loaded, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", ">> Loaded %u achievement criteria in %u ms", loaded, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadAchievementReferenceList()
@@ -2622,8 +2614,8 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     if (sAchievementStore.GetNumRows() == 0)
     {
-        LOG_INFO("server", ">> Loaded 0 achievement references.");
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Loaded 0 achievement references.");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
@@ -2639,8 +2631,8 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
-    LOG_INFO("server", ">> Loaded %u achievement references in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
@@ -2653,8 +2645,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     if (!result)
     {
-        LOG_INFO("server", ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
@@ -2679,7 +2671,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         if (scriptName.length()) // not empty
         {
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
-                LOG_ERROR("server", "Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);
+                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);
             else
                 scriptId = sObjectMgr->GetScriptId(scriptName);
         }
@@ -2774,8 +2766,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             LOG_ERROR("sql.sql", "Table `achievement_criteria_data` does not have expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
-    LOG_INFO("server", ">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", ">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
@@ -2794,8 +2786,8 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     if (!result)
     {
-        LOG_INFO("server", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
@@ -2808,12 +2800,11 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         if (!achievement)
         {
             // Remove non existent achievements from all characters
-            LOG_ERROR("server", "Non-existing achievement %u data removed from table `character_achievement`.", achievementId);
+            LOG_ERROR("achievement", "Non-existing achievement %u data removed from table `character_achievement`.", achievementId);
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
 
             stmt->setUInt16(0, uint16(achievementId));
-
             CharacterDatabase.Execute(stmt);
 
             continue;
@@ -2822,8 +2813,8 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             m_allCompletedAchievements[achievementId] =  SystemTimePoint::max();
     } while (result->NextRow());
 
-    LOG_INFO("server", ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadRewards()
@@ -2837,8 +2828,8 @@ void AchievementGlobalMgr::LoadRewards()
 
     if (!result)
     {
-        LOG_ERROR("sql.sql", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
@@ -2943,8 +2934,8 @@ void AchievementGlobalMgr::LoadRewards()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server", ">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", ">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
 AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementId) const
