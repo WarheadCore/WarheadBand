@@ -3266,7 +3266,7 @@ public:
             locale = atoi(localeString);
         }
 
-        const char* str = sObjectMgr->GetAcoreString(id, static_cast<LocaleConstant>(locale));
+        const char* str = sGameLocale->GetWarheadString(id, static_cast<LocaleConstant>(locale));
 
         if (strcmp(str, "<error>") == 0)
         {

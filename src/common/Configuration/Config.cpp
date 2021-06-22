@@ -211,7 +211,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Missing name %s in config, add \"%s = %s\"",
-                name.c_str(), name.c_str(), Acore::ToString(def).c_str());
+                name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
         }
 
         return def;
@@ -223,7 +223,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Bad value defined for name '%s', going to use '%s' instead",
-                name.c_str(), Acore::ToString(def).c_str());
+                name.c_str(), Warhead::ToString(def).c_str());
         }
 
         return def;

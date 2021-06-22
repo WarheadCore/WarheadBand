@@ -202,7 +202,6 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
     pet->SetNativeDisplayId(fields[3].GetUInt32());
     pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     pet->SetName(fields[8].GetString());
-    uint32 petlevel = fields[4].GetUInt16();
 
     uint32 petlevel = fields[4].GetUInt16();
 

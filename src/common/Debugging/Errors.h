@@ -23,20 +23,20 @@
 
 namespace Warhead
 {
-    [[noreturn]] void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message);
-    [[noreturn]] void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message, char const* format, ...) ATTR_PRINTF(6, 7);
+    [[noreturn]] WH_COMMON_API void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message);
+    [[noreturn]] WH_COMMON_API void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message, char const* format, ...) ATTR_PRINTF(6, 7);
 
-    [[noreturn]] void Fatal(char const* file, int line, char const* function, char const* message, ...) ATTR_PRINTF(4, 5);
+    [[noreturn]] WH_COMMON_API void Fatal(char const* file, int line, char const* function, char const* message, ...) ATTR_PRINTF(4, 5);
 
-    [[noreturn]] void Error(char const* file, int line, char const* function, char const* message);
+    [[noreturn]] WH_COMMON_API void Error(char const* file, int line, char const* function, char const* message);
 
-    [[noreturn]] void Abort(char const* file, int line, char const* function);
+    [[noreturn]] WH_COMMON_API void Abort(char const* file, int line, char const* function);
 
-    [[noreturn]] void Abort(char const* file, int line, char const* function, char const* message, ...);
+    [[noreturn]] WH_COMMON_API void Abort(char const* file, int line, char const* function, char const* message, ...);
 
     WH_COMMON_API void Warning(char const* file, int line, char const* function, char const* message);
 
-    [[noreturn]] void AbortHandler(int sigval);
+    [[noreturn]] WH_COMMON_API void AbortHandler(int sigval);
 
 } // namespace Warhead
 

@@ -33,12 +33,8 @@
 #include "SQLOperation.h"
 #include "Transaction.h"
 #include <mysqld_error.h>
-#ifdef WARHEAD_DEBUG
-#include <boost/stacktrace.hpp>
-#include <sstream>
-#endif
 
-#ifdef ACORE_DEBUG
+#ifdef WARHEAD_DEBUG
 #include <boost/stacktrace.hpp>
 #include <sstream>
 #endif

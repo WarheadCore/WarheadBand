@@ -85,26 +85,4 @@ public:
     std::function<void(SQLQueryHolderBase const&)> m_callback;
 };
 
-class AC_DATABASE_API SQLQueryHolderCallback
-{
-public:
-    SQLQueryHolderCallback(std::shared_ptr<SQLQueryHolderBase>&& holder, QueryResultHolderFuture&& future)
-        : m_holder(std::move(holder)), m_future(std::move(future)) { }
-
-    SQLQueryHolderCallback(SQLQueryHolderCallback&&) = default;
-
-    SQLQueryHolderCallback& operator=(SQLQueryHolderCallback&&) = default;
-
-    void AfterComplete(std::function<void(SQLQueryHolderBase const&)> callback) &
-    {
-        m_callback = std::move(callback);
-    }
-
-    bool InvokeIfReady();
-
-    std::shared_ptr<SQLQueryHolderBase> m_holder;
-    QueryResultHolderFuture m_future;
-    std::function<void(SQLQueryHolderBase const&)> m_callback;
-};
-
 #endif

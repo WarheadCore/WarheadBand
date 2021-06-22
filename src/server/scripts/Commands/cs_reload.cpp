@@ -435,9 +435,9 @@ public:
         if (!*args)
             return false;
 
-        for (std::string_view entryStr : Acore::Tokenize(args, ' ', false))
+        for (std::string_view entryStr : Warhead::Tokenize(args, ' ', false))
         {
-            uint32 entry = Acore::StringTo<uint32>(entryStr).value_or(0);
+            uint32 entry = Warhead::StringTo<uint32>(entryStr).value_or(0);
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);

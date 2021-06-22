@@ -332,8 +332,6 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
             return;
         }
 
-        uint32 classMaskDisabled = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK);
-        if ((1 << (createInfo->Class - 1)) & classMaskDisabled)
         uint32 classMaskDisabled = CONF_GET_INT("CharacterCreating.Disabled.ClassMask");
         if ((1 << (createInfo->Class - 1)) & classMaskDisabled)
         {

@@ -63,8 +63,9 @@ void WardenMac::Init(WorldSession* pClient, SessionKey const& K)
 
     _module = GetModuleForClient();
 
-    LOG_DEBUG("warden", "Module Key: %s", Acore::Impl::ByteArrayToHexStr(_module->Key, 16).c_str());
-    LOG_DEBUG("warden", "Module ID: %s", Acore::Impl::ByteArrayToHexStr(_module->Id, 16).c_str());
+    LOG_DEBUG("warden", "Module Key: %s", Warhead::Impl::ByteArrayToHexStr(_module->Key, 16).c_str());
+    LOG_DEBUG("warden", "Module ID: %s", Warhead::Impl::ByteArrayToHexStr(_module->Id, 16).c_str());
+
     RequestModule();
 }
 

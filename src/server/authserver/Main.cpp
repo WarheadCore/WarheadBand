@@ -38,7 +38,6 @@
 #include "RealmList.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
-#include "SignalHandler.h"
 #include "Util.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/version.hpp>

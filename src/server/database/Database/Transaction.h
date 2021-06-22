@@ -97,8 +97,6 @@ public:
 
 protected:
     bool Execute() override;
-    int TryExecute();
-    void CleanupOnFailure();
 
     TransactionPromise m_result;
 };

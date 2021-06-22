@@ -23916,10 +23916,8 @@ void Player::resetSpells()
 
 void Player::LearnCustomSpells()
 {
-    if (!sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS))
-    {
+    if (!CONF_GET_BOOL("PlayerStart.AllSpells"))
         return;
-    }
 
     // learn default race/class spells
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
@@ -23960,7 +23958,7 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
         {
             uint16 skillValue = 1;
             uint16 maxValue = GetMaxSkillValueForLevel();
-            if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL) && !IsProfessionOrRidingSkill(skillId))
+            if (CONF_GET_BOOL("AlwaysMaxWeaponSkill") && !IsProfessionOrRidingSkill(skillId))
             {
                 skillValue = maxValue;
             }

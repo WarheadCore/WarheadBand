@@ -17116,9 +17116,9 @@ void Unit::Kill(Unit* killer, Unit* victim, bool durabilityLoss, WeaponAttackTyp
         // only if not player and not controlled by player pet. And not at BG
         if ((durabilityLoss && !player && !plrVictim->InBattleground()) || (player && CONF_GET_BOOL("DurabilityLoss.InPvP")))
         {
-            LOG_DEBUG("entities.unit", "We are dead, losing %f percent durability", sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
-            plrVictim->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
-            LOG_DEBUG("server", "We are dead, losing %f percent durability", CONF_GET_FLOAT("DurabilityLoss.OnDeath"));
+            LOG_DEBUG("entities.unit", "We are dead, losing %f percent durability", CONF_GET_FLOAT("DurabilityLoss.OnDeath"));
+            plrVictim->DurabilityLossAll(CONF_GET_FLOAT("DurabilityLoss.OnDeath"), false);
+
             // durability lost message
             WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
             plrVictim->GetSession()->SendPacket(&data);
