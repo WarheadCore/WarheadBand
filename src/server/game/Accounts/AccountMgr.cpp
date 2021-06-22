@@ -63,16 +63,16 @@ namespace AccountMgr
     AccountOpResult DeleteAccount(uint32 accountId)
     {
         // Check if accounts exists
+        PreparedQueryResult result = LoginDatabase.Query(loginStmt);
         LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
         loginStmt->setUInt32(0, accountId);
-        PreparedQueryResult result = LoginDatabase.Query(loginStmt);
 
+        PreparedQueryResult result = LoginDatabase.Query(loginStmt);
         if (!result)
             return AOR_NAME_NOT_EXIST;
 
         // Obtain accounts characters
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
-
         stmt->setUInt32(0, accountId);
 
         result = CharacterDatabase.Query(stmt);
@@ -126,7 +126,7 @@ namespace AccountMgr
         loginStmt->setUInt32(0, accountId);
         trans->Append(loginStmt);
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
+        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTED);
         loginStmt->setUInt32(0, accountId);
         trans->Append(loginStmt);
 

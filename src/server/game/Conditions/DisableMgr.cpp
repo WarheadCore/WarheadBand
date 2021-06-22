@@ -61,8 +61,8 @@ namespace DisableMgr
 
         if (!result)
         {
-            LOG_INFO("server", ">> Loaded 0 disables. DB table `disables` is empty!");
-            LOG_INFO("server", " ");
+            LOG_INFO("server.loading", ">> Loaded 0 disables. DB table `disables` is empty!");
+            LOG_INFO("server.loading", " ");
             return;
         }
 
@@ -210,28 +210,28 @@ namespace DisableMgr
                         {
                             case MAP_COMMON:
                                 if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
-                                    LOG_INFO("server", "Areaflag disabled for world map %u.", entry);
+                                    LOG_INFO("disable", "Areaflag disabled for world map %u.", entry);
                                 if (flags & VMAP::VMAP_DISABLE_LIQUIDSTATUS)
-                                    LOG_INFO("server", "Liquid status disabled for world map %u.", entry);
+                                    LOG_INFO("disable", "Liquid status disabled for world map %u.", entry);
                                 break;
                             case MAP_INSTANCE:
                             case MAP_RAID:
                                 if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                                    LOG_INFO("server", "Height disabled for instance map %u.", entry);
+                                    LOG_INFO("disable", "Height disabled for instance map %u.", entry);
                                 if (flags & VMAP::VMAP_DISABLE_LOS)
-                                    LOG_INFO("server", "LoS disabled for instance map %u.", entry);
+                                    LOG_INFO("disable", "LoS disabled for instance map %u.", entry);
                                 break;
                             case MAP_BATTLEGROUND:
                                 if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                                    LOG_INFO("server", "Height disabled for battleground map %u.", entry);
+                                    LOG_INFO("disable", "Height disabled for battleground map %u.", entry);
                                 if (flags & VMAP::VMAP_DISABLE_LOS)
-                                    LOG_INFO("server", "LoS disabled for battleground map %u.", entry);
+                                    LOG_INFO("disable", "LoS disabled for battleground map %u.", entry);
                                 break;
                             case MAP_ARENA:
                                 if (flags & VMAP::VMAP_DISABLE_HEIGHT)
-                                    LOG_INFO("server", "Height disabled for arena map %u.", entry);
+                                    LOG_INFO("disable", "Height disabled for arena map %u.", entry);
                                 if (flags & VMAP::VMAP_DISABLE_LOS)
-                                    LOG_INFO("server", "LoS disabled for arena map %u.", entry);
+                                    LOG_INFO("disable", "LoS disabled for arena map %u.", entry);
                                 break;
                             default:
                                 break;
@@ -246,8 +246,8 @@ namespace DisableMgr
             ++total_count;
         } while (result->NextRow());
 
-        LOG_INFO("server", ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", " ");
     }
 
     void CheckQuestDisables()
@@ -257,8 +257,8 @@ namespace DisableMgr
         uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
         if (!count)
         {
-            LOG_INFO("server", ">> Checked 0 quest disables.");
-            LOG_INFO("server", " ");
+            LOG_INFO("server.loading", ">> Checked 0 quest disables.");
+            LOG_INFO("server.loading", " ");
             return;
         }
 
@@ -277,8 +277,8 @@ namespace DisableMgr
             ++itr;
         }
 
-        LOG_INFO("server", ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server", " ");
+        LOG_INFO("server.loading", ">> Checked %u quest disables in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", " ");
     }
 
     bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)

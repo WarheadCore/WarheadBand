@@ -242,9 +242,9 @@ public:
                 std::string name = id;
                 WorldDatabase.EscapeString(name);
                 result = WorldDatabase.PQuery(
-                             "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
-                             "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name LIKE '%%%s%%' ORDER BY order_ ASC LIMIT 1",
-                             player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
+                    "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
+                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name LIKE '%%%s%%' ORDER BY order_ ASC LIMIT 1",
+                    player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
             }
         }
         else
@@ -573,8 +573,8 @@ public:
         stmt->setFloat(6, player->GetPositionZ());
         stmt->setFloat(7, distance * distance);
         stmt->setUInt32(8, player->GetPhaseMask());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
 
+        PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (result)
         {
             do

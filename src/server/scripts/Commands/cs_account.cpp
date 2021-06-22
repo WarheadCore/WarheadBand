@@ -54,22 +54,22 @@ public:
     {
         static ChatCommandTable accountSetCommandTable =
         {
-            { "addon",      SEC_GAMEMASTER,     true,   &HandleAccountSetAddonCommand,      "" },
-            { "gmlevel",    SEC_CONSOLE,        true,   &HandleAccountSetGmLevelCommand,    "" },
-            { "password",   SEC_CONSOLE,        true,   &HandleAccountSetPasswordCommand,   "" },
-            { "2fa",        SEC_PLAYER,         true,   &HandleAccountSet2FACommand,        "" }
+            { "addon",      SEC_GAMEMASTER,     true,   &HandleAccountSetAddonCommand,          "" },
+            { "gmlevel",    SEC_CONSOLE,        true,   &HandleAccountSetGmLevelCommand,        "" },
+            { "password",   SEC_CONSOLE,        true,   &HandleAccountSetPasswordCommand,       "" },
+            { "2fa",        SEC_PLAYER,         true,   &HandleAccountSet2FACommand,            "" }
         };
 
         static ChatCommandTable accountLockCommandTable
         {
-            { "country",    SEC_PLAYER,         true,   &HandleAccountLockCountryCommand,   "" },
-            { "ip",         SEC_PLAYER,         true,   &HandleAccountLockIpCommand,        "" }
+            { "country",    SEC_PLAYER,         true,   &HandleAccountLockCountryCommand,       "" },
+            { "ip",         SEC_PLAYER,         true,   &HandleAccountLockIpCommand,            "" }
         };
 
         static ChatCommandTable account2faCommandTable
         {
-            { "setup",      SEC_PLAYER,         false,  &HandleAccount2FASetupCommand,      "" },
-            { "remove",     SEC_PLAYER,         false,  &HandleAccount2FARemoveCommand,     "" },
+            { "setup",      SEC_PLAYER,         false,  &HandleAccount2FASetupCommand,          "" },
+            { "remove",     SEC_PLAYER,         false,  &HandleAccount2FARemoveCommand,         "" },
         };
 
         static ChatCommandTable accountCommandTable =
@@ -428,6 +428,45 @@ public:
         } while (result->NextRow());
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
+        return true;
+    }
+
+    static bool HandleAccountRemoveLockCountryCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        ///- %Parse the command line arguments
+        char* _accountName = strtok((char*)args, " ");
+        if (!_accountName)
+            return false;
+
+        std::string accountName = _accountName;
+        if (!Utf8ToUpperOnlyLatin(accountName))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 accountId = AccountMgr::GetId(accountName);
+        if (!accountId)
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        auto* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+        stmt->setString(0, "00");
+        stmt->setUInt32(1, accountId);
+        LoginDatabase.Execute(stmt);
+        handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+
         return true;
     }
 
@@ -824,13 +863,11 @@ public:
         if (gmRealmID == -1)
         {
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
-
             stmt->setUInt32(0, targetAccountId);
         }
         else
         {
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
-
             stmt->setUInt32(0, targetAccountId);
             stmt->setUInt32(1, realm.Id.Realm);
         }

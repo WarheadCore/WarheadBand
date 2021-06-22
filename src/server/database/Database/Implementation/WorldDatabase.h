@@ -18,7 +18,6 @@
 #ifndef _WORLDDATABASE_H
 #define _WORLDDATABASE_H
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 
 enum WorldDatabaseStatements : uint32

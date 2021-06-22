@@ -56,16 +56,8 @@
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #  define WARHEAD_PATH_MAX MAX_PATH
 #  define _USE_MATH_DEFINES
-#  ifndef DECLSPEC_NORETURN
-#    define DECLSPEC_NORETURN __declspec(noreturn)
-#  endif //DECLSPEC_NORETURN
-#  ifndef DECLSPEC_DEPRECATED
-#    define DECLSPEC_DEPRECATED __declspec(deprecated)
-#  endif //DECLSPEC_DEPRECATED
 #else //WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
 #  define WARHEAD_PATH_MAX PATH_MAX
-#  define DECLSPEC_NORETURN
-#  define DECLSPEC_DEPRECATED
 #endif //WARHEAD_PLATFORM
 
 #if !defined(COREDEBUG)
@@ -78,13 +70,9 @@
 #endif //!COREDEBUG
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
-#  define ATTR_NORETURN __attribute__((noreturn))
 #  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
-#  define ATTR_DEPRECATED __attribute__((deprecated))
 #else //WARHEAD_COMPILER != WARHEAD_COMPILER_GNU
-#  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
-#  define ATTR_DEPRECATED
 #endif //WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 
 #ifdef WARHEAD_API_USE_DYNAMIC_LINKING

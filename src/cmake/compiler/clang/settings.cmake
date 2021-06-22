@@ -24,7 +24,7 @@ target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
 
-set(CLANG_EXPECTED_VERSION 7.0.0)
+set(CLANG_EXPECTED_VERSION 10.0.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS CLANG_EXPECTED_VERSION)
   message(FATAL_ERROR "Clang: WarheadCore requires version ${CLANG_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")

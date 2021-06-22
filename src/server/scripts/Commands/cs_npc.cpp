@@ -374,7 +374,6 @@ public:
 
         // Update movement type
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
-
         stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
         stmt->setUInt32(1, spawnId);
 
@@ -589,7 +588,6 @@ public:
 
         // ..and DB
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
-
         stmt->setUInt16(0, uint16(factionId));
         stmt->setUInt32(1, creature->GetEntry());
 
@@ -659,7 +657,6 @@ public:
         creature->SetUInt32Value(UNIT_NPC_FLAGS, npcFlags);
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
-
         stmt->setUInt32(0, npcFlags);
         stmt->setUInt32(1, creature->GetEntry());
 
@@ -790,8 +787,8 @@ public:
         stmt->setFloat(6, player->GetPositionZ());
         stmt->setFloat(7, distance * distance);
         stmt->setUInt32(8, player->GetPhaseMask());
-        PreparedQueryResult result = WorldDatabase.Query(stmt);
 
+        PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (result)
         {
             do
@@ -894,7 +891,6 @@ public:
         }
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
-
         stmt->setFloat(0, x);
         stmt->setFloat(1, y);
         stmt->setFloat(2, z);
@@ -995,15 +991,12 @@ public:
 
         if (dontdel_str)
         {
-            //LOG_ERROR("server", "DEBUG: All 3 params are set");
-
             // All 3 params are set
             // GUID
             // type
             // doNotDEL
             if (stricmp(dontdel_str, "NODEL") == 0)
             {
-                //LOG_ERROR("server", "DEBUG: doNotDelete = true;");
                 doNotDelete = true;
             }
         }
@@ -1012,10 +1005,8 @@ public:
             // Only 2 params - but maybe NODEL is set
             if (type_str)
             {
-                LOG_ERROR("server", "DEBUG: Only 2 params ");
                 if (stricmp(type_str, "NODEL") == 0)
                 {
-                    //LOG_ERROR("server", "DEBUG: type_str, NODEL ");
                     doNotDelete = true;
                     type_str = nullptr;
                 }
@@ -1168,7 +1159,6 @@ public:
         }
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_WANDER_DISTANCE);
-
         stmt->setFloat(0, option);
         stmt->setUInt8(1, uint8(mtype));
         stmt->setUInt32(2, guidLow);
@@ -1208,7 +1198,6 @@ public:
             return false;
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_SPAWN_TIME_SECS);
-
         stmt->setUInt32(0, uint32(spawnTime));
         stmt->setUInt32(1, guidLow);
 
@@ -1481,7 +1470,6 @@ public:
         creature->SearchFormation();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
-
         stmt->setUInt32(0, leaderGUID);
         stmt->setUInt32(1, lowguid);
         stmt->setFloat(2, group_member->follow_dist);

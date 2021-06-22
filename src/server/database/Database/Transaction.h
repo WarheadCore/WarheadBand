@@ -29,11 +29,11 @@
 /*! Transactions, high level class. */
 class WH_DATABASE_API TransactionBase
 {
-    friend class TransactionTask;
-    friend class MySQLConnection;
+friend class TransactionTask;
+friend class MySQLConnection;
 
-    template <typename T>
-    friend class DatabaseWorkerPool;
+template <typename T>
+friend class DatabaseWorkerPool;
 
     public:
         TransactionBase() : _cleanedUp(false) { }
@@ -97,6 +97,8 @@ public:
 
 protected:
     bool Execute() override;
+    int TryExecute();
+    void CleanupOnFailure();
 
     TransactionPromise m_result;
 };

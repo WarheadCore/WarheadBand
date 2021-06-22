@@ -67,6 +67,9 @@ WH_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint
 WH_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 WH_GAME_API uint32 GetDefaultMapLight(uint32 mapId);
 
+typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
+typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
+SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
 WH_GAME_API extern DBCStorage <AchievementEntry>             sAchievementStore;
 WH_GAME_API extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 WH_GAME_API extern DBCStorage <AchievementCategoryEntry>     sAchievementCategoryStore;

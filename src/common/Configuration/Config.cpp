@@ -65,7 +65,7 @@ namespace
         {
             if (!replace)
             {
-                LOG_ERROR("server", "> Config: Option '%s' is exist! Option key - '%s'", optionName.c_str(), itr->second.c_str());
+                LOG_ERROR("server.loading", "> Config: Option '%s' is exist! Option key - '%s'", optionName.c_str(), itr->second.c_str());
                 return;
             }
 
@@ -210,8 +210,8 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
     {
         if (showLogs)
         {
-            LOG_ERROR("server", "> Config: Missing name %s in config, add \"%s = %s\"",
-                name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
+            LOG_ERROR("server.loading", "> Config: Missing name %s in config, add \"%s = %s\"",
+                name.c_str(), name.c_str(), Acore::ToString(def).c_str());
         }
 
         return def;
@@ -222,8 +222,8 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
     {
         if (showLogs)
         {
-            LOG_ERROR("server", "> Config: Bad value defined for name '%s', going to use '%s' instead",
-                name.c_str(), Warhead::ToString(def).c_str());
+            LOG_ERROR("server.loading", "> Config: Bad value defined for name '%s', going to use '%s' instead",
+                name.c_str(), Acore::ToString(def).c_str());
         }
 
         return def;
@@ -240,7 +240,7 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     {
         if (showLogs)
         {
-            LOG_ERROR("server", "> Config: Missing name %s in config, add \"%s = %s\"",
+            LOG_ERROR("server.loading", "> Config: Missing name %s in config, add \"%s = %s\"",
                 name.c_str(), name.c_str(), def.c_str());
         }
 
@@ -266,7 +266,7 @@ WH_COMMON_API bool ConfigMgr::GetOption<bool>(std::string const& name, bool cons
     {
         if (showLogs)
         {
-            LOG_ERROR("server", "> Config: Bad value defined for name '%s', going to use '%s' instead",
+            LOG_ERROR("server.loading", "> Config: Bad value defined for name '%s', going to use '%s' instead",
                 name.c_str(), def ? "true" : "false");
         }
 
@@ -376,13 +376,13 @@ bool ConfigMgr::LoadModulesConfigs()
 void ConfigMgr::PrintLoadedModulesConfigs()
 {
     // Print modules configurations
-    LOG_INFO("server", " ");
-    LOG_INFO("server", "Using modules configuration:");
+    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", "Using modules configuration:");
 
     for (auto const& itr : _moduleConfigFiles)
-        LOG_INFO("server", "> %s", itr.c_str());
+        LOG_INFO("server.loading", "> %s", itr.c_str());
 
-    LOG_INFO("server", " ");
+    LOG_INFO("server.loading", " ");
 }
 
 /*

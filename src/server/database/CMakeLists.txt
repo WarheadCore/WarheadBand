@@ -17,6 +17,7 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES
   # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/Updater
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
 if(USE_COREPCH)
