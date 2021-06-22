@@ -5,6 +5,10 @@ on:
       - 'master'  # only default branch
   pull_request:
 
+concurrency:
+  group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
+  cancel-in-progress: true
+
 jobs:
   no-pch-build:
     strategy:
