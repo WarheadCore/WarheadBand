@@ -23,9 +23,6 @@
 /// Microseconds shorthand typedef.
 typedef std::chrono::microseconds Microseconds;
 
-/// Microseconds shorthand typedef.
-typedef std::chrono::microseconds Microseconds;
-
 /// Milliseconds shorthand typedef.
 typedef std::chrono::milliseconds Milliseconds;
 

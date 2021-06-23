@@ -1968,7 +1968,7 @@ public:
             auto const& [_muteDate, _muteTime, _reason, _author] = *muteInfo;
 
             muteTime = std::abs(_muteTime);
-            muteLeft = secsToTimeString(static_cast<uint64>(_muteDate + muteTime) - GameTime::GetGameTime(), true);
+            muteLeft = Warhead::Time::ToTimeString<Seconds>(static_cast<uint64>(_muteDate + muteTime) - GameTime::GetGameTime());
             muteReason = _reason;
             muteBy = _author;
         }
