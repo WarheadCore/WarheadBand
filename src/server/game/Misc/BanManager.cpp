@@ -83,13 +83,9 @@ BanReturn BanManager::BanAccount(std::string const& accountName, std::string_vie
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (Warhead::Time::TimeStringTo<Seconds>(duration) > 0)
-            IsPermanetly = false;
-
-        if (!IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(duration), true).c_str(), reason.c_str());
+        if (durationSecs)
+            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+                author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
             sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
     }
@@ -145,17 +141,13 @@ BanReturn BanManager::BanAccountByPlayerName(std::string const& characterName, s
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (Warhead::Time::TimeStringTo<Seconds>(duration) > 0)
-            IsPermanetly = false;
-
         std::string accountName;
 
         AccountMgr::GetName(AccountID, accountName);
 
-        if (!IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(duration), true).c_str(), reason.c_str());
+        if (DurationSecs)
+            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(),
+                Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
             sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
     }
@@ -174,8 +166,8 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string_view duration, st
     // No SQL injection with prepared statements
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
     stmt->setString(0, IP);
-    PreparedQueryResult resultAccounts = LoginDatabase.Query(stmt);
 
+    PreparedQueryResult resultAccounts = LoginDatabase.Query(stmt);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_BANNED);
     stmt->setString(0, IP);
     stmt->setUInt32(1, DurationSecs);
@@ -185,15 +177,10 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string_view duration, st
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (Warhead::Time::TimeStringTo<Seconds>(duration) > 0)
-            IsPermanetly = false;
-
-        if (IsPermanetly)
+        if (!DurationSecs)
             sWorld->SendWorldText(LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(duration), true).c_str(), reason.c_str());
+            sWorld->SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
     }
 
     if (!resultAccounts)
@@ -255,13 +242,9 @@ BanReturn BanManager::BanCharacter(std::string const& characterName, std::string
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (Warhead::Time::TimeStringTo<Seconds>(duration) > 0)
-            IsPermanetly = false;
-
-        if (!IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(duration), true).c_str(), reason.c_str());
+        if (DurationSecs)
+            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(),
+                Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
             sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(), reason.c_str());
     }
