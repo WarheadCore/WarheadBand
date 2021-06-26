@@ -83,7 +83,7 @@ BanReturn BanManager::BanAccount(std::string const& accountName, std::string_vie
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        if (durationSecs)
+        if (DurationSecs)
             sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
                 author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
