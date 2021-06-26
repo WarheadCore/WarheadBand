@@ -124,10 +124,10 @@ public:
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
         time_t nextTime = GameTime::GetGameTime() + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Warhead::Time::TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
 
-        std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE, true);
-        std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE, true);
+        std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE);
+        std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE);
 
         handler->PSendSysMessage(LANG_EVENT_INFO, eventId, eventData.description.c_str(), activeStr,
                                  startTimeStr.c_str(), endTimeStr.c_str(), occurenceStr.c_str(), lengthStr.c_str(),

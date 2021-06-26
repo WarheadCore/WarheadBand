@@ -15,6 +15,7 @@
 #include "Tokenize.h"
 #include "Util.h"
 #include "World.h"
+#include "Timer.h"
 
 namespace
 {
@@ -23,7 +24,7 @@ namespace
 
     time_t GetNextResetTime(time_t time, uint8 hour, uint8 minute, uint8 second)
     {
-        tm timeLocal = TimeBreakdown(time);
+        tm timeLocal = Warhead::Time::TimeBreakdown(time);
         timeLocal.tm_hour = hour;
         timeLocal.tm_min = minute;
         timeLocal.tm_sec = second;
@@ -118,8 +119,8 @@ void ServerAutoShutdown::Init()
     scheduler.CancelAll();
     sWorld->ShutdownCancel();
 
-    LOG_INFO("modules", "> ServerAutoShutdown: Next time to shutdown - %s", TimeToHumanReadable(nextResetTime).c_str());
-    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to shutdown - %s", secsToTimeString(diffToShutdown).c_str());
+    LOG_INFO("modules", "> ServerAutoShutdown: Next time to shutdown - %s", Warhead::Time::TimeToHumanReadable(nextResetTime).c_str());
+    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to shutdown - %s", Warhead::Time::ToTimeString<Seconds>(diffToShutdown).c_str());
     LOG_INFO("modules", " ");
 
     uint32 preAnnounceSeconds = sConfigMgr->GetOption<uint32>("ServerAutoShutdown.PreAnnounce.Seconds", 3600);
@@ -140,15 +141,15 @@ void ServerAutoShutdown::Init()
         preAnnounceSeconds = diffToShutdown;
     }
 
-    LOG_INFO("modules", "> ServerAutoShutdown: Next time to pre annouce - %s", TimeToHumanReadable(timeToPreAnnounce).c_str());
-    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to pre annouce - %s", secsToTimeString(diffToPreAnnounce).c_str());
+    LOG_INFO("modules", "> ServerAutoShutdown: Next time to pre annouce - %s", Warhead::Time::TimeToHumanReadable(timeToPreAnnounce).c_str());
+    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to pre annouce - %s", Warhead::Time::ToTimeString<Seconds>(diffToPreAnnounce).c_str());
     LOG_INFO("modules", " ");
 
     // Add task for pre shutdown announce
     scheduler.Schedule(Seconds(diffToPreAnnounce), [preAnnounceSeconds](TaskContext /*context*/)
     {
         std::string preAnnounceMessageFormat = sConfigMgr->GetOption<std::string>("ServerAutoShutdown.PreAnnounce.Message", "[SERVER]: Automated (quick) server restart in %s");
-        std::string message = Warhead::StringFormat(preAnnounceMessageFormat, secsToTimeString(preAnnounceSeconds));
+        std::string message = Warhead::StringFormat(preAnnounceMessageFormat, Warhead::Time::ToTimeString<Seconds>(preAnnounceSeconds));
 
         LOG_INFO("modules", "> %s", message.c_str());
 
