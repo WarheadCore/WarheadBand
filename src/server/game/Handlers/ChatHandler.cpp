@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "Timer.h"
 #include "Util.h"
 #include "Warden.h"
 #include "World.h"

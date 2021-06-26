@@ -33,6 +33,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "Timer.h"
 #include "Transport.h"
 #include <string>
 
@@ -742,8 +743,9 @@ public:
         int64 curRespawnDelay = target->GetRespawnTimeEx() - GameTime::GetGameTime();
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
-        std::string curRespawnDelayStr = secsToTimeString(uint64(curRespawnDelay), true);
-        std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
+
+        std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(uint64(curRespawnDelay));
+        std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
 
         handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetSpawnId(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());

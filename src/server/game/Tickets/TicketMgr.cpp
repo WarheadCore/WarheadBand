@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "Timer.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -165,8 +166,8 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true)).c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, true)).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, Warhead::Time::ToTimeString<Seconds>(curTime - _createTime).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, Warhead::Time::ToTimeString<Seconds>(curTime - _lastModifiedTime).c_str());
 
     std::string name;
     if (sObjectMgr->GetPlayerNameByGUID(_assignedTo.GetCounter(), name))
@@ -244,7 +245,7 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
     std::string line;
     while (std::getline(ss, line) && !time.empty())
     {
-        newss << secsToTimeString(time.front()) << ": " << line << "\n";
+        newss << Warhead::Time::ToTimeString<Seconds>(time.front()) << ": " << line << "\n";
         time.pop_front();
     }
 

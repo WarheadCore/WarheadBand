@@ -148,8 +148,7 @@ std::string const MuteManager::GetMuteTimeString(uint32 accountID)
     if (!_muteTime)
         return "";
 
-    //return Warhead::Time::ToTimeString<Seconds>(_muteTime - GameTime::GetGameTime());
-    return secsToTimeString(_muteTime - GameTime::GetGameTime());
+    return Warhead::Time::ToTimeString<Seconds>(_muteTime - GameTime::GetGameTime());
 }
 
 bool MuteManager::CanSpeak(uint32 accountID)

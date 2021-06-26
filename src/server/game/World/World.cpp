@@ -78,6 +78,7 @@
 #include "SmartAI.h"
 #include "SpellMgr.h"
 #include "TicketMgr.h"
+#include "Timer.h"
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "UpdateTime.h"
@@ -1747,7 +1748,7 @@ void World::ShutdownMsg(bool show, Player* player)
             (m_ShutdownTimer < 12 * HOUR && (m_ShutdownTimer % HOUR) == 0) || // < 12 h ; every 1 h
             (m_ShutdownTimer > 12 * HOUR && (m_ShutdownTimer % (12 * HOUR)) == 0)) // > 12 h ; every 12 h
     {
-        std::string str = secsToTimeString(m_ShutdownTimer).append(".");
+        std::string str = Warhead::Time::ToTimeString<Seconds>(m_ShutdownTimer).append(".");
 
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 

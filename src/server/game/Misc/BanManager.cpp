@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -34,15 +35,15 @@ BanManager* BanManager::instance()
     return &instance;
 }
 
-/// Ban an account, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-BanReturn BanManager::BanAccount(std::string const& AccountName, std::string const& Duration, std::string const& Reason, std::string const& Author)
+/// Ban an account, duration will be parsed using Warhead::Time::TimeStringTo<Seconds> if it is positive, otherwise permban
+BanReturn BanManager::BanAccount(std::string const& accountName, std::string_view duration, std::string const& reason, std::string const& author)
 {
-    if (AccountName.empty() || Duration.empty())
+    if (accountName.empty() || duration.empty())
         return BAN_SYNTAX_ERROR;
 
-    uint32 DurationSecs = TimeStringToSecs(Duration);
+    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
 
-    uint32 AccountID = AccountMgr::GetId(AccountName);
+    uint32 AccountID = AccountMgr::GetId(accountName);
     if (!AccountID)
         return BAN_NOTFOUND;
 
@@ -66,45 +67,41 @@ BanReturn BanManager::BanAccount(std::string const& AccountName, std::string con
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_BANNED);
     stmt->setUInt32(0, AccountID);
     stmt->setUInt32(1, DurationSecs);
-    stmt->setString(2, Author);
-    stmt->setString(3, Reason);
+    stmt->setString(2, author);
+    stmt->setString(3, reason);
     trans->Append(stmt);
 
     if (WorldSession* session = sWorld->FindSession(AccountID))
-        if (session->GetPlayerName() != Author)
+        if (session->GetPlayerName() != author)
             session->KickPlayer("Ban Account at condition 'FindSession(account)->GetPlayerName() != author'");
 
     if (WorldSession* session = sWorld->FindOfflineSession(AccountID))
-        if (session->GetPlayerName() != Author)
+        if (session->GetPlayerName() != author)
             session->KickPlayer("Ban Account at condition 'FindOfflineSession(account)->GetPlayerName() != author'");
 
     LoginDatabase.CommitTransaction(trans);
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (TimeStringToSecs(Duration) > 0)
-            IsPermanetly = false;
-
-        if (!IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, Author.c_str(), AccountName.c_str(), secsToTimeString(TimeStringToSecs(Duration), true).c_str(), Reason.c_str());
+        if (DurationSecs)
+            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+                author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, Author.c_str(), AccountName.c_str(), Reason.c_str());
+            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
     }
 
     return BAN_SUCCESS;
 }
 
-/// Ban an account by player name, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-BanReturn BanManager::BanAccountByPlayerName(std::string const& CharacterName, std::string const& Duration, std::string const& Reason, std::string const& Author)
+/// Ban an account by player name, duration will be parsed using Warhead::Time::TimeStringTo<Seconds> if it is positive, otherwise permban
+BanReturn BanManager::BanAccountByPlayerName(std::string const& characterName, std::string_view duration, std::string const& reason, std::string const& author)
 {
-    if (CharacterName.empty() || Duration.empty())
+    if (characterName.empty() || duration.empty())
         return BAN_SYNTAX_ERROR;
 
-    uint32 DurationSecs = TimeStringToSecs(Duration);
+    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
 
-    uint32 AccountID = sObjectMgr->GetPlayerAccountIdByPlayerName(CharacterName);
+    uint32 AccountID = sObjectMgr->GetPlayerAccountIdByPlayerName(characterName);
     if (!AccountID)
         return BAN_NOTFOUND;
 
@@ -128,71 +125,62 @@ BanReturn BanManager::BanAccountByPlayerName(std::string const& CharacterName, s
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_BANNED);
     stmt->setUInt32(0, AccountID);
     stmt->setUInt32(1, DurationSecs);
-    stmt->setString(2, Author);
-    stmt->setString(3, Reason);
+    stmt->setString(2, author);
+    stmt->setString(3, reason);
     trans->Append(stmt);
 
     if (WorldSession* session = sWorld->FindSession(AccountID))
-        if (session->GetPlayerName() != Author)
+        if (session->GetPlayerName() != author)
             session->KickPlayer("Ban Account at condition 'FindSession(account)->GetPlayerName() != author'");
 
     if (WorldSession* session = sWorld->FindOfflineSession(AccountID))
-        if (session->GetPlayerName() != Author)
+        if (session->GetPlayerName() != author)
             session->KickPlayer("Ban Account at condition 'FindOfflineSession(account)->GetPlayerName() != author'");
 
     LoginDatabase.CommitTransaction(trans);
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
+        std::string accountName;
 
-        if (TimeStringToSecs(Duration) > 0)
-            IsPermanetly = false;
+        AccountMgr::GetName(AccountID, accountName);
 
-        std::string AccountName;
-
-        AccountMgr::GetName(AccountID, AccountName);
-
-        if (!IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, Author.c_str(), AccountName.c_str(), secsToTimeString(TimeStringToSecs(Duration), true).c_str(), Reason.c_str());
+        if (DurationSecs)
+            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(),
+                Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, Author.c_str(), AccountName.c_str(), Reason.c_str());
+            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
     }
 
     return BAN_SUCCESS;
 }
 
-/// Ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-BanReturn BanManager::BanIP(std::string const& IP, std::string const& Duration, std::string const& Reason, std::string const& Author)
+/// Ban an IP address, duration will be parsed using Warhead::Time::TimeStringTo<Seconds> if it is positive, otherwise permban
+BanReturn BanManager::BanIP(std::string const& IP, std::string_view duration, std::string const& reason, std::string const& author)
 {
-    if (IP.empty() || Duration.empty())
+    if (IP.empty() || duration.empty())
         return BAN_SYNTAX_ERROR;
 
-    uint32 DurationSecs = TimeStringToSecs(Duration);
+    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
 
     // No SQL injection with prepared statements
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
     stmt->setString(0, IP);
-    PreparedQueryResult resultAccounts = LoginDatabase.Query(stmt);
 
+    PreparedQueryResult resultAccounts = LoginDatabase.Query(stmt);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_BANNED);
     stmt->setString(0, IP);
     stmt->setUInt32(1, DurationSecs);
-    stmt->setString(2, Author);
-    stmt->setString(3, Reason);
+    stmt->setString(2, author);
+    stmt->setString(3, reason);
     LoginDatabase.Execute(stmt);
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (TimeStringToSecs(Duration) > 0)
-            IsPermanetly = false;
-
-        if (IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, Author.c_str(), IP.c_str(), Reason.c_str());
+        if (!DurationSecs)
+            sWorld->SendWorldText(LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, Author.c_str(), IP.c_str(), secsToTimeString(TimeStringToSecs(Duration), true).c_str(), Reason.c_str());
+            sWorld->SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
     }
 
     if (!resultAccounts)
@@ -207,11 +195,11 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string const& Duration, 
         uint32 AccountID = fields[0].GetUInt32();
 
         if (WorldSession* session = sWorld->FindSession(AccountID))
-            if (session->GetPlayerName() != Author)
+            if (session->GetPlayerName() != author)
                 session->KickPlayer("Ban IP at condition 'FindSession(account)->GetPlayerName() != author'");
 
         if (WorldSession* session = sWorld->FindOfflineSession(AccountID))
-            if (session->GetPlayerName() != Author)
+            if (session->GetPlayerName() != author)
                 session->KickPlayer("Ban IP at condition 'FindOfflineSession(account)->GetPlayerName() != author'");
     } while (resultAccounts->NextRow());
 
@@ -220,17 +208,17 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string const& Duration, 
     return BAN_SUCCESS;
 }
 
-/// Ban an character, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-BanReturn BanManager::BanCharacter(std::string const& CharacterName, std::string const& Duration, std::string const& Reason, std::string const& Author)
+/// Ban an character, duration will be parsed using Warhead::Time::TimeStringTo<Seconds> if it is positive, otherwise permban
+BanReturn BanManager::BanCharacter(std::string const& characterName, std::string_view duration, std::string const& reason, std::string const& author)
 {
-    Player* target = ObjectAccessor::FindPlayerByName(CharacterName, false);
-    uint32 DurationSecs = TimeStringToSecs(Duration);
+    Player* target = ObjectAccessor::FindPlayerByName(characterName, false);
+    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
     ObjectGuid TargetGUID;
 
     /// Pick a player to ban if not online
     if (!target)
     {
-        TargetGUID = sWorld->GetGlobalPlayerGUID(CharacterName);
+        TargetGUID = sWorld->GetGlobalPlayerGUID(characterName);
         if (!TargetGUID)
             return BAN_NOTFOUND;
     }
@@ -245,8 +233,8 @@ BanReturn BanManager::BanCharacter(std::string const& CharacterName, std::string
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
     stmt->setUInt32(0, TargetGUID.GetCounter());
     stmt->setUInt32(1, DurationSecs);
-    stmt->setString(2, Author);
-    stmt->setString(3, Reason);
+    stmt->setString(2, author);
+    stmt->setString(3, reason);
     CharacterDatabase.Execute(stmt);
 
     if (target)
@@ -254,24 +242,20 @@ BanReturn BanManager::BanCharacter(std::string const& CharacterName, std::string
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        bool IsPermanetly = true;
-
-        if (TimeStringToSecs(Duration) > 0)
-            IsPermanetly = false;
-
-        if (!IsPermanetly)
-            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, Author.c_str(), CharacterName.c_str(), secsToTimeString(TimeStringToSecs(Duration), true).c_str(), Reason.c_str());
+        if (DurationSecs)
+            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(),
+                Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, Author.c_str(), CharacterName.c_str(), Reason.c_str());
+            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(), reason.c_str());
     }
 
     return BAN_SUCCESS;
 }
 
 /// Remove a ban from an account
-bool BanManager::RemoveBanAccount(std::string const& AccountName)
+bool BanManager::RemoveBanAccount(std::string const& accountName)
 {
-    uint32 AccountID = AccountMgr::GetId(AccountName);
+    uint32 AccountID = AccountMgr::GetId(accountName);
     if (!AccountID)
         return false;
 
@@ -284,9 +268,9 @@ bool BanManager::RemoveBanAccount(std::string const& AccountName)
 }
 
 /// Remove a ban from an player name
-bool BanManager::RemoveBanAccountByPlayerName(std::string const& CharacterName)
+bool BanManager::RemoveBanAccountByPlayerName(std::string const& characterName)
 {
-    uint32 AccountID = sObjectMgr->GetPlayerAccountIdByPlayerName(CharacterName);
+    uint32 AccountID = sObjectMgr->GetPlayerAccountIdByPlayerName(characterName);
     if (!AccountID)
         return false;
 
@@ -309,14 +293,14 @@ bool BanManager::RemoveBanIP(std::string const& IP)
 }
 
 /// Remove a ban from a character
-bool BanManager::RemoveBanCharacter(std::string const& CharacterName)
+bool BanManager::RemoveBanCharacter(std::string const& characterName)
 {
-    Player* pBanned = ObjectAccessor::FindPlayerByName(CharacterName, false);
+    Player* pBanned = ObjectAccessor::FindPlayerByName(characterName, false);
     ObjectGuid guid;
 
     /// Pick a player to ban if not online
     if (!pBanned)
-        guid = sWorld->GetGlobalPlayerGUID(CharacterName);
+        guid = sWorld->GetGlobalPlayerGUID(characterName);
     else
         guid = pBanned->GetGUID();
 
