@@ -127,26 +127,28 @@ public:
             return false;
         }
 
-        switch (sBan->BanCharacter(name, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : ""))
+        std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
+        uint32 duration = Warhead::Time::TimeStringTo<Seconds>(durationStr);
+
+        switch (sBan->BanCharacter(name, durationStr, reasonStr, author))
         {
             case BAN_SUCCESS:
-                if (atoi(durationStr) > 0)
-                {
-                    if (!CONF_GET_BOOL("ShowBanInWorld"))
-                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(durationStr), true).c_str(), reasonStr);
-                }
+            {
+                if (CONF_GET_BOOL("ShowBanInWorld"))
+                    break;
+
+                if (duration)
+                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), Warhead::Time::ToTimeString<Seconds>(duration).c_str(), reasonStr);
                 else
-                {
-                    if (!CONF_GET_BOOL("ShowBanInWorld"))
-                        handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reasonStr);
-                }
+                    handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reasonStr);
                 break;
+            }
             case BAN_NOTFOUND:
-                {
-                    handler->PSendSysMessage(LANG_BAN_NOTFOUND, "character", name.c_str());
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
+            {
+                handler->PSendSysMessage(LANG_BAN_NOTFOUND, "character", name.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
             default:
                 break;
         }
@@ -207,35 +209,36 @@ public:
                 break;
         }
 
+        std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
         BanReturn banReturn;
 
         switch (mode)
         {
             case BAN_ACCOUNT:
-                banReturn = sBan->BanAccount(nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : "");
+                banReturn = sBan->BanAccount(nameOrIP, durationStr, reasonStr, author);
                 break;
             case BAN_CHARACTER:
-                banReturn = sBan->BanAccountByPlayerName(nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : "");
+                banReturn = sBan->BanAccountByPlayerName(nameOrIP, durationStr, reasonStr, author);
                 break;
             case BAN_IP:
-            default:
-                banReturn = sBan->BanIP(nameOrIP, durationStr, reasonStr, handler->GetSession() ? handler->GetSession()->GetPlayerName() : "");
+                banReturn = sBan->BanIP(nameOrIP, durationStr, reasonStr, author);
                 break;
+            default:
+                return false;
         }
+
+        uint32 duration = Warhead::Time::TimeStringTo<Seconds>(durationStr);
 
         switch (banReturn)
         {
             case BAN_SUCCESS:
-                if (atoi(durationStr) > 0)
-                {
-                    if (!CONF_GET_BOOL("ShowBanInWorld"))
-                        handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), Warhead::Time::ToTimeString<Seconds>(Warhead::Time::TimeStringTo<Seconds>(durationStr), true).c_str(), reasonStr);
-                }
+                if (CONF_GET_BOOL("ShowBanInWorld"))
+                    break;
+
+                if (duration)
+                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), Warhead::Time::ToTimeString<Seconds>(duration).c_str(), reasonStr);
                 else
-                {
-                    if (!CONF_GET_BOOL("ShowBanInWorld"))
-                        handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reasonStr);
-                }
+                    handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reasonStr);
                 break;
             case BAN_SYNTAX_ERROR:
                 return false;
@@ -254,7 +257,7 @@ public:
                 }
                 handler->SetSentErrorMessage(true);
                 return false;
-            case BAN_LONGER_EXISTS:
+            case BAN_EXISTS:
                 handler->PSendSysMessage("Unsuccessful! A longer ban is already present on this account!");
                 break;
             default:
