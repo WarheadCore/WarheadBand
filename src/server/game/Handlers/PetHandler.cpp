@@ -174,7 +174,7 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
     owner->GetClosePoint(px, py, pz, pet->GetObjectSize(), PET_FOLLOW_DIST, pet->GetFollowAngle());
     if (!pet->IsPositionValid())
     {
-        LOG_ERROR("network.opcode", "Pet (%s, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+        LOG_ERROR("network.opcode", "Pet ({}, entry {}) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
             pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return PET_LOAD_ERROR;
@@ -230,7 +230,7 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
             break;
         default:
             if (!pet->IsPetGhoul())
-                LOG_ERROR("network.opcode", "Pet have incorrect type (%u) for pet loading.", pet->getPetType());
+                LOG_ERROR("network.opcode", "Pet have incorrect type ({}) for pet loading.", pet->getPetType());
             break;
     }
 
@@ -381,13 +381,13 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    LOG_DEBUG("network", "WORLD: Received CMSG_DISMISS_CRITTER for %s", guid.ToString().c_str());
+    LOG_DEBUG("network", "WORLD: Received CMSG_DISMISS_CRITTER for {}", guid.ToString());
 
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
     if (!pet)
     {
-        LOG_DEBUG("network", "Vanitypet (%s) does not exist - player %s (%s / account: %u) attempted to dismiss it (possibly lagged out)",
+        LOG_DEBUG("network", "Vanitypet ({}) does not exist - player {} ({} / account: {}) attempted to dismiss it (possibly lagged out)",
             guid.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetAccountId());
         return;
     }
@@ -413,17 +413,17 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     // used also for charmed creature
     Unit* pet = ObjectAccessor::GetUnit(*_player, guid1);
-    LOG_DEBUG("network.opcode", "HandlePetAction: Pet %s - flag: %u, spellid: %u, target: %s.", guid1.ToString().c_str(), uint32(flag), spellid, guid2.ToString().c_str());
+    LOG_DEBUG("network.opcode", "HandlePetAction: Pet {} - flag: {}, spellid: {}, target: {}.", guid1.ToString(), uint32(flag), spellid, guid2.ToString());
 
     if (!pet)
     {
-        LOG_ERROR("network.opcode", "HandlePetAction: Pet (%s) doesn't exist for player %s", guid1.ToString().c_str(), GetPlayer()->GetName().c_str());
+        LOG_ERROR("network.opcode", "HandlePetAction: Pet ({}) doesn't exist for player {}", guid1.ToString(), GetPlayer()->GetName());
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        LOG_ERROR("network.opcode", "HandlePetAction: Pet (%s) does not belong to player %s", guid1.ToString().c_str(), GetPlayer()->GetName().c_str());
+        LOG_ERROR("network.opcode", "HandlePetAction: Pet ({}) does not belong to player {}", guid1.ToString(), GetPlayer()->GetName());
         return;
     }
 
@@ -467,19 +467,19 @@ void WorldSession::HandlePetStopAttack(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    LOG_DEBUG("network", "WORLD: Received CMSG_PET_STOP_ATTACK for %s", guid.ToString().c_str());
+    LOG_DEBUG("network", "WORLD: Received CMSG_PET_STOP_ATTACK for {}", guid.ToString());
 
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
     if (!pet)
     {
-        LOG_ERROR("network.opcode", "HandlePetStopAttack: Pet %s does not exist", guid.ToString().c_str());
+        LOG_ERROR("network.opcode", "HandlePetStopAttack: Pet {} does not exist", guid.ToString());
         return;
     }
 
     if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
     {
-        LOG_ERROR("network.opcode", "HandlePetStopAttack: Pet %s isn't a pet or charmed creature of player %s", guid.ToString().c_str(), GetPlayer()->GetName().c_str());
+        LOG_ERROR("network.opcode", "HandlePetStopAttack: Pet {} isn't a pet or charmed creature of player {}", guid.ToString(), GetPlayer()->GetName());
         return;
     }
 
@@ -495,7 +495,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        LOG_ERROR("network.opcode", "WorldSession::HandlePetAction(petGuid: %s, tagGuid: %s, spellId: %u, flag: %u): object (%s) is considered pet-like but doesn't have a charminfo!",
+        LOG_ERROR("network.opcode", "WorldSession::HandlePetAction(petGuid: {}, tagGuid: {}, spellId: {}, flag: {}): object ({}) is considered pet-like but doesn't have a charminfo!",
                        guid1.ToString().c_str(), guid2.ToString().c_str(), spellid, flag, pet->GetGUID().ToString().c_str());
         return;
     }
@@ -983,7 +983,7 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     {
         if (!GetPlayer()->IsGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
         {
-            LOG_DEBUG("network.opcode", "Player (%s) attempt open stable in cheating way.", guid.ToString().c_str());
+            LOG_DEBUG("network.opcode", "Player ({}) attempt open stable in cheating way.", guid.ToString());
             return false;
         }
     }
@@ -992,7 +992,7 @@ bool WorldSession::CheckStableMaster(ObjectGuid guid)
     {
         if (!GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_STABLEMASTER))
         {
-            LOG_DEBUG("network.opcode", "Stablemaster (%s) not found or you can't interact with him.", guid.ToString().c_str());
+            LOG_DEBUG("network.opcode", "Stablemaster ({}) not found or you can't interact with him.", guid.ToString());
             return false;
         }
     }
@@ -1011,7 +1011,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
     Unit* checkPet = ObjectAccessor::GetUnit(*_player, petguid);
     if (!checkPet || checkPet != _player->GetFirstControlled())
     {
-        LOG_ERROR("network.opcode", "HandlePetSetAction: Unknown pet (%s) or pet owner (%s)", petguid.ToString().c_str(), _player->GetGUID().ToString().c_str());
+        LOG_ERROR("network.opcode", "HandlePetSetAction: Unknown pet ({}) or pet owner ({})", petguid.ToString(), _player->GetGUID().ToString());
         return;
     }
 
@@ -1060,7 +1060,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         CharmInfo* charmInfo = pet->GetCharmInfo();
         if (!charmInfo)
         {
-            LOG_ERROR("network.opcode", "WorldSession::HandlePetSetAction: object (%s TypeId: %u) is considered pet-like but doesn't have a charminfo!",
+            LOG_ERROR("network.opcode", "WorldSession::HandlePetSetAction: object ({} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
                 pet->GetGUID().ToString().c_str(), pet->GetTypeId());
             continue;
         }
@@ -1235,7 +1235,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 {
     ObjectGuid guid;
     recvData >> guid;                                      //pet guid
-    LOG_DEBUG("network.opcode", "HandlePetAbandon. CMSG_PET_ABANDON pet is %s", guid.ToString().c_str());
+    LOG_DEBUG("network.opcode", "HandlePetAbandon. CMSG_PET_ABANDON pet is {}", guid.ToString());
 
     if (!_player->IsInWorld())
         return;
@@ -1280,7 +1280,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     Creature* checkPet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
     if (!checkPet || (checkPet != _player->GetGuardianPet() && checkPet != _player->GetCharm()))
     {
-        LOG_ERROR("network.opcode", "HandlePetSpellAutocastOpcode.Pet %s isn't pet of player %s .", guid.ToString().c_str(), GetPlayer()->GetName().c_str());
+        LOG_ERROR("network.opcode", "HandlePetSpellAutocastOpcode.Pet {} isn't pet of player {} .", guid.ToString(), GetPlayer()->GetName());
         return;
     }
 
@@ -1304,7 +1304,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
         CharmInfo* charmInfo = pet->GetCharmInfo();
         if (!charmInfo)
         {
-            LOG_ERROR("network.opcode", "WorldSession::HandlePetSpellAutocastOpcod: object (%s TypeId: %u) is considered pet-like but doesn't have a charminfo!",
+            LOG_ERROR("network.opcode", "WorldSession::HandlePetSpellAutocastOpcod: object ({} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
                 pet->GetGUID().ToString().c_str(), pet->GetTypeId());
             continue;
         }
@@ -1329,7 +1329,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     recvPacket >> guid >> castCount >> spellId >> castFlags;
 
-    LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: %s, castCount: %u, spellId %u, castFlags %u", guid.ToString().c_str(), castCount, spellId, castFlags);
+    LOG_DEBUG("network", "WORLD: CMSG_PET_CAST_SPELL, guid: {}, castCount: {}, spellId {}, castFlags {}", guid.ToString(), castCount, spellId, castFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
@@ -1339,7 +1339,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        LOG_ERROR("network.opcode", "HandlePetCastSpellOpcode: Pet %s isn't pet of player %s .", guid.ToString().c_str(), GetPlayer()->GetName().c_str());
+        LOG_ERROR("network.opcode", "HandlePetCastSpellOpcode: Pet {} isn't pet of player {} .", guid.ToString(), GetPlayer()->GetName());
         return;
     }
 

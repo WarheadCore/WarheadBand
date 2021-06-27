@@ -116,7 +116,7 @@ static ChatSubCommandMap COMMAND_MAP;
 
             if (cmd->_invoker && (cmd->_permission.RequiredLevel != secLevel))
             {
-                LOG_WARN("sql.sql", "Table `command` has permission %u for '" STRING_VIEW_FMT "' which does not match the core (%u). Overriding.",
+                LOG_WARN("sql.sql", "Table `command` has permission {} for '" STRING_VIEW_FMT "' which does not match the core ({}). Overriding.",
                     secLevel, STRING_VIEW_FMT_ARG(name), cmd->_permission.RequiredLevel);
 
                 cmd->_permission.RequiredLevel = secLevel;
@@ -172,7 +172,7 @@ static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr
             zoneName = zone->area_name[locale];
     }
 
-    LOG_GM(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",
+    LOG_GM(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: {} ({}) (Account: {}) X: %f Y: %f Z: %f Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
         STRING_VIEW_FMT_ARG(cmdStr), player->GetName().c_str(), player->GetGUID().ToString().c_str(),
         session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
         player->GetPositionZ(), player->GetMapId(),

@@ -215,7 +215,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 {
     if (packet->GetOpcode() == NULL_OPCODE)
     {
-        LOG_ERROR("network.opcode", "%s send NULL_OPCODE", GetPlayerInfo().c_str());
+        LOG_ERROR("network.opcode", "{} send NULL_OPCODE", GetPlayerInfo());
         return;
     }
 
@@ -248,7 +248,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         uint64 minTime = uint64(cur_time - lastTime);
         uint64 fullTime = uint64(lastTime - firstTime);
 
-        LOG_DEBUG("network", "Send all time packets count: " UI64FMTD " bytes: " UI64FMTD " avr.count/sec: %f avr.bytes/sec: %f time: %u", sendPacketCount, sendPacketBytes, float(sendPacketCount) / fullTime, float(sendPacketBytes) / fullTime, uint32(fullTime));
+        LOG_DEBUG("network", "Send all time packets count: " UI64FMTD " bytes: " UI64FMTD " avr.count/sec: %f avr.bytes/sec: %f time: {}", sendPacketCount, sendPacketBytes, float(sendPacketCount) / fullTime, float(sendPacketBytes) / fullTime, uint32(fullTime));
 
         LOG_DEBUG("network", "Send last min packets count: " UI64FMTD " bytes: " UI64FMTD " avr.count/sec: %f avr.bytes/sec: %f", sendLastPacketCount, sendLastPacketBytes, float(sendLastPacketCount) / minTime, float(sendLastPacketBytes) / minTime);
 
@@ -265,7 +265,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         return;
 #endif
 
-    LOG_TRACE("network.opcode", "S->C: %s %s", GetPlayerInfo().c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())).c_str());
+    LOG_TRACE("network.opcode", "S->C: {} {}", GetPlayerInfo(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())));
     m_Socket->SendPacket(*packet);
 }
 
@@ -278,7 +278,7 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, char const* status, const char* reason)
 {
-    LOG_ERROR("network.opcode", "Received unexpected opcode %s Status: %s Reason: %s from %s",
+    LOG_ERROR("network.opcode", "Received unexpected opcode {} Status: {} Reason: {} from {}",
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), status, reason, GetPlayerInfo().c_str());
 }
 
@@ -288,7 +288,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
     if (!sLog->ShouldLog("network.opcode", LogLevel::LOG_LEVEL_TRACE) || packet->rpos() >= packet->wpos())
         return;
 
-    LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at %u from %u) Opcode %s from %s",
+    LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at {} from {}) Opcode {} from {}",
         uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
 
     packet->print_storage();
@@ -385,23 +385,23 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     break;
                 case STATUS_NEVER:
-                    LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s",
+                    LOG_ERROR("network.opcode", "Received not allowed opcode {} from {}",
                         GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
                     break;
                 case STATUS_UNHANDLED:
-                    LOG_DEBUG("network.opcode", "Received not handled opcode %s from %s",
+                    LOG_DEBUG("network.opcode", "Received not handled opcode {} from {}",
                         GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
                     break;
             }
         }
         catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
         {
-            LOG_ERROR("network", "PacketArrayMaxCapacityException: %s while parsing %s from %s.",
+            LOG_ERROR("network", "PacketArrayMaxCapacityException: {} while parsing {} from {}.",
                 pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
         }
         catch (ByteBufferException const&)
         {
-            LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.", packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
+            LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: {}) from client {}, accountid=%i. Skipped packet.", packet->GetOpcode(), GetRemoteAddress(), GetAccountId());
             if (sLog->ShouldLog("network", LogLevel::LOG_LEVEL_DEBUG))
             {
                 LOG_DEBUG("network", "Dumping error causing packet:");
@@ -655,7 +655,7 @@ void WorldSession::LogoutPlayer(bool save)
         //! Call script hook before deletion
         sScriptMgr->OnPlayerLogout(_player);
 
-        LOG_INFO("entities.player", "Account: %d (IP: %s) Logout Character:[%s] (%s) Level: %d",
+        LOG_INFO("entities.player", "Account: {} (IP: {}) Logout Character:[{}] ({}) Level: {}",
             GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->getLevel());
 
         //! Remove the player from the world
@@ -693,7 +693,7 @@ void WorldSession::KickPlayer(std::string const& reason, bool setKicked)
 {
     if (m_Socket)
     {
-        LOG_INFO("network.kick", "Account: %u Character: '%s' %s kicked with reason: %s", GetAccountId(), _player ? _player->GetName().c_str() : "<none>",
+        LOG_INFO("network.kick", "Account: {} Character: '{}' {} kicked with reason: {}", GetAccountId(), _player ? _player->GetName() : "<none>",
             _player ? _player->GetGUID().ToString().c_str() : "", reason.c_str());
 
         m_Socket->CloseSocket();
@@ -708,7 +708,7 @@ bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
     if (Warhead::Hyperlinks::CheckAllLinks(str))
         return true;
 
-    LOG_ERROR("network", "Player %s%s sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
+    LOG_ERROR("network", "Player {}{} sent a message with an invalid link:\n{}", GetPlayer()->GetName(),
         GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
 
     if (CONF_GET_INT("ChatStrictLinkChecking.Kick"))
@@ -722,7 +722,7 @@ bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
     if (str.find('|') == std::string::npos)
         return true;
 
-    LOG_ERROR("network", "Player %s %s sent a message which illegally contained a hyperlink:\n%s", GetPlayer()->GetName().c_str(),
+    LOG_ERROR("network", "Player {} {} sent a message which illegally contained a hyperlink:\n{}", GetPlayer()->GetName(),
         GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
 
     if (CONF_GET_INT("ChatStrictLinkChecking.Kick"))
@@ -778,25 +778,25 @@ char const* WorldSession::GetWarheadString(uint32 entry) const
 
 void WorldSession::Handle_NULL(WorldPacket& null)
 {
-    LOG_ERROR("network.opcode", "Received unhandled opcode %s from %s",
+    LOG_ERROR("network.opcode", "Received unhandled opcode {} from {}",
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(null.GetOpcode())).c_str(), GetPlayerInfo().c_str());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
-    LOG_ERROR("network.opcode", "Received opcode %s that must be processed in WorldSocket::ReadDataHandler from %s",
+    LOG_ERROR("network.opcode", "Received opcode {} that must be processed in WorldSocket::ReadDataHandler from {}",
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
-    LOG_ERROR("network.opcode", "Received server-side opcode %s from %s",
+    LOG_ERROR("network.opcode", "Received server-side opcode {} from {}",
         GetOpcodeNameForLogging(static_cast<OpcodeServer>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
-    LOG_ERROR("network.opcode", "Received deprecated opcode %s from %s",
+    LOG_ERROR("network.opcode", "Received deprecated opcode {} from {}",
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
 }
 
@@ -840,13 +840,13 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
         uint32 type = fields[0].GetUInt8();
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
-            LOG_ERROR("network", "Table `%s` have invalid account data type (%u), ignore.", mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
+            LOG_ERROR("network", "Table `{}` have invalid account data type ({}), ignore.", mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
             continue;
         }
 
         if ((mask & (1 << type)) == 0)
         {
-            LOG_ERROR("network", "Table `%s` have non appropriate for table  account data type (%u), ignore.", mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
+            LOG_ERROR("network", "Table `{}` have non appropriate for table  account data type ({}), ignore.", mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
             continue;
         }
 
@@ -979,7 +979,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     { \
         if (check) \
         { \
-            LOG_DEBUG("entities.unit", "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
+            LOG_DEBUG("entities.unit", "WorldSession::ReadMovementInfo: Violation of MovementFlags found ({}). " \
                 "MovementFlags: %u, MovementFlags2: %u for player %s. Mask %u will be removed.", \
                 STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetPlayer()->GetGUID().ToString().c_str(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
@@ -1102,7 +1102,7 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
 
     if (size > 0xFFFFF)
     {
-        LOG_ERROR("network", "WorldSession::ReadAddonsInfo addon info too big, size %u", size);
+        LOG_ERROR("network", "WorldSession::ReadAddonsInfo addon info too big, size {}", size);
         return;
     }
 
@@ -1132,7 +1132,7 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
 
             addonInfo >> enabled >> crc >> unk1;
 
-            LOG_DEBUG("network", "ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk1);
+            LOG_DEBUG("network", "ADDON: Name: {}, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName, enabled, crc, unk1);
 
             AddonInfo addon(addonName, enabled, crc, 2, true);
 
@@ -1145,15 +1145,15 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
                     match = false;
 
                 if (!match)
-                    LOG_DEBUG("network", "ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
+                    LOG_DEBUG("network", "ADDON: {} was known, but didn't match known CRC (0x%x)!", addon.Name, savedAddon->CRC);
                 else
-                    LOG_DEBUG("network", "ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
+                    LOG_DEBUG("network", "ADDON: {} was known, CRC is correct (0x%x)", addon.Name, savedAddon->CRC);
             }
             else
             {
                 AddonMgr::SaveAddon(addon);
 
-                LOG_DEBUG("network", "ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
+                LOG_DEBUG("network", "ADDON: {} (0x%x) was not known, saving...", addon.Name, addon.CRC);
             }
 
             // TODO: Find out when to not use CRC/pubkey, and other possible states.
@@ -1162,7 +1162,7 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
 
         uint32 currentTime;
         addonInfo >> currentTime;
-        LOG_DEBUG("network", "ADDON: CurrentTime: %u", currentTime);
+        LOG_DEBUG("network", "ADDON: CurrentTime: {}", currentTime);
 
         if (addonInfo.rpos() != addonInfo.size())
             LOG_DEBUG("network", "packet under-read!");
@@ -1207,7 +1207,7 @@ void WorldSession::SendAddonsInfo()
             data << uint8(usepk);
             if (usepk)                                      // if CRC is wrong, add public key (client need it)
             {
-                LOG_DEBUG("network", "ADDON: CRC (0x%x) for addon %s is wrong (does not match expected 0x%x), sending pubkey", itr->CRC, itr->Name.c_str(), STANDARD_ADDON_CRC);
+                LOG_DEBUG("network", "ADDON: CRC (0x%x) for addon {} is wrong (does not match expected 0x%x), sending pubkey", itr->CRC, itr->Name, STANDARD_ADDON_CRC);
                 data.append(addonPublicKey, sizeof(addonPublicKey));
             }
 
@@ -1297,7 +1297,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter <= maxPacketCounterAllowed)
         return true;
 
-    LOG_WARN("network", "AntiDOS: Account %u, IP: %s, Ping: %u, Character: %s, flooding packet (opc: %s (0x%X), count: %u)",
+    LOG_WARN("network", "AntiDOS: Account {}, IP: {}, Ping: {}, Character: {}, flooding packet (opc: {} (0x%X), count: {})",
         Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
         opcodeTable[static_cast<OpcodeClient>(p.GetOpcode())]->Name, p.GetOpcode(), packetCounter.amountCounter);
 
@@ -1307,7 +1307,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             return true;
         case POLICY_KICK:
             {
-                LOG_INFO("network", "AntiDOS: Player %s kicked!", Session->GetPlayerName().c_str());
+                LOG_INFO("network", "AntiDOS: Player {} kicked!", Session->GetPlayerName());
                 Session->KickPlayer();
                 return false;
             }
@@ -1328,7 +1328,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
                         break;
                 }
 
-                LOG_INFO("network", "AntiDOS: Player automatically banned for %u seconds.", duration);
+                LOG_INFO("network", "AntiDOS: Player automatically banned for {} seconds.", duration);
                 return false;
             }
         default: // invalid policy

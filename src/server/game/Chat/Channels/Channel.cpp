@@ -111,7 +111,7 @@ void Channel::UpdateChannelInDB() const
         stmt->setUInt32(2, _channelDBId);
         CharacterDatabase.Execute(stmt);
 
-        LOG_DEBUG("chat.system", "Channel(%s) updated in database", _name.c_str());
+        LOG_DEBUG("chat.system", "Channel({}) updated in database", _name);
     }
 }
 
@@ -520,7 +520,7 @@ void Channel::UnBan(Player const* player, std::string const& badname)
     }
 
     if (_channelRights.flags & CHANNEL_RIGHT_CANT_BAN)
-        LOG_GM(player->GetSession()->GetAccountId(), "Command: /unban %s %s (Moderator %s [%s, account: %u] unbanned %s [%s])",
+        LOG_GM(player->GetSession()->GetAccountId(), "Command: /unban {} {} (Moderator {} [{}, account: {}] unbanned {} [{}])",
             GetName().c_str(), badname.c_str(), player->GetName().c_str(), player->GetGUID().ToString().c_str(), player->GetSession()->GetAccountId(),
             badname.c_str(), victim.ToString().c_str());
 
@@ -708,7 +708,7 @@ void Channel::List(Player const* player)
         return;
     }
 
-    LOG_DEBUG("chat.system", "SMSG_CHANNEL_LIST %s Channel: %s", player->GetSession()->GetPlayerInfo().c_str(), GetName().c_str());
+    LOG_DEBUG("chat.system", "SMSG_CHANNEL_LIST {} Channel: {}", player->GetSession()->GetPlayerInfo(), GetName());
     WorldPacket data(SMSG_CHANNEL_LIST, 1 + (GetName().size() + 1) + 1 + 4 + playersStore.size() * (8 + 1));
     data << uint8(1);                                   // channel type?
     data << GetName();                                  // channel name

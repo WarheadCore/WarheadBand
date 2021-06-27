@@ -45,27 +45,27 @@ void ModuleLocale::CheckStrings(std::string const& moduleName, uint32 maxString)
     maxString--;
 
     if (stringCount != maxString)
-        LOG_FATAL("locale.module", "> Strings locale (%u) != (%u) for module (%s)", stringCount, maxString, moduleName.c_str());
+        LOG_FATAL("locale.module", "> Strings locale ({}) != ({}) for module ({})", stringCount, maxString, moduleName);
 }
 
 void ModuleLocale::AddModuleString(std::string const& moduleName, ModuleStringContainer& data)
 {
     if (data.empty())
     {
-        LOG_ERROR("locale.module", "ModuleStringContainer& data for module (%s) is empty!", moduleName.c_str());
+        LOG_ERROR("locale.module", "ModuleStringContainer& data for module ({}) is empty!", moduleName);
         return;
     }
 
     auto const& itr = _modulesStringStore.find(moduleName);
     if (itr != _modulesStringStore.end())
     {
-        LOG_ERROR("locale.module", "ModuleStringContainer& existing data for module (%s). Skip", moduleName.c_str());
+        LOG_ERROR("locale.module", "ModuleStringContainer& existing data for module ({}). Skip", moduleName);
         return;
     }
 
     _modulesStringStore.emplace(moduleName, data);
 
-    LOG_DEBUG("locale.module", "> ModulesLocales: added %u strings for (%s) module", static_cast<uint32>(data.size()), moduleName.c_str());
+    LOG_DEBUG("locale.module", "> ModulesLocales: added {} strings for ({}) module", static_cast<uint32>(data.size()), moduleName);
 }
 
 Optional<std::string> ModuleLocale::GetModuleString(std::string const& moduleName, uint32 id, uint8 _locale) const
@@ -79,14 +79,14 @@ Optional<std::string> ModuleLocale::GetModuleString(std::string const& moduleNam
     auto const& itr = _modulesStringStore.find(moduleName);
     if (itr == _modulesStringStore.end())
     {
-        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for module (%s)", moduleName.c_str());
+        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for module ({})", moduleName);
         return std::nullopt;
     }
 
     auto const& itr2 = itr->second.find(id);
     if (itr2 == itr->second.end())
     {
-        LOG_FATAL("locale.module", "> ModulesLocales: Not found string (%u) for module (%s)", id, moduleName.c_str());
+        LOG_FATAL("locale.module", "> ModulesLocales: Not found string ({}) for module ({})", id, moduleName);
         return std::nullopt;
     }
 
@@ -104,7 +104,7 @@ uint32 ModuleLocale::GetStringsCount(std::string const& moduleName)
     auto const& itr = _modulesStringStore.find(moduleName);
     if (itr == _modulesStringStore.end())
     {
-        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for module (%s)", moduleName.c_str());
+        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for module ({})", moduleName);
         return 0;
     }
 
@@ -140,7 +140,7 @@ void ModuleLocale::LoadModuleString()
         result = WorldDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `string_module` WHERE `ModuleName` = '%s'", moduleName.c_str());
         if (!result)
         {
-            LOG_ERROR("sql.sql", "> Strings for module %s is bad!", moduleName.c_str());
+            LOG_ERROR("sql.sql", "> Strings for module {} is bad!", moduleName);
             return;
         }
 
@@ -158,7 +158,7 @@ void ModuleLocale::LoadModuleString()
         AddModuleString(moduleName, _tempStore);
     }
 
-    LOG_INFO("server.loading", ">> Loaded %u module strings for %u modules in %u ms", countAll, static_cast<uint32>(_modulesStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} module strings for {} modules in {} ms", countAll, static_cast<uint32>(_modulesStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", "");
 }
 

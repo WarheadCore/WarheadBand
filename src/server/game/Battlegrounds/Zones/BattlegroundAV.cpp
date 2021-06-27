@@ -1437,7 +1437,7 @@ char const* BattlegroundAV::GetNodeName(BG_AV_Nodes node)
         case BG_AV_NODES_FROSTWOLF_HUT:
             return GetWarheadString(LANG_BG_AV_NODE_GRAVE_FROST_HUT);
         default:
-            LOG_ERROR("bg.battleground", "tried to get name for node %u", node);
+            LOG_ERROR("bg.battleground", "tried to get name for node {}", node);
             break;
     }
 

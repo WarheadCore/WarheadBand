@@ -65,7 +65,7 @@ void GameLocale::LoadAllLocales()
     // Load modules strings
     sModuleLocale->Init();
 
-    LOG_INFO("server.loading", ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Localization strings loaded in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", "");
 }
 
@@ -97,7 +97,7 @@ bool GameLocale::LoadWarheadStrings()
             Warhead::Game::Locale::AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u warhead strings in %u ms", static_cast<uint32>(_warheadStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} warhead strings in {} ms", static_cast<uint32>(_warheadStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", "");
 
     return true;
@@ -113,7 +113,7 @@ char const* GameLocale::GetWarheadString(uint32 entry, LocaleConstant locale) co
         return as->Content[DEFAULT_LOCALE].c_str();
     }
 
-    LOG_ERROR("sql.sql", "Warhead string entry %u not found in DB.", entry);
+    LOG_ERROR("sql.sql", "Warhead string entry {} not found in DB.", entry);
 
     return "<error>";
 }
@@ -162,7 +162,7 @@ void GameLocale::LoadAchievementRewardLocales()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Achievement Reward Locale strings in %u ms", static_cast<uint32>(_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Achievement Reward Locale strings in {} ms", static_cast<uint32>(_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadBroadcastTexts()
@@ -204,38 +204,38 @@ void GameLocale::LoadBroadcastTexts()
 
         if (bct.SoundEntriesID && !sSoundEntriesStore.LookupEntry(bct.SoundEntriesID))
         {
-            LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has SoundEntriesID %u but sound does not exist.", bct.Id, bct.SoundEntriesID);
+            LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has SoundEntriesID {} but sound does not exist.", bct.Id, bct.SoundEntriesID);
             bct.SoundEntriesID = 0;
         }
 
         if (!GetLanguageDescByID(bct.LanguageID))
         {
-            LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` using LanguageID %u but Language does not exist.", bct.Id, bct.LanguageID);
+            LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` using LanguageID {} but Language does not exist.", bct.Id, bct.LanguageID);
             bct.LanguageID = LANG_UNIVERSAL;
         }
 
         if (bct.EmoteId1 && !sEmotesStore.LookupEntry(bct.EmoteId1))
         {
-            LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId1 %u but emote does not exist.", bct.Id, bct.EmoteId1);
+            LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId1 {} but emote does not exist.", bct.Id, bct.EmoteId1);
             bct.EmoteId1 = 0;
         }
 
         if (bct.EmoteId2 && !sEmotesStore.LookupEntry(bct.EmoteId2))
         {
-            LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId2 %u but emote does not exist.", bct.Id, bct.EmoteId2);
+            LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId2 {} but emote does not exist.", bct.Id, bct.EmoteId2);
             bct.EmoteId2 = 0;
         }
 
         if (bct.EmoteId3 && !sEmotesStore.LookupEntry(bct.EmoteId3))
         {
-            LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId3 %u but emote does not exist.", bct.Id, bct.EmoteId3);
+            LOG_DEBUG("broadcasttext", "BroadcastText (Id: {}) in table `broadcast_text` has EmoteId3 {} but emote does not exist.", bct.Id, bct.EmoteId3);
             bct.EmoteId3 = 0;
         }
 
         _broadcastTextStore.emplace(bct.Id, bct);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u broadcast texts in %u ms", static_cast<uint32>(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} broadcast texts in {} ms", static_cast<uint32>(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadBroadcastTextLocales()
@@ -260,7 +260,7 @@ void GameLocale::LoadBroadcastTextLocales()
         auto const& bct = _broadcastTextStore.find(id);
         if (bct == _broadcastTextStore.end())
         {
-            LOG_ERROR("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text_locale` does not exist. Skipped!", id);
+            LOG_ERROR("sql.sql", "BroadcastText (Id: {}) in table `broadcast_text_locale` does not exist. Skipped!", id);
             continue;
         }
 
@@ -275,7 +275,7 @@ void GameLocale::LoadBroadcastTextLocales()
         Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, bct->second.Text1);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u broadcast text locales in %u ms", static_cast<uint32>(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} broadcast text locales in {} ms", static_cast<uint32>(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadCreatureLocales()
@@ -307,7 +307,7 @@ void GameLocale::LoadCreatureLocales()
         Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.Title);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u creature Locale strings in %u ms", static_cast<uint32>(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} creature Locale strings in {} ms", static_cast<uint32>(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadGossipMenuItemsLocales()
@@ -341,7 +341,7 @@ void GameLocale::LoadGossipMenuItemsLocales()
         Warhead::Game::Locale::AddLocaleString(fields[4].GetString(), locale, data.BoxText);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Gossip Menu Option Locale strings in %u ms", static_cast<uint32>(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Gossip Menu Option Locale strings in {} ms", static_cast<uint32>(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadGameObjectLocales()
@@ -373,7 +373,7 @@ void GameLocale::LoadGameObjectLocales()
         Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.CastBarCaption);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Gameobject Locale strings in %u ms", static_cast<uint32>(_gameObjectLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Gameobject Locale strings in {} ms", static_cast<uint32>(_gameObjectLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadItemLocales()
@@ -404,7 +404,7 @@ void GameLocale::LoadItemLocales()
         Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.Description);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Item Locale strings in %u ms", static_cast<uint32>(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Item Locale strings in {} ms", static_cast<uint32>(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadItemSetNameLocales()
@@ -435,7 +435,7 @@ void GameLocale::LoadItemSetNameLocales()
         Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Item Set Name Locale strings in %u ms", static_cast<uint32>(_itemSetNameLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Item Set Name Locale strings in {} ms", static_cast<uint32>(_itemSetNameLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadNpcTextLocales()
@@ -473,7 +473,7 @@ void GameLocale::LoadNpcTextLocales()
         }
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Npc Text Locale strings in %u ms", static_cast<uint32>(_npcTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Npc Text Locale strings in {} ms", static_cast<uint32>(_npcTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadPageTextLocales()
@@ -505,7 +505,7 @@ void GameLocale::LoadPageTextLocales()
         Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Text);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Page Text Locale strings in %u ms", static_cast<uint32>(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Page Text Locale strings in {} ms", static_cast<uint32>(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadPointOfInterestLocales()
@@ -537,7 +537,7 @@ void GameLocale::LoadPointOfInterestLocales()
         Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Points Of Interest Locale strings in %u ms", static_cast<uint32>(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Points Of Interest Locale strings in {} ms", static_cast<uint32>(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadQuestLocales()
@@ -575,7 +575,7 @@ void GameLocale::LoadQuestLocales()
             Warhead::Game::Locale::AddLocaleString(fields[i + 7].GetString(), locale, data.ObjectiveText[i]);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Quest Locale strings in %u ms", static_cast<uint32>(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest Locale strings in {} ms", static_cast<uint32>(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadQuestOfferRewardLocale()
@@ -606,7 +606,7 @@ void GameLocale::LoadQuestOfferRewardLocale()
         Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.RewardText);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Quest Offer Reward locale strings in %u ms", static_cast<uint32>(_questOfferRewardLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest Offer Reward locale strings in {} ms", static_cast<uint32>(_questOfferRewardLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadQuestRequestItemsLocale()
@@ -637,7 +637,7 @@ void GameLocale::LoadQuestRequestItemsLocale()
         Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.CompletionText);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Quest Request Items locale strings in %u ms", static_cast<uint32>(_questRequestItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest Request Items locale strings in {} ms", static_cast<uint32>(_questRequestItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadQuestGreetingLocales()
@@ -685,7 +685,7 @@ void GameLocale::LoadQuestGreetingLocales()
         Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.greeting);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u quest greeting locale strings in %u ms", static_cast<uint32>(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} quest greeting locale strings in {} ms", static_cast<uint32>(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 AchievementRewardLocale const* GameLocale::GetAchievementRewardLocale(uint32 entry) const
@@ -803,7 +803,7 @@ void GameLocale::LoadRaceStrings()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Race strings in %u ms", static_cast<uint32>(_raceStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Race strings in {} ms", static_cast<uint32>(_raceStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadClassStrings()
@@ -837,7 +837,7 @@ void GameLocale::LoadClassStrings()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Class strings in %u ms", static_cast<uint32>(_classStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Class strings in {} ms", static_cast<uint32>(_classStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 RaceString const* GameLocale::GetRaseString(uint32 id) const

@@ -164,7 +164,7 @@ void ByteBuffer::print_storage() const
 
     o << " ";
 
-    LOG_TRACE("network.opcode.buffer", "%s", o.str().c_str());
+    LOG_TRACE("network.opcode.buffer", "{}", o.str());
 }
 
 void ByteBuffer::textlike() const
@@ -184,7 +184,7 @@ void ByteBuffer::textlike() const
 
     o << " ";
 
-    LOG_TRACE("network.opcode.buffer", "%s", o.str().c_str());
+    LOG_TRACE("network.opcode.buffer", "{}", o.str());
 }
 
 void ByteBuffer::hexlike() const
@@ -219,5 +219,5 @@ void ByteBuffer::hexlike() const
 
     o << " ";
 
-    LOG_TRACE("network.opcode.buffer", "%s", o.str().c_str());
+    LOG_TRACE("network.opcode.buffer", "{}", o.str());
 }

@@ -210,12 +210,12 @@ int main(int argc, char** argv)
     Warhead::Logo::Show("authserver",
         [](char const* text)
         {
-            LOG_INFO("server.worldserver", "%s", text);
+            LOG_INFO("server.worldserver", "{}", text);
         },
         []()
         {
-            LOG_INFO("server.worldserver", "> Using configuration file:       %s", sConfigMgr->GetFilename().c_str());
-            LOG_INFO("server.worldserver", "> Using SSL version:              %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            LOG_INFO("server.worldserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server.worldserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
             LOG_INFO("server.worldserver", "> Using Boost version:            %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
@@ -234,10 +234,10 @@ int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            LOG_ERROR("server", "Daemon PID: %u\n", pid); // outError for red color in console
+            LOG_ERROR("server", "Daemon PID: {}\n", pid); // outError for red color in console
         else
         {
-            LOG_ERROR("server", "Cannot create PID file %s (possible error: permission)\n", pidFile.c_str());
+            LOG_ERROR("server", "Cannot create PID file {} (possible error: permission)\n", pidFile);
             return 1;
         }
     }
@@ -366,10 +366,10 @@ int main(int argc, char** argv)
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
-        LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
+        LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
-    LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
 
@@ -446,7 +446,7 @@ bool StartDB()
     }
 
     LOG_INFO("server.loading", "Loading world information...");
-    LOG_INFO("server.loading", "> RealmID:              %u", realm.Id.Realm);
+    LOG_INFO("server.loading", "> RealmID:              {}", realm.Id.Realm);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
@@ -456,7 +456,7 @@ bool StartDB()
 
     sWorld->LoadDBVersion();
 
-    LOG_INFO("server.loading", "> Version DB world:     %s", sWorld->GetDBVersion());
+    LOG_INFO("server.loading", "> Version DB world:     {}", sWorld->GetDBVersion());
     LOG_INFO("server.loading", "");
 
     return true;
@@ -499,7 +499,7 @@ void ShutdownCLIThread(std::thread* cliThread)
             if (!formatReturnCode)
                 errorBuffer = "Unknown error";
 
-            LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+            LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
 
             if (!formatReturnCode)
                 LocalFree((LPSTR)errorBuffer);
@@ -646,7 +646,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
     if (!externalAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].GetString());
         return false;
     }
 
@@ -655,7 +655,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     if (!localAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].GetString());
         return false;
     }
 
@@ -664,7 +664,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     if (!localSubmask)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].GetString());
         return false;
     }
 

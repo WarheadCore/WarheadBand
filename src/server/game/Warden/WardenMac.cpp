@@ -55,16 +55,16 @@ void WardenMac::Init(WorldSession* pClient, SessionKey const& K)
     _inputCrypto.Init(_inputKey);
     _outputCrypto.Init(_outputKey);
 
-    LOG_DEBUG("warden", "Server side warden for client %u initializing...", pClient->GetAccountId());
-    LOG_DEBUG("warden", "C->S Key: %s", Warhead::Impl::ByteArrayToHexStr(_inputKey, 16).c_str());
-    LOG_DEBUG("warden", "S->C Key: %s", Warhead::Impl::ByteArrayToHexStr(_outputKey, 16 ).c_str());
-    LOG_DEBUG("warden", "  Seed: %s", Warhead::Impl::ByteArrayToHexStr(_seed, 16).c_str());
+    LOG_DEBUG("warden", "Server side warden for client {} initializing...", pClient->GetAccountId());
+    LOG_DEBUG("warden", "C->S Key: {}", Warhead::Impl::ByteArrayToHexStr(_inputKey, 16));
+    LOG_DEBUG("warden", "S->C Key: {}", Warhead::Impl::ByteArrayToHexStr(_outputKey, 16 ));
+    LOG_DEBUG("warden", "  Seed: {}", Warhead::Impl::ByteArrayToHexStr(_seed, 16));
     LOG_DEBUG("warden", "Loading Module...");
 
     _module = GetModuleForClient();
 
-    LOG_DEBUG("warden", "Module Key: %s", Warhead::Impl::ByteArrayToHexStr(_module->Key, 16).c_str());
-    LOG_DEBUG("warden", "Module ID: %s", Warhead::Impl::ByteArrayToHexStr(_module->Id, 16).c_str());
+    LOG_DEBUG("warden", "Module Key: {}", Warhead::Impl::ByteArrayToHexStr(_module->Key, 16));
+    LOG_DEBUG("warden", "Module ID: {}", Warhead::Impl::ByteArrayToHexStr(_module->Id, 16));
 
     RequestModule();
 }

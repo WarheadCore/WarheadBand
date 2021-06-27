@@ -293,7 +293,7 @@ public:
                         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
                         if (!spellInfo)
                         {
-                            LOG_ERROR("misc", "Player::CastItemCombatSpell Enchant %i, player (Name: %s, %s) cast unknown spell %i",
+                            LOG_ERROR("misc", "Player::CastItemCombatSpell Enchant %i, player (Name: {}, {}) cast unknown spell %i",
                                 enchant->ID, player->GetName().c_str(), player->GetGUID().ToString().c_str(), enchant->spellid[s]);
                             continue;
                         }

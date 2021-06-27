@@ -45,7 +45,7 @@ GameConfig* GameConfig::instance()
 
 void GameConfig::Load(bool reload)
 {
-    LOG_INFO("server.loading", "%s game configuraton:", reload ? "Reloading" : "Loading");
+    LOG_INFO("server.loading", "{} game configuraton:", reload ? "Reloading" : "Loading");
 
     LoadConfigs(reload);
     CheckOptions(reload);
@@ -63,7 +63,7 @@ WH_GAME_API void GameConfig::AddOption(std::string const& optionName, Optional<T
     auto itr = _configOptions.find(optionName);
     if (itr != _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is already exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
         return;
     }
 
@@ -79,7 +79,7 @@ WH_GAME_API void GameConfig::AddOption<bool>(std::string const& optionName, Opti
     auto itr = _configOptions.find(optionName);
     if (itr != _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is already exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
         return;
     }
 
@@ -95,7 +95,7 @@ WH_GAME_API void GameConfig::AddOption<std::string>(std::string const& optionNam
     auto itr = _configOptions.find(optionName);
     if (itr != _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is already exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
         return;
     }
 
@@ -111,7 +111,7 @@ WH_GAME_API void GameConfig::AddOption<float>(std::string const& optionName, Opt
     auto itr = _configOptions.find(optionName);
     if (itr != _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is already exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
         return;
     }
 
@@ -145,14 +145,14 @@ WH_GAME_API T GameConfig::GetOption(std::string const& optionName, Optional<T> d
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%s)", optionName.c_str(), defStr.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
         return retValueDef;
     }
 
     Optional<T> result = Warhead::StringTo<T>(_configOptions.at(optionName));
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%s' instead", optionName.c_str(), defStr.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, defStr);
         return retValueDef;
     }
 
@@ -168,14 +168,14 @@ WH_GAME_API bool GameConfig::GetOption<bool>(std::string const& optionName, Opti
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%s)", optionName.c_str(), retValueDef ? "true" : "false");
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, retValueDef ? "true" : "false");
         return retValueDef;
     }
 
     Optional<bool> result = Warhead::StringTo<bool>(_configOptions.at(optionName));
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%s' instead", optionName.c_str(), retValueDef ? "true" : "false");
+        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, retValueDef ? "true" : "false");
         return retValueDef;
     }
 
@@ -191,14 +191,14 @@ WH_GAME_API float GameConfig::GetOption<float>(std::string const& optionName, Op
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%f)", optionName.c_str(), retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned (%f)", optionName, retValueDef);
         return retValueDef;
     }
 
     Optional<float> result = Warhead::StringTo<float>(_configOptions.at(optionName));
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '%s', use '%f' instead", optionName.c_str(), retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '%f' instead", optionName, retValueDef);
         return retValueDef;
     }
 
@@ -214,7 +214,7 @@ WH_GAME_API std::string GameConfig::GetOption<std::string>(std::string const& op
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists. Returned (%s)", optionName.c_str(), retValueDef.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, retValueDef);
         return retValueDef;
     }
 
@@ -231,7 +231,7 @@ WH_GAME_API void GameConfig::SetOption(std::string const& optionName, T value) c
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
         return;
     }
 
@@ -246,7 +246,7 @@ WH_GAME_API void GameConfig::SetOption<bool>(std::string const& optionName, bool
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
         return;
     }
 
@@ -261,7 +261,7 @@ WH_GAME_API void GameConfig::SetOption<std::string>(std::string const& optionNam
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
         return;
     }
 
@@ -276,7 +276,7 @@ WH_GAME_API void GameConfig::SetOption<float>(std::string const& optionName, flo
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option (%s) is not exists", optionName.c_str());
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
         return;
     }
 
@@ -732,13 +732,13 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
             int32 configValue = sConfigMgr->GetOption<int32>(optionName, optionValue);
 
             if (configValue != optionValue)
-                LOG_ERROR("server.loading", "%s option can't be changed at worldserver.conf reload, using current value (%i)", optionName.c_str(), optionValue);
+                LOG_ERROR("server.loading", "{} option can't be changed at worldserver.conf reload, using current value (%i)", optionName, optionValue);
 
             SetOption<int32>(optionName, optionValue);
         }
     }
 
-    LOG_INFO("server.loading", "> Loaded %u config options", static_cast<uint32>(_configOptions.size()));
+    LOG_INFO("server.loading", "> Loaded {} config options", static_cast<uint32>(_configOptions.size()));
 }
 
 void GameConfig::CheckOptions(bool reload /*= false*/)
@@ -759,7 +759,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
 
         if (_rate < 0.0f)
         {
-            LOG_ERROR("server.loading", "%s (%f) must be > 0. Using 1 instead.", optionName.c_str(), _rate);
+            LOG_ERROR("server.loading", "{} (%f) must be > 0. Using 1 instead.", optionName, _rate);
             SetOption<float>(optionName, 1.0f);
         }
     };
@@ -816,7 +816,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         tempFloatOption = CONF_GET_FLOAT(optionName);
         if (tempFloatOption < 0.0f)
         {
-            LOG_ERROR("server.loading", "%s (%f) must be >= 0. Using 0.0 instead", optionName.c_str(), tempFloatOption);
+            LOG_ERROR("server.loading", "{} (%f) must be >= 0. Using 0.0 instead", optionName, tempFloatOption);
             SetOption<float>(optionName, 1.0f);
         }
     };
@@ -844,7 +844,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("MapUpdateInterval");
     if (tempIntOption < MIN_MAP_UPDATE_DELAY)
     {
-        LOG_ERROR("server.loading", "MapUpdateInterval (%i) must be greater %u. Use this minimal value.", tempIntOption, MIN_MAP_UPDATE_DELAY);
+        LOG_ERROR("server.loading", "MapUpdateInterval (%i) must be greater {}. Use this minimal value.", tempIntOption, MIN_MAP_UPDATE_DELAY);
         SetOption<int32>("MapUpdateInterval", MIN_MAP_UPDATE_DELAY);
     }
 
@@ -856,7 +856,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         int32 confSymbols = CONF_GET_INT(optionName);
         if (confSymbols < 1 || confSymbols > maxNameSymols)
         {
-            LOG_ERROR("server.loading", "%s (%u) must be in range 1..%u. Set to 2.", optionName.c_str(), confSymbols, maxNameSymols);
+            LOG_ERROR("server.loading", "{} ({}) must be in range 1..{}. Set to 2.", optionName, confSymbols, maxNameSymols);
             SetOption<int32>(optionName, 2);
         }
     };
@@ -897,43 +897,43 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     int32 maxPlayerLevel = CONF_GET_INT("MaxPlayerLevel");
     if (maxPlayerLevel > MAX_LEVEL)
     {
-        LOG_ERROR("server.loading", "MaxPlayerLevel (%i) must be in range 1..%u. Set to %u.", maxPlayerLevel, MAX_LEVEL, MAX_LEVEL);
+        LOG_ERROR("server.loading", "MaxPlayerLevel (%i) must be in range 1..{}. Set to {}.", maxPlayerLevel, MAX_LEVEL, MAX_LEVEL);
         SetOption<int32>("MaxPlayerLevel", MAX_LEVEL);
     }
 
     int32 startPlayerLevel = CONF_GET_INT("StartPlayerLevel");
     if (startPlayerLevel < 1)
     {
-        LOG_ERROR("server.loading", "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 1.", startPlayerLevel, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to 1.", startPlayerLevel, maxPlayerLevel);
         SetOption<int32>("StartPlayerLevel", 1);
     }
     else if (startPlayerLevel > maxPlayerLevel)
     {
-        LOG_ERROR("server.loading", "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to {}.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
         SetOption<int32>("StartPlayerLevel", maxPlayerLevel);
     }
 
     tempIntOption = CONF_GET_INT("StartHeroicPlayerLevel");
     if (tempIntOption < 1)
     {
-        LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.", tempIntOption, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to 55.", tempIntOption, maxPlayerLevel);
         SetOption<int32>("StartHeroicPlayerLevel", 55);
     }
     else if (tempIntOption > maxPlayerLevel)
     {
-        LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to {}.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
         SetOption<int32>("StartHeroicPlayerLevel", maxPlayerLevel);
     }
 
     tempIntOption = CONF_GET_INT("StartPlayerMoney");
     if (tempIntOption < 0)
     {
-        LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.", tempIntOption, MAX_MONEY_AMOUNT, 0);
+        LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0..{}. Set to {}.", tempIntOption, MAX_MONEY_AMOUNT, 0);
         SetOption<int32>("StartPlayerMoney", 0);
     }
     else if (tempIntOption > MAX_MONEY_AMOUNT)
     {
-        LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.", tempIntOption, MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
+        LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0..{}. Set to {}.", tempIntOption, MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
         SetOption<int32>("StartPlayerMoney", MAX_MONEY_AMOUNT);
     }
 
@@ -942,19 +942,19 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         int32 maxPoints = CONF_GET_INT(maxPointsOptionName);
         if (maxPoints < 0)
         {
-            LOG_ERROR("server.loading", "%s (%i) can't be negative. Set to 0.", maxPointsOptionName.c_str(), maxPoints);
+            LOG_ERROR("server.loading", "{} (%i) can't be negative. Set to 0.", maxPointsOptionName, maxPoints);
             SetOption<int32>(maxPointsOptionName, 0);
         }
 
         int32 startPoints = CONF_GET_INT(startPointsOptionName);
         if (startPoints < 0)
         {
-            LOG_ERROR("server.loading", "%s (%i) must be in range 0..%s(%u). Set to %u.", startPointsOptionName.c_str(), startPoints, maxPointsOptionName.c_str(), maxPoints, 0);
+            LOG_ERROR("server.loading", "{} (%i) must be in range 0..{}({}). Set to {}.", startPointsOptionName, startPoints, maxPointsOptionName, maxPoints, 0);
             SetOption<int32>(startPointsOptionName, 0);
         }
         else if (startPoints > maxPoints)
         {
-            LOG_ERROR("server.loading", "%s (%i) must be in range 0..%s(%u). Set to %u.", startPointsOptionName.c_str(), startPoints, maxPointsOptionName.c_str(), maxPoints, maxPoints);
+            LOG_ERROR("server.loading", "{} (%i) must be in range 0..{}({}). Set to {}.", startPointsOptionName, startPoints, maxPointsOptionName, maxPoints, maxPoints);
             SetOption<int32>(startPointsOptionName, maxPoints);
         }
     };
@@ -965,7 +965,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("RecruitAFriend.MaxLevel");
     if (tempIntOption > maxPlayerLevel)
     {
-        LOG_ERROR("server.loading", "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel(%u). Set to %u.",
+        LOG_ERROR("server.loading", "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel({}). Set to {}.",
             tempIntOption, maxPlayerLevel, 60);
 
         SetOption<int32>("RecruitAFriend.MaxLevel", 60);
@@ -981,12 +981,12 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("GM.StartLevel");
     if (tempIntOption < startPlayerLevel)
     {
-        LOG_ERROR("server.loading", "GM.StartLevel (%i) must be in range StartPlayerLevel(%u)..%u. Set to %u.", tempIntOption, tempIntOption, MAX_LEVEL, tempIntOption);
+        LOG_ERROR("server.loading", "GM.StartLevel (%i) must be in range StartPlayerLevel({})..{}. Set to {}.", tempIntOption, tempIntOption, MAX_LEVEL, tempIntOption);
         SetOption<int32>("GM.StartLevel", startPlayerLevel);
     }
     else if (tempIntOption > MAX_LEVEL)
     {
-        LOG_ERROR("server.loading", "GM.StartLevel (%i) must be in range 1..%u. Set to %u.", tempIntOption, MAX_LEVEL, MAX_LEVEL);
+        LOG_ERROR("server.loading", "GM.StartLevel (%i) must be in range 1..{}. Set to {}.", tempIntOption, MAX_LEVEL, MAX_LEVEL);
         SetOption<int32>("GM.StartLevel", MAX_LEVEL);
     }
 
@@ -1016,7 +1016,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         SetOption<int32>("LogDB.Opt.ClearInterval", 10);
     }
 
-    LOG_TRACE("server.loading", "Will clear `logs` table of entries older than %i seconds every %u minutes.",
+    LOG_TRACE("server.loading", "Will clear `logs` table of entries older than %i seconds every {} minutes.",
         CONF_GET_INT("LogDB.Opt.ClearTime"), CONF_GET_INT("LogDB.Opt.ClearInterval"));*/
 
     tempIntOption = CONF_GET_INT("MaxOverspeedPings");
@@ -1031,7 +1031,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         int32 hours = CONF_GET_INT(optionName);
         if (hours > 23)
         {
-            LOG_ERROR("server.loading", "%s (%i) can't be load. Set to 6.", optionName.c_str(), hours);
+            LOG_ERROR("server.loading", "{} (%i) can't be load. Set to 6.", optionName, hours);
             SetOption<int32>(optionName, 6);
         }
     };
@@ -1070,10 +1070,10 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         if (clientCacheId)
         {
             SetOption<int32>("ClientCacheVersion", clientCacheId);
-            LOG_INFO("server.loading", "Client cache version set to: %u", clientCacheId);
+            LOG_INFO("server.loading", "Client cache version set to: {}", clientCacheId);
         }
         else
-            LOG_ERROR("server.loading", "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
+            LOG_ERROR("server.loading", "ClientCacheVersion can't be negative {}, ignored.", clientCacheId);
     }
 
     auto CheckLogRecordsCount = [&](std::string const& optionName, int32 const& maxRecords)
@@ -1096,7 +1096,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("PacketSpoof.BanMode");
     if (tempIntOption == 1 || tempIntOption > 2)
     {
-        LOG_ERROR("server.loading", "> AntiDOS: Invalid ban mode %u. Set 0", tempIntOption);
+        LOG_ERROR("server.loading", "> AntiDOS: Invalid ban mode {}. Set 0", tempIntOption);
         SetOption<int32>("PacketSpoof.BanMode", 0);
     }
 }

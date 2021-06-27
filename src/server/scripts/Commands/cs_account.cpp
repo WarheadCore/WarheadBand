@@ -121,7 +121,7 @@ public:
 
             if (!result)
             {
-                LOG_ERROR("misc", "Account %u not found in login database when processing .account 2fa setup command.", accountId);
+                LOG_ERROR("misc", "Account {} not found in login database when processing .account 2fa setup command.", accountId);
                 handler->SendSysMessage(LANG_UNKNOWN_ERROR);
                 handler->SetSentErrorMessage(true);
                 return false;
@@ -196,7 +196,7 @@ public:
 
             if (!result)
             {
-                LOG_ERROR("misc", "Account %u not found in login database when processing .account 2fa setup command.", accountId);
+                LOG_ERROR("misc", "Account {} not found in login database when processing .account 2fa setup command.", accountId);
                 handler->SendSysMessage(LANG_UNKNOWN_ERROR);
                 handler->SetSentErrorMessage(true);
                 return false;
@@ -220,7 +220,7 @@ public:
                 bool success = Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(secret, *masterKey);
                 if (!success)
                 {
-                    LOG_ERROR("misc", "Account %u has invalid ciphertext in TOTP token.", accountId);
+                    LOG_ERROR("misc", "Account {} has invalid ciphertext in TOTP token.", accountId);
                     handler->SendSysMessage(LANG_UNKNOWN_ERROR);
                     handler->SetSentErrorMessage(true);
                     return false;
@@ -296,7 +296,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    LOG_DEBUG("warden", "Account: %d (IP: %s) Character:[%s] (%s) Change Password.",
+                    LOG_DEBUG("warden", "Account: {} (IP: {}) Character:[{}] ({}) Change Password.",
                                    handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                                    handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
                 }

@@ -84,7 +84,7 @@ void SetProcessPriority(std::string const& logChannel, uint32 affinity, bool hig
 
         if (sched_setaffinity(0, sizeof(mask), &mask))
         {
-            LOG_ERROR(logChannel, "Can't set used processors (hex): %x, error: %s", affinity, strerror(errno));
+            LOG_ERROR(logChannel, "Can't set used processors (hex): %x, error: {}", affinity, strerror(errno));
         }
         else
         {
@@ -98,7 +98,7 @@ void SetProcessPriority(std::string const& logChannel, uint32 affinity, bool hig
     {
         if (setpriority(PRIO_PROCESS, 0, PROCESS_HIGH_PRIORITY))
         {
-            LOG_ERROR(logChannel, "Can't set process priority class, error: %s", strerror(errno));
+            LOG_ERROR(logChannel, "Can't set process priority class, error: {}", strerror(errno));
         }
         else
         {

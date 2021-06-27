@@ -33,7 +33,7 @@ void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 
     ObjectGuid guid;
     recvData >> guid;
-    LOG_DEBUG("network", "Inspect Arena stats (%s)", guid.ToString().c_str());
+    LOG_DEBUG("network", "Inspect Arena stats ({})", guid.ToString());
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
@@ -145,7 +145,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
         return;
     }
 
-    LOG_DEBUG("bg.battleground", "Player %s Invited %s to Join his ArenaTeam", GetPlayer()->GetName().c_str(), invitedName.c_str());
+    LOG_DEBUG("bg.battleground", "Player {} Invited {} to Join his ArenaTeam", GetPlayer()->GetName(), invitedName);
 
     player->SetArenaTeamIdInvited(arenaTeam->GetId());
 

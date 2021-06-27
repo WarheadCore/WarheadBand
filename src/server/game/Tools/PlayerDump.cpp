@@ -516,7 +516,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Can't extract table name from line: '{}'!", line);
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -533,7 +533,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Unknown table: '{}'!", tn);
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -683,7 +683,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     break;
                 }
             default:
-                LOG_ERROR("entities.player.dump", "Unknown dump table type: %u", type);
+                LOG_ERROR("entities.player.dump", "Unknown dump table type: {}", type);
                 break;
         }
 

@@ -73,16 +73,16 @@ void SystemMgr::LoadScriptWaypoints()
 
         if (!pCInfo)
         {
-            LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for non-existant creature entry %u", temp.uiCreatureEntry);
+            LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for non-existant creature entry {}", temp.uiCreatureEntry);
             continue;
         }
 
         if (!pCInfo->ScriptID)
-            LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
+            LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for creature entry {}, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
 
         m_mPointMoveMap[uiEntry].push_back(temp);
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Script Waypoint nodes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Script Waypoint nodes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

@@ -53,9 +53,9 @@ namespace
         std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
 
         if (IsAppConfig(filename))
-            FMT_LOG_ERROR("%s", message.c_str());
+            FMT_LOG_ERROR("{}", message);
         else
-            LOG_ERROR("server.loading", "%s", message.c_str());
+            LOG_ERROR("server.loading", "{}", message);
     }
 
     void AddKey(std::string const& optionName, std::string const& optionKey, bool replace = true)
@@ -65,7 +65,7 @@ namespace
         {
             if (!replace)
             {
-                LOG_ERROR("server.loading", "> Config: Option '%s' is exist! Option key - '%s'", optionName.c_str(), itr->second.c_str());
+                LOG_ERROR("server.loading", "> Config: Option '{}' is exist! Option key - '{}'", optionName, itr->second);
                 return;
             }
 
@@ -214,7 +214,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
     {
         if (showLogs)
         {
-            LOG_ERROR("server.loading", "> Config: Missing name %s in config, add \"%s = %s\"",
+            LOG_ERROR("server.loading", "> Config: Missing name {} in config, add \"{} = {}\"",
                 name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
         }
 
@@ -226,7 +226,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
     {
         if (showLogs)
         {
-            LOG_ERROR("server.loading", "> Config: Bad value defined for name '%s', going to use '%s' instead",
+            LOG_ERROR("server.loading", "> Config: Bad value defined for name '{}', going to use '{}' instead",
                 name.c_str(), Warhead::ToString(def).c_str());
         }
 
@@ -244,7 +244,7 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     {
         if (showLogs)
         {
-            LOG_ERROR("server.loading", "> Config: Missing name %s in config, add \"%s = %s\"",
+            LOG_ERROR("server.loading", "> Config: Missing name {} in config, add \"{} = {}\"",
                 name.c_str(), name.c_str(), def.c_str());
         }
 
@@ -270,7 +270,7 @@ WH_COMMON_API bool ConfigMgr::GetOption<bool>(std::string const& name, bool cons
     {
         if (showLogs)
         {
-            LOG_ERROR("server.loading", "> Config: Bad value defined for name '%s', going to use '%s' instead",
+            LOG_ERROR("server.loading", "> Config: Bad value defined for name '{}', going to use '{}' instead",
                 name.c_str(), def ? "true" : "false");
         }
 
@@ -405,7 +405,7 @@ void ConfigMgr::PrintLoadedModulesConfigs()
 
     for (auto const& itr : _moduleConfigFiles)
     {
-        LOG_INFO("server.loading", "> %s", itr.c_str());
+        LOG_INFO("server.loading", "> {}", itr);
     }
 
     LOG_INFO("server.loading", " ");
