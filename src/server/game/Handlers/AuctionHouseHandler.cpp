@@ -609,7 +609,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     recvData >> outbiddedCount;
     if (recvData.size() != (16 + outbiddedCount * 4))
     {
-        LOG_ERROR("network.opcode", "Client sent bad opcode!!! with count: {} and size : %lu (must be: {})", outbiddedCount, (unsigned long)recvData.size(), (16 + outbiddedCount * 4));
+        LOG_ERROR("network.opcode", "Client sent bad opcode!!! with count: {} and size : {} (must be: {})", outbiddedCount, (unsigned long)recvData.size(), (16 + outbiddedCount * 4));
         outbiddedCount = 0;
     }
 

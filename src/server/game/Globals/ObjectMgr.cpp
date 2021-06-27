@@ -2184,7 +2184,7 @@ void ObjectMgr::LoadGameobjects()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %lu gameobjects in {} ms", (unsigned long)_gameObjectDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} gameobjects in {} ms", (unsigned long)_gameObjectDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -4657,7 +4657,7 @@ void ObjectMgr::LoadQuests()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded %lu quests definitions in {} ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} quests definitions in {} ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

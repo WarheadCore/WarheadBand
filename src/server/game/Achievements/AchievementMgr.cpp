@@ -2813,7 +2813,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             m_allCompletedAchievements[achievementId] =  SystemTimePoint::max();
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %lu completed achievements in {} ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {} ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
