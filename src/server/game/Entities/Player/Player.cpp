@@ -19202,6 +19202,7 @@ void Player::_LoadMail()
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
     stmt->setUInt32(0, GetGUID().GetCounter());
     stmt->setUInt64(1, GameTime::GetGameTime());
+
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
     {
@@ -19239,7 +19240,7 @@ void Player::_LoadMail()
                 _LoadMailedItems(m);
 
             // Do not load expired pending sale mail if there is already delivery auction mail
-            if (m->auctionId < 0 && m->expire_time <= time(nullptr))
+            if (m->auctionId < 0 && m->expire_time <= GameTime::GetGameTime())
             {
                 uint32 auctionId = std::abs(m->auctionId);
                 if (pendingAuctions.count(auctionId))
