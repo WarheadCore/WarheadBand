@@ -53,7 +53,7 @@ namespace
         std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
 
         if (IsAppConfig(filename))
-            SYS_LOG_ERROR("%s", message.c_str());
+            FMT_LOG_ERROR("%s", message.c_str());
         else
             LOG_ERROR("server.loading", "%s", message.c_str());
     }

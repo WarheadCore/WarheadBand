@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "StringFormat.h"
+#include <fmt/color.h>
 
 enum class LogLevel : uint8
 {
@@ -85,12 +86,12 @@ public:
 
     bool ShouldLog(std::string_view type, LogLevel level) const;
 
-    void outCharDump(std::string const& str, uint32 accountId, uint64 guid, std::string const& name);
+    void outCharDump(std::string_view str, uint32 accountId, uint64 guid, std::string_view name);
 
-    template<typename Format, typename... Args>
-    inline void outMessage(std::string_view filter, LogLevel const level, Format&& fmt, Args&& ... args)
+    template<typename... Args>
+    inline void outMessage(std::string_view filter, LogLevel const level, std::string_view fmt, Args&& ... args)
     {
-        outMessage(filter, level, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+        outMessage(filter, level, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template<typename Format, typename... Args>
@@ -99,15 +100,15 @@ public:
         if (!ShouldLog("commands.gm", LogLevel::LOG_LEVEL_INFO))
             return;
 
-        outCommand(std::to_string(account), Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+        outCommand(fmt::to_string(account), fmt::format(fmt, std::forward<Args>(args)...));
     }
 
 private:
-    void _Write(std::string_view filter, LogLevel const level, std::string const&& message);
-    void _writeCommand(std::string&& message, [[maybe_unused]] std::string const&& accountid);
+    void _Write(std::string_view filter, LogLevel const level, std::string_view message);
+    void _WriteCommand(std::string_view, [[maybe_unused]] std::string_view accountid);
 
-    void outMessage(std::string_view filter, LogLevel const level, std::string&& message);
-    void outCommand(std::string&& accountID, std::string&& message);
+    void outMessage(std::string_view filter, LogLevel const level, std::string_view message);
+    void outCommand(std::string_view accountID, std::string_view message);
 
     void CreateLoggerFromConfig(std::string const& configLoggerName);
     void CreateChannelsFromConfig(std::string const& logChannelName);
@@ -127,40 +128,20 @@ private:
     { \
         try \
         { \
-            sLog->outMessage(filterType__, level__, __VA_ARGS__); \
+            sLog->outMessage(filterType__, level__, fmt::format(__VA_ARGS__)); \
         } \
         catch (const std::exception& e) \
         { \
-            sLog->outMessage("server", LogLevel::LOG_LEVEL_ERROR, "Wrong format occurred (%s) at %s:%u.", \
+            sLog->outMessage("server", LogLevel::LOG_LEVEL_ERROR, "Wrong format occurred ({}) at '{}:{}'", \
                 e.what(), __FILE__, __LINE__); \
         } \
     }
 
-#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
-void check_args(char const*, ...) ATTR_PRINTF(1, 2);
-void check_args(std::string const&, ...);
-
-// This will catch format errors on build time
 #define LOG_MSG_BODY(filterType__, level__, ...)                        \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
-            {                                                           \
-                if (false)                                              \
-                    check_args(__VA_ARGS__);                            \
-                                                                        \
                 LOG_EXCEPTION_FREE(filterType__, level__, __VA_ARGS__); \
-            }                                                           \
         } while (0)
-#else
-#define LOG_MSG_BODY(filterType__, level__, ...)                        \
-        /*__pragma(warning(push))*/                                     \
-        /*__pragma(warning(disable:4127))*/                             \
-        do {                                                            \
-            if (sLog->ShouldLog(filterType__, level__))                 \
-                LOG_EXCEPTION_FREE(filterType__, level__, __VA_ARGS__); \
-        } while (0)                                                     \
-        /*__pragma(warning(pop))*/
-#endif
 
 // Fatal - 1
 #define LOG_FATAL(filterType__, ...) \
@@ -199,5 +180,11 @@ void check_args(std::string const&, ...);
 
 #define LOG_GM(accountId__, ...) \
     sLog->outCommand(accountId__, __VA_ARGS__)
+
+#define FMT_LOG_ERROR(...) \
+    fmt::print(fmt::emphasis::bold | fg(fmt::color::red), "{}\n", fmt::format(__VA_ARGS__));
+
+#define FMT_LOG_INFO(...) \
+    fmt::print(fmt::emphasis::bold | fg(fmt::color::light_cyan), "{}\n", fmt::format(__VA_ARGS__));
 
 #endif // _LOG_H__

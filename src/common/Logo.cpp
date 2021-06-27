@@ -22,7 +22,7 @@
 
 void Warhead::Logo::Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)())
 {
-    log(Warhead::StringFormat("%s (%s)", GitRevision::GetFullVersion(), applicationName).c_str());
+    log(Warhead::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName).c_str());
     log("<Ctrl-C> to stop");
     log("");
     log("  ██╗     ██╗  █████╗  ██████╗  ██╗  ██╗ ███████╗  █████╗  ██████╗");

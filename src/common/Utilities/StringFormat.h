@@ -19,22 +19,21 @@
 #define _STRING_FORMAT_H_
 
 #include "Define.h"
-#include <fmt/printf.h>
+#include <fmt/format.h>
 
 namespace Warhead
 {
-    /// Default AC string format function.
-    template<typename Format, typename... Args>
-    inline std::string StringFormat(Format&& fmt, Args&& ... args)
+    // Default string format function.
+    template<typename... Args>
+    inline std::string StringFormat(std::string_view fmt, Args&&... args)
     {
         try
         {
-            return fmt::sprintf(std::forward<Format>(fmt), std::forward<Args>(args)...);
+            return fmt::format(fmt, std::forward<Args>(args)...);
         }
         catch (const fmt::format_error& formatError)
         {
-            std::string error = "An error occurred formatting string \"" + std::string(fmt) + "\" : " + std::string(formatError.what());
-            return error;
+            return fmt::format("An error occurred formatting string \"{}\": {}", fmt, formatError.what());
         }
     }
 
@@ -45,7 +44,7 @@ namespace Warhead
     }
 
     /// Returns true if the given std::string is empty.
-    inline bool IsFormatEmptyOrNull(std::string const& fmt)
+    inline bool IsFormatEmptyOrNull(std::string_view fmt)
     {
         return fmt.empty();
     }
