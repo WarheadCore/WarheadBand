@@ -97,8 +97,7 @@ uint32 DatabaseWorkerPool<T>::Open()
 
     if (!error)
     {
-        LOG_INFO("sql.driver", "DatabasePool '{}' opened successfully. " SZFMTD
-                    " total connections running.", GetDatabaseName(),
+        LOG_INFO("sql.driver", "DatabasePool '{}' opened successfully. {} total connections running.", GetDatabaseName(),
                     (_connections[IDX_SYNCH].size() + _connections[IDX_ASYNC].size()));
     }
 

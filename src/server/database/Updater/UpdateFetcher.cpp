@@ -377,7 +377,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             CleanUp(applied);
         else
         {
-            LOG_ERROR("sql.updates", "Cleanup is disabled! There were  " SZFMTD " dirty files applied to your database, " \
+            LOG_ERROR("sql.updates", "Cleanup is disabled! There were  {} dirty files applied to your database, " \
                       "but they are now missing in your source directory!", applied.size());
         }
     }

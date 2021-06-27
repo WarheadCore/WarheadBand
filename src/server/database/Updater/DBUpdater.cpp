@@ -276,13 +276,13 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
         return false;
     }
 
-    std::string const info = Warhead::StringFormat("Containing " SZFMTD " new and " SZFMTD " archived updates.",
+    std::string const info = Warhead::StringFormat("Containing {} new and {} archived updates.",
                              result.recent, result.archived);
 
     if (!result.updated)
         LOG_INFO("sql.updates", ">> {} database is up-to-date! {}", DBUpdater<T>::GetTableName(), info);
     else
-        LOG_INFO("sql.updates", ">> Applied " SZFMTD " {}. {}", result.updated, result.updated == 1 ? "query" : "queries", info);
+        LOG_INFO("sql.updates", ">> Applied {} {}. {}", result.updated, result.updated == 1 ? "query" : "queries", info);
 
     LOG_INFO("sql.updates", "");
 

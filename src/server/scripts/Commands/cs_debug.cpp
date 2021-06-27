@@ -781,7 +781,7 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): For the item (%s), the owner (%s) and the player (%s) don't match!",
+                    handler->PSendSysMessage("queue({}): For the item (%s), the owner (%s) and the player (%s) don't match!",
                         i, item->GetGUID().ToString().c_str(), item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -789,7 +789,7 @@ public:
 
                 if (item->GetQueuePos() != i)
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): For the item (%s), the queuepos doesn't match it's position in the queue!", i, item->GetGUID().ToString().c_str());
+                    handler->PSendSysMessage("queue({}): For the item (%s), the queuepos doesn't match it's position in the queue!", i, item->GetGUID().ToString().c_str());
                     error = true;
                     continue;
                 }
@@ -801,7 +801,7 @@ public:
 
                 if (test == nullptr)
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): The bag(%d) and slot(%d) values for the item (%s) are incorrect, the player doesn't have any item at that position!",
+                    handler->PSendSysMessage("queue({}): The bag(%d) and slot(%d) values for the item (%s) are incorrect, the player doesn't have any item at that position!",
                         i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -809,7 +809,7 @@ public:
 
                 if (test != item)
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): The bag(%d) and slot(%d) values for the item (%s) are incorrect, an item (%s) is there instead!",
+                    handler->PSendSysMessage("queue({}): The bag(%d) and slot(%d) values for the item (%s) are incorrect, an item (%s) is there instead!",
                         i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString().c_str(), test->GetGUID().ToString().c_str());
                     error = true;
                     continue;

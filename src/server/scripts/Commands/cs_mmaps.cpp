@@ -110,7 +110,7 @@ public:
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
-        handler->PSendSysMessage("Result: %s - Length: " SZFMTD " - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
+        handler->PSendSysMessage("Result: %s - Length: {} - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
         G3D::Vector3 const& start = path.GetStartPosition();
         G3D::Vector3 const& end = path.GetEndPosition();
@@ -277,7 +277,7 @@ public:
 
         if (!creatureList.empty())
         {
-            handler->PSendSysMessage("Found " SZFMTD " Creatures.", creatureList.size());
+            handler->PSendSysMessage("Found {} Creatures.", creatureList.size());
 
             uint32 paths = 0;
             uint32 uStartTime = getMSTime();
