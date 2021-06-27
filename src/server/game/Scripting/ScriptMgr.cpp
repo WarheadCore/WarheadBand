@@ -40,48 +40,6 @@
 #include "LuaEngine.h"
 #endif
 
-// Specialize for each script type class like so:
-template class WH_GAME_API ScriptRegistry<SpellScriptLoader>;
-template class WH_GAME_API ScriptRegistry<ServerScript>;
-template class WH_GAME_API ScriptRegistry<WorldScript>;
-template class WH_GAME_API ScriptRegistry<FormulaScript>;
-template class WH_GAME_API ScriptRegistry<WorldMapScript>;
-template class WH_GAME_API ScriptRegistry<InstanceMapScript>;
-template class WH_GAME_API ScriptRegistry<BattlegroundMapScript>;
-template class WH_GAME_API ScriptRegistry<ItemScript>;
-template class WH_GAME_API ScriptRegistry<CreatureScript>;
-template class WH_GAME_API ScriptRegistry<GameObjectScript>;
-template class WH_GAME_API ScriptRegistry<AreaTriggerScript>;
-template class WH_GAME_API ScriptRegistry<BattlegroundScript>;
-template class WH_GAME_API ScriptRegistry<OutdoorPvPScript>;
-template class WH_GAME_API ScriptRegistry<CommandScript>;
-template class WH_GAME_API ScriptRegistry<WeatherScript>;
-template class WH_GAME_API ScriptRegistry<AuctionHouseScript>;
-template class WH_GAME_API ScriptRegistry<ConditionScript>;
-template class WH_GAME_API ScriptRegistry<VehicleScript>;
-template class WH_GAME_API ScriptRegistry<DynamicObjectScript>;
-template class WH_GAME_API ScriptRegistry<TransportScript>;
-template class WH_GAME_API ScriptRegistry<AchievementCriteriaScript>;
-template class WH_GAME_API ScriptRegistry<PlayerScript>;
-template class WH_GAME_API ScriptRegistry<GuildScript>;
-template class WH_GAME_API ScriptRegistry<GroupScript>;
-template class WH_GAME_API ScriptRegistry<GlobalScript>;
-template class WH_GAME_API ScriptRegistry<UnitScript>;
-template class WH_GAME_API ScriptRegistry<AllCreatureScript>;
-template class WH_GAME_API ScriptRegistry<AllMapScript>;
-template class WH_GAME_API ScriptRegistry<MovementHandlerScript>;
-template class WH_GAME_API ScriptRegistry<BGScript>;
-template class WH_GAME_API ScriptRegistry<ArenaTeamScript>;
-template class WH_GAME_API ScriptRegistry<SpellSC>;
-template class WH_GAME_API ScriptRegistry<AccountScript>;
-template class WH_GAME_API ScriptRegistry<GameEventScript>;
-template class WH_GAME_API ScriptRegistry<MailScript>;
-template class WH_GAME_API ScriptRegistry<AchievementScript>;
-template class WH_GAME_API ScriptRegistry<MiscScript>;
-template class WH_GAME_API ScriptRegistry<PetScript>;
-template class WH_GAME_API ScriptRegistry<ArenaScript>;
-template class WH_GAME_API ScriptRegistry<CommandSC>;
-
 #include "ScriptMgrMacros.h"
 
 struct TSpellSummary
@@ -3439,43 +3397,43 @@ CommandSC::CommandSC(const char* name)
 }
 
 // Specialize for each script type class like so:
-template class ScriptRegistry<SpellScriptLoader>;
-template class ScriptRegistry<ServerScript>;
-template class ScriptRegistry<WorldScript>;
-template class ScriptRegistry<FormulaScript>;
-template class ScriptRegistry<WorldMapScript>;
-template class ScriptRegistry<InstanceMapScript>;
-template class ScriptRegistry<BattlegroundMapScript>;
-template class ScriptRegistry<ItemScript>;
-template class ScriptRegistry<CreatureScript>;
-template class ScriptRegistry<GameObjectScript>;
-template class ScriptRegistry<AreaTriggerScript>;
-template class ScriptRegistry<BattlegroundScript>;
-template class ScriptRegistry<OutdoorPvPScript>;
-template class ScriptRegistry<CommandScript>;
-template class ScriptRegistry<WeatherScript>;
-template class ScriptRegistry<AuctionHouseScript>;
-template class ScriptRegistry<ConditionScript>;
-template class ScriptRegistry<VehicleScript>;
-template class ScriptRegistry<DynamicObjectScript>;
-template class ScriptRegistry<TransportScript>;
-template class ScriptRegistry<AchievementCriteriaScript>;
-template class ScriptRegistry<PlayerScript>;
-template class ScriptRegistry<GuildScript>;
-template class ScriptRegistry<GroupScript>;
-template class ScriptRegistry<GlobalScript>;
-template class ScriptRegistry<UnitScript>;
-template class ScriptRegistry<AllCreatureScript>;
-template class ScriptRegistry<AllMapScript>;
-template class ScriptRegistry<MovementHandlerScript>;
-template class ScriptRegistry<BGScript>;
-template class ScriptRegistry<ArenaTeamScript>;
-template class ScriptRegistry<SpellSC>;
-template class ScriptRegistry<AccountScript>;
-template class ScriptRegistry<GameEventScript>;
-template class ScriptRegistry<MailScript>;
-template class ScriptRegistry<AchievementScript>;
-template class ScriptRegistry<MiscScript>;
-template class ScriptRegistry<PetScript>;
-template class ScriptRegistry<ArenaScript>;
-template class ScriptRegistry<CommandSC>;
+template class WH_GAME_API ScriptRegistry<SpellScriptLoader>;
+template class WH_GAME_API ScriptRegistry<ServerScript>;
+template class WH_GAME_API ScriptRegistry<WorldScript>;
+template class WH_GAME_API ScriptRegistry<FormulaScript>;
+template class WH_GAME_API ScriptRegistry<WorldMapScript>;
+template class WH_GAME_API ScriptRegistry<InstanceMapScript>;
+template class WH_GAME_API ScriptRegistry<BattlegroundMapScript>;
+template class WH_GAME_API ScriptRegistry<ItemScript>;
+template class WH_GAME_API ScriptRegistry<CreatureScript>;
+template class WH_GAME_API ScriptRegistry<GameObjectScript>;
+template class WH_GAME_API ScriptRegistry<AreaTriggerScript>;
+template class WH_GAME_API ScriptRegistry<BattlegroundScript>;
+template class WH_GAME_API ScriptRegistry<OutdoorPvPScript>;
+template class WH_GAME_API ScriptRegistry<CommandScript>;
+template class WH_GAME_API ScriptRegistry<WeatherScript>;
+template class WH_GAME_API ScriptRegistry<AuctionHouseScript>;
+template class WH_GAME_API ScriptRegistry<ConditionScript>;
+template class WH_GAME_API ScriptRegistry<VehicleScript>;
+template class WH_GAME_API ScriptRegistry<DynamicObjectScript>;
+template class WH_GAME_API ScriptRegistry<TransportScript>;
+template class WH_GAME_API ScriptRegistry<AchievementCriteriaScript>;
+template class WH_GAME_API ScriptRegistry<PlayerScript>;
+template class WH_GAME_API ScriptRegistry<GuildScript>;
+template class WH_GAME_API ScriptRegistry<GroupScript>;
+template class WH_GAME_API ScriptRegistry<GlobalScript>;
+template class WH_GAME_API ScriptRegistry<UnitScript>;
+template class WH_GAME_API ScriptRegistry<AllCreatureScript>;
+template class WH_GAME_API ScriptRegistry<AllMapScript>;
+template class WH_GAME_API ScriptRegistry<MovementHandlerScript>;
+template class WH_GAME_API ScriptRegistry<BGScript>;
+template class WH_GAME_API ScriptRegistry<ArenaTeamScript>;
+template class WH_GAME_API ScriptRegistry<SpellSC>;
+template class WH_GAME_API ScriptRegistry<AccountScript>;
+template class WH_GAME_API ScriptRegistry<GameEventScript>;
+template class WH_GAME_API ScriptRegistry<MailScript>;
+template class WH_GAME_API ScriptRegistry<AchievementScript>;
+template class WH_GAME_API ScriptRegistry<MiscScript>;
+template class WH_GAME_API ScriptRegistry<PetScript>;
+template class WH_GAME_API ScriptRegistry<ArenaScript>;
+template class WH_GAME_API ScriptRegistry<CommandSC>;
