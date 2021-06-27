@@ -47,6 +47,12 @@ else()
   message("* Build with scripts              : No")
 endif()
 
+if(MODULES  AND (NOT MODULES STREQUAL "none"))
+  message("* Build with modules              : Yes (${MODULES})")
+else()
+  message("* Build with modules              : No")
+endif()
+
 if( TOOLS )
   message("* Build map/vmap tools            : Yes")
   add_definitions(-DNO_CORE_FUNCS)

@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
+#include <unordered_map>
 
 enum ItemModType
 {

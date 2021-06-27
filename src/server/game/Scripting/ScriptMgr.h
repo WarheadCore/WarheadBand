@@ -1435,7 +1435,7 @@ public: /* Initialization */
     void FillSpellSummary();
     void CheckIfScriptsInDatabaseExist();
 
-    const char* ScriptsVersion() const { return "Integrated Trinity Scripts"; }
+    const char* ScriptsVersion() const { return "Integrated Azeroth Scripts"; }
 
     void IncrementScriptCount() { ++_scriptCount; }
     uint32 GetScriptCount() const { return _scriptCount; }

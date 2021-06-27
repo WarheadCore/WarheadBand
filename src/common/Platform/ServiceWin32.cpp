@@ -129,7 +129,9 @@ bool WinServiceUninstall()
             if (QueryServiceStatus(service, &serviceStatus2))
             {
                 if (serviceStatus2.dwCurrentState == SERVICE_STOPPED)
+                {
                     DeleteService(service);
+                }
             }
             CloseServiceHandle(service);
         }
@@ -169,10 +171,14 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
         default:
             if ( controlCode >= 128 && controlCode <= 255 )
                 // user defined control code
+            {
                 break;
+            }
             else
                 // unrecognized control code
+            {
                 break;
+            }
     }
 
     SetServiceStatus(serviceStatusHandle, &serviceStatus);
@@ -200,7 +206,7 @@ void WINAPI ServiceMain(DWORD argc, char* argv[])
 
         for (i = 0; i < std::strlen(path); i++)
         {
-            if (path[i] == '\\') last_slash = i;
+            if (path[i] == '\\') { last_slash = i; }
         }
 
         path[last_slash] = 0;

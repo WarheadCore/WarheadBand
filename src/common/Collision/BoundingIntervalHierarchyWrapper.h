@@ -39,9 +39,13 @@ class WH_COMMON_API BIHWrap
         bool operator() (const G3D::Ray& ray, uint32 idx, float& maxDist, bool stopAtFirstHit)
         {
             if (idx >= objects_size)
+            {
                 return false;
+            }
             if (const T* obj = objects[idx])
+            {
                 return _callback(ray, *obj, maxDist, stopAtFirstHit);
+            }
             return false;
         }
 
@@ -49,9 +53,13 @@ class WH_COMMON_API BIHWrap
         void operator() (const G3D::Vector3& p, uint32 idx)
         {
             if (idx >= objects_size)
+            {
                 return;
+            }
             if (const T* obj = objects[idx])
+            {
                 _callback(p, *obj);
+            }
         }
     };
 
@@ -78,15 +86,21 @@ public:
         uint32 Idx = 0;
         const T* temp;
         if (m_obj2Idx.getRemove(&obj, temp, Idx))
+        {
             m_objects[Idx] = nullptr;
+        }
         else
+        {
             m_objects_to_push.remove(&obj);
+        }
     }
 
     void balance()
     {
         if (unbalanced_times == 0)
+        {
             return;
+        }
 
         unbalanced_times = 0;
         m_objects.fastClear();

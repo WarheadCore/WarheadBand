@@ -75,7 +75,6 @@ FOREACH(subdir ${sub_DIRS})
 
     STRING(REGEX REPLACE "^${CMAKE_SOURCE_DIR}/" "" subdir_rel ${subdir})
     if(EXISTS "${subdir}/CMakeLists.txt")
-        message("Loading module: ${subdir_rel}")
         add_subdirectory("${subdir_rel}")
     endif()
 ENDFOREACH()

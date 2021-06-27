@@ -16,7 +16,6 @@
  */
 
 #include "AccountMgr.h"
-#include "CryptoHash.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "ObjectAccessor.h"

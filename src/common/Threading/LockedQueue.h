@@ -21,7 +21,7 @@
 #include <deque>
 #include <mutex>
 
-template <class T, typename StorageType = std::deque<T> >
+template <class T, typename StorageType = std::deque<T>>
 class LockedQueue
 {
     //! Lock access to the queue.
@@ -70,7 +70,9 @@ public:
         std::lock_guard<std::mutex> lock(_lock);
 
         if (_queue.empty())
+        {
             return false;
+        }
 
         result = _queue.front();
         _queue.pop_front();
@@ -84,11 +86,15 @@ public:
         std::lock_guard<std::mutex> lock(_lock);
 
         if (_queue.empty())
+        {
             return false;
+        }
 
         result = _queue.front();
         if (!check.Process(result))
+        {
             return false;
+        }
 
         _queue.pop_front();
         return true;
@@ -102,7 +108,9 @@ public:
         T& result = _queue.front();
 
         if (autoUnlock)
+        {
             unlock();
+        }
 
         return result;
     }

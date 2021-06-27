@@ -23,6 +23,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "QueryResult.h"
+#include <unordered_map>
 
 CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _statusTime(GameTime::GetGameTime()),
 _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }

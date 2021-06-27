@@ -272,6 +272,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
 {
     if (logChannelName.empty())
         return;
+    }
 
     std::string const& options = sConfigMgr->GetStringDefault(logChannelName, "");
     std::string const& channelName = logChannelName.substr(PREFIX_CHANNEL.length());
@@ -463,6 +464,7 @@ void Log::_writeCommand(std::string&& message, [[maybe_unused]] std::string cons
 {
     if (!Logger::has(LOGGER_GM))
         return;
+    }
 
     _Write(LOGGER_GM, LogLevel::LOG_LEVEL_INFO, std::move(message));
 }

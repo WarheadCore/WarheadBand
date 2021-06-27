@@ -101,11 +101,15 @@ public:
         BuildStats stats;
         buildHierarchy(tempTree, dat, stats);
         if (printStats)
+        {
             stats.printStats();
+        }
 
         objects.resize(dat.numPrims);
         for (uint32 i = 0; i < dat.numPrims; ++i)
+        {
             objects[i] = dat.indices[i];
+        }
         //nObjects = dat.numPrims;
         tree = tempTree;
         delete[] dat.primBound;
@@ -129,20 +133,30 @@ public:
                 float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
                 float t2 = (bounds.high()[i] - org[i]) * invDir[i];
                 if (t1 > t2)
+                {
                     std::swap(t1, t2);
+                }
                 if (t1 > intervalMin)
+                {
                     intervalMin = t1;
+                }
                 if (t2 < intervalMax || intervalMax < 0.f)
+                {
                     intervalMax = t2;
+                }
                 // intervalMax can only become smaller for other axis,
                 //  and intervalMin only larger respectively, so stop early
                 if (intervalMax <= 0 || intervalMin >= maxDist)
+                {
                     return;
+                }
             }
         }
 
         if (intervalMin > intervalMax)
+        {
             return;
+        }
         intervalMin = std::max(intervalMin, 0.f);
         intervalMax = std::min(intervalMax, maxDist);
 
@@ -185,7 +199,9 @@ public:
                         float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
                         // ray passes between clip zones
                         if (tf < intervalMin && tb > intervalMax)
+                        {
                             break;
+                        }
                         int back = offset + offsetBack3[axis];
                         node = back;
                         // ray passes through far node only
@@ -218,7 +234,7 @@ public:
                         while (n > 0)
                         {
                             bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirstHit);
-                            if (stopAtFirstHit && hit) return;
+                            if (stopAtFirstHit && hit) { return; }
                             --n;
                             ++offset;
                         }
@@ -228,14 +244,18 @@ public:
                 else
                 {
                     if (axis > 2)
-                        return; // should not happen
+                    {
+                        return;    // should not happen
+                    }
                     float tf = (intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                     float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
                     node = offset;
                     intervalMin = (tf >= intervalMin) ? tf : intervalMin;
                     intervalMax = (tb <= intervalMax) ? tb : intervalMax;
                     if (intervalMin > intervalMax)
+                    {
                         break;
+                    }
                     continue;
                 }
             } // traversal loop
@@ -243,12 +263,16 @@ public:
             {
                 // stack is empty?
                 if (stackPos == 0)
+                {
                     return;
+                }
                 // move back up the stack
                 stackPos--;
                 intervalMin = stack[stackPos].tnear;
                 if (maxDist < intervalMin)
+                {
                     continue;
+                }
                 node = stack[stackPos].node;
                 intervalMax = stack[stackPos].tfar;
                 break;
@@ -260,7 +284,9 @@ public:
     void intersectPoint(const G3D::Vector3& p, IsectCallback& intersectCallback) const
     {
         if (!bounds.contains(p))
+        {
             return;
+        }
 
         StackNode stack[MAX_STACK_SIZE];
         int stackPos = 0;
@@ -283,7 +309,9 @@ public:
                         float tr = intBitsToFloat(tree[node + 2]);
                         // point is between clip zones
                         if (tl < p[axis] && tr > p[axis])
+                        {
                             break;
+                        }
                         int right = offset + 3;
                         node = right;
                         // point is in right node only
@@ -319,19 +347,25 @@ public:
                 else // BVH2 node (empty space cut off left and right)
                 {
                     if (axis > 2)
-                        return; // should not happen
+                    {
+                        return;    // should not happen
+                    }
                     float tl = intBitsToFloat(tree[node + 1]);
                     float tr = intBitsToFloat(tree[node + 2]);
                     node = offset;
                     if (tl > p[axis] || tr < p[axis])
+                    {
                         break;
+                    }
                     continue;
                 }
             } // traversal loop
 
             // stack is empty?
             if (stackPos == 0)
+            {
                 return;
+            }
             // move back up the stack
             stackPos--;
             node = stack[stackPos].node;
@@ -377,7 +411,7 @@ protected:
     public:
         BuildStats()
         {
-            for (int & i : numLeavesN) i = 0;
+            for (int& i : numLeavesN) { i = 0; }
         }
 
         void updateInner() { numNodes++; }

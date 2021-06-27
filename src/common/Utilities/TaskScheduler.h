@@ -304,7 +304,9 @@ public:
                 return true;
             }
             else
+            {
                 return false;
+            }
         });
         return *this;
     }
@@ -352,7 +354,9 @@ public:
                 return true;
             }
             else
+            {
                 return false;
+            }
         });
         return *this;
     }

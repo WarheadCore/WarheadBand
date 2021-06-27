@@ -101,7 +101,9 @@ namespace Warhead
     {
         CountedPtr<SPECIFIC_TYPE>& t = Find(elements._elements, hdl, fake);
         if (!t)
+        {
             t = Find(elements._TailElement, hdl, fake);
+        }
 
         return t;
     }

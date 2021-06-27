@@ -29,7 +29,9 @@ namespace MMAP
     MMapManager* MMapFactory::createOrGetMMapManager()
     {
         if (g_MMapManager == nullptr)
+        {
             g_MMapManager = new MMapManager();
+        }
 
         return g_MMapManager;
     }
@@ -40,7 +42,9 @@ namespace MMAP
         int32 f[] = {616 /*EoE*/, 649 /*ToC25*/, 650 /*ToC5*/, -1};
         uint32 i = 0;
         while (f[i] >= 0)
+        {
             forbiddenMaps[f[i++]] = true;
+        }
     }
 
     void MMapFactory::clear()

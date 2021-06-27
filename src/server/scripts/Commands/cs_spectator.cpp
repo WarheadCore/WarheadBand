@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+ */
 
 /*
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
@@ -20,9 +23,6 @@
 #include "ArenaSpectator.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
-#include "LFGMgr.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "World.h"

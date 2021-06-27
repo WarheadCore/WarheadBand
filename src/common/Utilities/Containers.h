@@ -66,7 +66,9 @@ namespace Warhead
         void check() const
         {
             if (!(_buf < _end))
+            {
                 throw std::out_of_range("index");
+            }
         }
     };
 }
@@ -81,7 +83,10 @@ namespace Warhead::Containers
         static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Warhead::Containers::RandomResize");
 
         if (std::size(container) <= requestedSize)
+        {
             return;
+        }
+
         auto keepIt = std::begin(container), curIt = std::begin(container);
         uint32 elementsToKeep = requestedSize, elementsToProcess = std::size(container);
         while (elementsToProcess)
@@ -90,7 +95,10 @@ namespace Warhead::Containers
             if (urand(1, elementsToProcess) <= elementsToKeep)
             {
                 if (keepIt != curIt)
+                {
                     *keepIt = std::move(*curIt);
+                }
+
                 ++keepIt;
                 --elementsToKeep;
             }
@@ -108,7 +116,9 @@ namespace Warhead::Containers
         std::copy_if(std::begin(container), std::end(container), std::inserter(containerCopy, std::end(containerCopy)), predicate);
 
         if (requestedSize)
+        {
             RandomResize(containerCopy, requestedSize);
+        }
 
         container = std::move(containerCopy);
     }
@@ -164,7 +174,9 @@ namespace Warhead::Containers
             weightSum += weight;
         }
         if (weightSum <= 0.0)
+        {
             weights.assign(std::size(container), 1.0);
+        }
 
         return SelectRandomWeightedContainerElement(container, weights);
     }
@@ -227,9 +239,13 @@ namespace Warhead::Containers
         for (auto itr = range.first; itr != range.second;)
         {
             if (itr->second == value)
+            {
                 itr = multimap.erase(itr);
+            }
             else
+            {
                 ++itr;
+            }
         }
     }
 
