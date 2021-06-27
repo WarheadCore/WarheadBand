@@ -34,7 +34,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     uint32 oldMSTime = getMSTime();
 
     // check flags which clean ups are necessary
-    QueryResult result = CharacterDatabase.PQuery("SELECT value FROM worldstates WHERE entry = %d", WS_CLEANING_FLAGS);
+    QueryResult result = CharacterDatabase.PQuery("SELECT value FROM worldstates WHERE entry = {}", WS_CLEANING_FLAGS);
     if (!result)
         return;
 
@@ -69,7 +69,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
 void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
 {
-    QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
+    QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT {} FROM {}", column, table);
     if (!result)
     {
         LOG_INFO("sql.sql", "Table {} is empty.", table);

@@ -106,7 +106,7 @@ namespace Warhead
 
     void Error(char const* file, int line, char const* function, char const* message)
     {
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  %s\n", file, line, function, message);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  {}\n", file, line, function, message);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());
@@ -143,7 +143,7 @@ namespace Warhead
     void AbortHandler(int sigval)
     {
         // nothing useful to log here, no way to pass args
-        std::string formattedMessage = StringFormat("Caught signal %i\n", sigval);
+        std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());

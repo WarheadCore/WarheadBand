@@ -88,7 +88,7 @@ void ChannelMgr::LoadChannels()
         newChannel->SetPassword(password);
         mgr->channels[channelWName] = newChannel;
 
-        if (QueryResult banResult = CharacterDatabase.PQuery("SELECT playerGUID, banTime FROM channels_bans WHERE channelId = %u", channelDBId))
+        if (QueryResult banResult = CharacterDatabase.PQuery("SELECT playerGUID, banTime FROM channels_bans WHERE channelId = {}", channelDBId))
         {
             do
             {

@@ -137,7 +137,7 @@ void ModuleLocale::LoadModuleString()
     {
         std::string const& moduleName = itr;
 
-        result = WorldDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `string_module` WHERE `ModuleName` = '%s'", moduleName.c_str());
+        result = WorldDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `string_module` WHERE `ModuleName` = '{}'", moduleName);
         if (!result)
         {
             LOG_ERROR("sql.sql", "> Strings for module {} is bad!", moduleName);
