@@ -89,9 +89,9 @@ public:
     void outCharDump(std::string_view str, uint32 accountId, uint64 guid, std::string_view name);
 
     template<typename... Args>
-    inline void outMessage(std::string_view filter, LogLevel const level, std::string_view fmt, Args&& ... args)
+    inline void outMessage(std::string const& filter, LogLevel const level, std::string_view fmt, Args&&... args)
     {
-        outMessage(filter, level, fmt::format(fmt, std::forward<Args>(args)...));
+        _outMessage(filter, level, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template<typename Format, typename... Args>
@@ -100,15 +100,15 @@ public:
         if (!ShouldLog("commands.gm", LogLevel::LOG_LEVEL_INFO))
             return;
 
-        outCommand(fmt::to_string(account), fmt::format(fmt, std::forward<Args>(args)...));
+        _outCommand(fmt::to_string(account), Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
     }
 
 private:
     void _Write(std::string_view filter, LogLevel const level, std::string_view message);
     void _WriteCommand(std::string_view, [[maybe_unused]] std::string_view accountid);
 
-    void outMessage(std::string_view filter, LogLevel const level, std::string_view message);
-    void outCommand(std::string_view accountID, std::string_view message);
+    void _outMessage(std::string_view filter, LogLevel const level, std::string_view message);
+    void _outCommand(std::string_view accountID, std::string_view message);
 
     void CreateLoggerFromConfig(std::string const& configLoggerName);
     void CreateChannelsFromConfig(std::string const& logChannelName);

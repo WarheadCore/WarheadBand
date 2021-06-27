@@ -60,7 +60,7 @@ public:
     template<typename... Args>
     void PSendSysMessage(char const* fmt, Args&&... args)
     {
-        SendSysMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...).c_str());
+        SendSysMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
     template<typename... Args>

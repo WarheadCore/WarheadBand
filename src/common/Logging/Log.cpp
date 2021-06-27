@@ -467,12 +467,12 @@ void Log::_WriteCommand(std::string_view message, [[maybe_unused]] std::string_v
     _Write(LOGGER_GM, LogLevel::LOG_LEVEL_INFO, message);
 }
 
-void Log::outMessage(std::string_view filter, LogLevel const level, std::string_view message)
+void Log::_outMessage(std::string_view filter, LogLevel const level, std::string_view message)
 {
     _Write(filter, level, message);
 }
 
-void Log::outCommand(std::string_view accountID, std::string_view message)
+void Log::_outCommand(std::string_view accountID, std::string_view message)
 {
     _WriteCommand(message, accountID);
 }

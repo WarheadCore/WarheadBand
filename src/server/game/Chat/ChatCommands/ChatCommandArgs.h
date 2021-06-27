@@ -273,9 +273,9 @@ namespace Warhead::Impl::ChatCommands
                     if (!nestedResult.HasErrorMessage())
                         return thisResult;
                     if (StringStartsWith(nestedResult.GetErrorMessage(), "\""))
-                        return Warhead::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetWarheadString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Warhead::StringFormat("\"{}\"\n{} {}", thisResult.GetErrorMessage(), GetWarheadString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage());
                     else
-                        return Warhead::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetWarheadString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Warhead::StringFormat("\"{}\"\n{} \"{}\"", thisResult.GetErrorMessage(), GetWarheadString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage());
                 }
             }
             else
@@ -286,7 +286,7 @@ namespace Warhead::Impl::ChatCommands
         {
             ChatCommandResult result = TryAtIndex<0>(val, handler, args);
             if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
-                return Warhead::StringFormat("%s %s", GetWarheadString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
+                return Warhead::StringFormat("{} {}", GetWarheadString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage());
             return result;
         }
     };

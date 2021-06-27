@@ -189,11 +189,11 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                 if (hadOldSecret)
                 {
                     if (!oldSecret)
-                        return Warhead::StringFormat("Cannot decrypt old TOTP tokens - add config key '%s' to authserver.conf!", secret_info[i].oldKey);
+                        return Warhead::StringFormat("Cannot decrypt old TOTP tokens - add config key '{}' to authserver.conf!", secret_info[i].oldKey);
 
                     bool success = Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(totpSecret, oldSecret->ToByteArray<Warhead::Crypto::AES::KEY_SIZE_BYTES>());
                     if (!success)
-                        return Warhead::StringFormat("Cannot decrypt old TOTP tokens - value of '%s' is incorrect for some users!", secret_info[i].oldKey);
+                        return Warhead::StringFormat("Cannot decrypt old TOTP tokens - value of '{}' is incorrect for some users!", secret_info[i].oldKey);
                 }
 
                 if (newSecret)

@@ -154,7 +154,7 @@ public:
             if (!arenaType)
                 return std::nullopt;
 
-            auto arenatype = Warhead::StringFormat("%uv%u", arenaType, arenaType);
+            auto arenatype = Warhead::StringFormat("{}v{}", arenaType, arenaType);
             uint32 playersNeed = ArenaTeam::GetReqPlayersForType(arenaType);
             uint32 minLevel = std::min(bracketEntry->minLevel, (uint32)80);
             uint32 maxLevel = std::min(bracketEntry->maxLevel, (uint32)80);

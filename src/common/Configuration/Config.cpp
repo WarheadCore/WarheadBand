@@ -19,7 +19,6 @@
 #include "Log.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
-#include "SystemLog.h"
 #include "Util.h"
 #include <fstream>
 #include <mutex>
@@ -47,15 +46,19 @@ namespace
         return false;
     }
 
-    template<typename Format, typename... Args>
-    inline void PrintError(std::string_view filename, Format&& fmt, Args&& ... args)
+    template<typename... Args>
+    inline void PrintError(std::string_view filename, std::string_view fmt, Args&& ... args)
     {
-        std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        std::string message = Warhead::StringFormat(fmt, std::forward<Args>(args)...);
 
         if (IsAppConfig(filename))
+        {
             FMT_LOG_ERROR("{}", message);
+        }
         else
+        {
             LOG_ERROR("server.loading", "{}", message);
+        }
     }
 
     void AddKey(std::string const& optionName, std::string const& optionKey, bool replace = true)
@@ -80,7 +83,7 @@ namespace
         std::ifstream in(file);
 
         if (in.fail())
-            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '%s'", file.c_str()));
+            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '{}'", file));
 
         uint32 count = 0;
         uint32 lineNumber = 0;
@@ -91,7 +94,7 @@ namespace
             auto const& itr = fileConfigs.find(confOption);
             if (itr != fileConfigs.end())
             {
-                PrintError(file, "> Config::LoadFile: Dublicate key name '%s' in config file '%s'", std::string(confOption).c_str(), file.c_str());
+                PrintError(file, "> Config::LoadFile: Dublicate key name '{}' in config file '{}'", confOption, file);
                 return true;
             }
 
@@ -106,7 +109,7 @@ namespace
 
             // read line error
             if (!in.good() && !in.eof())
-                throw ConfigException(Warhead::StringFormat("> Config::LoadFile: Failure to read line number %u in file '%s'", lineNumber, file.c_str()));
+                throw ConfigException(Warhead::StringFormat("> Config::LoadFile: Failure to read line number {} in file '{}'", lineNumber, file));
 
             // remove whitespace in line
             line = Warhead::String::Trim(line, in.getloc());
@@ -153,7 +156,7 @@ namespace
         // No lines read
         if (!count)
         {
-            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Empty file '%s'", file.c_str()));
+            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Empty file '{}'", file));
         }
 
         // Add correct keys if file load without errors

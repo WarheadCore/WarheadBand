@@ -80,15 +80,15 @@ WH_COMMON_API std::string Warhead::Time::ToTimeString<Microseconds>(uint64 durat
     if (timeFormat == TimeFormat::Numeric)
     {
         if (days)
-            return Warhead::StringFormat("%u:%02u:%02u:%02u:%02u", days, hours, minutes, secs, millisecs);
+            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}:{:02}", days, hours, minutes, secs, millisecs);
         else if (hours)
-            return Warhead::StringFormat("%u:%02u:%02u:%02u", hours, minutes, secs, millisecs);
+            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}", hours, minutes, secs, millisecs);
         else if (minutes)
-            return Warhead::StringFormat("%u:%02u:%02u", minutes, secs, millisecs);
+            return Warhead::StringFormat("{}:{:02}:{:02}", minutes, secs, millisecs);
         else if (secs)
-            return Warhead::StringFormat("%u:%02u", secs, millisecs);
+            return Warhead::StringFormat("{}:{:02}", secs, millisecs);
         else // millisecs
-            return Warhead::StringFormat("%u", millisecs);
+            return Warhead::StringFormat("{}", millisecs);
     }
 
     std::ostringstream ss;
