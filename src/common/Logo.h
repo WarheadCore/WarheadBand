@@ -22,7 +22,7 @@
 
 namespace Warhead::Logo
 {
-    WH_COMMON_API void Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)());
+    WH_COMMON_API void Show(std::string_view applicationName, void(*log)(std::string_view text), void(*logExtraInfo)());
 }
 
 #endif
