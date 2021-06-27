@@ -98,7 +98,6 @@ public:
     {
         if (!ShouldLog("commands.gm", LogLevel::LOG_LEVEL_INFO))
             return;
-        }
 
         outCommand(std::to_string(account), Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
     }

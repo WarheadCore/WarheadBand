@@ -671,7 +671,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         data << uint32(mail->stationery);                               // stationery (Stationery.dbc)
         data << uint32(mail->money);                                    // Gold
         data << uint32(mail->checked);                                  // flags
-        data << float(float(mail->expire_time - time(nullptr)) / DAY);  // Time
+        data << float(float(mail->expire_time - GameTime::GetGameTime()) / DAY);  // Time
         data << uint32(mail->mailTemplateId);                           // mail template (MailTemplate.dbc)
         data << subject;                                                // Subject string - once 00, when mail type = 3, max 256
         data << body;                                                   // message? max 8000
