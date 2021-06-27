@@ -69,7 +69,7 @@ namespace Warhead
 {
     void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message)
     {
-        std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + debugInfo + '\n';
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());
@@ -80,7 +80,7 @@ namespace Warhead
         va_list args;
         va_start(args, format);
 
-        std::string formattedMessage = StringFormat("\n%s:%i in %s ASSERTION FAILED:\n  %s\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
         va_end(args);
 
         fprintf(stderr, "%s", formattedMessage.c_str());

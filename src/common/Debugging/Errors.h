@@ -76,7 +76,7 @@ WH_COMMON_API std::string GetDebugInfo();
 template <typename T>
 inline T* ASSERT_NOTNULL_IMPL(T* pointer, char const* expr)
 {
-    ASSERT(pointer, "%s", expr);
+    ASSERT(pointer, "{}", expr);
     return pointer;
 }
 
