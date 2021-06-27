@@ -1041,7 +1041,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
 
     if (!spellInfo)
     {
-        LOG_ERROR("spells.effect", "Spell::EffectForceCast of spell {}: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
+        LOG_ERROR("spells.effect", "Spell::EffectForceCast of spell {}: triggering unknown spell id {}", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -1090,7 +1090,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
 
     if (!spellInfo)
     {
-        LOG_ERROR("spells.effect", "EffectTriggerRitualOfSummoning of spell {}: triggering unknown spell id %i", m_spellInfo->Id, triggered_spell_id);
+        LOG_ERROR("spells.effect", "EffectTriggerRitualOfSummoning of spell {}: triggering unknown spell id {}", m_spellInfo->Id, triggered_spell_id);
         return;
     }
 
@@ -1658,7 +1658,7 @@ void Spell::EffectHealthLeech(SpellEffIndex  /*effIndex*/)
     damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
     damage = unitTarget->SpellDamageBonusTaken(m_caster, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
 
-    LOG_DEBUG("spells.aura", "HealthLeech :%i", damage);
+    LOG_DEBUG("spells.aura", "HealthLeech :{}", damage);
 
     // xinef: handled in spell.cpp
     //float healMultiplier = m_spellInfo->Effects[effIndex].CalcValueMultiplier(m_originalCaster, this);
@@ -3008,7 +3008,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
         if (!spellInfo)
         {
-            LOG_ERROR("spells.effect", "Spell::EffectEnchantItemTmp: unknown spell id %i", spell_id);
+            LOG_ERROR("spells.effect", "Spell::EffectEnchantItemTmp: unknown spell id {}", spell_id);
             return;
         }
 

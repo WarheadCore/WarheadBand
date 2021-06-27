@@ -44,15 +44,15 @@ void SetProcessPriority(std::string const& logChannel, uint32 affinity, bool hig
 
             if (!currentAffinity)
             {
-                LOG_ERROR(logChannel, "Processors marked in UseProcessors bitmask (hex) %x are not accessible. Accessible processors bitmask (hex): %x", affinity, appAff);
+                LOG_ERROR(logChannel, "Processors marked in UseProcessors bitmask (hex) {:x} are not accessible. Accessible processors bitmask (hex): {:x}", affinity, appAff);
             }
             else if (SetProcessAffinityMask(hProcess, currentAffinity))
             {
-                LOG_INFO(logChannel, "Using processors (bitmask, hex): %x", currentAffinity);
+                LOG_INFO(logChannel, "Using processors (bitmask, hex): {:x}", currentAffinity);
             }
             else
             {
-                LOG_ERROR(logChannel, "Can't set used processors (hex): %x", currentAffinity);
+                LOG_ERROR(logChannel, "Can't set used processors (hex): {:x}", currentAffinity);
             }
         }
     }
@@ -84,7 +84,7 @@ void SetProcessPriority(std::string const& logChannel, uint32 affinity, bool hig
 
         if (sched_setaffinity(0, sizeof(mask), &mask))
         {
-            LOG_ERROR(logChannel, "Can't set used processors (hex): %x, error: {}", affinity, strerror(errno));
+            LOG_ERROR(logChannel, "Can't set used processors (hex): {:x}, error: {}", affinity, strerror(errno));
         }
         else
         {
@@ -102,7 +102,7 @@ void SetProcessPriority(std::string const& logChannel, uint32 affinity, bool hig
         }
         else
         {
-            LOG_INFO(logChannel, "Process priority class set to %i", getpriority(PRIO_PROCESS, 0));
+            LOG_INFO(logChannel, "Process priority class set to {}", getpriority(PRIO_PROCESS, 0));
         }
     }
 

@@ -940,7 +940,7 @@ void MovementInfo::OutDebug()
         LOG_INFO("movement", "TRANSPORT:");
         LOG_INFO("movement", "guid: {}", transport.guid.ToString());
         LOG_INFO("movement", "position: `{}`", transport.pos.ToString());
-        LOG_INFO("movement", "seat: %i", transport.seat);
+        LOG_INFO("movement", "seat: {}", transport.seat);
         LOG_INFO("movement", "time: {}", transport.time);
 
         if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
@@ -1940,7 +1940,7 @@ namespace Warhead
                 ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, text, 0, "", loc_idx);
             }
             else
-                LOG_ERROR("entities.object", "MonsterChatBuilder: `broadcast_text` id %i missing", i_textId);
+                LOG_ERROR("entities.object", "MonsterChatBuilder: `broadcast_text` id {} missing", i_textId);
         }
 
     private:

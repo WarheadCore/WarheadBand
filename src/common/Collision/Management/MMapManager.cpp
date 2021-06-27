@@ -166,7 +166,7 @@ namespace MMAP
 
         if (fileHeader.mmapVersion != MMAP_VERSION)
         {
-            LOG_ERROR("maps", "MMAP:loadMap: {:03}{:02}{:02}.mmtile was built with generator v%i, expected v%i",
+            LOG_ERROR("maps", "MMAP:loadMap: {:03}{:02}{:02}.mmtile was built with generator v{}, expected v{}",
                            mapId, x, y, fileHeader.mmapVersion, MMAP_VERSION);
             fclose(file);
             return false;

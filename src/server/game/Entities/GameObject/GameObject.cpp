@@ -1570,7 +1570,7 @@ void GameObject::Use(Unit* user)
 
                             int32 roll = irand(1, 100);
 
-                            LOG_DEBUG("entities.gameobject", "Fishing check (skill: %i zone min skill: %i chance %i roll: %i", skill, zone_skill, chance, roll);
+                            LOG_DEBUG("entities.gameobject", "Fishing check (skill: {} zone min skill: {} chance {} roll: {}", skill, zone_skill, chance, roll);
 
                             // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
                             if (chance >= roll)

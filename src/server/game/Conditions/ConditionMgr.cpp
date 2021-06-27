@@ -944,7 +944,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         {
             if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skip
             {
-                LOG_ERROR("sql.sql", "Condition reference %i is referencing self, skipped", iSourceTypeOrReferenceId);
+                LOG_ERROR("sql.sql", "Condition reference {} is referencing self, skipped", iSourceTypeOrReferenceId);
                 delete cond;
                 continue;
             }
@@ -955,19 +955,19 @@ void ConditionMgr::LoadConditions(bool isReload)
                 rowType = "reference";
             //check for useless data
             if (cond->ConditionTarget)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in ConditionTarget ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionTarget);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in ConditionTarget ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionTarget);
             if (cond->ConditionValue1)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in value1 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in value1 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
             if (cond->ConditionValue2)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in value2 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in value2 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
             if (cond->ConditionValue3)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in value3 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in value3 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
             if (cond->NegativeCondition)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in NegativeCondition ({})!", rowType, iSourceTypeOrReferenceId, cond->NegativeCondition);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in NegativeCondition ({})!", rowType, iSourceTypeOrReferenceId, cond->NegativeCondition);
             if (cond->SourceGroup && iSourceTypeOrReferenceId < 0)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in SourceGroup ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceGroup);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in SourceGroup ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceGroup);
             if (cond->SourceEntry && iSourceTypeOrReferenceId < 0)
-                LOG_ERROR("sql.sql", "Condition {} %i has useless data in SourceEntry ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceEntry);
+                LOG_ERROR("sql.sql", "Condition {} {} has useless data in SourceEntry ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceEntry);
         }
         else if (!isConditionTypeValid(cond))//doesn't have reference, validate ConditionType
         {
@@ -1011,13 +1011,13 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         if (cond->ErrorType && cond->SourceType != CONDITION_SOURCE_TYPE_SPELL)
         {
-            LOG_ERROR("condition", "Condition type {} entry %i can't have ErrorType ({}), set to 0!", uint32(cond->SourceType), cond->SourceEntry, cond->ErrorType);
+            LOG_ERROR("condition", "Condition type {} entry {} can't have ErrorType ({}), set to 0!", uint32(cond->SourceType), cond->SourceEntry, cond->ErrorType);
             cond->ErrorType = 0;
         }
 
         if (cond->ErrorTextId && !cond->ErrorType)
         {
-            LOG_ERROR("condition", "Condition type {} entry %i has any ErrorType, ErrorTextId ({}) is set, set to 0!", uint32(cond->SourceType), cond->SourceEntry, cond->ErrorTextId);
+            LOG_ERROR("condition", "Condition type {} entry {} has any ErrorType, ErrorTextId ({}) is set, set to 0!", uint32(cond->SourceType), cond->SourceEntry, cond->ErrorTextId);
             cond->ErrorTextId = 0;
         }
 

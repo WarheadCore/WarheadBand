@@ -69,7 +69,7 @@ void Graveyard::LoadGraveyardFromDB()
         ++Count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %i graveyard in {} ms", Count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} graveyard in {} ms", Count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

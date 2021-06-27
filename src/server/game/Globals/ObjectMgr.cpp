@@ -2568,18 +2568,18 @@ void ObjectMgr::LoadItemTemplates()
 
         if (itemTemplate.MaxCount < -1)
         {
-            LOG_ERROR("sql.sql", "Item (Entry: {}) has too large negative in maxcount (%i), replace by value (-1) no storing limits.", entry, itemTemplate.MaxCount);
+            LOG_ERROR("sql.sql", "Item (Entry: {}) has too large negative in maxcount ({}), replace by value (-1) no storing limits.", entry, itemTemplate.MaxCount);
             itemTemplate.MaxCount = -1;
         }
 
         if (itemTemplate.Stackable == 0)
         {
-            LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong value in stackable (%i), replace by default 1.", entry, itemTemplate.Stackable);
+            LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong value in stackable ({}), replace by default 1.", entry, itemTemplate.Stackable);
             itemTemplate.Stackable = 1;
         }
         else if (itemTemplate.Stackable < -1)
         {
-            LOG_ERROR("sql.sql", "Item (Entry: {}) has too large negative in stackable (%i), replace by value (-1) no stacking limits.", entry, itemTemplate.Stackable);
+            LOG_ERROR("sql.sql", "Item (Entry: {}) has too large negative in stackable ({}), replace by value (-1) no stacking limits.", entry, itemTemplate.Stackable);
             itemTemplate.Stackable = -1;
         }
 
@@ -3166,7 +3166,7 @@ void ObjectMgr::LoadPetLevelInfo()
         {
             if (pInfo[level].health == 0)
             {
-                LOG_ERROR("sql.sql", "Creature {} has no data for Level %i pet stats data, using data of Level %i.", itr->first, level + 1, level);
+                LOG_ERROR("sql.sql", "Creature {} has no data for Level {} pet stats data, using data of Level {}.", itr->first, level + 1, level);
                 pInfo[level] = pInfo[level - 1];
             }
         }
@@ -3198,7 +3198,7 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
     else
     {
         if (count < -1)
-            LOG_ERROR("sql.sql", "Invalid count %i specified on item {} be removed from original player create info (use -1)!", count, itemId);
+            LOG_ERROR("sql.sql", "Invalid count {} specified on item {} be removed from original player create info (use -1)!", count, itemId);
 
         for (uint32 gender = 0; gender < GENDER_NONE; ++gender)
         {
@@ -3621,7 +3621,7 @@ void ObjectMgr::LoadPlayerInfo()
             // fatal error if no level 1 data
             if (!pClassInfo->levelInfo || pClassInfo->levelInfo[0].basehealth == 0)
             {
-                LOG_ERROR("sql.sql", "Class %i Level 1 does not have health/mana data!", class_);
+                LOG_ERROR("sql.sql", "Class {} Level 1 does not have health/mana data!", class_);
                 exit(1);
             }
 
@@ -3630,7 +3630,7 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 if (pClassInfo->levelInfo[level].basehealth == 0)
                 {
-                    LOG_ERROR("sql.sql", "Class %i Level %i does not have health/mana data. Using stats data of level %i.", class_, level + 1, level);
+                    LOG_ERROR("sql.sql", "Class {} Level {} does not have health/mana data. Using stats data of level {}.", class_, level + 1, level);
                     pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level - 1];
                 }
             }
@@ -3729,7 +3729,7 @@ void ObjectMgr::LoadPlayerInfo()
                 // fatal error if no level 1 data
                 if (!info->levelInfo || info->levelInfo[0].stats[0] == 0)
                 {
-                    LOG_ERROR("sql.sql", "Race %i Class %i Level 1 does not have stats data!", race, class_);
+                    LOG_ERROR("sql.sql", "Race {} Class {} Level 1 does not have stats data!", race, class_);
                     exit(1);
                 }
 
@@ -3738,7 +3738,7 @@ void ObjectMgr::LoadPlayerInfo()
                 {
                     if (info->levelInfo[level].stats[0] == 0)
                     {
-                        LOG_ERROR("sql.sql", "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level + 1, level);
+                        LOG_ERROR("sql.sql", "Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, class_, level + 1, level);
                         info->levelInfo[level] = info->levelInfo[level - 1];
                     }
                 }
@@ -3798,7 +3798,7 @@ void ObjectMgr::LoadPlayerInfo()
         {
             if (_playerXPperLevel[level] == 0)
             {
-                LOG_ERROR("sql.sql", "Level %i does not have XP for level data. Using data of level [%i] + 100.", level + 1, level);
+                LOG_ERROR("sql.sql", "Level {} does not have XP for level data. Using data of level [{}] + 100.", level + 1, level);
                 _playerXPperLevel[level] = _playerXPperLevel[level - 1] + 100;
             }
         }
@@ -4167,7 +4167,7 @@ void ObjectMgr::LoadQuests()
             QuestSortEntry const* qSort = sQuestSortStore.LookupEntry(-int32(qinfo->ZoneOrSort));
             if (!qSort)
             {
-                LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = %i (sort case) but quest sort with this id does not exist.",
+                LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = {} (sort case) but quest sort with this id does not exist.",
                                  qinfo->GetQuestId(), qinfo->ZoneOrSort);
                 // no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
             }
@@ -4176,7 +4176,7 @@ void ObjectMgr::LoadQuests()
             {
                 if (qinfo->RequiredSkillId != skill_id)
                 {
-                    LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = %i but `RequiredSkillId` does not have a corresponding value ({}).",
+                    LOG_ERROR("sql.sql", "Quest {} has `ZoneOrSort` = {} but `RequiredSkillId` does not have a corresponding value ({}).",
                                      qinfo->GetQuestId(), qinfo->ZoneOrSort, skill_id);
                     //override, and force proper value here?
                 }
@@ -4396,14 +4396,14 @@ void ObjectMgr::LoadQuests()
             int32 id = qinfo->RequiredNpcOrGo[j];
             if (id < 0 && !sObjectMgr->GetGameObjectTemplate(-id))
             {
-                LOG_ERROR("sql.sql", "Quest {} has `RequiredNpcOrGo{}` = %i but gameobject {} does not exist, quest can't be done.",
+                LOG_ERROR("sql.sql", "Quest {} has `RequiredNpcOrGo{}` = {} but gameobject {} does not exist, quest can't be done.",
                                  qinfo->GetQuestId(), j + 1, id, uint32(-id));
                 qinfo->RequiredNpcOrGo[j] = 0;            // quest can't be done for this requirement
             }
 
             if (id > 0 && !sObjectMgr->GetCreatureTemplate(id))
             {
-                LOG_ERROR("sql.sql", "Quest {} has `RequiredNpcOrGo{}` = %i but creature with entry {} does not exist, quest can't be done.",
+                LOG_ERROR("sql.sql", "Quest {} has `RequiredNpcOrGo{}` = {} but creature with entry {} does not exist, quest can't be done.",
                                  qinfo->GetQuestId(), j + 1, id, uint32(id));
                 qinfo->RequiredNpcOrGo[j] = 0;            // quest can't be done for this requirement
             }
@@ -4489,7 +4489,7 @@ void ObjectMgr::LoadQuests()
             {
                 if (abs(qinfo->RewardFactionValueId[j]) > 9)
                 {
-                    LOG_ERROR("sql.sql", "Quest {} has RewardFactionValueId{} = %i. That is outside the range of valid values (-9 to 9).", qinfo->GetQuestId(), j + 1, qinfo->RewardFactionValueId[j]);
+                    LOG_ERROR("sql.sql", "Quest {} has RewardFactionValueId{} = {}. That is outside the range of valid values (-9 to 9).", qinfo->GetQuestId(), j + 1, qinfo->RewardFactionValueId[j]);
                 }
                 if (!sFactionStore.LookupEntry(qinfo->RewardFactionId[j]))
                 {
@@ -4500,7 +4500,7 @@ void ObjectMgr::LoadQuests()
 
             else if (qinfo->RewardFactionValueIdOverride[j] != 0)
             {
-                LOG_ERROR("sql.sql", "Quest {} has `RewardFactionId{}` = 0 but `RewardFactionValueIdOverride{}` = %i.",
+                LOG_ERROR("sql.sql", "Quest {} has `RewardFactionId{}` = 0 but `RewardFactionValueIdOverride{}` = {}.",
                                  qinfo->GetQuestId(), j + 1, j + 1, qinfo->RewardFactionValueIdOverride[j]);
                 // no changes, quest ignore this data
             }
@@ -4599,7 +4599,7 @@ void ObjectMgr::LoadQuests()
         {
             if (_questTemplates.find(abs(qinfo->GetPrevQuestId())) == _questTemplates.end())
             {
-                LOG_ERROR("sql.sql", "Quest {} has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
+                LOG_ERROR("sql.sql", "Quest {} has PrevQuestId {}, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
             }
             else
             {
@@ -4724,7 +4724,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     }
                     if (!tmp.Talk.TextID)
                     {
-                        LOG_ERROR("sql.sql", "Table `{}` has invalid talk text id (dataint = %i) in SCRIPT_COMMAND_TALK for script id {}",
+                        LOG_ERROR("sql.sql", "Table `{}` has invalid talk text id (dataint = {}) in SCRIPT_COMMAND_TALK for script id {}",
                                          tableName.c_str(), tmp.Talk.TextID, tmp.id);
                         continue;
                     }
@@ -6304,7 +6304,7 @@ inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32 
     if (dataN <= (UNIT_STAND_STATE_SIT_HIGH_CHAIR - UNIT_STAND_STATE_SIT_LOW_CHAIR))
         return;
 
-    LOG_ERROR("sql.sql", "Gameobject (Entry: {} GoType: {}) have data{}={} but correct chair height in range 0..%i.",
+    LOG_ERROR("sql.sql", "Gameobject (Entry: {} GoType: {}) have data{}={} but correct chair height in range 0..{}.",
                      goInfo->entry, goInfo->type, N, dataN, UNIT_STAND_STATE_SIT_HIGH_CHAIR - UNIT_STAND_STATE_SIT_LOW_CHAIR);
 
     // prevent client and server unexpected work

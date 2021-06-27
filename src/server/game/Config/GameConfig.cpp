@@ -732,7 +732,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
             int32 configValue = sConfigMgr->GetOption<int32>(optionName, optionValue);
 
             if (configValue != optionValue)
-                LOG_ERROR("server.loading", "{} option can't be changed at worldserver.conf reload, using current value (%i)", optionName, optionValue);
+                LOG_ERROR("server.loading", "{} option can't be changed at worldserver.conf reload, using current value ({})", optionName, optionValue);
 
             SetOption<int32>(optionName, optionValue);
         }
@@ -830,21 +830,21 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("Compression");
     if (tempIntOption < 1 || tempIntOption > 9)
     {
-        LOG_ERROR("server.loading", "Compression level (%i) must be in range 1..9. Using default compression level (1).", tempIntOption);
+        LOG_ERROR("server.loading", "Compression level ({}) must be in range 1..9. Using default compression level (1).", tempIntOption);
         SetOption<int32>("Compression", 1);
     }
 
     tempIntOption = CONF_GET_INT("PlayerSave.Stats.MinLevel");
     if (tempIntOption > MAX_LEVEL)
     {
-        LOG_ERROR("game.config", "PlayerSave.Stats.MinLevel (%i) must be in range 0..80. Using default, do not save character stats (0).", tempIntOption);
+        LOG_ERROR("game.config", "PlayerSave.Stats.MinLevel ({}) must be in range 0..80. Using default, do not save character stats (0).", tempIntOption);
         SetOption<int32>("PlayerSave.Stats.MinLevel", 0);
     }
 
     tempIntOption = CONF_GET_INT("MapUpdateInterval");
     if (tempIntOption < MIN_MAP_UPDATE_DELAY)
     {
-        LOG_ERROR("server.loading", "MapUpdateInterval (%i) must be greater {}. Use this minimal value.", tempIntOption, MIN_MAP_UPDATE_DELAY);
+        LOG_ERROR("server.loading", "MapUpdateInterval ({}) must be greater {}. Use this minimal value.", tempIntOption, MIN_MAP_UPDATE_DELAY);
         SetOption<int32>("MapUpdateInterval", MIN_MAP_UPDATE_DELAY);
     }
 
@@ -868,7 +868,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     int32 charactersPerRealm = CONF_GET_INT("CharactersPerRealm");
     if (charactersPerRealm < 1 || charactersPerRealm > 10)
     {
-        LOG_ERROR("server.loading", "CharactersPerRealm (%i) must be in range 1..10. Set to 10.", charactersPerRealm);
+        LOG_ERROR("server.loading", "CharactersPerRealm ({}) must be in range 1..10. Set to 10.", charactersPerRealm);
         SetOption<int32>("CharactersPerRealm", 10);
     }
 
@@ -876,64 +876,64 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("CharactersPerAccount");
     if (tempIntOption < charactersPerRealm)
     {
-        LOG_ERROR("server.loading", "CharactersPerAccount (%i) can't be less than CharactersPerRealm (%i).", tempIntOption, charactersPerRealm);
+        LOG_ERROR("server.loading", "CharactersPerAccount ({}) can't be less than CharactersPerRealm ({}).", tempIntOption, charactersPerRealm);
         SetOption<int32>("CharactersPerAccount", charactersPerRealm);
     }
 
     tempIntOption = CONF_GET_INT("HeroicCharactersPerRealm");
     if (tempIntOption < 0 || tempIntOption > 10)
     {
-        LOG_ERROR("server.loading", "HeroicCharactersPerRealm (%i) must be in range 0..10. Set to 1.", tempIntOption);
+        LOG_ERROR("server.loading", "HeroicCharactersPerRealm ({}) must be in range 0..10. Set to 1.", tempIntOption);
         SetOption<int32>("HeroicCharactersPerRealm", 1);
     }
 
     tempIntOption = CONF_GET_INT("SkipCinematics");
     if (tempIntOption < 0 || tempIntOption > 2)
     {
-        LOG_ERROR("server.loading", "SkipCinematics (%i) must be in range 0..2. Set to 0.", tempIntOption);
+        LOG_ERROR("server.loading", "SkipCinematics ({}) must be in range 0..2. Set to 0.", tempIntOption);
         SetOption<int32>("SkipCinematics", 0);
     }
 
     int32 maxPlayerLevel = CONF_GET_INT("MaxPlayerLevel");
     if (maxPlayerLevel > MAX_LEVEL)
     {
-        LOG_ERROR("server.loading", "MaxPlayerLevel (%i) must be in range 1..{}. Set to {}.", maxPlayerLevel, MAX_LEVEL, MAX_LEVEL);
+        LOG_ERROR("server.loading", "MaxPlayerLevel ({}) must be in range 1..{}. Set to {}.", maxPlayerLevel, MAX_LEVEL, MAX_LEVEL);
         SetOption<int32>("MaxPlayerLevel", MAX_LEVEL);
     }
 
     int32 startPlayerLevel = CONF_GET_INT("StartPlayerLevel");
     if (startPlayerLevel < 1)
     {
-        LOG_ERROR("server.loading", "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to 1.", startPlayerLevel, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to 1.", startPlayerLevel, maxPlayerLevel);
         SetOption<int32>("StartPlayerLevel", 1);
     }
     else if (startPlayerLevel > maxPlayerLevel)
     {
-        LOG_ERROR("server.loading", "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to {}.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to {}.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
         SetOption<int32>("StartPlayerLevel", maxPlayerLevel);
     }
 
     tempIntOption = CONF_GET_INT("StartHeroicPlayerLevel");
     if (tempIntOption < 1)
     {
-        LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to 55.", tempIntOption, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartHeroicPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to 55.", tempIntOption, maxPlayerLevel);
         SetOption<int32>("StartHeroicPlayerLevel", 55);
     }
     else if (tempIntOption > maxPlayerLevel)
     {
-        LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel({}). Set to {}.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
+        LOG_ERROR("server.loading", "StartHeroicPlayerLevel ({}) must be in range 1..MaxPlayerLevel({}). Set to {}.", tempIntOption, maxPlayerLevel, maxPlayerLevel);
         SetOption<int32>("StartHeroicPlayerLevel", maxPlayerLevel);
     }
 
     tempIntOption = CONF_GET_INT("StartPlayerMoney");
     if (tempIntOption < 0)
     {
-        LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0..{}. Set to {}.", tempIntOption, MAX_MONEY_AMOUNT, 0);
+        LOG_ERROR("server.loading", "StartPlayerMoney ({}) must be in range 0..{}. Set to {}.", tempIntOption, MAX_MONEY_AMOUNT, 0);
         SetOption<int32>("StartPlayerMoney", 0);
     }
     else if (tempIntOption > MAX_MONEY_AMOUNT)
     {
-        LOG_ERROR("server.loading", "StartPlayerMoney (%i) must be in range 0..{}. Set to {}.", tempIntOption, MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
+        LOG_ERROR("server.loading", "StartPlayerMoney ({}) must be in range 0..{}. Set to {}.", tempIntOption, MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
         SetOption<int32>("StartPlayerMoney", MAX_MONEY_AMOUNT);
     }
 
@@ -942,19 +942,19 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         int32 maxPoints = CONF_GET_INT(maxPointsOptionName);
         if (maxPoints < 0)
         {
-            LOG_ERROR("server.loading", "{} (%i) can't be negative. Set to 0.", maxPointsOptionName, maxPoints);
+            LOG_ERROR("server.loading", "{} ({}) can't be negative. Set to 0.", maxPointsOptionName, maxPoints);
             SetOption<int32>(maxPointsOptionName, 0);
         }
 
         int32 startPoints = CONF_GET_INT(startPointsOptionName);
         if (startPoints < 0)
         {
-            LOG_ERROR("server.loading", "{} (%i) must be in range 0..{}({}). Set to {}.", startPointsOptionName, startPoints, maxPointsOptionName, maxPoints, 0);
+            LOG_ERROR("server.loading", "{} ({}) must be in range 0..{}({}). Set to {}.", startPointsOptionName, startPoints, maxPointsOptionName, maxPoints, 0);
             SetOption<int32>(startPointsOptionName, 0);
         }
         else if (startPoints > maxPoints)
         {
-            LOG_ERROR("server.loading", "{} (%i) must be in range 0..{}({}). Set to {}.", startPointsOptionName, startPoints, maxPointsOptionName, maxPoints, maxPoints);
+            LOG_ERROR("server.loading", "{} ({}) must be in range 0..{}({}). Set to {}.", startPointsOptionName, startPoints, maxPointsOptionName, maxPoints, maxPoints);
             SetOption<int32>(startPointsOptionName, maxPoints);
         }
     };
@@ -965,7 +965,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("RecruitAFriend.MaxLevel");
     if (tempIntOption > maxPlayerLevel)
     {
-        LOG_ERROR("server.loading", "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel({}). Set to {}.",
+        LOG_ERROR("server.loading", "RecruitAFriend.MaxLevel ({}) must be in the range 0..MaxLevel({}). Set to {}.",
             tempIntOption, maxPlayerLevel, 60);
 
         SetOption<int32>("RecruitAFriend.MaxLevel", 60);
@@ -974,19 +974,19 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("MinPetitionSigns");
     if (tempIntOption > 9)
     {
-        LOG_ERROR("server.loading", "MinPetitionSigns (%i) must be in range 0..9. Set to 9.", tempIntOption);
+        LOG_ERROR("server.loading", "MinPetitionSigns ({}) must be in range 0..9. Set to 9.", tempIntOption);
         SetOption<int32>("MinPetitionSigns", 9);
     }
 
     tempIntOption = CONF_GET_INT("GM.StartLevel");
     if (tempIntOption < startPlayerLevel)
     {
-        LOG_ERROR("server.loading", "GM.StartLevel (%i) must be in range StartPlayerLevel({})..{}. Set to {}.", tempIntOption, tempIntOption, MAX_LEVEL, tempIntOption);
+        LOG_ERROR("server.loading", "GM.StartLevel ({}) must be in range StartPlayerLevel({})..{}. Set to {}.", tempIntOption, tempIntOption, MAX_LEVEL, tempIntOption);
         SetOption<int32>("GM.StartLevel", startPlayerLevel);
     }
     else if (tempIntOption > MAX_LEVEL)
     {
-        LOG_ERROR("server.loading", "GM.StartLevel (%i) must be in range 1..{}. Set to {}.", tempIntOption, MAX_LEVEL, MAX_LEVEL);
+        LOG_ERROR("server.loading", "GM.StartLevel ({}) must be in range 1..{}. Set to {}.", tempIntOption, MAX_LEVEL, MAX_LEVEL);
         SetOption<int32>("GM.StartLevel", MAX_LEVEL);
     }
 
@@ -1004,7 +1004,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("UpdateUptimeInterval");
     if (tempIntOption <= 0)
     {
-        LOG_ERROR("server.loading", "UpdateUptimeInterval (%i) must be > 0, set to default 10.", tempIntOption);
+        LOG_ERROR("server.loading", "UpdateUptimeInterval ({}) must be > 0, set to default 10.", tempIntOption);
         SetOption<int32>("UpdateUptimeInterval", 10); // 10
     }
 
@@ -1012,17 +1012,17 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     /*tempIntOption = CONF_GET_INT("LogDB.Opt.ClearInterval");
     if (tempIntOption <= 0)
     {
-        LOG_ERROR("server.loading", "LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", tempIntOption);
+        LOG_ERROR("server.loading", "LogDB.Opt.ClearInterval ({}) must be > 0, set to default 10.", tempIntOption);
         SetOption<int32>("LogDB.Opt.ClearInterval", 10);
     }
 
-    LOG_TRACE("server.loading", "Will clear `logs` table of entries older than %i seconds every {} minutes.",
+    LOG_TRACE("server.loading", "Will clear `logs` table of entries older than {} seconds every {} minutes.",
         CONF_GET_INT("LogDB.Opt.ClearTime"), CONF_GET_INT("LogDB.Opt.ClearInterval"));*/
 
     tempIntOption = CONF_GET_INT("MaxOverspeedPings");
     if (tempIntOption != 0 && tempIntOption < 2)
     {
-        LOG_ERROR("server.loading", "MaxOverspeedPings (%i) must be in range 2..infinity (or 0 to disable check). Set to 2.", tempIntOption);
+        LOG_ERROR("server.loading", "MaxOverspeedPings ({}) must be in range 2..infinity (or 0 to disable check). Set to 2.", tempIntOption);
         SetOption<int32>("MaxOverspeedPings", 2);
     }
 
@@ -1031,7 +1031,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         int32 hours = CONF_GET_INT(optionName);
         if (hours > 23)
         {
-            LOG_ERROR("server.loading", "{} (%i) can't be load. Set to 6.", optionName, hours);
+            LOG_ERROR("server.loading", "{} ({}) can't be load. Set to 6.", optionName, hours);
             SetOption<int32>(optionName, 6);
         }
     };
@@ -1043,21 +1043,21 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempIntOption = CONF_GET_INT("Battleground.ReportAFK");
     if (tempIntOption < 1 || tempIntOption > 9)
     {
-        LOG_ERROR("server.loading", "Battleground.ReportAFK (%i) must be >0 and <10. Using 3 instead.", tempIntOption);
+        LOG_ERROR("server.loading", "Battleground.ReportAFK ({}) must be >0 and <10. Using 3 instead.", tempIntOption);
         SetOption<int32>("Battleground.ReportAFK", 3);
     }
 
     tempIntOption = CONF_GET_INT("Battleground.PlayerRespawn");
     if (tempIntOption < 3)
     {
-        LOG_ERROR("server.loading", "Battleground.PlayerRespawn (%i) must be >2. Using 30 instead.", tempIntOption);
+        LOG_ERROR("server.loading", "Battleground.PlayerRespawn ({}) must be >2. Using 30 instead.", tempIntOption);
         SetOption<int32>("Battleground.PlayerRespawn", 30);
     }
 
     tempIntOption = CONF_GET_INT("Battleground.BuffRespawn");
     if (tempIntOption < 1)
     {
-        LOG_ERROR("server.loading", "Battleground.BuffRespawn (%i) must be >0. Using 180 instead.", tempIntOption);
+        LOG_ERROR("server.loading", "Battleground.BuffRespawn ({}) must be >0. Using 180 instead.", tempIntOption);
         SetOption<int32>("Battleground.BuffRespawn", 180);
     }
 

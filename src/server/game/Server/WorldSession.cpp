@@ -401,7 +401,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         catch (ByteBufferException const&)
         {
-            LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: {}) from client {}, accountid=%i. Skipped packet.", packet->GetOpcode(), GetRemoteAddress(), GetAccountId());
+            LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: {}) from client {}, accountid={}. Skipped packet.", packet->GetOpcode(), GetRemoteAddress(), GetAccountId());
             if (sLog->ShouldLog("network", LogLevel::LOG_LEVEL_DEBUG))
             {
                 LOG_DEBUG("network", "Dumping error causing packet:");
@@ -1132,7 +1132,7 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
 
             addonInfo >> enabled >> crc >> unk1;
 
-            LOG_DEBUG("network", "ADDON: Name: {}, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName, enabled, crc, unk1);
+            LOG_DEBUG("network", "ADDON: Name: {}, Enabled: 0x{:x}, CRC: 0x{:x}, Unknown2: 0x{:x}", addonName, enabled, crc, unk1);
 
             AddonInfo addon(addonName, enabled, crc, 2, true);
 
@@ -1145,15 +1145,15 @@ void WorldSession::ReadAddonsInfo(ByteBuffer& data)
                     match = false;
 
                 if (!match)
-                    LOG_DEBUG("network", "ADDON: {} was known, but didn't match known CRC (0x%x)!", addon.Name, savedAddon->CRC);
+                    LOG_DEBUG("network", "ADDON: {} was known, but didn't match known CRC (0x{:x})!", addon.Name, savedAddon->CRC);
                 else
-                    LOG_DEBUG("network", "ADDON: {} was known, CRC is correct (0x%x)", addon.Name, savedAddon->CRC);
+                    LOG_DEBUG("network", "ADDON: {} was known, CRC is correct (0x{:x})", addon.Name, savedAddon->CRC);
             }
             else
             {
                 AddonMgr::SaveAddon(addon);
 
-                LOG_DEBUG("network", "ADDON: {} (0x%x) was not known, saving...", addon.Name, addon.CRC);
+                LOG_DEBUG("network", "ADDON: {} (0x{:x}) was not known, saving...", addon.Name, addon.CRC);
             }
 
             // TODO: Find out when to not use CRC/pubkey, and other possible states.
@@ -1207,7 +1207,7 @@ void WorldSession::SendAddonsInfo()
             data << uint8(usepk);
             if (usepk)                                      // if CRC is wrong, add public key (client need it)
             {
-                LOG_DEBUG("network", "ADDON: CRC (0x%x) for addon {} is wrong (does not match expected 0x%x), sending pubkey", itr->CRC, itr->Name, STANDARD_ADDON_CRC);
+                LOG_DEBUG("network", "ADDON: CRC (0x{:x}) for addon {} is wrong (does not match expected 0x{:x}), sending pubkey", itr->CRC, itr->Name, STANDARD_ADDON_CRC);
                 data.append(addonPublicKey, sizeof(addonPublicKey));
             }
 
@@ -1297,7 +1297,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter <= maxPacketCounterAllowed)
         return true;
 
-    LOG_WARN("network", "AntiDOS: Account {}, IP: {}, Ping: {}, Character: {}, flooding packet (opc: {} (0x%X), count: {})",
+    LOG_WARN("network", "AntiDOS: Account {}, IP: {}, Ping: {}, Character: {}, flooding packet (opc: {} (0x{:X}), count: {})",
         Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
         opcodeTable[static_cast<OpcodeClient>(p.GetOpcode())]->Name, p.GetOpcode(), packetCounter.amountCounter);
 

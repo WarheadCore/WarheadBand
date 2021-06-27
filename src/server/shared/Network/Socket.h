@@ -120,7 +120,7 @@ public:
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: %i ({})", GetRemoteIpAddress().to_string(),
+            LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: {} ({})", GetRemoteIpAddress().to_string(),
                 shutdownError.value(), shutdownError.message().c_str());
 
         OnClose();

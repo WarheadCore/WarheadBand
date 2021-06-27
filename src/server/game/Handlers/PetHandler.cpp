@@ -652,7 +652,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     }
                     break;
                 default:
-                    LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+                    LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action {} and spellid {}.", uint32(flag), spellid);
             }
             break;
         case ACT_REACTION:                                  // 0x6
@@ -684,7 +684,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
                 if (!spellInfo)
                 {
-                    LOG_ERROR("network.opcode", "WORLD: unknown PET spell id %i", spellid);
+                    LOG_ERROR("network.opcode", "WORLD: unknown PET spell id {}", spellid);
                     return;
                 }
 
@@ -915,7 +915,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 break;
             }
         default:
-            LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
+            LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action {} and spellid {}.", uint32(flag), spellid);
     }
 }
 
@@ -1346,7 +1346,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        LOG_ERROR("network.opcode", "WORLD: unknown PET spell id %i", spellId);
+        LOG_ERROR("network.opcode", "WORLD: unknown PET spell id {}", spellId);
         return;
     }
 

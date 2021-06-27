@@ -7179,7 +7179,7 @@ void Spell::DelayedChannel()
     else
         m_timer -= delaytime;
 
-    LOG_DEBUG("spells.aura", "Spell {} partially interrupted for %i ms, new duration: {} ms", m_spellInfo->Id, delaytime, m_timer);
+    LOG_DEBUG("spells.aura", "Spell {} partially interrupted for {} ms, new duration: {} ms", m_spellInfo->Id, delaytime, m_timer);
 
     for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
         if ((*ihit).missCondition == SPELL_MISS_NONE)

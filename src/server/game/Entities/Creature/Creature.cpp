@@ -1999,7 +1999,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
         if (!spellInfo)
         {
-            LOG_ERROR("entities.unit", "WORLD: unknown spell id %i", m_spells[i]);
+            LOG_ERROR("entities.unit", "WORLD: unknown spell id {}", m_spells[i]);
             continue;
         }
 
@@ -2047,7 +2047,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spells[i]);
         if (!spellInfo)
         {
-            LOG_ERROR("entities.unit", "WORLD: unknown spell id %i", m_spells[i]);
+            LOG_ERROR("entities.unit", "WORLD: unknown spell id {}", m_spells[i]);
             continue;
         }
 

@@ -270,7 +270,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         return;
     }
 
-    LOG_DEBUG("vehicles", "Vehicle: Installing accessory entry {} on vehicle entry {} (seat:%i)", entry, GetCreatureEntry(), seatId);
+    LOG_DEBUG("vehicles", "Vehicle: Installing accessory entry {} on vehicle entry {} (seat:{})", entry, GetCreatureEntry(), seatId);
     if (Unit* passenger = GetPassenger(seatId))
     {
         // already installed
@@ -309,7 +309,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     /// @Prevent adding passengers when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING)
     {
-        LOG_DEBUG("vehicles", "Passenger {}, attempting to board vehicle {} during uninstall! SeatId: %i",
+        LOG_DEBUG("vehicles", "Passenger {}, attempting to board vehicle {} during uninstall! SeatId: {}",
             unit->GetGUID().ToString().c_str(), _me->GetGUID().ToString().c_str(), (int32)seatId);
         return false;
     }

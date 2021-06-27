@@ -89,7 +89,7 @@ void LoadSkillDiscoveryTable()
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
-                    LOG_ERROR("sql.sql", "Spell (ID: {}) have not existed spell (ID: %i) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
+                    LOG_ERROR("sql.sql", "Spell (ID: {}) have not existed spell (ID: {}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
                     reportedReqSpells.insert(absReqSkillOrSpell);
                 }
                 continue;

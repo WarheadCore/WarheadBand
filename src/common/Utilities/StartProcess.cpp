@@ -135,7 +135,7 @@ namespace Warhead
 
         if (!secure)
         {
-            LOG_TRACE(logger, ">> Process \"{}\" finished with return value %i.",
+            LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
                 executable.c_str(), result);
         }
 

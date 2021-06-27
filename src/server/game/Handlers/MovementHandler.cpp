@@ -587,7 +587,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket& recvData)
 {
     uint32 opcode = recvData.GetOpcode();
-    LOG_DEBUG("network", "WORLD: Recvd {} ({}, 0x%X) opcode", GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)), opcode, opcode);
+    LOG_DEBUG("network", "WORLD: Recvd {} ({}, 0x{:X}) opcode", GetOpcodeNameForLogging(static_cast<OpcodeClient>(opcode)), opcode, opcode);
 
     /* extract packet */
     ObjectGuid guid;
