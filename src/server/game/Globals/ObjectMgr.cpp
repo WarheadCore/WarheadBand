@@ -3407,7 +3407,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (skill.Rank >= MAX_SKILL_STEP)
                 {
-                    LOG_ERROR("sql.sql", "Skill rank value %hu set for skill %hu raceMask {} classMask {} is too high, max allowed value is {}", skill.Rank, skill.SkillId, raceMask, classMask, MAX_SKILL_STEP);
+                    LOG_ERROR("sql.sql", "Skill rank value {} set for skill {} raceMask {} classMask {} is too high, max allowed value is {}", skill.Rank, skill.SkillId, raceMask, classMask, MAX_SKILL_STEP);
                     continue;
                 }
 
