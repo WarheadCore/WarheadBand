@@ -214,7 +214,7 @@ public:
     {
         if (delInfo.accountName.empty())                    // account does not exist
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.lowGuid, delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name, delInfo.lowGuid, delInfo.accountId);
             return;
         }
 
@@ -222,13 +222,13 @@ public:
         uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
         if (charcount >= 10)
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.lowGuid, delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name, delInfo.lowGuid, delInfo.accountId);
             return;
         }
 
         if (sObjectMgr->GetPlayerGUIDByName(delInfo.name))
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.lowGuid, delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name, delInfo.lowGuid, delInfo.accountId);
             return;
         }
 
@@ -255,11 +255,11 @@ public:
             if (handler->needReportToTarget(player))
             {
                 if (oldLevel == newLevel)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
+                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink());
                 else if (oldLevel < newLevel)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newLevel);
+                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink(), newLevel);
                 else                                                // if (oldlevel > newlevel)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newLevel);
+                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink(), newLevel);
             }
         }
         else
@@ -313,7 +313,7 @@ public:
                 if (handler->GetSession())
                     handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->bit_index, id, titleNameStr, localeNames[loc], knownStr, activeStr);
                 else
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, name.c_str(), localeNames[loc], knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, name, localeNames[loc], knownStr, activeStr);
             }
         }
 
@@ -345,7 +345,7 @@ public:
             if (handler->HasLowerSecurity(target))
                 return false;
 
-            handler->PSendSysMessage(LANG_RENAME_PLAYER, handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_RENAME_PLAYER, handler->GetNameLink(target));
             target->SetAtLoginFlag(AT_LOGIN_RENAME);
         }
         else
@@ -355,7 +355,7 @@ public:
                 return false;
 
             std::string oldNameLink = handler->playerLink(targetName);
-            handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
+            handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink, targetGuid.GetCounter());
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
@@ -390,7 +390,7 @@ public:
         HandleCharacterLevel(player->GetConnectedPlayer(), player->GetGUID(), oldlevel, newlevel, handler);
 
         if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
-            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player).c_str(), newlevel);
+            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player), newlevel);
 
         return true;
     }
@@ -408,7 +408,7 @@ public:
         stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
         if (target)
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target));
             target->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
             stmt->setUInt32(1, target->GetGUID().GetCounter());
         }
@@ -416,7 +416,7 @@ public:
         {
             std::string oldNameLink = handler->playerLink(targetName);
             stmt->setUInt32(1, targetGuid.GetCounter());
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink, targetGuid.GetCounter());
         }
         CharacterDatabase.Execute(stmt);
 
@@ -436,14 +436,14 @@ public:
         stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
         if (target)
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target));
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
             stmt->setUInt32(1, target->GetGUID().GetCounter());
         }
         else
         {
             std::string oldNameLink = handler->playerLink(targetName);
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink, targetGuid.GetCounter());
             stmt->setUInt32(1, targetGuid.GetCounter());
         }
         CharacterDatabase.Execute(stmt);
@@ -464,7 +464,7 @@ public:
         if (target)
         {
             // TODO : add text into database
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target));
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
             stmt->setUInt32(1, target->GetGUID().GetCounter());
         }
@@ -472,7 +472,7 @@ public:
         {
             std::string oldNameLink = handler->playerLink(targetName);
             // TODO : add text into database
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), targetGuid.GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink, targetGuid.GetCounter());
             stmt->setUInt32(1, targetGuid.GetCounter());
         }
         CharacterDatabase.Execute(stmt);
@@ -723,7 +723,7 @@ public:
             characterGuid = sObjectMgr->GetPlayerGUIDByName(characterName);
             if (!characterGuid)
             {
-                handler->PSendSysMessage(LANG_NO_PLAYER, characterName.c_str());
+                handler->PSendSysMessage(LANG_NO_PLAYER, characterName);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -734,7 +734,7 @@ public:
         AccountMgr::GetName(accountId, accountName);
 
         Player::DeleteFromDB(characterGuid.GetCounter(), accountId, true, true);
-        handler->PSendSysMessage(LANG_CHARACTER_DELETED, characterName.c_str(), characterGuid.GetCounter(), accountName.c_str(), accountId);
+        handler->PSendSysMessage(LANG_CHARACTER_DELETED, characterName, characterGuid.GetCounter(), accountName, accountId);
 
         return true;
     }
@@ -759,7 +759,7 @@ public:
         HandleCharacterLevel(player->GetConnectedPlayer(), player->GetGUID(), oldlevel, newlevel, handler);
 
         if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
-            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player).c_str(), newlevel);
+            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player), newlevel);
 
         return true;
     }
@@ -780,7 +780,7 @@ public:
         std::string accountName = accountStr;
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -791,7 +791,7 @@ public:
             accountId = atoi(accountStr);                             // use original string
             if (!accountId)
             {
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -799,7 +799,7 @@ public:
 
         if (!AccountMgr::GetName(accountId, accountName))
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -863,7 +863,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             case DUMP_TOO_MANY_CHARS:
-                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName.c_str(), accountId);
+                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName, accountId);
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
@@ -1018,7 +1018,7 @@ public:
                     std::ostringstream ItemString;
                     ItemString << std::hex << ItemQualityColors[item->GetTemplate()->Quality];
 
-                    handler->PSendSysMessage("%u - |c%s|Hitem:%u:0:0:0:0:0:0:0:0:0|h[%s]|h|r - %u", Counter, ItemString.str().c_str(), item->GetEntry(), item->GetTemplate()->Name1.c_str(), item->GetCount());
+                    handler->PSendSysMessage("{} - |c{}|Hitem:{}:0:0:0:0:0:0:0:0:0|h[{}]|h|r - {}", Counter, ItemString.str(), item->GetEntry(), item->GetTemplate()->Name1, item->GetCount());
                 }
             }
         }
@@ -1034,7 +1034,7 @@ public:
                         std::ostringstream ItemString;
                         ItemString << std::hex << ItemQualityColors[item->GetTemplate()->Quality];
 
-                        handler->PSendSysMessage("%u - |c%s|Hitem:%u:0:0:0:0:0:0:0:0:0|h[%s]|h|r - %u", Counter, ItemString.str().c_str(), item->GetEntry(), item->GetTemplate()->Name1.c_str(), item->GetCount());
+                        handler->PSendSysMessage("{} - |c{}|Hitem:{}:0:0:0:0:0:0:0:0:0|h[{}]|h|r - {}", Counter, ItemString.str(), item->GetEntry(), item->GetTemplate()->Name1, item->GetCount());
                     }
                 }
             }
@@ -1074,43 +1074,43 @@ public:
                 switch (SkillID)
                 {
                     case SKILL_ALCHEMY:
-                        handler->PSendSysMessage("%u - Alchemy - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Alchemy - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_BLACKSMITHING:
-                        handler->PSendSysMessage("%u - Blacksmithing - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Blacksmithing - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_ENCHANTING:
-                        handler->PSendSysMessage("%u - Enchanting - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Enchanting - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_ENGINEERING:
-                        handler->PSendSysMessage("%u - Engineering - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Engineering - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_INSCRIPTION:
-                        handler->PSendSysMessage("%u - Inscription - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Inscription - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_JEWELCRAFTING:
-                        handler->PSendSysMessage("%u - Jewelcrafting - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Jewelcrafting - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_LEATHERWORKING:
-                        handler->PSendSysMessage("%u - Leatherworking - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Leatherworking - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_TAILORING:
-                        handler->PSendSysMessage("%u - Tailoring - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Tailoring - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_SKINNING:
-                        handler->PSendSysMessage("%u - Skinning - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Skinning - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_HERBALISM:
-                        handler->PSendSysMessage("%u - Herbalism - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Herbalism - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_MINING:
-                        handler->PSendSysMessage("%u - Mining - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Mining - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_COOKING:
-                        handler->PSendSysMessage("%u - Cooking - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - Cooking - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     case SKILL_FIRST_AID:
-                        handler->PSendSysMessage("%u - First Aid - %u", Counter, player->GetSkillValue(SkillID));
+                        handler->PSendSysMessage("{} - First Aid - {}", Counter, player->GetSkillValue(SkillID));
                         break;
                     default:
                         break;

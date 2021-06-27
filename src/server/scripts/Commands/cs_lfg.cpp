@@ -35,7 +35,7 @@ void GetPlayerInfo(ChatHandler*  handler, Player* player)
     lfg::LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(guid);
 
     std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
-    handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName().c_str(),
+    handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName(),
                              state.c_str(), uint8(dungeons.size()), lfg::ConcatenateDungeons(dungeons).c_str(),
                              lfg::GetRolesString(sLFGMgr->GetRoles(guid)).c_str(), sLFGMgr->GetComment(guid).c_str());
 }
@@ -86,7 +86,7 @@ public:
         Group* grp = target->GetGroup();
         if (!grp)
         {
-            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, playerName.c_str());
+            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, playerName);
             return true;
         }
 

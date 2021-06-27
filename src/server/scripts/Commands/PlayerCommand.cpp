@@ -47,7 +47,7 @@ bool PlayerCommand::Learn(ChatHandler* handler, Player* targetPlayer, uint32 spe
         uint32 spellDifficultyId = sSpellMgr->GetSpellDifficultyId(spell);
         if (handler->GetSession() && handler->GetSession()->GetSecurity() < SEC_ADMINISTRATOR && (bounds.first != bounds.second || spellDifficultyId))
         {
-            handler->PSendSysMessage("Spell %u cannot be learnt using a command!", spell);
+            handler->PSendSysMessage("Spell {} cannot be learnt using a command!", spell);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -60,7 +60,7 @@ bool PlayerCommand::Learn(ChatHandler* handler, Player* targetPlayer, uint32 spe
         if (handler->GetSession() && targetPlayer == handler->GetSession()->GetPlayer())
             handler->SendSysMessage(LANG_YOU_KNOWN_SPELL);
         else
-            handler->PSendSysMessage(LANG_TARGET_KNOWN_SPELL, handler->GetNameLink(targetPlayer).c_str());
+            handler->PSendSysMessage(LANG_TARGET_KNOWN_SPELL, handler->GetNameLink(targetPlayer));
         handler->SetSentErrorMessage(true);
         return false;
     }

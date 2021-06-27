@@ -183,7 +183,7 @@ public:
         // TODO: is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, x, y, z);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name, guidLow, x, y, z);
         return true;
     }
 
@@ -322,7 +322,7 @@ public:
 
         GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(id, guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name, guidLow, id, x, y, z, mapId, o, phase);
 
         if (target)
         {
@@ -333,7 +333,7 @@ public:
             std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(curRespawnDelay);
             std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
 
-            handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr, curRespawnDelayStr);
         }
         return true;
     }
@@ -442,7 +442,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId(), oz, oy, ox);
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name, object->GetSpawnId(), oz, oy, ox);
 
         return true;
     }
@@ -518,7 +518,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId());
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name, object->GetSpawnId());
 
         return true;
     }
@@ -593,7 +593,7 @@ public:
                 if (!gameObjectInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name.c_str(), x, y, z, mapId);
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name, x, y, z, mapId);
 
                 ++count;
             } while (result->NextRow());
@@ -644,15 +644,15 @@ public:
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
         if (gameObject)
         {
-            handler->PSendSysMessage("LootMode: %u", gameObject->GetLootMode());
-            handler->PSendSysMessage("LootState: %u", gameObject->getLootState());
-            handler->PSendSysMessage("GOState: %u", gameObject->GetGoState());
-            handler->PSendSysMessage("PhaseMask: %u", gameObject->GetPhaseMask());
-            handler->PSendSysMessage("IsLootEmpty: %u", gameObject->loot.empty());
-            handler->PSendSysMessage("IsLootLooted: %u", gameObject->loot.isLooted());
+            handler->PSendSysMessage("LootMode: {}", gameObject->GetLootMode());
+            handler->PSendSysMessage("LootState: {}", gameObject->getLootState());
+            handler->PSendSysMessage("GOState: {}", gameObject->GetGoState());
+            handler->PSendSysMessage("PhaseMask: {}", gameObject->GetPhaseMask());
+            handler->PSendSysMessage("IsLootEmpty: {}", gameObject->loot.empty());
+            handler->PSendSysMessage("IsLootLooted: {}", gameObject->loot.isLooted());
         }
 
-        handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
+        handler->PSendSysMessage(LANG_GOINFO_NAME, name);
 
         return true;
     }
@@ -718,7 +718,7 @@ public:
         else if (objectType == 6)
             object->SetGoArtKit((uint32)(objectState));
 
-        handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
+        handler->PSendSysMessage("Set gobject type {} state {}", objectType, objectState);
         return true;
     }
 };

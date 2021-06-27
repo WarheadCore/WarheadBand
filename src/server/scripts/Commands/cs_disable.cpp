@@ -171,7 +171,7 @@ public:
         PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (result)
         {
-            handler->PSendSysMessage("This %s (Id: %u) is already disabled.", disableTypeStr.c_str(), entry);
+            handler->PSendSysMessage("This {} (Id: {}) is already disabled.", disableTypeStr, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -183,7 +183,7 @@ public:
         stmt->setString(3, disableComment);
         WorldDatabase.Execute(stmt);
 
-        handler->PSendSysMessage("Add Disabled %s (Id: %u) for reason %s", disableTypeStr.c_str(), entry, disableComment.c_str());
+        handler->PSendSysMessage("Add Disabled {} (Id: {}) for reason {}", disableTypeStr, entry, disableComment);
         return true;
     }
 
@@ -285,7 +285,7 @@ public:
         PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (!result)
         {
-            handler->PSendSysMessage("This %s (Id: %u) is not disabled.", disableTypeStr.c_str(), entry);
+            handler->PSendSysMessage("This {} (Id: {}) is not disabled.", disableTypeStr, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -295,7 +295,7 @@ public:
         stmt->setUInt8(1, disableType);
         WorldDatabase.Execute(stmt);
 
-        handler->PSendSysMessage("Remove Disabled %s (Id: %u)", disableTypeStr.c_str(), entry);
+        handler->PSendSysMessage("Remove Disabled {} (Id: {})", disableTypeStr, entry);
         return true;
     }
 

@@ -115,7 +115,7 @@ public:
             for (auto const& [teamName, arenaType, teamRating] : queueList)
             {
                 // Queue status
-                handler->PSendSysMessage("> %s (%uv%u): %u", teamName, arenaType, arenaType, teamRating);
+                handler->PSendSysMessage("> {} ({}v{}): {}", teamName, arenaType, arenaType, teamRating);
             }
         }
 
@@ -196,7 +196,7 @@ public:
             for (auto const& [arenaType, minLevel, maxLevel, qTotal, MaxPlayers] : queueListNormal)
             {
                 // Queue status
-                handler->PSendSysMessage("> %u-%u %s: %u/%u", minLevel, maxLevel, arenaType.c_str(), qTotal, MaxPlayers);
+                handler->PSendSysMessage("> {}-{} {}: {}/{}", minLevel, maxLevel, arenaType, qTotal, MaxPlayers);
             }
         }
 
@@ -293,7 +293,7 @@ public:
             for (auto const& [bgName, minLevel, maxLevel, qTotal, MaxPlayers] : listQueue)
             {
                 // Queue status
-                handler->PSendSysMessage("> %u-%u %s: %u/%u", minLevel, maxLevel, bgName, qTotal, MaxPlayers);
+                handler->PSendSysMessage("> {}-{} {}: {}/{}", minLevel, maxLevel, bgName, qTotal, MaxPlayers);
             }
         };
 

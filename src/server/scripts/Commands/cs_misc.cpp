@@ -267,43 +267,43 @@ public:
         switch (error)
         {
             case 1:
-                handler->PSendSysMessage("Player %s not found.", last_name.c_str());
+                handler->PSendSysMessage("Player {} not found.", last_name);
                 break;
             case 2:
-                handler->PSendSysMessage("Player %s is being teleported.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is being teleported.", last_name);
                 break;
             case 3:
-                handler->PSendSysMessage("Player %s is in instance/battleground/arena.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is in instance/battleground/arena.", last_name);
                 break;
             case 4:
-                handler->PSendSysMessage("Player %s is in LFG system.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is in LFG system.", last_name);
                 break;
             case 5:
-                handler->PSendSysMessage("Player %s is queued for battleground/arena.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is queued for battleground/arena.", last_name);
                 break;
             case 6:
-                handler->PSendSysMessage("Player %s is not in group.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is not in group.", last_name);
                 break;
             case 7:
-                handler->PSendSysMessage("Player %s is not in normal group.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is not in normal group.", last_name);
                 break;
             case 8:
-                handler->PSendSysMessage("Group of player %s has invalid member count.", last_name.c_str());
+                handler->PSendSysMessage("Group of player {} has invalid member count.", last_name);
                 break;
             case 9:
-                handler->PSendSysMessage("Players %s are not in the same group.", last_name.c_str());
+                handler->PSendSysMessage("Players {} are not in the same group.", last_name);
                 break;
             case 10:
-                handler->PSendSysMessage("Player %s is in flight.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is in flight.", last_name);
                 break;
             case 11:
-                handler->PSendSysMessage("Player %s is dead.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is dead.", last_name);
                 break;
             case 12:
-                handler->PSendSysMessage("Player %s is in a group.", last_name.c_str());
+                handler->PSendSysMessage("Player {} is in a group.", last_name);
                 break;
             case 13:
-                handler->PSendSysMessage("Player %s occurs more than once.", last_name.c_str());
+                handler->PSendSysMessage("Player {} occurs more than once.", last_name);
                 break;
         }
 
@@ -500,7 +500,7 @@ public:
         if (status)
             handler->PSendSysMessage(LANG_LIQUID_STATUS, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, liquidStatus.type_flags, status);
         if (object->GetTransport())
-            handler->PSendSysMessage("Transport offset: %.2f, %.2f, %.2f, %.2f", object->m_movementInfo.transport.pos.GetPositionX(), object->m_movementInfo.transport.pos.GetPositionY(), object->m_movementInfo.transport.pos.GetPositionZ(), object->m_movementInfo.transport.pos.GetOrientation());
+            handler->PSendSysMessage("Transport offset: {0:.2f}, {0:.2f}, {0:.2f}, {0:.2f}", object->m_movementInfo.transport.pos.GetPositionX(), object->m_movementInfo.transport.pos.GetPositionY(), object->m_movementInfo.transport.pos.GetPositionZ(), object->m_movementInfo.transport.pos.GetOrientation());
 
         return true;
     }
@@ -597,7 +597,7 @@ public:
                 // only allow if gm mode is on
                 if (!_player->IsGameMaster())
                 {
-                    handler->PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM, chrNameLink.c_str());
+                    handler->PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM, chrNameLink);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -617,7 +617,7 @@ public:
                     // we are in group, we can go only if we are in the player group
                     if (_player->GetGroup() != target->GetGroup())
                     {
-                        handler->PSendSysMessage(LANG_CANNOT_GO_TO_INST_PARTY, chrNameLink.c_str());
+                        handler->PSendSysMessage(LANG_CANNOT_GO_TO_INST_PARTY, chrNameLink);
                         handler->SetSentErrorMessage(true);
                         return false;
                     }
@@ -627,7 +627,7 @@ public:
                     // we are not in group, let's verify our GM mode
                     if (!_player->IsGameMaster())
                     {
-                        handler->PSendSysMessage(LANG_CANNOT_GO_TO_INST_GM, chrNameLink.c_str());
+                        handler->PSendSysMessage(LANG_CANNOT_GO_TO_INST_GM, chrNameLink);
                         handler->SetSentErrorMessage(true);
                         return false;
                     }
@@ -645,7 +645,7 @@ public:
                     _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
             }
 
-            handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
+            handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink);
 
             // stop flight if need
             if (_player->IsInFlight())
@@ -668,7 +668,7 @@ public:
 
             std::string nameLink = handler->playerLink(targetName);
 
-            handler->PSendSysMessage(LANG_APPEARING_AT, nameLink.c_str());
+            handler->PSendSysMessage(LANG_APPEARING_AT, nameLink);
 
             // to point where player stay (if loaded)
             float x, y, z, o;
@@ -718,7 +718,7 @@ public:
 
             if (target->IsBeingTeleported())
             {
-                handler->PSendSysMessage(LANG_IS_TELEPORTED, nameLink.c_str());
+                handler->PSendSysMessage(LANG_IS_TELEPORTED, nameLink);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -756,15 +756,15 @@ public:
                         (handler->GetSession()->GetPlayer()->GetGroup()->GetLeaderGUID() != handler->GetSession()->GetPlayer()->GetGUID()))
                     // the last check is a bit excessive, but let it be, just in case
                 {
-                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, nameLink.c_str());
+                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, nameLink);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
             }
 
-            handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), "");
+            handler->PSendSysMessage(LANG_SUMMONING, nameLink, "");
             if (handler->needReportToTarget(target))
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()));
 
             // stop flight if need
             if (target->IsInFlight())
@@ -789,7 +789,7 @@ public:
 
             std::string nameLink = handler->playerLink(targetName);
 
-            handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetWarheadString(LANG_OFFLINE));
+            handler->PSendSysMessage(LANG_SUMMONING, nameLink, handler->GetWarheadString(LANG_OFFLINE));
 
             // in point where GM stay
             Player::SavePositionInDB(handler->GetSession()->GetPlayer()->GetMapId(),
@@ -820,7 +820,7 @@ public:
 
         if (!group)
         {
-            handler->PSendSysMessage(LANG_NOT_IN_GROUP, nameLink.c_str());
+            handler->PSendSysMessage(LANG_NOT_IN_GROUP, nameLink);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -854,7 +854,7 @@ public:
 
             if (player->IsBeingTeleported() == true)
             {
-                handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
+                handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -866,15 +866,15 @@ public:
                 if (playerMap->Instanceable() && playerMap->GetInstanceId() != gmMap->GetInstanceId())
                 {
                     // cannot summon from instance to instance
-                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, plNameLink.c_str());
+                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, plNameLink);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
             }
 
-            handler->PSendSysMessage(LANG_SUMMONING, plNameLink.c_str(), "");
+            handler->PSendSysMessage(LANG_SUMMONING, plNameLink, "");
             if (handler->needReportToTarget(player))
-                ChatHandler(player->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->GetNameLink().c_str());
+                ChatHandler(player->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->GetNameLink());
 
             // stop flight if need
             if (player->IsInFlight())
@@ -990,7 +990,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_OBJECT_GUID, guid.ToString().c_str());
+        handler->PSendSysMessage(LANG_OBJECT_GUID, guid.ToString());
         return true;
     }
 
@@ -1052,7 +1052,7 @@ public:
         if (!*args)
         {
             target->RemoveAllSpellCooldown();
-            handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, nameLink.c_str());
+            handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, nameLink);
         }
         else
         {
@@ -1063,13 +1063,13 @@ public:
 
             if (!sSpellMgr->GetSpellInfo(spellIid))
             {
-                handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetWarheadString(LANG_YOU) : nameLink.c_str());
+                handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetWarheadString(LANG_YOU) : nameLink);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
 
             target->RemoveSpellCooldown(spellIid, true);
-            handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetWarheadString(LANG_YOU) : nameLink.c_str());
+            handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetWarheadString(LANG_YOU) : nameLink);
         }
         return true;
     }
@@ -1150,7 +1150,7 @@ public:
 
         if (target->IsBeingTeleported())
         {
-            handler->PSendSysMessage(LANG_IS_TELEPORTED, handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_IS_TELEPORTED, handler->GetNameLink(target));
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1233,7 +1233,7 @@ public:
         if (CONF_GET_BOOL("ShowKickInWorld"))
             sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
         else
-            handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName);
 
         target->GetSession()->KickPlayer("HandleKickPlayerCommand");
 
@@ -1394,7 +1394,7 @@ public:
             else if (data->teamId == TEAM_ALLIANCE)
                 team_name = handler->GetWarheadString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, graveyardId, team_name.c_str(), zone_id);
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, graveyardId, team_name, zone_id);
         }
         else
         {
@@ -1410,7 +1410,7 @@ public:
             //if (team == ~uint32(0))
             //    handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, zone_id);
             //else
-            handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAFACTION, zone_id, team_name.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAFACTION, zone_id, team_name);
         }
 
         return true;
@@ -1562,19 +1562,19 @@ public:
                 if (!playerTarget->HasItemCount(itemId, 0))
                 {
                     // output that player don't have any items to destroy
-                    handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, handler->GetNameLink(playerTarget).c_str(), itemId);
+                    handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, handler->GetNameLink(playerTarget), itemId);
                 }
                 else if (!playerTarget->HasItemCount(itemId, -count))
                 {
                     // output that player don't have as many items that you want to destroy
-                    handler->PSendSysMessage(LANG_REMOVEITEM_ERROR, handler->GetNameLink(playerTarget).c_str(), itemId);
+                    handler->PSendSysMessage(LANG_REMOVEITEM_ERROR, handler->GetNameLink(playerTarget), itemId);
                 }
             }
             else
             {
                 // output successful amount of destroyed items
                 playerTarget->DestroyItemCount(itemId, -count, true, false);
-                handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+                handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(playerTarget));
             }
 
             return true;
@@ -1791,7 +1791,7 @@ public:
         // add the skill to the player's book with step 1 (which is the first rank, in most cases something
         // like 'Apprentice <skill>'.
         target->SetSkill(skill, targetHasSkill ? target->GetSkillStep(skill) : 1, level, max);
-        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name[handler->GetSessionDbcLocale()], handler->GetNameLink(target).c_str(), level, max);
+        handler->PSendSysMessage(LANG_SET_SKILL, skill, skillLine->name[handler->GetSessionDbcLocale()], handler->GetNameLink(target), level, max);
         return true;
     }
 
@@ -2039,7 +2039,7 @@ public:
 
         // Initiate output
         // Output I. LANG_PINFO_PLAYER
-        handler->PSendSysMessage(LANG_PINFO_PLAYER, target ? "" : handler->GetWarheadString(LANG_OFFLINE), nameLink.c_str(), targetGuid.GetCounter());
+        handler->PSendSysMessage(LANG_PINFO_PLAYER, target ? "" : handler->GetWarheadString(LANG_OFFLINE), nameLink, targetGuid.GetCounter());
 
         // Output II. LANG_PINFO_GM_ACTIVE if character is gamemaster
         if (target && target->IsGameMaster())
@@ -2047,26 +2047,26 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? Warhead::Time::ToTimeString<Seconds>(banTime - GameTime::GetGameTime()).c_str() : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType, banReason, banTime > 0 ? Warhead::Time::ToTimeString<Seconds>(banTime - GameTime::GetGameTime()) : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy);
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime)
-            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason.c_str(), Warhead::Time::ToTimeString<Seconds>(muteTime - GameTime::GetGameTime()).c_str(), muteBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason, Warhead::Time::ToTimeString<Seconds>(muteTime - GameTime::GetGameTime()), muteBy);
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
-        handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName.c_str(), accId, security);
+        handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName, accId, security);
 
         // Output VI. LANG_PINFO_ACC_LASTLOGIN
-        handler->PSendSysMessage(LANG_PINFO_ACC_LASTLOGIN, lastLogin.c_str(), failedLogins);
+        handler->PSendSysMessage(LANG_PINFO_ACC_LASTLOGIN, lastLogin, failedLogins);
 
         // Output VII. LANG_PINFO_ACC_OS
-        handler->PSendSysMessage(LANG_PINFO_ACC_OS, OS.c_str(), latency);
+        handler->PSendSysMessage(LANG_PINFO_ACC_OS, OS, latency);
 
         // Output VIII. LANG_PINFO_ACC_REGMAILS
-        handler->PSendSysMessage(LANG_PINFO_ACC_REGMAILS, regMail.c_str(), eMail.c_str());
+        handler->PSendSysMessage(LANG_PINFO_ACC_REGMAILS, regMail, eMail);
 
         // Output IX. LANG_PINFO_ACC_IP
-        handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO));
+        handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp, locked ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO));
 
         // Output X. LANG_PINFO_CHR_LEVEL
         if (level != CONF_GET_INT("MaxPlayerLevel"))
@@ -2081,10 +2081,10 @@ public:
         raceStr = _race ? _race->GetText(handler->GetSessionDbcLocale(), gender) : handler->GetWarheadString(LANG_UNKNOWN);
         classStr = _class ? _class->GetText(handler->GetSessionDbcLocale(), gender) : handler->GetWarheadString(LANG_UNKNOWN);
 
-        handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetWarheadString(LANG_CHARACTER_GENDER_MALE) : handler->GetWarheadString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
+        handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetWarheadString(LANG_CHARACTER_GENDER_MALE) : handler->GetWarheadString(LANG_CHARACTER_GENDER_FEMALE)), raceStr, classStr);
 
         // Output XII. LANG_PINFO_CHR_ALIVE
-        handler->PSendSysMessage(LANG_PINFO_CHR_ALIVE, alive.c_str());
+        handler->PSendSysMessage(LANG_PINFO_CHR_ALIVE, alive);
 
         // Output XIII. LANG_PINFO_CHR_PHASE if player is not in GM mode (GM is in every phase)
         if (target && !target->IsGameMaster())                            // IsInWorld() returns false on loadingscreen, so it's more
@@ -2123,16 +2123,16 @@ public:
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
         {
-            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), guildId);
-            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank.c_str(), uint32(guildRankId));
+            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName, guildId);
+            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank, uint32(guildRankId));
             if (!note.empty())
-                handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_NOTE, note.c_str());
+                handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_NOTE, note);
             if (!officeNote.empty())
-                handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_ONOTE, officeNote.c_str());
+                handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_ONOTE, officeNote);
         }
 
         // Output XX. LANG_PINFO_CHR_PLAYEDTIME
-        handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, Warhead::Time::ToTimeString<Seconds>(totalPlayerTime).c_str());
+        handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, Warhead::Time::ToTimeString<Seconds>(totalPlayerTime));
 
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
@@ -2217,7 +2217,7 @@ public:
         sMute->MutePlayer(player->GetName(), notSpeakTime, handler->GetSession() ? handler->GetSession()->GetPlayerName() : handler->GetWarheadString(LANG_CONSOLE), muteReasonStr);
 
         if (!CONF_GET_BOOL("ShowMuteInWorld"))
-            handler->PSendSysMessage(LANG_YOU_DISABLE_CHAT, handler->playerLink(player->GetName()).c_str(), notSpeakTime, muteReasonStr.c_str());
+            handler->PSendSysMessage(LANG_YOU_DISABLE_CHAT, handler->playerLink(player->GetName()), notSpeakTime, muteReasonStr);
 
         return true;
     }
@@ -2251,7 +2251,7 @@ public:
 
         sMute->UnMutePlayer(targetName);
 
-        handler->PSendSysMessage(LANG_YOU_ENABLE_CHAT, handler->playerLink(targetName).c_str());
+        handler->PSendSysMessage(LANG_YOU_ENABLE_CHAT, handler->playerLink(targetName));
 
         return true;
     }
@@ -2269,7 +2269,7 @@ public:
         std::string accountName = nameStr;
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -2277,7 +2277,7 @@ public:
         uint32 accountId = AccountMgr::GetId(accountName);
         if (!accountId)
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
             return false;
         }
 
@@ -2369,9 +2369,9 @@ public:
                         if (!target)
                             handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
                         else if (target->GetTypeId() == TYPEID_PLAYER)
-                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName().c_str(), target->GetGUID().GetCounter());
+                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUID().GetCounter());
                         else
-                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName().c_str(), target->GetGUID().GetCounter());
+                            handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUID().GetCounter());
                         break;
                     }
                 case FOLLOW_MOTION_TYPE:
@@ -2385,9 +2385,9 @@ public:
                         if (!target)
                             handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
                         else if (target->GetTypeId() == TYPEID_PLAYER)
-                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName().c_str(), target->GetGUID().GetCounter());
+                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUID().GetCounter());
                         else
-                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName().c_str(), target->GetGUID().GetCounter());
+                            handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUID().GetCounter());
                         break;
                     }
                 case HOME_MOTION_TYPE:
@@ -2533,9 +2533,9 @@ public:
         // Repair items
         target->DurabilityRepairAll(false, 0, false);
 
-        handler->PSendSysMessage(LANG_YOU_REPAIR_ITEMS, handler->GetNameLink(target).c_str());
+        handler->PSendSysMessage(LANG_YOU_REPAIR_ITEMS, handler->GetNameLink(target));
         if (handler->needReportToTarget(target))
-            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, handler->GetNameLink().c_str());
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, handler->GetNameLink());
 
         return true;
     }
@@ -2581,7 +2581,7 @@ public:
         CharacterDatabase.CommitTransaction(trans);
 
         std::string nameLink = handler->playerLink(targetName);
-        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
+        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink);
         return true;
     }
     // Send items by mail
@@ -2689,7 +2689,7 @@ public:
         CharacterDatabase.CommitTransaction(trans);
 
         std::string nameLink = handler->playerLink(receiverName);
-        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
+        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink);
         return true;
     }
     /// Send money by mail
@@ -2740,7 +2740,7 @@ public:
         CharacterDatabase.CommitTransaction(trans);
 
         std::string nameLink = handler->playerLink(receiverName);
-        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
+        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink);
         return true;
     }
     /// Send a message to a player in game
@@ -2765,7 +2765,7 @@ public:
 
         // Confirmation message
         std::string nameLink = handler->GetNameLink(player);
-        handler->PSendSysMessage(LANG_SENDMESSAGE, nameLink.c_str(), msgStr);
+        handler->PSendSysMessage(LANG_SENDMESSAGE, nameLink, msgStr);
 
         return true;
     }
@@ -2880,7 +2880,7 @@ public:
         uint32 spellDifficultyId = sSpellMgr->GetSpellDifficultyId(spellId);
         if (bounds.first != bounds.second || spellDifficultyId)
         {
-            handler->PSendSysMessage("Spell %u cannot be learnt using a command!", spellId);
+            handler->PSendSysMessage("Spell {} cannot be learnt using a command!", spellId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -2888,14 +2888,14 @@ public:
         // Check if pet already has it
         if (pet->HasSpell(spellId))
         {
-            handler->PSendSysMessage("Pet already has spell: %u", spellId);
+            handler->PSendSysMessage("Pet already has spell: {}", spellId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         pet->learnSpell(spellId);
 
-        handler->PSendSysMessage("Pet has learned spell %u", spellId);
+        handler->PSendSysMessage("Pet has learned spell {}", spellId);
         return true;
     }
 
@@ -2958,7 +2958,7 @@ public:
 
         if (player && (player != handler->GetSession()->GetPlayer()))
         {
-            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name);
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
                 Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
         }
@@ -2987,7 +2987,7 @@ public:
 
         if (player)
         {
-            handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name);
             player->RemoveAurasDueToSpell(9454);
             return true;
         }
@@ -2998,7 +2998,7 @@ public:
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
                 stmt->setUInt32(0, playerGUID.GetCounter());
                 CharacterDatabase.Execute(stmt);
-                handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());
+                handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name);
                 return true;
             }
         }
@@ -3078,7 +3078,7 @@ public:
                         {
                             groupSource->AddMember(playerTarget);
                             groupSource->BroadcastGroupUpdate();
-                            handler->PSendSysMessage(LANG_GROUP_PLAYER_JOINED, playerTarget->GetName().c_str(), playerSource->GetName().c_str());
+                            handler->PSendSysMessage(LANG_GROUP_PLAYER_JOINED, playerTarget->GetName(), playerSource->GetName());
                             return true;
                         }
                         else
@@ -3091,7 +3091,7 @@ public:
                     else
                     {
                         // group is full or target player already in a group
-                        handler->PSendSysMessage(LANG_GROUP_ALREADY_IN_GROUP, playerTarget->GetName().c_str());
+                        handler->PSendSysMessage(LANG_GROUP_ALREADY_IN_GROUP, playerTarget->GetName());
                         return true;
                     }
                 }
@@ -3099,7 +3099,7 @@ public:
             else
             {
                 // specified source player is not in a group
-                handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, playerSource->GetName().c_str());
+                handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, playerSource->GetName());
                 return true;
             }
         }
@@ -3163,12 +3163,12 @@ public:
                 /*Player* p = ObjectAccessor::FindConnectedPlayer((*itr).guid);
                 const char* onlineState = p ? "online" : "offline";
 
-                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
+                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name, onlineState,
                     slot.guid.GetCounter(), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());*/
             }
         }
         else
-            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget);
 
         return true;
     }

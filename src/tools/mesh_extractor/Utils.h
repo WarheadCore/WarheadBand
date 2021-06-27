@@ -32,7 +32,7 @@ struct WorldModelDefinition;
 class DoodadDefinition;
 class DoodadInstance;
 
-#define ASSERT(assertion) { if (!(assertion)) {fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n%s\n", __FILE__, __LINE__, __FUNCTION__, #assertion, st.c_str()); *((volatile int*)nullptr) = 0; } }
+#define ASSERT(assertion) { if (!(assertion)) {fprintf(stderr, "\n{}:{} in {} ASSERTION FAILED:\n  {}\n{}\n", __FILE__, __LINE__, __FUNCTION__, #assertion, st); *((volatile int*)nullptr) = 0; } }
 
 struct Vector3
 {

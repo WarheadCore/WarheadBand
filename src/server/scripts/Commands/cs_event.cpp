@@ -72,9 +72,9 @@ public:
             GameEventData const& eventData = events[eventId];
 
             if (handler->GetSession())
-                handler->PSendSysMessage(LANG_EVENT_ENTRY_LIST_CHAT, eventId, eventId, eventData.description.c_str(), active);
+                handler->PSendSysMessage(LANG_EVENT_ENTRY_LIST_CHAT, eventId, eventId, eventData.description, active);
             else
-                handler->PSendSysMessage(LANG_EVENT_ENTRY_LIST_CONSOLE, eventId, eventData.description.c_str(), active);
+                handler->PSendSysMessage(LANG_EVENT_ENTRY_LIST_CONSOLE, eventId, eventData.description, active);
 
             ++counter;
         }
@@ -129,7 +129,7 @@ public:
         std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE);
         std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE);
 
-        handler->PSendSysMessage(LANG_EVENT_INFO, eventId, eventData.description.c_str(), activeStr,
+        handler->PSendSysMessage(LANG_EVENT_INFO, eventId, eventData.description, activeStr,
                                  startTimeStr.c_str(), endTimeStr.c_str(), occurenceStr.c_str(), lengthStr.c_str(),
                                  nextStr.c_str());
         return true;
