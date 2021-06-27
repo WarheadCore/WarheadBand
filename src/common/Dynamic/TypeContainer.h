@@ -153,7 +153,7 @@ public:
     std::size_t Size() const
     {
         std::size_t size = 0;
-        Acore::Size(_elements, &size, (SPECIFIC_TYPE*)nullptr);
+        Warhead::Size(_elements, &size, (SPECIFIC_TYPE*)nullptr);
         return size;
     }
 
