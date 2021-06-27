@@ -77,7 +77,7 @@ void InstanceScript::LoadMinionData(const MinionData* data)
 
         ++data;
     }
-    LOG_DEBUG("scripts.ai", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
+    LOG_DEBUG("scripts.ai", "InstanceScript::LoadMinionData: {} minions loaded.", uint64(minions.size()));
 }
 
 void InstanceScript::LoadDoorData(const DoorData* data)
@@ -89,7 +89,7 @@ void InstanceScript::LoadDoorData(const DoorData* data)
 
         ++data;
     }
-    LOG_DEBUG("scripts.ai", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
+    LOG_DEBUG("scripts.ai", "InstanceScript::LoadDoorData: {} doors loaded.", uint64(doors.size()));
 }
 
 void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)

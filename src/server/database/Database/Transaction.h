@@ -43,7 +43,7 @@ friend class DatabaseWorkerPool;
         template<typename Format, typename... Args>
         void PAppend(Format&& sql, Args&&... args)
         {
-            Append(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...));
+            Append(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         std::size_t GetSize() const { return m_queries.size(); }

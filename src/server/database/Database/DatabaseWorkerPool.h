@@ -78,7 +78,7 @@ class DatabaseWorkerPool
             if (Warhead::IsFormatEmptyOrNull(sql))
                 return;
 
-            Execute(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...));
+            Execute(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
@@ -101,7 +101,7 @@ class DatabaseWorkerPool
             if (Warhead::IsFormatEmptyOrNull(sql))
                 return;
 
-            DirectExecute(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...));
+            DirectExecute(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
@@ -124,7 +124,7 @@ class DatabaseWorkerPool
             if (Warhead::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...), conn);
+            return Query(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str(), conn);
         }
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
@@ -135,7 +135,7 @@ class DatabaseWorkerPool
             if (Warhead::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...));
+            return Query(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.

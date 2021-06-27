@@ -62,12 +62,12 @@ namespace Warhead::Impl::ChatCommands
             if (Optional<T> v = StringTo<T>(token, 0))
                 val = *v;
             else
-                return FormatWarheadString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                return FormatWarheadString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, token, GetTypeName<T>());
 
             if constexpr (std::is_floating_point_v<T>)
             {
                 if (!std::isfinite(val))
-                    return FormatWarheadString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                    return FormatWarheadString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, token, GetTypeName<T>());
             }
 
             return tail;
@@ -200,7 +200,7 @@ namespace Warhead::Impl::ChatCommands
             }
 
             if (next1)
-                return FormatWarheadString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
+                return FormatWarheadString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, strVal, GetTypeName<T>());
             else
                 return next1;
         }

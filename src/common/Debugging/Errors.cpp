@@ -94,7 +94,7 @@ namespace Warhead
         va_list args;
         va_start(args, message);
 
-        std::string formattedMessage = StringFormat("\n%s:%i in %s FATAL ERROR:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+        std::string formattedMessage = StringFormat("\n{}:{} in {} FATAL ERROR:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
         va_end(args);
 
         fprintf(stderr, "%s", formattedMessage.c_str());
@@ -106,7 +106,7 @@ namespace Warhead
 
     void Error(char const* file, int line, char const* function, char const* message)
     {
-        std::string formattedMessage = StringFormat("\n%s:%i in %s ERROR:\n  %s\n", file, line, function, message);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  %s\n", file, line, function, message);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());
@@ -120,7 +120,7 @@ namespace Warhead
 
     void Abort(char const* file, int line, char const* function)
     {
-        std::string formattedMessage = StringFormat("\n%s:%i in %s ABORTED.\n", file, line, function);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED.\n", file, line, function);
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
         Crash(formattedMessage.c_str());
@@ -131,7 +131,7 @@ namespace Warhead
         va_list args;
         va_start(args, message);
 
-        std::string formattedMessage = StringFormat("\n%s:%i in %s ABORTED:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
         va_end(args);
 
         fprintf(stderr, "%s", formattedMessage.c_str());

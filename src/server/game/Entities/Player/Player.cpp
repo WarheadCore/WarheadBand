@@ -5216,7 +5216,8 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 
     if (result)
     {
-        LOG_INFO("server.loading", "Player::DeleteOldChars: Found " UI64FMTD " character(s) to delete", result->GetRowCount());
+        LOG_INFO("server.loading", "Player::DeleteOldChars: Found {} character(s) to delete", result->GetRowCount());
+
         do
         {
             Field* fields = result->Fetch();
@@ -26837,7 +26838,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
 
         if (!found)                                          // something wrong...
         {
-            LOG_ERROR("entities.player", "Player {} tried to save equipment set " UI64FMTD " (index {}), but that equipment set not found!", GetName(), eqset.Guid, index);
+            LOG_ERROR("entities.player", "Player {} tried to save equipment set {} (index {}), but that equipment set not found!", GetName(), eqset.Guid, index);
             return;
         }
     }

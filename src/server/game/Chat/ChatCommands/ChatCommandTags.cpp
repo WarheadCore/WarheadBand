@@ -77,7 +77,7 @@ ChatCommandResult Warhead::ChatCommands::AccountIdentifier::TryConsume(ChatHandl
     // try parsing as account id instead
     Optional<uint32> id = Warhead::StringTo<uint32>(text, 10);
     if (!id)
-        return FormatWarheadString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+        return FormatWarheadString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, _name);
 
     _id = *id;
 
@@ -113,12 +113,12 @@ ChatCommandResult Warhead::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
             _name.assign(val.get<std::string_view>());
 
         if (!normalizePlayerName(_name))
-            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, STRING_VIEW_FMT_ARG(_name));
+            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, _name);
 
         if ((_player = ObjectAccessor::FindPlayerByName(_name)))
             _guid = _player->GetGUID();
         else if (!(_guid = sObjectMgr->GetPlayerGUIDByName(_name)))
-            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, _name);
 
         return next;
     }

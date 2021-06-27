@@ -102,7 +102,8 @@ namespace Warhead::ChatCommands
                     return tail;
                 start = args.substr(0, _string.length() + remainingToken.length());
             }
-            return Warhead::Impl::ChatCommands::FormatWarheadString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(_string), STRING_VIEW_FMT_ARG(start));
+
+            return Warhead::Impl::ChatCommands::FormatWarheadString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, _string, start);
         }
 
         private:

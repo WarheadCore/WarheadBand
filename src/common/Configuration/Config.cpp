@@ -135,7 +135,7 @@ namespace
 
             if (equal_pos == std::string::npos || equal_pos == line.length())
             {
-                PrintError(file, "> Config::LoadFile: Failure to read line number %u in file '%s'. Skip this line", lineNumber, file.c_str());
+                PrintError(file, "> Config::LoadFile: Failure to read line number {} in file '{}'. Skip this line", lineNumber, file);
                 continue;
             }
 
@@ -173,7 +173,7 @@ namespace
         }
         catch (const std::exception& e)
         {
-            PrintError(file, "> %s", e.what());
+            PrintError(file, "> {}", e.what());
         }
 
         return false;

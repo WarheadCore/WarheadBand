@@ -1585,7 +1585,7 @@ void ObjectMgr::LoadLinkedRespawn()
             _linkedRespawnStore[guid] = linkedGuid;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded " UI64FMTD " linked respawns in {} ms", uint64(_linkedRespawnStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} linked respawns in {} ms", uint64(_linkedRespawnStore.size()), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

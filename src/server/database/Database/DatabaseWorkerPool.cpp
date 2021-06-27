@@ -58,8 +58,8 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
       _async_threads(0), _synch_threads(0)
 {
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-    WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "WarheadCore does not support MySQL versions below 5.1");
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s id %lu) does not match the version id used to compile WarheadCore (id %u). Search on forum for TCE00011.",
+    WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "WarheadCore does not support MySQL versions below 5.7");
+    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version ({} id {}) does not match the version id used to compile WarheadCore (id {}).",
         mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
 }
 
@@ -84,8 +84,7 @@ uint32 DatabaseWorkerPool<T>::Open()
 {
     WPFatal(_connectionInfo.get(), "Connection info was not set!");
 
-    LOG_INFO("sql.driver", "Opening DatabasePool '{}'. "
-        "Asynchronous connections: %u, synchronous connections: %u.",
+    LOG_INFO("sql.driver", "Opening DatabasePool '{}'. Asynchronous connections: {}, synchronous connections: {}.",
         GetDatabaseName(), _async_threads, _synch_threads);
 
     uint32 error = OpenConnections(IDX_ASYNC, _async_threads);
@@ -97,8 +96,8 @@ uint32 DatabaseWorkerPool<T>::Open()
 
     if (!error)
     {
-        LOG_INFO("sql.driver", "DatabasePool '{}' opened successfully. {} total connections running.", GetDatabaseName(),
-                    (_connections[IDX_SYNCH].size() + _connections[IDX_ASYNC].size()));
+        LOG_INFO("sql.driver", "DatabasePool '{}' opened successfully. {} total connections running.",
+            GetDatabaseName(), (_connections[IDX_SYNCH].size() + _connections[IDX_ASYNC].size()));
     }
 
     LOG_INFO("sql.driver", "");

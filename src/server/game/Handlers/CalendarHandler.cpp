@@ -184,7 +184,7 @@ void WorldSession::HandleCalendarGetEvent(WorldPacket& recvData)
     uint64 eventId;
     recvData >> eventId;
 
-    LOG_DEBUG("network", "CMSG_CALENDAR_GET_EVENT. Player [{}] Event [" UI64FMTD "]", _player->GetGUID().ToString(), eventId);
+    LOG_DEBUG("network", "CMSG_CALENDAR_GET_EVENT. Player [{}] Event [{}]", _player->GetGUID().ToString(), eventId);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
         sCalendarMgr->SendCalendarEvent(_player->GetGUID(), *calendarEvent, CALENDAR_SENDTYPE_GET);
@@ -394,12 +394,11 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
         return;
     }
 
-    LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [{}] EventId [" UI64FMTD
-                   "], InviteId [" UI64FMTD "] Title %s, Description %s, type %u "
-                   "Repeatable %u, MaxInvites %u, Dungeon ID %d, Time %u "
-                   "Time2 %u, Flags %u", guid.ToString().c_str(), eventId, inviteId, title.c_str(),
-                   description.c_str(), type, repetitionType, maxInvites, dungeonId,
-                   eventPackedTime, timeZoneTime, flags);
+    LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [{}] "
+        "EventId [{}], InviteId [{}] Title %s, Description %s, type %u Repeatable %u, MaxInvites %u, Dungeon ID %d, Time %u Time2 %u, Flags %u",
+        guid.ToString().c_str(), eventId, inviteId, title.c_str(),
+        description.c_str(), type, repetitionType, maxInvites, dungeonId,
+        eventPackedTime, timeZoneTime, flags);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -440,8 +439,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
 
     recvData >> eventId >> inviteId;
     recvData.ReadPackedTime(eventTime);
-    LOG_DEBUG("network", "CMSG_CALENDAR_COPY_EVENT [{}], EventId [" UI64FMTD
-                   "] inviteId [" UI64FMTD "] Time: %u", guid.ToString().c_str(), eventId, inviteId, eventTime);
+    LOG_DEBUG("network", "CMSG_CALENDAR_COPY_EVENT [{}], EventId [{}] inviteId [{}] Time: %u", guid.ToString().c_str(), eventId, inviteId, eventTime);
 
     // prevent events in the past
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
@@ -618,7 +616,7 @@ void WorldSession::HandleCalendarEventSignup(WorldPacket& recvData)
     bool tentative;
 
     recvData >> eventId >> tentative;
-    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_SIGNUP [{}] EventId [" UI64FMTD "] Tentative {}", guid.ToString(), eventId, tentative);
+    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_SIGNUP [{}] EventId [{}] Tentative {}", guid.ToString(), eventId, tentative);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -645,9 +643,9 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket& recvData)
     uint32 status;
 
     recvData >> eventId >> inviteId >> status;
-    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_RSVP [{}] EventId ["
-                   UI64FMTD "], InviteId [" UI64FMTD "], status %u", guid.ToString().c_str(), eventId,
-                   inviteId, status);
+
+    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_RSVP [{}] EventId [{}], InviteId [{}], status %u",
+        guid.ToString().c_str(), eventId, inviteId, status);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -685,8 +683,8 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
     recvData>> invitee.ReadAsPacked();
     recvData >> inviteId >> ownerInviteId >> eventId;
 
-    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_REMOVE_INVITE [{}] EventId [" UI64FMTD "], ownerInviteId [" UI64FMTD "], Invitee ([{}] id: [" UI64FMTD "])",
-                   guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId);
+    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_REMOVE_INVITE [{}] EventId [{}], ownerInviteId [{}], Invitee ([{}] id: [{}])",
+        guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -713,8 +711,9 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket& recvData)
 
     recvData >> invitee.ReadAsPacked();
     recvData >> eventId >> inviteId >> ownerInviteId >> status;
-    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_STATUS [{}] EventId [" UI64FMTD "] ownerInviteId [" UI64FMTD "], Invitee ({}) id: [" UI64FMTD "], status {}",
-        guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId, status);
+
+    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_STATUS [{}] EventId [{}] ownerInviteId [{}], Invitee ({}) id: [{}], status {}",
+        guid.ToString(), eventId, ownerInviteId, invitee.ToString(), inviteId, status);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -746,9 +745,8 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
 
     recvData>> invitee.ReadAsPacked();
     recvData >> eventId >>  inviteId >> ownerInviteId >> rank;
-    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [{}] EventId ["
-                   UI64FMTD "] ownerInviteId [" UI64FMTD "], Invitee ([%s] id: ["
-                   UI64FMTD "], rank %u", guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId, rank);
+    LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [{}] EventId [{}] ownerInviteId [{}], Invitee ([%s] id: [{}], rank {}",
+        guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId, rank);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -772,8 +770,8 @@ void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
     ObjectGuid complainGUID;
 
     recvData >> eventId >> complainGUID;
-    LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [{}] EventId ["
-                   UI64FMTD "] guid [%s]", guid.ToString().c_str(), eventId, complainGUID.ToString().c_str());
+    LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [{}] EventId [{}] guid [{}]",
+        guid.ToString().c_str(), eventId, complainGUID.ToString().c_str());
 
     // what to do with complains?
 }

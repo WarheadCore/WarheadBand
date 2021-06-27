@@ -575,8 +575,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
             {
                 // Shut down the server when the mysql server isn't
                 // reachable for some time
-                LOG_FATAL("sql.sql", "Failed to reconnect to the MySQL server, "
-                             "terminating the server to prevent data corruption!");
+                LOG_FATAL("sql.sql", "Failed to reconnect to the MySQL server, terminating the server to prevent data corruption!");
 
                 // We could also initiate a shutdown through using std::raise(SIGTERM)
                 std::this_thread::sleep_for(std::chrono::seconds(10));
