@@ -94,13 +94,13 @@ public:
         _outMessage(filter, level, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
-    template<typename Format, typename... Args>
-    void outCommand(uint32 account, Format&& fmt, Args&& ... args)
+    template<typename... Args>
+    void outCommand(uint32 account, std::string_view fmt, Args&& ... args)
     {
         if (!ShouldLog("commands.gm", LogLevel::LOG_LEVEL_INFO))
             return;
 
-        _outCommand(fmt::to_string(account), Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+        _outCommand(fmt::to_string(account), fmt::format(fmt, std::forward<Args>(args)...));
     }
 
 private:
@@ -182,9 +182,9 @@ private:
     sLog->outCommand(accountId__, __VA_ARGS__)
 
 #define FMT_LOG_ERROR(...) \
-    fmt::print(fmt::emphasis::bold | fg(fmt::color::red), "{}\n", fmt::format(__VA_ARGS__));
+    fmt::print(fg(fmt::color::red), "{} '{}:{}'", fmt::format(__VA_ARGS__), __FILE__, __LINE__);
 
 #define FMT_LOG_INFO(...) \
-    fmt::print(fmt::emphasis::bold | fg(fmt::color::light_cyan), "{}\n", fmt::format(__VA_ARGS__));
+    fmt::print(fmt::emphasis::bold | fg(fmt::color::light_cyan), "{}. '{}:{}'\n", fmt::format(__VA_ARGS__), __FILE__, __LINE__);
 
 #endif // _LOG_H__

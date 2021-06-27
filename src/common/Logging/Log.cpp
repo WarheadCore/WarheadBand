@@ -48,6 +48,7 @@ namespace
     // Prefix's
     constexpr auto PREFIX_LOGGER = "Logger.";
     constexpr auto PREFIX_CHANNEL = "LogChannel.";
+    constexpr auto PREFIX_LOGGER_LENGTH = 7;
     constexpr auto PREFIX_CHANNEL_LENGTH = 11;
 
     std::string m_logsDir;
@@ -209,32 +210,32 @@ void Log::CreateLoggerFromConfig(std::string const& configLoggerName)
     if (configLoggerName.empty())
         return;
 
-    std::string const& options = sConfigMgr->GetStringDefault(configLoggerName, "");
-    std::string const& loggerName = configLoggerName.substr(PREFIX_CHANNEL_LENGTH);
+    std::string const& options = sConfigMgr->GetOption<std::string>(configLoggerName, "");
+    std::string const& loggerName = configLoggerName.substr(PREFIX_LOGGER_LENGTH);
 
     if (loggerName == "system")
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Is forbidden to use logger name {}\n", loggerName.c_str());
+        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Is forbidden to use logger name {}\n", loggerName);
         return;
     }
 
     if (options.empty())
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Missing config option Logger.{}", loggerName.c_str());
+        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Missing config option Logger.{}", loggerName);
         return;
     }
 
     auto const& tokens = Warhead::Tokenize(options, ',', true);
     if (!tokens.size() || tokens.size() < LOGGER_OPTIONS_CHANNELS_NAME + 1)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Bad config options for Logger ({})", loggerName.c_str());
+        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Bad config options for Logger ({})", loggerName);
         return;
     }
 
     LogLevel level = static_cast<LogLevel>(Warhead::StringTo<uint8>(GetPositionOptions(options, LOGGER_OPTIONS_LOG_LEVEL)).value_or(static_cast<uint8>(LogLevel::LOG_LEVEL_MAX)));
     if (level >= LogLevel::LOG_LEVEL_MAX)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong Log Level for logger {}", loggerName.c_str());
+        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong Log Level for logger {}", loggerName);
         return;
     }
 
@@ -246,12 +247,12 @@ void Log::CreateLoggerFromConfig(std::string const& configLoggerName)
 
     for (auto const& tokensFmtChannels : Warhead::Tokenize(channelsName, ' ', false))
     {
-        std::string channelName = std::string(tokensFmtChannels);
+        std::string channelName{ tokensFmtChannels };
 
         auto fmtChannel = GetFormattingChannel(channelName);
         if (!fmtChannel)
         {
-            FMT_LOG_ERROR("Log::CreateLoggerFromConfig - Not found channel ({})", channelName.c_str());
+            FMT_LOG_ERROR("Log::CreateLoggerFromConfig - Not found channel ({})", channelName);
             return;
         }
 
@@ -278,41 +279,41 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
 
     if (options.empty())
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Missing config option LogChannel.{}", channelName);
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Missing config option LogChannel.{}", channelName);
         return;
     }
 
     auto const& tokens = Warhead::Tokenize(options, ',', true);
     if (tokens.size() < CHANNEL_OPTIONS_PATTERN + 1)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong config option (< CHANNEL_OPTIONS_PATTERN) LogChannel.{}={}", channelName.c_str(), options.c_str());
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong config option (< CHANNEL_OPTIONS_PATTERN) LogChannel.{}={}", channelName, options);
         return;
     }
 
     if (tokens.size() > CHANNEL_OPTIONS_MAX)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong config option (> CHANNEL_OPTIONS_MAX) LogChannel.{}={}", channelName.c_str(), options.c_str());
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong config option (> CHANNEL_OPTIONS_MAX) LogChannel.{}={}", channelName, options);
         return;
     }
 
     auto channelType = Warhead::StringTo<uint8>(GetPositionOptions(options, CHANNEL_OPTIONS_TYPE));
     if (!channelType || (channelType && channelType > (uint8)FormattingChannelType::FORMATTING_CHANNEL_TYPE_FILE))
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong channel type for LogChannel.{}\n", channelName.c_str());
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong channel type for LogChannel.{}\n", channelName);
         return;
     }
 
     auto times = GetPositionOptions(options, CHANNEL_OPTIONS_TIMES);
     if (times.empty())
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Empty times for LogChannel.{}", channelName.c_str());
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Empty times for LogChannel.{}", channelName);
         return;
     }
 
     auto pattern = GetPositionOptions(options, CHANNEL_OPTIONS_PATTERN);
     if (pattern.empty())
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Empty pattern for LogChannel.{}", channelName.c_str());
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Empty pattern for LogChannel.{}", channelName);
         return;
     }
 
@@ -326,7 +327,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
     }
     catch (const std::exception& e)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: {}", e.what());
+        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: {}", e.what());
     }
 
     if (channelType.value() == static_cast<uint8>(FormattingChannelType::FORMATTING_CHANNEL_TYPE_CONSOLE))
@@ -340,7 +341,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
         if (!colorOptions.empty())
         {
             auto const& tokensColor = Warhead::Tokenize(colorOptions, ' ', false);
-            if (tokensColor.size() == 8)
+            if (tokensColor.size() == static_cast<uint64>(LogLevel::LOG_LEVEL_TRACE))
             {
                 try
                 {
@@ -349,7 +350,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
                     _channel->setProperty("errorColor", std::string(tokensColor[2]));
                     _channel->setProperty("warningColor", std::string(tokensColor[3]));
                     _channel->setProperty("noticeColor", std::string(tokensColor[4]));
-                    _channel->setProperty("informationColor", tokensColor.at(5).data());
+                    _channel->setProperty("informationColor", std::string(tokensColor[5]));
                     _channel->setProperty("debugColor", std::string(tokensColor[6]));
                     _channel->setProperty("traceColor", std::string(tokensColor[7]));
                 }
@@ -370,7 +371,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
     {
         if (tokens.size() < CHANNEL_OPTIONS_OPTION_1 + 1)
         {
-            FMT_LOG_ERROR("Bad file name for LogChannel.{}", channelName.c_str());
+            FMT_LOG_ERROR("Bad file name for LogChannel.{}", channelName);
             ABORT();
         }
 
