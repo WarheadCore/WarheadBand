@@ -1462,7 +1462,7 @@ void Guild::HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string c
         SendCommandResult(session, GUILD_COMMAND_CHANGE_RANK, ERR_GUILD_PERMISSIONS);
     else if (RankInfo* rankInfo = GetRankInfo(rankId))
     {
-        LOG_DEBUG("guild", "Changed RankName to '{}', rights to 0x%08X", name, rights);
+        LOG_DEBUG("guild", "Changed RankName to '{}', rights to 0x{:08X}", name, rights);
 
         rankInfo->SetName(name);
         rankInfo->SetRights(rights);
