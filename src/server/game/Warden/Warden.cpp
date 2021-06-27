@@ -324,7 +324,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
     _warden->DecryptData(recvData.contents(), recvData.size());
     uint8 opcode;
     recvData >> opcode;
-    LOG_DEBUG("warden", "Got packet, opcode %02X, size {}", opcode, uint32(recvData.size()));
+    LOG_DEBUG("warden", "Got packet, opcode {:02X}, size {}", opcode, uint32(recvData.size()));
     recvData.hexlike();
 
     switch (opcode)
@@ -349,7 +349,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
             LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            LOG_DEBUG("warden", "Got unknown warden opcode %02X of size {}.", opcode, uint32(recvData.size() - 1));
+            LOG_DEBUG("warden", "Got unknown warden opcode {:02X} of size {}.", opcode, uint32(recvData.size() - 1));
             break;
     }
 }
