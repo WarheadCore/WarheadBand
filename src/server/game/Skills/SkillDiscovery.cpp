@@ -149,7 +149,7 @@ void LoadSkillDiscoveryTable()
             continue;
 
         if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
-            LOG_ERROR("sql.sql", "Spell (ID: {}) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
+            LOG_ERROR("sql.sql", "Spell (ID: {}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
     LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
