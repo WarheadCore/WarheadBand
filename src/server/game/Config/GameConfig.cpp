@@ -191,14 +191,14 @@ WH_GAME_API float GameConfig::GetOption<float>(std::string const& optionName, Op
     auto itr = _configOptions.find(optionName);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned (%f)", optionName, retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, retValueDef);
         return retValueDef;
     }
 
     Optional<float> result = Warhead::StringTo<float>(_configOptions.at(optionName));
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '%f' instead", optionName, retValueDef);
+        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, retValueDef);
         return retValueDef;
     }
 
@@ -759,7 +759,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
 
         if (_rate < 0.0f)
         {
-            LOG_ERROR("server.loading", "{} (%f) must be > 0. Using 1 instead.", optionName, _rate);
+            LOG_ERROR("server.loading", "{} ({}) must be > 0. Using 1 instead.", optionName, _rate);
             SetOption<float>(optionName, 1.0f);
         }
     };
@@ -783,14 +783,14 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempFloatOption = CONF_GET_FLOAT("TargetPosRecalculateRange");
     if (tempFloatOption < CONTACT_DISTANCE)
     {
-        LOG_ERROR("server.loading", "TargetPosRecalculateRange (%f) must be >= %f. Using %f instead.",
+        LOG_ERROR("server.loading", "TargetPosRecalculateRange ({}) must be >= {}. Using {} instead.",
             tempFloatOption, CONTACT_DISTANCE, CONTACT_DISTANCE);
 
         SetOption<float>("TargetPosRecalculateRange", CONTACT_DISTANCE);
     }
     else if (tempFloatOption > NOMINAL_MELEE_RANGE)
     {
-        LOG_ERROR("server.loading", "TargetPosRecalculateRange (%f) must be <= %f. Using %f instead",
+        LOG_ERROR("server.loading", "TargetPosRecalculateRange ({}) must be <= {}. Using {} instead",
             tempFloatOption, NOMINAL_MELEE_RANGE, NOMINAL_MELEE_RANGE);
 
         SetOption<float>("TargetPosRecalculateRange", NOMINAL_MELEE_RANGE);
@@ -799,12 +799,12 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     tempFloatOption = CONF_GET_FLOAT("DurabilityLoss.OnDeath");
     if (tempFloatOption < 0.0f)
     {
-        LOG_ERROR("server.loading", "DurabilityLoss.OnDeath (%f) must be >= 0. Using 0.0 instead", tempFloatOption);
+        LOG_ERROR("server.loading", "DurabilityLoss.OnDeath ({}) must be >= 0. Using 0.0 instead", tempFloatOption);
         SetOption<float>("DurabilityLoss.OnDeath", 0.0f);
     }
     else if (tempFloatOption > 100.0f)
     {
-        LOG_ERROR("server.loading", "DurabilityLoss.OnDeath (%f) must be <= 100. Using 100.0 instead", tempFloatOption);
+        LOG_ERROR("server.loading", "DurabilityLoss.OnDeath ({}) must be <= 100. Using 100.0 instead", tempFloatOption);
         SetOption<float>("DurabilityLoss.OnDeath", 0.0f);
     }
 
@@ -816,7 +816,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         tempFloatOption = CONF_GET_FLOAT(optionName);
         if (tempFloatOption < 0.0f)
         {
-            LOG_ERROR("server.loading", "{} (%f) must be >= 0. Using 0.0 instead", optionName, tempFloatOption);
+            LOG_ERROR("server.loading", "{} ({}) must be >= 0. Using 0.0 instead", optionName, tempFloatOption);
             SetOption<float>(optionName, 1.0f);
         }
     };

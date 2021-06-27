@@ -539,8 +539,8 @@ void SpellCastTargets::OutDebug() const
             m_dst._transportGUID.ToString().c_str(), m_dst._transportOffset.ToString().c_str(), m_dst._position.ToString().c_str());
     if (m_targetMask & TARGET_FLAG_STRING)
         LOG_INFO("spells", "String: {}", m_strTarget);
-    LOG_INFO("spells", "speed: %f", m_speed);
-    LOG_INFO("spells", "elevation: %f", m_elevation);
+    LOG_INFO("spells", "speed: {}", m_speed);
+    LOG_INFO("spells", "elevation: {}", m_elevation);
 }
 
 SpellValue::SpellValue(SpellInfo const* proto)
@@ -1644,7 +1644,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
     if (a > -0.0001f)
         a = 0;
 
-    LOG_ERROR("spells", "Spell::SelectTrajTargets: a %f b %f", a, b);
+    LOG_ERROR("spells", "Spell::SelectTrajTargets: a {} b {}", a, b);
 
     // Xinef: hack for distance, many trajectory spells have RangeEntry 1 (self)
     float bestDist = m_spellInfo->GetMaxRange(false) * 2;
@@ -1663,13 +1663,13 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
         const float objDist2d = fabs(m_targets.GetSrcPos()->GetExactDist2d(*itr) * cos(m_targets.GetSrcPos()->GetRelativeAngle(*itr)));
         const float dz = fabs((*itr)->GetPositionZ() - m_targets.GetSrcPos()->m_positionZ);
 
-        LOG_ERROR("spells", "Spell::SelectTrajTargets: check {}, dist between %f %f, height between %f %f.",
+        LOG_ERROR("spells", "Spell::SelectTrajTargets: check {}, dist between {} {}, height between {} {}.",
             (*itr)->GetEntry(), objDist2d - size, objDist2d + size, dz - size, dz + size);
 
         float dist = objDist2d - size;
         float height = dist * (a * dist + b);
 
-        LOG_ERROR("spells", "Spell::SelectTrajTargets: dist %f, height %f.", dist, height);
+        LOG_ERROR("spells", "Spell::SelectTrajTargets: dist {}, height {}.", dist, height);
 
         if (dist < bestDist && height < dz + size && height > dz - size)
         {
@@ -1678,7 +1678,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
         }
 
 #define CHECK_DIST {\
-            LOG_ERROR("spells", "Spell::SelectTrajTargets: dist %f, height %f.", dist, height);\
+            LOG_ERROR("spells", "Spell::SelectTrajTargets: dist {}, height {}.", dist, height);\
             if (dist > bestDist)\
                 continue;\
             if (dist < objDist2d + size && dist > objDist2d - size)\
@@ -1754,7 +1754,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
             float distSq = (*itr)->GetExactDistSq(x, y, z);
             float sizeSq = (*itr)->GetObjectSize();
             sizeSq *= sizeSq;
-            LOG_ERROR("spells", "Initial %f %f %f %f %f", x, y, z, distSq, sizeSq);
+            LOG_ERROR("spells", "Initial {} {} {} {} {}", x, y, z, distSq, sizeSq);
             if (distSq > sizeSq)
             {
                 float factor = 1 - sqrt(sizeSq / distSq);
@@ -1763,7 +1763,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 z += factor * ((*itr)->GetPositionZ() - z);
 
                 distSq = (*itr)->GetExactDistSq(x, y, z);
-                LOG_ERROR("spells", "Initial %f %f %f %f %f", x, y, z, distSq, sizeSq);
+                LOG_ERROR("spells", "Initial {} {} {} {} {}", x, y, z, distSq, sizeSq);
             }
         }
 
@@ -5116,7 +5116,7 @@ void Spell::HandleThreatSpells()
         else if (!m_spellInfo->_IsPositiveSpell() && !IsFriendly && target->CanHaveThreatList())
             target->AddThreat(m_caster, threatToAdd, m_spellInfo->GetSchoolMask(), m_spellInfo);
     }
-    LOG_DEBUG("spells.aura", "Spell {}, added an additional %f threat for {} {} target(s)", m_spellInfo->Id, threat, m_spellInfo->_IsPositiveSpell() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
+    LOG_DEBUG("spells.aura", "Spell {}, added an additional {} threat for {} {} target(s)", m_spellInfo->Id, threat, m_spellInfo->_IsPositiveSpell() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
 }
 
 void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode)

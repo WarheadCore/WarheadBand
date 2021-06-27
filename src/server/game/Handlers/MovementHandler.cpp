@@ -677,13 +677,13 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket& recvData)
     {
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
-            LOG_ERROR("network.opcode", "{}SpeedChange player {} is NOT correct (must be %f instead %f), force set to correct value",
+            LOG_ERROR("network.opcode", "{}SpeedChange player {} is NOT correct (must be {} instead {}), force set to correct value",
                            move_type_name[move_type], _player->GetName().c_str(), _player->GetSpeed(move_type), newspeed);
             _player->SetSpeed(move_type, _player->GetSpeedRate(move_type), true);
         }
         else                                                // must be lesser - cheating
         {
-            LOG_INFO("network.opcode", "Player {} from account id {} kicked for incorrect speed (must be %f instead %f)",
+            LOG_INFO("network.opcode", "Player {} from account id {} kicked for incorrect speed (must be {} instead {})",
                            _player->GetName().c_str(), GetAccountId(), _player->GetSpeed(move_type), newspeed);
             KickPlayer("Incorrect speed");
         }

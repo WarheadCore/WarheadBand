@@ -172,7 +172,7 @@ static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr
             zoneName = zone->area_name[locale];
     }
 
-    LOG_GM(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: {} ({}) (Account: {}) X: %f Y: %f Z: %f Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
+    LOG_GM(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
         STRING_VIEW_FMT_ARG(cmdStr), player->GetName().c_str(), player->GetGUID().ToString().c_str(),
         session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
         player->GetPositionZ(), player->GetMapId(),

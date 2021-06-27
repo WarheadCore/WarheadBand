@@ -331,7 +331,7 @@ void Map::SwitchGridContainers(Creature* obj, bool on)
     CellCoord p = Warhead::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
-        LOG_ERROR("maps", "Map::SwitchGridContainers: Object {} has invalid coordinates X:%f Y:%f grid cell [{}:{}]",
+        LOG_ERROR("maps", "Map::SwitchGridContainers: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
             obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
@@ -369,7 +369,7 @@ void Map::SwitchGridContainers(GameObject* obj, bool on)
     CellCoord p = Warhead::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!p.IsCoordValid())
     {
-        LOG_ERROR("maps", "Map::SwitchGridContainers: Object {} has invalid coordinates X:%f Y:%f grid cell [{}:{}]",
+        LOG_ERROR("maps", "Map::SwitchGridContainers: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
             obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
@@ -491,7 +491,7 @@ bool Map::AddPlayerToMap(Player* player)
     CellCoord cellCoord = Warhead::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
     if (!cellCoord.IsCoordValid())
     {
-        LOG_ERROR("maps", "Map::Add: Player ({}) has invalid coordinates X:%f Y:%f grid cell [{}:{}]",
+        LOG_ERROR("maps", "Map::Add: Player ({}) has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
             player->GetGUID().ToString().c_str(), player->GetPositionX(), player->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false;
     }
@@ -554,7 +554,7 @@ bool Map::AddToMap(T* obj, bool checkTransport)
     ASSERT(cellCoord.IsCoordValid());
     if (!cellCoord.IsCoordValid())
     {
-        LOG_ERROR("maps", "Map::Add: Object {} has invalid coordinates X:%f Y:%f grid cell [{}:{}]",
+        LOG_ERROR("maps", "Map::Add: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
             obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false; //Should delete object
     }
@@ -603,7 +603,7 @@ bool Map::AddToMap(MotionTransport* obj, bool /*checkTransport*/)
     CellCoord cellCoord = Warhead::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
     if (!cellCoord.IsCoordValid())
     {
-        LOG_ERROR("maps", "Map::Add: Object {} has invalid coordinates X:%f Y:%f grid cell [{}:{}]",
+        LOG_ERROR("maps", "Map::Add: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
             obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false; //Should delete object
     }
@@ -2184,7 +2184,7 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
     uint32 liquid_type = 0;
     if (vmgr->GetLiquidLevel(GetId(), x, y, z, ReqLiquidType, liquid_level, ground_level, liquid_type))
     {
-        LOG_DEBUG("maps", "getLiquidStatus(): vmap liquid level: %f ground: %f type: {}", liquid_level, ground_level, liquid_type);
+        LOG_DEBUG("maps", "getLiquidStatus(): vmap liquid level: {} ground: {} type: {}", liquid_level, ground_level, liquid_type);
         // Check water level and ground level
         if (liquid_level > ground_level && z > ground_level - 2)
         {
@@ -3679,7 +3679,7 @@ bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float start
     // Prevent invalid coordinates here, position is unchanged
     if (!Warhead::IsValidMapCoord(startX, startY, startZ) || !Warhead::IsValidMapCoord(destX, destY, destZ))
     {
-        LOG_FATAL("maps", "Map::CheckCollisionAndGetValidCoords invalid coordinates startX: %f, startY: %f, startZ: %f, destX: %f, destY: %f, destZ: %f", startX, startY, startZ, destX, destY, destZ);
+        LOG_FATAL("maps", "Map::CheckCollisionAndGetValidCoords invalid coordinates startX: {}, startY: {}, startZ: {}, destX: {}, destY: {}, destZ: {}", startX, startY, startZ, destX, destY, destZ);
         return false;
     }
 

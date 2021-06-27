@@ -174,7 +174,7 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
     owner->GetClosePoint(px, py, pz, pet->GetObjectSize(), PET_FOLLOW_DIST, pet->GetFollowAngle());
     if (!pet->IsPositionValid())
     {
-        LOG_ERROR("network.opcode", "Pet ({}, entry {}) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+        LOG_ERROR("network.opcode", "Pet ({}, entry {}) not loaded. Suggested coordinates isn't valid (X: {} Y: {})",
             pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return PET_LOAD_ERROR;

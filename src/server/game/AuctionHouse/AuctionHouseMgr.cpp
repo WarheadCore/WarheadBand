@@ -104,7 +104,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
 
     LOG_DEBUG("auctionHouse", "MSV:        {}", MSV);
     LOG_DEBUG("auctionHouse", "Items:      {}", count);
-    LOG_DEBUG("auctionHouse", "Multiplier: %f", multiplier);
+    LOG_DEBUG("auctionHouse", "Multiplier: {}", multiplier);
     LOG_DEBUG("auctionHouse", "Deposit:    {}", deposit);
 
     if (deposit < AH_MINIMUM_DEPOSIT * CONF_GET_FLOAT("Rate.Auction.Deposit"))

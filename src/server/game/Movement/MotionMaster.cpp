@@ -405,12 +405,12 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
 
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        LOG_DEBUG("movement.motionmaster", "Player ({}) targeted point (Id: {} X: %f Y: %f Z: %f)", _owner->GetGUID().ToString(), id, x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Player ({}) targeted point (Id: {} X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
         Mutate(new PointMovementGenerator<Player>(id, x, y, z, 0.0f, orientation, nullptr, generatePath, forceDestination), slot);
     }
     else
     {
-        LOG_DEBUG("movement.motionmaster", "Creature ({}) targeted point (ID: {} X: %f Y: %f Z: %f)", _owner->GetGUID().ToString(), id, x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Creature ({}) targeted point (ID: {} X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), id, x, y, z);
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, 0.0f, orientation, nullptr, generatePath, forceDestination), slot);
     }
 }
@@ -440,7 +440,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed /* = 0.0
     float x, y, z;
     pos.GetPosition(x, y, z);
 
-    LOG_DEBUG("movement.motionmaster", "Creature (Entry: {}) landing point (ID: {} X: %f Y: %f Z: %f)", _owner->GetEntry(), id, x, y, z);
+    LOG_DEBUG("movement.motionmaster", "Creature (Entry: {}) landing point (ID: {} X: {} Y: {} Z: {})", _owner->GetEntry(), id, x, y, z);
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
@@ -470,7 +470,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed /* = 
     float x, y, z;
     pos.GetPosition(x, y, z);
 
-    LOG_DEBUG("movement.motionmaster", "Creature (Entry: {}) landing point (ID: {} X: %f Y: %f Z: %f)", _owner->GetEntry(), id, x, y, z);
+    LOG_DEBUG("movement.motionmaster", "Creature (Entry: {}) landing point (ID: {} X: {} Y: {} Z: {})", _owner->GetEntry(), id, x, y, z);
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(x, y, z);
@@ -533,7 +533,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
 void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id, Unit const* target)
 {
-    LOG_DEBUG("movement.motionmaster", "Unit ({}) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString(), x, y, z);
+    LOG_DEBUG("movement.motionmaster", "Unit ({}) jump to point (X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), x, y, z);
 
     if (speedXY <= 0.1f)
         return;
@@ -561,7 +561,7 @@ void MotionMaster::MoveFall(uint32 id /*=0*/, bool addFlagForNPC)
     float tz = _owner->GetMapHeight(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
-        LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFall: unable retrive a proper height at map {} (x: %f, y: %f, z: %f).",
+        LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFall: unable retrive a proper height at map {} (x: {}, y: {}, z: {}).",
                              _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionX(), _owner->GetPositionZ() + _owner->GetPositionZ());
         return;
     }
@@ -603,12 +603,12 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id,
 
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        LOG_DEBUG("movement.motionmaster", "Player ({}) charge point (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString(), x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Player ({}) charge point (X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), x, y, z);
         Mutate(new PointMovementGenerator<Player>(id, x, y, z, speed, orientation, path, generatePath, generatePath), MOTION_SLOT_CONTROLLED);
     }
     else
     {
-        LOG_DEBUG("movement.motionmaster", "Creature ({}) charge point (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString(), x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Creature ({}) charge point (X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), x, y, z);
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, speed, orientation, path, generatePath, generatePath), MOTION_SLOT_CONTROLLED);
     }
 }
@@ -625,7 +625,7 @@ void MotionMaster::MoveSeekAssistance(float x, float y, float z)
     }
     else
     {
-        LOG_DEBUG("movement.motionmaster", "Creature ({}) seek assistance (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString(), x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Creature ({}) seek assistance (X: {} Y: {} Z: {})", _owner->GetGUID().ToString(), x, y, z);
         _owner->AttackStop();
         _owner->CastStop(0, false);
         _owner->ToCreature()->SetReactState(REACT_PASSIVE);

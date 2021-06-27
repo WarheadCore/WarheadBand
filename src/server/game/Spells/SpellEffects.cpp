@@ -1227,7 +1227,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     destTarget->GetPosition(x, y, z, orientation);
     if (!orientation && m_targets.GetUnitTarget())
         orientation = m_targets.GetUnitTarget()->GetOrientation();
-    LOG_DEBUG("spells.aura", "Spell::EffectTeleportUnits - teleport unit to {} %f %f %f %f\n", mapid, x, y, z, orientation);
+    LOG_DEBUG("spells.aura", "Spell::EffectTeleportUnits - teleport unit to {} {} {} {} {}\n", mapid, x, y, z, orientation);
 
     if (mapid == unitTarget->GetMapId())
     {
@@ -6384,7 +6384,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     data << uint32(areaId);
     player->SendDirectMessage(&data);
 
-    LOG_DEBUG("spells.aura", "EffectBind: New homebind X: %f, Y: %f, Z: %f, MapId: {}, AreaId: {}",
+    LOG_DEBUG("spells.aura", "EffectBind: New homebind X: {}, Y: {}, Z: {}, MapId: {}, AreaId: {}",
                    homeLoc.GetPositionX(), homeLoc.GetPositionY(), homeLoc.GetPositionZ(), homeLoc.GetMapId(), areaId);
     // zone update
     data.Initialize(SMSG_PLAYERBOUND, 8 + 4);

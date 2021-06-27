@@ -642,7 +642,7 @@ void PoolMgr::LoadFromDB()
                 }
                 if (chance < 0 || chance > 100)
                 {
-                    LOG_ERROR("sql.sql", "`pool_creature` has an invalid chance (%f) for creature guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
+                    LOG_ERROR("sql.sql", "`pool_creature` has an invalid chance ({}) for creature guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
                     continue;
                 }
                 PoolTemplateData* pPoolTemplate = &mPoolTemplate[pool_id];
@@ -711,7 +711,7 @@ void PoolMgr::LoadFromDB()
 
                 if (chance < 0 || chance > 100)
                 {
-                    LOG_ERROR("sql.sql", "`pool_gameobject` has an invalid chance (%f) for gameobject guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
+                    LOG_ERROR("sql.sql", "`pool_gameobject` has an invalid chance ({}) for gameobject guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
                     continue;
                 }
 
@@ -779,7 +779,7 @@ void PoolMgr::LoadFromDB()
                 }
                 if (chance < 0 || chance > 100)
                 {
-                    LOG_ERROR("sql.sql", "`pool_pool` has an invalid chance (%f) for pool id ({}) in mother pool id ({}), skipped.", chance, child_pool_id, mother_pool_id);
+                    LOG_ERROR("sql.sql", "`pool_pool` has an invalid chance ({}) for pool id ({}) in mother pool id ({}), skipped.", chance, child_pool_id, mother_pool_id);
                     continue;
                 }
                 PoolTemplateData* pPoolTemplateMother = &mPoolTemplate[mother_pool_id];

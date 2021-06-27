@@ -102,7 +102,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(float x, float y, float z,
     {
         if (z > -500)
         {
-            LOG_ERROR("sql.sql", "ZoneId not found for map {} coords (%f, %f, %f)", MapId, x, y, z);
+            LOG_ERROR("sql.sql", "ZoneId not found for map {} coords ({}, {}, {})", MapId, x, y, z);
             return GetDefaultGraveyard(teamId);
         }
     }

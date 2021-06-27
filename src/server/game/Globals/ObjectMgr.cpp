@@ -934,13 +934,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (cInfo->speed_walk == 0.0f)
     {
-        LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value (%f) in speed_walk, set to 1.", cInfo->Entry, cInfo->speed_walk);
+        LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value ({}) in speed_walk, set to 1.", cInfo->Entry, cInfo->speed_walk);
         const_cast<CreatureTemplate*>(cInfo)->speed_walk = 1.0f;
     }
 
     if (cInfo->speed_run == 0.0f)
     {
-        LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value (%f) in speed_run, set to 1.14286.", cInfo->Entry, cInfo->speed_run);
+        LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value ({}) in speed_run, set to 1.14286.", cInfo->Entry, cInfo->speed_run);
         const_cast<CreatureTemplate*>(cInfo)->speed_run = 1.14286f;
     }
 
@@ -965,7 +965,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
     if (cInfo->HoverHeight < 0.0f)
     {
-        LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value (%f) in `HoverHeight`", cInfo->Entry, cInfo->HoverHeight);
+        LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value ({}) in `HoverHeight`", cInfo->Entry, cInfo->HoverHeight);
         const_cast<CreatureTemplate*>(cInfo)->HoverHeight = 1.0f;
     }
 
@@ -1963,7 +1963,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
         }
     }
 
-    LOG_DEBUG("maps", "AddGOData: spawnId {} entry {} map {} x %f y %f z %f o %f", spawnId, entry, mapId, x, y, z, o);
+    LOG_DEBUG("maps", "AddGOData: spawnId {} entry {} map {} x {} y {} z {} o {}", spawnId, entry, mapId, x, y, z, o);
 
     return spawnId;
 }
@@ -2131,25 +2131,25 @@ void ObjectMgr::LoadGameobjects()
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
-            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationX (%f) value, skip", guid, data.id, data.rotation.x);
+            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationX ({}) value, skip", guid, data.id, data.rotation.x);
             continue;
         }
 
         if (data.rotation.y < -1.0f || data.rotation.y > 1.0f)
         {
-            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationY (%f) value, skip", guid, data.id, data.rotation.y);
+            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationY ({}) value, skip", guid, data.id, data.rotation.y);
             continue;
         }
 
         if (data.rotation.z < -1.0f || data.rotation.z > 1.0f)
         {
-            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationZ (%f) value, skip", guid, data.id, data.rotation.z);
+            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationZ ({}) value, skip", guid, data.id, data.rotation.z);
             continue;
         }
 
         if (data.rotation.w < -1.0f || data.rotation.w > 1.0f)
         {
-            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationW (%f) value, skip", guid, data.id, data.rotation.w);
+            LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid rotationW ({}) value, skip", guid, data.id, data.rotation.w);
             continue;
         }
 
@@ -4753,7 +4753,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
                     if (!Warhead::IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
                     {
-                        LOG_ERROR("sql.sql", "Table `{}` has invalid coordinates (X: %f Y: %f Z: %f O: %f) in SCRIPT_COMMAND_TELEPORT_TO for script id {}",
+                        LOG_ERROR("sql.sql", "Table `{}` has invalid coordinates (X: {} Y: {} Z: {} O: {}) in SCRIPT_COMMAND_TELEPORT_TO for script id {}",
                                          tableName.c_str(), tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation, tmp.id);
                         continue;
                     }
@@ -4790,14 +4790,14 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
                     if (tmp.QuestExplored.Distance && float(tmp.QuestExplored.Distance) > DEFAULT_VISIBILITY_DISTANCE)
                     {
-                        LOG_ERROR("sql.sql", "Table `{}` has too large distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, max distance is %f or 0 for disable distance check",
+                        LOG_ERROR("sql.sql", "Table `{}` has too large distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, max distance is {} or 0 for disable distance check",
                                          tableName.c_str(), tmp.QuestExplored.Distance, tmp.id, DEFAULT_VISIBILITY_DISTANCE);
                         continue;
                     }
 
                     if (tmp.QuestExplored.Distance && float(tmp.QuestExplored.Distance) < INTERACTION_DISTANCE)
                     {
-                        LOG_ERROR("sql.sql", "Table `{}` has too small distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, min distance is %f or 0 for disable distance check",
+                        LOG_ERROR("sql.sql", "Table `{}` has too small distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, min distance is {} or 0 for disable distance check",
                                          tableName.c_str(), tmp.QuestExplored.Distance, tmp.id, INTERACTION_DISTANCE);
                         continue;
                     }
@@ -4851,7 +4851,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                 {
                     if (!Warhead::IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
                     {
-                        LOG_ERROR("sql.sql", "Table `{}` has invalid coordinates (X: %f Y: %f Z: %f O: %f) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {}",
+                        LOG_ERROR("sql.sql", "Table `{}` has invalid coordinates (X: {} Y: {} Z: {} O: {}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {}",
                                          tableName.c_str(), tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation, tmp.id);
                         continue;
                     }
@@ -6729,43 +6729,43 @@ void ObjectMgr::LoadReputationRewardRate()
 
         if (repRate.questRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_rate with invalid rate %f, skipping data for faction {}", repRate.questRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_rate with invalid rate {}, skipping data for faction {}", repRate.questRate, factionId);
             continue;
         }
 
         if (repRate.questDailyRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_daily_rate with invalid rate %f, skipping data for faction {}", repRate.questDailyRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_daily_rate with invalid rate {}, skipping data for faction {}", repRate.questDailyRate, factionId);
             continue;
         }
 
         if (repRate.questWeeklyRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_weekly_rate with invalid rate %f, skipping data for faction {}", repRate.questWeeklyRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_weekly_rate with invalid rate {}, skipping data for faction {}", repRate.questWeeklyRate, factionId);
             continue;
         }
 
         if (repRate.questMonthlyRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_monthly_rate with invalid rate %f, skipping data for faction {}", repRate.questMonthlyRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_monthly_rate with invalid rate {}, skipping data for faction {}", repRate.questMonthlyRate, factionId);
             continue;
         }
 
         if (repRate.questRepeatableRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_repeatable_rate with invalid rate %f, skipping data for faction {}", repRate.questRepeatableRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has quest_repeatable_rate with invalid rate {}, skipping data for faction {}", repRate.questRepeatableRate, factionId);
             continue;
         }
 
         if (repRate.creatureRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has creature_rate with invalid rate %f, skipping data for faction {}", repRate.creatureRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has creature_rate with invalid rate {}, skipping data for faction {}", repRate.creatureRate, factionId);
             continue;
         }
 
         if (repRate.spellRate < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table reputation_reward_rate has spell_rate with invalid rate %f, skipping data for faction {}", repRate.spellRate, factionId);
+            LOG_ERROR("sql.sql", "Table reputation_reward_rate has spell_rate with invalid rate {}, skipping data for faction {}", repRate.spellRate, factionId);
             continue;
         }
 
@@ -6998,7 +6998,7 @@ void ObjectMgr::LoadPointsOfInterest()
 
         if (!Warhead::IsValidMapCoord(POI.PositionX, POI.PositionY))
         {
-            LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: {}) have invalid coordinates (X: %f Y: %f), ignored.", point_id, POI.PositionX, POI.PositionY);
+            LOG_ERROR("sql.sql", "Table `points_of_interest` (ID: {}) have invalid coordinates (X: {} Y: {}), ignored.", point_id, POI.PositionX, POI.PositionY);
             continue;
         }
 
