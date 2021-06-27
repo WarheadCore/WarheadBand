@@ -6465,13 +6465,13 @@ static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uin
 
 bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 {
-    LOG_DEBUG("entities.player.skills", "UpdateSkillPro(SkillId {}, Chance %3.1f%)", SkillId, Chance / 10.0f);
+    LOG_DEBUG("entities.player.skills", "UpdateSkillPro(SkillId {}, Chance {:3.1f}%)", SkillId, Chance / 10.0f);
     if (!SkillId)
         return false;
 
     if (Chance <= 0)                                         // speedup in 0 chance case
     {
-        LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance=%3.1f% missed", Chance / 10.0f);
+        LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance={:3.1f}% missed", Chance / 10.0f);
         return false;
     }
 
@@ -6511,11 +6511,11 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
         }
         UpdateSkillEnchantments(SkillId, SkillValue, new_value);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, SkillId);
-        LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance=%3.1f% taken", Chance / 10.0f);
+        LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance={:3.1f}% taken", Chance / 10.0f);
         return true;
     }
 
-    LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance=%3.1f% missed", Chance / 10.0f);
+    LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance={:3.1f}% missed", Chance / 10.0f);
     return false;
 }
 
