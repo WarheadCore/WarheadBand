@@ -47,55 +47,13 @@ extern "C" { WH_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; 
     exit(1);
 #endif
 
-namespace
-{
-    std::string FormatAssertionMessage(char const* format, va_list args)
-    {
-        std::string formatted;
-        va_list len;
-
-        va_copy(len, args);
-        int32 length = vsnprintf(nullptr, 0, format, len);
-        va_end(len);
-
-        formatted.resize(length);
-        vsnprintf(&formatted[0], length + 1, format, args);
-
-        return formatted;
-    }
-}
-
 namespace Warhead
 {
-    void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message)
+    template<typename... Args>
+    void Assert(char const* file, int line, char const* function, std::string const& debugInfo, std::string_view fmt, Args&&... args)
     {
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
-        Crash(formattedMessage.c_str());
-    }
-
-    void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message, char const* format, ...)
-    {
-        va_list args;
-        va_start(args, format);
-
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
-        va_end(args);
-
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
-
-        Crash(formattedMessage.c_str());
-    }
-
-    void Fatal(char const* file, int line, char const* function, char const* message, ...)
-    {
-        va_list args;
-        va_start(args, message);
-
-        std::string formattedMessage = StringFormat("\n{}:{} in {} FATAL ERROR:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
-        va_end(args);
+        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
 
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
@@ -104,18 +62,36 @@ namespace Warhead
         Crash(formattedMessage.c_str());
     }
 
-    void Error(char const* file, int line, char const* function, char const* message)
+    template<typename... Args>
+    void Fatal(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
     {
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  {}\n", file, line, function, message);
+        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} FATAL ERROR:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
+
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
         Crash(formattedMessage.c_str());
     }
 
-    void Warning(char const* file, int line, char const* function, char const* message)
+    template<typename... Args>
+    void Error(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
     {
-        fprintf(stderr, "\n%s:%i in %s WARNING:\n  %s\n",
-                file, line, function, message);
+        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
+
+        fprintf(stderr, "%s", formattedMessage.c_str());
+        fflush(stderr);
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        Crash(formattedMessage.c_str());
+    }
+
+    void Warning(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
+    {
+        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
+        fprintf(stderr, "\n%s:%i in %s WARNING:\n  %s\n", file, line, function, fmtMessage);
     }
 
     void Abort(char const* file, int line, char const* function)
@@ -126,17 +102,16 @@ namespace Warhead
         Crash(formattedMessage.c_str());
     }
 
-    void Abort(char const* file, int line, char const* function, char const* message, ...)
+    template<typename... Args>
+    void Abort(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
     {
-        va_list args;
-        va_start(args, message);
-
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
-        va_end(args);
+        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
+        std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
 
         fprintf(stderr, "%s", formattedMessage.c_str());
         fflush(stderr);
 
+        std::this_thread::sleep_for(std::chrono::seconds(10));
         Crash(formattedMessage.c_str());
     }
 
