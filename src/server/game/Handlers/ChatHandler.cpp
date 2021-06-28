@@ -170,7 +170,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
-        SendNotification(GetWarheadString(LANG_GM_SILENCE), sender->GetName().c_str());
+        SendNotification(GetWarheadString(LANG_GM_SILENCE), sender->GetName());
         recvData.rfinish();
         return;
     }
@@ -304,7 +304,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
         if (!CanSpeak())
         {
-            SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()).c_str());
+            SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()));
             return;
         }
     }
@@ -461,7 +461,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 // pussywizard: optimization
                 if (GetPlayer()->HasAura(1852) && !receiver->IsGameMaster())
                 {
-                    SendNotification(GetWarheadString(LANG_GM_SILENCE), GetPlayer()->GetName().c_str());
+                    SendNotification(GetWarheadString(LANG_GM_SILENCE), GetPlayer()->GetName());
                     return;
                 }
 
@@ -771,7 +771,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
     if (!CanSpeak())
     {
-        SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()).c_str());
+        SendNotification(GetWarheadString(LANG_WAIT_BEFORE_SPEAKING), sMute->GetMuteTimeString(GetAccountId()));
         return;
     }
 

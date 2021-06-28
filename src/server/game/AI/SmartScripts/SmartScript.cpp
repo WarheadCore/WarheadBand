@@ -968,7 +968,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 IncPhase(e.action.incEventPhase.inc);
                 DecPhase(e.action.incEventPhase.dec);
                 LOG_DEBUG("sql.sql", "SmartScript::ProcessAction:: SMART_ACTION_INC_EVENT_PHASE: Creature {} inc event phase by {}, "
-                               "decrease by %u", GetBaseObject()->GetGUID().ToString().c_str(), e.action.incEventPhase.inc, e.action.incEventPhase.dec);
+                               "decrease by {}", GetBaseObject()->GetGUID().ToString().c_str(), e.action.incEventPhase.inc, e.action.incEventPhase.dec);
                 break;
             }
         case SMART_ACTION_EVADE:

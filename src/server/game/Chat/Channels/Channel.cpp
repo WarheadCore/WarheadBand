@@ -813,8 +813,8 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
         {
             std::string timeStr = Warhead::Time::ToTimeString<Seconds>(lastSpeakTime + speakDelay - GameTime::GetGameTime());
             if (_channelRights.speakMessage.length() > 0)
-                player->GetSession()->SendNotification("%s", _channelRights.speakMessage.c_str());
-            player->GetSession()->SendNotification("You must wait %s before speaking again.", timeStr.c_str());
+                player->GetSession()->SendNotification("{}", _channelRights.speakMessage);
+            player->GetSession()->SendNotification("You must wait {} before speaking again.", timeStr);
             return;
         }
     }

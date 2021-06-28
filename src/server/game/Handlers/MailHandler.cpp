@@ -312,7 +312,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         if( money >= 10 * GOLD )
         {
             CleanStringForMysqlQuery(subject);
-            CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"<MAIL> %s\", NOW())",
+            CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<MAIL> {}\", NOW())",
                 GetAccountId(), player->GetGUID().GetCounter(), player->GetName().c_str(), player->GetSession()->GetRemoteAddress().c_str(), rc_account, receiver.c_str(), money, subject.c_str());
         }
     }
@@ -526,7 +526,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                         senderName = sGameLocale->GetWarheadStringForDBCLocale(LANG_UNKNOWN);
                     std::string subj = m->subject;
                     CleanStringForMysqlQuery(subj);
-                    CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"<COD> %s\", NOW())",
+                    CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<COD> {}\", NOW())",
                         GetAccountId(), player->GetGUID().GetCounter(), player->GetName().c_str(), player->GetSession()->GetRemoteAddress().c_str(), sender_accId, senderName.c_str(), m->COD, subj.c_str());
                 }
             }
