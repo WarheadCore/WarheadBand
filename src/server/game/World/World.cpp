@@ -813,7 +813,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
 
-    LOG_INFO("server.loading", "Loading Quests Starters and Enders...");
+    // Loading Quests Starters and Enders
     sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
 
     LOG_INFO("server.loading", "Loading Objects Pooling Data...");
@@ -1261,14 +1261,14 @@ void World::LoadAutobroadcasts()
     m_Autobroadcasts.clear();
     m_AutobroadcastsWeights.clear();
 
-    uint32 realmId = sConfigMgr->GetOption<int32>("RealmID", 0);
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realmId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    stmt->setInt32(0, sConfigMgr->GetOption<int32>("RealmID", 0));
 
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
+        LOG_INFO("server.loading", " ");
         return;
     }
 

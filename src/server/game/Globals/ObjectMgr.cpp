@@ -432,7 +432,6 @@ void ObjectMgr::LoadCreatureTemplates()
     }
 
     LOG_INFO("server.loading", ">> Loaded {} creature definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadCreatureTemplate(Field* fields)
@@ -564,7 +563,6 @@ void ObjectMgr::LoadCreatureTemplateResistances()
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} creature template resistances in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadCreatureTemplateSpells()
@@ -610,7 +608,6 @@ void ObjectMgr::LoadCreatureTemplateSpells()
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} creature template spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -3452,6 +3449,7 @@ void ObjectMgr::LoadPlayerInfo()
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} player create skills in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", " ");
         }
     }
 
