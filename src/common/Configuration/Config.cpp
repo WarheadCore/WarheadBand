@@ -19,6 +19,7 @@
 #include "Log.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
+#include "SystemLog.h"
 #include "Util.h"
 #include <fstream>
 #include <mutex>
@@ -53,7 +54,7 @@ namespace
 
         if (IsAppConfig(filename))
         {
-            FMT_LOG_ERROR("{}", message);
+            SYS_LOG_ERROR("{}", message);
         }
         else
         {

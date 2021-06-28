@@ -18,6 +18,7 @@
 #include "Log.h"
 #include "Config.h"
 #include "StringConvert.h"
+#include "SystemLog.h"
 #include "Tokenize.h"
 #include <Poco/AutoPtr.h>
 #include <Poco/FileChannel.h>
@@ -69,7 +70,7 @@ namespace
     {
         if (GetFormattingChannel(channelName))
         {
-            FMT_LOG_ERROR("> Formatting channel ({}) is already exist!", channelName);
+            SYS_LOG_ERROR("> Formatting channel ({}) is already exist!", channelName);
             return;
         }
 
@@ -84,7 +85,7 @@ namespace
         if (type == LOGGER_ROOT)
             return nullptr;
 
-        std::string_view parentLogger = LOGGER_ROOT;
+        std::string parentLogger = LOGGER_ROOT;
         size_t found = type.find_last_of('.');
 
         if (found != std::string::npos)
@@ -147,7 +148,7 @@ void Log::ReadLoggersFromConfig()
     auto const& keys = sConfigMgr->GetKeysByString(PREFIX_LOGGER);
     if (!keys.size())
     {
-        FMT_LOG_ERROR("Log::ReadLoggersFromConfig - Not found loggers, change config file!");
+        SYS_LOG_ERROR("Log::ReadLoggersFromConfig - Not found loggers, change config file!");
         return;
     }
 
@@ -155,7 +156,7 @@ void Log::ReadLoggersFromConfig()
         CreateLoggerFromConfig(loggerName);
 
     if (!Logger::has(LOGGER_ROOT))
-        FMT_LOG_ERROR("Log::ReadLoggersFromConfig - Logger '{0}' not found!\nPlease change or add 'Logger.{0}' option in config file!", LOGGER_ROOT);
+        SYS_LOG_ERROR("Log::ReadLoggersFromConfig - Logger '{0}' not found!\nPlease change or add 'Logger.{0}' option in config file!", LOGGER_ROOT);
 }
 
 void Log::ReadChannelsFromConfig()
@@ -163,7 +164,7 @@ void Log::ReadChannelsFromConfig()
     auto const& keys = sConfigMgr->GetKeysByString(PREFIX_CHANNEL);
     if (keys.empty())
     {
-        FMT_LOG_ERROR("Log::ReadChannelsFromConfig - Not found channels, change config file!");
+        SYS_LOG_ERROR("Log::ReadChannelsFromConfig - Not found channels, change config file!");
         return;
     }
 
@@ -215,27 +216,27 @@ void Log::CreateLoggerFromConfig(std::string const& configLoggerName)
 
     if (loggerName == "system")
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Is forbidden to use logger name {}\n", loggerName);
+        SYS_LOG_ERROR("Log::CreateLoggerFromConfig: Is forbidden to use logger name {}\n", loggerName);
         return;
     }
 
     if (options.empty())
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Missing config option Logger.{}", loggerName);
+        SYS_LOG_ERROR("Log::CreateLoggerFromConfig: Missing config option Logger.{}", loggerName);
         return;
     }
 
     auto const& tokens = Warhead::Tokenize(options, ',', true);
     if (!tokens.size() || tokens.size() < LOGGER_OPTIONS_CHANNELS_NAME + 1)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Bad config options for Logger ({})", loggerName);
+        SYS_LOG_ERROR("Log::CreateLoggerFromConfig: Bad config options for Logger ({})", loggerName);
         return;
     }
 
     LogLevel level = static_cast<LogLevel>(Warhead::StringTo<uint8>(GetPositionOptions(options, LOGGER_OPTIONS_LOG_LEVEL)).value_or(static_cast<uint8>(LogLevel::LOG_LEVEL_MAX)));
     if (level >= LogLevel::LOG_LEVEL_MAX)
     {
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong Log Level for logger {}", loggerName);
+        SYS_LOG_ERROR("Log::CreateLoggerFromConfig: Wrong Log Level for logger {}", loggerName);
         return;
     }
 
@@ -252,7 +253,7 @@ void Log::CreateLoggerFromConfig(std::string const& configLoggerName)
         auto fmtChannel = GetFormattingChannel(channelName);
         if (!fmtChannel)
         {
-            FMT_LOG_ERROR("Log::CreateLoggerFromConfig - Not found channel ({})", channelName);
+            SYS_LOG_ERROR("Log::CreateLoggerFromConfig - Not found channel ({})", channelName);
             return;
         }
 
@@ -265,7 +266,7 @@ void Log::CreateLoggerFromConfig(std::string const& configLoggerName)
     }
     catch (const std::exception& e)
     {
-        FMT_LOG_ERROR("Log::CreateLogger - {}", e.what());
+        SYS_LOG_ERROR("Log::CreateLogger - {}", e.what());
     }
 }
 
@@ -279,41 +280,41 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
 
     if (options.empty())
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Missing config option LogChannel.{}", channelName);
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: Missing config option LogChannel.{}", channelName);
         return;
     }
 
     auto const& tokens = Warhead::Tokenize(options, ',', true);
     if (tokens.size() < CHANNEL_OPTIONS_PATTERN + 1)
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong config option (< CHANNEL_OPTIONS_PATTERN) LogChannel.{}={}", channelName, options);
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong config option (< CHANNEL_OPTIONS_PATTERN) LogChannel.{}={}", channelName, options);
         return;
     }
 
     if (tokens.size() > CHANNEL_OPTIONS_MAX)
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong config option (> CHANNEL_OPTIONS_MAX) LogChannel.{}={}", channelName, options);
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong config option (> CHANNEL_OPTIONS_MAX) LogChannel.{}={}", channelName, options);
         return;
     }
 
     auto channelType = Warhead::StringTo<uint8>(GetPositionOptions(options, CHANNEL_OPTIONS_TYPE));
     if (!channelType || (channelType && channelType > (uint8)FormattingChannelType::FORMATTING_CHANNEL_TYPE_FILE))
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong channel type for LogChannel.{}\n", channelName);
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: Wrong channel type for LogChannel.{}\n", channelName);
         return;
     }
 
     auto times = GetPositionOptions(options, CHANNEL_OPTIONS_TIMES);
     if (times.empty())
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Empty times for LogChannel.{}", channelName);
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: Empty times for LogChannel.{}", channelName);
         return;
     }
 
     auto pattern = GetPositionOptions(options, CHANNEL_OPTIONS_PATTERN);
     if (pattern.empty())
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: Empty pattern for LogChannel.{}", channelName);
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: Empty pattern for LogChannel.{}", channelName);
         return;
     }
 
@@ -327,7 +328,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
     }
     catch (const std::exception& e)
     {
-        FMT_LOG_ERROR("Log::CreateChannelsFromConfig: {}", e.what());
+        SYS_LOG_ERROR("Log::CreateChannelsFromConfig: {}", e.what());
     }
 
     if (channelType.value() == static_cast<uint8>(FormattingChannelType::FORMATTING_CHANNEL_TYPE_CONSOLE))
@@ -356,7 +357,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
                 }
                 catch (const std::exception& e)
                 {
-                    FMT_LOG_ERROR("Log::CreateLoggerFromConfig: {}", e.what());
+                    SYS_LOG_ERROR("Log::CreateLoggerFromConfig: {}", e.what());
                 }
             }
             else
@@ -371,7 +372,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
     {
         if (tokens.size() < CHANNEL_OPTIONS_OPTION_1 + 1)
         {
-            FMT_LOG_ERROR("Bad file name for LogChannel.{}", channelName);
+            SYS_LOG_ERROR("Bad file name for LogChannel.{}", channelName);
             ABORT();
         }
 
@@ -407,13 +408,13 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
         }
         catch (const std::exception& e)
         {
-            FMT_LOG_ERROR("Log::CreateLoggerFromConfig: {}", e.what());
+            SYS_LOG_ERROR("Log::CreateLoggerFromConfig: {}", e.what());
         }
 
         ::AddFormattingChannel(channelName, new FormattingChannel(_pattern, _fileChannel));
     }
     else
-        FMT_LOG_ERROR("Log::CreateLoggerFromConfig: Invalid channel type ({})", channelType.value());
+        SYS_LOG_ERROR("Log::CreateLoggerFromConfig: Invalid channel type ({})", channelType.value());
 }
 
 void Log::_Write(std::string_view filter, LogLevel const level, std::string_view message)
@@ -456,7 +457,7 @@ void Log::_Write(std::string_view filter, LogLevel const level, std::string_view
     }
     catch (const std::exception& e)
     {
-        FMT_LOG_ERROR("Log::_Write - '{}'", e.what());
+        SYS_LOG_ERROR("Log::_Write - '{}'", e.what());
     }
 }
 

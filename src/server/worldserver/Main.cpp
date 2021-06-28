@@ -207,7 +207,7 @@ int main(int argc, char** argv)
     // Init all logs
     sLog->Initialize();
 
-    Warhead::Logo::Show("authserver",
+    Warhead::Logo::Show("worldserver",
         [](std::string_view text)
         {
             LOG_INFO("server.worldserver", "{}", text);

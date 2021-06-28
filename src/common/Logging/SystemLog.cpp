@@ -36,7 +36,7 @@ using namespace Poco;
 
 namespace
 {
-    std::string const& LOGGER_SYSTEM = "system";
+    constexpr auto LOGGER_SYSTEM = "system";
 }
 
 SystemLog::SystemLog()
@@ -58,7 +58,7 @@ void SystemLog::InitSystemLogger()
 #define LOG_CATCH \
         catch (const std::exception& e) \
         { \
-            printf("Log::InitSystemLogger - %s\n", e.what()); \
+            fmt::print("Log::InitSystemLogger - {}\n", e.what()); \
         } \
 
     try
@@ -114,7 +114,7 @@ void SystemLog::InitSystemLogger()
 #undef LOG_CATCH
 }
 
-void SystemLog::outSys(uint8 logLevel, std::string&& message)
+void SystemLog::_outMessage(uint8 logLevel, std::string_view message)
 {
     Logger& logger = Logger::get(LOGGER_SYSTEM);
 
@@ -123,10 +123,10 @@ void SystemLog::outSys(uint8 logLevel, std::string&& message)
         switch (logLevel)
         {
             case 3:
-                logger.error(message);
+                logger.error(message.data());
                 break;
             case 6:
-                logger.information(message);
+                logger.information(message.data());
                 break;
             default:
                 break;
@@ -134,6 +134,6 @@ void SystemLog::outSys(uint8 logLevel, std::string&& message)
     }
     catch (const std::exception& e)
     {
-        printf("SystemLog::outSys - %s\n", e.what());
+        fmt::print("SystemLog::_outMessage - {}\n", e.what());
     }
 }

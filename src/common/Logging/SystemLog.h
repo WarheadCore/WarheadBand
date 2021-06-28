@@ -36,14 +36,14 @@ public:
 
     void InitSystemLogger();
 
-    template<typename Format, typename... Args>
-    void outSys(uint8 logLevel, Format&& fmt, Args&& ... args)
+    template<typename... Args>
+    inline void outSys(uint8 logLevel, std::string_view fmt, Args&& ... args)
     {
-        outSys(logLevel, Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+        _outMessage(logLevel, Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
 private:
-    void outSys(uint8 logLevel, std::string&& message);
+    void _outMessage(uint8 logLevel, std::string_view message);
 };
 
 #define sSysLog SystemLog::instance()
@@ -52,45 +52,21 @@ private:
     { \
         try \
         { \
-            sSysLog->outSys(level__, __VA_ARGS__); \
+            sSysLog->outSys(level__, fmt::format(__VA_ARGS__)); \
         } \
-        catch (std::exception& e) \
+        catch (const std::exception& e) \
         { \
-            sSysLog->outSys(3, "Wrong format occurred (%s) at %s:%u.", \
+            sSysLog->outSys(3, "Wrong format occurred ({}) at '{}:{}'", \
                 e.what(), __FILE__, __LINE__); \
         } \
     }
 
-#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
-void _check_args(char const*, ...) ATTR_PRINTF(1, 2);
-void _check_args(std::string const&, ...);
-
-// This will catch format errors on build time
-#define SYS_LOG_MSG_BODY(level__, ...)                    \
-        do                                                \
-        {                                                 \
-            if (false)                                    \
-                _check_args(__VA_ARGS__);                 \
-                                                          \
-            SYS_LOG_EXCEPTION_FREE(level__, __VA_ARGS__); \
-        } while (0)
-#else
-#define SYS_LOG_MSG_BODY(level__, ...)                    \
-        __pragma(warning(push))                           \
-        __pragma(warning(disable:4127))                   \
-        do                                                \
-        {                                                 \
-            SYS_LOG_EXCEPTION_FREE(level__, __VA_ARGS__); \
-        } while (0)                                       \
-        __pragma(warning(pop))
-#endif
-
 // System Error level 3
 #define SYS_LOG_ERROR(...) \
-    SYS_LOG_MSG_BODY(3, __VA_ARGS__)
+    SYS_LOG_EXCEPTION_FREE(3, __VA_ARGS__)
 
 // System Info level 6
 #define SYS_LOG_INFO(...) \
-    SYS_LOG_MSG_BODY(6, __VA_ARGS__)
+    SYS_LOG_EXCEPTION_FREE(6, __VA_ARGS__)
 
 #endif

@@ -181,10 +181,4 @@ private:
 #define LOG_GM(accountId__, ...) \
     sLog->outCommand(accountId__, __VA_ARGS__)
 
-#define FMT_LOG_ERROR(...) \
-    fmt::print(fg(fmt::color::red), "{} '{}:{}'", fmt::format(__VA_ARGS__), __FILE__, __LINE__);
-
-#define FMT_LOG_INFO(...) \
-    fmt::print(fmt::emphasis::bold | fg(fmt::color::light_cyan), "{}. '{}:{}'\n", fmt::format(__VA_ARGS__), __FILE__, __LINE__);
-
 #endif // _LOG_H__
