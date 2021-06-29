@@ -589,7 +589,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                         ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.guid
 
                     char newSetGuid[24];
-                    snprintf(newSetGuid, 24, "%llu", sObjectMgr->GenerateEquipmentSetGuid());
+                    snprintf(newSetGuid, 24, "%lu", sObjectMgr->GenerateEquipmentSetGuid());
                     if (!changenth(line, 2, newSetGuid))
                         ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.setguid
                     break;
