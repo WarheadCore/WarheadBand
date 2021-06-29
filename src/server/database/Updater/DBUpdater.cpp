@@ -42,7 +42,7 @@ bool DBUpdaterUtil::CheckExecutable()
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
     if (!is_regular_file(exe))
     {
-        exe = Acore::SearchExecutableInPath("mysql");
+        exe = Warhead::SearchExecutableInPath("mysql");
         if (!exe.empty() && is_regular_file(exe))
         {
             // Correct the path to the cli
@@ -93,7 +93,7 @@ bool DBUpdater<LoginDatabaseConnection>::IsEnabled(uint32 const updateMask)
 template<>
 std::string DBUpdater<LoginDatabaseConnection>::GetDBModuleName()
 {
-    return "db-auth";
+    return "db_auth";
 }
 
 // World Database
@@ -125,7 +125,7 @@ bool DBUpdater<WorldDatabaseConnection>::IsEnabled(uint32 const updateMask)
 template<>
 std::string DBUpdater<WorldDatabaseConnection>::GetDBModuleName()
 {
-    return "db-world";
+    return "db_world";
 }
 
 // Character Database
@@ -157,7 +157,7 @@ bool DBUpdater<CharacterDatabaseConnection>::IsEnabled(uint32 const updateMask)
 template<>
 std::string DBUpdater<CharacterDatabaseConnection>::GetDBModuleName()
 {
-    return "db-characters";
+    return "db_characters";
 }
 
 // All
@@ -425,7 +425,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
-    int const ret = Acore::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
+    int const ret = Warhead::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
         "sql.updates", path.generic_string(), true);
 
     if (ret != EXIT_SUCCESS)
@@ -433,9 +433,9 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         LOG_FATAL("sql.updates", "Applying of file \'{}\' to database \'{}\' failed!" \
             " If you are a user, please pull the latest revision from the repository. "
             "Also make sure you have not applied any of the databases with your sql client. "
-            "You cannot use auto-update system and import sql files from AzerothCore repository with your sql client. "
+            "You cannot use auto-update system and import sql files from WarheadCore repository with your sql client. "
             "If you are a developer, please fix your sql query.",
-            path.generic_string().c_str(), pool.GetConnectionInfo()->database.c_str());
+            path.generic_string(), pool.GetConnectionInfo()->database);
 
         throw UpdateException("update failed");
     }

@@ -128,14 +128,14 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 
     std::vector<std::string> moduleList;
 
-    auto const& _modulesTokens = Acore::Tokenize(AC_MODULES_LIST, ',', true);
+    auto const& _modulesTokens = Warhead::Tokenize(WH_MODULES_LIST, ',', true);
     for (auto const& itr : _modulesTokens)
         moduleList.emplace_back(itr);
 
     // data/sql
     for (auto const& itr : moduleList)
     {
-        std::string path = _sourceDirectory->generic_string() + "/modules/" + itr + "/data/sql/" + _dbModuleName; // modules/mod-name/data/sql/db-world
+        std::string path = _sourceDirectory->generic_string() + "/modules/" + itr + "/sql/" + _dbModuleName; // modules/mod-name/data/sql/db-world
 
         Path const p(path);
         if (!is_directory(p))
