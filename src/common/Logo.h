@@ -19,6 +19,7 @@
 #define _LOGO_H_
 
 #include "Define.h"
+#include <string_view>
 
 namespace Warhead::Logo
 {

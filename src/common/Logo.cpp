@@ -17,7 +17,6 @@
 
 #include "Logo.h"
 #include "GitRevision.h"
-#include "Log.h"
 #include "StringFormat.h"
 
 void Warhead::Logo::Show(std::string_view applicationName, void(*log)(std::string_view text), void(*logExtraInfo)())
