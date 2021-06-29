@@ -320,4 +320,20 @@ namespace std
     };
 }
 
+template<>
+struct fmt::formatter<ObjectGuid> : formatter<string_view>
+{
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto format(ObjectGuid guid, FormatContext& ctx)
+    {
+        string_view info = "<unknown>";
+
+        if (!guid.IsEmpty())
+            info = guid.ToString();
+
+        return formatter<string_view>::format(info, ctx);
+    }
+};
+
 #endif // ObjectGuid_h__
