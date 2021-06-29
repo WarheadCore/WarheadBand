@@ -395,10 +395,8 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
     }
 
     LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [{}] "
-        "EventId [{}], InviteId [{}] Title %s, Description %s, type %u Repeatable %u, MaxInvites %u, Dungeon ID %d, Time %u Time2 %u, Flags %u",
-        guid.ToString().c_str(), eventId, inviteId, title.c_str(),
-        description.c_str(), type, repetitionType, maxInvites, dungeonId,
-        eventPackedTime, timeZoneTime, flags);
+        "EventId [{}], InviteId [{}] Title {}, Description {}, type {} Repeatable {}, MaxInvites {}, Dungeon ID {}, Time {} Time2 {}, Flags {}",
+        guid.ToString(), eventId, inviteId, title, description, type, repetitionType, maxInvites, dungeonId, eventPackedTime, timeZoneTime, flags);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {

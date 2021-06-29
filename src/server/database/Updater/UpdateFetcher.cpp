@@ -270,7 +270,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
                 if (localeIter != available.end())
                 {
                     LOG_WARN("sql.updates", ">> It seems like the update \"{}\" \'{}\' was renamed, but the old file is still there! " \
-                             "Treating it as a new file! (It is probably an unmodified copy of the file \"%s\")",
+                             "Treating it as a new file! (It is probably an unmodified copy of the file \"{}\")",
                              filePath.filename().string().c_str(), hash.substr(0, 7).c_str(),
                              localeIter->first.filename().string().c_str());
                 }

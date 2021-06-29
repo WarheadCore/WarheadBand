@@ -19,15 +19,15 @@
 /// @{
 /// \file
 
-#include "Common.h"
-#include "Configuration/Config.h"
-#include "Errors.h"
-#include "ObjectMgr.h"
-#include "World.h"
-
 #include "CliRunnable.h"
+#include "Common.h"
+#include "Config.h"
+#include "Errors.h"
 #include "Log.h"
+#include "ObjectMgr.h"
 #include "Util.h"
+#include "World.h"
+#include <fmt/core.h>
 
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
 #include "Chat.h"
@@ -41,7 +41,7 @@ static constexpr char CLI_PREFIX[] = "AC> ";
 
 static inline void PrintCliPrefix()
 {
-    printf("%s", CLI_PREFIX);
+    fmt::print(CLI_PREFIX);
 }
 
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
@@ -85,7 +85,7 @@ void utf8print(void* /*arg*/, std::string_view str)
     wprintf(L"%s", wbuf.c_str());
 #else
 {
-    printf(STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(str));
+    fmt::print(str);
     fflush(stdout);
 }
 #endif
