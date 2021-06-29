@@ -168,7 +168,7 @@ bool ChatHandler::_ParseCommands(std::string_view text)
         return false;
 
     // Send error message for GMs
-    PSendSysMessage(LANG_CMD_INVALID, STRING_VIEW_FMT_ARG(text));
+    PSendSysMessage(LANG_CMD_INVALID, text);
     SetSentErrorMessage(true);
     return true;
 }

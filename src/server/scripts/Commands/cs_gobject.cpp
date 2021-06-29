@@ -137,7 +137,7 @@ public:
         if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
         {
             // report to DB errors log as in loading case
-            LOG_ERROR("sql.sql", "Gameobject (Entry %u GoType: %u) have invalid displayId (%u), not spawned.", objectId, objectInfo->type, objectInfo->displayId);
+            LOG_ERROR("sql.sql", "Gameobject (Entry {} GoType: {}) have invalid displayId ({}), not spawned.", objectId, objectInfo->type, objectInfo->displayId);
             handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, objectId);
             handler->SetSentErrorMessage(true);
             return false;
@@ -183,7 +183,7 @@ public:
         // TODO: is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, x, y, z);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name, guidLow, x, y, z);
         return true;
     }
 
@@ -236,15 +236,15 @@ public:
             uint32 objectId = atol(id);
 
             if (objectId)
-                result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE map = '%i' AND id = '%u' ORDER BY order_ ASC LIMIT 1",
+                result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE map = '{}' AND id = '{}' ORDER BY order_ ASC LIMIT 1",
                                               player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), objectId);
             else
             {
                 std::string name = id;
                 WorldDatabase.EscapeString(name);
                 result = WorldDatabase.PQuery(
-                    "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
-                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name LIKE '%%%s%%' ORDER BY order_ ASC LIMIT 1",
+                    "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - {}, 2) + POW(position_y - {}, 2) + POW(position_z - {}, 2)) AS order_ "
+                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name LIKE '%%{}%%' ORDER BY order_ ASC LIMIT 1",
                     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
             }
         }
@@ -271,10 +271,13 @@ public:
                 eventFilter << ')';
 
             result = WorldDatabase.PQuery("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, phaseMask, "
-                                          "(POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ FROM gameobject "
-                                          "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '%i' %s ORDER BY order_ ASC LIMIT 10",
-                                          handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY(), handler->GetSession()->GetPlayer()->GetPositionZ(),
-                                          handler->GetSession()->GetPlayer()->GetMapId(), eventFilter.str().c_str());
+                                          "(POW(position_x - {}, 2) + POW(position_y - {}, 2) + POW(position_z - {}, 2)) AS order_ FROM gameobject "
+                                          "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{}' {} ORDER BY order_ ASC LIMIT 10",
+                                          handler->GetSession()->GetPlayer()->GetPositionX(),
+                                          handler->GetSession()->GetPlayer()->GetPositionY(),
+                                          handler->GetSession()->GetPlayer()->GetPositionZ(),
+                                          handler->GetSession()->GetPlayer()->GetMapId(),
+                                          eventFilter.str());
         }
 
         if (!result)
@@ -322,7 +325,7 @@ public:
 
         GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(id, guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name, guidLow, id, x, y, z, mapId, o, phase);
 
         if (target)
         {
@@ -333,7 +336,7 @@ public:
             std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(curRespawnDelay);
             std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
 
-            handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr, curRespawnDelayStr);
         }
         return true;
     }
@@ -442,7 +445,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId(), oz, oy, ox);
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name, object->GetSpawnId(), oz, oy, ox);
 
         return true;
     }
@@ -518,7 +521,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId());
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name, object->GetSpawnId());
 
         return true;
     }
@@ -593,7 +596,7 @@ public:
                 if (!gameObjectInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name.c_str(), x, y, z, mapId);
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name, x, y, z, mapId);
 
                 ++count;
             } while (result->NextRow());
@@ -644,15 +647,15 @@ public:
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
         if (gameObject)
         {
-            handler->PSendSysMessage("LootMode: %u", gameObject->GetLootMode());
-            handler->PSendSysMessage("LootState: %u", gameObject->getLootState());
-            handler->PSendSysMessage("GOState: %u", gameObject->GetGoState());
-            handler->PSendSysMessage("PhaseMask: %u", gameObject->GetPhaseMask());
-            handler->PSendSysMessage("IsLootEmpty: %u", gameObject->loot.empty());
-            handler->PSendSysMessage("IsLootLooted: %u", gameObject->loot.isLooted());
+            handler->PSendSysMessage("LootMode: {}", gameObject->GetLootMode());
+            handler->PSendSysMessage("LootState: {}", gameObject->getLootState());
+            handler->PSendSysMessage("GOState: {}", gameObject->GetGoState());
+            handler->PSendSysMessage("PhaseMask: {}", gameObject->GetPhaseMask());
+            handler->PSendSysMessage("IsLootEmpty: {}", gameObject->loot.empty());
+            handler->PSendSysMessage("IsLootLooted: {}", gameObject->loot.isLooted());
         }
 
-        handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
+        handler->PSendSysMessage(LANG_GOINFO_NAME, name);
 
         return true;
     }
@@ -718,7 +721,7 @@ public:
         else if (objectType == 6)
             object->SetGoArtKit((uint32)(objectState));
 
-        handler->PSendSysMessage("Set gobject type %d state %d", objectType, objectState);
+        handler->PSendSysMessage("Set gobject type {} state {}", objectType, objectState);
         return true;
     }
 };

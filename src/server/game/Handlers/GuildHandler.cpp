@@ -36,7 +36,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
     uint32 guildId;
     recvPacket >> guildId;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_QUERY [%s]: Guild: %u", GetPlayerInfo().c_str(), guildId);
+    LOG_DEBUG("guild", "CMSG_GUILD_QUERY [{}]: Guild: {}", GetPlayerInfo(), guildId);
     if (!guildId)
         return;
 
@@ -49,7 +49,7 @@ void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
     std::string name;
     recvPacket >> name;
 
-    LOG_ERROR("network.opcode", "CMSG_GUILD_CREATE: Possible hacking-attempt: %s tried to create a guild [Name: %s] using cheats", GetPlayerInfo().c_str(), name.c_str());
+    LOG_ERROR("network.opcode", "CMSG_GUILD_CREATE: Possible hacking-attempt: {} tried to create a guild [Name: {}] using cheats", GetPlayerInfo(), name);
 }
 
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
@@ -57,7 +57,7 @@ void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
     std::string invitedName;
     recvPacket >> invitedName;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_INVITE [%s]: Invited: %s", GetPlayerInfo().c_str(), invitedName.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_INVITE [{}]: Invited: {}", GetPlayerInfo(), invitedName);
     if (normalizePlayerName(invitedName))
         if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleInviteMember(this, invitedName);
@@ -68,7 +68,7 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
     std::string playerName;
     recvPacket >> playerName;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_REMOVE [%s]: Target: %s", GetPlayerInfo().c_str(), playerName.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_REMOVE [{}]: Target: {}", GetPlayerInfo(), playerName);
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -77,7 +77,7 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_ACCEPT [%s]", GetPlayer()->GetName().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_ACCEPT [{}]", GetPlayer()->GetName());
 
     if (!GetPlayer()->GetGuildId())
         if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
@@ -86,7 +86,7 @@ void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_DECLINE [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_DECLINE [{}]", GetPlayerInfo());
 
     GetPlayer()->SetGuildIdInvited(0);
     GetPlayer()->SetInGuild(0);
@@ -94,7 +94,7 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleGuildInfoOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_INFO [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_INFO [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendInfo(this);
@@ -102,7 +102,7 @@ void WorldSession::HandleGuildInfoOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_ROSTER [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_ROSTER [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRoster(this);
@@ -115,7 +115,7 @@ void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
     std::string playerName;
     recvPacket >> playerName;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_PROMOTE [%s]: Target: %s", GetPlayerInfo().c_str(), playerName.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_PROMOTE [{}]: Target: {}", GetPlayerInfo(), playerName);
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -127,7 +127,7 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
     std::string playerName;
     recvPacket >> playerName;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_DEMOTE [%s]: Target: %s", GetPlayerInfo().c_str(), playerName.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_DEMOTE [{}]: Target: {}", GetPlayerInfo(), playerName);
 
     if (normalizePlayerName(playerName))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -136,7 +136,7 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_LEAVE [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_LEAVE [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleLeaveMember(this);
@@ -144,7 +144,7 @@ void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleGuildDisbandOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_DISBAND [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_DISBAND [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleDisband(this);
@@ -155,7 +155,7 @@ void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
     std::string name;
     recvPacket >> name;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_LEADER [%s]: Target: %s", GetPlayerInfo().c_str(), name.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_LEADER [{}]: Target: {}", GetPlayerInfo(), name);
 
     if (normalizePlayerName(name))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -167,7 +167,7 @@ void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
     std::string motd;
     recvPacket >> motd;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_MOTD [%s]: MOTD: %s", GetPlayerInfo().c_str(), motd.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_MOTD [{}]: MOTD: {}", GetPlayerInfo(), motd);
 
     // Check for overflow
     if (motd.length() > 128)
@@ -186,7 +186,7 @@ void WorldSession::HandleGuildSetPublicNoteOpcode(WorldPacket& recvPacket)
     std::string note;
     recvPacket >> playerName >> note;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_SET_PUBLIC_NOTE [%s]: Target: %s, Note: %s", GetPlayerInfo().c_str(), playerName.c_str(), note.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_SET_PUBLIC_NOTE [{}]: Target: {}, Note: {}", GetPlayerInfo(), playerName, note);
 
     // Check for overflow
     if (note.length() > 31)
@@ -206,7 +206,7 @@ void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
     std::string note;
     recvPacket >> playerName >> note;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_SET_OFFICER_NOTE [%s]: Target: %s, Note: %s",
+    LOG_DEBUG("guild", "CMSG_GUILD_SET_OFFICER_NOTE [{}]: Target: {}, Note: {}",
                    GetPlayerInfo().c_str(), playerName.c_str(), note.c_str());
 
     // Check for overflow
@@ -235,7 +235,7 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
     uint32 money;
     recvPacket >> money;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_RANK [%s]: Rank: %s (%u)", GetPlayerInfo().c_str(), rankName.c_str(), rankId);
+    LOG_DEBUG("guild", "CMSG_GUILD_RANK [{}]: Rank: {} ({})", GetPlayerInfo(), rankName, rankId);
 
     Guild* guild = GetPlayer()->GetGuild();
     if (!guild)
@@ -272,7 +272,7 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
     std::string rankName;
     recvPacket >> rankName;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_ADD_RANK [%s]: Rank: %s", GetPlayerInfo().c_str(), rankName.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_ADD_RANK [{}]: Rank: {}", GetPlayerInfo(), rankName);
 
     // Check for overflow
     if (rankName.length() > 15)
@@ -287,7 +287,7 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildDelRankOpcode(WorldPacket& /*recvPacket*/)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_DEL_RANK [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_DEL_RANK [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRemoveLowestRank(this);
@@ -298,7 +298,7 @@ void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
     std::string info;
     recvPacket >> info;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_INFO_TEXT [%s]: %s", GetPlayerInfo().c_str(), info.c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_INFO_TEXT [{}]: {}", GetPlayerInfo(), info);
 
     // Check for overflow
     if (info.length() > 500)
@@ -319,7 +319,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(recvPacket);
 
-    LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [%s]: Guid: [%s] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d"
+    LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [{}]: Guid: [{}] Style: {}, Color: {}, BorderStyle: {}, BorderColor: {}, BackgroundColor: {}"
                    , GetPlayerInfo().c_str(), vendorGuid.ToString().c_str(), emblemInfo.GetStyle()
                    , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
                    , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
@@ -340,7 +340,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
 {
-    LOG_DEBUG("guild", "MSG_GUILD_EVENT_LOG_QUERY [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "MSG_GUILD_EVENT_LOG_QUERY [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendEventLog(this);
@@ -348,7 +348,7 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
 
 void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket& /* recvData */)
 {
-    LOG_DEBUG("guild", "MSG_GUILD_BANK_MONEY_WITHDRAWN [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "MSG_GUILD_BANK_MONEY_WITHDRAWN [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendMoneyInfo(this);
@@ -356,7 +356,7 @@ void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket& /* recvData */)
 
 void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
 {
-    LOG_DEBUG("guild", "MSG_GUILD_PERMISSIONS [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "MSG_GUILD_PERMISSIONS [{}]", GetPlayerInfo());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendPermissions(this);
@@ -369,7 +369,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
     bool sendAllSlots;
     recvData >> guid >> sendAllSlots;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: Go: [%s] AllSlots: %u"
+    LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [{}]: Go: [{}] AllSlots: {}"
                    , GetPlayerInfo().c_str(), guid.ToString().c_str(), sendAllSlots);
     Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
@@ -390,7 +390,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
 
     recvData >> guid >> tabId >> full;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [%s]: Go: [%s], TabId: %u, ShowTabs: %u"
+    LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [{}]: Go: [{}], TabId: {}, ShowTabs: {}"
                    , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, full);
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -403,7 +403,7 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
     uint32 money;
     recvData >> guid >> money;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: Go: [%s], money: %u",
+    LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [{}]: Go: [{}], money: {}",
                    GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
@@ -417,7 +417,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
     uint32 money;
     recvData >> guid >> money;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: Go: [%s], money: %u",
+    LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [{}]: Go: [{}], money: {}",
                    GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
     if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -426,7 +426,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
 
 void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
 {
-    LOG_DEBUG("guild", "CMSG_GUILD_BANK_SWAP_ITEMS [%s]", GetPlayerInfo().c_str());
+    LOG_DEBUG("guild", "CMSG_GUILD_BANK_SWAP_ITEMS [{}]", GetPlayerInfo());
 
     ObjectGuid GoGuid;
     recvData >> GoGuid;
@@ -512,7 +512,7 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
 
     recvData >> guid >> tabId;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [%s]: Go: [%s], TabId: %u", GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId);
+    LOG_DEBUG("guild", "CMSG_GUILD_BANK_BUY_TAB [{}]: Go: [{}], TabId: {}", GetPlayerInfo(), guid.ToString(), tabId);
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
@@ -527,7 +527,7 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
 
     recvData >> guid >> tabId >> name >> icon;
 
-    LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [%s]: Go: [%s], TabId: %u, Name: %s, Icon: %s"
+    LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [{}]: Go: [{}], TabId: {}, Name: {}, Icon: {}"
                    , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, name.c_str(), icon.c_str());
 
     // Check for overflow
@@ -548,7 +548,7 @@ void WorldSession::HandleGuildBankLogQuery(WorldPacket& recvData)
     uint8 tabId;
     recvData >> tabId;
 
-    LOG_DEBUG("guild", "MSG_GUILD_BANK_LOG_QUERY [%s]: TabId: %u", GetPlayerInfo().c_str(), tabId);
+    LOG_DEBUG("guild", "MSG_GUILD_BANK_LOG_QUERY [{}]: TabId: {}", GetPlayerInfo(), tabId);
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendBankLog(this, tabId);
@@ -559,7 +559,7 @@ void WorldSession::HandleQueryGuildBankTabText(WorldPacket& recvData)
     uint8 tabId;
     recvData >> tabId;
 
-    LOG_DEBUG("guild", "MSG_QUERY_GUILD_BANK_TEXT [%s]: TabId: %u", GetPlayerInfo().c_str(), tabId);
+    LOG_DEBUG("guild", "MSG_QUERY_GUILD_BANK_TEXT [{}]: TabId: {}", GetPlayerInfo(), tabId);
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendBankTabText(this, tabId);
@@ -571,7 +571,7 @@ void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvData)
     std::string text;
     recvData >> tabId >> text;
 
-    LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), tabId, text.c_str());
+    LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [{}]: TabId: {}, Text: {}", GetPlayerInfo(), tabId, text);
 
     // Check for overflow
     if (text.length() > 500)

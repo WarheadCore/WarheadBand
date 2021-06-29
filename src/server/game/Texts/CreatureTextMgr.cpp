@@ -123,25 +123,25 @@ void CreatureTextMgr::LoadCreatureTexts()
         {
             if (!sSoundEntriesStore.LookupEntry(temp.sound))
             {
-                LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_texts` has Sound %u but sound does not exist.", temp.entry, temp.group, temp.sound);
+                LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {} in table `creature_texts` has Sound {} but sound does not exist.", temp.entry, temp.group, temp.sound);
                 temp.sound = 0;
             }
         }
         if (!GetLanguageDescByID(temp.lang))
         {
-            LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_texts` using Language %u but Language does not exist.", temp.entry, temp.group, uint32(temp.lang));
+            LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {} in table `creature_texts` using Language {} but Language does not exist.", temp.entry, temp.group, uint32(temp.lang));
             temp.lang = LANG_UNIVERSAL;
         }
         if (temp.type >= MAX_CHAT_MSG_TYPE)
         {
-            LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_texts` has Type %u but this Chat Type does not exist.", temp.entry, temp.group, uint32(temp.type));
+            LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {} in table `creature_texts` has Type {} but this Chat Type does not exist.", temp.entry, temp.group, uint32(temp.type));
             temp.type = CHAT_MSG_SAY;
         }
         if (temp.emote)
         {
             if (!sEmotesStore.LookupEntry(temp.emote))
             {
-                LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_texts` has Emote %u but emote does not exist.", temp.entry, temp.group, uint32(temp.emote));
+                LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {} in table `creature_texts` has Emote {} but emote does not exist.", temp.entry, temp.group, uint32(temp.emote));
                 temp.emote = EMOTE_ONESHOT_NONE;
             }
         }
@@ -149,13 +149,13 @@ void CreatureTextMgr::LoadCreatureTexts()
         {
             if (!sGameLocale->GetBroadcastText(temp.BroadcastTextId))
             {
-                LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u, Id %u in table `creature_text` has non-existing or incompatible BroadcastTextId %u.", temp.entry, temp.group, temp.id, temp.BroadcastTextId);
+                LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {}, Id {} in table `creature_text` has non-existing or incompatible BroadcastTextId {}.", temp.entry, temp.group, temp.id, temp.BroadcastTextId);
                 temp.BroadcastTextId = 0;
             }
         }
         if (temp.TextRange > TEXT_RANGE_WORLD)
         {
-            LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u, Id %u in table `creature_text` has incorrect TextRange %u.", temp.entry, temp.group, temp.id, temp.TextRange);
+            LOG_ERROR("sql.sql", "CreatureTextMgr: Entry {}, Group {}, Id {} in table `creature_text` has incorrect TextRange {}.", temp.entry, temp.group, temp.id, temp.TextRange);
             temp.TextRange = TEXT_RANGE_NORMAL;
         }
 
@@ -165,7 +165,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         ++textCount;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u creature texts for %lu creatures in %u ms", textCount, mTextMap.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} creature texts for {} creatures in {} ms", textCount, mTextMap.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -196,7 +196,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         Warhead::Game::Locale::AddLocaleString(fields[4].GetString(), locale, data.Text);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u Creature Text Locale in %u ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Text Locale in {} ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -208,7 +208,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextMap::const_iterator sList = mTextMap.find(source->GetEntry());
     if (sList == mTextMap.end())
     {
-        LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find Text for Creature(%s) Entry %u in 'creature_text' table. Ignoring.", source->GetName().c_str(), source->GetEntry());
+        LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find Text for Creature({}) Entry {} in 'creature_text' table. Ignoring.", source->GetName(), source->GetEntry());
         return 0;
     }
 
@@ -216,7 +216,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find TextGroup %u for Creature %s (%s). Ignoring.",
+        LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find TextGroup {} for Creature {} ({}). Ignoring.",
             uint32(textGroup), source->GetName().c_str(), source->GetGUID().ToString().c_str());
         return 0;
     }
@@ -425,7 +425,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
     if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
         repeats.push_back(id);
     else
-        LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup %u for Creature %s (%s), id %u already added",
+        LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup {} for Creature {} ({}), id {} already added",
             uint32(textGroup), source->GetName().c_str(), source->GetGUID().ToString().c_str(), uint32(id));
 }
 
@@ -452,7 +452,7 @@ bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
     CreatureTextMap::const_iterator sList = mTextMap.find(sourceEntry);
     if (sList == mTextMap.end())
     {
-        LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find Text for Creature (entry %u) in 'creature_text' table.", sourceEntry);
+        LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find Text for Creature (entry {}) in 'creature_text' table.", sourceEntry);
         return false;
     }
 
@@ -460,7 +460,7 @@ bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find TextGroup %u for Creature (entry %u).", uint32(textGroup), sourceEntry);
+        LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find TextGroup {} for Creature (entry {}).", uint32(textGroup), sourceEntry);
         return false;
     }
 

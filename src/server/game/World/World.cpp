@@ -460,12 +460,12 @@ void World::LoadConfigSettings(bool reload)
     m_MaxVisibleDistanceOnContinents = CONF_GET_FLOAT("Visibility.Distance.Continents");
     if (m_MaxVisibleDistanceOnContinents < 45 * rateAggro)
     {
-        LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be less max aggro radius %f", 45 * rateAggro);
+        LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be less max aggro radius {}", 45 * rateAggro);
         m_MaxVisibleDistanceOnContinents = 45 * rateAggro;
     }
     else if (m_MaxVisibleDistanceOnContinents > MAX_VISIBILITY_DISTANCE)
     {
-        LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be greater {}", MAX_VISIBILITY_DISTANCE);
         m_MaxVisibleDistanceOnContinents = MAX_VISIBILITY_DISTANCE;
     }
 
@@ -473,12 +473,12 @@ void World::LoadConfigSettings(bool reload)
     m_MaxVisibleDistanceInInstances = CONF_GET_FLOAT("Visibility.Distance.Instances");
     if (m_MaxVisibleDistanceInInstances < 45 * rateAggro)
     {
-        LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be less max aggro radius %f", 45 * rateAggro);
+        LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be less max aggro radius {}", 45 * rateAggro);
         m_MaxVisibleDistanceInInstances = 45 * rateAggro;
     }
     else if (m_MaxVisibleDistanceInInstances > MAX_VISIBILITY_DISTANCE)
     {
-        LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be greater {}", MAX_VISIBILITY_DISTANCE);
         m_MaxVisibleDistanceInInstances = MAX_VISIBILITY_DISTANCE;
     }
 
@@ -486,12 +486,12 @@ void World::LoadConfigSettings(bool reload)
     m_MaxVisibleDistanceInBGArenas = CONF_GET_FLOAT("Visibility.Distance.BGArenas");
     if (m_MaxVisibleDistanceInBGArenas < 45 * rateAggro)
     {
-        LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be less max aggro radius %f", 45 * rateAggro);
+        LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be less max aggro radius {}", 45 * rateAggro);
         m_MaxVisibleDistanceInBGArenas = 45 * rateAggro;
     }
     else if (m_MaxVisibleDistanceInBGArenas > MAX_VISIBILITY_DISTANCE)
     {
-        LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be greater {}", MAX_VISIBILITY_DISTANCE);
         m_MaxVisibleDistanceInBGArenas = MAX_VISIBILITY_DISTANCE;
     }
 
@@ -510,7 +510,7 @@ void World::LoadConfigSettings(bool reload)
 #endif
 
     if (reload && (dataPath != m_dataPath))
-        LOG_ERROR("server.loading", "DataDir option can't be changed at worldserver.conf reload, using current value (%s).", m_dataPath.c_str());
+        LOG_ERROR("server.loading", "DataDir option can't be changed at worldserver.conf reload, using current value ({}).", m_dataPath);
     else
         m_dataPath = dataPath;
 
@@ -533,13 +533,13 @@ void World::LoadConfigSettings(bool reload)
         };
 
         LOG_INFO("server.loading", "Loading data configurations...");
-        LOG_INFO("server.loading", "> Using DataDir:        %s", m_dataPath.c_str());
+        LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
         LOG_INFO("server.loading", "");
         LOG_INFO("server.loading", "Loading VMap configurations...");
-        LOG_INFO("server.loading", "> Line Of Sight:        %s", VMAPBoolToString(enableLOS));
-        LOG_INFO("server.loading", "> Get Height:           %s", VMAPBoolToString(enableHeight));
-        LOG_INFO("server.loading", "> Indoor Check:         %s", VMAPBoolToString(enableIndoor));
-        LOG_INFO("server.loading", "> Pet LOS:              %s", VMAPBoolToString(enablePetLOS));
+        LOG_INFO("server.loading", "> Line Of Sight:        {}", VMAPBoolToString(enableLOS));
+        LOG_INFO("server.loading", "> Get Height:           {}", VMAPBoolToString(enableHeight));
+        LOG_INFO("server.loading", "> Indoor Check:         {}", VMAPBoolToString(enableIndoor));
+        LOG_INFO("server.loading", "> Pet LOS:              {}", VMAPBoolToString(enablePetLOS));
     }
 
     if (reload)
@@ -624,7 +624,7 @@ void World::SetInitialWorldSettings()
 
     uint32 realm_zone = CONF_GET_INT("RealmZone");
 
-    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+    LoginDatabase.PExecute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     ///- Custom Hook for loading DB items
     sScriptMgr->OnLoadCustomDatabaseTable();
@@ -813,7 +813,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
 
-    LOG_INFO("server.loading", "Loading Quests Starters and Enders...");
+    // Loading Quests Starters and Enders
     sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
 
     LOG_INFO("server.loading", "Loading Objects Pooling Data...");
@@ -1062,7 +1062,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", " ");
     GameTime::UpdateGameTimers();
 
-    LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
+    LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
                            realm.Id.Realm, uint32(GameTime::GetStartTime()), GitRevision::GetFullVersion()); // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
@@ -1192,7 +1192,7 @@ void World::SetInitialWorldSettings()
 
                 if (map)
                 {
-                    LOG_INFO("server.loading", ">> Loading all grids for map %u", map->GetId());
+                    LOG_INFO("server.loading", ">> Loading all grids for map {}", map->GetId());
                     map->LoadAllCells();
                 }
             }
@@ -1201,7 +1201,7 @@ void World::SetInitialWorldSettings()
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
     LOG_INFO("server.loading", " ");
-    LOG_INFO("server.loading", "WORLD: World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000)); // outError for red color in console
+    LOG_INFO("server.loading", "WORLD: World initialized in {} minutes {} seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000)); // outError for red color in console
     LOG_INFO("server.loading", " ");
 
     if (sConfigMgr->isDryRun())
@@ -1217,7 +1217,7 @@ void World::DetectDBCLang()
 
     if (m_lang_confid != 255 && m_lang_confid >= TOTAL_LOCALES)
     {
-        LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d (set to 0)", TOTAL_LOCALES);
+        LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < {} (set to 0)", TOTAL_LOCALES);
         m_lang_confid = LOCALE_enUS;
     }
 
@@ -1250,7 +1250,7 @@ void World::DetectDBCLang()
 
     m_defaultDbcLocale = LocaleConstant(default_locale);
 
-    LOG_INFO("server.loading", "Using %s DBC Locale as default. All available DBC locales: %s", localeNames[GetDefaultDbcLocale()], availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
+    LOG_INFO("server.loading", "Using {} DBC Locale as default. All available DBC locales: {}", localeNames[GetDefaultDbcLocale()], availableLocalsStr.empty() ? "<none>" : availableLocalsStr);
     LOG_INFO("server.loading", " ");
 }
 
@@ -1261,14 +1261,14 @@ void World::LoadAutobroadcasts()
     m_Autobroadcasts.clear();
     m_AutobroadcastsWeights.clear();
 
-    uint32 realmId = sConfigMgr->GetOption<int32>("RealmID", 0);
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realmId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    stmt->setInt32(0, sConfigMgr->GetOption<int32>("RealmID", 0));
 
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
@@ -1285,7 +1285,7 @@ void World::LoadAutobroadcasts()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u autobroadcast definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -1753,7 +1753,7 @@ void World::ShutdownMsg(bool show, Player* player)
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
         SendServerMessage(msgid, str.c_str(), player);
-        LOG_DEBUG("server.worldserver", "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
+        LOG_DEBUG("server.worldserver", "Server is {} in {}", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str);
     }
 }
 
@@ -1771,7 +1771,7 @@ void World::ShutdownCancel()
     m_ExitCode = SHUTDOWN_EXIT_CODE;                       // to default value
     SendServerMessage(msgid);
 
-    LOG_DEBUG("server.worldserver", "Server %s cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    LOG_DEBUG("server.worldserver", "Server {} cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
 
     sScriptMgr->OnShutdownCancel();
 }
@@ -1937,7 +1937,7 @@ void World::SendAutoBroadcast()
         sWorld->SendGlobalMessage(&data);
     }
 
-    LOG_DEBUG("server.worldserver", "AutoBroadcast: '%s'", msg.c_str());
+    LOG_DEBUG("server.worldserver", "AutoBroadcast: '{}'", msg);
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)
@@ -2280,7 +2280,7 @@ void World::LoadWorldStates()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} world states in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -2371,7 +2371,7 @@ void World::LoadGlobalPlayerDataStore()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded %d Players data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Players data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -2499,7 +2499,7 @@ GlobalPlayerData const* World::GetGlobalPlayerData(ObjectGuid::LowType guid) con
 
         std::string name = fields[2].GetString();
 
-        LOG_INFO("server.worldserver", "Player %s [GUID: %u] was not found in the global storage, but it was found in the database.", name.c_str(), guid);
+        LOG_INFO("server.worldserver", "Player {} [GUID: {}] was not found in the global storage, but it was found in the database.", name, guid);
 
         sWorld->AddGlobalPlayerData(
             fields[0].GetUInt32(), /*guid*/
@@ -2516,7 +2516,7 @@ GlobalPlayerData const* World::GetGlobalPlayerData(ObjectGuid::LowType guid) con
         itr = _globalPlayerDataStore.find(guid);
         if (itr != _globalPlayerDataStore.end())
         {
-            LOG_INFO("server.worldserver", "Player %s [GUID: %u] added to the global storage.", name.c_str(), guid);
+            LOG_INFO("server.worldserver", "Player {} [GUID: {}] added to the global storage.", name, guid);
             return &itr->second;
         }
     }
@@ -2547,7 +2547,7 @@ ObjectGuid World::GetGlobalPlayerGUID(std::string const& name) const
 
         ObjectGuid::LowType guidLow = fields[0].GetUInt32();
 
-        LOG_INFO("server.worldserver", "Player %s [GUID: %u] was not found in the global storage, but it was found in the database.", name.c_str(), guidLow);
+        LOG_INFO("server.worldserver", "Player {} [GUID: {}] was not found in the global storage, but it was found in the database.", name, guidLow);
 
         sWorld->AddGlobalPlayerData(
             guidLow,               /*guid*/
@@ -2564,7 +2564,7 @@ ObjectGuid World::GetGlobalPlayerGUID(std::string const& name) const
         itr = _globalPlayerNameStore.find(name);
         if (itr != _globalPlayerNameStore.end())
         {
-            LOG_INFO("server.worldserver", "Player %s [GUID: %u] added to the global storage.", name.c_str(), guidLow);
+            LOG_INFO("server.worldserver", "Player {} [GUID: {}] added to the global storage.", name, guidLow);
 
             return ObjectGuid::Create<HighGuid::Player>(guidLow);
         }

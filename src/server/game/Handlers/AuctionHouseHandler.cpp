@@ -41,7 +41,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit (%s) not found or you can't interact with him.", guid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit ({}) not found or you can't interact with him.", guid.ToString());
         return;
     }
 
@@ -155,7 +155,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     if (bid > MAX_MONEY_AMOUNT || buyout > MAX_MONEY_AMOUNT)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Player %s (%s) attempted to sell item with higher price than max gold amount.",
+        LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Player {} ({}) attempted to sell item with higher price than max gold amount.",
             _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
         return;
@@ -164,14 +164,14 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Unit (%s) not found or you can't interact with him.", auctioneer.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Unit ({}) not found or you can't interact with him.", auctioneer.ToString());
         return;
     }
 
     AuctionHouseEntry const* auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(creature->getFaction());
     if (!auctionHouseEntry)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Unit (%s) has wrong faction.", auctioneer.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Unit ({}) has wrong faction.", auctioneer.ToString());
         return;
     }
 
@@ -276,14 +276,14 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(creature->GetSpawnId());
             if (!auctioneerData)
             {
-                LOG_ERROR("network.opcode", "Data for auctioneer not found (%s)", auctioneer.ToString().c_str());
+                LOG_ERROR("network.opcode", "Data for auctioneer not found ({})", auctioneer.ToString());
                 return;
             }
 
             CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
             if (!auctioneerInfo)
             {
-                LOG_ERROR("network.opcode", "Non existing auctioneer (%s)", auctioneer.ToString().c_str());
+                LOG_ERROR("network.opcode", "Non existing auctioneer ({})", auctioneer.ToString());
                 return;
             }
 
@@ -306,7 +306,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             AH->deposit = deposit;
             AH->auctionHouseEntry = auctionHouseEntry;
 
-            LOG_DEBUG("network.opcode", "CMSG_AUCTION_SELL_ITEM: Player %s (%s) is selling item %s entry %u (%s) with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+            LOG_DEBUG("network.opcode", "CMSG_AUCTION_SELL_ITEM: Player {} ({}) is selling item {} entry {} ({}) with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
                 _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().ToString().c_str(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
             sAuctionMgr->AddAItem(item);
             auctionHouse->AddAuction(AH);
@@ -330,7 +330,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             Item* newItem = item->CloneItem(finalCount, _player);
             if (!newItem)
             {
-                LOG_ERROR("network.opcode", "CMSG_AUCTION_SELL_ITEM: Could not create clone of item %u", item->GetEntry());
+                LOG_ERROR("network.opcode", "CMSG_AUCTION_SELL_ITEM: Could not create clone of item {}", item->GetEntry());
                 SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
                 return;
             }
@@ -347,7 +347,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             AH->deposit = deposit;
             AH->auctionHouseEntry = auctionHouseEntry;
 
-            LOG_DEBUG("network.opcode", "CMSG_AUCTION_SELL_ITEM: Player %s (%s) is selling item %s entry %u (%s) with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
+            LOG_DEBUG("network.opcode", "CMSG_AUCTION_SELL_ITEM: Player {} ({}) is selling item {} entry {} ({}) with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
                 _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().ToString().c_str(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
             sAuctionMgr->AddAItem(newItem);
             auctionHouse->AddAuction(AH);
@@ -411,7 +411,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionPlaceBid - Unit (%s) not found or you can't interact with him.", auctioneer.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionPlaceBid - Unit ({}) not found or you can't interact with him.", auctioneer.ToString());
         return;
     }
 
@@ -533,7 +533,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionRemoveItem - Unit (%s) not found or you can't interact with him.", auctioneer.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionRemoveItem - Unit ({}) not found or you can't interact with him.", auctioneer.ToString());
         return;
     }
 
@@ -569,7 +569,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
         }
         else
         {
-            LOG_ERROR("network.opcode", "Auction id: %u has non-existed item (item: %s)!!!", auction->Id, auction->item_guid.ToString().c_str());
+            LOG_ERROR("network.opcode", "Auction id: {} has non-existed item (item: {})!!!", auction->Id, auction->item_guid.ToString());
             SendAuctionCommandResult(0, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
             return;
         }
@@ -578,7 +578,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     {
         SendAuctionCommandResult(0, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        LOG_ERROR("network.opcode", "CHEATER : %s, he tried to cancel auction (id: %u) of another player, or auction is nullptr", player->GetGUID().ToString().c_str(), auctionId);
+        LOG_ERROR("network.opcode", "CHEATER : {}, he tried to cancel auction (id: {}) of another player, or auction is nullptr", player->GetGUID().ToString(), auctionId);
         return;
     }
 
@@ -609,14 +609,14 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     recvData >> outbiddedCount;
     if (recvData.size() != (16 + outbiddedCount * 4))
     {
-        LOG_ERROR("network.opcode", "Client sent bad opcode!!! with count: %u and size : %lu (must be: %u)", outbiddedCount, (unsigned long)recvData.size(), (16 + outbiddedCount * 4));
+        LOG_ERROR("network.opcode", "Client sent bad opcode!!! with count: {} and size : {} (must be: {})", outbiddedCount, (unsigned long)recvData.size(), (16 + outbiddedCount * 4));
         outbiddedCount = 0;
     }
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionListBidderItems - Unit (%s) not found or you can't interact with him.", guid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionListBidderItems - Unit ({}) not found or you can't interact with him.", guid.ToString());
         recvData.rfinish();
         return;
     }
@@ -684,7 +684,7 @@ void WorldSession::HandleAuctionListOwnerItemsEvent(ObjectGuid creatureGuid)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(creatureGuid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleAuctionListOwnerItems - Unit (%s) not found or you can't interact with him.", creatureGuid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleAuctionListOwnerItems - Unit ({}) not found or you can't interact with him.", creatureGuid.ToString());
         return;
     }
 

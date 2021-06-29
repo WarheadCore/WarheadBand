@@ -92,7 +92,7 @@ namespace Warhead::Impl::ChatCommands
                 return result2;
             if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
-                return Warhead::StringFormat("%s \"%s\"\n%s \"%s\"",
+                return Warhead::StringFormat("{} \"{}\"\n{} \"{}\"",
                     GetWarheadString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
                     GetWarheadString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
             }

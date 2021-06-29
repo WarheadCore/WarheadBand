@@ -316,7 +316,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const* tab
         else                                                // not set case, get single guid string
             wherestr = GenerateWhereStr(fieldname, guid);
 
-        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
+        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM {} WHERE {}", tableFrom, wherestr);
         if (!result)
             return true;
 
@@ -516,7 +516,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Can't extract table name from line: '{}'!", line);
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -533,7 +533,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            LOG_ERROR("entities.player.dump", "LoadPlayerDump: Unknown table: '{}'!", tn);
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -589,7 +589,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                         ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.guid
 
                     char newSetGuid[24];
-                    snprintf(newSetGuid, 24, UI64FMTD, sObjectMgr->GenerateEquipmentSetGuid());
+                    snprintf(newSetGuid, 24, "%lu", sObjectMgr->GenerateEquipmentSetGuid());
                     if (!changenth(line, 2, newSetGuid))
                         ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.setguid
                     break;
@@ -683,7 +683,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     break;
                 }
             default:
-                LOG_ERROR("entities.player.dump", "Unknown dump table type: %u", type);
+                LOG_ERROR("entities.player.dump", "Unknown dump table type: {}", type);
                 break;
         }
 

@@ -207,7 +207,7 @@ void BigNumber::GetBytes(uint8* buf, size_t bufsize, bool littleEndian) const
 {
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
     int nBytes = GetNumBytes();
-    ASSERT(nBytes >= 0, "Bignum has negative number of bytes (%d).", nBytes);
+    ASSERT(nBytes >= 0, "Bignum has negative number of bytes ({}).", nBytes);
     std::size_t numBytes = static_cast<std::size_t>(nBytes);
 
     // too large to store
@@ -228,7 +228,7 @@ void BigNumber::GetBytes(uint8* buf, size_t bufsize, bool littleEndian) const
     }
 #else
     int res = littleEndian ? BN_bn2lebinpad(_bn, buf, bufsize) : BN_bn2binpad(_bn, buf, bufsize);
-    ASSERT(res > 0, "Buffer of size %zu is too small to hold bignum with %d bytes.\n", bufsize, BN_num_bytes(_bn));
+    ASSERT(res > 0, "Buffer of size %zu is too small to hold bignum with {} bytes.\n", bufsize, BN_num_bytes(_bn));
 #endif
 }
 

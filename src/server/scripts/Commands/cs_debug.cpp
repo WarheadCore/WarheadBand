@@ -130,14 +130,14 @@ public:
             std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->cinematicCamera);
             if (itr != sFlyByCameraStore.end())
             {
-                handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->cinematicCamera);
+                handler->PSendSysMessage("Waypoints for sequence {}, camera {}", id, cineSeq->cinematicCamera);
                 uint32 count = 1 ;
                 for (FlyByCamera cam : itr->second)
                 {
-                    handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
+                    handler->PSendSysMessage("{:02} - %7ums [{}, {}, {}] Facing {} ({} degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
                     count++;
                 }
-                handler->PSendSysMessage("%lu waypoints dumped", itr->second.size());
+                handler->PSendSysMessage("{} waypoints dumped", itr->second.size());
             }
         }
 
@@ -434,14 +434,14 @@ public:
             }
             else
             {
-                LOG_ERROR("network.opcode", "Sending opcode that has unknown type '%s'", type.c_str());
+                LOG_ERROR("network.opcode", "Sending opcode that has unknown type '{}'", type);
                 break;
             }
         }
 
         data.hexlike();
         player->GetSession()->SendPacket(&data);
-        handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName().c_str());
+        handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName());
         return true;
     }
 
@@ -520,7 +520,7 @@ public:
         if (!target)
             return false;
 
-        handler->PSendSysMessage("Loot recipient for creature %s (%s, SpawnId %u) is %s",
+        handler->PSendSysMessage("Loot recipient for creature {} ({}, SpawnId {}) is {}",
             target->GetName().c_str(), target->GetGUID().ToString().c_str(), target->GetSpawnId(), target->hasLootRecipient() ? (target->GetLootRecipient() ? target->GetLootRecipient()->GetName().c_str() : "offline") : "no loot recipient");
         return true;
     }
@@ -578,11 +578,11 @@ public:
                         for (uint8 j = 0; j < bag->GetBagSize(); ++j)
                             if (Item* item2 = bag->GetItemByPos(j))
                                 if (item2->GetState() == state)
-                                    handler->PSendSysMessage("bag: 255 slot: %d %s, owner: %s",
+                                    handler->PSendSysMessage("bag: 255 slot: {} {}, owner: {}",
                                         item2->GetSlot(), item2->GetGUID().ToString().c_str(), item2->GetOwnerGUID().ToString().c_str());
                     }
                     else if (item->GetState() == state)
-                        handler->PSendSysMessage("bag: 255 slot: %d %s, owner: %s",
+                        handler->PSendSysMessage("bag: 255 slot: {} {}, owner: {}",
                             item->GetSlot(), item->GetGUID().ToString().c_str(), item->GetOwnerGUID().ToString().c_str());
                 }
             }
@@ -617,7 +617,7 @@ public:
                         break;
                 }
 
-                handler->PSendSysMessage("bag: %d slot: %d %s - state: %s", bagSlot, item->GetSlot(), item->GetGUID().ToString().c_str(), st.c_str());
+                handler->PSendSysMessage("bag: {} slot: {} {} - state: {}", bagSlot, item->GetSlot(), item->GetGUID().ToString(), st);
             }
             if (updateQueue.empty())
                 handler->PSendSysMessage("The player's updatequeue is empty");
@@ -638,14 +638,14 @@ public:
 
                 if (item->GetSlot() != i)
                 {
-                    handler->PSendSysMessage("Item with slot %d %s has an incorrect slot value: %d", i, item->GetGUID().ToString().c_str(), item->GetSlot());
+                    handler->PSendSysMessage("Item with slot {} {} has an incorrect slot value: {}", i, item->GetGUID().ToString(), item->GetSlot());
                     error = true;
                     continue;
                 }
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("The item with slot %d (%s) does have non-matching owner (%s) and player (%sd) !",
+                    handler->PSendSysMessage("The item with slot {} ({}) does have non-matching owner ({}) and player ({}d) !",
                         item->GetSlot(), item->GetGUID().ToString().c_str(), item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -653,7 +653,7 @@ public:
 
                 if (Bag* container = item->GetContainer())
                 {
-                    handler->PSendSysMessage("The item with slot %d (%s) has a container (slot: %d, %s) but shouldn't!",
+                    handler->PSendSysMessage("The item with slot {} ({}) has a container (slot: {}, {}) but shouldn't!",
                         item->GetSlot(), item->GetGUID().ToString().c_str(), container->GetSlot(), container->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -664,7 +664,7 @@ public:
                     uint16 qp = item->GetQueuePos();
                     if (qp > updateQueue.size())
                     {
-                        handler->PSendSysMessage("The item with slot %d (%s) has its queuepos (%d) larger than the update queue size! ",
+                        handler->PSendSysMessage("The item with slot {} ({}) has its queuepos ({}) larger than the update queue size! ",
                             item->GetSlot(), item->GetGUID().ToString().c_str(), qp);
                         error = true;
                         continue;
@@ -672,7 +672,7 @@ public:
 
                     if (updateQueue[qp] == nullptr)
                     {
-                        handler->PSendSysMessage("The item with slot %d (%s) has its queuepos (%d) pointing to nullptr in the queue!",
+                        handler->PSendSysMessage("The item with slot {} ({}) has its queuepos ({}) pointing to nullptr in the queue!",
                             item->GetSlot(), item->GetGUID().ToString().c_str(), qp);
                         error = true;
                         continue;
@@ -680,7 +680,7 @@ public:
 
                     if (updateQueue[qp] != item)
                     {
-                        handler->PSendSysMessage("The item with slot %d (%s) has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, %s)",
+                        handler->PSendSysMessage("The item with slot {} ({}) has a queuepos ({}) that points to another item in the queue (bag: {}, slot: {}, {})",
                             item->GetSlot(), item->GetGUID().ToString().c_str(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUID().ToString().c_str());
                         error = true;
                         continue;
@@ -688,7 +688,7 @@ public:
                 }
                 else if (item->GetState() != ITEM_UNCHANGED)
                 {
-                    handler->PSendSysMessage("The item with slot %d (%s) is not in queue but should be (state: %d)!",
+                    handler->PSendSysMessage("The item with slot {} ({}) is not in queue but should be (state: {})!",
                         item->GetSlot(), item->GetGUID().ToString().c_str(), item->GetState());
                     error = true;
                     continue;
@@ -704,7 +704,7 @@ public:
 
                         if (item2->GetSlot() != j)
                         {
-                            handler->PSendSysMessage("The item in bag %d and slot %d (%s) has an incorrect slot value: %d",
+                            handler->PSendSysMessage("The item in bag {} and slot {} ({}) has an incorrect slot value: {}",
                                 bag->GetSlot(), j, item2->GetGUID().ToString().c_str(), item2->GetSlot());
                             error = true;
                             continue;
@@ -712,7 +712,7 @@ public:
 
                         if (item2->GetOwnerGUID() != player->GetGUID())
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d and with item %s, the owner (%s) and the player (%s) don't match!",
+                            handler->PSendSysMessage("The item in bag {} at slot {} and with item {}, the owner ({}) and the player ({}) don't match!",
                                 bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str(), item2->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
                             error = true;
                             continue;
@@ -721,7 +721,7 @@ public:
                         Bag* container = item2->GetContainer();
                         if (!container)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d (%s) has no container!",
+                            handler->PSendSysMessage("The item in bag {} at slot {} ({}) has no container!",
                                 bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str());
                             error = true;
                             continue;
@@ -729,7 +729,7 @@ public:
 
                         if (container != bag)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d (%s) has a different container(slot %d %s)!",
+                            handler->PSendSysMessage("The item in bag {} at slot {} ({}) has a different container(slot {} {})!",
                                 bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str(), container->GetSlot(), container->GetGUID().ToString().c_str());
                             error = true;
                             continue;
@@ -740,7 +740,7 @@ public:
                             uint16 qp = item2->GetQueuePos();
                             if (qp > updateQueue.size())
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d (%s) has a queuepos (%d) larger than the update queue size! ",
+                                handler->PSendSysMessage("The item in bag {} at slot {} ({}) has a queuepos ({}) larger than the update queue size! ",
                                     bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str(), qp);
                                 error = true;
                                 continue;
@@ -748,7 +748,7 @@ public:
 
                             if (updateQueue[qp] == nullptr)
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d (%s) has a queuepos (%d) that points to nullptr in the queue!",
+                                handler->PSendSysMessage("The item in bag {} at slot {} ({}) has a queuepos ({}) that points to nullptr in the queue!",
                                     bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str(), qp);
                                 error = true;
                                 continue;
@@ -756,7 +756,7 @@ public:
 
                             if (updateQueue[qp] != item2)
                             {
-                                handler->PSendSysMessage("The item in bag %d at slot %d (%s) has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, %s)",
+                                handler->PSendSysMessage("The item in bag {} at slot {} ({}) has a queuepos ({}) that points to another item in the queue (bag: {}, slot: {}, {})",
                                     bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUID().ToString().c_str());
                                 error = true;
                                 continue;
@@ -764,7 +764,7 @@ public:
                         }
                         else if (item2->GetState() != ITEM_UNCHANGED)
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d (%s) is not in queue but should be (state: %d)!",
+                            handler->PSendSysMessage("The item in bag {} at slot {} ({}) is not in queue but should be (state: {})!",
                                 bag->GetSlot(), item2->GetSlot(), item2->GetGUID().ToString().c_str(), item2->GetState());
                             error = true;
                             continue;
@@ -781,7 +781,7 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): For the item (%s), the owner (%s) and the player (%s) don't match!",
+                    handler->PSendSysMessage("queue({}): For the item ({}), the owner ({}) and the player ({}) don't match!",
                         i, item->GetGUID().ToString().c_str(), item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -789,7 +789,7 @@ public:
 
                 if (item->GetQueuePos() != i)
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): For the item (%s), the queuepos doesn't match it's position in the queue!", i, item->GetGUID().ToString().c_str());
+                    handler->PSendSysMessage("queue({}): For the item ({}), the queuepos doesn't match it's position in the queue!", i, item->GetGUID().ToString());
                     error = true;
                     continue;
                 }
@@ -801,7 +801,7 @@ public:
 
                 if (test == nullptr)
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): The bag(%d) and slot(%d) values for the item (%s) are incorrect, the player doesn't have any item at that position!",
+                    handler->PSendSysMessage("queue({}): The bag({}) and slot({}) values for the item ({}) are incorrect, the player doesn't have any item at that position!",
                         i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -809,7 +809,7 @@ public:
 
                 if (test != item)
                 {
-                    handler->PSendSysMessage("queue(" SZFMTD "): The bag(%d) and slot(%d) values for the item (%s) are incorrect, an item (%s) is there instead!",
+                    handler->PSendSysMessage("queue({}): The bag({}) and slot({}) values for the item ({}) are incorrect, an item ({}) is there instead!",
                         i, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString().c_str(), test->GetGUID().ToString().c_str());
                     error = true;
                     continue;
@@ -843,16 +843,16 @@ public:
         ThreatContainer::StorageType const& threatList = target->getThreatManager().getThreatList();
         ThreatContainer::StorageType::const_iterator itr;
         uint32 count = 0;
-        handler->PSendSysMessage("Threat list of %s (%s)", target->GetName().c_str(), target->GetGUID().ToString().c_str());
+        handler->PSendSysMessage("Threat list of {} ({})", target->GetName(), target->GetGUID().ToString());
         for (itr = threatList.begin(); itr != threatList.end(); ++itr)
         {
             Unit* unit = (*itr)->getTarget();
             if (!unit)
             {
-                handler->PSendSysMessage("   %u.   No Unit  - threat %f", ++count, (*itr)->getThreat());
+                handler->PSendSysMessage("   {}.   No Unit  - threat {}", ++count, (*itr)->getThreat());
                 continue;
             }
-            handler->PSendSysMessage("   %u.   %s   (%s)  - threat %f", ++count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), (*itr)->getThreat());
+            handler->PSendSysMessage("   {}.   {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->getThreat());
         }
         ThreatContainer::StorageType const& threatList2 = target->getThreatManager().getOfflineThreatList();
         for (itr = threatList2.begin(); itr != threatList2.end(); ++itr)
@@ -860,10 +860,10 @@ public:
             Unit* unit = (*itr)->getTarget();
             if (!unit)
             {
-                handler->PSendSysMessage("   %u.   [offline] No Unit  - threat %f", ++count, (*itr)->getThreat());
+                handler->PSendSysMessage("   {}.   [offline] No Unit  - threat {}", ++count, (*itr)->getThreat());
                 continue;
             }
-            handler->PSendSysMessage("   %u.   [offline] %s   (%s)  - threat %f", ++count, unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), (*itr)->getThreat());
+            handler->PSendSysMessage("   {}.   [offline] {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->getThreat());
         }
         handler->SendSysMessage("End of threat list.");
 
@@ -877,14 +877,14 @@ public:
             target = handler->GetSession()->GetPlayer();
         HostileReference* ref = target->getHostileRefManager().getFirst();
         uint32 count = 0;
-        handler->PSendSysMessage("Hostil reference list of %s (%s)", target->GetName().c_str(), target->GetGUID().ToString().c_str());
+        handler->PSendSysMessage("Hostil reference list of {} ({})", target->GetName(), target->GetGUID().ToString());
         while (ref)
         {
             if (Unit* unit = ref->GetSource()->GetOwner())
-                handler->PSendSysMessage("   %u.   %s %s   (%s)  - threat %f", ++count, (ref->isOnline() ? "" : "[offline]"),
+                handler->PSendSysMessage("   {}.   {} {}   ({})  - threat {}", ++count, (ref->isOnline() ? "" : "[offline]"),
                     unit->GetName().c_str(), unit->GetGUID().ToString().c_str(), ref->getThreat());
             else
-                handler->PSendSysMessage("   %u.   No Owner  - threat %f", ++count, ref->getThreat());
+                handler->PSendSysMessage("   {}.   No Owner  - threat {}", ++count, ref->getThreat());
             ref = ref->next();
         }
         handler->SendSysMessage("End of hostil reference list.");
@@ -906,7 +906,7 @@ public:
 
         uint32 id = (uint32)atoi(i);
         //target->SetVehicleId(id);
-        handler->PSendSysMessage("Vehicle id set to %u", id);
+        handler->PSendSysMessage("Vehicle id set to {}", id);
         return true;
     }
 
@@ -941,7 +941,7 @@ public:
             passenger->EnterVehicle(target, seatId);
         }
 
-        handler->PSendSysMessage("Unit %u entered vehicle %d", entry, (int32)seatId);
+        handler->PSendSysMessage("Unit {} entered vehicle {}", entry, (int32)seatId);
         return true;
     }
 
@@ -1035,7 +1035,7 @@ public:
 
         uint32 value = i->GetUInt32Value(index);
 
-        handler->PSendSysMessage("Item %u: value at %u is %u", guid, index, value);
+        handler->PSendSysMessage("Item {}: value at {} is {}", guid, index, value);
 
         return true;
     }
@@ -1107,10 +1107,10 @@ public:
         if (Unit* unit = handler->getSelectedUnit())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            handler->PSendSysMessage("Checking LoS %s -> %s:", player->GetName().c_str(), unit->GetName().c_str());
-            handler->PSendSysMessage("    VMAP LoS: %s", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
-            handler->PSendSysMessage("    GObj LoS: %s", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_GOBJECT) ? "clear" : "obstructed");
-            handler->PSendSysMessage("%s is %sin line of sight of %s.", unit->GetName().c_str(), (player->IsWithinLOSInMap(unit) ? "" : "not "), player->GetName().c_str());
+            handler->PSendSysMessage("Checking LoS {} -> {}:", player->GetName(), unit->GetName());
+            handler->PSendSysMessage("    VMAP LoS: {}", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
+            handler->PSendSysMessage("    GObj LoS: {}", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_GOBJECT) ? "clear" : "obstructed");
+            handler->PSendSysMessage("{} is {}in line of sight of {}.", unit->GetName(), (player->IsWithinLOSInMap(unit) ? "" : "not "), player->GetName());
             return true;
         }
         return false;
@@ -1394,7 +1394,7 @@ public:
 
         if (!*args)
         {
-            handler->PSendSysMessage("Unit States: %u, React State: %u", target->GetUnitState(), target->ToCreature() ? target->ToCreature()->GetReactState() : 10);
+            handler->PSendSysMessage("Unit States: {}, React State: {}", target->GetUnitState(), target->ToCreature() ? target->ToCreature()->GetReactState() : 10);
         }
         else
         {
@@ -1410,7 +1410,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, 0,0, 0,100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        LOG_INFO("sql.dev", "(@PATH, XX, {0:.3f}, {0:.3f}, {0:.5f}, 0,0, 0,100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;

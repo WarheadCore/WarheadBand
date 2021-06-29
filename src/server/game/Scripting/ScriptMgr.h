@@ -262,7 +262,7 @@ public:
         _mapEntry = sMapStore.LookupEntry(_mapId);
 
         if (!_mapEntry)
-            LOG_ERROR("maps.script", "Invalid MapScript for %u; no such map ID.", _mapId);
+            LOG_ERROR("maps.script", "Invalid MapScript for {}; no such map ID.", _mapId);
     }
 
     // Gets the MapEntry structure associated with this script. Can return nullptr.
@@ -303,7 +303,7 @@ public:
         checkMap();
 
         if (GetEntry() && !GetEntry()->IsWorldMap())
-            LOG_ERROR("maps.script", "WorldMapScript for map %u is invalid.", GetEntry()->MapID);
+            LOG_ERROR("maps.script", "WorldMapScript for map {} is invalid.", GetEntry()->MapID);
     }
 };
 
@@ -320,7 +320,7 @@ public:
         checkMap();
 
         if (GetEntry() && !GetEntry()->IsDungeon())
-            LOG_ERROR("maps.script", "InstanceMapScript for map %u is invalid.", GetEntry()->MapID);
+            LOG_ERROR("maps.script", "InstanceMapScript for map {} is invalid.", GetEntry()->MapID);
     }
 
     // Gets an InstanceScript object for this instance.
@@ -340,7 +340,7 @@ public:
         checkMap();
 
         if (GetEntry() && !GetEntry()->IsBattleground())
-            LOG_ERROR("maps.script", "BattlegroundMapScript for map %u is invalid.", GetEntry()->MapID);
+            LOG_ERROR("maps.script", "BattlegroundMapScript for map {} is invalid.", GetEntry()->MapID);
     }
 };
 
@@ -1981,7 +1981,7 @@ public:
                     else
                     {
                         // If the script is already assigned -> delete it!
-                        LOG_ERROR("scripts", "Script named '%s' is already assigned (two or more scripts have the same name), so the script can't work, aborting...",
+                        LOG_ERROR("scripts", "Script named '{}' is already assigned (two or more scripts have the same name), so the script can't work, aborting...",
                                        script->GetName().c_str());
 
                         ABORT(); // Error that should be fixed ASAP.
@@ -1991,7 +1991,7 @@ public:
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("Smart") == std::string::npos)
-                        LOG_ERROR("sql.sql", "Script named '%s' is not assigned in the database.",
+                        LOG_ERROR("sql.sql", "Script named '{}' is not assigned in the database.",
                                          script->GetName().c_str());
                 }
             }
@@ -2025,7 +2025,7 @@ private:
         {
             if (it->second == script)
             {
-                LOG_ERROR("scripts", "Script '%s' has same memory pointer as '%s'.",
+                LOG_ERROR("scripts", "Script '{}' has same memory pointer as '{}'.",
                                script->GetName().c_str(), it->second->GetName().c_str());
 
                 return false;

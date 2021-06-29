@@ -77,11 +77,11 @@ AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint8 e
             _slot = slot;
             GetTarget()->SetVisibleAura(slot, this);
             SetNeedClientUpdate();
-            LOG_DEBUG("spells.aura", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
+            LOG_DEBUG("spells.aura", "Aura: {} Effect: {} put to unit visible auras slot: {}", GetBase()->GetId(), GetEffectMask(), slot);
         }
         else
         {
-            LOG_ERROR("spells.aura", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+            LOG_ERROR("spells.aura", "Aura: {} Effect: {} could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
         }
     }
     _InitFlags(caster, effMask);
@@ -160,7 +160,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     ASSERT(aurEff);
     ASSERT(HasEffect(effIndex) == (!apply));
     ASSERT((1 << effIndex) & _effectsToApply);
-    LOG_DEBUG("spells.aura", "AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
+    LOG_DEBUG("spells.aura", "AuraApplication::_HandleEffect: {}, apply: {}: amount: {}", aurEff->GetAuraType(), apply, aurEff->GetAmount());
 
     if (apply)
     {
@@ -510,7 +510,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     // TODO: Figure out why this happens
     if (itr == m_applications.end())
     {
-        LOG_ERROR("spells.aura", "Aura::_UnapplyForTarget, target:%s, caster:%s, spell:%u was not found in owners application map!",
+        LOG_ERROR("spells.aura", "Aura::_UnapplyForTarget, target:{}, caster:{}, spell:{} was not found in owners application map!",
                        target->GetGUID().ToString().c_str(), caster ? caster->GetGUID().ToString().c_str() : "", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
@@ -676,7 +676,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             if (!GetOwner()->IsSelfOrInSameMap(itr->first))
             {
                 //TODO: There is a crash caused by shadowfiend load addon
-                LOG_FATAL("spells.aura", "Aura %u: Owner %s (map %u) is not in the same map as target %s (map %u).", GetSpellInfo()->Id,
+                LOG_FATAL("spells.aura", "Aura {}: Owner {} (map {}) is not in the same map as target {} (map {}).", GetSpellInfo()->Id,
                                GetOwner()->GetName().c_str(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
                                itr->first->GetName().c_str(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
                 ABORT();
@@ -1115,7 +1115,7 @@ void Aura::UnregisterSingleTarget()
     Unit* caster = GetCaster();
     if (!caster)
     {
-        LOG_INFO("misc", "Aura::UnregisterSingleTarget (A1) - %u, %u, %u, %s", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName().c_str());
+        LOG_INFO("misc", "Aura::UnregisterSingleTarget (A1) - {}, {}, {}, {}", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName());
         //ASSERT(caster);
     }
     else
@@ -1358,7 +1358,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     spellId = 57531;
                                     break;
                                 default:
-                                    LOG_ERROR("spells.aura", "Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
+                                    LOG_ERROR("spells.aura", "Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency ({}) found", aurEff->GetId());
                             }
                             if (spellId)
                                 caster->CastSpell(caster, spellId, true);
@@ -1483,7 +1483,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 spellId = 50508;
                                 break;
                             default:
-                                LOG_ERROR("spells.aura", "Aura::HandleAuraSpecificMods: Unknown rank of Crypt Fever/Ebon Plague (%d) found", aurEff->GetId());
+                                LOG_ERROR("spells.aura", "Aura::HandleAuraSpecificMods: Unknown rank of Crypt Fever/Ebon Plague ({}) found", aurEff->GetId());
                         }
                         caster->CastSpell(target, spellId, true, 0, GetEffect(0));
                     }
@@ -1599,7 +1599,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 spellId = 60946;
                                 break;
                             default:
-                                LOG_ERROR("spells.aura", "Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear (%d) found", aurEff->GetId());
+                                LOG_ERROR("spells.aura", "Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear ({}) found", aurEff->GetId());
                         }
                         if (spellId)
                             caster->CastSpell(target, spellId, true);
@@ -2234,7 +2234,7 @@ void Aura::LoadScripts()
             m_loadedScripts.erase(bitr);
             continue;
         }
-        LOG_DEBUG("spells.aura", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
+        LOG_DEBUG("spells.aura", "Aura::LoadScripts: Script `{}` for aura `{}` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
         (*itr)->Register();
         ++itr;
     }

@@ -76,7 +76,7 @@ namespace Warhead
 
         if (!secure)
         {
-            LOG_TRACE(logger, "Starting process \"%s\" with arguments: \"%s\".",
+            LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
                 executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
         }
 
@@ -118,12 +118,12 @@ namespace Warhead
 
         auto outInfo = MakeTCLogSink([&](std::string const& msg)
         {
-            LOG_INFO(logger, "%s", msg.c_str());
+            LOG_INFO(logger, "{}", msg);
         });
 
         auto outError = MakeTCLogSink([&](std::string const& msg)
         {
-            LOG_ERROR(logger, "%s", msg.c_str());
+            LOG_ERROR(logger, "{}", msg);
         });
 
         copy(outStream, outInfo);
@@ -135,7 +135,7 @@ namespace Warhead
 
         if (!secure)
         {
-            LOG_TRACE(logger, ">> Process \"%s\" finished with return value %i.",
+            LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
                 executable.c_str(), result);
         }
 

@@ -27,7 +27,7 @@ uint32 Warhead::XP::BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels cont
         nBaseExp = 580;
         break;
     default:
-        LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
+        LOG_ERROR("misc", "BaseGain: Unsupported content level {}", content);
         nBaseExp = 45;
         break;
     }

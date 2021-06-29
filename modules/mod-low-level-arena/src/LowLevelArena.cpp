@@ -267,7 +267,7 @@ void LLA::Reward(Battleground* bg, TeamId winnerTeamId)
     //{
     //    auto bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->getLevel());
     //    auto levelsString = Warhead::ToString(bracketEntry->minLevel) + "." + Warhead::ToString(bracketEntry->minLevel);
-    //    auto configIsEnable = Warhead::StringFormat("LLA.%s.Enable", levelsString.c_str());
+    //    auto configIsEnable = Warhead::StringFormat("LLA.{}.Enable", levelsString);
 
     //    // If disable reward for this bracket - skip
     //    if (sConfigMgr->GetOption<bool>(configIsEnable, false))
@@ -276,8 +276,8 @@ void LLA::Reward(Battleground* bg, TeamId winnerTeamId)
     //    }
 
     //    bool isWinner = player->GetBgTeamId() == winnerTeamId;
-    //    auto configCountWinner = sConfigMgr->GetOption<uint32>(Warhead::StringFormat("LLA.%s.ArenaPoint.Count.Winner", levelsString.c_str()), 0);
-    //    auto configCountLoser = sConfigMgr->GetOption<uint32>(Warhead::StringFormat("LLA.%s.ArenaPoint.Count.Loser", levelsString.c_str()), 0);
+    //    auto configCountWinner = sConfigMgr->GetOption<uint32>(Warhead::StringFormat("LLA.{}.ArenaPoint.Count.Winner", levelsString), 0);
+    //    auto configCountLoser = sConfigMgr->GetOption<uint32>(Warhead::StringFormat("LLA.{}.ArenaPoint.Count.Loser", levelsString), 0);
 
     //    player->ModifyArenaPoints(isWinner ? configCountWinner : configCountLoser);
     //}

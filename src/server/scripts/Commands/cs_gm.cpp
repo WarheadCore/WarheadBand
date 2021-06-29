@@ -124,7 +124,7 @@ public:
         data << target->GetPackGUID();
         data << uint32(0);                                      // unknown
         target->SendMessageToSet(&data, true);
-        handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target).c_str(), args);
+        handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target), args);
         handler->SetSentErrorMessage(true);
         return false;
     }
@@ -157,9 +157,9 @@ public:
                 if ((max + max2 + size) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
-                    handler->PSendSysMessage("|    %s GMLevel %u", name.c_str(), security);
+                    handler->PSendSysMessage("|    {} GMLevel {}", name, security);
                 else
-                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name.c_str(), max2, " ", security);
+                    handler->PSendSysMessage("|%*s{}%*s|   {}  |", max, " ", name, max2, " ", security);
             }
         }
         if (footer)
@@ -193,9 +193,9 @@ public:
                 if ((max + max2 + strlen(name)) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
-                    handler->PSendSysMessage("|    %s GMLevel %u", name, security);
+                    handler->PSendSysMessage("|    {} GMLevel {}", name, security);
                 else
-                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max2, " ", security);
+                    handler->PSendSysMessage("|%*s{}%*s|   {}  |", max, " ", name, max2, " ", security);
             } while (result->NextRow());
             handler->SendSysMessage("========================");
         }

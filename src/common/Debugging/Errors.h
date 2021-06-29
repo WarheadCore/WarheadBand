@@ -18,23 +18,35 @@
 #ifndef _WARHEAD_ERRORS_H_
 #define _WARHEAD_ERRORS_H_
 
-#include "Define.h"
-#include <string>
+#include "StringFormat.h"
 
 namespace Warhead
 {
-    [[noreturn]] WH_COMMON_API void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message);
-    [[noreturn]] WH_COMMON_API void Assert(char const* file, int line, char const* function, std::string const& debugInfo, char const* message, char const* format, ...) ATTR_PRINTF(6, 7);
+    // Default function
+    [[noreturn]] WH_COMMON_API void Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, std::string const& fmtMessage = "");
+    [[noreturn]] WH_COMMON_API void Fatal(std::string_view file, int line, std::string_view function, std::string_view message, std::string const& fmtMessage = "");
+    [[noreturn]] WH_COMMON_API void Error(std::string_view file, int line, std::string_view function, std::string_view message);
+    [[noreturn]] WH_COMMON_API void Abort(std::string_view file, int line, std::string_view function, std::string const& fmtMessage = "");
 
-    [[noreturn]] WH_COMMON_API void Fatal(char const* file, int line, char const* function, char const* message, ...) ATTR_PRINTF(4, 5);
+    template<typename... Args>
+    WH_COMMON_API void Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, std::string_view fmt, Args&&... args)
+    {
+        Assert(file, line, function, debugInfo, message, StringFormat(fmt, std::forward<Args>(args)...));
+    }
 
-    [[noreturn]] WH_COMMON_API void Error(char const* file, int line, char const* function, char const* message);
+    template<typename... Args>
+    WH_COMMON_API void Fatal(std::string_view file, int line, std::string_view function, std::string_view message, std::string_view fmt, Args&&... args)
+    {
+        Fatal(file, line, function, message, StringFormat(fmt, std::forward<Args>(args)...));
+    }
 
-    [[noreturn]] WH_COMMON_API void Abort(char const* file, int line, char const* function);
+    template<typename... Args>
+    WH_COMMON_API void Abort(std::string_view file, int line, std::string_view function, std::string_view fmt, Args&&... args)
+    {
+        Abort(file, line, function, StringFormat(fmt, std::forward<Args>(args)...));
+    }
 
-    [[noreturn]] WH_COMMON_API void Abort(char const* file, int line, char const* function, char const* message, ...);
-
-    WH_COMMON_API void Warning(char const* file, int line, char const* function, char const* message);
+    WH_COMMON_API void Warning(std::string_view file, int line, std::string_view function, std::string_view message);
 
     [[noreturn]] WH_COMMON_API void AbortHandler(int sigval);
 
@@ -42,25 +54,12 @@ namespace Warhead
 
 WH_COMMON_API std::string GetDebugInfo();
 
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
-#define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
-#define ASSERT_END __pragma(warning(pop))
-#else
-#define ASSERT_BEGIN
-#define ASSERT_END
-#endif
-
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-#define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
-#endif
-
-#define WPAssert(cond, ...) ASSERT_BEGIN do { if (!(cond)) Warhead::Assert(__FILE__, __LINE__, __FUNCTION__, GetDebugInfo(), #cond, ##__VA_ARGS__); } while(0) ASSERT_END
-#define WPAssert_NODEBUGINFO(cond, ...) ASSERT_BEGIN do { if (!(cond)) Warhead::Assert(__FILE__, __LINE__, __FUNCTION__, "", #cond, ##__VA_ARGS__); } while(0) ASSERT_END
-#define WPFatal(cond, ...) ASSERT_BEGIN do { if (!(cond)) Warhead::Fatal(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0) ASSERT_END
-#define WPError(cond, msg) ASSERT_BEGIN do { if (!(cond)) Warhead::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
-#define WPWarning(cond, msg) ASSERT_BEGIN do { if (!(cond)) Warhead::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0) ASSERT_END
-#define WPAbort() ASSERT_BEGIN do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__); } while(0) ASSERT_END
-#define WPAbort_MSG(msg, ...) ASSERT_BEGIN do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__, (msg), ##__VA_ARGS__); } while(0) ASSERT_END
+#define WPAssert(cond, ...) do { if (!(cond)) Warhead::Assert(__FILE__, __LINE__, __FUNCTION__, GetDebugInfo(), #cond, ##__VA_ARGS__); } while(0)
+#define WPAssert_NODEBUGINFO(cond) do { if (!(cond)) Warhead::Assert(__FILE__, __LINE__, __FUNCTION__, "", #cond); } while(0)
+#define WPFatal(cond, ...) do { if (!(cond)) Warhead::Fatal(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0)
+#define WPError(cond, msg) do { if (!(cond)) Warhead::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
+#define WPWarning(cond, msg) do { if (!(cond)) Warhead::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
+#define WPAbort(...) do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0)
 
 #ifdef PERFORMANCE_PROFILING
 #define ASSERT(cond, ...) ((void)0)
@@ -70,13 +69,16 @@ WH_COMMON_API std::string GetDebugInfo();
 #define ASSERT_NODEBUGINFO WPAssert_NODEBUGINFO
 #endif
 
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+#define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
+#endif
+
 #define ABORT WPAbort
-#define ABORT_MSG WPAbort_MSG
 
 template <typename T>
-inline T* ASSERT_NOTNULL_IMPL(T* pointer, char const* expr)
+inline T* ASSERT_NOTNULL_IMPL(T* pointer, std::string_view expr)
 {
-    ASSERT(pointer, "%s", expr);
+    ASSERT(pointer, "{}", expr);
     return pointer;
 }
 

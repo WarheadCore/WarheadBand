@@ -99,7 +99,7 @@ public:
         target->SetTitle(titleInfo);                            // to be sure that title now known
         target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], tNameLink);
 
         return true;
     }
@@ -145,7 +145,7 @@ public:
         snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName().c_str());
 
         target->SetTitle(titleInfo);
-        handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink);
 
         return true;
     }
@@ -192,12 +192,12 @@ public:
         char titleNameStr[80];
         snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName().c_str());
 
-        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink);
 
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
             target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
-            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink.c_str());
+            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink);
         }
 
         return true;
@@ -211,7 +211,7 @@ public:
 
         uint64 titles = 0;
 
-        sscanf((char*)args, UI64FMTD, &titles);
+        sscanf((char*)args, "%lu", &titles);
 
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -239,7 +239,7 @@ public:
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
             target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
-            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, handler->GetNameLink(target));
         }
 
         return true;

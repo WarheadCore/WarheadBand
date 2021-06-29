@@ -107,7 +107,7 @@ void UpdateTime::_RecordUpdateTimeDuration(std::string const& text, uint32 minUp
     uint32 diff = getMSTimeDiff(_recordedTime, thisTime);
 
     if (diff > minUpdateTime)
-        LOG_DEBUG("time.update", "Recored Update Time of %s: %ums.", text.c_str(), diff);
+        LOG_DEBUG("time.update", "Recored Update Time of {}: {}ms.", text, diff);
 
     _recordedTime = thisTime;
 }
@@ -129,7 +129,7 @@ void WorldUpdateTime::RecordUpdateTime(uint32 gameTimeMs, uint32 diff, uint32 se
     {
         if (getMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
         {
-            LOG_DEBUG("time.update", "Update time diff: %u. Players online: %u.", GetAverageUpdateTime(), sessionCount);
+            LOG_DEBUG("time.update", "Update time diff: {}. Players online: {}.", GetAverageUpdateTime(), sessionCount);
             _lastRecordTime = gameTimeMs;
         }
     }

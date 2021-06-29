@@ -37,7 +37,7 @@ enum Yells
     EMOTE_DEEP_FREEZE               = 23,
 };
 
-#define EMOTE_THROW_SARONITE        "%s hurls a massive saronite boulder at you!"
+#define EMOTE_THROW_SARONITE        "{} hurls a massive saronite boulder at you!"
 
 enum MiscData
 {

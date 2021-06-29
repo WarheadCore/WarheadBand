@@ -124,7 +124,7 @@ public:
                 whereClause <<  "WHERE guid = '" << guid << '\'';
         }
 
-        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature %s", whereClause.str().c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map, guid, id FROM creature {}", whereClause.str());
         if (!result)
         {
             handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);

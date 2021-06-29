@@ -251,33 +251,31 @@ void Warden::ApplyPenalty(uint16 checkId, std::string const& reason)
     {
         if (Player const* plr = _session->GetPlayer())
         {
-            std::string const reportFormat = "Player %s (guid %u, account id: %u) failed warden %u check (%s). Action: %s";
-            reportMsg = Warhead::StringFormat(reportFormat, plr->GetName().c_str(), plr->GetGUID().GetCounter(), _session->GetAccountId(),
-                                           checkId, ((checkData && !checkData->Comment.empty()) ? checkData->Comment.c_str() : "<warden comment is not set>"),
-                                           GetWardenActionStr(action).c_str());
+            reportMsg = Warhead::StringFormat("Player {} (guid {}, account id: {}) failed warden {} check ({}). Action: {}",
+                plr->GetName(), plr->GetGUID().GetCounter(), _session->GetAccountId(),
+                checkId, ((checkData && !checkData->Comment.empty()) ? checkData->Comment.c_str() : "<warden comment is not set>"),
+                GetWardenActionStr(action).c_str());
         }
         else
         {
-            std::string const reportFormat = "Account id: %u failed warden %u check. Action: %s";
-            reportMsg = Warhead::StringFormat(reportFormat, _session->GetAccountId(), checkId, GetWardenActionStr(action).c_str());
+            reportMsg = Warhead::StringFormat("Account id: {} failed warden {} check. Action: {}", _session->GetAccountId(), checkId, GetWardenActionStr(action));
         }
     }
     else
     {
         if (Player const* plr = _session->GetPlayer())
         {
-            std::string const reportFormat = "Player %s (guid %u, account id: %u) triggered warden penalty by reason: %s. Action: %s";
-            reportMsg = Warhead::StringFormat(reportFormat, plr->GetName().c_str(), plr->GetGUID().GetCounter(), _session->GetAccountId(), causeMsg.c_str(), GetWardenActionStr(action).c_str());
+            reportMsg = Warhead::StringFormat("Player {} (guid {}, account id: {}) triggered warden penalty by reason: {}. Action: {}",
+            plr->GetName(), plr->GetGUID().GetCounter(), _session->GetAccountId(), causeMsg, GetWardenActionStr(action));
         }
         else
         {
-            std::string const reportFormat = "Account id: %u failed warden %u check. Action: %s";
-            reportMsg = Warhead::StringFormat(reportFormat, _session->GetAccountId(), causeMsg.c_str(), GetWardenActionStr(action).c_str());
+            reportMsg = Warhead::StringFormat("Account id: {} failed warden {} check. Action: {}", _session->GetAccountId(), causeMsg, GetWardenActionStr(action));
         }
     }
 
     reportMsg = "Warden: " + reportMsg;
-    LOG_INFO("warden", "> Warden: %s", reportMsg.c_str());
+    LOG_INFO("warden", "> {}", reportMsg);
 }
 
 bool Warden::ProcessLuaCheckResponse(std::string const& msg)
@@ -324,7 +322,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
     _warden->DecryptData(recvData.contents(), recvData.size());
     uint8 opcode;
     recvData >> opcode;
-    LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(recvData.size()));
+    LOG_DEBUG("warden", "Got packet, opcode {:02X}, size {}", opcode, uint32(recvData.size()));
     recvData.hexlike();
 
     switch (opcode)
@@ -349,7 +347,7 @@ void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
             LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
             break;
         default:
-            LOG_DEBUG("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(recvData.size() - 1));
+            LOG_DEBUG("warden", "Got unknown warden opcode {:02X} of size {}.", opcode, uint32(recvData.size() - 1));
             break;
     }
 }

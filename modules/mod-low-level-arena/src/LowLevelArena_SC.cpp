@@ -85,7 +85,7 @@ public:
 
         if (arenaType.empty())
         {
-            handler.PSendSysMessage("> Arena type '" STRING_VIEW_FMT "' is incorrect. Please use 2v2, 3v3, 5v5", STRING_VIEW_FMT_ARG(arenaType));
+            handler.PSendSysMessage("> Arena type '{}' is incorrect. Please use 2v2, 3v3, 5v5", arenaType);
             return false;
         }
 
@@ -107,7 +107,7 @@ public:
         }
         else
         {
-            handler.PSendSysMessage("> Arena type '" STRING_VIEW_FMT "' is incorrect. Please use 2v2, 3v3, 5v5", STRING_VIEW_FMT_ARG(arenaType));
+            handler.PSendSysMessage("> Arena type '{}' is incorrect. Please use 2v2, 3v3, 5v5", arenaType);
             return false;
         }
 

@@ -56,7 +56,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
         else
         {
             std::vector<std::string_view> const tokens = Warhead::Tokenize(builder._name, COMMAND_DELIMITER, false);
-            ASSERT(!tokens.empty(), "Invalid command name '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(builder._name));
+            ASSERT(!tokens.empty(), "Invalid command name '{}'.", builder._name);
             ChatSubCommandMap* subMap = &map;
             for (size_t i = 0, n = (tokens.size() - 1); i < n; ++i)
                 subMap = &((*subMap)[tokens[i]]._subCommands);
@@ -105,7 +105,7 @@ static ChatSubCommandMap COMMAND_MAP;
                 }
                 else
                 {
-                    LOG_ERROR("sql.sql", "Table `command` contains data for non-existant command '" STRING_VIEW_FMT "'. Skipped.", STRING_VIEW_FMT_ARG(name));
+                    LOG_ERROR("sql.sql", "Table `command` contains data for non-existant command '{}'. Skipped.", name);
                     cmd = nullptr;
                     break;
                 }
@@ -116,19 +116,19 @@ static ChatSubCommandMap COMMAND_MAP;
 
             if (cmd->_invoker && (cmd->_permission.RequiredLevel != secLevel))
             {
-                LOG_WARN("sql.sql", "Table `command` has permission %u for '" STRING_VIEW_FMT "' which does not match the core (%u). Overriding.",
-                    secLevel, STRING_VIEW_FMT_ARG(name), cmd->_permission.RequiredLevel);
+                LOG_WARN("sql.sql", "Table `command` has permission {} for '{}' which does not match the core ({}). Overriding.",
+                    secLevel, name, cmd->_permission.RequiredLevel);
 
                 cmd->_permission.RequiredLevel = secLevel;
             }
 
             if (std::holds_alternative<std::string>(cmd->_help))
-                LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '" STRING_VIEW_FMT "'. Skipped.", STRING_VIEW_FMT_ARG(name));
+                LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '{}'. Skipped.", name);
 
             if (std::holds_alternative<std::monostate>(cmd->_help))
                 cmd->_help.emplace<std::string>(help);
             else
-                LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '" STRING_VIEW_FMT "', which uses `trinity_string`. Skipped.", STRING_VIEW_FMT_ARG(name));
+                LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '{}', which uses `trinity_string`. Skipped.", name);
         } while (result->NextRow());
     }
 
@@ -139,7 +139,7 @@ static ChatSubCommandMap COMMAND_MAP;
 void Warhead::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
 {
     if (_invoker && std::holds_alternative<std::monostate>(_help))
-        LOG_WARN("sql.sql", "Table `command` is missing help text for command '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(name));
+        LOG_WARN("sql.sql", "Table `command` is missing help text for command '{}'.", name);
 
     _name = name;
 
@@ -172,8 +172,8 @@ static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr
             zoneName = zone->area_name[locale];
     }
 
-    LOG_GM(session.GetAccountId(), "Command: " STRING_VIEW_FMT " [Player: %s (%s) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected: %s (%s)]",
-        STRING_VIEW_FMT_ARG(cmdStr), player->GetName().c_str(), player->GetGUID().ToString().c_str(),
+    LOG_GM(session.GetAccountId(), "Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
+        cmdStr, player->GetName().c_str(), player->GetGUID().ToString().c_str(),
         session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
         player->GetPositionZ(), player->GetMapId(),
         player->FindMap() ? player->FindMap()->GetMapName() : "Unknown",
@@ -193,8 +193,8 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
             handler.SendSysMessage(std::get<std::string>(_help));
         else
         {
-            handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, STRING_VIEW_FMT_ARG(_name));
-            handler.PSendSysMessage(LANG_CMD_NO_HELP_AVAILABLE, STRING_VIEW_FMT_ARG(_name));
+            handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, _name);
+            handler.PSendSysMessage(LANG_CMD_NO_HELP_AVAILABLE, _name);
         }
     }
 
@@ -207,13 +207,13 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
         if (!header)
         {
             if (!hasInvoker)
-                handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, STRING_VIEW_FMT_ARG(_name));
+                handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, _name);
 
             handler.SendSysMessage(LANG_SUBCMDS_LIST);
             header = true;
         }
 
-        handler.PSendSysMessage(subCommandHasSubCommand ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it->second._name));
+        handler.PSendSysMessage(subCommandHasSubCommand ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, it->second._name);
     }
 }
 
@@ -289,14 +289,14 @@ namespace Warhead::Impl::ChatCommands
             if (it2)
             { /* there are multiple matching subcommands - print possibilities and return */
                 if (cmd)
-                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(cmd->_name), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(token));
+                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, cmd->_name, COMMAND_DELIMITER, token);
                 else
-                    handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                    handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, token);
 
-                handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
+                handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, it1->first);
                 do
                 {
-                    handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it2->first));
+                    handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, it2->first);
                 } while (++it2);
 
                 return true;
@@ -342,10 +342,10 @@ namespace Warhead::Impl::ChatCommands
             if (cmd)
             {
                 cmd->SendCommandHelp(handler);
-                handler.PSendSysMessage(LANG_SUBCMD_INVALID, STRING_VIEW_FMT_ARG(cmd->_name), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(token));
+                handler.PSendSysMessage(LANG_SUBCMD_INVALID, cmd->_name, COMMAND_DELIMITER, token);
             }
             else
-                handler.PSendSysMessage(LANG_CMD_INVALID, STRING_VIEW_FMT_ARG(token));
+                handler.PSendSysMessage(LANG_CMD_INVALID, token);
             return;
         }
 
@@ -357,14 +357,14 @@ namespace Warhead::Impl::ChatCommands
             if (it2)
             { /* there are multiple matching subcommands - print possibilities and return */
                 if (cmd)
-                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(cmd->_name), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(token));
+                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, cmd->_name, COMMAND_DELIMITER, token);
                 else
-                    handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                    handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, token);
 
-                handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
+                handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, it1->first);
                 do
                 {
-                    handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it2->first));
+                    handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, it2->first);
                 } while (++it2);
 
                 return;
@@ -385,11 +385,11 @@ namespace Warhead::Impl::ChatCommands
         handler.SendSysMessage(LANG_AVAILABLE_CMDS);
         do
         {
-            handler.PSendSysMessage(it->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it->second._name));
+            handler.PSendSysMessage(it->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, it->second._name);
         } while (++it);
     }
     else
-        handler.PSendSysMessage(LANG_CMD_INVALID, STRING_VIEW_FMT_ARG(cmdStr));
+        handler.PSendSysMessage(LANG_CMD_INVALID, cmdStr);
 }
 
 /*static*/ std::vector<std::string> Warhead::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmdStr)
@@ -426,13 +426,11 @@ namespace Warhead::Impl::ChatCommands
                 {
                     if (prefix.empty())
                     {
-                        return Warhead::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
-                            STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
+                        return Warhead::StringFormat("{}{}{}", match, COMMAND_DELIMITER, suffix);
                     }
                     else
                     {
-                        return Warhead::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
-                            STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
+                        return Warhead::StringFormat("{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
                     }
                 });
 
@@ -450,9 +448,9 @@ namespace Warhead::Impl::ChatCommands
             path.assign(it1->first);
         else
         {
-            path = Warhead::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
-                STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(it1->first));
+            path = Warhead::StringFormat("{}{}{}", path, COMMAND_DELIMITER, it1->first);
         }
+
         cmd = &it1->second;
         map = &cmd->_subCommands;
 
@@ -463,10 +461,7 @@ namespace Warhead::Impl::ChatCommands
     { /* there is some trailing text, leave it as is */
         if (cmd)
         { /* if we matched a command at some point, auto-complete it */
-            return {
-                Warhead::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
-                    STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(oldTail))
-            };
+            return { Warhead::StringFormat("{}{}{}", path, COMMAND_DELIMITER, oldTail) };
         }
         else
             return {};
@@ -479,8 +474,7 @@ namespace Warhead::Impl::ChatCommands
                 return std::string(match);
             else
             {
-                return Warhead::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
-                    STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match));
+                return Warhead::StringFormat("{}{}{}", prefix, COMMAND_DELIMITER, match);
             }
         });
 

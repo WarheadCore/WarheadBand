@@ -58,15 +58,15 @@ public:
     void SendSysMessage(uint32 entry);
 
     template<typename... Args>
-    void PSendSysMessage(char const* fmt, Args&&... args)
+    void PSendSysMessage(std::string_view fmt, Args&&... args)
     {
-        SendSysMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...).c_str());
+        SendSysMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
     void PSendSysMessage(uint32 entry, Args&&... args)
     {
-        SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...).c_str());
+        SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...));
     }
 
     template<typename... Args>

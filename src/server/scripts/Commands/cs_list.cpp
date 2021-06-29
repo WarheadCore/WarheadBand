@@ -93,18 +93,18 @@ public:
         QueryResult result;
 
         uint32 creatureCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", creatureId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='{}'", creatureId);
         if (result)
             creatureCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM creature WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM creature WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                                           player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), creatureId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{}' LIMIT {}",
                                           creatureId, count);
 
         if (result)
@@ -119,9 +119,9 @@ public:
                 uint16 mapId                = fields[4].GetUInt16();
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name, x, y, z, mapId);
                 else
-                    handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name, x, y, z, mapId);
             } while (result->NextRow());
         }
 
@@ -200,7 +200,7 @@ public:
                 else
                     itemPos = "";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_SLOT, itemGuid, ownerName.c_str(), ownerGuid, ownerAccountId, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_SLOT, itemGuid, ownerName, ownerGuid, ownerAccountId, itemPos);
             } while (result->NextRow());
 
             uint32 resultCount = uint32(result->GetRowCount());
@@ -246,7 +246,7 @@ public:
 
                 char const* itemPos = "[in mail]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_MAIL, itemGuid, itemSenderName.c_str(), itemSender, itemSenderAccountId, itemReceiverName.c_str(), itemReceiver, itemReceiverAccount, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_MAIL, itemGuid, itemSenderName, itemSender, itemSenderAccountId, itemReceiverName, itemReceiver, itemReceiverAccount, itemPos);
             } while (result->NextRow());
 
             uint32 resultCount = uint32(result->GetRowCount());
@@ -289,7 +289,7 @@ public:
 
                 char const* itemPos = "[in auction]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_AUCTION, itemGuid, ownerName.c_str(), owner, ownerAccountId, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_AUCTION, itemGuid, ownerName, owner, ownerAccountId, itemPos);
             } while (result->NextRow());
         }
 
@@ -319,7 +319,7 @@ public:
 
                 char const* itemPos = "[in guild bank]";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_GUILD, itemGuid, guildName.c_str(), guildGuid, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_GUILD, itemGuid, guildName, guildGuid, itemPos);
             } while (result->NextRow());
 
             uint32 resultCount = uint32(result->GetRowCount());
@@ -377,18 +377,18 @@ public:
         QueryResult result;
 
         uint32 objectCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", gameObjectId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='{}'", gameObjectId);
         if (result)
             objectCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                                           player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), gameObjectId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{}' LIMIT {}",
                                           gameObjectId, count);
 
         if (result)
@@ -404,9 +404,9 @@ public:
                 uint32 entry                = fields[5].GetUInt32();
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gInfo->name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gInfo->name, x, y, z, mapId);
                 else
-                    handler->PSendSysMessage(LANG_GO_LIST_CONSOLE, guid, gInfo->name.c_str(), x, y, z, mapId);
+                    handler->PSendSysMessage(LANG_GO_LIST_CONSOLE, guid, gInfo->name, x, y, z, mapId);
             } while (result->NextRow());
         }
 
@@ -441,7 +441,7 @@ public:
             std::ostringstream ss_name;
             ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
+            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str() : name),
                                      aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                                      aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
                                      (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",

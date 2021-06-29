@@ -87,13 +87,13 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
 
     if (_player->IsBankPos(INVENTORY_SLOT_BAG_0, srcslot) && !CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleSwapInvItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleSwapInvItemOpcode - Unit ({}) not found or you can't interact with him.", m_currentBankerGUID.ToString());
         return;
     }
 
     if (_player->IsBankPos(INVENTORY_SLOT_BAG_0, dstslot) && !CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleSwapInvItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleSwapInvItemOpcode - Unit ({}) not found or you can't interact with him.", m_currentBankerGUID.ToString());
         return;
     }
 
@@ -150,13 +150,13 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
 
     if (_player->IsBankPos(srcbag, srcslot) && !CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleSwapItem - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleSwapItem - Unit ({}) not found or you can't interact with him.", m_currentBankerGUID.ToString());
         return;
     }
 
     if (_player->IsBankPos(dstbag, dstslot) && !CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleSwapItem - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleSwapItem - Unit ({}) not found or you can't interact with him.", m_currentBankerGUID.ToString());
         return;
     }
 
@@ -439,7 +439,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
     uint32 item;
     recvData >> item;
 
-    LOG_DEBUG("network.opcode", "STORAGE: Item Query = %u", item);
+    LOG_DEBUG("network.opcode", "STORAGE: Item Query = {}", item);
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
     if (pProto)
@@ -585,7 +585,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
     }
     else
     {
-        LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", item);
+        LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: {})", item);
         WorldPacket queryData(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 4);
         queryData << uint32(item | 0x80000000);
         SendPacket(&queryData);
@@ -599,7 +599,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
     uint8 bag, slot;
     recvData >> bag >> slot;
 
-    //LOG_DEBUG("network.opcode", "STORAGE: Read bag = %u, slot = %u", bag, slot);
+    //LOG_DEBUG("network.opcode", "STORAGE: Read bag = {}, slot = {}", bag, slot);
     Item* pItem = _player->GetItemByPos(bag, slot);
 
     if (pItem && pItem->GetTemplate()->PageText)
@@ -639,7 +639,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - Unit (%s) not found or you can not interact with him.", vendorguid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - Unit ({}) not found or you can not interact with him.", vendorguid.ToString());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, itemguid, 0);
         return;
     }
@@ -715,7 +715,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
                     Item* pNewItem = pItem->CloneItem(count, _player);
                     if (!pNewItem)
                     {
-                        LOG_ERROR("network.opcode", "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
+                        LOG_ERROR("network.opcode", "WORLD: HandleSellItemOpcode - could not create clone of item {}; count = {}", pItem->GetEntry(), count);
                         _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                         return;
                     }
@@ -763,7 +763,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit (%s) not found or you can not interact with him.", vendorguid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit ({}) not found or you can not interact with him.", vendorguid.ToString());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
         return;
     }
@@ -890,7 +890,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
     {
-        LOG_DEBUG("network", "WORLD: SendListInventory - Unit (%s) not found or you can not interact with him.", vendorGuid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: SendListInventory - Unit ({}) not found or you can not interact with him.", vendorGuid.ToString());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
         return;
     }
@@ -948,7 +948,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
                 ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), item->item);
                 if (!sConditionMgr->IsObjectMeetToConditions(_player, vendor, conditions))
                 {
-                    LOG_DEBUG("network", "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), item->item);
+                    LOG_DEBUG("network", "SendListInventory: conditions not met for creature entry {} item {}", vendor->GetEntry(), item->item);
                     continue;
                 }
 
@@ -1041,7 +1041,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 
     if (!CanUseBank(guid))
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - Unit (%s) not found or you can't interact with him.", guid.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleBuyBankSlotOpcode - Unit ({}) not found or you can't interact with him.", guid.ToString());
         return;
     }
 
@@ -1050,7 +1050,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     // next slot
     ++slot;
 
-    LOG_DEBUG("network.opcode", "PLAYER: Buy bank bag slot, slot number = %u", slot);
+    LOG_DEBUG("network.opcode", "PLAYER: Buy bank bag slot, slot number = {}", slot);
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
 
@@ -1087,11 +1087,11 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     uint8 srcbag, srcslot;
 
     recvPacket >> srcbag >> srcslot;
-    LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+    LOG_DEBUG("network", "STORAGE: receive srcbag = {}, srcslot = {}", srcbag, srcslot);
 
     if (!CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleAutoBankItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleAutoBankItemOpcode - Unit ({}) not found or you can't interact with him.", m_currentBankerGUID.ToString());
         return;
     }
 
@@ -1125,11 +1125,11 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
     uint8 srcbag, srcslot;
 
     recvPacket >> srcbag >> srcslot;
-    LOG_DEBUG("network", "STORAGE: receive srcbag = %u, srcslot = %u", srcbag, srcslot);
+    LOG_DEBUG("network", "STORAGE: receive srcbag = {}, srcslot = {}", srcbag, srcslot);
 
     if (!CanUseBank())
     {
-        //TC_LOG_DEBUG("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        //TC_LOG_DEBUG("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit ({}) not found or you can't interact with him.", m_currentBankerGUID.ToString());
         return;
     }
 
@@ -1221,7 +1221,7 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket& recvData)
     recvData >> itemid;
     recvData.read_skip<uint64>();                          // guid
 
-    LOG_DEBUG("network", "WORLD: CMSG_ITEM_NAME_QUERY %u", itemid);
+    LOG_DEBUG("network", "WORLD: CMSG_ITEM_NAME_QUERY {}", itemid);
     ItemSetNameEntry const* pName = sObjectMgr->GetItemSetNameEntry(itemid);
     if (pName)
     {
@@ -1248,7 +1248,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
     recvData >> gift_bag >> gift_slot;                     // paper
     recvData >> item_bag >> item_slot;                     // item
 
-    LOG_DEBUG("network", "WRAP: receive gift_bag = %u, gift_slot = %u, item_bag = %u, item_slot = %u", gift_bag, gift_slot, item_bag, item_slot);
+    LOG_DEBUG("network", "WRAP: receive gift_bag = {}, gift_slot = {}, item_bag = {}, item_slot = {}", gift_bag, gift_slot, item_bag, item_slot);
 
     Item* gift = _player->GetItemByPos(gift_bag, gift_slot);
     if (!gift)
@@ -1635,7 +1635,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
     ObjectGuid itemGuid;
     recvData >> itemGuid;
 
-    LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY item: %s", itemGuid.ToString().c_str());
+    LOG_DEBUG("network", "CMSG_ITEM_TEXT_QUERY item: {}", itemGuid.ToString());
 
     WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 50);        // guess size
 

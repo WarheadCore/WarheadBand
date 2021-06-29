@@ -39,8 +39,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
         return;
 
-    LOG_DEBUG("network.opcode", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
-    LOG_DEBUG("network.opcode", "Player 2 is: %s (%s)", plTarget->GetGUID().ToString().c_str(), plTarget->GetName().c_str());
+    LOG_DEBUG("network.opcode", "Player 1 is: {} ({})", player->GetGUID().ToString(), player->GetName());
+    LOG_DEBUG("network.opcode", "Player 2 is: {} ({})", plTarget->GetGUID().ToString(), plTarget->GetName());
 
     time_t now = GameTime::GetGameTime();
     player->duel->startTimer = now;

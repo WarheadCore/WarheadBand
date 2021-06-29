@@ -207,16 +207,16 @@ int main(int argc, char** argv)
     // Init all logs
     sLog->Initialize();
 
-    Warhead::Logo::Show("authserver",
-        [](char const* text)
+    Warhead::Logo::Show("worldserver",
+        [](std::string_view text)
         {
-            LOG_INFO("server.worldserver", "%s", text);
+            LOG_INFO("server.worldserver", "{}", text);
         },
         []()
         {
-            LOG_INFO("server.worldserver", "> Using configuration file:       %s", sConfigMgr->GetFilename().c_str());
-            LOG_INFO("server.worldserver", "> Using SSL version:              %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-            LOG_INFO("server.worldserver", "> Using Boost version:            %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            LOG_INFO("server.worldserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server.worldserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            LOG_INFO("server.worldserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
@@ -234,10 +234,10 @@ int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            LOG_ERROR("server", "Daemon PID: %u\n", pid); // outError for red color in console
+            LOG_ERROR("server", "Daemon PID: {}\n", pid); // outError for red color in console
         else
         {
-            LOG_ERROR("server", "Cannot create PID file %s (possible error: permission)\n", pidFile.c_str());
+            LOG_ERROR("server", "Cannot create PID file {} (possible error: permission)\n", pidFile);
             return 1;
         }
     }
@@ -276,7 +276,7 @@ int main(int argc, char** argv)
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
     LoadRealmInfo(*ioContext);
 
@@ -356,7 +356,7 @@ int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_VERSION_MISMATCH));
 
@@ -366,10 +366,10 @@ int main(int argc, char** argv)
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
-        LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
+        LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
-    LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
 
@@ -401,7 +401,7 @@ int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LOG_INFO("server.worldserver", "Halting process...");
 
@@ -446,17 +446,17 @@ bool StartDB()
     }
 
     LOG_INFO("server.loading", "Loading world information...");
-    LOG_INFO("server.loading", "> RealmID:              %u", realm.Id.Realm);
+    LOG_INFO("server.loading", "> RealmID:              {}", realm.Id.Realm);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
-    LOG_INFO("server.loading", "> Version DB world:     %s", sWorld->GetDBVersion());
+    LOG_INFO("server.loading", "> Version DB world:     {}", sWorld->GetDBVersion());
     LOG_INFO("server.loading", "");
 
     return true;
@@ -476,7 +476,7 @@ void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
     // pussywizard: tc query would set online=0 even if logged in on another realm >_>
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online = %u", realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -499,7 +499,7 @@ void ShutdownCLIThread(std::thread* cliThread)
             if (!formatReturnCode)
                 errorBuffer = "Unknown error";
 
-            LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+            LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
 
             if (!formatReturnCode)
                 LocalFree((LPSTR)errorBuffer);
@@ -635,7 +635,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
 
 bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = %u", realm.Id.Realm);
+    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
@@ -646,7 +646,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
     if (!externalAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].GetString());
         return false;
     }
 
@@ -655,7 +655,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     if (!localAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].GetString());
         return false;
     }
 
@@ -664,7 +664,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     if (!localSubmask)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].GetString());
         return false;
     }
 

@@ -126,8 +126,7 @@ namespace VMAP
                 instanceTree = iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr)).first;
             }
             else
-                ASSERT(false, "Invalid mapId %u tile [%u, %u] passed to VMapManager2 after startup in thread unsafe environment",
-                       mapId, tileX, tileY);
+                ABORT("Invalid mapId {} tile [{}, {}] passed to VMapManager2 after startup in thread unsafe environment", mapId, tileX, tileY);
         }
 
         if (!instanceTree->second)
@@ -317,11 +316,11 @@ namespace VMAP
             WorldModel* worldmodel = new WorldModel();
             if (!worldmodel->readFile(basepath + filename + ".vmo"))
             {
-                LOG_ERROR("maps", "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
+                LOG_ERROR("maps", "VMapManager2: could not load '{}{}.vmo'", basepath, filename);
                 delete worldmodel;
                 return nullptr;
             }
-            LOG_DEBUG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
+            LOG_DEBUG("maps", "VMapManager2: loading file '{}{}'", basepath, filename);
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
             model->second.setModel(worldmodel);
         }
@@ -337,12 +336,12 @@ namespace VMAP
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            LOG_ERROR("maps", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
+            LOG_ERROR("maps", "VMapManager2: trying to unload non-loaded file '{}'", filename.c_str());
             return;
         }
         if (model->second.decRefCount() == 0)
         {
-            LOG_DEBUG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
+            LOG_DEBUG("maps", "VMapManager2: unloading file '{}'", filename.c_str());
             delete model->second.getModel();
             iLoadedModelFiles.erase(model);
         }

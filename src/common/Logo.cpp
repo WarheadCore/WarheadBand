@@ -17,12 +17,11 @@
 
 #include "Logo.h"
 #include "GitRevision.h"
-#include "Log.h"
 #include "StringFormat.h"
 
-void Warhead::Logo::Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)())
+void Warhead::Logo::Show(std::string_view applicationName, void(*log)(std::string_view text), void(*logExtraInfo)())
 {
-    log(Warhead::StringFormat("%s (%s)", GitRevision::GetFullVersion(), applicationName).c_str());
+    log(Warhead::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName));
     log("<Ctrl-C> to stop");
     log("");
     log("  ██╗     ██╗  █████╗  ██████╗  ██╗  ██╗ ███████╗  █████╗  ██████╗");

@@ -37,7 +37,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        LOG_ERROR("sql.sql", "Item set {} for item (id {}) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -97,7 +97,7 @@ void AddItemsSetItem(Player* player, Item* item)
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
                 if (!spellInfo)
                 {
-                    LOG_ERROR("entities.item", "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    LOG_ERROR("entities.item", "WORLD: unknown spell id {} in items set {} effects", set->spells[x], setid);
                     break;
                 }
 
@@ -122,7 +122,7 @@ void RemoveItemsSetItem(Player* player, ItemTemplate const* proto)
 
     if (!set)
     {
-        LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
+        LOG_ERROR("sql.sql", "Item set #{} for item #{} not found, mods not removed.", setid, proto->ItemId);
         return;
     }
 
@@ -299,7 +299,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!GetUInt32Value(ITEM_FIELD_DURATION))
         return;
 
-    LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
+    LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: {} Duration {} Diff {})", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
 
     if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
@@ -398,7 +398,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
     //                                                    0                1      2         3        4      5             6                 7           8           9    10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '{}'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -597,7 +597,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // item can have not null only one from field values
     if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
     {
-        LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
         return 0;
     }
 
@@ -608,7 +608,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            LOG_ERROR("sql.sql", "Enchantment id #{} used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
             return 0;
         }
 
@@ -621,7 +621,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            LOG_ERROR("sql.sql", "Enchantment id #{} used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
             return 0;
         }
 
@@ -714,7 +714,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!", GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+        LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid ({}) and player's guid ({}) don't match!", GetOwnerGUID().ToString(), player->GetGUID().ToString());
         return;
     }
 
@@ -734,7 +734,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!", GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+        LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid ({}) and player's guid ({}) don't match!", GetOwnerGUID().ToString(), player->GetGUID().ToString());
         return;
     }
 

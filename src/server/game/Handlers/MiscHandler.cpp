@@ -75,7 +75,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
     // release spirit after he's killed but before he is updated
     if (GetPlayer()->getDeathState() == JUST_DIED)
     {
-        LOG_DEBUG("network", "HandleRepopRequestOpcode: got request after player %s (%s) was killed and before he was updated",
+        LOG_DEBUG("network", "HandleRepopRequestOpcode: got request after player {} ({}) was killed and before he was updated",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
         GetPlayer()->KillPlayer();
     }
@@ -112,7 +112,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recv_data)
         unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
         if (!unit)
         {
-            LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit (%s) not found or you can't interact with him.", guid.ToString().c_str());
+            LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Unit ({}) not found or you can't interact with him.", guid.ToString());
             return;
         }
     }
@@ -121,7 +121,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recv_data)
         go = _player->GetMap()->GetGameObject(guid);
         if (!go)
         {
-            LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - GameObject (%s) not found.", guid.ToString().c_str());
+            LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - GameObject ({}) not found.", guid.ToString());
             return;
         }
     }
@@ -130,7 +130,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recv_data)
         item = _player->GetItemByGuid(guid);
         if (!item || _player->IsBankPos(item->GetPos()))
         {
-            //TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+            //TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - {} not found.", guid.ToString());
             return;
         }
     }
@@ -138,13 +138,13 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recv_data)
     {
         if (guid != _player->GetGUID() || menuId != _player->PlayerTalkClass->GetGossipMenu().GetMenuId())
         {
-            //TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+            //TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - {} not found.", guid.ToString());
             return;
         }
     }
     else
     {
-        LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported GUID type for %s.", guid.ToString().c_str());
+        LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported GUID type for {}.", guid.ToString());
         return;
     }
 
@@ -242,7 +242,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         uint32 temp;
         recvData >> temp;                                  // zone id, 0 if zone is unknown...
         zoneids[i] = temp;
-        LOG_DEBUG("network", "Zone %u: %u", i, zoneids[i]);
+        LOG_DEBUG("network", "Zone {}: {}", i, zoneids[i]);
     }
 
     recvData >> str_count;                                 // user entered strings count, client limit=4 (checked on 2.0.10)
@@ -250,7 +250,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     if (str_count > 4)
         return;                                             // can't be received from real client or broken packet
 
-    LOG_DEBUG("network", "Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", level_min, level_max, player_name.c_str(), guild_name.c_str(), racemask, classmask, zones_count, str_count);
+    LOG_DEBUG("network", "Minlvl {}, maxlvl {}, name {}, guild {}, racemask {}, classmask {}, zones {}, strings {}", level_min, level_max, player_name, guild_name, racemask, classmask, zones_count, str_count);
 
     std::wstring str[4];                                    // 4 is client limit
     for (uint32 i = 0; i < str_count; ++i)
@@ -263,7 +263,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         wstrToLower(str[i]);
 
-        LOG_DEBUG("network", "String %u: %s", i, temp.c_str());
+        LOG_DEBUG("network", "String {}: {}", i, temp);
     }
 
     std::wstring wplayer_name;
@@ -408,7 +408,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recv_data*/)
 {
-    LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - %u", GetSecurity());
+    LOG_DEBUG("network", "WORLD: Recvd CMSG_LOGOUT_REQUEST Message, security - {}", GetSecurity());
 
     if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
@@ -520,7 +520,7 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recv_data)
     uint32 newZone;
     recv_data >> newZone;
 
-    LOG_DEBUG("network", "WORLD: Recvd ZONE_UPDATE: %u", newZone);
+    LOG_DEBUG("network", "WORLD: Recvd ZONE_UPDATE: {}", newZone);
 
     // use server size data
     uint32 newzone, newarea;
@@ -607,7 +607,7 @@ void WorldSession::HandleCharacterAuraFrozen(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
         std::string player = fields[0].GetString();
-        handler.PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player.c_str());
+        handler.PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player);
     } while (result->NextRow());
 }
 
@@ -625,8 +625,8 @@ void WorldSession::HandleBugOpcode(WorldPacket& recv_data)
     else
         LOG_DEBUG("network", "WORLD: Received CMSG_BUG [Suggestion]");
 
-    LOG_DEBUG("network", "%s", type.c_str());
-    LOG_DEBUG("network", "%s", content.c_str());
+    LOG_DEBUG("network", "{}", type);
+    LOG_DEBUG("network", "{}", content);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
 
@@ -697,20 +697,16 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recv_data)
     GetPlayer()->ResurectUsingRequestData();
 }
 
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
+void WorldSession::_SendAreaTriggerMessage(std::string_view message)
 {
-    va_list ap;
-    char szStr [1024];
-    szStr[0] = '\0';
+    // if (message.empty())
+        // return;
 
-    va_start(ap, Text);
-    vsnprintf(szStr, 1024, Text, ap);
-    va_end(ap);
+    uint32 length = message.length() + 1;
 
-    uint32 length = strlen(szStr) + 1;
     WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4 + length);
-    data << length;
-    data << szStr;
+    data << uint32(length);
+    data << message;
     SendPacket(&data);
 }
 
@@ -719,12 +715,12 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     uint32 triggerId;
     recv_data >> triggerId;
 
-    LOG_DEBUG("network", "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
+    LOG_DEBUG("network", "CMSG_AREATRIGGER. Trigger ID: {}", triggerId);
 
     Player* player = GetPlayer();
     if (player->IsInFlight())
     {
-        LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) in flight, ignore Area Trigger ID:%u",
+        LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' ({}) in flight, ignore Area Trigger ID:{}",
                        player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
         return;
     }
@@ -732,14 +728,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     AreaTrigger const* atEntry = sObjectMgr->GetAreaTrigger(triggerId);
     if (!atEntry)
     {
-        LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '%s' (%s) send unknown (by DBC) Area Trigger ID:%u",
+        LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' ({}) send unknown (by DBC) Area Trigger ID:{}",
                        player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
         return;
     }
 
     if (!player->IsInAreaTriggerRadius(atEntry))
     {
-        LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player %s (%s) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
+        LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player {} ({}) too far (trigger map: {} player map: {}), ignore Area Trigger ID: {}",
                        player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->map, player->GetMapId(), triggerId);
         return;
     }
@@ -803,7 +799,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recv_data)
     uint32 type, timestamp, decompressedSize;
     recv_data >> type >> timestamp >> decompressedSize;
 
-    LOG_DEBUG("network", "UAD: type %u, time %u, decompressedSize %u", type, timestamp, decompressedSize);
+    LOG_DEBUG("network", "UAD: type {}, time {}, decompressedSize {}", type, timestamp, decompressedSize);
 
     if (type > NUM_ACCOUNT_DATA_TYPES)
         return;
@@ -823,7 +819,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& recv_data)
     if (decompressedSize > 0xFFFF)
     {
         recv_data.rfinish();                   // unnneded warning spam in this case
-        LOG_ERROR("network.opcode", "UAD: Account data packet too big, size %u", decompressedSize);
+        LOG_ERROR("network.opcode", "UAD: Account data packet too big, size {}", decompressedSize);
         return;
     }
 
@@ -858,7 +854,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recv_data)
     uint32 type;
     recv_data >> type;
 
-    LOG_DEBUG("network", "RAD: type %u", type);
+    LOG_DEBUG("network", "RAD: type {}", type);
 
     if (type >= NUM_ACCOUNT_DATA_TYPES)
         return;
@@ -899,10 +895,10 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
     uint32 action = ACTION_BUTTON_ACTION(packetData);
     uint8  type   = ACTION_BUTTON_TYPE(packetData);
 
-    LOG_DEBUG("network.opcode", "BUTTON: %u ACTION: %u TYPE: %u", button, action, type);
+    LOG_DEBUG("network.opcode", "BUTTON: {} ACTION: {} TYPE: {}", button, action, type);
     if (!packetData)
     {
-        LOG_DEBUG("network.opcode", "MISC: Remove action from button %u", button);
+        LOG_DEBUG("network.opcode", "MISC: Remove action from button {}", button);
         GetPlayer()->removeActionButton(button);
     }
     else
@@ -911,19 +907,19 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
         {
             case ACTION_BUTTON_MACRO:
             case ACTION_BUTTON_CMACRO:
-                LOG_DEBUG("network.opcode", "MISC: Added Macro %u into button %u", action, button);
+                LOG_DEBUG("network.opcode", "MISC: Added Macro {} into button {}", action, button);
                 break;
             case ACTION_BUTTON_EQSET:
-                LOG_DEBUG("network.opcode", "MISC: Added EquipmentSet %u into button %u", action, button);
+                LOG_DEBUG("network.opcode", "MISC: Added EquipmentSet {} into button {}", action, button);
                 break;
             case ACTION_BUTTON_SPELL:
-                LOG_DEBUG("network.opcode", "MISC: Added Spell %u into button %u", action, button);
+                LOG_DEBUG("network.opcode", "MISC: Added Spell {} into button {}", action, button);
                 break;
             case ACTION_BUTTON_ITEM:
-                LOG_DEBUG("network.opcode", "MISC: Added Item %u into button %u", action, button);
+                LOG_DEBUG("network.opcode", "MISC: Added Item {} into button {}", action, button);
                 break;
             default:
-                LOG_ERROR("network.opcode", "MISC: Unknown action button type %u for action %u into button %u for player %s (%s)",
+                LOG_ERROR("network.opcode", "MISC: Unknown action button type {} for action {} into button {} for player {} ({})",
                     type, action, button, _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
                 return;
         }
@@ -1016,7 +1012,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recv_data)
     if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
     {
         if (ActionBar != 0)
-            LOG_ERROR("network.opcode", "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(ActionBar));
+            LOG_ERROR("network.opcode", "WorldSession::HandleSetActionBarToggles in not logged state with value: {}, ignored", uint32(ActionBar));
         return;
     }
 
@@ -1045,7 +1041,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     Player* player = ObjectAccessor::GetPlayer(*_player, guid);
     if (!player)
     {
-        LOG_DEBUG("network", "CMSG_INSPECT: No player found from %s", guid.ToString().c_str());
+        LOG_DEBUG("network", "CMSG_INSPECT: No player found from {}", guid.ToString());
         return;
     }
 
@@ -1077,7 +1073,7 @@ void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recv_data)
     Player* player = ObjectAccessor::GetPlayer(*_player, guid);
     if (!player)
     {
-        LOG_DEBUG("network", "MSG_INSPECT_HONOR_STATS: No player found from %s", guid.ToString().c_str());
+        LOG_DEBUG("network", "MSG_INSPECT_HONOR_STATS: No player found from {}", guid.ToString());
         return;
     }
 
@@ -1111,11 +1107,11 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
 
     if (GetPlayer()->IsInFlight())
     {
-        LOG_DEBUG("network", "Player '%s' (%s) in flight, ignore worldport command.", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+        LOG_DEBUG("network", "Player '{}' ({}) in flight, ignore worldport command.", GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
         return;
     }
 
-    LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f", GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
+    LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = {}, Time = {}, map = {}, x = {}, y = {}, z = {}, o = {}", GetPlayer()->GetName(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
 
     if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
@@ -1145,7 +1141,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     if (!player)
     {
-        SendNotification(LANG_PLAYER_NOT_EXIST_OR_OFFLINE, charname.c_str());
+        SendNotification(LANG_PLAYER_NOT_EXIST_OR_OFFLINE, charname);
         return;
     }
 
@@ -1159,7 +1155,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     if (!result)
     {
-        SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, charname.c_str());
+        SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, charname);
         return;
     }
 
@@ -1180,7 +1176,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
     data << msg;
     SendPacket(&data);
 
-    LOG_DEBUG("network", "Received whois command from player %s for character %s", GetPlayer()->GetName().c_str(), charname.c_str());
+    LOG_DEBUG("network", "Received whois command from player {} for character {}", GetPlayer()->GetName(), charname);
 }
 
 void WorldSession::HandleComplainOpcode(WorldPacket& recv_data)
@@ -1220,7 +1216,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recv_data)
     data << uint8(0);
     SendPacket(&data);
 
-    LOG_DEBUG("network", "REPORT SPAM: type %u, %s, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s",
+    LOG_DEBUG("network", "REPORT SPAM: type {}, {}, unk1 {}, unk2 {}, unk3 {}, unk4 {}, message {}",
         spam_type, spammer_guid.ToString().c_str(), unk1, unk2, unk3, unk4, description.c_str());
 }
 
@@ -1252,17 +1248,17 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& recvData)
 
     if (apply)
     {
-        LOG_DEBUG("network", "Added FarSight %s to player %s", _player->GetGuidValue(PLAYER_FARSIGHT).ToString().c_str(), _player->GetGUID().ToString().c_str());
+        LOG_DEBUG("network", "Added FarSight {} to player {}", _player->GetGuidValue(PLAYER_FARSIGHT).ToString(), _player->GetGUID().ToString());
         if (WorldObject* target = _player->GetViewpoint())
             _player->SetSeer(target);
         else
         {
-            LOG_ERROR("network.opcode", "Player %s requests non-existing seer %s", _player->GetName().c_str(), _player->GetGuidValue(PLAYER_FARSIGHT).ToString().c_str());
+            LOG_ERROR("network.opcode", "Player {} requests non-existing seer {}", _player->GetName(), _player->GetGuidValue(PLAYER_FARSIGHT).ToString());
         }
     }
     else
     {
-        LOG_DEBUG("network", "Player %s set vision to self", _player->GetGUID().ToString().c_str());
+        LOG_DEBUG("network", "Player {} set vision to self", _player->GetGUID().ToString());
         _player->SetSeer(_player);
     }
 
@@ -1381,11 +1377,11 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recv_data)
                 switch (group->GetDifficultyChangePreventionReason())
                 {
                     case DIFFICULTY_PREVENTION_CHANGE_BOSS_KILLED:
-                        ChatHandler(this).PSendSysMessage("Raid was in combat recently and may not change difficulty again for %u sec.", preventionTime);
+                        ChatHandler(this).PSendSysMessage("Raid was in combat recently and may not change difficulty again for {} sec.", preventionTime);
                         break;
                     case DIFFICULTY_PREVENTION_CHANGE_RECENTLY_CHANGED:
                     default:
-                        ChatHandler(this).PSendSysMessage("Raid difficulty has changed recently, and may not change again for %u sec.", preventionTime);
+                        ChatHandler(this).PSendSysMessage("Raid difficulty has changed recently, and may not change again for {} sec.", preventionTime);
                         break;
                 }
 
@@ -1582,7 +1578,7 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recv_data)
 
     mode ? _player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK) : _player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
 
-    LOG_DEBUG("network", "Client used \"/timetest %d\" command", mode);
+    LOG_DEBUG("network", "Client used \"/timetest {}\" command", mode);
 }
 
 void WorldSession::HandleQueryInspectAchievements(WorldPacket& recv_data)
@@ -1697,7 +1693,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
     if (!_player->HasPendingBind() || _player->GetPendingBind() != _player->GetInstanceId() || (_player->GetGroup() && _player->GetGroup()->isLFGGroup() && _player->GetGroup()->IsLfgRandomInstance()))
     {
-        LOG_DEBUG("network.opcode", "InstanceLockResponse: Player %s (%s) tried to bind himself/teleport to graveyard without a pending bind!",
+        LOG_DEBUG("network.opcode", "InstanceLockResponse: Player {} ({}) tried to bind himself/teleport to graveyard without a pending bind!",
             _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
         return;
     }

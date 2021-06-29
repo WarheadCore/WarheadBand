@@ -36,7 +36,7 @@ DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbcForma
 
 char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 {
-    std::string query = Warhead::StringFormat("SELECT * FROM `%s` ORDER BY `ID` DESC", _sqlTableName);
+    std::string query = Warhead::StringFormat("SELECT * FROM `{}` ORDER BY `ID` DESC", _sqlTableName);
 
     // no error if empty set
     QueryResult result = WorldDatabase.Query(query.c_str());
@@ -46,7 +46,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     // Check if sql index pos is valid
     if (int32(result->GetFieldCount() - 1) < _sqlIndexPos)
     {
-        ASSERT(false, "Invalid index pos for dbc: '%s'", _sqlTableName);
+        ASSERT(false, "Invalid index pos for dbc: '{}'", _sqlTableName);
         return nullptr;
     }
 
@@ -106,14 +106,14 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                 case FT_NA:
                     break;
                 default:
-                    ASSERT(false, "Unsupported data type '%c' in table '%s'", *dbcFormat, _sqlTableName);
+                    ASSERT(false, "Unsupported data type '%c' in table '{}'", *dbcFormat, _sqlTableName);
                     return nullptr;
             }
 
             ++sqlColumnNumber;
         }
 
-        ASSERT(sqlColumnNumber == result->GetFieldCount(), "SQL format string does not match database for table: '%s'", _sqlTableName);
+        ASSERT(sqlColumnNumber == result->GetFieldCount(), "SQL format string does not match database for table: '{}'", _sqlTableName);
         ASSERT(dataOffset == _recordSize);
     } while (result->NextRow());
 

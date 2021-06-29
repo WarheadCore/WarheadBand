@@ -60,7 +60,7 @@ void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheck
 /// Print out the usage string for this program on the console.
 void usage(const char* prog)
 {
-    LOG_INFO("server.authserver", "Usage: \n %s [<options>]\n"
+    LOG_INFO("server.authserver", "Usage: \n {} [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r", prog);
 }
 
@@ -99,15 +99,15 @@ int main(int argc, char** argv)
     sLog->Initialize();
 
     Warhead::Logo::Show("authserver",
-        [](char const* text)
+        [](std::string_view text)
         {
-            LOG_INFO("server.authserver", "%s", text);
+            LOG_INFO("server.authserver", "{}", text);
         },
         []()
         {
-            LOG_INFO("server.authserver", "> Using configuration file:       %s", sConfigMgr->GetFilename().c_str());
-            LOG_INFO("server.authserver", "> Using SSL version:              %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-            LOG_INFO("server.authserver", "> Using Boost version:            %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            LOG_INFO("server.authserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server.authserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            LOG_INFO("server.authserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
@@ -116,10 +116,10 @@ int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            LOG_INFO("server.authserver", "Daemon PID: %u\n", pid); // outError for red color in console
+            LOG_INFO("server.authserver", "Daemon PID: {}\n", pid); // outError for red color in console
         else
         {
-            LOG_ERROR("server.authserver", "Cannot create PID file %s (possible error: permission)\n", pidFile.c_str());
+            LOG_ERROR("server.authserver", "Cannot create PID file {} (possible error: permission)\n", pidFile);
             return 1;
         }
     }

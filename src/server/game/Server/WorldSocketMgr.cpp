@@ -58,7 +58,7 @@ bool WorldSocketMgr::StartWorldNetwork(Warhead::Asio::IoContext& ioContext, std:
     _tcpNoDelay = sConfigMgr->GetOption<bool>("Network.TcpNodelay", true);
 
     int const max_connections = WARHEAD_MAX_LISTEN_CONNECTIONS;
-    LOG_DEBUG("misc", "Max allowed socket connections %d", max_connections);
+    LOG_DEBUG("misc", "Max allowed socket connections {}", max_connections);
 
     // -1 means use default
     _socketSystemSendBufferSize = sConfigMgr->GetOption<int32>("Network.OutKBuff", -1);
@@ -95,7 +95,7 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
         sock.set_option(boost::asio::socket_base::send_buffer_size(_socketSystemSendBufferSize), err);
         if (err && err != boost::system::errc::not_supported)
         {
-            LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::socket_base::send_buffer_size) err = %s", err.message().c_str());
+            LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::socket_base::send_buffer_size) err = {}", err.message());
             return;
         }
     }
@@ -107,7 +107,7 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
         sock.set_option(boost::asio::ip::tcp::no_delay(true), err);
         if (err)
         {
-            LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::no_delay) err = %s", err.message().c_str());
+            LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::no_delay) err = {}", err.message());
             return;
         }
     }

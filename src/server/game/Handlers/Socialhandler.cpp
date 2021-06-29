@@ -32,7 +32,7 @@ void WorldSession::HandleContactListOpcode(WorldPacket& recv_data)
     uint32 flags;
     recv_data >> flags;
 
-    LOG_DEBUG("network", "WORLD: Received CMSG_CONTACT_LIST - Unk: %d", flags);
+    LOG_DEBUG("network", "WORLD: Received CMSG_CONTACT_LIST - Unk: {}", flags);
 
     _player->GetSocial()->SendSocialList(_player, flags);
 }
@@ -50,7 +50,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recv_data)
     if (!normalizePlayerName(friendName))
         return;
 
-    LOG_DEBUG("network", "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName().c_str(), friendName.c_str());
+    LOG_DEBUG("network", "WORLD: {} asked to add friend : '{}'", GetPlayer()->GetName(), friendName);
 
     // xinef: Get Data From global storage
     ObjectGuid friendGuid = sWorld->GetGlobalPlayerGUID(friendName);
@@ -117,7 +117,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recv_data)
     if (!normalizePlayerName(ignoreName))
         return;
 
-    LOG_DEBUG("network", "WORLD: %s asked to Ignore: '%s'", GetPlayer()->GetName().c_str(), ignoreName.c_str());
+    LOG_DEBUG("network", "WORLD: {} asked to Ignore: '{}'", GetPlayer()->GetName(), ignoreName);
 
     ObjectGuid ignoreGuid = sWorld->GetGlobalPlayerGUID(ignoreName);
     if (!ignoreGuid)

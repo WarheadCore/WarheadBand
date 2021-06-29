@@ -791,7 +791,7 @@ bool CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
     uint32 MinPlayers = bg->GetMinPlayersPerTeam() * 2;
     uint32 qTotal = bgQueue->GetPlayersCountInGroupsQueue(bracketId, (BattlegroundQueueGroupTypes)BG_QUEUE_CFBG);
 
-    LOG_DEBUG("bg.battleground", "> Queue status for %s (Lvl: %u to %u) Queued: %u (Need at least %u more)",
+    LOG_DEBUG("bg.battleground", "> Queue status for {} (Lvl: {} to {}) Queued: {} (Need at least {} more)",
         bgName, q_min_level, q_max_level, qTotal, MinPlayers);
 
     if (CONF_GET_BOOL("Battleground.QueueAnnouncer.PlayerOnly"))

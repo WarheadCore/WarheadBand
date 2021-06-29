@@ -138,14 +138,14 @@ public:
                     break;
 
                 if (duration)
-                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), Warhead::Time::ToTimeString<Seconds>(duration).c_str(), reasonStr);
+                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, name, Warhead::Time::ToTimeString<Seconds>(duration), reasonStr);
                 else
-                    handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reasonStr);
+                    handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name, reasonStr);
                 break;
             }
             case BAN_NOTFOUND:
             {
-                handler->PSendSysMessage(LANG_BAN_NOTFOUND, "character", name.c_str());
+                handler->PSendSysMessage(LANG_BAN_NOTFOUND, "character", name);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -190,7 +190,7 @@ public:
             case BAN_ACCOUNT:
                 if (!Utf8ToUpperOnlyLatin(nameOrIP))
                 {
-                    handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, nameOrIP);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -236,9 +236,9 @@ public:
                     break;
 
                 if (duration)
-                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), Warhead::Time::ToTimeString<Seconds>(duration).c_str(), reasonStr);
+                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP, Warhead::Time::ToTimeString<Seconds>(duration), reasonStr);
                 else
-                    handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reasonStr);
+                    handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP, reasonStr);
                 break;
             case BAN_SYNTAX_ERROR:
                 return false;
@@ -246,13 +246,13 @@ public:
                 switch (mode)
                 {
                     default:
-                        handler->PSendSysMessage(LANG_BAN_NOTFOUND, "account", nameOrIP.c_str());
+                        handler->PSendSysMessage(LANG_BAN_NOTFOUND, "account", nameOrIP);
                         break;
                     case BAN_CHARACTER:
-                        handler->PSendSysMessage(LANG_BAN_NOTFOUND, "character", nameOrIP.c_str());
+                        handler->PSendSysMessage(LANG_BAN_NOTFOUND, "character", nameOrIP);
                         break;
                     case BAN_IP:
-                        handler->PSendSysMessage(LANG_BAN_NOTFOUND, "ip", nameOrIP.c_str());
+                        handler->PSendSysMessage(LANG_BAN_NOTFOUND, "ip", nameOrIP);
                         break;
                 }
                 handler->SetSentErrorMessage(true);
@@ -279,7 +279,7 @@ public:
         std::string accountName = nameStr;
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -287,7 +287,7 @@ public:
         uint32 accountId = AccountMgr::GetId(accountName);
         if (!accountId)
         {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
             return true;
         }
 
@@ -296,7 +296,7 @@ public:
 
     static bool HandleBanInfoHelper(uint32 accountId, char const* accountName, ChatHandler* handler)
     {
-        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate, '%%Y-%%m-%%d..%%H:%%I:%%s') as bandate, unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountId);
+        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate, '%Y-%m-%{}..%H:%I:%{}') as bandate, unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{}' ORDER BY bandate ASC", accountId);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOACCOUNTBAN, accountName);
@@ -351,11 +351,11 @@ public:
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
         {
-            handler->PSendSysMessage(LANG_CHAR_NOT_BANNED, name.c_str());
+            handler->PSendSysMessage(LANG_CHAR_NOT_BANNED, name);
             return true;
         }
 
-        handler->PSendSysMessage(LANG_BANINFO_BANHISTORY, name.c_str());
+        handler->PSendSysMessage(LANG_BANINFO_BANHISTORY, name);
         do
         {
             Field* fields = result->Fetch();
@@ -387,7 +387,7 @@ public:
         std::string IP = ipStr;
 
         LoginDatabase.EscapeString(IP);
-        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '%s'", IP.c_str());
+        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{}'", IP);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOIP);
@@ -448,11 +448,11 @@ public:
                 Field* fields = result->Fetch();
                 uint32 accountid = fields[0].GetUInt32();
 
-                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id", accountid);
+                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='{}' AND account_banned.id=account.id", accountid);
                 if (banResult)
                 {
                     Field* fields2 = banResult->Fetch();
-                    handler->PSendSysMessage("%s", fields2[0].GetCString());
+                    handler->PSendSysMessage("{}", fields2[0].GetCString());
                 }
             } while (result->NextRow());
         }
@@ -478,7 +478,7 @@ public:
                     AccountMgr::GetName(accountId, accountName);
 
                 // No SQL injection. id is uint32.
-                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = %u ORDER BY unbandate", accountId);
+                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = {} ORDER BY unbandate", accountId);
                 if (banInfo)
                 {
                     Field* fields2 = banInfo->Fetch();
@@ -547,7 +547,7 @@ public:
 
                 PreparedQueryResult banResult = CharacterDatabase.Query(stmt2);
                 if (banResult)
-                    handler->PSendSysMessage("%s", (*banResult)[0].GetCString());
+                    handler->PSendSysMessage("{}", (*banResult)[0].GetCString());
             } while (result->NextRow());
         }
         // Console wide output
@@ -638,7 +638,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                handler->PSendSysMessage("%s", fields[0].GetCString());
+                handler->PSendSysMessage("{}", fields[0].GetCString());
             } while (result->NextRow());
         }
         // Console wide output
@@ -737,7 +737,7 @@ public:
             case BAN_ACCOUNT:
                 if (!Utf8ToUpperOnlyLatin(nameOrIP))
                 {
-                    handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, nameOrIP);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -760,21 +760,21 @@ public:
         {
             case BAN_ACCOUNT:
                 if (sBan->RemoveBanAccount(nameOrIP))
-                    handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP);
                 else
-                    handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP);
                 break;
             case BAN_CHARACTER:
                 if (sBan->RemoveBanAccountByPlayerName(nameOrIP))
-                    handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP);
                 else
-                    handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP);
                 break;
             case BAN_IP:
                 if (sBan->RemoveBanIP(nameOrIP))
-                    handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP);
                 else
-                    handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP.c_str());
+                    handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP);
                 break;
             default:
                 break;

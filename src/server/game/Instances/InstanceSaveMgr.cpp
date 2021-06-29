@@ -71,19 +71,19 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
     const MapEntry* entry = sMapStore.LookupEntry(mapId);
     if (!entry)
     {
-        LOG_ERROR("instance.save", "InstanceSaveManager::AddInstanceSave: wrong mapid = %d, instanceid = %d!", mapId, instanceId);
+        LOG_ERROR("instance.save", "InstanceSaveManager::AddInstanceSave: wrong mapid = {}, instanceid = {}!", mapId, instanceId);
         return nullptr;
     }
 
     if (instanceId == 0)
     {
-        LOG_ERROR("instance.save", "InstanceSaveManager::AddInstanceSave: mapid = %d, wrong instanceid = %d!", mapId, instanceId);
+        LOG_ERROR("instance.save", "InstanceSaveManager::AddInstanceSave: mapid = {}, wrong instanceid = {}!", mapId, instanceId);
         return nullptr;
     }
 
     if (difficulty >= (entry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
     {
-        LOG_ERROR("instance.save", "InstanceSaveManager::AddInstanceSave: mapid = %d, instanceid = %d, wrong dificalty %u!", mapId, instanceId, difficulty);
+        LOG_ERROR("instance.save", "InstanceSaveManager::AddInstanceSave: mapid = {}, instanceid = {}, wrong dificalty {}!", mapId, instanceId, difficulty);
         return nullptr;
     }
 
@@ -256,7 +256,7 @@ void InstanceSaveManager::LoadInstances()
     LoadInstanceSaves();
     LoadCharacterBinds();
 
-    LOG_INFO("server.loading", ">> Loaded instances and binds in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded instances and binds in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -280,8 +280,8 @@ void InstanceSaveManager::LoadResetTimes()
             MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
             if (!mapDiff)
             {
-                LOG_ERROR("instance.save", "InstanceSaveManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
-                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid, difficulty);
+                LOG_ERROR("instance.save", "InstanceSaveManager::LoadResetTimes: invalid mapid({})/difficulty({}) pair in instance_reset!", mapid, difficulty);
+                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '{}' AND difficulty = '{}'", mapid, difficulty);
                 continue;
             }
 
@@ -311,7 +311,7 @@ void InstanceSaveManager::LoadResetTimes()
             // initialize the reset time
             t = today + period + diff;
             SetResetTimeFor(mapid, difficulty, t);
-            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u', '%u', '%u')", mapid, difficulty, (uint32)t);
+            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('{}', '{}', '{}')", mapid, difficulty, (uint32)t);
         }
 
         if (t < now)
@@ -320,7 +320,7 @@ void InstanceSaveManager::LoadResetTimes()
             // calculate the next reset time
             t = (t * DAY) / DAY;
             t += ((today - t) / period + 1) * period + diff;
-            CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", (uint32)t, mapid, difficulty);
+            CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '{}' WHERE mapid = '{}' AND difficulty = '{}'", (uint32)t, mapid, difficulty);
         }
 
         SetExtendedResetTimeFor(mapid, difficulty, t);
@@ -531,7 +531,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
         if (!mapDiff || !mapDiff->resetTime)
         {
-            LOG_ERROR("instance.save", "InstanceSaveManager::ResetOrWarnAll: not valid difficulty or no reset delay for map %d", mapid);
+            LOG_ERROR("instance.save", "InstanceSaveManager::ResetOrWarnAll: not valid difficulty or no reset delay for map {}", mapid);
             return;
         }
 

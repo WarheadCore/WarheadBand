@@ -143,7 +143,7 @@ uint32 LootStore::LoadLootTable()
     Clear();
 
     //                                                  0     1            2               3         4         5             6
-    QueryResult result = WorldDatabase.PQuery("SELECT Entry, Item, Reference, Chance, QuestRequired, LootMode, GroupId, MinCount, MaxCount FROM %s", GetName());
+    QueryResult result = WorldDatabase.PQuery("SELECT Entry, Item, Reference, Chance, QuestRequired, LootMode, GroupId, MinCount, MaxCount FROM {}", GetName());
 
     if (!result)
         return 0;
@@ -166,13 +166,13 @@ uint32 LootStore::LoadLootTable()
 
         if (maxcount > std::numeric_limits<uint8>::max())
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: MaxCount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount, std::numeric_limits<uint8>::max());
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: MaxCount value ({}) to large. must be less {} - skipped", GetName(), entry, item, maxcount, std::numeric_limits<uint8>::max());
             continue;                                   // error already printed to log/console.
         }
 
         if (lootmode == 0)
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: LootMode is equal to 0, item will never drop - setting mode 1", GetName(), entry, item);
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: LootMode is equal to 0, item will never drop - setting mode 1", GetName(), entry, item);
             lootmode = 1;
         }
 
@@ -278,17 +278,17 @@ void LootStore::ReportUnusedIds(LootIdSet const& lootIdSet) const
 {
     // all still listed ids isn't referenced
     for (LootIdSet::const_iterator itr = lootIdSet.begin(); itr != lootIdSet.end(); ++itr)
-        LOG_ERROR("sql.sql", "Table '%s' Entry %d isn't %s and not referenced from loot, and thus useless.", GetName(), *itr, GetEntryName());
+        LOG_ERROR("sql.sql", "Table '{}' Entry {} isn't {} and not referenced from loot, and thus useless.", GetName(), *itr, GetEntryName());
 }
 
 void LootStore::ReportNonExistingId(uint32 lootId) const
 {
-    LOG_ERROR("sql.sql", "Table '%s' Entry %d does not exist", GetName(), lootId);
+    LOG_ERROR("sql.sql", "Table '{}' Entry {} does not exist", GetName(), lootId);
 }
 
 void LootStore::ReportNonExistingId(uint32 lootId, const char* ownerType, uint32 ownerId) const
 {
-    LOG_ERROR("sql.sql", "Table '%s' Entry %d does not exist but it is used by %s %d", GetName(), lootId, ownerType, ownerId);
+    LOG_ERROR("sql.sql", "Table '{}' Entry {} does not exist but it is used by {} {}", GetName(), lootId, ownerType, ownerId);
 }
 
 //
@@ -322,13 +322,13 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 {
     if (groupid >= 1 << 7)                                     // it stored in 7 bit field
     {
-        LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: GroupId (%u) must be less %u - skipped", store.GetName(), entry, itemid, groupid, 1 << 7);
+        LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: GroupId ({}) must be less {} - skipped", store.GetName(), entry, itemid, groupid, 1 << 7);
         return false;
     }
 
     if (mincount == 0)
     {
-        LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: wrong MinCount (%d) - skipped", store.GetName(), entry, itemid, mincount);
+        LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: wrong MinCount ({}) - skipped", store.GetName(), entry, itemid, mincount);
         return false;
     }
 
@@ -337,36 +337,36 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
         if (!proto)
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
             return false;
         }
 
         if (chance == 0 && groupid == 0)                     // Zero chance is allowed for grouped entries only
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
             return false;
         }
 
         if (chance != 0 && chance < 0.000001f)             // loot with low chance
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: low chance (%f) - skipped",
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: low chance ({}) - skipped",
                              store.GetName(), entry, itemid, chance);
             return false;
         }
 
         if (maxcount < mincount)                       // wrong max count
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: MaxCount (%u) less that MinCount (%i) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincount);
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: MaxCount ({}) less that MinCount ({}) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincount);
             return false;
         }
     }
     else                                                    // if reference loot
     {
         if (needs_quest)
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: quest required will be ignored", store.GetName(), entry, itemid);
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: quest required will be ignored", store.GetName(), entry, itemid);
         else if (chance == 0)                              // no chance for the reference
         {
-            LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: zero chance is specified for a reference, skipped", store.GetName(), entry, itemid);
+            LOG_ERROR("sql.sql", "Table '{}' Entry {} Item {}: zero chance is specified for a reference, skipped", store.GetName(), entry, itemid);
             return false;
         }
     }
@@ -513,7 +513,7 @@ void Loot::AddItem(LootStoreItem const& item)
 
         if (!canSeeItemInLootWindow)
         {
-            LOG_DEBUG("loot", "Skipping ++unlootedCount for unlootable item: %u", item.itemid);
+            LOG_DEBUG("loot", "Skipping ++unlootedCount for unlootable item: {}", item.itemid);
             continue;
         }
 
@@ -539,7 +539,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     if (!tab)
     {
         if (!noEmptyError)
-            LOG_ERROR("sql.sql", "Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
+            LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
         return false;
     }
 
@@ -1313,12 +1313,12 @@ void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint
     float chance = RawTotalChance();
     if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
     {
-        LOG_ERROR("sql.sql", "Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
+        LOG_ERROR("sql.sql", "Table '{}' entry {} group {} has total chance > 100% ({})", lootstore.GetName(), id, group_id, chance);
     }
 
     if (chance >= 100.0f && !EqualChanced.empty())
     {
-        LOG_ERROR("sql.sql", "Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
+        LOG_ERROR("sql.sql", "Table '{}' entry {} group {} has items with chance=0% but group total chance >= 100% ({})", lootstore.GetName(), id, group_id, chance);
     }
 }
 
@@ -1751,7 +1751,7 @@ void LoadLootTemplates_Creature()
     LootTemplates_Creature.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u creature loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} creature loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
 
@@ -1786,7 +1786,7 @@ void LoadLootTemplates_Disenchant()
     LootTemplates_Disenchant.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} disenchanting loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
     LOG_INFO("server.loading", " ");
@@ -1811,7 +1811,7 @@ void LoadLootTemplates_Fishing()
     LootTemplates_Fishing.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u fishing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} fishing loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
 
@@ -1847,7 +1847,7 @@ void LoadLootTemplates_Gameobject()
     LootTemplates_Gameobject.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u gameobject loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} gameobject loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
 
@@ -1873,7 +1873,7 @@ void LoadLootTemplates_Item()
     LootTemplates_Item.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u item loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} item loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 item loot templates. DB table `item_loot_template` is empty");
 
@@ -1904,7 +1904,7 @@ void LoadLootTemplates_Milling()
     LootTemplates_Milling.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u milling loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} milling loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
 
@@ -1940,7 +1940,7 @@ void LoadLootTemplates_Pickpocketing()
     LootTemplates_Pickpocketing.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u pickpocketing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} pickpocketing loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
 
@@ -1971,7 +1971,7 @@ void LoadLootTemplates_Prospecting()
     LootTemplates_Prospecting.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} prospecting loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
 
@@ -1997,7 +1997,7 @@ void LoadLootTemplates_Mail()
     LootTemplates_Mail.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u mail loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} mail loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
 
@@ -2033,7 +2033,7 @@ void LoadLootTemplates_Skinning()
     LootTemplates_Skinning.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u skinning loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} skinning loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
 
@@ -2077,7 +2077,7 @@ void LoadLootTemplates_Spell()
     LootTemplates_Spell.ReportUnusedIds(lootIdSet);
 
     if (count)
-        LOG_INFO("server.loading", ">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} spell loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         LOG_ERROR("sql.sql", ">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
     LOG_INFO("server.loading", " ");
@@ -2108,7 +2108,7 @@ void LoadLootTemplates_Reference()
     // output error for any still listed ids (not referenced from any loot table)
     LootTemplates_Reference.ReportUnusedIds(lootIdSet);
 
-    LOG_INFO("server.loading", ">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded refence loot templates in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

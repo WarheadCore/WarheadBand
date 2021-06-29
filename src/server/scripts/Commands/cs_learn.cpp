@@ -311,7 +311,7 @@ public:
         target->LearnCustomSpells();
         target->learnQuestRewardedSpells();
 
-        handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, handler->GetNameLink(target).c_str());
+        handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, handler->GetNameLink(target));
         return true;
     }
 
@@ -407,7 +407,7 @@ public:
 
         uint16 maxLevel = target->GetPureMaxSkillValue(targetSkillInfo->id);
         target->SetSkill(targetSkillInfo->id, target->GetSkillStep(targetSkillInfo->id), maxLevel, maxLevel);
-        handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name.c_str());
+        handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name);
         return true;
     }
 

@@ -90,7 +90,7 @@ public:
             { "battleground_template",        SEC_ADMINISTRATOR, true,  &HandleReloadBattlegroundTemplate,              "" },
             { "command",                      SEC_ADMINISTRATOR, true,  &HandleReloadCommandCommand,                    "" },
             { "conditions",                   SEC_ADMINISTRATOR, true,  &HandleReloadConditions,                        "" },
-            { "server.loading",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     "" },
+            { "config",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     "" },
             { "creature_text",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureText,                      "" },
             { "creature_questender",          SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestEnderCommand,         "" },
             { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "" },
@@ -456,7 +456,7 @@ public:
                 continue;
             }
 
-            LOG_INFO("server.loading", "Reloading creature template entry %u", entry);
+            LOG_INFO("server.loading", "Reloading creature template entry {}", entry);
 
             Field* fields = result->Fetch();
 
