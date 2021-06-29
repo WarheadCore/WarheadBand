@@ -194,7 +194,7 @@ std::string GetScriptCommandName(ScriptCommands command)
 
 std::string ScriptInfo::GetDebugInfo() const
 {
-    return Warhead::StringFormat("{} ('{}' script id: {})", GetScriptCommandName(command), GetScriptsTableNameByType(type), id)
+    return Warhead::StringFormat("{} ('{}' script id: {})", GetScriptCommandName(command), GetScriptsTableNameByType(type), id);
 }
 
 bool normalizePlayerName(std::string& name)
