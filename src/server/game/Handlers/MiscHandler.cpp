@@ -697,20 +697,16 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recv_data)
     GetPlayer()->ResurectUsingRequestData();
 }
 
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
+void WorldSession::_SendAreaTriggerMessage(std::string_view message)
 {
-    va_list ap;
-    char szStr [1024];
-    szStr[0] = '\0';
+    // if (message.empty())
+        // return;
 
-    va_start(ap, Text);
-    vsnprintf(szStr, 1024, Text, ap);
-    va_end(ap);
+    uint32 length = message.length() + 1;
 
-    uint32 length = strlen(szStr) + 1;
     WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4 + length);
-    data << length;
-    data << szStr;
+    data << uint32(length);
+    data << message;
     SendPacket(&data);
 }
 

@@ -33,6 +33,7 @@
 #include "Packet.h"
 #include "SharedDefines.h"
 #include "World.h"
+#include "StringFormat.h"
 #include <map>
 #include <unordered_map>
 #include <utility>
@@ -256,16 +257,32 @@ public:
     void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
 
     void SendPacket(WorldPacket const* packet);
-    void SendNotification(const char* format, ...) ATTR_PRINTF(2, 3);
-    void SendNotification(uint32 string_id, ...);
+    
     void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName* declinedName);
     void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
-    void SendAreaTriggerMessage(const char* Text, ...) ATTR_PRINTF(2, 3);
+    
     void SendSetPhaseShift(uint32 phaseShift);
     void SendQueryTimeResponse();
-
     void SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos = 0);
     void SendClientCacheVersion(uint32 version);
+
+    template<typename... Args>
+    inline void SendNotification(std::string_view fmt, Args&&... args)
+    {
+        _SendNotification(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
+    }
+
+    template<typename... Args>
+    inline void SendNotification(uint32 string_id, Args&&... args)
+    {
+        _SendNotification(Warhead::StringFormat(GetWarheadString(string_id), std::forward<Args>(args)...));
+    }
+
+    template<typename... Args>
+    void SendAreaTriggerMessage(std::string_view fmt, Args&&... args)
+    {
+        _SendAreaTriggerMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
+    }
 
     AccountTypes GetSecurity() const { return _security; }
     bool CanSkipQueue() const { return _skipQueue; }
@@ -1026,6 +1043,10 @@ protected:
     } AntiDOS;
 
 private:
+    // Send messages functions
+    void _SendNotification(std::string_view message);
+    void _SendAreaTriggerMessage(std::string_view message);
+
     // private trade methods
     void moveItems(Item* myItems[], Item* hisItems[]);
 

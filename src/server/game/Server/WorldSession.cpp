@@ -731,39 +731,14 @@ bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
     return false;
 }
 
-void WorldSession::SendNotification(const char* format, ...)
+void WorldSession::_SendNotification(std::string_view message)
 {
-    if (format)
-    {
-        va_list ap;
-        char szStr[1024];
-        szStr[0] = '\0';
-        va_start(ap, format);
-        vsnprintf(szStr, 1024, format, ap);
-        va_end(ap);
+    if (message.empty())
+        return;
 
-        WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr) + 1));
-        data << szStr;
-        SendPacket(&data);
-    }
-}
-
-void WorldSession::SendNotification(uint32 string_id, ...)
-{
-    char const* format = GetWarheadString(string_id);
-    if (format)
-    {
-        va_list ap;
-        char szStr[1024];
-        szStr[0] = '\0';
-        va_start(ap, string_id);
-        vsnprintf(szStr, 1024, format, ap);
-        va_end(ap);
-
-        WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr) + 1));
-        data << szStr;
-        SendPacket(&data);
-    }
+    WorldPacket data(SMSG_NOTIFICATION, message.length() + 1);
+    data << message;
+    SendPacket(&data);
 }
 
 bool WorldSession::CanSpeak() const
