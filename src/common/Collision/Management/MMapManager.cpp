@@ -81,7 +81,7 @@ namespace MMAP
             }
             else
             {
-                ABORT_MSG("Invalid mapId {} passed to MMapManager after startup in thread unsafe environment", mapId);
+                ABORT("Invalid mapId {} passed to MMapManager after startup in thread unsafe environment", mapId);
             }
         }
 

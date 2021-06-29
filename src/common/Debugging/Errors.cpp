@@ -16,8 +16,8 @@
  */
 
 #include "Errors.h"
-#include "StringFormat.h"
-#include <cstdarg>
+#include "Duration.h"
+// #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <thread>
@@ -40,91 +40,123 @@
     RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs);
 #else
 // should be easily accessible in gdb
-extern "C" { WH_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; }
+extern "C" { WH_COMMON_API char const* WarheadAssertionFailedMessage = nullptr; }
 #define Crash(message) \
-    TrinityAssertionFailedMessage = strdup(message); \
+    WarheadAssertionFailedMessage = strdup(message); \
     *((volatile int*)nullptr) = 0; \
     exit(1);
 #endif
 
-namespace Warhead
+namespace
 {
-    template<typename... Args>
-    void Assert(char const* file, int line, char const* function, std::string const& debugInfo, std::string_view fmt, Args&&... args)
+    /**
+    * @name MakeMessage
+    * @brief Make message for display erros
+    * @param messageType Message type (ASSERTION FAILED, FATAL ERROR, ERROR) end etc
+    * @param file Path to file
+    * @param line Line number in file
+    * @param function Functionn name
+    * @param message Condition to string format
+    * @param fmtMessage [optional] Display format message after condition
+    * @param fmtMessage [optional] Display debug info
+    */
+    std::string MakeMessage(std::string_view messageType, std::string_view file, int line, std::string_view function,
+        std::string_view message, std::string const& fmtMessage = "", std::string const& debugInfo = "")
     {
-        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
+        std::string msg = Warhead::StringFormat("\n>> {}\n\n# Location '{}:{}'\n# Function '{}'\n# Condition '{}'\n", messageType, file, line, function, message);
 
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
+        if (!fmtMessage.empty())
+        {
+            msg.append(Warhead::StringFormat("# Message '{}'\n", fmtMessage));
+        }
 
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        Crash(formattedMessage.c_str());
+        if (!debugInfo.empty())
+        {
+            msg.append(Warhead::StringFormat("\n# Debug info: '{}'\n", debugInfo));
+        }
+
+        return Warhead::StringFormat(
+            "#{0:-^{2}}#\n"
+            " {1: ^{2}} \n"
+            "#{0:-^{2}}#\n", "", msg, 70);
     }
 
-    template<typename... Args>
-    void Fatal(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
+    /**
+    * @name MakeAbortMessage
+    * @brief Make message for display erros
+    * @param file Path to file
+    * @param line Line number in file
+    * @param function Functionn name
+    * @param fmtMessage [optional] Display format message after condition
+    */
+    std::string MakeAbortMessage(std::string_view file, int line, std::string_view function, std::string const& fmtMessage = "")
     {
-        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
-        std::string formattedMessage = StringFormat("\n{}:{} in {} FATAL ERROR:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
+        std::string msg = Warhead::StringFormat("\n>> ABORTED\n\n# Location '{}:{}'\n# Function '{}'\n", file, line, function);
 
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
+        if (!fmtMessage.empty())
+        {
+            msg.append(Warhead::StringFormat("# Message '{}'\n", fmtMessage));
+        }
 
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        Crash(formattedMessage.c_str());
+        return Warhead::StringFormat(
+            "#{0:-^{2}}#\n"
+            " {1: ^{2}} \n"
+            "#{0:-^{2}}#\n", "", msg, 70);
     }
+}
 
-    template<typename... Args>
-    void Error(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
-    {
-        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
+void Warhead::Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, std::string const& fmtMessage /*= ""*/)
+{
+    std::string formattedMessage = MakeMessage("ASSERTION FAILED", file, line, function, message, fmtMessage, debugInfo);
+    fprintf(stderr, "%s", formattedMessage.c_str());
+    fflush(stderr);
+    Crash(formattedMessage.c_str());
+}
 
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
+void Warhead::Fatal(std::string_view file, int line, std::string_view function, std::string_view message, std::string const& fmtMessage /*= ""*/)
+{
+    std::string formattedMessage = MakeMessage("FATAL ERROR", file, line, function, message, fmtMessage);
 
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        Crash(formattedMessage.c_str());
-    }
+    fprintf(stderr, "%s", formattedMessage.c_str());
+    fflush(stderr);
 
-    void Warning(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
-    {
-        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
-        fprintf(stderr, "\n%s:%i in %s WARNING:\n  %s\n", file, line, function, fmtMessage);
-    }
+    std::this_thread::sleep_for(10s);
+    Crash(formattedMessage.c_str());
+}
 
-    void Abort(char const* file, int line, char const* function)
-    {
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED.\n", file, line, function);
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
-        Crash(formattedMessage.c_str());
-    }
+void Warhead::Error(std::string_view file, int line, std::string_view function, std::string_view message)
+{
+    std::string formattedMessage = MakeMessage("ERROR", file, line, function, message);
 
-    template<typename... Args>
-    void Abort(char const* file, int line, char const* function, std::string_view fmt, Args&&... args)
-    {
-        std::string fmtMessage = StringFormat(fmt, std::forward<Args>(args)...);
-        std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED:\n  {}\n", file, line, function, fmtMessage) + '\n' + debugInfo + '\n';
+    fprintf(stderr, "%s", formattedMessage.c_str());
+    fflush(stderr);
 
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
+    std::this_thread::sleep_for(10s);
+    Crash(formattedMessage.c_str());
+}
 
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        Crash(formattedMessage.c_str());
-    }
+void Warhead::Warning(std::string_view file, int line, std::string_view function, std::string_view message)
+{
+    std::string formattedMessage = MakeMessage("WARNING", file, line, function, message);
+    fprintf(stderr, "%s", formattedMessage.c_str());
+}
 
-    void AbortHandler(int sigval)
-    {
-        // nothing useful to log here, no way to pass args
-        std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
-        fprintf(stderr, "%s", formattedMessage.c_str());
-        fflush(stderr);
-        Crash(formattedMessage.c_str());
-    }
+void Warhead::Abort(std::string_view file, int line, std::string_view function, std::string const& fmtMessage /*= ""*/)
+{
+    std::string formattedMessage = MakeAbortMessage(file, line, function, fmtMessage);
+    fprintf(stderr, "%s", formattedMessage.c_str());
+    fflush(stderr);
+    Crash(formattedMessage.c_str());
+}
 
-} // namespace Warhead
+void Warhead::AbortHandler(int sigval)
+{
+    // nothing useful to log here, no way to pass args
+    std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
+    fprintf(stderr, "%s", formattedMessage.c_str());
+    fflush(stderr);
+    Crash(formattedMessage.c_str());
+}
 
 std::string GetDebugInfo()
 {
