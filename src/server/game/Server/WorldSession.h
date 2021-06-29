@@ -257,10 +257,10 @@ public:
     void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
 
     void SendPacket(WorldPacket const* packet);
-    
+
     void SendPetNameInvalid(uint32 error, std::string const& name, DeclinedName* declinedName);
     void SendPartyResult(PartyOperation operation, std::string const& member, PartyResult res, uint32 val = 0);
-    
+
     void SendSetPhaseShift(uint32 phaseShift);
     void SendQueryTimeResponse();
     void SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos = 0);
