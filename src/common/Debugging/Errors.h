@@ -59,7 +59,7 @@ WH_COMMON_API std::string GetDebugInfo();
 #define WPFatal(cond, ...) do { if (!(cond)) Warhead::Fatal(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0)
 #define WPError(cond, msg) do { if (!(cond)) Warhead::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
 #define WPWarning(cond, msg) do { if (!(cond)) Warhead::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
-#define WPAbort(...) do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); } while(0)
+#define WPAbort(...) do { Warhead::Abort(__FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); } while(0)
 
 #ifdef PERFORMANCE_PROFILING
 #define ASSERT(cond, ...) ((void)0)
