@@ -31,7 +31,7 @@ using std::pair;
 
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
 {
-    static void getBounds(const VMAP::ModelSpawn* const& obj, G3D::AABox& out) { out = obj->getBounds(); }
+    static void GetBounds(const VMAP::ModelSpawn* const& obj, G3D::AABox& out) { out = obj->GetBounds(); }
 };
 
 namespace VMAP
@@ -103,7 +103,7 @@ namespace VMAP
 
             try
             {
-                pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
+                pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::GetBounds);
             }
             catch (std::exception& e)
             {

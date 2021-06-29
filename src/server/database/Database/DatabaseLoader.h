@@ -32,7 +32,7 @@ class DatabaseWorkerPool;
 class WH_DATABASE_API DatabaseLoader
 {
 public:
-    DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask);
+    DatabaseLoader(std::string const& logger, uint32 const defaultUpdateMask = 0);
 
     // Register a database to the loader (lazy implemented)
     template <class T>

@@ -86,7 +86,19 @@ if (WIN32)
   if(MYSQL_LIBRARY)
     set(MARIADB_FOUND_LIB 1)
   endif()
-  if (MYSQL_LIBRARY AND MYSQL_INCLUDE_DIR)
+
+  find_program(MYSQL_EXECUTABLE mysql
+    PATHS
+      "${PROGRAM_FILES_64}/${MariaDBVersion}/bin"
+      "${PROGRAM_FILES_64}/${MariaDBVersion}/bin/opt"
+      "${PROGRAM_FILES_32}/${MariaDBVersion}/bin"
+      "${PROGRAM_FILES_32}/${MariaDBVersion}/bin/opt"
+      "$ENV{ProgramFiles}/${MariaDBVersion}/bin/opt"
+      "$ENV{SystemDrive}/${MariaDBVersion}/bin/opt"
+    DOC
+        "path to your mysql binary.")
+
+  if (MYSQL_LIBRARY AND MYSQL_INCLUDE_DIR AND MYSQL_EXECUTABLE)
     set(MARIADB_FOUND 1)
   endif()
 
@@ -269,19 +281,29 @@ endif( UNIX )
 if( WIN32 )
   find_program(MYSQL_EXECUTABLE mysql
     PATHS
-      "C:/Program Files/MySQL/MySQL Server 5.6/bin"
-      "C:/Program Files/MySQL/MySQL Server 5.6/bin/opt"
-      "C:/Program Files/MySQL/bin"
-      "C:/Program Files (x86)/MySQL/MySQL Server 5.6/bin"
-      "C:/Program Files (x86)/MySQL/MySQL Server 5.6/bin/opt"
-      "C:/Program Files (x86)/MySQL/bin"
+      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.0/bin"
+      "${PROGRAM_FILES_64}/MySQL/MySQL Server 5.7/bin"
+      "${PROGRAM_FILES_64}/MySQL/MySQL Server 8.0/bin/opt"
+      "${PROGRAM_FILES_64}/MySQL/MySQL Server 5.7/bin/opt"
+      "${PROGRAM_FILES_64}/MySQL/bin"
+      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.0/bin"
+      "${PROGRAM_FILES_32}/MySQL/MySQL Server 5.7/bin"
+      "${PROGRAM_FILES_32}/MySQL/MySQL Server 8.0/bin/opt"
+      "${PROGRAM_FILES_32}/MySQL/MySQL Server 5.7/bin/opt"
+      "${PROGRAM_FILES_32}/MySQL/bin"
       "C:/MySQL/bin/debug"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.6;Location]/bin"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.6;Location]/bin/opt"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.6;Location]/bin"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.6;Location]/bin/opt"
-      "$ENV{ProgramFiles}/MySQL/*/bin/opt"
-      "$ENV{SystemDrive}/MySQL/*/bin/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.0;Location]/bin"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.7;Location]/bin"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 8.0;Location]/bin/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.7;Location]/bin/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.0;Location]/bin"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.7;Location]/bin"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 8.0;Location]/bin/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.7;Location]/bin/opt"
+      "$ENV{ProgramFiles}/MySQL/MySQL Server 8.0/bin/opt"
+      "$ENV{ProgramFiles}/MySQL/MySQL Server 5.7/bin/opt"
+      "$ENV{SystemDrive}/MySQL/MySQL Server 8.0/bin/opt"
+      "$ENV{SystemDrive}/MySQL/MySQL Server 5.7/bin/opt"
       "c:/msys/local/include"
       "$ENV{MYSQL_ROOT}/bin"
     DOC
