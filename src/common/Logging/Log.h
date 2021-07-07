@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "StringFormat.h"
-#include <fmt/color.h>
 
 enum class LogLevel : uint8
 {
