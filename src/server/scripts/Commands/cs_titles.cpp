@@ -27,6 +27,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "StringConvert.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -209,9 +210,11 @@ public:
         if (!*args)
             return false;
 
-        uint64 titles = 0;
+        auto titlesMask = Warhead::StringTo<uint64>(args);
+        if (!titlesMask)
+            return false;
 
-        sscanf((char*)args, "%lu", &titles);
+        uint64 titles = *titlesMask;
 
         Player* target = handler->getSelectedPlayer();
         if (!target)
