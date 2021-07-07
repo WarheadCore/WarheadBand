@@ -384,6 +384,15 @@ public:
 
     void RemoveOldCorpses();
 
+    template<typename Worker>
+    void DoForAllPlayers(Worker&& worker);
+
+    template<typename Worker>
+    void DoForAllPlayersIsInWorld(Worker&& worker);
+
+    template<typename Worker>
+    void DoForAllGM(Worker&& worker);
+
 protected:
     void _UpdateGameTime();
     // callback for UpdateRealmCharacters

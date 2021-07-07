@@ -2606,6 +2606,57 @@ uint16 World::GetConfigMaxSkillValue() const
     return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5;
 }
 
+template<typename Worker>
+void World::DoForAllPlayers(Worker&& worker)
+{
+    if (m_sessions.empty())
+        return;
+
+    for (auto const& [accountID, session] : m_sessions)
+    {
+        Player* player = session->GetPlayer();
+        if (!player)
+            return;
+
+        worker(player);
+    }
+}
+
+template<typename Worker>
+void World::DoForAllPlayersIsInWorld(Worker&& worker)
+{
+    if (m_sessions.empty())
+        return;
+
+    for (auto const& [accountID, session] : m_sessions)
+    {
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
+            return;
+
+        worker(player);
+    }
+}
+
+template<typename Worker>
+void World::DoForAllGM(Worker&& worker)
+{
+    if (m_sessions.empty())
+        return;
+
+    for (auto const& [accountID, session] : m_sessions)
+    {
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
+            return;
+
+        if (AccountMgr::IsPlayerAccount(player->GetSecurity()))
+            continue;
+
+        worker(player);
+    }
+}
+
 CliCommandHolder::CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished)
     : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
 {
