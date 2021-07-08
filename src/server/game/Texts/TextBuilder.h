@@ -26,6 +26,7 @@
 #include "Tokenize.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "Chat.h"
 #include <unordered_map>
 #include <vector>
 
