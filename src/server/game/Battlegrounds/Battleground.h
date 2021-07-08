@@ -498,7 +498,7 @@ public:
 
         for (auto const& [guid, player] : m_Players)
         {
-            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, [player](WorldPacket* data)
+            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, [&player](WorldPacket* data)
             {
                 player->SendDirectMessage(data);
             }, std::forward<Args>(args)...);
