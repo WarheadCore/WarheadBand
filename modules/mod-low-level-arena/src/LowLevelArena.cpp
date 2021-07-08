@@ -43,28 +43,27 @@ LLA* LLA::instance()
     return &instance;
 }
 
-void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
+void LLA::AddQueue(Player* leader)
 {
     if (!leader)
     {
         return;
     }
 
-    // Get arena slot
-    uint8 arenaSlot = 0;
-    switch (arenaType)
+    // Default 5v5
+    uint8 arenaSlot = 2;
+    uint8 arenaType = ARENA_TYPE_5v5;
+
+    Group* group = leader->GetGroup();
+    if (!group || group->GetMembersCount() < 3)
     {
-        case ARENA_TYPE_2v2:
-            arenaSlot = 0;
-            break;
-        case ARENA_TYPE_3v3:
-            arenaSlot = 1;
-            break;
-        case ARENA_TYPE_5v5:
-            arenaSlot = 2;
-            break;
-        default:
-            return;
+        arenaType = ARENA_TYPE_2v2;
+        arenaSlot = 0;
+    }
+    else if (group->GetMembersCount() == 3)
+    {
+        arenaType = ARENA_TYPE_3v3;
+        arenaSlot = 1;
     }
 
     // get template for all arenas
@@ -114,9 +113,9 @@ void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
         if (member->InBattleground()) // currently in battleground
             err = ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND;
         else if (member->isUsingLfg()) // using lfg system
-            err = ERR_LFG_CANT_USE_BATTLEGROUND;        
+            err = ERR_LFG_CANT_USE_BATTLEGROUND;
         else if (member->InBattlegroundQueue())
-            err = ERR_BATTLEGROUND_TOO_MANY_QUEUES;        
+            err = ERR_BATTLEGROUND_TOO_MANY_QUEUES;
         // don't let Death Knights join BG queues when they are not allowed to be teleported yet
         else if (leader->getClass() == CLASS_DEATH_KNIGHT && member->GetMapId() == 609 && !member->IsGameMaster() && !member->HasSpell(50977))
             err = ERR_BATTLEGROUND_NONE;
@@ -132,11 +131,14 @@ void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
         return true;
     };
 
+    ChatHandler handler(leader->GetSession());
+
     // check if player can queue:
-    if (!joinAsGroup)
+    if (!group)
     {
         if (!CheckPlayerEnterQueue(leader))
         {
+            handler.PSendSysMessage("# You cannot queue");
             return;
         }
 
@@ -150,15 +152,19 @@ void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
         leader->GetSession()->SendPacket(&data);
 
         sScriptMgr->OnPlayerJoinArena(leader);
+
+        handler.PSendSysMessage("# You entered arena skirmish queue {}/{} ({:2}v{:2})",
+            bracketEntry->minLevel, bracketEntry->maxLevel, arenaType);
     }
     // check if group can queue:
     else
     {
-        Group* group = leader->GetGroup();
-
         // No group or not a leader group
-        if (!group || group->GetLeaderGUID() != leader->GetGUID())
+        if (group->GetLeaderGUID() != leader->GetGUID())
+        {
+            handler.PSendSysMessage("# You are not leader of group");
             return;
+        }
 
         // pussywizard: for party members - remove queues for which leader is not queued to!
         std::unordered_set<uint32> leaderQueueTypeIds;
@@ -238,6 +244,9 @@ void LLA::AddQueue(Player* leader, uint8 arenaType, bool joinAsGroup)
 
             sScriptMgr->OnPlayerJoinArena(member);
         }
+
+        handler.PSendSysMessage("# You entered arena skirmish queue {}/{} ({}v{}) in group",
+            bracketEntry->minLevel, bracketEntry->maxLevel, arenaType, arenaType);
     }
 }
 
