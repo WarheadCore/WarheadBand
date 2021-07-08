@@ -16,6 +16,7 @@
 #include "ScriptMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
+#include "TextBuilder.h"
 
 CFBG* CFBG::instance()
 {
@@ -825,7 +826,7 @@ bool CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
         }
 
         BGSpamProtectionCFBG[leader->GetGUID()] = GameTime::GetGameTime();
-        sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qTotal, MinPlayers);
+        Warhead::Text::SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qTotal, MinPlayers);
     }
 
     return true;

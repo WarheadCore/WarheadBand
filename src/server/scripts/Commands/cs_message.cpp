@@ -27,6 +27,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "TextBuilder.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -63,7 +64,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
+        Warhead::Text::SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
         return true;
     }
 
@@ -76,7 +77,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
+        Warhead::Text::SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
         return true;
     }
     // global announce
@@ -96,7 +97,7 @@ public:
         if (!*args)
             return false;
 
-        sWorld->SendGMText(LANG_GM_BROADCAST, args);
+        Warhead::Text::SendGMText(LANG_GM_BROADCAST, args);
         return true;
     }
     // notification player at the screen

@@ -77,8 +77,10 @@
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
+#include "TextBuilder.h"
 #include "TicketMgr.h"
 #include "Timer.h"
+#include "Tokenize.h"
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "UpdateTime.h"
@@ -1518,73 +1520,10 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, TeamId 
     }
 }
 
-namespace Warhead
-{
-    class WorldWorldTextBuilder
-    {
-    public:
-        typedef std::vector<WorldPacket*> WorldPacketList;
-        explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) {}
-        void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
-        {
-            char const* text = sGameLocale->GetWarheadString(i_textId, loc_idx);
-
-            if (i_args)
-            {
-                // we need copy va_list before use or original va_list will corrupted
-                va_list ap;
-                va_copy(ap, *i_args);
-
-                char str[2048];
-                vsnprintf(str, 2048, text, ap);
-                va_end(ap);
-
-                do_helper(data_list, &str[0]);
-            }
-            else
-                do_helper(data_list, (char*)text);
-        }
-    private:
-        char* lineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
-        void do_helper(WorldPacketList& data_list, char* text)
-        {
-            char* pos = text;
-            while (char* line = lineFromMessage(pos))
-            {
-                WorldPacket* data = new WorldPacket();
-                ChatHandler::BuildChatPacket(*data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-                data_list.push_back(data);
-            }
-        }
-
-        uint32 i_textId;
-        va_list* i_args;
-    };
-}                                                           // namespace Warhead
-
-/// Send a System Message to all players (except self if mentioned)
-void World::SendWorldText(uint32 string_id, ...)
-{
-    va_list ap;
-    va_start(ap, string_id);
-
-    Warhead::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Warhead::Game::Locale::LocalizedPacketListDo<Warhead::WorldWorldTextBuilder> wt_do(wt_builder);
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-    {
-        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
-            continue;
-
-        wt_do(itr->second->GetPlayer());
-    }
-
-    va_end(ap);
-}
-
 /// Send a System Message to all GMs (except self if mentioned)
 void World::SendGMText(uint32 string_id, ...)
 {
-    va_list ap;
+    /*va_list ap;
     va_start(ap, string_id);
 
     Warhead::WorldWorldTextBuilder wt_builder(string_id, &ap);
@@ -1600,7 +1539,7 @@ void World::SendGMText(uint32 string_id, ...)
         wt_do(itr->second->GetPlayer());
     }
 
-    va_end(ap);
+    va_end(ap);*/
 }
 
 /// DEPRECATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
@@ -1919,7 +1858,7 @@ void World::SendAutoBroadcast()
     uint32 abcenter = CONF_GET_INT("AutoBroadcast.Center");
 
     if (abcenter == 0)
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+        Warhead::Text::SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
     else if (abcenter == 1)
     {
@@ -1930,7 +1869,7 @@ void World::SendAutoBroadcast()
 
     else if (abcenter == 2)
     {
-        sWorld->SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
+        Warhead::Text::SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
 
         WorldPacket data(SMSG_NOTIFICATION, (msg.size() + 1));
         data << msg;

@@ -43,6 +43,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
+#include "TextBuilder.h"
 #include "Timer.h"
 #include "WeatherMgr.h"
 
@@ -1231,7 +1232,7 @@ public:
         }
 
         if (CONF_GET_BOOL("ShowKickInWorld"))
-            sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
+            Warhead::Text::SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD, (handler->GetSession() ? handler->GetSession()->GetPlayerName().c_str() : "Server"), playerName.c_str(), kickReasonStr.c_str());
         else
             handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName);
 

@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
+#include "TextBuilder.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
 
@@ -286,7 +287,7 @@ void BattlefieldWG::OnBattleStart()
     m_tenacityUpdateTimer = 20000;
 
     if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Enable"))
-        sWorld->SendWorldText(BATTLEFIELD_WG_WORLD_START_MESSAGE);
+        Warhead::Text::SendWorldText(BATTLEFIELD_WG_WORLD_START_MESSAGE);
 }
 
 void BattlefieldWG::UpdateCounterVehicle(bool init)

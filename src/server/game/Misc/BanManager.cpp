@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "TextBuilder.h"
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -84,10 +85,10 @@ BanReturn BanManager::BanAccount(std::string const& accountName, std::string_vie
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
                 author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
     }
 
     return BAN_SUCCESS;
@@ -146,10 +147,10 @@ BanReturn BanManager::BanAccountByPlayerName(std::string const& characterName, s
         AccountMgr::GetName(AccountID, accountName);
 
         if (DurationSecs)
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(),
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(),
                 Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
     }
 
     return BAN_SUCCESS;
@@ -178,9 +179,9 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string_view duration, st
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (!DurationSecs)
-            sWorld->SendWorldText(LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), reason.c_str());
+            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
+            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
     }
 
     if (!resultAccounts)
@@ -243,10 +244,10 @@ BanReturn BanManager::BanCharacter(std::string const& characterName, std::string
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(),
+            Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(),
                 Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
         else
-            sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(), reason.c_str());
+            Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(), reason.c_str());
     }
 
     return BAN_SUCCESS;

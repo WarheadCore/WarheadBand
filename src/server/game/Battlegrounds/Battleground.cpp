@@ -41,6 +41,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "TextBuilder.h"
 #include "Transport.h"
 #include "Util.h"
 #include "World.h"
@@ -52,43 +53,6 @@
 
 namespace Warhead
 {
-    class BattlegroundChatBuilder
-    {
-    public:
-        BattlegroundChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, va_list* args = nullptr)
-            : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
-
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            char const* text = sGameLocale->GetWarheadString(_textId, loc_idx);
-            if (_args)
-            {
-                // we need copy va_list before use or original va_list will corrupted
-                va_list ap;
-                va_copy(ap, *_args);
-
-                char str[2048];
-                vsnprintf(str, 2048, text, ap);
-                va_end(ap);
-
-                do_helper(data, &str[0]);
-            }
-            else
-                do_helper(data, text);
-        }
-
-    private:
-        void do_helper(WorldPacket& data, char const* text)
-        {
-            ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, text);
-        }
-
-        ChatMsg _msgtype;
-        uint32 _textId;
-        Player const* _source;
-        va_list* _args;
-    };
-
     class Battleground2ChatBuilder
     {
     public:
@@ -101,10 +65,7 @@ namespace Warhead
             char const* arg1str = _arg1 ? sGameLocale->GetWarheadString(_arg1, loc_idx) : "";
             char const* arg2str = _arg2 ? sGameLocale->GetWarheadString(_arg2, loc_idx) : "";
 
-            char str[2048];
-            snprintf(str, 2048, text, arg1str, arg2str);
-
-            ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, str);
+            ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, Warhead::StringFormat(text, arg1str, arg2str));
         }
 
     private:
@@ -116,11 +77,11 @@ namespace Warhead
     };
 }                                                           // namespace Warhead
 
-template<class Do>
-void Battleground::BroadcastWorker(Do& _do)
+template<typename Worker>
+void Battleground::DoForAllPlayers(Worker&& worker)
 {
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        _do(itr->second);
+    for (auto const& [guid, player] : m_Players)
+        worker(player);
 }
 
 Battleground::Battleground()
@@ -598,7 +559,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
             // Announce BG starting
             if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Enable"))
-                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), std::min(GetMinLevel(), (uint32)80), std::min(GetMaxLevel(), (uint32)80));
+                Warhead::Text::SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), std::min(GetMinLevel(), (uint32)80), std::min(GetMaxLevel(), (uint32)80));
 
             sScriptMgr->OnBattlegroundStart(this);
         }
@@ -1754,61 +1715,11 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     return false;
 }
 
-void Battleground::SendMessageToAll(uint32 entry, ChatMsg type, Player const* source)
-{
-    if (!entry)
-        return;
-
-    Warhead::BattlegroundChatBuilder bg_builder(type, entry, source);
-    Warhead::LocalizedPacketDo<Warhead::BattlegroundChatBuilder> bg_do(bg_builder);
-    BroadcastWorker(bg_do);
-}
-
-void Battleground::PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...)
-{
-    if (!entry)
-        return;
-
-    va_list ap;
-    va_start(ap, source);
-
-    Warhead::BattlegroundChatBuilder bg_builder(type, entry, source, &ap);
-    Warhead::LocalizedPacketDo<Warhead::BattlegroundChatBuilder> bg_do(bg_builder);
-    BroadcastWorker(bg_do);
-
-    va_end(ap);
-}
-
-void Battleground::SendWarningToAll(uint32 entry, ...)
-{
-    if (!entry)
-        return;
-
-    std::map<uint32, WorldPacket> localizedPackets;
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-    {
-        if (localizedPackets.find(itr->second->GetSession()->GetSessionDbLocaleIndex()) == localizedPackets.end())
-        {
-            char const* format = sGameLocale->GetWarheadString(entry, itr->second->GetSession()->GetSessionDbLocaleIndex());
-
-            char str[1024];
-            va_list ap;
-            va_start(ap, entry);
-            vsnprintf(str, 1024, format, ap);
-            va_end(ap);
-
-            ChatHandler::BuildChatPacket(localizedPackets[itr->second->GetSession()->GetSessionDbLocaleIndex()], CHAT_MSG_RAID_BOSS_EMOTE, LANG_UNIVERSAL, nullptr, nullptr, str);
-        }
-
-        itr->second->SendDirectMessage(&localizedPackets[itr->second->GetSession()->GetSessionDbLocaleIndex()]);
-    }
-}
-
 void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 arg1, uint32 arg2)
 {
     Warhead::Battleground2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
     Warhead::LocalizedPacketDo<Warhead::Battleground2ChatBuilder> bg_do(bg_builder);
-    BroadcastWorker(bg_do);
+    DoForAllPlayers(bg_do);
 }
 
 void Battleground::EndNow()

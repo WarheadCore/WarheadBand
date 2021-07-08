@@ -30,6 +30,7 @@ EndScriptData */
 #include "Pet.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "TextBuilder.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -280,14 +281,14 @@ public:
         if (caseName == "spells")
         {
             atLogin = AT_LOGIN_RESET_SPELLS;
-            sWorld->SendWorldText(LANG_RESETALL_SPELLS);
+            Warhead::Text::SendWorldText(LANG_RESETALL_SPELLS);
             if (!handler->GetSession())
                 handler->SendSysMessage(LANG_RESETALL_SPELLS);
         }
         else if (caseName == "talents")
         {
             atLogin = AtLoginFlags(AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS);
-            sWorld->SendWorldText(LANG_RESETALL_TALENTS);
+            Warhead::Text::SendWorldText(LANG_RESETALL_TALENTS);
             if (!handler->GetSession())
                 handler->SendSysMessage(LANG_RESETALL_TALENTS);
         }

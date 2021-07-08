@@ -23,6 +23,7 @@
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "TextBuilder.h"
 #include "Timer.h"
 #include "World.h"
 //#include "CharacterCache.h"
@@ -65,7 +66,7 @@ void MuteManager::MutePlayer(std::string const& targetName, uint32 notSpeakTime,
     };
 
     if (CONF_GET_BOOL("ShowMuteInWorld"))
-        sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), GetPlayerLink().c_str(), notSpeakTime, muteReason.c_str());
+        Warhead::Text::SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), GetPlayerLink().c_str(), notSpeakTime, muteReason.c_str());
 
     if (targetSession)
         ChatHandler(targetSession).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy, muteReason);

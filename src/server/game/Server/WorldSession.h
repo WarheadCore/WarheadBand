@@ -32,8 +32,8 @@
 #include "GossipDef.h"
 #include "Packet.h"
 #include "SharedDefines.h"
-#include "World.h"
 #include "StringFormat.h"
+#include "World.h"
 #include <map>
 #include <unordered_map>
 #include <utility>
