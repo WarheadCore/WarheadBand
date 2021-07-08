@@ -23,7 +23,7 @@
 #include "Common.h"
 #include "GameLocale.h"
 #include "Object.h"
-// #include "Player.h"
+#include "Player.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
 #include "World.h"
