@@ -27,7 +27,7 @@
 #include "GameEventMgr.h"
 #include "GameObject.h"
 // #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+// #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
