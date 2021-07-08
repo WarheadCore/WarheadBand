@@ -54,7 +54,7 @@ namespace Warhead::Text
 
     /// Send a System Message to all players (except self if mentioned)
     template<typename... Args>
-    inline void SendWorldText(uint32 string_id, Args&&... args)
+    void SendWorldText(uint32 string_id, Args&&... args)
     {
         for (auto const& [accountId, session] : sWorld->GetAllSessions())
         {
@@ -70,7 +70,7 @@ namespace Warhead::Text
     }
 
     template<typename... Args>
-    inline void SendGMText(uint32 string_id, Args&&... args)
+    void SendGMText(uint32 string_id, Args&&... args)
     {
         for (auto const& [accountId, session] : sWorld->GetAllSessions())
         {
