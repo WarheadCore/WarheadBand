@@ -496,9 +496,11 @@ public:
         if (!entry)
             return;
 
-        for (auto const& [guid, player] : m_Players)
+        for (auto const& [guid, _player] : m_Players)
         {
-            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, [&player](WorldPacket* data)
+            Player* player = _player;
+
+            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, [player](WorldPacket* data)
             {
                 player->SendDirectMessage(data);
             }, std::forward<Args>(args)...);
@@ -511,8 +513,10 @@ public:
         if (!entry)
             return;
 
-        for (auto const& [guid, player] : m_Players)
+        for (auto const& [guid, _player] : m_Players)
         {
+            Player* player = _player;
+
             Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), type, source, source, [player](WorldPacket* data)
             {
                 player->SendDirectMessage(data);
