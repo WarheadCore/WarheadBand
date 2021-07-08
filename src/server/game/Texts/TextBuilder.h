@@ -22,7 +22,6 @@
 #include "Chat.h"
 #include "Common.h"
 #include "GameLocale.h"
-#include "Object.h"
 #include "Player.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
@@ -69,6 +68,7 @@ namespace Warhead::Text
         }
     }
 
+    /// Send a System Message to all GMs (except self if mentioned)
     template<typename... Args>
     inline void SendGMText(uint32 string_id, Args&&... args)
     {
