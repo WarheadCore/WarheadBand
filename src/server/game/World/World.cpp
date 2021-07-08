@@ -2589,7 +2589,7 @@ void World::DoForAllGM(Worker&& worker)
         if (!player || !player->IsInWorld())
             return;
 
-        if (AccountMgr::IsPlayerAccount(player->GetSecurity()))
+        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
             continue;
 
         worker(player);
