@@ -19,14 +19,15 @@
 #define _TEXT_BUILDER_H_
 
 #include "AccountMgr.h"
+#include "Chat.h"
 #include "Common.h"
 #include "GameLocale.h"
-#include "Player.h"
+#include "Object.h"
+// #include "Player.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "Chat.h"
 #include <unordered_map>
 #include <vector>
 
