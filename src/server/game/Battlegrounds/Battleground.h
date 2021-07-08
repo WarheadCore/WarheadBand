@@ -530,8 +530,10 @@ public:
         if (!entry)
             return;
 
-        for (auto const& [guid, player] : m_Players)
+        for (auto const& [guid, _player] : m_Players)
         {
+            Player* player = _player;
+
             Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), type, source, source, [player](WorldPacket* data)
             {
                 player->SendDirectMessage(data);
