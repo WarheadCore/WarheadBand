@@ -64,7 +64,11 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        Warhead::Text::SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
+        Warhead::Text::SendWorldText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_ANNOUNCE_COLOR, name, args);
+        });
+
         return true;
     }
 
@@ -77,7 +81,11 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        Warhead::Text::SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
+        Warhead::Text::SendGMText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_ANNOUNCE_COLOR, name, args);
+        });
+
         return true;
     }
     // global announce
@@ -86,9 +94,7 @@ public:
         if (!*args)
             return false;
 
-        char buff[2048];
-        sprintf(buff, handler->GetWarheadString(LANG_SYSTEMMESSAGE), args);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Warhead::StringFormat(handler->GetWarheadString(LANG_SYSTEMMESSAGE), args).c_str());
         return true;
     }
     // announce to logged in GMs
@@ -97,7 +103,11 @@ public:
         if (!*args)
             return false;
 
-        Warhead::Text::SendGMText(LANG_GM_BROADCAST, args);
+        Warhead::Text::SendGMText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_GM_BROADCAST, args);
+        });
+
         return true;
     }
     // notification player at the screen

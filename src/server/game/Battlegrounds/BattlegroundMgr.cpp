@@ -801,12 +801,18 @@ void BattlegroundMgr::ToggleTesting()
     if (CONF_GET_BOOL("Debug.Battleground"))
     {
         m_Testing = true;
-        Warhead::Text::SendWorldText(LANG_DEBUG_BG_CONF);
+        Warhead::Text::SendWorldText([](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_DEBUG_BG_CONF);
+        });
     }
     else
     {
         m_Testing = !m_Testing;
-        Warhead::Text::SendWorldText(m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
+        Warhead::Text::SendWorldText([this](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
+        });
     }
 }
 
@@ -815,12 +821,18 @@ void BattlegroundMgr::ToggleArenaTesting()
     if (CONF_GET_BOOL("Debug.Arena"))
     {
         m_ArenaTesting = true;
-        Warhead::Text::SendWorldText(LANG_DEBUG_ARENA_CONF);
+        Warhead::Text::SendWorldText([](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_DEBUG_ARENA_CONF);
+        });
     }
     else
     {
         m_ArenaTesting = !m_ArenaTesting;
-        Warhead::Text::SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+        Warhead::Text::SendWorldText([this](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+        });
     }
 }
 

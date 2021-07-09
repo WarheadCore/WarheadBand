@@ -85,10 +85,20 @@ BanReturn BanManager::BanAccount(std::string const& accountName, std::string_vie
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
-                author.c_str(), accountName.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+                    author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+            });
+        }
         else
-            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
+            });
+        }
     }
 
     return BAN_SUCCESS;
@@ -147,10 +157,20 @@ BanReturn BanManager::BanAccountByPlayerName(std::string const& characterName, s
         AccountMgr::GetName(AccountID, accountName);
 
         if (DurationSecs)
-            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(),
-                Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+                    author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+            });
+        }
         else
-            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), accountName.c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
+            });
+        }
     }
 
     return BAN_SUCCESS;
@@ -178,10 +198,21 @@ BanReturn BanManager::BanIP(std::string const& IP, std::string_view duration, st
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        if (!DurationSecs)
-            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), reason.c_str());
+        if (DurationSecs)
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author, IP, reason);
+            });
+        }
         else
-            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author.c_str(), IP.c_str(), Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD,
+                    author, IP, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+            });
+        }
     }
 
     if (!resultAccounts)
@@ -244,10 +275,20 @@ BanReturn BanManager::BanCharacter(std::string const& characterName, std::string
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-            Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(),
-                Warhead::Time::ToTimeString<Seconds>(DurationSecs).c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD,
+                    author, characterName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+            });
+        }
         else
-            Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), characterName.c_str(), reason.c_str());
+        {
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author, characterName, reason);
+            });
+        }
     }
 
     return BAN_SUCCESS;

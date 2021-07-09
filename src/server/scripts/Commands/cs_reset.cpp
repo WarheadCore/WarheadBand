@@ -281,14 +281,24 @@ public:
         if (caseName == "spells")
         {
             atLogin = AT_LOGIN_RESET_SPELLS;
-            Warhead::Text::SendWorldText(LANG_RESETALL_SPELLS);
+
+            Warhead::Text::SendWorldText([](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_RESETALL_SPELLS);
+            });
+
             if (!handler->GetSession())
                 handler->SendSysMessage(LANG_RESETALL_SPELLS);
         }
         else if (caseName == "talents")
         {
             atLogin = AtLoginFlags(AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS);
-            Warhead::Text::SendWorldText(LANG_RESETALL_TALENTS);
+
+            Warhead::Text::SendWorldText([](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_RESETALL_TALENTS);
+            });
+
             if (!handler->GetSession())
                 handler->SendSysMessage(LANG_RESETALL_TALENTS);
         }

@@ -711,32 +711,6 @@ void WorldSession::_SendAreaTriggerMessage(std::string_view message)
     SendPacket(&data);
 }
 
-void WorldSession::_SendMessage(std::string_view message)
-{
-    if (message.empty())
-        return;
-
-    for (std::string_view line : Warhead::Tokenize(message, '\n', true))
-    {
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-        SendPacket(&data);
-    }
-}
-
-void WorldSession::_SendMessage(ChatMsg type, WorldObject const* sender, WorldObject const* receiver, std::string_view message)
-{
-    if (message.empty())
-        return;
-
-    for (std::string_view line : Warhead::Tokenize(message, '\n', true))
-    {
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, sender, receiver, line);
-        SendPacket(&data);
-    }
-}
-
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
 {
     uint32 triggerId;

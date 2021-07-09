@@ -18,72 +18,33 @@
 #ifndef _TEXT_BUILDER_H_
 #define _TEXT_BUILDER_H_
 
-#include "AccountMgr.h"
-#include "Battleground.h"
-#include "Chat.h"
 #include "GameLocale.h"
-#include "Player.h"
-#include "StringFormat.h"
-#include "Tokenize.h"
-#include "World.h"
-#include "WorldSession.h"
+#include <functional>
+
+class Battleground;
 
 namespace Warhead::Text
 {
-    /// Send a System Message to all players (except self if mentioned)
-    template<typename... Args>
-    inline void SendWorldText(uint32 stringID, Args&&... args)
-    {
-        for (auto const& [accountId, session] : sWorld->GetAllSessions())
-        {
-            Player* player = session->GetPlayer();
-            if (!player || !player->IsInWorld())
-                return;
+    using WarheadFmtText = std::function<std::string_view(uint8)>;
 
-            player->SendDirectMessage(stringID, std::forward<Args>(args)...);
-        }
+    // Get localized message
+    template<typename... Args>
+    inline std::string GetLocaleMessage(uint8 localeIndex, uint32 id, Args&&... args)
+    {
+        return Warhead::StringFormat(sGameLocale->GetWarheadString(id, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
     }
 
-    /// Send a System Message to all GMs (except self if mentioned)
-    template<typename... Args>
-    inline void SendGMText(uint32 stringID, Args&&... args)
-    {
-        for (auto const& [accountId, session] : sWorld->GetAllSessions())
-        {
-            Player* player = session->GetPlayer();
-            if (!player || !player->IsInWorld())
-                return;
+    // Send a System Message to all players (except self if mentioned)
+    void SendWorldText(WarheadFmtText const& msg);
 
-            if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
-                continue;
+    // Send a System Message to all GMs (except self if mentioned)
+    void SendGMText(WarheadFmtText const& msg);
 
-            player->SendDirectMessage(stringID, std::forward<Args>(args)...);
-        }
-    }
+    // Send a Battleground warning message to all players
+    void SendBattlegroundWarningToAll(Battleground* bg, WarheadFmtText const& msg);
 
-    template<typename... Args>
-    inline void SendBattlegroundWarningToAll(Battleground* bg, uint32 stringID, Args&&... args)
-    {
-        if (!stringID || !bg)
-            return;
-
-        for (auto const& itr : bg->GetPlayers())
-        {
-            itr.second->SendDirectMessage(stringID, CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, std::forward<Args>(args)...);
-        }
-    }
-
-    template<typename... Args>
-    inline void SendBattlegroundMessageToAll(Battleground* bg, uint32 stringID, ChatMsg type, Args&&... args)
-    {
-        if (!stringID || !bg)
-            return;
-
-        for (auto const& itr : bg->GetPlayers())
-        {
-            itr.second->SendDirectMessage(stringID, type, nullptr, nullptr, std::forward<Args>(args)...);
-        }
-    }
+    // Send a Battleground with type message to all players
+    void SendBattlegroundMessageToAll(Battleground* bg, ChatMsg type, WarheadFmtText const& msg);
 }
 
 #endif // _TEXT_BUILDER_H_

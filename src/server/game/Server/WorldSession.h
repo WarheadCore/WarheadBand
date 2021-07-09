@@ -286,18 +286,6 @@ public:
         _SendAreaTriggerMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
-    template<typename... Args>
-    void SendLocaleMessage(uint32 entry, Args&&... args)
-    {
-        _SendMessage(Warhead::StringFormat(GetWarheadString(entry), std::forward<Args>(args)...));
-    }
-
-    template<typename... Args>
-    void SendLocaleMessage(uint32 entry, ChatMsg type, WorldObject const* sender, WorldObject const* receiver, Args&&... args)
-    {
-        _SendMessage(type, sender, receiver, Warhead::StringFormat(GetWarheadString(entry), std::forward<Args>(args)...));
-    }
-
     AccountTypes GetSecurity() const { return _security; }
     bool CanSkipQueue() const { return _skipQueue; }
     uint32 GetAccountId() const { return _accountId; }
@@ -1060,8 +1048,6 @@ private:
     // Send messages functions
     void _SendNotification(std::string_view message);
     void _SendAreaTriggerMessage(std::string_view message);
-    void _SendMessage(std::string_view message);
-    void _SendMessage(ChatMsg type, WorldObject const* sender, WorldObject const* receiver, std::string_view message);
 
     // private trade methods
     void moveItems(Item* myItems[], Item* hisItems[]);

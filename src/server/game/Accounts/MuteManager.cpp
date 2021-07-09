@@ -66,7 +66,12 @@ void MuteManager::MutePlayer(std::string const& targetName, uint32 notSpeakTime,
     };
 
     if (CONF_GET_BOOL("ShowMuteInWorld"))
-        Warhead::Text::SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), GetPlayerLink().c_str(), notSpeakTime, muteReason.c_str());
+    {
+        Warhead::Text::SendWorldText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy, GetPlayerLink(), notSpeakTime, muteReason);
+        });
+    }
 
     if (targetSession)
         ChatHandler(targetSession).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy, muteReason);

@@ -68,9 +68,9 @@ namespace Warhead::Impl::Readline
 
     int cli_hook_func()
     {
-           if (World::IsStopped())
-               ::rl_done = 1;
-           return 0;
+        if (World::IsStopped())
+            ::rl_done = 1;
+        return 0;
     }
 }
 #endif
@@ -78,11 +78,7 @@ namespace Warhead::Impl::Readline
 void utf8print(void* /*arg*/, std::string_view str)
 {
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    std::wstring wbuf;
-    if (!Utf8toWStr(str, wbuf))
-        return;
-
-    wprintf(L"%s", wbuf.c_str());
+    fmt::print(str);
 #else
 {
     fmt::print(str);
