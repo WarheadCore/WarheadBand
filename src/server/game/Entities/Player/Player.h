@@ -2244,8 +2244,6 @@ public:
         GetSession()->SendLocaleMessage(entry, std::forward<Args>(args)...);
     }
 
-    //void SendDirectMessage(WorldPacket* data);
-
     void GetAurasForTarget(Unit* target);
 
     PlayerMenu* PlayerTalkClass;

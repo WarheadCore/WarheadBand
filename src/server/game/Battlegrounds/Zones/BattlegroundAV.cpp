@@ -26,7 +26,6 @@
 #include "SpellAuras.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "TextBuilder.h"
 
 BattlegroundAV::BattlegroundAV()
 {

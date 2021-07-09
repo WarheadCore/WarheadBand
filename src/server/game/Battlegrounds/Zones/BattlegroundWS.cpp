@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "TextBuilder.h"
 
 BattlegroundWS::BattlegroundWS()
 {

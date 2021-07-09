@@ -27,7 +27,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "TextBuilder.h"
 
 BattlegroundAB::BattlegroundAB()
 {

@@ -20,7 +20,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <thread>
-// #include <cstdarg>
 
 /**
     @file Errors.cpp
