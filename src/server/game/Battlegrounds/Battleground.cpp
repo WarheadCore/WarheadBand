@@ -54,6 +54,24 @@
 
 namespace Warhead
 {
+    class BattlegroundChatBuilder
+    {
+    public:
+        BattlegroundChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, va_list* args = nullptr)
+            : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
+
+        void operator()(WorldPacket& data, LocaleConstant loc_idx)
+        {
+            ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, Warhead::StringFormat(sGameLocale->GetWarheadString(_textId, loc_idx)));
+        }
+
+    private:
+        ChatMsg _msgtype;
+        uint32 _textId;
+        Player const* _source;
+        va_list* _args;
+    };
+
     class Battleground2ChatBuilder
     {
     public:
@@ -384,13 +402,13 @@ inline void Battleground::_ProcessProgress(uint32 diff)
         if (newtime > (MINUTE * IN_MILLISECONDS))
         {
             if (newtime / (MINUTE * IN_MILLISECONDS) != m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS))
-                Warhead::Text::SendBattlegroundMessageToAll(this, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, nullptr, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
+                Warhead::Text::SendBattlegroundMessageToAll(this, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
         }
         else
         {
             //announce every 15 seconds
             if (newtime / (15 * IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILLISECONDS))
-                Warhead::Text::SendBattlegroundMessageToAll(this, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, nullptr, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
+                Warhead::Text::SendBattlegroundMessageToAll(this, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
         }
         m_PrematureCountDownTimer = newtime;
     }
@@ -431,19 +449,19 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         StartingEventCloseDoors();
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
         // First start warning - 2 or 1 minute
-        Warhead::Text::SendBattlegroundMessageToAll(this, StartMessageIds[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     // After 1 minute or 30 seconds, warning is signaled
     else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_SECOND] && !(m_Events & BG_STARTING_EVENT_2))
     {
         m_Events |= BG_STARTING_EVENT_2;
-        Warhead::Text::SendBattlegroundMessageToAll(this, StartMessageIds[BG_STARTING_EVENT_SECOND], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_SECOND], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     // After 30 or 15 seconds, warning is signaled
     else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_THIRD] && !(m_Events & BG_STARTING_EVENT_3))
     {
         m_Events |= BG_STARTING_EVENT_3;
-        Warhead::Text::SendBattlegroundMessageToAll(this, StartMessageIds[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
 
         if (isArena())
             switch (GetBgTypeID())
@@ -1030,7 +1048,7 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
     sScriptMgr->OnBattlegroundEnd(this, winnerTeamId);
 
     if (winmsg_id)
-        Warhead::Text::SendBattlegroundMessageToAll(this, winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
 
 #ifdef ELUNA
     sEluna->OnBGEnd(this, GetBgTypeID(), GetInstanceID(), winnerTeamId);
@@ -1716,8 +1734,21 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     return false;
 }
 
+void Battleground::SendMessageToAll(uint32 entry, ChatMsg type, Player const* source /*= nullptr*/)
+{
+    if (!entry)
+        return;
+
+    Warhead::BattlegroundChatBuilder bg_builder(type, entry, source);
+    Warhead::LocalizedPacketDo<Warhead::BattlegroundChatBuilder> bg_do(bg_builder);
+    DoForAllPlayers(bg_do);
+}
+
 void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 arg1, uint32 arg2)
 {
+    if (!entry)
+        return;
+
     Warhead::Battleground2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
     Warhead::LocalizedPacketDo<Warhead::Battleground2ChatBuilder> bg_do(bg_builder);
     DoForAllPlayers(bg_do);

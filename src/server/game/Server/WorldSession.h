@@ -51,9 +51,11 @@ class Quest;
 class SpellCastTargets;
 class Unit;
 class Warden;
+class WorldObject;
 class WorldPacket;
 class WorldSocket;
 class AsynchPetSummon;
+
 struct AreaTableEntry;
 struct AuctionEntry;
 struct DeclinedName;
@@ -282,6 +284,18 @@ public:
     void SendAreaTriggerMessage(std::string_view fmt, Args&&... args)
     {
         _SendAreaTriggerMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
+    }
+
+    template<typename... Args>
+    void SendLocaleMessage(uint32 entry, Args&&... args)
+    {
+        _SendMessage(Warhead::StringFormat(GetWarheadString(entry), std::forward<Args>(args)...));
+    }
+
+    template<typename... Args>
+    void SendLocaleMessage(uint32 entry, ChatMsg type, WorldObject const* sender, WorldObject const* receiver, Args&&... args)
+    {
+        _SendMessage(type, sender, receiver, Warhead::StringFormat(GetWarheadString(entry), std::forward<Args>(args)...));
     }
 
     AccountTypes GetSecurity() const { return _security; }
@@ -1046,6 +1060,8 @@ private:
     // Send messages functions
     void _SendNotification(std::string_view message);
     void _SendAreaTriggerMessage(std::string_view message);
+    void _SendMessage(std::string_view message);
+    void _SendMessage(ChatMsg type, WorldObject const* sender, WorldObject const* receiver, std::string_view message);
 
     // private trade methods
     void moveItems(Item* myItems[], Item* hisItems[]);

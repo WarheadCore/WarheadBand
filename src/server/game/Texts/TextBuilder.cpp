@@ -17,11 +17,3 @@
 
 #include "TextBuilder.h"
 
-namespace Warhead::Text
-{
-    template<typename... Args>
-    std::string GetLocaleText(uint32 stringID, uint8 localeIndex, Args&&... args)
-    {
-        return StringFormat(sGameLocale->GetWarheadString(stringID, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
-    }
-}

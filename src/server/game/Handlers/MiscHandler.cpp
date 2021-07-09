@@ -50,6 +50,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Tokenize.h"
 #include <zlib.h>
 
 #ifdef ELUNA
@@ -699,8 +700,8 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recv_data)
 
 void WorldSession::_SendAreaTriggerMessage(std::string_view message)
 {
-    // if (message.empty())
-        // return;
+    if (message.empty())
+        return;
 
     uint32 length = message.length() + 1;
 
@@ -708,6 +709,32 @@ void WorldSession::_SendAreaTriggerMessage(std::string_view message)
     data << uint32(length);
     data << message;
     SendPacket(&data);
+}
+
+void WorldSession::_SendMessage(std::string_view message)
+{
+    if (message.empty())
+        return;
+
+    for (std::string_view line : Warhead::Tokenize(message, '\n', true))
+    {
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        SendPacket(&data);
+    }
+}
+
+void WorldSession::_SendMessage(ChatMsg type, WorldObject const* sender, WorldObject const* receiver, std::string_view message)
+{
+    if (message.empty())
+        return;
+
+    for (std::string_view line : Warhead::Tokenize(message, '\n', true))
+    {
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, sender, receiver, line);
+        SendPacket(&data);
+    }
 }
 
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)

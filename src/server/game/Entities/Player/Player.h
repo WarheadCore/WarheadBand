@@ -2228,9 +2228,23 @@ public:
 
     void SendInitWorldStates(uint32 zone, uint32 area);
     void SendUpdateWorldState(uint32 Field, uint32 Value);
-    void SendDirectMessage(WorldPacket* data);
+    void SendDirectMessage(WorldPacket* data);    
     void SendBGWeekendWorldStates();
     void SendBattlefieldWorldStates();
+
+    template<typename... Args>
+    inline void SendDirectMessage(uint32 entry, ChatMsg type, WorldObject const* sender, WorldObject const* receiver, Args&&... args)
+    {
+        GetSession()->SendLocaleMessage(entry, type, sender, receiver, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    inline void SendDirectMessage(uint32 entry, Args&&... args)
+    {
+        GetSession()->SendLocaleMessage(entry, std::forward<Args>(args)...);
+    }
+
+    //void SendDirectMessage(WorldPacket* data);
 
     void GetAurasForTarget(Unit* target);
 

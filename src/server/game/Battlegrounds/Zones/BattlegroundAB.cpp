@@ -112,12 +112,12 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                         {
                             if (teamId == TEAM_ALLIANCE)
                             {
-                                Warhead::Text::SendBattlegroundMessageToAll(this, LANG_BG_AB_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                                SendMessageToAll(LANG_BG_AB_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                                 PlaySoundToAll(BG_AB_SOUND_NEAR_VICTORY_ALLIANCE);
                             }
                             else
                             {
-                                Warhead::Text::SendBattlegroundMessageToAll(this, LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                                SendMessageToAll(LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                                 PlaySoundToAll(BG_AB_SOUND_NEAR_VICTORY_HORDE);
                             }
                         }
