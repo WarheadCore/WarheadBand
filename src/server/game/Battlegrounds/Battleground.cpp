@@ -57,8 +57,8 @@ namespace Warhead
     class BattlegroundChatBuilder
     {
     public:
-        BattlegroundChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, va_list* args = nullptr)
-            : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
+        BattlegroundChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source = nullptr)
+            : _msgtype(msgtype), _textId(textId), _source(source) { }
 
         void operator()(WorldPacket& data, LocaleConstant loc_idx)
         {
@@ -69,14 +69,13 @@ namespace Warhead
         ChatMsg _msgtype;
         uint32 _textId;
         Player const* _source;
-        va_list* _args;
     };
 
     class Battleground2ChatBuilder
     {
     public:
         Battleground2ChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, int32 arg1, int32 arg2)
-            : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) {}
+            : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) { }
 
         void operator()(WorldPacket& data, LocaleConstant loc_idx)
         {
