@@ -30,11 +30,14 @@
 
 namespace Warhead::Text
 {
-    template<typename... Args>
+    /*template<typename... Args>
     inline std::string GetLocaleText(uint32 stringID, uint8 localeIndex, Args&&... args)
     {
         return StringFormat(sGameLocale->GetWarheadString(stringID, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
-    }
+    }*/
+
+    template<typename... Args>
+    std::string GetLocaleText(uint32 stringID, uint8 localeIndex, Args&&... args);
 
     template<typename Worker, typename... Args>
     inline void DoLocalizedPacket(uint32 stringID, uint8 localeIndex, ChatMsg type, WorldObject const* sender, WorldObject const* receiver, Worker&& worker, Args&&... args)
