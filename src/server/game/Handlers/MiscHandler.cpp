@@ -45,12 +45,12 @@
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Spell.h"
+#include "Tokenize.h"
 #include "UpdateData.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Tokenize.h"
 #include <zlib.h>
 
 #ifdef ELUNA

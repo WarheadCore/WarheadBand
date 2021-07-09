@@ -23,11 +23,11 @@
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "TextBuilder.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "TextBuilder.h"
 
 BattlegroundEY::BattlegroundEY()
 {

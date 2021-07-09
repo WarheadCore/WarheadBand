@@ -21,9 +21,9 @@
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "TextBuilder.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "TextBuilder.h"
 
 BattlegroundSA::BattlegroundSA()
 {

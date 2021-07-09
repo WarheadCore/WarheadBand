@@ -46,7 +46,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "TextBuilder.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
