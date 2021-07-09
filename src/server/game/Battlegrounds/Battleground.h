@@ -22,7 +22,6 @@
 #include "DBCEnums.h"
 #include "GameObject.h"
 #include "SharedDefines.h"
-#include "TextBuilder.h"
 
 class Creature;
 class GameObject;
@@ -489,57 +488,6 @@ public:
 
     virtual void EndBattleground(TeamId winnerTeamId);
     void BlockMovement(Player* player);
-
-    template<typename... Args>
-    inline void SendWarningToAll(uint32 entry, Args&&... args)
-    {
-        if (!entry)
-            return;
-
-        for (auto const& [guid, _player] : m_Players)
-        {
-            Player* player = _player;
-
-            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, [player](WorldPacket* data)
-            {
-                player->SendDirectMessage(data);
-            }, std::forward<Args>(args)...);
-        }
-    }
-
-    template<typename... Args>
-    inline void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr, Args&&... args)
-    {
-        if (!entry)
-            return;
-
-        for (auto const& [guid, _player] : m_Players)
-        {
-            Player* player = _player;
-
-            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), type, source, source, [player](WorldPacket* data)
-            {
-                player->SendDirectMessage(data);
-            }, std::forward<Args>(args)...);
-        }
-    }
-
-    template<typename... Args>
-    inline void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, Args&&... args)
-    {
-        if (!entry)
-            return;
-
-        for (auto const& [guid, _player] : m_Players)
-        {
-            Player* player = _player;
-
-            Warhead::Text::DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), type, source, source, [player](WorldPacket* data)
-            {
-                player->SendDirectMessage(data);
-            }, std::forward<Args>(args)...);
-        }
-    }
 
     // specialized version with 2 string id args
     void SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 strId1 = 0, uint32 strId2 = 0);

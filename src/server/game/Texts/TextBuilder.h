@@ -19,16 +19,14 @@
 #define _TEXT_BUILDER_H_
 
 #include "AccountMgr.h"
+#include "Battleground.h"
 #include "Chat.h"
-#include "Common.h"
 #include "GameLocale.h"
 #include "Player.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <unordered_map>
-#include <vector>
 
 namespace Warhead::Text
 {
@@ -82,6 +80,40 @@ namespace Warhead::Text
                 continue;
 
             DoLocalizedPacket(string_id, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_SYSTEM, nullptr, nullptr, [player](WorldPacket* data)
+            {
+                player->SendDirectMessage(data);
+            }, std::forward<Args>(args)...);
+        }
+    }
+
+    template<typename... Args>
+    inline void SendBattlegroundWarningToAll(Battleground* bg, uint32 entry, Args&&... args)
+    {
+        if (!entry || !bg)
+            return;
+
+        for (auto const& itr : bg->GetPlayers())
+        {
+            Player* player = itr.second;
+
+            DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), CHAT_MSG_RAID_BOSS_EMOTE, nullptr, nullptr, [player](WorldPacket* data)
+            {
+                player->SendDirectMessage(data);
+            }, std::forward<Args>(args)...);
+        }
+    }
+
+    template<typename... Args>
+    inline void SendBattlegroundMessageToAll(Battleground* bg, uint32 entry, ChatMsg type, Player const* source = nullptr, Args&&... args)
+    {
+        if (!entry || !bg)
+            return;
+
+        for (auto const& itr : bg->GetPlayers())
+        {
+            Player* player = itr.second;
+
+            DoLocalizedPacket(entry, player->GetSession()->GetSessionDbLocaleIndex(), type, source, source, [player](WorldPacket* data)
             {
                 player->SendDirectMessage(data);
             }, std::forward<Args>(args)...);
