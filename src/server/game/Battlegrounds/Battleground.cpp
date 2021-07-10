@@ -1796,7 +1796,9 @@ void Battleground::HandleTriggerBuff(GameObject* gameObject)
     uint32 index = 0;
     for (; index < BgObjects.size() && BgObjects[index] != gameObject->GetGUID(); ++index);
     if (BgObjects[index] != gameObject->GetGUID())
+    {
         return;
+    }
 
     if (m_BuffChange)
     {
@@ -1813,7 +1815,26 @@ void Battleground::HandleTriggerBuff(GameObject* gameObject)
         }
     }
 
-    SpawnBGObject(index, CONF_GET_INT("Battleground.BuffRespawn"));
+    uint32 respawnTime = SPEED_BUFF_RESPAWN_TIME;
+    if (Map* map = FindBgMap())
+    {
+        if (GameObject* obj = map->GetGameObject(BgObjects[index]))
+        {
+            switch (obj->GetEntry())
+            {
+                case BG_OBJECTID_REGENBUFF_ENTRY:
+                    respawnTime = RESTORATION_BUFF_RESPAWN_TIME;
+                    break;
+                case BG_OBJECTID_BERSERKERBUFF_ENTRY:
+                    respawnTime = BERSERKING_BUFF_RESPAWN_TIME;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    SpawnBGObject(index, respawnTime);
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)

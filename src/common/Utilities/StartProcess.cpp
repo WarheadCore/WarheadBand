@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "Optional.h"
 #include "Util.h"
+#include <filesystem>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/process/args.hpp>
@@ -94,7 +95,7 @@ namespace Warhead
             {
                 // With binding stdin
                 return child{
-                    exe = boost::filesystem::absolute(executable).string(),
+                    exe = std::filesystem::absolute(executable).string(),
                     args = argsVector,
                     env = environment(boost::this_process::environment()),
                     std_in = inputFile.get(),
@@ -106,7 +107,7 @@ namespace Warhead
             {
                 // Without binding stdin
                 return child{
-                    exe = boost::filesystem::absolute(executable).string(),
+                    exe = std::filesystem::absolute(executable).string(),
                     args = argsVector,
                     env = environment(boost::this_process::environment()),
                     std_in = boost::process::close,

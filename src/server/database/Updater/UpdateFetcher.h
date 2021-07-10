@@ -24,11 +24,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-namespace boost::filesystem
-{
-    class path;
-}
+#include <filesystem>
 
 struct WH_DATABASE_API UpdateResult
 {
@@ -45,7 +41,7 @@ struct WH_DATABASE_API UpdateResult
 
 class WH_DATABASE_API UpdateFetcher
 {
-    typedef boost::filesystem::path Path;
+    typedef std::filesystem::path Path;
 
 public:
     UpdateFetcher(Path const& updateDirectory,

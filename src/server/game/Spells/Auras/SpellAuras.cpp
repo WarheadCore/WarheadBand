@@ -1116,7 +1116,7 @@ void Aura::UnregisterSingleTarget()
     if (!caster)
     {
         LOG_INFO("misc", "Aura::UnregisterSingleTarget (A1) - {}, {}, {}, {}", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName());
-        //ASSERT(caster);
+        LOG_ERROR("spells", "Aura::UnregisterSingleTarget: No caster was found."); //ASSERT(caster);
     }
     else
         caster->GetSingleCastAuras().remove(this);

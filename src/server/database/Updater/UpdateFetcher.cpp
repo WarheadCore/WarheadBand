@@ -16,7 +16,6 @@
  */
 
 #include "UpdateFetcher.h"
-#include "Common.h"
 #include "CryptoHash.h"
 #include "DBUpdater.h"
 #include "Field.h"
@@ -24,11 +23,10 @@
 #include "QueryResult.h"
 #include "Tokenize.h"
 #include "Util.h"
-#include <boost/filesystem/operations.hpp>
-#include <fstream>
 #include <sstream>
+#include <fstream>
 
-using namespace boost::filesystem;
+using namespace std::filesystem;
 
 struct UpdateFetcher::DirectoryEntry
 {

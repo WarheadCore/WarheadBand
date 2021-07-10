@@ -39,7 +39,7 @@ EndScriptData */
 #include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 #include <boost/version.hpp>
 #include <numeric>
 #include <openssl/crypto.h>
@@ -171,20 +171,20 @@ public:
 
         for (std::string const& subDir : subDirs)
         {
-            boost::filesystem::path mapPath(dataDir);
+            std::filesystem::path mapPath(dataDir);
             mapPath /= subDir;
 
-            if (!boost::filesystem::exists(mapPath))
+            if (!std::filesystem::exists(mapPath))
             {
                 handler->PSendSysMessage("{} directory doesn't exist!. Using path: {}", subDir, mapPath.generic_string());
                 continue;
             }
 
-            auto end = boost::filesystem::directory_iterator();
-            std::size_t folderSize = std::accumulate(boost::filesystem::directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::path const& mapFile)
+            auto end = std::filesystem::directory_iterator();
+            std::size_t folderSize = std::accumulate(std::filesystem::directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, std::filesystem::path const& mapFile)
             {
-                if (boost::filesystem::is_regular_file(mapFile))
-                    val += boost::filesystem::file_size(mapFile);
+                if (std::filesystem::is_regular_file(mapFile))
+                    val += std::filesystem::file_size(mapFile);
                 return val;
             });
 

@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "Define.h"
 #include <string>
+#include <filesystem>
 
 template <class T>
 class DatabaseWorkerPool;
@@ -66,7 +67,7 @@ template <class T>
 class WH_DATABASE_API DBUpdater
 {
 public:
-    using Path = boost::filesystem::path;
+    using Path = std::filesystem::path;
 
     static inline std::string GetConfigEntry();
     static inline std::string GetTableName();
