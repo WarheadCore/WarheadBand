@@ -382,7 +382,7 @@ public:
                                     {
                                         // shouldn't be casted on any victim of summoned mobs
                                         bool valid = true;
-                                        for (ObjectGuid const guid : summons)
+                                        for (ObjectGuid const& guid : summons)
                                             if (Creature* c = ObjectAccessor::GetCreature(*me, guid))
                                                 if (c->IsAlive() && c->GetVictim() && c->GetVictim()->GetGUID() == plr->GetGUID())
                                                 {

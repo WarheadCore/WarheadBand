@@ -447,7 +447,7 @@ public:
                         DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, (uint32)GateHealth);
                         DoUpdateWorldState(WORLD_STATE_VH_WAVE_COUNT, (uint32)WaveCount);
 
-                        for (ObjectGuid guid : GO_ActivationCrystalGUID)
+                        for (ObjectGuid const& guid : GO_ActivationCrystalGUID)
                             if (GameObject* go = instance->GetGameObject(guid))
                             {
                                 HandleGameObject(ObjectGuid::Empty, false, go); // not used yet
@@ -541,7 +541,7 @@ public:
             CLEANED = true;
 
             // reset defense crystals
-            for (ObjectGuid guid : GO_ActivationCrystalGUID)
+            for (ObjectGuid const& guid : GO_ActivationCrystalGUID)
                 if (GameObject* go = instance->GetGameObject(guid))
                 {
                     HandleGameObject(ObjectGuid::Empty, false, go); // not used yet
@@ -568,7 +568,7 @@ public:
             NPC_PortalGUID.Clear();
 
             // remove trash
-            for (ObjectGuid guid : trashMobs)
+            for (ObjectGuid const& guid : trashMobs)
                 if (Creature* c = instance->GetCreature(guid))
                     c->DespawnOrUnsummon();
 

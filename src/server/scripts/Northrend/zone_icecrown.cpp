@@ -182,7 +182,7 @@ public:
         void CheckSummons()
         {
             bool allow = true;
-            for (ObjectGuid guid : summons)
+            for (ObjectGuid const& guid : summons)
                 if (Creature* cr = ObjectAccessor::GetCreature(*me, guid))
                     if (cr->IsAlive())
                         allow = false;

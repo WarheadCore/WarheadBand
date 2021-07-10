@@ -119,7 +119,7 @@ public:
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            for (ObjectGuid const guid : _falconSet)
+            for (ObjectGuid const& guid : _falconSet)
                 if (Creature* falcon = ObjectAccessor::GetCreature(*GetUnitOwner(), guid))
                 {
                     falcon->TauntFadeOut(GetUnitOwner());

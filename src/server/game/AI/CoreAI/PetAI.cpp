@@ -276,7 +276,7 @@ void PetAI::UpdateAI(uint32 diff)
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
-                    for (ObjectGuid const guid : m_AllySet)
+                    for (ObjectGuid const& guid : m_AllySet)
                     {
                         Unit* ally = ObjectAccessor::GetUnit(*me, guid);
 

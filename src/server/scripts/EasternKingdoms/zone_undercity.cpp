@@ -1097,7 +1097,7 @@ public:
                     }
                 }
 
-                for (ObjectGuid const guid : allianceGuardsGUID)
+                for (ObjectGuid const& guid : allianceGuardsGUID)
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
                         temp->DespawnOrUnsummon();
 
@@ -2426,7 +2426,7 @@ public:
                     SaurfangGUID.Clear();
                 }
 
-                for (ObjectGuid const guid : hordeGuardsGUID)
+                for (ObjectGuid const& guid : hordeGuardsGUID)
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, guid))
                         temp->DespawnOrUnsummon();
 

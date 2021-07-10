@@ -74,7 +74,7 @@ public:
         {
             BossAI::EnterEvadeMode();
 
-            for (ObjectGuid guid : Eggs)
+            for (ObjectGuid const& guid : Eggs)
                 if (Creature* egg = me->GetMap()->GetCreature(guid))
                     egg->Respawn();
 

@@ -714,7 +714,7 @@ public:
                             if (counter > 12)
                             {
                                 bool failed = false;
-                                for (ObjectGuid const guid : unitList)
+                                for (ObjectGuid const& guid : unitList)
                                     if (Unit* c = ObjectAccessor::GetUnit(*me, guid))
                                         if (c->HasAuraType(SPELL_AURA_PERIODIC_DUMMY))
                                         {
@@ -768,7 +768,7 @@ public:
         Unit* getTrigger()
         {
             std::list<Unit*> tmpList;
-            for (ObjectGuid const guid : unitList)
+            for (ObjectGuid const& guid : unitList)
                 if (Unit* c = ObjectAccessor::GetUnit(*me, guid))
                     if (!c->HasAuraType(SPELL_AURA_PERIODIC_DUMMY))
                         tmpList.push_back(c);
@@ -787,7 +787,7 @@ public:
             {
                 me->MonsterYell("Fire consumes! You've tried and failed. Let there be no doubt, justice prevailed!", LANG_UNIVERSAL, 0);
                 me->PlayDirectSound(11967);
-                for (ObjectGuid const guid : unitList)
+                for (ObjectGuid const& guid : unitList)
                     if (Unit* c = ObjectAccessor::GetUnit(*me, guid))
                         c->RemoveAllAuras();
 
