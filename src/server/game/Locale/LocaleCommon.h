@@ -28,67 +28,6 @@
 namespace Warhead::Game::Locale
 {
     void WH_GAME_API AddLocaleString(std::string&& str, LocaleConstant locale, std::vector<std::string>& data);
-
-    class WH_GAME_API ModulesLocaleTextBuilder
-    {
-    public:
-        typedef std::vector<WorldPacket*> WorldPacketList;
-        explicit ModulesLocaleTextBuilder(uint32 textId, std::string const& moduleName, std::va_list* args = nullptr) : i_textId(textId), _moduleName(moduleName), i_args(args) { }
-
-        void operator()(WorldPacketList& data_list, LocaleConstant loc_idx);
-    private:
-        char* lineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
-
-        void do_helper(WorldPacketList& data_list, char* text);
-
-        uint32 i_textId;
-        std::string const& _moduleName;
-        std::va_list* i_args;
-    };
-
-    // Prepare using Builder localized packets with caching and send to player
-    template<class Builder>
-    class WH_GAME_API LocalizedPacketListDo
-    {
-    public:
-        typedef std::vector<WorldPacket*> WorldPacketList;
-        explicit LocalizedPacketListDo(Builder& builder) : i_builder(builder) { }
-
-        ~LocalizedPacketListDo()
-        {
-            for (size_t i = 0; i < i_data_cache.size(); ++i)
-                for (size_t j = 0; j < i_data_cache[i].size(); ++j)
-                    delete i_data_cache[i][j];
-        }
-
-        void operator()(Player* player)
-        {
-            LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-            uint32 cache_idx = loc_idx + 1;
-            WorldPacketList* data_list;
-
-            // create if not cached yet
-            if (i_data_cache.size() < cache_idx + 1 || i_data_cache[cache_idx].empty())
-            {
-                if (i_data_cache.size() < cache_idx + 1)
-                    i_data_cache.resize(cache_idx + 1);
-
-                data_list = &i_data_cache[cache_idx];
-
-                i_builder(*data_list, loc_idx);
-            }
-            else
-                data_list = &i_data_cache[cache_idx];
-
-            for (size_t i = 0; i < data_list->size(); ++i)
-                player->SendDirectMessage((*data_list)[i]);
-        }
-
-    private:
-        Builder& i_builder;
-        std::vector<WorldPacketList> i_data_cache;
-        // 0 = default, i => i-1 locale index
-    };
 }
 
 #endif // _LOCALE_COMMON_H_

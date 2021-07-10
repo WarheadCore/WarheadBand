@@ -45,6 +45,7 @@
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Spell.h"
+#include "Tokenize.h"
 #include "UpdateData.h"
 #include "Vehicle.h"
 #include "World.h"
@@ -699,8 +700,8 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recv_data)
 
 void WorldSession::_SendAreaTriggerMessage(std::string_view message)
 {
-    // if (message.empty())
-        // return;
+    if (message.empty())
+        return;
 
     uint32 length = message.length() + 1;
 

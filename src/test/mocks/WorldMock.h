@@ -64,9 +64,7 @@ public:
     MOCK_METHOD(uint16, GetConfigMaxSkillValue, (), (const));
     MOCK_METHOD(void, SetInitialWorldSettings, ());
     MOCK_METHOD(void, LoadConfigSettings, (bool reload), ());
-    void SendWorldText(uint32 string_id, ...) override {}
     MOCK_METHOD(void, SendGlobalText, (const char* text, WorldSession* self), ());
-    void SendGMText(uint32 string_id, ...) override {}
     MOCK_METHOD(void, SendGlobalMessage, (WorldPacket* packet, WorldSession* self, TeamId teamId), ());
     MOCK_METHOD(void, SendGlobalGMMessage, (WorldPacket* packet, WorldSession* self, TeamId teamId), ());
     MOCK_METHOD(bool, SendZoneMessage, (uint32 zone, WorldPacket* packet, WorldSession* self, TeamId teamId), ());

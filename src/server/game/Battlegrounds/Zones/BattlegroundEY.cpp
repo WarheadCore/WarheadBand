@@ -23,6 +23,7 @@
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "TextBuilder.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -429,12 +430,16 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* gameOb
     player->CastSpell(player, BG_EY_NETHERSTORM_FLAG_SPELL, true);
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
-    PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, player->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, nullptr, player->GetName().c_str());
+    Warhead::Text::SendBattlegroundMessageToAll(this, player->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, [&](uint8 index)
+    {
+        return Warhead::Text::GetLocaleMessage(index, LANG_BG_EY_HAS_TAKEN_FLAG, player->GetName());
+    });
+
     PlaySoundToAll(player->GetTeamId() == TEAM_ALLIANCE ? BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE : BG_EY_SOUND_FLAG_PICKED_UP_HORDE);
     UpdateWorldState(NETHERSTORM_FLAG, 0);
 }
 
-void BattlegroundEY::EventTeamLostPoint(TeamId  /*teamId*/, uint32 point)
+void BattlegroundEY::EventTeamLostPoint(TeamId /*teamId*/, uint32 point)
 {
     TeamId oldTeamId = _capturePointInfo[point]._ownerTeamId;
     if (oldTeamId == TEAM_ALLIANCE)

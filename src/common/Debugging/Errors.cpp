@@ -17,7 +17,6 @@
 
 #include "Errors.h"
 #include "Duration.h"
-// #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <thread>

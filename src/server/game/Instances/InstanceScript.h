@@ -21,8 +21,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "ZoneScript.h"
-//#include "GameObject.h"
-//#include "Map.h"
+#include "StringFormat.h"
 
 #define OUT_SAVE_INST_DATA             LOG_DEBUG("scripts.ai", "TSCR: Saving Instance Data for Instance {} (Map {}, Instance Id {})", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    LOG_DEBUG("scripts.ai", "TSCR: Saving Instance Data for Instance {} (Map {}, Instance Id {}) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -184,7 +183,11 @@ public:
     void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
 
     // Send Notify to all players in instance
-    void DoSendNotifyToInstance(char const* format, ...);
+    template<typename... Args>
+    void DoSendNotifyToInstance(std::string_view fmt, Args&&... args)
+    {
+        SendNotifyToInstance(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
+    }
 
     // Update Achievement Criteria for all players in instance
     void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
@@ -242,6 +245,8 @@ protected:
     std::string LoadBossState(char const* data);
     std::string GetBossSaveData();
 private:
+    void SendNotifyToInstance(std::string_view message);
+
     std::vector<BossInfo> bosses;
     DoorInfoMap doors;
     MinionInfoMap minions;

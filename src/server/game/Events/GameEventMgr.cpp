@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
+#include "TextBuilder.h"
 #include "Transport.h"
 #include "UnitAI.h"
 #include "Util.h"
@@ -1200,7 +1201,12 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
     uint8 announce = mGameEvent[event_id].announce;
     if (announce == 1 || (announce == 2 && CONF_GET_INT("Event.Announce")))
-        sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
+    {
+        Warhead::Text::SendWorldText([this, event_id](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_EVENTMESSAGE, mGameEvent[event_id].description);
+        });
+    }
 
     LOG_DEBUG("gameevent", "GameEvent {} \"{}\" started.", event_id, mGameEvent[event_id].description);
 

@@ -10,6 +10,7 @@
 
 #include "ByteBuffer.h"
 #include "Define.h"
+#include "StringFormat.h"
 #include <deque>
 #include <functional>
 #include <list>

@@ -20,10 +20,12 @@
 
 #include "Common.h"
 #include "Optional.h"
+#include "StringFormat.h"
 #include <unordered_map>
 #include <vector>
 
 class Player;
+class WorldPacket;
 
 struct ModuleString
 {
@@ -62,9 +64,15 @@ public:
     Optional<std::string> GetModuleString(std::string const& moduleName, uint32 id, uint8 _locale) const;
     uint32 GetStringsCount(std::string const& moduleName);
 
-    // Chat func
-    void SendPlayerMessage(Player* player, std::string const& moduleName, uint32 id, ...);
-    void SendGlobalMessage(bool gmOnly, std::string const& moduleName, uint32 id, ...);
+    // Get localized message
+    template<typename... Args>
+    inline std::string GetLocaleMessage(std::string const& moduleName, uint32 id, uint8 localeIndex, Args&&... args)
+    {
+        return Warhead::StringFormat(*GetModuleString(moduleName, id, localeIndex), std::forward<Args>(args)...);
+    }
+
+    void SendPlayerMessage(Player* player, std::function<std::string_view()> const& msg);
+    void SendGlobalMessage(bool gmOnly, std::function<std::string_view()> const& msg);
 
     ModuleLocale(ModuleLocale const&) = delete;
     ModuleLocale(ModuleLocale&&) = delete;
@@ -78,6 +86,9 @@ private:
     AllModulesStringContainer _modulesStringStore;
 
     void AddModuleString(std::string const& moduleName, ModuleStringContainer& data);
+
+    // Send packets
+    void SendPlayerPacket(Player* player, WorldPacket* data);
 };
 
 #define sModuleLocale ModuleLocale::instance()
