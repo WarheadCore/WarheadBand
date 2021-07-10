@@ -51,7 +51,6 @@ class Quest;
 class SpellCastTargets;
 class Unit;
 class Warden;
-class WorldObject;
 class WorldPacket;
 class WorldSocket;
 class AsynchPetSummon;
