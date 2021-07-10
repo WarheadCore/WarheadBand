@@ -1815,7 +1815,7 @@ void Battleground::HandleTriggerBuff(GameObject* gameObject)
         }
     }
 
-    uint32 respawnTime = SPEED_BUFF_RESPAWN_TIME;
+    uint32 respawnTime = CONF_GET_INT("Battleground.SpeedBuffRespawn");
     if (Map* map = FindBgMap())
     {
         if (GameObject* obj = map->GetGameObject(BgObjects[index]))
@@ -1823,10 +1823,10 @@ void Battleground::HandleTriggerBuff(GameObject* gameObject)
             switch (obj->GetEntry())
             {
                 case BG_OBJECTID_REGENBUFF_ENTRY:
-                    respawnTime = RESTORATION_BUFF_RESPAWN_TIME;
+                    respawnTime = CONF_GET_INT("Battleground.RestorationBuffRespawn");
                     break;
                 case BG_OBJECTID_BERSERKERBUFF_ENTRY:
-                    respawnTime = BERSERKING_BUFF_RESPAWN_TIME;
+                    respawnTime = CONF_GET_INT("Battleground.BerserkingBuffRespawn");
                     break;
                 default:
                     break;

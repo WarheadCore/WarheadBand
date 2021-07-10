@@ -390,7 +390,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "PlayerDump.DisallowPaths",
     "PlayerSave.Stats.SaveOnlyOnLogout",
     "PlayerStart.AllReputation",
-    "PlayerStart.CustomSpells",
+    "PlayerStart.AllSpells",
     "PlayerStart.MapsExplored",
     "PreloadAllNonInstancedMapGrids",
     "PreserveCustomChannels",
@@ -434,21 +434,25 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
      * int configs
      */
     AddOption({ "AccountInstancesPerHour",
+    "Arena.ArenaStartMatchmakerRating",
+    "Arena.ArenaStartRating",
     "Arena.RatingDiscardTimer",
     "ArenaTeam.CharterCost.2v2",
     "ArenaTeam.CharterCost.3v3",
     "ArenaTeam.CharterCost.5v5",
     "AutoBroadcast.Center",
     "AutoBroadcast.Timer",
-    "Battleground.BuffRespawn",
+    "Battleground.BerserkingBuffRespawn",
     "Battleground.InvitationType",
     "Battleground.PlayerRespawn",
     "Battleground.PremadeGroupWaitForMatch",
     "Battleground.Random.ResetHour",
     "Battleground.ReportAFK",
     "Battleground.ReportAFK.Timer",
+    "Battleground.RestorationBuffRespawn",
     "Battleground.RewardLoserHonorFirst",
     "Battleground.RewardLoserHonorLast",
+    "Battleground.SpeedBuffRespawn",
     "Battleground.RewardWinnerArenaFirst",
     "Battleground.RewardWinnerArenaLast",
     "Battleground.RewardWinnerHonorFirst",
@@ -757,7 +761,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     sWorld->SetNewCharString(CONF_GET_STR("PlayerStart.String"));
 
     ///- Read all rates from the config file
-    auto CheckRate = [&](std::string const& optionName)
+    auto CheckRate = [this](std::string const& optionName)
     {
         auto _rate = CONF_GET_FLOAT(optionName);
 
@@ -815,12 +819,12 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     // ???
     SetOption<float>("DurabilityLoss.OnDeath", tempFloatOption / 100.0f);
 
-    auto CheckDurabilityLossChance = [&](std::string const& optionName)
+    auto CheckDurabilityLossChance = [this](std::string const& optionName)
     {
-        tempFloatOption = CONF_GET_FLOAT(optionName);
-        if (tempFloatOption < 0.0f)
+        float option = CONF_GET_FLOAT(optionName);
+        if (option < 0.0f)
         {
-            LOG_ERROR("server.loading", "{} ({}) must be >= 0. Using 0.0 instead", optionName, tempFloatOption);
+            LOG_ERROR("server.loading", "{} ({}) must be >= 0. Using 0.0 instead", optionName, option);
             SetOption<float>(optionName, 1.0f);
         }
     };
@@ -855,7 +859,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     if (reload)
         sMapMgr->SetMapUpdateInterval(tempIntOption);
 
-    auto CheckMinName = [&](std::string const& optionName, int32 const& maxNameSymols)
+    auto CheckMinName = [this](std::string const& optionName, int32 const& maxNameSymols)
     {
         int32 confSymbols = CONF_GET_INT(optionName);
         if (confSymbols < 1 || confSymbols > maxNameSymols)
@@ -941,7 +945,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         SetOption<int32>("StartPlayerMoney", MAX_MONEY_AMOUNT);
     }
 
-    auto CheckPoints = [&](std::string const& startPointsOptionName, std::string const& maxPointsOptionName)
+    auto CheckPoints = [this](std::string const& startPointsOptionName, std::string const& maxPointsOptionName)
     {
         int32 maxPoints = CONF_GET_INT(maxPointsOptionName);
         if (maxPoints < 0)
@@ -994,7 +998,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         SetOption<int32>("GM.StartLevel", MAX_LEVEL);
     }
 
-    auto CheckQueuesstLevelDiff = [&](std::string const& optionName)
+    auto CheckQueuesstLevelDiff = [this](std::string const& optionName)
     {
         auto diff = GetOption<int32>(optionName);
 
@@ -1030,7 +1034,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         SetOption<int32>("MaxOverspeedPings", 2);
     }
 
-    auto CheckResetTime = [&](std::string const& optionName)
+    auto CheckResetTime = [this](std::string const& optionName)
     {
         int32 hours = CONF_GET_INT(optionName);
         if (hours > 23)
@@ -1058,12 +1062,19 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         SetOption<int32>("Battleground.PlayerRespawn", 30);
     }
 
-    tempIntOption = CONF_GET_INT("Battleground.BuffRespawn");
-    if (tempIntOption < 1)
+    auto CheckBuffBG = [this](std::string const& optionName, uint32 defaultTime)
     {
-        LOG_ERROR("server.loading", "Battleground.BuffRespawn ({}) must be >0. Using 180 instead.", tempIntOption);
-        SetOption<int32>("Battleground.BuffRespawn", 180);
-    }
+        uint32 time = CONF_GET_INT(optionName);
+        if (time < 1)
+        {
+            LOG_ERROR("server.loading", "{} ({}) must be > 0. Using {} instead.", optionName, defaultTime);
+            SetOption<int32>(optionName, defaultTime);
+        }
+    };
+
+    CheckBuffBG("Battleground.RestorationBuffRespawn", 20);
+    CheckBuffBG("Battleground.BerserkingBuffRespawn", 120);
+    CheckBuffBG("Battleground.SpeedBuffRespawn", 150);
 
     // always use declined names in the russian client
     SetOption<bool>("DeclinedNames", CONF_GET_INT("RealmZone") == REALM_ZONE_RUSSIAN ? true : CONF_GET_BOOL("DeclinedNames"));
@@ -1080,7 +1091,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
             LOG_ERROR("server.loading", "ClientCacheVersion can't be negative {}, ignored.", clientCacheId);
     }
 
-    auto CheckLogRecordsCount = [&](std::string const& optionName, int32 const& maxRecords)
+    auto CheckLogRecordsCount = [this](std::string const& optionName, int32 const& maxRecords)
     {
         int32 records = CONF_GET_INT(optionName);
         if (records > maxRecords)
