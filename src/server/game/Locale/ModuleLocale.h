@@ -65,7 +65,7 @@ public:
 
     // Get localized message
     template<typename... Args>
-    inline std::string GetLocaleMessage(std::string_view moduleName, uint32 id, uint8 localeIndex, Args&&... args)
+    inline std::string GetLocaleMessage(std::string const& moduleName, uint32 id, uint8 localeIndex, Args&&... args)
     {
         return Warhead::StringFormat(*GetModuleString(moduleName, id, localeIndex), std::forward<Args>(args)...);
     }
