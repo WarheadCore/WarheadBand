@@ -187,7 +187,7 @@ void ModuleLocale::SendGlobalMessage(bool gmOnly, std::function<std::string_view
         if (!player || !player->IsInWorld())
             return;
 
-        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
+        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && gmOnly)
             continue;
 
         for (std::string_view line : Warhead::Tokenize(msg(), '\n', true))
