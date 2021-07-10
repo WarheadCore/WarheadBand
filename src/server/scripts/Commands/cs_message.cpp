@@ -27,6 +27,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "TextBuilder.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -63,7 +64,11 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
+        Warhead::Text::SendWorldText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_ANNOUNCE_COLOR, name, args);
+        });
+
         return true;
     }
 
@@ -76,7 +81,11 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
+        Warhead::Text::SendGMText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_ANNOUNCE_COLOR, name, args);
+        });
+
         return true;
     }
     // global announce
@@ -85,9 +94,7 @@ public:
         if (!*args)
             return false;
 
-        char buff[2048];
-        sprintf(buff, handler->GetWarheadString(LANG_SYSTEMMESSAGE), args);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Warhead::StringFormat(handler->GetWarheadString(LANG_SYSTEMMESSAGE), args).c_str());
         return true;
     }
     // announce to logged in GMs
@@ -96,7 +103,11 @@ public:
         if (!*args)
             return false;
 
-        sWorld->SendGMText(LANG_GM_BROADCAST, args);
+        Warhead::Text::SendGMText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_GM_BROADCAST, args);
+        });
+
         return true;
     }
     // notification player at the screen

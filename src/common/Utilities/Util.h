@@ -379,8 +379,6 @@ WH_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 d
 WH_COMMON_API bool utf8ToConsole(std::string_view utf8str, std::string& conStr);
 WH_COMMON_API bool consoleToUtf8(std::string_view conStr, std::string& utf8str);
 WH_COMMON_API bool Utf8FitTo(std::string_view str, std::wstring_view search);
-WH_COMMON_API void utf8printf(FILE* out, const char* str, ...);
-WH_COMMON_API void vutf8printf(FILE* out, const char* str, va_list* ap);
 WH_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
 WH_COMMON_API bool IsIPAddress(char const* ipaddress);

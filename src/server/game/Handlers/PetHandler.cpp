@@ -36,7 +36,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "QueryHolder.h"
 
 class LoadPetFromDBQueryHolder : public CharacterDatabaseQueryHolder
 {

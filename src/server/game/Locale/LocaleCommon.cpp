@@ -29,35 +29,3 @@ void Warhead::Game::Locale::AddLocaleString(std::string&& str, LocaleConstant lo
 
     data[locale] = std::move(str);
 }
-
-void Warhead::Game::Locale::ModulesLocaleTextBuilder::operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
-{
-    char const* text = sModuleLocale->GetModuleString(_moduleName, i_textId, static_cast<uint8>(loc_idx)).value().c_str();
-
-    if (i_args)
-    {
-        // we need copy va_list before use or original va_list will corrupted
-        std::va_list ap;
-        va_copy(ap, *i_args);
-
-        char str[2048];
-        vsnprintf(str, 2048, text, ap);
-        va_end(ap);
-
-        do_helper(data_list, &str[0]);
-    }
-    else
-        do_helper(data_list, (char*)text);
-}
-
-void Warhead::Game::Locale::ModulesLocaleTextBuilder::do_helper(WorldPacketList& data_list, char* text)
-{
-    char* pos = text;
-
-    while (char* line = lineFromMessage(pos))
-    {
-        WorldPacket* data = new WorldPacket();
-        ChatHandler::BuildChatPacket(*data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-        data_list.push_back(data);
-    }
-}

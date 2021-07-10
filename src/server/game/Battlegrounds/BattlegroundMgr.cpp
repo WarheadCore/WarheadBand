@@ -45,6 +45,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
+#include "TextBuilder.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <random>
@@ -800,12 +801,18 @@ void BattlegroundMgr::ToggleTesting()
     if (CONF_GET_BOOL("Debug.Battleground"))
     {
         m_Testing = true;
-        sWorld->SendWorldText(LANG_DEBUG_BG_CONF);
+        Warhead::Text::SendWorldText([](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_DEBUG_BG_CONF);
+        });
     }
     else
     {
         m_Testing = !m_Testing;
-        sWorld->SendWorldText(m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
+        Warhead::Text::SendWorldText([this](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
+        });
     }
 }
 
@@ -814,12 +821,18 @@ void BattlegroundMgr::ToggleArenaTesting()
     if (CONF_GET_BOOL("Debug.Arena"))
     {
         m_ArenaTesting = true;
-        sWorld->SendWorldText(LANG_DEBUG_ARENA_CONF);
+        Warhead::Text::SendWorldText([](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, LANG_DEBUG_ARENA_CONF);
+        });
     }
     else
     {
         m_ArenaTesting = !m_ArenaTesting;
-        sWorld->SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+        Warhead::Text::SendWorldText([this](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+        });
     }
 }
 

@@ -54,9 +54,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "QueryHolder.h"
-#include "StringConvert.h"
-#include "Tokenize.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

@@ -25,6 +25,7 @@
 #include "Optional.h"
 #include "Player.h"
 #include "World.h"
+#include "Tokenize.h"
 
 ModuleLocale* ModuleLocale::instance()
 {
@@ -162,52 +163,43 @@ void ModuleLocale::LoadModuleString()
     LOG_INFO("server.loading", "");
 }
 
-void ModuleLocale::SendPlayerMessage(Player* player, std::string const& moduleName, uint32 id, ...)
+void ModuleLocale::SendPlayerMessage(Player* player, std::function<std::string_view()> const& msg)
 {
-    if (moduleName.empty())
-    {
-        LOG_ERROR("locale.module", "> ModulesLocales: _moduleName is empty!");
+    if (msg().empty())
         return;
+
+    for (std::string_view line : Warhead::Tokenize(msg(), '\n', true))
+    {
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+        SendPlayerPacket(player, &data);
     }
-
-    va_list ap;
-    va_start(ap, id);
-
-    Warhead::Game::Locale::ModulesLocaleTextBuilder wt_builder(id, moduleName, &ap);
-    Warhead::Game::Locale::LocalizedPacketListDo<Warhead::Game::Locale::ModulesLocaleTextBuilder> wt_do(wt_builder);
-
-    wt_do(player);
-
-    va_end(ap);
 }
 
-void ModuleLocale::SendGlobalMessage(bool gmOnly, std::string const& moduleName, uint32 id, ...)
+void ModuleLocale::SendGlobalMessage(bool gmOnly, std::function<std::string_view()> const& msg)
 {
-    if (moduleName.empty())
-    {
-        LOG_ERROR("locale.module", "> ModulesLocales: moduleName is empty!");
+    if (msg().empty())
         return;
-    }
 
-    va_list ap;
-    va_start(ap, id);
-
-    Warhead::Game::Locale::ModulesLocaleTextBuilder wt_builder(id, moduleName, &ap);
-    Warhead::Game::Locale::LocalizedPacketListDo<Warhead::Game::Locale::ModulesLocaleTextBuilder> wt_do(wt_builder);
-
-    for (auto const& itr : sWorld->GetAllSessions())
+    for (auto const& [accountID, session] : sWorld->GetAllSessions())
     {
-        auto session = itr.second;
-        auto player = itr.second->GetPlayer();
-
-        if (!session || !player || !player->IsInWorld())
-            continue;
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
+            return;
 
         if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && gmOnly)
             continue;
 
-        wt_do(player);
+        for (std::string_view line : Warhead::Tokenize(msg(), '\n', true))
+        {
+            WorldPacket data;
+            ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+            SendPlayerPacket(player, &data);
+        }
     }
+}
 
-    va_end(ap);
+void ModuleLocale::SendPlayerPacket(Player* player, WorldPacket* data)
+{
+    player->SendDirectMessage(data);
 }

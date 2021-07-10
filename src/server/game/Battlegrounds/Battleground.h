@@ -476,9 +476,6 @@ public:
     void SendPacketToAll(WorldPacket* packet);
     void YellToAll(Creature* creature, const char* text, uint32 language);
 
-    template<class Do>
-    void BroadcastWorker(Do& _do);
-
     void PlaySoundToAll(uint32 soundId);
     void CastSpellOnTeam(uint32 spellId, TeamId teamId);
     void RemoveAuraOnTeam(uint32 spellId, TeamId teamId);
@@ -492,12 +489,9 @@ public:
     virtual void EndBattleground(TeamId winnerTeamId);
     void BlockMovement(Player* player);
 
-    void SendWarningToAll(uint32 entry, ...);
-    void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr);
-    void PSendMessageToAll(uint32 entry, ChatMsg type, Player const* source, ...);
-
     // specialized version with 2 string id args
     void SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 strId1 = 0, uint32 strId2 = 0);
+    void SendMessageToAll(uint32 entry, ChatMsg type, Player const* source = nullptr);
 
     // Raid Group
     [[nodiscard]] Group* GetBgRaid(TeamId teamId) const { return m_BgRaids[teamId]; }
@@ -627,6 +621,9 @@ public:
 
     BattlegroundIC* ToBattlegroundIC() { if (GetBgTypeID(true) == BATTLEGROUND_IC) return reinterpret_cast<BattlegroundIC*>(this); else return nullptr; }
     [[nodiscard]] BattlegroundIC const* ToBattlegroundIC() const { if (GetBgTypeID(true) == BATTLEGROUND_IC) return reinterpret_cast<const BattlegroundIC*>(this); else return nullptr; }
+
+    template<typename Worker>
+    void DoForAllPlayers(Worker&& worker);
 
 protected:
     // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
