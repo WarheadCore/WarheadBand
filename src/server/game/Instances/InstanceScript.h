@@ -19,9 +19,9 @@
 #define WARHEAD_INSTANCE_DATA_H
 
 #include "ObjectMgr.h"
+#include "StringFormat.h"
 #include "World.h"
 #include "ZoneScript.h"
-#include "StringFormat.h"
 
 #define OUT_SAVE_INST_DATA             LOG_DEBUG("scripts.ai", "TSCR: Saving Instance Data for Instance {} (Map {}, Instance Id {})", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    LOG_DEBUG("scripts.ai", "TSCR: Saving Instance Data for Instance {} (Map {}, Instance Id {}) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())

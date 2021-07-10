@@ -1,8 +1,29 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class PlayerTaxi
+#ifndef __PLAYER_TAXI_H__
+#define __PLAYER_TAXI_H__
+
+#include "DBCStructure.h"
+#include <vector>
+
+class ByteBuffer;
+
+class WH_GAME_API PlayerTaxi
 {
 public:
     PlayerTaxi();
@@ -59,3 +80,7 @@ private:
     std::vector<uint32> m_TaxiDestinations;
     uint32 _taxiSegment;
 };
+
+std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
+
+#endif

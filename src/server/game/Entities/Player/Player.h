@@ -25,7 +25,6 @@
 #include "GroupReference.h"
 #include "InstanceSaveMgr.h"
 #include "Item.h"
-#include "KillRewarder.h"
 #include "MapReference.h"
 #include "ObjectMgr.h"
 #include "PetDefines.h"
@@ -61,13 +60,13 @@ class UpdateMask;
 typedef std::deque<Mail*> PlayerMails;
 typedef void(*bgZoneRef)(Battleground*, WorldPacket&);
 
-#define PLAYER_MAX_SKILLS           127
-#define PLAYER_MAX_DAILY_QUESTS     25
-#define PLAYER_EXPLORED_ZONES_SIZE  128
+constexpr auto PLAYER_MAX_SKILLS = 127;
+constexpr auto PLAYER_MAX_DAILY_QUESTS = 25;
+constexpr auto PLAYER_EXPLORED_ZONES_SIZE = 128;
 
 // corpse reclaim times
-#define DEATH_EXPIRE_STEP (5*MINUTE)
-#define MAX_DEATH_COUNT 3
+constexpr auto DEATH_EXPIRE_STEP = 5 * MINUTE;
+constexpr auto MAX_DEATH_COUNT = 3;
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
 #define PLAYER_SKILL_VALUE_INDEX(x) (PLAYER_SKILL_INDEX(x)+1)
@@ -168,7 +167,7 @@ enum TalentTree // talent tabs
     TALENT_TREE_DRUID_RESTORATION = 282
 };
 
-#define SPEC_MASK_ALL 255
+constexpr auto SPEC_MASK_ALL = 255;
 
 // Spell modifier (used for modify other spells)
 struct SpellModifier
@@ -244,7 +243,7 @@ enum ReputationSource
 
 struct ActionButton
 {
-    ActionButton()  {}
+    ActionButton() { }
 
     uint32 packedData{0};
     ActionButtonUpdateState uState{ACTIONBUTTON_NEW};
@@ -264,7 +263,7 @@ struct ActionButton
     }
 };
 
-#define  MAX_ACTION_BUTTONS 144                             //checked in 3.2.0
+constexpr auto MAX_ACTION_BUTTONS = 144; //checked in 3.2.0
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
@@ -280,14 +279,14 @@ typedef std::list<PlayerCreateInfoItem> PlayerCreateInfoItems;
 
 struct PlayerClassLevelInfo
 {
-    PlayerClassLevelInfo()  {}
+    PlayerClassLevelInfo() { }
     uint16 basehealth{0};
     uint16 basemana{0};
 };
 
 struct PlayerClassInfo
 {
-    PlayerClassInfo()  { }
+    PlayerClassInfo() { }
 
     PlayerClassLevelInfo* levelInfo{nullptr};                        //[level-1] 0..MaxPlayerLevel-1
 };
@@ -303,7 +302,7 @@ typedef std::list<uint32> PlayerCreateInfoSpells;
 
 struct PlayerCreateInfoAction
 {
-    PlayerCreateInfoAction()  {}
+    PlayerCreateInfoAction() { }
     PlayerCreateInfoAction(uint8 _button, uint32 _action, uint8 _type) : button(_button), type(_type), action(_action) {}
 
     uint8 button{0};
@@ -324,7 +323,7 @@ typedef std::list<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
 struct PlayerInfo
 {
     // existence checked by displayId != 0
-    PlayerInfo()  { }
+    PlayerInfo() { }
 
     uint32 mapId{0};
     uint32 areaId{0};
@@ -344,7 +343,7 @@ struct PlayerInfo
 
 struct PvPInfo
 {
-    PvPInfo()  {}
+    PvPInfo() { }
 
     bool IsHostile{false};
     bool IsInHostileArea{false};               ///> Marks if player is in an area which forces PvP flag
@@ -356,7 +355,7 @@ struct PvPInfo
 
 struct DuelInfo
 {
-    DuelInfo()  {}
+    DuelInfo() { }
 
     Player* initiator{nullptr};
     Player* opponent{nullptr};
@@ -376,7 +375,7 @@ struct Areas
     float y2;
 };
 
-#define MAX_RUNES       6
+constexpr auto MAX_RUNES = 6;
 
 enum RuneCooldowns
 {
@@ -448,7 +447,7 @@ enum DrunkenState
     DRUNKEN_SMASHED = 3
 };
 
-#define MAX_DRUNKEN   4
+constexpr auto MAX_DRUNKEN = 4;
 
 enum PlayerFlags
 {
@@ -486,8 +485,8 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK31             = 0x80000000,
 };
 
-#define KNOWN_TITLES_SIZE   3
-#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
+constexpr auto KNOWN_TITLES_SIZE = 3;
+constexpr auto MAX_TITLE_INDEX = KNOWN_TITLES_SIZE * 64; // 3 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -511,8 +510,9 @@ enum MirrorTimerType
     BREATH_TIMER       = 1,
     FIRE_TIMER         = 2
 };
-#define MAX_TIMERS      3
-#define DISABLED_MIRROR_TIMER   -1
+
+constexpr auto MAX_TIMERS = 3;
+constexpr auto DISABLED_MIRROR_TIMER = -1;
 
 // 2^n values
 enum PlayerExtraFlags
@@ -561,7 +561,7 @@ enum QuestSlotOffsets
     QUEST_TIME_OFFSET   = 4
 };
 
-#define MAX_QUEST_OFFSET 5
+constexpr auto MAX_QUEST_OFFSET = 5;
 
 enum QuestSlotStateMask
 {
@@ -580,9 +580,9 @@ enum SkillUpdateState
 
 struct SkillStatusData
 {
-    SkillStatusData(uint8 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
-    {
-    }
+    SkillStatusData(uint8 _pos, SkillUpdateState _uState) :
+        pos(_pos), uState(_uState) { }
+
     uint8 pos;
     SkillUpdateState uState;
 };
@@ -603,7 +603,7 @@ enum PlayerSlots
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
-#define INVENTORY_SLOT_BAG_0    255
+constexpr auto INVENTORY_SLOT_BAG_0 = 255;
 
 enum EquipmentSlots                                         // 19 slots
 {
@@ -693,17 +693,18 @@ struct EquipmentSet
     EquipmentSetUpdateState state{EQUIPMENT_SET_NEW};
 };
 
-#define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
+constexpr auto MAX_EQUIPMENT_SET_INDEX = 10; // client limit
 
 typedef std::map<uint32, EquipmentSet> EquipmentSets;
 
 struct ItemPosCount
 {
-    ItemPosCount(uint16 _pos, uint32 _count) : pos(_pos), count(_count) {}
+    ItemPosCount(uint16 _pos, uint32 _count) : pos(_pos), count(_count) { }
     [[nodiscard]] bool isContainedIn(std::vector<ItemPosCount> const& vec) const;
     uint16 pos;
     uint32 count;
 };
+
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
 enum TransferAbortReason
@@ -784,7 +785,7 @@ enum PlayedTimeIndex
     PLAYED_TIME_LEVEL = 1
 };
 
-#define MAX_PLAYED_TIME_INDEX 2
+constexpr auto MAX_PLAYED_TIME_INDEX = 2;
 
 // used at player loading query list preparing, and later result selection
 enum PlayerLoginQueryIndex
@@ -852,8 +853,8 @@ enum PlayerCharmedAISpells
 };
 
 // Player summoning auto-decline time (in secs)
-#define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-#define MAX_MONEY_AMOUNT                       (0x7FFFFFFF-1)
+constexpr auto MAX_PLAYER_SUMMON_DELAY = 2 * MINUTE;
+constexpr auto MAX_MONEY_AMOUNT = 0x7FFFFFFF - 1;
 
 struct ProgressionRequirement
 {
@@ -939,14 +940,10 @@ enum EmoteBroadcastTextID
     EMOTE_BROADCAST_TEXT_ID_STRANGE_GESTURES = 91243
 };
 
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
-
-class Player;
-
 // holder for Battleground data (pussywizard: not stored in db)
 struct BGData
 {
-    BGData()  {}
+    BGData() { }
 
     uint32 bgInstanceID{0};
     BattlegroundTypeId bgTypeID{BATTLEGROUND_TYPE_NONE};
@@ -955,9 +952,9 @@ struct BGData
     bool isInvited{false};
     bool bgIsRandom{false};
 
-    GuidSet            bgAfkReporter;
-    uint8              bgAfkReportedCount{0};
-    time_t             bgAfkReportedTimer{0};
+    GuidSet bgAfkReporter;
+    uint8 bgAfkReportedCount{0};
+    time_t bgAfkReportedTimer{0};
 };
 
 // holder for Entry Point data (pussywizard: stored in db)
@@ -2872,7 +2869,8 @@ void AddItemsSetItem(Player* player, Item* item);
 void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell, bool temporaryPet)
+template <class T>
+T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell, bool temporaryPet)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -2930,12 +2928,16 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& bas
 
         DropModCharge(mod, spell);
     }
+
     float diff = 0.0f;
+
     if (op == SPELLMOD_CASTING_TIME || op == SPELLMOD_DURATION)
         diff = ((float)basevalue + totalflat) * (totalmul - 1.0f) + (float)totalflat;
     else
         diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
     basevalue = T((float)basevalue + diff);
+
     return T(diff);
 }
+
 #endif

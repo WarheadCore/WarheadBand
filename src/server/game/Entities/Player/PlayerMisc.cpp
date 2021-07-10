@@ -1,10 +1,23 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameConfig.h"
 #include "MapManager.h"
+#include "MuteManager.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
@@ -21,7 +34,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
     time_t current = time (nullptr);
     if (m_speakTime > current)
     {
-        uint32 max_count = specialMessageLimit ? specialMessageLimit : sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
+        uint32 max_count = specialMessageLimit ? specialMessageLimit : CONF_GET_INT("ChatFlood.MessageCount");
         if (!max_count)
             return;
 
@@ -29,9 +42,9 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         if (m_speakCount >= max_count)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
-            time_t new_mute = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MUTE_TIME);
-            if (GetSession()->m_muteTime < new_mute)
-                GetSession()->m_muteTime = new_mute;
+            time_t new_mute = current + CONF_GET_INT("ChatFlood.MuteTime");
+            if (sMute->GetMuteTime(GetSession()->GetAccountId()) < new_mute)
+                sMute->SetMuteTime(GetSession()->GetAccountId(), new_mute);
 
             m_speakCount = 0;
         }
@@ -39,12 +52,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
     else
         m_speakCount = 1;
 
-    m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
-}
-
-bool Player::CanSpeak() const
-{
-    return  GetSession()->m_muteTime <= time (nullptr);
+    m_speakTime = current + CONF_GET_INT("ChatFlood.MessageDelay");
 }
 
 /*********************************************************/
@@ -101,6 +109,7 @@ void Player::SetUInt32ValueInArray(Tokenizer& tokens, uint16 index, uint32 value
 void Player::Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
+
     stmt->setUInt8(0, customizeInfo->Gender);
     stmt->setUInt8(1, customizeInfo->Skin);
     stmt->setUInt8(2, customizeInfo->Face);
@@ -184,112 +193,112 @@ void Player::ResetInstances(ObjectGuid guid, uint8 method, bool isRaid)
     switch (method)
     {
         case INSTANCE_RESET_ALL:
-        {
-            Player* p = ObjectAccessor::FindConnectedPlayer(guid);
-            if (!p || p->GetDifficulty(false) != DUNGEON_DIFFICULTY_NORMAL)
-                break;
-            std::vector<InstanceSave*> toUnbind;
-            BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(p->GetGUID(), Difficulty(DUNGEON_DIFFICULTY_NORMAL));
-            for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
             {
-                InstanceSave* instanceSave = itr->second.save;
-                const MapEntry* entry = sMapStore.LookupEntry(itr->first);
-                if (!entry || entry->IsRaid() || !instanceSave->CanReset())
-                    continue;
-
-                Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-                if (!map || map->ToInstanceMap()->Reset(method))
+                Player* p = ObjectAccessor::FindConnectedPlayer(guid);
+                if (!p || p->GetDifficulty(false) != DUNGEON_DIFFICULTY_NORMAL)
+                    break;
+                std::vector<InstanceSave*> toUnbind;
+                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(p->GetGUID(), Difficulty(DUNGEON_DIFFICULTY_NORMAL));
+                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
                 {
-                    p->SendResetInstanceSuccess(instanceSave->GetMapId());
-                    toUnbind.push_back(instanceSave);
+                    InstanceSave* instanceSave = itr->second.save;
+                    const MapEntry* entry = sMapStore.LookupEntry(itr->first);
+                    if (!entry || entry->IsRaid() || !instanceSave->CanReset())
+                        continue;
+
+                    Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
+                    if (!map || map->ToInstanceMap()->Reset(method))
+                    {
+                        p->SendResetInstanceSuccess(instanceSave->GetMapId());
+                        toUnbind.push_back(instanceSave);
+                    }
+                    else
+                        p->SendResetInstanceFailed(0, instanceSave->GetMapId());
                 }
-                else
-                    p->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
+                    sInstanceSaveMgr->UnbindAllFor(*itr);
             }
-            for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
-                sInstanceSaveMgr->UnbindAllFor(*itr);
-        }
             break;
         case INSTANCE_RESET_CHANGE_DIFFICULTY:
-        {
-            Player* p = ObjectAccessor::FindConnectedPlayer(guid);
-            if (!p)
-                break;
-            std::vector<InstanceSave*> toUnbind;
-            BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(p->GetGUID(), p->GetDifficulty(isRaid));
-            for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
             {
-                InstanceSave* instanceSave = itr->second.save;
-                const MapEntry* entry = sMapStore.LookupEntry(itr->first);
-                if (!entry || entry->IsRaid() != isRaid || !instanceSave->CanReset())
-                    continue;
-
-                Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-                if (!map || map->ToInstanceMap()->Reset(method))
+                Player* p = ObjectAccessor::FindConnectedPlayer(guid);
+                if (!p)
+                    break;
+                std::vector<InstanceSave*> toUnbind;
+                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(p->GetGUID(), p->GetDifficulty(isRaid));
+                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
                 {
-                    p->SendResetInstanceSuccess(instanceSave->GetMapId());
-                    toUnbind.push_back(instanceSave);
+                    InstanceSave* instanceSave = itr->second.save;
+                    const MapEntry* entry = sMapStore.LookupEntry(itr->first);
+                    if (!entry || entry->IsRaid() != isRaid || !instanceSave->CanReset())
+                        continue;
+
+                    Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
+                    if (!map || map->ToInstanceMap()->Reset(method))
+                    {
+                        p->SendResetInstanceSuccess(instanceSave->GetMapId());
+                        toUnbind.push_back(instanceSave);
+                    }
+                    else
+                        p->SendResetInstanceFailed(0, instanceSave->GetMapId());
                 }
-                else
-                    p->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
+                    sInstanceSaveMgr->UnbindAllFor(*itr);
             }
-            for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
-                sInstanceSaveMgr->UnbindAllFor(*itr);
-        }
             break;
         case INSTANCE_RESET_GROUP_JOIN:
-        {
-            Player* p = ObjectAccessor::FindConnectedPlayer(guid);
-            if (!p)
-                break;
-            for (uint8 d = 0; d < MAX_DIFFICULTY; ++d)
             {
-                std::vector<InstanceSave*> toUnbind;
-                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(p->GetGUID(), Difficulty(d));
-                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
+                Player* p = ObjectAccessor::FindConnectedPlayer(guid);
+                if (!p)
+                    break;
+                for (uint8 d = 0; d < MAX_DIFFICULTY; ++d)
                 {
-                    if (itr->second.perm)
-                        continue;
-                    InstanceSave* instanceSave = itr->second.save;
-                    Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-                    if (!map || p->FindMap() != map)
+                    std::vector<InstanceSave*> toUnbind;
+                    BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(p->GetGUID(), Difficulty(d));
+                    for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
                     {
-                        //p->SendResetInstanceSuccess(instanceSave->GetMapId());
-                        toUnbind.push_back(instanceSave);
+                        if (itr->second.perm)
+                            continue;
+                        InstanceSave* instanceSave = itr->second.save;
+                        Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
+                        if (!map || p->FindMap() != map)
+                        {
+                            //p->SendResetInstanceSuccess(instanceSave->GetMapId());
+                            toUnbind.push_back(instanceSave);
+                        }
+                        //else
+                        //  p->SendResetInstanceFailed(0, instanceSave->GetMapId());
                     }
-                    //else
-                    //  p->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                    for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
+                        sInstanceSaveMgr->PlayerUnbindInstance(p->GetGUID(), (*itr)->GetMapId(), (*itr)->GetDifficulty(), true, p);
                 }
-                for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
-                    sInstanceSaveMgr->PlayerUnbindInstance(p->GetGUID(), (*itr)->GetMapId(), (*itr)->GetDifficulty(), true, p);
             }
-        }
             break;
         case INSTANCE_RESET_GROUP_LEAVE:
-        {
-            Player* p = ObjectAccessor::FindConnectedPlayer(guid);
-            for (uint8 d = 0; d < MAX_DIFFICULTY; ++d)
             {
-                std::vector<InstanceSave*> toUnbind;
-                BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(guid, Difficulty(d));
-                for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
+                Player* p = ObjectAccessor::FindConnectedPlayer(guid);
+                for (uint8 d = 0; d < MAX_DIFFICULTY; ++d)
                 {
-                    if (itr->second.perm)
-                        continue;
-                    InstanceSave* instanceSave = itr->second.save;
-                    Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-                    if (!p || !map || p->FindMap() != map)
+                    std::vector<InstanceSave*> toUnbind;
+                    BoundInstancesMap const& m_boundInstances = sInstanceSaveMgr->PlayerGetBoundInstances(guid, Difficulty(d));
+                    for (BoundInstancesMap::const_iterator itr = m_boundInstances.begin(); itr != m_boundInstances.end(); ++itr)
                     {
-                        //p->SendResetInstanceSuccess(instanceSave->GetMapId());
-                        toUnbind.push_back(instanceSave);
+                        if (itr->second.perm)
+                            continue;
+                        InstanceSave* instanceSave = itr->second.save;
+                        Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
+                        if (!p || !map || p->FindMap() != map)
+                        {
+                            //p->SendResetInstanceSuccess(instanceSave->GetMapId());
+                            toUnbind.push_back(instanceSave);
+                        }
+                        //else
+                        //  p->SendResetInstanceFailed(0, instanceSave->GetMapId());
                     }
-                    //else
-                    //  p->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                    for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
+                        sInstanceSaveMgr->PlayerUnbindInstance(guid, (*itr)->GetMapId(), (*itr)->GetDifficulty(), true, p);
                 }
-                for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
-                    sInstanceSaveMgr->PlayerUnbindInstance(guid, (*itr)->GetMapId(), (*itr)->GetDifficulty(), true, p);
             }
-        }
             break;
     }
 }
@@ -403,5 +412,3 @@ void Player::UpdateDuelFlag(time_t currTime)
     duel->opponent->duel->startTimer = 0;
     duel->opponent->duel->startTime  = currTime;
 }
-
-/*********************************************************/

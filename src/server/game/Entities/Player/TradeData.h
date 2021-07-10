@@ -1,6 +1,25 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license: https://github.com/azerothcore/azerothcore-wotlk/blob/master/LICENSE-AGPL3
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include "Define.h"
+
+class Item;
+class ObjectGuid;
+class Player;
 
 enum TradeSlots
 {
@@ -10,12 +29,11 @@ enum TradeSlots
     TRADE_SLOT_INVALID          = -1,
 };
 
-class TradeData
+class WH_GAME_API TradeData
 {
 public:                                                 // constructors
-    TradeData(Player* player, Player* trader) : m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false), m_money(0), m_spell(0)
-    {
-    }
+    TradeData(Player* player, Player* trader) :
+        m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false), m_money(0), m_spell(0) { }
 
     [[nodiscard]] Player* GetTrader() const { return m_trader; }
     [[nodiscard]] TradeData* GetTraderData() const;
