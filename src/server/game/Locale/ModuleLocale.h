@@ -22,6 +22,7 @@
 #include "Optional.h"
 #include "StringFormat.h"
 #include <unordered_map>
+#include <vector>
 
 class Player;
 class WorldPacket;
