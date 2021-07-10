@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "Optional.h"
 #include "StringFormat.h"
+#include <functional>
 #include <unordered_map>
 #include <vector>
 
