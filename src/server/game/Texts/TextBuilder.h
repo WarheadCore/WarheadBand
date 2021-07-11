@@ -19,6 +19,7 @@
 #define _TEXT_BUILDER_H_
 
 #include "GameLocale.h"
+#include "StringFormat.h"
 #include <functional>
 
 class Battleground;
@@ -31,7 +32,7 @@ namespace Warhead::Text
     template<typename... Args>
     inline std::string GetLocaleMessage(uint8 localeIndex, uint32 id, Args&&... args)
     {
-        return Warhead::StringFormat(sGameLocale->GetWarheadString(id, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
+        return StringFormat(sGameLocale->GetWarheadString(id, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
     }
 
     // Send a System Message to all players (except self if mentioned)
