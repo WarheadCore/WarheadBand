@@ -380,7 +380,7 @@ struct WH_GAME_API Position
     float m_positionZ = 0;
     float m_orientation = 0;
 
-    bool operator==(Position const& a);
+    bool operator==(Position const& a) const;
 
     inline bool operator!=(Position const& a)
     {

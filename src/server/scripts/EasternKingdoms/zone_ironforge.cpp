@@ -19,5 +19,3 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-
-void AddSC_ironforge() { }

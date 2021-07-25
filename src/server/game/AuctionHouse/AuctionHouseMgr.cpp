@@ -35,10 +35,7 @@
 #include "WorldSession.h"
 #include <vector>
 
-enum eAuctionHouse
-{
-    AH_MINIMUM_DEPOSIT = 100,
-};
+constexpr auto AH_MINIMUM_DEPOSIT = 100;
 
 AuctionHouseMgr::AuctionHouseMgr()
 {
@@ -576,7 +573,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
-        if (AsyncAuctionListingMgr::IsAuctionListingAllowed() == false) // pussywizard: World::Update is waiting for us...
+        if (!AsyncAuctionListingMgr::IsAuctionListingAllowed()) // pussywizard: World::Update is waiting for us...
             if ((itrcounter++) % 100 == 0) // check condition every 100 iterations
                 if (getMSTimeDiff(getMSTime(), getMSTime()) >= 10) // pussywizard: stop immediately if diff is high or waiting too long
                     return false;

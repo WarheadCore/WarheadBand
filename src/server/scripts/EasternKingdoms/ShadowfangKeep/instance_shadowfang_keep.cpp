@@ -20,13 +20,13 @@
 #include "TemporarySummon.h"
 #include "shadowfang_keep.h"
 
-enum Creatures
-{
-    NPC_ASH                 = 3850,
-    NPC_ADA                 = 3849,
-    NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627
-};
+//enum Creatures
+//{
+//    NPC_ASH                 = 3850,
+//    NPC_ADA                 = 3849,
+//    NPC_ARCHMAGE_ARUGAL     = 4275,
+//    NPC_ARUGAL_VOIDWALKER   = 4627
+//};
 
 class instance_shadowfang_keep : public InstanceMapScript
 {

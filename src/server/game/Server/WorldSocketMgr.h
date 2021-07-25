@@ -15,12 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \addtogroup u2w User to World Communication
- *  @{
- *  \file WorldSocketMgr.h
- *  \author Derex <derex101@gmail.com>
- */
-
 #ifndef __WORLDSOCKETMGR_H
 #define __WORLDSOCKETMGR_H
 

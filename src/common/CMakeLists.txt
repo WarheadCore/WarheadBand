@@ -68,6 +68,7 @@ target_link_libraries(common
     openssl
     threads
     jemalloc
+    stdfs
     fmt
     valgrind)
 

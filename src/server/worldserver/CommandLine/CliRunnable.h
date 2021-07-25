@@ -18,6 +18,6 @@
 #ifndef __CLIRUNNABLE_H
 #define __CLIRUNNABLE_H
 
+/// Command Line Interface handling thread
 void CliThread();
-
 #endif

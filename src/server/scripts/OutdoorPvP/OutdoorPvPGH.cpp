@@ -17,7 +17,6 @@
 
 #include "OutdoorPvPGH.h"
 #include "GameEventMgr.h"
-#include "Language.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -36,12 +35,8 @@ bool OutdoorPvPGH::SetupOutdoorPvP()
     RegisterZone(GH_ZONE);
     SetMapFromZone(GH_ZONE);
 
-    if ((m_obj = new OPvPCapturePointGH(this)))
-    {
-        AddCapturePoint(m_obj);
-        return true;
-    }
-    return false;
+    AddCapturePoint(new OPvPCapturePointGH(this));
+    return true;
 }
 
 void OutdoorPvPGH::SendRemoveWorldStates(Player* player)

@@ -1222,8 +1222,10 @@ public:
                         break;
                     }
                     // just walking, fatiuge handling
-                    if (Aura* aur = caster->GetAura(SPELL_RAM_FATIGUE))
-                        aur->ModStackAmount(-4);
+                    if (Aura* fatigueAura = caster->GetAura(SPELL_RAM_FATIGUE))
+                    {
+                        fatigueAura->ModStackAmount(-4);
+                    }
                     break;
                 case 1:
                     // One click to maintain speed, more to increase

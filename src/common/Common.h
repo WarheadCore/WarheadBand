@@ -25,13 +25,12 @@
 #include <utility>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-#  include <ws2tcpip.h>
-
+#include <ws2tcpip.h>
 #  if WARHEAD_COMPILER == WARHEAD_COMPILER_INTEL
 #    if !defined(BOOST_ASIO_HAS_MOVE)
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
-#  endif // if WARHEAD_COMPILER == WARHEAD_COMPILER_INTEL
+#  endif // if AC_COMPILER == AC_COMPILER_INTEL
 #else
 #include <cstdlib>
 #include <netdb.h>
@@ -56,16 +55,14 @@
 
 #define STRINGIZE(a) #a
 
-enum TimeConstants
-{
-    MINUTE          = 60,
-    HOUR            = MINUTE * 60,
-    DAY             = HOUR * 24,
-    WEEK            = DAY * 7,
-    MONTH           = DAY * 30,
-    YEAR            = MONTH * 12,
-    IN_MILLISECONDS = 1000
-};
+// TimeConstants
+constexpr auto MINUTE = 60;
+constexpr auto HOUR = MINUTE * 60;
+constexpr auto DAY = HOUR * 24;
+constexpr auto WEEK = DAY * 7;
+constexpr auto MONTH = DAY * 30;
+constexpr auto YEAR = MONTH * 12;
+constexpr auto IN_MILLISECONDS = 1000;
 
 enum AccountTypes
 {

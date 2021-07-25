@@ -725,7 +725,7 @@ void WheatyExceptionReport::GenerateExceptionReport(
 //======================================================================
 LPTSTR WheatyExceptionReport::GetExceptionString(DWORD dwCode)
 {
-#define EXCEPTION(x) case EXCEPTION_##x: return _T(#x);
+#define EXCEPTION(x) case EXCEPTION_##x: return LPTSTR(_T(#x));
 
     switch (dwCode)
     {
@@ -1040,7 +1040,7 @@ bool WheatyExceptionReport::FormatSymbolValue(
     // Determine if the variable is a user defined type (UDT).  IF so, bHandled
     // will return true.
     bool bHandled;
-    DumpTypeIndex(pSym->ModBase, pSym->TypeIndex, pVariable, bHandled, pSym->Name, "", false, true);
+    DumpTypeIndex(pSym->ModBase, pSym->TypeIndex, pVariable, bHandled, pSym->Name, (char*)"", false, true);
 
     if (!bHandled)
     {
@@ -1251,7 +1251,7 @@ void WheatyExceptionReport::DumpTypeIndex(
                             logChildren = false;
                         }
                         DumpTypeIndex(modBase, innerTypeID,
-                                      offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
+                                      offset, bHandled, symbolDetails.top().Name.c_str(), (char*)"", false, logChildren);
                         break;
                     case SymTagPointerType:
                         if (Name != nullptr && Name[0] != '\0')
@@ -1259,11 +1259,11 @@ void WheatyExceptionReport::DumpTypeIndex(
                             symbolDetails.top().Name = Name;
                         }
                         DumpTypeIndex(modBase, innerTypeID,
-                                      offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
+                                      offset, bHandled, symbolDetails.top().Name.c_str(), (char*)"", false, logChildren);
                         break;
                     case SymTagArrayType:
                         DumpTypeIndex(modBase, innerTypeID,
-                                      offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
+                                      offset, bHandled, symbolDetails.top().Name.c_str(), (char*)"", false, logChildren);
                         break;
                     default:
                         break;
@@ -1277,7 +1277,7 @@ void WheatyExceptionReport::DumpTypeIndex(
 
                 BasicType basicType = btNoType;
                 DumpTypeIndex(modBase, innerTypeID,
-                              offset, bHandled, Name, "", false, false);
+                              offset, bHandled, Name, (char*)"", false, false);
 
                 // Set Value back to an empty string since the Array object itself has no value, only its elements have
                 std::string firstElementValue = symbolDetails.top().Value;
@@ -1331,7 +1331,7 @@ void WheatyExceptionReport::DumpTypeIndex(
                             }
                             else
                             {
-                                DumpTypeIndex(modBase, innerTypeID, offset + length * index, elementHandled, "", "", false, false);
+                                DumpTypeIndex(modBase, innerTypeID, offset + length * index, elementHandled, "", (char*)"", false, false);
                                 if (!elementHandled)
                                 {
                                     FormatOutputValue(buffer, basicType, length, (PVOID)(offset + length * index), sizeof(buffer));
@@ -1431,7 +1431,7 @@ void WheatyExceptionReport::DumpTypeIndex(
 
         DumpTypeIndex(modBase,
                       children.ChildId[i],
-                      dwFinalOffset, bHandled2, ""/*Name */, "", true, true);
+                      dwFinalOffset, bHandled2, ""/*Name */, (char*)"", true, true);
 
         // If the child wasn't a UDT, format it appropriately
         if (!bHandled2)

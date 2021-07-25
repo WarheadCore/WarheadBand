@@ -21,7 +21,6 @@
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Item.h"
 #include "ObjectMgr.h"
 #include "Spell.h"
 #include "TemporarySummon.h"

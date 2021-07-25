@@ -19,39 +19,26 @@ add_library(warhead-compile-option-interface INTERFACE)
 # Use -std=c++11 instead of -std=gnu++11
 set(CXX_EXTENSIONS OFF)
 
-# Enable support С++17
-set(CMAKE_CXX_STANDARD 17)
-message(STATUS "Enabled С++17 support")
-
-# An interface library to make the target features available to other targets
-add_library(warhead-feature-interface INTERFACE)
-
-target_compile_features(warhead-feature-interface
-  INTERFACE
-    cxx_alias_templates
-    cxx_auto_type
-    cxx_constexpr
-    cxx_decltype
-    cxx_decltype_auto
-    cxx_final
-    cxx_lambdas
-    cxx_generic_lambdas
-    cxx_variadic_templates
-    cxx_defaulted_functions
-    cxx_nullptr
-    cxx_trailing_return_types
-    cxx_return_type_deduction)
+if (USE_CPP_20)
+  # Enable support С++20
+  set(CMAKE_CXX_STANDARD 20)
+  message(STATUS "Enabled С++20 standard")
+else()
+  # Enable support С++17
+  set(CMAKE_CXX_STANDARD 17)
+  message(STATUS "Enabled С++17 standard")
+endif()
 
 # An interface library to make the warnings level available to other targets
 # This interface taget is set-up through the platform specific script
 add_library(warhead-warning-interface INTERFACE)
 
 # An interface used for all other interfaces
-add_library(warhead-default-interface INTERFACE)
-target_link_libraries(warhead-default-interface
+add_library(acore-default-interface INTERFACE)
+
+target_link_libraries(acore-default-interface
   INTERFACE
-    warhead-compile-option-interface
-    warhead-feature-interface)
+    acore-compile-option-interface)
 
 # An interface used for silencing all warnings
 add_library(warhead-no-warning-interface INTERFACE)
@@ -84,5 +71,5 @@ target_link_libraries(warhead-dependency-interface
 add_library(warhead-core-interface INTERFACE)
 target_link_libraries(warhead-core-interface
   INTERFACE
-    warhead-default-interface
-    warhead-warning-interface)
+    acore-default-interface
+    acore-warning-interface)

@@ -66,7 +66,9 @@ PacketLog::PacketLog() : _file(nullptr)
 PacketLog::~PacketLog()
 {
     if (_file)
+    {
         fclose(_file);
+    }
 
     _file = nullptr;
 }
@@ -81,9 +83,10 @@ void PacketLog::Initialize()
 {
     std::string logsDir = sConfigMgr->GetOption<std::string>("LogsDir", "");
 
-    if (!logsDir.empty())
-        if ((logsDir.at(logsDir.length() - 1) != '/') && (logsDir.at(logsDir.length() - 1) != '\\'))
-            logsDir.push_back('/');
+    if (!logsDir.empty() && (logsDir.at(logsDir.length() - 1) != '/') && (logsDir.at(logsDir.length() - 1) != '\\'))
+    {
+        logsDir.push_back('/');
+    }
 
     std::string logname = sConfigMgr->GetOption<std::string>("PacketLogFile", "");
     if (!logname.empty())
@@ -133,6 +136,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     header.Opcode = packet.GetOpcode();
 
     fwrite(&header, sizeof(header), 1, _file);
+
     if (!packet.empty())
         fwrite(packet.contents(), 1, packet.size(), _file);
 

@@ -42,9 +42,6 @@ public:
     OutdoorPvPGH();
     bool SetupOutdoorPvP() override;
     void SendRemoveWorldStates(Player* player) override;
-
-private:
-    OPvPCapturePointGH* m_obj;
 };
 
 class OPvPCapturePointGH : public OPvPCapturePoint

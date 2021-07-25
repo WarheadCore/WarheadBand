@@ -130,7 +130,7 @@ public:
 
             std::string chrNameLink = handler->playerLink(target->GetName());
 
-            if (target->IsBeingTeleported() == true)
+            if (target->IsBeingTeleported())
             {
                 handler->PSendSysMessage(LANG_IS_TELEPORTED, chrNameLink);
                 handler->SetSentErrorMessage(true);

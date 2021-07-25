@@ -20,7 +20,6 @@
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "GameObject.h"
-#include "GossipDef.h"
 #include "Language.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
@@ -152,11 +151,7 @@ void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(TeamId teamId)
     if (m_UnitsSummonedSideId != teamId)
     {
         m_UnitsSummonedSideId = teamId;
-        const creature_type* ct = nullptr;
-        if (teamId == TEAM_ALLIANCE)
-            ct = EP_EWT_Summons_A;
-        else
-            ct = EP_EWT_Summons_H;
+        const creature_type* ct = teamId == TEAM_ALLIANCE ? EP_EWT_Summons_A : EP_EWT_Summons_H;
 
         for (uint8 i = 0; i < EP_EWT_NUM_CREATURES; ++i)
         {

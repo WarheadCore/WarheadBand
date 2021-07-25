@@ -971,41 +971,41 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
         It will freeze clients that receive this player's movement info.
     */
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ROOT),
-                           MOVEMENTFLAG_ROOT);
+        MOVEMENTFLAG_ROOT);
 
     //! Cannot hover without SPELL_AURA_HOVER
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_HOVER) && !GetPlayer()->HasAuraType(SPELL_AURA_HOVER),
-                           MOVEMENTFLAG_HOVER);
+        MOVEMENTFLAG_HOVER);
 
     //! Cannot ascend and descend at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_ASCENDING) && mi->HasMovementFlag(MOVEMENTFLAG_DESCENDING),
-                           MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
+        MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING);
 
     //! Cannot move left and right at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_RIGHT),
-                           MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT);
 
     //! Cannot strafe left and right at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_LEFT) && mi->HasMovementFlag(MOVEMENTFLAG_STRAFE_RIGHT),
-                           MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
+        MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
 
     //! Cannot pitch up and down at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_PITCH_UP) && mi->HasMovementFlag(MOVEMENTFLAG_PITCH_DOWN),
-                           MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
+        MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN);
 
     //! Cannot move forwards and backwards at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FORWARD) && mi->HasMovementFlag(MOVEMENTFLAG_BACKWARD),
-                           MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
+        MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
 
     //! Cannot walk on water without SPELL_AURA_WATER_WALK
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
-                           !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK) &&
-                           !GetPlayer()->HasAuraType(SPELL_AURA_GHOST),
-                           MOVEMENTFLAG_WATERWALKING);
+        !GetPlayer()->HasAuraType(SPELL_AURA_WATER_WALK) &&
+        !GetPlayer()->HasAuraType(SPELL_AURA_GHOST),
+        MOVEMENTFLAG_WATERWALKING);
 
     //! Cannot feather fall without SPELL_AURA_FEATHER_FALL
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FALLING_SLOW) && !GetPlayer()->HasAuraType(SPELL_AURA_FEATHER_FALL),
-                           MOVEMENTFLAG_FALLING_SLOW);
+        MOVEMENTFLAG_FALLING_SLOW);
 
     /*! Cannot fly if no fly auras present. Exception is being a GM.
         Note that we check for account level instead of Player::IsGameMaster() because in some
@@ -1014,14 +1014,14 @@ void WorldSession::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     */
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER && !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_FLY) && !GetPlayer()->m_mover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
-                           MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
+        MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     //! Cannot fly and fall at the same time
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY) && mi->HasMovementFlag(MOVEMENTFLAG_FALLING),
-                           MOVEMENTFLAG_FALLING);
+        MOVEMENTFLAG_FALLING);
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) &&
-                           (!GetPlayer()->movespline->Initialized() || GetPlayer()->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
+        (!GetPlayer()->movespline->Initialized() || GetPlayer()->movespline->Finalized()), MOVEMENTFLAG_SPLINE_ENABLED);
 
 #undef REMOVE_VIOLATING_FLAGS
 }
