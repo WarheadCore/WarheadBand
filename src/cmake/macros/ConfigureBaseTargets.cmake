@@ -34,11 +34,11 @@ endif()
 add_library(warhead-warning-interface INTERFACE)
 
 # An interface used for all other interfaces
-add_library(acore-default-interface INTERFACE)
+add_library(warhead-default-interface INTERFACE)
 
-target_link_libraries(acore-default-interface
+target_link_libraries(warhead-default-interface
   INTERFACE
-    acore-compile-option-interface)
+    warhead-compile-option-interface)
 
 # An interface used for silencing all warnings
 add_library(warhead-no-warning-interface INTERFACE)

@@ -29,7 +29,6 @@ enum LoginDatabaseStatements : uint32
     */
 
     LOGIN_SEL_REALMLIST,
-    LOGIN_SEL_IP_INFO,
     LOGIN_DEL_EXPIRED_IP_BANS,
     LOGIN_UPD_EXPIRED_ACCOUNT_BANS,
     LOGIN_SEL_IP_INFO,

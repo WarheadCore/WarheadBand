@@ -30,7 +30,7 @@
 #    if !defined(BOOST_ASIO_HAS_MOVE)
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
-#  endif // if AC_COMPILER == AC_COMPILER_INTEL
+#  endif // if WARHEAD_COMPILER == WARHEAD_COMPILER_INTEL
 #else
 #include <cstdlib>
 #include <netdb.h>
@@ -48,10 +48,6 @@
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif
-
-// inline float finiteAlways(float f) { return isfinite(f) ? f : 0.0f; }
-
-// inline bool myisfinite(float f) { return isfinite(f) && !isnan(f); }
 
 #define STRINGIZE(a) #a
 

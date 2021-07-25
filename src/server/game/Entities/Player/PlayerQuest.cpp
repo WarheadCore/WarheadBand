@@ -27,7 +27,6 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
-#include "GitRevision.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 
