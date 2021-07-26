@@ -20,12 +20,16 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "Formulas.h"
+#include "GameConfig.h"
+#include "GameLocale.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
 #include "InstanceScript.h"
 #include "Language.h"
+#include "MuteManager.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "Player.h"
@@ -36,10 +40,6 @@
 #include "UpdateFieldFlags.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"
-#include "MuteManager.h"
-#include "GameConfig.h"
-#include "GameLocale.h"
-#include "GameTime.h"
 
 // Zone Interval should be 1 second
 constexpr auto ZONE_UPDATE_INTERVAL = 1000;
