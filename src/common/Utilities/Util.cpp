@@ -29,9 +29,6 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <cctype>
-#include <cstdarg>
-#include <ctime>
 #include <utf8.h>
 
 Tokenizer::Tokenizer(const std::string& src, const char sep, uint32 vectorReserve)
