@@ -36,10 +36,13 @@
 #include "UpdateFieldFlags.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"
+#include "MuteManager.h"
+#include "GameConfig.h"
+#include "GameLocale.h"
+#include "GameTime.h"
 
 // Zone Interval should be 1 second
 constexpr auto ZONE_UPDATE_INTERVAL = 1000;
-
 constexpr auto CINEMATIC_UPDATEDIFF = 500;
 constexpr auto CINEMATIC_LOOKAHEAD  = 2000;
 
@@ -80,13 +83,9 @@ void Player::Update(uint32 p_time)
 
     UpdatePvPFlag(now);
     UpdateFFAPvPFlag(now);
-
     UpdateContestedPvP(p_time);
-
     UpdateDuelFlag(now);
-
     CheckDuelDistance(now);
-
     UpdateAfkReport(now);
 
     // Xinef: update charm AI only if we are controlled by creature or
@@ -120,17 +119,7 @@ void Player::Update(uint32 p_time)
     }
 
     // If mute expired, remove it from the DB
-    if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
-    {
-        GetSession()->m_muteTime = 0;
-        LoginDatabasePreparedStatement* stmt =
-            LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
-        stmt->setInt64(0, 0); // Set the mute time to 0
-        stmt->setString(1, "");
-        stmt->setString(2, "");
-        stmt->setUInt32(3, GetSession()->GetAccountId());
-        LoginDatabase.Execute(stmt);
-    }
+    sMute->CheckMuteExpired(GetSession()->GetAccountId());
 
     if (!m_timedquests.empty())
     {
@@ -218,14 +207,6 @@ void Player::Update(uint32 p_time)
                     resetAttackTimer(OFF_ATTACK);
                 }
             }
-
-            /*Unit* owner = victim->GetOwner();
-            Unit* u = owner ? owner : victim;
-            if (u->IsPvP() && (!duel || duel->opponent != u))
-            {
-                UpdatePvP(true);
-                RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
-            }*/
         }
     }
 
@@ -239,7 +220,7 @@ void Player::Update(uint32 p_time)
             {
                 _restTime = currTime;
 
-                float bubble = 0.125f * sWorld->getRate(RATE_REST_INGAME);
+                float bubble = 0.125f * CONF_GET_FLOAT("Rate.Rest.InGame");
                 float extraPerSec =
                     ((float) GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000.0f) *
                     bubble;
@@ -531,8 +512,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     char const* currentNameExt;
 
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                        currentNameExt = sObjectMgr->GetAcoreStringForDBCLocale(
-                            LANG_CHANNEL_CITY);
+                        currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
                         currentNameExt = current_zone_name.c_str();
 
@@ -581,8 +561,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
 void Player::UpdateDefense()
 {
-    if (UpdateSkill(SKILL_DEFENSE,
-                    sWorld->getIntConfig(CONFIG_SKILL_GAIN_DEFENSE)))
+    if (UpdateSkill(SKILL_DEFENSE, CONF_GET_INT("SkillGain.Defense")))
         UpdateDefenseBonusesMod(); // update dependent from defense skill part
 }
 
@@ -591,15 +570,16 @@ void Player::UpdateRating(CombatRating cr)
     int32 amount = m_baseRatingValue[cr];
     // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
     // stat used stored in miscValueB for this aura
-    AuraEffectList const& modRatingFromStat =
-        GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
+    AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
+
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin();
          i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1 << cr))
-            amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())),
-                                         (*i)->GetAmount()));
+            amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
     if (amount < 0)
         amount = 0;
+
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
 
     bool affectStats = CanModifyStats();
@@ -722,139 +702,93 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
 }
 
 // iraizo: turn this into a switch statement
-inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel,
-                           uint32 GreenLevel, uint32 YellowLevel)
+inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
 {
     if (SkillValue >= GrayLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY) * 10;
+        return CONF_GET_INT("SkillChance.Grey") * 10;
+
     if (SkillValue >= GreenLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN) * 10;
+        return CONF_GET_INT("SkillChance.Green") * 10;
+
     if (SkillValue >= YellowLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW) * 10;
-    return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE) * 10;
+        return CONF_GET_INT("SkillChance.Yellow") * 10;
+
+    return CONF_GET_INT("SkillChance.Orange") * 10;
 }
 
-bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue,
-                               uint32 RedLevel, uint32 Multiplicator)
+bool Player::UpdateCraftSkill(uint32 spellid)
 {
-    LOG_DEBUG("entities.player.skills",
-              "UpdateGatherSkill(SkillId %d SkillLevel %d RedLevel %d)",
-              SkillId, SkillValue, RedLevel);
+    LOG_DEBUG("entities.player.skills", "UpdateCraftSkill spellid {}", spellid);
 
-    uint32 gathering_skill_gain =
-        sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellid);
 
-    // For skinning and Mining chance decrease with level. 1-74 - no decrease,
-    // 75-149 - 2 times, 225-299 - 8 times
+    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+    {
+        if (_spell_idx->second->SkillLine)
+        {
+            uint32 SkillValue = GetPureSkillValue(_spell_idx->second->SkillLine);
+
+            // Alchemy Discoveries here
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
+            if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
+            {
+                if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->SkillLine, spellid, this))
+                    learnSpell(discoveredSpell);
+            }
+
+            uint32 craft_skill_gain = CONF_GET_INT("SkillGain.Crafting");
+
+            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue, _spell_idx->second->TrivialSkillLineRankHigh, (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow) / 2, _spell_idx->second->TrivialSkillLineRankLow), craft_skill_gain);
+        }
+    }
+
+    return false;
+}
+
+bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator)
+{
+    LOG_DEBUG("entities.player.skills", "UpdateGatherSkill(SkillId {} SkillLevel {} RedLevel {})", SkillId, SkillValue, RedLevel);
+
+    uint32 gathering_skill_gain = CONF_GET_INT("SkillGain.Gathering");
+
+    // For skinning and Mining chance decrease with level. 1-74 - no decrease, 75-149 - 2 times, 225-299 - 8 times
     switch (SkillId)
     {
     case SKILL_HERBALISM:
     case SKILL_LOCKPICKING:
     case SKILL_JEWELCRAFTING:
     case SKILL_INSCRIPTION:
-        return UpdateSkillPro(SkillId,
-                              SkillGainChance(SkillValue, RedLevel + 100,
-                                              RedLevel + 50, RedLevel + 25) *
-                                  Multiplicator,
-                              gathering_skill_gain);
+        return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator, gathering_skill_gain);
     case SKILL_SKINNING:
-        if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS) == 0)
-            return UpdateSkillPro(SkillId,
-                                  SkillGainChance(SkillValue, RedLevel + 100,
-                                                  RedLevel + 50,
-                                                  RedLevel + 25) *
-                                      Multiplicator,
-                                  gathering_skill_gain);
+        if (CONF_GET_INT("SkillChance.SkinningSteps") == 0)
+            return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator, gathering_skill_gain);
         else
-            return UpdateSkillPro(
-                SkillId,
-                (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50,
-                                 RedLevel + 25) *
-                 Multiplicator) >>
-                    (SkillValue /
-                     sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)),
-                gathering_skill_gain);
+            return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator) >> (SkillValue / CONF_GET_INT("SkillChance.SkinningSteps")), gathering_skill_gain);
     case SKILL_MINING:
-        if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS) == 0)
-            return UpdateSkillPro(SkillId,
-                                  SkillGainChance(SkillValue, RedLevel + 100,
-                                                  RedLevel + 50,
-                                                  RedLevel + 25) *
-                                      Multiplicator,
-                                  gathering_skill_gain);
+        if (CONF_GET_INT("SkillChance.MiningSteps") == 0)
+            return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator, gathering_skill_gain);
         else
-            return UpdateSkillPro(
-                SkillId,
-                (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50,
-                                 RedLevel + 25) *
-                 Multiplicator) >>
-                    (SkillValue /
-                     sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS)),
-                gathering_skill_gain);
+            return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel + 100, RedLevel + 50, RedLevel + 25) * Multiplicator) >> (SkillValue / CONF_GET_INT("SkillChance.MiningSteps")), gathering_skill_gain);
     }
     return false;
 }
 
-bool Player::UpdateCraftSkill(uint32 spellid)
+float GetProbabilityOfLevelUp(uint32 skillValue)
 {
-    LOG_DEBUG("entities.player.skills", "UpdateCraftSkill spellid %d", spellid);
-
-    SkillLineAbilityMapBounds bounds =
-        sSpellMgr->GetSkillLineAbilityMapBounds(spellid);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first;
-         _spell_idx != bounds.second; ++_spell_idx)
-    {
-        if (_spell_idx->second->SkillLine)
-        {
-            uint32 SkillValue =
-                GetPureSkillValue(_spell_idx->second->SkillLine);
-
-            // Alchemy Discoveries here
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellid);
-            if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
-            {
-                if (uint32 discoveredSpell = GetSkillDiscoverySpell(
-                        _spell_idx->second->SkillLine, spellid, this))
-                    learnSpell(discoveredSpell);
-            }
-
-            uint32 craft_skill_gain =
-                sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-
-            return UpdateSkillPro(
-                _spell_idx->second->SkillLine,
-                SkillGainChance(SkillValue,
-                                _spell_idx->second->TrivialSkillLineRankHigh,
-                                (_spell_idx->second->TrivialSkillLineRankHigh +
-                                 _spell_idx->second->TrivialSkillLineRankLow) /
-                                    2,
-                                _spell_idx->second->TrivialSkillLineRankLow),
-                craft_skill_gain);
-        }
-    }
-    return false;
-}
-
-float getProbabilityOfLevelUp(uint32 SkillValue)
-{
-    /* According to El's Extreme Angling page, from 1 to 115 the probability of
-     * a skill level up is 100% since 100/1 = 100. From 115 - 135 should average
-     * 2 catches per skill up so that means 100/2 = 50%. This returns the
-     * probability depending on the player's SkillValue.
+    /* According to El's Extreme Angling page, from 1 to 115 the probability of a skill
+     * level up is 100% since 100/1 = 100. From 115 - 135 should average 2 catches per
+     * skill up so that means 100/2 = 50%.
+     * This returns the probability depending on the player's SkillValue.
      */
-    if (!SkillValue)
+    if (!skillValue)
     {
         return 0.0f;
     }
 
-    std::array<uint32, 10> bounds {115, 135, 160, 190, 215,
-                                   295, 315, 355, 425, 450};
-    std::array<float, 11>  dens {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f,
-                                9.0f, 10.0f, 11.0f, 12.0f, 1.0f};
-    auto                   it =
-        std::lower_bound(std::begin(bounds), std::end(bounds), SkillValue);
-    return 100 / dens[std::distance(std::begin(bounds), it)];
+    std::array<uint32, 10> bounds { 115, 135, 160, 190, 215, 295, 315, 355, 425, 450 };
+    std::array<float, 11> dens { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 9.0f, 10.0f, 11.0f, 12.0f, 1.0f };
+    auto it = std::lower_bound(std::begin(bounds), std::end(bounds), skillValue);
+    return 100 / dens.at(std::distance(std::begin(bounds), it));
 }
 
 bool Player::UpdateFishingSkill()
@@ -868,44 +802,36 @@ bool Player::UpdateFishingSkill()
         return false;
     }
 
-    /* Whenever the player clicks on the fishing gameobject the
+    /*
+     * Whenever the player clicks on the fishing gameobject the
      * core will decide based on a probability if the skill raises or not.
      */
-    return UpdateSkillPro(
-        SKILL_FISHING,
-        static_cast<int32>(getProbabilityOfLevelUp(SkillValue)) * 10,
-        sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING));
+    return UpdateSkillPro(SKILL_FISHING, static_cast<int32>(GetProbabilityOfLevelUp(SkillValue)) * 10, CONF_GET_INT("SkillGain.Gathering"));
 }
 
 // levels sync. with spell requirement for skill levels to learn
 // bonus abilities in sSkillLineAbilityStore
 // Used only to avoid scan DBC at each skill grow
-static uint32       bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
-static const size_t bonusSkillLevelsSize =
-    sizeof(bonusSkillLevels) / sizeof(uint32);
+static uint32 bonusSkillLevels[] = { 75, 150, 225, 300, 375, 450 };
+static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
 
-bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
+bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
 {
-    LOG_DEBUG("entities.player.skills",
-              "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", SkillId,
-              Chance / 10.0f);
-    if (!SkillId)
+    LOG_DEBUG("entities.player.skills", "UpdateSkillPro(SkillId {}, Chance {:3.1f}%)", skillId, chance / 10.0f);
+    if (!skillId)
         return false;
 
-    if (Chance <= 0) // speedup in 0 chance case
+    if (chance <= 0) // speedup in 0 chance case
     {
-        LOG_DEBUG("entities.player.skills",
-                  "Player::UpdateSkillPro Chance=%3.1f%% missed",
-                  Chance / 10.0f);
+        LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance={:3.1f}% missed", chance / 10.0f);
         return false;
     }
 
-    SkillStatusMap::iterator itr = mSkillStatus.find(SkillId);
+    SkillStatusMap::iterator itr = mSkillStatus.find(skillId);
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return false;
 
     uint32 valueIndex = PLAYER_SKILL_VALUE_INDEX(itr->second.pos);
-
     uint32 data       = GetUInt32Value(valueIndex);
     uint16 SkillValue = SKILL_VALUE(data);
     uint16 MaxValue   = SKILL_MAX(data);
@@ -915,7 +841,7 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 
     int32 Roll = irand(1, 1000);
 
-    if (Roll <= Chance)
+    if (Roll <= chance)
     {
         uint32 new_value = SkillValue + step;
         if (new_value > MaxValue)
@@ -930,21 +856,19 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
             uint32 bsl = bonusSkillLevels[i];
             if (SkillValue < bsl && new_value >= bsl)
             {
-                learnSkillRewardedSpells(SkillId, new_value);
+                learnSkillRewardedSpells(skillId, new_value);
                 break;
             }
         }
-        UpdateSkillEnchantments(SkillId, SkillValue, new_value);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL,
-                                  SkillId);
-        LOG_DEBUG("entities.player.skills",
-                  "Player::UpdateSkillPro Chance=%3.1f%% taken",
-                  Chance / 10.0f);
+
+        UpdateSkillEnchantments(skillId, SkillValue, new_value);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, skillId);
+
+        LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance={:3.1f}% taken", chance / 10.0f);
         return true;
     }
 
-    LOG_DEBUG("entities.player.skills",
-              "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+    LOG_DEBUG("entities.player.skills", "Player::UpdateSkillPro Chance={:3.1f}% missed", chance / 10.0f);
     return false;
 }
 
@@ -956,12 +880,10 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
     if (GetShapeshiftForm() == FORM_TREE)
         return; // use weapon but not skill up
 
-    if (victim->GetTypeId() == TYPEID_UNIT &&
-        (victim->ToCreature()->GetCreatureTemplate()->flags_extra &
-         CREATURE_FLAG_EXTRA_NO_SKILL_GAINS))
+    if (victim->GetTypeId() == TYPEID_UNIT && (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SKILL_GAINS))
         return;
 
-    uint32 weapon_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_WEAPON);
+    uint32 weapon_skill_gain = CONF_GET_INT("SkillGain.Weapon");
 
     Item* tmpitem = GetWeaponForAttack(attType, true);
     if (!tmpitem && attType == BASE_ATTACK)
@@ -970,8 +892,7 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
         UpdateSkill(SKILL_UNARMED, weapon_skill_gain);
         UpdateSkill(SKILL_FIST_WEAPONS, weapon_skill_gain);
     }
-    else if (tmpitem && tmpitem->GetTemplate()->SubClass !=
-                            ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+    else if (tmpitem && tmpitem->GetTemplate()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
     {
         switch (tmpitem->GetTemplate()->SubClass)
         {
@@ -989,15 +910,11 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
     UpdateAllCritPercentages();
 }
 
-void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType,
-                                bool defence)
+void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defence)
 {
     uint8 plevel    = getLevel(); // if defense than victim == attacker
-    uint8 greylevel = Acore::XP::GetGrayLevel(plevel);
+    uint8 greylevel = Warhead::XP::GetGrayLevel(plevel);
     uint8 moblevel  = victim->getLevelForTarget(this);
-    /*if (moblevel < greylevel)
-        return;*/
-    // Patch 3.0.8 (2009-01-20): You can no longer skill up weapons on mobs that are immune to damage.
 
     if (moblevel > plevel + 5)
         moblevel = plevel + 5;
@@ -1006,8 +923,7 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType,
     if (lvldif < 3)
         lvldif = 3;
 
-    uint32 skilldif = 5 * plevel - (defence ? GetBaseDefenseSkillValue()
-                                            : GetBaseWeaponSkillValue(attType));
+    uint32 skilldif = 5 * plevel - (defence ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
     if (skilldif <= 0)
         return;
 
@@ -1016,8 +932,7 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType,
         if (getClass() == CLASS_WARRIOR || getClass() == CLASS_ROGUE)
             chance += chance * 0.02f * GetStat(STAT_INTELLECT);
 
-    chance =
-        chance < 1.0f ? 1.0f : chance; // minimum chance to increase skill is 1%
+    chance = chance < 1.0f ? 1.0f : chance; // minimum chance to increase skill is 1%
 
     if (roll_chance_f(chance))
     {
@@ -1026,8 +941,6 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType,
         else
             UpdateWeaponSkill(victim, attType);
     }
-    else
-        return;
 }
 
 void Player::UpdateSkillsForLevel()
@@ -1035,18 +948,15 @@ void Player::UpdateSkillsForLevel()
     uint16 maxconfskill = sWorld->GetConfigMaxSkillValue();
     uint32 maxSkill     = GetMaxSkillValueForLevel();
 
-    bool alwaysMaxSkill =
-        sWorld->getBoolConfig(CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL);
+    bool alwaysMaxSkill = CONF_GET_BOOL("AlwaysMaxSkillForLevel");
 
-    for (SkillStatusMap::iterator itr = mSkillStatus.begin();
-         itr != mSkillStatus.end(); ++itr)
+    for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
     {
         if (itr->second.uState == SKILL_DELETED)
             continue;
 
-        uint32                         pskill = itr->first;
-        SkillRaceClassInfoEntry const* rcEntry =
-            GetSkillRaceClassInfo(pskill, getRace(), getClass());
+        uint32                         pskill  = itr->first;
+        SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(pskill, getRace(), getClass());
         if (!rcEntry)
             continue;
 
@@ -1062,16 +972,13 @@ void Player::UpdateSkillsForLevel()
         if (max != 1)
         {
             /// maximize skill always
-            if (alwaysMaxSkill ||
-                (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE))
+            if (alwaysMaxSkill || (rcEntry->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE))
             {
-                SetUInt32Value(valueIndex,
-                               MAKE_SKILL_VALUE(maxSkill, maxSkill));
+                SetUInt32Value(valueIndex, MAKE_SKILL_VALUE(maxSkill, maxSkill));
                 if (itr->second.uState != SKILL_NEW)
                     itr->second.uState = SKILL_CHANGED;
             }
-            else if (max != maxconfskill) /// update max skill value if current
-                                          /// max skill not maximized
+            else if (max != maxconfskill) /// update max skill value if current max skill not maximized
             {
                 SetUInt32Value(valueIndex, MAKE_SKILL_VALUE(val, maxSkill));
                 if (itr->second.uState != SKILL_NEW)
@@ -1083,15 +990,16 @@ void Player::UpdateSkillsForLevel()
 
 void Player::UpdateSkillsToMaxSkillsForLevel()
 {
-    for (SkillStatusMap::iterator itr = mSkillStatus.begin();
-         itr != mSkillStatus.end(); ++itr)
+    for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
     {
         if (itr->second.uState == SKILL_DELETED)
             continue;
 
         uint32 pskill = itr->first;
+
         if (IsProfessionOrRidingSkill(pskill))
             continue;
+
         uint32 valueIndex = PLAYER_SKILL_VALUE_INDEX(itr->second.pos);
         uint32 data       = GetUInt32Value(valueIndex);
         uint32 max        = SKILL_MAX(data);
@@ -1107,8 +1015,7 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
     }
 }
 
-bool Player::UpdatePosition(float x, float y, float z, float orientation,
-                            bool teleport)
+bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
@@ -1223,7 +1130,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if (!zone)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_WEATHER))
+    if (CONF_GET_BOOL("ActivateWeather"))
     {
         if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
             weather->SendWeatherUpdateToPlayer(this);
@@ -1239,20 +1146,14 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     switch (zone->team)
     {
     case AREATEAM_ALLY:
-        pvpInfo.IsInHostileArea =
-            GetTeamId(true) != TEAM_ALLIANCE &&
-            (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+        pvpInfo.IsInHostileArea = GetTeamId(true) != TEAM_ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
         break;
     case AREATEAM_HORDE:
-        pvpInfo.IsInHostileArea =
-            GetTeamId(true) != TEAM_HORDE &&
-            (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+        pvpInfo.IsInHostileArea = GetTeamId(true) != TEAM_HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
         break;
     case AREATEAM_NONE:
-        // overwrite for battlegrounds, maybe batter some zone flags but current
-        // known not 100% fit to this
-        pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() ||
-                                  zone->flags & AREA_FLAG_WINTERGRASP;
+        // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
+        pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->flags & AREA_FLAG_WINTERGRASP;
         break;
     default: // 6 in fact
         pvpInfo.IsInHostileArea = false;
@@ -1447,12 +1348,9 @@ void Player::UpdateFFAPvPState(bool reset /*= true*/)
             // Not FFA PvP realm
             // Not FFA PvP timer already set
             // Being recently in PvP combat
-            if (!pvpInfo.IsInFFAPvPArea && !sWorld->IsFFAPvPRealm() &&
-                !pvpInfo.FFAPvPEndTimer)
+            if (!pvpInfo.IsInFFAPvPArea && !sWorld->IsFFAPvPRealm() && !pvpInfo.FFAPvPEndTimer)
             {
-                pvpInfo.FFAPvPEndTimer =
-                    sWorld->GetGameTime() +
-                    sWorld->getIntConfig(CONFIG_FFA_PVP_TIMER);
+                pvpInfo.FFAPvPEndTimer = GameTime::GetGameTime() + CONF_GET_INT("FFAPvPTimer");
             }
         }
     }
@@ -1608,36 +1506,26 @@ void Player::UpdateCinematicLocation(uint32 /*diff*/)
     }
 }
 
-template void Player::UpdateVisibilityOf(Player* target, UpdateData& data,
-                                         std::vector<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Creature* target, UpdateData& data,
-                                         std::vector<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(Corpse* target, UpdateData& data,
-                                         std::vector<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(GameObject* target, UpdateData& data,
-                                         std::vector<Unit*>& visibleNow);
-template void Player::UpdateVisibilityOf(DynamicObject*      target,
-                                         UpdateData&         data,
-                                         std::vector<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Player* target, UpdateData& data, std::vector<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Creature* target, UpdateData& data, std::vector<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Corpse* target, UpdateData& data, std::vector<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(GameObject* target, UpdateData& data, std::vector<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::vector<Unit*>& visibleNow);
 
 void Player::UpdateVisibilityForPlayer(bool mapChange)
 {
-    // After added to map seer must be a player - there is no possibility to
-    // still have different seer (all charm auras must be already removed)
+    // After added to map seer must be a player - there is no possibility to still have different seer (all charm auras must be already removed)
     if (mapChange && m_seer != this)
     {
+        LOG_ERROR("entities.player", "Something wrong in Player::UpdateVisibilityForPlayer - after added to map seer must be a player - there is no possibility to still have different seer (all charm auras must be already removed)");
         m_seer = this;
     }
 
-    Acore::VisibleNotifier notifierNoLarge(
-        *this, mapChange,
-        false); // visit only objects which are not large; default distance
-    Cell::VisitAllObjects(m_seer, notifierNoLarge,
-                          GetSightRange() + VISIBILITY_INC_FOR_GOBJECTS);
+    Warhead::VisibleNotifier notifierNoLarge(*this, mapChange, false); // visit only objects which are not large; default distance
+    Cell::VisitAllObjects(m_seer, notifierNoLarge, GetSightRange() + VISIBILITY_INC_FOR_GOBJECTS);
     notifierNoLarge.SendToSelf();
 
-    Acore::VisibleNotifier notifierLarge(
-        *this, mapChange, true); // visit only large objects; maximum distance
+    Warhead::VisibleNotifier notifierLarge(*this, mapChange, true); // visit only large objects; maximum distance
     Cell::VisitAllObjects(m_seer, notifierLarge, GetSightRange());
     notifierLarge.SendToSelf();
 
@@ -1963,12 +1851,10 @@ void Player::UpdateCorpseReclaimDelay()
 {
     bool pvp = m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH;
 
-    if ((pvp &&
-         !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP)) ||
-        (!pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
+    if ((pvp && !CONF_GET_BOOL("Death.CorpseReclaimDelay.PvP")) || (!pvp && !CONF_GET_BOOL("Death.CorpseReclaimDelay.PvE")))
         return;
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     if (now < m_deathExpireTime)
     {
@@ -1990,20 +1876,16 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     if (GetExactDistSq(&m_last_underwaterstate_position) < 3.0f * 3.0f)
         return;
 
-    m_last_underwaterstate_position.Relocate(m_positionX, m_positionY,
-                                             m_positionZ);
+    m_last_underwaterstate_position.Relocate(m_positionX, m_positionY, m_positionZ);
 
-    if (!IsPositionValid()) // pussywizard: crashfix if calculated grid coords
-                            // would be out of range 0-64
+    if (!IsPositionValid()) // pussywizard: crashfix if calculated grid coords would be out of range 0-64
         return;
 
     LiquidData    liquid_status;
-    ZLiquidStatus res = m->getLiquidStatus(
-        x, y, z, MAP_ALL_LIQUIDS, &liquid_status, GetCollisionHeight());
+    ZLiquidStatus res = m->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status, GetCollisionHeight());
     if (!res)
     {
-        m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA |
-                                UNDERWATER_INSLIME | UNDERWARER_INDARKWATER);
+        m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWARER_INDARKWATER);
         if (_lastLiquid && _lastLiquid->SpellId)
             RemoveAurasDueToSpell(_lastLiquid->SpellId);
 
@@ -2037,9 +1919,7 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     }
 
     // All liquids type - check under water position
-    if (liquid_status.type_flags &
-        (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN | MAP_LIQUID_TYPE_MAGMA |
-         MAP_LIQUID_TYPE_SLIME))
+    if (liquid_status.type_flags & (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN | MAP_LIQUID_TYPE_MAGMA | MAP_LIQUID_TYPE_SLIME))
     {
         if (res & LIQUID_MAP_UNDER_WATER)
             m_MirrorTimerFlags |= UNDERWATER_INWATER;
@@ -2048,8 +1928,7 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     }
 
     // Allow travel in dark water on taxi or transport
-    if ((liquid_status.type_flags & MAP_LIQUID_TYPE_DARK_WATER) &&
-        !IsInFlight() && !GetTransport())
+    if ((liquid_status.type_flags & MAP_LIQUID_TYPE_DARK_WATER) && !IsInFlight() && !GetTransport())
         m_MirrorTimerFlags |= UNDERWARER_INDARKWATER;
     else
         m_MirrorTimerFlags &= ~UNDERWARER_INDARKWATER;
@@ -2057,8 +1936,7 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     // in lava check, anywhere in lava level
     if (liquid_status.type_flags & MAP_LIQUID_TYPE_MAGMA)
     {
-        if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER |
-                   LIQUID_MAP_WATER_WALK))
+        if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER | LIQUID_MAP_WATER_WALK))
             m_MirrorTimerFlags |= UNDERWATER_INLAVA;
         else
             m_MirrorTimerFlags &= ~UNDERWATER_INLAVA;
@@ -2066,8 +1944,7 @@ void Player::UpdateUnderwaterState(Map* m, float x, float y, float z)
     // in slime check, anywhere in slime level
     if (liquid_status.type_flags & MAP_LIQUID_TYPE_SLIME)
     {
-        if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER |
-                   LIQUID_MAP_WATER_WALK))
+        if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER | LIQUID_MAP_WATER_WALK))
             m_MirrorTimerFlags |= UNDERWATER_INSLIME;
         else
             m_MirrorTimerFlags &= ~UNDERWATER_INSLIME;
@@ -2084,21 +1961,14 @@ void Player::UpdateCharmedAI()
     if (!charmer || !charmInfo)
         return;
 
-    // Xinef: we should be killed if caster enters evade mode and charm is
-    // infinite
-    if (charmer->GetTypeId() == TYPEID_UNIT &&
-        charmer->ToCreature()->IsInEvadeMode())
+    // Xinef: we should be killed if caster enters evade mode and charm is infinite
+    if (charmer->GetTypeId() == TYPEID_UNIT && charmer->ToCreature()->IsInEvadeMode())
     {
-        AuraEffectList const& auras =
-            GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
-        for (AuraEffectList::const_iterator iter = auras.begin();
-             iter != auras.end(); ++iter)
-            if ((*iter)->GetCasterGUID() == charmer->GetGUID() &&
-                (*iter)->GetBase()->IsPermanent())
+        AuraEffectList const& auras = GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
+        for (AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+            if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
             {
-                Unit::DealDamage(charmer, this, GetHealth(), nullptr,
-                                 DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL,
-                                 nullptr, false);
+                Unit::DealDamage(charmer, this, GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 return;
             }
     }
@@ -2113,10 +1983,7 @@ void Player::UpdateCharmedAI()
     if (HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    bool Mages =
-        getClassMask() & (1 << (CLASS_MAGE - 1) | 1 << (CLASS_WARLOCK - 1) |
-                          1 << (CLASS_DRUID - 1) | 1 << (CLASS_HUNTER - 1) |
-                          1 << (CLASS_PRIEST - 1));
+    bool Mages = getClassMask() & (1 << (CLASS_MAGE - 1) | 1 << (CLASS_WARLOCK - 1) | 1 << (CLASS_DRUID - 1) | 1 << (CLASS_HUNTER - 1) | 1 << (CLASS_PRIEST - 1));
 
     // Xinef: charmer type specific actions
     if (charmer->GetTypeId() == TYPEID_PLAYER)
@@ -2137,14 +2004,11 @@ void Player::UpdateCharmedAI()
             if (follow)
             {
                 if (!HasUnitState(UNIT_STATE_FOLLOW))
-                    GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST,
-                                                  PET_FOLLOW_ANGLE);
+                    GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                 return;
             }
         }
-        else if (target &&
-                 GetMotionMaster()->GetCurrentMovementGeneratorType() !=
-                     CHASE_MOTION_TYPE)
+        else if (target && GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
             GetMotionMaster()->MoveChase(target, Mages ? 15 : 4);
     }
 
@@ -2154,8 +2018,7 @@ void Player::UpdateCharmedAI()
         if (!target)
         {
             if (!HasUnitState(UNIT_STATE_FOLLOW))
-                GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST,
-                                              PET_FOLLOW_ANGLE);
+                GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
             return;
         }
@@ -2180,16 +2043,11 @@ void Player::UpdateCharmedAI()
             {
                 if (urand(0, 1))
                 {
-                    if (m_charmAISpells[SPELL_T_STUN] &&
-                        !HasSpellCooldown(m_charmAISpells[SPELL_T_STUN]))
+                    if (m_charmAISpells[SPELL_T_STUN] && !HasSpellCooldown(m_charmAISpells[SPELL_T_STUN]))
                         CastSpell(target, m_charmAISpells[SPELL_T_STUN], false);
-                    else if (m_charmAISpells[SPELL_ROOT_OR_FEAR] &&
-                             !HasSpellCooldown(
-                                 m_charmAISpells[SPELL_ROOT_OR_FEAR]))
-                        CastSpell(target, m_charmAISpells[SPELL_ROOT_OR_FEAR],
-                                  false);
-                    else if (m_charmAISpells[SPELL_IMMUNITY] &&
-                             !HasSpellCooldown(m_charmAISpells[SPELL_IMMUNITY]))
+                    else if (m_charmAISpells[SPELL_ROOT_OR_FEAR] && !HasSpellCooldown(m_charmAISpells[SPELL_ROOT_OR_FEAR]))
+                        CastSpell(target, m_charmAISpells[SPELL_ROOT_OR_FEAR], false);
+                    else if (m_charmAISpells[SPELL_IMMUNITY] && !HasSpellCooldown(m_charmAISpells[SPELL_IMMUNITY]))
                         CastSpell(this, m_charmAISpells[SPELL_IMMUNITY], true);
                 }
                 else
@@ -2197,20 +2055,12 @@ void Player::UpdateCharmedAI()
                     switch (urand(0, 1))
                     {
                     case 0:
-                        if (m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd] &&
-                            !HasSpellCooldown(
-                                m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd]))
-                            CastSpell(
-                                target,
-                                m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd],
-                                false);
+                        if (m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd] && !HasSpellCooldown(m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd]))
+                            CastSpell(target, m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd], false);
                         break;
                     case 1:
-                        if (m_charmAISpells[SPELL_DOT_DAMAGE] &&
-                            !HasSpellCooldown(
-                                m_charmAISpells[SPELL_DOT_DAMAGE]))
-                            CastSpell(target, m_charmAISpells[SPELL_DOT_DAMAGE],
-                                      false);
+                        if (m_charmAISpells[SPELL_DOT_DAMAGE] && !HasSpellCooldown(m_charmAISpells[SPELL_DOT_DAMAGE]))
+                            CastSpell(target, m_charmAISpells[SPELL_DOT_DAMAGE], false);
                         break;
                     }
                 }
@@ -2220,26 +2070,16 @@ void Player::UpdateCharmedAI()
                 switch (urand(0, 2))
                 {
                 case 0:
-                    if (m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd] &&
-                        !HasSpellCooldown(
-                            m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd]))
-                        CastSpell(target,
-                                  m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd],
-                                  false);
+                    if (m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd] && !HasSpellCooldown(m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd]))
+                        CastSpell(target, m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd], false);
                     break;
                 case 1:
-                    if (m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd] &&
-                        !HasSpellCooldown(
-                            m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd]))
-                        CastSpell(target,
-                                  m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd],
-                                  false);
+                    if (m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd] && !HasSpellCooldown(m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd]))
+                        CastSpell(target, m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd], false);
                     break;
                 case 2:
-                    if (m_charmAISpells[SPELL_DOT_DAMAGE] &&
-                        !HasSpellCooldown(m_charmAISpells[SPELL_DOT_DAMAGE]))
-                        CastSpell(target, m_charmAISpells[SPELL_DOT_DAMAGE],
-                                  false);
+                    if (m_charmAISpells[SPELL_DOT_DAMAGE] && !HasSpellCooldown(m_charmAISpells[SPELL_DOT_DAMAGE]))
+                        CastSpell(target, m_charmAISpells[SPELL_DOT_DAMAGE], false);
                     break;
                 }
             }
@@ -2249,11 +2089,9 @@ void Player::UpdateCharmedAI()
             if (Distance > 10)
             {
                 GetMotionMaster()->MoveChase(target, 2.0f);
-                if (m_charmAISpells[SPELL_T_CHARGE] &&
-                    !HasSpellCooldown(m_charmAISpells[SPELL_T_CHARGE]))
+                if (m_charmAISpells[SPELL_T_CHARGE] && !HasSpellCooldown(m_charmAISpells[SPELL_T_CHARGE]))
                     CastSpell(target, m_charmAISpells[SPELL_T_CHARGE], false);
-                else if (m_charmAISpells[SPELL_FAST_RUN] &&
-                         !HasSpellCooldown(m_charmAISpells[SPELL_FAST_RUN]))
+                else if (m_charmAISpells[SPELL_FAST_RUN] && !HasSpellCooldown(m_charmAISpells[SPELL_FAST_RUN]))
                     CastSpell(this, m_charmAISpells[SPELL_FAST_RUN], false);
             }
 
@@ -2263,23 +2101,15 @@ void Player::UpdateCharmedAI()
             switch (urand(0, 2))
             {
             case 0:
-                if (m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd] &&
-                    !HasSpellCooldown(
-                        m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd]))
-                    CastSpell(target,
-                              m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd],
-                              false);
+                if (m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd] && !HasSpellCooldown(m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd]))
+                    CastSpell(target, m_charmAISpells[SPELL_INSTANT_DAMAGE + rnd], false);
                 break;
             case 1:
-                if (m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd] &&
-                    !HasSpellCooldown(
-                        m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd]))
-                    CastSpell(target, m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd],
-                              false);
+                if (m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd] && !HasSpellCooldown(m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd]))
+                    CastSpell(target, m_charmAISpells[SPELL_HIGH_DAMAGE1 + rnd], false);
                 break;
             case 2:
-                if (m_charmAISpells[SPELL_DOT_DAMAGE] &&
-                    !HasSpellCooldown(m_charmAISpells[SPELL_DOT_DAMAGE]))
+                if (m_charmAISpells[SPELL_DOT_DAMAGE] && !HasSpellCooldown(m_charmAISpells[SPELL_DOT_DAMAGE]))
                     CastSpell(target, m_charmAISpells[SPELL_DOT_DAMAGE], false);
                 break;
             }
@@ -2289,28 +2119,19 @@ void Player::UpdateCharmedAI()
 
 void Player::UpdateLootAchievements(LootItem* item, Loot* loot)
 {
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid,
-                              item->count);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE,
-                              loot->loot_type, item->count);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM,
-                              item->itemid, item->count);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type,
-                                       uint32                   miscValue1 /*= 0*/,
-                                       uint32                   miscValue2 /*= 0*/,
-                                       Unit*                    unit /*= nullptr*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= nullptr*/)
 {
-    m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2,
-                                                unit);
+    m_achievementMgr->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
 }
 
-void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo,
-                                         uint16              opcode)
+void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
 {
-    if (m_lastFallTime >= minfo.fallTime ||
-        m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
+    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
         SetFallInformation(minfo.fallTime, minfo.pos.GetPositionZ());
 }
 
@@ -2359,7 +2180,6 @@ void Player::UpdateSpecCount(uint8 count)
     CharacterDatabase.CommitTransaction(trans);
 
     SetSpecsCount(count);
-
     SendTalentsInfoData(false);
 }
 

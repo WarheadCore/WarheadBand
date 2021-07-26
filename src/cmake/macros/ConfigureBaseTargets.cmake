@@ -71,5 +71,5 @@ target_link_libraries(warhead-dependency-interface
 add_library(warhead-core-interface INTERFACE)
 target_link_libraries(warhead-core-interface
   INTERFACE
-    acore-default-interface
-    acore-warning-interface)
+    warhead-default-interface
+    warhead-warning-interface)

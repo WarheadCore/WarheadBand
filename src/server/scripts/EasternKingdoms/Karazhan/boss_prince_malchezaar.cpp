@@ -304,11 +304,11 @@ public:
             }
             else
             {
-                point = Warhead::Containers::SelectRandomContainerElement(positions);
+                InfernalPoint* point = Warhead::Containers::SelectRandomContainerElement(positions);
                 pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
             }
 
-            if (Creature*  RELAY = me->FindNearestCreature(NPC_RELAY, 100.0f))
+            if (Creature* RELAY = me->FindNearestCreature(NPC_RELAY, 100.0f))
             {
                 Creature* infernal = RELAY->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
 
