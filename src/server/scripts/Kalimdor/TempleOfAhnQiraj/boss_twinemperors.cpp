@@ -486,7 +486,6 @@ public:
         uint32 Scorpions_Timer;
         int Rand;
         int RandX;
-        int RandY;
 
         Creature* Summoned;
 
@@ -537,10 +536,11 @@ public:
             //Blizzard_Timer
             if (Blizzard_Timer <= diff)
             {
-                Unit* target = nullptr;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
                 if (target)
+                {
                     DoCast(target, SPELL_BLIZZARD);
+                }
                 Blizzard_Timer = 15000 + rand() % 15000;
             }
             else Blizzard_Timer -= diff;

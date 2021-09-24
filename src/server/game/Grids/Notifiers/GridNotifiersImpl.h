@@ -38,6 +38,7 @@ inline void Warhead::VisibleNotifier::Visit(GridRefMgr<T>& m)
     {
         if (i_largeOnly != iter->GetSource()->IsVisibilityOverridden())
             continue;
+
         vis_guids.erase(iter->GetSource()->GetGUID());
         i_player.UpdateVisibilityOf(iter->GetSource(), i_data, i_visibleNow);
     }

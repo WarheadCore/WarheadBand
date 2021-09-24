@@ -194,21 +194,21 @@ namespace Warhead
 
             return CreateChildProcess([&](child& c) -> int
             {
-                int result;
+                int exitCode;
                 my_child = std::reference_wrapper<child>(c);
 
                 try
                 {
                     c.wait();
-                    result = c.exit_code();
+                    exitCode = c.exit_code();
                 }
                 catch (...)
                 {
-                    result = EXIT_FAILURE;
+                    exitCode = EXIT_FAILURE;
                 }
 
                 my_child.reset();
-                return was_terminated ? EXIT_FAILURE : result;
+                return was_terminated ? EXIT_FAILURE : exitCode;
 
             }, executable, args, logger, input_file, is_secure);
         }

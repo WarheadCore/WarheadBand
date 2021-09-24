@@ -878,6 +878,52 @@ public:
     }
 };
 
+class spell_item_poweful_anti_venom : public SpellScriptLoader
+{
+public:
+    spell_item_poweful_anti_venom() : SpellScriptLoader("spell_item_poweful_anti_venom") {}
+
+    class spell_item_powerful_anti_venom_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_powerful_anti_venom_SpellScript);
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (Unit* target = GetHitUnit())
+            {
+                std::list<uint32> removeList;
+                Unit::AuraMap const& auras = target->GetOwnedAuras();
+                for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    Aura* aura = itr->second;
+                    if (aura->GetSpellInfo()->SpellLevel > 60 || aura->GetSpellInfo()->Dispel != DISPEL_POISON)
+                    {
+                        continue;
+                    }
+
+                    removeList.push_back(aura->GetId());
+                }
+
+                for (std::list<uint32>::const_iterator itr = removeList.begin(); itr != removeList.end(); ++itr)
+                {
+                    target->RemoveAurasDueToSpell(*itr);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_item_powerful_anti_venom_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_item_powerful_anti_venom_SpellScript();
+    }
+};
+
 class spell_item_strong_anti_venom : public SpellScriptLoader
 {
 public:
@@ -4301,6 +4347,46 @@ public:
     }
 };
 
+enum GoblinBomb
+{
+    SPELL_SUMMON_GOBLIN_BOMB = 13258,
+};
+
+// 23134 - Goblin Bomb
+class spell_item_goblin_bomb : public SpellScriptLoader
+{
+public:
+    spell_item_goblin_bomb() : SpellScriptLoader("spell_item_goblin_bomb") {}
+
+    class spell_item_goblin_bomb_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_goblin_bomb_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_SUMMON_GOBLIN_BOMB });
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                caster->CastSpell(caster, SPELL_SUMMON_GOBLIN_BOMB, true, GetCastItem());
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_item_goblin_bomb_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_item_goblin_bomb_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // Ours
@@ -4324,6 +4410,7 @@ void AddSC_item_spell_scripts()
     new spell_item_skull_of_impeding_doom();
     new spell_item_feast();
     new spell_item_gnomish_universal_remote();
+    new spell_item_poweful_anti_venom();
     new spell_item_strong_anti_venom();
     new spell_item_anti_venom();
     new spell_item_gnomish_shrink_ray();
@@ -4408,4 +4495,5 @@ void AddSC_item_spell_scripts()
     new spell_item_muisek_vessel();
     new spell_item_greatmothers_soulcatcher();
     new spell_item_eggnog();
+    new spell_item_goblin_bomb();
 }

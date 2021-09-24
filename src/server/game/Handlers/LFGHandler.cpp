@@ -163,7 +163,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)
     recvData >> out;
 
     LOG_DEBUG("network", "CMSG_LFG_TELEPORT [{}] out: {}", GetPlayer()->GetGUID().ToString(), out ? 1 : 0);
-    sLFGMgr->TeleportPlayer(GetPlayer(), out, true);
+    sLFGMgr->TeleportPlayer(GetPlayer(), out);
 }
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*/)

@@ -169,6 +169,11 @@ public:
     }
 };
 
+enum UldamanStonedEnum
+{
+    MAP_ULDAMAN = 70
+};
+
 class spell_uldaman_stoned : public SpellScriptLoader
 {
 public:
@@ -180,7 +185,7 @@ public:
 
         bool Load() override
         {
-            return GetUnitOwner()->GetTypeId() == TYPEID_UNIT;
+            return GetUnitOwner()->GetTypeId() == TYPEID_UNIT && GetUnitOwner()->GetMapId() == MAP_ULDAMAN;
         }
 
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

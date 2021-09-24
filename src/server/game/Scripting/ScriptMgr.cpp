@@ -424,6 +424,11 @@ void ScriptMgr::OnAfterConfigLoad(bool reload)
     FOREACH_SCRIPT(WorldScript)->OnAfterConfigLoad(reload);
 }
 
+void ScriptMgr::OnBeforeFinalizePlayerWorldSession(uint32& cacheVersion)
+{
+    FOREACH_SCRIPT(WorldScript)->OnBeforeFinalizePlayerWorldSession(cacheVersion);
+}
+
 void ScriptMgr::OnMotdChange(std::string& newMotd)
 {
     FOREACH_SCRIPT(WorldScript)->OnMotdChange(newMotd);

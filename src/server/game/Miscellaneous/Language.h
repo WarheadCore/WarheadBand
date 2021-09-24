@@ -1399,8 +1399,11 @@ enum WarheadStrings
     LANG_BG_READY_CHECK_ERROR                     = 30084,
 
     LANG_DEBUG_BG_CONF                            = 30085,
-    LANG_DEBUG_ARENA_CONF                         = 30086
+    LANG_DEBUG_ARENA_CONF                         = 30086,
 
     // 30087-30095 reserved for passive anticheat
+
+    LANG_DEBUG_LFG_ON                             = 30096,
+    LANG_DEBUG_LFG_OFF                            = 30097
 };
 #endif

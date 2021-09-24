@@ -33,7 +33,6 @@ EndContentData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
@@ -322,7 +321,7 @@ public:
         void InitializeAI() override
         {
             if (me->ToTempSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                 {
                     summonerGUID = summoner->GetGUID();
                     float x, y, z;
@@ -490,8 +489,8 @@ public:
 
         void Reset() override
         {
-            if (me->ToTempSummon() && me->ToTempSummon()->GetSummoner())
-                me->setFaction(me->ToTempSummon()->GetSummoner()->getFaction());
+            if (me->ToTempSummon() && me->ToTempSummon()->GetSummonerUnit())
+                me->setFaction(me->ToTempSummon()->GetSummonerUnit()->getFaction());
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -580,7 +579,7 @@ public:
                 me->RemoveAllAuras();
                 me->DespawnOrUnsummon(1000);
                 if (TempSummon* summon = me->ToTempSummon())
-                    if (Unit* owner = summon->GetSummoner())
+                    if (Unit* owner = summon->GetSummonerUnit())
                         if (Player* player = owner->ToPlayer())
                             player->KilledMonsterCredit(me->GetEntry());
             }
@@ -1631,9 +1630,7 @@ public:
 
         void StoreTargets()
         {
-            uint8 creaturecount;
-
-            creaturecount = 0;
+            uint8 creturesCount = 0;
 
             for (uint8 ii = 0; ii < 3; ++ii)
             {
@@ -1641,10 +1638,10 @@ public:
                 GetCreatureListWithEntryInGrid(creatureList, me, AudienceMobs[ii], 15.0f);
                 for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                 {
-                    if (Creature* creatureList = *itr)
+                    if (Creature* creature = *itr)
                     {
-                        audienceList[creaturecount] = creatureList->GetGUID();
-                        ++creaturecount;
+                        audienceList[creturesCount] = creature->GetGUID();
+                        ++creturesCount;
                     }
                 }
             }

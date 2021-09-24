@@ -472,7 +472,7 @@ public:
                 checkTimer = 0;
                 if (Unit* target = me->SelectNearestTarget(30.0f))
                 {
-                    me->GetMotionMaster()->MoveChase(target);
+                    me->GetMotionMaster()->MoveFollow(target, 0.f, 0.f);
                     if (me->GetDistance(target) < 3.0f)
                     {
                         me->CastSpell(me, bombSpellId, false);
@@ -659,7 +659,7 @@ public:
             NullCreatureAI::InitializeAI();
 
             if (TempSummon* summon = me->ToTempSummon())
-                if (Unit* owner = summon->GetSummoner())
+                if (Unit* owner = summon->GetSummonerUnit())
                     if (owner->GetTypeId() == TYPEID_PLAYER)
                     {
                         _ownerGUID = owner->GetGUID();

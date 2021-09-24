@@ -56,7 +56,7 @@ enum Events
 enum Misc
 {
     NPC_CRYSTAL_SPIKE                       = 27099,
-    NPC_CRYSTALLINE_TANGLER                 = 32665,
+//    NPC_CRYSTALLINE_TANGLER                 = 32665,
     GO_CRYSTAL_SPIKE                        = 188537
 };
 

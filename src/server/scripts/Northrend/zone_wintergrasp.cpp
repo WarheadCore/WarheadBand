@@ -34,7 +34,6 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "World.h"
-#include "WorldSession.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."

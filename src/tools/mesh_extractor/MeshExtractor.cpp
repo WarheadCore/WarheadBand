@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cache.h"
-#include "Constants.h"
+#include "MPQMgr.h"
+#include "WDT.h"
 #include "ContinentBuilder.h"
 #include "DBC.h"
 #include "MPQMgr.h"

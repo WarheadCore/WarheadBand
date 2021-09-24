@@ -159,6 +159,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32>& tempTree, buildDat
         else if (left > right)
         {
             // all right
+            right = rightOrig;
             if (prevAxis == axis && G3D::fuzzyEq(prevSplit, split))
             {
                 // we are stuck here - create a leaf
@@ -166,7 +167,6 @@ void BIH::subdivide(int left, int right, std::vector<uint32>& tempTree, buildDat
                 createNode(tempTree, nodeIndex, left, right);
                 return;
             }
-            right = rightOrig;
             if (clipR >= split)
             {
                 // keep looping on right half

@@ -132,12 +132,16 @@ public:
 
             //Return since we have no target
             if (!UpdateVictim())
+            {
                 return;
+            }
 
             if (SwarmTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                {
                     DoCast(target, SPELL_CARRION_SWARM);
+                }
 
                 SwarmTimer = urand(45000, 60000);
                 Talk(SAY_SWARM);
@@ -220,7 +224,9 @@ public:
 
         {
             if (me->IsWithinDist(who, 50) && !me->IsInCombat() && me->IsValidAttackTarget(who))
+            {
                 AttackStart(who);
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -230,7 +236,7 @@ public:
                 if (AnetheronGUID)
                 {
                     Creature* boss = ObjectAccessor::GetCreature(*me, AnetheronGUID);
-                    if (!boss || (boss && boss->isDead()))
+                    if (!boss || boss->isDead())
                     {
                         me->setDeathState(JUST_DIED);
                         me->RemoveCorpse();
@@ -243,7 +249,9 @@ public:
 
             //Return since we have no target
             if (!UpdateVictim())
+            {
                 return;
+            }
 
             if (ImmolationTimer <= diff)
             {

@@ -265,7 +265,7 @@ public:
             if (type == POINT_MOTION_TYPE && point == POINT_MOVE_TO_MIDNIGHT)
             {
                 if (TempSummon* summon = me->ToTempSummon())
-                    if (Unit* midnight = summon->GetSummoner())
+                    if (Unit* midnight = summon->GetSummonerUnit())
                         midnight->GetAI()->SetData(DATA_ATTUMEN_READY, 0);
             }
         }
@@ -369,7 +369,7 @@ public:
             if (type == POINT_MOTION_TYPE && point == POINT_MOVE_TO_MIDNIGHT)
             {
                 if (TempSummon* summon = me->ToTempSummon())
-                    if (Unit* midnight = summon->GetSummoner())
+                    if (Unit* midnight = summon->GetSummonerUnit())
                         midnight->GetAI()->SetData(DATA_ATTUMEN_READY, 0);
             }
         }

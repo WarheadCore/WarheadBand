@@ -41,6 +41,11 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
         unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    if (id == EVENT_CHARGE)
+    {
+        unit->AddUnitState(UNIT_STATE_CHARGING);
+    }
+
     i_recalculateSpeed = false;
     Movement::MoveSplineInit init(unit);
     if (m_precomputedPath.size() > 2) // pussywizard: for charge
@@ -143,6 +148,15 @@ template<class T>
 void PointMovementGenerator<T>::DoFinalize(T* unit)
 {
     unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    if (id == EVENT_CHARGE)
+    {
+        unit->ClearUnitState(UNIT_STATE_CHARGING);
+
+        if (Unit* target = ObjectAccessor::GetUnit(*unit, _chargeTargetGUID))
+        {
+            unit->Attack(target, true);
+        }
+    }
 
     if (unit->movespline->Finalized())
         MovementInform(unit);
@@ -155,6 +169,10 @@ void PointMovementGenerator<T>::DoReset(T* unit)
         unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    if (id == EVENT_CHARGE)
+    {
+        unit->AddUnitState(UNIT_STATE_CHARGING);
+    }
 }
 
 template<class T>

@@ -314,9 +314,8 @@ void World::AddSession_(WorldSession* s)
     }
 
     s->SendAuthResponse(AUTH_OK, true);
-    s->SendAddonsInfo();
-    s->SendClientCacheVersion(CONF_GET_INT("ClientCacheVersion"));
-    s->SendTutorialsData();
+
+    FinalizePlayerWorldSession(s);
 
     UpdateMaxSessionCounters();
 }
@@ -398,12 +397,10 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         WorldSession* pop_sess = m_QueuedPlayer.front();
         pop_sess->SetInQueue(false);
         pop_sess->ResetTimeOutTime(false);
-        pop_sess->SendAuthWaitQue(0);
-        pop_sess->SendAddonsInfo();
-
-        pop_sess->SendClientCacheVersion(CONF_GET_INT("ClientCacheVersion"));
+        pop_sess->SendAuthWaitQueue(0);
         pop_sess->SendAccountDataTimes(GLOBAL_CACHE_MASK);
-        pop_sess->SendTutorialsData();
+
+        FinalizePlayerWorldSession(pop_sess);
 
         m_QueuedPlayer.pop_front();
 
@@ -414,7 +411,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
 
     // update queue position from iter to end()
     for (; iter != m_QueuedPlayer.end(); ++iter, ++position)
-        (*iter)->SendAuthWaitQue(position);
+        (*iter)->SendAuthWaitQueue(position);
 
     return found;
 }
@@ -2524,6 +2521,16 @@ uint32 World::GetNextWhoListUpdateDelaySecs()
     t = std::min(t, (uint32)m_timers[WUPDATE_5_SECS].GetInterval());
 
     return uint32(ceil(t / 1000.0f));
+}
+
+void World::FinalizePlayerWorldSession(WorldSession* session)
+{
+    uint32 cacheVersion = sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION);
+    sScriptMgr->OnBeforeFinalizePlayerWorldSession(cacheVersion);
+
+    session->SendAddonsInfo();
+    session->SendClientCacheVersion(cacheVersion);
+    session->SendTutorialsData();
 }
 
 uint16 World::GetConfigMaxSkillValue() const

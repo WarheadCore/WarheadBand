@@ -279,13 +279,13 @@ public:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            Creature* Spawned = nullptr;
-
                             //Spawn claw tentacle on the random target
-                            Spawned = me->SummonCreature(NPC_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500);
+                            Creature* spawned = me->SummonCreature(NPC_CLAW_TENTACLE, *target, TEMPSUMMON_CORPSE_DESPAWN, 500);
 
-                            if (Spawned && Spawned->AI())
-                                Spawned->AI()->AttackStart(target);
+                            if (spawned && spawned->AI())
+                            {
+                                spawned->AI()->AttackStart(target);
+                            }
                         }
 
                         //One claw tentacle every 12.5 seconds
@@ -559,7 +559,7 @@ public:
                 Unit* unit = ObjectAccessor::GetUnit(*me, i->first);
 
                 //Only units out of stomach
-                if (unit && i->second == false)
+                if (unit && !i->second)
                     temp.push_back(unit);
 
                 ++i;
@@ -703,7 +703,7 @@ public:
                             Unit* unit = ObjectAccessor::GetUnit(*me, i->first);
 
                             //Only move units in stomach
-                            if (unit && i->second == true)
+                            if (unit && i->second)
                             {
                                 //Teleport each player out
                                 DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 10, float(rand() % 6));
@@ -734,7 +734,7 @@ public:
                             Unit* unit = ObjectAccessor::GetUnit(*me, i->first);
 
                             //Only apply to units in stomach
-                            if (unit && i->second == true)
+                            if (unit && i->second)
                             {
                                 //Cast digestive acid on them
                                 DoCast(unit, SPELL_DIGESTIVE_ACID, true);
@@ -1297,7 +1297,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (TempSummon* summon = me->ToTempSummon())
-                if (Unit* summoner = summon->GetSummoner())
+                if (Unit* summoner = summon->GetSummonerUnit())
                     if (summoner->IsAIEnabled)
                         summoner->GetAI()->DoAction(ACTION_FLESH_TENTACLE_KILLED);
         }

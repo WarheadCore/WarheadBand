@@ -171,7 +171,7 @@ namespace VMAP
 
         // check if tile shall be used for liquid level
         // checking for 0x08 *might* be enough, but disabled tiles always are 0x?F:
-        if ((iFlags[tx + ty * iTilesX] & 0x0F) == 0x0F)
+        if (iFlags && (iFlags[tx + ty * iTilesX] & 0x0F) == 0x0F)
         {
             return false;
         }
@@ -192,6 +192,11 @@ namespace VMAP
             x---------x---> dx
           0           1
         */
+
+        if (!iHeight)
+        {
+            return false;
+        }
 
         const uint32 rowOffset = iTilesX + 1;
         if (dx > dy) // case (a)
@@ -300,7 +305,7 @@ namespace VMAP
         bool result = true;
         uint32 chunkSize, count;
 
-        if (result && fwrite(&iBound, sizeof(G3D::AABox), 1, wf) != 1) { result = false; }
+        if (fwrite(&iBound, sizeof(G3D::AABox), 1, wf) != 1) { result = false; }
         if (result && fwrite(&iMogpFlags, sizeof(uint32), 1, wf) != 1) { result = false; }
         if (result && fwrite(&iGroupWMOID, sizeof(uint32), 1, wf) != 1) { result = false; }
 
@@ -354,7 +359,7 @@ namespace VMAP
         delete iLiquid;
         iLiquid = nullptr;
 
-        if (result && fread(&iBound, sizeof(G3D::AABox), 1, rf) != 1) { result = false; }
+        if (fread(&iBound, sizeof(G3D::AABox), 1, rf) != 1) { result = false; }
         if (result && fread(&iMogpFlags, sizeof(uint32), 1, rf) != 1) { result = false; }
         if (result && fread(&iGroupWMOID, sizeof(uint32), 1, rf) != 1) { result = false; }
 
@@ -423,7 +428,6 @@ namespace VMAP
         {
             return false;
         }
-        GModelRayCallback callback(triangles, vertices);
         Vector3 rPos = pos - 0.1f * down;
         float dist = G3D::inf();
         G3D::Ray ray(rPos, down);
@@ -565,6 +569,7 @@ namespace VMAP
         groupTree.intersectPoint(p, callback);
         if (callback.hit != groupModels.end())
         {
+            info.rootId   = RootWMOID;
             info.hitModel = &(*callback.hit);
             dist = callback.zDist;
             return true;
@@ -632,7 +637,7 @@ namespace VMAP
         {
             //if (fread(&chunkSize, sizeof(uint32), 1, rf) != 1) result = false;
 
-            if (result && fread(&count, sizeof(uint32), 1, rf) != 1) { result = false; }
+            if (fread(&count, sizeof(uint32), 1, rf) != 1) { result = false; }
             if (result) { groupModels.resize(count); }
             //if (result && fread(&groupModels[0], sizeof(GroupModel), count, rf) != count) result = false;
             for (uint32 i = 0; i < count && result; ++i)

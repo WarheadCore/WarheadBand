@@ -20,10 +20,10 @@
 
 #include "FollowerReference.h"
 #include "MovementGenerator.h"
+#include "Optional.h"
 #include "PathGenerator.h"
 #include "Timer.h"
 #include "Unit.h"
-#include <optional>
 
 class WH_GAME_API TargetedMovementGeneratorBase
 {
@@ -38,7 +38,7 @@ template<class T>
 class ChaseMovementGenerator : public MovementGeneratorMedium<T, ChaseMovementGenerator<T>>, public TargetedMovementGeneratorBase
 {
 public:
-    ChaseMovementGenerator(Unit* target, std::optional<ChaseRange> range = {}, std::optional<ChaseAngle> angle = {})
+    ChaseMovementGenerator(Unit* target, Optional<ChaseRange> range = {}, Optional<ChaseAngle> angle = {})
         : TargetedMovementGeneratorBase(target), i_path(nullptr), i_recheckDistance(0), i_recalculateTravel(true), _range(range), _angle(angle) {}
     ~ChaseMovementGenerator() { }
 
@@ -50,7 +50,7 @@ public:
     void DoReset(T*);
     void MovementInform(T*);
 
-    bool PositionOkay(T* owner, Unit* target, std::optional<float> maxDistance, std::optional<ChaseAngle> angle);
+    bool PositionOkay(T* owner, Unit* target, Optional<float> maxDistance, Optional<ChaseAngle> angle);
 
     void unitSpeedChanged() { _lastTargetPosition.reset(); }
     Unit* GetTarget() const { return i_target.getTarget(); }
@@ -63,9 +63,9 @@ private:
     TimeTrackerSmall i_recheckDistance;
     bool i_recalculateTravel;
 
-    std::optional<Position> _lastTargetPosition;
-    std::optional<ChaseRange> const _range;
-    std::optional<ChaseAngle> const _angle;
+    Optional<Position> _lastTargetPosition;
+    Optional<ChaseRange> const _range;
+    Optional<ChaseAngle> const _angle;
     bool _movingTowards = true;
     bool _mutualChase = true;
 };
@@ -75,7 +75,7 @@ class FollowMovementGenerator : public MovementGeneratorMedium<T, FollowMovement
 {
 public:
     FollowMovementGenerator(Unit* target, float range, ChaseAngle angle)
-        : TargetedMovementGeneratorBase(target), i_path(nullptr), i_recheckDistance(0), i_recalculateTravel(true), _range(range), _angle(angle) {}
+        : TargetedMovementGeneratorBase(target), i_path(nullptr), i_recheckPredictedDistanceTimer(0), i_recheckPredictedDistance(false), _range(range), _angle(angle) {}
     ~FollowMovementGenerator() { }
 
     MovementGeneratorType GetMovementGeneratorType() { return FOLLOW_MOTION_TYPE; }
@@ -90,19 +90,20 @@ public:
 
     void unitSpeedChanged() { _lastTargetPosition.reset(); }
 
-    bool PositionOkay(T* owner, Unit* target, float range, std::optional<ChaseAngle> angle = {});
+    bool PositionOkay(Unit* target, bool isPlayerPet, bool& targetIsMoving, uint32 diff);
 
     static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_FOLLOW_MOVE); }
     static void _addUnitStateMove(T* u) { u->AddUnitState(UNIT_STATE_FOLLOW_MOVE); }
 
-    void _updateSpeed(T* owner);
+    float GetFollowRange() const { return _range; }
 
 private:
     std::unique_ptr<PathGenerator> i_path;
-    TimeTrackerSmall i_recheckDistance;
-    bool i_recalculateTravel;
+    TimeTrackerSmall i_recheckPredictedDistanceTimer;
+    bool i_recheckPredictedDistance;
 
-    std::optional<Position> _lastTargetPosition;
+    Optional<Position> _lastTargetPosition;
+    Optional<Position> _lastPredictedPosition;
     float _range;
     ChaseAngle _angle;
 };

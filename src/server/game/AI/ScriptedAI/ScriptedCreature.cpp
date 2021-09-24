@@ -615,6 +615,11 @@ void BossAI::SummonedCreatureDespawn(Creature* summon)
     summons.Despawn(summon);
 }
 
+void BossAI::SummonedCreatureDespawnAll()
+{
+    summons.DespawnAll();
+}
+
 void BossAI::UpdateAI(uint32 diff)
 {
     if (!UpdateVictim())

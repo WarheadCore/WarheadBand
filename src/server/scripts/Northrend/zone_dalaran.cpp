@@ -27,10 +27,8 @@ Script Data End */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "World.h"
-#include "WorldSession.h"
 
 // Ours
 class npc_steam_powered_auctioneer : public CreatureScript

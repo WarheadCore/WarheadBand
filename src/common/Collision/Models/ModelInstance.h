@@ -76,4 +76,4 @@ namespace VMAP
     };
 } // namespace VMAP
 
-#endif // _MODELINSTANCE
+#endif // _MODELINSTANCE_H_

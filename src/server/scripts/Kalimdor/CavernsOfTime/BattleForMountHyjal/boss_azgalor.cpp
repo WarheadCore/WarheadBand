@@ -243,7 +243,7 @@ public:
                 if (AzgalorGUID)
                 {
                     Creature* boss = ObjectAccessor::GetCreature(*me, AzgalorGUID);
-                    if (!boss || (boss && boss->isDead()))
+                    if (!boss || boss->isDead())
                     {
                         me->setDeathState(JUST_DIED);
                         me->RemoveCorpse();
@@ -256,7 +256,9 @@ public:
 
             //Return since we have no target
             if (!UpdateVictim())
+            {
                 return;
+            }
 
             if (WarstompTimer <= diff)
             {

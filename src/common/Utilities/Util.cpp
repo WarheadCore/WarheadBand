@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
-#include "StringConvert.h"
 #include "StringFormat.h"
 #include <algorithm>
 #include <boost/core/demangle.hpp>
@@ -334,7 +333,7 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
     {
         std::wstring const& ending = **itr;
         std::size_t const endLen = ending.length();
-        if (!(endLen <= thisLen))
+        if (endLen > thisLen)
         {
             continue;
         }
