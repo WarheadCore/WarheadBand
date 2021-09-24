@@ -89,7 +89,7 @@ public:
             if (TeleportTimer <= diff)
             {
                 Talk(SAY_TELEPORT);
-                ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+                ThreatContainer::StorageType threatlist = me->getThreatMgr().getThreatList();
                 ThreatContainer::StorageType::const_iterator i = threatlist.begin();
                 for (i = threatlist.begin(); i != threatlist.end(); ++i)
                 {

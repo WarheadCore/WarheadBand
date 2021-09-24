@@ -190,7 +190,7 @@ public:
                         //Count alive players
                         uint8 count = 0;
                         Unit* pTarget;
-                        std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                        std::list<HostileReference*> t_list = me->getThreatMgr().getThreatList();
                         for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
                         {
                             pTarget = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());

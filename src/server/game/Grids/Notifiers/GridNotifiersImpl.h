@@ -28,13 +28,13 @@
 #include "WorldPacket.h"
 
 template<class T>
-inline void Warhead::VisibleNotifier::Visit(GridRefManager<T>& m)
+inline void Warhead::VisibleNotifier::Visit(GridRefMgr<T>& m)
 {
     // Xinef: Update gameobjects only
     if (i_gobjOnly)
         return;
 
-    for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (typename GridRefMgr<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         if (i_largeOnly != iter->GetSource()->IsVisibilityOverridden())
             continue;

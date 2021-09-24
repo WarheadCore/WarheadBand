@@ -23,10 +23,10 @@
 #include <tuple>
 #include <unordered_map>
 
-class WH_GAME_API MuteManager
+class WH_GAME_API MuteMgr
 {
 public:
-    static MuteManager* instance();
+    static MuteMgr* instance();
 
     void MutePlayer(std::string const& targetName, uint32 notSpeakTime, std::string const& muteBy, std::string const& muteReason);
     void UnMutePlayer(std::string const& targetName);
@@ -45,6 +45,6 @@ private:
     std::unordered_map<uint32, uint32> _listSessions;
 };
 
-#define sMute MuteManager::instance()
+#define sMute MuteMgr::instance()
 
 #endif // _MUTE_MANAGER_H_

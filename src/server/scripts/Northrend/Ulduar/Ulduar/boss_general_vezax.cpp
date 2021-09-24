@@ -16,7 +16,7 @@
  */
 
 #include "AccountMgr.h"
-#include "BanManager.h"
+#include "BanMgr.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"

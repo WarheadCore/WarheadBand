@@ -21,7 +21,7 @@
 #include "Define.h"
 #include <string>
 
-// Interface for IMMapManger
+// Interface for IMMapMgr
 namespace MMAP
 {
     enum MMAP_LOAD_RESULT
@@ -31,14 +31,14 @@ namespace MMAP
         MMAP_LOAD_RESULT_IGNORED,
     };
 
-    class WH_COMMON_API IMMapManager
+    class WH_COMMON_API IMMapMgr
     {
     private:
         bool iEnablePathFinding;
 
     public:
-        IMMapManager() : iEnablePathFinding(true) {}
-        virtual ~IMMapManager(void) {}
+        IMMapMgr() : iEnablePathFinding(true) {}
+        virtual ~IMMapMgr(void) {}
 
         //Enabled/Disabled Pathfinding
         void setEnablePathFinding(bool value) { iEnablePathFinding = value; }

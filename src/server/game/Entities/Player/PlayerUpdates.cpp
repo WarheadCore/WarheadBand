@@ -29,7 +29,7 @@
 #include "Guild.h"
 #include "InstanceScript.h"
 #include "Language.h"
-#include "MuteManager.h"
+#include "MuteMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "Player.h"
@@ -393,7 +393,7 @@ void Player::Update(uint32 p_time)
     {
         m_hostileReferenceCheckTimer = 15000;
         if (!GetMap()->IsDungeon())
-            getHostileRefManager().deleteReferencesOutOfRange(
+            getHostileRefMgr().deleteReferencesOutOfRange(
                 GetVisibilityRange());
     }
     else

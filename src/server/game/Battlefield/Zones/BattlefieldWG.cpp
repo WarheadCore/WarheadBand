@@ -22,7 +22,7 @@
 #include "BattlefieldWG.h"
 #include "GameConfig.h"
 #include "GameTime.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellAuras.h"

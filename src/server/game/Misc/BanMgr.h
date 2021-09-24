@@ -29,10 +29,10 @@ enum BanReturn
     BAN_LONGER_EXISTS
 };
 
-class WH_GAME_API BanManager
+class WH_GAME_API BanMgr
 {
 public:
-    static BanManager* instance();
+    static BanMgr* instance();
 
     BanReturn BanAccount(std::string const& accountName, std::string_view duration, std::string const& reason, std::string const& author);
     BanReturn BanAccountByPlayerName(std::string const& characterName, std::string_view duration, std::string const& reason, std::string const& author);
@@ -45,6 +45,6 @@ public:
     bool RemoveBanCharacter(std::string const& characterName);
 };
 
-#define sBan BanManager::instance()
+#define sBan BanMgr::instance()
 
 #endif // _BAN_MANAGER_H

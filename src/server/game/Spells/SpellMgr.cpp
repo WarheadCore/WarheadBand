@@ -25,7 +25,7 @@
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "InstanceScript.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SharedDefines.h"

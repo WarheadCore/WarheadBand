@@ -21,7 +21,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Map.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"

@@ -15,20 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GROUPREFMANAGER
-#define _GROUPREFMANAGER
+#ifndef _GRIDREFMANAGER
+#define _GRIDREFMANAGER
 
-#include "RefManager.h"
+#include "RefMgr.h"
 
-class Group;
-class Player;
-class GroupReference;
+template<class OBJECT>
+class GridReference;
 
-class WH_GAME_API GroupRefManager : public RefManager<Group, Player>
+template<class OBJECT>
+class GridRefMgr : public RefMgr<GridRefMgr<OBJECT>, OBJECT>
 {
 public:
-    GroupReference* getFirst() { return ((GroupReference*)RefManager<Group, Player>::getFirst()); }
-    GroupReference const* getFirst() const { return ((GroupReference const*)RefManager<Group, Player>::getFirst()); }
-};
+    typedef LinkedListHead::Iterator< GridReference<OBJECT> > iterator;
 
+    GridReference<OBJECT>* getFirst() { return (GridReference<OBJECT>*)RefMgr<GridRefMgr<OBJECT>, OBJECT>::getFirst(); }
+    GridReference<OBJECT>* getLast() { return (GridReference<OBJECT>*)RefMgr<GridRefMgr<OBJECT>, OBJECT>::getLast(); }
+
+    iterator begin() { return iterator(getFirst()); }
+    iterator end() { return iterator(nullptr); }
+    iterator rbegin() { return iterator(getLast()); }
+    iterator rend() { return iterator(nullptr); }
+};
 #endif

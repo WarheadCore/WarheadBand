@@ -15,26 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _GRIDREFMANAGER
-#define _GRIDREFMANAGER
+#ifndef _MAPREFMANAGER
+#define _MAPREFMANAGER
 
-#include "RefManager.h"
+#include "RefMgr.h"
 
-template<class OBJECT>
-class GridReference;
+class MapReference;
 
-template<class OBJECT>
-class GridRefManager : public RefManager<GridRefManager<OBJECT>, OBJECT>
+class WH_GAME_API MapRefMgr : public RefMgr<Map, Player>
 {
 public:
-    typedef LinkedListHead::Iterator< GridReference<OBJECT> > iterator;
+    typedef LinkedListHead::Iterator< MapReference > iterator;
+    typedef LinkedListHead::Iterator< MapReference const > const_iterator;
 
-    GridReference<OBJECT>* getFirst() { return (GridReference<OBJECT>*)RefManager<GridRefManager<OBJECT>, OBJECT>::getFirst(); }
-    GridReference<OBJECT>* getLast() { return (GridReference<OBJECT>*)RefManager<GridRefManager<OBJECT>, OBJECT>::getLast(); }
+    MapReference* getFirst() { return (MapReference*)RefMgr<Map, Player>::getFirst(); }
+    [[nodiscard]] MapReference const* getFirst() const { return (MapReference const*)RefMgr<Map, Player>::getFirst(); }
+    MapReference* getLast() { return (MapReference*)RefMgr<Map, Player>::getLast(); }
+    [[nodiscard]] MapReference const* getLast() const { return (MapReference const*)RefMgr<Map, Player>::getLast(); }
 
     iterator begin() { return iterator(getFirst()); }
     iterator end() { return iterator(nullptr); }
     iterator rbegin() { return iterator(getLast()); }
     iterator rend() { return iterator(nullptr); }
+    [[nodiscard]] const_iterator begin() const { return const_iterator(getFirst()); }
+    [[nodiscard]] const_iterator end() const  { return const_iterator(nullptr); }
 };
 #endif

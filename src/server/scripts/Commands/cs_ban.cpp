@@ -23,7 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
-#include "BanManager.h"
+#include "BanMgr.h"
 #include "Chat.h"
 #include "GameConfig.h"
 #include "GameTime.h"

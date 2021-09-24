@@ -32,8 +32,8 @@
 #include "GuildMgr.h"
 #include "Hyperlinks.h"
 #include "Log.h"
-#include "MapManager.h"
-#include "MuteManager.h"
+#include "MapMgr.h"
+#include "MuteMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -540,7 +540,7 @@ void WorldSession::LogoutPlayer(bool save)
         //FIXME: logout must be delayed in case lost connection with client in time of combat
         if (_player->GetDeathTimer())
         {
-            _player->getHostileRefManager().deleteReferences();
+            _player->getHostileRefMgr().deleteReferences();
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
         }

@@ -28,7 +28,7 @@
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
-#include "MuteManager.h"
+#include "MuteMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

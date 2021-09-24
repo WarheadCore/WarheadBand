@@ -16,8 +16,8 @@
  */
 
 #include "GameConfig.h"
-#include "MapManager.h"
-#include "MuteManager.h"
+#include "MapMgr.h"
+#include "MuteMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 

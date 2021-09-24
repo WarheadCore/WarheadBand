@@ -19,7 +19,7 @@
 #include "GameLocale.h"
 #include "GameTime.h"
 #include "Log.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "NPCHandler.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

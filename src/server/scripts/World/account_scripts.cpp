@@ -16,7 +16,7 @@
  */
 
 #include "DatabaseEnv.h"
-#include "MuteManager.h"
+#include "MuteMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"

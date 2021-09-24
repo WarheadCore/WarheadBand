@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "Transport.h"
 #include "halls_of_reflection.h"
 

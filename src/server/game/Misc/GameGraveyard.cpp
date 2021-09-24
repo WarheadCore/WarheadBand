@@ -19,7 +19,7 @@
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 
 Graveyard* Graveyard::instance()
 {

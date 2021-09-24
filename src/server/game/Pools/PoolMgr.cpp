@@ -18,7 +18,7 @@
 #include "PoolMgr.h"
 #include "Containers.h"
 #include "Log.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Transport.h"
 

@@ -17,7 +17,7 @@
 
 #include "OutdoorPvPGH.h"
 #include "GameEventMgr.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"

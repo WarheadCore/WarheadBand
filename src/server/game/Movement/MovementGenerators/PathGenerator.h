@@ -21,7 +21,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "MMapFactory.h"
-#include "MMapManager.h"
+#include "MMapMgr.h"
 #include "MapDefines.h"
 #include "MoveSplineInitArgs.h"
 #include "SharedDefines.h"

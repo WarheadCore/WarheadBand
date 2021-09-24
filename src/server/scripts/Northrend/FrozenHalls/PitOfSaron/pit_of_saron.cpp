@@ -17,7 +17,7 @@
 
 #include "pit_of_saron.h"
 #include "CreatureGroups.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"

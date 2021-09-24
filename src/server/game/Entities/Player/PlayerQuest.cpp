@@ -23,7 +23,7 @@
 #include "GameTime.h"
 #include "GitRevision.h"
 #include "Group.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"

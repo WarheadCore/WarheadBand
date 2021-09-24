@@ -23,7 +23,7 @@
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "WaypointManager.h"
+#include "WaypointMgr.h"
 #include "ulduar.h"
 
 #define SPELL_FLAMEBUFFET_10                64016

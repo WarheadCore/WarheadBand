@@ -37,7 +37,7 @@ EndScriptData */
 #include "Timer.h"
 #include "UpdateTime.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapMgr2.h"
 #include <boost/version.hpp>
 #include <filesystem>
 #include <numeric>
@@ -145,8 +145,8 @@ public:
         handler->PSendSysMessage("{}", dbPortOutput);
 
         bool vmapIndoorCheck = CONF_GET_BOOL("vmap.enableIndoorCheck");
-        bool vmapLOSCheck = VMAP::VMapFactory::createOrGetVMapManager()->isLineOfSightCalcEnabled();
-        bool vmapHeightCheck = VMAP::VMapFactory::createOrGetVMapManager()->isHeightCalcEnabled();
+        bool vmapLOSCheck = VMAP::VMapFactory::createOrGetVMapMgr()->isLineOfSightCalcEnabled();
+        bool vmapHeightCheck = VMAP::VMapFactory::createOrGetVMapMgr()->isHeightCalcEnabled();
         bool mmapEnabled = CONF_GET_BOOL("MoveMaps.Enable");
 
         std::string dataDir = sWorld->GetDataPath();

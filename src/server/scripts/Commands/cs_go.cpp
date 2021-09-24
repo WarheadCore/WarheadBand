@@ -25,7 +25,7 @@ EndScriptData */
 #include "Chat.h"
 #include "GameGraveyard.h"
 #include "Language.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -152,7 +152,7 @@ public:
             ort = creature->GetOrientation();
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, ort))
+        if (!MapMgr::IsValidMapCoord(mapId, x, y, z, ort))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
             handler->SetSentErrorMessage(true);
@@ -197,7 +197,7 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(gy->Map, gy->x, gy->y, gy->z))
+        if (!MapMgr::IsValidMapCoord(gy->Map, gy->x, gy->y, gy->z))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->x, gy->y, gy->Map);
             handler->SetSentErrorMessage(true);
@@ -239,7 +239,7 @@ public:
         float x = ((float)atof(gridX) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
         float y = ((float)atof(gridY) - CENTER_GRID_ID + 0.5f) * SIZE_OF_GRIDS;
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y))
+        if (!MapMgr::IsValidMapCoord(mapId, x, y))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
             handler->SetSentErrorMessage(true);
@@ -299,7 +299,7 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, ort))
+        if (!MapMgr::IsValidMapCoord(mapId, x, y, z, ort))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
             handler->SetSentErrorMessage(true);
@@ -344,7 +344,7 @@ public:
         }
 
         if ((node->x == 0.0f && node->y == 0.0f && node->z == 0.0f) ||
-                !MapManager::IsValidMapCoord(node->map_id, node->x, node->y, node->z))
+                !MapMgr::IsValidMapCoord(node->map_id, node->x, node->y, node->z))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, node->x, node->y, node->map_id);
             handler->SetSentErrorMessage(true);
@@ -389,7 +389,7 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(at->map, at->x, at->y, at->z))
+        if (!MapMgr::IsValidMapCoord(at->map, at->x, at->y, at->z))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, at->x, at->y, at->map);
             handler->SetSentErrorMessage(true);
@@ -459,7 +459,7 @@ public:
 
         Zone2MapCoordinates(x, y, zoneEntry->ID);
 
-        if (!MapManager::IsValidMapCoord(zoneEntry->mapid, x, y))
+        if (!MapMgr::IsValidMapCoord(zoneEntry->mapid, x, y))
         {
             handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, zoneEntry->mapid);
             handler->SetSentErrorMessage(true);
@@ -508,7 +508,7 @@ public:
         if (goZ)
         {
             z = (float)atof(goZ);
-            if (!MapManager::IsValidMapCoord(mapId, x, y, z))
+            if (!MapMgr::IsValidMapCoord(mapId, x, y, z))
             {
                 handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
                 handler->SetSentErrorMessage(true);
@@ -517,7 +517,7 @@ public:
         }
         else
         {
-            if (!MapManager::IsValidMapCoord(mapId, x, y))
+            if (!MapMgr::IsValidMapCoord(mapId, x, y))
             {
                 handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
                 handler->SetSentErrorMessage(true);

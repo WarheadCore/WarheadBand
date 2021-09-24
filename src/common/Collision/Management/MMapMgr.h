@@ -71,11 +71,11 @@ namespace MMAP
 
     // singleton class
     // holds all all access to mmap loading unloading and meshes
-    class WH_COMMON_API MMapManager
+    class WH_COMMON_API MMapMgr
     {
     public:
-        MMapManager() : loadedTiles(0), thread_safe_environment(true) { }
-        ~MMapManager();
+        MMapMgr() : loadedTiles(0), thread_safe_environment(true) { }
+        ~MMapMgr();
 
         void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
         bool loadMap(uint32 mapId, int32 x, int32 y);

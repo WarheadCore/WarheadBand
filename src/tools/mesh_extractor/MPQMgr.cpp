@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MPQManager.h"
+#include "MPQMgr.h"
 #include "DBC.h"
 #include "MPQ.h"
 #include "Utils.h"
 
-char const* MPQManager::Files[] =
+char const* MPQMgr::Files[] =
 {
     "common.MPQ",
     "common-2.MPQ",
@@ -31,9 +31,9 @@ char const* MPQManager::Files[] =
     "patch-3.MPQ"
 };
 
-char const* MPQManager::Languages[] = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
+char const* MPQMgr::Languages[] = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 
-void MPQManager::Initialize()
+void MPQMgr::Initialize()
 {
     InitializeDBC();
     uint32 size = sizeof(Files) / sizeof(char*);
@@ -45,7 +45,7 @@ void MPQManager::Initialize()
     }
 }
 
-void MPQManager::InitializeDBC()
+void MPQMgr::InitializeDBC()
 {
     BaseLocale = -1;
     std::string fileName;
@@ -81,7 +81,7 @@ void MPQManager::InitializeDBC()
         printf("Using default locale: %s\n", Languages[BaseLocale]);
 }
 
-FILE* MPQManager::GetFile(const std::string& path )
+FILE* MPQMgr::GetFile(const std::string& path )
 {
     GUARD_RETURN(mutex, nullptr);
     MPQFile file(path.c_str());
@@ -90,13 +90,13 @@ FILE* MPQManager::GetFile(const std::string& path )
     return file.GetFileStream();
 }
 
-DBC* MPQManager::GetDBC(const std::string& name )
+DBC* MPQMgr::GetDBC(const std::string& name )
 {
     std::string path = "DBFilesClient\\" + name + ".dbc";
     return new DBC(GetFile(path));
 }
 
-FILE* MPQManager::GetFileFrom(const std::string& path, MPQArchive* file )
+FILE* MPQMgr::GetFileFrom(const std::string& path, MPQArchive* file )
 {
     GUARD_RETURN(mutex, nullptr);
     mpq_archive* mpq_a = file->mpq_a;

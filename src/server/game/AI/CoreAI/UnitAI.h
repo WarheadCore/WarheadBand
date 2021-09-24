@@ -141,7 +141,7 @@ public:
     // predicate shall extend Warhead::unary_function<Unit*, bool>
     template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
     {
-        ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& threatlist = me->getThreatMgr().getThreatList();
         if (position >= threatlist.size())
             return nullptr;
 
@@ -191,7 +191,7 @@ public:
     // predicate shall extend Warhead::unary_function<Unit*, bool>
     template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
     {
-        ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& threatlist = me->getThreatMgr().getThreatList();
         if (threatlist.empty())
             return;
 

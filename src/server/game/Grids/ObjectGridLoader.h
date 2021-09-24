@@ -57,7 +57,7 @@ private:
 class WH_GAME_API ObjectGridCleaner
 {
 public:
-    template<class T> void Visit(GridRefManager<T>&);
+    template<class T> void Visit(GridRefMgr<T>&);
 };
 
 //Delete objects before deleting NGrid
@@ -65,6 +65,6 @@ class WH_GAME_API ObjectGridUnloader
 {
 public:
     void Visit(CorpseMapType&) { }    // corpses are deleted with Map
-    template<class T> void Visit(GridRefManager<T>& m);
+    template<class T> void Visit(GridRefMgr<T>& m);
 };
 #endif

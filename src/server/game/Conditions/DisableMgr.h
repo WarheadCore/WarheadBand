@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include "Map.h"
-#include "VMapManager2.h"
+#include "VMapMgr2.h"
 
 class Unit;
 

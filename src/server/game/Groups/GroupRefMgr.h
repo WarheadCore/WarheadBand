@@ -15,40 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MPQ_MANAGER_H
-#define MPQ_MANAGER_H
+#ifndef _GROUPREFMANAGER
+#define _GROUPREFMANAGER
 
-#include "MPQ.h"
-#include "PolicyLock.h"
-#include <map>
-#include <mutex>
-#include <set>
+#include "RefMgr.h"
 
-class DBC;
-class MPQManager
+class Group;
+class Player;
+class GroupReference;
+
+class WH_GAME_API GroupRefMgr : public RefMgr<Group, Player>
 {
 public:
-    MPQManager() {}
-    ~MPQManager() {}
-
-    void Initialize();
-    FILE* GetFile(const std::string& path);
-    FILE* GetFileFrom(const std::string& path, MPQArchive* file);
-    DBC* GetDBC(const std::string& name);
-    std::vector<std::string> GetAllFiles(std::string extension);
-
-    std::deque<MPQArchive*> Archives;
-    int32 BaseLocale;
-    std::set<uint32> AvailableLocales;
-    std::map<uint32, MPQArchive*> LocaleFiles;
-
-    static char const* Files[];
-    static char const* Languages[];
-protected:
-    void InitializeDBC();
-private:
-    std::mutex mutex;
+    GroupReference* getFirst() { return ((GroupReference*)RefMgr<Group, Player>::getFirst()); }
+    GroupReference const* getFirst() const { return ((GroupReference const*)RefMgr<Group, Player>::getFirst()); }
 };
 
-extern MPQManager* MPQHandler;
 #endif

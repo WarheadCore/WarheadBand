@@ -21,7 +21,7 @@
 #include "Geometry.h"
 #include "Log.h"
 #include "MMapFactory.h"
-#include "MMapManager.h"
+#include "MMapMgr.h"
 #include "Map.h"
 
  ////////////////// PathGenerator //////////////////
@@ -35,7 +35,7 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
 
     uint32 mapId = _source->GetMapId();
     {
-        MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
+        MMAP::MMapMgr* mmap = MMAP::MMapFactory::createOrGetMMapMgr();
         _navMesh = mmap->GetNavMesh(mapId);
         _navMeshQuery = mmap->GetNavMeshQuery(mapId, _source->GetInstanceId());
     }

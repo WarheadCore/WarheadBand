@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MMapManager.h"
+#include "MMapMgr.h"
 #include "Config.h"
 #include "Errors.h"
 #include "Log.h"
@@ -27,8 +27,8 @@ namespace MMAP
     constexpr auto MAP_FILE_NAME_FORMAT = "{}/mmaps/{:03}.mmap";
     constexpr auto TILE_FILE_NAME_FORMAT = "{}/mmaps/{:03}{:02}{:02}.mmtile";
 
-    // ######################## MMapManager ########################
-    MMapManager::~MMapManager()
+    // ######################## MMapMgr ########################
+    MMapMgr::~MMapMgr()
     {
         for (MMapDataSet::iterator i = loadedMMaps.begin(); i != loadedMMaps.end(); ++i)
         {
@@ -39,9 +39,9 @@ namespace MMAP
         // if we had, tiles in MMapData->mmapLoadedTiles, their actual data is lost!
     }
 
-    void MMapManager::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
+    void MMapMgr::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
     {
-        // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
+        // the caller must pass the list of all mapIds that will be used in the VMapMgr2 lifetime
         for (const uint32& mapId : mapIds)
         {
             loadedMMaps.emplace(mapId, nullptr);
@@ -50,7 +50,7 @@ namespace MMAP
         thread_safe_environment = false;
     }
 
-    MMapDataSet::const_iterator MMapManager::GetMMapData(uint32 mapId) const
+    MMapDataSet::const_iterator MMapMgr::GetMMapData(uint32 mapId) const
     {
         // return the iterator if found or end() if not found/NULL
         MMapDataSet::const_iterator itr = loadedMMaps.find(mapId);
@@ -62,7 +62,7 @@ namespace MMAP
         return itr;
     }
 
-    bool MMapManager::loadMapData(uint32 mapId)
+    bool MMapMgr::loadMapData(uint32 mapId)
     {
         // we already have this map loaded?
         MMapDataSet::iterator itr = loadedMMaps.find(mapId);
@@ -81,7 +81,7 @@ namespace MMAP
             }
             else
             {
-                ABORT("Invalid mapId {} passed to MMapManager after startup in thread unsafe environment", mapId);
+                ABORT("Invalid mapId {} passed to MMapMgr after startup in thread unsafe environment", mapId);
             }
         }
 
@@ -121,12 +121,12 @@ namespace MMAP
         return true;
     }
 
-    uint32 MMapManager::packTileID(int32 x, int32 y)
+    uint32 MMapMgr::packTileID(int32 x, int32 y)
     {
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(uint32 mapId, int32 x, int32 y)
+    bool MMapMgr::loadMap(uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
@@ -206,7 +206,7 @@ namespace MMAP
         return false;
     }
 
-    bool MMapManager::unloadMap(uint32 mapId, int32 x, int32 y)
+    bool MMapMgr::unloadMap(uint32 mapId, int32 x, int32 y)
     {
         // check if we have this map loaded
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
@@ -250,7 +250,7 @@ namespace MMAP
         return false;
     }
 
-    bool MMapManager::unloadMap(uint32 mapId)
+    bool MMapMgr::unloadMap(uint32 mapId)
     {
         MMapDataSet::iterator itr = loadedMMaps.find(mapId);
         if (itr == loadedMMaps.end() || !itr->second)
@@ -285,7 +285,7 @@ namespace MMAP
         return true;
     }
 
-    bool MMapManager::unloadMapInstance(uint32 mapId, uint32 instanceId)
+    bool MMapMgr::unloadMapInstance(uint32 mapId, uint32 instanceId)
     {
         // check if we have this map loaded
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
@@ -312,7 +312,7 @@ namespace MMAP
         return true;
     }
 
-    dtNavMesh const* MMapManager::GetNavMesh(uint32 mapId)
+    dtNavMesh const* MMapMgr::GetNavMesh(uint32 mapId)
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())
@@ -323,7 +323,7 @@ namespace MMAP
         return itr->second->navMesh;
     }
 
-    dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 mapId, uint32 instanceId)
+    dtNavMeshQuery const* MMapMgr::GetNavMeshQuery(uint32 mapId, uint32 instanceId)
     {
         MMapDataSet::const_iterator itr = GetMMapData(mapId);
         if (itr == loadedMMaps.end())

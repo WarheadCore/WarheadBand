@@ -17,7 +17,7 @@
 
 #include "Warden.h"
 #include "AccountMgr.h"
-#include "BanManager.h"
+#include "BanMgr.h"
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "GameConfig.h"

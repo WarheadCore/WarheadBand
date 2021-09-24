@@ -19,22 +19,22 @@
 #define _HOSTILEREFMANAGER
 
 #include "Common.h"
-#include "RefManager.h"
+#include "RefMgr.h"
 
 class Unit;
-class ThreatManager;
+class ThreatMgr;
 class HostileReference;
 class SpellInfo;
 
 //=================================================
 
-class WH_GAME_API HostileRefManager : public RefManager<Unit, ThreatManager>
+class WH_GAME_API HostileRefMgr : public RefMgr<Unit, ThreatMgr>
 {
 private:
     Unit* iOwner;
 public:
-    explicit HostileRefManager(Unit* owner) { iOwner = owner; }
-    ~HostileRefManager() override;
+    explicit HostileRefMgr(Unit* owner) { iOwner = owner; }
+    ~HostileRefMgr() override;
 
     Unit* GetOwner() { return iOwner; }
 
@@ -57,7 +57,7 @@ public:
     // pussywizard: for combat bugs
     void deleteReferencesOutOfRange(float range);
 
-    HostileReference* getFirst() { return ((HostileReference*) RefManager<Unit, ThreatManager>::getFirst()); }
+    HostileReference* getFirst() { return ((HostileReference*) RefMgr<Unit, ThreatMgr>::getFirst()); }
 
     void updateThreatTables();
 

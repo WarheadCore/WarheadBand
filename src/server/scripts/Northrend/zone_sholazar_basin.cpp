@@ -39,7 +39,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
-#include "WaypointManager.h"
+#include "WaypointMgr.h"
 
 // Ours
 enum songOfWindandWater

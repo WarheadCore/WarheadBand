@@ -16,7 +16,7 @@
  */
 
 #include "MPQ.h"
-#include "MPQManager.h"
+#include "MPQMgr.h"
 #include <cstdio>
 #include <deque>
 

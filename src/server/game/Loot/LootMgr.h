@@ -22,7 +22,7 @@
 #include "ConditionMgr.h"
 #include "ItemEnchantmentMgr.h"
 #include "ObjectGuid.h"
-#include "RefManager.h"
+#include "RefMgr.h"
 #include "SharedDefines.h"
 #include <list>
 #include <map>
@@ -289,13 +289,13 @@ public:
 
 //=====================================================
 
-class WH_GAME_API LootValidatorRefManager : public RefManager<Loot, LootValidatorRef>
+class WH_GAME_API LootValidatorRefMgr : public RefMgr<Loot, LootValidatorRef>
 {
 public:
     typedef LinkedListHead::Iterator< LootValidatorRef > iterator;
 
-    LootValidatorRef* getFirst() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getFirst(); }
-    LootValidatorRef* getLast() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getLast(); }
+    LootValidatorRef* getFirst() { return (LootValidatorRef*)RefMgr<Loot, LootValidatorRef>::getFirst(); }
+    LootValidatorRef* getLast() { return (LootValidatorRef*)RefMgr<Loot, LootValidatorRef>::getLast(); }
 
     iterator begin() { return iterator(getFirst()); }
     iterator end() { return iterator(nullptr); }
@@ -335,7 +335,7 @@ struct WH_GAME_API Loot
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
     {
-        i_LootValidatorRefManager.insertFirst(pLootValidatorRef);
+        i_LootValidatorRefMgr.insertFirst(pLootValidatorRef);
     }
 
     // void clear();
@@ -359,7 +359,7 @@ struct WH_GAME_API Loot
         gold = 0;
         unlootedCount = 0;
         roundRobinPlayer.Clear();
-        i_LootValidatorRefManager.clearReferences();
+        i_LootValidatorRefMgr.clearReferences();
         loot_type = LOOT_NONE;
     }
 
@@ -397,7 +397,7 @@ private:
     QuestItemMap PlayerNonQuestNonFFAConditionalItems;
 
     // All rolls are registered here. They need to know, when the loot is not valid anymore
-    LootValidatorRefManager i_LootValidatorRefManager;
+    LootValidatorRefMgr i_LootValidatorRefMgr;
 };
 
 struct LootView

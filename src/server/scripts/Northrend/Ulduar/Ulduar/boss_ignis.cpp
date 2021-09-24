@@ -146,7 +146,7 @@ public:
                             heat->ModStackAmount(-1);
                         }
                         me->CastSpell(me, SPELL_MOLTEN, true);
-                        me->getThreatManager().resetAllAggro();
+                        me->getThreatMgr().resetAllAggro();
                     }
                 }
             }

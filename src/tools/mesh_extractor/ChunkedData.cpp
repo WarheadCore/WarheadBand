@@ -16,7 +16,7 @@
  */
 
 #include "ChunkedData.h"
-#include "MPQManager.h"
+#include "MPQMgr.h"
 #include "Utils.h"
 
 #include <string>

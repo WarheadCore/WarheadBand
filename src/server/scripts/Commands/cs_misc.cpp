@@ -32,9 +32,9 @@
 #include "InstanceSaveMgr.h"
 #include "LFG.h"
 #include "Language.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "MovementGenerator.h"
-#include "MuteManager.h"
+#include "MuteMgr.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -2521,7 +2521,7 @@ public:
             return false;
 
         target->CombatStop();
-        target->getHostileRefManager().deleteReferences();
+        target->getHostileRefMgr().deleteReferences();
         return true;
     }
 

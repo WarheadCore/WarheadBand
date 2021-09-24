@@ -18,7 +18,7 @@
 #include "TransportMgr.h"
 #include "GameConfig.h"
 #include "InstanceScript.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "MoveSpline.h"
 #include "Transport.h"
 

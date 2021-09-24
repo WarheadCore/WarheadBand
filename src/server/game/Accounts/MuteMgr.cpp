@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MuteManager.h"
+#include "MuteMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
@@ -28,13 +28,13 @@
 #include "World.h"
 //#include "CharacterCache.h"
 
-MuteManager* MuteManager::instance()
+MuteMgr* MuteMgr::instance()
 {
-    static MuteManager instance;
+    static MuteMgr instance;
     return &instance;
 }
 
-void MuteManager::MutePlayer(std::string const& targetName, uint32 notSpeakTime, std::string const& muteBy, std::string const& muteReason)
+void MuteMgr::MutePlayer(std::string const& targetName, uint32 notSpeakTime, std::string const& muteBy, std::string const& muteReason)
 {
     uint32 accountId = sObjectMgr->GetPlayerAccountIdByPlayerName(targetName);
     auto targetSession = sWorld->FindSession(accountId);
@@ -77,7 +77,7 @@ void MuteManager::MutePlayer(std::string const& targetName, uint32 notSpeakTime,
         ChatHandler(targetSession).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy, muteReason);
 }
 
-void MuteManager::UnMutePlayer(std::string const& targetName)
+void MuteMgr::UnMutePlayer(std::string const& targetName)
 {
     uint32 accountId = sObjectMgr->GetPlayerAccountIdByPlayerName(targetName);
 
@@ -87,7 +87,7 @@ void MuteManager::UnMutePlayer(std::string const& targetName)
         ChatHandler(targetSession).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
 }
 
-void MuteManager::AddMuteTime(uint32 accountID, uint32 muteTime)
+void MuteMgr::AddMuteTime(uint32 accountID, uint32 muteTime)
 {
     // Check exist
     auto itr = _listSessions.find(accountID);
@@ -97,7 +97,7 @@ void MuteManager::AddMuteTime(uint32 accountID, uint32 muteTime)
     _listSessions.emplace(accountID, muteTime);
 }
 
-void MuteManager::SetMuteTime(uint32 accountID, uint32 muteTime)
+void MuteMgr::SetMuteTime(uint32 accountID, uint32 muteTime)
 {
     // Check empty
     auto itr = _listSessions.find(accountID);
@@ -108,7 +108,7 @@ void MuteManager::SetMuteTime(uint32 accountID, uint32 muteTime)
     _listSessions.emplace(accountID, muteTime);
 }
 
-uint32 MuteManager::GetMuteTime(uint32 accountID)
+uint32 MuteMgr::GetMuteTime(uint32 accountID)
 {
     // Check exist
     auto itr = _listSessions.find(accountID);
@@ -118,7 +118,7 @@ uint32 MuteManager::GetMuteTime(uint32 accountID)
     return _listSessions.at(accountID);
 }
 
-void MuteManager::DeleteMuteTime(uint32 accountID, bool delFromDB /*= true*/)
+void MuteMgr::DeleteMuteTime(uint32 accountID, bool delFromDB /*= true*/)
 {
     if (delFromDB)
     {
@@ -136,7 +136,7 @@ void MuteManager::DeleteMuteTime(uint32 accountID, bool delFromDB /*= true*/)
     _listSessions.erase(accountID);
 }
 
-void MuteManager::CheckMuteExpired(uint32 accountID)
+void MuteMgr::CheckMuteExpired(uint32 accountID)
 {
     uint32 _muteTime = GetMuteTime(accountID);
     uint32 timeNow = GameTime::GetGameTime();
@@ -147,7 +147,7 @@ void MuteManager::CheckMuteExpired(uint32 accountID)
     DeleteMuteTime(accountID);
 }
 
-std::string const MuteManager::GetMuteTimeString(uint32 accountID)
+std::string const MuteMgr::GetMuteTimeString(uint32 accountID)
 {
     uint32 _muteTime = GetMuteTime(accountID);
 
@@ -157,12 +157,12 @@ std::string const MuteManager::GetMuteTimeString(uint32 accountID)
     return Warhead::Time::ToTimeString<Seconds>(_muteTime - GameTime::GetGameTime());
 }
 
-bool MuteManager::CanSpeak(uint32 accountID)
+bool MuteMgr::CanSpeak(uint32 accountID)
 {
     return GetMuteTime(accountID) <= GameTime::GetGameTime();
 }
 
-void MuteManager::LoginAccount(uint32 accountID)
+void MuteMgr::LoginAccount(uint32 accountID)
 {
     // Set inactive if expired
     // UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `mutetime` > 0 AND `accountid` = ? AND UNIX_TIMESTAMP() >= `mutedate` + `mutetime`
@@ -190,7 +190,7 @@ void MuteManager::LoginAccount(uint32 accountID)
         UpdateMuteAccount(accountID, mutedate, std::abs(mutetime));
 }
 
-void MuteManager::UpdateMuteAccount(uint32 accountID, uint32 muteDate, int32 muteTime)
+void MuteMgr::UpdateMuteAccount(uint32 accountID, uint32 muteDate, int32 muteTime)
 {
     // UPDATE `account_muted` SET `mutedate` = ?, `mutetime` = ? WHERE `accountid` = ?
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE);
@@ -203,7 +203,7 @@ void MuteManager::UpdateMuteAccount(uint32 accountID, uint32 muteDate, int32 mut
         SetMuteTime(accountID, muteDate);
 }
 
-Optional<std::tuple<uint32, int32, std::string, std::string>> MuteManager::GetMuteInfo(uint32 accountID)
+Optional<std::tuple<uint32, int32, std::string, std::string>> MuteMgr::GetMuteInfo(uint32 accountID)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE);
     stmt->setUInt32(0, accountID);

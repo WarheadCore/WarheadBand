@@ -19,7 +19,7 @@
 #include "Constants.h"
 #include "ContinentBuilder.h"
 #include "DBC.h"
-#include "MPQManager.h"
+#include "MPQMgr.h"
 #include "Model.h"
 #include "WDT.h"
 
@@ -31,7 +31,7 @@
 
 #include <set>
 
-MPQManager* MPQHandler;
+MPQMgr* MPQHandler;
 CacheClass* Cache;
 
 void ExtractMMaps(std::set<uint32>& mapIds, uint32 threads)
@@ -83,15 +83,15 @@ void ExtractDBCs()
     // Iterate over all available locales
     for (std::set<uint32>::iterator itr = MPQHandler->AvailableLocales.begin(); itr != MPQHandler->AvailableLocales.end(); ++itr)
     {
-        printf("Extracting DBCs for locale %s\n", MPQManager::Languages[*itr]);
+        printf("Extracting DBCs for locale %s\n", MPQMgr::Languages[*itr]);
         std::string path = baseDBCPath;
         if (*itr != uint32(MPQHandler->BaseLocale))
         {
-            path += std::string(MPQManager::Languages[*itr]) + "/";
+            path += std::string(MPQMgr::Languages[*itr]) + "/";
             Utils::CreateDir(path);
         }
 
-        std::string component = "component.wow-" + std::string(MPQManager::Languages[*itr]) + ".txt";
+        std::string component = "component.wow-" + std::string(MPQMgr::Languages[*itr]) + ".txt";
         // Extract the component file
         Utils::SaveToDisk(MPQHandler->GetFileFrom(component, MPQHandler->LocaleFiles[*itr]), path + component);
         // Extract the DBC files for the given locale
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
     }
 
     Cache = new CacheClass();
-    MPQHandler = new MPQManager();
+    MPQHandler = new MPQMgr();
     MPQHandler->Initialize();
 
     if (extractFlags & Constants::EXTRACT_FLAG_DBC)

@@ -20,7 +20,7 @@
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "MMapFactory.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "VMapFactory.h"

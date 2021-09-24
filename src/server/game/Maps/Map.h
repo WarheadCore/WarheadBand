@@ -25,8 +25,8 @@
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "GridDefines.h"
-#include "GridRefManager.h"
-#include "MapRefManager.h"
+#include "GridRefMgr.h"
+#include "MapRefMgr.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
 #include "PathGenerator.h"
@@ -276,7 +276,7 @@ enum EncounterCreditType
     ENCOUNTER_CREDIT_CAST_SPELL     = 1,
 };
 
-class WH_GAME_API Map : public GridRefManager<NGridType>
+class WH_GAME_API Map : public GridRefMgr<NGridType>
 {
     friend class MapReference;
 public:
@@ -424,7 +424,7 @@ public:
     bool isCellMarkedLarge(uint32 pCellId) { return marked_cells_large.test(pCellId); }
     void markCellLarge(uint32 pCellId) { marked_cells_large.set(pCellId); }
 
-    [[nodiscard]] bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
+    [[nodiscard]] bool HavePlayers() const { return !m_mapRefMgr.isEmpty(); }
     [[nodiscard]] uint32 GetPlayersCountExceptGMs() const;
 
     void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
@@ -432,8 +432,8 @@ public:
 
     void SendToPlayers(WorldPacket const* data) const;
 
-    typedef MapRefManager PlayerList;
-    [[nodiscard]] PlayerList const& GetPlayers() const { return m_mapRefManager; }
+    typedef MapRefMgr PlayerList;
+    [[nodiscard]] PlayerList const& GetPlayers() const { return m_mapRefMgr; }
 
     //per-map script storage
     void ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo> > const& scripts, uint32 id, Object* source, Object* target);
@@ -648,8 +648,8 @@ protected:
     DynamicMapTree _dynamicTree;
     time_t _instanceResetPeriod; // pussywizard
 
-    MapRefManager m_mapRefManager;
-    MapRefManager::iterator m_mapRefIter;
+    MapRefMgr m_mapRefMgr;
+    MapRefMgr::iterator m_mapRefIter;
 
     typedef std::set<WorldObject*> ActiveNonPlayers;
     ActiveNonPlayers m_activeNonPlayers;

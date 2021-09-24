@@ -33,7 +33,7 @@ EndScriptData */
 #include "GameLocale.h"
 #include "LFGMgr.h"
 #include "Language.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SkillDiscovery.h"
@@ -44,7 +44,7 @@ EndScriptData */
 #include "TicketMgr.h"
 #include "Tokenize.h"
 #include "WardenCheckMgr.h"
-#include "WaypointManager.h"
+#include "WaypointMgr.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

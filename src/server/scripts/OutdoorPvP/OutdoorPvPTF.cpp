@@ -18,7 +18,7 @@
 #include "OutdoorPvPTF.h"
 #include "GameLocale.h"
 #include "Language.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"

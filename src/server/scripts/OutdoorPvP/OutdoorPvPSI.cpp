@@ -19,7 +19,7 @@
 #include "GameLocale.h"
 #include "GameObject.h"
 #include "Language.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"

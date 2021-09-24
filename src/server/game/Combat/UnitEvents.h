@@ -21,7 +21,7 @@
 #include "Common.h"
 
 class ThreatContainer;
-class ThreatManager;
+class ThreatMgr;
 class HostileReference;
 
 //==============================================================
@@ -90,15 +90,15 @@ private:
         int32 iIValue;
         bool iBValue;
     };
-    ThreatManager* iThreatManager;
+    ThreatMgr* iThreatMgr;
 public:
-    ThreatRefStatusChangeEvent(uint32 pType) : UnitBaseEvent(pType), iThreatManager(nullptr) { iHostileReference = nullptr; }
+    ThreatRefStatusChangeEvent(uint32 pType) : UnitBaseEvent(pType), iThreatMgr(nullptr) { iHostileReference = nullptr; }
 
-    ThreatRefStatusChangeEvent(uint32 pType, HostileReference* pHostileReference) : UnitBaseEvent(pType), iThreatManager(nullptr) { iHostileReference = pHostileReference; }
+    ThreatRefStatusChangeEvent(uint32 pType, HostileReference* pHostileReference) : UnitBaseEvent(pType), iThreatMgr(nullptr) { iHostileReference = pHostileReference; }
 
-    ThreatRefStatusChangeEvent(uint32 pType, HostileReference* pHostileReference, float pValue) : UnitBaseEvent(pType), iThreatManager(nullptr) { iHostileReference = pHostileReference; iFValue = pValue; }
+    ThreatRefStatusChangeEvent(uint32 pType, HostileReference* pHostileReference, float pValue) : UnitBaseEvent(pType), iThreatMgr(nullptr) { iHostileReference = pHostileReference; iFValue = pValue; }
 
-    ThreatRefStatusChangeEvent(uint32 pType, HostileReference* pHostileReference, bool pValue) : UnitBaseEvent(pType), iThreatManager(nullptr) { iHostileReference = pHostileReference; iBValue = pValue; }
+    ThreatRefStatusChangeEvent(uint32 pType, HostileReference* pHostileReference, bool pValue) : UnitBaseEvent(pType), iThreatMgr(nullptr) { iHostileReference = pHostileReference; iBValue = pValue; }
 
     [[nodiscard]] int32 getIValue() const { return iIValue; }
 
@@ -110,20 +110,20 @@ public:
 
     [[nodiscard]] HostileReference* getReference() const { return iHostileReference; }
 
-    void setThreatManager(ThreatManager* pThreatManager) { iThreatManager = pThreatManager; }
+    void setThreatMgr(ThreatMgr* pThreatMgr) { iThreatMgr = pThreatMgr; }
 
-    [[nodiscard]] ThreatManager* getThreatManager() const { return iThreatManager; }
+    [[nodiscard]] ThreatMgr* getThreatMgr() const { return iThreatMgr; }
 };
 
 //==============================================================
 
-class WH_GAME_API ThreatManagerEvent : public ThreatRefStatusChangeEvent
+class WH_GAME_API ThreatMgrEvent : public ThreatRefStatusChangeEvent
 {
 private:
     ThreatContainer* iThreatContainer;
 public:
-    ThreatManagerEvent(uint32 pType) : ThreatRefStatusChangeEvent(pType), iThreatContainer(nullptr) {}
-    ThreatManagerEvent(uint32 pType, HostileReference* pHostileReference) : ThreatRefStatusChangeEvent(pType, pHostileReference), iThreatContainer(nullptr) {}
+    ThreatMgrEvent(uint32 pType) : ThreatRefStatusChangeEvent(pType), iThreatContainer(nullptr) {}
+    ThreatMgrEvent(uint32 pType, HostileReference* pHostileReference) : ThreatRefStatusChangeEvent(pType, pHostileReference), iThreatContainer(nullptr) {}
 
     void setThreatContainer(ThreatContainer* pThreatContainer) { iThreatContainer = pThreatContainer; }
 

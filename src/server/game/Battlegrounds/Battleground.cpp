@@ -33,7 +33,7 @@
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -959,7 +959,7 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
         {
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
-            player->getHostileRefManager().deleteReferences();
+            player->getHostileRefMgr().deleteReferences();
         }
 
         // per player calculation

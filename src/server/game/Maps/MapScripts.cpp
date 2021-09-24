@@ -22,14 +22,14 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Map.h"
-#include "MapManager.h"
-#include "MapRefManager.h"
+#include "MapMgr.h"
+#include "MapRefMgr.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Transport.h"
-#include "WaypointManager.h"
+#include "WaypointMgr.h"
 #include "World.h"
 
 /// Put scripts in the execution queue

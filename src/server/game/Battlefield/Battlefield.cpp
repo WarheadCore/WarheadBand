@@ -27,7 +27,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Map.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Transport.h"

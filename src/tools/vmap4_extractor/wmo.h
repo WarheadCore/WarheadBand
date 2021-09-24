@@ -43,7 +43,7 @@ enum MopyFlags
 };
 
 class WMOInstance;
-class WMOManager;
+class WMOMgr;
 class MPQFile;
 namespace ADT { struct MODF; }
 

@@ -15,35 +15,40 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MMAP_FACTORY_H
-#define _MMAP_FACTORY_H
+#ifndef MPQ_MANAGER_H
+#define MPQ_MANAGER_H
 
-#include "DetourAlloc.h"
-#include "DetourExtended.h"
-#include "DetourNavMesh.h"
-#include "MMapMgr.h"
-#include <unordered_map>
+#include "MPQ.h"
+#include "PolicyLock.h"
+#include <map>
+#include <mutex>
+#include <set>
 
-namespace MMAP
+class DBC;
+class MPQMgr
 {
-    enum MMAP_LOAD_RESULT
-    {
-        MMAP_LOAD_RESULT_ERROR,
-        MMAP_LOAD_RESULT_OK,
-        MMAP_LOAD_RESULT_IGNORED,
-    };
+public:
+    MPQMgr() {}
+    ~MPQMgr() {}
 
-    // static class
-    // holds all mmap global data
-    // access point to MMapMgr singleton
-    class WH_COMMON_API MMapFactory
-    {
-    public:
-        static MMapMgr* createOrGetMMapMgr();
-        static void clear();
-        static void InitializeDisabledMaps();
-        static bool forbiddenMaps[1000];
-    };
-}
+    void Initialize();
+    FILE* GetFile(const std::string& path);
+    FILE* GetFileFrom(const std::string& path, MPQArchive* file);
+    DBC* GetDBC(const std::string& name);
+    std::vector<std::string> GetAllFiles(std::string extension);
 
+    std::deque<MPQArchive*> Archives;
+    int32 BaseLocale;
+    std::set<uint32> AvailableLocales;
+    std::map<uint32, MPQArchive*> LocaleFiles;
+
+    static char const* Files[];
+    static char const* Languages[];
+protected:
+    void InitializeDBC();
+private:
+    std::mutex mutex;
+};
+
+extern MPQMgr* MPQHandler;
 #endif

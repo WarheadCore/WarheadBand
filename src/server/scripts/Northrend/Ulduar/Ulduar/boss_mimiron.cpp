@@ -16,7 +16,7 @@
  */
 
 #include "GameTime.h"
-#include "MapManager.h"
+#include "MapMgr.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"
