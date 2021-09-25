@@ -119,6 +119,7 @@ public:
 
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
+
         if (shutdownError)
             LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: {} ({})", GetRemoteIpAddress().to_string(),
                 shutdownError.value(), shutdownError.message().c_str());
@@ -133,7 +134,6 @@ public:
 
 protected:
     virtual void OnClose() { }
-
     virtual void ReadHandler() = 0;
 
     bool AsyncProcessQueue()
@@ -159,6 +159,7 @@ protected:
     {
         boost::system::error_code err;
         _socket.set_option(tcp::no_delay(enable), err);
+
         if (err)
             LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for {} - {} ({})",
                 GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
@@ -185,6 +186,7 @@ private:
         {
             _isWritingAsync = false;
             _writeQueue.front().ReadCompleted(transferedBytes);
+
             if (!_writeQueue.front().GetActiveSize())
                 _writeQueue.pop();
 
@@ -225,6 +227,7 @@ private:
             _writeQueue.pop();
             if (_closing && _writeQueue.empty())
                 CloseSocket();
+
             return false;
         }
         else if (bytesSent == 0)
@@ -232,6 +235,7 @@ private:
             _writeQueue.pop();
             if (_closing && _writeQueue.empty())
                 CloseSocket();
+            }
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
@@ -243,6 +247,7 @@ private:
         _writeQueue.pop();
         if (_closing && _writeQueue.empty())
             CloseSocket();
+
         return !_writeQueue.empty();
     }
 

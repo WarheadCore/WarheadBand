@@ -39,13 +39,12 @@ class NetworkThread
 {
 public:
     NetworkThread() : _connections(0), _stopped(false), _thread(nullptr), _ioContext(1),
-        _acceptSocket(_ioContext), _updateTimer(_ioContext)
-    {
-    }
+        _acceptSocket(_ioContext), _updateTimer(_ioContext) { }
 
     virtual ~NetworkThread()
     {
         Stop();
+
         if (_thread)
         {
             Wait();

@@ -130,9 +130,8 @@ public:
     }
 
 protected:
-    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(0)
-    {
-    }
+    SocketMgr() :
+        _acceptor(nullptr), _threads(nullptr), _threadCount(0) { }
 
     virtual NetworkThread<SocketType>* CreateThreads() const = 0;
 

@@ -58,8 +58,8 @@ enum RealmType
 
     MAX_CLIENT_REALM_TYPE   = 14,
 
-    REALM_TYPE_FFA_PVP      = 16                            // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
-                                                            // replaced by REALM_PVP in realm list
+    REALM_TYPE_FFA_PVP      = 16 // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
+                                 // replaced by REALM_PVP in realm list
 };
 
 // Storage object for a realm
