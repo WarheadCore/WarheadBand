@@ -36,12 +36,11 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
+#include "TextBuilder.h"
 
 namespace lfg
 {
-
-    LFGMgr::LFGMgr(): m_lfgProposalId(1), m_options(CONF_GET_INT("DungeonFinder.OptionsMask"))
-    LFGMgr::LFGMgr(): m_lfgProposalId(1), m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK)), m_Testing(false)
+    LFGMgr::LFGMgr(): m_lfgProposalId(1), m_options(CONF_GET_INT("DungeonFinder.OptionsMask")), m_Testing(false)
     {
         new LFGPlayerScript();
         new LFGGroupScript();
@@ -408,7 +407,7 @@ namespace lfg
             DungeonProgressionRequirements const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
 
             uint32 lockData = 0;
-            if (dungeon->expansion > expansion || dungeon->expansion > sWorld->getIntConfig(CONFIG_LFG_DUNGEON_FINDER_EXPANSION))
+            if (dungeon->expansion > expansion || dungeon->expansion > CONF_GET_INT("DungeonFinder.Expansion"))
                 lockData = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
             else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
                 lockData = LFG_LOCKSTATUS_RAID_LOCKED;
@@ -785,7 +784,11 @@ namespace lfg
     void LFGMgr::ToggleTesting()
     {
         m_Testing = !m_Testing;
-        sWorld->SendWorldText(m_Testing ? LANG_DEBUG_LFG_ON : LANG_DEBUG_LFG_OFF);
+
+        Warhead::Text::SendWorldText([&](uint8 index)
+        {
+            return Warhead::Text::GetLocaleMessage(index, m_Testing ? LANG_DEBUG_LFG_ON : LANG_DEBUG_LFG_OFF);
+        });
     }
 
     /**

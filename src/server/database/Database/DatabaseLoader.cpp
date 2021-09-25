@@ -207,6 +207,7 @@ bool DatabaseLoader::Process(std::queue<Predicate>& queue)
 
         queue.pop();
     }
+
     return true;
 }
 

@@ -1468,6 +1468,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             {
                 SetHasDelayedTeleport(true);
                 SetSemaphoreTeleportFar(GameTime::GetGameTime());
+
                 //lets save teleport destination for player
                 teleportStore_dest = WorldLocation(mapid, x, y, z, orientation);
                 teleportStore_options = options;
@@ -8889,8 +8890,8 @@ void Player::PetSpellInitialize()
     uint8 cooldownsCount = pet->m_CreatureSpellCooldowns.size();
     data << uint8(cooldownsCount);
 
-    uint32 curTime = World::GetGameTimeMS();
-    uint32 infTime = World::GetGameTimeMS() + infinityCooldownDelayCheck;
+    uint32 curTime = GameTime::GetGameTimeMS();
+    uint32 infTime = GameTime::GetGameTimeMS() + infinityCooldownDelayCheck;
 
     for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
     {
@@ -8992,8 +8993,8 @@ void Player::VehicleSpellInitialize()
     // Cooldowns
     data << uint8(cooldownCount);
 
-    uint32 curTime = World::GetGameTimeMS();
-    uint32 infTime = World::GetGameTimeMS() + infinityCooldownDelayCheck;
+    uint32 curTime = GameTime::GetGameTimeMS();
+    uint32 infTime = GameTime::GetGameTimeMS() + infinityCooldownDelayCheck;
 
     for (CreatureSpellCooldowns::const_iterator itr = vehicle->m_CreatureSpellCooldowns.begin(); itr != vehicle->m_CreatureSpellCooldowns.end(); ++itr)
     {
@@ -10266,7 +10267,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
 void Player::_AddSpellCooldown(uint32 spellid, uint16 categoryId, uint32 itemid, uint32 end_time, bool needSendToClient, bool forceSendToSpectator)
 {
     SpellCooldown sc;
-    sc.end = World::GetGameTimeMS() + end_time;
+    sc.end = GameTime::GetGameTimeMS() + end_time;
     sc.category = categoryId;
     sc.itemid = itemid;
     sc.maxduration = end_time;
@@ -11025,7 +11026,7 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
         SpellCooldowns::iterator itr = m_spellCooldowns.find(spellData.SpellId);
-        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > World::GetGameTimeMS() + 30 * IN_MILLISECONDS)
+        if (itr != m_spellCooldowns.end() && itr->second.itemid == pItem->GetEntry() && itr->second.end > GameTime::GetGameTimeMS() + 30 * IN_MILLISECONDS)
             continue;
 
         // xinef: dont apply eqiup cooldown for spells with this attribute
@@ -15013,7 +15014,6 @@ bool Player::IsPetDismissed()
      * Check PET_SAVE_NOT_IN_SLOT means the pet is dismissed. If someone ever
      * Changes the slot flag, they will break this validation.
      */
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_SYNS);
     stmt->setUInt32(0, GetGUID().GetCounter());
     stmt->setUInt8(1, uint8(PET_SAVE_NOT_IN_SLOT));
@@ -15310,4 +15310,37 @@ std::string Player::GetPlayerName()
     }
 
     return "|Hplayer:" + name + "|h" + color + name + "|h|r";
+}
+
+bool Player::HasSpellCooldown(uint32 spell_id) const
+{
+    auto const& itr = m_spellCooldowns.find(spell_id);
+    return itr != m_spellCooldowns.end() && itr->second.end > GameTime::GetGameTimeMS();
+}
+
+bool Player::HasSpellItemCooldown(uint32 spell_id, uint32 itemid) const
+{
+    auto const& itr = m_spellCooldowns.find(spell_id);
+    return itr != m_spellCooldowns.end() && itr->second.end > GameTime::GetGameTimeMS() && itr->second.itemid == itemid;
+}
+
+uint32 Player::GetSpellCooldownDelay(uint32 spell_id) const
+{
+    auto const& itr = m_spellCooldowns.find(spell_id);
+    return uint32(itr != m_spellCooldowns.end() && itr->second.end > GameTime::GetGameTimeMS() ? itr->second.end - GameTime::GetGameTimeMS() : 0);
+}
+
+void Player::SetSummonPoint(uint32 mapid, float x, float y, float z, uint32 delay /*= 0*/, bool asSpectator /*= false*/)
+{
+    m_summon_expire = GameTime::GetGameTime() + (delay ? delay : MAX_PLAYER_SUMMON_DELAY);
+    m_summon_mapid = mapid;
+    m_summon_x = x;
+    m_summon_y = y;
+    m_summon_z = z;
+    m_summon_asSpectator = asSpectator;
+}
+
+bool Player::IsSummonAsSpectator() const
+{
+    return m_summon_asSpectator && m_summon_expire >= GameTime::GetGameTime();
 }

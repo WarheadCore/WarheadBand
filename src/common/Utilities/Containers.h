@@ -89,6 +89,7 @@ namespace Warhead::Containers
 
         auto keepIt = std::begin(container), curIt = std::begin(container);
         uint32 elementsToKeep = requestedSize, elementsToProcess = std::size(container);
+
         while (elementsToProcess)
         {
             // this element has chance (elementsToKeep / elementsToProcess) of being kept
@@ -102,9 +103,11 @@ namespace Warhead::Containers
                 ++keepIt;
                 --elementsToKeep;
             }
+
             ++curIt;
             --elementsToProcess;
         }
+
         container.erase(keepIt, std::end(container));
     }
 
@@ -167,12 +170,14 @@ namespace Warhead::Containers
         std::vector<double> weights;
         weights.reserve(std::size(container));
         double weightSum = 0.0;
+
         for (auto& val : container)
         {
             double weight = weightExtractor(val);
             weights.push_back(weight);
             weightSum += weight;
         }
+
         if (weightSum <= 0.0)
         {
             weights.assign(std::size(container), 1.0);

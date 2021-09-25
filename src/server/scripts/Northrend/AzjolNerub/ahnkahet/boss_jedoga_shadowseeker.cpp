@@ -381,7 +381,7 @@ public:
                     me->SetFacingTo(5.66f);
                     if (!summons.empty())
                     {
-                        sacraficeTarget_GUID = Acore::Containers::SelectRandomContainerElement(summons);
+                        sacraficeTarget_GUID = Warhead::Containers::SelectRandomContainerElement(summons);
                         if (Creature* volunteer = ObjectAccessor::GetCreature(*me, sacraficeTarget_GUID))
                         {
                             Talk(SAY_SACRIFICE_1);

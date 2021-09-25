@@ -18167,7 +18167,7 @@ void Unit::UpdateObjectVisibility(bool forced, bool /*fromUpdate*/)
     else
     {
         WorldObject::UpdateObjectVisibility(true);
-        Acore::AIRelocationNotifier notifier(*this);
+        Warhead::AIRelocationNotifier notifier(*this);
         float radius = 60.0f;
         Cell::VisitAllObjects(this, notifier, radius);
     }
@@ -19522,7 +19522,7 @@ void Unit::ExecuteDelayedUnitRelocationEvent()
 
         if (!player->GetFarSightDistance())
         {
-            Acore::PlayerRelocationNotifier relocateLarge(*player, true); // visit only large objects; maximum distance
+            Warhead::PlayerRelocationNotifier relocateLarge(*player, true); // visit only large objects; maximum distance
             Cell::VisitAllObjects(viewPoint, relocateLarge, MAX_VISIBILITY_DISTANCE);
             relocateLarge.SendToSelf();
         }

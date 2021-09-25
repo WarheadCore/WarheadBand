@@ -162,7 +162,7 @@ public:
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, nameLink, handler->GetWarheadString(LANG_OFFLINE), locationName);
 
-            Player::SavePositionInDB({ mapId, pos }, sMapMgr->GetZoneId({ mapId, pos }), player.GetGUID(), nullptr);
+            Player::SavePositionInDB({ mapId, pos }, sMapMgr->GetZoneId(PHASEMASK_NORMAL, { mapId, pos }), player.GetGUID(), nullptr);
         }
 
         return true;

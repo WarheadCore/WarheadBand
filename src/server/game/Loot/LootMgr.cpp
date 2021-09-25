@@ -1397,8 +1397,9 @@ void LootTemplate::LootGroup::Process(Loot& loot, Player const* player, LootStor
         {
             if (LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(std::abs(item->reference)))
             {
-                uint32 maxcount = uint32(float(item->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
+                uint32 maxcount = uint32(float(item->maxcount) * CONF_GET_FLOAT("Rate.Drop.Item.ReferencedAmount"));
                 sScriptMgr->OnAfterRefCount(player, loot, rate, lootMode, const_cast<LootStoreItem*>(item), maxcount, store);
+
                 for (uint32 loop = 0; loop < maxcount; ++loop) // Ref multiplicator
                     Referenced->Process(loot, store, lootMode, player, item->groupid);
             }

@@ -2441,7 +2441,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
         {
             return EQUIP_ERR_CANT_DO_RIGHT_NOW;
         }
-        else if (sWorld->getIntConfig(CONFIG_LOOT_NEED_BEFORE_GREED_ILVL_RESTRICTION) && proto->ItemLevel > sWorld->getIntConfig(CONFIG_LOOT_NEED_BEFORE_GREED_ILVL_RESTRICTION))
+        else if (CONF_GET_UINT("LootNeedBeforeGreedILvlRestriction") && proto->ItemLevel > CONF_GET_UINT("LootNeedBeforeGreedILvlRestriction"))
         {
             if (proto->SubClass < subclassToCompare)
             {
@@ -7064,7 +7064,6 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         MapEntry const* bindMapEntry = sMapStore.LookupEntry(m_homebindMapId);
 
         // accept saved data only for valid position (and non instanceable), and accessable
-                !bindMapEntry->Instanceable() && GetSession()->Expansion() >= bindMapEntry->Expansion())
         if (MapMgr::IsValidMapCoord(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ) &&
             !bindMapEntry->Instanceable() && GetSession()->Expansion() >= bindMapEntry->Expansion())
             ok = true;

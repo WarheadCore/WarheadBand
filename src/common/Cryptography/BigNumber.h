@@ -34,6 +34,7 @@ public:
     BigNumber(uint32 v) : BigNumber() { SetDword(v); }
     BigNumber(int32 v) : BigNumber() { SetDword(v); }
     BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
+
     template <size_t Size>
     BigNumber(std::array<uint8, Size> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), Size, littleEndian); }
 
@@ -43,8 +44,10 @@ public:
     void SetDword(uint32);
     void SetQword(uint64);
     void SetBinary(uint8 const* bytes, int32 len, bool littleEndian = true);
+
     template <typename Container>
     auto SetBinary(Container const& c, bool littleEndian = true) -> std::enable_if_t<!std::is_pointer_v<std::decay_t<Container>>> { SetBinary(std::data(c), std::size(c), littleEndian); }
+
     bool SetHexStr(char const* str);
     bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
 

@@ -703,13 +703,13 @@ void WorldSession::KickPlayer(std::string const& reason, bool setKicked)
         SetKicked(true); // pussywizard: the session won't be left ingame for 60 seconds and to also kick offline session
 }
 
-bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
+bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string_view str)
 {
     if (Warhead::Hyperlinks::CheckAllLinks(str))
         return true;
 
     LOG_ERROR("network", "Player {}{} sent a message with an invalid link:\n{}", GetPlayer()->GetName(),
-        GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
+        GetPlayer()->GetGUID(), str);
 
     if (CONF_GET_INT("ChatStrictLinkChecking.Kick"))
         KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
@@ -717,13 +717,13 @@ bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
     return false;
 }
 
-bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string const& str)
+bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string_view str)
 {
-    if (str.find('|') == std::string::npos)
+    if (str.find('|') == std::string_view::npos)
         return true;
 
     LOG_ERROR("network", "Player {} {} sent a message which illegally contained a hyperlink:\n{}", GetPlayer()->GetName(),
-        GetPlayer()->GetGUID().ToString().c_str(), str.c_str());
+        GetPlayer()->GetGUID(), str);
 
     if (CONF_GET_INT("ChatStrictLinkChecking.Kick"))
         KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");

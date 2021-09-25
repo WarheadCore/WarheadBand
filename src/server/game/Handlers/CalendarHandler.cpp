@@ -718,7 +718,7 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket& recvData)
         if (CalendarInvite* invite = sCalendarMgr->GetInvite(inviteId))
         {
             invite->SetStatus((CalendarInviteStatus)status);
-            invite->SetStatusTime(time(nullptr));
+            invite->SetStatusTime(GameTime::GetGameTime());
 
             sCalendarMgr->UpdateInvite(invite);
             sCalendarMgr->SendCalendarEventStatus(*calendarEvent, *invite);

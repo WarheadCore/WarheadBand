@@ -3310,7 +3310,7 @@ public:
         handler->PSendSysMessage("Character: %s", player->GetPlayerName().c_str());
         handler->PSendSysMessage("Current equipment average item level: |cff00ffff%u|r", (int16)player->GetAverageItemLevel());
 
-        if (sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE))
+        if (CONF_GET_UINT("PlayerSave.Stats.MinLevel"))
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
             stmt->setUInt32(0, player->GetGUID().GetCounter());

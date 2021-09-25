@@ -303,6 +303,7 @@ private:
         SpellEffectImplicitTargetTypes ImplicitTargetType; // defines what target can be added to effect target list if there's no valid target type provided for effect
         SpellTargetObjectTypes UsedTargetObjectType; // defines valid target object type for spell effect
     };
+
     static std::array<StaticData, TOTAL_SPELL_EFFECTS> _data;
 };
 

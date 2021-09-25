@@ -54,7 +54,7 @@ void Player::Update(uint32 p_time)
     sScriptMgr->OnBeforePlayerUpdate(this, p_time);
 
     // undelivered mail
-    if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(nullptr))
+    if (m_nextMailDelivereTime && m_nextMailDelivereTime <= GameTime::GetGameTime())
     {
         SendNewMail();
         ++unReadMails;
@@ -79,7 +79,7 @@ void Player::Update(uint32 p_time)
     Unit::Update(p_time);
     SetMustDelayTeleport(false);
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     UpdatePvPFlag(now);
     UpdateFFAPvPFlag(now);
@@ -214,7 +214,7 @@ void Player::Update(uint32 p_time)
     {
         if (now > m_Last_tick && _restTime > 0) // freeze update
         {
-            time_t currTime = time(nullptr);
+            time_t currTime = GameTime::GetGameTime();
             time_t timeDiff = currTime - _restTime;
             if (timeDiff >= 10) // freeze update
             {
@@ -426,7 +426,7 @@ void Player::UpdateMirrorTimers()
 void Player::UpdateNextMailTimeAndUnreads()
 {
     // Update the next delivery time and unread mails
-    time_t cTime = time(nullptr);
+    time_t cTime = GameTime::GetGameTime();
     // Get the next delivery time
     CharacterDatabasePreparedStatement* stmtNextDeliveryTime =
         CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
@@ -1037,8 +1037,8 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
-    time_t now   = time_t(time(nullptr));
-    time_t today = time_t(time(nullptr) / DAY) * DAY;
+    time_t now   = time_t(GameTime::GetGameTime());
+    time_t today = time_t(GameTime::GetGameTime() / DAY) * DAY;
 
     if (m_lastHonorUpdateTime < today)
     {
@@ -1289,7 +1289,7 @@ void Player::UpdatePvPState()
     {
         if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) &&
             pvpInfo.EndTimer == 0)
-            pvpInfo.EndTimer = time(nullptr); // start toggle-off
+            pvpInfo.EndTimer = GameTime::GetGameTime(); // start toggle-off
     }
 }
 
@@ -1368,7 +1368,7 @@ void Player::UpdatePvP(bool state, bool _override)
     }
     else
     {
-        pvpInfo.EndTimer = time(nullptr);
+        pvpInfo.EndTimer = GameTime::GetGameTime();
         SetPvP(state);
     }
 

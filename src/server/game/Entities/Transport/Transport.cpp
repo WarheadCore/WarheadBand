@@ -946,7 +946,7 @@ void StaticTransport::UpdatePassengerPositions()
                 if (passenger->IsInWorld())
                 {
                     GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
-                    passenger->ToPlayer()->SetFallInformation(time(nullptr), z);
+                    passenger->ToPlayer()->SetFallInformation(GameTime::GetGameTime(), z);
                 }
                 break;
             case TYPEID_GAMEOBJECT:

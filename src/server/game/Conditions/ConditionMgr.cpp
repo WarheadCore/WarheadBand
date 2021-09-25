@@ -1628,7 +1628,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
     case CONDITION_CHARMED:
     case CONDITION_PET_TYPE:
     case CONDITION_TAXI:
-        LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table has a ConditionType that is not yet supported on AzerothCore (%u), ignoring.", cond->SourceEntry, uint32(cond->ConditionType));
+        LOG_ERROR("sql.sql", "SourceEntry %u in `condition` table has a ConditionType that is not yet supported on WarheadCore (%u), ignoring.", cond->SourceEntry, uint32(cond->ConditionType));
         return false;
     default:
         break;

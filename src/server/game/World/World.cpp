@@ -1206,7 +1206,7 @@ void World::SetInitialWorldSettings()
 
     if (sConfigMgr->isDryRun())
     {
-        LOG_INFO("server.loading", "AzerothCore dry run completed, terminating.");
+        LOG_INFO("server.loading", "Dry run completed, terminating.");
         exit(0);
     }
 }
@@ -2525,7 +2525,7 @@ uint32 World::GetNextWhoListUpdateDelaySecs()
 
 void World::FinalizePlayerWorldSession(WorldSession* session)
 {
-    uint32 cacheVersion = sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION);
+    uint32 cacheVersion = CONF_GET_UINT("ClientCacheVersion");
     sScriptMgr->OnBeforeFinalizePlayerWorldSession(cacheVersion);
 
     session->SendAddonsInfo();

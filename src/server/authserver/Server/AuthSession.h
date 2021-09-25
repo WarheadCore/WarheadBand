@@ -29,7 +29,6 @@
 #include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <memory>
-#include <unordered_map>
 
 using boost::asio::ip::tcp;
 

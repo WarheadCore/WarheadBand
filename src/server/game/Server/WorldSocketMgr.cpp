@@ -93,6 +93,7 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
     {
         boost::system::error_code err;
         sock.set_option(boost::asio::socket_base::send_buffer_size(_socketSystemSendBufferSize), err);
+
         if (err && err != boost::system::errc::not_supported)
         {
             LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::socket_base::send_buffer_size) err = {}", err.message());
@@ -105,6 +106,7 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
     {
         boost::system::error_code err;
         sock.set_option(boost::asio::ip::tcp::no_delay(true), err);
+
         if (err)
         {
             LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::ip::tcp::no_delay) err = {}", err.message());

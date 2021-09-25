@@ -1700,21 +1700,10 @@ public:
     void DropModCharge(SpellModifier* mod, Spell* spell);
     void SetSpellModTakingSpell(Spell* spell, bool apply);
 
-    [[nodiscard]] bool HasSpellCooldown(uint32 spell_id) const override
-    {
-        SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-        return itr != m_spellCooldowns.end() && itr->second.end > World::GetGameTimeMS();
-    }
-    [[nodiscard]] bool HasSpellItemCooldown(uint32 spell_id, uint32 itemid) const override
-    {
-        SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-        return itr != m_spellCooldowns.end() && itr->second.end > World::GetGameTimeMS() && itr->second.itemid == itemid;
-    }
-    [[nodiscard]] uint32 GetSpellCooldownDelay(uint32 spell_id) const
-    {
-        SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
-        return uint32(itr != m_spellCooldowns.end() && itr->second.end > World::GetGameTimeMS() ? itr->second.end - World::GetGameTimeMS() : 0);
-    }
+    [[nodiscard]] bool HasSpellCooldown(uint32 spell_id) const override;
+    [[nodiscard]] bool HasSpellItemCooldown(uint32 spell_id, uint32 itemid) const override;
+    [[nodiscard]] uint32 GetSpellCooldownDelay(uint32 spell_id) const;
+
     void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool infinityCooldown = false);
     void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint32 end_time, bool needSendToClient = false, bool forceSendToSpectator = false) override;
     void _AddSpellCooldown(uint32 spell_id, uint16 categoryId, uint32 itemid, uint32 end_time, bool needSendToClient = false, bool forceSendToSpectator = false);

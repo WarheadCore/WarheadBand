@@ -547,17 +547,6 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
         }
     }
 
-    //! Negative mutetime indicates amount of minutes to be muted effective on next login - which is now.
-    if (account.MuteTime < 0)
-    {
-        account.MuteTime = time(nullptr) + llabs(account.MuteTime);
-
-        auto* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
-        stmt->setInt64(0, account.MuteTime);
-        stmt->setUInt32(1, account.Id);
-        LoginDatabase.Execute(stmt);
-    }
-
     if (account.IsBanned)
     {
         SendAuthResponseError(AUTH_BANNED);
@@ -678,5 +667,6 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
     WorldPacket packet(SMSG_PONG, 4);
     packet << ping;
     SendPacketAndLogOpcode(packet);
+
     return true;
 }

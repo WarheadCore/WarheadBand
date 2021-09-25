@@ -2604,7 +2604,7 @@ void Creature::_AddCreatureSpellCooldown(uint32 spell_id, uint16 categoryId, uin
 {
     CreatureSpellCooldown spellCooldown;
     spellCooldown.category = categoryId;
-    spellCooldown.end = World::GetGameTimeMS() + end_time;
+    spellCooldown.end = GameTime::GetGameTimeMS() + end_time;
     m_CreatureSpellCooldowns[spell_id] = std::move(spellCooldown);
 }
 
@@ -2650,13 +2650,13 @@ uint32 Creature::GetSpellCooldown(uint32 spell_id) const
     if (itr == m_CreatureSpellCooldowns.end())
         return 0;
 
-    return itr->second.end > World::GetGameTimeMS() ? itr->second.end - World::GetGameTimeMS() : 0;
+    return itr->second.end > GameTime::GetGameTimeMS() ? itr->second.end - GameTime::GetGameTimeMS() : 0;
 }
 
 bool Creature::HasSpellCooldown(uint32 spell_id) const
 {
     CreatureSpellCooldowns::const_iterator itr = m_CreatureSpellCooldowns.find(spell_id);
-    return (itr != m_CreatureSpellCooldowns.end() && itr->second.end > World::GetGameTimeMS());
+    return (itr != m_CreatureSpellCooldowns.end() && itr->second.end > GameTime::GetGameTimeMS());
 }
 
 bool Creature::HasSpell(uint32 spellID) const
@@ -3016,7 +3016,7 @@ bool Creature::SetCanFly(bool enable, bool  /*packetOnly*/ /* = false */)
         sScriptMgr->AnticheatSetCanFlybyServer(m_movedByPlayer->ToPlayer(), enable);
 
         if (!enable)
-            m_movedByPlayer->ToPlayer()->SetFallInformation(time(nullptr), m_movedByPlayer->ToPlayer()->GetPositionZ());
+            m_movedByPlayer->ToPlayer()->SetFallInformation(GameTime::GetGameTime(), m_movedByPlayer->ToPlayer()->GetPositionZ());
 
         WorldPacket data(enable ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
         data << GetPackGUID();

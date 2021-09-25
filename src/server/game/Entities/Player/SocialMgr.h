@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "ObjectGuid.h"
 #include <map>
 
 class Player;

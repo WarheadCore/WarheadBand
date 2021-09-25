@@ -27,6 +27,7 @@ class WH_GAME_API BGSpamProtect
 {
 public:
     static BGSpamProtect* instance();
+
     bool CanAnnounce(Player* player, Battleground* bg, uint32 minLevel, uint32 queueTotal);
 };
 

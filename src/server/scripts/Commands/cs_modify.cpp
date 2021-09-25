@@ -94,16 +94,16 @@ public:
     }
 
     template<typename... Args>
-    static void NotifyModification(ChatHandler* handler, Unit* target, AcoreStrings resourceMessage, AcoreStrings resourceReportMessage, Args&&... args)
+    static void NotifyModification(ChatHandler* handler, Unit* target, uint32 resourceMessage, uint32 resourceReportMessage, Args&&... args)
     {
-        if (Player* player = target->ToPlayer())
-        {
-            handler->PSendSysMessage(resourceMessage, handler->GetNameLink(player).c_str(), args...);
-            if (handler->needReportToTarget(player))
-            {
-                ChatHandler(player->GetSession()).PSendSysMessage(resourceReportMessage, handler->GetNameLink().c_str(), std::forward<Args>(args)...);
-            }
-        }
+        Player* player = target->ToPlayer();
+        if (!player)
+            return;
+
+        handler->PSendSysMessage(resourceMessage, handler->GetNameLink(player).c_str(), args...);
+
+        if (handler->needReportToTarget(player))
+            ChatHandler(player->GetSession()).PSendSysMessage(resourceReportMessage, handler->GetNameLink().c_str(), std::forward<Args>(args)...);
     }
 
     //Edit Player HP
@@ -492,7 +492,7 @@ public:
             return false;
         }
 
-        speed = Acore::StringTo<float>(args).value();
+        speed = Warhead::StringTo<float>(args).value();
 
         if (speed > maximumBound || speed < minimumBound)
         {
@@ -815,7 +815,7 @@ public:
             speed_cstr = "1";
         }
 
-        uint32 mount = Acore::StringTo<uint32>(mount_cstr).value();
+        uint32 mount = Warhead::StringTo<uint32>(mount_cstr).value();
         if (!sCreatureDisplayInfoStore.LookupEntry(mount))
         {
             handler->SendSysMessage(LANG_NO_MOUNT);

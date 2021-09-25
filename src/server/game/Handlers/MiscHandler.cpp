@@ -781,7 +781,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     bool teleported = false;
     if (player->GetMapId() != at->target_mapId)
     {
-       if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
+        if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
         {
             bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
             switch (denyReason)

@@ -943,7 +943,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             if (effectMask & processedEffectMask)
                 return;
 
-            std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> const& effects = GetSpellInfo()->Effects;
+            auto const& effects = GetSpellInfo()->Effects;
 
             // choose which targets we can select at once
             for (uint32 j = effIndex + 1; j < effects.size(); ++j)
