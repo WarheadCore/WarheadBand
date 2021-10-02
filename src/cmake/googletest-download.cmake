@@ -8,7 +8,6 @@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-#
 
 # code copied from https://crascit.com/2015/07/25/cmake-gtest/
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)

@@ -1,26 +1,14 @@
 /*
-<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
-=======
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
->>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-=======
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
->>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -967,7 +955,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundBracket
         }
     }
 
-    if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_TIMED))
+    if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Timed"))
     {
         uint32 qPlayers = GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_NORMAL_HORDE) + GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_NORMAL_ALLIANCE);
         if (!qPlayers)
@@ -987,7 +975,10 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundBracket
                 uint32 q_min_level = std::min(bracketEntry->minLevel, (uint32) 80);
                 uint32 q_max_level = std::min(bracketEntry->maxLevel, (uint32) 80);
 
-                sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qPlayers, MaxPlayers);
+                Warhead::Text::SendWorldText([=](uint8 index)
+                {
+                    return Warhead::Text::GetLocaleMessage(index, LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qPlayers, MaxPlayers);
+                });
             }
             else
             {
@@ -1057,11 +1048,11 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
     }
     else // Show queue status to server (when joining battleground queue)
     {
-        if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_TIMED))
+        if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Timed"))
         {
             if (_queueAnnouncementTimer[bracketId] < 0)
             {
-                _queueAnnouncementTimer[bracketId] = sWorld->getIntConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_TIMER);
+                _queueAnnouncementTimer[bracketId] = CONF_GET_UINT("Battleground.QueueAnnouncer.Timer");
             }
         }
         else
@@ -1071,15 +1062,11 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
                 return;
             }
 
-<<<<<<< HEAD
-        Warhead::Text::SendWorldText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
-        });
-=======
-            sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
+            Warhead::Text::SendWorldText([=](uint8 index)
+            {
+                return Warhead::Text::GetLocaleMessage(index, LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
+            });
         }
->>>>>>> master
     }
 }
 
@@ -1129,9 +1116,9 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
                 return;
             }
 
-            Warhead::Text::SendWorldText([=](uint8 index)
+            Warhead::Text::SendWorldText([&](uint8 index)
             {
-                return Warhead::Text::GetLocaleMessage(index, LANG_ARENA_QUEUE_ANNOUNCE_WORLD, bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed);
+                return Warhead::Text::GetLocaleMessage(index, LANG_ARENA_QUEUE_ANNOUNCE_WORLD, bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed);
             });
         }
     }

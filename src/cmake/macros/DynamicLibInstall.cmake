@@ -8,7 +8,6 @@
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-#
 # User has manually chosen to ignore the git-tests, so throw them a warning.
 # This is done EACH compile so they can be alerted about the consequences.
 #
