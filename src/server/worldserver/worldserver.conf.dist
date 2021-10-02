@@ -3741,6 +3741,7 @@ Logger.time.update = 7,Console Server
 #Logger.entities.player.items=4,Console Server
 #Logger.entities.player.loading=4,Console Server
 #Logger.entities.player.skills=4,Console Server
+#Logger.entities.player.session=4,Console Server
 #Logger.entities.player=4,Console Server
 #Logger.entities.transport=4,Console Server
 #Logger.entities.unit.ai=4,Console Server

@@ -42,9 +42,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         if (m_speakCount >= max_count)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
-            time_t new_mute = current + CONF_GET_INT("ChatFlood.MuteTime");
-            if (sMute->GetMuteTime(GetSession()->GetAccountId()) < new_mute)
-                sMute->SetMuteTime(GetSession()->GetAccountId(), new_mute);
+            sMute->CheckSpeakTime(GetSession()->GetAccountId(), current + CONF_GET_INT("ChatFlood.MuteTime"));
 
             m_speakCount = 0;
         }
