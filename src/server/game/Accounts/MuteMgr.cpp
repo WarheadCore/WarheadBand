@@ -181,8 +181,6 @@ void MuteMgr::LoginAccount(uint32 accountID)
         mutedate = GameTime::GetGameTime();
     }
 
-    auto test = GameTime::GetGameTime();
-
     UpdateMuteAccount(accountID, mutedate);
     SetMuteTime(accountID, mutedate + uint64(mutetime));
 }
