@@ -85,15 +85,13 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
-    char* tmp = new char[len];
-    snprintf(tmp, len, (char*)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), mapid, gx, gy);
+    std::string mapName = Warhead::StringFormat(sWorld->GetDataPath() + "maps/{:03}{:02}{:02}.map", mapid, gx, gy);
 
     bool ret = false;
-    FILE* pf = fopen(tmp, "rb");
+    FILE* pf = fopen(mapName.c_str(), "rb");
 
     if (!pf)
-        LOG_ERROR("maps", "Map file '{}': does not exist!", tmp);
+        LOG_ERROR("maps", "Map file '{}': does not exist!", mapName);
     else
     {
         map_fileheader header;
@@ -101,16 +99,16 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy)
         {
             if (header.mapMagic != MapMagic.asUInt || header.versionMagic != MapVersionMagic)
             {
-                LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*u v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files.",
-                    tmp, 4, header.mapMagic, header.versionMagic, 4, MapMagic.asChar, MapVersionMagic);
+                LOG_ERROR("maps", "Map file '{}' is from an incompatible map version ({} v{}), {} v{} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files.",
+                    mapName, 4, header.mapMagic, header.versionMagic, 4, MapMagic.asChar, MapVersionMagic);
             }
-
             else
                 ret = true;
         }
+
         fclose(pf);
     }
-    delete [] tmp;
+
     return ret;
 }
 
