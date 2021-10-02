@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -4919,8 +4931,10 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask, "
     // 44           45                46                 47                    48          49          50              51           52               53              54
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, "
-    // 55      56      57      58      59      60      61      62      63           64                 65                 66             67              68      69           70          71
-    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", guid);
+    // 55      56      57      58      59      60      61      62      63           64                 65                 66             67              68      69
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles,
+    // 70          71               72
+    //"actionBars, grantableLevels, innTriggerId FROM characters WHERE guid = '%u'", guid);
     PreparedQueryResult result = holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
 
     if (!result)
@@ -5392,11 +5406,23 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
         float bubble0 = 0.031f;
         //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
         float bubble1 = 0.125f;
+<<<<<<< HEAD
         float bubble = fields[28].GetUInt8() > 0
                        ? bubble1 * CONF_GET_FLOAT("Rate.Rest.Offline.InTavernOrCity")
                        : bubble0 * CONF_GET_FLOAT("Rate.Rest.Offline.InWilderness");
+=======
+        float bubble  = fields[28].GetUInt8() > 0
+                       ? bubble1 * sWorld->getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
+                       : bubble0 * sWorld->getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
+>>>>>>> master
 
         SetRestBonus(GetRestBonus() + time_diff * ((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000)*bubble);
+    }
+
+    uint32 innTriggerId = fields[72].GetUInt32();
+    if (innTriggerId)
+    {
+        SetRestFlag(REST_FLAG_IN_TAVERN, innTriggerId);
     }
 
     // load skills after InitStatsForLevel because it triggering aura apply also

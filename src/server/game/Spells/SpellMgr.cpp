@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -4620,8 +4632,14 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS;
     });
 
+    ApplySpellFix({ 49376 }, [](SpellEntry* spellInfo)
+    {
+        spellInfo->EffectRadiusIndex[EFFECT_1] = EFFECT_RADIUS_3_YARDS; // 3yd
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
+    });
+
     // Feral Charge - Cat
-    ApplySpellFix({ 49376, 61138, 61132, 50259 }, [](SpellEntry* spellInfo)
+    ApplySpellFix({ 61138, 61132, 50259 }, [](SpellEntry* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPRESS_TARGET_PROCS;
     });

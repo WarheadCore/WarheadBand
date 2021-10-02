@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -23,6 +35,7 @@
 #include "DBCEnums.h"
 #include "EventProcessor.h"
 #include <deque>
+#include <array>
 
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
@@ -66,7 +79,7 @@ public:
     BattlegroundQueue();
     ~BattlegroundQueue();
 
-    void BattlegroundQueueUpdate(BattlegroundBracketId bracket_id, bool isRated, uint32 arenaRatedTeamId);
+    void BattlegroundQueueUpdate(uint32 diff, BattlegroundBracketId bracket_id, bool isRated, uint32 arenaRatedTeamId);
     void UpdateEvents(uint32 diff);
 
     void FillPlayersToBG(Battleground* bg, int32 aliFree, int32 hordeFree, BattlegroundBracketId bracket_id);
@@ -127,6 +140,10 @@ public:
 
     ArenaType GetArenaType() { return m_arenaType; }
     BattlegroundTypeId GetBGTypeID() { return m_bgTypeId; }
+
+    void SetQueueAnnouncementTimer(uint32 bracketId, int32 timer) { _queueAnnouncementTimer[bracketId] = timer; }
+    [[nodiscard]] int32 GetQueueAnnouncementTimer(uint32 bracketId) { return _queueAnnouncementTimer[bracketId]; }
+
 private:
     BattlegroundTypeId m_bgTypeId;
     ArenaType m_arenaType;
@@ -135,6 +152,8 @@ private:
 
     // Event handler
     EventProcessor m_events;
+
+    std::array<int32, BG_BRACKET_ID_LAST> _queueAnnouncementTimer;
 };
 
 /*

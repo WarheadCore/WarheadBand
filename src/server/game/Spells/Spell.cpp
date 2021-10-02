@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -5834,6 +5846,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                             (!pTempItem || !pTempItem->GetTemplate()->LockID || !pTempItem->IsLocked()))
                         return SPELL_FAILED_BAD_TARGETS;
 
+                    // We must also ensure the gameobject we are opening is still closed by the time the spell finishes.
+                    if (GameObject* go = m_targets.GetGOTarget())
+                    {
+                        if (go->GetGoState() != GO_STATE_READY)
+                        {
+                            return SPELL_FAILED_BAD_TARGETS;
+                        }
+                    }
                     if (m_spellInfo->Id != 1842 || (m_targets.GetGOTarget() &&
                                                     m_targets.GetGOTarget()->GetGOInfo()->type != GAMEOBJECT_TYPE_TRAP))
                     {

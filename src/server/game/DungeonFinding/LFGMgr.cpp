@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -407,7 +419,11 @@ namespace lfg
             DungeonProgressionRequirements const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
 
             uint32 lockData = 0;
+<<<<<<< HEAD
             if (dungeon->expansion > expansion || dungeon->expansion > CONF_GET_INT("DungeonFinder.Expansion"))
+=======
+            if (dungeon->expansion > expansion)
+>>>>>>> master
                 lockData = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
             else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
                 lockData = LFG_LOCKSTATUS_RAID_LOCKED;
@@ -574,6 +590,7 @@ namespace lfg
                         else
                         {
                             rDungeonId = (*dungeons.begin());
+                            sScriptMgr->OnPlayerQueueRandomDungeon(player, rDungeonId);
                         }
                         // No break on purpose (Random can only be dungeon or heroic dungeon)
                         [[fallthrough]];

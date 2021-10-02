@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -1445,6 +1457,7 @@ public:
     void ReputationChanged2(FactionEntry const* factionEntry);
     [[nodiscard]] bool HasQuestForItem(uint32 itemId, uint32 excludeQuestId = 0, bool turnIn = false, bool* showInLoot = nullptr) const;
     [[nodiscard]] bool HasQuestForGO(int32 GOId) const;
+    [[nodiscard]] bool HasQuest(uint32 questId) const;
     void UpdateForQuestWorldObjects();
     [[nodiscard]] bool CanShareQuest(uint32 quest_id) const;
 
@@ -1618,7 +1631,7 @@ public:
     void SendLearnPacket(uint32 spellId, bool learn);
     bool addSpell(uint32 spellId, uint8 addSpecMask, bool updateActive, bool temporary = false, bool learnFromSkill = false);
     bool _addSpell(uint32 spellId, uint8 addSpecMask, bool temporary, bool learnFromSkill = false);
-    void learnSpell(uint32 spellId, bool temporary = false);
+    void learnSpell(uint32 spellId, bool temporary = false, bool learnFromSkill = false);
     void removeSpell(uint32 spellId, uint8 removeSpecMask, bool onlyTemporary);
     void resetSpells();
     void LearnCustomSpells();

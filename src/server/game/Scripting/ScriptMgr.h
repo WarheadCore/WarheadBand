@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -845,6 +857,9 @@ public:
     // Called when a player is added to battleground
     virtual void OnAddToBattleground(Player* /*player*/, Battleground* /*bg*/) { }
 
+    // Called when a player queues a Random Dungeon using the RDF (Random Dungeon Finder)
+    virtual void OnQueueRandomDungeon(Player* /*player*/, uint32 & /*rDungeonId*/) { }
+
     // Called when a player is removed from battleground
     virtual void OnRemoveFromBattleground(Player* /*player*/, Battleground* /*bg*/) { }
 
@@ -1660,6 +1675,7 @@ public: /* PlayerScript */
     bool OnBeforePlayerTeleport(Player* player, uint32 mapid, float x, float y, float z, float orientation, uint32 options, Unit* target);
     void OnPlayerUpdateFaction(Player* player);
     void OnPlayerAddToBattleground(Player* player, Battleground* bg);
+    void OnPlayerQueueRandomDungeon(Player* player, uint32 & rDungeonId);
     void OnPlayerRemoveFromBattleground(Player* player, Battleground* bg);
     void OnAchievementComplete(Player* player, AchievementEntry const* achievement);
     bool OnBeforeAchievementComplete(Player* player, AchievementEntry const* achievement);

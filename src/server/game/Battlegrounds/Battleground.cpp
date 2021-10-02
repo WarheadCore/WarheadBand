@@ -1,14 +1,26 @@
 /*
+<<<<<<< HEAD
  * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
+=======
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+>>>>>>> master
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+<<<<<<< HEAD
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+=======
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+>>>>>>> master
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
@@ -767,20 +779,18 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
 
     int32 winmsg_id = 0;
 
+    SetWinner(winnerTeamId);
+
     if (winnerTeamId == TEAM_ALLIANCE)
     {
-        SetWinner(TEAM_HORDE); // reversed in packet
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
     }
     else if (winnerTeamId == TEAM_HORDE)
     {
-        SetWinner(TEAM_ALLIANCE); // reversed in packet
         winmsg_id = isBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
     }
-    else
-        SetWinner(TEAM_NEUTRAL);
 
     uint64 battlegroundId = 1;
     if (isBattleground() && CONF_GET_BOOL("Battleground.StoreStatistics.Enable"))
@@ -992,8 +1002,6 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
         uint32 loser_kills = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardLoserHonorLast") : CONF_GET_INT("Battleground.RewardLoserHonorFirst");
         uint32 winner_arena = player->GetRandomWinner() ? CONF_GET_INT("Battleground.RewardWinnerArenaLast") : CONF_GET_INT("Battleground.RewardWinnerArenaFirst");
 
-        sScriptMgr->OnBattlegroundEndReward(this, player, winnerTeamId);
-
         // Reward winner team
         if (bgTeamId == winnerTeamId)
         {
@@ -1016,6 +1024,8 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetBgTypeID(true)))
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
+
+        sScriptMgr->OnBattlegroundEndReward(this, player, winnerTeamId);
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);

@@ -1,5 +1,9 @@
 #
+<<<<<<< HEAD
 # This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+=======
+# This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+>>>>>>> master
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -9,14 +13,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
+<<<<<<< HEAD
 # User has manually chosen to ignore the git-tests, so throw them a warning.
 # This is done EACH compile so they can be alerted about the consequences.
 #
+=======
+>>>>>>> master
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
   # We need to generate the jemalloc_def.h header based on platform-specific settings
   CHECK_SYMBOL_EXISTS(MADV_FREE "sys/mman.h" HAVE_MADV_FREE)
-  
+
   if (PLATFORM EQUAL 32)
     set(JEM_SIZEDEF 2)
     set(JEM_TLSMODEL)
