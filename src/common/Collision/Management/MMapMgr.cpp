@@ -196,12 +196,6 @@ namespace MMAP
             LOG_DEBUG("maps", "MMAP:loadMap: Loaded mmtile {:03}[{:02},{:02}] into {:03}[{:02},{:02}]", mapId, x, y, mapId, header->x, header->y);
             return true;
         }
-        else
-        {
-            LOG_ERROR("maps", "MMAP:loadMap: Could not load {:03}{:02}{:02}.mmtile into navmesh", mapId, x, y);
-            dtFree(data);
-            return false;
-        }
 
         LOG_ERROR("maps", "MMAP:loadMap: Could not load {:03}{:02}{:02}.mmtile into navmesh", mapId, x, y);
         dtFree(data);
@@ -244,7 +238,7 @@ namespace MMAP
 
         mmap->loadedTileRefs.erase(packedGridPos);
         --loadedTiles;
-        LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:03}{:02}{:02} from %03i", mapId, x, y, mapId);
+        LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:03}{:02}{:02} from {:03}", mapId, x, y, mapId);
 
         return true;
     }
