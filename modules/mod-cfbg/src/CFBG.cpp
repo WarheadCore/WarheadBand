@@ -827,10 +827,7 @@ bool CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
 
         BGSpamProtectionCFBG[leader->GetGUID()] = GameTime::GetGameTime();
 
-        Warhead::Text::SendWorldText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qTotal, MinPlayers);
-        });
+        Warhead::Text::SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qTotal, MinPlayers);
     }
 
     return true;

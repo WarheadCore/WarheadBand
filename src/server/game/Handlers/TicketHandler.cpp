@@ -116,10 +116,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
         sTicketMgr->AddTicket(ticket);
         sTicketMgr->UpdateLastChange();
 
-        Warhead::Text::SendGMText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->GetId());
-        });
+        Warhead::Text::SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->GetId());
 
         response = GMTICKET_RESPONSE_CREATE_SUCCESS;
     }
@@ -144,10 +141,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recv_data)
         ticket->SetMessage(message);
         ticket->SaveToDB(trans);
 
-        Warhead::Text::SendGMText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), ticket->GetId());
-        });
+        Warhead::Text::SendGMText(LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), ticket->GetId());
 
         response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
     }
@@ -165,10 +159,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket& /*recv_data*/)
         data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
         SendPacket(&data);
 
-        Warhead::Text::SendGMText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->GetId());
-        });
+        Warhead::Text::SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->GetId());
 
         sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());
         sTicketMgr->SendTicket(this, nullptr);

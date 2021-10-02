@@ -64,10 +64,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        Warhead::Text::SendWorldText([&](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_ANNOUNCE_COLOR, name, args);
-        });
+        Warhead::Text::SendWorldText(LANG_ANNOUNCE_COLOR, name, args);
 
         return true;
     }
@@ -81,10 +78,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        Warhead::Text::SendGMText([&](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_ANNOUNCE_COLOR, name, args);
-        });
+        Warhead::Text::SendGMText(LANG_ANNOUNCE_COLOR, name, args);
 
         return true;
     }
@@ -103,10 +97,7 @@ public:
         if (!*args)
             return false;
 
-        Warhead::Text::SendGMText([&](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_GM_BROADCAST, args);
-        });
+        Warhead::Text::SendGMText(LANG_GM_BROADCAST, args);
 
         return true;
     }

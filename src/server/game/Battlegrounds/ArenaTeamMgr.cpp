@@ -195,15 +195,9 @@ void ArenaTeamMgr::LoadArenaTeams()
 void ArenaTeamMgr::DistributeArenaPoints()
 {
     // Used to distribute arena points based on last week's stats
-    Warhead::Text::SendWorldText([](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_DIST_ARENA_POINTS_START);
-    });
+    Warhead::Text::SendWorldText(LANG_DIST_ARENA_POINTS_START);
 
-    Warhead::Text::SendWorldText([](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_DIST_ARENA_POINTS_ONLINE_START);
-    });
+    Warhead::Text::SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_START);
 
     // Temporary structure for storing maximum points to add values for all players
     std::map<ObjectGuid, uint32> PlayerPoints;
@@ -237,15 +231,9 @@ void ArenaTeamMgr::DistributeArenaPoints()
 
     PlayerPoints.clear();
 
-    Warhead::Text::SendWorldText([](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_DIST_ARENA_POINTS_ONLINE_END);
-    });
+    Warhead::Text::SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_END);
 
-    Warhead::Text::SendWorldText([](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_DIST_ARENA_POINTS_TEAM_START);
-    });
+    Warhead::Text::SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
 
     for (ArenaTeamContainer::iterator titr = GetArenaTeamMapBegin(); titr != GetArenaTeamMapEnd(); ++titr)
     {
@@ -257,13 +245,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
         }
     }
 
-    Warhead::Text::SendWorldText([](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_DIST_ARENA_POINTS_TEAM_END);
-    });
+    Warhead::Text::SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_END);
 
-    Warhead::Text::SendWorldText([](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_DIST_ARENA_POINTS_END);
-    });
+    Warhead::Text::SendWorldText(LANG_DIST_ARENA_POINTS_END);
 }

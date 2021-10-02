@@ -785,11 +785,7 @@ namespace lfg
     void LFGMgr::ToggleTesting()
     {
         m_Testing = !m_Testing;
-
-        Warhead::Text::SendWorldText([&](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, m_Testing ? LANG_DEBUG_LFG_ON : LANG_DEBUG_LFG_OFF);
-        });
+        Warhead::Text::SendWorldText(m_Testing ? LANG_DEBUG_LFG_ON : LANG_DEBUG_LFG_OFF);
     }
 
     /**
