@@ -1243,11 +1243,8 @@ public:
 
         if (CONF_GET_BOOL("ShowKickInWorld"))
         {
-            Warhead::Text::SendWorldText([&](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_COMMAND_KICKMESSAGE_WORLD,
-                    (handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server"), playerName, kickReasonStr);
-            });
+           Warhead::Text::SendWorldText(LANG_COMMAND_KICKMESSAGE_WORLD,
+                (handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server"), playerName, kickReasonStr);
         }
         else
             handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName);

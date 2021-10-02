@@ -430,10 +430,8 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* gameOb
     player->CastSpell(player, BG_EY_NETHERSTORM_FLAG_SPELL, true);
     player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
-    Warhead::Text::SendBattlegroundMessageToAll(this, player->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, [&](uint8 index)
-    {
-        return Warhead::Text::GetLocaleMessage(index, LANG_BG_EY_HAS_TAKEN_FLAG, player->GetName());
-    });
+    Warhead::Text::SendBattlegroundMessageToAll(this,
+        player->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, LANG_BG_EY_HAS_TAKEN_FLAG, player->GetName());
 
     PlaySoundToAll(player->GetTeamId() == TEAM_ALLIANCE ? BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE : BG_EY_SOUND_FLAG_PICKED_UP_HORDE);
     UpdateWorldState(NETHERSTORM_FLAG, 0);

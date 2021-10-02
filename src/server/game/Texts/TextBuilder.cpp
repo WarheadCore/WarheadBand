@@ -42,7 +42,7 @@ namespace
     }
 }
 
-void Warhead::Text::SendWorldText(WarheadFmtText const& msg)
+void Warhead::Text::SendWorldTextFmt(WarheadFmtText const& msg)
 {
     if (!msg)
     {
@@ -60,7 +60,7 @@ void Warhead::Text::SendWorldText(WarheadFmtText const& msg)
     }
 }
 
-void Warhead::Text::SendGMText(WarheadFmtText const& msg)
+void Warhead::Text::SendGMTextFmt(WarheadFmtText const& msg)
 {
     if (!msg)
     {
@@ -81,7 +81,7 @@ void Warhead::Text::SendGMText(WarheadFmtText const& msg)
     }
 }
 
-void Warhead::Text::SendBattlegroundWarningToAll(Battleground* bg, WarheadFmtText const& msg)
+void Warhead::Text::SendBattlegroundWarningToAllFmt(Battleground* bg, WarheadFmtText const& msg)
 {
     if (!bg)
         return;
@@ -92,7 +92,7 @@ void Warhead::Text::SendBattlegroundWarningToAll(Battleground* bg, WarheadFmtTex
     }
 }
 
-void Warhead::Text::SendBattlegroundMessageToAll(Battleground* bg, ChatMsg type, WarheadFmtText const& msg)
+void Warhead::Text::SendBattlegroundMessageToAllFmt(Battleground* bg, ChatMsg type, WarheadFmtText const& msg)
 {
     if (!bg)
         return;

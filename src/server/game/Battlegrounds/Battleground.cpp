@@ -402,10 +402,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
         {
             if (newtime / (MINUTE * IN_MILLISECONDS) != m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS))
             {
-                Warhead::Text::SendBattlegroundMessageToAll(this, CHAT_MSG_SYSTEM, [=](uint8 index)
-                {
-                    return Warhead::Text::GetLocaleMessage(index, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
-                });
+                Warhead::Text::SendBattlegroundMessageToAll(this, CHAT_MSG_SYSTEM, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
             }
         }
         else
@@ -413,10 +410,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
             //announce every 15 seconds
             if (newtime / (15 * IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILLISECONDS))
             {
-                Warhead::Text::SendBattlegroundMessageToAll(this, CHAT_MSG_SYSTEM, [=](uint8 index)
-                {
-                    return Warhead::Text::GetLocaleMessage(index, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
-                });
+                Warhead::Text::SendBattlegroundMessageToAll(this, CHAT_MSG_SYSTEM, LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
             }
         }
 
@@ -511,10 +505,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         sEluna->OnBGStart(this, GetBgTypeID(), GetInstanceID());
 #endif
 
-        Warhead::Text::SendBattlegroundWarningToAll(this, [this](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, StartMessageIds[BG_STARTING_EVENT_FOURTH]);
-        });
+        Warhead::Text::SendBattlegroundWarningToAll(this, StartMessageIds[BG_STARTING_EVENT_FOURTH]);
 
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
@@ -593,11 +584,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             // Announce BG starting
             if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Enable"))
             {
-                Warhead::Text::SendWorldText([this](uint8 index)
-                {
-                    return Warhead::Text::GetLocaleMessage(index, LANG_BG_STARTED_ANNOUNCE_WORLD,
-                        GetName(), std::min(GetMinLevel(), (uint32)80), std::min(GetMaxLevel(), (uint32)80));
-                });
+                Warhead::Text::SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD,
+                    GetName(), std::min(GetMinLevel(), (uint32)80), std::min(GetMaxLevel(), (uint32)80));
             }
 
             sScriptMgr->OnBattlegroundStart(this);

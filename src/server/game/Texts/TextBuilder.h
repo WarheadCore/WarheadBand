@@ -35,17 +35,51 @@ namespace Warhead::Text
         return StringFormat(sGameLocale->GetWarheadString(id, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
     }
 
+    // Helper functions
+    void SendWorldTextFmt(WarheadFmtText const& msg);
+    void SendGMTextFmt(WarheadFmtText const& msg);
+    void SendBattlegroundWarningToAllFmt(Battleground* bg, WarheadFmtText const& msg);
+    void SendBattlegroundMessageToAllFmt(Battleground* bg, ChatMsg type, WarheadFmtText const& msg);
+
     // Send a System Message to all players (except self if mentioned)
-    void SendWorldText(WarheadFmtText const& msg);
+    template<typename... Args>
+    inline void SendWorldText(uint32 id, Args&&... args)
+    {
+        SendWorldTextFmt([&](uint8 index)
+        {
+            return GetLocaleMessage(index, id, std::forward<Args>(args)...);
+        });
+    }
 
     // Send a System Message to all GMs (except self if mentioned)
-    void SendGMText(WarheadFmtText const& msg);
+    template<typename... Args>
+    inline void SendGMText(uint32 id, Args&&... args)
+    {
+        SendGMTextFmt([&](uint8 index)
+        {
+            return GetLocaleMessage(index, id, std::forward<Args>(args)...);
+        });
+    }
 
     // Send a Battleground warning message to all players
-    void SendBattlegroundWarningToAll(Battleground* bg, WarheadFmtText const& msg);
+    template<typename... Args>
+    inline void SendBattlegroundWarningToAll(Battleground* bg, uint32 id, Args&&... args)
+    {
+        SendBattlegroundWarningToAllFmt(bg, [&](uint8 index)
+        {
+            return GetLocaleMessage(index, id, std::forward<Args>(args)...);
+        });
+    }
 
     // Send a Battleground with type message to all players
-    void SendBattlegroundMessageToAll(Battleground* bg, ChatMsg type, WarheadFmtText const& msg);
+    template<typename... Args>
+    inline void SendBattlegroundMessageToAll(Battleground* bg, ChatMsg type, uint32 id, Args&&... args)
+    {
+        SendBattlegroundMessageToAllFmt(bg, type, [&](uint8 index)
+        {
+            return GetLocaleMessage(index, id, std::forward<Args>(args)...);
+        });
+    }
 }
 
 #endif // _TEXT_BUILDER_H_

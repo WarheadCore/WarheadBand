@@ -1202,10 +1202,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     uint8 announce = mGameEvent[event_id].announce;
     if (announce == 1 || (announce == 2 && CONF_GET_INT("Event.Announce")))
     {
-        Warhead::Text::SendWorldText([this, event_id](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_EVENTMESSAGE, mGameEvent[event_id].description);
-        });
+        Warhead::Text::SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description);
     }
 
     LOG_DEBUG("gameevent", "GameEvent {} \"{}\" started.", event_id, mGameEvent[event_id].description);

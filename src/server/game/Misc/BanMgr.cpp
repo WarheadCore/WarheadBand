@@ -85,20 +85,10 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
-                    author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+                author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
         else
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
     }
 
     return BAN_SUCCESS;
@@ -157,20 +147,10 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
         AccountMgr::GetName(AccountID, accountName);
 
         if (DurationSecs)
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
-                    author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
+                author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
         else
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
     }
 
     return BAN_SUCCESS;
@@ -199,20 +179,9 @@ BanReturn BanMgr::BanIP(std::string const& IP, std::string_view duration, std::s
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author, IP, reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author, IP, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
         else
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD,
-                    author, IP, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author, IP, reason);
     }
 
     if (!resultAccounts)
@@ -275,20 +244,10 @@ BanReturn BanMgr::BanCharacter(std::string const& characterName, std::string_vie
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
         if (DurationSecs)
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD,
-                    author, characterName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD,
+                author, characterName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
         else
-        {
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author, characterName, reason);
-            });
-        }
+            Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author, characterName, reason);
     }
 
     return BAN_SUCCESS;

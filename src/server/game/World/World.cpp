@@ -1834,12 +1834,7 @@ void World::SendAutoBroadcast()
     uint32 abcenter = CONF_GET_INT("AutoBroadcast.Center");
 
     if (!abcenter)
-    {
-        Warhead::Text::SendWorldText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_AUTO_BROADCAST, msg);
-        });
-    }
+        Warhead::Text::SendWorldText(LANG_AUTO_BROADCAST, msg);
 
     else if (abcenter == 1)
     {
@@ -1850,10 +1845,7 @@ void World::SendAutoBroadcast()
 
     else if (abcenter == 2)
     {
-        Warhead::Text::SendWorldText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_AUTO_BROADCAST, msg);
-        });
+        Warhead::Text::SendWorldText(LANG_AUTO_BROADCAST, msg);
 
         WorldPacket data(SMSG_NOTIFICATION, (msg.size() + 1));
         data << msg;

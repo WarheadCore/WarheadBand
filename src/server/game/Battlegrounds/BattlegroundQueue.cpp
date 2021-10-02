@@ -975,10 +975,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundBracket
                 uint32 q_min_level = std::min(bracketEntry->minLevel, (uint32) 80);
                 uint32 q_max_level = std::min(bracketEntry->maxLevel, (uint32) 80);
 
-                Warhead::Text::SendWorldText([=](uint8 index)
-                {
-                    return Warhead::Text::GetLocaleMessage(index, LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qPlayers, MaxPlayers);
-                });
+                Warhead::Text::SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qPlayers, MaxPlayers);
             }
             else
             {
@@ -1062,10 +1059,7 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
                 return;
             }
 
-            Warhead::Text::SendWorldText([=](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
-            });
+            Warhead::Text::SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers);
         }
     }
 }
@@ -1116,10 +1110,7 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
                 return;
             }
 
-            Warhead::Text::SendWorldText([&](uint8 index)
-            {
-                return Warhead::Text::GetLocaleMessage(index, LANG_ARENA_QUEUE_ANNOUNCE_WORLD, bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed);
-            });
+            Warhead::Text::SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD, bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed);
         }
     }
     else
@@ -1135,10 +1126,7 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
         uint32 ArenaTeamRating = ginfo->ArenaTeamRating;
         std::string TeamName = team->GetName();
 
-        Warhead::Text::SendWorldText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, TeamName, ArenaType, ArenaType, ArenaTeamRating);
-        });
+        Warhead::Text::SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, TeamName, ArenaType, ArenaType, ArenaTeamRating);
     }
 }
 
@@ -1162,12 +1150,7 @@ void BattlegroundQueue::SendExitMessageArenaQueue(GroupQueueInfo* ginfo)
     std::string TeamName = team->GetName();
 
     if (ArenaType && ginfo->Players.empty())
-    {
-        Warhead::Text::SendWorldText([=](uint8 index)
-        {
-            return Warhead::Text::GetLocaleMessage(index, LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, TeamName, ArenaType, ArenaType, ArenaTeamRating);
-        });
-    }
+        Warhead::Text::SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, TeamName, ArenaType, ArenaType, ArenaTeamRating);
 }
 
 /*********************************************************/
