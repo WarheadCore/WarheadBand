@@ -235,7 +235,7 @@ private:
             _writeQueue.pop();
             if (_closing && _writeQueue.empty())
                 CloseSocket();
-            }
+
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
