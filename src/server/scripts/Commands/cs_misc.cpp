@@ -1847,7 +1847,7 @@ public:
 
         // Mute data print variables
         std::string muteLeft          = "0000-00-00_00-00-00";
-        uint32 muteTime               = 0;
+        Seconds muteTime              = 0s;
         std::string muteReason        = handler->GetWarheadString(LANG_NO_REASON);
         std::string muteBy            = handler->GetWarheadString(LANG_UNKNOWN);
 
@@ -1984,8 +1984,13 @@ public:
         {
             auto const& [_muteDate, _muteTime, _reason, _author] = *muteInfo;
 
-            muteTime = std::abs(_muteTime);
-            muteLeft = Warhead::Time::ToTimeString<Seconds>(static_cast<uint64>(_muteDate + muteTime) - GameTime::GetGameTime());
+            muteTime = _muteTime;
+
+            if (_muteDate)
+                muteLeft = Warhead::Time::ToTimeString<Seconds>(_muteDate + muteTime.count() - GameTime::GetGameTime());
+            else
+                muteLeft = Warhead::Time::ToTimeString(muteTime);
+
             muteReason = _reason;
             muteBy = _author;
         }
@@ -2067,8 +2072,8 @@ public:
             handler->PSendSysMessage(LANG_PINFO_BANNED, banType, banReason, banTime > 0 ? Warhead::Time::ToTimeString<Seconds>(banTime - GameTime::GetGameTime()) : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy);
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
-        if (muteTime)
-            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason, Warhead::Time::ToTimeString<Seconds>(muteTime - GameTime::GetGameTime()), muteBy);
+        if (muteTime > 0s)
+            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason, Warhead::Time::ToTimeString(muteTime), muteBy);
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
         handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName, accId, security);
@@ -2231,7 +2236,7 @@ public:
         if (handler->HasLowerSecurity(target, player->GetGUID(), true))
             return false;
 
-        sMute->MutePlayer(player->GetName(), notSpeakTime, handler->GetSession() ? handler->GetSession()->GetPlayerName() : handler->GetWarheadString(LANG_CONSOLE), muteReasonStr);
+        sMute->MutePlayer(player->GetName(), Minutes(notSpeakTime), handler->GetSession() ? handler->GetSession()->GetPlayerName() : handler->GetWarheadString(LANG_CONSOLE), muteReasonStr);
 
         if (!CONF_GET_BOOL("ShowMuteInWorld"))
             handler->PSendSysMessage(LANG_YOU_DISABLE_CHAT, handler->playerLink(player->GetName()), notSpeakTime, muteReasonStr);

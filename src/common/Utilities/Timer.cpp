@@ -71,6 +71,7 @@ WH_COMMON_API std::string Warhead::Time::ToTimeString<Microseconds>(uint64 durat
 {
     Poco::Timespan span(durationTime);
 
+    uint32 microsecs = span.microseconds();
     uint32 millisecs = span.milliseconds();
     uint32 secs = span.seconds();
     uint32 minutes = span.minutes();
@@ -80,15 +81,17 @@ WH_COMMON_API std::string Warhead::Time::ToTimeString<Microseconds>(uint64 durat
     if (timeFormat == TimeFormat::Numeric)
     {
         if (days)
-            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}:{:02}", days, hours, minutes, secs, millisecs);
+            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}:{:02}:{:02}", days, hours, minutes, secs, millisecs, microsecs);
         else if (hours)
-            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}", hours, minutes, secs, millisecs);
+            return Warhead::StringFormat("{}::{:02}{:02}:{:02}:{:02}", hours, minutes, secs, millisecs, microsecs);
         else if (minutes)
-            return Warhead::StringFormat("{}:{:02}:{:02}", minutes, secs, millisecs);
+            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}", minutes, secs, millisecs, microsecs);
         else if (secs)
-            return Warhead::StringFormat("{}:{:02}", secs, millisecs);
-        else // millisecs
-            return Warhead::StringFormat("{}", millisecs);
+            return Warhead::StringFormat("{}:{:02}:{:02}", secs, millisecs, microsecs);
+        else if (millisecs)
+            return Warhead::StringFormat("{}:{:02}", millisecs, microsecs);
+        else if (millisecs) // microsecs
+            return Warhead::StringFormat("{}", microsecs);
     }
 
     std::ostringstream ss;
@@ -111,34 +114,40 @@ WH_COMMON_API std::string Warhead::Time::ToTimeString<Microseconds>(uint64 durat
         }
     };
 
-    if (days || timeOutput == TimeOutput::Days)
+    if (days)
         GetStringFormat(days, "d ", " Day ", " Days ");
 
     if (timeOutput == TimeOutput::Days)
         stringTime = ss.str();
 
-    if (hours || timeOutput == TimeOutput::Hours)
+    if (hours)
         GetStringFormat(hours, "h ", " Hour ", " Hours ");
 
     if (timeOutput == TimeOutput::Hours)
         stringTime = ss.str();
 
-    if (minutes || timeOutput == TimeOutput::Minutes)
+    if (minutes)
         GetStringFormat(minutes, "m ", " Minute ", " Minutes ");
 
     if (timeOutput == TimeOutput::Minutes)
         stringTime = ss.str();
 
-    if (secs || timeOutput == TimeOutput::Seconds)
+    if (secs)
         GetStringFormat(secs, "s ", " Second ", " Seconds ");
 
     if (timeOutput == TimeOutput::Seconds)
         stringTime = ss.str();
 
-    if (millisecs || timeOutput == TimeOutput::Milliseconds)
+    if (millisecs)
         GetStringFormat(millisecs, "ms ", " Millisecond ", " Milliseconds ");
 
     if (timeOutput == TimeOutput::Milliseconds)
+        stringTime = ss.str();
+
+    if (microsecs)
+        GetStringFormat(microsecs, "us ", " Microsecond ", " Microseconds ");
+
+    if (timeOutput == TimeOutput::Microseconds)
         stringTime = ss.str();
 
     return Warhead::String::TrimRightInPlace(stringTime);

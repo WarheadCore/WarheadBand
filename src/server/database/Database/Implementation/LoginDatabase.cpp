@@ -43,7 +43,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
         "LEFT JOIN account_banned ab ON ab.id = a.id AND ab.active = 1 "
         "LEFT JOIN ip_banned ipb ON ipb.ip = ? "
         "WHERE a.username = ? AND a.session_key IS NOT NULL", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.session_key, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, a.totaltime, "
+    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.session_key, a.last_ip, a.locked, a.lock_country, a.expansion, a.locale, a.recruiter, a.os, a.totaltime, "
         "aa.gmlevel, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id FROM account a LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) "
         "LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account r ON a.id = r.recruiter WHERE a.username = ? "
         "AND a.session_key IS NOT NULL ORDER BY aa.RealmID DESC LIMIT 1", CONNECTION_ASYNC);
@@ -136,10 +136,10 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     // Mute system
     PrepareStatement(LOGIN_INS_ACCOUNT_MUTE, "INSERT INTO `account_muted` (`accountid`, `mutedate`, `mutetime`, `mutedby`, `mutereason`, `active`) VALUES (?, ?, ?, ?, ?, 1)", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_ACCOUNT_MUTE, "UPDATE `account_muted` SET `mutedate` = ?, `mutetime` = ? WHERE `accountid` = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_ACCOUNT_MUTE_DATE, "UPDATE `account_muted` SET `mutedate` = ? WHERE `accountid` = ? AND `active` = 1", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO, "SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? ORDER BY `mutedate` ASC", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_ACCOUNT_MUTE, "SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? AND `active` = 1 AND UNIX_TIMESTAMP() <= `mutedate` + ABS(`mutetime`) ORDER BY `mutedate` + ABS(`mutetime`) DESC LIMIT 1", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED, "UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `mutetime` > 0 AND `accountid` = ? AND UNIX_TIMESTAMP() >= `mutedate` + `mutetime`", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_MUTE, "SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? AND `active` = 1 ORDER BY `mutedate` + `mutetime` DESC LIMIT 1", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED, "UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `mutetime` > 0 AND mutedate > 0 AND `accountid` = ? AND UNIX_TIMESTAMP() >= `mutedate` + `mutetime`", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_ACCOUNT_MUTE, "UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `accountid` = ?", CONNECTION_ASYNC);
 }
 

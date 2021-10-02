@@ -1063,7 +1063,11 @@ public:
     // Called when an account logged in successfully
     virtual void OnAccountLogin(uint32 /*accountId*/) { }
 
-    // Called when an account logout in successfully
+    /**
+     * @brief This hook runs after account logout in successfully
+     *
+     * @param accountId account number
+     */
     virtual void OnAccountLogout(uint32 /*accountId*/) { }
 
     // Called when an ip logged in successfully
