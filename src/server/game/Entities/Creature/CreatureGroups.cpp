@@ -18,9 +18,9 @@
 #include "CreatureGroups.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "Log.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
-#include "Log.h"
 
 FormationMgr::~FormationMgr()
 {

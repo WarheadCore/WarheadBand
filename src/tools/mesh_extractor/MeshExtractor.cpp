@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MPQMgr.h"
-#include "WDT.h"
 #include "ContinentBuilder.h"
 #include "DBC.h"
 #include "MPQMgr.h"
+#include "MPQMgr.h"
 #include "Model.h"
+#include "WDT.h"
 #include "WDT.h"
 
 #include "DetourNavMesh.h"

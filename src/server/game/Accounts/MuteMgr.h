@@ -19,8 +19,8 @@
 #define _MUTE_MANAGER_H_
 
 #include "Common.h"
-#include "Optional.h"
 #include "Duration.h"
+#include "Optional.h"
 #include <tuple>
 #include <unordered_map>
 

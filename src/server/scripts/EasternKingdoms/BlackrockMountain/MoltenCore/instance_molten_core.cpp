@@ -22,12 +22,12 @@ SDComment: Place Holder
 SDCategory: Molten Core
 EndScriptData */
 
+#include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "molten_core.h"
-#include "CreatureAI.h"
 
 Position const SummonPositions[10] =
 {
