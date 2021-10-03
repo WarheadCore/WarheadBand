@@ -18,9 +18,7 @@
 #include "ContinentBuilder.h"
 #include "DBC.h"
 #include "MPQMgr.h"
-#include "MPQMgr.h"
 #include "Model.h"
-#include "WDT.h"
 #include "WDT.h"
 
 #include "DetourNavMesh.h"
