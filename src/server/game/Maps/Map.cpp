@@ -196,19 +196,17 @@ void Map::LoadMap(int gx, int gy, bool reload)
         GridMaps[gx][gy] = nullptr;
     }
 
-    // map file name
-    char* tmp = nullptr;
-    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
-    tmp = new char[len];
-    snprintf(tmp, len, (char*)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
-    LOG_DEBUG("maps", "Loading map {}", tmp);
+    std::string mapName = Warhead::StringFormat(sWorld->GetDataPath() + "maps/{:03}{:02}{:02}.map", GetId(), gx, gy);
+
+    LOG_DEBUG("maps", "Loading map {}", mapName);
+
     // loading data
     GridMaps[gx][gy] = new GridMap();
-    if (!GridMaps[gx][gy]->loadData(tmp))
+
+    if (!GridMaps[gx][gy]->loadData(mapName))
     {
-        LOG_ERROR("maps", "Error loading map file: \n {}\n", tmp);
+        LOG_ERROR("maps", "Error loading map file: \n {}\n", mapName);
     }
-    delete [] tmp;
 
     sScriptMgr->OnLoadGridMap(this, GridMaps[gx][gy], gx, gy);
 }
@@ -1334,14 +1332,14 @@ GridMap::~GridMap()
     unloadData();
 }
 
-bool GridMap::loadData(char* filename)
+bool GridMap::loadData(std::string_view filename)
 {
     // Unload old data if exist
     unloadData();
 
     map_fileheader header;
     // Not return error if file not found
-    FILE* in = fopen(filename, "rb");
+    FILE* in = fopen(filename.data(), "rb");
     if (!in)
         return true;
 
@@ -1360,6 +1358,7 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
+
         // loadup height data
         if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
         {
@@ -1367,6 +1366,7 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
+
         // loadup liquid data
         if (header.liquidMapOffset && !loadLiquidData(in, header.liquidMapOffset, header.liquidMapSize))
         {
@@ -1374,6 +1374,7 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
+
         // loadup holes data (if any. check header.holesOffset)
         if (header.holesSize && !loadHolesData(in, header.holesOffset, header.holesSize))
         {
@@ -1381,9 +1382,11 @@ bool GridMap::loadData(char* filename)
             fclose(in);
             return false;
         }
+
         fclose(in);
         return true;
     }
+
     LOG_ERROR("maps", "Map file '{}' is from an incompatible clientversion. Please recreate using the mapextractor.", filename);
     fclose(in);
     return false;
@@ -3456,27 +3459,28 @@ void Map::LogEncounterFinished(EncounterCreditType type, uint32 creditEntry)
 {
     if (!IsRaid() || !GetEntry() || GetEntry()->Expansion() < 2) // only for wotlk raids, because logs take up tons of mysql memory
         return;
+
     InstanceMap* map = ToInstanceMap();
     if (!map)
         return;
-    std::string playersInfo;
-    char buffer[16384], buffer2[255];
-    Map::PlayerList const& pl = map->GetPlayers();
-    for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
-        if (Player* p = itr->GetSource())
-        {
-            std::string auraStr;
-            const Unit::AuraApplicationMap& a = p->GetAppliedAuras();
-            for (auto iterator = a.begin(); iterator != a.end(); ++iterator)
-            {
-                snprintf(buffer2, 255, "%u(%u) ", iterator->first, iterator->second->GetEffectMask());
-                auraStr += buffer2;
-            }
 
-            snprintf(buffer, 16384, "%s (%s, acc: %u, ip: %s, guild: %u), xyz: (%.1f, %.1f, %.1f), auras: %s\n",
-                p->GetName().c_str(), p->GetGUID().ToString().c_str(), p->GetSession()->GetAccountId(), p->GetSession()->GetRemoteAddress().c_str(), p->GetGuildId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), auraStr.c_str());
-            playersInfo += buffer;
-        }
+    std::string playersInfo;
+
+    for (auto const& itr : map->GetPlayers())
+    {
+        Player* player = itr.GetSource();
+        if (!player)
+            continue;
+
+        std::string auraStr;
+
+        for (auto const& aura : player->GetAppliedAuras())
+            auraStr.append(Warhead::StringFormat("{}({}) ", aura.first, aura.second->GetEffectMask()));
+
+        playersInfo.append(Warhead::StringFormat("{} ({}, acc: {}, ip: {}, guild: {}), xyz: ({0:.1f}, {0:.1f}, {0:.1f}), auras: {}\n",
+            player->GetName(), player->GetGUID().ToString(), player->GetSession()->GetAccountId(), player->GetSession()->GetRemoteAddress(), player->GetGuildId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), auraStr));
+    }
+
     CleanStringForMysqlQuery(playersInfo);
     CharacterDatabase.PExecute("INSERT INTO log_encounter VALUES(NOW(), {}, {}, {}, {}, '{}')", GetId(), (uint32)GetDifficulty(), type, creditEntry, playersInfo);
 }

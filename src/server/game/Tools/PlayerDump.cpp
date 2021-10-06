@@ -21,10 +21,13 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "ObjectMgr.h"
+#include "StringConvert.h"
+#include "StringFormat.h"
 #include "UpdateFields.h"
 #include "World.h"
 
 #define DUMP_TABLE_COUNT 27
+
 struct DumpTable
 {
     char const* name;
@@ -119,7 +122,7 @@ std::string gettablename(std::string& str)
     return str.substr(s, e - s);
 }
 
-bool changenth(std::string& str, int n, const char* with, bool insert = false, bool nonzero = false)
+bool changenth(std::string& str, int n, std::string_view with, bool insert = false, bool nonzero = false)
 {
     std::string::size_type s, e;
     if (!findnth(str, n, s, e))
@@ -172,28 +175,24 @@ uint32 registerNewGuid(uint32 oldGuid, std::map<uint32, uint32>& guidMap, uint32
 
 bool changeGuid(std::string& str, int n, std::map<uint32, uint32>& guidMap, uint32 hiGuid, bool nonzero = false)
 {
-    char chritem[20];
-    uint32 oldGuid = atoi(getnth(str, n).c_str());
-    if (nonzero && oldGuid == 0)
-        return true;                                        // not an error
+    uint32 oldGuid = *Warhead::StringTo<uint32>(getnth(str, n));
+    if (nonzero && !oldGuid)
+        return true; // not an error
 
     uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
-    snprintf(chritem, 20, "%u", newGuid);
 
-    return changenth(str, n, chritem, false, nonzero);
+    return changenth(str, n, Warhead::StringFormat("{}", newGuid), false, nonzero);
 }
 
 bool changetokGuid(std::string& str, int n, std::map<uint32, uint32>& guidMap, uint32 hiGuid, bool nonzero = false)
 {
-    char chritem[20];
-    uint32 oldGuid = atoi(gettoknth(str, n).c_str());
-    if (nonzero && oldGuid == 0)
-        return true;                                        // not an error
+    uint32 oldGuid = *Warhead::StringTo<uint32>(gettoknth(str, n));
+    if (nonzero && !oldGuid)
+        return true; // not an error
 
     uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
-    snprintf(chritem, 20, "%u", newGuid);
 
-    return changetoknth(str, n, chritem, false, nonzero);
+    return changetoknth(str, n, Warhead::StringFormat("{}", newGuid).c_str(), false, nonzero);
 }
 
 std::string CreateDumpString(char const* tableName, QueryResult result)
@@ -394,7 +393,8 @@ DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
     if (!GetDump(guid, dump))
         ret = DUMP_CHARACTER_DELETED;
 
-    fprintf(fout, "%s\n", dump.c_str());
+    fmt::print(fout, "{}\n", dump);
+
     fclose(fout);
     return ret;
 }
@@ -422,8 +422,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     FILE* fin = fopen(file.c_str(), "r");
     if (!fin)
         return DUMP_FILE_OPEN_ERROR;
-
-    char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20];
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
@@ -458,11 +456,11 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         name = "";
 
     // name encoded or empty
-
-    snprintf(newguid, 20, "%u", guid);
-    snprintf(chraccount, 20, "%u", account);
-    snprintf(newpetid, 20, "%u", sObjectMgr->GeneratePetNumber());
-    snprintf(lastpetid, 20, "%s", "");
+    std::string newguid = Warhead::StringFormat("{}", guid);
+    std::string chraccount = Warhead::StringFormat("{}", account);
+    std::string newpetid = Warhead::StringFormat("{}", sObjectMgr->GeneratePetNumber());
+    //std::string currpetid = Warhead::StringFormat("{}", guid);
+    std::string lastpetid;
 
     std::map<uint32, uint32> items;
     std::map<uint32, uint32> mails;
@@ -484,6 +482,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         {
             if (feof(fin))
                 break;
+
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -565,7 +564,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                             if (!changenth(line, 38, "1"))       // characters.at_login set to "rename on login"
                                 ROLLBACK(DUMP_FILE_BROKEN);
                     }
-                    else if (!changenth(line, 3, name.c_str())) // characters.name
+                    else if (!changenth(line, 3, name)) // characters.name
                         ROLLBACK(DUMP_FILE_BROKEN);
 
                     const char null[5] = "NULL";
@@ -588,9 +587,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     if (!changenth(line, 1, newguid))
                         ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.guid
 
-                    char newSetGuid[24];
-                    snprintf(newSetGuid, 24, "%lu", sObjectMgr->GenerateEquipmentSetGuid());
-                    if (!changenth(line, 2, newSetGuid))
+                    if (!changenth(line, 2, Warhead::StringFormat("{}", sObjectMgr->GenerateEquipmentSetGuid())))
                         ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.setguid
                     break;
                 }
@@ -643,21 +640,21 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             case DTT_PET:
                 {
                     //store a map of old pet id to new inserted pet id for use by type 5 tables
-                    snprintf(currpetid, 20, "%s", getnth(line, 1).c_str());
-                    if (*lastpetid == '\0')
-                        snprintf(lastpetid, 20, "%s", currpetid);
-                    if (strcmp(lastpetid, currpetid) != 0)
+                    std::string currpetid = Warhead::StringFormat("{}", getnth(line, 1));
+
+                    if (lastpetid.empty())
+                        lastpetid = currpetid;
+
+                    if (lastpetid != currpetid)
                     {
-                        snprintf(newpetid, 20, "%d", sObjectMgr->GeneratePetNumber());
-                        snprintf(lastpetid, 20, "%s", currpetid);
+                        newpetid = Warhead::StringFormat("{}", sObjectMgr->GeneratePetNumber());
+                        lastpetid = Warhead::StringFormat("{}", currpetid);
                     }
 
-                    std::map<uint32, uint32> :: const_iterator petids_iter = petids.find(atoi(currpetid));
+                    auto const& petids_iter = petids.find(*Warhead::StringTo<uint32>(currpetid));
 
                     if (petids_iter == petids.end())
-                    {
-                        petids.insert(PetIdsPair(atoi(currpetid), atoi(newpetid)));
-                    }
+                        petids.emplace(*Warhead::StringTo<uint32>(currpetid), *Warhead::StringTo<uint32>(newpetid));
 
                     if (!changenth(line, 1, newpetid))          // character_pet.id update
                         ROLLBACK(DUMP_FILE_BROKEN);
@@ -668,14 +665,14 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 }
             case DTT_PET_TABLE:                             // pet_aura, pet_spell, pet_spell_cooldown
                 {
-                    snprintf(currpetid, 20, "%s", getnth(line, 1).c_str());
+                    std::string currpetid = Warhead::StringFormat("{}", getnth(line, 1));
 
                     // lookup currpetid and match to new inserted pet id
-                    std::map<uint32, uint32> :: const_iterator petids_iter = petids.find(atoi(currpetid));
+                    auto const& petids_iter = petids.find(*Warhead::StringTo<uint32>(currpetid));
                     if (petids_iter == petids.end())             // couldn't find new inserted id
                         ROLLBACK(DUMP_FILE_BROKEN);
 
-                    snprintf(newpetid, 20, "%d", petids_iter->second);
+                    newpetid = Warhead::ToString(petids_iter->second);
 
                     if (!changenth(line, 1, newpetid))
                         ROLLBACK(DUMP_FILE_BROKEN);
@@ -698,7 +695,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     sWorld->AddGlobalPlayerData(guid, account, name, gender, race, playerClass, level, mails.size(), 0);
 
     sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
-    sObjectMgr->_mailId     += mails.size();
+    sObjectMgr->_mailId += mails.size();
 
     if (incHighest)
         sObjectMgr->GetGenerator<HighGuid::Player>().Generate();

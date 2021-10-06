@@ -20,6 +20,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "MessageBuffer.h"
+#include "StringConvert.h"
 #include "Timer.h"
 #include <ctime>
 #include <sstream>
@@ -176,11 +177,7 @@ void ByteBuffer::textlike() const
     o << "STORAGE_SIZE: " << size();
 
     for (uint32 i = 0; i < size(); ++i)
-    {
-        char buf[2];
-        snprintf(buf, 2, "%c", read<uint8>(i));
-        o << buf;
-    }
+        o << Warhead::ToString(read<uint8>(i));
 
     o << " ";
 
@@ -199,8 +196,7 @@ void ByteBuffer::hexlike() const
 
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[4];
-        snprintf(buf, 4, "%2X ", read<uint8>(i));
+        std::string buf = Warhead::ToString(read<uint8>(i));
 
         if ((i == (j * 8)) && ((i != (k * 16))))
         {

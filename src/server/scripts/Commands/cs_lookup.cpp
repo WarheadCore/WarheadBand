@@ -33,6 +33,7 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "StringFormat.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -813,7 +814,7 @@ public:
                         return true;
                     }
 
-                    char valStr[50] = "";
+                    std::string valStr;
                     char const* knownStr = "";
                     if (target && target->HasSkill(id))
                     {
@@ -823,8 +824,7 @@ public:
                         uint32 permValue = target->GetSkillPermBonusValue(id);
                         uint32 tempValue = target->GetSkillTempBonusValue(id);
 
-                        char const* valFormat = handler->GetWarheadString(LANG_SKILL_VALUES);
-                        snprintf(valStr, 50, valFormat, curValue, maxValue, permValue, tempValue);
+                        valStr = Warhead::StringFormat(handler->GetWarheadString(LANG_SKILL_VALUES), curValue, maxValue, permValue, tempValue);
                     }
 
                     // send skill in "id - [namedlink locale]" format
@@ -1241,8 +1241,7 @@ public:
                                             ? handler->GetWarheadString(LANG_ACTIVE)
                                             : "";
 
-                    char titleNameStr[80];
-                    snprintf(titleNameStr, 80, name.c_str(), targetName);
+                    std::string titleNameStr = Warhead::StringFormat(name, targetName);
 
                     // send title in "id (idx:idx) - [namedlink locale]" format
                     if (handler->GetSession())

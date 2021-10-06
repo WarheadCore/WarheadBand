@@ -239,7 +239,7 @@ class WH_GAME_API GridMap
 public:
     GridMap();
     ~GridMap();
-    bool loadData(char* filaname);
+    bool loadData(std::string_view filaname);
     void unloadData();
 
     [[nodiscard]] uint16 getArea(float x, float y) const;
