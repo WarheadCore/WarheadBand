@@ -116,8 +116,8 @@ inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* targe
         if (!player)
             LOG_ERROR("server", "{} neither source nor target object is player (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
                            scriptInfo->GetDebugInfo().c_str(),
-                           source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().ToString().c_str() : "",
-                           target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().ToString().c_str() : "");
+                           source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().ToString() : "",
+                           target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().ToString() : "");
     }
     return player;
 }
@@ -149,8 +149,8 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         if (!creature)
             LOG_ERROR("server", "{} neither source nor target are creatures (source: TypeId: {}, Entry: {}, GUID: {}; target: TypeId: {}, Entry: {}, GUID: {}), skipping.",
                            scriptInfo->GetDebugInfo().c_str(),
-                           source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().ToString().c_str() : "",
-                           target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().ToString().c_str() : "");
+                           source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUID().ToString() : "",
+                           target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUID().ToString() : "");
     }
     return creature;
 }
@@ -162,7 +162,7 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
         LOG_ERROR("server", "{} {} object is nullptr.", scriptInfo->GetDebugInfo(), isSource ? "source" : "target");
     else if (!obj->isType(TYPEMASK_UNIT))
         LOG_ERROR("server", "{} {} object is not unit (TypeId: {}, Entry: {}, GUID: {}), skipping.",
-                       scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID().ToString().c_str());
+                       scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUID());
     else
     {
         unit = obj->ToUnit();
@@ -183,7 +183,7 @@ inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInf
         player = obj->ToPlayer();
         if (!player)
             LOG_ERROR("server", "{} {} object is not a player ({}).",
-                           scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetGUID().ToString().c_str());
+                           scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetGUID());
     }
     return player;
 }
@@ -198,7 +198,7 @@ inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const Scrip
         creature = obj->ToCreature();
         if (!creature)
             LOG_ERROR("server", "{} {} object is not a creature ({}).", scriptInfo->GetDebugInfo(),
-                           isSource ? "source" : "target", obj->GetGUID().ToString().c_str());
+                           isSource ? "source" : "target", obj->GetGUID());
     }
     return creature;
 }
@@ -214,7 +214,7 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
         pWorldObject = dynamic_cast<WorldObject*>(obj);
         if (!pWorldObject)
             LOG_ERROR("server", "{} {} object is not a world object ({}).",
-                           scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetGUID().ToString().c_str());
+                           scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetGUID());
     }
     return pWorldObject;
 }
@@ -253,7 +253,7 @@ inline void Map::_ScriptProcessDoor(Object* source, Object* target, const Script
                 LOG_ERROR("server", "{} gameobject was not found (guid: {}).", scriptInfo->GetDebugInfo(), guid);
             else if (pDoor->GetGoType() != GAMEOBJECT_TYPE_DOOR)
                 LOG_ERROR("server", "{} gameobject is not a door ({}).",
-                               scriptInfo->GetDebugInfo().c_str(), pDoor->GetGUID().ToString().c_str());
+                               scriptInfo->GetDebugInfo().c_str(), pDoor->GetGUID());
             else if (bOpen == (pDoor->GetGoState() == GO_STATE_READY))
             {
                 pDoor->UseDoorOrButton(nTimeToToggle);
@@ -322,7 +322,7 @@ void Map::ScriptsProcess()
                     break;
                 default:
                     LOG_ERROR("server", "{} source with unsupported high guid ({}).",
-                                   step.script->GetDebugInfo().c_str(), step.sourceGUID.ToString().c_str());
+                                   step.script->GetDebugInfo().c_str(), step.sourceGUID);
                     break;
             }
         }
@@ -354,7 +354,7 @@ void Map::ScriptsProcess()
                     break;
                 default:
                     LOG_ERROR("server", "{} target with unsupported high guid ({}).",
-                                   step.script->GetDebugInfo().c_str(), step.targetGUID.ToString().c_str());
+                                   step.script->GetDebugInfo().c_str(), step.targetGUID);
                     break;
             }
         }
@@ -459,7 +459,7 @@ void Map::ScriptsProcess()
                     // Validate field number.
                     if (step.script->FieldSet.FieldID <= OBJECT_FIELD_ENTRY || step.script->FieldSet.FieldID >= cSource->GetValuesCount())
                         LOG_ERROR("server", "{} wrong field {} (max count: {}) in object ({}) specified, skipping.",
-                                       step.script->GetDebugInfo().c_str(), step.script->FieldSet.FieldID, cSource->GetValuesCount(), cSource->GetGUID().ToString().c_str());
+                                       step.script->GetDebugInfo().c_str(), step.script->FieldSet.FieldID, cSource->GetValuesCount(), cSource->GetGUID());
                     else
                         cSource->SetUInt32Value(step.script->FieldSet.FieldID, step.script->FieldSet.FieldValue);
                 }
@@ -487,7 +487,7 @@ void Map::ScriptsProcess()
                     // Validate field number.
                     if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
                         LOG_ERROR("server", "{} wrong field {} (max count: {}) in object ({}) specified, skipping.",
-                                       step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID, cSource->GetValuesCount(), cSource->GetGUID().ToString().c_str());
+                                       step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID, cSource->GetValuesCount(), cSource->GetGUID());
                     else
                         cSource->SetFlag(step.script->FlagToggle.FieldID, step.script->FlagToggle.FieldValue);
                 }
@@ -500,7 +500,7 @@ void Map::ScriptsProcess()
                     // Validate field number.
                     if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
                         LOG_ERROR("server", "{} wrong field {} (max count: {}) in object ({}) specified, skipping.",
-                                       step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID, cSource->GetValuesCount(),  cSource->GetGUID().ToString().c_str());
+                                       step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID, cSource->GetValuesCount(),  cSource->GetGUID());
                     else
                         cSource->RemoveFlag(step.script->FlagToggle.FieldID, step.script->FlagToggle.FieldValue);
                 }
@@ -561,7 +561,7 @@ void Map::ScriptsProcess()
                         else
                         {
                             LOG_ERROR("server", "{} neither source nor target is player (source: {}; target: {}), skipping.",
-                                           step.script->GetDebugInfo().c_str(), source->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
+                                           step.script->GetDebugInfo().c_str(), source->GetGUID(), target->GetGUID());
                             break;
                         }
                     }

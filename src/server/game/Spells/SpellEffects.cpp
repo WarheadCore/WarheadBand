@@ -1388,7 +1388,7 @@ void Spell::EffectUnlearnSpecialization(SpellEffIndex effIndex)
 
     player->removeSpell(spellToUnlearn, SPEC_MASK_ALL, false);
     LOG_DEBUG("spells.aura", "Spell: Player {} has unlearned spell {} from Npc: {}",
-        player->GetGUID().ToString().c_str(), spellToUnlearn, m_caster->GetGUID().ToString().c_str());
+        player->GetGUID(), spellToUnlearn, m_caster->GetGUID());
 }
 
 void Spell::EffectPowerDrain(SpellEffIndex effIndex)
@@ -2062,7 +2062,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         if (!gameObjTarget->isSpawned() && !player->IsGameMaster())
         {
             LOG_ERROR("spells.effect", "Possible hacking attempt: Player {} [{}] tried to loot a gameobject [{}] which is on respawn time without being in GM mode!",
-                player->GetName().c_str(), player->GetGUID().ToString().c_str(), gameObjTarget->GetGUID().ToString().c_str());
+                player->GetName().c_str(), player->GetGUID(), gameObjTarget->GetGUID());
             return;
         }
         // special case, already has GossipHello inside so return and avoid calling twice
@@ -2583,7 +2583,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     player->learnSpell(spellToLearn);
 
     LOG_DEBUG("spells.aura", "Spell: Player {} has learned spell {} from Npc {}",
-        player->GetGUID().ToString().c_str(), spellToLearn, m_caster->GetGUID().ToString().c_str());
+        player->GetGUID(), spellToLearn, m_caster->GetGUID());
 }
 
 typedef std::list<std::pair<uint32, ObjectGuid>> DispelList;
@@ -2827,7 +2827,7 @@ void Spell::EffectAddHonor(SpellEffIndex /*effIndex*/)
     {
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, damage / 10, false);
         LOG_DEBUG("spells.aura", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (item {}) for player: {}",
-            m_spellInfo->Id, damage / 10, m_CastItem->GetEntry(), unitTarget->ToPlayer()->GetGUID().ToString().c_str());
+            m_spellInfo->Id, damage / 10, m_CastItem->GetEntry(), unitTarget->ToPlayer()->GetGUID());
         return;
     }
 
@@ -2837,14 +2837,14 @@ void Spell::EffectAddHonor(SpellEffIndex /*effIndex*/)
         uint32 honor_reward = Warhead::Honor::hk_honor_at_level(unitTarget->getLevel(), float(damage));
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, honor_reward, false);
         LOG_DEBUG("spells.aura", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (scale) to player: {}",
-            m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUID().ToString().c_str());
+            m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUID());
     }
     else
     {
         //maybe we have correct honor_gain in damage already
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, damage, false);
         LOG_DEBUG("spells.aura", "SpellEffect::AddHonor (spell_id {}) rewards {} honor points (non scale) for player: {}",
-            m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID().ToString().c_str());
+            m_spellInfo->Id, damage, unitTarget->ToPlayer()->GetGUID());
     }
 }
 

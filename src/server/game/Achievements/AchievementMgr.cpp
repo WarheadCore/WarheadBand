@@ -423,14 +423,14 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             Map* map = source->GetMap();
             if (!map->IsDungeon())
             {
-                LOG_ERROR("sql.sql", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
+                LOG_ERROR("sql.sql", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT ({}) for achievement criteria {} for non-dungeon/non-raid map {}",
                                     ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT, criteria_id, map->GetId());
                 return false;
             }
             InstanceScript* instance = map->ToInstanceMap()->GetInstanceScript();
             if (!instance)
             {
-                LOG_ERROR("sql.sql", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map does not have a instance script",
+                LOG_ERROR("sql.sql", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT ({}) for achievement criteria {} for map {} but map does not have a instance script",
                                     ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT, criteria_id, map->GetId());
                 return false;
             }

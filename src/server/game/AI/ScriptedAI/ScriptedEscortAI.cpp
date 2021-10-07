@@ -504,7 +504,7 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
     }
 
     LOG_DEBUG("scripts.ai", "TSCR: EscortAI started with {} waypoints. ActiveAttacker = {}, Run = {}, PlayerGUID = {}",
-        uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.ToString().c_str());
+        uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
 
     CurrentWP = WaypointList.begin();
 

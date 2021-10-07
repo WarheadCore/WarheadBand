@@ -254,7 +254,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     if (reward >= QUEST_REWARD_CHOICES_COUNT)
     {
         LOG_ERROR("network.opcode", "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {} ({}) tried to get invalid reward ({}) (probably packet hacking)",
-            _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), reward);
+            _player->GetName().c_str(), _player->GetGUID(), reward);
         return;
     }
 
@@ -274,7 +274,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                 (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete() && quest->GetQuestMethod()))
         {
             LOG_ERROR("network.opcode", "HACK ALERT: Player {} ({}) is trying to complete quest (id: {}) but he has no right to do it!",
-                           _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), questId);
+                           _player->GetName().c_str(), _player->GetGUID(), questId);
             return;
         }
         if (_player->CanRewardQuest(quest, reward, true))
@@ -506,7 +506,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         {
             LOG_ERROR("network.opcode", "Possible hacking attempt: Player {} [{}] tried to complete quest [entry: {}] without being in possession of the quest!",
-                           _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), questId);
+                           _player->GetName().c_str(), _player->GetGUID(), questId);
             return;
         }
 

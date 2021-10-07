@@ -480,12 +480,7 @@ namespace lfg
             roles = x.roles ? (new LfgRolesMap(*(x.roles))) : nullptr;
         }
 
-        std::string toString() const // for debugging
-        {
-            std::ostringstream o;
-            o << guids[0].ToString().c_str() << "," << guids[1].ToString().c_str() << "," << guids[2].ToString().c_str() << "," << guids[3].ToString().c_str() << "," << guids[4].ToString().c_str() << ":" << (roles ? 1 : 0);
-            return o.str();
-        }
+        std::string toString() const;
     };
 
     WH_GAME_API std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);

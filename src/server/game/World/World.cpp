@@ -1692,7 +1692,7 @@ void World::ShutdownCancel()
 }
 
 /// Send a server message to the user(s)
-void World::SendServerMessage(ServerMessageType type, const char* text, Player* player)
+void World::SendServerMessage(ServerMessageType type, std::string_view text, Player* player)
 {
     WorldPacket data(SMSG_SERVER_MESSAGE, 50);              // guess size
     data << uint32(type);

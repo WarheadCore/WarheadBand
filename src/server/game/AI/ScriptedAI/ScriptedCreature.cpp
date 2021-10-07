@@ -370,7 +370,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o
         player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
     else
         LOG_ERROR("entities.unit.ai", "TSCR: Creature {} Tried to teleport non-player unit {} to x: {} y:{} z: {} o: {}. Aborted.",
-            me->GetGUID().ToString().c_str(), unit->GetGUID().ToString().c_str(), x, y, z, o);
+            me->GetGUID(), unit->GetGUID(), x, y, z, o);
 }
 
 void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)

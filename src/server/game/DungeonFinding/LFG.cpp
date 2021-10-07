@@ -19,6 +19,7 @@
 #include "GameLocale.h"
 #include "Language.h"
 #include "ObjectMgr.h"
+#include "StringFormat.h"
 
 namespace lfg
 {
@@ -103,6 +104,11 @@ namespace lfg
         }
 
         return std::string(sGameLocale->GetWarheadStringForDBCLocale(entry));
+    }
+
+    std::string Lfg5Guids::toString() const // for debugging
+    {
+        return Warhead::StringFormat("{}, {}, {}, {}, {}: {}", guids[0], guids[0], guids[0], guids[0], guids[0], roles ? 1 : 0);
     }
 
 } // namespace lfg

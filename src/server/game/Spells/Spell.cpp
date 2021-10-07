@@ -547,10 +547,10 @@ void SpellCastTargets::OutDebug() const
         LOG_INFO("spells", "Trade item target: {}", m_itemTargetGUID.ToString());
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
         LOG_INFO("spells", "Source location: transport guid: {} trans offset: {} position: {}",
-            m_src._transportGUID.ToString().c_str(), m_src._transportOffset.ToString().c_str(), m_src._position.ToString().c_str());
+            m_src._transportGUID, m_src._transportOffset.ToString(), m_src._position.ToString());
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
         LOG_INFO("spells", "Destination location: transport guid: {} trans offset: {} position: {}",
-            m_dst._transportGUID.ToString().c_str(), m_dst._transportOffset.ToString().c_str(), m_dst._position.ToString().c_str());
+            m_dst._transportGUID, m_dst._transportOffset.ToString(), m_dst._position.ToString());
     if (m_targetMask & TARGET_FLAG_STRING)
         LOG_INFO("spells", "String: {}", m_strTarget);
     LOG_INFO("spells", "speed: {}", m_speed);
@@ -7537,7 +7537,7 @@ SpellEvent::~SpellEvent()
     else
     {
         LOG_ERROR("spells", "~SpellEvent: {} {} tried to delete non-deletable spell {}. Was not deleted, causes memory leak.",
-                       (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID().ToString().c_str(), m_Spell->m_spellInfo->Id);
+                       (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID(), m_Spell->m_spellInfo->Id);
         ABORT();
     }
 }

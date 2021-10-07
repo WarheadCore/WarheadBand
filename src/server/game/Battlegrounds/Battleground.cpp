@@ -1569,7 +1569,7 @@ void Battleground::DoorClose(uint32 type)
     }
     else
         LOG_ERROR("bg.battleground", "Battleground::DoorClose: door gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                       type, BgObjects[type].ToString().c_str(), m_MapId, m_InstanceID);
+                       type, BgObjects[type], m_MapId, m_InstanceID);
 }
 
 void Battleground::DoorOpen(uint32 type)
@@ -1581,7 +1581,7 @@ void Battleground::DoorOpen(uint32 type)
     }
     else
         LOG_ERROR("bg.battleground", "Battleground::DoorOpen: door gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                       type, BgObjects[type].ToString().c_str(), m_MapId, m_InstanceID);
+                       type, BgObjects[type], m_MapId, m_InstanceID);
 }
 
 GameObject* Battleground::GetBGObject(uint32 type)
@@ -1589,7 +1589,7 @@ GameObject* Battleground::GetBGObject(uint32 type)
     GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]);
     if (!obj)
         LOG_ERROR("bg.battleground", "Battleground::GetBGObject: gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                       type, BgObjects[type].ToString().c_str(), m_MapId, m_InstanceID);
+                       type, BgObjects[type], m_MapId, m_InstanceID);
     return obj;
 }
 
@@ -1598,7 +1598,7 @@ Creature* Battleground::GetBGCreature(uint32 type)
     Creature* creature = GetBgMap()->GetCreature(BgCreatures[type]);
     if (!creature)
         LOG_ERROR("bg.battleground", "Battleground::GetBGCreature: creature (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                       type, BgCreatures[type].ToString().c_str(), m_MapId, m_InstanceID);
+                       type, BgCreatures[type], m_MapId, m_InstanceID);
     return creature;
 }
 
@@ -1693,7 +1693,7 @@ bool Battleground::DelCreature(uint32 type)
     }
 
     LOG_ERROR("bg.battleground", "Battleground::DelCreature: creature (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                   type, BgCreatures[type].ToString().c_str(), m_MapId, m_InstanceID);
+                   type, BgCreatures[type], m_MapId, m_InstanceID);
 
     BgCreatures[type].Clear();
     return false;
@@ -1713,7 +1713,7 @@ bool Battleground::DelObject(uint32 type)
     }
 
     LOG_ERROR("bg.battleground", "Battleground::DelObject: gameobject (type: {}, {}) not found for BG (map: {}, instance id: {})!",
-                   type, BgObjects[type].ToString().c_str(), m_MapId, m_InstanceID);
+                   type, BgObjects[type], m_MapId, m_InstanceID);
 
     BgObjects[type].Clear();
     return false;
@@ -1911,7 +1911,7 @@ int32 Battleground::GetObjectType(ObjectGuid guid)
             return i;
 
     LOG_ERROR("bg.battleground", "Battleground::GetObjectType: player used gameobject ({}) which is not in internal data for BG (map: {}, instance id: {}), cheating?",
-                   guid.ToString().c_str(), m_MapId, m_InstanceID);
+                   guid, m_MapId, m_InstanceID);
 
     return -1;
 }

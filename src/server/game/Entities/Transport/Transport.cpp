@@ -346,7 +346,7 @@ Creature* MotionTransport::CreateNPCPassenger(ObjectGuid::LowType guid, Creature
     if (!creature->IsPositionValid())
     {
         LOG_ERROR("entities.transport", "Creature ({}) not created. Suggested coordinates aren't valid (X: {} Y: {})",
-            creature->GetGUID().ToString().c_str(), creature->GetPositionX(), creature->GetPositionY());
+            creature->GetGUID(), creature->GetPositionX(), creature->GetPositionY());
         delete creature;
         return nullptr;
     }
@@ -388,7 +388,7 @@ GameObject* MotionTransport::CreateGOPassenger(ObjectGuid::LowType guid, GameObj
     if (!go->IsPositionValid())
     {
         LOG_ERROR("entities.transport", "GameObject ({}) not created. Suggested coordinates aren't valid (X: {} Y: {})",
-            go->GetGUID().ToString().c_str(), go->GetPositionX(), go->GetPositionY());
+            go->GetGUID(), go->GetPositionX(), go->GetPositionY());
         delete go;
         return nullptr;
     }
@@ -748,13 +748,13 @@ bool StaticTransport::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* m
     //ASSERT(m_goValue.Transport.AnimationInfo);
     if (!m_goValue.Transport.AnimationInfo)
     {
-        LOG_ERROR("vehicle", "StaticTransport::Create: No AnimationInfo was found for GameObject entry (%u)", goinfo->entry);
+        LOG_ERROR("vehicle", "StaticTransport::Create: No AnimationInfo was found for GameObject entry ({})", goinfo->entry);
         return false;
     }
     //ASSERT(m_goValue.Transport.AnimationInfo->TotalTime > 0);
     if (!m_goValue.Transport.AnimationInfo->TotalTime)
     {
-        LOG_ERROR("vehicle", "StaticTransport::Create: AnimationInfo->TotalTime is 0 for GameObject entry (%u)", goinfo->entry);
+        LOG_ERROR("vehicle", "StaticTransport::Create: AnimationInfo->TotalTime is 0 for GameObject entry ({})", goinfo->entry);
         return false;
     }
     SetPauseTime(goinfo->transport.pauseAtTime);

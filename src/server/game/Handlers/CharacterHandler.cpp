@@ -849,7 +849,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
         else
         {
             LOG_ERROR("network.opcode", "Player {} ({}) marked as member of not existing guild (id: {}), removing guild membership for player.",
-                pCurrChar->GetName().c_str(), pCurrChar->GetGUID().ToString().c_str(), guildId);
+                pCurrChar->GetName().c_str(), pCurrChar->GetGUID(), guildId);
             pCurrChar->SetInGuild(0);
             pCurrChar->SetRank(0);
         }
@@ -1574,7 +1574,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (!IsLegitCharacterForAccount(customizeInfo->Guid))
     {
         LOG_ERROR("entities.player.cheat", "Account {}, IP: {} tried to customise {}, but it does not belong to their account!",
-            GetAccountId(), GetRemoteAddress().c_str(), customizeInfo->Guid.ToString().c_str());
+            GetAccountId(), GetRemoteAddress().c_str(), customizeInfo->Guid);
         recvData.rfinish();
         KickPlayer("WorldSession::HandleCharCustomize Trying to customise character of another account");
         return;
@@ -1701,7 +1701,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
 
     LOG_INFO("entities.player.character", "Account: {} (IP: {}), Character[{}] ({}) Customized to: {}",
-        GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), customizeInfo->Guid.ToString().c_str(), customizeInfo->Name.c_str());
+        GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), customizeInfo->Guid, customizeInfo->Name.c_str());
 }
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
@@ -1866,7 +1866,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     if (!IsLegitCharacterForAccount(factionChangeInfo->Guid))
     {
         LOG_ERROR("entities.player.cheat", "Account {}, IP: {} tried to factionchange character {}, but it does not belong to their account!",
-            GetAccountId(), GetRemoteAddress().c_str(), factionChangeInfo->Guid.ToString().c_str());
+            GetAccountId(), GetRemoteAddress().c_str(), factionChangeInfo->Guid);
         recvData.rfinish();
         KickPlayer("WorldSession::HandleCharFactionOrRaceChange Trying to change faction of character of another account");
         return;

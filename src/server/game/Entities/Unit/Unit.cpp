@@ -2245,10 +2245,10 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
         if (GetTypeId() == TYPEID_PLAYER)
             LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
-                                 GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+                                 GetGUID(), victim->GetGUID(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
         else
             LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC) {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
-                                 GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+                                 GetGUID(), victim->GetGUID(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
     }
 }
 
@@ -3707,7 +3707,7 @@ void SafeUnitPointer::UnitDeleted()
         if (Player* p = defaultValue->ToPlayer())
         {
             LOG_INFO("misc", "SafeUnitPointer::UnitDeleted (A1) - {}, {}, {}, {}, {}, {}, {}, {}",
-                p->GetGUID().ToString().c_str(), p->GetMapId(), p->GetInstanceId(), p->FindMap()->GetId(), p->IsInWorld() ? 1 : 0, p->IsDuringRemoveFromWorld() ? 1 : 0, p->IsBeingTeleported() ? 1 : 0, p->isBeingLoaded() ? 1 : 0);
+                p->GetGUID(), p->GetMapId(), p->GetInstanceId(), p->FindMap()->GetId(), p->IsInWorld() ? 1 : 0, p->IsDuringRemoveFromWorld() ? 1 : 0, p->IsBeingTeleported() ? 1 : 0, p->isBeingLoaded() ? 1 : 0);
             if (ptr)
                 LOG_INFO("misc", "SafeUnitPointer::UnitDeleted (A2)");
 
@@ -10378,7 +10378,7 @@ void Unit::RemoveAllControlled(bool onDeath /*= false*/)
         }
         else
         {
-            LOG_ERROR("entities.unit", "Unit %u is trying to release unit %u which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
+            LOG_ERROR("entities.unit", "Unit {} is trying to release unit {} which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
         }
     }
 }
@@ -15609,7 +15609,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MANA_SHIELD:
                     case SPELL_AURA_DUMMY:
                         {
-                            LOG_DEBUG("spells.aura", "ProcDamageAndSpell: casting spell id %u (triggered by %s dummy aura of spell %u)", spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
+                            LOG_DEBUG("spells.aura", "ProcDamageAndSpell: casting spell id {} (triggered by {} dummy aura of spell {})", spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
                             if (HandleDummyAuraProc(target, damage, triggeredByAura, procSpellInfo, procFlag, procExtra, cooldown))
                                 takeCharges = true;
                             break;
@@ -15623,7 +15623,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                     case SPELL_AURA_OVERRIDE_CLASS_SCRIPTS:
                         {
-                            LOG_DEBUG("spells.aura", "ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
+                            LOG_DEBUG("spells.aura", "ProcDamageAndSpell: casting spell id {} (triggered by {} aura of spell {})", spellInfo->Id, (isVictim ? "a victim's" : "an attacker's"), triggeredByAura->GetId());
                             if (HandleOverrideClassScriptAuraProc(target, damage, triggeredByAura, procSpellInfo, cooldown))
                                 takeCharges = true;
                             break;
@@ -16889,7 +16889,7 @@ void Unit::Kill(Unit* killer, Unit* victim, bool durabilityLoss, WeaponAttackTyp
             if (victim->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION) || victim->HasAura(27827))
             {
                 /*LOG_INFO("misc", "Player ({}) died with spirit of redemption. Killer (Entry: {}, Name: {}), Map: {}, x: {}, y: {}, z: {}",
-                    victim->GetGUID().ToString().c_str(), killer ? killer->GetEntry() : 1, killer ? killer->GetName().c_str() : "", victim->GetMapId(), victim->GetPositionX(),
+                    victim->GetGUID(), killer ? killer->GetEntry() : 1, killer ? killer->GetName().c_str() : "", victim->GetMapId(), victim->GetPositionX(),
                     victim->GetPositionY(), victim->GetPositionZ());
 
                 ACE_Stack_Trace trace(0, 50);
@@ -17377,7 +17377,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     ASSERT((type == CHARM_TYPE_VEHICLE) == IsVehicle());
 
     LOG_DEBUG("entities.unit", "SetCharmedBy: charmer {} ({}), charmed {} ({}), type {}.",
-        charmer->GetEntry(), charmer->GetGUID().ToString().c_str(), GetEntry(), GetGUID().ToString().c_str(), uint32(type));
+        charmer->GetEntry(), charmer->GetGUID(), GetEntry(), GetGUID(), uint32(type));
 
     if (this == charmer)
     {
@@ -17398,7 +17398,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (GetCharmerGUID())
     {
         LOG_FATAL("entities.unit", "Unit::SetCharmedBy: {} ({}) has already been charmed but {} ({}) is trying to charm it!",
-            GetEntry(), GetGUID().ToString().c_str(), charmer->GetEntry(), charmer->GetGUID().ToString().c_str());
+            GetEntry(), GetGUID(), charmer->GetEntry(), charmer->GetGUID());
         return false;
     }
 
@@ -17429,7 +17429,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (!IsInWorld())
     {
         LOG_FATAL("entities.unit", "Unit::SetCharmedBy: {} ({}) is not in world but {} ({}) is trying to charm it!",
-            GetEntry(), GetGUID().ToString().c_str(), charmer->GetEntry(), charmer->GetGUID().ToString().c_str());
+            GetEntry(), GetGUID(), charmer->GetEntry(), charmer->GetGUID());
         return false;
     }
 
@@ -17559,7 +17559,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     if (charmer != GetCharmer()) // one aura overrides another?
     {
         //        LOG_FATAL("entities.unit", "Unit::RemoveCharmedBy: this: {} true charmer: {} false charmer: {}",
-        //            GetGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str(), charmer->GetGUID().ToString().c_str());
+        //            GetGUID(), GetCharmerGUID(), charmer->GetGUID());
         //        ABORT();
         return;
     }
@@ -19142,7 +19142,7 @@ void Unit::OutDebugInfo() const
     LOG_ERROR("entities.unit", "Unit::OutDebugInfo");
     LOG_INFO("entities.unit", "GUID {}, name {}", GetGUID().ToString(), GetName());
     LOG_INFO("entities.unit", "OwnerGUID {}, MinionGUID {}, CharmerGUID {}, CharmedGUID {}",
-        GetOwnerGUID().ToString().c_str(), GetMinionGUID().ToString().c_str(), GetCharmerGUID().ToString().c_str(), GetCharmGUID().ToString().c_str());
+        GetOwnerGUID(), GetMinionGUID(), GetCharmerGUID(), GetCharmGUID());
     LOG_INFO("entities.unit", "In world {}, unit type mask {}", (uint32)(IsInWorld() ? 1 : 0), m_unitTypeMask);
     if (IsInWorld())
         LOG_INFO("entities.unit", "Mapid {}", GetMapId());

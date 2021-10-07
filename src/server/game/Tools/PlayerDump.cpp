@@ -147,7 +147,7 @@ std::string getnth(std::string& str, int n)
     return str.substr(s, e - s);
 }
 
-bool changetoknth(std::string& str, int n, const char* with, bool insert = false, bool nonzero = false)
+bool changetoknth(std::string& str, int n, std::string_view with, bool insert = false, bool nonzero = false)
 {
     std::string::size_type s = 0, e = 0;
     if (!findtoknth(str, n, s, e))
@@ -192,7 +192,7 @@ bool changetokGuid(std::string& str, int n, std::map<uint32, uint32>& guidMap, u
 
     uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
 
-    return changetoknth(str, n, Warhead::StringFormat("{}", newGuid).c_str(), false, nonzero);
+    return changetoknth(str, n, Warhead::StringFormat("{}", newGuid), false, nonzero);
 }
 
 std::string CreateDumpString(char const* tableName, QueryResult result)

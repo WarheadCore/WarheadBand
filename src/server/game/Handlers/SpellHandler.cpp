@@ -211,7 +211,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     {
         pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
         LOG_ERROR("network.opcode", "Possible hacking attempt: Player {} [{}] tried to open item [{}, entry: {}] which is not openable!",
-                       pUser->GetName().c_str(), pUser->GetGUID().ToString().c_str(), item->GetGUID().ToString().c_str(), proto->ItemId);
+                       pUser->GetName().c_str(), pUser->GetGUID(), item->GetGUID(), proto->ItemId);
         return;
     }
 

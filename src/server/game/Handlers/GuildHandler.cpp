@@ -325,7 +325,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
     emblemInfo.ReadPacket(recvPacket);
 
     LOG_DEBUG("guild", "MSG_SAVE_GUILD_EMBLEM [{}]: Guid: [{}] Style: {}, Color: {}, BorderStyle: {}, BorderColor: {}, BackgroundColor: {}"
-                   , GetPlayerInfo().c_str(), vendorGuid.ToString().c_str(), emblemInfo.GetStyle()
+                   , GetPlayerInfo().c_str(), vendorGuid, emblemInfo.GetStyle()
                    , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
                    , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
     if (GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_TABARDDESIGNER))
@@ -375,7 +375,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
     recvData >> guid >> sendAllSlots;
 
     LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [{}]: Go: [{}] AllSlots: {}"
-                   , GetPlayerInfo().c_str(), guid.ToString().c_str(), sendAllSlots);
+                   , GetPlayerInfo().c_str(), guid, sendAllSlots);
     Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
     {
@@ -396,7 +396,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
     recvData >> guid >> tabId >> full;
 
     LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TAB [{}]: Go: [{}], TabId: {}, ShowTabs: {}"
-                   , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, full);
+                   , GetPlayerInfo().c_str(), guid, tabId, full);
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
             guild->SendBankTabData(this, tabId);
@@ -409,7 +409,7 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
     recvData >> guid >> money;
 
     LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [{}]: Go: [{}], money: {}",
-                   GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
+                   GetPlayerInfo().c_str(), guid, money);
     if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (money && GetPlayer()->HasEnoughMoney(money))
             if (Guild* guild = GetPlayer()->GetGuild())
@@ -423,7 +423,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
     recvData >> guid >> money;
 
     LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [{}]: Go: [{}], money: {}",
-                   GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
+                   GetPlayerInfo().c_str(), guid, money);
     if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleMemberWithdrawMoney(this, money);
@@ -533,7 +533,7 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
     recvData >> guid >> tabId >> name >> icon;
 
     LOG_DEBUG("guild", "CMSG_GUILD_BANK_UPDATE_TAB [{}]: Go: [{}], TabId: {}, Name: {}, Icon: {}"
-                   , GetPlayerInfo().c_str(), guid.ToString().c_str(), tabId, name.c_str(), icon.c_str());
+                   , GetPlayerInfo().c_str(), guid, tabId, name.c_str(), icon.c_str());
 
     // Check for overflow
     if (name.length() > 16 || icon.length() > 128)

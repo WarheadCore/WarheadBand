@@ -3313,8 +3313,8 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage("Character: %s", player->GetPlayerName().c_str());
-        handler->PSendSysMessage("Current equipment average item level: |cff00ffff%u|r", (int16)player->GetAverageItemLevel());
+        handler->PSendSysMessage("Character: {}", player->GetPlayerName());
+        handler->PSendSysMessage("Current equipment average item level: |cff00ffff{}|r", (int16)player->GetAverageItemLevel());
 
         if (CONF_GET_UINT("PlayerSave.Stats.MinLevel"))
         {
@@ -3336,11 +3336,11 @@ public:
                 uint32 SpellPower = fields[8].GetUInt32();
                 uint32 Resilience = fields[9].GetUInt32();
 
-                handler->PSendSysMessage("Health: |cff00ffff%u|r - Stamina: |cff00ffff%u|r", MaxHealth, Stamina);
-                handler->PSendSysMessage("Strength: |cff00ffff%u|r - Agility: |cff00ffff%u|r", Strength, Agility);
-                handler->PSendSysMessage("Intellect: |cff00ffff%u|r - Spirit: |cff00ffff%u|r", Intellect, Spirit);
-                handler->PSendSysMessage("AttackPower: |cff00ffff%u|r - SpellPower: |cff00ffff%u|r", AttackPower, SpellPower);
-                handler->PSendSysMessage("Armor: |cff00ffff%u|r - Resilience: |cff00ffff%u|r", Armor, Resilience);
+                handler->PSendSysMessage("Health: |cff00ffff{}|r - Stamina: |cff00ffff{}|r", MaxHealth, Stamina);
+                handler->PSendSysMessage("Strength: |cff00ffff{}|r - Agility: |cff00ffff{}|r", Strength, Agility);
+                handler->PSendSysMessage("Intellect: |cff00ffff{}|r - Spirit: |cff00ffff{}|r", Intellect, Spirit);
+                handler->PSendSysMessage("AttackPower: |cff00ffff{}|r - SpellPower: |cff00ffff{}|r", AttackPower, SpellPower);
+                handler->PSendSysMessage("Armor: |cff00ffff{}|r - Resilience: |cff00ffff{}|r", Armor, Resilience);
             }
         }
 

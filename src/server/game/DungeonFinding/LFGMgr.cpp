@@ -2345,7 +2345,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Group: [{}] ({}) State: {}, oldState: {}",
-                    guid.ToString().c_str(), debugMsg, ps.c_str(), os.c_str());
+                    guid, debugMsg, ps.c_str(), os.c_str());
             }*/
 
             data.RestoreState();
@@ -2358,7 +2358,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Player: [{}] ({}) State: {}, oldState: {}",
-                    guid.ToString().c_str(), debugMsg, ps.c_str(), os.c_str());
+                    guid, debugMsg, ps.c_str(), os.c_str());
             }*/
             data.RestoreState();
         }

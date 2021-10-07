@@ -656,7 +656,7 @@ void WorldSession::LogoutPlayer(bool save)
         sScriptMgr->OnPlayerLogout(_player);
 
         LOG_INFO("entities.player", "Account: {} (IP: {}) Logout Character:[{}] ({}) Level: {}",
-            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->getLevel());
+            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID(), _player->getLevel());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -694,7 +694,7 @@ void WorldSession::KickPlayer(std::string const& reason, bool setKicked)
     if (m_Socket)
     {
         LOG_INFO("network.kick", "Account: {} Character: '{}' {} kicked with reason: {}", GetAccountId(), _player ? _player->GetName() : "<none>",
-            _player ? _player->GetGUID().ToString().c_str() : "", reason.c_str());
+            _player ? _player->GetGUID().ToString() : "", reason.c_str());
 
         m_Socket->CloseSocket();
     }

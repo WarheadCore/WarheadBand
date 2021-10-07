@@ -169,7 +169,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     if (!IsPositionValid())
     {
         LOG_ERROR("entities.player", "Corpse ( {}, owner: {}) is not created, given coordinates are not valid (X: {}, Y: {}, Z: {})",
-            GetGUID().ToString().c_str(), GetOwnerGUID().ToString().c_str(), posX, posY, posZ);
+            GetGUID(), GetOwnerGUID(), posX, posY, posZ);
         return false;
     }
 

@@ -100,10 +100,10 @@ public:
         if (!player)
             return;
 
-        handler->PSendSysMessage(resourceMessage, handler->GetNameLink(player).c_str(), args...);
+        handler->PSendSysMessage(resourceMessage, handler->GetNameLink(player), args...);
 
         if (handler->needReportToTarget(player))
-            ChatHandler(player->GetSession()).PSendSysMessage(resourceReportMessage, handler->GetNameLink().c_str(), std::forward<Args>(args)...);
+            ChatHandler(player->GetSession()).PSendSysMessage(resourceReportMessage, handler->GetNameLink(), std::forward<Args>(args)...);
     }
 
     //Edit Player HP
@@ -518,7 +518,7 @@ public:
 
             if (player->IsInFlight() && checkInFlight)
             {
-                handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, handler->GetNameLink(player).c_str());
+                handler->PSendSysMessage(LANG_CHAR_IN_FLIGHT, handler->GetNameLink(player));
                 handler->SetSentErrorMessage(true);
                 return false;
             }

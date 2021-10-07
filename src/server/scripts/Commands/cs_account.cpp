@@ -298,7 +298,7 @@ public:
                 {
                     LOG_DEBUG("warden", "Account: {} (IP: {}) Character:[{}] ({}) Change Password.",
                                    handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                                   handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
+                                   handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID());
                 }
                 break;
             case AOR_NAME_TOO_LONG:

@@ -77,7 +77,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
     if (GetPlayer()->getDeathState() == JUST_DIED)
     {
         LOG_DEBUG("network", "HandleRepopRequestOpcode: got request after player {} ({}) was killed and before he was updated",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID());
         GetPlayer()->KillPlayer();
     }
 
@@ -722,7 +722,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     if (player->IsInFlight())
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' ({}) in flight, ignore Area Trigger ID:{}",
-                       player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
+                       player->GetName().c_str(), player->GetGUID(), triggerId);
         return;
     }
 
@@ -730,14 +730,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     if (!atEntry)
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' ({}) send unknown (by DBC) Area Trigger ID:{}",
-                       player->GetName().c_str(), player->GetGUID().ToString().c_str(), triggerId);
+                       player->GetName().c_str(), player->GetGUID(), triggerId);
         return;
     }
 
     if (!player->IsInAreaTriggerRadius(atEntry))
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player {} ({}) too far (trigger map: {} player map: {}), ignore Area Trigger ID: {}",
-                       player->GetName().c_str(), player->GetGUID().ToString().c_str(), atEntry->map, player->GetMapId(), triggerId);
+                       player->GetName().c_str(), player->GetGUID(), atEntry->map, player->GetMapId(), triggerId);
         return;
     }
 
@@ -949,7 +949,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
                 break;
             default:
                 LOG_ERROR("network.opcode", "MISC: Unknown action button type {} for action {} into button {} for player {} ({})",
-                    type, action, button, _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
+                    type, action, button, _player->GetName().c_str(), _player->GetGUID());
                 return;
         }
         GetPlayer()->addActionButton(button, action, type);
@@ -1196,7 +1196,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recv_data)
     SendPacket(&data);
 
     LOG_DEBUG("network", "REPORT SPAM: type {}, {}, unk1 {}, unk2 {}, unk3 {}, unk4 {}, message {}",
-        spam_type, spammer_guid.ToString().c_str(), unk1, unk2, unk3, unk4, description.c_str());
+        spam_type, spammer_guid, unk1, unk2, unk3, unk4, description.c_str());
 }
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recv_data)
@@ -1673,7 +1673,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     if (!_player->HasPendingBind() || _player->GetPendingBind() != _player->GetInstanceId() || (_player->GetGroup() && _player->GetGroup()->isLFGGroup() && _player->GetGroup()->IsLfgRandomInstance()))
     {
         LOG_DEBUG("network.opcode", "InstanceLockResponse: Player {} ({}) tried to bind himself/teleport to graveyard without a pending bind!",
-            _player->GetName().c_str(), _player->GetGUID().ToString().c_str());
+            _player->GetName().c_str(), _player->GetGUID());
         return;
     }
 

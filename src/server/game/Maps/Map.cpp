@@ -70,7 +70,7 @@ Map::~Map()
     {
         WorldObject* obj = *i_worldObjects.begin();
         ASSERT(obj->IsWorldObject());
-        LOG_ERROR("maps", "Map::~Map: WorldObject TypeId is not a corpse! (%u)", static_cast<uint8>(obj->GetTypeId()));
+        LOG_ERROR("maps", "Map::~Map: WorldObject TypeId is not a corpse! ({})", static_cast<uint8>(obj->GetTypeId()));
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
         obj->RemoveFromWorld();
         obj->ResetMap();
@@ -336,7 +336,7 @@ void Map::SwitchGridContainers(Creature* obj, bool on)
     if (!p.IsCoordValid())
     {
         LOG_ERROR("maps", "Map::SwitchGridContainers: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
-            obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
+            obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
 
@@ -374,7 +374,7 @@ void Map::SwitchGridContainers(GameObject* obj, bool on)
     if (!p.IsCoordValid())
     {
         LOG_ERROR("maps", "Map::SwitchGridContainers: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
-            obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
+            obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
 
@@ -496,7 +496,7 @@ bool Map::AddPlayerToMap(Player* player)
     if (!cellCoord.IsCoordValid())
     {
         LOG_ERROR("maps", "Map::Add: Player ({}) has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
-            player->GetGUID().ToString().c_str(), player->GetPositionX(), player->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
+            player->GetGUID(), player->GetPositionX(), player->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false;
     }
 
@@ -559,7 +559,7 @@ bool Map::AddToMap(T* obj, bool checkTransport)
     if (!cellCoord.IsCoordValid())
     {
         LOG_ERROR("maps", "Map::Add: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
-            obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
+            obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false; //Should delete object
     }
 
@@ -608,7 +608,7 @@ bool Map::AddToMap(MotionTransport* obj, bool /*checkTransport*/)
     if (!cellCoord.IsCoordValid())
     {
         LOG_ERROR("maps", "Map::Add: Object {} has invalid coordinates X:{} Y:{} grid cell [{}:{}]",
-            obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
+            obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false; //Should delete object
     }
 
@@ -2200,7 +2200,7 @@ LiquidData const Map::GetLiquidData(uint32 phaseMask, float x, float y, float z,
     if (vmgr->GetLiquidLevel(GetId(), x, y, z, ReqLiquidType, liquid_level, ground_level, liquid_type, mogpFlags))
     {
         useGridLiquid = !IsInWMOInterior(mogpFlags);
-        LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
+        LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: {} ground: {} type: {}", liquid_level, ground_level, liquid_type);
         // Check water level and ground level
         if (liquid_level > ground_level && G3D::fuzzyGe(z, ground_level - GROUND_HEIGHT_TOLERANCE))
         {
@@ -2829,7 +2829,7 @@ Map::EnterState InstanceMap::CannotEnter(Player* player, bool loginCheck)
     if (!loginCheck && player->GetMapRef().getTarget() == this)
     {
         LOG_ERROR("maps", "InstanceMap::CanEnter - player {} ({}) already in map {}, {}, {}!",
-            player->GetName().c_str(), player->GetGUID().ToString().c_str(), GetId(), GetInstanceId(), GetSpawnMode());
+            player->GetName().c_str(), player->GetGUID(), GetId(), GetInstanceId(), GetSpawnMode());
 
         return CANNOT_ENTER_ALREADY_IN_MAP;
     }
@@ -2918,7 +2918,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
             if (playerBind->save != mapSave)
             {
                 LOG_ERROR("maps", "InstanceMap::Add: player {} ({}) is permanently bound to instance {}, {}, {}, {} but he is being put into instance {}, {}, {}, {}",
-                    player->GetName().c_str(), player->GetGUID().ToString().c_str(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(),
+                    player->GetName().c_str(), player->GetGUID(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(),
                     playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->CanReset());
                 return false;
             }

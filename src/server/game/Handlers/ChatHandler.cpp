@@ -194,7 +194,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 break;
             default:
                 LOG_ERROR("network", "Player {} ({}) sent a chatmessage with an invalid language/message type combination",
-                               GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+                               GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID());
 
                 recvData.rfinish();
                 return;
@@ -330,7 +330,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             if (isNasty(c))
             {
                 LOG_ERROR("network", "Player {} {} sent a message containing invalid character {} - blocked", GetPlayer()->GetName(),
-                    GetPlayer()->GetGUID().ToString().c_str(), uint8(c));
+                    GetPlayer()->GetGUID(), uint8(c));
                 return;
             }
         }
@@ -368,7 +368,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             if (isNasty(c))
             {
                 LOG_ERROR("network", "Player {} {} sent a message containing invalid character {} - blocked", GetPlayer()->GetName(),
-                    GetPlayer()->GetGUID().ToString().c_str(), uint8(c));
+                    GetPlayer()->GetGUID(), uint8(c));
                 return;
             }
         }

@@ -1301,7 +1301,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (!MapMgr::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         LOG_ERROR("entities.player", "TeleportTo: invalid map ({}) or invalid coordinates (X: {}, Y: {}, Z: {}, O: {}) given when teleporting player ({}, name: {}, map: {}, X: {}, Y: {}, Z: {}, O: {}).",
-                       mapid, x, y, z, orientation, GetGUID().ToString().c_str(), GetName().c_str(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                       mapid, x, y, z, orientation, GetGUID(), GetName().c_str(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         return false;
     }
 
@@ -2087,7 +2087,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTy
             }
 
             LOG_DEBUG("maps", "IsGameObjectOfTypeInRange: GameObject '{}' [{}] is too far away from player {} [{}] to be used by him (distance={}, maximal 10 is allowed)",
-                go->GetGOInfo()->name.c_str(), go->GetGUID().ToString().c_str(), GetName().c_str(), GetGUID().ToString().c_str(), go->GetDistance(this));
+                go->GetGOInfo()->name.c_str(), go->GetGUID(), GetName().c_str(), GetGUID(), go->GetDistance(this));
         }
     }
     return nullptr;
@@ -3486,7 +3486,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 {
     // some cooldowns can be already set at aura loading...
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, category, item, time FROM character_spell_cooldown WHERE guid = '%u'", GetGUID().GetCounter()());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, category, item, time FROM character_spell_cooldown WHERE guid = '{}'", GetGUID().GetCounter()());
 
     if (result)
     {
@@ -5586,7 +5586,7 @@ void Player::CheckAreaExploreAndOutdoor()
     if (!areaEntry)
     {
         LOG_ERROR("entities.player", "Player '{}' ({}) discovered unknown area (x: {} y: {} z: {} map: {})",
-                       GetName().c_str(), GetGUID().ToString().c_str(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+                       GetName().c_str(), GetGUID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
         return;
     }
 
@@ -7105,7 +7105,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (!spellInfo)
             {
                 LOG_ERROR("entities.player", "Player::CastItemCombatSpell({}, name: {}, enchant: {}): unknown spell {} is casted, ignoring...",
-                               GetGUID().ToString().c_str(), GetName().c_str(), pEnchant->ID, pEnchant->spellid[s]);
+                               GetGUID(), GetName().c_str(), pEnchant->ID, pEnchant->spellid[s]);
                 continue;
             }
 
@@ -11073,7 +11073,7 @@ void Player::LearnCustomSpells()
     {
         uint32 tspell = *itr;
         LOG_DEBUG("entities.player.loading", "Player::LearnCustomSpells: Player '{}' ({}, Class: {} Race: {}): Adding initial spell (SpellID: {})",
-            GetName().c_str(), GetGUID().ToString().c_str(), uint32(getClass()), uint32(getRace()), tspell);
+            GetName().c_str(), GetGUID(), uint32(getClass()), uint32(getRace()), tspell);
         if (!IsInWorld())                                   // will send in INITIAL_SPELLS in list anyway at map add
         {
             addSpell(tspell, SPEC_MASK_ALL, true);

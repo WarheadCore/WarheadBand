@@ -311,13 +311,13 @@ void MotionMaster::MoveChase(Unit* target,  std::optional<ChaseRange> dist, std:
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         LOG_DEBUG("movement.motionmaster", "Player ({}) chase to {} ({})",
-            _owner->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID().ToString().c_str());
+            _owner->GetGUID(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID());
         Mutate(new ChaseMovementGenerator<Player>(target, dist, angle), MOTION_SLOT_ACTIVE);
     }
     else
     {
         LOG_DEBUG("movement.motionmaster", "Creature ({}) chase to {} ({})",
-            _owner->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID().ToString().c_str());
+            _owner->GetGUID(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID());
         Mutate(new ChaseMovementGenerator<Creature>(target, dist, angle), MOTION_SLOT_ACTIVE);
     }
 }
@@ -381,13 +381,13 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         LOG_DEBUG("movement.motionmaster", "Player ({}) follow to {} ({})",
-            _owner->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID().ToString().c_str());
+            _owner->GetGUID(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID());
         Mutate(new FollowMovementGenerator<Player>(target, dist, angle), slot);
     }
     else
     {
         LOG_DEBUG("movement.motionmaster", "Creature ({}) follow to {} ({})",
-            _owner->GetGUID().ToString().c_str(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID().ToString().c_str());
+            _owner->GetGUID(), target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetGUID());
         Mutate(new FollowMovementGenerator<Creature>(target, dist, angle), slot);
     }
 }
@@ -598,12 +598,12 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id,
 
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        LOG_DEBUG("movement.motionmaster", "Player (%s) charge point (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString().c_str(), x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Player ({}) charge point (X: {} Y: {} Z: {})", _owner->GetGUID(), x, y, z);
         Mutate(new PointMovementGenerator<Player>(id, x, y, z, speed, orientation, path, generatePath, generatePath, targetGUID), MOTION_SLOT_CONTROLLED);
     }
     else
     {
-        LOG_DEBUG("movement.motionmaster", "Creature (%s) charge point (X: %f Y: %f Z: %f)", _owner->GetGUID().ToString().c_str(), x, y, z);
+        LOG_DEBUG("movement.motionmaster", "Creature ({}) charge point (X: {} Y: {} Z: {})", _owner->GetGUID(), x, y, z);
         Mutate(new PointMovementGenerator<Creature>(id, x, y, z, speed, orientation, path, generatePath, generatePath, targetGUID), MOTION_SLOT_CONTROLLED);
     }
 }
@@ -657,13 +657,13 @@ void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         LOG_DEBUG("movement.motionmaster", "Player ({}) flee from {} ({})",
-            _owner->GetGUID().ToString().c_str(), enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", enemy->GetGUID().ToString().c_str());
+            _owner->GetGUID(), enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", enemy->GetGUID());
         Mutate(new FleeingMovementGenerator<Player>(enemy->GetGUID()), MOTION_SLOT_CONTROLLED);
     }
     else
     {
         LOG_DEBUG("movement.motionmaster", "Creature ({}) flee from {} ({}) {}",
-            _owner->GetGUID().ToString().c_str(), enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", enemy->GetGUID().ToString().c_str(), time ? " for a limited time" : "");
+            _owner->GetGUID(), enemy->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", enemy->GetGUID(), time ? " for a limited time" : "");
         if (time)
             Mutate(new TimedFleeingMovementGenerator(enemy->GetGUID(), time), MOTION_SLOT_CONTROLLED);
         else
@@ -771,7 +771,7 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
     Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
 
     LOG_DEBUG("movement.motionmaster", "{} ({}) start moving over path(Id:{}, repeatable: {})",
-        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature", _owner->GetGUID().ToString().c_str(), path_id, repeatable ? "YES" : "NO");
+        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature", _owner->GetGUID(), path_id, repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
@@ -846,7 +846,7 @@ void MotionMaster::DirectDelete(_Ty curr)
 
 void MotionMaster::DelayedDelete(_Ty curr)
 {
-    LOG_DEBUG("movement.motionmaster", "Unit (Entry %u) is trying to delete its updating MG (Type %u)!", _owner->GetEntry(), curr->GetMovementGeneratorType());
+    LOG_DEBUG("movement.motionmaster", "Unit (Entry {}) is trying to delete its updating MG (Type {})!", _owner->GetEntry(), curr->GetMovementGeneratorType());
     if (isStatic(curr))
         return;
     if (!_expList)

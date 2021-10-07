@@ -101,7 +101,7 @@ ChatCommandResult Warhead::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
         if ((_player = ObjectAccessor::FindPlayerByLowGUID(_guid.GetCounter())))
             _name = _player->GetName();
         else if (!sObjectMgr->GetPlayerNameByGUID(_guid.GetCounter(), _name))
-            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
+            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid);
 
         return next;
     }

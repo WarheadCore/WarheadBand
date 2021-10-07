@@ -108,7 +108,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
         LOG_ERROR("network.opcode", "WORLD: failed to teleport player {} ({}) to map {} because of unknown reason!",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str(), loc.GetMapId());
+            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID(), loc.GetMapId());
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
@@ -702,7 +702,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvData)
     {
         if (_player->m_mover->GetGUID() != guid)
             LOG_ERROR("network.opcode", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is {} and should be {}",
-                guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
+                guid, _player->m_mover->GetGUID());
     }
 }
 

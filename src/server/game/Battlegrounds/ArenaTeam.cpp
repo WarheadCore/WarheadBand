@@ -313,8 +313,8 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
         /*if (oldCaptain)
         {
             LOG_DEBUG("bg.battleground", "Player: {} [{}] promoted player: {} [{}] to leader of arena team [Id: {}] [Type: {}].",
-                oldCaptain->GetName().c_str(), oldCaptain->GetGUID().ToString().c_str(), newCaptain->GetName().c_str(),
-                newCaptain->GetGUID().ToString().c_str(), GetId(), GetType());
+                oldCaptain->GetName().c_str(), oldCaptain->GetGUID(), newCaptain->GetName().c_str(),
+                newCaptain->GetGUID(), GetId(), GetType());
         }*/
     }
 }

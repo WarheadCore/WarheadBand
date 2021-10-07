@@ -1183,7 +1183,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     _CreateLogHolders();
 
     LOG_DEBUG("guild", "GUILD: creating guild [{}] for leader {} ({})",
-        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid.ToString().c_str());
+        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 

@@ -175,7 +175,7 @@ uint8 WorldSession::HandleLoadPetFromDBFirstCallback(PreparedQueryResult result,
     if (!pet->IsPositionValid())
     {
         LOG_ERROR("network.opcode", "Pet ({}, entry {}) not loaded. Suggested coordinates isn't valid (X: {} Y: {})",
-            pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
+            pet->GetGUID(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return PET_LOAD_ERROR;
     }
@@ -390,7 +390,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     if (!pet)
     {
         LOG_DEBUG("network", "Vanitypet ({}) does not exist - player {} ({} / account: {}) attempted to dismiss it (possibly lagged out)",
-            guid.ToString().c_str(), GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetAccountId());
+            guid, GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID(), GetAccountId());
         return;
     }
 
@@ -499,7 +499,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     if (!charmInfo)
     {
         LOG_ERROR("network.opcode", "WorldSession::HandlePetAction(petGuid: {}, tagGuid: {}, spellId: {}, flag: {}): object ({}) is considered pet-like but doesn't have a charminfo!",
-                       guid1.ToString().c_str(), guid2.ToString().c_str(), spellid, flag, pet->GetGUID().ToString().c_str());
+                       guid1, guid2, spellid, flag, pet->GetGUID());
         return;
     }
 
@@ -1065,7 +1065,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         if (!charmInfo)
         {
             LOG_ERROR("network.opcode", "WorldSession::HandlePetSetAction: object ({} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
-                pet->GetGUID().ToString().c_str(), pet->GetTypeId());
+                pet->GetGUID(), pet->GetTypeId());
             continue;
         }
 
@@ -1309,7 +1309,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
         if (!charmInfo)
         {
             LOG_ERROR("network.opcode", "WorldSession::HandlePetSpellAutocastOpcod: object ({} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
-                pet->GetGUID().ToString().c_str(), pet->GetTypeId());
+                pet->GetGUID(), pet->GetTypeId());
             continue;
         }
 

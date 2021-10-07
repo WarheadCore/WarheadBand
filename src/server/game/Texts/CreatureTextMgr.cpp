@@ -217,7 +217,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     if (itr == textHolder.end())
     {
         LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find TextGroup {} for Creature {} ({}). Ignoring.",
-            uint32(textGroup), source->GetName().c_str(), source->GetGUID().ToString().c_str());
+            uint32(textGroup), source->GetName().c_str(), source->GetGUID());
         return 0;
     }
 
@@ -426,7 +426,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
         repeats.push_back(id);
     else
         LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup {} for Creature {} ({}), id {} already added",
-            uint32(textGroup), source->GetName().c_str(), source->GetGUID().ToString().c_str(), uint32(id));
+            uint32(textGroup), source->GetName().c_str(), source->GetGUID(), uint32(id));
 }
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)

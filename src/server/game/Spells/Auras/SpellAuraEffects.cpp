@@ -6342,7 +6342,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     Unit::CalcAbsorbResist(caster, target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, GetSpellInfo());
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} attacked {} for {} dmg inflicted by {} abs is {}",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
+                    GetCasterGUID(), target->GetGUID(), damage, GetId(), absorb);
     Unit::DealDamageMods(target, damage, &absorb);
 
     // Auras reducing damage from AOE spells
@@ -6436,7 +6436,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         damage = target->GetHealth();
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} health leech of {} for {} dmg inflicted by {} abs is {}",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
+                    GetCasterGUID(), target->GetGUID(), damage, GetId(), absorb);
     if (caster)
         caster->SendSpellNonMeleeDamageLog(target, GetId(), damage + absorb + resist, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
 
@@ -6579,7 +6579,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         damage = Unit::SpellCriticalHealingBonus(caster, GetSpellInfo(), damage, target);
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} heal of {} for {} health inflicted by {}",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId());
+                    GetCasterGUID(), target->GetGUID(), damage, GetId());
     uint32 absorb = 0;
     uint32 heal = uint32(damage);
 
@@ -6659,7 +6659,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     }
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} power leech of {} for {} dmg inflicted by {}",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), drainAmount, GetId());
+                    GetCasterGUID(), target->GetGUID(), drainAmount, GetId());
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if (PowerType == POWER_MANA)
         drainAmount -= target->GetSpellCritDamageReduction(drainAmount);
@@ -6724,7 +6724,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     // ignore negative values (can be result apply spellmods to aura damage
     uint32 amount = std::max(m_amount, 0) * target->GetMaxPower(PowerType) / 100;
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), amount, GetId());
+                    GetCasterGUID(), target->GetGUID(), amount, GetId());
     SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f, false);
     target->SendPeriodicAuraLog(&pInfo);
 
@@ -6761,7 +6761,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) cons
     target->SendPeriodicAuraLog(&pInfo);
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), amount, GetId());
+                    GetCasterGUID(), target->GetGUID(), amount, GetId());
     int32 gain = target->ModifyPower(PowerType, amount);
 
     if (caster)

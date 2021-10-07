@@ -173,13 +173,13 @@ static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr
     }
 
     LOG_GM(session.GetAccountId(), "Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
-        cmdStr, player->GetName().c_str(), player->GetGUID().ToString().c_str(),
+        cmdStr, player->GetName().c_str(), player->GetGUID(),
         session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
         player->GetPositionZ(), player->GetMapId(),
         player->FindMap() ? player->FindMap()->GetMapName() : "Unknown",
         areaId, areaName.c_str(), zoneName.c_str(),
         (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
-        targetGuid.ToString().c_str());
+        targetGuid);
 }
 
 void Warhead::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const

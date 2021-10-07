@@ -224,7 +224,7 @@ bool validUtf8String(WorldPacket& recvData, std::string& s, std::string action, 
     if (!utf8::is_valid(s.begin(), s.end()))
     {
         LOG_INFO("network.opcode", "CalendarHandler: Player ({}) attempt to {} an event with invalid name or description (packet modification)",
-            playerGUID.ToString().c_str(), action.c_str());
+            playerGUID, action.c_str());
         recvData.rfinish();
         return false;
     }
@@ -643,7 +643,7 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket& recvData)
     recvData >> eventId >> inviteId >> status;
 
     LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_RSVP [{}] EventId [{}], InviteId [{}], status {}",
-        guid.ToString().c_str(), eventId, inviteId, status);
+        guid, eventId, inviteId, status);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -682,7 +682,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
     recvData >> inviteId >> ownerInviteId >> eventId;
 
     LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_REMOVE_INVITE [{}] EventId [{}], ownerInviteId [{}], Invitee ([{}] id: [{}])",
-        guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId);
+        guid, eventId, ownerInviteId, invitee, inviteId);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -743,7 +743,7 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
     recvData>> invitee.ReadAsPacked();
     recvData >> eventId >>  inviteId >> ownerInviteId >> rank;
     LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [{}] EventId [{}] ownerInviteId [{}], Invitee ([{}] id: [{}], rank {}",
-        guid.ToString().c_str(), eventId, ownerInviteId, invitee.ToString().c_str(), inviteId, rank);
+        guid, eventId, ownerInviteId, invitee, inviteId, rank);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -768,7 +768,7 @@ void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
 
     recvData >> eventId >> complainGUID;
     LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [{}] EventId [{}] guid [{}]",
-        guid.ToString().c_str(), eventId, complainGUID.ToString().c_str());
+        guid, eventId, complainGUID);
 
     // what to do with complains?
 }

@@ -243,8 +243,8 @@ void Player::Update(uint32 p_time)
 
     if (!IsPositionValid()) // pussywizard: will crash below at eg. GetZoneAndAreaId
     {
-        LOG_INFO("misc", "Player::Update - invalid position (%.1f, %.1f, %.1f)! Map: %u, MapId: %u, %s",
-            GetPositionX(), GetPositionY(), GetPositionZ(), (FindMap() ? FindMap()->GetId() : 0), GetMapId(), GetGUID().ToString().c_str());
+        LOG_INFO("misc", "Player::Update - invalid position ({0:.1f}, {0:.1f}, {0:.1f})! Map: {}, MapId: {}, {}",
+            GetPositionX(), GetPositionY(), GetPositionZ(), (FindMap() ? FindMap()->GetId() : 0), GetMapId(), GetGUID());
         GetSession()->KickPlayer("Invalid position");
         return;
     }
@@ -1266,11 +1266,7 @@ void Player::UpdateHomebindTime(uint32 time)
         data << uint32(m_HomebindTimer);
         data << uint32(1);
         GetSession()->SendPacket(&data);
-        LOG_DEBUG(
-            "maps",
-            "PLAYER: Player '%s' (%s) will be teleported to homebind in 60 "
-            "seconds",
-            GetName().c_str(), GetGUID().ToString().c_str());
+        LOG_DEBUG("maps", "PLAYER: Player '{}' ({}) will be teleported to homebind in 60 seconds", GetName(), GetGUID());
     }
 }
 
