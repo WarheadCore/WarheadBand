@@ -430,7 +430,7 @@ namespace Warhead::Impl::ChatCommands
                     }
                     else
                     {
-                        return Warhead::StringFormat("{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
+                        return Warhead::StringFormat("{}{}{}{}{}", prefix, COMMAND_DELIMITER, match, COMMAND_DELIMITER, suffix);
                     }
                 });
 
