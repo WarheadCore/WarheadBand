@@ -141,9 +141,7 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-
-        char titleNameStr[80];
-        snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink);
@@ -189,9 +187,7 @@ public:
         target->SetTitle(titleInfo, true);
 
         std::string tNameLink = handler->GetNameLink(target);
-
-        char titleNameStr[80];
-        snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink);
 

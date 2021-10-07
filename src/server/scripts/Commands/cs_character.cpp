@@ -31,6 +31,7 @@ EndScriptData */
 #include "PlayerDump.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "StringFormat.h"
 #include "Timer.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
@@ -306,8 +307,7 @@ public:
                                         ? handler->GetWarheadString(LANG_ACTIVE)
                                         : "";
 
-                char titleNameStr[80];
-                snprintf(titleNameStr, 80, name.c_str(), targetName);
+                std::string titleNameStr = Warhead::StringFormat(name, targetName);
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())

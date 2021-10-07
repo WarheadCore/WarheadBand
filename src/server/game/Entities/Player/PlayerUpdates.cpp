@@ -37,6 +37,7 @@
 #include "ScriptMgr.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
+#include "StringFormat.h"
 #include "UpdateFieldFlags.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"
@@ -507,7 +508,6 @@ void Player::UpdateLocalChannels(uint32 newZone)
                         continue; // Already on the channel, as city channel
                                   // names are not changing
 
-                    char        new_channel_name_buf[100];
                     char const* currentNameExt;
 
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
@@ -515,12 +515,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     else
                         currentNameExt = current_zone_name.c_str();
 
-                    snprintf(new_channel_name_buf, 100,
-                             channel->pattern[m_session->GetSessionDbcLocale()],
-                             currentNameExt);
+                       joinChannel = cMgr->GetJoinChannel(Warhead::StringFormat(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt),
+                        channel->ChannelID);
 
-                    joinChannel = cMgr->GetJoinChannel(new_channel_name_buf,
-                                                       channel->ChannelID);
                     if (usedChannel)
                     {
                         if (joinChannel != usedChannel)
