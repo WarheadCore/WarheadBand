@@ -824,7 +824,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
 
     data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 2);         // added in 2.2.0
     data << uint8(2);                                       // 2 - COMPLAINT_ENABLED_WITH_AUTO_IGNORE
-    data << uint8(0);                                       // enable(1)/disable(0) voice chat interface in client
+    data << uint8(1);                                       // enable(1)/disable(0) voice chat interface in client
     SendPacket(&data);
 
     // Send MOTD
