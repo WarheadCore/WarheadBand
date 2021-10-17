@@ -2673,6 +2673,16 @@ void ScriptMgr::OnSetServerSideVisibilityDetect(Player* player, ServerSideVisibi
     FOREACH_SCRIPT(PlayerScript)->OnSetServerSideVisibilityDetect(player, type, sec);
 }
 
+void ScriptMgr::OnGiveHonorPoints(Player* player, float& honor, Unit* victim)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnGiveHonorPoints(player, honor, victim);
+}
+
+void ScriptMgr::OnAfterResurrect(Player* player, float restore_percent, bool applySickness)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnAfterResurrect(player, restore_percent, applySickness);
+}
+
 void ScriptMgr::AnticheatSetSkipOnePacketForASH(Player* player, bool apply)
 {
     FOREACH_SCRIPT(PlayerScript)->AnticheatSetSkipOnePacketForASH(player, apply);

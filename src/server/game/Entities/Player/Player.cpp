@@ -4400,6 +4400,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
             }
         }
     }
+
+    sScriptMgr->OnAfterResurrect(this, restore_percent, applySickness);
 }
 
 void Player::KillPlayer()
@@ -5993,6 +5995,9 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
     }
 
     honor_f *= CONF_GET_FLOAT("Rate.Honor");
+
+    sScriptMgr->OnGiveHonorPoints(this, honor_f, uVictim);
+
     // Back to int now
     honor = int32(honor_f);
     // honor - for show honor points in log

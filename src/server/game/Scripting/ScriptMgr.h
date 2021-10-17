@@ -1046,6 +1046,10 @@ public:
 
     virtual void OnSetServerSideVisibilityDetect(Player* /*player*/, ServerSideVisibilityType& /*type*/, AccountTypes& /*sec*/) { }
 
+    virtual void OnGiveHonorPoints(Player* /*player*/, float& /*honor*/, Unit* /*victim*/) { }
+
+    virtual void OnAfterResurrect(Player* /*player*/, float /*restore_percent*/, bool /*applySickness*/) { }
+
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }
     virtual void AnticheatSetCanFlybyServer(Player* /*player*/, bool /*apply*/) { }
@@ -1751,6 +1755,8 @@ public: /* PlayerScript */
     bool CanInitTrade(Player* player, Player* target);
     void OnSetServerSideVisibility(Player* player, ServerSideVisibilityType& type, AccountTypes& sec);
     void OnSetServerSideVisibilityDetect(Player* player, ServerSideVisibilityType& type, AccountTypes& sec);
+    void OnGiveHonorPoints(Player* player, float& honor, Unit* victim);
+    void OnAfterResurrect(Player* player, float restore_percent, bool applySickness);
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);
     void AnticheatSetCanFlybyServer(Player* player, bool apply);
     void AnticheatSetUnderACKmount(Player* player);
