@@ -1,0 +1,62 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# Vip module configuration
+########################################
+#
+#   VIP.Enable
+#       Description: Enable module
+#       Default: 1
+#
+
+VIP.Enable = 1
+
+#
+#   VIP.Update.Delay
+#       Description: Time to delay for update system
+#       Default: 10
+#
+
+VIP.Update.Delay = 10
+
+#
+#   VIP.Mount.MinLevel
+#       Description: Min level for learning mount at login
+#       Default: 3
+#
+#   VIP.Mount.SpellID
+#       Description: Spell id for mount
+#       Default: 3
+#
+
+VIP.Mount.MinLevel = 3
+VIP.Mount.SpellID = 72286
+
+#
+#   VIP.Spells.List
+#        Description: Spell list for learn at login
+#        Default:
+#
+
+VIP.Spells.List = "26662,62555"
+
+#
+#   VIP.Unbind.Duration
+#       Description: Delay needed to use the .vip unbind command in seconds
+#       Default: 86400 (1 day)
+#
+
+VIP.Unbind.Duration = 86400
