@@ -20,6 +20,7 @@
 #include "SpellInfo.h"
 #include "ahnkahet.h"
 #include "SpellScript.h"
+#include "PassveAI.h"
 
 enum Spells
 {
