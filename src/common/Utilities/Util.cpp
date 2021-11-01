@@ -28,6 +28,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <boost/core/demangle.hpp>
 #include <utf8.h>
 
 Tokenizer::Tokenizer(const std::string& src, const char sep, uint32 vectorReserve)

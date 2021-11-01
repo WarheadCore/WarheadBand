@@ -72,7 +72,7 @@ public:
             { "remove",     SEC_PLAYER,         false,  &HandleAccount2FARemoveCommand,         "" },
         };
 
-        static ChatCommandTable accountCommandTable =
+        static ChatCommandTable accountRemoveCommandTable
         {
             { "2fa",        SEC_PLAYER,         true,   nullptr, "", account2faCommandTable    },
             { "addon",      SEC_MODERATOR,      false,  &HandleAccountAddonCommand,         "" },
@@ -83,6 +83,20 @@ public:
             { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable    },
             { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,      "" },
             { "info",       SEC_PLAYER,         false,  &HandleAccountInfoCommand,          "" }
+        };
+
+        static ChatCommandTable accountCommandTable =
+        {
+            { "2fa",        SEC_PLAYER,         true,   nullptr, "", account2faCommandTable        },
+            { "addon",      SEC_MODERATOR,      false,  &HandleAccountAddonCommand,             "" },
+            { "create",     SEC_CONSOLE,        true,   &HandleAccountCreateCommand,            "" },
+            { "delete",     SEC_CONSOLE,        true,   &HandleAccountDeleteCommand,            "" },
+            { "onlinelist", SEC_CONSOLE,        true,   &HandleAccountOnlineListCommand,        "" },
+            { "lock",       SEC_PLAYER,         false,  nullptr, "", accountLockCommandTable       },
+            { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable        },
+            { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,          "" },
+            { "remove",     SEC_ADMINISTRATOR,  true,   nullptr, "", accountRemoveCommandTable     },
+            { "",           SEC_PLAYER,         false,  &HandleAccountCommand,                  "" }
         };
 
         static ChatCommandTable commandTable =

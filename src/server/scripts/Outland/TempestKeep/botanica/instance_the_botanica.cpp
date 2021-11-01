@@ -162,7 +162,7 @@ public:
 
         bool CheckProc(ProcEventInfo& eventInfo)
         {
-            if (SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo())
+            if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
             {
                 if ((spellInfo->GetSchoolMask() & _lastSchool) && _swapTime > GameTime::GetGameTime())
                     return false;

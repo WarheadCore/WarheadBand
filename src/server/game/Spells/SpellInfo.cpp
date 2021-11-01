@@ -1491,27 +1491,15 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_ONLY_FLYING_AREAS))
     {
-        if (strict)
+        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(area_id);
+        if (!areaEntry)
         {
-            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(area_id);
-            if (!areaEntry)
-            {
-                areaEntry = sAreaTableStore.LookupEntry(zone_id);
-            }
-
-            if (!areaEntry || !areaEntry->IsFlyable() || !player->canFlyInZone(map_id, zone_id, this))
-            {
-                return SPELL_FAILED_INCORRECT_AREA;
-            }
+            areaEntry = sAreaTableStore.LookupEntry(zone_id);
         }
-        else
+
+        if (!areaEntry || !areaEntry->IsFlyable() || (strict && (areaEntry->flags & AREA_FLAG_NO_FLY_ZONE) != 0) || !player->canFlyInZone(map_id, zone_id, this))
         {
-            uint32 const v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
-            MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-            if (!mapEntry || mapEntry->Expansion() < 1 || !mapEntry->IsContinent())
-            {
-                return SPELL_FAILED_INCORRECT_AREA;
-            }
+            return SPELL_FAILED_INCORRECT_AREA;
         }
     }
 
@@ -1879,7 +1867,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (ExcludeTargetAuraSpell && unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(ExcludeTargetAuraSpell, caster)))
         return SPELL_FAILED_TARGET_AURASTATE;
 
-    if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+    if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION) && !HasAttribute(SPELL_ATTR7_BYPASS_NO_RESURRECTION_AURA))
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 

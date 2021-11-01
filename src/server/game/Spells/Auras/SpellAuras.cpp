@@ -409,7 +409,7 @@ Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* 
     m_applyTime(GameTime::GetGameTime()),
     m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
     m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
-    m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
+    m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false), m_triggeredByAuraSpellInfo(nullptr)
 {
     if ((m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NO_TARGET_PER_SECOND_COST))
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -1358,6 +1358,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         else
                             caster->CastSpell(target, 61634, true);
                     }
+
+                    if (Creature* creatureTarget = target->ToCreature())
+                    {
+                        creatureTarget->CallAssistance(caster);
+                    }
                 }
                 switch (GetId())
                 {
@@ -1561,6 +1566,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             case SPELLFAMILY_MAGE:
+            {
+                // Polymorph
+                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x01000000)
+                {
+                    if (Creature* creatureTarget = target->ToCreature())
+                    {
+                        creatureTarget->SetNoCallAssistance(false);
+                    }
+                }
                 switch (GetId())
                 {
                     case 66: // Invisibility
@@ -1573,12 +1587,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         // Remove the IGNORE_AURASTATE aura
                         target->RemoveAurasDueToSpell(44544);
                         break;
-                    case 44401: //Missile Barrage
-                    case 48108: //Hot Streak
-                    case 57761: //Fireball!
+                    case 44401: // Missile Barrage
+                    case 48108: // Hot Streak
+                    case 57761: // Fireball!
                         if (removeMode != AURA_REMOVE_BY_EXPIRE || aurApp->GetBase()->IsExpired())
                             break;
-                        if (target->HasAura(70752)) //Item - Mage T10 2P Bonus
+                        if (target->HasAura(70752)) // Item - Mage T10 2P Bonus
                             target->CastSpell(target, 70753, true);
                         break;
                     default:
@@ -1597,6 +1611,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     caster->CastSpell(target, 55080, true, nullptr, GetEffect(0));
                 }
                 break;
+            }
             case SPELLFAMILY_WARRIOR:
                 if (!caster)
                     break;
@@ -1846,25 +1861,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAura(63531);
                 }
             }
-
-            break;
-        case SPELLFAMILY_DRUID:
-            if (!caster)
-                break;
-            // Reduce base armor of bear form and dire bear form
-            if (GetId() == 5229)
-            {
-                if (target->HasAura(70726)) // Item - Druid T10 Feral 4P Bonus
-                {
-                    if (apply)
-                        target->CastSpell(target, 70725, true);
-                }
-                else
-                {
-                    // Enrage armor reduction
-                    target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, target->GetShapeshiftForm() == FORM_DIREBEAR ? -16.0f : -27.0f, apply);
-                }
-            }
             break;
     }
 }
@@ -1940,7 +1936,7 @@ bool Aura::CanStackWith(Aura const* existingAura, bool remove) const
     }
 
     // passive auras don't stack with another rank of the spell cast by same caster
-    if (IsPassive() && sameCaster && m_spellInfo->IsDifferentRankOf(existingSpellInfo))
+    if (IsPassive() && sameCaster && (m_spellInfo->IsDifferentRankOf(existingSpellInfo) || (m_spellInfo->Id == existingSpellInfo->Id && m_castItemGuid.IsEmpty())))
         return false;
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -2623,6 +2619,16 @@ void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
 
         (*scritr)->_FinishScriptCall();
     }
+}
+
+void Aura::SetTriggeredByAuraSpellInfo(SpellInfo const* triggeredByAuraSpellInfo)
+{
+    m_triggeredByAuraSpellInfo = triggeredByAuraSpellInfo;
+}
+
+SpellInfo const* Aura::GetTriggeredByAuraSpellInfo() const
+{
+    return m_triggeredByAuraSpellInfo;
 }
 
 UnitAura::UnitAura(SpellInfo const* spellproto, uint8 effMask, WorldObject* owner, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, ObjectGuid itemGUID /*= ObjectGuid::Empty*/)

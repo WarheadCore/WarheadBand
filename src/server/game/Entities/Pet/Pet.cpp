@@ -38,6 +38,10 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
+
 Pet::Pet(Player* owner, PetType type) : Guardian(nullptr, owner ? owner->GetGUID() : ObjectGuid::Empty, true),
     m_usedTalentCount(0), m_removed(false), m_owner(owner),
     m_happinessTimer(PET_LOSE_HAPPINES_INTERVAL), m_petType(type), m_duration(0),
@@ -96,6 +100,11 @@ void Pet::AddToWorld()
         GetCharmInfo()->SetIsFollowing(false);
         GetCharmInfo()->SetIsReturning(false);
     }
+
+#ifdef ELUNA
+    if (GetOwnerGUID().IsPlayer())
+        sEluna->OnPetAddedToWorld(GetOwner(), this);
+#endif
 }
 
 void Pet::RemoveFromWorld()
@@ -109,7 +118,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-SpellCastResult Pet::TryLoadFromDB(Player* owner, bool current /*= false*/, PetType mandatoryPetType /*= MAX_PET_TYPE*/)
+SpellCastResult Pet::TryLoadFromDB(Player* owner, bool current /*= false*/, PetType mandatoryPetType /*= MAX_PET_TYPE*/, bool checkDead /*= false*/)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT_SYNS);
     stmt->setUInt32(0, owner->GetGUID().GetCounter());
@@ -145,10 +154,17 @@ SpellCastResult Pet::TryLoadFromDB(Player* owner, bool current /*= false*/, PetT
     if (current && isTemporarySummoned)
         return SPELL_FAILED_NO_PET;
 
-    if (!savedHealth)
+    if (!checkDead)
     {
-        owner->ToPlayer()->SendTameFailure(PET_TAME_DEAD);
-        return SPELL_FAILED_TARGETS_DEAD;
+        if (!savedHealth)
+        {
+            owner->ToPlayer()->SendTameFailure(PET_TAME_DEAD);
+            return SPELL_FAILED_TARGETS_DEAD;
+        }
+    }
+    else if (savedHealth)
+    {
+        return SPELL_FAILED_TARGET_NOT_DEAD;
     }
 
     if (mandatoryPetType != MAX_PET_TYPE && petType != mandatoryPetType)
@@ -1210,7 +1226,7 @@ void Pet::_SaveSpellCooldowns(CharacterDatabaseTransaction trans, bool logout)
         {
             m_CreatureSpellCooldowns.erase(itr2);
         }
-        else if (itr->second.end <= infTime && (logout || itr->second.end > (curMSTime + 30 * IN_MILLISECONDS)))
+        else if (itr2->second.end <= infTime && (logout || itr2->second.end > (curMSTime + 30 * IN_MILLISECONDS)))
         {
             uint32 cooldown = ((itr2->second.end - curMSTime) / IN_MILLISECONDS) + curTime;
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL_COOLDOWN);

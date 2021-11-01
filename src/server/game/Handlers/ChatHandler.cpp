@@ -342,64 +342,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             msg.erase(end, msg.end());
         }
 
-        // validate hyperlinks
+        // Validate hyperlinks
         if (!ValidateHyperlinksAndMaybeKick(msg))
-            return;
-    }
-
-    // do message validity checks
-    if (lang != LANG_ADDON)
-    {
-        // cut at the first newline or carriage return
-        std::string::size_type pos = msg.find_first_of("\n\r");
-
-        if (pos == 0)
         {
             return;
         }
-        else if (pos != std::string::npos)
-        {
-            msg.erase(pos);
-        }
-
-        // abort on any sort of nasty character
-        for (uint8 c : msg)
-        {
-            if (isNasty(c))
-            {
-                LOG_ERROR("network", "Player {} {} sent a message containing invalid character {} - blocked", GetPlayer()->GetName(),
-                    GetPlayer()->GetGUID(), uint8(c));
-                return;
-            }
-        }
-
-        // collapse multiple spaces into one
-        if (CONF_GET_BOOL("ChatFakeMessagePreventing"))
-        {
-            auto end = std::unique(msg.begin(), msg.end(), [](char c1, char c2) { return (c1 == ' ') && (c2 == ' '); });
-            msg.erase(end, msg.end());
-        }
-    }
-
-    // exploit
-    size_t found1 = msg.find("|Hquest");
-    if (found1 != std::string::npos)
-    {
-        size_t found2 = msg.find(":", found1 + 8);
-        size_t found3 = msg.find("|", found1 + 8);
-        if (found3 != std::string::npos)
-        {
-            if (found2 == std::string::npos)
-                return;
-            if (found2 > found3)
-                return;
-        }
-    }
-
-    // prevent crash player
-    if (msg.find("| |Hquest") != std::string::npos)
-    {
-        return;
     }
 
     sScriptMgr->OnBeforeSendChatMessage(_player, type, lang, msg);
@@ -421,11 +368,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 }
 
                 if (type == CHAT_MSG_SAY)
-                    sender->Say(msg, lang);
+                    sender->Say(msg, Language(lang));
                 else if (type == CHAT_MSG_EMOTE)
                     sender->TextEmote(msg);
                 else if (type == CHAT_MSG_YELL)
-                    sender->Yell(msg, lang);
+                    sender->Yell(msg, Language(lang));
             }
             break;
         case CHAT_MSG_WHISPER:
@@ -469,7 +416,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 if (!senderIsPlayer && !sender->isAcceptWhispers() && !sender->IsInWhisperWhiteList(receiver->GetGUID()))
                     sender->AddWhisperWhiteList(receiver->GetGUID());
 
-                GetPlayer()->Whisper(msg, lang, receiver->GetGUID());
+                GetPlayer()->Whisper(msg, Language(lang), receiver);
             }
             break;
         case CHAT_MSG_PARTY:
