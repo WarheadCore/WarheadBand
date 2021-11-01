@@ -28,7 +28,7 @@ EndScriptData */
 #include "Player.h"
 #include "WorldSession.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

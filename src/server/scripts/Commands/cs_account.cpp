@@ -95,8 +95,7 @@ public:
             { "lock",       SEC_PLAYER,         false,  nullptr, "", accountLockCommandTable       },
             { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable        },
             { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,          "" },
-            { "remove",     SEC_ADMINISTRATOR,  true,   nullptr, "", accountRemoveCommandTable     },
-            { "",           SEC_PLAYER,         false,  &HandleAccountCommand,                  "" }
+            { "remove",     SEC_ADMINISTRATOR,  true,   nullptr, "", accountRemoveCommandTable     }
         };
 
         static ChatCommandTable commandTable =

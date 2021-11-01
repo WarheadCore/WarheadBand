@@ -8768,7 +8768,7 @@ void Player::Say(std::string_view text, Language language, WorldObject const* /*
 
 void Player::Say(uint32 textId, WorldObject const* target /*= nullptr*/)
 {
-    Talk(textId, CHAT_MSG_SAY, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
+    Talk(textId, CHAT_MSG_SAY, CONF_GET_FLOAT("ListenRange.Say"), target);
 }
 
 void Player::Yell(std::string_view text, Language language, WorldObject const* /*= nullptr*/)
@@ -8787,7 +8787,7 @@ void Player::Yell(std::string_view text, Language language, WorldObject const* /
 
 void Player::Yell(uint32 textId, WorldObject const* target /*= nullptr*/)
 {
-    Talk(textId, CHAT_MSG_YELL, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), target);
+    Talk(textId, CHAT_MSG_YELL, CONF_GET_FLOAT("ListenRange.Yell"), target);
 }
 
 void Player::TextEmote(std::string_view text, WorldObject const* /*= nullptr*/, bool /*= false*/)
@@ -8801,12 +8801,12 @@ void Player::TextEmote(std::string_view text, WorldObject const* /*= nullptr*/, 
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    SendMessageToSetInRange(&data, CONF_GET_FLOAT("ListenRange.TextEmote"), true, !CONF_GET_BOOL("AllowTwoSide.Interaction.Chat"));
 }
 
 void Player::TextEmote(uint32 textId, WorldObject const* target /*= nullptr*/, bool /*isBossEmote = false*/)
 {
-    Talk(textId, CHAT_MSG_EMOTE, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
+    Talk(textId, CHAT_MSG_EMOTE, CONF_GET_FLOAT("ListenRange.TextEmote"), target);
 }
 
 void Player::Whisper(std::string_view text, Language language, Player* target, bool /*= false*/)
@@ -8862,7 +8862,7 @@ void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false
         return;
     }
 
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(textId);
+    BroadcastText const* bct = sGameLocale->GetBroadcastText(textId);
     if (!bct)
     {
         LOG_ERROR("entities.unit", "Player::Whisper: `broadcast_text` was not %u found", textId);
@@ -12208,7 +12208,7 @@ PartyResult Player::CanUninviteFromGroup(ObjectGuid targetPlayerGUID) const
             if (Aura* dungeonCooldownAura = target->GetAura(lfg::LFG_SPELL_DUNGEON_COOLDOWN))
             {
                 int32 elapsedTime = dungeonCooldownAura->GetMaxDuration() - dungeonCooldownAura->GetDuration();
-                if (static_cast<int32>(sWorld->getIntConfig(CONFIG_LFG_KICK_PREVENTION_TIMER)) > elapsedTime)
+                if (CONF_GET_INT("LFG.KickPreventionTimer") * 1000 > elapsedTime)
                 {
                     return ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S;
                 }

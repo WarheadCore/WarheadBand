@@ -37,7 +37,7 @@ EndScriptData */
 #include "Transport.h"
 #include <string>
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 using CreatureSpawnId = Variant<Hyperlink<creature>, ObjectGuid::LowType>;
 using CreatureEntry = Variant<Hyperlink<creature_entry>, uint32>;
@@ -370,7 +370,7 @@ public:
     //change level of creature or pet
     static bool HandleNpcSetLevelCommand(ChatHandler* handler, uint8 lvl)
     {
-        if (lvl < 1 || lvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
+        if (lvl < 1 || lvl > sGameConfig->GetOption<uint8>("MaxPlayerLevel") + 3)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -789,7 +789,7 @@ public:
 
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, Acore::ToString(displayId).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, Warhead::ToString(displayId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }

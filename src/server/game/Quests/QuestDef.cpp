@@ -232,7 +232,7 @@ int32 Quest::GetRewOrReqMoney(Player* player /*= nullptr*/) const
         }
     }
 
-    return static_cast<int32>(rewardedMoney * sWorld->getRate(RATE_DROP_MONEY));
+    return static_cast<int32>(rewardedMoney * CONF_GET_FLOAT("Rate.Drop.Money"));
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const

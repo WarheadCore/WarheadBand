@@ -80,7 +80,7 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Acore::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
         target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
@@ -113,7 +113,7 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Acore::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, uint32(titleId), titleNameStr, tNameLink);
@@ -146,7 +146,7 @@ public:
         target->SetTitle(titleInfo, true);
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Acore::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, uint32(titleId), titleNameStr, tNameLink);
 

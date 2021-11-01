@@ -107,8 +107,8 @@ namespace ArenaSpectator
         SendCommand(o, "{}0x{:016X};{}={},{},{},{},{},{},{},0x{:016X};", SPECTATOR_ADDON_PREFIX, targetGUID.GetRawValue(), prefix, remove ? 1 : 0, stack, dur, maxdur, id, dispel, isDebuff ? 1 : 0, caster.GetRawValue());
     }
 
-    WH_GAME_API bool HandleSpectatorSpectateCommand(ChatHandler* handler, char const* args);
-    WH_GAME_API bool HandleSpectatorWatchCommand(ChatHandler* handler, char const* args);
+    WH_GAME_API bool HandleSpectatorSpectateCommand(ChatHandler* handler, std::string const& name);
+    WH_GAME_API bool HandleSpectatorWatchCommand(ChatHandler* handler, std::string const& name);
     WH_GAME_API void CreatePacket(WorldPacket& data, std::string const& message);
     WH_GAME_API void HandleResetCommand(Player* player);
     WH_GAME_API bool ShouldSendAura(Aura* aura, uint8 effMask, ObjectGuid targetGUID, bool remove);

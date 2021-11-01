@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "WorldSession.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class cheat_commandscript : public CommandScript
 {

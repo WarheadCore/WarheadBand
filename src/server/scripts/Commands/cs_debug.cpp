@@ -43,7 +43,7 @@
 #include <fstream>
 #include <set>
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class debug_commandscript : public CommandScript
 {
@@ -701,14 +701,14 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->SendSysMessage(Acore::StringFormatFmt("queue({}): For the item {}, the owner ({}) and the player ({}) don't match!", index, item->GetGUID().ToString(), item->GetOwnerGUID().ToString(), player->GetGUID().ToString()));
+                    handler->SendSysMessage(Warhead::StringFormatFmt("queue({}): For the item {}, the owner ({}) and the player ({}) don't match!", index, item->GetGUID().ToString(), item->GetOwnerGUID().ToString(), player->GetGUID().ToString()));
                     error = true;
                     continue;
                 }
 
                 if (item->GetQueuePos() != index)
                 {
-                    handler->SendSysMessage(Acore::StringFormatFmt("queue({}): For the item {}, the queuepos doesn't match it's position in the queue!", index, item->GetGUID().ToString()));
+                    handler->SendSysMessage(Warhead::StringFormatFmt("queue({}): For the item {}, the queuepos doesn't match it's position in the queue!", index, item->GetGUID().ToString()));
                     error = true;
                     continue;
                 }
@@ -720,14 +720,14 @@ public:
 
                 if (test == nullptr)
                 {
-                    handler->SendSysMessage(Acore::StringFormatFmt("queue({}): The bag({}) and slot({}) values for {} are incorrect, the player doesn't have any item at that position!", index, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString()));
+                    handler->SendSysMessage(Warhead::StringFormatFmt("queue({}): The bag({}) and slot({}) values for {} are incorrect, the player doesn't have any item at that position!", index, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString()));
                     error = true;
                     continue;
                 }
 
                 if (test != item)
                 {
-                    handler->SendSysMessage(Acore::StringFormatFmt("queue({}): The bag({}) and slot({}) values for the %s are incorrect, {} is there instead!", index, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString(), test->GetGUID().ToString()));
+                    handler->SendSysMessage(Warhead::StringFormatFmt("queue({}): The bag({}) and slot({}) values for the %s are incorrect, {} is there instead!", index, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString(), test->GetGUID().ToString()));
                     error = true;
                     continue;
                 }
@@ -855,8 +855,8 @@ public:
         else
         {
             Creature* passenger = nullptr;
-            Acore::AllCreaturesOfEntryInRange check(handler->GetPlayer(), entry, 20.0f);
-            Acore::CreatureSearcher<Acore::AllCreaturesOfEntryInRange> searcher(handler->GetPlayer(), passenger, check);
+            Warhead::AllCreaturesOfEntryInRange check(handler->GetPlayer(), entry, 20.0f);
+            Warhead::CreatureSearcher<Warhead::AllCreaturesOfEntryInRange> searcher(handler->GetPlayer(), passenger, check);
             Cell::VisitAllObjects(handler->GetPlayer(), searcher, 30.0f);
 
             if (!passenger || passenger == target)

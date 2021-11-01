@@ -17,6 +17,7 @@
 
 #include "CellImpl.h"
 #include "GameEventMgr.h"
+#include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -1416,7 +1417,7 @@ public:
 
             if (!bakers.empty())
             {
-                std::sort(bakers.begin(), bakers.end(), Acore::ObjectDistanceOrderPred(caster));
+                std::sort(bakers.begin(), bakers.end(), Warhead::ObjectDistanceOrderPred(caster));
                 if (Creature* creature = *bakers.begin())
                 {
                     creature->CastSpell(caster, SPELL_THROW_MUG_TO_PLAYER, true);
@@ -2185,7 +2186,7 @@ public:
         {
             Unit* caster = GetCaster();
 
-            targets.remove_if(Acore::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
+            targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
 
             if (targets.size() > 1)
             {
@@ -2205,7 +2206,7 @@ public:
                 return;
             }
 
-            WorldObject* target = Acore::Containers::SelectRandomContainerElement(targets);
+            WorldObject* target = Warhead::Containers::SelectRandomContainerElement(targets);
             targets.clear();
             targets.push_back(target);
         }

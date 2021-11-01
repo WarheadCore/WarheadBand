@@ -876,8 +876,8 @@ public:
             }
 
             std::list<Player*> players;
-            Acore::AnyPlayerInObjectRangeCheck checker(me, 60.f);
-            Acore::PlayerListSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+            Warhead::AnyPlayerInObjectRangeCheck checker(me, 60.f);
+            Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
             Cell::VisitWorldObjects(me, searcher, 60.f);
             if (players.empty())
             {
@@ -905,7 +905,7 @@ public:
                 sizeCount += playerCount % 2;
             }
 
-            Acore::Containers::RandomResize(tmpList, sizeCount);
+            Warhead::Containers::RandomResize(tmpList, sizeCount);
             for (Unit* trigger : tmpList)
                 me->CastSpell(trigger, SPELL_START_FIRE, true);
         }

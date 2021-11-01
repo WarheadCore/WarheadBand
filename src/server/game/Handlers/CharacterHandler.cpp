@@ -674,7 +674,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     if (PlayerLoading() || GetPlayer() != nullptr || !playerGuid.IsPlayer())
     {
         // limit player interaction with the world
-        if (!sWorld->getBoolConfig(CONFIG_REALM_LOGIN_ENABLED))
+        if (!CONF_GET_BOOL("World.RealmAvailability"))
         {
             WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED, 1);
             // see LoginFailureReason enum for more reasons

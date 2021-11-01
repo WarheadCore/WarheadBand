@@ -1214,7 +1214,7 @@ bool GameObject::IsInvisibleDueToDespawn() const
 
 void GameObject::SetRespawnTime(int32 respawn)
 {
-    m_respawnTime = respawn > 0 ? time(nullptr) + respawn : 0;
+    m_respawnTime = respawn > 0 ? GameTime::GetGameTime() + respawn : 0;
     SetRespawnDelay(respawn);
     if (respawn && !m_spawnedByDefault)
     {
@@ -2727,12 +2727,6 @@ time_t GameObject::GetRespawnTimeEx() const
         return m_respawnTime;
     else
         return now;
-}
-
-void GameObject::SetRespawnTime(int32 respawn)
-{
-    m_respawnTime = respawn > 0 ? GameTime::GetGameTime() + respawn : 0;
-    m_respawnDelayTime = respawn > 0 ? respawn : 0;
 }
 
 void GameObject::SetLootGenerationTime()

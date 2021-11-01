@@ -29,7 +29,7 @@
 #include <vector>
 #include <utility>
 
-namespace Acore::Asio
+namespace Warhead::Asio
 {
     class IoContext;
     class DeadlineTimer;
@@ -58,14 +58,14 @@ struct MetricData
     std::string Text;
 };
 
-class AC_COMMON_API Metric
+class WH_COMMON_API Metric
 {
 private:
     std::iostream& GetDataStream() { return *_dataStream; }
     std::unique_ptr<std::iostream> _dataStream;
     MPSCQueue<MetricData> _queuedData;
-    std::unique_ptr<Acore::Asio::DeadlineTimer> _batchTimer;
-    std::unique_ptr<Acore::Asio::DeadlineTimer> _overallStatusTimer;
+    std::unique_ptr<Warhead::Asio::DeadlineTimer> _batchTimer;
+    std::unique_ptr<Warhead::Asio::DeadlineTimer> _overallStatusTimer;
     int32 _updateInterval = 0;
     int32 _overallStatusTimerInterval = 0;
     bool _enabled = false;
@@ -103,7 +103,7 @@ public:
 
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, Acore::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, Warhead::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
     bool ShouldLog(std::string const& category, int64 value) const;
@@ -172,7 +172,7 @@ MetricStopWatch<LoggerType> MakeMetricStopWatch(LoggerType&& loggerFunc)
 #define METRIC_DETAILED_TIMER(category, ...) ((void)0)
 #define METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) ((void)0)
 #else
-#if AC_PLATFORM != AC_PLATFORM_WINDOWS
+#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
 #define METRIC_EVENT(category, title, description)                  \
         do {                                                           \
             if (sMetric->IsEnabled())                                  \

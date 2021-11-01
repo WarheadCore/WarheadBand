@@ -33,8 +33,9 @@ EndScriptData */
 #include "Realm.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class gm_commandscript : public CommandScript
 {
@@ -122,7 +123,7 @@ public:
         {
             AccountTypes playerSec = player->GetSession()->GetSecurity();
             if ((player->IsGameMaster() ||
-                 (!AccountMgr::IsPlayerAccount(playerSec) && playerSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+                 (!AccountMgr::IsPlayerAccount(playerSec) && playerSec <= AccountTypes(CONF_GET_UINT("GM.InGMList.Level")))) &&
                 (!handler->GetSession() || player->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
@@ -194,7 +195,7 @@ public:
 
         if (!visibleArg)
         {
-            handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetAcoreString(LANG_VISIBLE) : handler->GetAcoreString(LANG_INVISIBLE));
+            handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetWarheadString(LANG_VISIBLE) : handler->GetWarheadString(LANG_INVISIBLE));
             return true;
         }
 

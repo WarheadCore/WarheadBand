@@ -28,7 +28,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class achievement_commandscript : public CommandScript
 {

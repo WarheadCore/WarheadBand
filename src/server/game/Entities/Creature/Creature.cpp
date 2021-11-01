@@ -2220,8 +2220,8 @@ void Creature::CallAssistance(Unit* target /*= nullptr*/)
         {
             std::list<Creature*> assistList;
 
-            Acore::AnyAssistCreatureInRangeCheck u_check(this, target, radius);
-            Acore::CreatureListSearcher<Acore::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
+            Warhead::AnyAssistCreatureInRangeCheck u_check(this, target, radius);
+            Warhead::CreatureListSearcher<Warhead::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
             Cell::VisitGridObjects(this, searcher, radius);
 
             if (!assistList.empty())

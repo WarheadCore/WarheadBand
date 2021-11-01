@@ -29,7 +29,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class arena_commandscript : public CommandScript
 {

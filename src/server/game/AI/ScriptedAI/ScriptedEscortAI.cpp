@@ -503,8 +503,8 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
-    LOG_DEBUG("scripts.ai", "EscortAI started with " UI64FMTD " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = %s",
-        uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.ToString().c_str());
+    LOG_DEBUG("scripts.ai", "EscortAI started with {} waypoints. ActiveAttacker = {}, Run = {}, PlayerGUID = {}",
+        WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.ToString());
 
     CurrentWP = WaypointList.begin();
 

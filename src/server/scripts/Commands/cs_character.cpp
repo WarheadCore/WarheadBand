@@ -35,8 +35,9 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class character_commandscript : public CommandScript
 {
@@ -289,7 +290,7 @@ public:
         Player const* target = player->GetConnectedPlayer();
 
         LocaleConstant loc = handler->GetSessionDbcLocale();
-        char const* knownStr = handler->GetAcoreString(LANG_KNOWN);
+        char const* knownStr = handler->GetWarheadString(LANG_KNOWN);
 
         // Search in CharTitles.dbc
         for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
@@ -307,9 +308,9 @@ public:
 
                 char const* activeStr = "";
                 if (target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index)
-                    activeStr = handler->GetAcoreString(LANG_ACTIVE);
+                    activeStr = handler->GetWarheadString(LANG_ACTIVE);
 
-                std::string titleName = Acore::StringFormat(name, player->GetName().c_str());
+                std::string titleName = Warhead::StringFormat(name, player->GetName().c_str());
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
@@ -705,10 +706,10 @@ public:
      */
     static bool HandleCharacterDeletedPurgeCommand(ChatHandler* /*handler*/, Optional<uint16> days)
     {
-        int32 keepDays = static_cast<int32>(sWorld->getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS));
+        uint32 keepDays = CONF_GET_UINT("CharDelete.KeepDays");
 
         if (days)
-            keepDays = static_cast<int32>(*days);
+            keepDays = static_cast<uint32>(*days);
         else if (keepDays <= 0) // config option value 0 -> disabled and can't be used
             return false;
 

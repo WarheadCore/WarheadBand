@@ -41,11 +41,11 @@ EndScriptData */
 
 using namespace Warhead::ChatCommands;
 
-#if AC_COMPILER == AC_COMPILER_GNU
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class lookup_commandscript : public CommandScript
 {

@@ -28,7 +28,7 @@
 #include "Player.h"
 #include "SpellAuras.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 enum Spells
 {

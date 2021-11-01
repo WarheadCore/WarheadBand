@@ -1338,37 +1338,37 @@ void World::Update(uint32 diff)
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Check quest reset times"));
 
         /// Handle daily quests reset time
-        if (m_gameTime > m_NextDailyQuestReset)
+        if (currentGameTime > m_NextDailyQuestReset)
         {
             ResetDailyQuests();
         }
 
         /// Handle weekly quests reset time
-        if (m_gameTime > m_NextWeeklyQuestReset)
+        if (currentGameTime > m_NextWeeklyQuestReset)
         {
             ResetWeeklyQuests();
         }
 
         /// Handle monthly quests reset time
-        if (m_gameTime > m_NextMonthlyQuestReset)
+        if (currentGameTime > m_NextMonthlyQuestReset)
         {
             ResetMonthlyQuests();
         }
     }
 
-    if (m_gameTime > m_NextRandomBGReset)
+    if (currentGameTime > m_NextRandomBGReset)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset random BG"));
         ResetRandomBG();
     }
 
-    if (m_gameTime > m_NextCalendarOldEventsDeletionTime)
+    if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Delete old calendar events"));
         CalendarDeleteOldEvents();
     }
 
-    if (m_gameTime > m_NextGuildReset)
+    if (currentGameTime > m_NextGuildReset)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset guild cap"));
         ResetGuildCap();

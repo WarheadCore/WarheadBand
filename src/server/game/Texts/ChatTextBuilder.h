@@ -25,7 +25,7 @@
 class WorldObject;
 class WorldPacket;
 
-namespace Acore
+namespace Warhead
 {
     class BroadcastTextBuilder
     {
@@ -77,6 +77,6 @@ namespace Acore
             va_list* _args;
     };
 }
-// namespace Acore
+// namespace Warhead
 
 #endif // __CHATTEXT_BUILDER_H

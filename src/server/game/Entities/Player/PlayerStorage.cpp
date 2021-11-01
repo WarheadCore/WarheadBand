@@ -4471,10 +4471,13 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                             if (item_rand_suffix)
                             {
-                                if (item_rand_suffix->Enchantment[k] == enchant_id)
+                                for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                                 {
-                                    enchant_amount = uint32((item_rand_suffix->AllocationPct[k] * item->GetItemSuffixFactor()) / 10000);
-                                    break;
+                                    if (item_rand_suffix->Enchantment[k] == enchant_id)
+                                    {
+                                        enchant_amount = uint32((item_rand_suffix->AllocationPct[k] * item->GetItemSuffixFactor()) / 10000);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -6730,7 +6733,7 @@ void Player::PrettyPrintRequirementsAchievementsList(const std::vector<const Pro
             continue;
         }
 
-        std::string name = achievementEntry->name[sObjectMgr->GetDBCLocaleIndex()];
+        std::string name = achievementEntry->name[sGameLocale->GetDBCLocaleIndex()];
 
         std::stringstream stream;
         stream << "|cffff7c0a|Hachievement:";

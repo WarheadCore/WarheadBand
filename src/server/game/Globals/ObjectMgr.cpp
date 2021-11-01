@@ -4735,7 +4735,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                                          tableName.c_str(), tmp.Talk.ChatType, tmp.id);
                         continue;
                     }
-                    if (!GetBroadcastText(uint32(tmp.Talk.TextID)))
+                    if (!sGameLocale->GetBroadcastText(uint32(tmp.Talk.TextID)))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid talk text id (dataint = {}) in SCRIPT_COMMAND_TALK for script id {}",
                                          tableName.c_str(), tmp.Talk.TextID, tmp.id);
@@ -8419,7 +8419,7 @@ void ObjectMgr::LoadScriptNames()
     } while (result->NextRow());
 
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
-    LOG_INFO("server.loading", ">> Loaded " SZFMTD " ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} ScriptNames in %u ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

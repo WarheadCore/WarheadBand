@@ -40,12 +40,12 @@ Metric* Metric::instance()
     return &instance;
 }
 
-void Metric::Initialize(std::string const& realmName, Acore::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
+void Metric::Initialize(std::string const& realmName, Warhead::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
     _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = std::make_unique<Acore::Asio::DeadlineTimer>(ioContext);
-    _overallStatusTimer = std::make_unique<Acore::Asio::DeadlineTimer>(ioContext);
+    _batchTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(ioContext);
+    _overallStatusTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
@@ -58,7 +58,7 @@ bool Metric::Connect()
     auto error = stream.error();
     if (error)
     {
-        FMT_LOG_ERROR("metric", "Error connecting to '{}:{}', disabling Metric. Error message: {}",
+        LOG_ERROR("metric", "Error connecting to '{}:{}', disabling Metric. Error message: {}",
             _hostname, _port, error.message());
 
         _enabled = false;
@@ -77,14 +77,14 @@ void Metric::LoadFromConfigs()
 
     if (_updateInterval < 1)
     {
-        FMT_LOG_ERROR("metric", "'Metric.Interval' config set to {}, overriding to 1.", _updateInterval);
+        LOG_ERROR("metric", "'Metric.Interval' config set to {}, overriding to 1.", _updateInterval);
         _updateInterval = 1;
     }
 
     _overallStatusTimerInterval = sConfigMgr->GetOption<int32>("Metric.OverallStatusInterval", 1);
     if (_overallStatusTimerInterval < 1)
     {
-        FMT_LOG_ERROR("metric", "'Metric.OverallStatusInterval' config set to {}, overriding to 1.", _overallStatusTimerInterval);
+        LOG_ERROR("metric", "'Metric.OverallStatusInterval' config set to {}, overriding to 1.", _overallStatusTimerInterval);
         _overallStatusTimerInterval = 1;
     }
 
@@ -104,14 +104,14 @@ void Metric::LoadFromConfigs()
         std::string connectionInfo = sConfigMgr->GetOption<std::string>("Metric.ConnectionInfo", "");
         if (connectionInfo.empty())
         {
-            FMT_LOG_ERROR("metric", "'Metric.ConnectionInfo' not specified in configuration file.");
+            LOG_ERROR("metric", "'Metric.ConnectionInfo' not specified in configuration file.");
             return;
         }
 
-        std::vector<std::string_view> tokens = Acore::Tokenize(connectionInfo, ';', true);
+        std::vector<std::string_view> tokens = Warhead::Tokenize(connectionInfo, ';', true);
         if (tokens.size() != 3)
         {
-            FMT_LOG_ERROR("metric", "'Metric.ConnectionInfo' specified with wrong format in configuration file.");
+            LOG_ERROR("metric", "'Metric.ConnectionInfo' specified with wrong format in configuration file.");
             return;
         }
 
@@ -224,7 +224,7 @@ void Metric::SendBatch()
 
     if (status_code != 204)
     {
-        FMT_LOG_ERROR("metric", "Error sending data, returned HTTP code: {}", status_code);
+        LOG_ERROR("metric", "Error sending data, returned HTTP code: {}", status_code);
     }
 
     // Read and ignore the status description
@@ -268,7 +268,7 @@ void Metric::ScheduleSend()
 void Metric::Unload()
 {
     // Send what's queued only if IoContext is stopped (so only on shutdown)
-    if (_enabled && Acore::Asio::get_io_context(*_batchTimer).stopped())
+    if (_enabled && Warhead::Asio::get_io_context(*_batchTimer).stopped())
     {
         _enabled = false;
         SendBatch();
@@ -333,11 +333,11 @@ std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)
     return FormatInfluxDBValue(std::chrono::duration_cast<Milliseconds>(value).count());
 }
 
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(int8);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(uint8);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(int16);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(uint16);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(int32);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(uint32);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(int64);
-template AC_COMMON_API std::string Metric::FormatInfluxDBValue(uint64);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(int8);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(uint8);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(int16);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(uint16);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(int32);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(uint32);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(int64);
+template WH_COMMON_API std::string Metric::FormatInfluxDBValue(uint64);

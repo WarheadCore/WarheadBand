@@ -29,7 +29,7 @@
 #include "Language.h"
 #include "Player.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 using EventEntry = Variant<Hyperlink<gameevent>, uint16>;
 

@@ -24,6 +24,7 @@
 #include "Creature.h"
 #include "DynamicTree.h"
 #include "DynamicVisibility.h"
+#include "GameObjectAI.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameTime.h"
@@ -2345,8 +2346,8 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
 
 void WorldObject::GetDeadCreatureListInGrid(std::list<Creature*>& creaturedeadList, float maxSearchRange, bool alive /*= false*/) const
 {
-    Acore::AllDeadCreaturesInRange check(this, maxSearchRange, alive);
-    Acore::CreatureListSearcher<Acore::AllDeadCreaturesInRange> searcher(this, creaturedeadList, check);
+    Warhead::AllDeadCreaturesInRange check(this, maxSearchRange, alive);
+    Warhead::CreatureListSearcher<Warhead::AllDeadCreaturesInRange> searcher(this, creaturedeadList, check);
     Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
