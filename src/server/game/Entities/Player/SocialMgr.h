@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include <map>
 
+class ObjectGuid;
 class Player;
 class WorldPacket;
 
