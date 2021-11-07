@@ -1076,6 +1076,7 @@ public:
         return nullptr;
     }
 
+    CreatureDataContainer const& GetAllCreatureData() const { return _creatureDataStore; }
     [[nodiscard]] CreatureData const* GetCreatureData(ObjectGuid::LowType spawnId) const
     {
         CreatureDataContainer::const_iterator itr = _creatureDataStore.find(spawnId);
@@ -1092,6 +1093,7 @@ public:
         return itr->second;
     }
 
+    GameObjectDataContainer const& GetAllGOData() const { return _gameObjectDataStore; }
     [[nodiscard]] GameObjectData const* GetGOData(ObjectGuid::LowType spawnId) const
     {
         GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(spawnId);
