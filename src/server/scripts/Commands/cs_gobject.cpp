@@ -107,7 +107,7 @@ public:
         if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
         {
             // report to DB errors log as in loading case
-            LOG_ERROR("sql.sql", "Gameobject (Entry %u GoType: %u) have invalid displayId (%u), not spawned.", *objectId, objectInfo->type, objectInfo->displayId);
+            LOG_ERROR("sql.sql", "Gameobject (Entry {} GoType: {}) have invalid displayId ({}), not spawned.", *objectId, objectInfo->type, objectInfo->displayId);
             handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, uint32(objectId));
             handler->SetSentErrorMessage(true);
             return false;
@@ -151,7 +151,7 @@ public:
         /// @todo is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, uint32(objectId), objectInfo->name.c_str(), guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, uint32(objectId), objectInfo->name, guidLow, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 
@@ -366,7 +366,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId());
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name, object->GetSpawnId());
         return true;
     }
 
@@ -423,7 +423,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetSpawnId());
+        handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name, object->GetSpawnId());
         return true;
     }
 
@@ -489,7 +489,7 @@ public:
                 if (!gameObjectInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name.c_str(), x, y, z, mapId, "", "");
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gameObjectInfo->name, x, y, z, mapId, "", "");
 
                 ++count;
             } while (result->NextRow());
@@ -590,7 +590,7 @@ public:
             data << static_cast<uint32>(*objectState);
             object->SendMessageToSet(&data, true);
         }
-        handler->PSendSysMessage("Set gobject type %d state %u", objectType, *objectState);
+        handler->PSendSysMessage("Set gobject type {} state {}", objectType, *objectState);
         return true;
     }
 };

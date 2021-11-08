@@ -2838,7 +2838,7 @@ Map::EnterState InstanceMap::CannotEnter(Player* player, bool loginCheck)
     if (!loginCheck && player->GetMapRef().getTarget() == this)
     {
         LOG_ERROR("maps", "InstanceMap::CanEnter - player {} ({}) already in map {}, {}, {}!",
-            player->GetName().c_str(), player->GetGUID(), GetId(), GetInstanceId(), GetSpawnMode());
+            player->GetName(), player->GetGUID(), GetId(), GetInstanceId(), GetSpawnMode());
 
         return CANNOT_ENTER_ALREADY_IN_MAP;
     }
@@ -2927,7 +2927,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
             if (playerBind->save != mapSave)
             {
                 LOG_ERROR("maps", "InstanceMap::Add: player {} ({}) is permanently bound to instance {}, {}, {}, {} but he is being put into instance {}, {}, {}, {}",
-                    player->GetName().c_str(), player->GetGUID(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(),
+                    player->GetName(), player->GetGUID(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(),
                     playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->CanReset());
                 return false;
             }

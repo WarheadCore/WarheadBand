@@ -194,7 +194,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 break;
             default:
                 LOG_ERROR("network", "Player {} ({}) sent a chatmessage with an invalid language/message type combination",
-                               GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID());
+                               GetPlayer()->GetName(), GetPlayer()->GetGUID());
 
                 recvData.rfinish();
                 return;

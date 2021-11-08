@@ -51,7 +51,7 @@ bool DBUpdaterUtil::CheckExecutable()
         }
 
         LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'{}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
-            absolute(exe).generic_string().c_str());
+            absolute(exe).generic_string());
 
         return false;
     }
@@ -171,7 +171,7 @@ template<class T>
 bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
 {
     LOG_WARN("sql.updates", "Database \"{}\" does not exist, do you want to create it? [yes (default) / no]: ",
-             pool.GetConnectionInfo()->database.c_str());
+             pool.GetConnectionInfo()->database);
 
     std::string answer;
     std::getline(std::cin, answer);
@@ -226,7 +226,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
     if (!is_directory(sourceDirectory))
     {
         LOG_ERROR("sql.updates", "DBUpdater: The given source directory {} does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.",
-                  sourceDirectory.generic_string().c_str());
+                  sourceDirectory.generic_string());
         return false;
     }
 
@@ -305,7 +305,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> 
 
     auto CheckUpdateTable = [&](std::string const& tableName)
     {
-        auto checkTable = DBUpdater<T>::Retrieve(pool, Acore::StringFormat("SHOW TABLES LIKE '%s'", tableName.c_str()));
+        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName.c_str()));
         if (!checkTable)
         {
             Path const temp(GetBaseFilesDirectory() + tableName + ".sql");

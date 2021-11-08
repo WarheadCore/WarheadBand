@@ -32,6 +32,7 @@
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Timer.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -75,14 +76,13 @@ public:
                 InstanceSave const* save = bind.save;
                 uint32 resetTime = bind.extended ? save->GetExtendedResetTime() : save->GetResetTime();
                 uint32 ttr = (resetTime >= time(nullptr) ? resetTime - time(nullptr) : 0);
-                std::string timeleft = secsToTimeString(ttr);
-                handler->PSendSysMessage("map: %d, inst: %d, perm: %s, diff: %d, canReset: %s, TTR: %s%s",
-                    mapId, save->GetInstanceId(), bind.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str(), (bind.extended ? " (extended)" : ""));
+                handler->PSendSysMessage("map: {}, inst: {}, perm: {}, diff: {}, canReset: {}, TTR: {}{}",
+                    mapId, save->GetInstanceId(), bind.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", Warhead::Time::ToTimeString<Seconds>(ttr), (bind.extended ? " (extended)" : ""));
                 counter++;
             }
         }
 
-        handler->PSendSysMessage("player binds: %d", counter);
+        handler->PSendSysMessage("player binds: {}", counter);
 
         return true;
     }
@@ -113,8 +113,8 @@ public:
                 {
                     uint32 resetTime = itr->second.extended ? save->GetExtendedResetTime() : save->GetResetTime();
                     uint32 ttr = (resetTime >= time(nullptr) ? resetTime - time(nullptr) : 0);
-                    std::string timeleft = secsToTimeString(ttr);
-                    handler->PSendSysMessage("unbinding map: %d, inst: %d, perm: %s, diff: %d, canReset: %s, TTR: %s%s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str(), (itr->second.extended ? " (extended)" : ""));
+                    handler->PSendSysMessage("unbinding map: {}, inst: {}, perm: {}, diff: {}, canReset: {}, TTR: {}{}",
+                        itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", Warhead::Time::ToTimeString<Seconds>(ttr), (itr->second.extended ? " (extended)" : ""));
                     sInstanceSaveMgr->PlayerUnbindInstance(player->GetGUID(), itr->first, Difficulty(i), true, player);
                     itr = m_boundInstances.begin();
                     counter++;
@@ -124,7 +124,7 @@ public:
             }
         }
 
-        handler->PSendSysMessage("instances unbound: %d", counter);
+        handler->PSendSysMessage("instances unbound: {}", counter);
 
         return true;
     }

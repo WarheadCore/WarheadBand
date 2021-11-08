@@ -2083,7 +2083,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     if (pItemslot >= CURRENCYTOKEN_SLOT_START && pItemslot < CURRENCYTOKEN_SLOT_END)
     {
         LOG_ERROR("entities.player", "Possible hacking attempt: Player {} [{}] tried to move token [{}, entry: {}] out of the currency bag!",
-                       GetName().c_str(), GetGUID(), pItem->GetGUID(), pProto->ItemId);
+                       GetName(), GetGUID(), pItem->GetGUID(), pProto->ItemId);
         return EQUIP_ERR_ITEMS_CANT_BE_SWAPPED;
     }
 
@@ -5985,7 +5985,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     else
                     {
                         LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) which doesnt have a valid bag (Bag GUID: {}, slot: {}). Possible cheat?",
-                                       GetGUID(), GetName().c_str(), item->GetGUID(), item->GetEntry(), bagGuid, slot);
+                                       GetGUID(), GetName(), item->GetGUID(), item->GetEntry(), bagGuid, slot);
                         item->DeleteFromInventoryDB(trans);
                         delete item;
                         continue;
@@ -5998,7 +5998,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 else
                 {
                     LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) which can't be loaded into inventory (Bag GUID: {}, slot: {}) by reason {}. Item will be sent by mail.",
-                                   GetGUID(), GetName().c_str(), item->GetGUID(), item->GetEntry(), bagGuid, slot, err);
+                                   GetGUID(), GetName(), item->GetGUID(), item->GetEntry(), bagGuid, slot, err);
                     item->DeleteFromInventoryDB(trans);
                     problematicItems.push_back(item);
                 }
@@ -6043,14 +6043,14 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
             if (IsAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
             {
                 LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}', map: {}) has item ({}, entry: {}) limited to another map ({}). Deleting item.",
-                               GetGUID(), GetName().c_str(), GetMapId(), item->GetGUID(), item->GetEntry(), zoneId);
+                               GetGUID(), GetName(), GetMapId(), item->GetGUID(), item->GetEntry(), zoneId);
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
             else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_FLAG_CONJURED)
             {
                 LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}', diff: {}) has conjured item ({}, entry: {}) with expired lifetime (15 minutes). Deleting item.",
-                               GetGUID(), GetName().c_str(), timeDiff, item->GetGUID(), item->GetEntry());
+                               GetGUID(), GetName(), timeDiff, item->GetGUID(), item->GetEntry());
                 remove = true;
             }
             else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
@@ -6058,7 +6058,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                 if (item->GetPlayedTime() > (2 * HOUR))
                 {
                     LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) with expired refund time ({}). Deleting refund data and removing refundable flag.",
-                                   GetGUID(), GetName().c_str(), item->GetGUID(), item->GetEntry(), item->GetPlayedTime());
+                                   GetGUID(), GetName(), item->GetGUID(), item->GetEntry(), item->GetPlayedTime());
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
                     stmt->setUInt32(0, item->GetGUID().GetCounter());
                     trans->Append(stmt);
@@ -6081,7 +6081,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     else
                     {
                         LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) with refundable flags, but without data in item_refund_instance. Removing flag.",
-                                       GetGUID(), GetName().c_str(), item->GetGUID(), item->GetEntry());
+                                       GetGUID(), GetName(), item->GetGUID(), item->GetEntry());
                         item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                     }
                 }
@@ -6109,7 +6109,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                 else
                 {
                     LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) with ITEM_FIELD_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
-                                   GetGUID(), GetName().c_str(), item->GetGUID(), item->GetEntry());
+                                   GetGUID(), GetName(), item->GetGUID(), item->GetEntry());
                     item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                 }
             }
@@ -6131,7 +6131,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
         else
         {
             LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has broken item (GUID: {}, entry: {}) in inventory. Deleting item.",
-                           GetGUID(), GetName().c_str(), itemGuid, itemEntry);
+                           GetGUID(), GetName(), itemGuid, itemEntry);
             remove = true;
         }
         // Remove item from inventory if necessary
@@ -6146,7 +6146,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
     else
     {
         LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has unknown item (entry: {}) in inventory. Deleting item.",
-                       GetGUID(), GetName().c_str(), itemEntry);
+                       GetGUID(), GetName(), itemEntry);
         Item::DeleteFromInventoryDB(trans, itemGuid);
         Item::DeleteFromDB(trans, itemGuid);
     }
@@ -6162,8 +6162,8 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
     if (!proto)
     {
-        LOG_ERROR("entities.player", "Player %s (%s) has unknown item in mailed items (GUID: %u, Entry: %u) in mail (%u), deleted.",
-            player ? player->GetName().c_str() : "<unknown>", playerGuid.ToString().c_str(), itemGuid, itemEntry, mailId);
+        LOG_ERROR("entities.player", "Player {} ({}) has unknown item in mailed items (GUID: {}, Entry: {}) in mail ({}), deleted.",
+            player ? player->GetName() : "<unknown>", playerGuid.ToString(), itemGuid, itemEntry, mailId);
 
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -6180,7 +6180,7 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
     ObjectGuid ownerGuid = fields[13].GetUInt32() ? ObjectGuid::Create<HighGuid::Player>(fields[13].GetUInt32()) : ObjectGuid::Empty;
     if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
     {
-        LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: %u) in mail (%u) doesn't exist, deleted from mail.", itemGuid, mailId);
+        LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: {}) in mail ({}) doesn't exist, deleted from mail.", itemGuid, mailId);
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
         stmt->setUInt32(0, itemGuid);
@@ -6240,7 +6240,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
 
             if (m->mailTemplateId && !sMailTemplateStore.LookupEntry(m->mailTemplateId))
             {
-                LOG_ERROR("entities.player", "Player::_LoadMail: Mail (%u) has nonexistent MailTemplateId (%u), remove at load", m->messageID, m->mailTemplateId);
+                LOG_ERROR("entities.player", "Player::_LoadMail: Mail ({}) has nonexistent MailTemplateId ({}), remove at load", m->messageID, m->mailTemplateId);
                 m->mailTemplateId = 0;
             }
 
@@ -6351,7 +6351,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 {
                     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
                     LOG_ERROR("entities.player", "Player {} ({}) has invalid quest {} status ({}), replaced by QUEST_STATUS_INCOMPLETE(3).",
-                                   GetName().c_str(), GetGUID(), quest_id, qstatus);
+                                   GetName(), GetGUID(), quest_id, qstatus);
                 }
 
                 questStatusData.Explored = (fields[2].GetUInt8() > 0);
@@ -7409,7 +7409,7 @@ void Player::_SaveInventory(CharacterDatabaseTransaction trans)
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
                     bagTestGUID = test2->GetGUID().GetCounter();
                 LOG_ERROR("entities.player", "Player(GUID: {} Name: {})::_SaveInventory - the bag({}) and slot({}) values for the item {} (state {}) are incorrect, the player doesn't have an item at that position!",
-                    lowGuid, GetName().c_str(), item->GetBagSlot(), item->GetSlot(), item->GetGUID(), (int32)item->GetState());
+                    lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID(), (int32)item->GetState());
                 // according to the test that was just performed nothing should be in this slot, delete
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_BAG_SLOT);
                 stmt->setUInt32(0, bagTestGUID);
@@ -7430,7 +7430,7 @@ void Player::_SaveInventory(CharacterDatabaseTransaction trans)
             else if (test != item)
             {
                 LOG_ERROR("entities.player", "Player(GUID: {} Name: {})::_SaveInventory - the bag({}) and slot({}) values for the item ({}) are incorrect, the item ({}) is there instead!",
-                    lowGuid, GetName().c_str(), item->GetBagSlot(), item->GetSlot(), item->GetGUID(), test->GetGUID());
+                    lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID(), test->GetGUID());
                 // save all changes to the item...
                 if (item->GetState() != ITEM_NEW) // only for existing items, no dupes
                     item->SaveToDB(trans);

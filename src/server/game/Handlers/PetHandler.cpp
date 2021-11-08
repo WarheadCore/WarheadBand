@@ -390,7 +390,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     if (!pet)
     {
         LOG_DEBUG("network", "Vanitypet ({}) does not exist - player {} ({} / account: {}) attempted to dismiss it (possibly lagged out)",
-            guid, GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID(), GetAccountId());
+            guid, GetPlayer()->GetName(), GetPlayer()->GetGUID(), GetAccountId());
         return;
     }
 

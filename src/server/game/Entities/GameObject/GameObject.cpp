@@ -1968,7 +1968,7 @@ void GameObject::Use(Unit* user)
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 LOG_ERROR("entities.gameobject", "GameObject::Use(): unit ({}, name: {}) tries to use object ({}, name: {}) of unknown type ({})",
-                               user->GetGUID(), user->GetName().c_str(), GetGUID(),  GetGOInfo()->name.c_str(), GetGoType());
+                               user->GetGUID(), user->GetName(), GetGUID(),  GetGOInfo()->name, GetGoType());
             break;
     }
 

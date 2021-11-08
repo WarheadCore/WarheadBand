@@ -82,7 +82,7 @@ void UpdateFetcher::FillFileListRecursively(Path const& path, LocaleFileStorage&
             if (storage.find(entry) != storage.end())
             {
                 LOG_FATAL("sql.updates", "Duplicate filename \"{}\" occurred. Because updates are ordered " \
-                          "by their filenames, every name needs to be unique!", itr->path().generic_string().c_str());
+                          "by their filenames, every name needs to be unique!", itr->path().generic_string());
 
                 throw UpdateException("Updating failed, see the log for details.");
             }
@@ -109,7 +109,7 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
             DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert("MODULE")};
             directories.push_back(entry);
 
-            LOG_TRACE("sql.updates", "Added applied extra file \"%s\" from remote.", p.filename().generic_string().c_str());
+            LOG_TRACE("sql.updates", "Added applied extra file \"{}\" from remote.", p.filename().generic_string());
         }
     }
     else
@@ -131,20 +131,20 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 
             if (!is_directory(p))
             {
-                LOG_WARN("sql.updates", "DBUpdater: Given update include directory \"%s\" does not exist, skipped!", p.generic_string().c_str());
+                LOG_WARN("sql.updates", "DBUpdater: Given update include directory \"{}\" does not exist, skipped!", p.generic_string());
                 continue;
             }
 
             DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert(state)};
             directories.push_back(entry);
 
-            LOG_TRACE("sql.updates", "Added applied file \"%s\" '%s' state from remote.", p.filename().generic_string().c_str(), state.c_str());
+            LOG_TRACE("sql.updates", "Added applied file \"{}\" '{}' state from remote.", p.filename().generic_string(), state);
 
         } while (result->NextRow());
 
         std::vector<std::string> moduleList;
 
-        auto const& _modulesTokens = Acore::Tokenize(AC_MODULES_LIST, ',', true);
+        auto const& _modulesTokens = Warhead::Tokenize(WH_MODULES_LIST, ',', true);
         for (auto const& itr : _modulesTokens) moduleList.emplace_back(itr);
 
         // data/sql
@@ -159,7 +159,7 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
             DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert("MODULE")};
             directories.push_back(entry);
 
-            LOG_TRACE("sql.updates", "Added applied modules file \"%s\" from remote.", p.filename().generic_string().c_str());
+            LOG_TRACE("sql.updates", "Added applied modules file \"{}\" from remote.", p.filename().generic_string());
         }
     }
 
@@ -197,7 +197,7 @@ std::string UpdateFetcher::ReadSQLUpdate(Path const& file) const
         LOG_FATAL("sql.updates", "Failed to open the sql update \"{}\" for reading! "
                   "Stopping the server to keep the database integrity, "
                   "try to identify and solve the issue or disable the database updater.",
-                  file.generic_string().c_str());
+                  file.generic_string());
 
         throw UpdateException("Opening the sql update failed!");
     }
@@ -293,13 +293,13 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
                 {
                     LOG_WARN("sql.updates", ">> It seems like the update \"{}\" \'{}\' was renamed, but the old file is still there! " \
                              "Treating it as a new file! (It is probably an unmodified copy of the file \"{}\")",
-                             filePath.filename().string().c_str(), hash.substr(0, 7).c_str(),
-                             localeIter->first.filename().string().c_str());
+                             filePath.filename().string(), hash.substr(0, 7),
+                             localeIter->first.filename().string());
                 }
                 else // It is safe to treat the file as renamed here
                 {
                     LOG_INFO("sql.updates", ">> Renaming update \"{}\" to \"{}\" \'{}\'.",
-                             hashIter->second.c_str(), filePath.filename().string().c_str(), hash.substr(0, 7).c_str());
+                             hashIter->second, filePath.filename().string(), hash.substr(0, 7));
 
                     RenameEntry(hashIter->second, filePath.filename().string());
                     applied.erase(hashIter->second);
@@ -310,7 +310,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             else
             {
                 LOG_INFO("sql.updates", ">> Applying update \"{}\" \'{}\'...",
-                    filePath.filename().string().c_str(), hash.substr(0, 7).c_str());
+                    filePath.filename().string(), hash.substr(0, 7));
             }
         }
         // Rehash the update entry if it exists in our database with an empty hash.
@@ -319,7 +319,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             mode = MODE_REHASH;
 
             LOG_INFO("sql.updates", ">> Re-hashing update \"{}\" \'{}\'...", filePath.filename().string(),
-                hash.substr(0, 7).c_str());
+                hash.substr(0, 7));
         }
         else
         {
@@ -327,7 +327,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             if (iter->second.hash != hash)
             {
                 LOG_INFO("sql.updates", ">> Reapplying update \"{}\" \'{}\' -> \'{}\' (it changed)...", filePath.filename().string(),
-                    iter->second.hash.substr(0, 7).c_str(), hash.substr(0, 7).c_str());
+                    iter->second.hash.substr(0, 7), hash.substr(0, 7));
             }
             else
             {
@@ -335,7 +335,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
                 if (iter->second.state != fileState)
                 {
                     LOG_DEBUG("sql.updates", ">> Updating the state of \"{}\" to \'{}\'...",
-                              filePath.filename().string().c_str(), AppliedFileEntry::StateConvert(fileState).c_str());
+                              filePath.filename().string(), AppliedFileEntry::StateConvert(fileState));
 
                     UpdateState(filePath.filename().string(), fileState);
                 }
@@ -392,13 +392,13 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             if (entry.second.state != MODULE)
             {
                 LOG_WARN("sql.updates",
-                         ">> The file \'%s\' was applied to the database, but is missing in"
+                         ">> The file \'{}\' was applied to the database, but is missing in"
                          " your update directory now!",
-                         entry.first.c_str());
+                         entry.first);
 
                 if (doCleanup)
                 {
-                    LOG_INFO("sql.updates", "Deleting orphaned entry \'%s\'...", entry.first.c_str());
+                    LOG_INFO("sql.updates", "Deleting orphaned entry \'{}\'...", entry.first);
                     toCleanup.insert(entry);
                 }
             }
@@ -411,7 +411,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             else
             {
                 LOG_ERROR("sql.updates",
-                          "Cleanup is disabled! There were " SZFMTD " dirty files applied to your database, "
+                          "Cleanup is disabled! There were {} dirty files applied to your database, "
                           "but they are now missing in your source directory!",
                           toCleanup.size());
             }

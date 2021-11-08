@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -73,7 +73,7 @@ private:
 
 using WhoListInfoVector = std::vector<WhoListPlayerInfo>;
 
-class AC_GAME_API WhoListCacheMgr
+class WH_GAME_API WhoListCacheMgr
 {
     WhoListCacheMgr() = default;
     ~WhoListCacheMgr() = default;

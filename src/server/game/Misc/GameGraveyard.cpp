@@ -115,7 +115,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(Player* player, TeamId tea
     {
         if (z > -500)
         {
-            LOG_ERROR("sql.sql", "GetClosestGraveyard: unable to find zoneId and areaId for map %u coords (%f, %f, %f)", mapId, x, y, z);
+            LOG_ERROR("sql.sql", "GetClosestGraveyard: unable to find zoneId and areaId for map {} coords ({}, {}, {})", mapId, x, y, z);
             return GetDefaultGraveyard(teamId);
         }
     }
@@ -177,7 +177,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(Player* player, TeamId tea
         GraveyardStruct const* entry = sGraveyard->GetGraveyard(graveyardLink.safeLocId);
         if (!entry)
         {
-            LOG_ERROR("sql.sql", "Table `graveyard_zone` has record for not existing `game_graveyard` table %u, skipped.", graveyardLink.safeLocId);
+            LOG_ERROR("sql.sql", "Table `graveyard_zone` has record for not existing `game_graveyard` table {}, skipped.", graveyardLink.safeLocId);
             continue;
         }
 

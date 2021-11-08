@@ -297,7 +297,7 @@ public:
                         if (!spellInfo)
                         {
                             LOG_ERROR("misc", "Player::CastItemCombatSpell Enchant {}, player (Name: {}, {}) cast unknown spell {}",
-                                enchant->ID, player->GetName().c_str(), player->GetGUID(), enchant->spellid[s]);
+                                enchant->ID, player->GetName(), player->GetGUID(), enchant->spellid[s]);
                             continue;
                         }
 

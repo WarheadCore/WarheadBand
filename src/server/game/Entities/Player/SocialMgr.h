@@ -20,9 +20,9 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "ObjectGuid.h"
 #include <map>
 
-class ObjectGuid;
 class Player;
 class WorldPacket;
 

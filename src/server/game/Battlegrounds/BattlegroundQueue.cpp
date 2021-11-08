@@ -1107,12 +1107,12 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
         uint32 qPlayers = GetPlayersCountInGroupsQueue(bracketId, BG_QUEUE_NORMAL_HORDE) + GetPlayersCountInGroupsQueue(bracketId, BG_QUEUE_NORMAL_ALLIANCE);
 
         LOG_DEBUG("bg.arena", "> Queue status for {} (skirmish {}) (Lvl: {} to {}) Queued: {} (Need at least {} more)",
-            bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
+            bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
 
         if (CONF_GET_BOOL("Arena.QueueAnnouncer.PlayerOnly"))
         {
             ChatHandler(leader->GetSession()).PSendSysMessage(LANG_ARENA_QUEUE_ANNOUNCE_SELF,
-                bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
+                bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
         }
         else
         {

@@ -78,7 +78,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
     if (GetPlayer()->getDeathState() == JUST_DIED)
     {
         LOG_DEBUG("network", "HandleRepopRequestOpcode: got request after player {} ({}) was killed and before he was updated",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID());
+            GetPlayer()->GetName(), GetPlayer()->GetGUID());
         GetPlayer()->KillPlayer();
     }
 
@@ -239,7 +239,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         uint32 temp;
         recvData >> temp;                                   // zone id, 0 if zone is unknown...
         zoneids[i] = temp;
-        FMT_LOG_DEBUG("network.who", "Zone {}: {}", i, zoneids[i]);
+        LOG_DEBUG("network.who", "Zone {}: {}", i, zoneids[i]);
     }
 
     recvData >> strCount;                                   // user entered strings count, client limit=4 (checked on 2.0.10)
@@ -247,7 +247,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     if (strCount > 4)
         return;                                             // can't be received from real client or broken packet
 
-    FMT_LOG_DEBUG("network.who", "Minlvl {}, maxlvl {}, name {}, guild {}, racemask {}, classmask {}, zones {}, strings {}",
+    LOG_DEBUG("network.who", "Minlvl {}, maxlvl {}, name {}, guild {}, racemask {}, classmask {}, zones {}, strings {}",
         levelMin, levelMax, packetPlayerName, packetGuildName, racemask, classmask, zonesCount, strCount);
 
     std::wstring str[4];                                    // 4 is client limit
@@ -261,7 +261,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         wstrToLower(str[i]);
 
-        FMT_LOG_DEBUG("network.who", "String {}: {}", i, temp);
+        LOG_DEBUG("network.who", "String {}: {}", i, temp);
     }
 
     std::wstring wpacketPlayerName;
@@ -272,7 +272,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     wstrToLower(wpacketPlayerName);
     wstrToLower(wpacketGuildName);;
 
-    // client send in case not set max level value 100 but Acore supports 255 max level,
+    // client send in case not set max level value 100 but Warhead supports 255 max level,
     // update it to show GMs with characters after 100 level
     if (levelMax >= MAX_LEVEL)
         levelMax = STRONG_MAX_LEVEL;
@@ -394,9 +394,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         // 49 is maximum player count sent to client - can be overridden
         // through config, but is unstable
-        if ((matchcount++) >= CONF_GET_UINT("MaxWhoListReturns"))
+        if ((matchCount++) >= CONF_GET_UINT("MaxWhoListReturns"))
             continue;
-        }
 
         data << target.GetPlayerName();                   // player name
         data << target.GetGuildName();                    // guild name
@@ -413,7 +412,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     data.put(4, matchCount);                              // insert right count, count of matches
 
     SendPacket(&data);
-    FMT_LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
+    LOG_DEBUG("network", "WORLD: Send SMSG_WHO Message");
 }
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recv_data*/)
@@ -731,7 +730,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     if (player->IsInFlight())
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' ({}) in flight, ignore Area Trigger ID:{}",
-                       player->GetName().c_str(), player->GetGUID(), triggerId);
+                       player->GetName(), player->GetGUID(), triggerId);
         return;
     }
 
@@ -739,14 +738,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     if (!atEntry)
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player '{}' ({}) send unknown (by DBC) Area Trigger ID:{}",
-                       player->GetName().c_str(), player->GetGUID(), triggerId);
+                       player->GetName(), player->GetGUID(), triggerId);
         return;
     }
 
     if (!player->IsInAreaTriggerRadius(atEntry))
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player {} ({}) too far (trigger map: {} player map: {}), ignore Area Trigger ID: {}",
-                       player->GetName().c_str(), player->GetGUID(), atEntry->map, player->GetMapId(), triggerId);
+                       player->GetName(), player->GetGUID(), atEntry->map, player->GetMapId(), triggerId);
         return;
     }
 
@@ -958,7 +957,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
                 break;
             default:
                 LOG_ERROR("network.opcode", "MISC: Unknown action button type {} for action {} into button {} for player {} ({})",
-                    type, action, button, _player->GetName().c_str(), _player->GetGUID());
+                    type, action, button, _player->GetName(), _player->GetGUID());
                 return;
         }
         GetPlayer()->addActionButton(button, action, type);
@@ -1205,7 +1204,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recv_data)
     SendPacket(&data);
 
     LOG_DEBUG("network", "REPORT SPAM: type {}, {}, unk1 {}, unk2 {}, unk3 {}, unk4 {}, message {}",
-        spam_type, spammer_guid, unk1, unk2, unk3, unk4, description.c_str());
+        spam_type, spammer_guid, unk1, unk2, unk3, unk4, description);
 }
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recv_data)
@@ -1682,7 +1681,7 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     if (!_player->HasPendingBind() || _player->GetPendingBind() != _player->GetInstanceId() || (_player->GetGroup() && _player->GetGroup()->isLFGGroup() && _player->GetGroup()->IsLfgRandomInstance()))
     {
         LOG_DEBUG("network.opcode", "InstanceLockResponse: Player {} ({}) tried to bind himself/teleport to graveyard without a pending bind!",
-            _player->GetName().c_str(), _player->GetGUID());
+            _player->GetName(), _player->GetGUID());
         return;
     }
 

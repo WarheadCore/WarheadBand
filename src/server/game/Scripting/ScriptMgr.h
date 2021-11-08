@@ -1975,7 +1975,7 @@ private:
     ScriptLoaderCallbackType _script_loader_callback;
 };
 
-namespace Acore::SpellScripts
+namespace Warhead::SpellScripts
 {
     template<typename T>
     using is_SpellScript = std::is_base_of<SpellScript, T>;
@@ -1987,9 +1987,9 @@ namespace Acore::SpellScripts
 template <typename... Ts>
 class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
 {
-    using SpellScriptType = typename Acore::find_type_if_t<Acore::SpellScripts::is_SpellScript, Ts...>;
-    using AuraScriptType = typename Acore::find_type_if_t<Acore::SpellScripts::is_AuraScript, Ts...>;
-    using ArgsType = typename Acore::find_type_if_t<Acore::is_tuple, Ts...>;
+    using SpellScriptType = typename Warhead::find_type_if_t<Warhead::SpellScripts::is_SpellScript, Ts...>;
+    using AuraScriptType = typename Warhead::find_type_if_t<Warhead::SpellScripts::is_AuraScript, Ts...>;
+    using ArgsType = typename Warhead::find_type_if_t<Warhead::is_tuple, Ts...>;
 
 public:
     GenericSpellAndAuraScriptLoader(char const* name, ArgsType&& args) : SpellScriptLoader(name), _args(std::move(args)) { }
@@ -1997,9 +1997,9 @@ public:
 private:
     SpellScript* GetSpellScript() const override
     {
-        if constexpr (!std::is_same_v<SpellScriptType, Acore::find_type_end>)
+        if constexpr (!std::is_same_v<SpellScriptType, Warhead::find_type_end>)
         {
-            return Acore::new_from_tuple<SpellScriptType>(_args);
+            return Warhead::new_from_tuple<SpellScriptType>(_args);
         }
         else
         {
@@ -2009,9 +2009,9 @@ private:
 
     AuraScript* GetAuraScript() const override
     {
-        if constexpr (!std::is_same_v<AuraScriptType, Acore::find_type_end>)
+        if constexpr (!std::is_same_v<AuraScriptType, Warhead::find_type_end>)
         {
-            return Acore::new_from_tuple<AuraScriptType>(_args);
+            return Warhead::new_from_tuple<AuraScriptType>(_args);
         }
         else
         {
@@ -2146,7 +2146,7 @@ public:
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("Smart") == std::string::npos)
                         LOG_ERROR("sql.sql", "Script named '{}' is not assigned in the database.",
-                                         script->GetName().c_str());
+                                         script->GetName());
                 }
             }
             else
@@ -2180,7 +2180,7 @@ private:
             if (it->second == script)
             {
                 LOG_ERROR("scripts", "Script '{}' has same memory pointer as '{}'.",
-                               script->GetName().c_str(), it->second->GetName().c_str());
+                               script->GetName(), it->second->GetName());
 
                 return false;
             }

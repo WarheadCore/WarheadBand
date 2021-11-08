@@ -37,8 +37,8 @@ void GetPlayerInfo(ChatHandler*  handler, Player* player)
 
     std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
     handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName(),
-                             state.c_str(), uint8(dungeons.size()), lfg::ConcatenateDungeons(dungeons).c_str(),
-                             lfg::GetRolesString(sLFGMgr->GetRoles(guid)).c_str(), sLFGMgr->GetComment(guid).c_str());
+                             state, uint8(dungeons.size()), lfg::ConcatenateDungeons(dungeons),
+                             lfg::GetRolesString(sLFGMgr->GetRoles(guid)), sLFGMgr->GetComment(guid));
 }
 
 using namespace Warhead::ChatCommands;
@@ -94,14 +94,14 @@ public:
             groupTarget = target->GetGroup();
         if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, player->GetName().c_str());
+            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, player->GetName());
             return true;
         }
 
         ObjectGuid guid = groupTarget->GetGUID();
         std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
         handler->PSendSysMessage(LANG_LFG_GROUP_INFO, groupTarget->isLFGGroup(),
-                                 state.c_str(), sLFGMgr->GetDungeon(guid));
+                                 state, sLFGMgr->GetDungeon(guid));
 
         for (GroupReference* itr = groupTarget->GetFirstMember(); itr != nullptr; itr = itr->next())
             GetPlayerInfo(handler, itr->GetSource());

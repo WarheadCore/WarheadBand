@@ -345,7 +345,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     }
 
     LOG_DEBUG("vehicles", "Unit {} enter vehicle entry {} id {} ({}) seat {}",
-        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID(), (int32)seat->first);
+        unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID(), (int32)seat->first);
 
     seat->second.Passenger.Guid = unit->GetGUID();
     seat->second.Passenger.IsUnselectable = unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -454,12 +454,12 @@ void Vehicle::RemovePassenger(Unit* unit)
     if (seat == Seats.end())
     {
         LOG_ERROR("vehicles", "Vehicle::RemovePassenger: Vehicle entry ({}) id ({}) is dissmised and removed all existing passangers, but the unit ({}) was not on the vehicle!",
-            _me->GetEntry(), _vehicleInfo->m_ID, unit->GetName().c_str());
+            _me->GetEntry(), _vehicleInfo->m_ID, unit->GetName());
         return;
     }
 
     LOG_DEBUG("vehicles", "Unit {} exit vehicle entry {} id {} ({}) seat {}",
-        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID(), (int32)seat->first);
+        unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID(), (int32)seat->first);
 
     if (seat->second.SeatInfo->CanEnterOrExit() && ++_usableSeatNum)
         _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));

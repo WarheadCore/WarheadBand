@@ -154,7 +154,7 @@ public:
 
             if (!targets.empty())
             {
-                Acore::Containers::RandomResize(targets, 1);
+                Warhead::Containers::RandomResize(targets, 1);
             }
         }
 

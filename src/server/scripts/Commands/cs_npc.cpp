@@ -301,7 +301,7 @@ public:
 
         sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, item->Name1.c_str(), maxcount, incrtime, extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, item->Name1, maxcount, incrtime, extendedcost);
         return true;
     }
 
@@ -438,7 +438,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, item->Name1.c_str());
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, item->Name1);
         return true;
     }
 
@@ -557,7 +557,7 @@ public:
 
         creature->AI()->SetData(data_1, data_2);
         std::string AIorScript = !creature->GetAIName().empty() ? "AI type: " + creature->GetAIName() : (!creature->GetScriptName().empty() ? "Script Name: " + creature->GetScriptName() : "No AI or Script Name Set");
-        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID().GetCounter(), creature->GetEntry(), creature->GetName().c_str(), data_1, data_2, AIorScript.c_str());
+        handler->PSendSysMessage(LANG_NPC_SETDATA, creature->GetGUID().GetCounter(), creature->GetEntry(), creature->GetName(), data_1, data_2, AIorScript);
         return true;
     }
 
@@ -613,7 +613,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
         handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS), target->GetUInt32Value(UNIT_FIELD_FLAGS_2), target->GetUInt32Value(UNIT_DYNAMIC_FLAGS), target->GetFaction());
-        handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
+        handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr, curRespawnDelayStr);
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
         handler->PSendSysMessage(LANG_NPCINFO_PHASEMASK, target->GetPhaseMask());
@@ -685,7 +685,7 @@ public:
                 if (!creatureTemplate)
                     continue;
 
-                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, creatureTemplate->Name.c_str(), x, y, z, mapId, "", "");
+                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, creatureTemplate->Name, x, y, z, mapId, "", "");
 
                 ++count;
             } while (result->NextRow());
@@ -788,7 +788,7 @@ public:
 
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, Warhead::ToString(displayId).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, Warhead::ToString(displayId));
             handler->SetSentErrorMessage(true);
             return false;
         }

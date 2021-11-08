@@ -248,9 +248,9 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         uint64 minTime = uint64(cur_time - lastTime);
         uint64 fullTime = uint64(lastTime - firstTime);
 
-        LOG_DEBUG("network", "Send all time packets count: " UI64FMTD " bytes: " UI64FMTD " avr.count/sec: {} avr.bytes/sec: {} time: {}", sendPacketCount, sendPacketBytes, float(sendPacketCount) / fullTime, float(sendPacketBytes) / fullTime, uint32(fullTime));
+        LOG_DEBUG("network", "Send all time packets count: {} bytes: {} avr.count/sec: {} avr.bytes/sec: {} time: {}", sendPacketCount, sendPacketBytes, float(sendPacketCount) / fullTime, float(sendPacketBytes) / fullTime, uint32(fullTime));
 
-        LOG_DEBUG("network", "Send last min packets count: " UI64FMTD " bytes: " UI64FMTD " avr.count/sec: {} avr.bytes/sec: {}", sendLastPacketCount, sendLastPacketBytes, float(sendLastPacketCount) / minTime, float(sendLastPacketBytes) / minTime);
+        LOG_DEBUG("network", "Send last min packets count: {} bytes: {} avr.count/sec: {} avr.bytes/sec: {}", sendLastPacketCount, sendLastPacketBytes, float(sendLastPacketCount) / minTime, float(sendLastPacketBytes) / minTime);
 
         lastTime = cur_time;
         sendLastPacketCount = 1;
@@ -279,7 +279,7 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, char const* status, const char* reason)
 {
     LOG_ERROR("network.opcode", "Received unexpected opcode {} Status: {} Reason: {} from {}",
-        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), status, reason, GetPlayerInfo().c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), status, reason, GetPlayerInfo());
 }
 
 /// Logging helper for unexpected opcodes
@@ -289,7 +289,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
         return;
 
     LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at {} from {}) Opcode {} from {}",
-        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        uint32(packet->rpos()), uint32(packet->wpos()), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
 
     packet->print_storage();
 }
@@ -388,18 +388,18 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     break;
                 case STATUS_NEVER:
                     LOG_ERROR("network.opcode", "Received not allowed opcode {} from {}",
-                        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
                     break;
                 case STATUS_UNHANDLED:
                     LOG_DEBUG("network.opcode", "Received not handled opcode {} from {}",
-                        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
                     break;
             }
         }
         catch (WorldPackets::InvalidHyperlinkException const& ihe)
         {
-            LOG_ERROR("network", "%s sent %s with an invalid link:\n%s", GetPlayerInfo().c_str(),
-                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), ihe.GetInvalidValue().c_str());
+            LOG_ERROR("network", "{} sent {} with an invalid link:\n{}", GetPlayerInfo(),
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), ihe.GetInvalidValue());
 
             if (CONF_GET_BOOL("ChatStrictLinkChecking.Kick"))
             {
@@ -408,8 +408,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         catch (WorldPackets::IllegalHyperlinkException const& ihe)
         {
-            LOG_ERROR("network", "%s sent %s which illegally contained a hyperlink:\n%s", GetPlayerInfo().c_str(),
-                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), ihe.GetInvalidValue().c_str());
+            LOG_ERROR("network", "{} sent {} which illegally contained a hyperlink:\n{}", GetPlayerInfo(),
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), ihe.GetInvalidValue());
 
             if (CONF_GET_BOOL("ChatStrictLinkChecking.Kick"))
             {
@@ -419,7 +419,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
         {
             LOG_ERROR("network", "PacketArrayMaxCapacityException: {} while parsing {} from {}.",
-                pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
         }
         catch (ByteBufferException const&)
         {
@@ -681,8 +681,8 @@ void WorldSession::LogoutPlayer(bool save)
 
         METRIC_EVENT("player_events", "Logout", _player->GetName());
 
-        LOG_INFO("entities.player", "Account: %d (IP: %s) Logout Character:[%s] (%s) Level: %d",
-            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->getLevel());
+        LOG_INFO("entities.player", "Account: {} (IP: {}) Logout Character:[{}] ({}) Level: {}",
+            GetAccountId(), GetRemoteAddress(), _player->GetName(), _player->GetGUID().ToString(), _player->getLevel());
 
         //! Remove the player from the world
         // the player may not be in the world when logging out
@@ -720,7 +720,7 @@ void WorldSession::KickPlayer(std::string const& reason, bool setKicked)
     if (m_Socket)
     {
         LOG_INFO("network.kick", "Account: {} Character: '{}' {} kicked with reason: {}", GetAccountId(), _player ? _player->GetName() : "<none>",
-            _player ? _player->GetGUID().ToString() : "", reason.c_str());
+            _player ? _player->GetGUID().ToString() : "", reason);
 
         m_Socket->CloseSocket();
     }
@@ -780,25 +780,25 @@ char const* WorldSession::GetWarheadString(uint32 entry) const
 void WorldSession::Handle_NULL(WorldPacket& null)
 {
     LOG_ERROR("network.opcode", "Received unhandled opcode {} from {}",
-        GetOpcodeNameForLogging(static_cast<OpcodeClient>(null.GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(null.GetOpcode())), GetPlayerInfo());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
     LOG_ERROR("network.opcode", "Received opcode {} that must be processed in WorldSocket::ReadDataHandler from {}",
-        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())), GetPlayerInfo());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
     LOG_ERROR("network.opcode", "Received server-side opcode {} from {}",
-        GetOpcodeNameForLogging(static_cast<OpcodeServer>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeServer>(recvPacket.GetOpcode())), GetPlayerInfo());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
     LOG_ERROR("network.opcode", "Received deprecated opcode {} from {}",
-        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())).c_str(), GetPlayerInfo().c_str());
+        GetOpcodeNameForLogging(static_cast<OpcodeClient>(recvPacket.GetOpcode())), GetPlayerInfo());
 }
 
 void WorldSession::SendAuthWaitQueue(uint32 position)
@@ -1299,7 +1299,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
         return true;
 
     LOG_WARN("network", "AntiDOS: Account {}, IP: {}, Ping: {}, Character: {}, flooding packet (opc: {} (0x{:X}), count: {})",
-        Session->GetAccountId(), Session->GetRemoteAddress().c_str(), Session->GetLatency(), Session->GetPlayerName().c_str(),
+        Session->GetAccountId(), Session->GetRemoteAddress(), Session->GetLatency(), Session->GetPlayerName(),
         opcodeTable[static_cast<OpcodeClient>(p.GetOpcode())]->Name, p.GetOpcode(), packetCounter.amountCounter);
 
     switch (_policy)

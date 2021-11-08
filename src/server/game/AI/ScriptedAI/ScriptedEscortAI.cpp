@@ -457,7 +457,7 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-        LOG_ERROR("entities.unit.ai", "EscortAI (script: %s, creature entry: %u) attempts to Start while already escorting", me->GetScriptName().c_str(), me->GetEntry());
+        LOG_ERROR("entities.unit.ai", "EscortAI (script: {}, creature entry: {}) attempts to Start while already escorting", me->GetScriptName(), me->GetEntry());
         return;
     }
 
@@ -470,8 +470,8 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     if (WaypointList.empty())
     {
-        LOG_ERROR("sql.sql", "EscortAI (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).",
-                         me->GetScriptName().c_str(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
+        LOG_ERROR("sql.sql", "EscortAI (script: {}, creature entry: {}) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {}).",
+                         me->GetScriptName(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
         return;
     }
 

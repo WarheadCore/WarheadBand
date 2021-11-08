@@ -443,7 +443,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
             pkt << uint8(1);
 
         LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] account {} is using '{}' locale ({})",
-            ipAddress.c_str(), port, _accountInfo.Login.c_str(), _localizationName.c_str(), GetLocaleByName(_localizationName));
+            ipAddress, port, _accountInfo.Login, _localizationName, GetLocaleByName(_localizationName));
 
         _status = STATUS_LOGON_PROOF;
     }
@@ -564,7 +564,7 @@ bool AuthSession::HandleLogonProof()
         SendPacket(packet);
 
         LOG_INFO("server.authserver.hack", "'{}:{}' [AuthChallenge] account {} tried to login with invalid password!",
-            GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountInfo.Login.c_str());
+            GetRemoteIpAddress().to_string(), GetRemotePort(), _accountInfo.Login);
 
         uint32 MaxWrongPassCount = sConfigMgr->GetOption<int32>("WrongPass.MaxCount", 0);
 
@@ -599,7 +599,7 @@ bool AuthSession::HandleLogonProof()
                     LoginDatabase.Execute(stmt);
 
                     LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] account {} got banned for '{}' seconds because it failed to authenticate '{}' times",
-                        GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountInfo.Login.c_str(), WrongPassBanTime, _accountInfo.FailedLogins);
+                        GetRemoteIpAddress().to_string(), GetRemotePort(), _accountInfo.Login, WrongPassBanTime, _accountInfo.FailedLogins);
                 }
                 else
                 {
@@ -609,7 +609,7 @@ bool AuthSession::HandleLogonProof()
                     LoginDatabase.Execute(stmt);
 
                     LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] IP got banned for '{}' seconds because account {} failed to authenticate '{}' times",
-                        GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), WrongPassBanTime, _accountInfo.Login.c_str(), _accountInfo.FailedLogins);
+                        GetRemoteIpAddress().to_string(), GetRemotePort(), WrongPassBanTime, _accountInfo.Login, _accountInfo.FailedLogins);
                 }
             }
         }
@@ -722,7 +722,7 @@ bool AuthSession::HandleReconnectProof()
     else
     {
         LOG_ERROR("server.authserver.hack", "'{}:{}' [ERROR] user {} tried to login, but session is invalid.", GetRemoteIpAddress().to_string(),
-            GetRemotePort(), _accountInfo.Login.c_str());
+            GetRemotePort(), _accountInfo.Login);
         return false;
     }
 }

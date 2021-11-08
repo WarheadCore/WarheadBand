@@ -92,7 +92,7 @@ public:
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spell = handler->extractSpellIdFromLink((char*)args);
         char const* all = strtok(nullptr, " ");
-        return Acore::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, all);
+        return Warhead::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, all);
     }
 
     static bool HandleLearnAllGMCommand(ChatHandler* handler, char const* /*args*/)
@@ -459,7 +459,7 @@ public:
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
         char const* allStr = strtok(nullptr, " ");
-        return Acore::PlayerCommand::HandleUnlearnSpellCommand(handler, target, spellId, allStr);
+        return Warhead::PlayerCommand::HandleUnlearnSpellCommand(handler, target, spellId, allStr);
     }
 };
 

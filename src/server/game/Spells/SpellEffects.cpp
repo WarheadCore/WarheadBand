@@ -1,5 +1,5 @@
  /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2070,7 +2070,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         if (!gameObjTarget->isSpawned() && !player->IsGameMaster())
         {
             LOG_ERROR("spells.effect", "Possible hacking attempt: Player {} [{}] tried to loot a gameobject [{}] which is on respawn time without being in GM mode!",
-                player->GetName().c_str(), player->GetGUID(), gameObjTarget->GetGUID());
+                player->GetName(), player->GetGUID(), gameObjTarget->GetGUID());
             return;
         }
         // special case, already has GossipHello inside so return and avoid calling twice

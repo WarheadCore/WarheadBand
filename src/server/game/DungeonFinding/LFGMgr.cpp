@@ -2134,7 +2134,7 @@ namespace lfg
             player->GetSession()->SendLfgTeleportError(uint8(error));
 
         //LOG_DEBUG("lfg", "TeleportPlayer: Player {} is being teleported in to map {} "
-        //    "(x: %f, y: %f, z: %f) Result: %u", player->GetName().c_str(), dungeon->map,
+        //    "(x: {}, y: {}, z: {}) Result: {}", player->GetName(), dungeon->map,
         //    dungeon->x, dungeon->y, dungeon->z, error);
     }
 
@@ -2383,7 +2383,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Group: [{}] ({}) State: {}, oldState: {}",
-                    guid, debugMsg, ps.c_str(), os.c_str());
+                    guid, debugMsg, ps, os);
             }*/
 
             data.RestoreState();
@@ -2396,7 +2396,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Player: [{}] ({}) State: {}, oldState: {}",
-                    guid, debugMsg, ps.c_str(), os.c_str());
+                    guid, debugMsg, ps, os);
             }*/
             data.RestoreState();
         }

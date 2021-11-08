@@ -219,7 +219,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Missing name {} in config, add \"{} = {}\"",
-                name.c_str(), name.c_str(), Warhead::ToString(def).c_str());
+                name, name, Warhead::ToString(def));
         }
 
         return def;
@@ -231,7 +231,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Bad value defined for name '{}', going to use '{}' instead",
-                name.c_str(), Warhead::ToString(def).c_str());
+                name, Warhead::ToString(def));
         }
 
         return def;
@@ -249,7 +249,7 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Missing name {} in config, add \"{} = {}\"",
-                name.c_str(), name.c_str(), def.c_str());
+                name, name, def);
         }
 
         return def;
@@ -275,7 +275,7 @@ WH_COMMON_API bool ConfigMgr::GetOption<bool>(std::string const& name, bool cons
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Bad value defined for name '{}', going to use '{}' instead",
-                name.c_str(), def ? "true" : "false");
+                name, def ? "true" : "false");
         }
 
         return def;

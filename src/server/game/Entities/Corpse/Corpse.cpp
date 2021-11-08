@@ -76,7 +76,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     if (!IsPositionValid())
     {
         LOG_ERROR("entities.player", "Corpse (guidlow {}, owner {}) not created. Suggested coordinates isn't valid (X: {} Y: {})",
-            guidlow, owner->GetName().c_str(), owner->GetPositionX(), owner->GetPositionY());
+            guidlow, owner->GetName(), owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
 

@@ -17,19 +17,17 @@
 
 #ifndef _PLAYER_COMMAND_H
 #define _PLAYER_COMMAND_H
+
 #include "Define.h"
 
 class ChatHandler;
 class Player;
 
-class PlayerCommand
+// Used in player/character commands
+namespace Warhead::PlayerCommand
 {
-    // Used in player/character commands
-    namespace PlayerCommand
-    {
-        bool HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
-        bool HandleUnlearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
-    };
+    bool HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
+    bool HandleUnlearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
 };
 
 #endif // _PLAYER_COMMAND_H

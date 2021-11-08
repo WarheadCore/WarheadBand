@@ -442,7 +442,7 @@ public:
         ticket->SetViewed();
         ticket->SaveToDB(trans);
 
-        handler->SendSysMessage(ticket->FormatMessageString(*handler, true).c_str());
+        handler->SendSysMessage(ticket->FormatMessageString(*handler, true));
         return true;
     }
 
@@ -481,7 +481,7 @@ public:
         ticket->SetViewed();
         ticket->SaveToDB(trans);
 
-        handler->SendSysMessage(ticket->FormatMessageString(*handler, true).c_str());
+        handler->SendSysMessage(ticket->FormatMessageString(*handler, true));
         return true;
     }
 

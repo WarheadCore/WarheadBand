@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -20,14 +20,14 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Acore::Impl::EnumUtilsImpl
+namespace Warhead::Impl::EnumUtilsImpl
 {
 
 /********************************************************\
 |* data for enum 'UnitFlags' in 'Unit.h' auto-generated *|
 \********************************************************/
 template <>
-AC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
+WH_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
 {
     switch (value)
     {
@@ -68,10 +68,10 @@ AC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<UnitFlags>::Count() { return 32; }
+WH_API_EXPORT size_t EnumUtils<UnitFlags>::Count() { return 32; }
 
 template <>
-AC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
+WH_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
 {
     switch (index)
     {
@@ -112,7 +112,7 @@ AC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
+WH_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
 {
     switch (value)
     {
@@ -156,7 +156,7 @@ AC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
 |* data for enum 'NPCFlags' in 'Unit.h' auto-generated *|
 \*******************************************************/
 template <>
-AC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
+WH_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
 {
     switch (value)
     {
@@ -192,10 +192,10 @@ AC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<NPCFlags>::Count() { return 27; }
+WH_API_EXPORT size_t EnumUtils<NPCFlags>::Count() { return 27; }
 
 template <>
-AC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
+WH_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
 {
     switch (index)
     {
@@ -231,7 +231,7 @@ AC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
+WH_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
 {
     switch (value)
     {

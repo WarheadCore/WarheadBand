@@ -496,7 +496,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     if (!info)
     {
         LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account {} tried creating a character named '{}' with an invalid race/class pair ({}/{}) - refusing to do so.",
-                       GetSession()->GetAccountId(), m_name.c_str(), createInfo->Race, createInfo->Class);
+                       GetSession()->GetAccountId(), m_name, createInfo->Race, createInfo->Class);
         return false;
     }
 
@@ -509,7 +509,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     if (!cEntry)
     {
         LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account {} tried creating a character named '{}' with an invalid character class ({}) - refusing to do so (wrong DBC-files?)",
-                       GetSession()->GetAccountId(), m_name.c_str(), createInfo->Class);
+                       GetSession()->GetAccountId(), m_name, createInfo->Class);
         return false;
     }
 
@@ -527,7 +527,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     if (!IsValidGender(createInfo->Gender))
     {
         LOG_ERROR("entities.player", "Player::Create: Possible hacking-attempt: Account {} tried creating a character named '{}' with an invalid gender ({}) - refusing to do so",
-                       GetSession()->GetAccountId(), m_name.c_str(), createInfo->Gender);
+                       GetSession()->GetAccountId(), m_name, createInfo->Gender);
         return false;
     }
 
@@ -1310,7 +1310,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (!MapMgr::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         LOG_ERROR("entities.player", "TeleportTo: invalid map ({}) or invalid coordinates (X: {}, Y: {}, Z: {}, O: {}) given when teleporting player ({}, name: {}, map: {}, X: {}, Y: {}, Z: {}, O: {}).",
-                       mapid, x, y, z, orientation, GetGUID(), GetName().c_str(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                       mapid, x, y, z, orientation, GetGUID(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         return false;
     }
 
@@ -2096,7 +2096,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTy
             }
 
             LOG_DEBUG("maps", "IsGameObjectOfTypeInRange: GameObject '{}' [{}] is too far away from player {} [{}] to be used by him (distance={}, maximal 10 is allowed)",
-                go->GetGOInfo()->name.c_str(), go->GetGUID(), GetName().c_str(), GetGUID(), go->GetDistance(this));
+                go->GetGOInfo()->name, go->GetGUID(), GetName(), GetGUID(), go->GetDistance(this));
         }
     }
     return nullptr;
@@ -5595,7 +5595,7 @@ void Player::CheckAreaExploreAndOutdoor()
     if (!areaEntry)
     {
         LOG_ERROR("entities.player", "Player '{}' ({}) discovered unknown area (x: {} y: {} z: {} map: {})",
-                       GetName().c_str(), GetGUID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+                       GetName(), GetGUID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
         return;
     }
 
@@ -7117,7 +7117,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (!spellInfo)
             {
                 LOG_ERROR("entities.player", "Player::CastItemCombatSpell({}, name: {}, enchant: {}): unknown spell {} is casted, ignoring...",
-                               GetGUID(), GetName().c_str(), pEnchant->ID, pEnchant->spellid[s]);
+                               GetGUID(), GetName(), pEnchant->ID, pEnchant->spellid[s]);
                 continue;
             }
 
@@ -8893,11 +8893,11 @@ void Player::Whisper(std::string_view text, Language language, Player* target, b
     // announce afk or dnd message
     if (target->isAFK())
     {
-        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_AFK, target->GetName().c_str(), target->autoReplyMsg.c_str());
+        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_AFK, target->GetName(), target->autoReplyMsg);
     }
     else if (target->isDND())
     {
-        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, target->GetName().c_str(), target->autoReplyMsg.c_str());
+        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, target->GetName(), target->autoReplyMsg);
     }
 }
 
@@ -8911,7 +8911,7 @@ void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false
     BroadcastText const* bct = sGameLocale->GetBroadcastText(textId);
     if (!bct)
     {
-        LOG_ERROR("entities.unit", "Player::Whisper: `broadcast_text` was not %u found", textId);
+        LOG_ERROR("entities.unit", "Player::Whisper: `broadcast_text` was not {} found", textId);
         return;
     }
 
@@ -11158,7 +11158,7 @@ void Player::LearnCustomSpells()
     {
         uint32 tspell = *itr;
         LOG_DEBUG("entities.player.loading", "Player::LearnCustomSpells: Player '{}' ({}, Class: {} Race: {}): Adding initial spell (SpellID: {})",
-            GetName().c_str(), GetGUID(), uint32(getClass()), uint32(getRace()), tspell);
+            GetName(), GetGUID(), uint32(getClass()), uint32(getRace()), tspell);
         if (!IsInWorld())                                   // will send in INITIAL_SPELLS in list anyway at map add
         {
             addSpell(tspell, SPEC_MASK_ALL, true);

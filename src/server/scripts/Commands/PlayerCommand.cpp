@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-bool Acore::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all)
+bool Warhead::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all)
 {
     if (!spell)
         return false;
@@ -77,7 +77,7 @@ bool Acore::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Player*
     return true;
 }
 
-bool Acore::PlayerCommand::HandleUnlearnSpellCommand(ChatHandler* handler, Player* target, uint32 spellId, char const* allStr)
+bool Warhead::PlayerCommand::HandleUnlearnSpellCommand(ChatHandler* handler, Player* target, uint32 spellId, char const* allStr)
 {
     if (!spellId)
         return false;

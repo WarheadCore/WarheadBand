@@ -88,7 +88,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recvData)
     std::string comment;
     recvData >> comment;
     LOG_DEBUG("network", "CMSG_LFG_JOIN [{}] roles: {}, Dungeons: {}, Comment: {}",
-        GetPlayer()->GetGUID(), roles, uint8(newDungeons.size()), comment.c_str());
+        GetPlayer()->GetGUID(), roles, uint8(newDungeons.size()), comment);
 
     sLFGMgr->JoinLfg(GetPlayer(), uint8(roles), newDungeons, comment);
 }
@@ -328,7 +328,7 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
     }
 
     LOG_DEBUG("lfg", "SMSG_LFG_UPDATE_PLAYER {} updatetype: {}",
-                   GetPlayerInfo().c_str(), updateData.updateType);
+                   GetPlayerInfo(), updateData.updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
     data << uint8(size > 0);                               // Extra info
@@ -369,7 +369,7 @@ void WorldSession::SendLfgUpdateParty(lfg::LfgUpdateData const& updateData)
     }
 
     LOG_DEBUG("lfg", "SMSG_LFG_UPDATE_PARTY {} updatetype: {}",
-                   GetPlayerInfo().c_str(), updateData.updateType);
+                   GetPlayerInfo(), updateData.updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
     data << uint8(size > 0);                               // Extra info
@@ -488,7 +488,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
         return;
 
     LOG_DEBUG("lfg", "SMSG_LFG_PLAYER_REWARD {} rdungeonEntry: {}, sdungeonEntry: {}, done: {}",
-                   GetPlayerInfo().c_str(), rewardData.rdungeonEntry, rewardData.sdungeonEntry, rewardData.done);
+                   GetPlayerInfo(), rewardData.rdungeonEntry, rewardData.sdungeonEntry, rewardData.done);
 
     uint8 itemNum = rewardData.quest->GetRewItemsCount();
 
@@ -534,7 +534,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
     }
     LOG_DEBUG("network", "SMSG_LFG_BOOT_PROPOSAL_UPDATE [{}] inProgress: {} - didVote: {} - agree: {} - victim: [{}] votes: {} - agrees: {} - left: {} - needed: {} - reason {}",
                    guid, uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING), uint8(playerVote == lfg::LFG_ANSWER_AGREE),
-                   boot.victim, votesNum, agreeNum, secsleft, lfg::LFG_GROUP_KICK_VOTES_NEEDED, boot.reason.c_str());
+                   boot.victim, votesNum, agreeNum, secsleft, lfg::LFG_GROUP_KICK_VOTES_NEEDED, boot.reason);
     WorldPacket data(SMSG_LFG_BOOT_PROPOSAL_UPDATE, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + boot.reason.length());
     data << uint8(boot.inProgress);                        // Vote in progress
     data << uint8(playerVote != lfg::LFG_ANSWER_PENDING);  // Did Vote

@@ -851,7 +851,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
         else
         {
             LOG_ERROR("network.opcode", "Player {} ({}) marked as member of not existing guild (id: {}), removing guild membership for player.",
-                pCurrChar->GetName().c_str(), pCurrChar->GetGUID(), guildId);
+                pCurrChar->GetName(), pCurrChar->GetGUID(), guildId);
             pCurrChar->SetInGuild(0);
             pCurrChar->SetRank(0);
         }
@@ -1580,7 +1580,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     if (!IsLegitCharacterForAccount(customizeInfo->Guid))
     {
         LOG_ERROR("entities.player.cheat", "Account {}, IP: {} tried to customise {}, but it does not belong to their account!",
-            GetAccountId(), GetRemoteAddress().c_str(), customizeInfo->Guid);
+            GetAccountId(), GetRemoteAddress(), customizeInfo->Guid);
         recvData.rfinish();
         KickPlayer("WorldSession::HandleCharCustomize Trying to customise character of another account");
         return;
@@ -1707,7 +1707,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
 
     LOG_INFO("entities.player.character", "Account: {} (IP: {}), Character[{}] ({}) Customized to: {}",
-        GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), customizeInfo->Guid, customizeInfo->Name.c_str());
+        GetAccountId(), GetRemoteAddress(), oldName, customizeInfo->Guid, customizeInfo->Name);
 }
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
@@ -1872,7 +1872,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     if (!IsLegitCharacterForAccount(factionChangeInfo->Guid))
     {
         LOG_ERROR("entities.player.cheat", "Account {}, IP: {} tried to factionchange character {}, but it does not belong to their account!",
-            GetAccountId(), GetRemoteAddress().c_str(), factionChangeInfo->Guid);
+            GetAccountId(), GetRemoteAddress(), factionChangeInfo->Guid);
         recvData.rfinish();
         KickPlayer("WorldSession::HandleCharFactionOrRaceChange Trying to change faction of character of another account");
         return;
@@ -2097,7 +2097,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     }
 
     LOG_INFO("entities.player.character", "Account: {} (IP: {}), Character [{}] (guid: {}) Changed Race/Faction to: {}",
-        GetAccountId(), GetRemoteAddress().c_str(), playerData->name.c_str(), lowGuid, factionChangeInfo->Name.c_str());
+        GetAccountId(), GetRemoteAddress(), playerData->name, lowGuid, factionChangeInfo->Name);
 
     // xinef: update global data
     sWorld->UpdateGlobalNameData(lowGuid, playerData->name, factionChangeInfo->Name);
@@ -2393,7 +2393,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                     else
                     {
                         LOG_WARN("entities.player", "{} has invalid title data '{}' at index {} - skipped, this may result in titles being lost",
-                            GetPlayerInfo().c_str(), (index < tokens.size()) ? std::string(tokens[index]).c_str() : "<none>", index);
+                            GetPlayerInfo(), (index < tokens.size()) ? std::string(tokens[index]) : "<none>", index);
 
                         knownTitles[index] = 0;
                     }

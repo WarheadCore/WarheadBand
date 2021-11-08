@@ -109,7 +109,7 @@ public:
         data << target->GetPackGUID();
         data << uint32(0);                                      // unknown
         target->SendMessageToSet(&data, true);
-        handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target).c_str(), enable ? "on" : "off");
+        handler->PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, handler->GetNameLink(target), enable ? "on" : "off");
         return true;
     }
 

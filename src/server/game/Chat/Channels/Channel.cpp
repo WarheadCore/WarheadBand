@@ -521,8 +521,8 @@ void Channel::UnBan(Player const* player, std::string const& badname)
 
     if (_channelRights.flags & CHANNEL_RIGHT_CANT_BAN)
         LOG_GM(player->GetSession()->GetAccountId(), "Command: /unban {} {} (Moderator {} [{}, account: {}] unbanned {} [{}])",
-            GetName().c_str(), badname.c_str(), player->GetName().c_str(), player->GetGUID(), player->GetSession()->GetAccountId(),
-            badname.c_str(), victim);
+            GetName(), badname, player->GetName(), player->GetGUID(), player->GetSession()->GetAccountId(),
+            badname, victim);
 
     bannedStore.erase(victim);
     RemoveChannelBanFromDB(victim);

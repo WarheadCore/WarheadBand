@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -20,14 +20,14 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Acore::Impl::EnumUtilsImpl
+namespace Warhead::Impl::EnumUtilsImpl
 {
 
 /**********************************************************************\
 |* data for enum 'WardenActions' in 'WardenCheckMgr.h' auto-generated *|
 \**********************************************************************/
 template <>
-AC_API_EXPORT EnumText EnumUtils<WardenActions>::ToString(WardenActions value)
+WH_API_EXPORT EnumText EnumUtils<WardenActions>::ToString(WardenActions value)
 {
     switch (value)
     {
@@ -39,10 +39,10 @@ AC_API_EXPORT EnumText EnumUtils<WardenActions>::ToString(WardenActions value)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<WardenActions>::Count() { return 3; }
+WH_API_EXPORT size_t EnumUtils<WardenActions>::Count() { return 3; }
 
 template <>
-AC_API_EXPORT WardenActions EnumUtils<WardenActions>::FromIndex(size_t index)
+WH_API_EXPORT WardenActions EnumUtils<WardenActions>::FromIndex(size_t index)
 {
     switch (index)
     {
@@ -54,7 +54,7 @@ AC_API_EXPORT WardenActions EnumUtils<WardenActions>::FromIndex(size_t index)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<WardenActions>::ToIndex(WardenActions value)
+WH_API_EXPORT size_t EnumUtils<WardenActions>::ToIndex(WardenActions value)
 {
     switch (value)
     {

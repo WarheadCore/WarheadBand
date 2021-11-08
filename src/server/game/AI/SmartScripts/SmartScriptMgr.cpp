@@ -1160,13 +1160,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 {
                     if (e.action.setInstanceData.data >= EncounterState::TO_BE_DECIDED)
                     {
-                        LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INST_DATA with type 1 (bossState) uses invalid encounter state %u. Source entry %u, type %u", e.action.setInstanceData.data, e.entryOrGuid, e.GetScriptType());
+                        LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INST_DATA with type 1 (bossState) uses invalid encounter state {}. Source entry {}, type {}", e.action.setInstanceData.data, e.entryOrGuid, e.GetScriptType());
                         return false;
                     }
                 }
                 else if (e.action.setInstanceData.type > 1)
                 {
-                    LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INST_DATA uses unsupported data type %u. Source entry %u, type %u", e.action.setInstanceData.type, e.entryOrGuid, e.GetScriptType());
+                    LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INST_DATA uses unsupported data type {}. Source entry {}, type {}", e.action.setInstanceData.type, e.entryOrGuid, e.GetScriptType());
                     return false;
                 }
                 break;

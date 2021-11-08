@@ -66,7 +66,7 @@ public:
             return false;
         }
 
-        return Acore::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, all);
+        return Warhead::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, all);
     }
 
     static bool HandlePlayerUnLearnCommand(ChatHandler* handler, char const* args)
@@ -91,7 +91,7 @@ public:
             return false;
         }
 
-        return Acore::PlayerCommand::HandleUnlearnSpellCommand(handler, targetPlayer, spell, all);
+        return Warhead::PlayerCommand::HandleUnlearnSpellCommand(handler, targetPlayer, spell, all);
     }
 
 private:

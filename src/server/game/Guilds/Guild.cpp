@@ -584,7 +584,7 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
     if (session)
     {
         LOG_DEBUG("guild", "MSG_QUERY_GUILD_BANK_TEXT [{}]: Tabid: {}, Text: {}"
-                       , session->GetPlayerInfo().c_str(), m_tabId, m_text.c_str());
+                       , session->GetPlayerInfo(), m_tabId, m_text);
         session->SendPacket(&data);
     }
     else
@@ -1183,7 +1183,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     _CreateLogHolders();
 
     LOG_DEBUG("guild", "GUILD: creating guild [{}] for leader {} ({})",
-        name.c_str(), pLeader->GetName().c_str(), m_leaderGuid);
+        name, pLeader->GetName(), m_leaderGuid);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -1431,7 +1431,7 @@ void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string
     if (!tab)
     {
         LOG_ERROR("guild", "Guild::HandleSetBankTabInfo: Player {} trying to change bank tab info from unexisting tab {}.",
-                       session->GetPlayerInfo().c_str(), tabId);
+                       session->GetPlayerInfo(), tabId);
         return;
     }
 
@@ -2888,7 +2888,7 @@ void Guild::_SendBankList(WorldSession* session /* = nullptr*/, uint8 tabId /*= 
         data.put<uint32>(rempos, numSlots);
         session->SendPacket(&data);
         LOG_DEBUG("guild", "SMSG_GUILD_BANK_LIST [{}]: TabId: {}, FullSlots: {}, slots: {}",
-                       session->GetPlayerInfo().c_str(), tabId, sendAllSlots, numSlots);
+                       session->GetPlayerInfo(), tabId, sendAllSlots, numSlots);
     }
     else // TODO - Probably this is just sent to session + those that have sent CMSG_GUILD_BANKER_ACTIVATE
     {
@@ -2904,7 +2904,7 @@ void Guild::_SendBankList(WorldSession* session /* = nullptr*/, uint8 tabId /*= 
             data.put<uint32>(rempos, numSlots);
             player->GetSession()->SendPacket(&data);
             LOG_DEBUG("guild", "SMSG_GUILD_BANK_LIST [{}]: TabId: {}, FullSlots: {}, slots: {}"
-                           , player->GetName().c_str(), tabId, sendAllSlots, numSlots);
+                           , player->GetName(), tabId, sendAllSlots, numSlots);
         }
     }
 }

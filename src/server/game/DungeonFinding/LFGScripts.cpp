@@ -110,7 +110,7 @@ namespace lfg
                 player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
                 player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
                 LOG_DEBUG("lfg", "LFGPlayerScript::OnMapChanged, Player {} ({}) is in LFG dungeon map but does not have a valid group! Teleporting to homebind.",
-                    player->GetName().c_str(), player->GetGUID());
+                    player->GetName(), player->GetGUID());
                 return;
             }
 

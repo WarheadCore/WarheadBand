@@ -6301,8 +6301,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     uint32 resist = dmgInfo.GetResist();
     damage = dmgInfo.GetDamage();
 
-    LOG_DEBUG("spells.aura.effect", "PeriodicTick: %s attacked %s for %u dmg inflicted by %u abs is %u",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
+    LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} attacked {} for {} dmg inflicted by {} abs is {}",
+                    GetCasterGUID().ToString(), target->GetGUID().ToString(), damage, GetId(), absorb);
     Unit::DealDamageMods(target, damage, &absorb);
 
     // Set trigger flag
@@ -6399,8 +6399,8 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     damage = dmgInfo.GetDamage();
 
-    LOG_DEBUG("spells.aura.effect", "PeriodicTick: %s health leech of %s for %u dmg inflicted by %u abs is %u",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
+    LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} health leech of {} for {} dmg inflicted by {} abs is {}",
+                    GetCasterGUID().ToString(), target->GetGUID().ToString(), damage, GetId(), absorb);
     if (caster)
         caster->SendSpellNonMeleeDamageLog(target, GetSpellInfo(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
 
@@ -6544,8 +6544,8 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     if ((crit = roll_chance_f(GetCritChance())))
         damage = Unit::SpellCriticalHealingBonus(caster, GetSpellInfo(), damage, target);
 
-    LOG_DEBUG("spells.aura.effect", "PeriodicTick: %s heal of %s for %u health inflicted by %u",
-                    GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId());
+    LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} heal of {} for {} health inflicted by {}",
+                    GetCasterGUID().ToString(), target->GetGUID().ToString(), damage, GetId());
 
     uint32 heal = uint32(damage);
 
@@ -6916,8 +6916,8 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
             float radius = GetSpellInfo()->Effects[GetEffIndex()].CalcRadius(caster);
 
             Unit*                                                         triggerTarget = nullptr;
-            Acore::MostHPMissingGroupInRange                              u_check(target, radius, 0);
-            Acore::UnitLastSearcher<Acore::MostHPMissingGroupInRange>     searcher(target, triggerTarget, u_check);
+            Warhead::MostHPMissingGroupInRange                              u_check(target, radius, 0);
+            Warhead::UnitLastSearcher<Warhead::MostHPMissingGroupInRange>     searcher(target, triggerTarget, u_check);
             Cell::VisitAllObjects(target, searcher, radius);
 
             if (triggerTarget)

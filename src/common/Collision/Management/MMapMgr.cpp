@@ -109,7 +109,7 @@ namespace MMAP
         if (DT_SUCCESS != mesh->init(&params))
         {
             dtFreeNavMesh(mesh);
-            LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {:03} from file {}", mapId, fileName.c_str());
+            LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {:03} from file {}", mapId, fileName);
             return false;
         }
 
@@ -151,7 +151,7 @@ namespace MMAP
         FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
         {
-            LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '{}'", fileName.c_str());
+            LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '{}'", fileName);
             return false;
         }
 

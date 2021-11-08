@@ -504,7 +504,7 @@ void CFBG::SetFactionForRace(Player* player, uint8 Race)
     player->setTeamId(player->TeamIdForRace(Race));
 
     ChrRacesEntry const* DBCRace = sChrRacesStore.LookupEntry(Race);
-    player->setFaction(DBCRace ? DBCRace->FactionID : 0);
+    player->SetFaction(DBCRace ? DBCRace->FactionID : 0);
 }
 
 void CFBG::ClearFakePlayer(Player* player)

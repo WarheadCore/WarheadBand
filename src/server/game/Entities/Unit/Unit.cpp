@@ -2325,8 +2325,8 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
             LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
                                  GetGUID(), victim->GetGUID(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
         else
-            LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC) %s attacked %s for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                                 GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+            LOG_DEBUG("entities.unit", "AttackerStateUpdate: (NPC) {} attacked {} for {} dmg, absorbed {}, blocked {}, resisted {}.",
+                                 GetGUID().ToString(), victim->GetGUID().ToString(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
 
         // Let the pet know we've started attacking someting. Handles melee attacks only
         // Spells such as auto-shot and others handled in WorldSession::HandleCastSpellOpcode
@@ -8802,7 +8802,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     if (triggerEntry == nullptr)
     {
         // Don't cast unknown spell
-        LOG_ERROR("entities.unit", "Unit::HandleProcTriggerSpell: Spell %u (effIndex: %u) has unknown TriggerSpell %u. Unhandled custom case?", auraSpellInfo->Id, triggeredByAura->GetEffIndex(), trigger_spell_id);
+        LOG_ERROR("entities.unit", "Unit::HandleProcTriggerSpell: Spell {} (effIndex: {}) has unknown TriggerSpell {}. Unhandled custom case?", auraSpellInfo->Id, triggeredByAura->GetEffIndex(), trigger_spell_id);
         return false;
     }
 
@@ -9433,11 +9433,11 @@ FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
         if (GetGUID() != guid)
         {
             if (Player const* player = ToPlayer())
-                LOG_ERROR("entities.unit", "Player %s has invalid faction (faction template id) #%u", player->GetName().c_str(), GetFaction());
+                LOG_ERROR("entities.unit", "Player {} has invalid faction (faction template id) #{}", player->GetName(), GetFaction());
             else if (Creature const* creature = ToCreature())
-                LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, GetFaction());
+                LOG_ERROR("entities.unit", "Creature (template id: {}) has invalid faction (faction template id) #{}", creature->GetCreatureTemplate()->Entry, GetFaction());
             else
-                LOG_ERROR("entities.unit", "Unit (name=%s, type=%u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), GetFaction());
+                LOG_ERROR("entities.unit", "Unit (name={}, type={}) has invalid faction (faction template id) #{}", GetName(), uint32(GetTypeId()), GetFaction());
 
             guid = GetGUID();
         }
@@ -16972,7 +16972,7 @@ void Unit::Kill(Unit* killer, Unit* victim, bool durabilityLoss, WeaponAttackTyp
             if (victim->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION) || victim->HasAura(27827))
             {
                 /*LOG_INFO("misc", "Player ({}) died with spirit of redemption. Killer (Entry: {}, Name: {}), Map: {}, x: {}, y: {}, z: {}",
-                    victim->GetGUID(), killer ? killer->GetEntry() : 1, killer ? killer->GetName().c_str() : "", victim->GetMapId(), victim->GetPositionX(),
+                    victim->GetGUID(), killer ? killer->GetEntry() : 1, killer ? killer->GetName() : "", victim->GetMapId(), victim->GetPositionX(),
                     victim->GetPositionY(), victim->GetPositionZ());
 
                 ACE_Stack_Trace trace(0, 50);
@@ -20131,7 +20131,7 @@ void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject con
 {
     if (!sGameLocale->GetBroadcastText(textId))
     {
-        LOG_ERROR("entities.unit", "Unit::Talk: `broadcast_text` (ID: %u) was not found", textId);
+        LOG_ERROR("entities.unit", "Unit::Talk: `broadcast_text` (ID: {}) was not found", textId);
         return;
     }
 
@@ -20166,7 +20166,7 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
     BroadcastText const* bct = sGameLocale->GetBroadcastText(textId);
     if (!bct)
     {
-        LOG_ERROR("entities.unit", "Unit::Whisper: `broadcast_text` was not %u found", textId);
+        LOG_ERROR("entities.unit", "Unit::Whisper: `broadcast_text` was not {} found", textId);
         return;
     }
 

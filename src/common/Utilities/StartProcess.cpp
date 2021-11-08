@@ -78,7 +78,7 @@ namespace Warhead
         if (!secure)
         {
             LOG_TRACE(logger, "Starting process \"{}\" with arguments: \"{}\".",
-                executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
+                executable, boost::algorithm::join(argsVector, " "));
         }
 
         // prepare file with only read permission (boost process opens with read_write)
@@ -137,7 +137,7 @@ namespace Warhead
         if (!secure)
         {
             LOG_TRACE(logger, ">> Process \"{}\" finished with return value {}.",
-                executable.c_str(), result);
+                executable, result);
         }
 
         return result;

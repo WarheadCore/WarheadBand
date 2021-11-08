@@ -2991,7 +2991,7 @@ public:
 
         if (player && (player != handler->GetSession()->GetPlayer()))
         {
-            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name);
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Freeze))
                 Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
         }
@@ -3005,7 +3005,7 @@ public:
 
         if (target->IsAlive())
         {
-            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name);
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Freeze))
                 Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
         }
@@ -3023,7 +3023,7 @@ public:
 
         if (target->HasAura(Freeze))
         {
-            handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());
+            handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name);
             target->RemoveAurasDueToSpell(Freeze);
             return true;
         }
@@ -3220,7 +3220,7 @@ public:
                 const char* onlineState = p ? "online" : "offline";
 
                 handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name, onlineState,
-                    slot.guid.GetCounter(), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());*/
+                    slot.guid.GetCounter(), flags, lfg::GetRolesString(slot.roles));*/
             }
         }
         else
@@ -3480,7 +3480,7 @@ public:
 
         str << " items from your bags.";
 
-        handler->SendSysMessage(str.str().c_str());
+        handler->SendSysMessage(str.str());
 
         return true;
     };
