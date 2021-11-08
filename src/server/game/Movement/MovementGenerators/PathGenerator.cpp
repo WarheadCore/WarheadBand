@@ -20,6 +20,7 @@
 #include "DetourCommon.h"
 #include "Geometry.h"
 #include "Log.h"
+#include "Metric.h"
 #include "MMapFactory.h"
 #include "MMapMgr.h"
 #include "Map.h"
@@ -59,6 +60,8 @@ bool PathGenerator::CalculatePath(float x, float y, float z, float destX, float 
 {
     if (!Warhead::IsValidMapCoord(destX, destY, destZ) || !Warhead::IsValidMapCoord(x, y, z))
         return false;
+
+    METRIC_DETAILED_EVENT("mmap_events", "CalculatePath", "");
 
     G3D::Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);

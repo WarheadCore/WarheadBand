@@ -685,7 +685,7 @@ void MotionMaster::MoveTaxiFlight(uint32 path, uint32 pathnode)
         else
         {
             LOG_ERROR("movement.motionmaster", "{} attempt taxi to (not existed Path {} node {})",
-                           _owner->GetName().c_str(), path, pathnode);
+                           _owner->GetName(), path, pathnode);
         }
     }
     else

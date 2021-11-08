@@ -41,6 +41,12 @@ EndScriptData */
 
 using namespace Warhead::ChatCommands;
 
+#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+using namespace Warhead::ChatCommands;
+
 class lookup_commandscript : public CommandScript
 {
 public:
@@ -149,7 +155,7 @@ public:
                     else
                         ss << areaEntry->ID << " - " << name << ' ' << localeNames[locale];
 
-                    handler->SendSysMessage(ss.str().c_str());
+                    handler->SendSysMessage(ss.str());
 
                     if (!found)
                         found = true;
@@ -385,7 +391,7 @@ public:
                     else
                         ss << handler->GetWarheadString(LANG_FACTION_NOREPUTATION);
 
-                    handler->SendSysMessage(ss.str().c_str());
+                    handler->SendSysMessage(ss.str());
 
                     if (!found)
                         found = true;
@@ -943,7 +949,7 @@ public:
                     if (active)
                         ss << handler->GetWarheadString(LANG_ACTIVE);
 
-                    handler->SendSysMessage(ss.str().c_str());
+                    handler->SendSysMessage(ss.str());
 
                     if (!found)
                         found = true;
@@ -1031,7 +1037,7 @@ public:
                 if (active)
                     ss << handler->GetWarheadString(LANG_ACTIVE);
 
-                handler->SendSysMessage(ss.str().c_str());
+                handler->SendSysMessage(ss.str());
 
                 if (!found)
                     found = true;
@@ -1315,7 +1321,7 @@ public:
                             break;
                     }
 
-                    handler->SendSysMessage(ss.str().c_str());
+                    handler->SendSysMessage(ss.str());
 
                     ++counter;
                 }

@@ -22,11 +22,6 @@
 #include "WorldSocket.h"
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
-{
-    sWorldSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
-}
-
 class WorldSocketThread : public NetworkThread<WorldSocket>
 {
 public:
@@ -73,7 +68,7 @@ bool WorldSocketMgr::StartWorldNetwork(Warhead::Asio::IoContext& ioContext, std:
     if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
+    _acceptor->AsyncAcceptWithCallback<&WorldSocketMgr::OnSocketAccept>();
 
     sScriptMgr->OnNetworkStart();
     return true;

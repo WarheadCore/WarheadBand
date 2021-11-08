@@ -21,6 +21,9 @@
 
 #include "CliRunnable.h"
 #include "Common.h"
+#include "Errors.h"
+#include "ObjectMgr.h"
+#include "World.h"
 #include "Config.h"
 #include "Errors.h"
 #include "Log.h"
@@ -125,7 +128,20 @@ void CliThread()
 #endif
 
     if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
-        printf("\a");                                       // \a = Alert
+        printf("\a");   // \a = Alert
+
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+    if (sConfigMgr->GetOption<bool>("FlashAtStart", true))
+    {
+        FLASHWINFO fInfo;
+        fInfo.cbSize = sizeof(FLASHWINFO);
+        fInfo.dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG;
+        fInfo.hwnd = GetConsoleWindow();
+        fInfo.uCount = 0;
+        fInfo.dwTimeout = 0;
+        FlashWindowEx(&fInfo);
+    }
+#endif
 
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
     while (!World::IsStopped())

@@ -568,7 +568,7 @@ void Player::UpdateRating(CombatRating cr)
     if (amount < 0)
         amount = 0;
 
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
+    SetUInt32Value(static_cast<uint16>(PLAYER_FIELD_COMBAT_RATING_1) + static_cast<uint16>(cr), uint32(amount));
 
     bool affectStats = CanModifyStats();
 
@@ -1359,6 +1359,7 @@ void Player::UpdatePvP(bool state, bool _override)
     }
 
     RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+    sScriptMgr->OnPlayerPVPFlagChange(this, state);
 }
 
 void Player::UpdatePotionCooldown(Spell* spell)

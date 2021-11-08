@@ -49,7 +49,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
         if (asyncThreads < 1 || asyncThreads > 32)
         {
             LOG_ERROR(_logger, "{} database: invalid number of worker threads specified. "
-                      "Please pick a value between 1 and 32.", name.c_str());
+                      "Please pick a value between 1 and 32.", name);
             return false;
         }
 
@@ -95,7 +95,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             if (error)
             {
                 LOG_ERROR("sql.driver", "DatabasePool {} NOT opened. There were errors opening the MySQL connections. "
-                          "Check your SQLDriverLogFile for specific errors", name.c_str());
+                          "Check your SQLDriverLogFile for specific errors", name);
 
                 return false;
             }

@@ -222,13 +222,12 @@ enum WarheadStrings
     LANG_2FA_SECRET_TOO_LONG            = 188,
     LANG_2FA_SECRET_INVALID             = 189,
     LANG_2FA_SECRET_SET_COMPLETE        = 190,
-
-    LANG_SUBCMDS_LIST_ENTRY              = 191,
-    LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS     = 192,
-    LANG_SUBCMD_INVALID                  = 193,
-    LANG_CMD_AMBIGUOUS                   = 194,
-    LANG_CMD_HELP_GENERIC                = 195,
-    LANG_CMD_NO_HELP_AVAILABLE           = 196,
+    LANG_SUBCMDS_LIST_ENTRY             = 191,
+    LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS    = 192,
+    LANG_SUBCMD_INVALID                 = 193,
+    LANG_CMD_AMBIGUOUS                  = 194,
+    LANG_CMD_HELP_GENERIC               = 195,
+    LANG_CMD_NO_HELP_AVAILABLE          = 196,
     // Room for more level 1                197-199 not used
 
     // level 2 chat
@@ -864,7 +863,7 @@ enum WarheadStrings
     LANG_ARENA_ERROR_NAME_EXISTS        = 858,
     LANG_ARENA_ERROR_SIZE               = 859,
     LANG_ARENA_ERROR_COMBAT             = 860,
-    LANG_AREAN_ERROR_NAME_NOT_FOUND     = 861,
+    LANG_ARENA_ERROR_NAME_NOT_FOUND     = 861,
     LANG_ARENA_ERROR_NOT_MEMBER         = 862,
     LANG_ARENA_ERROR_CAPTAIN            = 863,
     LANG_ARENA_CREATE                   = 864,
@@ -1170,7 +1169,7 @@ enum WarheadStrings
     LANG_BATTLEGROUND                   = 5015,
     LANG_ARENA                          = 5016,
     LANG_RAID                           = 5017,
-    //= 5018,
+    // unused                           = 5018,
     LANG_COMMAND_TEMP_FROZEN_PLAYER     = 5019,
     LANG_NPCINFO_PHASEMASK              = 5020,
     LANG_NPCINFO_ARMOR                  = 5021,

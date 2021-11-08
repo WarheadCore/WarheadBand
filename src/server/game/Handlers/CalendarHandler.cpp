@@ -224,7 +224,7 @@ bool validUtf8String(WorldPacket& recvData, std::string& s, std::string action, 
     if (!utf8::is_valid(s.begin(), s.end()))
     {
         LOG_INFO("network.opcode", "CalendarHandler: Player ({}) attempt to {} an event with invalid name or description (packet modification)",
-            playerGUID, action.c_str());
+            playerGUID, action);
         recvData.rfinish();
         return false;
     }

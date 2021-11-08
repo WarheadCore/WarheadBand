@@ -656,7 +656,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
     if (!petition)
     {
         LOG_ERROR("network.opcode", "Player {} ({}) tried to turn in petition ({}) that is not present in the database",
-            _player->GetName().c_str(), _player->GetGUID(), petitionGuid);
+            _player->GetName(), _player->GetGUID(), petitionGuid);
         return;
     }
 

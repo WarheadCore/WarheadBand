@@ -257,7 +257,7 @@ struct AchievementCriteriaEntry
         struct
         {
             uint32  teamtype;                               // 3 {2, 3, 5}
-            uint32  PersonalRating;                             // 4
+            uint32  PersonalRating;                         // 4
         } highest_personal_rating;
 
         // ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL      = 40
@@ -537,7 +537,7 @@ struct AreaTableEntry
 
     [[nodiscard]] bool IsFlyable() const
     {
-        return flags & AREA_FLAG_OUTLAND && !(flags & AREA_FLAG_NO_FLY_ZONE);
+        return flags & AREA_FLAG_OUTLAND;
     }
 };
 
@@ -786,7 +786,7 @@ struct CurrencyCategoryEntry
 {
     uint32    ID;                                           // 0
     uint32    Unk1;                                         // 1        0 for known categories and 3 for unknown one (3.0.9)
-    char const*   Name[16];                                       // 2-17     name
+    char const*   Name[16];                                 // 2-17     name
     //                                                      // 18       string flags
 };
 */
@@ -849,7 +849,7 @@ struct DurabilityQualityEntry
 struct EmotesEntry
 {
     uint32  Id;                                             // 0
-    //char const*   Name;                                         // 1, internal name
+    //char const*   Name;                                   // 1, internal name
     //uint32  AnimationId;                                  // 2, ref to animationData
     uint32  Flags;                                          // 3, bitmask, may be unit_flags
     uint32  EmoteType;                                      // 4, Can be 0, 1 or 2 (determine how emote are shown)
@@ -952,15 +952,15 @@ struct FactionTemplateEntry
 struct GameObjectDisplayInfoEntry
 {
     uint32      Displayid;                                  // 0        m_ID
-    char const* filename;                                      // 1
-    //uint32  unk1[10];   //2-11
+    char const* filename;                                   // 1
+    //uint32  unk1[10];                                     //2-11
     float   minX;
     float   minY;
     float   minZ;
     float   maxX;
     float   maxY;
     float   maxZ;
-    //uint32  transport;  //18
+    //uint32  transport;                                    //18
 };
 
 struct GemPropertiesEntry
@@ -1055,7 +1055,7 @@ struct GtRegenMPPerSptEntry
 struct HolidayDescriptionsEntry
 {
     uint32 ID;                                              // 0, this is NOT holiday id
-    //char const*     name[16]                                    // 1-16 m_name_lang
+    //char const*     name[16]                              // 1-16 m_name_lang
                                                             // 17 name flags
 };
 */
@@ -1083,7 +1083,7 @@ struct HolidaysEntry
     uint32 CalendarFlags[MAX_HOLIDAY_FLAGS];                // 39-48    m_calendarFlags
     //uint32 holidayNameId;                                 // 49       m_holidayNameID (HolidayNames.dbc)
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
-    char const* TextureFilename;                                  // 51       m_textureFilename
+    char const* TextureFilename;                            // 51       m_textureFilename
     uint32 Priority;                                        // 52       m_priority
     int32 CalendarFilterType;                               // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
@@ -1092,7 +1092,7 @@ struct HolidaysEntry
 struct ItemBagFamilyEntry
 {
     uint32   ID;                                            // 0
-    //char const*     name[16]                                    // 1-16     m_name_lang
+    //char const*     name[16]                              // 1-16     m_name_lang
     //                                                      // 17       name flags
 };
 
@@ -1101,7 +1101,7 @@ struct ItemDisplayInfoEntry
     uint32      ID;                                         // 0        m_ID
     // 1        m_modelName[2]
     // 2        m_modelTexture[2]
-    char const*       inventoryIcon;                              // 3        m_inventoryIcon
+    char const*       inventoryIcon;                        // 3        m_inventoryIcon
     // 4        m_geosetGroup[3]
     // 5        m_flags
     // 6        m_spellVisualID
@@ -1136,7 +1136,7 @@ struct ItemExtendedCostEntry
 struct ItemLimitCategoryEntry
 {
     uint32      ID;                                         // 0 Id
-    //char const*     name[16]                                    // 1-16     m_name_lang
+    //char const*     name[16]                              // 1-16     m_name_lang
     // 17 name flags
     uint32      maxCount;                                   // 18, max allowed equipped as item or in gem slot
     uint32      mode;                                       // 19, 0 = have, 1 = equip (enum ItemLimitCategoryMode)
@@ -1172,7 +1172,7 @@ struct ItemRandomSuffixEntry
 struct ItemSetEntry
 {
     //uint32    id                                          // 0        m_ID
-    char const*     name[16];                                     // 1-16     m_name_lang
+    char const*     name[16];                               // 1-16     m_name_lang
     // 17 string flags, unused
     uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 18-27    m_itemID
     //uint32    unknown[7];                                 // 28-34    unk, all 0
@@ -1185,7 +1185,7 @@ struct ItemSetEntry
 struct LFGDungeonEntry
 {
     uint32  ID;                                             // 0
-    char const*   name[16];                                       // 1-17 Name lang
+    char const*   name[16];                                 // 1-17 Name lang
     uint32  minlevel;                                       // 18
     uint32  maxlevel;                                       // 19
     uint32  reclevel;                                       // 20
@@ -1196,7 +1196,7 @@ struct LFGDungeonEntry
     uint32  flags;                                          // 25
     uint32  type;                                           // 26
     //uint32  unk;                                          // 27
-    //char const*   iconname;                                     // 28
+    //char const*   iconname;                               // 28
     uint32  expansion;                                      // 29
     //uint32  unk4;                                         // 30
     uint32  grouptype;                                      // 31
@@ -1261,9 +1261,9 @@ struct LockEntry
 struct MailTemplateEntry
 {
     uint32      ID;                                         // 0
-    //char const*       subject[16];                              // 1-16
+    //char const*       subject[16];                        // 1-16
     // 17 name flags, unused
-    char const*       content[16];                              // 18-33
+    char const*       content[16];                          // 18-33
 };
 
 struct MapEntry
@@ -1273,12 +1273,12 @@ struct MapEntry
     uint32  map_type;                                       // 2
     uint32  Flags;                                          // 3
     // 4 0 or 1 for battlegrounds (not arenas)
-    char const*   name[16];                                       // 5-20
+    char const*   name[16];                                 // 5-20
     // 21 name flags, unused
     uint32  linked_zone;                                    // 22 common zone for instance and continent map
-    //char const*     hordeIntro[16];                             // 23-38 text for PvP Zones
+    //char const*     hordeIntro[16];                       // 23-38 text for PvP Zones
     // 39 intro text flags
-    //char const*     allianceIntro[16];                          // 40-55 text for PvP Zones
+    //char const*     allianceIntro[16];                    // 40-55 text for PvP Zones
     // 56 intro text flags
     uint32  multimap_id;                                    // 57
     //float BattlefieldMapIconScale;                        // 58
@@ -1325,7 +1325,7 @@ struct MapDifficultyEntry
     //uint32      Id;                                       // 0
     uint32      MapId;                                      // 1
     uint32      Difficulty;                                 // 2 (for arenas: arena slot)
-    char const*       areaTriggerText;                            // 3-18 text showed when transfer to map failed (missing requirements)
+    char const*       areaTriggerText;                      // 3-18 text showed when transfer to map failed (missing requirements)
     //uint32      textFlags;                                // 19
     uint32      resetTime;                                  // 20
     uint32      maxPlayers;                                 // 21
@@ -1335,7 +1335,7 @@ struct MapDifficultyEntry
 struct MovieEntry
 {
     uint32      Id;                                         // 0 index
-    //char const*       filename;                                 // 1
+    //char const*       filename;                           // 1
     //uint32      unk2;                                     // 2 always 100
 };
 
@@ -1352,7 +1352,7 @@ struct PowerDisplayEntry
 {
     uint32 Id;                                              // 0
     uint32 PowerType;                                       // 1
-    //char const*  Name;                                          // 2
+    //char const*  Name;                                    // 2
     //uint32 R;                                             // 3
     //uint32 G;                                             // 4
     //uint32 B;                                             // 5
@@ -1481,7 +1481,7 @@ struct ScalingStatValuesEntry
 
 //struct SkillLineCategoryEntry{
 //    uint32    id;                                         // 0      m_ID
-//    char const*     name[16];                                   // 1-17   m_name_lang
+//    char const*     name[16];                             // 1-17   m_name_lang
 //                                                          // 18 string flag
 //    uint32    displayOrder;                               // 19     m_sortIndex
 //};
@@ -1505,12 +1505,12 @@ struct SkillLineEntry
     uint32    id;                                           // 0        m_ID
     int32     categoryId;                                   // 1        m_categoryID
     //uint32    skillCostID;                                // 2        m_skillCostsID
-    char const*     name[16];                                     // 3-18     m_displayName_lang
+    char const*     name[16];                               // 3-18     m_displayName_lang
     // 19 string flags
-    //char const*     description[16];                            // 20-35    m_description_lang
+    //char const*     description[16];                      // 20-35    m_description_lang
     // 36 string flags
     uint32    spellIcon;                                    // 37       m_spellIconID
-    //char const*     alternateVerb[16];                          // 38-53    m_alternateVerb_lang
+    //char const*     alternateVerb[16];                    // 38-53    m_alternateVerb_lang
     // 54 string flags
     uint32    canLink;                                      // 55       m_canLink (prof. with recipes
 };
@@ -1543,10 +1543,10 @@ struct SoundEntriesEntry
 {
     uint32    Id;                                           // 0        m_ID
     //uint32    Type;                                       // 1        m_soundType
-    //char const*     InternalName;                               // 2        m_name
-    //char const*     FileName[10];                               // 3-12     m_File[10]
+    //char const*     InternalName;                         // 2        m_name
+    //char const*     FileName[10];                         // 3-12     m_File[10]
     //uint32    Unk13[10];                                  // 13-22    m_Freq[10]
-    //char const*     Path;                                       // 23       m_DirectoryBase
+    //char const*     Path;                                 // 23       m_DirectoryBase
     // 24       m_volumeFloat
     // 25       m_flags
     // 26       m_minDistance
@@ -1700,7 +1700,7 @@ struct SpellDifficultyEntry
 struct SpellFocusObjectEntry
 {
     uint32    ID;                                           // 0
-    //char const*     Name[16];                                   // 1-15 unused
+    //char const*     Name[16];                             // 1-15 unused
     // 16 string flags, unused
 };
 
@@ -1742,7 +1742,7 @@ struct SpellShapeshiftEntry
 {
     uint32 ID;                                              // 0
     //uint32 buttonPosition;                                // 1 unused
-    //char const*  Name[16];                                      // 2-17 unused
+    //char const*  Name[16];                                // 2-17 unused
     //uint32 NameFlags;                                     // 18 unused
     uint32 flags1;                                          // 19
     int32  creatureType;                                    // 20 <= 0 humanoid, other normal creature types
@@ -1771,7 +1771,7 @@ struct SpellItemEnchantmentEntry
     uint32      amount[MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS];     // 5-7      m_effectPointsMin[MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS]
     //uint32      amount2[MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS]   // 8-10     m_effectPointsMax[MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS]
     uint32      spellid[MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS];    // 11-13    m_effectArg[MAX_SPELL_ITEM_ENCHANTMENT_EFFECTS]
-    char const*       description[16];                                // 14-29    m_name_lang[16]
+    char const*       description[16];                          // 14-29    m_name_lang[16]
     //uint32      descriptionFlags;                             // 30 name flags
     uint32      aura_id;                                        // 31       m_itemVisual
     uint32      slot;                                           // 32       m_flags
@@ -1882,7 +1882,7 @@ struct TaxiNodesEntry
     float     x;                                            // 2        m_x
     float     y;                                            // 3        m_y
     float     z;                                            // 4        m_z
-    char const*     name[16];                                     // 5-21     m_Name_lang
+    char const*     name[16];                               // 5-21     m_Name_lang
     // 22 string flags
     uint32    MountCreatureID[2];                           // 23-24    m_MountCreatureID[2]
 };
@@ -1919,7 +1919,7 @@ struct TeamContributionPointsEntry
 struct TotemCategoryEntry
 {
     uint32    ID;                                           // 0
-    //char const*   name[16];                                     // 1-16
+    //char const*   name[16];                               // 1-16
     // 17 string flags, unused
     uint32    categoryType;                                 // 18 (one for specialization)
     uint32    categoryMask;                                 // 19 (compatibility mask for same type: different for totems, compatible from high to low for rods)
@@ -1962,8 +1962,8 @@ struct VehicleEntry
     float   m_cameraFadeDistScalarMin;                      // 15
     float   m_cameraFadeDistScalarMax;                      // 16
     float   m_cameraPitchOffset;                            // 17
-    //int32     m_powerType[3];                               //       removed in 3.1
-    //int32     m_powerToken[3];                              //       removed in 3.1
+    //int32     m_powerType[3];                             //       removed in 3.1
+    //int32     m_powerToken[3];                            //       removed in 3.1
     float   m_facingLimitRight;                             // 18
     float   m_facingLimitLeft;                              // 19
     float   m_msslTrgtTurnLingering;                        // 20
@@ -1974,9 +1974,9 @@ struct VehicleEntry
     float   m_msslTrgtArcRepeat;                            // 25
     float   m_msslTrgtArcWidth;                             // 26
     float   m_msslTrgtImpactRadius[2];                      // 27-28
-    char const*   m_msslTrgtArcTexture;                           // 29
-    char const*   m_msslTrgtImpactTexture;                        // 30
-    char const*   m_msslTrgtImpactModel[2];                       // 31-32
+    char const*   m_msslTrgtArcTexture;                     // 29
+    char const*   m_msslTrgtImpactTexture;                  // 30
+    char const*   m_msslTrgtImpactModel[2];                 // 31-32
     float   m_cameraYawOffset;                              // 33
     uint32  m_uiLocomotionType;                             // 34
     float   m_msslTrgtImpactTexRadius;                      // 35
@@ -2075,7 +2075,7 @@ struct WorldMapAreaEntry
     //uint32  ID;                                           // 0
     uint32  map_id;                                         // 1
     uint32  area_id;                                        // 2 index (continent 0 areas ignored)
-    //char const* internal_name                                   // 3
+    //char const* internal_name                             // 3
     float   y1;                                             // 4
     float   y2;                                             // 5
     float   x1;                                             // 6
@@ -2120,9 +2120,9 @@ struct WorldStateUI
     uint32    zone;                                         // 2        Can be zero for "everywhere".
     uint32    phaseMask;                                    // 3        Phase this WorldState is avaliable in
     uint32    icon;                                         // 4        The icon that is used in the interface.
-    char const*     textureFilename;                              // 5
-    char const*     text;                                         // 6-21     The worldstate text
-    char const*     description;                                  // 22-38    Text shown when hovering mouse on icon
+    char const*     textureFilename;                        // 5
+    char const*     text;                                   // 6-21     The worldstate text
+    char const*     description;                            // 22-38    Text shown when hovering mouse on icon
     uint32    worldstateID;                                 // 39       This is the actual ID used
     uint32    type;                                         // 40       0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
     uint32    unk1;                                         // 41

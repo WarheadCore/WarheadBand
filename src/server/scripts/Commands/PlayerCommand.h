@@ -15,14 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _PLAYER_COMMAND_H
+#define _PLAYER_COMMAND_H
+
 #include "Define.h"
 
 class ChatHandler;
 class Player;
 
-class PlayerCommand
+// Used in player/character commands
+namespace Warhead::PlayerCommand
 {
-public:
-    static bool Learn(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
-    static bool UnLearn(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
+    bool HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
+    bool HandleUnlearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all);
 };
+
+#endif // _PLAYER_COMMAND_H

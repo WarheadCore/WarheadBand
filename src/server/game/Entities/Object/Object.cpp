@@ -24,6 +24,7 @@
 #include "Creature.h"
 #include "DynamicTree.h"
 #include "DynamicVisibility.h"
+#include "GameObjectAI.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameTime.h"
@@ -1104,7 +1105,7 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-InstanceScript* WorldObject::GetInstanceScript()
+InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
     return map->IsDungeon() ? map->ToInstanceMap()->GetInstanceScript() : nullptr;
@@ -1677,6 +1678,11 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
         if (cObj->IsAIEnabled && this->ToPlayer() && !cObj->AI()->CanBeSeen(this->ToPlayer()))
             return false;
 
+    // Gameobject scripts
+    if (GameObject const* goObj = obj->ToGameObject())
+        if (this->ToPlayer() && !goObj->AI()->CanBeSeen(this->ToPlayer()))
+            return false;
+
     // pussywizard: arena spectator
     if (obj->GetTypeId() == TYPEID_PLAYER)
         if (((const Player*)obj)->IsSpectator() && ((const Player*)obj)->FindMap()->IsBattleArena())
@@ -1934,16 +1940,6 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
     return true;
 }
 
-void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
-{
-    WorldPacket data(SMSG_PLAY_SOUND, 4);
-    data << Sound;
-    if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
-        this->ToPlayer()->GetSession()->SendPacket(&data);
-    else
-        SendMessageToSet(&data, true); // ToSelf ignored in this case
-}
-
 void WorldObject::SendPlayMusic(uint32 Music, bool OnlySelf)
 {
     WorldPacket data(SMSG_PLAY_MUSIC, 4);
@@ -1958,165 +1954,6 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
     _changesMask.SetBit(i);
     AddToObjectUpdateIfNeeded();
-}
-
-namespace Warhead
-{
-    class MonsterChatBuilder
-    {
-    public:
-        MonsterChatBuilder(WorldObject const* obj, ChatMsg msgtype, int32 textId, uint32 language, WorldObject const* target)
-            : i_object(obj), i_msgtype(msgtype), i_textId(textId), i_language(Language(language)), i_target(target) { }
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            if (BroadcastText const* broadcastText = sGameLocale->GetBroadcastText(i_textId))
-            {
-                uint8 gender = GENDER_MALE;
-                if (Unit const* unit = i_object->ToUnit())
-                    gender = unit->getGender();
-
-                std::string text = broadcastText->GetText(loc_idx, gender);
-                ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, text, 0, "", loc_idx);
-            }
-            else
-                LOG_ERROR("entities.object", "MonsterChatBuilder: `broadcast_text` id {} missing", i_textId);
-        }
-
-    private:
-        WorldObject const* i_object;
-        ChatMsg i_msgtype;
-        int32 i_textId;
-        Language i_language;
-        WorldObject const* i_target;
-    };
-
-    class MonsterCustomChatBuilder
-    {
-    public:
-        MonsterCustomChatBuilder(WorldObject const* obj, ChatMsg msgtype, const char* text, uint32 language, WorldObject const* target)
-            : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(Language(language)), i_target(target)
-        {}
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            ChatHandler::BuildChatPacket(data, i_msgtype, i_language, i_object, i_target, i_text, 0, "", loc_idx);
-        }
-
-    private:
-        WorldObject const* i_object;
-        ChatMsg i_msgtype;
-        const char* i_text;
-        Language i_language;
-        WorldObject const* i_target;
-    };
-}                                                           // namespace Warhead
-
-void WorldObject::MonsterSay(const char* text, uint32 language, WorldObject const* target)
-{
-    CellCoord p = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
-
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Warhead::MonsterCustomChatBuilder say_build(this, CHAT_MSG_MONSTER_SAY, text, language, target);
-    Warhead::LocalizedPacketDo<Warhead::MonsterCustomChatBuilder> say_do(say_build);
-    Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterCustomChatBuilder> > say_worker(this, CONF_GET_FLOAT("ListenRange.Say"), say_do);
-    TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterCustomChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-    cell.Visit(p, message, *GetMap(), *this, CONF_GET_FLOAT("ListenRange.Say"));
-}
-
-void WorldObject::MonsterSay(int32 textId, uint32 language, WorldObject const* target)
-{
-    CellCoord p = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
-
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Warhead::MonsterChatBuilder say_build(this, CHAT_MSG_MONSTER_SAY, textId, language, target);
-    Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> say_do(say_build);
-    Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> > say_worker(this, CONF_GET_FLOAT("ListenRange.Say"), say_do);
-    TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-    cell.Visit(p, message, *GetMap(), *this, CONF_GET_FLOAT("ListenRange.Say"));
-}
-
-void WorldObject::MonsterYell(const char* text, uint32 language, WorldObject const* target)
-{
-    CellCoord p = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
-
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Warhead::MonsterCustomChatBuilder say_build(this, CHAT_MSG_MONSTER_YELL, text, language, target);
-    Warhead::LocalizedPacketDo<Warhead::MonsterCustomChatBuilder> say_do(say_build);
-    Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterCustomChatBuilder> > say_worker(this, CONF_GET_FLOAT("ListenRange.Yell"), say_do);
-    TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterCustomChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-    cell.Visit(p, message, *GetMap(), *this, CONF_GET_FLOAT("ListenRange.Yell"));
-}
-
-void WorldObject::MonsterYell(int32 textId, uint32 language, WorldObject const* target)
-{
-    CellCoord p = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
-
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Warhead::MonsterChatBuilder say_build(this, CHAT_MSG_MONSTER_YELL, textId, language, target);
-    Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> say_do(say_build);
-    Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> > say_worker(this, CONF_GET_FLOAT("ListenRange.Yell"), say_do);
-    TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-    cell.Visit(p, message, *GetMap(), *this, CONF_GET_FLOAT("ListenRange.Yell"));
-}
-
-void WorldObject::MonsterTextEmote(const char* text, WorldObject const* target, bool IsBossEmote)
-{
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, LANG_UNIVERSAL,
-                                 this, target, text);
-    SendMessageToSetInRange(&data, (IsBossEmote ? 200.0f : CONF_GET_FLOAT("ListenRange.TextEmote")), true);
-}
-
-void WorldObject::MonsterTextEmote(int32 textId, WorldObject const* target, bool IsBossEmote)
-{
-    CellCoord p = Warhead::ComputeCellCoord(GetPositionX(), GetPositionY());
-
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Warhead::MonsterChatBuilder say_build(this, IsBossEmote ? CHAT_MSG_RAID_BOSS_EMOTE : CHAT_MSG_MONSTER_EMOTE, textId, LANG_UNIVERSAL, target);
-    Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> say_do(say_build);
-    Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> > say_worker(this, (IsBossEmote ? 200.0f : CONF_GET_FLOAT("ListenRange.TextEmote")), say_do);
-    TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::MonsterChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-    cell.Visit(p, message, *GetMap(), *this, (IsBossEmote ? 200.0f : CONF_GET_FLOAT("ListenRange.TextEmote")));
-}
-
-void WorldObject::MonsterWhisper(const char* text, Player const* target, bool IsBossWhisper)
-{
-    if (!target)
-        return;
-
-    LocaleConstant loc_idx = target->GetSession()->GetSessionDbLocaleIndex();
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, text, 0, "", loc_idx);
-    target->GetSession()->SendPacket(&data);
-}
-
-void WorldObject::MonsterWhisper(int32 textId, Player const* target, bool IsBossWhisper)
-{
-    if (!target)
-        return;
-
-    uint8 gender = GENDER_MALE;
-    if (Unit const* unit = ToUnit())
-        gender = unit->getGender();
-
-    LocaleConstant loc_idx = target->GetSession()->GetSessionDbLocaleIndex();
-
-    BroadcastText const* broadcastText = sGameLocale->GetBroadcastText(textId);
-    std::string text = broadcastText->GetText(loc_idx, gender);
-
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, IsBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, text.c_str(), 0, "", loc_idx);
-
-    target->GetSession()->SendPacket(&data);
 }
 
 void Unit::BuildHeartBeatMsg(WorldPacket* data) const
@@ -2423,7 +2260,7 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     //summon->SetName(GetName());
     if (setLevel && (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT))
     {
-        summon->setFaction(((Unit*)this)->getFaction());
+        summon->SetFaction(((Unit*)this)->GetFaction());
         summon->SetLevel(((Unit*)this)->getLevel());
     }
 
@@ -2505,6 +2342,13 @@ void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureL
     Warhead::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
     Warhead::CreatureListSearcher<Warhead::AllCreaturesOfEntryInRange> searcher(this, creatureList, check);
     Cell::VisitGridObjects(this, searcher, maxSearchRange);;
+}
+
+void WorldObject::GetDeadCreatureListInGrid(std::list<Creature*>& creaturedeadList, float maxSearchRange, bool alive /*= false*/) const
+{
+    Warhead::AllDeadCreaturesInRange check(this, maxSearchRange, alive);
+    Warhead::CreatureListSearcher<Warhead::AllDeadCreaturesInRange> searcher(this, creaturedeadList, check);
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
 /*
@@ -2672,9 +2516,18 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, 
     }
 
     // still not in LoS, give up and return first position found
-    x = first_x;
-    y = first_y;
-    z = first_z;
+    if (startPos)
+    {
+        x = searcher->GetPositionX();
+        y = searcher->GetPositionY();
+        z = searcher->GetPositionZ();
+    }
+    else
+    {
+        x = first_x;
+        y = first_y;
+        z = first_z;
+    }
 }
 
 void WorldObject::GetVoidClosePoint(float& x, float& y, float& z, float size, float distance2d /*= 0*/, float relAngle /*= 0*/, float controlZ /*= 0*/) const

@@ -39,9 +39,9 @@ struct UpdateFetcher::DirectoryEntry
 UpdateFetcher::UpdateFetcher(Path const& sourceDirectory,
                              std::function<void(std::string const&)> const& apply,
                              std::function<void(Path const& path)> const& applyFile,
-                             std::function<QueryResult(std::string const&)> const& retrieve, std::string const& dbModuleName_) :
+                             std::function<QueryResult(std::string const&)> const& retrieve, std::string const& dbModuleName, std::vector<std::string> const* setDirectories /*= nullptr*/) :
     _sourceDirectory(std::make_unique<Path>(sourceDirectory)), _apply(apply), _applyFile(applyFile),
-    _retrieve(retrieve), _dbModuleName(dbModuleName_)
+    _retrieve(retrieve), _dbModuleName(dbModuleName), _setDirectories(setDirectories)
 {
 }
 
@@ -82,7 +82,7 @@ void UpdateFetcher::FillFileListRecursively(Path const& path, LocaleFileStorage&
             if (storage.find(entry) != storage.end())
             {
                 LOG_FATAL("sql.updates", "Duplicate filename \"{}\" occurred. Because updates are ordered " \
-                          "by their filenames, every name needs to be unique!", itr->path().generic_string().c_str());
+                          "by their filenames, every name needs to be unique!", itr->path().generic_string());
 
                 throw UpdateException("Updating failed, see the log for details.");
             }
@@ -96,53 +96,71 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 {
     DirectoryStorage directories;
 
-    QueryResult const result = _retrieve("SELECT `path`, `state` FROM `updates_include`");
-    if (!result)
-        return directories;
-
-    do
+    if (_setDirectories)
     {
-        Field* fields = result->Fetch();
-
-        std::string path = fields[0].GetString();
-        std::string state = fields[1].GetString();
-        if (path.substr(0, 1) == "$")
-            path = _sourceDirectory->generic_string() + path.substr(1);
-
-        Path const p(path);
-
-        if (!is_directory(p))
+        for (auto const& itr : *_setDirectories)
         {
-            LOG_WARN("sql.updates", "DBUpdater: Given update include directory \"{}\" does not exist, skipped!", p.generic_string());
-            continue;
+            std::string path = _sourceDirectory->generic_string() + itr;
+
+            Path const p(path);
+            if (!is_directory(p))
+                continue;
+
+            DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert("MODULE")};
+            directories.push_back(entry);
+
+            LOG_TRACE("sql.updates", "Added applied extra file \"{}\" from remote.", p.filename().generic_string());
         }
-
-        DirectoryEntry const entry = { p, AppliedFileEntry::StateConvert(state) };
-        directories.push_back(entry);
-
-        LOG_TRACE("sql.updates", "Added applied file \"{}\" '{}' state from remote.", p.filename().generic_string(), state);
-
-    } while (result->NextRow());
-
-    std::vector<std::string> moduleList;
-
-    auto const& _modulesTokens = Warhead::Tokenize(WH_MODULES_LIST, ',', true);
-    for (auto const& itr : _modulesTokens)
-        moduleList.emplace_back(itr);
-
-    // data/sql
-    for (auto const& itr : moduleList)
+    }
+    else
     {
-        std::string path = _sourceDirectory->generic_string() + "/modules/" + itr + "/sql/" + _dbModuleName; // modules/mod-name/data/sql/db-world
+        QueryResult const result = _retrieve("SELECT `path`, `state` FROM `updates_include`");
+        if (!result)
+            return directories;
 
-        Path const p(path);
-        if (!is_directory(p))
-            continue;
+        do
+        {
+            Field* fields = result->Fetch();
 
-        DirectoryEntry const entry = { p, AppliedFileEntry::StateConvert("CUSTOM") };
-        directories.push_back(entry);
+            std::string path  = fields[0].GetString();
+            std::string state = fields[1].GetString();
+            if (path.substr(0, 1) == "$")
+                path = _sourceDirectory->generic_string() + path.substr(1);
 
-        LOG_TRACE("sql.updates", "Added applied modules file \"{}\" from remote.", p.filename().generic_string());
+            Path const p(path);
+
+            if (!is_directory(p))
+            {
+                LOG_WARN("sql.updates", "DBUpdater: Given update include directory \"{}\" does not exist, skipped!", p.generic_string());
+                continue;
+            }
+
+            DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert(state)};
+            directories.push_back(entry);
+
+            LOG_TRACE("sql.updates", "Added applied file \"{}\" '{}' state from remote.", p.filename().generic_string(), state);
+
+        } while (result->NextRow());
+
+        std::vector<std::string> moduleList;
+
+        auto const& _modulesTokens = Warhead::Tokenize(WH_MODULES_LIST, ',', true);
+        for (auto const& itr : _modulesTokens) moduleList.emplace_back(itr);
+
+        // data/sql
+        for (auto const& itr : moduleList)
+        {
+            std::string path = _sourceDirectory->generic_string() + "/modules/" + itr + "/data/sql/" + _dbModuleName; // modules/mod-name/data/sql/db-world
+
+            Path const p(path);
+            if (!is_directory(p))
+                continue;
+
+            DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert("MODULE")};
+            directories.push_back(entry);
+
+            LOG_TRACE("sql.updates", "Added applied modules file \"{}\" from remote.", p.filename().generic_string());
+        }
     }
 
     return directories;
@@ -179,7 +197,7 @@ std::string UpdateFetcher::ReadSQLUpdate(Path const& file) const
         LOG_FATAL("sql.updates", "Failed to open the sql update \"{}\" for reading! "
                   "Stopping the server to keep the database integrity, "
                   "try to identify and solve the issue or disable the database updater.",
-                  file.generic_string().c_str());
+                  file.generic_string());
 
         throw UpdateException("Opening the sql update failed!");
     }
@@ -201,6 +219,11 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
                                    int32 const cleanDeadReferencesMaxCount) const
 {
     LocaleFileStorage const available = GetFileList();
+    if (_setDirectories && available.empty())
+    {
+        return UpdateResult();
+    }
+
     AppliedFileStorage applied = ReceiveAppliedFiles();
 
     size_t countRecentUpdates = 0;
@@ -270,13 +293,13 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
                 {
                     LOG_WARN("sql.updates", ">> It seems like the update \"{}\" \'{}\' was renamed, but the old file is still there! " \
                              "Treating it as a new file! (It is probably an unmodified copy of the file \"{}\")",
-                             filePath.filename().string().c_str(), hash.substr(0, 7).c_str(),
-                             localeIter->first.filename().string().c_str());
+                             filePath.filename().string(), hash.substr(0, 7),
+                             localeIter->first.filename().string());
                 }
                 else // It is safe to treat the file as renamed here
                 {
                     LOG_INFO("sql.updates", ">> Renaming update \"{}\" to \"{}\" \'{}\'.",
-                             hashIter->second.c_str(), filePath.filename().string().c_str(), hash.substr(0, 7).c_str());
+                             hashIter->second, filePath.filename().string(), hash.substr(0, 7));
 
                     RenameEntry(hashIter->second, filePath.filename().string());
                     applied.erase(hashIter->second);
@@ -287,7 +310,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             else
             {
                 LOG_INFO("sql.updates", ">> Applying update \"{}\" \'{}\'...",
-                    filePath.filename().string().c_str(), hash.substr(0, 7).c_str());
+                    filePath.filename().string(), hash.substr(0, 7));
             }
         }
         // Rehash the update entry if it exists in our database with an empty hash.
@@ -296,7 +319,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             mode = MODE_REHASH;
 
             LOG_INFO("sql.updates", ">> Re-hashing update \"{}\" \'{}\'...", filePath.filename().string(),
-                hash.substr(0, 7).c_str());
+                hash.substr(0, 7));
         }
         else
         {
@@ -304,7 +327,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
             if (iter->second.hash != hash)
             {
                 LOG_INFO("sql.updates", ">> Reapplying update \"{}\" \'{}\' -> \'{}\' (it changed)...", filePath.filename().string(),
-                    iter->second.hash.substr(0, 7).c_str(), hash.substr(0, 7).c_str());
+                    iter->second.hash.substr(0, 7), hash.substr(0, 7));
             }
             else
             {
@@ -312,7 +335,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
                 if (iter->second.state != fileState)
                 {
                     LOG_DEBUG("sql.updates", ">> Updating the state of \"{}\" to \'{}\'...",
-                              filePath.filename().string().c_str(), AppliedFileEntry::StateConvert(fileState).c_str());
+                              filePath.filename().string(), AppliedFileEntry::StateConvert(fileState));
 
                     UpdateState(filePath.filename().string(), fileState);
                 }
@@ -347,37 +370,51 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
     // Apply default updates
     for (auto const& availableQuery : available)
     {
-        if (availableQuery.second != CUSTOM)
+        if (availableQuery.second != CUSTOM && availableQuery.second != MODULE)
             ApplyUpdateFile(availableQuery);
     }
 
-    // Apply only custom updates
+    // Apply only custom/module updates
     for (auto const& availableQuery : available)
     {
-        if (availableQuery.second == CUSTOM)
+        if (availableQuery.second == CUSTOM || availableQuery.second == MODULE)
             ApplyUpdateFile(availableQuery);
     }
 
     // Cleanup up orphaned entries (if enabled)
-    if (!applied.empty())
+    if (!applied.empty() && !_setDirectories)
     {
         bool const doCleanup = (cleanDeadReferencesMaxCount < 0) || (applied.size() <= static_cast<size_t>(cleanDeadReferencesMaxCount));
 
+        AppliedFileStorage toCleanup;
         for (auto const& entry : applied)
         {
-            LOG_WARN("sql.updates", ">> The file \'{}\' was applied to the database, but is missing in" \
-                     " your update directory now!", entry.first.c_str());
+            if (entry.second.state != MODULE)
+            {
+                LOG_WARN("sql.updates",
+                         ">> The file \'{}\' was applied to the database, but is missing in"
+                         " your update directory now!",
+                         entry.first);
 
-            if (doCleanup)
-                LOG_INFO("sql.updates", "Deleting orphaned entry \'{}\'...", entry.first);
+                if (doCleanup)
+                {
+                    LOG_INFO("sql.updates", "Deleting orphaned entry \'{}\'...", entry.first);
+                    toCleanup.insert(entry);
+                }
+            }
         }
 
-        if (doCleanup)
-            CleanUp(applied);
-        else
+        if (!toCleanup.empty())
         {
-            LOG_ERROR("sql.updates", "Cleanup is disabled! There were  {} dirty files applied to your database, " \
-                      "but they are now missing in your source directory!", applied.size());
+            if (doCleanup)
+                CleanUp(toCleanup);
+            else
+            {
+                LOG_ERROR("sql.updates",
+                          "Cleanup is disabled! There were {} dirty files applied to your database, "
+                          "but they are now missing in your source directory!",
+                          toCleanup.size());
+            }
         }
     }
 

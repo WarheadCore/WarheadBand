@@ -319,7 +319,7 @@ public:
                         {
                             trigger->SetDisplayId(11686);
                             trigger->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            trigger->setFaction(14);
+                            trigger->SetFaction(FACTION_MONSTER);
                             trigger->SetInCombatWithZone();
                         }
 
@@ -341,7 +341,7 @@ public:
                             {
                                 trigger->SetDisplayId(11686);
                                 trigger->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                trigger->setFaction(14);
+                                trigger->SetFaction(FACTION_MONSTER);
                                 trigger->SetInCombatWithZone();
                             }
 
@@ -879,7 +879,7 @@ public:
                     {
                         if( Creature* c = instance->GetCreature(NPC_JaraxxusGUID) )
                         {
-                            c->MonsterYell("Banished to the Nether!", LANG_UNIVERSAL, 0);
+                            c->Yell("Banished to the Nether!", LANG_UNIVERSAL);
                             c->PlayDirectSound(16146, 0);
                             if( Creature* f = instance->GetCreature(NPC_FizzlebangGUID) )
                             {

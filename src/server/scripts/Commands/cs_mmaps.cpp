@@ -138,7 +138,7 @@ public:
         int32 gx = 32 - player->GetPositionX() / SIZE_OF_GRIDS;
         int32 gy = 32 - player->GetPositionY() / SIZE_OF_GRIDS;
 
-        handler->PSendSysMessage("{:03}%02i%02i.mmtile", player->GetMapId(), gx, gy);
+        handler->PSendSysMessage("{:03}{:02}{:02}.mmtile", player->GetMapId(), gx, gy);
         handler->PSendSysMessage("gridloc [{}, {}]", gy, gx);
 
         // calculate navmesh tile location
@@ -159,7 +159,7 @@ public:
         int32 tilex = int32((y - min[0]) / SIZE_OF_GRIDS);
         int32 tiley = int32((x - min[2]) / SIZE_OF_GRIDS);
 
-        handler->PSendSysMessage("Calc   [%02i, %02i]", tilex, tiley);
+        handler->PSendSysMessage("Calc   [{:02}, {:02}]", tilex, tiley);
 
         // navmesh poly -> navmesh tile location
         dtQueryFilterExt filter = dtQueryFilterExt();
@@ -180,7 +180,7 @@ public:
             {
                 if (tile)
                 {
-                    handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
+                    handler->PSendSysMessage("Dt     [{:02},{:02}]", tile->header->x, tile->header->y);
                     return false;
                 }
             }
@@ -210,7 +210,7 @@ public:
             if (!tile || !tile->header)
                 continue;
 
-            handler->PSendSysMessage("[%02i, %02i]", tile->header->x, tile->header->y);
+            handler->PSendSysMessage("[{:02}, {:02}]", tile->header->x, tile->header->y);
         }
 
         return true;

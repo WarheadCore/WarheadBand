@@ -23,6 +23,7 @@
 #include "BattlegroundAB.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCEnums.h"
 #include "DatabaseEnv.h"
@@ -45,34 +46,6 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
-namespace Warhead
-{
-    class AchievementChatBuilder
-    {
-    public:
-        AchievementChatBuilder(Player const* player, ChatMsg msgType, uint32 textId, uint32 achievementId)
-            : _player(player), _msgType(msgType), _textId(textId), _achievementId(achievementId) { }
-
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            std::string text = "";
-
-            BroadcastText const* bct = sGameLocale->GetBroadcastText(_textId);
-
-            if (bct)
-                sGameLocale->GetLocaleString(_player->getGender() == GENDER_MALE ? bct->Text : bct->Text1, loc_idx, text);
-
-            ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _player, _player, text, _achievementId);
-        }
-
-    private:
-        Player const* _player;
-        ChatMsg _msgType;
-        int32 _textId;
-        uint32 _achievementId;
-    };
-}                                                           // namespace Warhead
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -705,8 +678,8 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId());
     if (guild)
     {
-        Warhead::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
-        Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> _localizer(_builder);
+        Warhead::BroadcastTextBuilder _builder(GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, GetPlayer()->getGender(), GetPlayer(), achievement->ID);
+        Warhead::LocalizedPacketDo<Warhead::BroadcastTextBuilder> _localizer(_builder);
         guild->BroadcastWorker(_localizer, GetPlayer());
     }
 
@@ -743,9 +716,10 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     // if player is in world he can tell his friends about new achievement
     else if (GetPlayer()->IsInWorld())
     {
-        Warhead::AchievementChatBuilder _builder(GetPlayer(), CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, achievement->ID);
-        Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder> _localizer(_builder);
-        Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::AchievementChatBuilder>> _worker(GetPlayer(), CONF_GET_FLOAT("ListenRange.Say"), _localizer);
+        Warhead::BroadcastTextBuilder _builder(GetPlayer(), CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, GetPlayer()->getGender(), GetPlayer(), achievement->ID);
+        Warhead::LocalizedPacketDo<Warhead::BroadcastTextBuilder> _localizer(_builder);
+        Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::BroadcastTextBuilder>> _worker(GetPlayer(), CONF_GET_FLOAT("ListenRange.Say"), _localizer);
+        TypeContainerVisitor<Warhead::PlayerDistWorker<Warhead::LocalizedPacketDo<Warhead::BroadcastTextBuilder>>, WorldTypeMapContainer > message(_worker);
         Cell::VisitWorldObjects(GetPlayer(), _worker, CONF_GET_FLOAT("ListenRange.Say"));
     }
 

@@ -73,8 +73,8 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
 #endif
 
     WPFatal(isSupportClientDB, "WarheadCore does not support MySQL versions below 5.7 and MariaDB 10.2\nSearch the wiki for ACE00043 in Common Errors (https://www.azerothcore.org/wiki/common-errors).");
-    WPFatal(isSameClientDB, "Used MySQL library version ({}} id {}}) does not match the version id used to compile WarheadCore (id {}}).\nSearch the wiki for ACE00046 in Common Errors (https://www.azerothcore.org/wiki/common-errors).",
-        mysql_get_client_info(), mysql_get_client_version(), MIN_MYSQL_CLIENT_VERSION);
+    WPFatal(isSameClientDB, "Used MySQL library version ({} id {}) does not match the version id used to compile WarheadCore (id {}).\nSearch the wiki for ACE00046 in Common Errors (https://www.azerothcore.org/wiki/common-errors).",
+        mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
 }
 
 template <class T>
@@ -426,6 +426,12 @@ template <class T>
 void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
 {
     _queue->Push(op);
+}
+
+template <class T>
+size_t DatabaseWorkerPool<T>::QueueSize() const
+{
+    return _queue->Size();
 }
 
 template <class T>

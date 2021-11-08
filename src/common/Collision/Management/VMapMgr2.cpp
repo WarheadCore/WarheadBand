@@ -368,12 +368,12 @@ namespace VMAP
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            LOG_ERROR("maps", "VMapMgr2: trying to unload non-loaded file '{}'", filename.c_str());
+            LOG_ERROR("maps", "VMapMgr2: trying to unload non-loaded file '{}'", filename);
             return;
         }
         if (model->second.decRefCount() == 0)
         {
-            LOG_DEBUG("maps", "VMapMgr2: unloading file '{}'", filename.c_str());
+            LOG_DEBUG("maps", "VMapMgr2: unloading file '{}'", filename);
             delete model->second.getModel();
             iLoadedModelFiles.erase(model);
         }

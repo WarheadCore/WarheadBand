@@ -31,9 +31,7 @@ class CreatureTextBuilder
 {
 public:
     CreatureTextBuilder(WorldObject* obj, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
-        : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target)
-    {
-    }
+        : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
     size_t operator()(WorldPacket* data, LocaleConstant locale) const
     {
@@ -42,6 +40,7 @@ public:
         return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);
     }
 
+private:
     WorldObject* _source;
     uint8 _gender;
     ChatMsg _msgType;
@@ -55,9 +54,7 @@ class PlayerTextBuilder
 {
 public:
     PlayerTextBuilder(WorldObject* obj, WorldObject* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
-        : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target)
-    {
-    }
+        : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
     size_t operator()(WorldPacket* data, LocaleConstant locale) const
     {
@@ -66,6 +63,7 @@ public:
         return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
     }
 
+private:
     WorldObject* _source;
     WorldObject* _talker;
     uint8 _gender;
@@ -217,7 +215,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     if (itr == textHolder.end())
     {
         LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find TextGroup {} for Creature {} ({}). Ignoring.",
-            uint32(textGroup), source->GetName().c_str(), source->GetGUID());
+            uint32(textGroup), source->GetName(), source->GetGUID());
         return 0;
     }
 
@@ -426,7 +424,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
         repeats.push_back(id);
     else
         LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup {} for Creature {} ({}), id {} already added",
-            uint32(textGroup), source->GetName().c_str(), source->GetGUID(), uint32(id));
+            uint32(textGroup), source->GetName(), source->GetGUID(), uint32(id));
 }
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)

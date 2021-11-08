@@ -72,7 +72,7 @@ public:
             { "remove",     SEC_PLAYER,         false,  &HandleAccount2FARemoveCommand,         "" },
         };
 
-        static ChatCommandTable accountCommandTable =
+        static ChatCommandTable accountRemoveCommandTable
         {
             { "2fa",        SEC_PLAYER,         true,   nullptr, "", account2faCommandTable    },
             { "addon",      SEC_MODERATOR,      false,  &HandleAccountAddonCommand,         "" },
@@ -83,6 +83,19 @@ public:
             { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable    },
             { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,      "" },
             { "info",       SEC_PLAYER,         false,  &HandleAccountInfoCommand,          "" }
+        };
+
+        static ChatCommandTable accountCommandTable =
+        {
+            { "2fa",        SEC_PLAYER,         true,   nullptr, "", account2faCommandTable        },
+            { "addon",      SEC_MODERATOR,      false,  &HandleAccountAddonCommand,             "" },
+            { "create",     SEC_CONSOLE,        true,   &HandleAccountCreateCommand,            "" },
+            { "delete",     SEC_CONSOLE,        true,   &HandleAccountDeleteCommand,            "" },
+            { "onlinelist", SEC_CONSOLE,        true,   &HandleAccountOnlineListCommand,        "" },
+            { "lock",       SEC_PLAYER,         false,  nullptr, "", accountLockCommandTable       },
+            { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable        },
+            { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,          "" },
+            { "remove",     SEC_ADMINISTRATOR,  true,   nullptr, "", accountRemoveCommandTable     }
         };
 
         static ChatCommandTable commandTable =
@@ -297,8 +310,8 @@ public:
                 if (handler->GetSession())
                 {
                     LOG_DEBUG("warden", "Account: {} (IP: {}) Character:[{}] ({}) Change Password.",
-                                   handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                                   handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID());
+                                   handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress(),
+                                   handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID());
                 }
                 break;
             case AOR_NAME_TOO_LONG:
@@ -419,7 +432,7 @@ public:
             {
                 Field* fieldsLogin = resultLogin->Fetch();
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                                         fieldsLogin[0].GetCString(), name.c_str(), fieldsLogin[1].GetCString(),
+                                         fieldsLogin[0].GetCString(), name, fieldsLogin[1].GetCString(),
                                          fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt8(),
                                          fieldsLogin[2].GetUInt8());
             }

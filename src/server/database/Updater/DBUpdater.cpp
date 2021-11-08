@@ -51,7 +51,7 @@ bool DBUpdaterUtil::CheckExecutable()
         }
 
         LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'{}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
-            absolute(exe).generic_string().c_str());
+            absolute(exe).generic_string());
 
         return false;
     }
@@ -171,7 +171,7 @@ template<class T>
 bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
 {
     LOG_WARN("sql.updates", "Database \"{}\" does not exist, do you want to create it? [yes (default) / no]: ",
-             pool.GetConnectionInfo()->database.c_str());
+             pool.GetConnectionInfo()->database);
 
     std::string answer;
     std::getline(std::cin, answer);
@@ -226,7 +226,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
     if (!is_directory(sourceDirectory))
     {
         LOG_ERROR("sql.updates", "DBUpdater: The given source directory {} does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.",
-                  sourceDirectory.generic_string().c_str());
+                  sourceDirectory.generic_string());
         return false;
     }
 
@@ -285,6 +285,67 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
         LOG_INFO("sql.updates", ">> Applied {} {}. {}", result.updated, result.updated == 1 ? "query" : "queries", info);
 
     LOG_INFO("sql.updates", "");
+
+    return true;
+}
+
+template<class T>
+bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> const* setDirectories)
+{
+    if (!DBUpdaterUtil::CheckExecutable())
+    {
+        return false;
+    }
+
+    Path const sourceDirectory(BuiltInConfig::GetSourceDirectory());
+    if (!is_directory(sourceDirectory))
+    {
+        return false;
+    }
+
+    auto CheckUpdateTable = [&](std::string const& tableName)
+    {
+        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName.c_str()));
+        if (!checkTable)
+        {
+            Path const temp(GetBaseFilesDirectory() + tableName + ".sql");
+            try
+            {
+                DBUpdater<T>::ApplyFile(pool, temp);
+            }
+            catch (UpdateException&)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return true;
+    };
+
+    if (!CheckUpdateTable("updates") || !CheckUpdateTable("updates_include"))
+    {
+        return false;
+    }
+
+    UpdateFetcher updateFetcher(sourceDirectory, [&](std::string const & query) { DBUpdater<T>::Apply(pool, query); },
+    [&](Path const & file) { DBUpdater<T>::ApplyFile(pool, file); },
+    [&](std::string const & query) -> QueryResult { return DBUpdater<T>::Retrieve(pool, query); }, DBUpdater<T>::GetDBModuleName(), setDirectories);
+
+    UpdateResult result;
+    try
+    {
+        result = updateFetcher.Update(
+                     sConfigMgr->GetOption<bool>("Updates.Redundancy", true),
+                     sConfigMgr->GetOption<bool>("Updates.AllowRehash", true),
+                     sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false),
+                     sConfigMgr->GetOption<int32>("Updates.CleanDeadRefMaxCount", 3));
+    }
+    catch (UpdateException&)
+    {
+        return false;
+    }
 
     return true;
 }

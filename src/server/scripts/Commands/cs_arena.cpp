@@ -126,7 +126,7 @@ public:
         ArenaTeam* arena = sArenaTeamMgr->GetArenaTeamByName(oldName);
         if (!arena)
         {
-            handler->PSendSysMessage(LANG_AREAN_ERROR_NAME_NOT_FOUND, oldName);
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_NOT_FOUND, oldName);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -241,7 +241,7 @@ public:
         }
 
         if (!found)
-            handler->PSendSysMessage(LANG_AREAN_ERROR_NAME_NOT_FOUND, std::string(needle));
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_NOT_FOUND, std::string(needle));
 
         return true;
     }

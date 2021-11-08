@@ -625,6 +625,10 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
+static constexpr uint32 MAX_QUEST_MONEY_REWARDS = 10;
+typedef std::array<uint32, MAX_QUEST_MONEY_REWARDS> QuestMoneyRewardArray;
+typedef std::unordered_map<uint32, QuestMoneyRewardArray> QuestMoneyRewardStore;
+
 class PlayerDumpReader;
 
 class WH_GAME_API ObjectMgr
@@ -856,6 +860,7 @@ public:
     }
 
     void LoadQuests();
+    void LoadQuestMoneyRewards();
     void LoadQuestStartersAndEnders()
     {
         LOG_INFO("server.loading", "Loading GO Start Quest Data...");
@@ -1071,6 +1076,7 @@ public:
         return nullptr;
     }
 
+    CreatureDataContainer const& GetAllCreatureData() const { return _creatureDataStore; }
     [[nodiscard]] CreatureData const* GetCreatureData(ObjectGuid::LowType spawnId) const
     {
         CreatureDataContainer::const_iterator itr = _creatureDataStore.find(spawnId);
@@ -1087,6 +1093,7 @@ public:
         return itr->second;
     }
 
+    GameObjectDataContainer const& GetAllGOData() const { return _gameObjectDataStore; }
     [[nodiscard]] GameObjectData const* GetGOData(ObjectGuid::LowType spawnId) const
     {
         GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(spawnId);
@@ -1196,6 +1203,8 @@ public:
     void LoadFactionChangeTitles();
 
     [[nodiscard]] bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
+
+    [[nodiscard]] uint32 GetQuestMoneyReward(uint8 level, uint32 questMoneyDifficulty) const;
 
 private:
     // first free id for selected id type
@@ -1344,6 +1353,8 @@ private:
     };
 
     std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
+
+    QuestMoneyRewardStore _questMoneyRewards;
 };
 
 #define sObjectMgr ObjectMgr::instance()

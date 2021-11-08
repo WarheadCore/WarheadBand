@@ -53,6 +53,18 @@
 
 using namespace Warhead::ChatCommands;
 
+static std::array<std::string, MAX_ITEM_QUALITY> itemQualityToString =
+{ {
+        "poor",
+        "normal",
+        "uncommon",
+        "rare",
+        "epic",
+        "legendary",
+        "artifact",
+        "all"
+} };
+
 class misc_commandscript : public CommandScript
 {
 public:
@@ -81,10 +93,14 @@ public:
             { "message",            SEC_ADMINISTRATOR,      true,  &HandleSendMessageCommand,           "" },
             { "money",              SEC_GAMEMASTER,         true,  &HandleSendMoneyCommand,             "" }
         };
-        static std::vector<ChatCommand> gearCommandTable =
+        static ChatCommandTable gearCommandTable =
         {
             { "repair",             SEC_GAMEMASTER,         false,  &HandleGearRepairCommand,              "" },
             { "stats",              SEC_PLAYER,             false,  &HandleGearStatsCommand,               "" }
+        };
+        static ChatCommandTable bagsCommandTable =
+        {
+            { "clear",             SEC_GAMEMASTER,         false,  &HandleBagsClearCommand,                "" },
         };
         static ChatCommandTable commandTable =
         {
@@ -141,7 +157,8 @@ public:
             { "playall",            SEC_GAMEMASTER,         false, HandlePlayAllCommand,                "" },
             { "skirmish",           SEC_ADMINISTRATOR,      false, HandleSkirmishCommand,               "" },
             { "mailbox",            SEC_MODERATOR,          false, &HandleMailBoxCommand,               "" },
-            { "string",             SEC_GAMEMASTER,         false, &HandleStringCommand,                "" }
+            { "string",             SEC_GAMEMASTER,         false, &HandleStringCommand,                "" },
+            { "bags",               SEC_GAMEMASTER,         false, nullptr,                             "", bagsCommandTable },
         };
         return commandTable;
     }
@@ -483,6 +500,7 @@ public:
 
         uint32 haveMap = Map::ExistMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
+        uint32 haveMMAP = MMAP::MMapFactory::createOrGetMMapMgr()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId()) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -501,7 +519,7 @@ public:
                                  object->GetPhaseMask(),
                                  object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
                                  cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
-                                 zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
+                                 zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMAP);
 
         LiquidData const& liquidData = object->GetLiquidData();
 
@@ -1385,7 +1403,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        GraveyardStruct const* graveyard = sGraveyard->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), teamId);
+        GraveyardStruct const* graveyard = sGraveyard->GetClosestGraveyard(player, teamId);
 
         if (graveyard)
         {
@@ -1557,8 +1575,6 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-        LOG_DEBUG("server", handler->GetWarheadString(LANG_ADDITEM), itemId, count);
-
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         if (!itemTemplate)
         {
@@ -1654,8 +1670,6 @@ public:
         Player* playerTarget = handler->getSelectedPlayer();
         if (!playerTarget)
             playerTarget = player;
-
-        LOG_DEBUG("server", handler->GetWarheadString(LANG_ADDITEMSET), itemSetId);
 
         bool found = false;
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
@@ -2835,7 +2849,7 @@ public:
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
         pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->GetFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
@@ -2949,7 +2963,9 @@ public:
     static bool HandleFreezeCommand(ChatHandler* handler, char const* args)
     {
         std::string name;
+        Unit* target = handler->getSelectedUnit();
         Player* player;
+        constexpr int Freeze = 9454;
         char const* TargetName = strtok((char*)args, " "); // get entered name
         if (!TargetName) // if no name entered use target
         {
@@ -2967,12 +2983,6 @@ public:
             player = ObjectAccessor::FindPlayerByName(name);
         }
 
-        if (!player)
-        {
-            handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
-            return true;
-        }
-
         if (player == handler->GetSession()->GetPlayer())
         {
             handler->SendSysMessage(LANG_COMMAND_FREEZE_ERROR);
@@ -2982,8 +2992,22 @@ public:
         if (player && (player != handler->GetSession()->GetPlayer()))
         {
             handler->PSendSysMessage(LANG_COMMAND_FREEZE, name);
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Freeze))
                 Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+        }
+
+        if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (target->IsAlive())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_FREEZE, name);
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Freeze))
+                Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
         }
 
         return true;
@@ -2992,8 +3016,17 @@ public:
     static bool HandleUnFreezeCommand(ChatHandler* handler, char const* args)
     {
         std::string name;
+        Unit* target = handler->getSelectedUnit();
         Player* player;
+        constexpr int Freeze = 9454;
         char* targetName = strtok((char*)args, " "); // Get entered name
+
+        if (target->HasAura(Freeze))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name);
+            target->RemoveAurasDueToSpell(Freeze);
+            return true;
+        }
 
         if (targetName)
         {
@@ -3187,7 +3220,7 @@ public:
                 const char* onlineState = p ? "online" : "offline";
 
                 handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name, onlineState,
-                    slot.guid.GetCounter(), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());*/
+                    slot.guid.GetCounter(), flags, lfg::GetRolesString(slot.roles));*/
             }
         }
         else
@@ -3211,7 +3244,7 @@ public:
         }
 
         WorldPacket data(SMSG_PLAY_SOUND, 4);
-        data << uint32(soundId) << handler->GetSession()->GetPlayer()->GetGUID();
+        data << uint32(soundId);
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
@@ -3346,6 +3379,111 @@ public:
 
         return true;
     }
+
+    static bool HandleBagsClearCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+        {
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+        {
+            return false;
+        }
+
+        uint8 itemQuality = MAX_ITEM_QUALITY;
+        std::string argstr = args;
+        for (uint8 i = ITEM_QUALITY_POOR; i < MAX_ITEM_QUALITY; ++i)
+        {
+            if (argstr == itemQualityToString[i])
+            {
+                itemQuality = i;
+                break;
+            }
+        }
+
+        if (itemQuality == MAX_ITEM_QUALITY)
+        {
+            return false;
+        }
+
+        std::array<uint32, MAX_ITEM_QUALITY> removedItems = { };
+
+        // in inventory
+        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        {
+            if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            {
+                if (ItemTemplate const* itemTemplate = item->GetTemplate())
+                {
+                    if (itemTemplate->Quality <= itemQuality)
+                    {
+                        player->DestroyItem(INVENTORY_SLOT_BAG_0, i, true);
+                        ++removedItems[itemTemplate->Quality];
+                    }
+                }
+            }
+        }
+
+        // in inventory bags
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        {
+            if (Bag* bag = player->GetBagByPos(i))
+            {
+                for (uint32 j = 0; j < bag->GetBagSize(); j++)
+                {
+                    if (Item* item = bag->GetItemByPos(j))
+                    {
+                        if (ItemTemplate const* itemTemplate = item->GetTemplate())
+                        {
+                            if (itemTemplate->Quality <= itemQuality)
+                            {
+                                player->DestroyItem(i, j, true);
+                                ++removedItems[itemTemplate->Quality];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        std::ostringstream str;
+        str << "Removed ";
+        if (itemQuality == ITEM_QUALITY_HEIRLOOM)
+        {
+            str << "all";
+        }
+        else
+        {
+            bool initialize = true;
+            for (uint8 i = ITEM_QUALITY_POOR; i < MAX_ITEM_QUALITY; ++i)
+            {
+                if (uint32 itemCount = removedItems[i])
+                {
+                    std::string itemQualityString = itemQualityToString[i];
+
+                    if (!initialize)
+                    {
+                        str << ", ";
+                    }
+
+                    str << "|c";
+                    str << std::hex << ItemQualityColors[i] << std::dec;
+                    str << itemCount << " " << itemQualityString << "|r";
+
+                    initialize = false;
+                }
+            }
+        }
+
+        str << " items from your bags.";
+
+        handler->SendSysMessage(str.str());
+
+        return true;
+    };
 };
 
 void AddSC_misc_commandscript()

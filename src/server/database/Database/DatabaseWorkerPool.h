@@ -213,8 +213,10 @@ class DatabaseWorkerPool
 #endif
         }
 
-    private:
-        uint32 OpenConnections(InternalIndex type, uint8 numConnections);
+    size_t QueueSize() const;
+
+private:
+    uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
         unsigned long EscapeString(char* to, char const* from, unsigned long length);
 

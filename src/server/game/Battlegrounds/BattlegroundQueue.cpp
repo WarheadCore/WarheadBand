@@ -49,6 +49,7 @@ BattlegroundQueue::BattlegroundQueue() : m_bgTypeId(BATTLEGROUND_TYPE_NONE), m_a
     }
 
     _queueAnnouncementTimer.fill(-1);
+    _queueAnnouncementCrossfactioned = false;
 }
 
 BattlegroundQueue::~BattlegroundQueue()
@@ -957,7 +958,17 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundBracket
 
     if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Timed"))
     {
-        uint32 qPlayers = GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_NORMAL_HORDE) + GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_NORMAL_ALLIANCE);
+        uint32 qPlayers = 0;
+
+        if (_queueAnnouncementCrossfactioned)
+        {
+            qPlayers = GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_CFBG);
+        }
+        else
+        {
+            qPlayers = GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_NORMAL_HORDE) + GetPlayersCountInGroupsQueue(bracket_id, BG_QUEUE_NORMAL_ALLIANCE);
+        }
+
         if (!qPlayers)
         {
             _queueAnnouncementTimer[bracket_id] = -1;
@@ -1096,12 +1107,12 @@ void BattlegroundQueue::SendJoinMessageArenaQueue(Player* leader, GroupQueueInfo
         uint32 qPlayers = GetPlayersCountInGroupsQueue(bracketId, BG_QUEUE_NORMAL_HORDE) + GetPlayersCountInGroupsQueue(bracketId, BG_QUEUE_NORMAL_ALLIANCE);
 
         LOG_DEBUG("bg.arena", "> Queue status for {} (skirmish {}) (Lvl: {} to {}) Queued: {} (Need at least {} more)",
-            bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
+            bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
 
         if (CONF_GET_BOOL("Arena.QueueAnnouncer.PlayerOnly"))
         {
             ChatHandler(leader->GetSession()).PSendSysMessage(LANG_ARENA_QUEUE_ANNOUNCE_SELF,
-                bgName, arenatype.c_str(), q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
+                bgName, arenatype, q_min_level, q_max_level, qPlayers, playersNeed - qPlayers);
         }
         else
         {
@@ -1151,6 +1162,17 @@ void BattlegroundQueue::SendExitMessageArenaQueue(GroupQueueInfo* ginfo)
 
     if (ArenaType && ginfo->Players.empty())
         Warhead::Text::SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, TeamName, ArenaType, ArenaType, ArenaTeamRating);
+}
+
+void BattlegroundQueue::SetQueueAnnouncementTimer(uint32 bracketId, int32 timer, bool isCrossFactionBG /*= true*/)
+{
+    _queueAnnouncementTimer[bracketId] = timer;
+    _queueAnnouncementCrossfactioned = isCrossFactionBG;
+}
+
+int32 BattlegroundQueue::GetQueueAnnouncementTimer(uint32 bracketId) const
+{
+    return _queueAnnouncementTimer[bracketId];
 }
 
 /*********************************************************/

@@ -960,6 +960,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
     }
 
+    if (cInfo->InhabitType == INHABIT_ROOT)
+    {
+        LOG_ERROR("sql.sql", "Creature (Entry: {}) only has INHABIT_ROOT(8) as `InhabitType`, creature will not behave correctly.", cInfo->Entry);
+        const_cast<CreatureTemplate*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
+    }
+
     if (cInfo->HoverHeight < 0.0f)
     {
         LOG_ERROR("sql.sql", "Creature (Entry: {}) has wrong value ({}) in `HoverHeight`", cInfo->Entry, cInfo->HoverHeight);
@@ -1726,7 +1732,9 @@ void ObjectMgr::LoadCreatures()
     //                                               0              1   2    3        4             5           6           7           8            9              10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, wander_distance, "
                          //   11               12         13       14            15         16         17          18          19                20                   21
-                         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags "
+                         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, "
+                         //   22
+                         "creature.ScriptName "
                          "FROM creature "
                          "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
                          "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1784,6 +1792,10 @@ void ObjectMgr::LoadCreatures()
         data.npcflag            = fields[19].GetUInt32();
         data.unit_flags         = fields[20].GetUInt32();
         data.dynamicflags       = fields[21].GetUInt32();
+        data.ScriptId           = GetScriptId(fields[22].GetString());
+
+        if (!data.ScriptId)
+            data.ScriptId = cInfo->ScriptID;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -2027,7 +2039,9 @@ void ObjectMgr::LoadGameobjects()
     //                                                0                1   2    3           4           5           6
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
                          //   7          8          9          10         11             12            13     14         15         16          17
-                         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry "
+                         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry, "
+                         //   18
+                         "ScriptName "
                          "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
                          "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -2093,6 +2107,9 @@ void ObjectMgr::LoadGameobjects()
         data.rotation.z     = fields[9].GetFloat();
         data.rotation.w     = fields[10].GetFloat();
         data.spawntimesecs  = fields[11].GetInt32();
+        data.ScriptId       = GetScriptId(fields[18].GetString());
+        if (!data.ScriptId)
+            data.ScriptId = gInfo->ScriptId;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -3924,27 +3941,27 @@ void ObjectMgr::LoadQuests()
                          "ID, QuestType, QuestLevel, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, TimeAllowed, AllowableRaces,"
                          //      9                     10                   11                    12
                          "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
-                         //      13                14              15             16                 17              18           19            20
-                         "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardBonusMoney, RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
-                         //   21       22       23              24                25               26
+                         //      13                14              15             16                 17                18                 19           20           21
+                         "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardMoneyDifficulty, RewardBonusMoney,  RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
+                         //   22       23       24              25                26               27
                          "StartItem, Flags, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
-                         //    27           28           29          30            31              32            33             34
+                         //    28           29           30          31            32              33            34             35
                          "RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
-                         //        35                      36                      37                      38                      39                      40                      41                      42                      43                      44                     45                      46
+                         //        36                      37                      38                      39                      40                      41                      42                      43                      44                      45                     46                      47
                          "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemID6, RewardChoiceItemQuantity6, "
-                         //       47                 48                     49                  50                  51                     52                 53                  54                     55                  56                  57                    58                   59                 60                      61
+                         //       48                 49                     50                  51                  52                     53                 54                  55                     56                  57                  58                    59                   60                 61                      62
                          "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5,  RewardFactionOverride5,"
-                         //   62        63      64        65
+                         //   62        64      65        66
                          "POIContinent, POIx, POIy, POIPriority, "
-                         //   66          67               68           69                    70
+                         //   67          68               69           70                    71
                          "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, "
-                         //      71                72                73                74                   75                     76                    77                      78
+                         //      72                73                74                75                   76                     77                    78                      79
                          "RequiredNpcOrGo1, RequiredNpcOrGo2, RequiredNpcOrGo3, RequiredNpcOrGo4, RequiredNpcOrGoCount1, RequiredNpcOrGoCount2, RequiredNpcOrGoCount3, RequiredNpcOrGoCount4, "
-                         //  79          80         81         82           83                  84                 85                  86
+                         //  80          81         82         83           84                  85                 86                  87
                          "ItemDrop1, ItemDrop2, ItemDrop3, ItemDrop4, ItemDropQuantity1, ItemDropQuantity2, ItemDropQuantity3, ItemDropQuantity4, "
-                         //      87               88               89               90               91               92                93                  94                  95                  96                  97                  98
+                         //      88               89               90               91               92               93                94                  95                  96                  97                  98                  99
                          "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-                         //  99          100             101             102             103
+                         //  100          101             102             103             104
                          "Unknown0, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4"
                          " FROM quest_template");
     if (!result)
@@ -4715,13 +4732,13 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (tmp.Talk.ChatType > CHAT_TYPE_WHISPER && tmp.Talk.ChatType != CHAT_MSG_RAID_BOSS_WHISPER)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid talk type (datalong = {}) in SCRIPT_COMMAND_TALK for script id {}",
-                                         tableName.c_str(), tmp.Talk.ChatType, tmp.id);
+                                         tableName, tmp.Talk.ChatType, tmp.id);
                         continue;
                     }
-                    if (!tmp.Talk.TextID)
+                    if (!sGameLocale->GetBroadcastText(uint32(tmp.Talk.TextID)))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid talk text id (dataint = {}) in SCRIPT_COMMAND_TALK for script id {}",
-                                         tableName.c_str(), tmp.Talk.TextID, tmp.id);
+                                         tableName, tmp.Talk.TextID, tmp.id);
                         continue;
                     }
                     break;
@@ -4732,7 +4749,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!sEmotesStore.LookupEntry(tmp.Emote.EmoteID))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid emote id (datalong = {}) in SCRIPT_COMMAND_EMOTE for script id {}",
-                                         tableName.c_str(), tmp.Emote.EmoteID, tmp.id);
+                                         tableName, tmp.Emote.EmoteID, tmp.id);
                         continue;
                     }
                     break;
@@ -4743,14 +4760,14 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!sMapStore.LookupEntry(tmp.TeleportTo.MapID))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid map (Id: {}) in SCRIPT_COMMAND_TELEPORT_TO for script id {}",
-                                         tableName.c_str(), tmp.TeleportTo.MapID, tmp.id);
+                                         tableName, tmp.TeleportTo.MapID, tmp.id);
                         continue;
                     }
 
                     if (!Warhead::IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid coordinates (X: {} Y: {} Z: {} O: {}) in SCRIPT_COMMAND_TELEPORT_TO for script id {}",
-                                         tableName.c_str(), tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation, tmp.id);
+                                         tableName, tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation, tmp.id);
                         continue;
                     }
                     break;
@@ -4762,14 +4779,14 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!quest)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid quest (ID: {}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}",
-                                         tableName.c_str(), tmp.QuestExplored.QuestID, tmp.id);
+                                         tableName, tmp.QuestExplored.QuestID, tmp.id);
                         continue;
                     }
 
                     if (!quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has quest (ID: {}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, but quest not have specialflag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. Quest modified to require objective.",
-                                         tableName.c_str(), tmp.QuestExplored.QuestID, tmp.id);
+                                         tableName, tmp.QuestExplored.QuestID, tmp.id);
 
                         // this will prevent quest completing without objective
                         const_cast<Quest*>(quest)->SetSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT);
@@ -4780,21 +4797,21 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (float(tmp.QuestExplored.Distance) > DEFAULT_VISIBILITY_DISTANCE)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has too large distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}",
-                                         tableName.c_str(), tmp.QuestExplored.Distance, tmp.id);
+                                         tableName, tmp.QuestExplored.Distance, tmp.id);
                         continue;
                     }
 
                     if (tmp.QuestExplored.Distance && float(tmp.QuestExplored.Distance) > DEFAULT_VISIBILITY_DISTANCE)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has too large distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, max distance is {} or 0 for disable distance check",
-                                         tableName.c_str(), tmp.QuestExplored.Distance, tmp.id, DEFAULT_VISIBILITY_DISTANCE);
+                                         tableName, tmp.QuestExplored.Distance, tmp.id, DEFAULT_VISIBILITY_DISTANCE);
                         continue;
                     }
 
                     if (tmp.QuestExplored.Distance && float(tmp.QuestExplored.Distance) < INTERACTION_DISTANCE)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has too small distance ({}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {}, min distance is {} or 0 for disable distance check",
-                                         tableName.c_str(), tmp.QuestExplored.Distance, tmp.id, INTERACTION_DISTANCE);
+                                         tableName, tmp.QuestExplored.Distance, tmp.id, INTERACTION_DISTANCE);
                         continue;
                     }
 
@@ -4806,7 +4823,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!GetCreatureTemplate(tmp.KillCredit.CreatureEntry))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid creature (Entry: {}) in SCRIPT_COMMAND_KILL_CREDIT for script id {}",
-                                         tableName.c_str(), tmp.KillCredit.CreatureEntry, tmp.id);
+                                         tableName, tmp.KillCredit.CreatureEntry, tmp.id);
                         continue;
                     }
                     break;
@@ -4818,7 +4835,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!data)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid gameobject (GUID: {}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {}",
-                                         tableName.c_str(), tmp.RespawnGameobject.GOGuid, tmp.id);
+                                         tableName, tmp.RespawnGameobject.GOGuid, tmp.id);
                         continue;
                     }
 
@@ -4826,7 +4843,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!info)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has gameobject with invalid entry (GUID: {} Entry: {}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {}",
-                                         tableName.c_str(), tmp.RespawnGameobject.GOGuid, data->id, tmp.id);
+                                         tableName, tmp.RespawnGameobject.GOGuid, data->id, tmp.id);
                         continue;
                     }
 
@@ -4837,7 +4854,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                             info->type == GAMEOBJECT_TYPE_TRAP)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` have gameobject type ({}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {}",
-                                         tableName.c_str(), info->entry, tmp.id);
+                                         tableName, info->entry, tmp.id);
                         continue;
                     }
                     break;
@@ -4848,7 +4865,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!Warhead::IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid coordinates (X: {} Y: {} Z: {} O: {}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {}",
-                                         tableName.c_str(), tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation, tmp.id);
+                                         tableName, tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation, tmp.id);
                         continue;
                     }
 
@@ -4856,7 +4873,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!GetCreatureTemplate(entry))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid creature (Entry: {}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {}",
-                                         tableName.c_str(), tmp.TempSummonCreature.CreatureEntry, tmp.id);
+                                         tableName, tmp.TempSummonCreature.CreatureEntry, tmp.id);
                         continue;
                     }
                     break;
@@ -4869,7 +4886,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!data)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has invalid gameobject (GUID: {}) in {} for script id {}",
-                                         tableName.c_str(), tmp.ToggleDoor.GOGuid, GetScriptCommandName(tmp.command).c_str(), tmp.id);
+                                         tableName, tmp.ToggleDoor.GOGuid, GetScriptCommandName(tmp.command), tmp.id);
                         continue;
                     }
 
@@ -4877,14 +4894,14 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!info)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has gameobject with invalid entry (GUID: {} Entry: {}) in {} for script id {}",
-                                         tableName.c_str(), tmp.ToggleDoor.GOGuid, data->id, GetScriptCommandName(tmp.command).c_str(), tmp.id);
+                                         tableName, tmp.ToggleDoor.GOGuid, data->id, GetScriptCommandName(tmp.command), tmp.id);
                         continue;
                     }
 
                     if (info->type != GAMEOBJECT_TYPE_DOOR)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has gameobject type ({}) non supported by command {} for script id {}",
-                                         tableName.c_str(), info->entry, GetScriptCommandName(tmp.command).c_str(), tmp.id);
+                                         tableName, info->entry, GetScriptCommandName(tmp.command), tmp.id);
                         continue;
                     }
 
@@ -4896,13 +4913,13 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!sSpellMgr->GetSpellInfo(tmp.RemoveAura.SpellID))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` using non-existent spell (id: {}) in SCRIPT_COMMAND_REMOVE_AURA for script id {}",
-                                         tableName.c_str(), tmp.RemoveAura.SpellID, tmp.id);
+                                         tableName, tmp.RemoveAura.SpellID, tmp.id);
                         continue;
                     }
                     if (tmp.RemoveAura.Flags & ~0x1)                    // 1 bits (0, 1)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` using unknown flags in datalong2 ({}) in SCRIPT_COMMAND_REMOVE_AURA for script id {}",
-                                         tableName.c_str(), tmp.RemoveAura.Flags, tmp.id);
+                                         tableName, tmp.RemoveAura.Flags, tmp.id);
                         continue;
                     }
                     break;
@@ -4913,25 +4930,25 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!sSpellMgr->GetSpellInfo(tmp.CastSpell.SpellID))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` using non-existent spell (id: {}) in SCRIPT_COMMAND_CAST_SPELL for script id {}",
-                                         tableName.c_str(), tmp.CastSpell.SpellID, tmp.id);
+                                         tableName, tmp.CastSpell.SpellID, tmp.id);
                         continue;
                     }
                     if (tmp.CastSpell.Flags > 4)                      // targeting type
                     {
                         LOG_ERROR("sql.sql", "Table `{}` using unknown target in datalong2 ({}) in SCRIPT_COMMAND_CAST_SPELL for script id {}",
-                                         tableName.c_str(), tmp.CastSpell.Flags, tmp.id);
+                                         tableName, tmp.CastSpell.Flags, tmp.id);
                         continue;
                     }
                     if (tmp.CastSpell.Flags != 4 && tmp.CastSpell.CreatureEntry & ~0x1)                      // 1 bit (0, 1)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` using unknown flags in dataint ({}) in SCRIPT_COMMAND_CAST_SPELL for script id {}",
-                                         tableName.c_str(), tmp.CastSpell.CreatureEntry, tmp.id);
+                                         tableName, tmp.CastSpell.CreatureEntry, tmp.id);
                         continue;
                     }
                     else if (tmp.CastSpell.Flags == 4 && !GetCreatureTemplate(tmp.CastSpell.CreatureEntry))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` using invalid creature entry in dataint ({}) in SCRIPT_COMMAND_CAST_SPELL for script id {}",
-                                         tableName.c_str(), tmp.CastSpell.CreatureEntry, tmp.id);
+                                         tableName, tmp.CastSpell.CreatureEntry, tmp.id);
                         continue;
                     }
                     break;
@@ -4942,13 +4959,13 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                     if (!GetItemTemplate(tmp.CreateItem.ItemEntry))
                     {
                         LOG_ERROR("sql.sql", "Table `{}` has nonexistent item (entry: {}) in SCRIPT_COMMAND_CREATE_ITEM for script id {}",
-                                         tableName.c_str(), tmp.CreateItem.ItemEntry, tmp.id);
+                                         tableName, tmp.CreateItem.ItemEntry, tmp.id);
                         continue;
                     }
                     if (!tmp.CreateItem.Amount)
                     {
                         LOG_ERROR("sql.sql", "Table `{}` SCRIPT_COMMAND_CREATE_ITEM but amount is {} for script id {}",
-                                         tableName.c_str(), tmp.CreateItem.Amount, tmp.id);
+                                         tableName, tmp.CreateItem.Amount, tmp.id);
                         continue;
                     }
                     break;
@@ -5157,7 +5174,7 @@ void ObjectMgr::ValidateSpellScripts()
             bool valid = true;
             if (!spellScript && !auraScript)
             {
-                LOG_ERROR("spells", "TSCR: Functions GetSpellScript() and GetAuraScript() of script `{}` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                LOG_ERROR("sql.sql", "Functions GetSpellScript() and GetAuraScript() of script `{}` do not return objects - script skipped", GetScriptName(sitr->second->second));
                 valid = false;
             }
             if (spellScript)
@@ -8354,13 +8371,20 @@ void ObjectMgr::LoadScriptNames()
 {
     uint32 oldMSTime = getMSTime();
 
-    _scriptNamesStore.push_back("");
+    // We insert an empty placeholder here so we can use the
+    // script id 0 as dummy for "no script found".
+    _scriptNamesStore.emplace_back("");
+
     QueryResult result = WorldDatabase.Query(
                              "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
                              "UNION "
                              "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
                              "UNION "
+                             "SELECT DISTINCT(ScriptName) FROM creature WHERE ScriptName <> '' "
+                             "UNION "
                              "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
+                             "UNION "
+                             "SELECT DISTINCT(ScriptName) FROM gameobject WHERE ScriptName <> '' "
                              "UNION "
                              "SELECT DISTINCT(ScriptName) FROM gameobject_template WHERE ScriptName <> '' "
                              "UNION "
@@ -8387,16 +8411,15 @@ void ObjectMgr::LoadScriptNames()
         return;
     }
 
-    uint32 count = 1;
+    _scriptNamesStore.reserve(result->GetRowCount() + 1);
 
     do
     {
         _scriptNamesStore.push_back((*result)[0].GetString());
-        ++count;
     } while (result->NextRow());
 
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
-    LOG_INFO("server.loading", ">> Loaded {} Script Names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} ScriptNames in {} ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -8414,7 +8437,7 @@ uint32 ObjectMgr::GetScriptId(std::string const& name)
         return 0;
 
     ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
-    if (itr == _scriptNamesStore.end() || *itr != name)
+    if (itr == _scriptNamesStore.end() || (*itr != name))
         return 0;
 
     return uint32(itr - _scriptNamesStore.begin());
@@ -8860,4 +8883,51 @@ void ObjectMgr::LoadCreatureQuestItems()
 
     LOG_INFO("server.loading", ">> Loaded {} creature quest items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
+}
+
+void ObjectMgr::LoadQuestMoneyRewards()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questMoneyRewards.clear();
+
+    //                                                0       1       2       3       4       5       6       7       8       9       10
+    QueryResult result = WorldDatabase.Query("SELECT `Level`, Money0, Money1, Money2, Money3, Money4, Money5, Money6, Money7, Money8, Money9 FROM `quest_money_reward` ORDER BY `Level`");
+    if (!result)
+    {
+        LOG_ERROR("server.loading", ">> Loaded 0 quest money rewards. DB table `quest_money_reward` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 Level = fields[0].GetUInt32();
+
+        QuestMoneyRewardArray& questMoneyReward = _questMoneyRewards[Level];
+        questMoneyReward.fill(0);
+
+        for (uint8 i = 0; i < MAX_QUEST_MONEY_REWARDS; ++i)
+        {
+            questMoneyReward[i] = fields[1 + i].GetUInt32();
+            ++count;
+        }
+    } while (result->NextRow());
+
+    LOG_INFO("server.loading", ">> Loaded {} Quest Money Rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint32 ObjectMgr::GetQuestMoneyReward(uint8 level, uint32 questMoneyDifficulty) const
+{
+    if (questMoneyDifficulty < MAX_QUEST_MONEY_REWARDS)
+    {
+        auto const& itr = _questMoneyRewards.find(level);
+        if (itr != _questMoneyRewards.end())
+        {
+            return itr->second.at(questMoneyDifficulty);
+        }
+    }
+
+    return 0;
 }

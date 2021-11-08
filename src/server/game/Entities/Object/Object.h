@@ -852,7 +852,7 @@ public:
     [[nodiscard]] bool IsOutdoors() const;
     LiquidData const& GetLiquidData() const;
 
-    InstanceScript* GetInstanceScript();
+    InstanceScript* GetInstanceScript() const;
 
     [[nodiscard]] std::string const& GetName() const { return m_name; }
     void SetName(std::string const& newname) { m_name = newname; }
@@ -936,15 +936,6 @@ public:
 
     virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-    void MonsterSay(const char* text, uint32 language, WorldObject const* target);
-    void MonsterYell(const char* text, uint32 language, WorldObject const* target);
-    void MonsterTextEmote(const char* text, WorldObject const* target, bool IsBossEmote = false);
-    void MonsterWhisper(const char* text, Player const* target, bool IsBossWhisper = false);
-    void MonsterSay(int32 textId, uint32 language, WorldObject const* target);
-    void MonsterYell(int32 textId, uint32 language, WorldObject const* target);
-    void MonsterTextEmote(int32 textId, WorldObject const* target, bool IsBossEmote = false);
-    void MonsterWhisper(int32 textId, Player const* target, bool IsBossWhisper = false);
-
     void PlayDistanceSound(uint32 sound_id, Player* target = nullptr);
     void PlayDirectSound(uint32 sound_id, Player* target = nullptr);
     void PlayDirectMusic(uint32 music_id, Player* target = nullptr);
@@ -970,7 +961,6 @@ public:
     FlaggedValuesArray32<int32, uint32, ServerSideVisibilityType, TOTAL_SERVERSIDE_VISIBILITY_TYPES> m_serverSideVisibilityDetect;
 
     // Low Level Packets
-    void SendPlaySound(uint32 Sound, bool OnlySelf);
     void SendPlayMusic(uint32 Music, bool OnlySelf);
 
     virtual void SetMap(Map* map);
@@ -1006,6 +996,7 @@ public:
     [[nodiscard]] Player* SelectNearestPlayer(float distance = 0) const;
     void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
     void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+    void GetDeadCreatureListInGrid(std::list<Creature*>& lList, float maxSearchRange, bool alive = false) const;
 
     void DestroyForNearbyPlayers();
     virtual void UpdateObjectVisibility(bool forced = true, bool fromUpdate = false);
