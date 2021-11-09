@@ -1,0 +1,43 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# GMChatColor module configuration
+########################################
+[worldserver]
+
+###################################################################################################
+#
+#    GMChatColor.Enable
+#        Description: Enable color in chat for GM witch GM badge.
+#        Default: 0
+#
+#    GMChatColor.Level.3
+#        Description: Message color for GM level 3.
+#        Default: "|cffff0000"
+#
+#    GMChatColor.Level.2
+#        Description: Message color for GM level 2.
+#        Default: "|cff0000ff"
+#
+#    GMChatColor.Level.1
+#        Description: Message color for GM level 1.
+#        Default: "|cff0000ff"
+#
+
+GMChatColor.Enable = 0
+GMChatColor.Level.3 = "|cffff0000"
+GMChatColor.Level.2 = "|cff0000ff"
+GMChatColor.Level.1 = "|cff0000ff"
