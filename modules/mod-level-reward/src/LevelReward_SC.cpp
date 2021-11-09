@@ -71,7 +71,7 @@ public:
             // Проверка
             if (Level > CONF_GET_INT("MaxPlayerLevel"))
             {
-                LOG_ERROR("module", "-> Level (%u) more, than max player level in world (%u). Skip", Level, CONF_GET_INT("MaxPlayerLevel"));
+                LOG_ERROR("module", "-> Level ({}) more, than max player level in world ({}). Skip", Level, CONF_GET_INT("MaxPlayerLevel"));
                 continue;
             }
 
@@ -80,14 +80,14 @@ public:
                 ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(_levelReward.ItemID);
                 if (!itemTemplate)
                 {
-                    LOG_ERROR("module", "-> For level (%u) item witch nuber %u not found. Item delete from reward", Level, _levelReward.ItemID);
+                    LOG_ERROR("module", "-> For level ({}) item witch nuber {} not found. Item delete from reward", Level, _levelReward.ItemID);
                     _levelReward.ItemID = 0;
                 }
             }
 
             if (_levelReward.ItemID && !_levelReward.ItemCount)
             {
-                LOG_ERROR("module", "-> For level (%u) item witch nuber %u adding 0 count - this useless. Set 1", Level, _levelReward.ItemID);
+                LOG_ERROR("module", "-> For level ({}) item witch nuber {} adding 0 count - this useless. Set 1", Level, _levelReward.ItemID);
                 _levelReward.ItemCount = 1;
             }
 
@@ -95,7 +95,7 @@ public:
 
         } while (result->NextRow());
 
-        LOG_INFO("module", ">> Loaded %u reward for level in %u ms", rewards.size(), GetMSTimeDiffToNow(msTime));
+        LOG_INFO("module", ">> Loaded {} reward for level in {} ms", rewards.size(), GetMSTimeDiffToNow(msTime));
         LOG_INFO("module", "");
     }
 

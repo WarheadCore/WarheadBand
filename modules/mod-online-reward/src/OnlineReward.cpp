@@ -74,13 +74,13 @@ void OnlineReward::LoadRewards()
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RPT.ItemID);
         if (!itemTemplate)
         {
-            LOG_ERROR("module", "-> Item with number %u not found. Skip", RPT.ItemID);
+            LOG_ERROR("module", "-> Item with number {} not found. Skip", RPT.ItemID);
             continue;
         }
 
         if (!RPT.ItemCount)
         {
-            LOG_ERROR("module", "-> Item count for number %u - 0. Set to 1", RPT.ItemID);
+            LOG_ERROR("module", "-> Item count for number {} - 0. Set to 1", RPT.ItemID);
             RPT.ItemCount = 1;
         }
 
@@ -88,7 +88,7 @@ void OnlineReward::LoadRewards()
 
     } while (result->NextRow());
 
-    LOG_INFO("module", ">> Loaded %u reward in %u ms", _rewards.size(), GetMSTimeDiffToNow(msTime));
+    LOG_INFO("module", ">> Loaded {} reward in {} ms", _rewards.size(), GetMSTimeDiffToNow(msTime));
     LOG_INFO("module", "");
 }
 
@@ -97,7 +97,7 @@ void OnlineReward::AddRewardHistory(ObjectGuid::LowType lowGuid)
     if (IsExistHistory(lowGuid))
         return;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT `RewardedPerOnline`, `RewardedPerHour` FROM `online_reward_history` WHERE `PlayerGuid` = %u", lowGuid);
+    QueryResult result = CharacterDatabase.PQuery("SELECT `RewardedPerOnline`, `RewardedPerHour` FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
     if (!result)
         return;
 
@@ -235,10 +235,10 @@ void OnlineReward::SaveRewardDB()
         }
 
         // Delele old data
-        trans->PAppend("DELETE FROM `online_reward_history` WHERE `PlayerGuid` = %u", lowGuid);
+        trans->PAppend("DELETE FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
 
         // Insert new data
-        trans->PAppend("INSERT INTO `online_reward_history`(`PlayerGuid`, `RewardedPerOnline`, `RewardedPerHour`) VALUES (%u, '%s', %u)", lowGuid, dataPerOnline.c_str(), dataPerTime);
+        trans->PAppend("INSERT INTO `online_reward_history`(`PlayerGuid`, `RewardedPerOnline`, `RewardedPerHour`) VALUES ({}, '{}', {})", lowGuid, dataPerOnline, dataPerTime);
     }
 
     CharacterDatabase.CommitTransaction(trans);
@@ -275,8 +275,8 @@ void OnlineReward::SendRewardForPlayer(Player* player, uint32 itemID, uint32 ite
     std::string playedTimeSecStr = Warhead::Time::ToTimeString<Seconds>(secondsOnine);
     uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
-    subject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr.c_str());
-    text = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName().c_str(), playedTimeSecStr.c_str());
+    subject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
+    text = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
 
     // Send External mail
     sEM->AddMail(player->GetName(), subject, text, itemID, itemCount, 37688);

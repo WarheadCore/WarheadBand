@@ -62,7 +62,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
     _presetById[pGUID].clear();
     _presetByName[pGUID].clear();
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = %u", pGUID.GetCounter());
+    QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = {}", pGUID.GetCounter());
     if (!result)
         return;
 
@@ -83,7 +83,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
 
             if (slot >= EQUIPMENT_SLOT_END)
             {
-                LOG_ERROR("module", "Item entry (FakeEntry: %u, playerGUID: %u, slot: %u, presetId: %u) has invalid slot, ignoring.", entry, pGUID.GetCounter(), slot, uint32(PresetID));
+                LOG_ERROR("module", "Item entry (FakeEntry: {}, playerGUID: {}, slot: {}, presetId: {}) has invalid slot, ignoring.", entry, pGUID.GetCounter(), slot, uint32(PresetID));
                 continue;
             }
 
@@ -96,7 +96,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
         else // should be deleted on startup, so  this never runs (shouldnt..)
         {
             _presetById[pGUID].erase(PresetID);
-            CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = %u AND PresetID = %u", pGUID.GetCounter(), PresetID);
+            CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", pGUID.GetCounter(), PresetID);
         }
     } while (result->NextRow());
 }
@@ -149,7 +149,7 @@ std::string const Transmogrification::GetSlotName(Player* player, uint8 slot) co
             return sModuleLocale->GetModuleString("TRANSMOG_LOCALE_TABARD", localeIndex).value_or("Tabard"); // Tabard
         default:
             {
-                LOG_FATAL("module.transmog", "> Transmog: unknown slot (%u)", slot);
+                LOG_FATAL("module.transmog", "> Transmog: unknown slot ({})", slot);
                 return "";
             }
     }
@@ -328,7 +328,7 @@ void Transmogrification::SetFakeEntry(Player* player, uint32 newEntry, uint8 /*s
     _mapStore[player->GetGUID()][itemGUID] = newEntry;
     _dataMapStore[itemGUID] = player->GetGUID();
 
-    CharacterDatabase.PExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", itemGUID.GetCounter(), newEntry, player->GetGUID().GetCounter());
+    CharacterDatabase.PExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ({}, {}, {})", itemGUID.GetCounter(), newEntry, player->GetGUID().GetCounter());
     UpdateItem(player, itemTransmogrified);
 }
 
@@ -339,8 +339,8 @@ void Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8
     // slot of the transmogrified item
     if (slot >= EQUIPMENT_SLOT_END)
     {
-        LOG_DEBUG("module.transmog", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.",
-                  player->GetGUID().GetCounter(), player->GetName().c_str(), itemGUID.GetCounter(), slot);
+        LOG_DEBUG("module.transmog", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify an item (lowguid: {}) with a wrong slot ({}) when transmogrifying items.",
+                  player->GetGUID().GetCounter(), player->GetName(), itemGUID.GetCounter(), slot);
 
         SendNotification(player, "TRANSMOG_LOCALE_TRANSMOG_INVALID_SLOT");
         return;
@@ -354,7 +354,7 @@ void Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8
         itemTransmogrifier = player->GetItemByGuid(itemGUID);
         if (!itemTransmogrifier)
         {
-            LOG_ERROR("module.transmog", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), itemGUID.GetCounter());
+            LOG_ERROR("module.transmog", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify with an invalid item (lowguid: {}).", player->GetGUID().GetCounter(), player->GetName(), itemGUID.GetCounter());
             SendNotification(player, "TRANSMOG_LOCALE_TRANSMOG_MISSING_SRC_ITEM");
             return;
         }
@@ -364,7 +364,7 @@ void Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8
     Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
     if (!itemTransmogrified)
     {
-        LOG_DEBUG("module", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUID().GetCounter(), player->GetName().c_str(), slot);
+        LOG_DEBUG("module", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) tried to transmogrify an invalid item in a valid slot (slot: {}).", player->GetGUID().GetCounter(), player->GetName(), slot);
         SendNotification(player, "TRANSMOG_LOCALE_TRANSMOG_MISSING_DEST_ITEM");
         return;
     }
@@ -378,8 +378,8 @@ void Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8
     {
         if (!CanTransmogrifyItemWithItem(player, itemTransmogrified->GetTemplate(), itemTransmogrifier->GetTemplate()))
         {
-            LOG_DEBUG("module", "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).",
-                      player->GetGUID().GetCounter(), player->GetName().c_str(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+            LOG_DEBUG("module", "WORLD: HandleTransmogrifyItems - Player (GUID: {}, name: {}) failed CanTransmogrifyItemWithItem ({} with {}).",
+                      player->GetGUID().GetCounter(), player->GetName(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
 
             SendNotification(player, "TRANSMOG_LOCALE_TRANSMOG_INVALID_ITEMS");
             return;
@@ -406,8 +406,8 @@ void Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8
             {
                 if (cost < 0)
                 {
-                    LOG_DEBUG("module", "Transmogrification::Transmogrify - %s (%u) transmogrification invalid cost (non negative, amount %i). Transmogrified %u with %u",
-                        player->GetName().c_str(), player->GetGUID().GetCounter(), -cost, itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+                    LOG_DEBUG("module", "Transmogrification::Transmogrify - {} ({}) transmogrification invalid cost (non negative, amount {}). Transmogrified {} with {}",
+                        player->GetName(), player->GetGUID().GetCounter(), -cost, itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
                 }
                 else
                 {
@@ -711,7 +711,7 @@ void Transmogrification::Init()
 
     if (!sObjectMgr->GetItemTemplate(tokenEntry))
     {
-        LOG_ERROR("module.transmog", "Transmogrification.TokenEntry (%u) does not exist. Using default.", tokenEntry);
+        LOG_ERROR("module.transmog", "Transmogrification.TokenEntry ({}) does not exist. Using default.", tokenEntry);
         sGameConfig->SetOption<int32>("Transmogrification.TokenEntry", 49426);
     }
 }
@@ -729,9 +729,9 @@ void Transmogrification::DeleteFakeFromDB(ObjectGuid::LowType itemLowGuid, Chara
     }
 
     if (trans)
-        (*trans)->PAppend("DELETE FROM custom_transmogrification WHERE GUID = %u", itemLowGuid);
+        (*trans)->PAppend("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
     else
-        CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = %u", itemLowGuid);
+        CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
 }
 
 bool Transmogrification::CanTransmogSlot(uint8 slot) const
@@ -780,7 +780,7 @@ void Transmogrification::LoadPlayerAtLogin(Player* player)
 
     _mapStore.erase(playerGUID);
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = %u", player->GetGUID().GetCounter());
+    QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
     if (result)
     {
         do
@@ -895,7 +895,7 @@ void Transmogrification::SavePreset(Player* player, Creature* creature, std::str
         }
 
         _presetByName[player->GetGUID()][presetID] = name; // Make sure code doesnt mess up SQL!
-        CharacterDatabase.PExecute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES (%u, %u, \"%s\", \"%s\")", player->GetGUID().GetCounter(), uint32(presetID), name.c_str(), ss.str().c_str());
+        CharacterDatabase.PExecute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES ({}, {}, \"{}\", \"{}\")", player->GetGUID().GetCounter(), uint32(presetID), name, ss.str());
 
         if (cost)
             player->ModifyMoney(-cost);
@@ -1077,7 +1077,7 @@ void Transmogrification::GossipViewPreset(Player* player, Creature* creature, ui
 void Transmogrification::GossipDeletePreset(Player* player, Creature* creature, uint32 const& action)
 {
     // action = presetID
-    CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = %u AND PresetID = %u", player->GetGUID().GetCounter(), action);
+    CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
     _presetById[player->GetGUID()][action].clear();
     _presetById[player->GetGUID()].erase(action);
     _presetByName[player->GetGUID()].erase(action);
