@@ -113,7 +113,7 @@ void ExternalMail::GetMailsFromDB()
 
         if (_error)
         {
-            CharacterDatabase.PExecute("UPDATE `mail_external` SET `SystemComment` = '%s' WHERE `ID` = %u", "Предмета либо НПС не существует!", ID);
+            CharacterDatabase.PExecute("UPDATE `mail_external` SET `SystemComment` = '{}' WHERE `ID` = {}", "Предмета либо НПС не существует!", ID);
             continue;
         }
 
@@ -183,6 +183,6 @@ void ExternalMail::SendMails()
 void ExternalMail::AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
 {
     // Add mail item
-    CharacterDatabase.PExecute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('%s', '%s', %u, %u, '%s', %u)",
-                               charName.c_str(), thanksSubject.c_str(), itemID, itemCount, thanksText.c_str(), creatureEntry);
+    CharacterDatabase.PExecute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('{}', '{}', {}, {}, '{}', {})",
+                               charName, thanksSubject, itemID, itemCount, thanksText, creatureEntry);
 }
