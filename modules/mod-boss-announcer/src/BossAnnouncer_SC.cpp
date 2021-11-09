@@ -23,20 +23,6 @@
 #include "GameLocale.h"
 #include "ModuleLocale.h"
 
-enum StringLocales : uint8
-{
-    BOSS_AN_LOCALE_SEND_TEXT_RAID = 1,
-    BOSS_AN_LOCALE_SEND_TEXT_WORLD,
-    BOSS_AN_LOCALE_10_MAN_NORMAL,
-    BOSS_AN_LOCALE_10_MAN_HEROIC,
-    BOSS_AN_LOCALE_25_MAN_NORMAL,
-    BOSS_AN_LOCALE_25_MAN_HEROIC,
-
-    BOSS_AN_LOCALE_MAX
-};
-
-#define MODULE_NAME "mod-boss-announcer"
-
 class Boss_Announcer_Player : public PlayerScript
 {
 public:
@@ -54,9 +40,9 @@ public:
             return;
 
         if (IsKilledRaidBoss(player))
-            sModuleLocale->SendGlobalMessage(false, MODULE_NAME, BOSS_AN_LOCALE_SEND_TEXT_RAID, player->GetName().c_str(), GetCreatureName(player, creature).c_str(), GetDiffString(player).c_str());
+            sModuleLocale->SendGlobalMessage(false, "BOSS_AN_LOCALE_SEND_TEXT_RAID", player->GetName().c_str(), GetCreatureName(player, creature).c_str(), GetDiffString(player).c_str());
         else
-            sModuleLocale->SendGlobalMessage(false, MODULE_NAME, BOSS_AN_LOCALE_SEND_TEXT_WORLD, player->GetName().c_str(), GetCreatureName(player, creature).c_str());
+            sModuleLocale->SendGlobalMessage(false, "BOSS_AN_LOCALE_SEND_TEXT_WORLD", player->GetName().c_str(), GetCreatureName(player, creature).c_str());
     };
 
 private:
@@ -74,13 +60,13 @@ private:
         switch (map->GetDifficulty())
         {
             case RAID_DIFFICULTY_10MAN_NORMAL:
-                return *sModuleLocale->GetModuleString(MODULE_NAME, BOSS_AN_LOCALE_10_MAN_NORMAL, localeIndex);
+                return *sModuleLocale->GetModuleString("BOSS_AN_LOCALE_10_MAN_NORMAL", localeIndex);
             case RAID_DIFFICULTY_10MAN_HEROIC:
-                return *sModuleLocale->GetModuleString(MODULE_NAME, BOSS_AN_LOCALE_10_MAN_HEROIC, localeIndex);
+                return *sModuleLocale->GetModuleString("BOSS_AN_LOCALE_10_MAN_HEROIC", localeIndex);
             case RAID_DIFFICULTY_25MAN_NORMAL:
-                return *sModuleLocale->GetModuleString(MODULE_NAME, BOSS_AN_LOCALE_25_MAN_NORMAL, localeIndex);
+                return *sModuleLocale->GetModuleString("BOSS_AN_LOCALE_25_MAN_NORMAL", localeIndex);
             case RAID_DIFFICULTY_25MAN_HEROIC:
-                return *sModuleLocale->GetModuleString(MODULE_NAME, BOSS_AN_LOCALE_25_MAN_HEROIC, localeIndex);
+                return *sModuleLocale->GetModuleString("BOSS_AN_LOCALE_25_MAN_HEROIC", localeIndex);
             default:
                 return "";
         }
@@ -122,11 +108,6 @@ public:
     void OnAfterConfigLoad(bool /*reload*/) override
     {
         sGameConfig->AddOption<bool>("BossAnnouncer.Enable");
-    }
-
-    void OnStartup() override
-    {
-        sModuleLocale->CheckStrings(MODULE_NAME, BOSS_AN_LOCALE_MAX);
     }
 };
 
