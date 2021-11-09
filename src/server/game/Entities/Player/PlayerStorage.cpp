@@ -6699,7 +6699,7 @@ void Player::PrettyPrintRequirementsQuestList(const std::vector<const Progressio
         std::string questTitle = questTemplate->GetTitle();
         if (QuestLocale const* questLocale = sGameLocale->GetQuestLocale(questTemplate->GetQuestId()))
         {
-            sGameLocale->GetLocaleString(questLocale->Title, loc_idx, questTitle);
+            GameLocale::GetLocaleString(questLocale->Title, loc_idx, questTitle);
         }
 
         std::stringstream stream;
@@ -6770,7 +6770,7 @@ void Player::PrettyPrintRequirementsItemsList(const std::vector<const Progressio
         std::string name = itemTemplate->Name1;
         if (ItemLocale const* il = sGameLocale->GetItemLocale(itemTemplate->ItemId))
         {
-            sGameLocale->GetLocaleString(il->Name, loc_idx, name);
+            GameLocale::GetLocaleString(il->Name, loc_idx, name);
         }
 
         std::stringstream stream;

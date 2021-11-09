@@ -19,13 +19,9 @@
 #define _LOCALE_COMMON_H_
 
 #include "Common.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include <cstdarg>
 #include <vector>
 
-namespace Warhead::Game::Locale
+namespace Warhead::Locale
 {
     void WH_GAME_API AddLocaleString(std::string&& str, LocaleConstant locale, std::vector<std::string>& data);
 }

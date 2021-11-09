@@ -553,8 +553,8 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
         {
             if (ItemLocale const* il = sGameLocale->GetItemLocale(pProto->ItemId))
             {
-                sGameLocale->GetLocaleString(il->Name, loc_idx, Name);
-                sGameLocale->GetLocaleString(il->Description, loc_idx, Description);
+                GameLocale::GetLocaleString(il->Name, loc_idx, Name);
+                GameLocale::GetLocaleString(il->Description, loc_idx, Description);
             }
         }
         // guess size
@@ -1344,7 +1344,7 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket& recvData)
         LocaleConstant loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (ItemSetNameLocale const* isnl = sGameLocale->GetItemSetNameLocale(itemid))
-                sGameLocale->GetLocaleString(isnl->Name, loc_idx, Name);
+                GameLocale::GetLocaleString(isnl->Name, loc_idx, Name);
 
         WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4 + Name.size() + 1 + 4));
         data << uint32(itemid);

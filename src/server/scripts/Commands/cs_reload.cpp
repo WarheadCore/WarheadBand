@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
+#include "Autobroadcast.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
@@ -86,9 +87,11 @@ public:
             { "areatrigger_tavern",           SEC_ADMINISTRATOR, true,  &HandleReloadAreaTriggerTavernCommand,          "" },
             { "areatrigger_teleport",         SEC_ADMINISTRATOR, true,  &HandleReloadAreaTriggerTeleportCommand,        "" },
             { "autobroadcast",                SEC_ADMINISTRATOR, true,  &HandleReloadAutobroadcastCommand,              "" },
+            { "autobroadcast_locale",         HandleReloadLocalesAutobroadcastCommand,      SEC_ADMINISTRATOR, Console::Yes },
             { "broadcast_text",               SEC_ADMINISTRATOR, true,  &HandleReloadBroadcastTextCommand,              "" },
             { "battleground_template",        SEC_ADMINISTRATOR, true,  &HandleReloadBattlegroundTemplate,              "" },
             { "command",                      SEC_ADMINISTRATOR, true,  &HandleReloadCommandCommand,                    "" },
+            { "commands_help_locale",         HandleReloadLocalesChatCommandsHelpCommand,   SEC_ADMINISTRATOR, Console::Yes },
             { "conditions",                   SEC_ADMINISTRATOR, true,  &HandleReloadConditions,                        "" },
             { "config",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     "" },
             { "creature_text",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureText,                      "" },
@@ -334,6 +337,8 @@ public:
         HandleReloadLocalesQuestCommand(handler, "a");
         HandleReloadLocalesQuestOfferRewardCommand(handler, "a");
         HandleReloadLocalesQuestRequestItemsCommand(handler, "a");
+        HandleReloadLocalesAutobroadcastCommand(handler);
+        HandleReloadLocalesChatCommandsHelpCommand(handler);
         return true;
     }
 
@@ -397,8 +402,24 @@ public:
     static bool HandleReloadAutobroadcastCommand(ChatHandler* handler, const char* /*args*/)
     {
         LOG_INFO("server.loading", "Re-Loading Autobroadcasts...");
-        sWorld->LoadAutobroadcasts();
+        sAutobroadcastMgr->Load();
         handler->SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLocalesAutobroadcastCommand(ChatHandler* handler)
+    {
+        LOG_INFO("server.loading", "Re-Loading Autobroadcasts locales...");
+        sGameLocale->LoadAutoBroadCastLocales();
+        handler->SendGlobalGMSysMessage("DB table `autobroadcast_locale` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLocalesChatCommandsHelpCommand(ChatHandler* handler)
+    {
+        LOG_INFO("server.loading", "Re-Loading ChatCommands help locales...");
+        sGameLocale->LoadChatCommandsLocales();
+        handler->SendGlobalGMSysMessage("DB table `commands_help_locale` reloaded.");
         return true;
     }
 

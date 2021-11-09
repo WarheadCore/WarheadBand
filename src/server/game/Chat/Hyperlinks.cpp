@@ -154,7 +154,7 @@ struct LinkValidator<LinkTags::item>
             if (!locale && i != DEFAULT_LOCALE)
                 continue;
 
-            std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : sGameLocale->GetLocaleString(locale->Name, i);
+            std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : GameLocale::GetLocaleString(locale->Name, i);
             if (name.empty())
                 continue;
 
@@ -200,7 +200,7 @@ struct LinkValidator<LinkTags::quest>
             if (i == DEFAULT_LOCALE)
                 continue;
 
-            std::string_view name = sGameLocale->GetLocaleString(locale->Title, i);
+            std::string_view name = GameLocale::GetLocaleString(locale->Title, i);
             if (!name.empty() && (text == name))
                 return true;
         }

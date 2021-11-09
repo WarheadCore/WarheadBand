@@ -191,7 +191,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
             continue;
 
         CreatureTextLocale& data = mLocaleTextMap[CreatureTextId(CreatureId, GroupId, ID)];
-        Warhead::Game::Locale::AddLocaleString(fields[4].GetString(), locale, data.Text);
+        Warhead::Locale::AddLocaleString(fields[4].GetString(), locale, data.Text);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Creature Text Locale in {} ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -498,7 +498,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 gender, 
     {
         LocaleCreatureTextMap::const_iterator locItr = mLocaleTextMap.find(CreatureTextId(entry, uint32(textGroup), id));
         if (locItr != mLocaleTextMap.end())
-            sGameLocale->GetLocaleString(locItr->second.Text, locale, baseText);
+            GameLocale::GetLocaleString(locItr->second.Text, locale, baseText);
     }
 
     return baseText;

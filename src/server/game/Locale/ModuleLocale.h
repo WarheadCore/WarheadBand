@@ -55,38 +55,51 @@ private:
     ModuleLocale() = default;
     ~ModuleLocale() = default;
 
-public:
-    static ModuleLocale* instance();
-
-    void Init();
-    void LoadModuleString();
-    void CheckStrings(std::string const& moduleName, uint32 maxString);
-
-    Optional<std::string> GetModuleString(std::string const& moduleName, uint32 id, uint8 _locale) const;
-    uint32 GetStringsCount(std::string const& moduleName);
-
-    // Get localized message
-    template<typename... Args>
-    inline std::string GetLocaleMessage(std::string const& moduleName, uint32 id, uint8 localeIndex, Args&&... args)
-    {
-        return Warhead::StringFormat(*GetModuleString(moduleName, id, localeIndex), std::forward<Args>(args)...);
-    }
-
-    void SendPlayerMessage(Player* player, std::function<std::string_view()> const& msg);
-    void SendGlobalMessage(bool gmOnly, std::function<std::string_view()> const& msg);
-
     ModuleLocale(ModuleLocale const&) = delete;
     ModuleLocale(ModuleLocale&&) = delete;
     ModuleLocale& operator= (ModuleLocale const&) = delete;
     ModuleLocale& operator= (ModuleLocale&&) = delete;
 
+public:
+    static ModuleLocale* instance();
+
+    void Init();
+    void LoadModuleString();
+
+    Optional<std::string> GetModuleString(std::string const& entry, uint8 _locale) const;
+
+    // Get localized message
+    template<typename... Args>
+    inline std::string GetLocaleMessage(std::string const& entry, uint8 localeIndex, Args&&... args)
+    {
+        return Warhead::StringFormat(*GetModuleString(entry, localeIndex), std::forward<Args>(args)...);
+    }
+
+    void SendPlayerMessageFmt(Player* player, std::function<std::string_view(uint8)> const& msg);
+    void SendGlobalMessageFmt(bool gmOnly, std::function<std::string_view(uint8)> const& msg);
+
+    // Send localized message to player
+    template<typename... Args>
+    void SendPlayerMessage(Player* player, std::string const& entry, Args&&... args)
+    {
+        SendPlayerMessageFmt(player, [&](uint8 index)
+        {
+            return GetLocaleMessage(entry, index, std::forward<Args>(args)...);
+        });
+    }
+
+    // Send localized message to all player
+    template<typename... Args>
+    void SendGlobalMessage(bool gmOnly, std::string const& entry, Args&&... args)
+    {
+        SendGlobalMessageFmt(gmOnly, [&](uint8 index)
+        {
+            return GetLocaleMessage(entry, index, std::forward<Args>(args)...);
+        });
+    }
+
 private:
-    using ModuleStringContainer = std::unordered_map<uint32, ModuleString>;
-    using AllModulesStringContainer = std::unordered_map<std::string, ModuleStringContainer>;
-
-    AllModulesStringContainer _modulesStringStore;
-
-    void AddModuleString(std::string const& moduleName, ModuleStringContainer& data);
+    std::unordered_map<std::string, ModuleString> _modulesStringStore;
 
     // Send packets
     void SendPlayerPacket(Player* player, WorldPacket* data);

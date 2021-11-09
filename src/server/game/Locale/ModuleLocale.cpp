@@ -35,140 +35,63 @@ ModuleLocale* ModuleLocale::instance()
 
 void ModuleLocale::Init()
 {
-    LOG_INFO("server.loading", "");
+    LOG_INFO("server.loading", " ");
     LOG_INFO("server.loading", ">> Loading modules strings");
     LoadModuleString();
 }
 
-void ModuleLocale::CheckStrings(std::string const& moduleName, uint32 maxString)
+Optional<std::string> ModuleLocale::GetModuleString(std::string const& entry, uint8 _locale) const
 {
-    uint32 stringCount = GetStringsCount(moduleName);
-    maxString--;
-
-    if (stringCount != maxString)
-        LOG_FATAL("locale.module", "> Strings locale ({}) != ({}) for module ({})", stringCount, maxString, moduleName);
-}
-
-void ModuleLocale::AddModuleString(std::string const& moduleName, ModuleStringContainer& data)
-{
-    if (data.empty())
+    if (entry.empty())
     {
-        LOG_ERROR("locale.module", "ModuleStringContainer& data for module ({}) is empty!", moduleName);
-        return;
-    }
-
-    auto const& itr = _modulesStringStore.find(moduleName);
-    if (itr != _modulesStringStore.end())
-    {
-        LOG_ERROR("locale.module", "ModuleStringContainer& existing data for module ({}). Skip", moduleName);
-        return;
-    }
-
-    _modulesStringStore.emplace(moduleName, data);
-
-    LOG_DEBUG("locale.module", "> ModulesLocales: added {} strings for ({}) module", static_cast<uint32>(data.size()), moduleName);
-}
-
-Optional<std::string> ModuleLocale::GetModuleString(std::string const& moduleName, uint32 id, uint8 _locale) const
-{
-    if (moduleName.empty())
-    {
-        LOG_ERROR("locale.module", "> ModulesLocales: moduleName is empty!");
+        LOG_ERROR("locale.module", "> ModulesLocales: Entry is empty!");
         return std::nullopt;
     }
 
-    auto const& itr = _modulesStringStore.find(moduleName);
+    auto const& itr = _modulesStringStore.find(entry);
     if (itr == _modulesStringStore.end())
     {
-        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for module ({})", moduleName);
+        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for entry ({})", entry);
         return std::nullopt;
     }
 
-    auto const& itr2 = itr->second.find(id);
-    if (itr2 == itr->second.end())
-    {
-        LOG_FATAL("locale.module", "> ModulesLocales: Not found string ({}) for module ({})", id, moduleName);
-        return std::nullopt;
-    }
-
-    return itr2->second.GetText(_locale);
-}
-
-uint32 ModuleLocale::GetStringsCount(std::string const& moduleName)
-{
-    if (moduleName.empty())
-    {
-        LOG_ERROR("locale.module", "> ModulesLocales: _moduleName is empty!");
-        return 0;
-    }
-
-    auto const& itr = _modulesStringStore.find(moduleName);
-    if (itr == _modulesStringStore.end())
-    {
-        LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for module ({})", moduleName);
-        return 0;
-    }
-
-    return static_cast<uint32>(itr->second.size());
+    return itr->second.GetText(_locale);
 }
 
 void ModuleLocale::LoadModuleString()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT DISTINCT `ModuleName` FROM `string_module`");
+    _modulesStringStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT `Entry`, `Locale`, `Text` FROM `string_module`");
     if (!result)
     {
-        LOG_WARN("server.loading", "> DB table `string_module` is empty");
+        LOG_INFO("server.loading", "> DB table `string_module` is empty");
+        LOG_INFO("server.loading", " ");
         return;
     }
 
-    ModuleStringContainer _tempStore;
-    std::vector<std::string> _localesModuleList;
-    uint32 countAll = 0;
-
-    // Add module list
     do
     {
-        _localesModuleList.push_back(result->Fetch()->GetString());
+        Field* fields = result->Fetch();
+
+        auto& data = _modulesStringStore[fields[0].GetString()];
+
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), GetLocaleByName(fields[1].GetString()), data.Content);
 
     } while (result->NextRow());
 
-    for (auto const& itr : _localesModuleList)
-    {
-        std::string const& moduleName = itr;
-
-        result = WorldDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `string_module` WHERE `ModuleName` = '{}'", moduleName);
-        if (!result)
-        {
-            LOG_ERROR("sql.sql", "> Strings for module {} is bad!", moduleName);
-            return;
-        }
-
-        _tempStore.clear();
-
-        do
-        {
-            Field* fields = result->Fetch();
-
-            Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), GetLocaleByName(fields[1].GetString()), _tempStore[fields[0].GetUInt32()].Content);
-            countAll++;
-
-        } while (result->NextRow());
-
-        AddModuleString(moduleName, _tempStore);
-    }
-
-    LOG_INFO("server.loading", ">> Loaded {} module strings for {} modules in {} ms", countAll, static_cast<uint32>(_modulesStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", "");
+    LOG_INFO("server.loading", ">> Loaded {} module strings in {} ms", _modulesStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
-void ModuleLocale::SendPlayerMessage(Player* player, std::function<std::string_view()> const& msg)
+void ModuleLocale::SendPlayerMessageFmt(Player* player, std::function<std::string_view(uint8)> const& msg)
 {
-    if (msg().empty())
+    if (!msg)
         return;
 
-    for (std::string_view line : Warhead::Tokenize(msg(), '\n', true))
+    for (std::string_view line : Warhead::Tokenize(msg(player->GetSession()->GetSessionDbLocaleIndex()), '\n', true))
     {
         WorldPacket data;
         ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
@@ -176,9 +99,9 @@ void ModuleLocale::SendPlayerMessage(Player* player, std::function<std::string_v
     }
 }
 
-void ModuleLocale::SendGlobalMessage(bool gmOnly, std::function<std::string_view()> const& msg)
+void ModuleLocale::SendGlobalMessageFmt(bool gmOnly, std::function<std::string_view(uint8)> const& msg)
 {
-    if (msg().empty())
+    if (!msg)
         return;
 
     for (auto const& [accountID, session] : sWorld->GetAllSessions())
@@ -190,7 +113,7 @@ void ModuleLocale::SendGlobalMessage(bool gmOnly, std::function<std::string_view
         if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && gmOnly)
             continue;
 
-        for (std::string_view line : Warhead::Tokenize(msg(), '\n', true))
+        for (std::string_view line : Warhead::Tokenize(msg(player->GetSession()->GetSessionDbLocaleIndex()), '\n', true))
         {
             WorldPacket data;
             ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);

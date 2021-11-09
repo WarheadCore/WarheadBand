@@ -27,7 +27,8 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
-//#include "GameConfig.h"
+#include "GameConfig.h"
+#include "Realm.h"
 
 GameLocale* GameLocale::instance()
 {
@@ -56,6 +57,8 @@ void GameLocale::LoadAllLocales()
     LoadQuestLocales();
     LoadQuestOfferRewardLocale();
     LoadQuestRequestItemsLocale();
+    LoadChatCommandsLocales();
+    LoadAutoBroadCastLocales();
     //LoadQuestGreetingLocales(); // not implement
 
     // Load new strings
@@ -94,7 +97,7 @@ bool GameLocale::LoadWarheadStrings()
         data.Content.resize(DEFAULT_LOCALE + 1);
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            Warhead::Game::Locale::AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
+            Warhead::Locale::AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} warhead strings in {} ms", static_cast<uint32>(_warheadStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -157,8 +160,8 @@ void GameLocale::LoadAchievementRewardLocales()
 
         AchievementRewardLocale& data = _achievementRewardLocales[ID];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Subject);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.Text);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Subject);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Text);
 
     } while (result->NextRow());
 
@@ -271,8 +274,8 @@ void GameLocale::LoadBroadcastTextLocales()
         /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
             continue;*/
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, bct->second.Text);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, bct->second.Text1);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, bct->second.Text);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, bct->second.Text1);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} broadcast text locales in {} ms", static_cast<uint32>(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -303,8 +306,8 @@ void GameLocale::LoadCreatureLocales()
 
         CreatureLocale& data = _creatureLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.Title);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Title);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} creature Locale strings in {} ms", static_cast<uint32>(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -337,8 +340,8 @@ void GameLocale::LoadGossipMenuItemsLocales()
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, optionId)];
 
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.OptionText);
-        Warhead::Game::Locale::AddLocaleString(fields[4].GetString(), locale, data.BoxText);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.OptionText);
+        Warhead::Locale::AddLocaleString(fields[4].GetString(), locale, data.BoxText);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Gossip Menu Option Locale strings in {} ms", static_cast<uint32>(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -369,8 +372,8 @@ void GameLocale::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.CastBarCaption);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.CastBarCaption);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Gameobject Locale strings in {} ms", static_cast<uint32>(_gameObjectLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -400,8 +403,8 @@ void GameLocale::LoadItemLocales()
 
         ItemLocale& data = _itemLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.Description);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Description);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Item Locale strings in {} ms", static_cast<uint32>(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -432,7 +435,7 @@ void GameLocale::LoadItemSetNameLocales()
 
         ItemSetNameLocale& data = _itemSetNameLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Item Set Name Locale strings in {} ms", static_cast<uint32>(_itemSetNameLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -468,8 +471,8 @@ void GameLocale::LoadNpcTextLocales()
 
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            Warhead::Game::Locale::AddLocaleString(fields[2 + i * 2].GetString(), locale, data.Text_0[i]);
-            Warhead::Game::Locale::AddLocaleString(fields[3 + i * 2].GetString(), locale, data.Text_1[i]);
+            Warhead::Locale::AddLocaleString(fields[2 + i * 2].GetString(), locale, data.Text_0[i]);
+            Warhead::Locale::AddLocaleString(fields[3 + i * 2].GetString(), locale, data.Text_1[i]);
         }
     } while (result->NextRow());
 
@@ -502,7 +505,7 @@ void GameLocale::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Text);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Text);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Page Text Locale strings in {} ms", static_cast<uint32>(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -534,7 +537,7 @@ void GameLocale::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Points Of Interest Locale strings in {} ms", static_cast<uint32>(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -565,14 +568,14 @@ void GameLocale::LoadQuestLocales()
 
         QuestLocale& data = _questLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.Title);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.Details);
-        Warhead::Game::Locale::AddLocaleString(fields[4].GetString(), locale, data.Objectives);
-        Warhead::Game::Locale::AddLocaleString(fields[5].GetString(), locale, data.AreaDescription);
-        Warhead::Game::Locale::AddLocaleString(fields[6].GetString(), locale, data.CompletedText);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Title);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Details);
+        Warhead::Locale::AddLocaleString(fields[4].GetString(), locale, data.Objectives);
+        Warhead::Locale::AddLocaleString(fields[5].GetString(), locale, data.AreaDescription);
+        Warhead::Locale::AddLocaleString(fields[6].GetString(), locale, data.CompletedText);
 
         for (uint8 i = 0; i < 4; ++i)
-            Warhead::Game::Locale::AddLocaleString(fields[i + 7].GetString(), locale, data.ObjectiveText[i]);
+            Warhead::Locale::AddLocaleString(fields[i + 7].GetString(), locale, data.ObjectiveText[i]);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Quest Locale strings in {} ms", static_cast<uint32>(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -603,7 +606,7 @@ void GameLocale::LoadQuestOfferRewardLocale()
 
         QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.RewardText);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.RewardText);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Quest Offer Reward locale strings in {} ms", static_cast<uint32>(_questOfferRewardLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -634,10 +637,76 @@ void GameLocale::LoadQuestRequestItemsLocale()
 
         QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.CompletionText);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.CompletionText);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Quest Request Items locale strings in {} ms", static_cast<uint32>(_questRequestItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void GameLocale::LoadChatCommandsLocales()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _chatCommandStringStore.clear(); // need for reload case
+
+    //                                                     0       1        2
+    QueryResult result = WorldDatabase.Query("SELECT `Command`, `Locale`, `Content` FROM commands_help_locale");
+    if (!result)
+    {
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+        std::string commandName = fields[0].GetString();
+
+        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        if (locale == LOCALE_enUS)
+            continue;
+
+        /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
+            continue;*/
+
+        ChatCommandHelpLocale& data = _chatCommandStringStore[commandName];
+
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Content);
+    } while (result->NextRow());
+
+    LOG_INFO("server.loading", ">> Loaded {} Chat commands help strings locale in {} ms", _chatCommandStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void GameLocale::LoadAutoBroadCastLocales()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _autobroadLocaleStore.clear(); // need for reload case
+
+    //                                                 0          1       2
+    QueryResult result = LoginDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm);
+    if (!result)
+    {
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 id = fields[0].GetUInt32();
+
+        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        if (locale == LOCALE_enUS)
+            continue;
+
+        /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
+            continue;*/
+
+        auto& data = _autobroadLocaleStore[id];
+
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Text);
+    } while (result->NextRow());
+
+    LOG_INFO("server.loading", ">> Loaded {} autobroadcast text locale in {} ms", _chatCommandStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void GameLocale::LoadQuestGreetingLocales()
@@ -682,7 +751,7 @@ void GameLocale::LoadQuestGreetingLocales()
 
         QuestGreetingLocale& data = _questGreetingLocaleStore[MAKE_PAIR32(id, type)];
 
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.greeting);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.greeting);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} quest greeting locale strings in {} ms", static_cast<uint32>(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -772,6 +841,29 @@ QuestGreetingLocale const* GameLocale::GetQuestGreetingLocale(uint32 id) const
     return itr != _questGreetingLocaleStore.end() ? &itr->second : nullptr;
 }
 
+AutobroadcastLocale const* GameLocale::GetAutoBroadCastLocale(uint32 id) const
+{
+    auto const& itr = _autobroadLocaleStore.find(id);
+    return itr != _autobroadLocaleStore.end() ? &itr->second : nullptr;
+}
+
+Optional<std::string> GameLocale::GetChatCommandStringHelpLocale(std::string const& commandName, LocaleConstant locale) const
+{
+    auto const& itr = _chatCommandStringStore.find(commandName);
+    if (itr == _chatCommandStringStore.end())
+    {
+        //LOG_ERROR("sql.sql", "> Missing help text localisation for commnd '{}'", commandName);
+        return std::nullopt;
+    }
+
+    if (itr->second.Content.size() > size_t(locale) && !itr->second.Content[locale].empty())
+    {
+        return itr->second.Content.at(locale);
+    }
+
+    return itr->second.Content[DEFAULT_LOCALE];
+}
+
 // New locale
 void GameLocale::LoadRaceStrings()
 {
@@ -798,8 +890,8 @@ void GameLocale::LoadRaceStrings()
 
         auto& data = _raceStringStore[ID];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.NameMale);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.NameFemale);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.NameMale);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.NameFemale);
 
     } while (result->NextRow());
 
@@ -832,8 +924,8 @@ void GameLocale::LoadClassStrings()
 
         auto& data = _classStringStore[ID];
 
-        Warhead::Game::Locale::AddLocaleString(fields[2].GetString(), locale, data.NameMale);
-        Warhead::Game::Locale::AddLocaleString(fields[3].GetString(), locale, data.NameFemale);
+        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.NameMale);
+        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.NameFemale);
 
     } while (result->NextRow());
 

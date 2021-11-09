@@ -414,7 +414,8 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "vmap.enableHeight",
     "vmap.enableIndoorCheck",
     "vmap.enableLOS",
-    "vmap.petLOS" });
+    "vmap.petLOS",
+    "World.RealmAvailability" });
 
     /*
      * string configs
