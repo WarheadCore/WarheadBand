@@ -323,7 +323,7 @@ public:
 
         void DoAction(int32 action) override
         {
-            if (action == ACTION_RESET_MAGMADAR_ENCOUNTER)
+            if (action == ACTION_RESET_GOLEMAGG_ENCOUNTER)
             {
                 if (Creature* golemagg = instance->GetCreature(_golemaggGUID))
                 {

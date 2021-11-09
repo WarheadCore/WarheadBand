@@ -4097,10 +4097,17 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->Dispel = DISPEL_NONE;
     });
 
-    //////////////////////////////////////////
-    ////////// ULDUAR
-    //////////////////////////////////////////
-    ApplySpellFix({ 64014, 64032, 64028, 64031, 64030, 64029, 64024, 64025, 65042 }, [](SpellEntry* spellInfo)
+    ApplySpellFix({
+        64014,  // Expedition Base Camp Teleport
+        64032,  // Formation Grounds Teleport
+        64028,  // Colossal Forge Teleport
+        64031,  // Scrapyard Teleport
+        64030,  // Antechamber Teleport
+        64029,  // Shattered Walkway Teleport
+        64024,  // Conservatory Teleport
+        64025,  // Halls of Invention Teleport
+        65042   // Prison of Yogg-Saron Teleport
+        }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectImplicitTargetB[EFFECT_1] = TARGET_DEST_DB;
     });
@@ -7078,8 +7085,16 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_DEST_AREA_ENTRY;
     });
 
-    // Mangletooth Quests (http://www.wowhead.com/npc=3430)
-    ApplySpellFix({ 7764, 10767, 16610, 16612, 16618, 17013 }, [](SpellEntry* spellInfo)
+    // Mangletooth
+    ApplySpellFix({
+        7764,   // Wisdom of Agamaggan
+        10767,  // Rising Spirit
+        16610,  // Razorhide
+        16612,  // Agamaggan's Strength
+        16618,  // Spirit of the Wind
+        17013   // Agamaggan's Agility
+        }, [](SpellEntry* spellInfo)
+
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
         spellInfo->AttributesEx5 |= SPELL_ATTR5_ALWAYS_AOE_LINE_OF_SIGHT;
@@ -7127,7 +7142,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_CHARM;
     });
 
-    // Persistent Shield (fixes idiocity)
+    // Persistent Shield
     ApplySpellFix({ 26467 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectApplyAuraName[0] = SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE;
@@ -7294,7 +7309,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
     });
 
-    // Various food
+    // Food
     ApplySpellFix({ 65418 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectTriggerSpell[2] = 65410;
@@ -7342,7 +7357,6 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectImplicitTargetA[EFFECT_2] = TARGET_UNIT_TARGET_ANY;
     });
 
-    // Check for SPELL_ATTR7_CAN_CAUSE_INTERRUPT
     ApplySpellFix({
         47476,  // Deathknight - Strangulate
         15487,  // Priest - Silence
@@ -7354,10 +7368,10 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->AttributesEx7 |= SPELL_ATTR7_CAN_CAUSE_INTERRUPT;
     });
 
-    // Clicking on Warlock Summoning portal should not require mana
+    // Ritual of Summoning
     ApplySpellFix({ 61994 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->ManaCostPercentage = 0;
+        spellInfo->ManaCostPercentage = 0; // Clicking on Warlock Summoning portal should not require mana
     });
 
     // Shadowmeld
@@ -7372,13 +7386,13 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->Speed = 0.0f;
     });
 
-    // 53651 Light's Beacon
+    // Light's Beacon
     ApplySpellFix({ 53651 }, [](SpellEntry* spellInfo)
     {
         spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
     });
 
-    // 16097 Shadow Hunter Vosh'gajin - Hex
+    // Shadow Hunter Vosh'gajin - Hex
     ApplySpellFix({ 16097 }, [](SpellEntry* spellInfo)
     {
         spellInfo->CastingTimeIndex = 16;
@@ -7390,27 +7404,27 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->RangeIndex = 5; // 40yd
     });
 
-    // 29519 - Silithyst
+    // Silithyst
     ApplySpellFix({ 29519 }, [](SpellEntry* spellInfo)
     {
         spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DECREASE_SPEED;
         spellInfo->EffectBasePoints[EFFECT_0] = -25;
     });
 
-    // Ulduar: Kologarn Focused Eyebeam Summon Trigger
+    // Focused Eyebeam Summon Trigger
     ApplySpellFix({ 63342 }, [](SpellEntry* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
         spellInfo->EffectImplicitTargetB[EFFECT_0] = 0;
     });
 
-    // Item: Luffa removes only 1 bleed effect
+    // Luffa
     ApplySpellFix({ 23595 }, [](SpellEntry* spellInfo)
     {
-        spellInfo->EffectBasePoints[EFFECT_0] = 1;
+        spellInfo->EffectBasePoints[EFFECT_0] = 1; // Remove only 1 bleed effect
     });
 
-    // Eye of Kilrogg Passive
+    // Eye of Kilrogg Passive (DND)
     ApplySpellFix({ 2585 }, [](SpellEntry* spellInfo)
     {
         spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
@@ -7420,6 +7434,13 @@ void SpellMgr::LoadDbcDataCorrections()
     ApplySpellFix({ 42380, 42587 }, [](SpellEntry* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_ALWAYS_HIT;
+    });
+
+    // Ashenvale Outrunner Sneak
+    // Stealth
+    ApplySpellFix({ 20540, 32199 }, [](SpellEntry* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags |= (AURA_INTERRUPT_FLAG_MELEE_ATTACK | AURA_INTERRUPT_FLAG_CAST);
     });
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
