@@ -22,6 +22,7 @@
 #include "ScriptedGossip.h"
 #include "Spell.h"
 #include "npc_stave_of_ancients.h"
+#include "GameTime.h"
 
 uint32 NPCStaveQuestAI::GetFormEntry(std::string type)
 {
@@ -604,7 +605,7 @@ public:
             if (Precious()->isDead())
             {
                 // Make it so that Precious respawns after Simone
-                uint32 respawnTime = me->GetRespawnTime() - time(nullptr);
+                uint32 respawnTime = me->GetRespawnTime() - GameTime::GetGameTime().count();
                 Precious()->SetRespawnTime(respawnTime);
                 return;
             }

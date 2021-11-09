@@ -47,7 +47,7 @@ void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::s
      * Mute will be in effect right away.
      * If Mute.AddAfterLogin mute will be in effect starting from the next login.
      */
-    uint64 muteDate = CONF_GET_BOOL("Mute.AddAfterLogin.Enable") && !targetSession ? 0 : GameTime::GetGameTime();
+    uint64 muteDate = CONF_GET_BOOL("Mute.AddAfterLogin.Enable") && !targetSession ? 0 : GameTime::GetGameTime().count();
 
     if (targetSession)
         SetMuteTime(accountId, muteTime);
@@ -94,7 +94,7 @@ void MuteMgr::SetMuteTime(uint32 accountID, uint64 muteDate)
 
 void MuteMgr::SetMuteTime(uint32 accountID, Seconds muteTime)
 {
-    SetMuteTime(accountID, GameTime::GetGameTime() + muteTime.count());
+    SetMuteTime(accountID, GameTime::GetGameTime().count() + muteTime.count());
 }
 
 uint64 MuteMgr::GetMuteDate(uint32 accountID)
@@ -128,7 +128,7 @@ void MuteMgr::DeleteMuteTime(uint32 accountID, bool delFromDB /*= true*/)
 void MuteMgr::CheckMuteExpired(uint32 accountID)
 {
     time_t _muteTime = static_cast<time_t>(GetMuteDate(accountID));
-    auto timeNow = GameTime::GetGameTime();
+    auto timeNow = GameTime::GetGameTime().count();
 
     if (!_muteTime || _muteTime > timeNow)
         return;
@@ -138,12 +138,12 @@ void MuteMgr::CheckMuteExpired(uint32 accountID)
 
 std::string const MuteMgr::GetMuteTimeString(uint32 accountID)
 {
-    return Warhead::Time::ToTimeString<Seconds>(GetMuteDate(accountID) - GameTime::GetGameTime());
+    return Warhead::Time::ToTimeString<Seconds>(GetMuteDate(accountID) - GameTime::GetGameTime().count());
 }
 
 bool MuteMgr::CanSpeak(uint32 accountID)
 {
-    return static_cast<time_t>(GetMuteDate(accountID)) <= GameTime::GetGameTime();
+    return static_cast<time_t>(GetMuteDate(accountID)) <= GameTime::GetGameTime().count();
 }
 
 void MuteMgr::LoginAccount(uint32 accountID)
@@ -173,7 +173,7 @@ void MuteMgr::LoginAccount(uint32 accountID)
     if (!mutedate)
     {
         // Set now time (add mute after login)
-        mutedate = GameTime::GetGameTime();
+        mutedate = GameTime::GetGameTime().count();
     }
 
     UpdateMuteAccount(accountID, mutedate);

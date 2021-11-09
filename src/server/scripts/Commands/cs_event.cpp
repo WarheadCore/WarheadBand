@@ -116,8 +116,8 @@ public:
         std::string endTimeStr = Warhead::Time::TimeToTimestampStr(eventData.end);
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
-        time_t nextTime = GameTime::GetGameTime() + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Warhead::Time::TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
+        time_t nextTime = GameTime::GetGameTime().count() + delay;
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Warhead::Time::TimeToTimestampStr(GameTime::GetGameTime().count() + delay) : "-";
 
         std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE);
         std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE);

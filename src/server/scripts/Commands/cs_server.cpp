@@ -234,7 +234,7 @@ public:
         uint32 activeSessionCount = sWorld->GetActiveSessionCount();
         uint32 queuedSessionCount = sWorld->GetQueuedSessionCount();
         uint32 connPeak = sWorld->GetMaxActiveSessionCount();
-        std::string uptime = Warhead::Time::ToTimeString<Seconds>(GameTime::GetUptime());
+        std::string uptime = Warhead::Time::ToTimeString<Seconds>(GameTime::GetUptime().count());
         uint32 updateTime = sWorldUpdateTime.GetLastUpdateTime();
 
         handler->PSendSysMessage("{}", GitRevision::GetFullVersion());

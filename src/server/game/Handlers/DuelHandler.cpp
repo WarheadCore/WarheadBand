@@ -42,7 +42,7 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     LOG_DEBUG("network.opcode", "Player 1 is: {} ({})", player->GetGUID().ToString(), player->GetName());
     LOG_DEBUG("network.opcode", "Player 2 is: {} ({})", plTarget->GetGUID().ToString(), plTarget->GetName());
 
-    time_t now = GameTime::GetGameTime();
+    time_t now = GameTime::GetGameTime().count();
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 

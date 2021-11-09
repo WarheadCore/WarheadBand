@@ -118,7 +118,7 @@ public:
             {
                 case EVENT_CLEARWATER_ANNOUNCE:
                     {
-                        time_t curtime = GameTime::GetGameTime();
+                        time_t curtime = GameTime::GetGameTime().count();
                         tm strdate;
                         localtime_r(&curtime, &strdate);
 
@@ -262,7 +262,7 @@ public:
             {
                 case EVENT_RIGGLE_ANNOUNCE:
                     {
-                        time_t curtime = GameTime::GetGameTime();
+                        time_t curtime = GameTime::GetGameTime().count();
                         tm strdate;
                         localtime_r(&curtime, &strdate);
                         if (!startWarning && strdate.tm_hour == 14 && strdate.tm_min == 0)

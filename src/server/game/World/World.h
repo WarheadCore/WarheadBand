@@ -286,9 +286,9 @@ public:
     std::string const& GetDataPath() const { return m_dataPath; }
 
     /// Next daily quests and random bg reset time
-    time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
-    time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
-    time_t GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
+    Seconds GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
+    Seconds GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
+    Seconds GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
 
     /// Get the maximum skill level a player can reach
     uint16 GetConfigMaxSkillValue() const;
@@ -317,8 +317,8 @@ public:
 
     void UpdateSessions(uint32 diff);
 
-    void setWorldState(uint32 index, uint64 value);
-    uint64 getWorldState(uint32 index) const;
+    void setWorldState(uint32 index, Seconds value);
+    Seconds getWorldState(uint32 index) const;
     void LoadWorldStates();
 
     /// Are we on a "Player versus Player" server?
@@ -417,7 +417,7 @@ private:
     bool m_isClosed;
 
     IntervalTimer m_timers[WUPDATE_COUNT];
-    time_t mail_expire_check_timer;
+    Seconds mail_expire_check_timer;
 
     SessionMap m_sessions;
     SessionMap m_offlineSessions;
@@ -430,7 +430,7 @@ private:
 
     std::string m_newCharString;
 
-    typedef std::map<uint32, uint64> WorldStatesMap;
+    typedef std::map<uint32, Seconds> WorldStatesMap;
     WorldStatesMap m_worldstates;
     uint32 m_playerLimit;
     AccountTypes m_allowedSecurityLevel;
@@ -455,12 +455,12 @@ private:
     LockedQueue<CliCommandHolder*> cliCmdQueue;
 
     // next daily quests and random bg reset time
-    time_t m_NextDailyQuestReset;
-    time_t m_NextWeeklyQuestReset;
-    time_t m_NextMonthlyQuestReset;
-    time_t m_NextRandomBGReset;
-    time_t m_NextCalendarOldEventsDeletionTime;
-    time_t m_NextGuildReset;
+    Seconds m_NextDailyQuestReset;
+    Seconds m_NextWeeklyQuestReset;
+    Seconds m_NextMonthlyQuestReset;
+    Seconds m_NextRandomBGReset;
+    Seconds m_NextCalendarOldEventsDeletionTime;
+    Seconds m_NextGuildReset;
 
     //Player Queue
     Queue m_QueuedPlayer;

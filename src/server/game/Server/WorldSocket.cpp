@@ -351,7 +351,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 _worldSession->ResetTimeOutTime(true);
             return ReadDataHandlerResult::Ok;
         case CMSG_TIME_SYNC_RESP:
-            packetToQueue = new WorldPacket(std::move(packet), GameTime::GetGameTimeSteadyPoint());
+            packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
             break;
         default:
             packetToQueue = new WorldPacket(std::move(packet));
@@ -617,13 +617,13 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
     recvPacket >> ping;
     recvPacket >> latency;
 
-    if (_LastPingTime == steady_clock::time_point())
+    if (_LastPingTime == TimePoint())
     {
         _LastPingTime = steady_clock::now();
     }
     else
     {
-        steady_clock::time_point now = steady_clock::now();
+        TimePoint now = steady_clock::now();
 
         steady_clock::duration diff = now - _LastPingTime;
 

@@ -20,48 +20,48 @@
 
 namespace GameTime
 {
-    time_t const StartTime = time(nullptr);
+    Seconds const StartTime = GetEpochTime();
 
-    time_t GameTime = time(nullptr);
-    uint32 GameMSTime = 0;
+    Seconds GameTime = GetEpochTime();
+    Milliseconds GameMSTime = 0ms;
 
     SystemTimePoint GameTimeSystemPoint = SystemTimePoint::min();
     TimePoint GameTimeSteadyPoint = TimePoint::min();
 
-    time_t GetStartTime()
+    Seconds GetStartTime()
     {
         return StartTime;
     }
 
-    time_t GetGameTime()
+    Seconds GetGameTime()
     {
         return GameTime;
     }
 
-    uint32 GetGameTimeMS()
+    Milliseconds GetGameTimeMS()
     {
         return GameMSTime;
     }
 
-    SystemTimePoint GetGameTimeSystemPoint()
+    SystemTimePoint GetSystemTime()
     {
         return GameTimeSystemPoint;
     }
 
-    TimePoint GetGameTimeSteadyPoint()
+    TimePoint Now()
     {
         return GameTimeSteadyPoint;
     }
 
-    uint32 GetUptime()
+    Seconds GetUptime()
     {
-        return uint32(GameTime - StartTime);
+        return GameTime - StartTime;
     }
 
     void UpdateGameTimers()
     {
-        GameTime = time(nullptr);
-        GameMSTime = getMSTime();
+        GameTime = GetEpochTime();
+        GameMSTime = GetTimeMS();
         GameTimeSystemPoint = std::chrono::system_clock::now();
         GameTimeSteadyPoint = std::chrono::steady_clock::now();
     }
