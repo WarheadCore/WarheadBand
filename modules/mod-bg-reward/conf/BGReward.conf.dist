@@ -1,0 +1,70 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# BGReward module configuration
+########################################
+[worldserver]
+
+###################################################################################################
+#
+#    BGReward.Enable
+#        Description: Enable battleground reward system.
+#        Default: 0
+#
+#    BGReward.ItemID.WSG
+#        Description: Reward item on battleground Warsong Gulch.
+#        Default: 20558
+#
+#    BGReward.ItemID.Arathi
+#        Description: Reward item on battleground Arathi Basin.
+#        Default: 20559
+#
+#    BGReward.ItemID.Alterac
+#        Description: Reward item on battleground Alterac Valley.
+#        Default: 20560
+#
+#    BGReward.ItemID.Isle
+#        Description: Reward item on battleground Isle of Conquest.
+#        Default: 47395
+#
+#    BGReward.ItemID.Ancients
+#        Description: Reward item on battleground Strand of the Ancients.
+#        Default: 42425
+#
+#    BGReward.ItemID.Eye
+#        Description: Reward item on battleground Eye of the Storm.
+#        Default: 29024
+#
+#    BGReward.WinnerTeam.Count
+#        Description: Reward item count battleground winner team.
+#        Default: 3
+#
+#    BGReward.LoserTeam.Count
+#        Description: Reward item count battleground looser team.
+#        Default: 1
+#
+
+BGReward.Enable = 0
+
+BGReward.ItemID.WSG = 20558
+BGReward.ItemID.Arathi = 20559
+BGReward.ItemID.Alterac = 20560
+BGReward.ItemID.Isle = 47395
+BGReward.ItemID.Ancients = 42425
+BGReward.ItemID.Eye = 29024
+
+BGReward.WinnerTeam.Count = 3
+BGReward.LoserTeam.Count = 1
