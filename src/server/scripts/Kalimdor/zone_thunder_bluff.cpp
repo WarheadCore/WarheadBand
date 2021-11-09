@@ -18,7 +18,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
 
 /*#####
 # Support for Quest 925: Cairne's Hoofprint

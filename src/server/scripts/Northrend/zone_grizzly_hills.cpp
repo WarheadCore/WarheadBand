@@ -24,7 +24,6 @@
 #include "ScriptedEscortAI.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "CombatAI.h"
 
 // Theirs
 

@@ -22,12 +22,11 @@ Comment: All message related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "Chat.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

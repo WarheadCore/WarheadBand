@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "Language.h"
 #include "PlayerCommand.h"
+#include "ScriptMgr.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

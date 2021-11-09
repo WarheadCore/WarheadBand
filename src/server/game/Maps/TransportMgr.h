@@ -19,8 +19,8 @@
 #define TRANSPORTMGR_H
 
 #include "DBCStores.h"
-#include "Spline.h"
 #include "ObjectGuid.h"
+#include "Spline.h"
 #include <G3D/Quat.h>
 
 struct KeyFrame;

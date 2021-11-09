@@ -18,8 +18,8 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ahnkahet.h"
 #include "SpellScript.h"
+#include "ahnkahet.h"
 
 enum Spells
 {

@@ -21,9 +21,6 @@
 
 #include "CliRunnable.h"
 #include "Common.h"
-#include "Errors.h"
-#include "ObjectMgr.h"
-#include "World.h"
 #include "Config.h"
 #include "Errors.h"
 #include "Log.h"

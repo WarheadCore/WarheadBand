@@ -26,8 +26,8 @@
 #include "GridNotifiers.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
-#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE

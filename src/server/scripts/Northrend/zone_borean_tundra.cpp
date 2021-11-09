@@ -44,7 +44,6 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "WorldSession.h"
-#include "ScriptedGossip.h"
 
 // Ours
 enum eDrakeHunt

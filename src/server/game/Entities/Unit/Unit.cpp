@@ -34,6 +34,7 @@
 #include "DynamicVisibility.h"
 #include "Formulas.h"
 #include "GameConfig.h"
+#include "GameLocale.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -69,7 +70,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "GameLocale.h"
 #include <math.h>
 
 #ifdef ELUNA

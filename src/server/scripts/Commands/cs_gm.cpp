@@ -22,18 +22,18 @@ Comment: All gm related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
+#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 using namespace Warhead::ChatCommands;
 

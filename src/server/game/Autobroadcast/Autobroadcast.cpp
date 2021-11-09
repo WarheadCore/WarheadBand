@@ -16,13 +16,13 @@
  */
 
 #include "Autobroadcast.h"
-#include "TextBuilder.h"
-#include "Language.h"
-#include "Realm.h"
-#include "GameLocale.h"
-#include "GameConfig.h"
-#include "Player.h"
 #include "Chat.h"
+#include "GameConfig.h"
+#include "GameLocale.h"
+#include "Language.h"
+#include "Player.h"
+#include "Realm.h"
+#include "TextBuilder.h"
 #include "Tokenize.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()

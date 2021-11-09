@@ -20,15 +20,15 @@
 #include "Chat.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "LocaleCommon.h"
 #include "Log.h"
 #include "ModuleLocale.h"
 #include "ObjectMgr.h"
+#include "Realm.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
-#include "GameConfig.h"
-#include "Realm.h"
 
 GameLocale* GameLocale::instance()
 {

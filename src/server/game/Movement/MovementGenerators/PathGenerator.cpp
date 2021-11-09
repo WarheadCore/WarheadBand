@@ -20,10 +20,10 @@
 #include "DetourCommon.h"
 #include "Geometry.h"
 #include "Log.h"
-#include "Metric.h"
 #include "MMapFactory.h"
 #include "MMapMgr.h"
 #include "Map.h"
+#include "Metric.h"
 
  ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(WorldObject const* owner) :

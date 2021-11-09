@@ -29,6 +29,8 @@ EndContentData */
 
 #include "AccountMgr.h"
 #include "BanMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Group.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -36,8 +38,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Spell.h"
 #include "SpellInfo.h"
-#include "GameObject.h"
-#include "GameObjectAI.h"
 
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)
