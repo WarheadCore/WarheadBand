@@ -168,7 +168,7 @@ void ExternalMail::SendMails()
             delete mail;
         }
 
-        trans->PAppend("DELETE FROM mail_external WHERE id = %u", exmail.ID);
+        trans->PAppend("DELETE FROM mail_external WHERE id = {}", exmail.ID);
     }
 
     CharacterDatabase.CommitTransaction(trans);

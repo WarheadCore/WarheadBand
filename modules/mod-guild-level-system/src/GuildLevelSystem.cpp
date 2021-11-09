@@ -219,9 +219,9 @@ void GuildCriteria::SaveToDB(uint32 criteriaID)
     auto trans = CharacterDatabase.BeginTransaction();
 
     // gls_criteria_progress
-    trans->PAppend("DELETE FROM `gls_criteria_progress` WHERE `GuildID` = %u AND `CriteriaID` = %u", progressStruct->GuildID, progressStruct->CriteriaID);
-    trans->PAppend("INSERT INTO `gls_criteria_progress`(`GuildID`, `CriteriaID`, `ItemCount`, `SelectedSpell`, `IsDone`) VALUES (%u, %u, '%s', %u, %d)",
-                   _guildID, progressStruct->CriteriaID, itemsCount.c_str(), progressStruct->SelectedSpell, progressStruct->IsDone);
+    trans->PAppend("DELETE FROM `gls_criteria_progress` WHERE `GuildID` = {} AND `CriteriaID` = {}", progressStruct->GuildID, progressStruct->CriteriaID);
+    trans->PAppend("INSERT INTO `gls_criteria_progress`(`GuildID`, `CriteriaID`, `ItemCount`, `SelectedSpell`, `IsDone`) VALUES ({}, {}, '{}', {}, {})",
+                   _guildID, progressStruct->CriteriaID, itemsCount, progressStruct->SelectedSpell, progressStruct->IsDone);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -273,7 +273,7 @@ void GuildCriteria::UnLearnSpells(ObjectGuid guid)
             player->removeSpell(spellID, SPEC_MASK_ALL, false);
 
         if (!player)
-            trans->PAppend("DELETE FROM `character_spell` WHERE `guid` = %u AND `spell` = %u", guid.GetCounter(), spellID);
+            trans->PAppend("DELETE FROM `character_spell` WHERE `guid` = {} AND `spell` = {}", guid.GetCounter(), spellID);
     }
 
     CharacterDatabase.CommitTransaction(trans);
@@ -300,8 +300,8 @@ void GuildCriteria::SetStageID(uint32 stage, bool saveDB /*= true*/)
     auto trans = CharacterDatabase.BeginTransaction();
 
     // gls_stages_progress
-    trans->PAppend("DELETE FROM `gls_stages_progress` WHERE `GuildID` = %u", _guildID);
-    trans->PAppend("INSERT INTO `gls_stages_progress`(`GuildID`, `StageID`) VALUES (%u, %u)", _guildID, _stageID);
+    trans->PAppend("DELETE FROM `gls_stages_progress` WHERE `GuildID` = {}", _guildID);
+    trans->PAppend("INSERT INTO `gls_stages_progress`(`GuildID`, `StageID`) VALUES ({}, {})", _guildID, _stageID);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -1007,7 +1007,7 @@ void GuildLevelSystem::GetRewardsCriteria(Player* player, Creature* creature, ui
         auto member = itr.second;
 
         if (!member->IsOnline())
-            trans->PAppend("INSERT INTO `character_spell`(`guid`, `spell`, `specMask`) VALUES (%u, %u, 255)", member->GetGUID().GetCounter(), spellID);
+            trans->PAppend("INSERT INTO `character_spell`(`guid`, `spell`, `specMask`) VALUES ({}, {}, 255)", member->GetGUID().GetCounter(), spellID);
         else
         {
             auto player = member->FindPlayer();
