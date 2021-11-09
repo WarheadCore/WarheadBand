@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Define.h"
 #include "SharedDefines.h"
+#include "Define.h"
 #include "SmartEnum.h"
 #include <stdexcept>
 
@@ -1185,7 +1185,7 @@ WH_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
 |* data for enum 'SpellCastResult' in 'SharedDefines.h' auto-generated *|
 \***********************************************************************/
 template <>
-AC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult value)
+WH_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult value)
 {
     switch (value)
     {
@@ -1383,10 +1383,10 @@ AC_API_EXPORT EnumText EnumUtils<SpellCastResult>::ToString(SpellCastResult valu
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 189; }
+WH_API_EXPORT size_t EnumUtils<SpellCastResult>::Count() { return 189; }
 
 template <>
-AC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index)
+WH_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index)
 {
     switch (index)
     {
@@ -1584,7 +1584,7 @@ AC_API_EXPORT SpellCastResult EnumUtils<SpellCastResult>::FromIndex(size_t index
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
+WH_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
 {
     switch (value)
     {
@@ -1785,7 +1785,7 @@ AC_API_EXPORT size_t EnumUtils<SpellCastResult>::ToIndex(SpellCastResult value)
 |* data for enum 'AuraStateType' in 'SharedDefines.h' auto-generated *|
 \*********************************************************************/
 template <>
-AC_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
+WH_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
 {
     switch (value)
     {
@@ -1812,10 +1812,10 @@ AC_API_EXPORT EnumText EnumUtils<AuraStateType>::ToString(AuraStateType value)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 18; }
+WH_API_EXPORT size_t EnumUtils<AuraStateType>::Count() { return 18; }
 
 template <>
-AC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
+WH_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
 {
     switch (index)
     {
@@ -1842,7 +1842,7 @@ AC_API_EXPORT AuraStateType EnumUtils<AuraStateType>::FromIndex(size_t index)
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<AuraStateType>::ToIndex(AuraStateType value)
+WH_API_EXPORT size_t EnumUtils<AuraStateType>::ToIndex(AuraStateType value)
 {
     switch (value)
     {
