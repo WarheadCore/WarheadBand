@@ -64,7 +64,6 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
     }
 }
 
-
 /*static*/ ChatSubCommandMap const& Warhead::Impl::ChatCommands::ChatCommandNode::GetTopLevelMap()
 {
     if (COMMAND_MAP.empty())
