@@ -25,19 +25,18 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Tokenize.h"
+#include "GameLocale.h"
 #include "WorldSession.h"
 
 using ChatSubCommandMap = std::map<std::string_view, Warhead::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
+static ChatSubCommandMap COMMAND_MAP;
 
 void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBuilder const& builder)
 {
     if (std::holds_alternative<ChatCommandBuilder::InvokerEntry>(builder._data))
     {
         ASSERT(!_invoker, "Duplicate blank sub-command.");
-        WarheadStrings help;
-        std::tie(_invoker, help, _permission) = *(std::get<ChatCommandBuilder::InvokerEntry>(builder._data));
-        if (help)
-            _help.emplace<WarheadStrings>(help);
+        std::tie(_invoker, _permission) = *(std::get<ChatCommandBuilder::InvokerEntry>(builder._data));
     }
     else
         LoadCommandsIntoMap(this, _subCommands, std::get<ChatCommandBuilder::SubCommandEntry>(builder._data));
@@ -65,7 +64,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
     }
 }
 
-static ChatSubCommandMap COMMAND_MAP;
+
 /*static*/ ChatSubCommandMap const& Warhead::Impl::ChatCommands::ChatCommandNode::GetTopLevelMap()
 {
     if (COMMAND_MAP.empty())
@@ -73,6 +72,7 @@ static ChatSubCommandMap COMMAND_MAP;
 
     return COMMAND_MAP;
 }
+
 /*static*/ void Warhead::Impl::ChatCommands::ChatCommandNode::InvalidateCommandMap()
 {
     COMMAND_MAP.clear();
@@ -122,13 +122,14 @@ static ChatSubCommandMap COMMAND_MAP;
                 cmd->_permission.RequiredLevel = secLevel;
             }
 
-            if (std::holds_alternative<std::string>(cmd->_help))
+            if (!cmd->_help.empty())
+            {
                 LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '{}'. Skipped.", name);
-
-            if (std::holds_alternative<std::monostate>(cmd->_help))
-                cmd->_help.emplace<std::string>(help);
+            }
             else
-                LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '{}', which uses `trinity_string`. Skipped.", name);
+            {
+                cmd->_help = help;
+            }
         } while (result->NextRow());
     }
 
@@ -138,7 +139,7 @@ static ChatSubCommandMap COMMAND_MAP;
 
 void Warhead::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
 {
-    if (_invoker && std::holds_alternative<std::monostate>(_help))
+    if (_invoker && _help.empty())
         LOG_WARN("sql.sql", "Table `command` is missing help text for command '{}'.", name);
 
     _name = name;
@@ -160,26 +161,31 @@ static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr
     Player* player = session.GetPlayer();
     ObjectGuid targetGuid = player->GetTarget();
     uint32 areaId = player->GetAreaId();
+    uint32 zoneId = player->GetZoneId();
     std::string areaName = "Unknown";
     std::string zoneName = "Unknown";
+    LocaleConstant locale = sWorld->GetDefaultDbcLocale();
 
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
     {
-        int locale = session.GetSessionDbcLocale();
         areaName = area->area_name[locale];
-
-        if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone))
-            zoneName = zone->area_name[locale];
     }
 
-    LOG_GM(session.GetAccountId(), "Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} Selected: {} ({})]",
-        cmdStr, player->GetName(), player->GetGUID(),
-        session.GetAccountId(), player->GetPositionX(), player->GetPositionY(),
-        player->GetPositionZ(), player->GetMapId(),
+    if (AreaTableEntry const* zone = sAreaTableStore.LookupEntry(zoneId))
+    {
+        zoneName = zone->area_name[locale];
+    }
+
+    std::string logMessage = Warhead::StringFormat("Command: {} [Player: {} ({}) (Account: {}) X: {} Y: {} Z: {} Map: {} ({}) Area: {} ({}) Zone: {} ({}) Selected: {} ({})]",
+        cmdStr, player->GetName(), player->GetGUID().ToString(),
+        session.GetAccountId(),
+        player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(),
         player->FindMap() ? player->FindMap()->GetMapName() : "Unknown",
-        areaId, areaName, zoneName,
+        areaId, areaName, zoneId, zoneName,
         (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName() : "",
-        targetGuid);
+        targetGuid.ToString());
+
+    LOG_GM(session.GetAccountId(), logMessage);
 }
 
 void Warhead::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const
@@ -187,10 +193,14 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
     bool const hasInvoker = IsInvokerVisible(handler);
     if (hasInvoker)
     {
-        if (std::holds_alternative<WarheadStrings>(_help))
-            handler.SendSysMessage(std::get<WarheadStrings>(_help));
-        else if (std::holds_alternative<std::string>(_help))
-            handler.SendSysMessage(std::get<std::string>(_help));
+        if (auto localizeHelp = sGameLocale->GetChatCommandStringHelpLocale(_name, handler.GetSessionDbcLocale()))
+        {
+            handler.SendSysMessage(*localizeHelp);
+        }
+        else if (!_help.empty())
+        {
+            handler.SendSysMessage(_help);
+        }
         else
         {
             handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, _name);
@@ -255,7 +265,6 @@ namespace Warhead::Impl::ChatCommands
             ChatHandler const& _handler;
             std::string_view const _token;
             ChatSubCommandMap::const_iterator _it, _end;
-
     };
 }
 

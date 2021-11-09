@@ -187,7 +187,7 @@ namespace Warhead::Impl::ChatCommands
         static void SendCommandHelpFor(ChatHandler& handler, std::string_view cmd);
         static std::vector<std::string> GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd);
 
-        ChatCommandNode() : _name{}, _invoker {}, _permission{}, _help{}, _subCommands{} {}
+        ChatCommandNode() : _name{}, _invoker{}, _permission{}, _help{}, _subCommands{} { }
 
     private:
         static std::map<std::string_view, ChatCommandNode, StringCompareLessI_T> const& GetTopLevelMap();
@@ -206,7 +206,7 @@ namespace Warhead::Impl::ChatCommands
         std::string _name;
         CommandInvoker _invoker;
         CommandPermissions _permission;
-        std::variant<std::monostate, WarheadStrings, std::string> _help;
+        std::string _help;
         std::map<std::string_view, ChatCommandNode, StringCompareLessI_T> _subCommands;
     };
 }
@@ -220,17 +220,16 @@ namespace Warhead::ChatCommands
         struct InvokerEntry
         {
             template <typename T>
-            InvokerEntry(T& handler, WarheadStrings help, uint32 securityLevel, Warhead::ChatCommands::Console allowConsole)
-                : _invoker{ handler }, _help{ help }, _permissions{ securityLevel, allowConsole } { }
+            InvokerEntry(T& handler, uint32 securityLevel, Warhead::ChatCommands::Console allowConsole)
+                : _invoker{ handler }, _permissions{ securityLevel, allowConsole } { }
 
             InvokerEntry(InvokerEntry const&) = default;
             InvokerEntry(InvokerEntry&&) = default;
 
             Warhead::Impl::ChatCommands::CommandInvoker _invoker;
-            WarheadStrings _help;
             Warhead::Impl::ChatCommands::CommandPermissions _permissions;
 
-            auto operator*() const { return std::tie(_invoker, _help, _permissions); }
+            auto operator*() const { return std::tie(_invoker, _permissions); }
         };
 
         using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
@@ -239,27 +238,19 @@ namespace Warhead::ChatCommands
         ChatCommandBuilder(ChatCommandBuilder const&) = default;
 
         template <typename TypedHandler>
-        ChatCommandBuilder(char const* name, TypedHandler& handler, WarheadStrings help, uint32 securityLevel, Warhead::ChatCommands::Console allowConsole)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, handler, help, securityLevel, allowConsole } { }
-
-        template <typename TypedHandler>
         ChatCommandBuilder(char const* name, TypedHandler& handler, uint32 securityLevel, Warhead::ChatCommands::Console allowConsole)
-            : ChatCommandBuilder(name, handler, WarheadStrings(), securityLevel, allowConsole) { }
+            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, handler, securityLevel, allowConsole } { }
 
         ChatCommandBuilder(char const* name, std::vector<ChatCommandBuilder> const& subCommands)
             : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<SubCommandEntry>, subCommands } { }
 
-        [[deprecated("char const* parameters to command handlers are deprecated; convert this to a typed argument handler instead")]]
-        ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), uint32 securityLevel, Warhead::ChatCommands::Console allowConsole)
-            : ChatCommandBuilder(name, handler, WarheadStrings(), securityLevel, allowConsole) { }
-
         template <typename TypedHandler>
         [[deprecated("you are using the old-style command format; convert this to the new format ({ name, handler (not a pointer!), permission, Console::(Yes/No) })")]]
         ChatCommandBuilder(char const* name, uint32 securityLevel, bool console, TypedHandler* handler, char const*)
-            : ChatCommandBuilder(name, *handler, WarheadStrings(), securityLevel, static_cast<Warhead::ChatCommands::Console>(console)) { }
+            : ChatCommandBuilder(name, *handler, securityLevel, static_cast<Warhead::ChatCommands::Console>(console)) { }
 
         [[deprecated("you are using the old-style command format; convert this to the new format ({ name, subCommands })")]]
-        ChatCommandBuilder(char const* name, uint32, bool, std::nullptr_t, char const*, std::vector <ChatCommandBuilder> const& sub)
+        ChatCommandBuilder(char const* name, uint32, bool, std::nullptr_t, char const*, std::vector<ChatCommandBuilder> const& sub)
             : ChatCommandBuilder(name, sub) { }
 
     private:

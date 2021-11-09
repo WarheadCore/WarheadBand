@@ -16,10 +16,8 @@
  */
 
 #include "LocaleCommon.h"
-#include "Chat.h"
-#include "ModuleLocale.h"
 
-void Warhead::Game::Locale::AddLocaleString(std::string&& str, LocaleConstant locale, std::vector<std::string>& data)
+void Warhead::Locale::AddLocaleString(std::string&& str, LocaleConstant locale, std::vector<std::string>& data)
 {
     if (str.empty())
         return;

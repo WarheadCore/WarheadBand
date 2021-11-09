@@ -2263,8 +2263,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
             {
                 if (AchievementRewardLocale const* loc = sGameLocale->GetAchievementRewardLocale(achievement->ID))
                 {
-                    sGameLocale->GetLocaleString(loc->Subject, localeConstant, subject);
-                    sGameLocale->GetLocaleString(loc->Text, localeConstant, text);
+                    GameLocale::GetLocaleString(loc->Subject, localeConstant, subject);
+                    GameLocale::GetLocaleString(loc->Text, localeConstant, text);
                 }
             }
 

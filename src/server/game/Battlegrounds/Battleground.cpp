@@ -51,56 +51,6 @@
 #include "LuaEngine.h"
 #endif
 
-namespace Warhead
-{
-    class BattlegroundChatBuilder
-    {
-    public:
-        BattlegroundChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source = nullptr)
-            : _msgtype(msgtype), _textId(textId), _source(source) { }
-
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, Warhead::StringFormat(sGameLocale->GetWarheadString(_textId, loc_idx)));
-        }
-
-    private:
-        ChatMsg _msgtype;
-        uint32 _textId;
-        Player const* _source;
-    };
-
-    class Battleground2ChatBuilder
-    {
-    public:
-        Battleground2ChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, int32 arg1, int32 arg2)
-            : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) { }
-
-        void operator()(WorldPacket& data, LocaleConstant loc_idx)
-        {
-            char const* text = sGameLocale->GetWarheadString(_textId, loc_idx);
-            char const* arg1str = _arg1 ? sGameLocale->GetWarheadString(_arg1, loc_idx) : "";
-            char const* arg2str = _arg2 ? sGameLocale->GetWarheadString(_arg2, loc_idx) : "";
-
-            ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, Warhead::StringFormat(text, arg1str, arg2str));
-        }
-
-    private:
-        ChatMsg _msgtype;
-        uint32 _textId;
-        Player const* _source;
-        uint32 _arg1;
-        uint32 _arg2;
-    };
-}                                                           // namespace Warhead
-
-template<typename Worker>
-void Battleground::DoForAllPlayers(Worker&& worker)
-{
-    for (auto const& [guid, player] : m_Players)
-        worker(player);
-}
-
 Battleground::Battleground()
 {
     m_RealTypeID        = BATTLEGROUND_TYPE_NONE;
@@ -1751,21 +1701,36 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
 void Battleground::SendMessageToAll(uint32 entry, ChatMsg type, Player const* source /*= nullptr*/)
 {
     if (!entry)
+    {
         return;
+    }
 
-    Warhead::BattlegroundChatBuilder bg_builder(type, entry, source);
-    Warhead::LocalizedPacketDo<Warhead::BattlegroundChatBuilder> bg_do(bg_builder);
-    DoForAllPlayers(bg_do);
+    for (auto const& [guid, player] : m_Players)
+    {
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, source, source, sGameLocale->GetWarheadString(entry, player->GetSession()->GetSessionDbLocaleIndex()));
+        player->SendDirectMessage(&data);
+    }
 }
 
 void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* source, uint32 arg1, uint32 arg2)
 {
     if (!entry)
+    {
         return;
+    }
 
-    Warhead::Battleground2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
-    Warhead::LocalizedPacketDo<Warhead::Battleground2ChatBuilder> bg_do(bg_builder);
-    DoForAllPlayers(bg_do);
+    for (auto const& [guid, player] : m_Players)
+    {
+        auto localeIndex = player->GetSession()->GetSessionDbLocaleIndex();
+        auto message = sGameLocale->GetWarheadString(entry, localeIndex);
+        char const* arg1str = arg1 ? sGameLocale->GetWarheadString(arg1, localeIndex) : "";
+        char const* arg2str = arg2 ? sGameLocale->GetWarheadString(arg2, localeIndex) : "";
+
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, source, source, Warhead::StringFormat(message, arg1str, arg2str));
+        player->SendDirectMessage(&data);
+    }
 }
 
 void Battleground::EndNow()

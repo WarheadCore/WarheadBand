@@ -109,8 +109,8 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         {
             if (CreatureLocale const* cl = sGameLocale->GetCreatureLocale(entry))
             {
-                sGameLocale->GetLocaleString(cl->Name, loc_idx, Name);
-                sGameLocale->GetLocaleString(cl->Title, loc_idx, Title);
+                GameLocale::GetLocaleString(cl->Name, loc_idx, Name);
+                GameLocale::GetLocaleString(cl->Title, loc_idx, Title);
             }
         }
         // guess size
@@ -178,8 +178,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         if (localeConstant >= LOCALE_enUS)
             if (GameObjectLocale const* gameObjectLocale = sGameLocale->GetGameObjectLocale(entry))
             {
-                sGameLocale->GetLocaleString(gameObjectLocale->Name, localeConstant, Name);
-                sGameLocale->GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, CastBarCaption);
+                GameLocale::GetLocaleString(gameObjectLocale->Name, localeConstant, Name);
+                GameLocale::GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, CastBarCaption);
             }
 
         LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY '{}' - Entry: {}. ", info->name, entry);
@@ -320,8 +320,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
             {
                 if (NpcTextLocale const* npcTextLocale = sGameLocale->GetNpcTextLocale(textID))
                 {
-                    sGameLocale->GetLocaleString(npcTextLocale->Text_0[i], locale, text0[i]);
-                    sGameLocale->GetLocaleString(npcTextLocale->Text_1[i], locale, text1[i]);
+                    GameLocale::GetLocaleString(npcTextLocale->Text_0[i], locale, text0[i]);
+                    GameLocale::GetLocaleString(npcTextLocale->Text_1[i], locale, text1[i]);
                 }
             }
 
@@ -381,7 +381,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
                 if (PageTextLocale const* player = sGameLocale->GetPageTextLocale(pageID))
-                    sGameLocale->GetLocaleString(player->Text, loc_idx, Text);
+                    GameLocale::GetLocaleString(player->Text, loc_idx, Text);
 
             data << Text;
             data << uint32(pageText->NextPage);

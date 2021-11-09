@@ -1,3 +1,20 @@
+DROP TABLE IF EXISTS `commands_help_locale`;
+CREATE TABLE `commands_help_locale` (
+  `Command` VARCHAR(100) NOT NULL DEFAULT '0',
+  `Locale` enum('enUS','koKR','frFR','deDE','zhCN','zhTW','esES','esMX','ruRU') NOT NULL,
+  `Content` TEXT DEFAULT NULL,
+  PRIMARY KEY (`Locale`,`Command`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `autobroadcast_locale`;
+CREATE TABLE `autobroadcast_locale` (
+  `RealmID` INT NOT NULL DEFAULT -1,
+  `ID` TINYINT NOT NULL,
+  `Locale` enum('enUS','koKR','frFR','deDE','zhCN','zhTW','esES','esMX','ruRU') NOT NULL,
+  `Text` TEXT DEFAULT NULL,
+  PRIMARY KEY (`RealmID`,`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ----------------------------
 -- Table structure for string_class
 -- ----------------------------
@@ -35,17 +52,13 @@ INSERT INTO `string_class` (`ID`, `locale`, `NameMale`, `NameFemale`) VALUES
 (9, 'enUS', 'Warlock', NULL),
 (11, 'enUS', 'Druid', NULL);
 
--- ----------------------------
--- Table structure for string_module
--- ----------------------------
 DROP TABLE IF EXISTS `string_module`;
-CREATE TABLE `string_module` (
-  `ModuleName` varchar(30) CHARACTER SET utf8 NOT NULL DEFAULT 'system',
-  `ID` mediumint(8) unsigned NOT NULL DEFAULT 0,
-  `Locale` varchar(4) CHARACTER SET utf8 NOT NULL,
-  `Text` text CHARACTER SET utf8 DEFAULT NULL,
-  PRIMARY KEY (`ModuleName`,`ID`,`Locale`) USING BTREE
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+CREATE TABLE IF NOT EXISTS `string_module` (
+  `Entry` varchar(100) NOT NULL,
+  `Locale` enum('enUS','koKR','frFR','deDE','zhCN','zhTW','esES','esMX','ruRU') NOT NULL,
+  `Text` text CHARACTER SET utf8mb3 DEFAULT NULL,
+  PRIMARY KEY (`Entry`,`Locale`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Table structure for string_race

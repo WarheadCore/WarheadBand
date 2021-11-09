@@ -170,12 +170,12 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
             if (optionBroadcastText)
-                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->Text : optionBroadcastText->Text1, locale, strOptionText);
+                GameLocale::GetLocaleString(getGender() == GENDER_MALE ? optionBroadcastText->Text : optionBroadcastText->Text1, locale, strOptionText);
             else
                 strOptionText = itr->second.OptionText;
 
             if (boxBroadcastText)
-                sGameLocale->GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->Text : boxBroadcastText->Text1, locale, strBoxText);
+                GameLocale::GetLocaleString(getGender() == GENDER_MALE ? boxBroadcastText->Text : boxBroadcastText->Text1, locale, strBoxText);
             else
                 strBoxText = itr->second.BoxText;
 
@@ -186,14 +186,14 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 {
                     /// Find localizations from database.
                     if (GossipMenuItemsLocale const* gossipMenuLocale = sGameLocale->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
-                        sGameLocale->GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
+                        GameLocale::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
                 if (strBoxText.empty())
                 {
                     /// Find localizations from database.
                     if (GossipMenuItemsLocale const* gossipMenuLocale = sGameLocale->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionID)))
-                        sGameLocale->GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
+                        GameLocale::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
 

@@ -28,6 +28,16 @@ struct WarheadString
     std::vector<std::string> Content;
 };
 
+struct AutobroadcastLocale
+{
+    std::vector<std::string> Text;
+};
+
+struct ChatCommandHelpLocale
+{
+    std::vector<std::string> Content;
+};
+
 // Default locales
 struct AchievementRewardLocale
 {
@@ -223,13 +233,18 @@ private:
     GameLocale() = default;
     ~GameLocale() = default;
 
+    GameLocale(GameLocale const&) = delete;
+    GameLocale(GameLocale&&) = delete;
+    GameLocale& operator= (GameLocale const&) = delete;
+    GameLocale& operator= (GameLocale&&) = delete;
+
 public:
     static GameLocale* instance();
 
     void LoadAllLocales();
     bool LoadWarheadStrings();
 
-    inline std::string_view GetLocaleString(std::vector<std::string> const& data, size_t locale)
+    static inline std::string_view GetLocaleString(std::vector<std::string> const& data, size_t locale)
     {
         if (locale < data.size())
             return data[locale];
@@ -237,7 +252,7 @@ public:
             return {};
     }
 
-    inline void GetLocaleString(const std::vector<std::string>& data, int loc_idx, std::string& value)
+    static inline void GetLocaleString(const std::vector<std::string>& data, int loc_idx, std::string& value)
     {
         if (data.size() > size_t(loc_idx) && !data[loc_idx].empty())
             value = data[loc_idx];
@@ -265,6 +280,8 @@ public:
     void LoadGossipMenuItemsLocales();
     void LoadPointOfInterestLocales();
     void LoadQuestGreetingLocales();
+    void LoadChatCommandsLocales();
+    void LoadAutoBroadCastLocales();
 
     [[nodiscard]] AchievementRewardLocale const* GetAchievementRewardLocale(uint32 entry) const;
     [[nodiscard]] BroadcastText const* GetBroadcastText(uint32 id) const;
@@ -280,6 +297,7 @@ public:
     [[nodiscard]] QuestOfferRewardLocale const* GetQuestOfferRewardLocale(uint32 entry) const;
     [[nodiscard]] QuestRequestItemsLocale const* GetQuestRequestItemsLocale(uint32 entry) const;
     [[nodiscard]] QuestGreetingLocale const* GetQuestGreetingLocale(uint32 id) const;
+    [[nodiscard]] AutobroadcastLocale const* GetAutoBroadCastLocale(uint32 id) const;
 
     //
     std::string const GetItemNameLocale(uint32 itemID, int8 index_loc = DEFAULT_LOCALE);
@@ -294,10 +312,7 @@ public:
     RaceString const* GetRaseString(uint32 id) const;
     ClassString const* GetClassString(uint32 id) const;
 
-    GameLocale(GameLocale const&) = delete;
-    GameLocale(GameLocale&&) = delete;
-    GameLocale& operator= (GameLocale const&) = delete;
-    GameLocale& operator= (GameLocale&&) = delete;
+    Optional<std::string> GetChatCommandStringHelpLocale(std::string const& commandName, LocaleConstant locale) const;
 
 private:
     std::unordered_map<uint32, WarheadString> _warheadStringStore;
@@ -317,10 +332,14 @@ private:
     std::unordered_map<uint32, QuestGreetingLocale> _questGreetingLocaleStore;
     std::unordered_map<uint32, QuestOfferRewardLocale> _questOfferRewardLocaleStore;
     std::unordered_map<uint32, QuestRequestItemsLocale> _questRequestItemsLocaleStore;
+    std::unordered_map<uint32, AutobroadcastLocale> _autobroadLocaleStore;
 
     // New strings and locales
     std::unordered_map<uint32, RaceString> _raceStringStore;
     std::unordered_map<uint32, ClassString> _classStringStore;
+
+    // Chat command help locales
+    std::unordered_map<std::string, ChatCommandHelpLocale> _chatCommandStringStore;
 };
 
 #define sGameLocale GameLocale::instance()
