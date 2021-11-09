@@ -37,20 +37,6 @@ namespace Warhead
         }
     }
 
-    // Default string format function.
-    template<typename... Args>
-    inline std::string StringFormatFmt(std::string_view fmt, Args&&... args)
-    {
-        try
-        {
-            return fmt::format(fmt, std::forward<Args>(args)...);
-        }
-        catch (const fmt::format_error& formatError)
-        {
-            return fmt::format("An error occurred formatting string \"{}\": {}", fmt, formatError.what());
-        }
-    }
-
     /// Returns true if the given char pointer is null.
     inline bool IsFormatEmptyOrNull(char const* fmt)
     {

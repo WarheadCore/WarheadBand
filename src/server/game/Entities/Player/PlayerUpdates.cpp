@@ -41,6 +41,7 @@
 #include "UpdateFieldFlags.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"
+#include <fmt/printf.h>
 
 // Zone Interval should be 1 second
 constexpr auto ZONE_UPDATE_INTERVAL = 1000;
@@ -485,8 +486,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
         {
             Channel* usedChannel = nullptr;
 
-            for (JoinedChannelsList::iterator itr = m_channels.begin();
-                 itr != m_channels.end(); ++itr)
+            for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
             {
                 if ((*itr)->GetChannelId() == i)
                 {
@@ -505,8 +505,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 {
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY &&
                         usedChannel)
-                        continue; // Already on the channel, as city channel
-                                  // names are not changing
+                        continue; // Already on the channel, as city channel names are not changing
 
                     char const* currentNameExt;
 
@@ -515,7 +514,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     else
                         currentNameExt = current_zone_name.c_str();
 
-                       joinChannel = cMgr->GetJoinChannel(Warhead::StringFormat(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt),
+                    joinChannel = cMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt),
                         channel->ChannelID);
 
                     if (usedChannel)
@@ -523,32 +522,25 @@ void Player::UpdateLocalChannels(uint32 newZone)
                         if (joinChannel != usedChannel)
                         {
                             removeChannel = usedChannel;
-                            sendRemove    = false; // Do not send leave channel, it
-                                                   // already replaced at client
+                            sendRemove    = false; // Do not send leave channel, it already replaced at client
                         }
                         else
                             joinChannel = nullptr;
                     }
                 }
                 else
-                    joinChannel = cMgr->GetJoinChannel(
-                        channel->pattern[m_session->GetSessionDbcLocale()],
-                        channel->ChannelID);
+                    joinChannel = cMgr->GetJoinChannel(channel->pattern[m_session->GetSessionDbcLocale()], channel->ChannelID);
             }
             else
                 removeChannel = usedChannel;
 
             if (joinChannel)
-                joinChannel->JoinChannel(
-                    this, ""); // Changed Channel: ... or Joined Channel: ...
+                joinChannel->JoinChannel(this, ""); // Changed Channel: ... or Joined Channel: ...
 
             if (removeChannel)
             {
-                removeChannel->LeaveChannel(this,
-                                            sendRemove); // Leave old channel
-                std::string name =
-                    removeChannel
-                        ->GetName();        // Store name, (*i)erase in LeftChannel
+                removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
+                std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
                 LeftChannel(removeChannel); // Remove from player's channel list
             }
         }
