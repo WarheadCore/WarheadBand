@@ -316,7 +316,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     bool deletePacket = true;
     std::vector<WorldPacket*> requeuePackets;
     uint32 processedPackets = 0;
-    time_t currentTime = GameTime::GetGameTime();
+    time_t currentTime = GameTime::GetGameTime().count();
 
     while (m_Socket && _recvQueue.next(packet, updater))
     {
@@ -520,7 +520,7 @@ void WorldSession::HandleTeleportTimeout(bool updateInSessions)
     // pussywizard: handle teleport ack timeout
     if (m_Socket && m_Socket->IsOpen() && GetPlayer() && GetPlayer()->IsBeingTeleported())
     {
-        time_t currTime = GameTime::GetGameTime();
+        time_t currTime = GameTime::GetGameTime().count();
         if (updateInSessions) // session update from World::UpdateSessions
         {
             if (GetPlayer()->IsBeingTeleportedFar() && GetPlayer()->GetSemaphoreTeleportFar() + CONF_GET_INT("TeleportTimeoutFar") < currTime)
@@ -889,7 +889,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
 void WorldSession::SendAccountDataTimes(uint32 mask)
 {
     WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4 + 1 + 4 + 8 * 4); // changed in WotLK
-    data << uint32(GameTime::GetGameTime());                             // unix time of something
+    data << uint32(GameTime::GetGameTime().count());                             // unix time of something
     data << uint8(1);
     data << uint32(mask);                                   // type mask
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)

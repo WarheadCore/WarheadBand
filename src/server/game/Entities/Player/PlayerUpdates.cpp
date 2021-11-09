@@ -56,7 +56,7 @@ void Player::Update(uint32 p_time)
     sScriptMgr->OnBeforePlayerUpdate(this, p_time);
 
     // undelivered mail
-    if (m_nextMailDelivereTime && m_nextMailDelivereTime <= GameTime::GetGameTime())
+    if (m_nextMailDelivereTime && m_nextMailDelivereTime <= GameTime::GetGameTime().count())
     {
         SendNewMail();
         ++unReadMails;
@@ -81,7 +81,7 @@ void Player::Update(uint32 p_time)
     Unit::Update(p_time);
     SetMustDelayTeleport(false);
 
-    time_t now = GameTime::GetGameTime();
+    time_t now = GameTime::GetGameTime().count();
 
     UpdatePvPFlag(now);
     UpdateFFAPvPFlag(now);
@@ -217,7 +217,7 @@ void Player::Update(uint32 p_time)
     {
         if (now > lastTick && _restTime > 0) // freeze update
         {
-            time_t currTime = GameTime::GetGameTime();
+            time_t currTime = GameTime::GetGameTime().count();
             time_t timeDiff = currTime - _restTime;
             if (timeDiff >= 10) // freeze update
             {
@@ -429,7 +429,7 @@ void Player::UpdateMirrorTimers()
 void Player::UpdateNextMailTimeAndUnreads()
 {
     // Update the next delivery time and unread mails
-    time_t cTime = GameTime::GetGameTime();
+    time_t cTime = GameTime::GetGameTime().count();
     // Get the next delivery time
     CharacterDatabasePreparedStatement* stmtNextDeliveryTime =
         CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
@@ -1027,8 +1027,8 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
-    time_t now   = time_t(GameTime::GetGameTime());
-    time_t today = time_t(GameTime::GetGameTime() / DAY) * DAY;
+    time_t now   = time_t(GameTime::GetGameTime().count());
+    time_t today = time_t(GameTime::GetGameTime().count() / DAY) * DAY;
 
     if (m_lastHonorUpdateTime < today)
     {
@@ -1275,7 +1275,7 @@ void Player::UpdatePvPState()
     {
         if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) &&
             pvpInfo.EndTimer == 0)
-            pvpInfo.EndTimer = GameTime::GetGameTime(); // start toggle-off
+            pvpInfo.EndTimer = GameTime::GetGameTime().count(); // start toggle-off
     }
 }
 
@@ -1339,7 +1339,7 @@ void Player::UpdateFFAPvPState(bool reset /*= true*/)
             // Being recently in PvP combat
             if (!pvpInfo.IsInFFAPvPArea && !sWorld->IsFFAPvPRealm() && !pvpInfo.FFAPvPEndTimer)
             {
-                pvpInfo.FFAPvPEndTimer = GameTime::GetGameTime() + CONF_GET_INT("FFAPvPTimer");
+                pvpInfo.FFAPvPEndTimer = GameTime::GetGameTime().count() + CONF_GET_INT("FFAPvPTimer");
             }
         }
     }
@@ -1354,7 +1354,7 @@ void Player::UpdatePvP(bool state, bool _override)
     }
     else
     {
-        pvpInfo.EndTimer = GameTime::GetGameTime();
+        pvpInfo.EndTimer = GameTime::GetGameTime().count();
         SetPvP(state);
     }
 
@@ -1834,7 +1834,7 @@ void Player::UpdateCorpseReclaimDelay()
     if ((pvp && !CONF_GET_BOOL("Death.CorpseReclaimDelay.PvP")) || (!pvp && !CONF_GET_BOOL("Death.CorpseReclaimDelay.PvE")))
         return;
 
-    time_t now = GameTime::GetGameTime();
+    time_t now = GameTime::GetGameTime().count();
 
     if (now < m_deathExpireTime)
     {

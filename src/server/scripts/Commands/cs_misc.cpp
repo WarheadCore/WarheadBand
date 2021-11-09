@@ -1998,7 +1998,7 @@ public:
             muteTime = _muteTime;
 
             if (_muteDate)
-                muteLeft = Warhead::Time::ToTimeString<Seconds>(_muteDate + muteTime.count() - GameTime::GetGameTime());
+                muteLeft = Warhead::Time::ToTimeString<Seconds>(_muteDate + muteTime.count() - GameTime::GetGameTime().count());
             else
                 muteLeft = Warhead::Time::ToTimeString(muteTime);
 
@@ -2080,7 +2080,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType, banReason, banTime > 0 ? Warhead::Time::ToTimeString<Seconds>(banTime - GameTime::GetGameTime()) : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy);
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType, banReason, banTime > 0 ? Warhead::Time::ToTimeString<Seconds>(banTime - GameTime::GetGameTime().count()) : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy);
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0s)

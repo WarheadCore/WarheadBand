@@ -74,6 +74,25 @@ inline uint32 getMSTime()
     return uint32(duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime()).count());
 }
 
+inline Milliseconds GetTimeMS()
+{
+    using namespace std::chrono;
+
+    return duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime());
+}
+
+inline Milliseconds GetMSTimeDiff(Milliseconds oldMSTime, Milliseconds newMSTime)
+{
+    if (oldMSTime > newMSTime)
+    {
+        return oldMSTime - newMSTime;
+    }
+    else
+    {
+        return newMSTime - oldMSTime;
+    }
+}
+
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
 {
     // getMSTime() have limited data range and this is case when it overflow in this tick
@@ -98,6 +117,12 @@ inline uint32 getMSTimeDiff(uint32 oldMSTime, TimePoint newTime)
 inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
 {
     return getMSTimeDiff(oldMSTime, getMSTime());
+}
+
+inline Seconds GetEpochTime()
+{
+    using namespace std::chrono;
+    return duration_cast<Seconds>(system_clock::now().time_since_epoch());
 }
 
 struct IntervalTimer

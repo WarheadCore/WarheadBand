@@ -33,6 +33,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "UpdateTime.h"
 #include <vector>
 
 constexpr auto AH_MINIMUM_DEPOSIT = 100;
@@ -165,7 +166,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
         uint32 deliveryDelay = CONF_GET_UINT("MailDeliveryDelay");
 
         ByteBuffer timePacker;
-        timePacker.AppendPackedTime(GameTime::GetGameTime() + time_t(deliveryDelay));
+        timePacker.AppendPackedTime(GameTime::GetGameTime().count() + time_t(deliveryDelay));
 
         if (sendMail) // can be changed in the hook
             MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING),
@@ -468,7 +469,7 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 
 void AuctionHouseObject::Update()
 {
-    time_t checkTime = GameTime::GetGameTime() + 60;
+    time_t checkTime = GameTime::GetGameTime().count() + 60;
     ///- Handle expired auctions
 
     // If storage is empty, no need to update. next == nullptr in this case.
@@ -566,7 +567,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         return true;
     }
 
-    time_t curTime = GameTime::GetGameTime();
+    time_t curTime = GameTime::GetGameTime().count();
 
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
@@ -575,7 +576,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     {
         if (!AsyncAuctionListingMgr::IsAuctionListingAllowed()) // pussywizard: World::Update is waiting for us...
             if ((itrcounter++) % 100 == 0) // check condition every 100 iterations
-                if (getMSTimeDiff(getMSTime(), getMSTime()) >= 10) // pussywizard: stop immediately if diff is high or waiting too long
+                if (sWorldUpdateTime.GetAverageUpdateTime() >= 30 || GetMSTimeDiff(GameTime::GetGameTimeMS(), GameTime::GetGameTimeMS()) >= 10ms) // pussywizard: stop immediately if diff is high or waiting too long
                     return false;
 
         AuctionEntry* Aentry = itr->second;
@@ -713,7 +714,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
     data << uint32(bid ? GetAuctionOutBid() : 0);
     // Minimal outbid
     data << uint32(buyout);                                         // Auction->buyout
-    data << uint32((expire_time - GameTime::GetGameTime()) * IN_MILLISECONDS); // time left
+    data << uint32((expire_time - GameTime::GetGameTime().count()) * IN_MILLISECONDS); // time left
     data << bidder;                                                 // auction->bidder current
     data << uint32(bid);                                            // current bid
     return true;

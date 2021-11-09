@@ -156,7 +156,7 @@ private:
     bool   m_ArenaTesting;
     bool   m_Testing;
     uint32 m_lastClientVisibleInstanceId;
-    time_t m_NextAutoDistributionTime;
+    Seconds m_NextAutoDistributionTime;
     uint32 m_AutoDistributionTimeChecker;
     uint32 m_NextPeriodicQueueUpdateTime;
     BattleMastersMap mBattleMastersMap;

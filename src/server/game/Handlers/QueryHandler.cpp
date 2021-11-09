@@ -83,9 +83,11 @@ void WorldSession::HandleQueryTimeOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::SendQueryTimeResponse()
 {
+    auto timeResponse = sWorld->GetNextDailyQuestsResetTime() - GameTime::GetGameTime();
+
     WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4 + 4);
-    data << uint32(GameTime::GetGameTime());
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - GameTime::GetGameTime());
+    data << uint32(GameTime::GetGameTime().count());
+    data << uint32(timeResponse.count());
     SendPacket(&data);
 }
 

@@ -217,7 +217,7 @@ void WorldSession::HandleMoveWorldportAck()
             if (mapDiff->resetTime)
                 if (time_t timeReset = sInstanceSaveMgr->GetResetTimeFor(mEntry->MapID, diff))
                 {
-                    uint32 timeleft = uint32(timeReset - GameTime::GetGameTime());
+                    uint32 timeleft = uint32(timeReset - GameTime::GetGameTime().count());
                     GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft, true);
                 }
         allowMount = mInstance->AllowMount;

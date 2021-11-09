@@ -28,7 +28,7 @@ namespace
 
     void AddTime(ObjectGuid guid)
     {
-        _players.insert_or_assign(guid, GameTime::GetGameTime());
+        _players.insert_or_assign(guid, GameTime::GetGameTime().count());
     }
 
     uint32 GetTime(ObjectGuid guid)
@@ -45,7 +45,7 @@ namespace
     bool IsCorrectDelay(ObjectGuid guid)
     {
         // Skip if spam time < 30 secs (default)
-        if (GameTime::GetGameTime() - GetTime(guid) < CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay"))
+        if (GameTime::GetGameTime().count() - GetTime(guid) < CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay"))
         {
             return false;
         }

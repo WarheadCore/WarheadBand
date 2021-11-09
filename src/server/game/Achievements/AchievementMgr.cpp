@@ -428,7 +428,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             birthday_tm.tm_year += birthday_login.nth_birthday;
 
             time_t birthday = mktime(&birthday_tm);
-            time_t now = GameTime::GetGameTime();
+            time_t now = GameTime::GetGameTime().count();
             return now <= birthday + DAY && now >= birthday;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
@@ -653,7 +653,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                 continue;
             }
 
-            if (criteria->timeLimit && time_t(date + criteria->timeLimit) < GameTime::GetGameTime())
+            if (criteria->timeLimit && time_t(date + criteria->timeLimit) < GameTime::GetGameTime().count())
                 continue;
 
             CriteriaProgress& progress = m_criteriaProgress[id];
@@ -726,7 +726,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement) 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8 + 4 + 8);
     data << GetPlayer()->GetPackGUID();
     data << uint32(achievement->ID);
-    data.AppendPackedTime(GameTime::GetGameTime());
+    data.AppendPackedTime(GameTime::GetGameTime().count());
     data << uint32(0);
     GetPlayer()->SendMessageToSetInRange(&data, CONF_GET_FLOAT("ListenRange.Say"), true);
 }
@@ -1002,13 +1002,13 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 }
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
                 {
-                    time_t nextDailyResetTime = sWorld->GetNextDailyQuestsResetTime();
+                    Seconds nextDailyResetTime = sWorld->GetNextDailyQuestsResetTime();
                     CriteriaProgress* progress = GetCriteriaProgress(achievementCriteria);
 
                     if (!miscValue1) // Login case.
                     {
                         // reset if player missed one day.
-                        if (progress && progress->date < (nextDailyResetTime - 2 * DAY))
+                        if (progress && Seconds(progress->date) < (nextDailyResetTime - 2_days))
                             SetCriteriaProgress(achievementCriteria, 0, PROGRESS_SET);
                         continue;
                     }
@@ -1017,10 +1017,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     if (!progress)
                         // 1st time. Start count.
                         progressType = PROGRESS_SET;
-                    else if (progress->date < (nextDailyResetTime - 2 * DAY))
+                    else if (Seconds(progress->date) < (nextDailyResetTime - 2_days))
                         // last progress is older than 2 days. Player missed 1 day => Retart count.
                         progressType = PROGRESS_RESET;
-                    else if (progress->date < (nextDailyResetTime - DAY))
+                    else if (Seconds(progress->date) < (nextDailyResetTime - 1_days))
                         // last progress is between 1 and 2 days. => 1st time of the day.
                         progressType = PROGRESS_ACCUMULATE;
                     else
@@ -2075,7 +2075,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     }
 
     progress->changed = true;
-    progress->date = GameTime::GetGameTime(); // set the date to the latest update.
+    progress->date = GameTime::GetGameTime().count(); // set the date to the latest update.
 
     uint32 timeElapsed = 0;
     bool timedCompleted = false;
@@ -2198,7 +2198,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
-    ca.date = GameTime::GetGameTime();
+    ca.date = GameTime::GetGameTime().count();
     ca.changed = true;
 
     sScriptMgr->OnAchievementComplete(GetPlayer(), achievement);

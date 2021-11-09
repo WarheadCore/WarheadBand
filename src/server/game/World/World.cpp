@@ -125,14 +125,14 @@ World::World()
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
     m_MaxPlayerCount = 0;
-    m_NextDailyQuestReset = 0;
-    m_NextWeeklyQuestReset = 0;
-    m_NextMonthlyQuestReset = 0;
-    m_NextRandomBGReset = 0;
-    m_NextCalendarOldEventsDeletionTime = 0;
-    m_NextGuildReset = 0;
+    m_NextDailyQuestReset = 0s;
+    m_NextWeeklyQuestReset = 0s;
+    m_NextMonthlyQuestReset = 0s;
+    m_NextRandomBGReset = 0s;
+    m_NextCalendarOldEventsDeletionTime = 0s;
+    m_NextGuildReset = 0s;
     m_defaultDbcLocale = LOCALE_enUS;
-    mail_expire_check_timer = 0;
+    mail_expire_check_timer = 0s;
     m_isClosed = false;
     m_CleaningFlags = 0;
 }
@@ -276,7 +276,7 @@ void World::AddSession_(WorldSession* s)
         WorldSession* oldSession = old->second;
 
         if (!RemoveQueuedPlayer(oldSession) && CONF_GET_INT("DisconnectToleranceInterval"))
-            m_disconnects[s->GetAccountId()] = GameTime::GetGameTime();
+            m_disconnects[s->GetAccountId()] = GameTime::GetGameTime().count();
 
         // pussywizard:
         if (oldSession->HandleSocketClosed())
@@ -290,7 +290,7 @@ void World::AddSession_(WorldSession* s)
                 tmp->SetShouldSetOfflineInDB(false);
                 delete tmp;
             }
-            oldSession->SetOfflineTime(GameTime::GetGameTime());
+            oldSession->SetOfflineTime(GameTime::GetGameTime().count());
             m_offlineSessions[oldSession->GetAccountId()] = oldSession;
         }
         else
@@ -331,7 +331,7 @@ bool World::HasRecentlyDisconnected(WorldSession* session)
     {
         for (DisconnectMap::iterator i = m_disconnects.begin(); i != m_disconnects.end();)
         {
-            if ((GameTime::GetGameTime() - i->second) < tolerance)
+            if ((GameTime::GetGameTime().count() - i->second) < tolerance)
             {
                 if (i->first == session->GetAccountId())
                     return true;
@@ -562,7 +562,7 @@ void World::SetInitialWorldSettings()
     uint32 startupBegin = getMSTime();
 
     ///- Initialize the random number generator
-    srand((unsigned int)GameTime::GetGameTime());
+    srand((unsigned int)GameTime::GetGameTime().count());
 
     ///- Initialize detour memory management
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
@@ -1066,7 +1066,7 @@ void World::SetInitialWorldSettings()
     GameTime::UpdateGameTimers();
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
-                           realm.Id.Realm, uint32(GameTime::GetStartTime()), GitRevision::GetFullVersion()); // One-time query
+                           realm.Id.Realm, uint32(GameTime::GetStartTime().count()), GitRevision::GetFullVersion()); // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
@@ -1086,7 +1086,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_WHO_LIST].SetInterval(5 * IN_MILLISECONDS); // update who list cache every 5 seconds
 
-    mail_expire_check_timer = GameTime::GetGameTime() + 6 * 3600;
+    mail_expire_check_timer = GameTime::GetGameTime() + 6h;
 
     ///- Initilize static helper structures
     AIRegistry::Initialize();
@@ -1266,9 +1266,11 @@ void World::DetectDBCLang()
 void World::Update(uint32 diff)
 {
     METRIC_TIMER("world_update_time_total");
+
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
-    time_t currentGameTime = GameTime::GetGameTime();
+
+    Seconds currentGameTime = GameTime::GetGameTime();
 
     sWorldUpdateTime.UpdateWithDiff(diff);
 
@@ -1367,12 +1369,12 @@ void World::Update(uint32 diff)
         if (currentGameTime > mail_expire_check_timer)
         {
             sObjectMgr->ReturnOrDeleteOldMails(true);
-            mail_expire_check_timer = currentGameTime + 6 * 3600;
+            mail_expire_check_timer = currentGameTime + 6h;
         }
 
-        sWorldUpdateTime.RecordUpdateTimeReset();
+        /// <li> Handle session updates when the timer has passed
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
         UpdateSessions(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
     }
 
     // end of section with mutex
@@ -1385,12 +1387,16 @@ void World::Update(uint32 diff)
         WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
     }
 
-    sWorldUpdateTime.RecordUpdateTimeReset();
-    sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 0"));
+        sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
+    }
 
-    sMapMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+    {
+        ///- Update objects when the timer has passed (maps, transport, creatures, ...)
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update maps"));
+        sMapMgr->Update(diff);
+    }
 
     if (CONF_GET_BOOL("AutoBroadcast.On"))
     {
@@ -1402,36 +1408,45 @@ void World::Update(uint32 diff)
         }
     }
 
-    sBattlegroundMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlegrounds"));
+        sBattlegroundMgr->Update(diff);
+    }
 
-    sOutdoorPvPMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update outdoor pvp"));
+        sOutdoorPvPMgr->Update(diff);
+    }
 
-    sBattlefieldMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlefields"));
+        sBattlefieldMgr->Update(diff);
+    }
 
-    sLFGMgr->Update(diff, 2); // pussywizard: handle created proposals
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr2");
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 2"));
+        sLFGMgr->Update(diff, 2); // pussywizard: handle created proposals
+    }
 
-    // execute callbacks from sql queries that were queued recently
-    ProcessQueryCallbacks();
-    sWorldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Process query callbacks"));
+        // execute callbacks from sql queries that were queued recently
+        ProcessQueryCallbacks();
+    }
 
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
     {
-        uint32 tmpDiff = GameTime::GetUptime();
-        uint32 maxOnlinePlayers = GetMaxPlayerCount();
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update uptime"));
 
         m_timers[WUPDATE_UPTIME].Reset();
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
 
-        stmt->setUInt32(0, tmpDiff);
-        stmt->setUInt16(1, uint16(maxOnlinePlayers));
+        stmt->setUInt32(0, uint32(GameTime::GetUptime().count()));
+        stmt->setUInt16(1, uint16(GetMaxPlayerCount()));
         stmt->setUInt32(2, realm.Id.Realm);
-        stmt->setUInt32(3, uint32(GameTime::GetStartTime()));
+        stmt->setUInt32(3, uint32(GameTime::GetStartTime().count()));
 
         LoginDatabase.Execute(stmt);
     }
@@ -1441,6 +1456,7 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Remove old corpses"));
         m_timers[WUPDATE_CORPSES].Reset();
+
         sMapMgr->DoForAllMaps([](Map* map)
         {
             map->RemoveOldCorpses();
@@ -1617,16 +1633,16 @@ void World::KickAllLess(AccountTypes sec)
 void World::_UpdateGameTime()
 {
     ///- update the time
-    time_t lastGameTime = GameTime::GetGameTime();
+    Seconds lastGameTime = GameTime::GetGameTime();
     GameTime::UpdateGameTimers();
 
-    uint32 elapsed = uint32(GameTime::GetGameTime() - lastGameTime);
+    Seconds elapsed = GameTime::GetGameTime() - lastGameTime;
 
     ///- if there is a shutdown timer
-    if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0)
+    if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0s)
     {
         ///- ... and it is overdue, stop the world (set m_stopEvent)
-        if (m_ShutdownTimer <= elapsed)
+        if (m_ShutdownTimer <= elapsed.count())
         {
             if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
                 m_stopEvent = true;                         // exist code already set
@@ -1636,7 +1652,7 @@ void World::_UpdateGameTime()
         ///- ... else decrease it and if necessary display a shutdown countdown to the users
         else
         {
-            m_ShutdownTimer -= elapsed;
+            m_ShutdownTimer -= elapsed.count();
 
             ShutdownMsg();
         }
@@ -1757,7 +1773,7 @@ void World::UpdateSessions(uint32 diff)
         if (pSession->HandleSocketClosed())
         {
             if (!RemoveQueuedPlayer(pSession) && CONF_GET_INT("DisconnectToleranceInterval"))
-                m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime();
+                m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime().count();
             m_sessions.erase(itr);
             // there should be no offline session if current one is logged onto a character
             SessionMap::iterator iter;
@@ -1768,7 +1784,7 @@ void World::UpdateSessions(uint32 diff)
                 tmp->SetShouldSetOfflineInDB(false);
                 delete tmp;
             }
-            pSession->SetOfflineTime(GameTime::GetGameTime());
+            pSession->SetOfflineTime(GameTime::GetGameTime().count());
             m_offlineSessions[pSession->GetAccountId()] = pSession;
             continue;
         }
@@ -1779,7 +1795,7 @@ void World::UpdateSessions(uint32 diff)
         if (!pSession->Update(diff, updater))
         {
             if (!RemoveQueuedPlayer(pSession) && CONF_GET_INT("DisconnectToleranceInterval"))
-                m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime();
+                m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime().count();
             m_sessions.erase(itr);
             if (m_offlineSessions.find(pSession->GetAccountId()) != m_offlineSessions.end()) // pussywizard: don't set offline in db because offline session for that acc is present (character is in world)
                 pSession->SetShouldSetOfflineInDB(false);
@@ -1790,7 +1806,7 @@ void World::UpdateSessions(uint32 diff)
     // pussywizard:
     if (m_offlineSessions.empty())
         return;
-    uint32 currTime = GameTime::GetGameTime();
+    uint32 currTime = GameTime::GetGameTime().count();
     for (SessionMap::iterator itr = m_offlineSessions.begin(), next; itr != m_offlineSessions.end(); itr = next)
     {
         next = itr;
@@ -1866,7 +1882,7 @@ time_t World::GetNextTimeWithDayAndHour(int8 dayOfWeek, int8 hour)
 {
     if (hour < 0 || hour > 23)
         hour = 0;
-    time_t curr = GameTime::GetGameTime();
+    time_t curr = GameTime::GetGameTime().count();
     tm localTm;
     localtime_r(&curr, &localTm);
     localTm.tm_hour = hour;
@@ -1887,7 +1903,7 @@ time_t World::GetNextTimeWithMonthAndHour(int8 month, int8 hour)
 {
     if (hour < 0 || hour > 23)
         hour = 0;
-    time_t curr = GameTime::GetGameTime();
+    time_t curr = GameTime::GetGameTime().count();
     tm localTm;
     localtime_r(&curr, &localTm);
     localTm.tm_mday = 1;
@@ -1908,59 +1924,72 @@ time_t World::GetNextTimeWithMonthAndHour(int8 month, int8 hour)
 
 void World::InitWeeklyQuestResetTime()
 {
-    time_t wstime = time_t(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
-    m_NextWeeklyQuestReset = wstime ? wstime : GetNextTimeWithDayAndHour(4, 6);
-    if (!wstime)
-        sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
+    Seconds wstime = sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME);
+    m_NextWeeklyQuestReset = wstime > 0s ? wstime : Seconds(GetNextTimeWithDayAndHour(4, 6));
+
+    if (wstime == 0s)
+    {
+        sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, m_NextWeeklyQuestReset);
+    }
 }
 
 void World::InitDailyQuestResetTime()
 {
-    time_t wstime = time_t(sWorld->getWorldState(WS_DAILY_QUEST_RESET_TIME));
-    m_NextDailyQuestReset = wstime ? wstime : GetNextTimeWithDayAndHour(-1, 6);
-    if (!wstime)
-        sWorld->setWorldState(WS_DAILY_QUEST_RESET_TIME, uint64(m_NextDailyQuestReset));
+    Seconds wstime = sWorld->getWorldState(WS_DAILY_QUEST_RESET_TIME);
+    m_NextDailyQuestReset = wstime > 0s ? wstime : Seconds(GetNextTimeWithDayAndHour(-1, 6));
+
+    if (wstime == 0s)
+    {
+        sWorld->setWorldState(WS_DAILY_QUEST_RESET_TIME, m_NextDailyQuestReset);
+    }
 }
 
 void World::InitMonthlyQuestResetTime()
 {
-    time_t wstime = time_t(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME));
-    m_NextMonthlyQuestReset = wstime ? wstime : GetNextTimeWithMonthAndHour(-1, 6);
-    if (!wstime)
-        sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(m_NextMonthlyQuestReset));
+    Seconds wstime = sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME);
+    m_NextMonthlyQuestReset = wstime > 0s ? wstime : Seconds(GetNextTimeWithMonthAndHour(-1, 6));
+
+    if (wstime == 0s)
+    {
+        sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, m_NextMonthlyQuestReset);
+    }
 }
 
 void World::InitRandomBGResetTime()
 {
-    time_t wstime = time_t(sWorld->getWorldState(WS_BG_DAILY_RESET_TIME));
-    m_NextRandomBGReset = wstime ? wstime : GetNextTimeWithDayAndHour(-1, 6);
-    if (!wstime)
-        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+    Seconds wstime = sWorld->getWorldState(WS_BG_DAILY_RESET_TIME);
+    m_NextRandomBGReset = wstime > 0s ? wstime : Seconds(GetNextTimeWithDayAndHour(-1, 6));
+
+    if (wstime == 0s)
+    {
+        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, m_NextRandomBGReset);
+    }
 }
 
 void World::InitCalendarOldEventsDeletionTime()
 {
-    time_t now = GameTime::GetGameTime();
-    time_t currentDeletionTime = getWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME);
-    time_t nextDeletionTime = currentDeletionTime ? currentDeletionTime : GetNextTimeWithDayAndHour(-1, CONF_GET_INT("Calendar.DeleteOldEventsHour"));
+    Seconds now = GameTime::GetGameTime();
+    Seconds currentDeletionTime = getWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME);
+    Seconds nextDeletionTime = currentDeletionTime > 0s ? currentDeletionTime : Seconds(GetNextTimeWithDayAndHour(-1, CONF_GET_INT("Calendar.DeleteOldEventsHour")));
 
     // If the reset time saved in the worldstate is before now it means the server was offline when the reset was supposed to occur.
     // In this case we set the reset time in the past and next world update will do the reset and schedule next one in the future.
     if (currentDeletionTime < now)
-        m_NextCalendarOldEventsDeletionTime = nextDeletionTime - DAY;
+        m_NextCalendarOldEventsDeletionTime = nextDeletionTime - 1_days;
     else
         m_NextCalendarOldEventsDeletionTime = nextDeletionTime;
 
-    if (!currentDeletionTime)
-        sWorld->setWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME, uint64(m_NextCalendarOldEventsDeletionTime));
+    if (currentDeletionTime == 0s)
+        sWorld->setWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME, m_NextCalendarOldEventsDeletionTime);
 }
 
 void World::InitGuildResetTime()
 {
-    time_t wstime = time_t(getWorldState(WS_GUILD_DAILY_RESET_TIME));
-    m_NextGuildReset = wstime ? wstime : GetNextTimeWithDayAndHour(-1, 6);
-    if (!wstime)
-        sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
+    Seconds wstime = getWorldState(WS_GUILD_DAILY_RESET_TIME);
+    m_NextGuildReset = wstime > 0s ? wstime : Seconds(GetNextTimeWithDayAndHour(-1, 6));
+
+    if (wstime == 0s)
+        sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, m_NextGuildReset);
 }
 
 void World::ResetDailyQuests()
@@ -1972,8 +2001,8 @@ void World::ResetDailyQuests()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetDailyQuestStatus();
 
-    m_NextDailyQuestReset = GetNextTimeWithDayAndHour(-1, 6);
-    sWorld->setWorldState(WS_DAILY_QUEST_RESET_TIME, uint64(m_NextDailyQuestReset));
+    m_NextDailyQuestReset = Seconds(GetNextTimeWithDayAndHour(-1, 6));
+    sWorld->setWorldState(WS_DAILY_QUEST_RESET_TIME, m_NextDailyQuestReset);
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
@@ -2007,8 +2036,8 @@ void World::ResetWeeklyQuests()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
 
-    m_NextWeeklyQuestReset = GetNextTimeWithDayAndHour(4, 6);
-    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
+    m_NextWeeklyQuestReset = Seconds(GetNextTimeWithDayAndHour(4, 6));
+    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, m_NextWeeklyQuestReset);
 
     // change available weeklies
     sPoolMgr->ChangeWeeklyQuests();
@@ -2025,8 +2054,8 @@ void World::ResetMonthlyQuests()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetMonthlyQuestStatus();
 
-    m_NextMonthlyQuestReset = GetNextTimeWithMonthAndHour(-1, 6);
-    sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(m_NextMonthlyQuestReset));
+    m_NextMonthlyQuestReset = Seconds(GetNextTimeWithMonthAndHour(-1, 6));
+    sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, m_NextMonthlyQuestReset);
 }
 
 void World::ResetEventSeasonalQuests(uint16 event_id)
@@ -2051,16 +2080,16 @@ void World::ResetRandomBG()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->SetRandomWinner(false);
 
-    m_NextRandomBGReset = GetNextTimeWithDayAndHour(-1, 6);
-    sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+    m_NextRandomBGReset = Seconds(GetNextTimeWithDayAndHour(-1, 6));
+    sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, m_NextRandomBGReset);
 }
 
 void World::CalendarDeleteOldEvents()
 {
     LOG_INFO("server.worldserver", "Calendar deletion of old events.");
 
-    m_NextCalendarOldEventsDeletionTime = time_t(m_NextCalendarOldEventsDeletionTime + DAY);
-    sWorld->setWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME, uint64(m_NextCalendarOldEventsDeletionTime));
+    m_NextCalendarOldEventsDeletionTime += 1_days;
+    sWorld->setWorldState(WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME, m_NextCalendarOldEventsDeletionTime);
     sCalendarMgr->DeleteOldEvents();
 }
 
@@ -2068,8 +2097,8 @@ void World::ResetGuildCap()
 {
     LOG_INFO("server.worldserver", "Guild Daily Cap reset.");
 
-    m_NextGuildReset = GetNextTimeWithDayAndHour(-1, 6);
-    sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
+    m_NextGuildReset = Seconds(GetNextTimeWithDayAndHour(-1, 6));
+    sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, m_NextGuildReset);
 
     sGuildMgr->ResetTimes();
 }
@@ -2165,7 +2194,7 @@ void World::LoadWorldStates()
     do
     {
         Field* fields = result->Fetch();
-        m_worldstates[fields[0].GetUInt32()] = fields[1].GetUInt32();
+        m_worldstates[fields[0].GetUInt32()] = Seconds(fields[1].GetUInt32());
         ++count;
     } while (result->NextRow());
 
@@ -2174,34 +2203,31 @@ void World::LoadWorldStates()
 }
 
 // Setting a worldstate will save it to DB
-void World::setWorldState(uint32 index, uint64 value)
+void World::setWorldState(uint32 index, Seconds timeValue)
 {
-    WorldStatesMap::const_iterator it = m_worldstates.find(index);
+    auto const& it = m_worldstates.find(index);
     if (it != m_worldstates.end())
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
-
-        stmt->setUInt32(0, uint32(value));
+        stmt->setUInt32(0, uint32(timeValue.count()));
         stmt->setUInt32(1, index);
-
         CharacterDatabase.Execute(stmt);
     }
     else
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
-
         stmt->setUInt32(0, index);
-        stmt->setUInt32(1, uint32(value));
-
+        stmt->setUInt32(1, uint32(timeValue.count()));
         CharacterDatabase.Execute(stmt);
     }
-    m_worldstates[index] = value;
+
+    m_worldstates[index] = timeValue;
 }
 
-uint64 World::getWorldState(uint32 index) const
+Seconds World::getWorldState(uint32 index) const
 {
-    WorldStatesMap::const_iterator it = m_worldstates.find(index);
-    return it != m_worldstates.end() ? it->second : 0;
+    auto const& itr = m_worldstates.find(index);
+    return itr != m_worldstates.end() ? itr->second : 0s;
 }
 
 void World::ProcessQueryCallbacks()

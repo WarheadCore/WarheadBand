@@ -98,7 +98,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, 
 bool Channel::IsBanned(ObjectGuid guid) const
 {
     BannedContainer::const_iterator itr = bannedStore.find(guid);
-    return itr != bannedStore.end() && itr->second > GameTime::GetGameTime();
+    return itr != bannedStore.end() && itr->second > GameTime::GetGameTime().count();
 }
 
 void Channel::UpdateChannelInDB() const
@@ -428,8 +428,8 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
     {
         if (!IsBanned(victim))
         {
-            bannedStore[victim] = GameTime::GetGameTime() + CHANNEL_BAN_DURATION;
-            AddChannelBanToDB(victim, GameTime::GetGameTime() + CHANNEL_BAN_DURATION);
+            bannedStore[victim] = GameTime::GetGameTime().count() + CHANNEL_BAN_DURATION;
+            AddChannelBanToDB(victim, GameTime::GetGameTime().count() + CHANNEL_BAN_DURATION);
 
             if (notify)
             {
@@ -811,7 +811,7 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
 
         if (!IsAllowedToSpeak(speakDelay))
         {
-            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(lastSpeakTime + speakDelay - GameTime::GetGameTime());
+            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(lastSpeakTime + speakDelay - GameTime::GetGameTime().count());
             if (_channelRights.speakMessage.length() > 0)
                 player->GetSession()->SendNotification("{}", _channelRights.speakMessage);
             player->GetSession()->SendNotification("You must wait {} before speaking again.", timeStr);
@@ -1297,9 +1297,9 @@ void Channel::MakeModerationOff(WorldPacket* data, ObjectGuid guid)
 
 bool Channel::IsAllowedToSpeak(uint32 speakDelay)
 {
-    if (lastSpeakTime + speakDelay <= GameTime::GetGameTime())
+    if (lastSpeakTime + speakDelay <= GameTime::GetGameTime().count())
     {
-        lastSpeakTime = GameTime::GetGameTime();
+        lastSpeakTime = GameTime::GetGameTime().count();
         return true;
     }
 
