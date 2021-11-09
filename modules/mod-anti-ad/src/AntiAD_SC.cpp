@@ -37,14 +37,6 @@ enum AntiADChannelsType : uint8
     ANTIAD_CHANNEL_CHANNEL  = 16,
 };
 
-enum StringLocales : uint8
-{
-    ANTIAD_LOCALE_SEND_GM_TEXT = 1,
-    ANTIAD_LOCALE_SEND_SELF,
-
-    ANTIAD_LOCALE_MAX
-};
-
 class AntiAD
 {
 public:
@@ -191,10 +183,10 @@ private:
 
         uint32 muteTime = CONF_GET_INT("AntiAD.Mute.Count");
 
-        sMute->MutePlayer(player->GetName(), muteTime, "Console", "Advertisment");
+        sMute->MutePlayer(player->GetName(), Seconds(muteTime), "Console", "Advertisment");
 
         if (CONF_GET_BOOL("AntiAD.Send.SelfMessage.Enable"))
-            sModuleLocale->SendGlobalMessage(true, MODULE_NAME, StringLocales::ANTIAD_LOCALE_SEND_SELF, muteTime);
+            sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_SELF", muteTime);
     }
 
     void SendGMTexts(Player* player, std::string const& message)
@@ -202,7 +194,7 @@ private:
         if (!CONF_GET_BOOL("AntiAD.Send.GMMessage.Enable"))
             return;
 
-        sModuleLocale->SendGlobalMessage(true, MODULE_NAME, StringLocales::ANTIAD_LOCALE_SEND_GM_TEXT, ChatHandler(player->GetSession()).GetNameLink(player).c_str(), message.c_str());
+        sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_GM_TEXT", ChatHandler(player->GetSession()).GetNameLink(player).c_str(), message.c_str());
     }
 
     void CheckMessage(Player* player, std::string& msg)
@@ -227,14 +219,13 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("AntiAD.Enable");
-        sGameConfig->AddOption<bool>("AntiAD.Send.GMMessage.Enable");
-        sGameConfig->AddOption<bool>("AntiAD.Send.SelfMessage.Enable");
-        sGameConfig->AddOption<bool>("AntiAD.Mute.Player.Enable");
-        sGameConfig->AddOption<bool>("AntiAD.Mute.GM.Enable");
-
-        sGameConfig->AddOption<int32>("AntiAD.Mute.Count");
-        sGameConfig->AddOption<int32>("AntiAD.Check.Channels", 8);
+        sGameConfig->AddOption({ "AntiAD.Enable",
+            "AntiAD.Send.GMMessage.Enable",
+            "AntiAD.Send.SelfMessage.Enable",
+            "AntiAD.Mute.Player.Enable",
+            "AntiAD.Mute.GM.Enable",
+            "AntiAD.Mute.Count",
+            "AntiAD.Check.Channels" });
     }
 
     void OnStartup() override

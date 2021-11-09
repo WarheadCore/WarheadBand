@@ -35,4 +35,8 @@ DELETE FROM `string_module`
 WHERE `ModuleName` = @MODULE_NAME;
 
 INSERT INTO `string_module`
-        VALUES (@MODULE_NAME, 1, 'enUS', '|cFFFF0000[AntiAD]:|r %s |cff6C8CD5wanted to say:|r %s'), (@MODULE_NAME, 2, 'enUS', '|cFFFF0000[AntiAD]:|cff6C8CD5 You chat muted on |r %u |cff6C8CD5minutes.'), (@MODULE_NAME, 1, 'ruRU', '|cFFFF0000[Антиреклама]:|r %s |cff6C8CD5хотел сказать:|r %s'), (@MODULE_NAME, 2, 'ruRU', '|cFFFF0000[Антиреклама]:|cff6C8CD5 Ваш чат заблокирован на|r %u |cff6C8CD5минут.');
+        VALUES
+        ("ANTIAD_LOCALE_SEND_GM_TEXT", 'enUS', '|cFFFF0000[AntiAD]:|r %s |cff6C8CD5wanted to say:|r %s'),
+        ("ANTIAD_LOCALE_SEND_SELF", 'enUS', '|cFFFF0000[AntiAD]:|cff6C8CD5 You chat muted on |r %u |cff6C8CD5minutes.'),
+        ("ANTIAD_LOCALE_SEND_GM_TEXT", 'ruRU', '|cFFFF0000[Антиреклама]:|r %s |cff6C8CD5хотел сказать:|r %s'),
+        ("ANTIAD_LOCALE_SEND_SELF", 'ruRU', '|cFFFF0000[Антиреклама]:|cff6C8CD5 Ваш чат заблокирован на|r %u |cff6C8CD5минут.');
