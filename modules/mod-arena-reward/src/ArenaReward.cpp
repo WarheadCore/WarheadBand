@@ -19,7 +19,7 @@
 #include "Log.h"
 #include "StringFormat.h"
 #include "StringConvert.h"
-#include "BanManager.h"
+#include "BanMgr.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "ArenaTeamMgr.h"
@@ -96,7 +96,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
 
             for (auto const& member : winnerArenaTeam->GetMembers())
             {
-                Player* player = sObjectAccessor->FindPlayer(member.Guid);
+                Player* player = ObjectAccessor::FindPlayer(member.Guid);
                 if (!player)
                     continue;
 
@@ -106,7 +106,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
 
             for (auto const& member : loserArenaTeam->GetMembers())
             {
-                Player* player = sObjectAccessor->FindPlayer(member.Guid);
+                Player* player = ObjectAccessor::FindPlayer(member.Guid);
                 if (!player)
                     continue;
 
@@ -179,7 +179,7 @@ bool ArenaReward::IsPossibleFarm(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : winnerArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -188,7 +188,7 @@ bool ArenaReward::IsPossibleFarm(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : loserArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -231,7 +231,7 @@ bool ArenaReward::CheckIP(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : winnerArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -240,7 +240,7 @@ bool ArenaReward::CheckIP(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : loserArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -350,7 +350,7 @@ bool ArenaReward::CheckEqipment(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : winnerArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -360,7 +360,7 @@ bool ArenaReward::CheckEqipment(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : loserArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -412,7 +412,7 @@ bool ArenaReward::CheckHealth(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : winnerArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
@@ -422,7 +422,7 @@ bool ArenaReward::CheckHealth(Battleground* bg, TeamId winnerTeamId)
 
         for (auto const& member : loserArenaTeam->GetMembers())
         {
-            Player* player = sObjectAccessor->FindPlayer(member.Guid);
+            Player* player = ObjectAccessor::FindPlayer(member.Guid);
             if (!player)
                 continue;
 
