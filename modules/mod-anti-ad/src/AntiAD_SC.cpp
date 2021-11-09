@@ -90,11 +90,11 @@ public:
         try
         {
             Poco::RegularExpression re(_pattern);
-            LOG_INFO("module.antiad", ">> Regular expression '%s' successfully loaded in %u ms", _pattern.c_str(), GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("module.antiad", ">> Regular expression '{}' successfully loaded in {} ms", _pattern, GetMSTimeDiffToNow(oldMSTime));
         }
         catch (const Poco::Exception& e)
         {
-            LOG_FATAL("module.antiad", ">> {}", e.displayText().c_str());
+            LOG_FATAL("module.antiad", ">> {}", e.displayText());
             LOG_FATAL("module.antiad", ">> Regular expression failed loaded ({})", _pattern);
 
             // Set disable module
@@ -123,7 +123,7 @@ public:
         }
         catch (const Poco::Exception& e)
         {
-            LOG_FATAL("module.antiad", "%s", e.displayText().c_str());
+            LOG_FATAL("module.antiad", "{}", e.displayText());
         }
 
         return false;

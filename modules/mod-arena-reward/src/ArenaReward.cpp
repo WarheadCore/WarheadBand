@@ -62,7 +62,7 @@ namespace
                 player->AddAura(SPELL_PARALYSE, player);
                 player->AddAura(SPELL_EXILE, player);
 
-                LOG_DEBUG("module.ar", "> Player (%s) paralyse!", player->GetName().c_str());
+                LOG_DEBUG("module.ar", "> Player ({}) paralyse!", player->GetName());
             }
         }
 
@@ -101,7 +101,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
                     continue;
 
                 player->AddItem(itemID, itemCountWinner);
-                ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы выйграли матч и получили|r %s x%u", sGameLocale->GetItemLink(itemID).c_str(), itemCountWinner);
+                ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы выйграли матч и получили|r {} x{}", sGameLocale->GetItemLink(itemID), itemCountWinner);
             }
 
             for (auto const& member : loserArenaTeam->GetMembers())
@@ -111,7 +111,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
                     continue;
 
                 player->AddItem(itemID, itemCountLoser);
-                ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы проиграли матч и получили|r %s x%u", sGameLocale->GetItemLink(itemID).c_str(), itemCountLoser);
+                ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы проиграли матч и получили|r {} x{}", sGameLocale->GetItemLink(itemID), itemCountLoser);
             }
         }
         else if (CONF_GET_BOOL("ArenaReward.Reward.Skirmish.Enable")) // !isRated
@@ -129,7 +129,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
                     count = itemCountWinner;
 
                 player->AddItem(itemID, count);
-                ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы %s матч и получили|r %s x%u", isWinner ? "выйграли" : "проиграли", sGameLocale->GetItemLink(itemID).c_str(), count);
+                ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы {} матч и получили|r {} x{}", isWinner ? "выйграли" : "проиграли", sGameLocale->GetItemLink(itemID), count);
             }
         }
     };
@@ -310,7 +310,7 @@ bool ArenaReward::CheckIP(Battleground* bg, TeamId winnerTeamId)
         if (!playersName.empty())
             playersName.erase(playersName.end() - 2, playersName.end());
 
-        LOG_WARN("module.ar", "> AR: Players (%s) used same ip for farming arena", playersName.c_str());
+        LOG_WARN("module.ar", "> AR: Players ({}) used same ip for farming arena", playersName);
     }
 
     return isIPFound;
@@ -332,7 +332,7 @@ bool ArenaReward::CheckEqipment(Battleground* bg, TeamId winnerTeamId)
 
             if (!player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
             {
-                LOG_WARN("module.ar", "> AR: Player (%s) is no full equipment! Slot (%u) is empty", player->GetName().c_str(), slot);
+                LOG_WARN("module.ar", "> AR: Player ({}) is no full equipment! Slot ({}) is empty", player->GetName(), slot);
                 return false;
             }
         }
@@ -395,7 +395,7 @@ bool ArenaReward::CheckHealth(Battleground* bg, TeamId winnerTeamId)
     {
         if (player->GetMaxHealth() <= 10000)
         {
-            LOG_WARN("module.ar", "> AR: Player (%s) have (%u) health", player->GetName().c_str(), player->GetMaxHealth());
+            LOG_WARN("module.ar", "> AR: Player ({}) have ({}) health", player->GetName(), player->GetMaxHealth());
             return true;
         }
 
