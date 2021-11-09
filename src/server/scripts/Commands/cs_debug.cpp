@@ -989,7 +989,7 @@ public:
         if (Unit* unit = handler->getSelectedUnit())
             unit->HandleEmoteCommand(emote);
 
-        handler->PSendSysMessage("Playing emote %s", EnumUtils::ToConstant(emote));
+        handler->PSendSysMessage("Playing emote {}", EnumUtils::ToConstant(emote));
 
         return true;
     }
