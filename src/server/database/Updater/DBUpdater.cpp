@@ -305,7 +305,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> 
 
     auto CheckUpdateTable = [&](std::string const& tableName)
     {
-        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName.c_str()));
+        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName));
         if (!checkTable)
         {
             Path const temp(GetBaseFilesDirectory() + tableName + ".sql");

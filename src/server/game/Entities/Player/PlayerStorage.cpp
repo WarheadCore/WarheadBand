@@ -4997,7 +4997,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     // 55      56      57      58      59      60      61      62      63           64                 65                 66             67              68      69
     //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles,
     // 70          71               72
-    //"actionBars, grantableLevels, innTriggerId FROM characters WHERE guid = '%u'", guid);
+    //"actionBars, grantableLevels, innTriggerId FROM characters WHERE guid = '{}'", guid);
     PreparedQueryResult result = holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
 
     if (!result)
@@ -5766,7 +5766,7 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     /*                                                     0           1         2           3      4                5           6        7        8        9             10            11
     QueryResult* result = CharacterDatabase.PQuery("SELECT casterGuid, itemGuid, spell, effectMask, recalculateMask, stackCount, amount0, amount1, amount2, base_amount0, base_amount1, base_amount2,
                                                     12           13          14
-                                                    maxDuration, remainTime, remainCharges FROM character_aura WHERE guid = '%u'", GetGUID().GetCounter());
+                                                    maxDuration, remainTime, remainCharges FROM character_aura WHERE guid = '{}'", GetGUID().GetCounter());
     */
 
     if (result)
@@ -6328,7 +6328,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
     ////                                                       0      1       2        3        4           5          6         7           8           9           10
     //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3,
     //                                                    11          12          13           14
-    //                                                itemcount4, itemcount5, itemcount6, playercount FROM character_queststatus WHERE guid = '%u'", GetGUID().GetCounter());
+    //                                                itemcount4, itemcount5, itemcount6, playercount FROM character_queststatus WHERE guid = '{}'", GetGUID().GetCounter());
 
     if (result)
     {

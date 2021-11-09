@@ -253,8 +253,8 @@ void Warden::ApplyPenalty(uint16 checkId, std::string const& reason)
         {
             reportMsg = Warhead::StringFormat("Player {} (guid {}, account id: {}) failed warden {} check ({}). Action: {}",
                 plr->GetName(), plr->GetGUID().GetCounter(), _session->GetAccountId(),
-                checkId, ((checkData && !checkData->Comment.empty()) ? checkData->Comment.c_str() : "<warden comment is not set>"),
-                GetWardenActionStr(action).c_str());
+                checkId, ((checkData && !checkData->Comment.empty()) ? checkData->Comment : "<warden comment is not set>"),
+                GetWardenActionStr(action));
         }
         else
         {

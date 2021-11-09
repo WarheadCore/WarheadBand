@@ -215,7 +215,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, Character
                     owner_level = gpd_owner->level;
                 }
                 CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<AH> profit: {}g, bidder: {} {} lvl (guid: {}), seller: {} {} lvl (guid: {}), item {} ({})\", NOW())",
-                    gpd->accountId, auction->bidder.GetCounter(), gpd->name.c_str(), bidder ? bidder->GetSession()->GetRemoteAddress().c_str() : "", owner_accId, owner_name.c_str(), auction->bid, (profit / GOLD), gpd->name.c_str(), gpd->level, auction->bidder.GetCounter(), owner_name.c_str(), owner_level, auction->owner.GetCounter(), auction->item_template, auction->itemCount);
+                    gpd->accountId, auction->bidder.GetCounter(), gpd->name, bidder ? bidder->GetSession()->GetRemoteAddress() : "", owner_accId, owner_name, auction->bid, (profit / GOLD), gpd->name, gpd->level, auction->bidder.GetCounter(), owner_name, owner_level, auction->owner.GetCounter(), auction->item_template, auction->itemCount);
             }
     }
 }

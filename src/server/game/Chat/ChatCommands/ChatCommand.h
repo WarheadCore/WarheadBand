@@ -93,8 +93,8 @@ namespace Warhead::Impl::ChatCommands
             if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
                 return Warhead::StringFormat("{} \"{}\"\n{} \"{}\"",
-                    GetWarheadString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
-                    GetWarheadString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
+                    GetWarheadString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage(),
+                    GetWarheadString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage());
             }
             else if (result1.HasErrorMessage())
                 return result1;
