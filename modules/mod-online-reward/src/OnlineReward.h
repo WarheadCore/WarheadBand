@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "Player.h"
+#include "ObjectGuid.h"
 #include <set>
 #include <unordered_map>
 
@@ -31,7 +32,7 @@ struct RewardPlayedTime
 
 struct RewardTimeHistory
 {
-    std::set<uint32> PerOnline;
+    std::unordered_set<uint32> PerOnline;
     uint32 PerTime;
 };
 
@@ -48,25 +49,25 @@ public:
 
     void InitSystem();
     void RewardPlayers();
-    void AddRewardHistory(uint32 lowGuid);
-    void DeleteRewardHistory(uint32 lowGuid);
+    void AddRewardHistory(ObjectGuid::LowType lowGuid);
+    void DeleteRewardHistory(ObjectGuid::LowType lowGuid);
 
 private:
     void LoadRewards();
-    bool IsExistHistory(uint32 lowGuid);
+    bool IsExistHistory(ObjectGuid::LowType lowGuid);
     void RewardPerOnline(Player* player);
     void RewardPerTime(Player* player);
     void SaveRewardDB();
 
-    std::set<uint32>* GetHistoryPerOnline(uint32 lowGuid);
-    uint32 GetHistoryPerTime(uint32 lowGuid);
+    std::unordered_set<uint32>* GetHistoryPerOnline(ObjectGuid::LowType lowGuid);
+    uint32 GetHistoryPerTime(ObjectGuid::LowType lowGuid);
 
     void SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, uint32 secondsOnine, bool isPerOnline = true);
-    void SaveDataForDB(uint32 lowGuid, uint32 seconds, bool isPerOnline = true);
+    void SaveDataForDB(ObjectGuid::LowType lowGuid, uint32 seconds, bool isPerOnline = true);
 
 private:
     std::unordered_map<uint32 /*time*/, RewardPlayedTime> _rewards; // for per online
-    std::unordered_map<uint32 /*playerLowGuid*/, RewardTimeHistory> _rewardHistoryDB;
+    std::unordered_map<ObjectGuid::LowType, RewardTimeHistory> _rewardHistoryDB;
 };
 
 #define sOL OnlineReward::instance()

@@ -24,17 +24,6 @@
 #include "StringFormat.h"
 #include "ExternalMail.h"
 
-enum StringLocales : uint8
-{
-    LEVEL_REWARD_LOCALE_SUBJECT = 1,
-    LEVEL_REWARD_LOCALE_TEXT,
-    LEVEL_REWARD_LOCALE_MESSAGE,
-
-    LEVEL_REWARD_LOCALE_MAX
-};
-
-#define MODULE_NAME "mod-level-reward"
-
 struct LevelRewardStruct
 {
     uint32 Money;
@@ -102,11 +91,11 @@ public:
                 _levelReward.ItemCount = 1;
             }
 
-            rewards.insert(std::make_pair(Level, _levelReward));
+            rewards.emplace(Level, _levelReward);
 
         } while (result->NextRow());
 
-        LOG_INFO("module", ">> Loaded %u reward for level in %u ms", static_cast<uint32>(rewards.size()), GetMSTimeDiffToNow(msTime));
+        LOG_INFO("module", ">> Loaded %u reward for level in %u ms", rewards.size(), GetMSTimeDiffToNow(msTime));
         LOG_INFO("module", "");
     }
 
@@ -146,15 +135,15 @@ private:
         if (!levelReward)
             return;
 
-        std::string subject = *sModuleLocale->GetModuleString(MODULE_NAME, LEVEL_REWARD_LOCALE_SUBJECT, Level);
-        std::string text = *sModuleLocale->GetModuleString(MODULE_NAME, LEVEL_REWARD_LOCALE_TEXT, Level);
+        std::string subject = *sModuleLocale->GetModuleString("LEVEL_REWARD_LOCALE_SUBJECT", Level);
+        std::string text = *sModuleLocale->GetModuleString("LEVEL_REWARD_LOCALE_TEXT", Level);
 
         uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
         // Send External mail
         sEM->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, CONF_GET_INT("LevelReward.NpcID"));
 
-        sModuleLocale->SendPlayerMessage(player, MODULE_NAME, LEVEL_REWARD_LOCALE_MESSAGE, Level);
+        sModuleLocale->SendPlayerMessage(player, "LEVEL_REWARD_LOCALE_MESSAGE", Level);
     }
 };
 
@@ -189,8 +178,6 @@ public:
     {
         if (!CONF_GET_BOOL("LevelReward.Enable"))
             return;
-
-        sModuleLocale->CheckStrings(MODULE_NAME, LEVEL_REWARD_LOCALE_MAX);
 
         sLR->LoadDataFromDB();
     }

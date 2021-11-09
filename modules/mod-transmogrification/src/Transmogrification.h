@@ -37,11 +37,11 @@ public:
     void Init();
     void LoadConfig(bool reload);
 
-    void DeleteFakeFromDB(uint64 itemGUID, CharacterDatabaseTransaction* trans = nullptr);
+    void DeleteFakeFromDB(ObjectGuid::LowType itemLowGuid, CharacterDatabaseTransaction* trans = nullptr);
     void MirrorImageDisplayItem(const Item* item, uint32& display);
     void SetVisibleItemSlot(Player* player, uint8 slot, Item* item);
-    void LoadPlayerSets(uint64 pGUID);
-    void UnloadPlayerSets(uint64 pGUID);
+    void LoadPlayerSets(ObjectGuid pGUID);
+    void UnloadPlayerSets(ObjectGuid pGUID);
     void ClearPlayerAtLogout(Player* player);
     void LoadPlayerAtLogin(Player* player);
 
@@ -51,13 +51,13 @@ public:
     void OnGossipSelectCode(Player* player, Creature* creature, uint32 const& action, uint32 const& sender, const char* code);
 
 private:
-    typedef std::unordered_map<uint64, uint64> TransmogrificationDataContainer;
-    typedef std::unordered_map<uint64, TransmogrificationDataContainer> TransmogrificationMapContainer;
+    typedef std::unordered_map<ObjectGuid, ObjectGuid> TransmogrificationDataContainer;
+    typedef std::unordered_map<ObjectGuid, std::unordered_map<ObjectGuid, ObjectGuid::LowType>> TransmogrificationMapContainer;
     typedef std::map<uint8, uint32> SlotsContainer;
     typedef std::map<uint8, SlotsContainer> PresetsContainer;
-    typedef std::unordered_map<uint64, PresetsContainer> PresetsDataMapContainer;
+    typedef std::unordered_map<ObjectGuid, PresetsContainer> PresetsDataMapContainer;
     typedef std::map<uint8, std::string> PresetsIdMapContainer;
-    typedef std::unordered_map<uint64, PresetsIdMapContainer> PresetsNameMapContainer;
+    typedef std::unordered_map<ObjectGuid, PresetsIdMapContainer> PresetsNameMapContainer;
 
     PresetsNameMapContainer _presetByName; // _presetByName[pGUID][presetID] = presetName
     PresetsDataMapContainer _presetById; // _presetById[pGUID][presetID][slot] = entry
@@ -86,15 +86,15 @@ private:
     void UpdateItem(Player* player, Item* item) const;
     void DeleteFakeEntry(Player* player, uint8 slot, Item* itemTransmogrified, CharacterDatabaseTransaction* trans = nullptr);
     void SetFakeEntry(Player* player, uint32 newEntry, uint8 slot, Item* itemTransmogrified);
-    uint32 GetFakeEntry(uint64 itemGUID) const;
+    uint32 GetFakeEntry(ObjectGuid itemGUID) const;
 
-    void Transmogrify(Player* player, uint64 itemGUID, uint8 slot, bool no_cost = false);
-    void SendNotification(Player* player, uint8 stringID);
+    void Transmogrify(Player* player, ObjectGuid itemGUID, uint8 slot, bool no_cost = false);
+    void SendNotification(Player* player, std::string const& localeEntry);
     bool CanTransmogrifyItemWithItem(Player* player, ItemTemplate const* destination, ItemTemplate const* source) const;
     bool SuitableForTransmogrification(Player* player, ItemTemplate const* proto) const;
 
     std::string const GetGossipIcon(uint8 slot, Player* player);
-    std::string const GetGossipItemName(Player* player, uint8 gossipItem);
+    std::string const GetGossipItemName(Player* player, std::string const& gossipItem);
 
     bool CanSavePresets(Player* player);
     void SavePreset(Player* player, Creature* creature, std::string const& name);

@@ -260,10 +260,10 @@ uint32 GuildCriteria::GetCountCriteriaProgressDone()
     return count;
 }
 
-void GuildCriteria::UnLearnSpells(uint32 lowGuid)
+void GuildCriteria::UnLearnSpells(ObjectGuid guid)
 {
     auto trans = CharacterDatabase.BeginTransaction();
-    Player* player = ObjectAccessor::FindPlayerInOrOutOfWorld(lowGuid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
 
     for (auto const& itr : _guildCriteriaProgress)
     {
@@ -273,7 +273,7 @@ void GuildCriteria::UnLearnSpells(uint32 lowGuid)
             player->removeSpell(spellID, SPEC_MASK_ALL, false);
 
         if (!player)
-            trans->PAppend("DELETE FROM `character_spell` WHERE `guid` = %u AND `spell` = %u", lowGuid, spellID);
+            trans->PAppend("DELETE FROM `character_spell` WHERE `guid` = %u AND `spell` = %u", guid.GetCounter(), spellID);
     }
 
     CharacterDatabase.CommitTransaction(trans);
@@ -1007,7 +1007,7 @@ void GuildLevelSystem::GetRewardsCriteria(Player* player, Creature* creature, ui
         auto member = itr.second;
 
         if (!member->IsOnline())
-            trans->PAppend("INSERT INTO `character_spell`(`guid`, `spell`, `specMask`) VALUES (%u, %u, 255)", static_cast<uint32>(member->GetGUID()), spellID);
+            trans->PAppend("INSERT INTO `character_spell`(`guid`, `spell`, `specMask`) VALUES (%u, %u, 255)", member->GetGUID().GetCounter(), spellID);
         else
         {
             auto player = member->FindPlayer();
@@ -1091,13 +1091,13 @@ void GuildLevelSystem::SetNextStage(Player* player)
 }
 
 // Spells
-void GuildLevelSystem::UnLearnSpellsForPlayer(uint32 lowGuid, uint32 guildID)
+void GuildLevelSystem::UnLearnSpellsForPlayer(ObjectGuid guid, uint32 guildID)
 {
     auto criteriaProgress = GetCriteriaProgress(guildID);
     if (!criteriaProgress)
         return; // if guild newest
 
-    criteriaProgress->UnLearnSpells(lowGuid);
+    criteriaProgress->UnLearnSpells(guid);
 }
 
 void GuildLevelSystem::LearnSpellsForPlayer(Player* player, uint32 guildID)

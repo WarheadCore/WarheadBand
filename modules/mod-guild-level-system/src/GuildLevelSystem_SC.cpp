@@ -39,7 +39,7 @@ public:
         sGuildLevelSystem->LearnSpellsForPlayer(player, guildID);
     }
 
-    void OnRemoveMember(Guild* guild, Player* player, uint32 lowGuid, bool /*isDisbanding*/, bool /*isKicked*/) override
+    void OnRemoveMember(Guild* guild, Player* player, bool /*isDisbanding*/, bool /*isKicked*/) override
     {
         if (!CONF_GET_BOOL("GLS.Enable"))
             return;
@@ -47,7 +47,7 @@ public:
         uint32 guildID = guild->GetId();
 
         sGuildLevelSystem->RescaleCriterias(guildID);
-        sGuildLevelSystem->UnLearnSpellsForPlayer(lowGuid, guildID);
+        sGuildLevelSystem->UnLearnSpellsForPlayer(player->GetGUID(), guildID);
     }
 };
 

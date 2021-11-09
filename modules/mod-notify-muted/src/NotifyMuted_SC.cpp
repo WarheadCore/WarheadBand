@@ -21,17 +21,8 @@
 #include "Chat.h"
 #include "Player.h"
 #include "GameTime.h"
-#include "MuteManager.h"
+#include "MuteMgr.h"
 #include "ModuleLocale.h"
-
-enum StringLocales : uint8
-{
-    NM_LOCALE_MESSAGE = 1,
-
-    NM_LOCALE_MAX
-};
-
-#define MODULE_NAME "mod-notify-muted"
 
 class NotifyMuted_Player : public PlayerScript
 {
@@ -43,17 +34,10 @@ public:
         if (!CONF_GET_BOOL("NotCanSpeakMsg.Enable"))
             return;
 
-        if (receiver->CanSpeak())
+        if (receiver->GetSession()->CanSpeak())
             return;
 
-        uint64 MuteTime = sMute->GetMuteTime(receiver->GetSession()->GetAccountId());
-        if (!MuteTime)
-            return;
-
-        std::string muteTimeStr = secsToTimeString(MuteTime - GameTime::GetGameTime(), true);
-        std::string nameLink = ChatHandler(receiver->GetSession()).playerLink(receiver->GetName());
-
-        sModuleLocale->SendPlayerMessage(player, MODULE_NAME, NM_LOCALE_MESSAGE, nameLink.c_str(), muteTimeStr.c_str());
+        sModuleLocale->SendPlayerMessage(player, "NM_LOCALE_MESSAGE", ChatHandler(receiver->GetSession()).playerLink(receiver->GetName()), sMute->GetMuteTimeString(receiver->GetSession()->GetAccountId()));
     }
 };
 
@@ -65,11 +49,6 @@ public:
     void OnAfterConfigLoad(bool /*reload*/) override
     {
         sGameConfig->AddOption<bool>("NotCanSpeakMsg.Enable");
-    }
-
-    void OnStartup() override
-    {
-        sModuleLocale->CheckStrings(MODULE_NAME, NM_LOCALE_MAX);
     }
 };
 

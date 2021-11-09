@@ -19,12 +19,13 @@
 #define _EXTERNALMAIL_H_
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 
 struct ExMail
 {
     uint32 ID;
-    uint64 PlayerGuid;
+    ObjectGuid PlayerGuid;
     std::string Subject;
     std::string Body;
     uint32 Money;

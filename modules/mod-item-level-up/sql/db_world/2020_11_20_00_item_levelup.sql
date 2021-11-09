@@ -1,22 +1,18 @@
--- Set module name
-SET @MODULE_NAME := 'mod-item-level-up';
-
 -- ----------------------------
 -- Records of string_module
 -- ----------------------------
 
 DELETE FROM `string_module`
-WHERE `ModuleName` = @MODULE_NAME
-    AND `ID` BETWEEN 1 AND 2;
+WHERE `Entry` IN ('ILU_LOCALE_MAX_LEVEL', 'ILU_LOCALE_GET_LEVEL');
 
 INSERT INTO `string_module` (`ModuleName`, `ID`, `Locale`, `Text`)
         VALUES
             -- ruRU
-            (@MODULE_NAME, 1, 'ruRU', '|cffff0000# |cff00ff00Вы уже имеете максимально возможный уровень в игре:|r %u'), (@MODULE_NAME, 2, 'ruRU', '|cffff0000# |cff00ff00Вы получили максимальный уровень в игре:|r %u'),
+            ('ILU_LOCALE_MAX_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы уже имеете максимально возможный уровень в игре:|r %u'), ('ILU_LOCALE_GET_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы получили максимальный уровень в игре:|r %u'),
             -- enUS
-            (@MODULE_NAME, 1, 'enUS', '|cffff0000# |cff00ff00You already have the highest possible level in the game:|r %s'), (@MODULE_NAME, 2, 'enUS', '|cffff0000# |cff00ff00You got the maximum level in game:|r %s');
--- Add item
+            ('ILU_LOCALE_MAX_LEVEL', 'enUS', '|cffff0000# |cff00ff00You already have the highest possible level in the game:|r %s'), ('ILU_LOCALE_GET_LEVEL', 'enUS', '|cffff0000# |cff00ff00You got the maximum level in game:|r %s');
 
+-- Add item
 SET @ITEM_ID := 113874;
 
 DELETE FROM `item_template`

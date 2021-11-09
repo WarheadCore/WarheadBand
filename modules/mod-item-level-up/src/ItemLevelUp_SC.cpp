@@ -22,16 +22,6 @@
 #include "Tokenize.h"
 #include "StringConvert.h"
 
-enum StringLocales : uint8
-{
-    ILU_LOCALE_MAX_LEVEL = 1,
-    ILU_LOCALE_GET_LEVEL,
-
-    ILU_LOCALE_MAX
-};
-
-#define MODULE_NAME "mod-item-level-up"
-
 class ItemLevelUp_Item : public ItemScript
 {
 public:
@@ -46,7 +36,7 @@ public:
         uint32 maxLevel = CONF_GET_INT("MaxPlayerLevel");
 
         if (playerLevel >= maxLevel)
-            sModuleLocale->SendPlayerMessage(player, MODULE_NAME, ILU_LOCALE_MAX_LEVEL, playerLevel);
+            sModuleLocale->SendPlayerMessage(player, "ILU_LOCALE_MAX_LEVEL", playerLevel);
         else if (playerLevel < maxLevel)
         {
             uint8 configLevel = static_cast<uint8>(CONF_GET_INT("ILU.LevelUP"));
@@ -55,7 +45,7 @@ public:
             player->GiveLevel(newLevel);
             player->SetUInt32Value(PLAYER_XP, 0);
 
-            sModuleLocale->SendPlayerMessage(player, MODULE_NAME, ILU_LOCALE_GET_LEVEL, newLevel);
+            sModuleLocale->SendPlayerMessage(player, "ILU_LOCALE_GET_LEVEL", newLevel);
         }
 
         if (CONF_GET_BOOL("ILU.SetMaxSkills.Enable"))
@@ -163,11 +153,6 @@ public:
         sGameConfig->AddOption<bool>("ILU.SetMaxSkills.Enable");
         sGameConfig->AddOption<int32>("ILU.LevelUP");
         sGameConfig->AddOption<std::string>("ILU.Teleport.Location");
-    }
-
-    void OnStartup() override
-    {
-        sModuleLocale->CheckStrings(MODULE_NAME, ILU_LOCALE_MAX);
     }
 };
 

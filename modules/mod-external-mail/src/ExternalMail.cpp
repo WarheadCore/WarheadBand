@@ -90,8 +90,8 @@ void ExternalMail::GetMailsFromDB()
             continue;
         }
 
-        uint64 PlayerGuid = sObjectMgr->GetPlayerGUIDByName(PlayerName);
-        if (!PlayerGuid)
+        auto playerGuid = sObjectMgr->GetPlayerGUIDByName(PlayerName);
+        if (playerGuid.IsEmpty())
             continue;
 
         bool _error = false;
@@ -119,7 +119,7 @@ void ExternalMail::GetMailsFromDB()
 
         ExMail _data;
         _data.ID = ID;
-        _data.PlayerGuid = PlayerGuid;
+        _data.PlayerGuid = playerGuid;
         _data.Subject = Subject;
         _data.Body = Body;
         _data.Money = Money;
@@ -164,7 +164,7 @@ void ExternalMail::SendMails()
                 }
             }
 
-            mail->SendMailTo(trans, receiver ? receiver : MailReceiver(exmail.PlayerGuid), MailSender(MAIL_CREATURE, exmail.CreatureEntry, MAIL_STATIONERY_DEFAULT), MAIL_CHECK_MASK_RETURNED);
+            mail->SendMailTo(trans, receiver ? receiver : MailReceiver(exmail.PlayerGuid.GetCounter()), MailSender(MAIL_CREATURE, exmail.CreatureEntry, MAIL_STATIONERY_DEFAULT), MAIL_CHECK_MASK_RETURNED);
             delete mail;
         }
 

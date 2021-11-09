@@ -55,7 +55,7 @@ public:
 
     void OnAfterMoveItemFromInventory(Player* /*player*/, Item* item, uint8 /*bag*/, uint8 /*slot*/, bool /*update*/) override
     {
-        sTransmog->DeleteFakeFromDB(item->GetGUIDLow());
+        sTransmog->DeleteFakeFromDB(item->GetGUID().GetCounter());
     }
 
     void OnLogin(Player* player) override

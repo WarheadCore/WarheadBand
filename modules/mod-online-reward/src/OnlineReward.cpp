@@ -25,17 +25,6 @@
 #include "Tokenize.h"
 #include "StringConvert.h"
 
-enum StringLocales : uint8
-{
-    OR_LOCALE_SUBJECT = 1,
-    OR_LOCALE_TEXT,
-    OR_LOCALE_MESSAGE,
-
-    OR_LOCALE_MAX
-};
-
-#define MODULE_NAME "mod-online-reward"
-
 OnlineReward* OnlineReward::instance()
 {
     static OnlineReward instance;
@@ -46,8 +35,6 @@ void OnlineReward::InitSystem()
 {
     if (CONF_GET_BOOL("OnlineReward.Enable") && !CONF_GET_BOOL("OnlineReward.PerOnline.Enable") && !CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
         sGameConfig->SetOption<bool>("OnlineReward.Enable", false);
-
-    sModuleLocale->CheckStrings(MODULE_NAME, OR_LOCALE_MAX);
 
     LoadRewards();
 }
@@ -97,15 +84,15 @@ void OnlineReward::LoadRewards()
             RPT.ItemCount = 1;
         }
 
-        _rewards.insert(std::make_pair(seconds, RPT));
+        _rewards.emplace(seconds, RPT);
 
     } while (result->NextRow());
 
-    LOG_INFO("module", ">> Loaded %u reward in %u ms", static_cast<uint32>(_rewards.size()), GetMSTimeDiffToNow(msTime));
+    LOG_INFO("module", ">> Loaded %u reward in %u ms", _rewards.size(), GetMSTimeDiffToNow(msTime));
     LOG_INFO("module", "");
 }
 
-void OnlineReward::AddRewardHistory(uint32 lowGuid)
+void OnlineReward::AddRewardHistory(ObjectGuid::LowType lowGuid)
 {
     if (IsExistHistory(lowGuid))
         return;
@@ -123,10 +110,10 @@ void OnlineReward::AddRewardHistory(uint32 lowGuid)
 
     _data.PerTime = fields[1].GetUInt32();
 
-    _rewardHistoryDB.insert(std::make_pair(lowGuid, _data));
+    _rewardHistoryDB.emplace(lowGuid, _data);
 }
 
-void OnlineReward::DeleteRewardHistory(uint32 lowGuid)
+void OnlineReward::DeleteRewardHistory(ObjectGuid::LowType lowGuid)
 {
     if (!IsExistHistory(lowGuid))
         return;
@@ -165,7 +152,7 @@ void OnlineReward::RewardPerOnline(Player* player)
 {
     ChatHandler handler(player->GetSession());
     uint32 playedTimeSec = player->GetTotalPlayedTime();
-    uint32 lowGuid = player->GetGUIDLow();
+    auto lowGuid = player->GetGUID().GetCounter();
 
     auto IsRewarded = [&](uint32 rewardSeconds) -> bool
     {
@@ -179,10 +166,8 @@ void OnlineReward::RewardPerOnline(Player* player)
         return false;
     };
 
-    for (auto const& itr : _rewards)
+    for (auto const& [seconds, data] : _rewards)
     {
-        uint32 seconds = itr.first;
-
         // Go next is rewarded
         if (IsRewarded(seconds))
             continue;
@@ -191,13 +176,13 @@ void OnlineReward::RewardPerOnline(Player* player)
         if (seconds > playedTimeSec)
             continue;
 
-        SendRewardForPlayer(player, itr.second.ItemID, itr.second.ItemCount, seconds);
+        SendRewardForPlayer(player, data.ItemID, data.ItemCount, seconds);
     }
 }
 
 void OnlineReward::RewardPerTime(Player* player)
 {
-    uint32 lowGuid = player->GetGUIDLow();
+    auto lowGuid = player->GetGUID().GetCounter();
     uint32 LastRewarded = GetHistoryPerTime(lowGuid);
     uint32 playedTimeSec = player->GetTotalPlayedTime();
     uint32 diffTime = 0;
@@ -259,7 +244,7 @@ void OnlineReward::SaveRewardDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-std::set<uint32>* OnlineReward::GetHistoryPerOnline(uint32 lowGuid)
+std::unordered_set<uint32>* OnlineReward::GetHistoryPerOnline(ObjectGuid::LowType lowGuid)
 {
     if (_rewardHistoryDB.empty())
         return nullptr;
@@ -271,7 +256,7 @@ std::set<uint32>* OnlineReward::GetHistoryPerOnline(uint32 lowGuid)
     return nullptr;
 }
 
-uint32 OnlineReward::GetHistoryPerTime(uint32 lowGuid)
+uint32 OnlineReward::GetHistoryPerTime(ObjectGuid::LowType lowGuid)
 {
     if (_rewardHistoryDB.empty())
         return 0;
@@ -287,23 +272,23 @@ void OnlineReward::SendRewardForPlayer(Player* player, uint32 itemID, uint32 ite
 {
     ChatHandler handler(player->GetSession());
     std::string subject, text;
-    std::string playedTimeSecStr = secsToTimeString(secondsOnine);
+    std::string playedTimeSecStr = Warhead::Time::ToTimeString<Seconds>(secondsOnine);
     uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
-    subject = Warhead::StringFormat(*sModuleLocale->GetModuleString(MODULE_NAME, StringLocales::OR_LOCALE_SUBJECT, localeIndex), playedTimeSecStr.c_str());
-    text = Warhead::StringFormat(*sModuleLocale->GetModuleString(MODULE_NAME, StringLocales::OR_LOCALE_TEXT, localeIndex), player->GetName().c_str(), playedTimeSecStr.c_str());
+    subject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr.c_str());
+    text = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName().c_str(), playedTimeSecStr.c_str());
 
     // Send External mail
     sEM->AddMail(player->GetName(), subject, text, itemID, itemCount, 37688);
 
     // Save data to DB
-    SaveDataForDB(player->GetGUIDLow(), secondsOnine, isPerOnline);
+    SaveDataForDB(player->GetGUID().GetCounter(), secondsOnine, isPerOnline);
 
     // Send chat text
-    sModuleLocale->SendPlayerMessage(player, MODULE_NAME, StringLocales::OR_LOCALE_MESSAGE, playedTimeSecStr.c_str());
+    sModuleLocale->SendPlayerMessage(player, "OR_LOCALE_MESSAGE", playedTimeSecStr);
 }
 
-void OnlineReward::SaveDataForDB(uint32 lowGuid, uint32 seconds, bool isPerOnline /*= true*/)
+void OnlineReward::SaveDataForDB(ObjectGuid::LowType lowGuid, uint32 seconds, bool isPerOnline /*= true*/)
 {
     auto const& _historyData = _rewardHistoryDB.find(lowGuid);
     if (_historyData == _rewardHistoryDB.end())
@@ -318,24 +303,20 @@ void OnlineReward::SaveDataForDB(uint32 lowGuid, uint32 seconds, bool isPerOnlin
         else
             _data.PerTime = seconds;
 
-        _rewardHistoryDB.insert(std::make_pair(lowGuid, _data));
+        _rewardHistoryDB.emplace(lowGuid, _data);
     }
     else
     {
         auto& __data = _historyData->second;
 
         if (isPerOnline)
-            __data.PerOnline.insert(seconds);
+            __data.PerOnline.emplace(seconds);
         else
             __data.PerTime = seconds;
     }
 }
 
-bool OnlineReward::IsExistHistory(uint32 lowGuid)
+bool OnlineReward::IsExistHistory(ObjectGuid::LowType lowGuid)
 {
-    auto const& _historyData = _rewardHistoryDB.find(lowGuid);
-    if (_historyData != _rewardHistoryDB.end())
-        return true;
-
-    return false;
+    return _rewardHistoryDB.find(lowGuid) != _rewardHistoryDB.end();
 }

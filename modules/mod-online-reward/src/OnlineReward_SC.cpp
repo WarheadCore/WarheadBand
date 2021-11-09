@@ -33,7 +33,7 @@ public:
         if (!CONF_GET_BOOL("OnlineReward.Enable"))
             return;
 
-        sOL->AddRewardHistory(player->GetGUIDLow());
+        sOL->AddRewardHistory(player->GetGUID().GetCounter());
     }
 
     void OnLogout(Player* player) override
@@ -41,7 +41,7 @@ public:
         if (!CONF_GET_BOOL("OnlineReward.Enable"))
             return;
 
-        sOL->DeleteRewardHistory(player->GetGUIDLow());
+        sOL->DeleteRewardHistory(player->GetGUID().GetCounter());
     }
 };
 

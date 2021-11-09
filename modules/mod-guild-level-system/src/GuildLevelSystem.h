@@ -86,7 +86,7 @@ public:
     void SetProgressDone(uint32 criteriaID, bool isDone = true);
     bool IsProgressDone(uint32 criteriaID);
     uint32 GetCountCriteriaProgressDone();
-    void UnLearnSpells(uint32 lowGuid);
+    void UnLearnSpells(ObjectGuid lowGuid);
     void LearnSpells(Player* player);
 
     // Stage
@@ -135,7 +135,7 @@ public:
     void SetNextStage(Player* player);
 
     // Spells
-    void UnLearnSpellsForPlayer(uint32 lowGuid, uint32 guildID);
+    void UnLearnSpellsForPlayer(ObjectGuid lowGuid, uint32 guildID);
     void LearnSpellsForPlayer(Player* player, uint32 guildID);
 
     template<typename Format, typename... Args>
