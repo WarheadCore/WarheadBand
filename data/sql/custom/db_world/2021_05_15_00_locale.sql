@@ -6,15 +6,6 @@ CREATE TABLE `commands_help_locale` (
   PRIMARY KEY (`Locale`,`Command`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `autobroadcast_locale`;
-CREATE TABLE `autobroadcast_locale` (
-  `RealmID` INT NOT NULL DEFAULT -1,
-  `ID` TINYINT NOT NULL,
-  `Locale` enum('enUS','koKR','frFR','deDE','zhCN','zhTW','esES','esMX','ruRU') NOT NULL,
-  `Text` TEXT DEFAULT NULL,
-  PRIMARY KEY (`RealmID`,`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 -- ----------------------------
 -- Table structure for string_class
 -- ----------------------------
