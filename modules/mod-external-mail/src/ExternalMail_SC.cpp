@@ -36,7 +36,7 @@ public:
         if (!CONF_GET_BOOL("External.Mail.Enable"))
             return;
 
-        scheduler.Schedule(5s, [this](TaskContext context)
+        scheduler.Schedule(5s, [](TaskContext context)
         {
             sEM->GetMailsFromDB();
             sEM->SendMails();
