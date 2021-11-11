@@ -5,7 +5,7 @@
 DELETE FROM `string_module`
 WHERE `Entry` IN ('ILU_LOCALE_MAX_LEVEL', 'ILU_LOCALE_GET_LEVEL');
 
-INSERT INTO `string_module` (`ModuleName`, `ID`, `Locale`, `Text`)
+INSERT INTO `string_module` (`Entry`, `Locale`, `Text`)
         VALUES
             -- ruRU
             ('ILU_LOCALE_MAX_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы уже имеете максимально возможный уровень в игре:|r %u'), ('ILU_LOCALE_GET_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы получили максимальный уровень в игре:|r %u'),

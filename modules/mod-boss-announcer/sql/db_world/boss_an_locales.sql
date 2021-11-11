@@ -5,7 +5,7 @@
 DELETE FROM `string_module`
 WHERE `Entry` IN ('BOSS_AN_LOCALE_SEND_TEXT_RAID', 'BOSS_AN_LOCALE_SEND_TEXT_WORLD', 'BOSS_AN_LOCALE_10_MAN_NORMAL', 'BOSS_AN_LOCALE_10_MAN_HEROIC', 'BOSS_AN_LOCALE_25_MAN_NORMAL', 'BOSS_AN_LOCALE_25_MAN_HEROIC');
 
-INSERT INTO `string_module` (`ModuleName`, `ID`, `Locale`, `Text`)
+INSERT INTO `string_module` (`Entry`, `Locale`, `Text`)
         VALUES
             -- ruRU
             ('BOSS_AN_LOCALE_SEND_TEXT_RAID', 'ruRU', '|cffff0000# |cff7bbef7{}|r и его группа убили босса |cffff0000{}|r в режиме |cffff0000{}|r'),

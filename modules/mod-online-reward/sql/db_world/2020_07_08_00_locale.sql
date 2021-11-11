@@ -1,7 +1,7 @@
 -- Add locales
 DELETE FROM `string_module`
 WHERE `Entry` IN ('OR_LOCALE_SUBJECT', 'OR_LOCALE_TEXT', 'OR_LOCALE_MESSAGE');
-INSERT INTO `string_module` (`ModuleName`, `ID`, `Locale`, `Text`) VALUES
+INSERT INTO `string_module` (`Entry`, `Locale`, `Text`) VALUES
 
 -- enUS
 ('OR_LOCALE_SUBJECT', 'enUS', 'Reward for online %s'),
