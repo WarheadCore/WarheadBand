@@ -19,6 +19,7 @@
 #define _GAME_LOCALE_H_
 
 #include "Common.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include <unordered_map>
 #include <vector>

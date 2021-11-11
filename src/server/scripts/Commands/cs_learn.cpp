@@ -22,6 +22,7 @@ Comment: All learn related commands
 Category: commandscripts
 EndScriptData */
 
+#include "Chat.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
