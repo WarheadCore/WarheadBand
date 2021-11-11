@@ -79,7 +79,7 @@ public:
         if (sVip->IsVip(data->accountId))
             handler->PSendSysMessage("> Игрок {} уже был випом.", target->GetName());
 
-        if (sVip->Add(data->accountId, GameTime::GetGameTime() + uint64(duration * DAY), level, true))
+        if (sVip->Add(data->accountId, GameTime::GetGameTime().count() + uint64(duration * DAY), level, true))
         {
             handler->PSendSysMessage("> Обновление статуста премиум аккаунта для игрока {}.", target->GetName());
             handler->PSendSysMessage("> Уровень {}. Оставшееся время {}.", level, Warhead::Time::ToTimeString<Seconds>(duration * DAY));

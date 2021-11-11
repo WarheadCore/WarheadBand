@@ -118,7 +118,7 @@ void Vip::InitSystem(bool reload)
         {
             auto const& [startTime, endTime, level] = vipInfo;
 
-            if (GameTime::GetGameTime() >= endTime)
+            if (GameTime::GetGameTime().count() >= endTime)
                 UnSet(accountID);
         }
 
@@ -168,7 +168,7 @@ bool Vip::Add(uint32 accountID, uint64 endTime, uint8 level, bool force /*= fals
         }
     }
 
-    auto timeNow = GameTime::GetGameTime();
+    auto timeNow = GameTime::GetGameTime().count();
 
     store.emplace(accountID, std::make_tuple(timeNow, endTime, level));
 
@@ -177,7 +177,7 @@ bool Vip::Add(uint32 accountID, uint64 endTime, uint8 level, bool force /*= fals
         accountID, timeNow, endTime, level);
 
     if (auto targetSession = sWorld->FindSession(accountID))
-        ChatHandler(targetSession).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime(), TimeOutput::Seconds, TimeFormat::FullText));
+        ChatHandler(targetSession).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText));
 
     return true;
 }
@@ -382,7 +382,7 @@ std::string Vip::GetDuration(Player* player)
 
     auto const& [startTime, endTime, level] = *info;
 
-    duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime(), TimeOutput::Seconds, TimeFormat::FullText);
+    duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText);
 
     return duration;
 }
@@ -401,7 +401,7 @@ std::string Vip::GetDuration(uint32 accountID)
 
     auto const& [startTime, endTime, level] = *info;
 
-    duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime(), TimeOutput::Seconds, TimeFormat::FullText);
+    duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText);
 
     return duration;
 }
@@ -440,7 +440,7 @@ void Vip::UnBindInstances(Player* player)
 
     if (unbindInfo)
     {
-        auto duration = GameTime::GetGameTime() - *unbindInfo;
+        auto duration = GameTime::GetGameTime().count() - *unbindInfo;
 
         if (duration < confDuration)
         {
@@ -513,7 +513,7 @@ void Vip::UnBindInstances(Player* player)
     }
 
     if (count)
-        storeUnbind.emplace(guid, GameTime::GetGameTime());
+        storeUnbind.emplace(guid, GameTime::GetGameTime().count());
     else
     {
         handler.PSendSysMessage("> Нечего сбрасывать");
