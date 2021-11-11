@@ -534,6 +534,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "InstantLogout",
     "ItemDelete.ItemLevel",
     "ItemDelete.Quality",
+    "LFG.MaxKickCount",
     "LevelReq.Auction",
     "LevelReq.Mail",
     "LevelReq.Ticket",
