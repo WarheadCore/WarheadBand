@@ -82,7 +82,7 @@ public:
         try
         {
             Poco::RegularExpression re(_pattern);
-            LOG_INFO("module.antiad", ">> Regular expression '{}' successfully loaded in {} ms", _pattern, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("module.antiad", ">> Regular expression successfully loaded in {} ms", GetMSTimeDiffToNow(oldMSTime));
         }
         catch (const Poco::Exception& e)
         {
