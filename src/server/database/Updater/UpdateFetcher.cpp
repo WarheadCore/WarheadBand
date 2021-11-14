@@ -145,19 +145,20 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
         std::vector<std::string> moduleList;
 
         auto const& _modulesTokens = Warhead::Tokenize(WH_MODULES_LIST, ',', true);
-        for (auto const& itr : _modulesTokens) moduleList.emplace_back(itr);
+        for (auto const& itr : _modulesTokens)
+            moduleList.emplace_back(itr);
 
         // data/sql
         for (auto const& itr : moduleList)
         {
-            std::string path = _sourceDirectory->generic_string() + "/modules/" + itr + "/sql/" + _dbModuleName; // modules/mod-name/data/sql/db-world
+            std::string path = _sourceDirectory->generic_string() + "/modules/" + itr + "/sql/" + _dbModuleName; // modules/mod-name/sql/db-world
 
             Path const p(path);
             if (!is_directory(p))
                 continue;
 
-            DirectoryEntry const entry = {p, AppliedFileEntry::StateConvert("MODULE")};
-            directories.push_back(entry);
+            DirectoryEntry const entry = { p, MODULE };
+            directories.emplace_back(entry);
 
             LOG_TRACE("sql.updates", "Added applied modules file \"{}\" from remote.", p.filename().generic_string());
         }
@@ -370,14 +371,21 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
     // Apply default updates
     for (auto const& availableQuery : available)
     {
-        if (availableQuery.second != CUSTOM && availableQuery.second != MODULE)
+        if (availableQuery.second == RELEASED && availableQuery.second == ARCHIVED)
             ApplyUpdateFile(availableQuery);
     }
 
-    // Apply only custom/module updates
+    // Apply only custom updates
     for (auto const& availableQuery : available)
     {
-        if (availableQuery.second == CUSTOM || availableQuery.second == MODULE)
+        if (availableQuery.second == CUSTOM)
+            ApplyUpdateFile(availableQuery);
+    }
+
+    // Apply only module updates
+    for (auto const& availableQuery : available)
+    {
+        if (availableQuery.second == MODULE)
             ApplyUpdateFile(availableQuery);
     }
 
