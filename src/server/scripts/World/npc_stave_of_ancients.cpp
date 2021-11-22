@@ -141,8 +141,7 @@ bool NPCStaveQuestAI::ValidThreatlist()
 
 void NPCStaveQuestAI::SetHomePosition()
 {
-    Position homePosition;
-    me->GetPosition(&homePosition);
+    Position homePosition = me->GetPosition();
 
     if (homePosition.IsPositionValid())
     {
@@ -565,8 +564,7 @@ public:
 
         void RespawnPet()
         {
-            Position current;
-            me->GetNearPosition(current, -5.0f, 0.0f);
+            Position current = me->GetNearPosition(-5.0f, 0.0f);
             Precious()->RemoveCorpse(false, false);
             Precious()->SetPosition(current);
             Precious()->SetHomePosition(current);
@@ -610,8 +608,7 @@ public:
                 return;
             }
 
-            Position petResetPos;
-            me->GetNearPosition(petResetPos, -5.0f, 0.0f);
+            Position petResetPos = me->GetNearPosition(-5.0f, 0.0f);
 
             if (petResetPos.IsPositionValid())
             {

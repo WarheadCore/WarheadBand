@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "SpellMgr.h"
 #include <map>
 
 // some type definitions

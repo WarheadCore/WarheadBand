@@ -36,7 +36,7 @@ class WH_GAME_API FollowerAI : public ScriptedAI
 {
 public:
     explicit FollowerAI(Creature* creature);
-    ~FollowerAI() override {}
+    ~FollowerAI() override { }
 
     //virtual void WaypointReached(uint32 uiPointId) = 0;
 

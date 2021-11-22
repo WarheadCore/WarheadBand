@@ -22,6 +22,7 @@
 #include "GameConfig.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "InstanceSaveMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -29,6 +30,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "Spell.h"
+#include "WorldSession.h"
 
 void InstanceScript::SaveToDB()
 {

@@ -52,17 +52,16 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recv_data)
 
     LOG_DEBUG("network", "WORLD: {} asked to add friend : '{}'", GetPlayer()->GetName(), friendName);
 
-    // xinef: Get Data From global storage
-    ObjectGuid friendGuid = sWorld->GetGlobalPlayerGUID(friendName);
+    ObjectGuid friendGuid = sCharacterCache->GetCharacterGuidByName(friendName);
     if (!friendGuid)
         return;
 
-    GlobalPlayerData const* playerData = sWorld->GetGlobalPlayerData(friendGuid.GetCounter());
+    CharacterCacheEntry const* playerData = sCharacterCache->GetCharacterCacheByGuid(friendGuid);
     if (!playerData)
         return;
 
-    uint32 friendAccountId = playerData->accountId;
-    TeamId teamId = Player::TeamIdForRace(playerData->race);
+    uint32 friendAccountId = playerData->AccountId;
+    TeamId teamId = Player::TeamIdForRace(playerData->Race);
     FriendsResult friendResult = FRIEND_NOT_FOUND;
 
     if (!AccountMgr::IsPlayerAccount(GetSecurity()) || CONF_GET_BOOL("GM.AllowFriend")|| AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
@@ -119,7 +118,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recv_data)
 
     LOG_DEBUG("network", "WORLD: {} asked to Ignore: '{}'", GetPlayer()->GetName(), ignoreName);
 
-    ObjectGuid ignoreGuid = sWorld->GetGlobalPlayerGUID(ignoreName);
+    ObjectGuid ignoreGuid = sCharacterCache->GetCharacterGuidByName(ignoreName);
     if (!ignoreGuid)
         return;
 

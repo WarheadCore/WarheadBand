@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "WorldSession.h"
 #include "sunwell_plateau.h"
 
 enum Quotes

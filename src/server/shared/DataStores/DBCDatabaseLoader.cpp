@@ -16,7 +16,6 @@
  */
 
 #include "DBCDatabaseLoader.h"
-#include "Common.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "StringFormat.h"

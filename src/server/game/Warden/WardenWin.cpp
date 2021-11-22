@@ -16,13 +16,13 @@
  */
 
 #include "WardenWin.h"
-#include "AccountMgr.h"
 #include "ByteBuffer.h"
 #include "Common.h"
 #include "CryptoRandom.h"
 #include "Database/DatabaseEnv.h"
 #include "GameConfig.h"
 #include "HMAC.h"
+#include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SessionKeyGenerator.h"

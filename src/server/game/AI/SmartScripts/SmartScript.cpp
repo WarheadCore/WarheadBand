@@ -791,12 +791,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (IsGameObject(*itr))
                     {
+                        GameObject* go = (*itr)->ToGameObject();
+
                         // Activate
-                        // xinef: wtf is this shit?
-                        (*itr)->ToGameObject()->SetLootState(GO_READY);
-                        (*itr)->ToGameObject()->UseDoorOrButton(0, !!e.action.activateObject.alternative, unit);
-                        LOG_DEBUG("sql.sql", "SmartScript::ProcessAction:: SMART_ACTION_ACTIVATE_GOBJECT. Gameobject {} activated",
-                                       (*itr)->GetGUID());
+                        if (go->GetGoType() != GAMEOBJECT_TYPE_DOOR)
+                        {
+                            go->SetLootState(GO_READY);
+                        }
+
+                        go->UseDoorOrButton(0, !!e.action.activateObject.alternative, unit);
+                        LOG_DEBUG("sql.sql", "SmartScript::ProcessAction:: SMART_ACTION_ACTIVATE_GOBJECT. Gameobject %s activated", go->GetGUID().ToString().c_str());
                     }
                 }
 
@@ -1272,15 +1276,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     break;
 
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                {
                     if (IsCreature(*itr))
                     {
-                        (*itr)->ToCreature()->CallForHelp((float)e.action.callHelp.range);
+                        (*itr)->ToCreature()->CallForHelp((float)e.action.callHelp.range, e.GetEventType() == SMART_EVENT_AGGRO ? unit : nullptr);
                         if (e.action.callHelp.withEmote)
                         {
                             Warhead::BroadcastTextBuilder builder(*itr, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, LANG_UNIVERSAL, nullptr);
                             sCreatureTextMgr->SendChatPacket(*itr, builder, CHAT_MSG_MONSTER_EMOTE);
                         }
                     }
+                }
 
                 delete targets;
                 break;
@@ -1485,9 +1491,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     for (uint32 i = 0; i < e.target.randomPoint.amount; i++)
                     {
                         if (e.target.randomPoint.self > 0)
-                            me->GetRandomPoint(me->GetPosition(), range, randomPoint);
+                            randomPoint = me->GetRandomPoint(me->GetPosition(), range);
                         else
-                            me->GetRandomPoint(srcPos, range, randomPoint);
+                            randomPoint = me->GetRandomPoint(srcPos, range);
                         if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, randomPoint, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
                         {
                             if (unit && e.action.summonCreature.attackInvoker)
@@ -1855,9 +1861,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (me)
                     {
                         float range = (float)e.target.randomPoint.range;
-                        Position randomPoint;
                         Position srcPos = { e.target.x, e.target.y, e.target.z, e.target.o };
-                        me->GetRandomPoint(srcPos, range, randomPoint);
+                        Position randomPoint = me->GetRandomPoint(srcPos, range);
                         me->GetMotionMaster()->MovePoint(
                             e.action.MoveToPos.pointId,
                             randomPoint.m_positionX,
@@ -2439,9 +2444,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (me)
                     {
                         float range = (float)e.target.randomPoint.range;
-                        Position randomPoint;
                         Position srcPos = { e.target.x, e.target.y, e.target.z, e.target.o };
-                        me->GetRandomPoint(srcPos, range, randomPoint);
+                        Position randomPoint = me->GetRandomPoint(srcPos, range);
                         me->GetMotionMaster()->MoveJump(randomPoint, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
                     }
 
@@ -3684,7 +3688,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
             {
-                GameObject* target = GetClosestGameObjectWithEntry(GetBaseObject(), e.target.closest.entry, (float)(e.target.closest.dist ? e.target.closest.dist : 100));
+                GameObject* target = GetClosestGameObjectWithEntry(GetBaseObject(), e.target.closestGameobject.entry, (float)(e.target.closestGameobject.dist ? e.target.closestGameobject.dist : 100), e.target.closestGameobject.onlySpawned);
                 if (target)
                     l->push_back(target);
                 break;

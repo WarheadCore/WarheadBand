@@ -170,6 +170,7 @@ enum Spells
     SPELL_ON_ORGRIMS_HAMMER_DECK            = 70121,
 
     // Rocket Pack
+    SPELL_CREATE_ROCKET_PACK                = 70055,
     SPELL_ROCKET_PACK_DAMAGE                = 69193,
     SPELL_ROCKET_BURST                      = 69192,
     SPELL_ROCKET_PACK_USEABLE               = 70348,
@@ -1424,7 +1425,7 @@ public:
 
         void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
         {
-            player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
+            me->CastSpell(player, SPELL_CREATE_ROCKET_PACK);
             player->PlayerTalkClass->SendCloseGossip();
         }
     };
@@ -2429,8 +2430,7 @@ public:
             if (!si)
                 return;
             SpellCastTargets targets;
-            Position dest;
-            GetExplTargetDest()->GetPosition(&dest);
+            Position dest = GetExplTargetDest()->GetPosition();
             targets.SetDst(dest);
             CustomSpellValues values;
             int32 damage = si->Effects[0].CalcValue() + _energyLeft * _energyLeft * 8;

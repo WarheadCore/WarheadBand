@@ -22,6 +22,7 @@
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GitRevision.h"
+#include "GossipDef.h"
 #include "Group.h"
 #include "MapMgr.h"
 #include "Player.h"
@@ -29,6 +30,8 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

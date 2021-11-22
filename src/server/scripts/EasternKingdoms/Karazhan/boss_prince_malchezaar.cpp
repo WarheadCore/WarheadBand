@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "karazhan.h"
 
 enum PrinceSay
@@ -300,7 +299,7 @@ public:
 
             if ((me->GetMapId() == 532))
             {
-                me->GetRandomNearPosition(pos, 40.0);
+                pos = me->GetRandomNearPosition(40.0);
             }
             else
             {

@@ -371,7 +371,7 @@ void SendPacketToPlayers(WorldPacket const* data, Unit* source)
                     player->GetSession()->SendPacket(data);
 }
 
-struct ShadowTrapLKTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct ShadowTrapLKTargetSelector
 {
 public:
     ShadowTrapLKTargetSelector(Creature* source, bool playerOnly = true, bool reqLOS = false, float maxDist = 0.0f) : _source(source), _playerOnly(playerOnly), _reqLOS(reqLOS), _maxDist(maxDist) { }
@@ -397,7 +397,7 @@ private:
     float _maxDist;
 };
 
-struct NonTankLKTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct NonTankLKTargetSelector
 {
 public:
     NonTankLKTargetSelector(Creature* source, bool playerOnly = true, bool reqLOS = false, float maxDist = 0.0f, uint32 exclude1 = 0, uint32 exclude2 = 0) : _source(source), _playerOnly(playerOnly), _reqLOS(reqLOS), _maxDist(maxDist), _exclude1(exclude1), _exclude2(exclude2) { }
@@ -431,7 +431,7 @@ private:
     uint32 _exclude2;
 };
 
-struct DefileTargetSelector : public Warhead::unary_function<Unit*, bool>
+struct DefileTargetSelector
 {
 public:
     DefileTargetSelector(Creature* source) : _source(source) { }
@@ -588,7 +588,7 @@ private:
     Creature& _owner;
 };
 
-class NecroticPlagueTargetCheck : public Warhead::unary_function<Unit*, bool>
+class NecroticPlagueTargetCheck
 {
 public:
     NecroticPlagueTargetCheck(Unit const* obj, uint32 notAura1, uint32 notAura2) : _sourceObj(obj), _notAura1(notAura1), _notAura2(notAura2) {}

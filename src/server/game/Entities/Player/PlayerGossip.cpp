@@ -18,10 +18,13 @@
 #include "BattlegroundMgr.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
+#include "GossipDef.h"
 #include "Language.h"
+#include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*********************************************************/
 /***                    GOSSIP SYSTEM                  ***/

@@ -17,6 +17,7 @@
 
 #include "Guild.h"
 #include "CalendarMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
@@ -1561,9 +1562,10 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
 void Guild::HandleAcceptMember(WorldSession* session)
 {
     Player* player = session->GetPlayer();
-    if (!CONF_GET_BOOL("AllowTwoSide.Interaction.Guild") &&
-            player->GetTeamId() != sObjectMgr->GetPlayerTeamIdByGUID(GetLeaderGUID().GetCounter()))
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && player->GetTeamId() != sCharacterCache->GetCharacterTeamByGuid(GetLeaderGUID()))
+    {
         return;
+    }
 
     AddMember(player->GetGUID());
 }
@@ -1974,7 +1976,7 @@ bool Guild::LoadMemberFromDB(Field* fields)
         return false;
     }
     m_members[memberGUID] = member;
-    sWorld->UpdateGlobalPlayerGuild(memberGUID.GetCounter(), GetId());
+    sCharacterCache->UpdateCharacterGuildId(memberGUID, GetId());
     return true;
 }
 
@@ -2183,7 +2185,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
         }
 
         Member* member = itr->second;
-        uint32 level = Player::GetLevelFromStorage(member->GetGUID().GetCounter());
+        uint32 level = sCharacterCache->GetCharacterLevelByGuid(member->GetGUID());
 
         if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
         {
@@ -2208,7 +2210,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
         if (player->GetGuildId() != 0)
             return false;
     }
-    else if (Player::GetGuildIdFromStorage(guid.GetCounter()) != 0)
+    else if (sCharacterCache->GetCharacterGuildIdByGuid(guid) != 0)
         return false;
 
     // Remove all player signs from another petitions
@@ -2260,7 +2262,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
             return false;
         }
         m_members[guid] = member;
-        sWorld->UpdateGlobalPlayerGuild(guid.GetCounter(), m_id);
+        sCharacterCache->UpdateCharacterGuildId(guid, m_id);
     }
 
     CharacterDatabaseTransaction trans(nullptr);
@@ -2332,7 +2334,9 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
         player->SetRank(0);
     }
     else
-        sWorld->UpdateGlobalPlayerGuild(guid.GetCounter(), 0);
+    {
+        sCharacterCache->UpdateCharacterGuildId(guid, 0);
+    }
 
     _DeleteMemberFromDB(guid.GetCounter());
     if (!isDisbanding)

@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellMgr.h"
 #include "azjol_nerub.h"
 
 enum Spells

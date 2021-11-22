@@ -29,6 +29,7 @@ EndContentData */
 #include "Chat.h"
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
+#include "GridNotifiersImpl.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"

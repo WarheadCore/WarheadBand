@@ -27,6 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Util.h"
+#include "WorldSession.h"
 
 int PetAI::Permissible(const Creature* creature)
 {

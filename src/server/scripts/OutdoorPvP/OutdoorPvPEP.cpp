@@ -16,7 +16,6 @@
  */
 
 #include "OutdoorPvPEP.h"
-#include "Creature.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "GameObject.h"

@@ -16,6 +16,7 @@
  */
 
 #include "PlayerTaxi.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "Util.h"
 

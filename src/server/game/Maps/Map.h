@@ -59,6 +59,7 @@ class Transport;
 class StaticTransport;
 class MotionTransport;
 class PathGenerator;
+
 namespace Warhead
 {
     struct ObjectUpdater;
@@ -440,6 +441,7 @@ public:
     [[nodiscard]] bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
     [[nodiscard]] bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
     [[nodiscard]] bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
+
     bool GetEntrancePos(int32& mapid, float& x, float& y)
     {
         if (!i_mapEntry)

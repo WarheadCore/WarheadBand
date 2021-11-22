@@ -28,7 +28,6 @@ EndScriptData */
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "hyjal.h"
-#include "hyjal_trash.h"
 
 enum Texts
 {
@@ -234,8 +233,7 @@ public:
                 }
                 else
                 {
-                    Position pos;
-                    me->GetRandomNearPosition(pos, 40);
+                    Position pos = me->GetRandomNearPosition(40);
                     me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 }
 

@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellMgr.h"
 #include "drak_tharon_keep.h"
 
 enum Yells

@@ -70,7 +70,7 @@ protected:
 class WH_GAME_API PlayerDumpWriter : public PlayerDump
 {
 public:
-    PlayerDumpWriter() {}
+    PlayerDumpWriter() { }
 
     bool GetDump(uint32 guid, std::string& dump);
     DumpReturn WriteDump(std::string const& file, uint32 guid);
@@ -89,7 +89,7 @@ private:
 class WH_GAME_API PlayerDumpReader : public PlayerDump
 {
 public:
-    PlayerDumpReader() {}
+    PlayerDumpReader() { }
 
     DumpReturn LoadDump(std::string const& file, uint32 account, std::string name, uint32 guid);
 };

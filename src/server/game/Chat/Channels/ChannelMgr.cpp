@@ -17,6 +17,7 @@
 
 #include "ChannelMgr.h"
 #include "GameConfig.h"
+#include "Log.h"
 #include "Player.h"
 #include "World.h"
 

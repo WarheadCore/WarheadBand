@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"

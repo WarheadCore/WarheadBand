@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
 #include "GameConfig.h"
 #include "MapMgr.h"
 #include "MuteMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "WorldSession.h"
 
 /*********************************************************/
 /***               FLOOD FILTER SYSTEM                 ***/

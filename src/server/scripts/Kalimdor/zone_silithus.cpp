@@ -38,6 +38,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include "WorldSession.h"
 
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)

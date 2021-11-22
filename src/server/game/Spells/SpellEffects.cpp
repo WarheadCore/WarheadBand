@@ -65,6 +65,7 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"
@@ -2496,7 +2497,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                                 pos = *destTarget;
                             else
                                 // randomize position for multiple summons
-                                m_caster->GetRandomPoint(*destTarget, radius, pos);
+                                pos = m_caster->GetRandomPoint(*destTarget, radius);
 
                             summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
                             if (!summon)
@@ -4888,8 +4889,7 @@ void Spell::EffectLeap(SpellEffIndex /*effIndex*/)
     if (!m_targets.HasDst())
         return;
 
-    Position dstpos;
-    destTarget->GetPosition(&dstpos);
+    Position dstpos = destTarget->GetPosition();
     unitTarget->NearTeleportTo(dstpos.GetPositionX(), dstpos.GetPositionY(), dstpos.GetPositionZ(), dstpos.GetOrientation(), unitTarget == m_caster);
 }
 
@@ -5123,15 +5123,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         }
         else
         {
-            Position pos;
-            unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-            // assume that target is not in water - else should be always in los
-            if (!m_caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
-            {
-                float angle = m_caster->GetRelativeAngle(&pos);
-                float dist = m_caster->GetDistance(pos);
-                m_caster->GetFirstCollisionPosition(pos, dist, angle);
-            }
+            Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
 
             m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + Z_OFFSET_FIND_HEIGHT, SPEED_CHARGE, EVENT_CHARGE,
                 nullptr, false, 0.f, targetGUID);
@@ -5161,14 +5153,13 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 
     if (m_targets.HasDst())
     {
-        Position pos;
-        destTarget->GetPosition(&pos);
+        Position pos = destTarget->GetPosition();
 
         if (!m_caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
         {
             float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
             float dist = m_caster->GetDistance(pos);
-            m_caster->GetFirstCollisionPosition(pos, dist, angle);
+            pos = m_caster->GetFirstCollisionPosition(dist, angle);
         }
 
         m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
@@ -6211,7 +6202,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         else
         {
             // randomize position
-            m_caster->GetRandomPoint(*destTarget, radius, pos);
+            pos = m_caster->GetRandomPoint(*destTarget, radius);
         }
 
         summon = map->SummonCreature(entry, pos, properties, duration, caster, m_spellInfo->Id);
@@ -6475,8 +6466,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
         homeLoc.WorldRelocate(*destTarget);
     else
     {
-        player->GetPosition(&homeLoc);
-        homeLoc.m_mapId = player->GetMapId();
+        homeLoc = player->GetWorldLocation();
     }
 
     player->SetHomebind(homeLoc, areaId);

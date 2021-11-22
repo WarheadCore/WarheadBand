@@ -23,7 +23,6 @@
 #include "ByteBuffer.h"
 #include "Warden.h"
 #include <list>
-#include <map>
 
 #if defined(__GNUC__)
 #pragma pack(1)

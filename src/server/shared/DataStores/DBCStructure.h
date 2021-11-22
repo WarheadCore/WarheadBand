@@ -24,6 +24,7 @@
 #include "Util.h"
 #include <map>
 #include <set>
+#include <unordered_map>
 
 // Structures using to access raw DBC data and required packing to portability
 

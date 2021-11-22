@@ -16,7 +16,6 @@
  */
 
 #include "CreatureTextMgr.h"
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"

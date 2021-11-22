@@ -38,6 +38,7 @@
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "StringFormat.h"
+#include "SpellMgr.h"
 #include "UpdateFieldFlags.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"

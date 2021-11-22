@@ -21,8 +21,8 @@
 #include "DBCEnums.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
-#include "Duration.h"
 #include "ObjectGuid.h"
+#include <chrono>
 #include <map>
 #include <string>
 

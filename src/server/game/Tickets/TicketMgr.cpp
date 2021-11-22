@@ -16,6 +16,7 @@
  */
 
 #include "TicketMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -170,8 +171,10 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, Warhead::Time::ToTimeString<Seconds>(curTime - _lastModifiedTime).c_str());
 
     std::string name;
-    if (sObjectMgr->GetPlayerNameByGUID(_assignedTo.GetCounter(), name))
+    if (sCharacterCache->GetCharacterNameByGuid(_assignedTo, name))
+    {
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+    }
 
     if (detailed)
     {

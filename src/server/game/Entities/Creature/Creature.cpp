@@ -228,13 +228,11 @@ void Creature::AddToWorld()
         // it's also initialized in AIM_Initialize(), few lines below, but it's not a problem
         Motion_Initialize();
 
-        if (GetZoneScript())
-            GetZoneScript()->OnCreatureCreate(this);
-
         GetMap()->GetObjectsStore().Insert<Creature>(GetGUID(), this);
         if (m_spawnId)
+        {
             GetMap()->GetCreatureBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
-
+        }
         Unit::AddToWorld();
 
         SearchFormation();
@@ -242,7 +240,14 @@ void Creature::AddToWorld()
         AIM_Initialize();
 
         if (IsVehicle())
+        {
             GetVehicleKit()->Install();
+        }
+
+        if (GetZoneScript())
+        {
+            GetZoneScript()->OnCreatureCreate(this);
+        }
 #ifdef ELUNA
         sEluna->OnAddToWorld(this);
 
@@ -2238,14 +2243,20 @@ void Creature::CallAssistance(Unit* target /*= nullptr*/)
     }
 }
 
-void Creature::CallForHelp(float radius)
+void Creature::CallForHelp(float radius, Unit* target /*= nullptr*/)
 {
-    if (radius <= 0.0f || !GetVictim() || IsPet() || IsCharmed())
+    if (radius <= 0.0f || IsPet() || IsCharmed())
+    {
         return;
+    }
 
-    Warhead::CallOfHelpCreatureInRangeDo u_do(this, GetVictim(), radius);
-    Warhead::CreatureWorker<Warhead::CallOfHelpCreatureInRangeDo> worker(this, u_do);
+    if (!target)
+    {
+        target = GetVictim();
+    }
 
+    Acore::CallOfHelpCreatureInRangeDo u_do(this, target, radius);
+    Acore::CreatureWorker<Acore::CallOfHelpCreatureInRangeDo> worker(this, u_do);
     Cell::VisitGridObjects(this, worker, radius);
 }
 
@@ -2504,10 +2515,20 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
     // Check if Creature is Large
     if (cainfo->isLarge)
-        SetVisibilityDistanceOverride(true);
+    {
+        SetVisibilityDistanceOverride(cainfo->visibilityDistanceType);
+    }
 
     if (cainfo->emote != 0)
+    {
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
+    }
+
+    // Check if visibility distance different
+    if (cainfo->visibilityDistanceType != VisibilityDistanceType::Normal)
+    {
+        SetVisibilityDistanceOverride(cainfo->visibilityDistanceType);
+    }
 
     //Load Path
     if (cainfo->path_id != 0)

@@ -24,7 +24,6 @@ Quest support: 3628. Teleporter to Rise of the Defiler.
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 
 /*#####

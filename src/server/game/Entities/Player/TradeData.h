@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __TRADE_DATA_H__
+#define __TRADE_DATA_H__
+
 #include "Define.h"
 
 class Item;
@@ -75,3 +78,5 @@ private:                                                // fields
 
     ObjectGuid m_items[TRADE_SLOT_COUNT];               // traded itmes from m_player side including non-traded slot
 };
+
+#endif

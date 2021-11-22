@@ -34,6 +34,7 @@
 #include "Metric.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ScriptMgr.h"

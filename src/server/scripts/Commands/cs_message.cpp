@@ -32,6 +32,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "WorldSession.h"
 #include "TextBuilder.h"
 
 using namespace Warhead::ChatCommands;
