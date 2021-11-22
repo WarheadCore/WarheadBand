@@ -2242,34 +2242,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-void ObjectMgr::LoadItemLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _itemLocaleStore.clear();                                 // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale");
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 ID = fields[0].GetUInt32();
-
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
-        if (locale == LOCALE_enUS)
-            continue;
-
-        ItemLocale& data = _itemLocaleStore[ID];
-        AddLocaleString(fields[2].GetString(), locale, data.Name);
-        AddLocaleString(fields[3].GetString(), locale, data.Description);
-    } while (result->NextRow());
-
-    LOG_INFO("server.loading", ">> Loaded %u Item Locale strings in %u ms", (uint32)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadItemTemplates()
 {
     uint32 oldMSTime = getMSTime();

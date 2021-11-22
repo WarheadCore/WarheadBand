@@ -2255,8 +2255,8 @@ void Creature::CallForHelp(float radius, Unit* target /*= nullptr*/)
         target = GetVictim();
     }
 
-    Acore::CallOfHelpCreatureInRangeDo u_do(this, target, radius);
-    Acore::CreatureWorker<Acore::CallOfHelpCreatureInRangeDo> worker(this, u_do);
+    Warhead::CallOfHelpCreatureInRangeDo u_do(this, target, radius);
+    Warhead::CreatureWorker<Warhead::CallOfHelpCreatureInRangeDo> worker(this, u_do);
     Cell::VisitGridObjects(this, worker, radius);
 }
 

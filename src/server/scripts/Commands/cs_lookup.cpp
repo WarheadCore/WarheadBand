@@ -424,43 +424,43 @@ public:
                 if (factionState) // and then target != nullptr also
                 {
                     uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
-                    std::string rankName = handler->GetAcoreString(index);
+                    std::string rankName = handler->GetWarheadString(index);
 
                     ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
                     if (factionState->Flags & FACTION_FLAG_VISIBLE)
                     {
-                        ss << handler->GetAcoreString(LANG_FACTION_VISIBLE);
+                        ss << handler->GetWarheadString(LANG_FACTION_VISIBLE);
                     }
 
                     if (factionState->Flags & FACTION_FLAG_AT_WAR)
                     {
-                        ss << handler->GetAcoreString(LANG_FACTION_ATWAR);
+                        ss << handler->GetWarheadString(LANG_FACTION_ATWAR);
                     }
 
                     if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
                     {
-                        ss << handler->GetAcoreString(LANG_FACTION_PEACE_FORCED);
+                        ss << handler->GetWarheadString(LANG_FACTION_PEACE_FORCED);
                     }
 
                     if (factionState->Flags & FACTION_FLAG_HIDDEN)
                     {
-                        ss << handler->GetAcoreString(LANG_FACTION_HIDDEN);
+                        ss << handler->GetWarheadString(LANG_FACTION_HIDDEN);
                     }
 
                     if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
                     {
-                        ss << handler->GetAcoreString(LANG_FACTION_INVISIBLE_FORCED);
+                        ss << handler->GetWarheadString(LANG_FACTION_INVISIBLE_FORCED);
                     }
 
                     if (factionState->Flags & FACTION_FLAG_INACTIVE)
                     {
-                        ss << handler->GetAcoreString(LANG_FACTION_INACTIVE);
+                        ss << handler->GetWarheadString(LANG_FACTION_INACTIVE);
                     }
                 }
                 else
                 {
-                    ss << handler->GetAcoreString(LANG_FACTION_NOREPUTATION);
+                    ss << handler->GetWarheadString(LANG_FACTION_NOREPUTATION);
                 }
 
                 handler->SendSysMessage(ss.str().c_str());
@@ -508,7 +508,7 @@ public:
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplate.ItemId))
+                if (ItemLocale const* il = sGameLocale->GetItemLocale(itemTemplate.ItemId))
                 {
                     if (il->Name.size() > ulocaleIndex && !il->Name[ulocaleIndex].empty())
                     {
@@ -695,7 +695,7 @@ public:
         for (auto const& [entry, gameObjectTemplate] : *sObjectMgr->GetGameObjectTemplates())
         {
             uint8 localeIndex = handler->GetSessionDbLocaleIndex();
-            if (GameObjectLocale const* objectLocalte = sObjectMgr->GetGameObjectLocale(gameObjectTemplate.entry))
+            if (GameObjectLocale const* objectLocalte = sGameLocale->GetGameObjectLocale(gameObjectTemplate.entry))
             {
                 if (objectLocalte->Name.size() > localeIndex && !objectLocalte->Name[localeIndex].empty())
                 {
@@ -983,13 +983,13 @@ public:
 
                 if (target && target->HasSkill(skillInfo->id))
                 {
-                    knownStr = handler->GetAcoreString(LANG_KNOWN);
+                    knownStr = handler->GetWarheadString(LANG_KNOWN);
                     uint32 curValue = target->GetPureSkillValue(skillInfo->id);
                     uint32 maxValue = target->GetPureMaxSkillValue(skillInfo->id);
                     uint32 permValue = target->GetSkillPermBonusValue(skillInfo->id);
                     uint32 tempValue = target->GetSkillTempBonusValue(skillInfo->id);
 
-                    valStr = Acore::StringFormat(handler->GetAcoreString(LANG_SKILL_VALUES), curValue, maxValue, permValue, tempValue);
+                    valStr = Warhead::StringFormat(handler->GetWarheadString(LANG_SKILL_VALUES), curValue, maxValue, permValue, tempValue);
                 }
 
                 // send skill in "id - [namedlink locale]" format
@@ -1114,7 +1114,7 @@ public:
                     // include rank in link name
                     if (rank)
                     {
-                        ss << handler->GetAcoreString(LANG_SPELL_RANK) << rank;
+                        ss << handler->GetWarheadString(LANG_SPELL_RANK) << rank;
                     }
 
                     if (handler->GetSession())
@@ -1128,27 +1128,27 @@ public:
 
                     if (talent)
                     {
-                        ss << handler->GetAcoreString(LANG_TALENT);
+                        ss << handler->GetWarheadString(LANG_TALENT);
                     }
 
                     if (passive)
                     {
-                        ss << handler->GetAcoreString(LANG_PASSIVE);
+                        ss << handler->GetWarheadString(LANG_PASSIVE);
                     }
 
                     if (learn)
                     {
-                        ss << handler->GetAcoreString(LANG_LEARN);
+                        ss << handler->GetWarheadString(LANG_LEARN);
                     }
 
                     if (known)
                     {
-                        ss << handler->GetAcoreString(LANG_KNOWN);
+                        ss << handler->GetWarheadString(LANG_KNOWN);
                     }
 
                     if (active)
                     {
-                        ss << handler->GetAcoreString(LANG_ACTIVE);
+                        ss << handler->GetWarheadString(LANG_ACTIVE);
                     }
 
                     handler->SendSysMessage(ss.str());
@@ -1230,7 +1230,7 @@ public:
             // include rank in link name
             if (rank)
             {
-                ss << handler->GetAcoreString(LANG_SPELL_RANK) << rank;
+                ss << handler->GetWarheadString(LANG_SPELL_RANK) << rank;
             }
 
             if (handler->GetSession())
@@ -1244,27 +1244,27 @@ public:
 
             if (talent)
             {
-                ss << handler->GetAcoreString(LANG_TALENT);
+                ss << handler->GetWarheadString(LANG_TALENT);
             }
 
             if (passive)
             {
-                ss << handler->GetAcoreString(LANG_PASSIVE);
+                ss << handler->GetWarheadString(LANG_PASSIVE);
             }
 
             if (learn)
             {
-                ss << handler->GetAcoreString(LANG_LEARN);
+                ss << handler->GetWarheadString(LANG_LEARN);
             }
 
             if (known)
             {
-                ss << handler->GetAcoreString(LANG_KNOWN);
+                ss << handler->GetWarheadString(LANG_KNOWN);
             }
 
             if (active)
             {
-                ss << handler->GetAcoreString(LANG_ACTIVE);
+                ss << handler->GetWarheadString(LANG_ACTIVE);
             }
 
             handler->SendSysMessage(ss.str().c_str());
@@ -1503,10 +1503,10 @@ public:
                     return true;
                 }
 
-                char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetAcoreString(LANG_KNOWN) : "";
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index ? handler->GetAcoreString(LANG_ACTIVE) : "";
+                char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetWarheadString(LANG_KNOWN) : "";
+                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
-                std::string titleNameStr = Acore::StringFormat(name, targetName);
+                std::string titleNameStr = Warhead::StringFormat(name, targetName);
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
@@ -1573,22 +1573,22 @@ public:
 
                 if (mapInfo->IsContinent())
                 {
-                    ss << handler->GetAcoreString(LANG_CONTINENT);
+                    ss << handler->GetWarheadString(LANG_CONTINENT);
                 }
 
                 switch (mapInfo->map_type)
                 {
                     case MAP_INSTANCE:
-                        ss << handler->GetAcoreString(LANG_INSTANCE);
+                        ss << handler->GetWarheadString(LANG_INSTANCE);
                         break;
                     case MAP_RAID:
-                        ss << handler->GetAcoreString(LANG_RAID);
+                        ss << handler->GetWarheadString(LANG_RAID);
                         break;
                     case MAP_BATTLEGROUND:
-                        ss << handler->GetAcoreString(LANG_BATTLEGROUND);
+                        ss << handler->GetWarheadString(LANG_BATTLEGROUND);
                         break;
                     case MAP_ARENA:
-                        ss << handler->GetAcoreString(LANG_ARENA);
+                        ss << handler->GetWarheadString(LANG_ARENA);
                         break;
                 }
 

@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
+#include "CharacterCache.h"
 
 bool ExMail::AddItems(uint32 itemID, uint32 itemCount)
 {
@@ -90,7 +91,7 @@ void ExternalMail::GetMailsFromDB()
             continue;
         }
 
-        auto playerGuid = sObjectMgr->GetPlayerGUIDByName(PlayerName);
+        auto playerGuid = sCharacterCache->GetCharacterGuidByName(PlayerName);
         if (playerGuid.IsEmpty())
             continue;
 

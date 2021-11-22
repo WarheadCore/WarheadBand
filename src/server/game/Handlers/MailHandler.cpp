@@ -531,7 +531,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                     std::string senderName;
                     if (!sCharacterCache->GetCharacterNameByGuid(ObjectGuid(HighGuid::Player, m->sender), senderName))
                     {
-                        senderName = sObjectMgr->GetAcoreStringForDBCLocale(LANG_UNKNOWN);
+                        senderName = sGameLocale->GetWarheadStringForDBCLocale(LANG_UNKNOWN);
                     }
                     std::string subj = m->subject;
                     CleanStringForMysqlQuery(subj);

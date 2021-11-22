@@ -21,7 +21,6 @@
 #include "ArenaTeam.h"
 #include "Battleground.h"
 #include "CharacterCache.h"
-#include "DatabaseEnvFwd.h"
 #include "DBCStores.h"
 #include "DatabaseEnvFwd.h"
 #include "GroupReference.h"

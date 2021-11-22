@@ -421,7 +421,7 @@ WH_GAME_API extern LootStore LootTemplates_Skinning;
 WH_GAME_API extern LootStore LootTemplates_Disenchant;
 WH_GAME_API extern LootStore LootTemplates_Prospecting;
 WH_GAME_API extern LootStore LootTemplates_Spell;
-extern LootStore LootTemplates_Player;
+WH_GAME_API extern LootStore LootTemplates_Player;
 
 WH_GAME_API void LoadLootTemplates_Creature();
 WH_GAME_API void LoadLootTemplates_Fishing();
@@ -436,6 +436,8 @@ WH_GAME_API void LoadLootTemplates_Prospecting();
 
 WH_GAME_API void LoadLootTemplates_Spell();
 WH_GAME_API void LoadLootTemplates_Reference();
+
+WH_GAME_API void LoadLootTemplates_Player();
 
 WH_GAME_API void LoadLootTables();
 

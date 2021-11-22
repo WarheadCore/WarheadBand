@@ -26,7 +26,7 @@
 #include "TextBuilder.h"
 #include "Timer.h"
 #include "World.h"
-//#include "CharacterCache.h"
+#include "CharacterCache.h"
 
 MuteMgr* MuteMgr::instance()
 {
@@ -36,7 +36,7 @@ MuteMgr* MuteMgr::instance()
 
 void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::string const& muteBy, std::string const& muteReason)
 {
-    uint32 accountId = sObjectMgr->GetPlayerAccountIdByPlayerName(targetName);
+    uint32 accountId = sCharacterCache->GetCharacterAccountIdByName(targetName);
     auto targetSession = sWorld->FindSession(accountId);
 
     // INSERT INTO `account_muted` (`accountid`, `mutedate`, `mutetime`, `mutedby`, `mutereason`, `active`) VALUES (?, ?, ?, ?, ?, 1)
@@ -72,7 +72,7 @@ void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::s
 
 void MuteMgr::UnMutePlayer(std::string const& targetName)
 {
-    uint32 accountId = sObjectMgr->GetPlayerAccountIdByPlayerName(targetName);
+    uint32 accountId = sCharacterCache->GetCharacterAccountIdByName(targetName);
 
     DeleteMuteTime(accountId);
 

@@ -39,6 +39,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "GameTime.h"
 #include <array>
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE
@@ -659,7 +660,7 @@ public:
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove(GetCaster());
-        Acore::Containers::RandomResize(targets, _count);
+        Warhead::Containers::RandomResize(targets, _count);
     }
 
     void Register() override
@@ -1357,8 +1358,8 @@ class spell_gen_cannibalize : public SpellScript
         float max_range = GetSpellInfo()->GetMaxRange(false);
         WorldObject* result = nullptr;
         // search for nearby enemy corpse in range
-        Acore::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_CORPSE);
-        Acore::WorldObjectSearcher<Acore::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+        Warhead::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_CORPSE);
+        Warhead::WorldObjectSearcher<Warhead::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
         Cell::VisitWorldObjects(caster, searcher, max_range);
         if (!result)
         {
@@ -2224,12 +2225,12 @@ class spell_gen_turkey_marker : public AuraScript
     {
         if (GetStackAmount() > stackAmount)
         {
-            _applyTimes.push_back(World::GetGameTimeMS());
+            _applyTimes.emplace_back(GameTime::GetGameTimeMS().count());
             stackAmount++;
         }
 
         // pop stack if it expired for us
-        if (_applyTimes.front() + GetMaxDuration() < World::GetGameTimeMS())
+        if (_applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS().count())
         {
             stackAmount--;
             ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);
@@ -4035,13 +4036,13 @@ class spell_gen_replenishment : public SpellScript
             }
         }
 
-        targets.remove_if(Acore::PowerCheck(POWER_MANA, false));
+        targets.remove_if(Warhead::PowerCheck(POWER_MANA, false));
 
         uint8 const maxTargets = 10;
 
         if (targets.size() > maxTargets)
         {
-            targets.sort(Acore::PowerPctOrderPred(POWER_MANA));
+            targets.sort(Warhead::PowerPctOrderPred(POWER_MANA));
             targets.resize(maxTargets);
         }
     }

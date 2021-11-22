@@ -18,7 +18,7 @@
 #include "PlayerCommand.h"
 #include "ScriptMgr.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class player_commandscript : public CommandScript
 {
@@ -48,7 +48,7 @@ public:
             return false;
 
         Player* targetPlayer = player->GetConnectedPlayer();
-        return Acore::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, allRanks);
+        return Warhead::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, allRanks);
     }
 
     static bool HandlePlayerUnLearnCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, SpellInfo const* spell, Optional<EXACT_SEQUENCE("all")> allRanks)
@@ -59,7 +59,7 @@ public:
             return false;
 
         Player* targetPlayer = player->GetConnectedPlayer();
-        return Acore::PlayerCommand::HandleUnlearnSpellCommand(handler, targetPlayer, spell, allRanks);
+        return Warhead::PlayerCommand::HandleUnlearnSpellCommand(handler, targetPlayer, spell, allRanks);
     }
 };
 

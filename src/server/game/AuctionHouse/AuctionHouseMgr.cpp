@@ -103,14 +103,14 @@ static bool SortAuction(AuctionEntry* left, AuctionEntry* right, AuctionSortOrde
 
                 if (locale > LOCALE_enUS)
                 {
-                    if (ItemLocale const* leftIl = sObjectMgr->GetItemLocale(protoLeft->ItemId))
+                    if (ItemLocale const* leftIl = sGameLocale->GetItemLocale(protoLeft->ItemId))
                     {
-                        ObjectMgr::GetLocaleString(leftIl->Name, locale, leftName);
+                        GameLocale::GetLocaleString(leftIl->Name, locale, leftName);
                     }
 
-                    if (ItemLocale const* rightIl = sObjectMgr->GetItemLocale(protoRight->ItemId))
+                    if (ItemLocale const* rightIl = sGameLocale->GetItemLocale(protoRight->ItemId))
                     {
-                        ObjectMgr::GetLocaleString(rightIl->Name, locale, rightName);
+                        GameLocale::GetLocaleString(rightIl->Name, locale, rightName);
                     }
                 }
 
@@ -748,7 +748,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     }
     else
     {
-        time_t curTime = sWorld->GetGameTime();
+        auto curTime = GameTime::GetGameTime();
 
         int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
         int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
@@ -759,7 +759,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
             {
                 if ((itrcounter++) % 100 == 0) // check condition every 100 iterations
                 {
-                    if (avgDiffTracker.getAverage() >= 30 || getMSTimeDiff(World::GetGameTimeMS(), getMSTime()) >= 10) // pussywizard: stop immediately if diff is high or waiting too long
+                    if (sWorldUpdateTime.GetAverageUpdateTime() >= 30 || GetMSTimeDiff(GameTime::GetGameTimeMS(), GetTimeMS()) >= 10ms) // pussywizard: stop immediately if diff is high or waiting too long
                     {
                         return false;
                     }
@@ -767,8 +767,9 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
             }
 
             AuctionEntry* Aentry = itr->second;
+
             // Skip expired auctions
-            if (Aentry->expire_time < curTime)
+            if (Aentry->expire_time < curTime.count())
             {
                 continue;
             }
@@ -835,8 +836,8 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
                 // local name
                 if (loc_idx >= 0)
-                    if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
-                        ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+                    if (ItemLocale const* il = sGameLocale->GetItemLocale(proto->ItemId))
+                        GameLocale::GetLocaleString(il->Name, loc_idx, name);
 
                 // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
                 //  that matches the search but it may not equal item->GetItemRandomPropertyId()

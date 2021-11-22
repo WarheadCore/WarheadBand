@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class cache_commandscript : public CommandScript
 {

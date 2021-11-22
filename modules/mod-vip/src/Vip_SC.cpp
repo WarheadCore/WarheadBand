@@ -28,6 +28,7 @@
 #include "StringConvert.h"
 #include "WorldSession.h"
 #include "Tokenize.h"
+#include "CharacterCache.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -68,7 +69,7 @@ public:
             return false;
         }
 
-        auto data = sWorld->GetGlobalPlayerData(target->GetGUID().GetCounter());
+        auto data = sCharacterCache->GetCharacterCacheByGuid(target->GetGUID());
 
         if (!data)
         {
@@ -76,10 +77,10 @@ public:
             return false;
         }
 
-        if (sVip->IsVip(data->accountId))
+        if (sVip->IsVip(data->AccountId))
             handler->PSendSysMessage("> Игрок {} уже был випом.", target->GetName());
 
-        if (sVip->Add(data->accountId, GameTime::GetGameTime().count() + uint64(duration * DAY), level, true))
+        if (sVip->Add(data->AccountId, GameTime::GetGameTime().count() + uint64(duration * DAY), level, true))
         {
             handler->PSendSysMessage("> Обновление статуста премиум аккаунта для игрока {}.", target->GetName());
             handler->PSendSysMessage("> Уровень {}. Оставшееся время {}.", level, Warhead::Time::ToTimeString<Seconds>(duration * DAY));
@@ -110,7 +111,7 @@ public:
             return false;
         }
 
-        auto data = sWorld->GetGlobalPlayerData(target->GetGUID().GetCounter());
+        auto data = sCharacterCache->GetCharacterCacheByGuid(target->GetGUID());
 
         if (!data)
         {
@@ -118,13 +119,13 @@ public:
             return false;
         }
 
-        if (!sVip->IsVip(data->accountId))
+        if (!sVip->IsVip(data->AccountId))
         {
             handler->PSendSysMessage("> Игрок {} не имеет премиум статуса", target->GetName());
             return true;
         }
 
-        sVip->UnSet(data->accountId);
+        sVip->UnSet(data->AccountId);
 
         handler->PSendSysMessage("> Игрок {} больше не имеет премиум статуса", target->GetName());
 

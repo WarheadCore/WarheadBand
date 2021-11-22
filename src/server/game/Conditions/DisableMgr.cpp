@@ -16,8 +16,8 @@
  */
 
 #include "DisableMgr.h"
-#include "GameEventMgr.h"
 #include "GameConfig.h"
+#include "GameEventMgr.h"
 #include "MMapFactory.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"

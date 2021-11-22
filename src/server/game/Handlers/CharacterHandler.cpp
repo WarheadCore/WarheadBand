@@ -1945,7 +1945,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     if (factionChangeInfo->FactionChange)
     {
         // if player is in a guild
-        if (playerData->GuildId && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
+        if (playerData->GuildId && !CONF_GET_BOOL("AllowTwoSide.Interaction.Guild"))
         {
             SendCharFactionChange(CHAR_CREATE_CHARACTER_IN_GUILD, factionChangeInfo.get());
             return;

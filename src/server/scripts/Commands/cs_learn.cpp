@@ -84,7 +84,7 @@ public:
             return false;
         }
 
-        return Acore::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, allRanks);
+        return Warhead::PlayerCommand::HandleLearnSpellCommand(handler, targetPlayer, spell, allRanks);
     }
 
     static bool HandleLearnAllGMCommand(ChatHandler* handler)
@@ -430,7 +430,7 @@ public:
             return false;
         }
 
-        return Acore::PlayerCommand::HandleUnlearnSpellCommand(handler, target, spell, allRanks);
+        return Warhead::PlayerCommand::HandleUnlearnSpellCommand(handler, target, spell, allRanks);
     }
 };
 

@@ -16,13 +16,12 @@
  */
 
 #include "PlayerCommand.h"
-#include "Chat.h"
 #include "Language.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
-bool Warhead::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, uint32 spell, char const* all)
+bool Warhead::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Player* targetPlayer, SpellInfo const* spell, Optional<EXACT_SEQUENCE("all")> allRanks)
 {
     if (!SpellMgr::IsSpellValid(spell))
     {
@@ -66,7 +65,7 @@ bool Warhead::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Playe
     return true;
 }
 
-bool Acore::PlayerCommand::HandleUnlearnSpellCommand(ChatHandler* handler, Player* target, SpellInfo const* spell, Optional<EXACT_SEQUENCE("all")> allRanks)
+bool Warhead::PlayerCommand::HandleUnlearnSpellCommand(ChatHandler* handler, Player* target, SpellInfo const* spell, Optional<EXACT_SEQUENCE("all")> allRanks)
 {
     uint32 spellId = spell->Id;
 

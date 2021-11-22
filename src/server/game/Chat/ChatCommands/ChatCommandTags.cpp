@@ -104,7 +104,7 @@ ChatCommandResult Warhead::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
         }
         else if (!sCharacterCache->GetCharacterNameByGuid(_guid, _name))
         {
-            return FormatAcoreString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
+            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
         }
 
         return next;
@@ -125,7 +125,7 @@ ChatCommandResult Warhead::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
         }
         else if (!(_guid = sCharacterCache->GetCharacterGuidByName(_name)))
         {
-            return FormatAcoreString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+            return FormatWarheadString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, _name);
         }
 
         return next;

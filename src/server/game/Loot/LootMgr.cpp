@@ -2320,4 +2320,5 @@ void LoadLootTables()
     LoadLootTemplates_Spell();
 
     LoadLootTemplates_Reference();
+    LoadLootTemplates_Player();
 }
