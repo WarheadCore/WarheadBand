@@ -79,9 +79,9 @@ public:
 
         static ChatCommandTable serverSetCommandTable =
         {
-            { "difftime",       SEC_CONSOLE,        true,  &HandleServerSetDiffTimeCommand,         "" },
-            { "motd",           SEC_ADMINISTRATOR,  true,  &HandleServerSetMotdCommand,             "" },
-            { "closed",         SEC_CONSOLE,        true,  &HandleServerSetClosedCommand,           "" }
+            { "difftime",     HandleServerSetDiffTimeCommand,    SEC_CONSOLE,       Console::Yes },
+            { "motd",         HandleServerSetMotdCommand,        SEC_ADMINISTRATOR, Console::Yes },
+            { "closed",       HandleServerSetClosedCommand,      SEC_CONSOLE,       Console::Yes }
         };
 
         static ChatCommandTable serverCommandTable =
