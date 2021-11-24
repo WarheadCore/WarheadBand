@@ -371,7 +371,7 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
     // Apply default updates
     for (auto const& availableQuery : available)
     {
-        if (availableQuery.second == RELEASED && availableQuery.second == ARCHIVED)
+        if (availableQuery.second == RELEASED || availableQuery.second == ARCHIVED)
             ApplyUpdateFile(availableQuery);
     }
 
