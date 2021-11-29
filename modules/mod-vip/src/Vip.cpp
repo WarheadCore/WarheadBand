@@ -32,7 +32,7 @@
 
 namespace
 {
-    using WarheadVip = std::tuple<uint64/*start*/, uint64/*end*/, uint8/*level*/>;
+    using WarheadVip = std::tuple<uint64/*start*/, int64/*end*/, uint8/*level*/>;
     using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
 
     std::unordered_map<uint32/*acc id*/, WarheadVip> store;
