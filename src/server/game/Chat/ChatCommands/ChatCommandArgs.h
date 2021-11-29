@@ -321,7 +321,7 @@ namespace Warhead::Impl::ChatCommands
 
     // Quest const* from quest id or link
     template <>
-    struct AC_GAME_API ArgInfo<Quest const*>
+    struct WH_GAME_API ArgInfo<Quest const*>
     {
         static ChatCommandResult TryConsume(Quest const*&, ChatHandler const*, std::string_view);
     };

@@ -38,7 +38,7 @@ bool Warhead::PlayerCommand::HandleLearnSpellCommand(ChatHandler* handler, Playe
         }
         else
         {
-            handler->PSendSysMessage(LANG_TARGET_KNOWN_SPELL, handler->GetNameLink(targetPlayer).c_str());
+            handler->PSendSysMessage(LANG_TARGET_KNOWN_SPELL, handler->GetNameLink(targetPlayer));
         }
 
         handler->SetSentErrorMessage(true);

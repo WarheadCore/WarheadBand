@@ -1625,7 +1625,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
     {
         if (!LootTemplates_Player.HaveLootFor(cond->SourceGroup))
         {
-            LOG_ERROR("sql.sql", "SourceGroup %u in `condition` table, does not exist in `player_loot_template`, ignoring.", cond->SourceGroup);
+            LOG_ERROR("sql.sql", "SourceGroup {} in `condition` table, does not exist in `player_loot_template`, ignoring.", cond->SourceGroup);
             return false;
         }
 
@@ -1633,7 +1633,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
         ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
         if (!pItemProto && !loot->isReference(cond->SourceEntry))
         {
-            LOG_ERROR("sql.sql", "SourceType %u, SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->SourceType, cond->SourceEntry);
+            LOG_ERROR("sql.sql", "SourceType {}, SourceEntry {} in `condition` table, does not exist in `item_template`, ignoring.", cond->SourceType, cond->SourceEntry);
             return false;
         }
         break;

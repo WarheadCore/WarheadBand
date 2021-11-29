@@ -245,7 +245,7 @@ namespace DisableMgr
                         if (activeEvents.find(entry) != activeEvents.end())
                         {
                             sGameEventMgr->StopEvent(entry);
-                            LOG_INFO("disable", "Event entry %u was stopped because it has been disabled.", entry);
+                            LOG_INFO("disable", "Event entry {} was stopped because it has been disabled.", entry);
                         }
                         break;
                     }

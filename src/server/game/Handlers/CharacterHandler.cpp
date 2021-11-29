@@ -991,14 +991,14 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
         // start with every map explored
-        if (sWorld->getBoolConfig(CONFIG_START_ALL_EXPLORED))
+        if (CONF_GET_BOOL("PlayerStart.MapsExplored"))
         {
             for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; i++)
                 pCurrChar->SetFlag(PLAYER_EXPLORED_ZONES_1 + i, 0xFFFFFFFF);
         }
 
         // Reputations if "StartAllReputation" is enabled, -- TODO: Fix this in a better way
-        if (sWorld->getBoolConfig(CONFIG_START_ALL_REP))
+        if (CONF_GET_BOOL("PlayerStart.AllReputation"))
         {
             ReputationMgr& repMgr = pCurrChar->GetReputationMgr();
 
@@ -2107,8 +2107,8 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
         trans->Append(stmt);
     }
 
-    LOG_INFO("entities.player.character", "Account: %d (IP: %s), Character [%s] (guid: %u) Changed Race/Faction to: %s",
-        GetAccountId(), GetRemoteAddress().c_str(), playerData->Name.c_str(), lowGuid, factionChangeInfo->Name.c_str());
+    LOG_INFO("entities.player.character", "Account: {} (IP: {}), Character [{}] (guid: {}) Changed Race/Faction to: {}",
+        GetAccountId(), GetRemoteAddress(), playerData->Name, lowGuid, factionChangeInfo->Name);
 
     // xinef: update global data
     sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name);

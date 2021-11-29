@@ -2266,7 +2266,7 @@ void LoadLootTemplates_Player()
 
     if (count)
     {
-        LOG_INFO("server.loading", ">> Loaded %u player loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} player loot templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {
