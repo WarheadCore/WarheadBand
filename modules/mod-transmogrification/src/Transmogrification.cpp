@@ -1014,7 +1014,7 @@ void Transmogrification::GossipRemoveAllTransmogrifications(Player* player)
 
 void Transmogrification::GossipRemoveSingleTransmogrifications(Player* player, uint32 const& action)
 {
-    auto session = player->GetSession();
+    // auto session = player->GetSession();
 
     Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, action);
     if (!newItem)
