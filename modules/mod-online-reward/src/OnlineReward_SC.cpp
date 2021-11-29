@@ -67,7 +67,7 @@ public:
 
         sOL->InitSystem();
 
-        scheduler.Schedule(30s, [this](TaskContext context)
+        scheduler.Schedule(30s, [](TaskContext context)
         {
             sOL->RewardPlayers();
 
