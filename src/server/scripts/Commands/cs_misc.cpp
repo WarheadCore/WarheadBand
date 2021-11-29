@@ -3623,7 +3623,7 @@ public:
 
         str << ".";
 
-        handler->SendSysMessage(str.str().c_str());
+        handler->SendSysMessage(str.str());
 
         return true;
     }

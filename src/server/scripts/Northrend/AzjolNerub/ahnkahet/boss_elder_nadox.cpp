@@ -261,7 +261,7 @@ private:
                 return;
             }
 
-            previousSwarmEgg_GUID = Acore::Containers::SelectRandomContainerElement(swarmEggs2);
+            previousSwarmEgg_GUID = Warhead::Containers::SelectRandomContainerElement(swarmEggs2);
 
             if (Creature* egg = ObjectAccessor::GetCreature(*me, previousSwarmEgg_GUID))
             {
@@ -280,7 +280,7 @@ private:
                 return;
             }
 
-            ObjectGuid const& guardianEggGUID = Acore::Containers::SelectRandomContainerElement(guardianEggs);
+            ObjectGuid const& guardianEggGUID = Warhead::Containers::SelectRandomContainerElement(guardianEggs);
             if (Creature* egg = ObjectAccessor::GetCreature(*me, guardianEggGUID))
             {
                 egg->CastSpell(egg, SPELL_SUMMON_SWARM_GUARD, true, nullptr, nullptr, me->GetGUID());

@@ -124,7 +124,7 @@ struct QuestVisitor
     value_type operator()(uint32 questId) const { return sObjectMgr->GetQuestTemplate(questId); };
 };
 
-ChatCommandResult Acore::Impl::ChatCommands::ArgInfo<Quest const*>::TryConsume(Quest const*& data, ChatHandler const* handler, std::string_view args)
+ChatCommandResult Warhead::Impl::ChatCommands::ArgInfo<Quest const*>::TryConsume(Quest const*& data, ChatHandler const* handler, std::string_view args)
 {
     Variant<Hyperlink<quest>, uint32> val;
     ChatCommandResult result = ArgInfo<decltype(val)>::TryConsume(val, handler, args);

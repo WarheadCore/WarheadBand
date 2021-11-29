@@ -83,7 +83,7 @@ public:
         {
             if (player->IsActiveQuest(entry))
             {
-                handler->PSendSysMessage(LANG_COMMAND_QUEST_ACTIVE, quest->GetTitle().c_str(), entry);
+                handler->PSendSysMessage(LANG_COMMAND_QUEST_ACTIVE, quest->GetTitle(), entry);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -97,11 +97,11 @@ public:
         else
         {
             ObjectGuid::LowType guid = playerTarget->GetGUID().GetCounter();
-            QueryResult result = CharacterDatabase.PQuery("SELECT 1 FROM character_queststatus WHERE guid = %u AND quest = %u", guid, entry);
+            QueryResult result = CharacterDatabase.PQuery("SELECT 1 FROM character_queststatus WHERE guid = {} AND quest = {}", guid, entry);
 
             if (result)
             {
-                handler->PSendSysMessage(LANG_COMMAND_QUEST_ACTIVE, quest->GetTitle().c_str(), entry);
+                handler->PSendSysMessage(LANG_COMMAND_QUEST_ACTIVE, quest->GetTitle(), entry);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -130,7 +130,7 @@ public:
             CharacterDatabase.Execute(stmt);
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_QUEST_ADD, quest->GetTitle().c_str(), entry);
+        handler->PSendSysMessage(LANG_COMMAND_QUEST_ADD, quest->GetTitle(), entry);
         handler->SetSentErrorMessage(false);
         return true;
     }
@@ -222,7 +222,7 @@ public:
             CharacterDatabase.CommitTransaction(trans);
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_QUEST_REMOVED, quest->GetTitle().c_str(), entry);
+        handler->PSendSysMessage(LANG_COMMAND_QUEST_REMOVED, quest->GetTitle(), entry);
         handler->SetSentErrorMessage(false);
         return true;
     }
@@ -339,7 +339,7 @@ public:
         else
         {
             ObjectGuid::LowType guid = playerTarget->GetGUID().GetCounter();
-            QueryResult result = CharacterDatabase.PQuery("SELECT 1 FROM character_queststatus WHERE guid = %u AND quest = %u", guid, entry);
+            QueryResult result = CharacterDatabase.PQuery("SELECT 1 FROM character_queststatus WHERE guid = {} AND quest = {}", guid, entry);
 
             if (!result)
             {
@@ -482,7 +482,7 @@ public:
             CharacterDatabase.Execute(stmt);
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_QUEST_COMPLETE, quest->GetTitle().c_str(), entry);
+        handler->PSendSysMessage(LANG_COMMAND_QUEST_COMPLETE, quest->GetTitle(), entry);
         handler->SetSentErrorMessage(false);
         return true;
     }
@@ -527,7 +527,7 @@ public:
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
             CharacterDatabasePreparedStatement* stmt;
 
-            QueryResult result = CharacterDatabase.PQuery("SELECT 1 FROM character_queststatus WHERE guid = %u AND quest = %u AND status = 1", guid, entry);
+            QueryResult result = CharacterDatabase.PQuery("SELECT 1 FROM character_queststatus WHERE guid = {} AND quest = {} AND status = 1", guid, entry);
 
             if (!result)
             {
@@ -730,7 +730,7 @@ public:
             CharacterDatabase.CommitTransaction(trans);
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_QUEST_REWARDED, quest->GetTitle().c_str(), entry);
+        handler->PSendSysMessage(LANG_COMMAND_QUEST_REWARDED, quest->GetTitle(), entry);
         handler->SetSentErrorMessage(false);
         return true;
     }
