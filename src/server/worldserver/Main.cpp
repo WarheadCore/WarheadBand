@@ -191,13 +191,10 @@ int main(int argc, char** argv)
     }
 
     // Add file and args in config
-    sConfigMgr->Configure(configFile, std::vector<std::string>(argv, argv + argc), WH_MODULE_CONFIG_LIST);
+    sConfigMgr->Configure(configFile, { argv, argv + argc }, WH_MODULE_CONFIG_LIST);
 
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
-
-    // Loading modules configs
-    sConfigMgr->LoadModulesConfigs();
 
     std::shared_ptr<Warhead::Asio::IoContext> ioContext = std::make_shared<Warhead::Asio::IoContext>();
 
@@ -308,7 +305,7 @@ int main(int argc, char** argv)
         sMetric->Unload();
     });
 
-    // Loading modules configs
+    // Loading modules configs before scripts
     sConfigMgr->LoadModulesConfigs();
 
     ///- Initialize the World
