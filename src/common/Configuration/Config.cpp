@@ -56,7 +56,7 @@ namespace
     template<typename Format, typename... Args>
     inline void PrintError(std::string_view filename, Format&& fmt, Args&& ... args)
     {
-        std::string message = Warhead::StringFormatFmt(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
 
         if (IsAppConfig(filename))
         {

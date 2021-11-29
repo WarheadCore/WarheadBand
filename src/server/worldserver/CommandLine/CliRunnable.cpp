@@ -124,7 +124,7 @@ void CliThread()
     ::rl_event_hook = &Warhead::Impl::Readline::cli_hook_func;
 #endif
 
-    if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
+    if (sConfigMgr->GetOption<bool>("BeepAtStart", true))
         printf("\a");   // \a = Alert
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS

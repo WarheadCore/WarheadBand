@@ -275,7 +275,7 @@ void Log::CreateChannelsFromConfig(std::string const& logChannelName)
     if (logChannelName.empty())
         return;
 
-    std::string const& options = sConfigMgr->GetStringDefault(logChannelName, "");
+    std::string const& options = sConfigMgr->GetOption<std::string>(logChannelName, "");
     std::string const& channelName = logChannelName.substr(PREFIX_CHANNEL_LENGTH);
 
     if (options.empty())
