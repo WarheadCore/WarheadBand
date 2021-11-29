@@ -988,7 +988,6 @@ void Transmogrification::GossipShowTransmogItems(Player* player, Creature* creat
 void Transmogrification::GossipRemoveAllTransmogrifications(Player* player)
 {
     bool removed = false;
-    auto session = player->GetSession();
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
