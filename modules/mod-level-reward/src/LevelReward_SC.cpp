@@ -138,7 +138,7 @@ private:
         std::string subject = *sModuleLocale->GetModuleString("LEVEL_REWARD_LOCALE_SUBJECT", Level);
         std::string text = *sModuleLocale->GetModuleString("LEVEL_REWARD_LOCALE_TEXT", Level);
 
-        uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
+        // uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
         // Send External mail
         sEM->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, CONF_GET_INT("LevelReward.NpcID"));
