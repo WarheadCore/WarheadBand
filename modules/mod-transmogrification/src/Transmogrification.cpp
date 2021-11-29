@@ -832,7 +832,7 @@ bool Transmogrification::CanSavePresets(Player* player)
            static_cast<uint8>(_presetByName[player->GetGUID()].size()) < CONF_GET_INT("Transmogrification.MaxSets");
 }
 
-void Transmogrification::SavePreset(Player* player, Creature* creature, std::string const& name)
+void Transmogrification::SavePreset(Player* player, Creature* /* creature */, std::string const& name)
 {
     if (name.find('"') != std::string::npos || name.find('\\') != std::string::npos)
     {
