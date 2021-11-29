@@ -1028,7 +1028,7 @@ void GuildLevelSystem::GetRewardsCriteria(Player* player, Creature* /* creature 
     CloseGossipMenuFor(player);
 }
 
-void GuildLevelSystem::GetAllLink(Player* player, Creature* creature, uint32 sender, uint32 action)
+void GuildLevelSystem::GetAllLink(Player* player, Creature* creature, uint32 /* sender */, uint32 action)
 {
     uint32 criteriaID = action - GLS_GOSSIP_CRITERIA_ID;
 
