@@ -121,6 +121,8 @@ class WH_DATABASE_API Field
             return data.value == nullptr;
         }
 
+        DatabaseFieldTypes GetType() { return meta->Type; }
+
     protected:
         struct
         {

@@ -24,8 +24,6 @@
 #include <vector>
 #include <string>
 
-// Add deprecated api loaders include
-@WH_SCRIPTS_INCLUDES@
 // Includes list
 @WARHEAD_SCRIPTS_FORWARD_DECL@
 #ifdef WARHEAD_IS_DYNAMIC_SCRIPTLOADER
@@ -49,9 +47,7 @@ WH_MODULES_API char const* GetScriptModule()
 WH_MODULES_API void AddModulesScripts()
 {
     // Modules
-@WARHEAD_SCRIPTS_INVOKE@
-    // Deprecated api modules
-@WH_SCRIPTS_LIST@}
+@WARHEAD_SCRIPTS_INVOKE@}
 
 /// Exposed in script modules to get the build directive of the module.
 WH_MODULES_API char const* GetModulesBuildDirective()

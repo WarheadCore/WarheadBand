@@ -53,7 +53,7 @@ WH_SCRIPT_API char const* GetScriptModule()
 WH_SCRIPT_API void AddScripts()
 {
     // Default scripts
-@ACORE_SCRIPTS_INVOKE@}
+@WARHEAD_SCRIPTS_INVOKE@}
 
 /// Exposed in script modules to get the build directive of the module.
 WH_SCRIPT_API char const* GetBuildDirective()

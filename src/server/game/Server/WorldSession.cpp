@@ -368,9 +368,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             case STATUS_AUTHED:
                 if (m_inQueue) // prevent cheating
                     break;
-                case STATUS_AUTHED:
-                    if (m_inQueue) // prevent cheating
-                        break;
 
                 if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                 {

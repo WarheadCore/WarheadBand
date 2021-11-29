@@ -226,7 +226,7 @@ public:
 
         for (auto const& modName : Acore::Module::GetEnableModulesList())
         {
-            handler->SendSysMessage(Acore::StringFormatFmt("- {}", modName));
+            handler->PSendSysMessage("- {}", modName);
         }
 
         return true;

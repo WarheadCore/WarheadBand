@@ -155,7 +155,7 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 
         std::vector<std::string> moduleList;
 
-        for (auto const& itr : Acore::Tokenize(_modulesList, ',', true))
+        for (auto const& itr : Warhead::Tokenize(_modulesList, ',', true))
         {
             moduleList.emplace_back(itr);
         }

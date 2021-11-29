@@ -144,6 +144,9 @@ CU_RUN_HOOK("BEFORE_SRC_LOAD")
 # add core sources
 add_subdirectory(src)
 
+# add modules sources
+add_subdirectory(modules)
+
 CU_RUN_HOOK("AFTER_SRC_LOAD")
 
 if( BUILD_TESTING )

@@ -2751,11 +2751,6 @@ bool ScriptMgr::OnBeforeSendExitMessageArenaQueue(BattlegroundQueue* queue, Grou
     return ret;
 }
 
-void ScriptMgr::OnBattlegroundEnd(Battleground* bg, TeamId winnerTeam)
-{
-    FOREACH_SCRIPT(BGScript)->OnBattlegroundEnd(bg, winnerTeam);
-}
-
 void ScriptMgr::OnBattlegroundDestroy(Battleground* bg)
 {
     FOREACH_SCRIPT(BGScript)->OnBattlegroundDestroy(bg);

@@ -190,7 +190,7 @@ int main(int argc, char** argv)
     }
 
     // Add file and args in config
-    sConfigMgr->Configure(configFile, { argv, argv + argc }, WH_MODULE_CONFIG_LIST);
+    sConfigMgr->Configure(configFile, { argv, argv + argc }, CONFIG_FILE_LIST);
 
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
@@ -306,7 +306,7 @@ int main(int argc, char** argv)
         sMetric->Unload();
     });
 
-    Acore::Module::SetEnableModulesList(AC_MODULES_LIST);
+    Acore::Module::SetEnableModulesList(WH_MODULES_LIST);
 
     // Loading modules configs before scripts
     sConfigMgr->LoadModulesConfigs();
@@ -435,7 +435,7 @@ bool StartDB()
     MySQL::Library_Init();
 
     // Load databases
-    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE, AC_MODULES_LIST);
+    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE, WH_MODULES_LIST);
     loader
         .AddDatabase(LoginDatabase, "Login")
         .AddDatabase(CharacterDatabase, "Character")
