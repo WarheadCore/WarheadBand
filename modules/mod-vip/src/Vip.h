@@ -19,6 +19,7 @@
 #define _VIP_H_
 
 #include "Define.h"
+#include <string>
 
 class Player;
 

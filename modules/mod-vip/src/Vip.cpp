@@ -24,6 +24,8 @@
 #include "Timer.h"
 #include "Optional.h"
 #include "Tokenize.h"
+#include "Player.h"
+#include "SpellMgr.h"
 #include "Chat.h"
 #include <unordered_map>
 #include <tuple>

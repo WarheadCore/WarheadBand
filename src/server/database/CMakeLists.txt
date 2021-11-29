@@ -56,9 +56,6 @@ target_link_libraries(database
   PUBLIC
     common)
 
-# Add support auto update db for modules
-GetModuleList()
-
 set_target_properties(database
   PROPERTIES
     FOLDER

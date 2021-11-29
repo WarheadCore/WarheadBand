@@ -29,6 +29,7 @@
 #include "WorldSession.h"
 #include "Tokenize.h"
 #include "CharacterCache.h"
+#include "Spell.h"
 
 using namespace Warhead::ChatCommands;
 

@@ -51,10 +51,6 @@
 #include <random>
 #include <unordered_map>
 
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
-
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
 /*********************************************************/
@@ -1002,9 +998,8 @@ void BattlegroundMgr::AddBattleground(Battleground* bg)
         m_BattlegroundTemplates[bg->GetBgTypeID()] = bg;
     else
         m_Battlegrounds[bg->GetInstanceID()] = bg;
-#ifdef ELUNA
-    sEluna->OnBGCreate(bg, bg->GetBgTypeID(), bg->GetInstanceID());
-#endif
+
+    sScriptMgr->OnBattlegroundCreate(bg);
 }
 
 void BattlegroundMgr::RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 instanceId)
