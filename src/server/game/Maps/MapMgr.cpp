@@ -36,10 +36,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
-
 MapMgr::MapMgr()
     : _nextInstanceId(0), _scheduledScripts(0)
 {

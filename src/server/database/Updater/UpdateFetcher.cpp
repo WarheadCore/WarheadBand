@@ -45,6 +45,17 @@ UpdateFetcher::UpdateFetcher(Path const& sourceDirectory,
 {
 }
 
+UpdateFetcher::UpdateFetcher(Path const& sourceDirectory,
+    std::function<void(std::string const&)> const& apply,
+    std::function<void(Path const& path)> const& applyFile,
+    std::function<QueryResult(std::string const&)> const& retrieve,
+    std::string const& dbModuleName,
+    std::string_view modulesList /*= {}*/) :
+    _sourceDirectory(std::make_unique<Path>(sourceDirectory)), _apply(apply), _applyFile(applyFile),
+    _retrieve(retrieve), _dbModuleName(dbModuleName), _setDirectories(nullptr), _modulesList(modulesList)
+{
+}
+
 UpdateFetcher::~UpdateFetcher()
 {
 }
@@ -144,9 +155,10 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 
         std::vector<std::string> moduleList;
 
-        auto const& _modulesTokens = Warhead::Tokenize(WH_MODULES_LIST, ',', true);
-        for (auto const& itr : _modulesTokens)
+        for (auto const& itr : Acore::Tokenize(_modulesList, ',', true))
+        {
             moduleList.emplace_back(itr);
+        }
 
         // data/sql
         for (auto const& itr : moduleList)
@@ -155,7 +167,9 @@ UpdateFetcher::DirectoryStorage UpdateFetcher::ReceiveIncludedDirectories() cons
 
             Path const p(path);
             if (!is_directory(p))
+            {
                 continue;
+            }
 
             DirectoryEntry const entry = { p, MODULE };
             directories.emplace_back(entry);

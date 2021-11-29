@@ -326,11 +326,22 @@ namespace Warhead::Impl::ChatCommands
             if (!handler.IsConsole())
                 LogCommandUsage(*handler.GetSession(), cmdStr);
         }
-        else if (!handler.HasSentErrorMessage())
-        { /* invocation failed, we should show usage */
+        else if (!handler.HasSentErrorMessage()) /* invocation failed, we should show usage */
+        {
+            if (!sScriptMgr->CanExecuteCommand(handler, cmdStr))
+            {
+                return true;
+            }
+
             cmd->SendCommandHelp(handler);
             handler.SetSentErrorMessage(true);
         }
+
+        return true;
+    }
+
+    if (!sScriptMgr->CanExecuteCommand(handler, cmdStr))
+    {
         return true;
     }
 

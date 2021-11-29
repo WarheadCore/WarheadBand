@@ -55,10 +55,6 @@
 #include "WorldSocket.h"
 #include <zlib.h>
 
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
-
 namespace
 {
     std::string const DefaultPlayerName = "<none>";
@@ -258,12 +254,10 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     }
 #endif                                                      // !WARHEAD_DEBUG
 
-    sScriptMgr->OnPacketSend(this, *packet);
-
-#ifdef ELUNA
-    if (!sEluna->OnPacketSend(this, *packet))
+    if (!sScriptMgr->CanPacketSend(this, *packet))
+    {
         return;
-#endif
+    }
 
     LOG_TRACE("network.opcode", "S->C: {} {}", GetPlayerInfo(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())));
     m_Socket->SendPacket(*packet);
@@ -329,71 +323,74 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         {
             switch (opHandle->Status)
             {
-                case STATUS_LOGGEDIN:
-                    if (!_player)
-                    {
-                        // pussywizard: such packets were sent to do something for a character that has already logged out, skip them
-                    }
-                    else if (!_player->IsInWorld())
-                    {
-                        // pussywizard: such packets may do something important and the player is just being teleported, move to the end of the queue
-                        // pussywizard: previously such were skipped, so leave it as it is xD proper code below if we wish to change that
+            case STATUS_LOGGEDIN:
+                if (!_player)
+                {
+                    // pussywizard: such packets were sent to do something for a character that has already logged out, skip them
+                }
+                else if (!_player->IsInWorld())
+                {
+                    // pussywizard: such packets may do something important and the player is just being teleported, move to the end of the queue
+                    // pussywizard: previously such were skipped, so leave it as it is xD proper code below if we wish to change that
 
-                        // pussywizard: requeue only important packets not related to maps (PROCESS_THREADUNSAFE)
-                        /*if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
-                        {
-                            if (!firstDelayedPacket)
-                                firstDelayedPacket = packet;
-                            deletePacket = false;
-                            QueuePacket(packet);
-                        }*/
-                    }
-                    else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
+                    // pussywizard: requeue only important packets not related to maps (PROCESS_THREADUNSAFE)
+                    /*if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
                     {
-                        sScriptMgr->OnPacketReceive(this, *packet);
-#ifdef ELUNA
-                        if (!sEluna->OnPacketReceive(this, *packet))
-                            break;
-#endif
-                        opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
-                    }
-                    break;
-                case STATUS_TRANSFER:
-                    if (_player && !_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
+                        if (!firstDelayedPacket)
+                            firstDelayedPacket = packet;
+                        deletePacket = false;
+                        QueuePacket(packet);
+                    }*/
+                }
+                else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
+                {
+                    if (!sScriptMgr->CanPacketReceive(this, *packet))
                     {
-                        sScriptMgr->OnPacketReceive(this, *packet);
-#ifdef ELUNA
-                        if (!sEluna->OnPacketReceive(this, *packet))
-                            break;
-#endif
-                        opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
+                        break;
                     }
+
+                    opHandle->Call(this, *packet);
+                    LogUnprocessedTail(packet);
+                }
+                break;
+            case STATUS_TRANSFER:
+                if (_player && !_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
+                {
+                    if (!sScriptMgr->CanPacketReceive(this, *packet))
+                    {
+                        break;
+                    }
+
+                    opHandle->Call(this, *packet);
+                    LogUnprocessedTail(packet);
+                }
+                break;
+            case STATUS_AUTHED:
+                if (m_inQueue) // prevent cheating
                     break;
                 case STATUS_AUTHED:
                     if (m_inQueue) // prevent cheating
                         break;
 
-                    if (AntiDOS.EvaluateOpcode(*packet, currentTime))
+                if (AntiDOS.EvaluateOpcode(*packet, currentTime))
+                {
+                    if (!sScriptMgr->CanPacketReceive(this, *packet))
                     {
-                        sScriptMgr->OnPacketReceive(this, *packet);
-#ifdef ELUNA
-                        if (!sEluna->OnPacketReceive(this, *packet))
-                            break;
-#endif
-                        opHandle->Call(this, *packet);
-                        LogUnprocessedTail(packet);
+                        break;
                     }
-                    break;
-                case STATUS_NEVER:
-                    LOG_ERROR("network.opcode", "Received not allowed opcode {} from {}",
-                        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
-                    break;
-                case STATUS_UNHANDLED:
-                    LOG_DEBUG("network.opcode", "Received not handled opcode {} from {}",
-                        GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
-                    break;
+
+                    opHandle->Call(this, *packet);
+                    LogUnprocessedTail(packet);
+                }
+                break;
+            case STATUS_NEVER:
+                LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s",
+                    GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                break;
+            case STATUS_UNHANDLED:
+                LOG_DEBUG("network.opcode", "Received not handled opcode %s from %s",
+                    GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                break;
             }
         }
         catch (WorldPackets::InvalidHyperlinkException const& ihe)

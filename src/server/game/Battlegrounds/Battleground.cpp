@@ -148,9 +148,7 @@ Battleground::~Battleground()
     for (uint32 i = 0; i < size; ++i)
         DelObject(i);
 
-#ifdef ELUNA
-    sEluna->OnBGDestroy(this, GetBgTypeID(), GetInstanceID());
-#endif
+    sScriptMgr->OnBattlegroundDestroy(this);
 
     sBattlegroundMgr->RemoveBattleground(GetBgTypeID(), GetInstanceID());
     // unload map
@@ -449,10 +447,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         m_Events |= BG_STARTING_EVENT_4;
 
         StartingEventOpenDoors();
-
-#ifdef ELUNA
-        sEluna->OnBGStart(this, GetBgTypeID(), GetInstanceID());
-#endif
 
         Warhead::Text::SendBattlegroundWarningToAll(this, StartMessageIds[BG_STARTING_EVENT_FOURTH]);
 
@@ -1005,9 +999,7 @@ void Battleground::EndBattleground(TeamId winnerTeamId)
     if (winmsg_id)
         SendMessageToAll(winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
 
-#ifdef ELUNA
-    sEluna->OnBGEnd(this, GetBgTypeID(), GetInstanceID(), winnerTeamId);
-#endif
+    sScriptMgr->OnBattlegroundEnd(this, winnerTeamId);
 }
 
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const

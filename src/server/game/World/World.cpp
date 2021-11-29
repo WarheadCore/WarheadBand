@@ -99,10 +99,6 @@
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
-
 std::atomic_long World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 uint32 World::m_worldLoopCounter = 0;
@@ -433,14 +429,6 @@ void World::LoadConfigSettings(bool reload)
         sMetric->LoadFromConfigs();
     }
 
-#ifdef ELUNA
-    ///- Initialize Lua Engine
-    if (!reload)
-    {
-        LOG_INFO("eluna", "Initialize Eluna Lua Engine...");
-        Eluna::Initialize();
-    }
-#endif
 
     sScriptMgr->OnBeforeConfigLoad(reload);
 
@@ -1175,12 +1163,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Load Channels...");
     ChannelMgr::LoadChannels();
 
-#ifdef ELUNA
-    ///- Run eluna scripts.
-    // in multithread foreach: run scripts
-    sEluna->RunScripts();
-    sEluna->OnConfigLoad(false, false); // Must be done after Eluna is initialized and scripts have run.
-#endif
+    sScriptMgr->OnBeforeWorldInitialized();
 
     if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids"))
     {

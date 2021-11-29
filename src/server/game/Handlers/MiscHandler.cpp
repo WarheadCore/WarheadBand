@@ -54,10 +54,6 @@
 #include "WorldSession.h"
 #include <zlib.h>
 
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
-
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
 {
     LOG_DEBUG("network", "WORLD: Recvd CMSG_REPOP_REQUEST Message");
@@ -81,10 +77,6 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
             GetPlayer()->GetName(), GetPlayer()->GetGUID());
         GetPlayer()->KillPlayer();
     }
-
-#ifdef ELUNA
-    sEluna->OnRepop(GetPlayer());
-#endif
 
     //this is spirit release confirm?
     GetPlayer()->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
