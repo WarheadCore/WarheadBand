@@ -69,7 +69,7 @@ public:
             _levelReward.ItemCount = fields[3].GetUInt32();
 
             // Проверка
-            if (Level > CONF_GET_INT("MaxPlayerLevel"))
+            if (Level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 LOG_ERROR("module", "-> Level ({}) more, than max player level in world ({}). Skip", Level, CONF_GET_INT("MaxPlayerLevel"));
                 continue;
@@ -128,7 +128,7 @@ private:
 
     void RewardForLevel(Player* player, uint8 Level)
     {
-        if (Level > CONF_GET_INT("MaxPlayerLevel"))
+        if (Level > CONF_GET_UINT("MaxPlayerLevel"))
             return;
 
         auto const& levelReward = GetLevelReward(Level);

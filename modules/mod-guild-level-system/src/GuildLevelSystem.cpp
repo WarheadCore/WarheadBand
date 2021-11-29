@@ -837,7 +837,7 @@ void GuildLevelSystem::ShowAllCriteriaInfo(Player* player, Creature* creature)
                     auto itemLink = sGameLocale->GetItemLink(itemID);
                     auto currentItems = criteriaProgress->GetItemCountProgress(criteriaID, i);
                     auto maxItems = criteriaProgress->GetMaxCriteriaItemCount(criteriaID, i);
-                    float persents = float(currentItems) / float(maxItems) * 100.0f;
+                    // float persents = float(currentItems) / float(maxItems) * 100.0f;
 
                     if (!itemLink.empty())
                         AddGossipItemFor(player, 10, Warhead::StringFormat("- {}. {} - {}/{}", i + 1, itemLink, currentItems, maxItems), i, gossipAction);
@@ -879,7 +879,7 @@ void GuildLevelSystem::ShowCriteriaInfo(Player* player, Creature* creature, uint
         auto itemLink = sGameLocale->GetItemLink(itemID);
         auto currentItems = criteriaProgress->GetItemCountProgress(criteriaID, i);
         auto maxItems = criteriaProgress->GetMaxCriteriaItemCount(criteriaID, i);
-        float persents = float(currentItems) / float(maxItems) * 100.0f;
+        // float persents = float(currentItems) / float(maxItems) * 100.0f;
 
         if (!itemLink.empty())
             AddGossipItemFor(player, 10, Warhead::StringFormat("- {}. {} - {}/{}", i + 1, itemLink, currentItems, maxItems), i, action);
@@ -1049,7 +1049,7 @@ void GuildLevelSystem::GetAllLink(Player* player, Creature* creature, uint32 sen
         auto itemLink = sGameLocale->GetItemLink(itemID);
         auto currentItems = criteriaProgress->GetItemCountProgress(criteriaID, i);
         auto maxItems = criteriaProgress->GetMaxCriteriaItemCount(criteriaID, i);
-        float persents = float(currentItems) / float(maxItems) * 100.0f;
+        // float persents = float(currentItems) / float(maxItems) * 100.0f;
 
         if (!itemLink.empty())
             handler.PSendSysMessage("# {}. {} - {}/{}", i + 1, itemLink, currentItems, maxItems);
