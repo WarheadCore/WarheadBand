@@ -1122,7 +1122,7 @@ void Transmogrification::GossipSavePreset(Player* player, Creature* creature, ui
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
 
-void Transmogrification::GossipTransmogrify(Player* player, Creature* creature, uint32 const& action, uint32 const& sender)
+void Transmogrification::GossipTransmogrify(Player* player, Creature* /* creature */, uint32 const& action, uint32 const& sender)
 {
     // sender = slot, action = display
     Transmogrify(player, ObjectGuid(HighGuid::Item, 0, action), sender);
