@@ -832,7 +832,7 @@ bool Transmogrification::CanSavePresets(Player* player)
            static_cast<uint8>(_presetByName[player->GetGUID()].size()) < CONF_GET_INT("Transmogrification.MaxSets");
 }
 
-void Transmogrification::SavePreset(Player* player, Creature* creature, std::string const& name)
+void Transmogrification::SavePreset(Player* player, Creature* /* creature */, std::string const& name)
 {
     if (name.find('"') != std::string::npos || name.find('\\') != std::string::npos)
     {
@@ -988,7 +988,6 @@ void Transmogrification::GossipShowTransmogItems(Player* player, Creature* creat
 void Transmogrification::GossipRemoveAllTransmogrifications(Player* player)
 {
     bool removed = false;
-    auto session = player->GetSession();
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -1015,7 +1014,7 @@ void Transmogrification::GossipRemoveAllTransmogrifications(Player* player)
 
 void Transmogrification::GossipRemoveSingleTransmogrifications(Player* player, uint32 const& action)
 {
-    auto session = player->GetSession();
+    // auto session = player->GetSession();
 
     Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, action);
     if (!newItem)
@@ -1038,7 +1037,7 @@ void Transmogrification::GossipShowPresetsMenu(Player* player, Creature* creatur
     for (auto const& itr : _presetByName[player->GetGUID()])
         AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + itr.second, EQUIPMENT_SLOT_END + 6, itr.first);
 
-    if (_presetByName[player->GetGUID()].size() < CONF_GET_INT("Transmogrification.MaxSets"))
+    if (_presetByName[player->GetGUID()].size() < CONF_GET_UINT("Transmogrification.MaxSets"))
         AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, GetGossipItemName(player, "TRANSMOG_LOCALE_GOSSIP_ITEM_SAVE_SET"), EQUIPMENT_SLOT_END + 8, 0);
 
     AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, GetGossipItemName(player, "TRANSMOG_LOCALE_GOSSIP_ITEM_BACK"), EQUIPMENT_SLOT_END + 1, 0);
@@ -1046,7 +1045,7 @@ void Transmogrification::GossipShowPresetsMenu(Player* player, Creature* creatur
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
 
-void Transmogrification::GossipUsePreset(Player* player, Creature* creature, uint32 const& action)
+void Transmogrification::GossipUsePreset(Player* player, Creature* /* creature */, uint32 const& action)
 {
     // action = presetID
     for (auto const& itr : _presetById[player->GetGUID()][action])
@@ -1074,7 +1073,7 @@ void Transmogrification::GossipViewPreset(Player* player, Creature* creature, ui
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
 
-void Transmogrification::GossipDeletePreset(Player* player, Creature* creature, uint32 const& action)
+void Transmogrification::GossipDeletePreset(Player* player, Creature* /* creature */, uint32 const& action)
 {
     // action = presetID
     CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
@@ -1123,7 +1122,7 @@ void Transmogrification::GossipSavePreset(Player* player, Creature* creature, ui
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
 
-void Transmogrification::GossipTransmogrify(Player* player, Creature* creature, uint32 const& action, uint32 const& sender)
+void Transmogrification::GossipTransmogrify(Player* player, Creature* /* creature */, uint32 const& action, uint32 const& sender)
 {
     // sender = slot, action = display
     Transmogrify(player, ObjectGuid(HighGuid::Item, 0, action), sender);

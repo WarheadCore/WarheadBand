@@ -18,6 +18,7 @@
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "blackrock_depths.h"
 
 #define MAX_ENCOUNTER 6

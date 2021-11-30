@@ -161,7 +161,7 @@ public:
         points *= sVip->GetRate<VipRate::Honor>(player);
     }
 
-    void OnReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental) override
+    void OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
     {
         if (!CONF_GET_BOOL("VIP.Enable"))
             return;
@@ -194,7 +194,7 @@ public:
         sVip->OnLogoutPlayer(player);
     }
 
-    void OnAfterResurrect(Player* player, float restore_percent, bool applySickness) override
+    void OnAfterResurrect(Player* player, float /* restore_percent */, bool applySickness) override
     {
         if (!sVip->IsVip(player) || !applySickness)
             return;

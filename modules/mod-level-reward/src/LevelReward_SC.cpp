@@ -69,7 +69,7 @@ public:
             _levelReward.ItemCount = fields[3].GetUInt32();
 
             // Проверка
-            if (Level > CONF_GET_INT("MaxPlayerLevel"))
+            if (Level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 LOG_ERROR("module", "-> Level ({}) more, than max player level in world ({}). Skip", Level, CONF_GET_INT("MaxPlayerLevel"));
                 continue;
@@ -128,7 +128,7 @@ private:
 
     void RewardForLevel(Player* player, uint8 Level)
     {
-        if (Level > CONF_GET_INT("MaxPlayerLevel"))
+        if (Level > CONF_GET_UINT("MaxPlayerLevel"))
             return;
 
         auto const& levelReward = GetLevelReward(Level);
@@ -138,7 +138,7 @@ private:
         std::string subject = *sModuleLocale->GetModuleString("LEVEL_REWARD_LOCALE_SUBJECT", Level);
         std::string text = *sModuleLocale->GetModuleString("LEVEL_REWARD_LOCALE_TEXT", Level);
 
-        uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
+        // uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
         // Send External mail
         sEM->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, CONF_GET_INT("LevelReward.NpcID"));

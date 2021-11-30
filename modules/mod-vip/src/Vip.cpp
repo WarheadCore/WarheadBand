@@ -32,12 +32,14 @@
 
 namespace
 {
-    using WarheadVip = std::tuple<uint64/*start*/, uint64/*end*/, uint8/*level*/>;
+    constexpr auto MAX_VIP_LEVEL = 3;
+
+    using WarheadVip = std::tuple<uint64/*start*/, int64/*endtime*/, uint8/*level*/>;
     using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
 
     std::unordered_map<uint32/*acc id*/, WarheadVip> store;
     std::unordered_map<uint8/*level*/, WarheadVipRates> storeRates;
-    std::unordered_map<uint64/*guid*/, uint64/*time*/> storeUnbind;
+    std::unordered_map<uint64/*guid*/, uint64/*unbindtime*/> storeUnbind;
     std::vector<uint32> vipSpellsStore;
     TaskScheduler scheduler;
 
@@ -70,30 +72,6 @@ namespace
 
         return itr->second;
     }
-}
-
-namespace fmt
-{
-    template<>
-    struct formatter<WarheadVip> : formatter<string_view>
-    {
-        // parse is inherited from formatter<string_view>.
-        template <typename FormatContext>
-        auto format(Optional<WarheadVip> vipInfo, FormatContext& ctx)
-        {
-            string_view info = "<unknown>";
-
-            if (vipInfo)
-            {
-                auto const& [startTime, endTime, level] = *vipInfo;
-
-                info = Warhead::StringFormat("Start time: {}. End time: {}. Level: {}",
-                    Warhead::Time::TimeToHumanReadable(startTime), Warhead::Time::TimeToHumanReadable(endTime), level);
-            }
-
-            return formatter<string_view>::format(info, ctx);
-        }
-    };
 }
 
 Vip* Vip::Instance()
@@ -154,7 +132,7 @@ void Vip::Update(uint32 diff)
     scheduler.Update(diff);
 }
 
-bool Vip::Add(uint32 accountID, uint64 endTime, uint8 level, bool force /*= false*/)
+bool Vip::Add(uint32 accountID, int64 endTime, uint8 level, bool force /*= false*/)
 {
     auto const& vipInfo = GetVipInfo(accountID);
 
@@ -410,7 +388,7 @@ std::string Vip::GetDuration(uint32 accountID)
 
 void Vip::RemoveColldown(Player* player, uint32 spellID)
 {
-    scheduler.Schedule(1s, [this, player, spellID](TaskContext /*context*/)
+    scheduler.Schedule(1s, [player, spellID](TaskContext /*context*/)
     {
         if (player && player->HasSpellCooldown(spellID))
             player->RemoveSpellCooldown(spellID, true);
@@ -430,7 +408,7 @@ void Vip::UnBindInstances(Player* player)
         return;
     }
 
-    if (GetLevel(player) < 3)
+    if (GetLevel(player) < MAX_VIP_LEVEL)
     {
         handler.PSendSysMessage("> У вас недостаточно высокий уровень для этого");
         return;
@@ -646,4 +624,28 @@ void Vip::LoadUnbinds()
 
     LOG_INFO("server.loading", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), Warhead::Time::ToTimeString<Milliseconds>(oldMSTime, TimeOutput::Milliseconds));
     LOG_INFO("server.loading", "");
+}
+
+namespace fmt
+{
+    template<>
+    struct formatter<WarheadVip> : formatter<string_view>
+    {
+        // parse is inherited from formatter<string_view>.
+        template <typename FormatContext>
+        auto format(Optional<WarheadVip> vipInfo, FormatContext& ctx)
+        {
+            string_view info = "<unknown>";
+
+            if (vipInfo)
+            {
+                auto const& [startTime, endTime, level] = *vipInfo;
+
+                info = Warhead::StringFormat("Start time: {}. End time: {}. Level: {}",
+                    Warhead::Time::TimeToHumanReadable(startTime), Warhead::Time::TimeToHumanReadable(endTime), level);
+            }
+
+            return formatter<string_view>::format(info, ctx);
+        }
+    };
 }
