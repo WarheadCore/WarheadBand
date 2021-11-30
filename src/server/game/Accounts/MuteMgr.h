@@ -46,7 +46,7 @@ public:
     Optional<MuteInfo> GetMuteInfo(uint32 accountID);
 
 private:
-    std::unordered_map<uint32, uint32> _listSessions;
+    std::unordered_map<uint32, uint64> _listSessions;
 };
 
 #define sMute MuteMgr::instance()

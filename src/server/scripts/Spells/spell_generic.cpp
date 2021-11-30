@@ -2250,7 +2250,7 @@ class spell_gen_turkey_marker : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_turkey_marker::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
-    std::list<uint32> _applyTimes;
+    std::list<int64> _applyTimes;
     int16 stackAmount;
 };
 

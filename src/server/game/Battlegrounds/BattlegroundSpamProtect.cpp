@@ -24,7 +24,7 @@
 
 namespace
 {
-    std::unordered_map<ObjectGuid /*player guid*/, uint32 /*time*/> _players;
+    std::unordered_map<ObjectGuid /*player guid*/, int64 /*time*/> _players;
 
     void AddTime(ObjectGuid guid)
     {

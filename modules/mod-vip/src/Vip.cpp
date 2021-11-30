@@ -34,7 +34,7 @@ namespace
 {
     constexpr auto MAX_VIP_LEVEL = 3;
 
-    using WarheadVip = std::tuple<uint64/*start*/, int64/*endtime*/, uint8/*level*/>;
+    using WarheadVip = std::tuple<int64/*start*/, int64/*endtime*/, uint8/*level*/>;
     using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
 
     std::unordered_map<uint32/*acc id*/, WarheadVip> store;
@@ -575,9 +575,9 @@ void Vip::LoadAccounts()
         Field* fields = result->Fetch();
 
         auto accountID  = fields[0].GetUInt32();
-        auto startTime  = fields[1].GetFloat();
-        auto endTime    = fields[2].GetFloat();
-        auto level      = fields[3].GetFloat();
+        auto startTime  = fields[1].GetInt64();
+        auto endTime    = fields[2].GetInt64();
+        auto level      = fields[3].GetUInt8();
 
         if (level > 3)
         {
