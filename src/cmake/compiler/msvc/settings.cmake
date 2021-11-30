@@ -36,6 +36,11 @@ target_compile_options(warhead-compile-option-interface
     INTERFACE
       /utf-8)
 
+# disable permissive mode to make msvc more eager to reject code that other compilers don't already accept
+target_compile_options(warhead-compile-option-interface
+INTERFACE
+  /permissive-)
+
 if(PLATFORM EQUAL 64)
   # This definition is necessary to work around a bug with Intellisense described
   # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
@@ -44,10 +49,6 @@ if(PLATFORM EQUAL 64)
     INTERFACE
       -D_WIN64)
   message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
-
-  # Enable extended object support for debug compiles on X64 (not required on X86)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-  message(STATUS "MSVC: Enabled extended object-support for debug-compiles")
 else()
   # mark 32 bit executables large address aware so they can use > 2GB address space
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -77,6 +78,27 @@ target_compile_options(warhead-compile-option-interface
   INTERFACE
     /MP)
 
+if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0) OR BUILD_SHARED_LIBS)
+  # Enable extended object support
+  target_compile_options(warhead-compile-option-interface
+    INTERFACE
+      /bigobj)
+
+  message(STATUS "MSVC: Enabled increased number of sections in object files")
+endif()
+
+# /Zc:throwingNew.
+# When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
+# that the program will eventually be linked with a conforming operator new implementation,
+# and can omit all of these extra null checks from your program.
+# http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
+if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
+  # makes this flag a requirement to build TC at all
+  target_compile_options(warhead-compile-option-interface
+    INTERFACE
+      /Zc:throwingNew)
+endif()
+
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 target_compile_definitions(warhead-compile-option-interface
   INTERFACE
@@ -96,10 +118,10 @@ target_compile_definitions(warhead-compile-option-interface
 message(STATUS "MSVC: Disabled POSIX warnings")
 
 # Ignore warnings about INTMAX_MAX
-target_compile_definitions(warhead-compile-option-interface
-  INTERFACE
-    -D__STDC_LIMIT_MACROS)
-message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
+# target_compile_definitions(warhead-compile-option-interface
+#   INTERFACE
+#     -D__STDC_LIMIT_MACROS)
+# message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
 
 # Ignore specific warnings
 # C4351: new behavior: elements of array 'x' will be default initialized
@@ -108,23 +130,6 @@ target_compile_options(warhead-compile-option-interface
   INTERFACE
     /wd4351
     /wd4091)
-
-# disable warnings in Visual Studio 8 and above if not wanted
-if(NOT WITH_WARNINGS)
-  if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-  target_compile_options(warhead-warning-interface
-    INTERFACE
-      /wd4996
-      /wd4355
-      /wd4244
-      /wd4985
-      /wd4267
-      /wd4619
-      # /wd4512
-      )
-    message(STATUS "MSVC: Disabled generic compiletime warnings")
-  endif()
-endif()
 
 if(BUILD_SHARED_LIBS)
   # C4251: needs to have dll-interface to be used by clients of class '...'
@@ -154,8 +159,8 @@ target_compile_options(warhead-warning-interface
 # Disable incremental linking in debug builds.
 # To prevent linking getting stuck (which might be fixed in a later VS version).
 macro(DisableIncrementalLinking variable)
-string(REGEX REPLACE "/INCREMENTAL *" "" ${variable} "${${variable}}")
-set(${variable} "${${variable}} /INCREMENTAL:NO")
+  string(REGEX REPLACE "/INCREMENTAL *" "" ${variable} "${${variable}}")
+  set(${variable} "${${variable}} /INCREMENTAL:NO")
 endmacro()
 
 DisableIncrementalLinking(CMAKE_EXE_LINKER_FLAGS_DEBUG)
