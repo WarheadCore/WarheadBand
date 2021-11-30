@@ -1037,7 +1037,7 @@ void Transmogrification::GossipShowPresetsMenu(Player* player, Creature* creatur
     for (auto const& itr : _presetByName[player->GetGUID()])
         AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + itr.second, EQUIPMENT_SLOT_END + 6, itr.first);
 
-    if (_presetByName[player->GetGUID()].size() < CONF_GET_INT("Transmogrification.MaxSets"))
+    if (_presetByName[player->GetGUID()].size() < CONF_GET_UINT("Transmogrification.MaxSets"))
         AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, GetGossipItemName(player, "TRANSMOG_LOCALE_GOSSIP_ITEM_SAVE_SET"), EQUIPMENT_SLOT_END + 8, 0);
 
     AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, GetGossipItemName(player, "TRANSMOG_LOCALE_GOSSIP_ITEM_BACK"), EQUIPMENT_SLOT_END + 1, 0);

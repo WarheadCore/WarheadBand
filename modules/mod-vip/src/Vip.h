@@ -47,7 +47,7 @@ public:
     void InitSystem(bool reload);
 
     void Update(uint32 diff);
-    bool Add(uint32 accountID, uint64 endTime, uint8 level, bool force = false);
+    bool Add(uint32 accountID, int64 endTime, uint8 level, bool force = false);
     bool Delete(uint32 accountID);
 
     // For player targer
