@@ -388,7 +388,7 @@ std::string Vip::GetDuration(uint32 accountID)
 
 void Vip::RemoveColldown(Player* player, uint32 spellID)
 {
-    scheduler.Schedule(1s, [this, player, spellID](TaskContext /*context*/)
+    scheduler.Schedule(1s, [player, spellID](TaskContext /*context*/)
     {
         if (player && player->HasSpellCooldown(spellID))
             player->RemoveSpellCooldown(spellID, true);
