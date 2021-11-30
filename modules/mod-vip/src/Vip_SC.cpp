@@ -194,7 +194,7 @@ public:
         sVip->OnLogoutPlayer(player);
     }
 
-    void OnAfterResurrect(Player* player, float restore_percent, bool applySickness) override
+    void OnAfterResurrect(Player* player, float /* restore_percent */, bool applySickness) override
     {
         if (!sVip->IsVip(player) || !applySickness)
             return;
