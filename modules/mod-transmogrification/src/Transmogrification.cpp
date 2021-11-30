@@ -1073,7 +1073,7 @@ void Transmogrification::GossipViewPreset(Player* player, Creature* creature, ui
     SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 }
 
-void Transmogrification::GossipDeletePreset(Player* player, Creature* creature, uint32 const& action)
+void Transmogrification::GossipDeletePreset(Player* player, Creature* /* creature */, uint32 const& action)
 {
     // action = presetID
     CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
