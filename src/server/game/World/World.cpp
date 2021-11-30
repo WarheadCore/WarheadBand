@@ -429,7 +429,6 @@ void World::LoadConfigSettings(bool reload)
         sMetric->LoadFromConfigs();
     }
 
-
     sScriptMgr->OnBeforeConfigLoad(reload);
 
     sGameConfig->Load(reload);
