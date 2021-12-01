@@ -88,7 +88,7 @@ namespace Warhead::ChatCommands
     struct ChatCommandBuilder;
 }
 
-#define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
+#define VISIBLE_RANGE 166.0f //MAX visible range (size of grid)
 
 // Check out our guide on how to create new hooks in our wiki! https://www.azerothcore.org/wiki/hooks-script
 /*
@@ -97,7 +97,6 @@ namespace Warhead::ChatCommands
     SessionScript
     CollisionScript
     ArenaTeamScript
-
 */
 
 class WH_GAME_API ScriptObject
@@ -125,7 +124,8 @@ private:
     const std::string _name;
 };
 
-template<class TObject> class UpdatableScript
+template<class TObject>
+WH_GAME_API class UpdatableScript
 {
 protected:
     UpdatableScript() = default;
@@ -271,7 +271,8 @@ public:
     virtual void OnBeforeUpdatingPersonalRating(int32& /*mod*/, uint32 /*type*/) { }
 };
 
-template<class TMap> class MapScript : public UpdatableScript<TMap>
+template<class TMap>
+WH_GAME_API class MapScript : public UpdatableScript<TMap>
 {
     MapEntry const* _mapEntry;
     uint32 _mapId;
@@ -538,6 +539,147 @@ public:
 
     // Called from End of Creature SelectLevel.
     virtual void Creature_SelectLevel(const CreatureTemplate* /*cinfo*/, Creature* /*creature*/) { }
+
+    /**
+     * @brief This hook runs after add creature in world
+     *
+     * @param creature Contains information about the Creature
+     */
+    virtual void OnCreatureAddWorld(Creature* /*creature*/) { }
+
+    /**
+     * @brief This hook runs after remove creature in world
+     *
+     * @param creature Contains information about the Creature
+     */
+    virtual void OnCreatureRemoveWorld(Creature* /*creature*/) { }
+
+    /**
+     * @brief This hook called when a player opens a gossip dialog with the creature.
+     *
+     * @param player Contains information about the Player
+     * @param creature Contains information about the Creature
+     *
+     * @return False if you want to continue, true if you want to disable
+     */
+    [[nodiscard]] virtual bool CanCreatureGossipHello(Player* /*player*/, Creature* /*creature*/) { return false; }
+
+    /**
+     * @brief This hook called when a player selects a gossip item in the creature's gossip menu.
+     *
+     * @param player Contains information about the Player
+     * @param creature Contains information about the Creature
+     * @param sender Contains information about the sender type
+     * @param action Contains information about the action id
+     *
+     * @return False if you want to continue, true if you want to disable
+     */
+    [[nodiscard]] virtual bool CanCreatureGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+
+    /**
+     * @brief This hook called when a player selects a gossip with a code in the creature's gossip menu.
+     *
+     * @param player Contains information about the Player
+     * @param creature Contains information about the Creature
+     * @param sender Contains information about the sender type
+     * @param action Contains information about the action id
+     * @param code Contains information about the code entered
+     *
+     * @return True if you want to continue, false if you want to disable
+     */
+    [[nodiscard]] virtual bool CanCreatureGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+
+    // Called when a player accepts a quest from the creature.
+    [[nodiscard]] virtual bool CanCreatureQuestAccept(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/) { return false; }
+
+    // Called when a player selects a quest reward.
+    [[nodiscard]] virtual bool CanCreatureQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+
+    // Called when a CreatureAI object is needed for the creature.
+    [[nodiscard]] virtual CreatureAI* GetCreatureAI(Creature* /*creature*/) const { return nullptr; }
+};
+
+class WH_GAME_API AllItemScript : public ScriptObject
+{
+protected:
+    AllItemScript(const char* name);
+
+public:
+    // Called when a player accepts a quest from the item.
+    [[nodiscard]] virtual bool CanItemQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return true; }
+
+    // Called when a player uses the item.
+    [[nodiscard]] virtual bool CanItemUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
+
+    // Called when the item is destroyed.
+    [[nodiscard]] virtual bool CanItemRemove(Player* /*player*/, Item* /*item*/) { return true; }
+
+    // Called when the item expires (is destroyed).
+    [[nodiscard]] virtual bool CanItemExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return true; }
+
+    // Called when a player selects an option in an item gossip window
+    virtual void OnItemGossipSelect(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/) { }
+
+    // Called when a player selects an option in an item gossip window
+    virtual void OnItemGossipSelectCode(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
+};
+
+class WH_GAME_API AllGameObjectScript : public ScriptObject
+{
+protected:
+    AllGameObjectScript(const char* name);
+
+public:
+    /**
+     * @brief This hook runs after add game object in world
+     *
+     * @param go Contains information about the GameObject
+     */
+    virtual void OnGameObjectAddWorld(GameObject* /*go*/) { }
+
+    /**
+     * @brief This hook runs after remove game object in world
+     *
+     * @param go Contains information about the GameObject
+     */
+    virtual void OnGameObjectRemoveWorld(GameObject* /*go*/) { }
+
+    /**
+     * @brief This hook runs after remove game object in world
+     *
+     * @param go Contains information about the GameObject
+     */
+    virtual void OnGameObjectUpdate(GameObject* /*go*/, uint32 /*diff*/) { }
+
+    // Called when a player opens a gossip dialog with the gameobject.
+    [[nodiscard]] virtual bool CanGameObjectGossipHello(Player* /*player*/, GameObject* /*go*/) { return false; }
+
+    // Called when a player selects a gossip item in the gameobject's gossip menu.
+    [[nodiscard]] virtual bool CanGameObjectGossipSelect(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
+
+    // Called when a player selects a gossip with a code in the gameobject's gossip menu.
+    [[nodiscard]] virtual bool CanGameObjectGossipSelectCode(Player* /*player*/, GameObject* /*go*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+
+    // Called when a player accepts a quest from the gameobject.
+    [[nodiscard]] virtual bool CanGameObjectQuestAccept(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/) { return false; }
+
+    // Called when a player selects a quest reward.
+    [[nodiscard]] virtual bool CanGameObjectQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+
+    // Called when the game object is destroyed (destructible buildings only).
+    virtual void OnGameObjectDestroyed(GameObject* /*go*/, Player* /*player*/) { }
+
+    // Called when the game object is damaged (destructible buildings only).
+    virtual void OnGameObjectDamaged(GameObject* /*go*/, Player* /*player*/) { }
+
+    // Called when the game object loot state is changed.
+    virtual void OnGameObjectLootStateChanged(GameObject* /*go*/, uint32 /*state*/, Unit* /*unit*/) { }
+
+    // Called when the game object state is changed.
+    virtual void OnGameObjectStateChanged(GameObject* /*go*/, uint32 /*state*/) { }
+
+    // Called when a GameObjectAI object is needed for the gameobject.
+    virtual GameObjectAI* GetGameObjectAI(GameObject* /*go*/) const { return nullptr; }
 };
 
 class WH_GAME_API CreatureScript : public ScriptObject, public UpdatableScript<Creature>
@@ -574,20 +716,6 @@ public:
 
     // Called when a CreatureAI object is needed for the creature.
     virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
-
-    /**
-     * @brief This hook runs after add creature in world
-     *
-     * @param creature Contains information about the Creature
-     */
-    virtual void OnCreatureAddWorld(Creature* /*creature*/) { }
-
-    /**
-     * @brief This hook runs after remove creature in world
-     *
-     * @param creature Contains information about the Creature
-     */
-    virtual void OnCreatureRemoveWorld(Creature* /*creature*/) { }
 };
 
 class WH_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -630,20 +758,6 @@ public:
 
     // Called when a GameObjectAI object is needed for the gameobject.
     virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return nullptr; }
-
-    /**
-     * @brief This hook runs after add game object in world
-     *
-     * @param go Contains information about the GameObject
-     */
-    virtual void OnGameObjectAddWorld(GameObject* /*go*/) { }
-
-    /**
-     * @brief This hook runs after remove game object in world
-     *
-     * @param go Contains information about the GameObject
-     */
-    virtual void OnGameObjectRemoveWorld(GameObject* /*go*/) { }
 };
 
 class WH_GAME_API AreaTriggerScript : public ScriptObject
@@ -658,7 +772,7 @@ public:
     [[nodiscard]] virtual bool OnTrigger(Player* /*player*/, AreaTrigger const* /*trigger*/) { return false; }
 };
 
-class OnlyOnceAreaTriggerScript : public AreaTriggerScript
+class WH_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
 {
     using AreaTriggerScript::AreaTriggerScript;
 
@@ -968,7 +1082,7 @@ public:
     virtual void OnAddToBattleground(Player* /*player*/, Battleground* /*bg*/) { }
 
     // Called when a player queues a Random Dungeon using the RDF (Random Dungeon Finder)
-    virtual void OnQueueRandomDungeon(Player* /*player*/, uint32 & /*rDungeonId*/) { }
+    virtual void OnQueueRandomDungeon(Player* /*player*/, uint32& /*rDungeonId*/) { }
 
     // Called when a player is removed from battleground
     virtual void OnRemoveFromBattleground(Player* /*player*/, Battleground* /*bg*/) { }
@@ -1411,7 +1525,7 @@ public:
     virtual void OnBeforeUpdateArenaPoints(ArenaTeam* /*at*/, std::map<ObjectGuid, uint32>& /*ap*/) { }
 
     // Called when a dungeon encounter is updated.
-    virtual void OnAfterUpdateEncounterState(Map* /*map*/, EncounterCreditType /*type*/,  uint32 /*creditEntry*/, Unit* /*source*/, Difficulty /*difficulty_fixed*/, DungeonEncounterList const* /*encounters*/, uint32 /*dungeonCompleted*/, bool /*updated*/) { }
+    virtual void OnAfterUpdateEncounterState(Map* /*map*/, EncounterCreditType /*type*/, uint32 /*creditEntry*/, Unit* /*source*/, Difficulty /*difficulty_fixed*/, DungeonEncounterList const* /*encounters*/, uint32 /*dungeonCompleted*/, bool /*updated*/) { }
 
     // Called before the phase for a WorldObject is set
     virtual void OnBeforeWorldObjectSetPhaseMask(WorldObject const* /*worldObject*/, uint32& /*oldPhaseMask*/, uint32& /*newPhaseMask*/, bool& /*useCombinedPhases*/, bool& /*update*/) { }
@@ -1610,7 +1724,7 @@ public:
     virtual void OnBeforeMailDraftSendMailTo(MailDraft* /*mailDraft*/, MailReceiver const& /*receiver*/, MailSender const& /*sender*/, MailCheckMask& /*checked*/, uint32& /*deliver_delay*/, uint32& /*custom_expiration*/, bool& /*deleteMailItemsFromDB*/, bool& /*sendMail*/) { }
 };
 
-class AchievementScript : public ScriptObject
+class WH_GAME_API AchievementScript : public ScriptObject
 {
 protected:
 
@@ -1632,7 +1746,7 @@ public:
     [[nodiscard]] virtual bool CanCheckCriteria(AchievementMgr* /*mgr*/, AchievementCriteriaEntry const* /*achievementCriteria*/) { return true; }
 };
 
-class PetScript : public ScriptObject
+class WH_GAME_API PetScript : public ScriptObject
 {
 protected:
 
@@ -1660,7 +1774,7 @@ public:
     virtual void OnPetAddToWorld(Pet* /*pet*/) { }
 };
 
-class ArenaScript : public ScriptObject
+class WH_GAME_API ArenaScript : public ScriptObject
 {
 protected:
 
@@ -1677,7 +1791,7 @@ public:
     [[nodiscard]] virtual bool CanSaveToDB(ArenaTeam* /*team*/) { return true; }
 };
 
-class MiscScript : public ScriptObject
+class WH_GAME_API MiscScript : public ScriptObject
 {
 protected:
 
@@ -1730,7 +1844,7 @@ public:
     virtual void GetDialogStatus(Player* /*player*/, Object* /*questgiver*/) { }
 };
 
-class CommandSC : public ScriptObject
+class WH_GAME_API CommandSC : public ScriptObject
 {
 protected:
 
@@ -1751,7 +1865,7 @@ public:
     [[nodiscard]] virtual bool CanExecuteCommand(ChatHandler& /*handler*/, std::string_view /*cmdStr*/) { return true; }
 };
 
-class DatabaseScript : public ScriptObject
+class WH_GAME_API DatabaseScript : public ScriptObject
 {
 protected:
 
@@ -1764,7 +1878,7 @@ public:
     virtual void OnAfterDatabasesLoaded(uint32 /*updateFlags*/) { }
 };
 
-class WorldObjectScript : public ScriptObject
+class WH_GAME_API WorldObjectScript : public ScriptObject
 {
 protected:
 
@@ -1811,7 +1925,7 @@ public:
     virtual void OnWorldObjectUpdate(WorldObject* /*object*/, uint32 /*diff*/) { }
 };
 
-class LootScript : public ScriptObject
+class WH_GAME_API LootScript : public ScriptObject
 {
 protected:
 
@@ -1830,50 +1944,24 @@ public:
     virtual void OnLootMoney(Player* /*player*/, uint32 /*gold*/) { }
 };
 
-class ElunaScript : public ScriptObject
+class WH_GAME_API ElunaScript : public ScriptObject
 {
 protected:
 
     ElunaScript(const char* name);
 
 public:
-
-    bool IsDatabaseBound() const { return false; }
-
     /**
-     * @brief This hook called when a player opens a gossip dialog with the creature.
+     * @brief This hook called when the weather changes in the zone this script is associated with.
      *
-     * @param player Contains information about the Player
-     * @param creature Contains information about the Creature
-     *
-     * @return False if you want to continue, true if you want to disable
+     * @param weather Contains information about the Weather
+     * @param state Contains information about the WeatherState
+     * @param grade Contains information about the grade
      */
-    [[nodiscard]] virtual bool OnGossipHello(Player* /*player*/, Creature* /*creature*/) { return false; }
+    virtual void OnWeatherChange(Weather* /*weather*/, WeatherState /*state*/, float /*grade*/) { }
 
-    /**
-     * @brief This hook called when a player selects a gossip item in the creature's gossip menu.
-     *
-     * @param player Contains information about the Player
-     * @param creature Contains information about the Creature
-     * @param sender Contains information about the sender type
-     * @param action Contains information about the action id
-     *
-     * @return False if you want to continue, true if you want to disable
-     */
-    [[nodiscard]] virtual bool OnGossipSelect(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
-
-    /**
-     * @brief This hook called when a player selects a gossip with a code in the creature's gossip menu.
-     *
-     * @param player Contains information about the Player
-     * @param creature Contains information about the Creature
-     * @param sender Contains information about the sender type
-     * @param action Contains information about the action id
-     * @param code Contains information about the code entered
-     *
-     * @return True if you want to continue, false if you want to disable
-     */
-    [[nodiscard]] virtual bool OnGossipSelectCode(Player* /*player*/, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { return false; }
+    // Called when the area trigger is activated by a player.
+    [[nodiscard]] virtual bool CanAreaTrigger(Player* /*player*/, AreaTrigger const* /*trigger*/) { return false; }
 };
 
 // Manages registration, loading, and execution of scripts.
@@ -2470,27 +2558,27 @@ private:
 template <class AI>
 class GenericCreatureScript : public CreatureScript
 {
-    public:
-        GenericCreatureScript(char const* name) : CreatureScript(name) { }
-        CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
+public:
+    GenericCreatureScript(char const* name) : CreatureScript(name) { }
+    CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
 };
 #define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
 
-template <class AI, AI*(*AIFactory)(Creature*)>
+template <class AI, AI* (*AIFactory)(Creature*)>
 class FactoryCreatureScript : public CreatureScript
 {
-    public:
-        FactoryCreatureScript(char const* name) : CreatureScript(name) { }
-        CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
+public:
+    FactoryCreatureScript(char const* name) : CreatureScript(name) { }
+    CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
 };
 #define RegisterCreatureAIWithFactory(ai_name, factory_fn) new FactoryCreatureScript<ai_name, &factory_fn>(#ai_name)
 
 template <class AI>
 class GenericGameObjectScript : public GameObjectScript
 {
-    public:
-        GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
-        GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
+public:
+    GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+    GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
 };
 #define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
 
@@ -2535,7 +2623,7 @@ public:
 
     static void AddALScripts()
     {
-        for(ScriptVectorIterator it = ALScripts.begin(); it != ALScripts.end(); ++it)
+        for (ScriptVectorIterator it = ALScripts.begin(); it != ALScripts.end(); ++it)
         {
             TScript* const script = *it;
 

@@ -16,7 +16,6 @@
  */
 
 #include "Chat.h"
-#include "Config.h"
 #include "ElunaEventMgr.h"
 #include "Log.h"
 #include "LuaEngine.h"
@@ -24,29 +23,214 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
-#include <unordered_map>
 
-//namespace
-//{
-//    std::unordered_map<WorldObject*, ElunaEventProcessor*> _elunaEventsMap;
-//
-//    ElunaEventProcessor* GetElunaEvents(WorldObject* object)
-//    {
-//        auto const& itr = _elunaEventsMap.find(object);
-//        return itr != _elunaEventsMap.end() ? itr->second : nullptr;
-//    }
-//
-//    void AddElunaEvents(WorldObject* object, ElunaEventProcessor* elunaEvent)
-//    {
-//        auto const& itr = _elunaEventsMap.find(object);
-//        if (itr != _elunaEventsMap.end())
-//        {
-//            _elunaEventsMap.erase(object);
-//        }
-//
-//        _elunaEventsMap.emplace(object, elunaEvent);
-//    }
-//}
+class Eluna_AllCreatureScript : public AllCreatureScript
+{
+public:
+    Eluna_AllCreatureScript() : AllCreatureScript("Eluna_AllCreatureScript") { }
+
+    // Creature
+    bool CanCreatureGossipHello(Player* player, Creature* creature) override
+    {
+        if (sEluna->OnGossipHello(player, creature))
+            return true;
+
+        return false;
+    }
+
+    bool CanCreatureGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+    {
+        if (sEluna->OnGossipSelect(player, creature, sender, action))
+            return true;
+
+        return false;
+    }
+
+    bool CanCreatureGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code) override
+    {
+        if (sEluna->OnGossipSelectCode(player, creature, sender, action, code))
+            return true;
+
+        return false;
+    }
+
+    void OnCreatureAddWorld(Creature* creature) override
+    {
+        sEluna->OnAddToWorld(creature);
+
+        if (creature->IsGuardian() && creature->ToTempSummon() && creature->ToTempSummon()->GetSummonerGUID().IsPlayer())
+            sEluna->OnPetAddedToWorld(creature->ToTempSummon()->GetSummonerUnit()->ToPlayer(), creature);
+    }
+
+    void OnCreatureRemoveWorld(Creature* creature) override
+    {
+        sEluna->OnRemoveFromWorld(creature);
+    }
+
+    bool CanCreatureQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    {
+        sEluna->OnQuestAccept(player, creature, quest);
+        return false;
+    }
+
+    bool CanCreatureQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) override
+    {
+        if (sEluna->OnQuestReward(player, creature, quest, opt))
+        {
+            ClearGossipMenuFor(player);
+            return true;
+        }
+
+        return false;
+    }
+
+    CreatureAI* GetCreatureAI(Creature* creature) const override
+    {
+        if (CreatureAI* luaAI = sEluna->GetAI(creature))
+            return luaAI;
+
+        return nullptr;
+    }
+};
+
+class Eluna_AllGameObjectScript : public AllGameObjectScript
+{
+public:
+    Eluna_AllGameObjectScript() : AllGameObjectScript("Eluna_AllGameObjectScript") { }
+
+    void OnGameObjectAddWorld(GameObject* go) override
+    {
+        sEluna->OnAddToWorld(go);
+    }
+
+    void OnGameObjectRemoveWorld(GameObject* go) override
+    {
+        sEluna->OnRemoveFromWorld(go);
+    }
+
+    void OnGameObjectUpdate(GameObject* go, uint32 diff) override
+    {
+        sEluna->UpdateAI(go, diff);
+    }
+
+    bool CanGameObjectGossipHello(Player* player, GameObject* go) override
+    {
+        if (sEluna->OnGossipHello(player, go))
+            return true;
+
+        if (sEluna->OnGameObjectUse(player, go))
+            return true;
+
+        return false;
+    }
+
+    void OnGameObjectDamaged(GameObject* go, Player* player) override
+    {
+        sEluna->OnDamaged(go, player);
+    }
+
+    void OnGameObjectDestroyed(GameObject* go, Player* player) override
+    {
+        sEluna->OnDestroyed(go, player);
+    }
+
+    void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
+    {
+        sEluna->OnLootStateChanged(go, state);
+    }
+
+    void OnGameObjectStateChanged(GameObject* go, uint32 state) override
+    {
+        sEluna->OnGameObjectStateChanged(go, state);
+    }
+
+    bool CanGameObjectQuestAccept(Player* player, GameObject* go, Quest const* quest) override
+    {
+        sEluna->OnQuestAccept(player, go, quest);
+        return false;
+    }
+
+    bool CanGameObjectGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
+    {
+        if (sEluna->OnGossipSelect(player, go, sender, action))
+            return true;
+
+        return false;
+    }
+
+    bool CanGameObjectGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code) override
+    {
+        if (sEluna->OnGossipSelectCode(player, go, sender, action, code))
+            return true;
+
+        return false;
+    }
+
+    bool CanGameObjectQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) override
+    {
+        if (sEluna->OnQuestAccept(player, go, quest))
+            return false;
+
+        if (sEluna->OnQuestReward(player, go, quest, opt))
+            return false;
+
+        return true;
+    }
+
+    GameObjectAI* GetGameObjectAI(GameObject* go) const override
+    {
+        sEluna->OnSpawn(go);
+        return nullptr;
+    }
+};
+
+class Eluna_AllItemScript : public AllItemScript
+{
+public:
+    Eluna_AllItemScript() : AllItemScript("Eluna_AllItemScript") { }
+
+    bool CanItemQuestAccept(Player* player, Item* item, Quest const* quest) override
+    {
+        if (sEluna->OnQuestAccept(player, item, quest))
+            return false;
+
+        return true;
+    }
+
+    bool CanItemUse(Player* player, Item* item, SpellCastTargets const& targets) override
+    {
+        if (!sEluna->OnUse(player, item, targets))
+            return true;
+
+        return false;
+    }
+
+    bool CanItemExpire(Player* player, ItemTemplate const* proto) override
+    {
+        if (sEluna->OnExpire(player, proto))
+            return false;
+
+        return true;
+    }
+
+    bool CanItemRemove(Player* player, Item* item) override
+    {
+        if (sEluna->OnRemove(player, item))
+            return false;
+
+        return true;
+    }
+
+    void OnItemGossipSelect(Player* player, Item* item, uint32 sender, uint32 action) override
+    {
+        sEluna->HandleGossipSelectOption(player, item, sender, action, "");
+    }
+
+    void OnItemGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code) override
+    {
+        sEluna->HandleGossipSelectOption(player, item, sender, action, code);
+    }
+};
 
 class Eluna_AllMapScript : public AllMapScript
 {
@@ -86,20 +270,6 @@ public:
     void OnMapUpdate(Map* map, uint32 diff) override
     {
         sEluna->OnUpdate(map, diff);
-    }
-};
-
-class Eluna_AreaTriggerScript : public AreaTriggerScript
-{
-public:
-    Eluna_AreaTriggerScript() : AreaTriggerScript("Eluna_AreaTriggerScript") { }
-
-    bool OnTrigger(Player* player, AreaTrigger const* trigger) override
-    {
-        if (sEluna->OnAreaTrigger(player, trigger))
-            return false;
-
-        return true;
     }
 };
 
@@ -171,47 +341,24 @@ public:
     }
 };
 
-class Eluna_CreatureScript : public CreatureScript
+class Eluna_ElunaScript : public ElunaScript
 {
 public:
-    Eluna_CreatureScript() : CreatureScript("Eluna_CreatureScript") { }
+    Eluna_ElunaScript() : ElunaScript("Eluna_ElunaScript") { }
 
-    void OnCreatureAddWorld(Creature* creature) override
+    // Weather
+    void OnWeatherChange(Weather* weather, WeatherState state, float grade) override
     {
-        sEluna->OnAddToWorld(creature);
-
-        if (creature->IsGuardian() && creature->ToTempSummon() && creature->ToTempSummon()->GetSummonerGUID().IsPlayer())
-            sEluna->OnPetAddedToWorld(creature->ToTempSummon()->GetSummonerUnit()->ToPlayer(), creature);
+        sEluna->OnChange(weather, weather->GetZone(), state, grade);
     }
 
-    void OnCreatureRemoveWorld(Creature* creature) override
+    // AreaTriger
+    bool CanAreaTrigger(Player* player, AreaTrigger const* trigger) override
     {
-        sEluna->OnRemoveFromWorld(creature);
-    }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        sEluna->OnQuestAccept(player, creature, quest);
-        return false;
-    }
-
-    bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) override
-    {
-        if (sEluna->OnQuestReward(player, creature, quest, opt))
-        {
-            ClearGossipMenuFor(player);
+        if (sEluna->OnAreaTrigger(player, trigger))
             return false;
-        }
 
         return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        if (CreatureAI* luaAI = sEluna->GetAI(creature))
-            return luaAI;
-
-        return nullptr;
     }
 };
 
@@ -228,100 +375,6 @@ public:
     void OnEventStop(uint16 eventID)
     {
         sEluna->OnGameEventStop(eventID);
-    }
-};
-
-class Eluna_GameObjectScript : public GameObjectScript
-{
-public:
-    Eluna_GameObjectScript() : GameObjectScript("Eluna_GameObjectScript") { }
-
-    void OnGameObjectAddWorld(GameObject* go) override
-    {
-        sEluna->OnAddToWorld(go);
-    }
-
-    void OnGameObjectRemoveWorld(GameObject* go) override
-    {
-        sEluna->OnRemoveFromWorld(go);
-    }
-
-    void OnUpdate(GameObject* go, uint32 diff) override
-    {
-        /*if (auto elunaEvents = GetElunaEvents(go))
-            elunaEvents->Update(diff);*/
-
-        sEluna->UpdateAI(go, diff);
-    }
-
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (sEluna->OnGossipHello(player, go))
-            return true;
-
-        if (sEluna->OnGameObjectUse(player, go))
-            return true;
-
-        return false;
-    }
-
-    void OnDamaged(GameObject* go, Player* player) override
-    {
-        sEluna->OnDamaged(go, player);
-    }
-
-    void OnDestroyed(GameObject* go, Player* player) override
-    {
-        sEluna->OnDestroyed(go, player);
-    }
-
-    void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
-    {
-        sEluna->OnLootStateChanged(go, state);
-    }
-
-    void OnGameObjectStateChanged(GameObject* go, uint32 state) override
-    {
-        sEluna->OnGameObjectStateChanged(go, state);
-    }
-
-    bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest) override
-    {
-        sEluna->OnQuestAccept(player, go, quest);
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
-    {
-        if (sEluna->OnGossipSelect(player, go, sender, action))
-            return true;
-
-        return false;
-    }
-
-    bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code) override
-    {
-        if (sEluna->OnGossipSelectCode(player, go, sender, action, code))
-            return true;
-
-        return false;
-    }
-
-    bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) override
-    {
-        if (sEluna->OnQuestAccept(player, go, quest))
-            return false;
-
-        if (sEluna->OnQuestReward(player, go, quest, opt))
-            return false;
-
-        return true;
-    }
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        sEluna->OnSpawn(go);
-        return nullptr;
     }
 };
 
@@ -415,54 +468,6 @@ public:
     void OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId) override
     {
         sEluna->OnBankEvent(guild, eventType, tabId, playerGuid, itemOrMoney, itemStackCount, destTabId);
-    }
-};
-
-class Eluna_ItemScript : public ItemScript
-{
-public:
-    Eluna_ItemScript() : ItemScript("Eluna_ItemScript") { }
-
-    bool OnQuestAccept(Player* player, Item* item, Quest const* quest) override
-    {
-        if (sEluna->OnQuestAccept(player, item, quest))
-            return false;
-
-        return true;
-    }
-
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets) override
-    {
-        if (!sEluna->OnUse(player, item, targets))
-            return true;
-
-        return false;
-    }
-
-    bool OnExpire(Player* player, ItemTemplate const* proto) override
-    {
-        if (sEluna->OnExpire(player, proto))
-            return false;
-
-        return true;
-    }
-
-    bool OnRemove(Player* player, Item* item) override
-    {
-        if (sEluna->OnRemove(player, item))
-            return false;
-
-        return true;
-    }
-
-    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action) override
-    {
-        sEluna->HandleGossipSelectOption(player, item, sender, action, "");
-    }
-
-    void OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code) override
-    {
-        sEluna->HandleGossipSelectOption(player, item, sender, action, code);
     }
 };
 
@@ -778,9 +783,6 @@ public:
 
     void OnUnitUpdate(Unit* unit, uint32 diff) override
     {
-        /*if (auto elunaEvents = GetElunaEvents(unit))
-            elunaEvents->Update(diff);*/
-
         unit->elunaEvents->Update(diff);
     }
 };
@@ -816,17 +818,6 @@ public:
     }
 };
 
-class Eluna_WeatherScript : public WeatherScript
-{
-public:
-    Eluna_WeatherScript() : WeatherScript("Eluna_WeatherScript") { }
-
-    void OnChange(Weather* weather, WeatherState state, float grade) override
-    {
-        sEluna->OnChange(weather, weather->GetZone(), state, grade);
-    }
-};
-
 class Eluna_WorldObjectScript : public WorldObjectScript
 {
 public:
@@ -834,50 +825,31 @@ public:
 
     void OnWorldObjectDestroy(WorldObject* object) override
     {
-        /*if (auto elunaEvents = GetElunaEvents(object))
-            delete elunaEvents;
-
-        AddElunaEvents(object, nullptr);*/
-
         delete object->elunaEvents;
         object->elunaEvents = nullptr;
     }
 
     void OnWorldObjectCreate(WorldObject* object) override
     {
-        //AddElunaEvents(object, nullptr);
         object->elunaEvents = nullptr;
     }
 
     void OnWorldObjectSetMap(WorldObject* object, Map* /*map*/) override
     {
-        //if (auto elunaEvents = GetElunaEvents(object))
-        //    delete elunaEvents;
-
-        //// On multithread replace this with a pointer to map's Eluna pointer stored in a map
-        //AddElunaEvents(object, new ElunaEventProcessor(&Eluna::GEluna, object));
-
         delete object->elunaEvents;
+
         // On multithread replace this with a pointer to map's Eluna pointer stored in a map
         object->elunaEvents = new ElunaEventProcessor(&Eluna::GEluna, object);
     }
 
     void OnWorldObjectResetMap(WorldObject* object) override
     {
-        /*if (auto elunaEvents = GetElunaEvents(object))
-            delete elunaEvents;
-
-        AddElunaEvents(object, nullptr);*/
-
         delete object->elunaEvents;
         object->elunaEvents = nullptr;
     }
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override
     {
-        /*if (auto elunaEvents = GetElunaEvents(object))
-            elunaEvents->Update(diff);*/
-
         object->elunaEvents->Update(diff);
     }
 };
@@ -944,50 +916,20 @@ public:
     }
 };
 
-class Eluna_ElunaScript : public ElunaScript
-{
-public:
-    Eluna_ElunaScript() : ElunaScript("Eluna_ElunaScript") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (sEluna->OnGossipHello(player, creature))
-            return true;
-
-        return false;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
-    {
-        if (sEluna->OnGossipSelect(player, creature, sender, action))
-            return true;
-
-        return false;
-    }
-
-    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code) override
-    {
-        if (sEluna->OnGossipSelectCode(player, creature, sender, action, code))
-            return true;
-
-        return false;
-    }
-};
-
 // Group all custom scripts
 void AddSC_ElunaLuaEngine()
 {
+    new Eluna_AllCreatureScript();
+    new Eluna_AllGameObjectScript();
+    new Eluna_AllItemScript();
     new Eluna_AllMapScript();
-    new Eluna_AreaTriggerScript();
     new Eluna_AuctionHouseScript();
     new Eluna_BGScript();
     new Eluna_CommandSC();
-    new Eluna_CreatureScript();
+    new Eluna_ElunaScript();
     new Eluna_GameEventScript();
-    new Eluna_GameObjectScript();
     new Eluna_GroupScript();
     new Eluna_GuildScript();
-    new Eluna_ItemScript();
     new Eluna_LootScript();
     new Eluna_MiscScript();
     new Eluna_PetScript();
@@ -996,8 +938,6 @@ void AddSC_ElunaLuaEngine()
     new Eluna_SpellSC();
     new Eluna_UnitScript();
     new Eluna_VehicleScript();
-    new Eluna_WeatherScript();
     new Eluna_WorldObjectScript();
     new Eluna_WorldScript();
-    new Eluna_ElunaScript();
 }

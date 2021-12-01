@@ -660,6 +660,16 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     ASSERT(item);
     ASSERT(quest);
 
+    bool ret = true;
+    FOR_SCRIPTS_RET(AllItemScript, itr, end, ret) // return true by default if not scripts
+        if (!itr->second->CanItemQuestAccept(player, item, quest))
+            ret = false; // we change ret value only when scripts return false
+
+    if (!ret)
+    {
+        return false;
+    }
+
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
     return tmpscript->OnQuestAccept(player, item, quest);
@@ -670,6 +680,16 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(player);
     ASSERT(item);
 
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllItemScript, itr, end, ret) // return true by default if not scripts
+        if (itr->second->CanItemUse(player, item, targets))
+            ret = true; // we change ret value only when scripts return false
+
+    if (ret)
+    {
+        return true;
+    }
+
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     return tmpscript->OnUse(player, item, targets);
 }
@@ -679,6 +699,16 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
     ASSERT(player);
     ASSERT(proto);
 
+    bool ret = true;
+    FOR_SCRIPTS_RET(AllItemScript, itr, end, ret) // return true by default if not scripts
+        if (!itr->second->CanItemExpire(player, proto))
+            ret = false; // we change ret value only when scripts return false
+
+    if (!ret)
+    {
+        return false;
+    }
+
     GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
     return tmpscript->OnExpire(player, proto);
 }
@@ -687,6 +717,16 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
 {
     ASSERT(player);
     ASSERT(item);
+
+    bool ret = true;
+    FOR_SCRIPTS_RET(AllItemScript, itr, end, ret) // return true by default if not scripts
+        if (!itr->second->CanItemRemove(player, item))
+            ret = false; // we change ret value only when scripts return false
+
+    if (!ret)
+    {
+        return false;
+    }
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     return tmpscript->OnRemove(player, item);
@@ -708,6 +748,8 @@ void ScriptMgr::OnGossipSelect(Player* player, Item* item, uint32 sender, uint32
     ASSERT(player);
     ASSERT(item);
 
+    FOREACH_SCRIPT(AllItemScript)->OnItemGossipSelect(player, item, sender, action);
+
     GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
     tmpscript->OnGossipSelect(player, item, sender, action);
 }
@@ -716,6 +758,8 @@ void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, ui
 {
     ASSERT(player);
     ASSERT(item);
+
+    FOREACH_SCRIPT(AllItemScript)->OnItemGossipSelectCode(player, item, sender, action, code);
 
     GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
     tmpscript->OnGossipSelectCode(player, item, sender, action, code);
@@ -737,12 +781,14 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
     ASSERT(creature);
 
     bool ret = false;
-    FOR_SCRIPTS_RET(ElunaScript, itr, end, ret) // return true by default if not scripts
-        if (itr->second->OnGossipHello(player, creature))
+    FOR_SCRIPTS_RET(AllCreatureScript, itr, end, ret) // return true by default if not scripts
+        if (itr->second->CanCreatureGossipHello(player, creature))
             ret = true; // we change ret value only when scripts return false
 
     if (ret)
+    {
         return true;
+    }
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
@@ -755,12 +801,14 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
     ASSERT(creature);
 
     bool ret = false;
-    FOR_SCRIPTS_RET(ElunaScript, itr, end, ret) // return true by default if not scripts
-        if (itr->second->OnGossipSelect(player, creature, sender, action))
+    FOR_SCRIPTS_RET(AllCreatureScript, itr, end, ret) // return true by default if not scripts
+        if (itr->second->CanCreatureGossipSelect(player, creature, sender, action))
             ret = true; // we change ret value only when scripts return false
 
     if (ret)
+    {
         return true;
+    }
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelect(player, creature, sender, action);
@@ -773,12 +821,14 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
     ASSERT(code);
 
     bool ret = false;
-    FOR_SCRIPTS_RET(ElunaScript, itr, end, ret) // return true by default if not scripts
-        if (itr->second->OnGossipSelectCode(player, creature, sender, action, code))
+    FOR_SCRIPTS_RET(AllCreatureScript, itr, end, ret) // return true by default if not scripts
+        if (itr->second->CanCreatureGossipSelectCode(player, creature, sender, action, code))
             ret = true; // we change ret value only when scripts return false
 
     if (ret)
+    {
         return true;
+    }
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
@@ -789,6 +839,16 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     ASSERT(player);
     ASSERT(creature);
     ASSERT(quest);
+
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllCreatureScript, itr, end, ret) // return true by default if not scripts
+        if (itr->second->CanCreatureQuestAccept(player, creature, quest))
+            ret = true; // we change ret value only when scripts return false
+
+    if (ret)
+    {
+        return true;
+    }
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
@@ -823,6 +883,16 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllCreatureScript, itr, end, ret) // return true by default if not scripts
+        if (itr->second->CanCreatureQuestReward(player, creature, quest, opt))
+            ret = true; // we change ret value only when scripts return false
+
+    if (ret)
+    {
+        return true;
+    }
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
     return tmpscript->OnQuestReward(player, creature, quest, opt);
@@ -842,6 +912,15 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 
+    CreatureAI* ret = nullptr;
+    FOR_SCRIPTS_RET(AllCreatureScript, itr, end, ret) // return true by default if not scripts
+        ret = itr->second->GetCreatureAI(creature); // we change ret value only when scripts return false
+
+    if (ret)
+    {
+        return ret;
+    }
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, nullptr);
     return tmpscript->GetAI(creature);
 }
@@ -859,19 +938,29 @@ void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 void ScriptMgr::OnCreatureAddWorld(Creature* creature)
 {
     ASSERT(creature);
-    FOREACH_SCRIPT(CreatureScript)->OnCreatureAddWorld(creature);
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureAddWorld(creature);
 }
 
 void ScriptMgr::OnCreatureRemoveWorld(Creature* creature)
 {
     ASSERT(creature);
-    FOREACH_SCRIPT(CreatureScript)->OnCreatureRemoveWorld(creature);
+    FOREACH_SCRIPT(AllCreatureScript)->OnCreatureRemoveWorld(creature);
 }
 
 bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
 {
     ASSERT(player);
     ASSERT(go);
+
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllGameObjectScript, itr, end, ret)
+        if (itr->second->CanGameObjectGossipHello(player, go))
+            ret = true;
+
+    if (ret)
+    {
+        return true;
+    }
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
@@ -883,6 +972,16 @@ bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, ui
     ASSERT(player);
     ASSERT(go);
 
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllGameObjectScript, itr, end, ret)
+        if (itr->second->CanGameObjectGossipSelect(player, go, sender, action))
+            ret = true;
+
+    if (ret)
+    {
+        return true;
+    }
+
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelect(player, go, sender, action);
 }
@@ -892,6 +991,16 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender
     ASSERT(player);
     ASSERT(go);
     ASSERT(code);
+
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllGameObjectScript, itr, end, ret)
+        if (itr->second->CanGameObjectGossipSelectCode(player, go, sender, action, code))
+            ret = true;
+
+    if (ret)
+    {
+        return true;
+    }
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, go, sender, action, code);
@@ -903,6 +1012,16 @@ bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllGameObjectScript, itr, end, ret)
+        if (itr->second->CanGameObjectQuestAccept(player, go, quest))
+            ret = true;
+
+    if (ret)
+    {
+        return true;
+    }
+
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
     return tmpscript->OnQuestAccept(player, go, quest);
@@ -913,6 +1032,16 @@ bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest
     ASSERT(player);
     ASSERT(go);
     ASSERT(quest);
+
+    bool ret = false;
+    FOR_SCRIPTS_RET(AllGameObjectScript, itr, end, ret)
+        if (itr->second->CanGameObjectQuestReward(player, go, quest, opt))
+            ret = true;
+
+    if (ret)
+    {
+        return true;
+    }
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     ClearGossipMenuFor(player);
@@ -933,6 +1062,8 @@ void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
 {
     ASSERT(go);
 
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectDestroyed(go, player);
+
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnDestroyed(go, player);
 }
@@ -940,6 +1071,8 @@ void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
 void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
 {
     ASSERT(go);
+
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectDamaged(go, player);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnDamaged(go, player);
@@ -949,6 +1082,8 @@ void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit*
 {
     ASSERT(go);
 
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectLootStateChanged(go, state, unit);
+
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnLootStateChanged(go, state, unit);
 }
@@ -956,6 +1091,8 @@ void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit*
 void ScriptMgr::OnGameObjectStateChanged(GameObject* go, uint32 state)
 {
     ASSERT(go);
+
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectStateChanged(go, state);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnGameObjectStateChanged(go, state);
@@ -965,6 +1102,8 @@ void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 {
     ASSERT(go);
 
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectUpdate(go, diff);
+
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnUpdate(go, diff);
 }
@@ -973,6 +1112,15 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* go)
 {
     ASSERT(go);
 
+    GameObjectAI* ret = nullptr;
+    FOR_SCRIPTS_RET(AllGameObjectScript, itr, end, ret)
+        ret = itr->second->GetGameObjectAI(go);
+
+    if (ret)
+    {
+        return ret;
+    }
+
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, nullptr);
     return tmpscript->GetAI(go);
 }
@@ -980,19 +1128,29 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* go)
 void ScriptMgr::OnGameObjectAddWorld(GameObject* go)
 {
     ASSERT(go);
-    FOREACH_SCRIPT(GameObjectScript)->OnGameObjectAddWorld(go);
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectAddWorld(go);
 }
 
 void ScriptMgr::OnGameObjectRemoveWorld(GameObject* go)
 {
     ASSERT(go);
-    FOREACH_SCRIPT(GameObjectScript)->OnGameObjectRemoveWorld(go);
+    FOREACH_SCRIPT(AllGameObjectScript)->OnGameObjectRemoveWorld(go);
 }
 
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTrigger const* trigger)
 {
     ASSERT(player);
     ASSERT(trigger);
+
+    bool ret = true;
+    FOR_SCRIPTS_RET(ElunaScript, itr, end, ret) // return true by default if not scripts
+        if (!itr->second->CanAreaTrigger(player, trigger))
+            ret = false; // we change ret value only when scripts return false
+
+    if (!ret)
+    {
+        return false;
+    }
 
     GET_SCRIPT_RET(AreaTriggerScript, sObjectMgr->GetAreaTriggerScriptId(trigger->entry), tmpscript, false);
     return tmpscript->OnTrigger(player, trigger);
@@ -1029,6 +1187,8 @@ Warhead::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
 void ScriptMgr::OnWeatherChange(Weather* weather, WeatherState state, float grade)
 {
     ASSERT(weather);
+
+    FOREACH_SCRIPT(ElunaScript)->OnWeatherChange(weather, state, grade);
 
     GET_SCRIPT(WeatherScript, weather->GetScriptId(), tmpscript);
     tmpscript->OnChange(weather, state, grade);
@@ -3449,48 +3609,60 @@ ElunaScript::ElunaScript(const char* name) : ScriptObject(name)
     ScriptRegistry<ElunaScript>::AddScript(this);
 }
 
+AllItemScript::AllItemScript(const char* name) : ScriptObject(name)
+{
+    ScriptRegistry<AllItemScript>::AddScript(this);
+}
+
+AllGameObjectScript::AllGameObjectScript(const char* name) : ScriptObject(name)
+{
+    ScriptRegistry<AllGameObjectScript>::AddScript(this);
+}
+
 // Specialize for each script type class like so:
-template class ScriptRegistry<SpellScriptLoader>;
-template class ScriptRegistry<ServerScript>;
-template class ScriptRegistry<WorldScript>;
-template class ScriptRegistry<FormulaScript>;
-template class ScriptRegistry<WorldMapScript>;
-template class ScriptRegistry<InstanceMapScript>;
-template class ScriptRegistry<BattlegroundMapScript>;
-template class ScriptRegistry<ItemScript>;
-template class ScriptRegistry<CreatureScript>;
-template class ScriptRegistry<GameObjectScript>;
-template class ScriptRegistry<AreaTriggerScript>;
-template class ScriptRegistry<BattlegroundScript>;
-template class ScriptRegistry<OutdoorPvPScript>;
-template class ScriptRegistry<CommandScript>;
-template class ScriptRegistry<WeatherScript>;
-template class ScriptRegistry<AuctionHouseScript>;
-template class ScriptRegistry<ConditionScript>;
-template class ScriptRegistry<VehicleScript>;
-template class ScriptRegistry<DynamicObjectScript>;
-template class ScriptRegistry<TransportScript>;
-template class ScriptRegistry<AchievementCriteriaScript>;
-template class ScriptRegistry<PlayerScript>;
-template class ScriptRegistry<GuildScript>;
-template class ScriptRegistry<GroupScript>;
-template class ScriptRegistry<GlobalScript>;
-template class ScriptRegistry<UnitScript>;
-template class ScriptRegistry<AllCreatureScript>;
-template class ScriptRegistry<AllMapScript>;
-template class ScriptRegistry<MovementHandlerScript>;
-template class ScriptRegistry<BGScript>;
-template class ScriptRegistry<ArenaTeamScript>;
-template class ScriptRegistry<SpellSC>;
-template class ScriptRegistry<AccountScript>;
-template class ScriptRegistry<GameEventScript>;
-template class ScriptRegistry<MailScript>;
-template class ScriptRegistry<AchievementScript>;
-template class ScriptRegistry<MiscScript>;
-template class ScriptRegistry<PetScript>;
-template class ScriptRegistry<ArenaScript>;
-template class ScriptRegistry<CommandSC>;
-template class ScriptRegistry<DatabaseScript>;
-template class ScriptRegistry<WorldObjectScript>;
-template class ScriptRegistry<LootScript>;
-template class ScriptRegistry<ElunaScript>;
+template class WH_GAME_API ScriptRegistry<SpellScriptLoader>;
+template class WH_GAME_API ScriptRegistry<ServerScript>;
+template class WH_GAME_API ScriptRegistry<WorldScript>;
+template class WH_GAME_API ScriptRegistry<FormulaScript>;
+template class WH_GAME_API ScriptRegistry<WorldMapScript>;
+template class WH_GAME_API ScriptRegistry<InstanceMapScript>;
+template class WH_GAME_API ScriptRegistry<BattlegroundMapScript>;
+template class WH_GAME_API ScriptRegistry<ItemScript>;
+template class WH_GAME_API ScriptRegistry<CreatureScript>;
+template class WH_GAME_API ScriptRegistry<GameObjectScript>;
+template class WH_GAME_API ScriptRegistry<AreaTriggerScript>;
+template class WH_GAME_API ScriptRegistry<BattlegroundScript>;
+template class WH_GAME_API ScriptRegistry<OutdoorPvPScript>;
+template class WH_GAME_API ScriptRegistry<CommandScript>;
+template class WH_GAME_API ScriptRegistry<WeatherScript>;
+template class WH_GAME_API ScriptRegistry<AuctionHouseScript>;
+template class WH_GAME_API ScriptRegistry<ConditionScript>;
+template class WH_GAME_API ScriptRegistry<VehicleScript>;
+template class WH_GAME_API ScriptRegistry<DynamicObjectScript>;
+template class WH_GAME_API ScriptRegistry<TransportScript>;
+template class WH_GAME_API ScriptRegistry<AchievementCriteriaScript>;
+template class WH_GAME_API ScriptRegistry<PlayerScript>;
+template class WH_GAME_API ScriptRegistry<GuildScript>;
+template class WH_GAME_API ScriptRegistry<GroupScript>;
+template class WH_GAME_API ScriptRegistry<GlobalScript>;
+template class WH_GAME_API ScriptRegistry<UnitScript>;
+template class WH_GAME_API ScriptRegistry<AllCreatureScript>;
+template class WH_GAME_API ScriptRegistry<AllMapScript>;
+template class WH_GAME_API ScriptRegistry<MovementHandlerScript>;
+template class WH_GAME_API ScriptRegistry<BGScript>;
+template class WH_GAME_API ScriptRegistry<ArenaTeamScript>;
+template class WH_GAME_API ScriptRegistry<SpellSC>;
+template class WH_GAME_API ScriptRegistry<AccountScript>;
+template class WH_GAME_API ScriptRegistry<GameEventScript>;
+template class WH_GAME_API ScriptRegistry<MailScript>;
+template class WH_GAME_API ScriptRegistry<AchievementScript>;
+template class WH_GAME_API ScriptRegistry<MiscScript>;
+template class WH_GAME_API ScriptRegistry<PetScript>;
+template class WH_GAME_API ScriptRegistry<ArenaScript>;
+template class WH_GAME_API ScriptRegistry<CommandSC>;
+template class WH_GAME_API ScriptRegistry<DatabaseScript>;
+template class WH_GAME_API ScriptRegistry<WorldObjectScript>;
+template class WH_GAME_API ScriptRegistry<LootScript>;
+template class WH_GAME_API ScriptRegistry<ElunaScript>;
+template class WH_GAME_API ScriptRegistry<AllItemScript>;
+template class WH_GAME_API ScriptRegistry<AllGameObjectScript>;
