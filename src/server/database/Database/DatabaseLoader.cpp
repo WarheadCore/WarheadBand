@@ -110,7 +110,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
     });
 
     // Populate and update only if updates are enabled for this pool
-    if (updatesEnabledForThis && !sConfigMgr->isDryRun())
+    if (updatesEnabledForThis)
     {
         _populate.push([this, name, &pool]() -> bool
         {
