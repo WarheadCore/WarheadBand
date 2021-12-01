@@ -81,7 +81,7 @@ public:
             { "onlinelist", SEC_CONSOLE,        true,   &HandleAccountOnlineListCommand,    "" },
             { "lock",       SEC_PLAYER,         false,  nullptr, "", accountLockCommandTable   },
             { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable    },
-            { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,      "" }            
+            { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,      "" }
         };
 
         static ChatCommandTable accountCommandTable =
