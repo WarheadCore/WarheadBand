@@ -1,4 +1,4 @@
-name: main
+name: build-with-modules
 on:
   push:
     branches:
@@ -28,7 +28,7 @@ jobs:
         env:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf.sh ON disable
+        run: source ./apps/ci/ci-conf.sh ON static
       - name: Import db
         run: source ./apps/ci/ci-import-db.sh
       - name: Build
