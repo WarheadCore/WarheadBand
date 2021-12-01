@@ -381,12 +381,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                 }
                 break;
             case STATUS_NEVER:
-                LOG_ERROR("network.opcode", "Received not allowed opcode %s from %s",
-                    GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                LOG_ERROR("network.opcode", "Received not allowed opcode {} from {}",
+                    GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
                 break;
             case STATUS_UNHANDLED:
-                LOG_DEBUG("network.opcode", "Received not handled opcode %s from %s",
-                    GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), GetPlayerInfo().c_str());
+                LOG_DEBUG("network.opcode", "Received not handled opcode {} from {}",
+                    GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
                 break;
             }
         }

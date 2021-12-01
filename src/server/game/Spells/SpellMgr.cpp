@@ -2809,7 +2809,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             if ((attributes & SPELL_ATTR0_CU_FORCE_AURA_SAVING) && (attributes & SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED))
             {
-                LOG_ERROR("sql.sql", "Table `spell_custom_attr` attribute1 field has attributes SPELL_ATTR1_CU_FORCE_AURA_SAVING and SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED which cannot stack for spell %u. Both attributes will be ignored.", spellId);
+                LOG_ERROR("sql.sql", "Table `spell_custom_attr` attribute1 field has attributes SPELL_ATTR1_CU_FORCE_AURA_SAVING and SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED which cannot stack for spell {}. Both attributes will be ignored.", spellId);
                 attributes &= ~(SPELL_ATTR0_CU_FORCE_AURA_SAVING | SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED);
             }
 
