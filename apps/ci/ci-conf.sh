@@ -24,6 +24,9 @@ if [[ $ENABLE_CPP_20 -eq 1 ]]; then
   echo "CUSE_CPP_20=ON" >> ./conf/config.sh
 fi
 
+# Start mysql
+sudo systemctl start mysql
+
 case $COMPILER in
 
   # this is in order to use the "default" clang version of the OS, without forcing a specific version
