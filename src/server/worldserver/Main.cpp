@@ -306,7 +306,7 @@ int main(int argc, char** argv)
         sMetric->Unload();
     });
 
-    Acore::Module::SetEnableModulesList(WH_MODULES_LIST);
+    Warhead::Module::SetEnableModulesList(WH_MODULES_LIST);
 
     // Loading modules configs before scripts
     sConfigMgr->LoadModulesConfigs();

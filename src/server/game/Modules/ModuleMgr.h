@@ -22,7 +22,7 @@
 #include <string_view>
 #include <vector>
 
-namespace Acore::Module
+namespace Warhead::Module
 {
     WH_COMMON_API void SetEnableModulesList(std::string_view modulesList);
     WH_COMMON_API std::vector<std::string_view> GetEnableModulesList();

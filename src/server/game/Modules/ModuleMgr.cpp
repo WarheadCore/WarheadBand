@@ -24,12 +24,12 @@ namespace
     std::string_view _modulesList = {};
 }
 
-void Acore::Module::SetEnableModulesList(std::string_view modulesList)
+void Warhead::Module::SetEnableModulesList(std::string_view modulesList)
 {
     _modulesList = modulesList;
 }
 
-std::vector<std::string_view> Acore::Module::GetEnableModulesList()
+std::vector<std::string_view> Warhead::Module::GetEnableModulesList()
 {
     std::vector<std::string_view> _list;
 

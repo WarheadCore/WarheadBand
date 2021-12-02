@@ -224,7 +224,7 @@ public:
 
         handler->SendSysMessage("> List enable modules:");
 
-        for (auto const& modName : Acore::Module::GetEnableModulesList())
+        for (auto const& modName : Warhead::Module::GetEnableModulesList())
         {
             handler->PSendSysMessage("- {}", modName);
         }
