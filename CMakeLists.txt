@@ -59,28 +59,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/conf/config.cmake")
     include(conf/config.cmake)
 endif()
 
-#
-# Loading dyn modules
-#
-
-# add modules and dependencies
-CU_SUBDIRLIST(sub_DIRS  "${CMAKE_SOURCE_DIR}/modules" FALSE FALSE)
-FOREACH(subdir ${sub_DIRS})
-
-    get_filename_component(MODULENAME ${subdir} NAME)
-
-    if (";${DISABLED_AC_MODULES};" MATCHES ";${MODULENAME};")
-        continue()
-    endif()
-
-    STRING(REGEX REPLACE "^${CMAKE_SOURCE_DIR}/" "" subdir_rel ${subdir})
-    if(EXISTS "${subdir}/CMakeLists.txt")
-        add_subdirectory("${subdir_rel}")
-    endif()
-ENDFOREACH()
-
-CU_RUN_HOOK("AFTER_LOAD_CONF")
-
 # build in Release-mode by default if not explicitly set
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo")
@@ -98,11 +76,6 @@ include(GroupSources)
 include(AutoCollect)
 include(ConfigInstall)
 include(PocoMacros)
-
-CU_RUN_HOOK("AFTER_LOAD_CMAKE_MODULES")
-
-# basic packagesearching and setup (further support will be needed, this is a preliminary release!)
-set(ACE_EXPECTED_VERSION 6.0.3)
 
 find_package(PCHSupport)
 find_package(MySQL REQUIRED)
@@ -139,15 +112,11 @@ endif()
 # Loading application sources
 #
 
-CU_RUN_HOOK("BEFORE_SRC_LOAD")
-
 # add core sources
 add_subdirectory(src)
 
 # add modules sources
 add_subdirectory(modules)
-
-CU_RUN_HOOK("AFTER_SRC_LOAD")
 
 if( BUILD_TESTING )
     # we use these flags to get code coverage

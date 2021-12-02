@@ -86,5 +86,3 @@ endif()
 if( USE_COREPCH )
   add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER})
 endif()
-
-CU_RUN_HOOK("AFTER_WORLDSERVER_CMAKE")

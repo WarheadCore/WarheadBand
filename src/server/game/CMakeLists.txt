@@ -9,8 +9,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CU_RUN_HOOK(BEFORE_GAME_LIBRARY)
-
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES
@@ -69,6 +67,4 @@ InstallDynamicLibrary(game)
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(game ${PRIVATE_PCH_HEADER})
-endif ()
-
-CU_RUN_HOOK(AFTER_GAME_LIBRARY)
+endif()
