@@ -1,4 +1,4 @@
-name: main
+name: build-with-modules
 on:
   push:
     branches:
@@ -28,7 +28,7 @@ jobs:
         env:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf.sh ON none
+        run: source ./apps/ci/ci-conf.sh ON static
       - name: Build
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run

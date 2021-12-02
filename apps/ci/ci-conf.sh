@@ -8,6 +8,7 @@ CWARNINGS=ON
 CDEBUG=OFF
 CTYPE=Release
 CSCRIPTS=static
+CMODULES=$2
 CBUILD_TESTING=ON
 CSERVERS=ON
 CTOOLS=ON
@@ -22,6 +23,9 @@ CONFIG_SH
 if [[ $ENABLE_CPP_20 -eq 1 ]]; then
   echo "CUSE_CPP_20=ON" >> ./conf/config.sh
 fi
+
+# Start mysql
+sudo systemctl start mysql
 
 case $COMPILER in
 
