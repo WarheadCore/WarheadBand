@@ -118,10 +118,10 @@ target_compile_definitions(warhead-compile-option-interface
 message(STATUS "MSVC: Disabled POSIX warnings")
 
 # Ignore warnings about INTMAX_MAX
-# target_compile_definitions(warhead-compile-option-interface
-#   INTERFACE
-#     -D__STDC_LIMIT_MACROS)
-# message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
+target_compile_definitions(warhead-compile-option-interface
+  INTERFACE
+    -D__STDC_LIMIT_MACROS)
+message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
 
 # Ignore specific warnings
 # C4351: new behavior: elements of array 'x' will be default initialized
