@@ -100,11 +100,11 @@ include(src/cmake/showoptions.cmake)
 
 add_subdirectory(deps)
 
-if( SERVERS OR TOOLS)
+if (SERVERS OR TOOLS)
     add_subdirectory(src/common)
 endif()
 
-if( TOOLS )
+if (TOOLS)
     add_subdirectory(src/tools)
 endif()
 
