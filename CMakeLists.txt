@@ -56,7 +56,7 @@ include(conf/dist/config.cmake)
 
 # load custom configurations for cmake if exists
 if(EXISTS "${CMAKE_SOURCE_DIR}/conf/config.cmake")
-    include(conf/config.cmake)
+  include(conf/config.cmake)
 endif()
 
 # build in Release-mode by default if not explicitly set
@@ -65,9 +65,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # turn off PCH totally if enabled (hidden setting, mainly for devs)
-if( NOPCH )
-    set(USE_COREPCH 0)
-    set(USE_SCRIPTPCH 0)
+if (NOPCH)
+  set(USE_COREPCH 0)
+  set(USE_SCRIPTPCH 0)
 endif()
 
 include(ConfigureBaseTargets)
@@ -80,12 +80,12 @@ include(PocoMacros)
 find_package(PCHSupport)
 find_package(MySQL REQUIRED)
 
-if(UNIX AND WITH_PERFTOOLS)
-    find_package(Gperftools)
+if (UNIX AND WITH_PERFTOOLS)
+  find_package(Gperftools)
 endif()
 
-if(NOT WITHOUT_GIT)
-    find_package(Git)
+if (NOT WITHOUT_GIT)
+  find_package(Git 1.7)
 endif()
 
 # Find revision ID and hash of the sourcetree
@@ -101,11 +101,11 @@ include(src/cmake/showoptions.cmake)
 add_subdirectory(deps)
 
 if (SERVERS OR TOOLS)
-    add_subdirectory(src/common)
+  add_subdirectory(src/common)
 endif()
 
 if (TOOLS)
-    add_subdirectory(src/tools)
+  add_subdirectory(src/tools)
 endif()
 
 #
