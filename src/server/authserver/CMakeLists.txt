@@ -72,5 +72,3 @@ endif()
 if (USE_COREPCH)
   add_cxx_pch(authserver ${PRIVATE_PCH_HEADER})
 endif()
-
-CU_RUN_HOOK("AFTER_AUTHSERVER_CMAKE")
