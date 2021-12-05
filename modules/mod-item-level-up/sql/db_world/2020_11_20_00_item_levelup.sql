@@ -8,9 +8,9 @@ WHERE `Entry` IN ('ILU_LOCALE_MAX_LEVEL', 'ILU_LOCALE_GET_LEVEL');
 INSERT INTO `string_module` (`Entry`, `Locale`, `Text`)
         VALUES
             -- ruRU
-            ('ILU_LOCALE_MAX_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы уже имеете максимально возможный уровень в игре:|r %u'), ('ILU_LOCALE_GET_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы получили максимальный уровень в игре:|r %u'),
+            ('ILU_LOCALE_MAX_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы уже имеете максимально возможный уровень в игре:|r {}'), ('ILU_LOCALE_GET_LEVEL', 'ruRU', '|cffff0000# |cff00ff00Вы получили максимальный уровень в игре:|r {}'),
             -- enUS
-            ('ILU_LOCALE_MAX_LEVEL', 'enUS', '|cffff0000# |cff00ff00You already have the highest possible level in the game:|r %s'), ('ILU_LOCALE_GET_LEVEL', 'enUS', '|cffff0000# |cff00ff00You got the maximum level in game:|r %s');
+            ('ILU_LOCALE_MAX_LEVEL', 'enUS', '|cffff0000# |cff00ff00You already have the highest possible level in the game:|r {}'), ('ILU_LOCALE_GET_LEVEL', 'enUS', '|cffff0000# |cff00ff00You got the maximum level in game:|r {}');
 
 -- Add item
 SET @ITEM_ID := 113874;

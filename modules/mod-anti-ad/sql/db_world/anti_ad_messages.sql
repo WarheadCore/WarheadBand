@@ -26,7 +26,7 @@ WHERE `Entry` IN ('ANTIAD_LOCALE_SEND_GM_TEXT', 'ANTIAD_LOCALE_SEND_SELF', 'ANTI
 
 INSERT INTO `string_module`
         VALUES
-        ('ANTIAD_LOCALE_SEND_GM_TEXT', 'enUS', '|cFFFF0000[AntiAD]:|r %s |cff6C8CD5wanted to say:|r %s'),
-        ('ANTIAD_LOCALE_SEND_SELF', 'enUS', '|cFFFF0000[AntiAD]:|cff6C8CD5 You chat muted on |r %u |cff6C8CD5minutes.'),
-        ('ANTIAD_LOCALE_SEND_GM_TEXT', 'ruRU', '|cFFFF0000[Антиреклама]:|r %s |cff6C8CD5хотел сказать:|r %s'),
-        ('ANTIAD_LOCALE_SEND_SELF', 'ruRU', '|cFFFF0000[Антиреклама]:|cff6C8CD5 Ваш чат заблокирован на|r %u |cff6C8CD5минут.');
+        ('ANTIAD_LOCALE_SEND_GM_TEXT', 'enUS', '|cFFFF0000[AntiAD]:|r {} |cff6C8CD5wanted to say:|r {}'),
+        ('ANTIAD_LOCALE_SEND_SELF', 'enUS', '|cFFFF0000[AntiAD]:|cff6C8CD5 You chat muted on |r {} |cff6C8CD5minutes.'),
+        ('ANTIAD_LOCALE_SEND_GM_TEXT', 'ruRU', '|cFFFF0000[Антиреклама]:|r {} |cff6C8CD5хотел сказать:|r {}'),
+        ('ANTIAD_LOCALE_SEND_SELF', 'ruRU', '|cFFFF0000[Антиреклама]:|cff6C8CD5 Ваш чат заблокирован на|r {} |cff6C8CD5минут.');
