@@ -44,10 +44,10 @@ namespace
         return foundAuth != std::string_view::npos || foundWorld != std::string_view::npos;
     }
 
-    // Check logging system configs like Appender.* and Logger.*
+    // Check logging system configs like LogChannel.* and Logger.*
     bool IsLoggingSystemOptions(std::string_view optionName)
     {
-        size_t foundAppender = optionName.find("Appender.");
+        size_t foundAppender = optionName.find("LogChannel.");
         size_t foundLogger = optionName.find("Logger.");
 
         return foundAppender != std::string_view::npos || foundLogger != std::string_view::npos;
@@ -82,7 +82,6 @@ namespace
 #ifdef CONFIG_ABORT_INCORRECT_OPTIONS
                 ABORT("> Core can't start if found incorrect options");
 #endif
-
                 return;
             }
         }
