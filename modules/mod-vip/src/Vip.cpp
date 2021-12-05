@@ -53,9 +53,9 @@ namespace
         return itr->second;
     }
 
-    Optional<WarheadVipRates> GetVipRateInfo(uint32 accountID)
+    Optional<WarheadVipRates> GetVipRateInfo(uint8 vipLevel)
     {
-        auto const& itr = storeRates.find(accountID);
+        auto const& itr = storeRates.find(vipLevel);
 
         if (itr == storeRates.end())
             return std::nullopt;
@@ -289,12 +289,12 @@ float Vip::GetRate<VipRate::XP>(Player* player)
     if (!IsVip(player))
         return 1.0f;
 
-    auto level = GetLevel(player);
-    auto accountID = player->GetSession()->GetAccountId();
+    auto const& level = GetLevel(player);
+    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
 
-    auto const& vipRateInfo = GetVipRateInfo(accountID);
     if (!vipRateInfo)
     {
+        auto accountID = player->GetSession()->GetAccountId();
         LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
@@ -308,12 +308,12 @@ float Vip::GetRate<VipRate::Honor>(Player* player)
     if (!IsVip(player))
         return 1.0f;
 
-    auto level = GetLevel(player);
-    auto accountID = player->GetSession()->GetAccountId();
+    auto const& level = GetLevel(player);
+    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
 
-    auto const& vipRateInfo = GetVipRateInfo(accountID);
     if (!vipRateInfo)
     {
+        auto accountID = player->GetSession()->GetAccountId();
         LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
@@ -327,12 +327,12 @@ float Vip::GetRate<VipRate::ArenaPoint>(Player* player)
     if (!IsVip(player))
         return 1.0f;
 
-    auto level = GetLevel(player);
-    auto accountID = player->GetSession()->GetAccountId();
+    auto const& level = GetLevel(player);
+    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
 
-    auto const& vipRateInfo = GetVipRateInfo(accountID);
     if (!vipRateInfo)
     {
+        auto accountID = player->GetSession()->GetAccountId();
         LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
@@ -346,12 +346,12 @@ float Vip::GetRate<VipRate::Reputation>(Player* player)
     if (!IsVip(player))
         return 1.0f;
 
-    auto level = GetLevel(player);
-    auto accountID = player->GetSession()->GetAccountId();
+    auto const& level = GetLevel(player);
+    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
 
-    auto const& vipRateInfo = GetVipRateInfo(accountID);
     if (!vipRateInfo)
     {
+        auto accountID = player->GetSession()->GetAccountId();
         LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
