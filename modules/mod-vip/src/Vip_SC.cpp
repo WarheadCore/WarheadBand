@@ -199,8 +199,8 @@ public:
         if (!sVip->IsVip(player) || !applySickness)
             return;
 
-        if (player->HasSpell(SPELL_RESSURECTION_SICKESS))
-            player->removeSpell(SPELL_RESSURECTION_SICKESS, SPEC_MASK_ALL, false);
+        if (player->HasAura(SPELL_RESSURECTION_SICKESS))
+            player->RemoveAura(SPELL_RESSURECTION_SICKESS);
     }
 
     void OnSpellCast(Player* player, Spell* spell, bool /*skipCheck*/) override
