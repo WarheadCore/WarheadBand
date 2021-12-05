@@ -40,16 +40,23 @@ public:
 
     ChatCommandTable GetCommands() const override
     {
-        static ChatCommandTable arenaCommandTable =
+        static ChatCommandTable vipListCommandTable =
+        {
+            { "rates",      HandleVipListRatesCommand,    SEC_PLAYER,  Console::Yes }
+        };
+
+        static ChatCommandTable vipCommandTable =
         {
             { "add",        HandleVipAddCommand,        SEC_ADMINISTRATOR,  Console::Yes },
             { "delete",     HandleVipDeleteCommand,     SEC_ADMINISTRATOR,  Console::Yes },
-            { "unbind",     HandleVipUnbindCommand,     SEC_PLAYER,         Console::No }
+            { "unbind",     HandleVipUnbindCommand,     SEC_PLAYER,         Console::No },
+            { "info",       HandleVipInfoCommand,       SEC_PLAYER,         Console::Yes },
+            { "list",       vipListCommandTable }
         };
 
         static ChatCommandTable commandTable =
         {
-            { "vip", arenaCommandTable }
+            { "vip", vipCommandTable }
         };
 
         return commandTable;
@@ -130,6 +137,31 @@ public:
 
         handler->PSendSysMessage("> Игрок {} больше не имеет премиум статуса", target->GetName());
 
+        return true;
+    }
+
+    static bool HandleVipInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
+    {
+        if (!target)
+        {
+            handler->PSendSysMessage("> Не указано имя игрока, имя будет выбрано из цели");
+            target = PlayerIdentifier::FromTargetOrSelf(handler);
+        }
+
+        if (!target)
+        {
+            handler->PSendSysMessage("> Не выбрана цель");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        sVip->SendVipInfo(handler, target->GetGUID());
+        return true;
+    }
+
+    static bool HandleVipListRatesCommand(ChatHandler* handler)
+    {
+        sVip->SendVipListRates(handler);
         return true;
     }
 };

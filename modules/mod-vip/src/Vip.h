@@ -22,6 +22,8 @@
 #include <string>
 
 class Player;
+class ChatHandler;
+class ObjectGuid;
 
 enum class VipRate
 {
@@ -61,6 +63,8 @@ public:
     std::string GetDuration(uint32 accountID);
     void RemoveColldown(Player* player, uint32 spellID);
     void UnBindInstances(Player* player);
+    void SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid);
+    void SendVipListRates(ChatHandler* handler);
 
     template<VipRate>
     float GetRate(Player* player);
