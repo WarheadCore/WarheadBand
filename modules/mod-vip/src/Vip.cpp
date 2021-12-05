@@ -366,35 +366,12 @@ std::string Vip::GetDuration(Player* player)
     if (!player)
         return duration;
 
-    auto info = ::GetVipInfo(player->GetSession()->GetAccountId());
-
-    if (!info)
-        return duration;
-
-    auto const& [startTime, endTime, level] = *info;
-
-    duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText);
-
-    return duration;
+    return GetDuration(player->GetSession()->GetAccountId());
 }
 
 std::string Vip::GetDuration(uint32 accountID)
 {
-    std::string duration = "<неизвестно>";
-
-    if (!accountID)
-        return duration;
-
-    auto info = ::GetVipInfo(accountID);
-
-    if (!info)
-        return duration;
-
-    auto const& [startTime, endTime, level] = *info;
-
-    duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText);
-
-    return duration;
+    return ::GetDuration(::GetVipInfo(accountID));
 }
 
 void Vip::RemoveColldown(Player* player, uint32 spellID)
