@@ -74,7 +74,7 @@ private:
     void LoadAccounts();
     void LoadUnbinds();
 
-    void LearnSpells(Player* player);
+    void LearnSpells(Player* player, uint8 vipLevel);
     void UnLearnSpells(Player* player, bool unlearnMount = true);
 };
 

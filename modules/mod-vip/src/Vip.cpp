@@ -183,12 +183,10 @@ bool Vip::Add(uint32 accountID, int64 endTime, uint8 level, bool force /*= false
     LoginDatabase.PExecute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
         accountID, timeNow, endTime, level);
 
-    if (auto targetSession = sWorld->FindSession(accountID))
-        ChatHandler(targetSession).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText));
-
     if (auto player = GetPlayerFromAccount(accountID))
     {
-        LearnSpells(player);
+        ChatHandler(player->GetSession()).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText));
+        LearnSpells(player, level);
     }
 
     return true;
@@ -219,19 +217,19 @@ bool Vip::Delete(uint32 accountID)
 
 void Vip::OnLoginPlayer(Player* player)
 {
-    if (!sVip->IsVip(player))
+    if (!IsVip(player))
         UnLearnSpells(player);
     else
     {
         ChatHandler handler(player->GetSession());
-        uint8 vipLevel = sVip->GetLevel(player);
+        uint8 vipLevel = GetLevel(player);
 
         handler.PSendSysMessage("|cffff0000#|r --");
         handler.PSendSysMessage("|cffff0000#|r |cff00ff00Привет,|r {}!", player->GetName());
         handler.PSendSysMessage("|cffff0000#|r |cff00ff00Ваш уровень премиум аккаунта:|r {}", vipLevel);
-        handler.PSendSysMessage("|cffff0000#|r |cff00ff00Оставшееся время:|r {}", sVip->GetDuration(player));
+        handler.PSendSysMessage("|cffff0000#|r |cff00ff00Оставшееся время:|r {}", GetDuration(player));
 
-        LearnSpells(player);
+        LearnSpells(player, vipLevel);
     }
 }
 
@@ -290,7 +288,7 @@ float Vip::GetRate<VipRate::XP>(Player* player)
         return 1.0f;
 
     auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
+    auto const& vipRateInfo = GetVipRateInfo(level);
 
     if (!vipRateInfo)
     {
@@ -309,7 +307,7 @@ float Vip::GetRate<VipRate::Honor>(Player* player)
         return 1.0f;
 
     auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
+    auto const& vipRateInfo = GetVipRateInfo(level);
 
     if (!vipRateInfo)
     {
@@ -328,7 +326,7 @@ float Vip::GetRate<VipRate::ArenaPoint>(Player* player)
         return 1.0f;
 
     auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
+    auto const& vipRateInfo = GetVipRateInfo(level);
 
     if (!vipRateInfo)
     {
@@ -347,7 +345,7 @@ float Vip::GetRate<VipRate::Reputation>(Player* player)
         return 1.0f;
 
     auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(GetLevel(player));
+    auto const& vipRateInfo = GetVipRateInfo(level);
 
     if (!vipRateInfo)
     {
@@ -614,7 +612,7 @@ void Vip::LoadUnbinds()
     LOG_INFO("server.loading", "");
 }
 
-void Vip::LearnSpells(Player* player)
+void Vip::LearnSpells(Player* player, uint8 vipLevel)
 {
     if (!player)
     {
@@ -622,10 +620,11 @@ void Vip::LearnSpells(Player* player)
         return;
     }
 
-    if (!sVip->IsVip(player))
+    if (!IsVip(player))
+    {
+        LOG_ERROR("modules.vip", "> Vip::LearnSpells: Player {} is no vip", player->GetGUID().ToString());
         return;
-
-    uint8 vipLevel = sVip->GetLevel(player);
+    }
 
     auto mountSpellID = CONF_GET_UINT("VIP.Mount.SpellID");
 
@@ -676,7 +675,6 @@ void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
     }
 
     auto const& vipInfo = GetVipInfo(data->AccountId);
-    auto const& vipRateInfo = GetVipRateInfo(data->AccountId);
 
     handler->PSendSysMessage("# Игрок: {}", data->Name);
 
