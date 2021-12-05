@@ -495,6 +495,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "CreatureFamilyAssistancePeriod",
     "CreatureFamilyFleeDelay",
     "DBC.Locale",
+    "Death.SicknessLevel",
     "DisableWaterBreath",
     "DisconnectToleranceInterval",
     "DungeonAccessRequirements.OptionalStringID",
