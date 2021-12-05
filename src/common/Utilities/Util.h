@@ -21,6 +21,7 @@
 #include "Containers.h"
 #include "Define.h"
 #include "Errors.h"
+#include "Optional.h"
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -69,6 +70,7 @@ private:
 
 WH_COMMON_API int32 MoneyStringToMoney(const std::string& moneyString);
 
+AC_COMMON_API Optional<int32> MoneyStringToMoney(std::string_view moneyString);
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
     if (val == -100.0f)     // prevent set var to zero
