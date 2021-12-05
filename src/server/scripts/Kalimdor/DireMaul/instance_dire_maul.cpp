@@ -17,6 +17,7 @@
 
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "dire_maul.h"
 
 class instance_dire_maul : public InstanceMapScript
