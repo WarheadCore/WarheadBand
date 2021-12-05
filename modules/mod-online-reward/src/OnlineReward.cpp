@@ -34,7 +34,10 @@ OnlineReward* OnlineReward::instance()
 void OnlineReward::InitSystem()
 {
     if (CONF_GET_BOOL("OnlineReward.Enable") && !CONF_GET_BOOL("OnlineReward.PerOnline.Enable") && !CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
+    {
         sGameConfig->SetOption<bool>("OnlineReward.Enable", false);
+        return;
+    }
 
     LoadRewards();
 }
