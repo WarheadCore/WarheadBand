@@ -69,6 +69,9 @@ private:
     void LoadRates();
     void LoadAccounts();
     void LoadUnbinds();
+
+    void LearnSpells(Player* player);
+    void UnLearnSpells(Player* player, bool unlearnMount = true);
 };
 
 #define sVip Vip::Instance()

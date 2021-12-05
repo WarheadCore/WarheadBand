@@ -72,6 +72,33 @@ namespace
 
         return itr->second;
     }
+
+    Player* GetPlayerFromAccount(uint32 accountID)
+    {
+        auto session = sWorld->FindSession(accountID);
+        if (!session)
+            return nullptr;
+
+        auto player = session->GetPlayer();
+        if (!player)
+            return nullptr;
+
+        return player;
+    }
+
+    std::string GetDuration(Optional<WarheadVip> vipInfo)
+    {
+        std::string duration = "<неизвестно>";
+
+        if (!vipInfo)
+            return duration;
+
+        auto const& [startTime, endTime, level] = *vipInfo;
+
+        duration = Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText);
+
+        return duration;
+    }
 }
 
 Vip* Vip::Instance()
@@ -159,6 +186,11 @@ bool Vip::Add(uint32 accountID, int64 endTime, uint8 level, bool force /*= false
     if (auto targetSession = sWorld->FindSession(accountID))
         ChatHandler(targetSession).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString<Seconds>(endTime - GameTime::GetGameTime().count(), TimeOutput::Seconds, TimeFormat::FullText));
 
+    if (auto player = GetPlayerFromAccount(accountID))
+    {
+        LearnSpells(player);
+    }
+
     return true;
 }
 
@@ -177,26 +209,18 @@ bool Vip::Delete(uint32 accountID)
 
     store.erase(accountID);
 
+    if (auto player = GetPlayerFromAccount(accountID))
+    {
+        UnLearnSpells(player);
+    }
+
     return true;
 }
 
 void Vip::OnLoginPlayer(Player* player)
 {
-    auto mountSpellID = CONF_GET_UINT("VIP.Mount.SpellID");
-
     if (!sVip->IsVip(player))
-    {
-        // Mount spells
-        if (player->HasSpell(mountSpellID))
-            player->removeSpell(mountSpellID, SPEC_MASK_ALL, false);
-
-        // Vip spells
-        for (auto const& spellID : vipSpellsStore)
-        {
-            if (player->HasSpell(spellID))
-                player->removeSpell(spellID, SPEC_MASK_ALL, false);
-        }
-    }
+        UnLearnSpells(player);
     else
     {
         ChatHandler handler(player->GetSession());
@@ -207,26 +231,13 @@ void Vip::OnLoginPlayer(Player* player)
         handler.PSendSysMessage("|cffff0000#|r |cff00ff00Ваш уровень премиум аккаунта:|r {}", vipLevel);
         handler.PSendSysMessage("|cffff0000#|r |cff00ff00Оставшееся время:|r {}", sVip->GetDuration(player));
 
-        // Learn mount
-        if (!player->HasSpell(mountSpellID) && vipLevel >= CONF_GET_UINT("VIP.Mount.MinLevel"))
-            player->learnSpell(mountSpellID);
-
-        // Learn vip spells
-        for (auto const& spellID : vipSpellsStore)
-        {
-            if (!player->HasSpell(spellID))
-                player->learnSpell(spellID);
-        }
+        LearnSpells(player);
     }
 }
 
 void Vip::OnLogoutPlayer(Player* player)
 {
-    for (auto const& spellID : vipSpellsStore)
-    {
-        if (player->HasSpell(spellID))
-            player->removeSpell(spellID, SPEC_MASK_ALL, false);
-    }
+    UnLearnSpells(player, false);
 }
 
 void Vip::UnSet(uint32 accountID)
@@ -624,6 +635,109 @@ void Vip::LoadUnbinds()
 
     LOG_INFO("server.loading", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), Warhead::Time::ToTimeString<Milliseconds>(oldMSTime, TimeOutput::Milliseconds));
     LOG_INFO("server.loading", "");
+}
+
+void Vip::LearnSpells(Player* player)
+{
+    if (!player)
+    {
+        LOG_ERROR("modules.vip", "> Vip::LearnSpells: Not found player");
+        return;
+    }
+
+    if (!sVip->IsVip(player))
+        return;
+
+    uint8 vipLevel = sVip->GetLevel(player);
+
+    auto mountSpellID = CONF_GET_UINT("VIP.Mount.SpellID");
+
+    // Learn mount
+    if (!player->HasSpell(mountSpellID) && vipLevel >= CONF_GET_UINT("VIP.Mount.MinLevel"))
+        player->learnSpell(mountSpellID);
+
+    // Learn vip spells for 3+ level
+    if (vipLevel < 3)
+        return;
+
+    for (auto const& spellID : vipSpellsStore)
+    {
+        if (!player->HasSpell(spellID))
+            player->learnSpell(spellID);
+    }
+}
+
+void Vip::UnLearnSpells(Player* player, bool unlearnMount /*= true*/)
+{
+    if (!player)
+    {
+        LOG_ERROR("modules.vip", "> Vip::UnLearnSpells: Not found player");
+        return;
+    }
+
+    auto mountSpellID = CONF_GET_UINT("VIP.Mount.SpellID");
+
+    // Mount spells
+    if (player->HasSpell(mountSpellID) && unlearnMount)
+        player->removeSpell(mountSpellID, SPEC_MASK_ALL, false);
+
+    // Vip spells
+    for (auto const& spellID : vipSpellsStore)
+    {
+        if (player->HasSpell(spellID))
+            player->removeSpell(spellID, SPEC_MASK_ALL, false);
+    }
+}
+
+void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
+{
+    auto data = sCharacterCache->GetCharacterCacheByGuid(targetGuid);
+    if (!data)
+    {
+        handler->PSendSysMessage("# Игрок не найден");
+        return;
+    }
+
+    auto const& vipInfo = GetVipInfo(data->AccountId);
+    auto const& vipRateInfo = GetVipRateInfo(data->AccountId);
+
+    handler->PSendSysMessage("# Игрок: {}", data->Name);
+
+    if (vipInfo)
+    {
+        handler->PSendSysMessage("# Уровень премиум аккаунта: {}", std::get<2>(*vipInfo));
+        handler->PSendSysMessage("# Оставшееся время: {}", ::GetDuration(vipInfo));
+
+        if (auto const& vipRateInfo = GetVipRateInfo(std::get<2>(*vipInfo)))
+        {
+            handler->PSendSysMessage("# Премиум рейты:");
+            handler->PSendSysMessage("# Рейтинг получения опыта: {}", std::get<0>(*vipRateInfo));
+            handler->PSendSysMessage("# Рейтинг получения чести: {}", std::get<1>(*vipRateInfo));
+            handler->PSendSysMessage("# Рейтинг получения арены: {}", std::get<2>(*vipRateInfo));
+            handler->PSendSysMessage("# Рейтинг получения репутации: {}", std::get<3>(*vipRateInfo));
+        }
+    }
+}
+
+void Vip::SendVipListRates(ChatHandler* handler)
+{
+    handler->PSendSysMessage("# Премиум рейты для разных уровней вип:");
+
+    if (storeRates.empty())
+    {
+        handler->PSendSysMessage("# Премиум рейты не обнаружены");
+        return;
+    }
+
+    for (auto const& [vipLevel, vipRates] : storeRates)
+    {
+        handler->PSendSysMessage("# Рейты для премиум уровня: {}", vipLevel);
+        handler->PSendSysMessage("# Рейтинг получения опыта: {}", std::get<0>(vipRates));
+        handler->PSendSysMessage("# Рейтинг получения чести: {}", std::get<1>(vipRates));
+        handler->PSendSysMessage("# Рейтинг получения арены: {}", std::get<2>(vipRates));
+        handler->PSendSysMessage("# Рейтинг получения репутации: {}", std::get<3>(vipRates));
+        handler->PSendSysMessage("# --");
+    }
 }
 
 namespace fmt
