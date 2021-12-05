@@ -94,7 +94,7 @@ struct boss_mor_grayhoof : public BossAI
         switch (phase)
         {
             case PHASE_HUMAN:
-                spell = Acore::Containers::SelectRandomContainerElement(humanSpells);
+                spell = Warhead::Containers::SelectRandomContainerElement(humanSpells);
                 if (spell == SPELL_REJUVENATION || spell == SPELL_HEALING_TOUCH)
                 {
                     DoCastSelf(spell);
@@ -105,15 +105,15 @@ struct boss_mor_grayhoof : public BossAI
                 }
                 break;
             case PHASE_BEAR:
-                spell = Acore::Containers::SelectRandomContainerElement(bearSpells);
+                spell = Warhead::Containers::SelectRandomContainerElement(bearSpells);
                 DoCastVictim(spell);
                 break;
             case PHASE_CAT:
-                spell = Acore::Containers::SelectRandomContainerElement(catSpells);
+                spell = Warhead::Containers::SelectRandomContainerElement(catSpells);
                 DoCastVictim(spell);
                 break;
             case PHASE_FAERIE:
-                spell = Acore::Containers::SelectRandomContainerElement(faerieSpells);
+                spell = Warhead::Containers::SelectRandomContainerElement(faerieSpells);
                 if (spell == SPELL_SLEEP)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))

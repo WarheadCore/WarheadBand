@@ -68,9 +68,8 @@ private:
     StorageType m_storage;
 };
 
-WH_COMMON_API int32 MoneyStringToMoney(const std::string& moneyString);
+WH_COMMON_API Optional<int32> MoneyStringToMoney(std::string_view moneyString);
 
-AC_COMMON_API Optional<int32> MoneyStringToMoney(std::string_view moneyString);
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
     if (val == -100.0f)     // prevent set var to zero

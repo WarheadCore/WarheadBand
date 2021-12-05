@@ -615,7 +615,7 @@ public:
         }
         else
         {
-            moneyToAddO = Acore::StringTo<int32>(money);
+            moneyToAddO = Warhead::StringTo<int32>(money);
         }
 
         if (!moneyToAddO)

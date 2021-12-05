@@ -78,7 +78,7 @@ Optional<int32> MoneyStringToMoney(std::string_view moneyString)
     bool hadS = false;
     bool hadC = false;
 
-    for (std::string_view token : Acore::Tokenize(moneyString, ' ', false))
+    for (std::string_view token : Warhead::Tokenize(moneyString, ' ', false))
     {
         uint32 unit;
         switch (token[token.length() - 1])
@@ -111,7 +111,7 @@ Optional<int32> MoneyStringToMoney(std::string_view moneyString)
             return std::nullopt;
         }
 
-        Optional<uint32> amount = Acore::StringTo<uint32>(token.substr(0, token.length() - 1));
+        Optional<uint32> amount = Warhead::StringTo<uint32>(token.substr(0, token.length() - 1));
         if (amount)
         {
             money += (unit * *amount);
