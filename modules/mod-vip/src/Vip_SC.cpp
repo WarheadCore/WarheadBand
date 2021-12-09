@@ -21,6 +21,7 @@
 #include "ScriptMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
+#include "GameLocale.h"
 #include "Chat.h"
 #include "Player.h"
 #include "Timer.h"
@@ -42,7 +43,14 @@ public:
     {
         static ChatCommandTable vipListCommandTable =
         {
-            { "rates",      HandleVipListRatesCommand,    SEC_PLAYER,  Console::Yes }
+            { "rates",      HandleVipListRatesCommand,   SEC_ADMINISTRATOR,  Console::Yes }
+        };
+
+        static ChatCommandTable vipVendorCommandTable =
+        {
+            { "info",      HandleVipVendorInfoCommand,   SEC_ADMINISTRATOR,  Console::No },
+            { "add",       HandleVipVendorAddCommand,    SEC_ADMINISTRATOR,  Console::No },
+            { "delete",    HandleVipVendorDeleteCommand, SEC_ADMINISTRATOR,  Console::No }
         };
 
         static ChatCommandTable vipCommandTable =
@@ -51,7 +59,8 @@ public:
             { "delete",     HandleVipDeleteCommand,     SEC_ADMINISTRATOR,  Console::Yes },
             { "unbind",     HandleVipUnbindCommand,     SEC_PLAYER,         Console::No },
             { "info",       HandleVipInfoCommand,       SEC_PLAYER,         Console::Yes },
-            { "list",       vipListCommandTable }
+            { "list",       vipListCommandTable },
+            { "vendor",     vipVendorCommandTable },
         };
 
         static ChatCommandTable commandTable =
@@ -164,6 +173,92 @@ public:
         sVip->SendVipListRates(handler);
         return true;
     }
+
+    static bool HandleVipVendorInfoCommand(ChatHandler* handler)
+    {
+        Creature* vendor = handler->getSelectedCreature();
+        if (!vendor)
+        {
+            handler->SendSysMessage("Нужно выбрать существо");
+            return true;
+        }
+
+        auto creatureEntry = vendor->GetEntry();
+        auto creatureName = sGameLocale->GetCreatureNamelocale(vendor->GetEntry(), handler->GetSessionDbLocaleIndex());
+
+        if (!vendor->IsVendor())
+        {
+            handler->PSendSysMessage("# Существо `{}` - '{}' не является вендором", creatureEntry, creatureName);
+            return true;
+        }
+
+        if (!sVip->IsVipVendor(creatureEntry))
+        {
+            handler->PSendSysMessage("# Существо `{}` - '{}' не является вип вендором", creatureEntry, creatureName);
+            return true;
+        }
+
+        handler->PSendSysMessage("# Существо `{}` - '{}' доступно для вип '{}' уровня и выше", creatureEntry, creatureName, sVip->GetVendorVipLevel(creatureEntry));
+        return true;
+    }
+
+    static bool HandleVipVendorAddCommand(ChatHandler* handler, uint8 vendorVipLevel)
+    {
+        Creature* vendor = handler->getSelectedCreature();
+        if (!vendor)
+        {
+            handler->SendSysMessage("Нужно выбрать существо");
+            return true;
+        }
+
+        auto creatureEntry = vendor->GetEntry();
+        auto creatureName = sGameLocale->GetCreatureNamelocale(vendor->GetEntry(), handler->GetSessionDbLocaleIndex());
+
+        if (!vendor->IsVendor())
+        {
+            handler->PSendSysMessage("# Существо `{}` - '{}' не является вендором", creatureEntry, creatureName);
+            return true;
+        }
+
+        if (sVip->IsVipVendor(creatureEntry))
+        {
+            handler->PSendSysMessage("# Существо `{}` - '{}' уже было вип вендором", creatureEntry, creatureName);
+            sVip->DeleteVendorVipLevel(creatureEntry);
+        }
+
+        sVip->AddVendorVipLevel(creatureEntry, vendorVipLevel);
+        handler->PSendSysMessage("# Существо `{}` - '{}' теперь доступно для вип '{}' уровня и выше", creatureEntry, creatureName, sVip->GetVendorVipLevel(creatureEntry));
+        return true;
+    }
+
+    static bool HandleVipVendorDeleteCommand(ChatHandler* handler)
+    {
+        Creature* vendor = handler->getSelectedCreature();
+        if (!vendor)
+        {
+            handler->SendSysMessage("Нужно выбрать существо");
+            return true;
+        }
+
+        auto creatureEntry = vendor->GetEntry();
+        auto creatureName = sGameLocale->GetCreatureNamelocale(vendor->GetEntry(), handler->GetSessionDbLocaleIndex());
+
+        if (!vendor->IsVendor())
+        {
+            handler->PSendSysMessage("# Существо `{}` - '{}' не является вендором", creatureEntry, creatureName);
+            return true;
+        }
+
+        if (!sVip->IsVipVendor(creatureEntry))
+        {
+            handler->PSendSysMessage("# Существо `{}` - '{}' не является вип вендором", creatureEntry, creatureName);
+            return true;
+        }
+
+        sVip->DeleteVendorVipLevel(creatureEntry);
+        handler->PSendSysMessage("# Существо `{}` - '{}' доступно для всех", creatureEntry, creatureName);
+        return true;
+    }
 };
 
 class Vip_Player : public PlayerScript
@@ -209,18 +304,12 @@ public:
         if (!CONF_GET_BOOL("VIP.Enable"))
             return;
 
-        if (!sVip->IsVip(player))
-            return;
-
         sVip->OnLoginPlayer(player);
     }
 
     void OnLogout(Player* player) override
     {
         if (!CONF_GET_BOOL("VIP.Enable"))
-            return;
-
-        if (!sVip->IsVip(player))
             return;
 
         sVip->OnLogoutPlayer(player);
@@ -257,7 +346,7 @@ class Vip_World : public WorldScript
 public:
     Vip_World() : WorldScript("Vip_World") { }
 
-    void OnAfterConfigLoad(bool /*reload*/) override
+    void OnAfterConfigLoad(bool reload) override
     {
         sGameConfig->AddOption({ "VIP.Enable",
             "VIP.Update.Delay",
@@ -266,7 +355,8 @@ public:
             "VIP.Spells.List",
             "VIP.Unbind.Duration" });
 
-        sVip->InitSystem(true);
+        if (reload)
+            sVip->InitSystem(true);
     }
 
     void OnStartup() override
@@ -286,10 +376,22 @@ public:
     }
 };
 
+class Vip_AllCreature : public AllCreatureScript
+{
+public:
+    Vip_AllCreature() : AllCreatureScript("Vip_AllCreature") { }
+
+    bool CanCreatureSendListInventory(Player* player, Creature* creature, uint32 /*vendorEntry*/) override
+    {
+        return sVip->CanUsingVendor(player, creature);
+    }
+};
+
 // Group all custom scripts
 void AddSC_Vip()
 {
     new Vip_World();
     new Vip_Player();
     new Vip_CS();
+    new Vip_AllCreature();
 }

@@ -597,6 +597,9 @@ public:
 
     // Called when a CreatureAI object is needed for the creature.
     [[nodiscard]] virtual CreatureAI* GetCreatureAI(Creature* /*creature*/) const { return nullptr; }
+
+    // Called when a player selects a quest reward.
+    [[nodiscard]] virtual bool CanCreatureSendListInventory(Player* /*player*/, Creature* /*creature*/, uint32 /*vendorEntry*/) { return true; }
 };
 
 class WH_GAME_API AllItemScript : public ScriptObject
@@ -2374,6 +2377,7 @@ public: /* AllCreatureScript */
     //listener function (OnAllCreatureUpdate) is called by OnCreatureUpdate
     //void OnAllCreatureUpdate(Creature* creature, uint32 diff);
     void Creature_SelectLevel(const CreatureTemplate* cinfo, Creature* creature);
+    bool CanCreatureSendListInventory(Player* player, Creature* creature, uint32 vendorEntry);
 
 public: /* AllMapScript */
     void OnBeforeCreateInstanceScript(InstanceMap* instanceMap, InstanceScript* instanceData, bool load, std::string data, uint32 completedEncounterMask);

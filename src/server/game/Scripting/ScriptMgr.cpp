@@ -37,8 +37,6 @@
 #include "WorldPacket.h"
 #include "ScriptMgrMacros.h"
 
-#include "ScriptMgrMacros.h"
-
 struct TSpellSummary
 {
     uint8 Targets; // set of enum SelectTarget
@@ -1993,10 +1991,12 @@ uint32 ScriptMgr::DealDamage(Unit* AttackerUnit, Unit* pVictim, uint32 damage, D
     damage = itr->second->DealDamage(AttackerUnit, pVictim, damage, damagetype);
     return damage;
 }
+
 void ScriptMgr::Creature_SelectLevel(const CreatureTemplate* cinfo, Creature* creature)
 {
     FOREACH_SCRIPT(AllCreatureScript)->Creature_SelectLevel(cinfo, creature);
 }
+
 void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32& gain)
 {
     FOREACH_SCRIPT(UnitScript)->OnHeal(healer, reciever, gain);
@@ -3236,13 +3236,15 @@ void ScriptMgr::OnHandleDevCommand(Player* player, std::string& argstr)
 
 bool ScriptMgr::CanExecuteCommand(ChatHandler& handler, std::string_view cmdStr)
 {
-    bool ret = true;
+    auto ret = IsValidBoolScript<CommandSC>([&](CommandSC* script)
+    {
+        return !script->CanExecuteCommand(handler, cmdStr);
+    });
 
-    FOR_SCRIPTS_RET(CommandSC, itr, end, ret) // return true by default if not scripts
-        if (!itr->second->CanExecuteCommand(handler, cmdStr))
-            ret = false; // we change ret value only when scripts return false
+    if (ret && *ret)
+        return false;
 
-    return ret;
+    return true;
 }
 
 // World object
@@ -3299,6 +3301,20 @@ void ScriptMgr::OnBeforeCreateInstanceScript(InstanceMap* instanceMap, InstanceS
 void ScriptMgr::OnDestroyInstance(MapInstanced* mapInstanced, Map* map)
 {
     FOREACH_SCRIPT(AllMapScript)->OnDestroyInstance(mapInstanced, map);
+}
+
+// All creature
+bool ScriptMgr::CanCreatureSendListInventory(Player* player, Creature* creature, uint32 vendorEntry)
+{
+    auto ret = IsValidBoolScript<AllCreatureScript>([&](AllCreatureScript* script)
+    {
+        return !script->CanCreatureSendListInventory(player, creature, vendorEntry);
+    });
+
+    if (ret && *ret)
+        return false;
+
+    return true;
 }
 
 ///-

@@ -988,3 +988,21 @@ std::string const GameLocale::GetSpellNamelocale(uint32 spellID, int8 index_loc 
 
     return spell->SpellName[index_loc];
 }
+
+std::string const GameLocale::GetCreatureNamelocale(uint32 creatureEntry, int8 index_loc /*= DEFAULT_LOCALE*/)
+{
+    auto creatureTemplate = sObjectMgr->GetCreatureTemplate(creatureEntry);
+    auto cretureLocale = GetCreatureLocale(creatureEntry);
+    std::string name;
+
+    if (cretureLocale)
+        name = cretureLocale->Name[index_loc].c_str();
+
+    if (name.empty() && creatureTemplate)
+        name = creatureTemplate->Name.c_str();
+
+    if (name.empty())
+        name = "Unknown creature";
+
+    return name;
+}

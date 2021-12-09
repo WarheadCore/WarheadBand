@@ -24,6 +24,7 @@
 class Player;
 class ChatHandler;
 class ObjectGuid;
+class Creature;
 
 enum class VipRate
 {
@@ -65,6 +66,13 @@ public:
     void UnBindInstances(Player* player);
     void SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid);
     void SendVipListRates(ChatHandler* handler);
+    bool CanUsingVendor(Player* player, Creature* creature);
+
+    // Creature
+    bool IsVipVendor(uint32 entry);
+    uint8 GetVendorVipLevel(uint32 entry);
+    void AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel);
+    void DeleteVendorVipLevel(uint32 entry);
 
     template<VipRate>
     float GetRate(Player* player);
@@ -73,6 +81,7 @@ private:
     void LoadRates();
     void LoadAccounts();
     void LoadUnbinds();
+    void LoadVipVendors();
 
     void LearnSpells(Player* player, uint8 vipLevel);
     void UnLearnSpells(Player* player, bool unlearnMount = true);

@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS `vip_vendors`;
+CREATE TABLE IF NOT EXISTS `vip_vendors` (
+  `CreatureEntry` INT NOT NULL,
+  `VipLevel` TINYINT NOT NULL,
+  PRIMARY KEY (`CreatureEntry`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
