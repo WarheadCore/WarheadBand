@@ -252,7 +252,7 @@ public:
                         {
                             if (!_lavaBurstGUIDS.empty())
                             {
-                                ObjectGuid lavaBurstGUID = Acore::Containers::SelectRandomContainerElement(_lavaBurstGUIDS);
+                                ObjectGuid lavaBurstGUID = Warhead::Containers::SelectRandomContainerElement(_lavaBurstGUIDS);
 
                                 if (GameObject* go = ObjectAccessor::GetGameObject(*me, lavaBurstGUID))
                                 {
@@ -496,7 +496,7 @@ class spell_ragnaros_lava_burst_randomizer : public SpellScript
             // Select three random spells. Can select the same spell twice.
             for (uint8 i = 0; i < 3; ++i)
             {
-                uint32 spell = Acore::Containers::SelectRandomContainerElement(RagnarosLavaBurstSpells);
+                uint32 spell = Warhead::Containers::SelectRandomContainerElement(RagnarosLavaBurstSpells);
                 caster->CastSpell(caster, spell, true);
             }
         }
