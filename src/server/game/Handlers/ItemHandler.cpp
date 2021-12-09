@@ -1011,14 +1011,25 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
 
     SetCurrentVendor(vendorEntry);
 
-    VendorItemData const* items = vendorEntry ? sObjectMgr->GetNpcVendorItemList(vendorEntry) : vendor->GetVendorItems();
-    if (!items)
+    auto SendEmptyVendor = [&]()
     {
         WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
         data << vendorGuid;
-        data << uint8(0);                                   // count == 0, next will be error code
-        data << uint8(0);                                   // "Vendor has no inventory"
+        data << uint8(0); // count == 0, next will be error code
+        data << uint8(0); // "Vendor has no inventory"
         SendPacket(&data);
+    };
+
+    VendorItemData const* items = vendorEntry ? sObjectMgr->GetNpcVendorItemList(vendorEntry) : vendor->GetVendorItems();
+    if (!items)
+    {
+        SendEmptyVendor();
+        return;
+    }
+
+    if (!sScriptMgr->CanCreatureSendListInventory(GetPlayer(), vendor, vendorEntry))
+    {
+        SendEmptyVendor();
         return;
     }
 

@@ -19,6 +19,7 @@
 #define _SCRIPT_MGR_MACRO_H_
 
 #include "ScriptMgr.h"
+//#include "Optional.h"
 
 template<typename ScriptName, typename TCallBack>
 inline bool GetReturnBoolScripts(bool ret, TCallBack&& callback)
@@ -35,6 +36,21 @@ inline bool GetReturnBoolScripts(bool ret, TCallBack&& callback)
     }
 
     return ret;
+}
+
+template<typename ScriptName, typename TCallBack>
+inline Optional<bool> IsValidBoolScript(TCallBack&& callback)
+{
+    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+        return {};
+
+    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
+    {
+        if (callback(script))
+            return true;
+    }
+
+    return false;
 }
 
 template<class ScriptName, class T, typename TCallBack>

@@ -40,6 +40,7 @@ namespace
     std::unordered_map<uint32/*acc id*/, WarheadVip> store;
     std::unordered_map<uint8/*level*/, WarheadVipRates> storeRates;
     std::unordered_map<uint64/*guid*/, uint64/*unbindtime*/> storeUnbind;
+    std::unordered_map<uint32/*creature entry*/, uint8/*vip level*/> storeVendors;
     std::vector<uint32> vipSpellsStore;
     TaskScheduler scheduler;
 
@@ -135,9 +136,11 @@ void Vip::InitSystem(bool reload)
     if (!reload)
     {
         LoadAccounts();
-        LoadRates();
         LoadUnbinds();
     }
+
+    LoadRates();
+    LoadVipVendors();
 
     std::string configSpells = CONF_GET_STR("VIP.Spells.List");
     for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
@@ -499,7 +502,7 @@ void Vip::LoadRates()
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 Vip rates. DB table `vip_rates` is empty.");
-        LOG_WARN("sql.sql", "");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -552,7 +555,7 @@ void Vip::LoadAccounts()
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
-        LOG_WARN("sql.sql", "");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -565,9 +568,9 @@ void Vip::LoadAccounts()
         auto endTime    = fields[2].GetInt64();
         auto level      = fields[3].GetUInt8();
 
-        if (level > 3)
+        if (level > MAX_VIP_LEVEL)
         {
-            LOG_ERROR("sql.sql", "> Account {} has a incorrect level of {}. Skip", level);
+            LOG_ERROR("sql.sql", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, MAX_VIP_LEVEL);
             continue;
         }
 
@@ -593,7 +596,7 @@ void Vip::LoadUnbinds()
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 vip unbinds. DB table `vip_unbind` is empty.");
-        LOG_WARN("sql.sql", "");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -609,6 +612,56 @@ void Vip::LoadUnbinds()
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), Warhead::Time::ToTimeString<Milliseconds>(oldMSTime, TimeOutput::Milliseconds));
+    LOG_INFO("server.loading", "");
+}
+
+void Vip::LoadVipVendors()
+{
+    auto oldMSTime = GetTimeMS();
+
+    storeVendors.clear(); // for reload case
+
+    LOG_INFO("server.loading", "Load vip vendors...");
+
+    QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, VipLevel FROM vip_vendors");
+    if (!result)
+    {
+        LOG_WARN("sql.sql", ">> Loaded 0 vip vendors. DB table `vip_unbind` is empty.");
+        LOG_INFO("server.loading", "");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        auto creatureEntry = fields[0].GetUInt32();
+        auto vipLevel = fields[1].GetUInt8();
+
+        CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(creatureEntry);
+        if (!creatureTemplate)
+        {
+            LOG_ERROR("sql.sql", "> Vip: Non existing creature entry {}. Skip", creatureEntry);
+            continue;
+        }
+
+        if (!(creatureTemplate->npcflag & UNIT_NPC_FLAG_VENDOR))
+        {
+            LOG_ERROR("sql.sql", "> Vip: Creature entry {} is not vendor. Skip", creatureEntry);
+            continue;
+        }
+
+        if (!vipLevel || vipLevel > MAX_VIP_LEVEL)
+        {
+            LOG_ERROR("sql.sql", "> Vip: Creature entry {} have {} vip level. Skip", creatureEntry);
+            continue;
+        }
+
+        storeVendors.emplace(creatureEntry, vipLevel);
+
+    } while (result->NextRow());
+
+    LOG_INFO("server.loading", ">> Loaded {} vip vendors in {}", storeVendors.size(), Warhead::Time::ToTimeString(oldMSTime, TimeOutput::Milliseconds));
     LOG_INFO("server.loading", "");
 }
 
@@ -676,10 +729,11 @@ void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
 
     auto const& vipInfo = GetVipInfo(data->AccountId);
 
-    handler->PSendSysMessage("# Игрок: {}", data->Name);
-
-    if (vipInfo)
+    if (!vipInfo)
+        handler->PSendSysMessage("# Игрок: {} не является випом", data->Name);
+    else
     {
+        handler->PSendSysMessage("# Игрок: {}", data->Name);
         handler->PSendSysMessage("# Уровень премиум аккаунта: {}", std::get<2>(*vipInfo));
         handler->PSendSysMessage("# Оставшееся время: {}", ::GetDuration(vipInfo));
 
@@ -713,6 +767,60 @@ void Vip::SendVipListRates(ChatHandler* handler)
         handler->PSendSysMessage("# Рейтинг получения репутации: {}", std::get<3>(vipRates));
         handler->PSendSysMessage("# --");
     }
+}
+
+bool Vip::CanUsingVendor(Player* player, Creature* creature)
+{
+    auto const& creatureEntry = creature->GetEntry();
+    bool isVipVendor = IsVipVendor(creatureEntry);
+
+    if (!isVipVendor)
+        return true;
+
+    if (isVipVendor && !IsVip(player))
+        return false;
+
+    return GetLevel(player) >= GetVendorVipLevel(creatureEntry);
+}
+
+bool Vip::IsVipVendor(uint32 entry)
+{
+    return storeVendors.find(entry) != storeVendors.end();
+}
+
+uint8 Vip::GetVendorVipLevel(uint32 entry)
+{
+    auto const& itr = storeVendors.find(entry);
+    return itr != storeVendors.end() ? itr->second : 0;
+}
+
+void Vip::AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel)
+{
+    auto const& itr = storeVendors.find(entry);
+    if (itr != storeVendors.end())
+    {
+        LOG_WARN("modules", "> Vip::AddVendorVipLevel: Creature {} is vip vendor, level {}. Erase", entry, itr->second);
+        storeVendors.erase(entry);
+
+        // Del from DB
+        WorldDatabase.PExecute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
+    }
+
+    storeVendors.emplace(entry, vendorVipLevel);
+
+    // Add to DB
+    WorldDatabase.PExecute("INSERT INTO `vip_vendors` (`CreatureEntry`, `VipLevel`) VALUES({}, {})", entry, vendorVipLevel);
+}
+
+void Vip::DeleteVendorVipLevel(uint32 entry)
+{
+    if (!IsVipVendor(entry))
+        return;
+
+    storeVendors.erase(entry);
+
+    // Del from DB
+    WorldDatabase.PExecute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
 }
 
 namespace fmt
