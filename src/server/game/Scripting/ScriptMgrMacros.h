@@ -36,7 +36,7 @@ inline Optional<bool> IsValidBoolScript(std::function<bool(ScriptName*)> execute
 }
 
 template<typename ScriptName, class T>
-inline T* GetReturnAIScript(std::function<T* (ScriptName*)> executeHook)
+inline T* GetReturnAIScript(std::function<T*(ScriptName*)> executeHook)
 {
     if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
         return nullptr;
