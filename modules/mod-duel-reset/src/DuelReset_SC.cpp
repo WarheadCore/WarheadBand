@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 
@@ -30,7 +30,7 @@ public:
     void OnDuelStart(Player* player1, Player* player2) override
     {
         // Cooldowns reset
-        if (CONF_GET_BOOL("DuelResetCooldowns"))
+        if (MOD_CONF_GET_BOOL("DuelResetCooldowns"))
         {
             // Temporary basic cooldown reset
             player1->RemoveArenaSpellCooldowns();
@@ -38,7 +38,7 @@ public:
         }
 
         // Health and mana reset
-        if (CONF_GET_BOOL("DuelResetHealthMana"))
+        if (MOD_CONF_GET_BOOL("DuelResetHealthMana"))
         {
             player1->SaveHealthBeforeDuel();
             player1->SetHealth(player1->GetMaxHealth());
@@ -70,7 +70,7 @@ public:
             return;
 
         // Health and mana restore
-        if (!CONF_GET_BOOL("DuelResetHealthMana"))
+        if (!MOD_CONF_GET_BOOL("DuelResetHealthMana"))
             return;
 
         winner->RestoreHealthAfterDuel();
@@ -93,8 +93,8 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("DuelResetCooldowns");
-        sGameConfig->AddOption<bool>("DuelResetHealthMana");
+        sModulesConfig->AddOption<bool>("DuelResetCooldowns");
+        sModulesConfig->AddOption<bool>("DuelResetHealthMana");
     }
 };
 

@@ -18,7 +18,7 @@
 #include "UnbindInstance.h"
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
@@ -31,7 +31,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (!CONF_GET_BOOL("UnbindInsance.Enable"))
+        if (!MOD_CONF_GET_BOOL("UnbindInsance.Enable"))
             return true;
 
         sUI->SendGossipHello(player, creature);
@@ -91,7 +91,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("UnbindInsance.Enable");
+        sModulesConfig->AddOption<bool>("UnbindInsance.Enable");
     }
 
     void OnStartup() override

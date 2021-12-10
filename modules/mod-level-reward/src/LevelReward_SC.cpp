@@ -18,7 +18,7 @@
 #include "Log.h"
 #include "ScriptMgr.h"
 #include "ModuleLocale.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "StringFormat.h"
@@ -69,9 +69,9 @@ public:
             _levelReward.ItemCount = fields[3].GetUInt32();
 
             // Проверка
-            if (Level > CONF_GET_UINT("MaxPlayerLevel"))
+            if (Level > MOD_CONF_GET_UINT("MaxPlayerLevel"))
             {
-                LOG_ERROR("module", "-> Level ({}) more, than max player level in world ({}). Skip", Level, CONF_GET_INT("MaxPlayerLevel"));
+                LOG_ERROR("module", "-> Level ({}) more, than max player level in world ({}). Skip", Level, MOD_CONF_GET_INT("MaxPlayerLevel"));
                 continue;
             }
 
@@ -128,7 +128,7 @@ private:
 
     void RewardForLevel(Player* player, uint8 Level)
     {
-        if (Level > CONF_GET_UINT("MaxPlayerLevel"))
+        if (Level > MOD_CONF_GET_UINT("MaxPlayerLevel"))
             return;
 
         auto const& levelReward = GetLevelReward(Level);
@@ -141,7 +141,7 @@ private:
         // uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
         // Send External mail
-        sExternalMail->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, CONF_GET_INT("LevelReward.NpcID"));
+        sExternalMail->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, MOD_CONF_GET_INT("LevelReward.NpcID"));
 
         sModuleLocale->SendPlayerMessage(player, "LEVEL_REWARD_LOCALE_MESSAGE", Level);
     }
@@ -156,7 +156,7 @@ public:
 
     void OnLevelChanged(Player* player, uint8 oldLevel) override
     {
-        if (!CONF_GET_BOOL("LevelReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("LevelReward.Enable"))
             return;
 
         sLR->RewardPlayer(player, oldLevel);
@@ -170,13 +170,13 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("LevelReward.Enable");
-        sGameConfig->AddOption<int32>("LevelReward.NpcID", 37688);
+        sModulesConfig->AddOption<bool>("LevelReward.Enable");
+        sModulesConfig->AddOption<int32>("LevelReward.NpcID", 37688);
     }
 
     void OnStartup() override
     {
-        if (!CONF_GET_BOOL("LevelReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("LevelReward.Enable"))
             return;
 
         sLR->LoadDataFromDB();

@@ -17,7 +17,7 @@
 
 #include "UnbindInstance.h"
 #include "Log.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "StringFormat.h"
 #include "ScriptedGossip.h"
 #include "MapMgr.h"
@@ -139,7 +139,7 @@ void UnbindInstance::LoadCostData()
 
     _costStore.clear();
 
-    if (!CONF_GET_BOOL("UnbindInsance.Enable"))
+    if (!MOD_CONF_GET_BOOL("UnbindInsance.Enable"))
         return;
 
     QueryResult result = CharacterDatabase.Query("SELECT "

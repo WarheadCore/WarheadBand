@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "GameTime.h"
@@ -31,7 +31,7 @@ public:
 
     void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Player* receiver) override
     {
-        if (!CONF_GET_BOOL("NotCanSpeakMsg.Enable"))
+        if (!MOD_CONF_GET_BOOL("NotCanSpeakMsg.Enable"))
             return;
 
         if (receiver->GetSession()->CanSpeak())
@@ -48,7 +48,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("NotCanSpeakMsg.Enable");
+        sModulesConfig->AddOption<bool>("NotCanSpeakMsg.Enable");
     }
 };
 

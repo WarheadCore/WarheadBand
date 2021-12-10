@@ -17,7 +17,7 @@
 
 #include "GuildLevelSystem.h"
 #include "Log.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "ScriptedGossip.h"
 #include "GameLocale.h"
@@ -826,7 +826,7 @@ void GuildLevelSystem::ShowAllCriteriaInfo(Player* player, Creature* creature)
 
             AddGossipItemFor(player, 10, Warhead::StringFormat("--- Критерий #{}. Прогресс ({}/{})", criteriaID, countNow, countMax), GLS_GOSSIP_SHOW_CRITERIA_SENDER, gossipAction);
 
-            if (CONF_GET_BOOL("GLS.Criteria.ShowItems.Enable"))
+            if (MOD_CONF_GET_BOOL("GLS.Criteria.ShowItems.Enable"))
             {
                 for (uint32 i = 0; i < GLS_ITEMS_COUNT; ++i)
                 {

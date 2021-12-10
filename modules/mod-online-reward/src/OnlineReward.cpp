@@ -17,7 +17,7 @@
 
 #include "OnlineReward.h"
 #include "Log.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Player.h"
 #include "Chat.h"
 #include "ExternalMail.h"
@@ -33,9 +33,9 @@ OnlineReward* OnlineReward::instance()
 
 void OnlineReward::InitSystem()
 {
-    if (CONF_GET_BOOL("OnlineReward.Enable") && !CONF_GET_BOOL("OnlineReward.PerOnline.Enable") && !CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
+    if (MOD_CONF_GET_BOOL("OnlineReward.Enable") && !MOD_CONF_GET_BOOL("OnlineReward.PerOnline.Enable") && !MOD_CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
     {
-        sGameConfig->SetOption<bool>("OnlineReward.Enable", false);
+        sModulesConfig->SetOption<bool>("OnlineReward.Enable", false);
         return;
     }
 
@@ -126,7 +126,7 @@ void OnlineReward::DeleteRewardHistory(ObjectGuid::LowType lowGuid)
 
 void OnlineReward::RewardPlayers()
 {
-    if (!CONF_GET_BOOL("OnlineReward.Enable"))
+    if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
         return;
 
     auto sessions = sWorld->GetAllSessions();
@@ -140,10 +140,10 @@ void OnlineReward::RewardPlayers()
         if (!player || !player->IsInWorld())
             continue;
 
-        if (CONF_GET_BOOL("OnlineReward.PerOnline.Enable"))
+        if (MOD_CONF_GET_BOOL("OnlineReward.PerOnline.Enable"))
             RewardPerOnline(player);
 
-        if (CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
+        if (MOD_CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
             RewardPerTime(player);
     }
 
@@ -193,9 +193,9 @@ void OnlineReward::RewardPerTime(Player* player)
     while (diffTime < playedTimeSec)
     {
         if (LastRewarded < diffTime)
-            SendRewardForPlayer(player, CONF_GET_INT("OnlineReward.PerTime.ItemID"), CONF_GET_INT("OnlineReward.PerTime.ItemCount"), diffTime, false);
+            SendRewardForPlayer(player, MOD_CONF_GET_INT("OnlineReward.PerTime.ItemID"), MOD_CONF_GET_INT("OnlineReward.PerTime.ItemCount"), diffTime, false);
 
-        diffTime += CONF_GET_INT("OnlineReward.PerTime.Time");
+        diffTime += MOD_CONF_GET_INT("OnlineReward.PerTime.Time");
     }
 }
 

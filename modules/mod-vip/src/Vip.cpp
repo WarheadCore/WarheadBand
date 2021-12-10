@@ -17,7 +17,7 @@
 
 #include "Vip.h"
 #include "Log.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "TaskScheduler.h"
 #include "ObjectGuid.h"
 #include "GameTime.h"
@@ -110,7 +110,7 @@ Vip* Vip::Instance()
 
 void Vip::InitSystem(bool reload)
 {
-    Seconds delay = Seconds(CONF_GET_UINT("VIP.Update.Delay"));
+    Seconds delay = Seconds(MOD_CONF_GET_UINT("VIP.Update.Delay"));
 
     if (delay < 10s)
     {
@@ -142,7 +142,7 @@ void Vip::InitSystem(bool reload)
     LoadRates();
     LoadVipVendors();
 
-    std::string configSpells = CONF_GET_STR("VIP.Spells.List");
+    std::string configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
     for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
     {
         auto spellID = Warhead::StringTo<uint32>(spellString);
@@ -405,7 +405,7 @@ void Vip::UnBindInstances(Player* player)
 
     auto guid = player->GetGUID().GetRawValue();
     auto unbindInfo = GetUndindTime(guid);
-    auto confDuration = CONF_GET_UINT("VIP.Unbind.Duration");
+    auto confDuration = MOD_CONF_GET_UINT("VIP.Unbind.Duration");
 
     if (unbindInfo)
     {
@@ -476,7 +476,7 @@ void Vip::UnBindInstances(Player* player)
 
             handler.PSendSysMessage("> {} {}", GetMapName(mapID, handler.GetSessionDbLocaleIndex()), GetDiffName(diff, bind.save->GetMapEntry()->IsRaid()));
             sInstanceSaveMgr->PlayerUnbindInstance(player->GetGUID(), mapID, diff, true, player);
-            CharacterDatabase.PExecute("REPLACE INTO `vip_unbind` (`PlayerGuid`) VALUES ({})", player->GetGUID().GetRawValue());            
+            CharacterDatabase.PExecute("REPLACE INTO `vip_unbind` (`PlayerGuid`) VALUES ({})", player->GetGUID().GetRawValue());
             count++;
         }
     }
@@ -679,10 +679,10 @@ void Vip::LearnSpells(Player* player, uint8 vipLevel)
         return;
     }
 
-    auto mountSpellID = CONF_GET_UINT("VIP.Mount.SpellID");
+    auto mountSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
 
     // Learn mount
-    if (!player->HasSpell(mountSpellID) && vipLevel >= CONF_GET_UINT("VIP.Mount.MinLevel"))
+    if (!player->HasSpell(mountSpellID) && vipLevel >= MOD_CONF_GET_UINT("VIP.Mount.MinLevel"))
         player->learnSpell(mountSpellID);
 
     // Learn vip spells for 3+ level
@@ -704,7 +704,7 @@ void Vip::UnLearnSpells(Player* player, bool unlearnMount /*= true*/)
         return;
     }
 
-    auto mountSpellID = CONF_GET_UINT("VIP.Mount.SpellID");
+    auto mountSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
 
     // Mount spells
     if (player->HasSpell(mountSpellID) && unlearnMount)

@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "Channel.h"
@@ -33,13 +33,13 @@ public:
         if (!player || !channel)
             return;
 
-        if (!CONF_GET_BOOL("ChannelIconFaction.Enable"))
+        if (!MOD_CONF_GET_BOOL("ChannelIconFaction.Enable"))
             return;
 
-        if (CONF_GET_BOOL("ChannelIconFaction.OnlyLFG") && !channel->IsLFG())
+        if (MOD_CONF_GET_BOOL("ChannelIconFaction.OnlyLFG") && !channel->IsLFG())
             return;
 
-        if (!CONF_GET_BOOL("ChannelIconFaction.GM") && !AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
+        if (!MOD_CONF_GET_BOOL("ChannelIconFaction.GM") && !AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
             return;
 
         std::string iconHorge = "|TInterface\\PVPFrame\\PVP-Currency-Horde:18:18:-3:-3|t";
@@ -58,9 +58,9 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("ChannelIconFaction.Enable");
-        sGameConfig->AddOption<bool>("ChannelIconFaction.OnlyLFG");
-        sGameConfig->AddOption<bool>("ChannelIconFaction.GM");
+        sModulesConfig->AddOption<bool>("ChannelIconFaction.Enable");
+        sModulesConfig->AddOption<bool>("ChannelIconFaction.OnlyLFG");
+        sModulesConfig->AddOption<bool>("ChannelIconFaction.GM");
     }
 };
 

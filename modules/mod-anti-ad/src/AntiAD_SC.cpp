@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "AccountMgr.h"
@@ -48,7 +48,7 @@ public:
 
     void Init()
     {
-        if (!CONF_GET_BOOL("AntiAD.Enable"))
+        if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))
             return;
 
         LoadDataFromDB();
@@ -90,7 +90,7 @@ public:
             LOG_FATAL("module.antiad", ">> Regular expression failed loaded ({})", _pattern);
 
             // Set disable module
-            sGameConfig->SetOption<bool>("AntiAD.Enable", false);
+            sModulesConfig->SetOption<bool>("AntiAD.Enable", false);
         }
 
         LOG_INFO("module.antiad", "");
@@ -98,7 +98,7 @@ public:
 
     bool IsNeedCheckChannel(uint8 channelType)
     {
-        return channelType & CONF_GET_INT("AntiAD.Check.Channels");
+        return channelType & MOD_CONF_GET_INT("AntiAD.Check.Channels");
     }
 
     bool IsValidMessage(std::string& msg)
@@ -175,23 +175,23 @@ public:
 private:
     void Mute(Player* player)
     {
-        if (!CONF_GET_BOOL("AntiAD.Mute.Player.Enable"))
+        if (!MOD_CONF_GET_BOOL("AntiAD.Mute.Player.Enable"))
             return;
 
-        if (AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) && !CONF_GET_BOOL("AntiAD.Mute.GM.Enable"))
+        if (AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) && !MOD_CONF_GET_BOOL("AntiAD.Mute.GM.Enable"))
             return;
 
-        uint32 muteTime = CONF_GET_INT("AntiAD.Mute.Count");
+        uint32 muteTime = MOD_CONF_GET_INT("AntiAD.Mute.Count");
 
         sMute->MutePlayer(player->GetName(), Seconds(muteTime), "Console", "Advertisment");
 
-        if (CONF_GET_BOOL("AntiAD.Send.SelfMessage.Enable"))
+        if (MOD_CONF_GET_BOOL("AntiAD.Send.SelfMessage.Enable"))
             sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_SELF", muteTime);
     }
 
     void SendGMTexts(Player* player, std::string const& message)
     {
-        if (!CONF_GET_BOOL("AntiAD.Send.GMMessage.Enable"))
+        if (!MOD_CONF_GET_BOOL("AntiAD.Send.GMMessage.Enable"))
             return;
 
         sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_GM_TEXT", ChatHandler(player->GetSession()).GetNameLink(player).c_str(), message.c_str());
@@ -199,7 +199,7 @@ private:
 
     void CheckMessage(Player* player, std::string& msg)
     {
-        if (!CONF_GET_BOOL("AntiAD.Enable"))
+        if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))
             return;
 
         std::string const message = msg;
@@ -219,7 +219,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption({ "AntiAD.Enable",
+        sModulesConfig->AddOption({ "AntiAD.Enable",
             "AntiAD.Send.GMMessage.Enable",
             "AntiAD.Send.SelfMessage.Enable",
             "AntiAD.Mute.Player.Enable",
@@ -230,7 +230,7 @@ public:
 
     void OnStartup() override
     {
-        if (!CONF_GET_BOOL("AntiAD.Enable"))
+        if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))
             return;
 
         sAD->Init();
