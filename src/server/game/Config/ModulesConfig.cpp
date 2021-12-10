@@ -18,12 +18,7 @@
 #include "ModulesConfig.h"
 #include "Config.h"
 #include "Log.h"
-#include "MapMgr.h"
-#include "Object.h"
-#include "Player.h"
-#include "ServerMotd.h"
 #include "StringConvert.h"
-#include "World.h"
 #include <unordered_map>
 
 namespace
@@ -57,7 +52,7 @@ WH_GAME_API void ModulesConfig::AddOption(std::string const& optionName, Optiona
         return;
     }
 
-    _configOptions.emplace(optionName, Warhead::ToString<T>(sConfigMgr->GetOption<T>(optionName, !def ? CONF_DEFAULT_INT : *def));
+    _configOptions.emplace(optionName, Warhead::ToString<T>(sConfigMgr->GetOption<T>(optionName, !def ? CONF_DEFAULT_INT : *def)));
 }
 
 template<>
