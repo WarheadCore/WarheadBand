@@ -44,6 +44,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicVisibility.h"
+#include "ExternalMail.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
@@ -1162,6 +1163,9 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Load Channels...");
     ChannelMgr::LoadChannels();
 
+    LOG_INFO("server.loading", "Load external mail...");
+    sExternalMail->LoadSystem();
+
     sScriptMgr->OnBeforeWorldInitialized();
 
     if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids"))
@@ -1486,6 +1490,11 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update saving system"));
         SavingSystemMgr::Update(diff);
+    }
+
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update external mail system"));
+        sExternalMail->Update(diff);
     }
 
     {
