@@ -22,19 +22,26 @@
 #include "Mail.h"
 #include "ObjectMgr.h"
 #include "CharacterCache.h"
+#include "TaskScheduler.h"
+
+namespace
+{
+    bool _isSystemEnable = false;
+    TaskScheduler scheduler;
+}
 
 bool ExMail::AddItems(uint32 itemID, uint32 itemCount)
 {
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
     if (!itemTemplate)
     {
-        LOG_ERROR("module", "> External Mail: Предмета под номером {} не существует. ID ({})", itemID, ID);
+        LOG_ERROR("mail", "> External Mail: Предмета под номером {} не существует. ID ({})", itemID, ID);
         return false;
     }
 
     if (itemCount < 1 || (itemTemplate->MaxCount > 0 && itemCount > static_cast<uint32>(itemTemplate->MaxCount)))
     {
-        LOG_ERROR("module", "> External Mail: Некорректное количество ({}) для предмета ({}). ID ({})", itemCount, itemID, ID);
+        LOG_ERROR("mail", "> External Mail: Некорректное количество ({}) для предмета ({}). ID ({})", itemCount, itemID, ID);
         return false;
     }
 
@@ -47,13 +54,13 @@ bool ExMail::AddItems(uint32 itemID, uint32 itemCount)
         }
         else
         {
-            _overCountItems.emplace_back(Items);
+            OverCountItems.emplace_back(Items);
             Items.clear();
         }
     }
 
     Items.emplace_back(itemID, itemCount);
-    _overCountItems.emplace_back(Items);
+    OverCountItems.emplace_back(Items);
 
     return true;
 }
@@ -64,13 +71,43 @@ ExternalMail* ExternalMail::instance()
     return &instance;
 }
 
+void ExternalMail::Update(uint32 diff)
+{
+    if (!_isSystemEnable)
+        return;
+
+    scheduler.Update(diff);
+}
+
+void ExternalMail::LoadSystem()
+{
+    _isSystemEnable = CONF_GET_BOOL("ExternalMail.Enable");
+
+    if (!_isSystemEnable)
+    {
+        LOG_INFO("server.loading", ">> External mail disable");
+        return;
+    }
+
+    scheduler.CancelAll();
+    scheduler.Schedule(10s, [this](TaskContext context)
+    {
+        GetMailsFromDB();
+        SendMails();
+
+        context.Repeat();
+    });
+
+    LOG_INFO("server.loading", ">> External mail loaded");
+}
+
 void ExternalMail::GetMailsFromDB()
 {
     QueryResult result = CharacterDatabase.PQuery("SELECT ID, PlayerName, Subject, Message, Money, ItemID, ItemCount, CreatureEntry FROM mail_external ORDER BY id ASC");
     if (!result)
         return;
 
-    LOG_TRACE("module.em", "> External Mail: GetMailsFromDB");
+    LOG_TRACE("mail", "> External Mail: GetMailsFromDB");
 
     do
     {
@@ -129,7 +166,7 @@ void ExternalMail::GetMailsFromDB()
         if (!_data.AddItems(ItemID, ItemCount))
             continue;
 
-        _store.insert(std::make_pair(_data.ID, _data));
+        _store.emplace(_data.ID, _data);
 
     } while (result->NextRow());
 }
@@ -140,7 +177,7 @@ void ExternalMail::SendMails()
     if (_store.empty())
         return;
 
-    LOG_TRACE("module.em", "> External Mail: SendMails");
+    LOG_TRACE("mail", "> External Mail: SendMails");
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -148,7 +185,7 @@ void ExternalMail::SendMails()
     {
         auto exmail = itr.second;
 
-        for (auto const& items : exmail._overCountItems)
+        for (auto const& items : exmail.OverCountItems)
         {
             Player* receiver = ObjectAccessor::FindPlayer(exmail.PlayerGuid);
             MailDraft* mail = new MailDraft(exmail.Subject, exmail.Body);
@@ -156,9 +193,9 @@ void ExternalMail::SendMails()
             if (exmail.Money)
                 mail->AddMoney(exmail.Money);
 
-            for (auto const& itr : items)
+            for (auto const& [itemID, itemCount] : items)
             {
-                if (Item* mailItem = Item::CreateItem(itr.first, itr.second))
+                if (Item* mailItem = Item::CreateItem(itemID, itemCount))
                 {
                     mailItem->SaveToDB(trans);
                     mail->AddItem(mailItem);

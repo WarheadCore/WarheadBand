@@ -33,6 +33,7 @@
 #    PACKET SPOOF PROTECTION SETTINGS
 #    DEBUG
 #    METRIC SETTINGS
+#    EXTERNAL MAIL SETTINGS
 #
 ###################################################################################################
 
@@ -3956,4 +3957,16 @@ Metric.OverallStatusInterval = 1
 #Metric.Threshold.worldsession_update_opcode_time = 50
 
 #
+###################################################################################################
+
+###################################################################################################
+# EXTERNAL MAIL SETTINGS
+#
+#    ExternalMail.Enable
+#        Description: Enable system
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+ExternalMail.Enable = 0
 ###################################################################################################

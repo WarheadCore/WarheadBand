@@ -365,6 +365,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "DungeonAccessRequirements.PortalAvgIlevelCheck",
     "DurabilityLoss.InPvP",
     "EnableLoginAfterDC",
+    "ExternalMail.Enable",
     "GM.AllowFriend",
     "GM.AllowInvite",
     "GM.LowerSecurity",
