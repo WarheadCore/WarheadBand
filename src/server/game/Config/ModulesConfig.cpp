@@ -71,7 +71,7 @@ WH_GAME_API void ModulesConfig::AddOption<bool>(std::string const& optionName, O
         return;
     }
 
-    _configOptions.emplace(optionName, Warhead::ToString(sConfigMgr->GetOption<bool>(optionName, !def ? CONF_DEFAULT_BOOL : *def));
+    _configOptions.emplace(optionName, Warhead::ToString(sConfigMgr->GetOption<bool>(optionName, !def ? CONF_DEFAULT_BOOL : *def)));
 }
 
 template<>
@@ -99,7 +99,7 @@ WH_GAME_API void ModulesConfig::AddOption<float>(std::string const& optionName, 
         return;
     }
 
-    _configOptions.emplace(optionName, Warhead::ToString(sConfigMgr->GetOption<float>(optionName, def == std::nullopt ? CONF_DEFAULT_FLOAT : *def));
+    _configOptions.emplace(optionName, Warhead::ToString(sConfigMgr->GetOption<float>(optionName, def == std::nullopt ? CONF_DEFAULT_FLOAT : *def)));
 }
 
 // Add option without template
