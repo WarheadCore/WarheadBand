@@ -15,8 +15,8 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _EXTERNALMAIL_H_
-#define _EXTERNALMAIL_H_
+#ifndef _EXTERNAL_MAIL_H_
+#define _EXTERNAL_MAIL_H_
 
 #include "Common.h"
 #include "ObjectGuid.h"
@@ -31,7 +31,7 @@ struct ExMail
     uint32 Money;
     uint32 CreatureEntry;
     std::list<std::pair<uint32, uint32>> Items;
-    std::list<std::list<std::pair<uint32, uint32>>> _overCountItems;
+    std::list<std::list<std::pair<uint32, uint32>>> OverCountItems;
 
     bool AddItems(uint32 itemID, uint32 itemCount);
 };
@@ -41,13 +41,18 @@ class ExternalMail
 public:
     static ExternalMail* instance();
 
+    void Update(uint32 diff);
+    void LoadSystem();
+
+    void AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry);
+
+private:
     void SendMails();
     void GetMailsFromDB();
-    void AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry);
-private:
+
     std::unordered_map<uint32, ExMail> _store;
 };
 
-#define sEM ExternalMail::instance()
+#define sExternalMail ExternalMail::instance()
 
 #endif /* _EXTERNALMAIL_H_ */

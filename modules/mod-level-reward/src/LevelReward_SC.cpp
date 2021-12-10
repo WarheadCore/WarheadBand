@@ -141,7 +141,7 @@ private:
         // uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
         // Send External mail
-        sEM->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, MOD_CONF_GET_INT("LevelReward.NpcID"));
+        sExternalMail->AddMail(player->GetName(), subject, text, levelReward->ItemID, levelReward->ItemCount, MOD_CONF_GET_INT("LevelReward.NpcID"));
 
         sModuleLocale->SendPlayerMessage(player, "LEVEL_REWARD_LOCALE_MESSAGE", Level);
     }

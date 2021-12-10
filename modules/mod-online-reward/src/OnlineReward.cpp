@@ -282,7 +282,7 @@ void OnlineReward::SendRewardForPlayer(Player* player, uint32 itemID, uint32 ite
     text = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
 
     // Send External mail
-    sEM->AddMail(player->GetName(), subject, text, itemID, itemCount, 37688);
+    sExternalMail->AddMail(player->GetName(), subject, text, itemID, itemCount, 37688);
 
     // Save data to DB
     SaveDataForDB(player->GetGUID().GetCounter(), secondsOnine, isPerOnline);
