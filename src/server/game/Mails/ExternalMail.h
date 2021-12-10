@@ -43,7 +43,7 @@ public:
 
     void Update(uint32 diff);
     void LoadSystem();
-    
+
     void AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry);
 
 private:

@@ -71,7 +71,7 @@ ExternalMail* ExternalMail::instance()
     return &instance;
 }
 
-void Update(uint32 diff)
+void ExternalMail::Update(uint32 diff)
 {
     if (!_isSystemEnable)
         return;
