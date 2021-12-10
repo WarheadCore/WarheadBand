@@ -17,7 +17,7 @@
 
 #include "ExternalMail.h"
 #include "Log.h"
-#include "ModulesConfig.h"
+#include "GameConfig.h"
 #include "DatabaseEnv.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
