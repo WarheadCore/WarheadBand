@@ -81,7 +81,7 @@ void Update(uint32 diff)
 
 void ExternalMail::LoadSystem()
 {
-    _isSystemEnable = CONF_GET_BOOL("External.Mail.Enable");
+    _isSystemEnable = CONF_GET_BOOL("ExternalMail.Enable");
 
     if (!_isSystemEnable)
     {
