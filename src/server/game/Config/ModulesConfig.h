@@ -55,29 +55,10 @@ public:
 
 #define sModulesConfig ModulesConfig::instance()
 
-inline bool MOD_CONF_GET_BOOL(std::string const& __optionName)
-{
-    return sModulesConfig->GetOption<bool>(__optionName);
-}
-
-inline std::string MOD_CONF_GET_STR(std::string const& __optionName)
-{
-    return sModulesConfig->GetOption<std::string>(__optionName);
-}
-
-inline int32 MOD_CONF_GET_INT(std::string const& __optionName)
-{
-    return sModulesConfig->GetOption<int32>(__optionName);
-}
-
-inline uint32 MOD_CONF_GET_UINT(std::string const& __optionName)
-{
-    return sModulesConfig->GetOption<uint32>(__optionName);
-}
-
-inline float MOD_CONF_GET_FLOAT(std::string const& __optionName)
-{
-    return sModulesConfig->GetOption<float>(__optionName);
-}
+#define MOD_CONF_GET_BOOL(__optionName) sModulesConfig->GetOption<bool>(__optionName)
+#define MOD_CONF_GET_STR(__optionName) sModulesConfig->GetOption<std::string>(__optionName)
+#define MOD_CONF_GET_INT(__optionName) sModulesConfig->GetOption<int32>(__optionName)
+#define MOD_CONF_GET_UINT(__optionName) sModulesConfig->GetOption<uint32>(__optionName)
+#define MOD_CONF_GET_FLOAT(__optionName) sModulesConfig->GetOption<float>(__optionName)
 
 #endif // __GAME_CONFIG
