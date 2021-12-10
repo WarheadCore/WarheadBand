@@ -29,8 +29,9 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Language.h"
+#include "GameConfig.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class item_commandscript : public CommandScript
 {
@@ -115,7 +116,7 @@ public:
         CharacterDatabase.Execute(delStmt);
 
         std::string nameLink = handler->playerLink(player.GetName());
-        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
+        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink);
         return true;
     }
 
@@ -173,7 +174,7 @@ public:
 
     static bool HasItemDeletionConfig()
     {
-      return sWorld->getBoolConfig(CONFIG_ITEMDELETE_METHOD) || sWorld->getBoolConfig(CONFIG_ITEMDELETE_VENDOR);
+        return CONF_GET_BOOL("ItemDelete.Method") || CONF_GET_BOOL("ItemDelete.Vendor");
     }
 };
 
