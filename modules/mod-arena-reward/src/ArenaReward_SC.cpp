@@ -18,7 +18,7 @@
 #include "ArenaReward.h"
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
@@ -30,7 +30,7 @@ public:
 
     void OnBattlegroundEnd(Battleground* bg, TeamId winnerTeamId) override
     {
-        if (!CONF_GET_BOOL("ArenaReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("ArenaReward.Enable"))
             return;
 
         // Not reward on end bg
@@ -48,30 +48,30 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("ArenaReward.Enable");
+        sModulesConfig->AddOption<bool>("ArenaReward.Enable");
 
-        sGameConfig->AddOption<bool>("ArenaReward.Reward.Rating.Enable");
-        sGameConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemID");
-        sGameConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemCount.WinnerTeam");
-        sGameConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemCount.LoserTeam");
+        sModulesConfig->AddOption<bool>("ArenaReward.Reward.Rating.Enable");
+        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemID");
+        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemCount.WinnerTeam");
+        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemCount.LoserTeam");
 
-        sGameConfig->AddOption<bool>("ArenaReward.Reward.Skirmish.Enable");
-        sGameConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemID");
-        sGameConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemCount.WinnerTeam");
-        sGameConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemCount.LoserTeam");
+        sModulesConfig->AddOption<bool>("ArenaReward.Reward.Skirmish.Enable");
+        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemID");
+        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemCount.WinnerTeam");
+        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemCount.LoserTeam");
 
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.Enable");
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.IP.Enable");
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.Equipment.Enable");
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.Health.Enable");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Enable");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.IP.Enable");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.Equipment.Enable");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.Health.Enable");
 
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.SpellApply.Enable");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.SpellApply.Enable");
 
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.Teleport.Enable");
-        sGameConfig->AddOption<std::string>("ArenaReward.AntiFarm.Teleport.Location");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Teleport.Enable");
+        sModulesConfig->AddOption<std::string>("ArenaReward.AntiFarm.Teleport.Location");
 
-        sGameConfig->AddOption<bool>("ArenaReward.AntiFarm.Ban.Enable");
-        sGameConfig->AddOption<std::string>("ArenaReward.AntiFarm.Ban.Duration");
+        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Ban.Enable");
+        sModulesConfig->AddOption<std::string>("ArenaReward.AntiFarm.Ban.Duration");
     }
 };
 

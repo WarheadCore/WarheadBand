@@ -19,7 +19,7 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "StringFormat.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "GameLocale.h"
 #include "ModuleLocale.h"
 
@@ -30,7 +30,7 @@ public:
 
     void OnCreatureKill(Player* player, Creature* creature) override
     {
-        if (!CONF_GET_BOOL("BossAnnouncer.Enable"))
+        if (!MOD_CONF_GET_BOOL("BossAnnouncer.Enable"))
             return;
 
         if (creature->GetMaxHealth() <= 1000000)
@@ -107,7 +107,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("BossAnnouncer.Enable");
+        sModulesConfig->AddOption<bool>("BossAnnouncer.Enable");
     }
 };
 

@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "AccountMgr.h"
@@ -55,7 +55,7 @@ public:
 private:
     void SetColorMessage(Player* player, std::string& Message)
     {
-        if (!CONF_GET_BOOL("GMChatColor.Enable"))
+        if (!MOD_CONF_GET_BOOL("GMChatColor.Enable"))
             return;
 
         if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || !player->isGMChat() || Message.empty())
@@ -66,7 +66,7 @@ private:
         if (gmLevel > SEC_ADMINISTRATOR)
             return;
 
-        Message = CONF_GET_STR("GMChatColor.Level." + std::to_string(gmLevel)) + Message;
+        Message = MOD_CONF_GET_STR("GMChatColor.Level." + std::to_string(gmLevel)) + Message;
     };
 };
 
@@ -77,10 +77,10 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("GMChatColor.Enable");
-        sGameConfig->AddOption<std::string>("GMChatColor.Level.1", "|cff0000ff");
-        sGameConfig->AddOption<std::string>("GMChatColor.Level.2", "|cff0000ff");
-        sGameConfig->AddOption<std::string>("GMChatColor.Level.3", "|cffff0000");
+        sModulesConfig->AddOption<bool>("GMChatColor.Enable");
+        sModulesConfig->AddOption<std::string>("GMChatColor.Level.1", "|cff0000ff");
+        sModulesConfig->AddOption<std::string>("GMChatColor.Level.2", "|cff0000ff");
+        sModulesConfig->AddOption<std::string>("GMChatColor.Level.3", "|cffff0000");
     }
 };
 

@@ -17,7 +17,7 @@
 
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Config.h"
 #include "Chat.h"
 #include "Player.h"
@@ -31,7 +31,7 @@ public:
 
     void OnLogin(Player* player) override
     {
-        if (!CONF_GET_BOOL("PlayerInfoAtLogin.Enable"))
+        if (!MOD_CONF_GET_BOOL("PlayerInfoAtLogin.Enable"))
             return;
 
         uint8 accountLevel = static_cast<uint8>(player->GetSession()->GetSecurity());
@@ -67,7 +67,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("PlayerInfoAtLogin.Enable");
+        sModulesConfig->AddOption<bool>("PlayerInfoAtLogin.Enable");
     }
 };
 

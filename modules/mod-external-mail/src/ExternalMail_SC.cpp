@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "ExternalMail.h"
 #include "Log.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "TaskScheduler.h"
 
 class ExternalMail_World : public WorldScript
@@ -28,12 +28,12 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("External.Mail.Enable");
+        sModulesConfig->AddOption<bool>("External.Mail.Enable");
     }
 
     void OnStartup() override
     {
-        if (!CONF_GET_BOOL("External.Mail.Enable"))
+        if (!MOD_CONF_GET_BOOL("External.Mail.Enable"))
             return;
 
         scheduler.Schedule(5s, [](TaskContext context)
@@ -47,7 +47,7 @@ public:
 
     void OnUpdate(uint32 diff) override
     {
-        if (!CONF_GET_BOOL("External.Mail.Enable"))
+        if (!MOD_CONF_GET_BOOL("External.Mail.Enable"))
             return;
 
         scheduler.Update(diff);

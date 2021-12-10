@@ -18,7 +18,7 @@
 #include "GuildLevelSystem.h"
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Chat.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
@@ -30,7 +30,7 @@ public:
 
     void OnAddMember(Guild* guild, Player* player, uint8& /*plRank*/) override
     {
-        if (!CONF_GET_BOOL("GLS.Enable"))
+        if (!MOD_CONF_GET_BOOL("GLS.Enable"))
             return;
 
         uint32 guildID = guild->GetId();
@@ -41,7 +41,7 @@ public:
 
     void OnRemoveMember(Guild* guild, Player* player, bool /*isDisbanding*/, bool /*isKicked*/) override
     {
-        if (!CONF_GET_BOOL("GLS.Enable"))
+        if (!MOD_CONF_GET_BOOL("GLS.Enable"))
             return;
 
         uint32 guildID = guild->GetId();
@@ -69,7 +69,7 @@ public:
             return true;
         }
 
-        if (!CONF_GET_BOOL("GLS.Enable"))
+        if (!MOD_CONF_GET_BOOL("GLS.Enable"))
         {
             CloseGossipMenuFor(player);
             handler.PSendSysMessage("Система уровней гильдий выключена");
@@ -171,13 +171,13 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("GLS.Enable");
-        sGameConfig->AddOption<bool>("GLS.Criteria.ShowItems.Enable");
+        sModulesConfig->AddOption<bool>("GLS.Enable");
+        sModulesConfig->AddOption<bool>("GLS.Criteria.ShowItems.Enable");
     }
 
     void OnStartup() override
     {
-        if (!CONF_GET_BOOL("GLS.Enable"))
+        if (!MOD_CONF_GET_BOOL("GLS.Enable"))
             return;
 
         sGuildLevelSystem->Init();

@@ -19,7 +19,7 @@
 #include "AccountMgr.h"
 #include "Log.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "GameTime.h"
 #include "GameLocale.h"
 #include "Chat.h"
@@ -268,7 +268,7 @@ public:
 
     void OnGiveXP(Player* player, uint32& amount, Unit* /*victim*/) override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         if (!sVip->IsVip(player))
@@ -279,7 +279,7 @@ public:
 
     void OnGiveHonorPoints(Player* player, float& points, Unit* /*victim*/) override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         if (!sVip->IsVip(player))
@@ -290,7 +290,7 @@ public:
 
     void OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         if (!sVip->IsVip(player))
@@ -301,7 +301,7 @@ public:
 
     void OnLogin(Player* player) override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         sVip->OnLoginPlayer(player);
@@ -309,7 +309,7 @@ public:
 
     void OnLogout(Player* player) override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         sVip->OnLogoutPlayer(player);
@@ -348,7 +348,7 @@ public:
 
     void OnAfterConfigLoad(bool reload) override
     {
-        sGameConfig->AddOption({ "VIP.Enable",
+        sModulesConfig->AddOption({ "VIP.Enable",
             "VIP.Update.Delay",
             "VIP.Mount.MinLevel",
             "VIP.Mount.SpellID",
@@ -361,7 +361,7 @@ public:
 
     void OnStartup() override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         sVip->InitSystem(false);
@@ -369,7 +369,7 @@ public:
 
     void OnUpdate(uint32 diff) override
     {
-        if (!CONF_GET_BOOL("VIP.Enable"))
+        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
             return;
 
         sVip->Update(diff);

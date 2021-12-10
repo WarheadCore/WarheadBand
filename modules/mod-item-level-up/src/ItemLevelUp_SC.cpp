@@ -16,7 +16,7 @@
 */
 
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Player.h"
 #include "ModuleLocale.h"
 #include "Tokenize.h"
@@ -29,18 +29,18 @@ public:
 
     bool OnUse(Player* player, Item* item, const SpellCastTargets& /*Targets*/) override
     {
-        if (!CONF_GET_BOOL("ILU.Enable"))
+        if (!MOD_CONF_GET_BOOL("ILU.Enable"))
             return false;
 
         uint8 playerLevel = player->getLevel();
-        uint32 maxLevel = CONF_GET_INT("MaxPlayerLevel");
+        uint32 maxLevel = MOD_CONF_GET_INT("MaxPlayerLevel");
 
         if (playerLevel >= maxLevel)
             sModuleLocale->SendPlayerMessage(player, "ILU_LOCALE_MAX_LEVEL", playerLevel);
         else if (playerLevel < maxLevel)
         {
-            uint8 configLevel = static_cast<uint8>(CONF_GET_INT("ILU.LevelUP"));
-            uint8 newLevel = !configLevel ? CONF_GET_INT("MaxPlayerLevel") : configLevel;
+            uint8 configLevel = static_cast<uint8>(MOD_CONF_GET_INT("ILU.LevelUP"));
+            uint8 newLevel = !configLevel ? MOD_CONF_GET_INT("MaxPlayerLevel") : configLevel;
 
             player->GiveLevel(newLevel);
             player->SetUInt32Value(PLAYER_XP, 0);
@@ -48,10 +48,10 @@ public:
             sModuleLocale->SendPlayerMessage(player, "ILU_LOCALE_GET_LEVEL", newLevel);
         }
 
-        if (CONF_GET_BOOL("ILU.SetMaxSkills.Enable"))
+        if (MOD_CONF_GET_BOOL("ILU.SetMaxSkills.Enable"))
             SetMaxWeaponSkills(player);
 
-        if (CONF_GET_BOOL("ILU.Teleport.Enable"))
+        if (MOD_CONF_GET_BOOL("ILU.Teleport.Enable"))
             PlayerTeleport(player);
 
         player->DestroyItemCount(item->GetEntry(), 1, true);
@@ -65,7 +65,7 @@ private:
         if (!player)
             return;
 
-        std::string const& locationInfo = CONF_GET_STR("ILU.Teleport.Location");
+        std::string const& locationInfo = MOD_CONF_GET_STR("ILU.Teleport.Location");
 
         std::vector<std::string_view> tokens = Warhead::Tokenize(locationInfo, ' ', false);
 
@@ -148,11 +148,11 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("ILU.Enable");
-        sGameConfig->AddOption<bool>("ILU.Teleport.Enable");
-        sGameConfig->AddOption<bool>("ILU.SetMaxSkills.Enable");
-        sGameConfig->AddOption<int32>("ILU.LevelUP");
-        sGameConfig->AddOption<std::string>("ILU.Teleport.Location");
+        sModulesConfig->AddOption<bool>("ILU.Enable");
+        sModulesConfig->AddOption<bool>("ILU.Teleport.Enable");
+        sModulesConfig->AddOption<bool>("ILU.SetMaxSkills.Enable");
+        sModulesConfig->AddOption<int32>("ILU.LevelUP");
+        sModulesConfig->AddOption<std::string>("ILU.Teleport.Location");
     }
 };
 

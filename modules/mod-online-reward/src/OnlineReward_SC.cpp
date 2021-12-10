@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "Log.h"
 #include "OnlineReward.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 #include "Player.h"
 #include "TaskScheduler.h"
 #include <map>
@@ -30,7 +30,7 @@ public:
 
     void OnLogin(Player* player) override
     {
-        if (!CONF_GET_BOOL("OnlineReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
             return;
 
         sOL->AddRewardHistory(player->GetGUID().GetCounter());
@@ -38,7 +38,7 @@ public:
 
     void OnLogout(Player* player) override
     {
-        if (!CONF_GET_BOOL("OnlineReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
             return;
 
         sOL->DeleteRewardHistory(player->GetGUID().GetCounter());
@@ -52,17 +52,17 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sGameConfig->AddOption<bool>("OnlineReward.Enable");
-        sGameConfig->AddOption<bool>("OnlineReward.PerOnline.Enable");
-        sGameConfig->AddOption<bool>("OnlineReward.PerTime.Enable");
-        sGameConfig->AddOption<int32>("OnlineReward.PerTime.Time", 3600);
-        sGameConfig->AddOption<int32>("OnlineReward.PerTime.ItemID", 47241);
-        sGameConfig->AddOption<int32>("OnlineReward.PerTime.ItemCount", 1);
+        sModulesConfig->AddOption<bool>("OnlineReward.Enable");
+        sModulesConfig->AddOption<bool>("OnlineReward.PerOnline.Enable");
+        sModulesConfig->AddOption<bool>("OnlineReward.PerTime.Enable");
+        sModulesConfig->AddOption<int32>("OnlineReward.PerTime.Time", 3600);
+        sModulesConfig->AddOption<int32>("OnlineReward.PerTime.ItemID", 47241);
+        sModulesConfig->AddOption<int32>("OnlineReward.PerTime.ItemCount", 1);
     }
 
     void OnStartup() override
     {
-        if (!CONF_GET_BOOL("OnlineReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
             return;
 
         sOL->InitSystem();
@@ -77,7 +77,7 @@ public:
 
     void OnUpdate(uint32 diff) override
     {
-        if (!CONF_GET_BOOL("OnlineReward.Enable"))
+        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
             return;
 
         scheduler.Update(diff);

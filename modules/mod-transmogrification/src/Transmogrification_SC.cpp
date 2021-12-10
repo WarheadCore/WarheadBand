@@ -17,7 +17,7 @@
 
 #include "Transmogrification.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
+#include "ModulesConfig.h"
 
 class Transmogrification_NPC : public CreatureScript
 {
@@ -77,45 +77,45 @@ public:
     void OnAfterConfigLoad(bool reload) override
     {
         // Add bool
-        sGameConfig->AddOption<bool>("Transmogrification.EnableSetInfo");
-        sGameConfig->AddOption<bool>("Transmogrification.EnableSets", true);
-        sGameConfig->AddOption<bool>("Transmogrification.EnableTransmogInfo", true);
-        sGameConfig->AddOption<bool>("Transmogrification.RequireToken");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowPoor");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowCommon");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowUncommon", true);
-        sGameConfig->AddOption<bool>("Transmogrification.AllowRare", true);
-        sGameConfig->AddOption<bool>("Transmogrification.AllowEpic", true);
-        sGameConfig->AddOption<bool>("Transmogrification.AllowLegendary");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowArtifact");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowHeirloom", true);
-        sGameConfig->AddOption<bool>("Transmogrification.AllowMixedArmorTypes");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowMixedWeaponTypes");
-        sGameConfig->AddOption<bool>("Transmogrification.AllowFishingPoles");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqRace");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqClass");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqSkill");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqSpell");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqLevel");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqEvent");
-        sGameConfig->AddOption<bool>("Transmogrification.IgnoreReqStats");
+        sModulesConfig->AddOption<bool>("Transmogrification.EnableSetInfo");
+        sModulesConfig->AddOption<bool>("Transmogrification.EnableSets", true);
+        sModulesConfig->AddOption<bool>("Transmogrification.EnableTransmogInfo", true);
+        sModulesConfig->AddOption<bool>("Transmogrification.RequireToken");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowPoor");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowCommon");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowUncommon", true);
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowRare", true);
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowEpic", true);
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowLegendary");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowArtifact");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowHeirloom", true);
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowMixedArmorTypes");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowMixedWeaponTypes");
+        sModulesConfig->AddOption<bool>("Transmogrification.AllowFishingPoles");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqRace");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqClass");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqSkill");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqSpell");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqLevel");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqEvent");
+        sModulesConfig->AddOption<bool>("Transmogrification.IgnoreReqStats");
 
         // Add int
-        sGameConfig->AddOption<int32>("Transmogrification.SetNpcText", 601084);
-        sGameConfig->AddOption<int32>("Transmogrification.MaxSets", 10);
-        sGameConfig->AddOption<int32>("Transmogrification.SetCopperCost");
-        sGameConfig->AddOption<int32>("Transmogrification.TransmogNpcText", 601083);
-        sGameConfig->AddOption<int32>("Transmogrification.CopperCost");
-        sGameConfig->AddOption<int32>("Transmogrification.TokenEntry", 49426);
-        sGameConfig->AddOption<int32>("Transmogrification.TokenAmount", 1);
+        sModulesConfig->AddOption<int32>("Transmogrification.SetNpcText", 601084);
+        sModulesConfig->AddOption<int32>("Transmogrification.MaxSets", 10);
+        sModulesConfig->AddOption<int32>("Transmogrification.SetCopperCost");
+        sModulesConfig->AddOption<int32>("Transmogrification.TransmogNpcText", 601083);
+        sModulesConfig->AddOption<int32>("Transmogrification.CopperCost");
+        sModulesConfig->AddOption<int32>("Transmogrification.TokenEntry", 49426);
+        sModulesConfig->AddOption<int32>("Transmogrification.TokenAmount", 1);
 
         // Add float
-        sGameConfig->AddOption<float>("Transmogrification.SetCostModifier", 3.0f);
-        sGameConfig->AddOption<float>("Transmogrification.ScaledCostModifier");
+        sModulesConfig->AddOption<float>("Transmogrification.SetCostModifier", 3.0f);
+        sModulesConfig->AddOption<float>("Transmogrification.ScaledCostModifier");
 
         // Add string
-        sGameConfig->AddOption<std::string>("Transmogrification.Allowed");
-        sGameConfig->AddOption<std::string>("Transmogrification.NotAllowed");
+        sModulesConfig->AddOption<std::string>("Transmogrification.Allowed");
+        sModulesConfig->AddOption<std::string>("Transmogrification.NotAllowed");
 
         sTransmog->LoadConfig(reload);
     }
