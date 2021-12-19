@@ -267,6 +267,9 @@ int main(int argc, char** argv)
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
 
+    // Loading modules configs before scripts
+    sConfigMgr->LoadModulesConfigs();
+
     sScriptMgr->SetScriptLoader(AddScripts);
     sScriptMgr->SetModulesLoader(AddModulesScripts);
 
@@ -307,9 +310,6 @@ int main(int argc, char** argv)
     });
 
     Warhead::Module::SetEnableModulesList(WH_MODULES_LIST);
-
-    // Loading modules configs before scripts
-    sConfigMgr->LoadModulesConfigs();
 
     ///- Initialize the World
     sSecretMgr->Initialize();

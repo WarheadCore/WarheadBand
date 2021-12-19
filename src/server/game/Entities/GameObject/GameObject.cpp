@@ -402,6 +402,12 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         SetVisibilityDistanceOverride(VisibilityDistanceType::Large);
     }
 
+    // Check if GameObject is Infinite
+    if (goinfo->IsInfiniteGameObject())
+    {
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Infinite);
+    }
+
     return true;
 }
 
@@ -677,7 +683,7 @@ void GameObject::Update(uint32 diff)
 
                         // Note: this hack with search required until GO casting not implemented
                         // search unfriendly creature
-                        if (owner)                    // hunter trap
+                        if (owner && goInfo->trap.autoCloseTime != -1) // hunter trap
                         {
                             Warhead::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
                             Warhead::UnitSearcher<Warhead::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
