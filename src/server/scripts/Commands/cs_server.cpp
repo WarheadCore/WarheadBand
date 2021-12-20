@@ -218,9 +218,9 @@ public:
         handler->PSendSysMessage("Using Character DB Revision: {}", sWorld->GetCharacterDBRevision());
         handler->PSendSysMessage("Using Auth DB Revision: {}", sWorld->GetAuthDBRevision());
 
-        handler->PSendSysMessage("LoginDatabase queue size: %zu", LoginDatabase.QueueSize());
-        handler->PSendSysMessage("CharacterDatabase queue size: %zu", CharacterDatabase.QueueSize());
-        handler->PSendSysMessage("WorldDatabase queue size: %zu", WorldDatabase.QueueSize());
+        handler->PSendSysMessage("LoginDatabase queue size: {}", LoginDatabase.QueueSize());
+        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
+        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
 
         handler->SendSysMessage("> List enable modules:");
 
