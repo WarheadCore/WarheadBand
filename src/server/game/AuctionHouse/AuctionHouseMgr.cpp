@@ -33,7 +33,6 @@
 #include "UpdateTime.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include <vector>
 
 constexpr auto AH_MINIMUM_DEPOSIT = 100;

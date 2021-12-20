@@ -19,7 +19,6 @@
 #include "AccountMgr.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"

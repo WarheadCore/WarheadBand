@@ -28,7 +28,6 @@
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "Creature.h"
-#include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
 #include "DisableMgr.h"
@@ -53,7 +52,6 @@
 #include "Pet.h"
 #include "PetAI.h"
 #include "Player.h"
-#include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -70,7 +68,6 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include <math.h>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =

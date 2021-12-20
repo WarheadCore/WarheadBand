@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptMgrMacros.h"
 #include "Chat.h"
 
 Warhead::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
