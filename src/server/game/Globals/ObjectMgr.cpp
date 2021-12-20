@@ -661,7 +661,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
             if (AdditionalSpellInfo->GetDuration() > 0)
             {
-                LOG_DEBUG/*ERROR*/("sql.sql", "Creature (Entry: %u) has temporary aura (spell %u) in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
+                LOG_DEBUG/*ERROR*/("sql.sql", "Creature (Entry: {}) has temporary aura (spell {}) in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
                 continue;
             }
 
@@ -1098,7 +1098,7 @@ void ObjectMgr::LoadCreatureAddons()
 
             if (AdditionalSpellInfo->GetDuration() > 0)
             {
-                LOG_DEBUG/*ERROR*/("sql.sql", "Creature (Entry: %u) has temporary aura (spell %u) in `auras` field in `creature_template_addon`.", guid, uint32(atol(*itr)));
+                LOG_DEBUG/*ERROR*/("sql.sql", "Creature (Entry: {}) has temporary aura (spell {}) in `auras` field in `creature_template_addon`.", guid, uint32(atol(*itr)));
                 continue;
             }
 
@@ -7998,7 +7998,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
 
     if (reqSpell && !sSpellMgr->GetSpellInfo(reqSpell))
     {
-        LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a non-existing reqSpell (Spell: %u), ignoring", entry, reqSpell);
+        LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: {}) for a non-existing reqSpell (Spell: {}), ignoring", entry, reqSpell);
         return;
     }
 

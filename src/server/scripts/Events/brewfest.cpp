@@ -100,7 +100,7 @@ struct npc_brewfest_keg_reciver : public ScriptedAI
                 {
                     if (Aura* aur = player->GetAura(SPELL_RAM_AURA))
                     {
-                        int32 diff = aur->GetApplyTime() - (time(nullptr) - (HOUR * 18) + spellCooldown);
+                        int32 diff = aur->GetApplyTime() - (GameTime::GetGameTime().count() - (HOUR * 18) + spellCooldown);
                         if (diff > 10) // aura applied later
                             return;
 
@@ -533,7 +533,7 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
 
     bool AllowStart()
     {
-        time_t curtime = time(nullptr);
+        time_t curtime = GameTime::GetGameTime().count();
         tm strDate;
         localtime_r(&curtime, &strDate);
 
@@ -795,8 +795,8 @@ struct npc_brewfest_super_brew_trigger : public ScriptedAI
         {
             timer = 0;
             Player* player = nullptr;
-            Acore::AnyPlayerInObjectRangeCheck checker(me, 2.0f);
-            Acore::PlayerSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, player, checker);
+            Warhead::AnyPlayerInObjectRangeCheck checker(me, 2.0f);
+            Warhead::PlayerSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, player, checker);
             Cell::VisitWorldObjects(me, searcher, 2.0f);
             if (player)
             {
@@ -1267,7 +1267,7 @@ class spell_brewfest_toss_mug : public SpellScript
 
         if (!bakers.empty())
         {
-            std::sort(bakers.begin(), bakers.end(), Acore::ObjectDistanceOrderPred(caster));
+            std::sort(bakers.begin(), bakers.end(), Warhead::ObjectDistanceOrderPred(caster));
             if (Creature* creature = *bakers.begin())
             {
                 creature->CastSpell(caster, SPELL_THROW_MUG_TO_PLAYER, true);
@@ -1921,7 +1921,7 @@ class spell_send_mug_target_picker: public SpellScript
     {
         Unit* caster = GetCaster();
 
-        targets.remove_if(Acore::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
+        targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
 
         if (targets.size() > 1)
         {
@@ -1941,7 +1941,7 @@ class spell_send_mug_target_picker: public SpellScript
             return;
         }
 
-        WorldObject* target = Acore::Containers::SelectRandomContainerElement(targets);
+        WorldObject* target = Warhead::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(target);
     }

@@ -338,7 +338,7 @@ public: // pussywizard: public class Member
         uint8 GetGender() const { return m_gender; }
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
-        bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
+        bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
         void ChangeRank(uint8 newRank);
 

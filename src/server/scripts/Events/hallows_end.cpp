@@ -765,8 +765,8 @@ struct npc_hallows_end_soh : public ScriptedAI
         }
 
         std::list<Player*> players;
-        Acore::AnyPlayerInObjectRangeCheck checker(me, 60.f);
-        Acore::PlayerListSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+        Warhead::AnyPlayerInObjectRangeCheck checker(me, 60.f);
+        Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
         Cell::VisitWorldObjects(me, searcher, 60.f);
         if (players.empty())
         {
@@ -794,7 +794,7 @@ struct npc_hallows_end_soh : public ScriptedAI
             sizeCount += playerCount % 2;
         }
 
-        Acore::Containers::RandomResize(tmpList, sizeCount);
+        Warhead::Containers::RandomResize(tmpList, sizeCount);
         for (Unit* trigger : tmpList)
             me->CastSpell(trigger, SPELL_START_FIRE, true);
     }
@@ -845,8 +845,8 @@ struct npc_hallows_end_soh : public ScriptedAI
     {
         float radius = 100.0f;
         std::list<Player*> players;
-        Acore::AnyPlayerInObjectRangeCheck checker(me, radius);
-        Acore::PlayerListSearcher<Acore::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+        Warhead::AnyPlayerInObjectRangeCheck checker(me, radius);
+        Warhead::PlayerListSearcher<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
         Cell::VisitWorldObjects(me, searcher, radius);
 
         for (Player* player : players)

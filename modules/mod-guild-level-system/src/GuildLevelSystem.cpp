@@ -1002,15 +1002,13 @@ void GuildLevelSystem::GetRewardsCriteria(Player* player, Creature* /* creature 
     auto trans = CharacterDatabase.BeginTransaction();
 
     // Reward spells
-    for (auto const& itr : player->GetGuild()->GetAllMembers())
+    for (auto const& [memberID, member] : player->GetGuild()->GetAllMembers())
     {
-        auto member = itr.second;
-
-        if (!member->IsOnline())
-            trans->PAppend("INSERT INTO `character_spell`(`guid`, `spell`, `specMask`) VALUES ({}, {}, 255)", member->GetGUID().GetCounter(), spellID);
+        if (!member.IsOnline())
+            trans->PAppend("INSERT INTO `character_spell` (`guid`, `spell`, `specMask`) VALUES ({}, {}, 255)", member.GetGUID().GetCounter(), spellID);
         else
         {
-            auto player = member->FindPlayer();
+            auto player = member.FindPlayer();
             if (!player)
                 return;
 

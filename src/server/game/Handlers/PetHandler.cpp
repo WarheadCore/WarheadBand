@@ -420,7 +420,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     // used also for charmed creature
     Unit* pet = ObjectAccessor::GetUnit(*_player, guid1);
-    LOG_DEBUG("network.opcode", "HandlePetAction: Pet %s - flag: %u, spellId: %u, target: %s.", guid1.ToString().c_str(), uint32(flag), spellId, guid2.ToString().c_str());
+    LOG_DEBUG("network.opcode", "HandlePetAction: Pet {} - flag: {}, spellId: {}, target: {}.", guid1.ToString(), uint32(flag), spellId, guid2.ToString());
 
     if (!pet)
     {
@@ -509,8 +509,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
     {
-        LOG_ERROR("network.opcode", "WorldSession::HandlePetAction(petGuid: %s, tagGuid: %s, spellId: %u, flag: %u): object (%s) is considered pet-like but doesn't have a charminfo!",
-                       guid1.ToString().c_str(), guid2.ToString().c_str(), spellId, flag, pet->GetGUID().ToString().c_str());
+        LOG_ERROR("network.opcode", "WorldSession::HandlePetAction(petGuid: {}, tagGuid: {}, spellId: {}, flag: {}): object ({}) is considered pet-like but doesn't have a charminfo!",
+                       guid1.ToString(), guid2.ToString(), spellId, flag, pet->GetGUID().ToString());
         return;
     }
 
@@ -667,7 +667,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     }
                     break;
                 default:
-                    LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action %i and spellId %i.", uint32(flag), spellId);
+                    LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action {} and spellId {}.", uint32(flag), spellId);
             }
             break;
         case ACT_REACTION:                                  // 0x6
@@ -699,7 +699,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
                 if (!spellInfo)
                 {
-                    LOG_ERROR("network.opcode", "WORLD: unknown PET spell id %i", spellId);
+                    LOG_ERROR("network.opcode", "WORLD: unknown PET spell id {}", spellId);
                     return;
                 }
 
@@ -950,7 +950,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 break;
             }
         default:
-            LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action %i and spellId %i.", uint32(flag), spellId);
+            LOG_ERROR("network.opcode", "WORLD: unknown PET flag Action {} and spellId {}.", uint32(flag), spellId);
     }
 }
 
