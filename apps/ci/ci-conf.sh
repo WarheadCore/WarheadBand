@@ -48,6 +48,12 @@ case $COMPILER in
     echo "CCOMPILERCXX=\"clang++-12\"" >> ./conf/config.sh
     ;;
 
+  "clang13" )
+    time sudo apt-get install -y clang-13
+    echo "CCOMPILERC=\"clang-13\"" >> ./conf/config.sh
+    echo "CCOMPILERCXX=\"clang++-13\"" >> ./conf/config.sh
+    ;;
+
   * )
     echo "Unknown compiler $COMPILER"
     exit 1
