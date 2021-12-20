@@ -448,6 +448,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "Battleground.InvitationType",
     "Battleground.PlayerRespawn",
     "Battleground.PremadeGroupWaitForMatch",
+    "Battleground.PrematureFinishTimer",
     "Battleground.QueueAnnouncer.Limit.MinLevel",
     "Battleground.QueueAnnouncer.Limit.MinPlayers",
     "Battleground.QueueAnnouncer.SpamProtection.Delay",
