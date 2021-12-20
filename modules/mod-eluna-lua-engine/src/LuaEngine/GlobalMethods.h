@@ -1995,7 +1995,7 @@ namespace LuaGlobalFunctions
         const int BAN_CHARACTER = 1;
         const int BAN_IP = 2;
 
-        BanMode mode = BanMode::BAN_ACCOUNT;
+        [[maybe_unused]] BanMode mode = BanMode::BAN_ACCOUNT;
 
         switch (banMode)
         {
