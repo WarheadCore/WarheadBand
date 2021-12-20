@@ -15570,8 +15570,7 @@ uint16 Player::GetMaxSkillValueForLevel() const
 
 float Player::GetQuestRate(bool isDFQuest)
 {
-    float result = CONF_GET_FLOAT("Rate.XP.Quest");
-    float result = isDFQuest ? sWorld->getRate(RATE_XP_QUEST_DF) : sWorld->getRate(RATE_XP_QUEST);
+    float result = isDFQuest ? CONF_GET_FLOAT("Rate.XP.Quest.DF") : CONF_GET_FLOAT("Rate.XP.Quest");
 
     sScriptMgr->OnGetQuestRate(this, result);
 

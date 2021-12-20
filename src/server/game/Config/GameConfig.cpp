@@ -728,6 +728,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "Rate.XP.Kill",
     "Rate.XP.Pet",
     "Rate.XP.Quest",
+    "Rate.XP.Quest.DF",
     "TargetPosRecalculateRange",
     "Visibility.Distance.BGArenas",
     "Visibility.Distance.Continents",
