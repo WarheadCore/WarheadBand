@@ -49,7 +49,6 @@ public:
 
 private:
     void SendMails();
-    void GetMailsFromDB();
 
     // Async
     void SendMailsAsync(PreparedQueryResult result);

@@ -93,7 +93,6 @@ void ExternalMail::LoadSystem()
     scheduler.CancelAll();
     scheduler.Schedule(10s, [this](TaskContext context)
     {
-        GetMailsFromDB();
         SendMails();
 
         context.Repeat();
@@ -109,7 +108,7 @@ void ExternalMail::AddMail(std::string charName, std::string const thanksSubject
         charName, thanksSubject, itemID, itemCount, thanksText, creatureEntry);
 }
 
-void ExternalMail::GetMailsFromDB()
+void ExternalMail::SendMails()
 {
     LOG_TRACE("mail.external", "> External Mail: GetMailsFromDB");
 
