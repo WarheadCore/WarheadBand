@@ -18,6 +18,7 @@
 #ifndef _EXTERNAL_MAIL_H_
 #define _EXTERNAL_MAIL_H_
 
+#include "DatabaseEnvFwd.h"
 #include "Common.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
@@ -50,7 +51,12 @@ private:
     void SendMails();
     void GetMailsFromDB();
 
+    // Async
+    void SendMailsAsync(PreparedQueryResult result);
+
     std::unordered_map<uint32, ExMail> _store;
+
+    QueryCallbackProcessor _queryProcessor;
 };
 
 #define sExternalMail ExternalMail::instance()
