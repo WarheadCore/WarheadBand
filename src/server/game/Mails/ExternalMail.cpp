@@ -114,10 +114,10 @@ void ExternalMail::SendMails()
 
     _queryProcessor.AddCallback(
         CharacterDatabase.AsyncQuery("SELECT ID, PlayerName, Subject, Message, Money, ItemID, ItemCount, CreatureEntry FROM mail_external ORDER BY id ASC").
-        WithPreparedCallback(std::bind(&ExternalMail::SendMailsAsync, this, std::placeholders::_1)));
+        WithCallback(std::bind(&ExternalMail::SendMailsAsync, this, std::placeholders::_1)));
 }
 
-void ExternalMail::SendMailsAsync(PreparedQueryResult result)
+void ExternalMail::SendMailsAsync(QueryResult result)
 {
     LOG_TRACE("mail.external", "> External Mail: GetMailsAsync");
 

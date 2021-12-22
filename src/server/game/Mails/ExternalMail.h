@@ -51,7 +51,7 @@ private:
     void SendMails();
 
     // Async
-    void SendMailsAsync(PreparedQueryResult result);
+    void SendMailsAsync(QueryResult result);
 
     std::unordered_map<uint32, ExMail> _store;
 
