@@ -20,7 +20,6 @@
 #include "OnlineReward.h"
 #include "ModulesConfig.h"
 #include "Player.h"
-#include "TaskScheduler.h"
 #include <map>
 
 class OnlineReward_Player : public PlayerScript
@@ -30,17 +29,11 @@ public:
 
     void OnLogin(Player* player) override
     {
-        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
-            return;
-
         sOL->AddRewardHistory(player->GetGUID().GetCounter());
     }
 
     void OnLogout(Player* player) override
     {
-        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
-            return;
-
         sOL->DeleteRewardHistory(player->GetGUID().GetCounter());
     }
 };
@@ -62,29 +55,13 @@ public:
 
     void OnStartup() override
     {
-        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
-            return;
-
         sOL->InitSystem();
-
-        scheduler.Schedule(30s, [](TaskContext context)
-        {
-            sOL->RewardPlayers();
-
-            context.Repeat(10s, 1min);
-        });
     }
 
     void OnUpdate(uint32 diff) override
     {
-        if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
-            return;
-
-        scheduler.Update(diff);
-    }
-
-private:
-    TaskScheduler scheduler;
+        sOL->Update(diff);
+    }    
 };
 
 // Group all custom scripts

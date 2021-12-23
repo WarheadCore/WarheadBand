@@ -21,53 +21,36 @@
 #include "Common.h"
 #include "Player.h"
 #include "ObjectGuid.h"
-#include <set>
+#include "Duration.h"
 #include <unordered_map>
-
-struct RewardPlayedTime
-{
-    uint32 ItemID;
-    uint32 ItemCount;
-};
-
-struct RewardTimeHistory
-{
-    std::unordered_set<uint32> PerOnline;
-    uint32 PerTime;
-};
-
-enum TypeReward
-{
-    DEFAULT_REWARD = 1,
-    REWARD_PER_HOUR
-};
+#include <vector>
 
 class OnlineReward
 {
 public:
     static OnlineReward* instance();
 
-    void InitSystem();
-    void RewardPlayers();
+    void InitSystem();    
     void AddRewardHistory(ObjectGuid::LowType lowGuid);
     void DeleteRewardHistory(ObjectGuid::LowType lowGuid);
+    void Update(uint32 diff);
 
 private:
     void LoadRewards();
+    void RewardPlayers();
     bool IsExistHistory(ObjectGuid::LowType lowGuid);
-    void RewardPerOnline(Player* player);
-    void RewardPerTime(Player* player);
+    void RewardPlayersPerOnline(Player* player);
+    void RewardPlayersPerTime(Player* player);
     void SaveRewardDB();
 
-    std::unordered_set<uint32>* GetHistoryPerOnline(ObjectGuid::LowType lowGuid);
-    uint32 GetHistoryPerTime(ObjectGuid::LowType lowGuid);
+    std::vector<Seconds>* GetHistoryPerOnline(ObjectGuid::LowType lowGuid);
+    Seconds GetHistoryPerTime(ObjectGuid::LowType lowGuid);
 
-    void SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, uint32 secondsOnine, bool isPerOnline = true);
-    void SaveDataForDB(ObjectGuid::LowType lowGuid, uint32 seconds, bool isPerOnline = true);
+    void SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, Seconds secondsOnine, bool isPerOnline = true);
+    void SaveDataForDB(ObjectGuid::LowType lowGuid, Seconds seconds, bool isPerOnline = true);
 
 private:
-    std::unordered_map<uint32 /*time*/, RewardPlayedTime> _rewards; // for per online
-    std::unordered_map<ObjectGuid::LowType, RewardTimeHistory> _rewardHistoryDB;
+    QueryCallbackProcessor _queryProcessor;
 };
 
 #define sOL OnlineReward::instance()
