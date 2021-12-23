@@ -662,7 +662,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             if (AdditionalSpellInfo->GetDuration() > 0)
             {
                 LOG_DEBUG/*ERROR*/("sql.sql", "Creature (Entry: {}) has temporary aura (spell {}) in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
-                continue;
+                // continue;
             }
 
             creatureAddon.auras.push_back(atol(*itr));
@@ -1099,7 +1099,7 @@ void ObjectMgr::LoadCreatureAddons()
             if (AdditionalSpellInfo->GetDuration() > 0)
             {
                 LOG_DEBUG/*ERROR*/("sql.sql", "Creature (Entry: {}) has temporary aura (spell {}) in `auras` field in `creature_template_addon`.", guid, uint32(atol(*itr)));
-                continue;
+                // continue;
             }
 
             creatureAddon.auras.push_back(atol(*itr));
