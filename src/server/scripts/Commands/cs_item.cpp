@@ -216,9 +216,9 @@ public:
             if (iece->reqhonorpoints)
             {
                 uint32 honor = target->GetHonorPoints() + iece->reqhonorpoints;
-                if (honor > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
+                if (honor > CONF_GET_UINT("MaxHonorPoints"))
                 {
-                    handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS), target->GetHonorPoints(), iece->reqhonorpoints);
+                    handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, CONF_GET_UINT("MaxHonorPoints"), target->GetHonorPoints(), iece->reqhonorpoints);
                     ChatHandler(target->GetSession()).PSendSysMessage(LANG_CMD_ITEM_REFUND_HONOR_FAILED, item->Name1);
                     handler->SetSentErrorMessage(true);
                     return false;
@@ -232,9 +232,9 @@ public:
             if (iece->reqarenapoints)
             {
                 uint32 arenapoints = target->GetArenaPoints() + iece->reqarenapoints;
-                if (arenapoints > sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS))
+                if (arenapoints > CONF_GET_UINT("MaxArenaPoints"))
                 {
-                    handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS), target->GetArenaPoints(), iece->reqarenapoints);
+                    handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, CONF_GET_UINT("MaxArenaPoints"), target->GetArenaPoints(), iece->reqarenapoints);
                     ChatHandler(target->GetSession()).PSendSysMessage(LANG_CMD_ITEM_REFUND_AP_FAILED, item->Name1);
                     handler->SetSentErrorMessage(true);
                     return false;
@@ -283,9 +283,9 @@ public:
                     if (queryResult)
                     {
                         Field* fields = queryResult->Fetch();
-                        if ((fields[0].GetUInt32() + iece->reqhonorpoints) > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
+                        if ((fields[0].GetUInt32() + iece->reqhonorpoints) > CONF_GET_UINT("MaxHonorPoints"))
                         {
-                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS), fields[0].GetUInt32(), iece->reqhonorpoints);
+                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, CONF_GET_UINT("MaxHonorPoints"), fields[0].GetUInt32(), iece->reqhonorpoints);
                             handler->SetSentErrorMessage(true);
                             return false;
                         }
@@ -308,9 +308,9 @@ public:
                     if (queryResult)
                     {
                         Field* fields = queryResult->Fetch();
-                        if ((fields[0].GetUInt32() + iece->reqhonorpoints) > sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS))
+                        if ((fields[0].GetUInt32() + iece->reqhonorpoints) > CONF_GET_UINT("MaxArenaPoints"))
                         {
-                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS), fields[0].GetUInt32(), iece->reqarenapoints);
+                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, CONF_GET_UINT("MaxArenaPoints"), fields[0].GetUInt32(), iece->reqarenapoints);
                             handler->SetSentErrorMessage(true);
                             return false;
                         }

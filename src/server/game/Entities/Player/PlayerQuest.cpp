@@ -1651,8 +1651,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             {
                 if (SatisfyQuestLevel(quest, false))
                 {
-                    bool isNotLowLevelQuest = getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
-                    bool isLowLevel = (getLevel() > (GetQuestLevel(quest) + CONF_GET_INT("Quests.LowLevelHideDiff")));
+                    bool isNotLowLevelQuest = getLevel() <= (GetQuestLevel(quest) + CONF_GET_INT("Quests.LowLevelHideDiff"));
 
                     if (quest->IsRepeatable())
                     {

@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -21,8 +21,9 @@
 #include "Log.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GameConfig.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class gear_commandscript : public CommandScript
 {
@@ -90,7 +91,7 @@ public:
         handler->PSendSysMessage("Character: %s", player->GetPlayerName().c_str());
         handler->PSendSysMessage("Current equipment average item level: |cff00ffff%u|r", (int16)player->GetAverageItemLevel());
 
-        if (sWorld->getIntConfig(CONFIG_MIN_LEVEL_STAT_SAVE))
+        if (CONF_GET_INT("PlayerSave.Stats.MinLevel"))
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
             stmt->setUInt32(0, player->GetGUID().GetCounter());

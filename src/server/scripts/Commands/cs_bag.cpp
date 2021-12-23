@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -33,12 +33,12 @@ constexpr std::array<std::string_view, MAX_ITEM_QUALITY> itemQualityToString =
     "all"
 };
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
-class bg_commandscript : public CommandScript
+class bag_commandscript : public CommandScript
 {
 public:
-    bg_commandscript() : CommandScript("bg_commandscript") { }
+    bag_commandscript() : CommandScript("bag_commandscript") { }
 
     ChatCommandTable GetCommands() const override
     {
@@ -157,5 +157,5 @@ public:
 
 void AddSC_bag_commandscript()
 {
-    new bg_commandscript();
+    new bag_commandscript();
 }

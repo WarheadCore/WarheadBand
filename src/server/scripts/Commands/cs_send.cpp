@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -27,7 +27,7 @@
 #include "WorldSession.h"
 #include "Tokenize.h"
 
-using namespace Acore::ChatCommands;
+using namespace Warhead::ChatCommands;
 
 class send_commandscript : public CommandScript
 {
@@ -67,18 +67,18 @@ public:
         // extract items
         std::vector<std::pair<uint32, uint32>> itemList;
 
-        for (auto const& itemString : Acore::Tokenize(items, ' ', true))
+        for (auto const& itemString : Warhead::Tokenize(items, ' ', true))
         {
-            auto itemTokens = Acore::Tokenize(itemString, ':', false);
+            auto itemTokens = Warhead::Tokenize(itemString, ':', false);
 
             if (itemTokens.size() != 2)
             {
-                handler->SendSysMessage(Acore::StringFormatFmt("> Incorrect item list format for '{}'", itemString));
+                handler->SendSysMessage(Warhead::StringFormat("> Incorrect item list format for '{}'", itemString));
                 continue;
             }
 
-            uint32 itemID = *Acore::StringTo<uint32>(itemTokens.at(0));
-            uint32 itemCount = *Acore::StringTo<uint32>(itemTokens.at(1));
+            uint32 itemID = *Warhead::StringTo<uint32>(itemTokens.at(0));
+            uint32 itemCount = *Warhead::StringTo<uint32>(itemTokens.at(1));
 
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
             if (!itemTemplate)
@@ -173,15 +173,14 @@ public:
         }
 
         Player* player = target->GetConnectedPlayer();
-        std::string msg = std::string{ message };
 
         /// - Send the message
         // Use SendAreaTriggerMessage for fastest delivery.
-        player->GetSession()->SendAreaTriggerMessage("%s", msg.c_str());
+        player->GetSession()->SendAreaTriggerMessage(message);
         player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
 
         // Confirmation message
-        handler->PSendSysMessage(LANG_SENDMESSAGE, handler->playerLink(target->GetName()).c_str(), msg.c_str());
+        handler->PSendSysMessage(LANG_SENDMESSAGE, handler->playerLink(target->GetName()).c_str(), message);
 
         return true;
     }
