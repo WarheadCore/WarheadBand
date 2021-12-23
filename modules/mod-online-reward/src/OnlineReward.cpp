@@ -188,7 +188,7 @@ void OnlineReward::RewardPlayers()
 void OnlineReward::RewardPlayersPerOnline(Player* player)
 {
     ChatHandler handler(player->GetSession());
-    auto playedTimeSec = player->GetTotalPlayedTime();
+    int32 playedTimeSec = player->GetTotalPlayedTime();
     auto lowGuid = player->GetGUID().GetCounter();
 
     auto IsRewarded = [this, lowGuid](int32 rewardSeconds)
