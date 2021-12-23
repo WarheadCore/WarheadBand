@@ -7,12 +7,10 @@
 #ifndef lmem_h
 #define lmem_h
 
-
 #include <stddef.h>
 
 #include "llimits.h"
 #include "lua.h"
-
 
 /*
 ** This macro avoids the runtime division MAX_SIZET/(e), as 'e' is
@@ -54,4 +52,3 @@ LUAI_FUNC void *luaM_growaux_ (lua_State *L, void *block, int *size,
                                const char *what);
 
 #endif
-

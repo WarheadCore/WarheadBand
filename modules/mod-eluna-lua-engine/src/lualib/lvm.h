@@ -7,11 +7,9 @@
 #ifndef lvm_h
 #define lvm_h
 
-
 #include "ldo.h"
 #include "lobject.h"
 #include "ltm.h"
-
 
 #define tostring(L,o) (ttisstring(o) || (luaV_tostring(L, o)))
 
@@ -21,10 +19,8 @@
 
 #define luaV_rawequalobj(o1,o2)		equalobj(NULL,o1,o2)
 
-
 /* not to called directly */
 LUAI_FUNC int luaV_equalobj_ (lua_State *L, const TValue *t1, const TValue *t2);
-
 
 LUAI_FUNC int luaV_lessthan (lua_State *L, const TValue *l, const TValue *r);
 LUAI_FUNC int luaV_lessequal (lua_State *L, const TValue *l, const TValue *r);

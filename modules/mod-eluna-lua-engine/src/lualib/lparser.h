@@ -11,7 +11,6 @@
 #include "lobject.h"
 #include "lzio.h"
 
-
 /*
 ** Expression descriptor
 */
@@ -33,7 +32,6 @@ typedef enum {
   VVARARG	/* info = instruction pc */
 } expkind;
 
-
 #define vkisvar(k)	(VLOCAL <= (k) && (k) <= VINDEXED)
 #define vkisinreg(k)	((k) == VNONRELOC || (k) == VLOCAL)
 
@@ -52,12 +50,10 @@ typedef struct expdesc {
   int f;  /* patch list of `exit when false' */
 } expdesc;
 
-
 /* description of active local variable */
 typedef struct Vardesc {
   short idx;  /* variable index in stack */
 } Vardesc;
-
 
 /* description of pending goto statements and label statements */
 typedef struct Labeldesc {
@@ -67,14 +63,12 @@ typedef struct Labeldesc {
   lu_byte nactvar;  /* local level where it appears in current block */
 } Labeldesc;
 
-
 /* list of labels or gotos */
 typedef struct Labellist {
   Labeldesc *arr;  /* array */
   int n;  /* number of entries in use */
   int size;  /* array size */
 } Labellist;
-
 
 /* dynamic structures used by the parser */
 typedef struct Dyndata {
@@ -87,10 +81,8 @@ typedef struct Dyndata {
   Labellist label;   /* list of active labels */
 } Dyndata;
 
-
 /* control of blocks */
 struct BlockCnt;  /* defined in lparser.c */
-
 
 /* state needed to generate code for a given function */
 typedef struct FuncState {
@@ -111,9 +103,7 @@ typedef struct FuncState {
   lu_byte freereg;  /* first free register */
 } FuncState;
 
-
 LUAI_FUNC Closure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
                                 Dyndata *dyd, const char *name, int firstchar);
-
 
 #endif

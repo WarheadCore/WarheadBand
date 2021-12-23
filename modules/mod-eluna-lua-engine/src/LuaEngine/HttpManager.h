@@ -30,7 +30,6 @@ public:
     httplib::Headers headers;
 };
 
-
 class HttpManager
 {
 public:

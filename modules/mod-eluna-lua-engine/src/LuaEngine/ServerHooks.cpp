@@ -122,7 +122,7 @@ bool Eluna::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)
     Push(pTrigger->entry);
 #else
     Push(pTrigger->id);
-    
+
 #endif
     return CallAllFunctionsBool(ServerEventBindings, key);
 }
@@ -191,7 +191,6 @@ void Eluna::OnRemove(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
     uint32 expiretime = entry->expireTime;
 #endif
 
-
     if (!owner || !item)
         return;
 
@@ -226,7 +225,6 @@ void Eluna::OnSuccessful(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
     uint32 expiretime = entry->expireTime;
 #endif
 
-
     if (!owner || !item)
         return;
 
@@ -260,7 +258,6 @@ void Eluna::OnExpire(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
     Item* item = eAuctionMgr->GetAItem(entry->itemGuidLow);
     uint32 expiretime = entry->expireTime;
 #endif
-
 
     if (!owner || !item)
         return;
