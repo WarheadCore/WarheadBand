@@ -4,20 +4,17 @@
 ** See Copyright Notice in lua.h
 */
 
-
 #ifndef lconfig_h
 #define lconfig_h
 
 #include <limits.h>
 #include <stddef.h>
 
-
 /*
 ** ==================================================================
 ** Search for "@@" to find all configurable definitions.
 ** ===================================================================
 */
-
 
 /*
 @@ LUA_ANSI controls the use of non-ansi features.
@@ -27,7 +24,6 @@
 #if !defined(LUA_ANSI) && defined(__STRICT_ANSI__)
 #define LUA_ANSI
 #endif
-
 
 #if !defined(LUA_ANSI) && defined(_WIN32) && !defined(_WIN32_WCE)
 #define LUA_WIN		/* enable goodies for regular Windows platforms */
@@ -56,8 +52,6 @@
 #define LUA_USE_LONGLONG	/* assume support for long long */
 #endif
 
-
-
 /*
 @@ LUA_USE_POSIX includes all functionality listed as X/Open System
 @* Interfaces Extension (XSI).
@@ -70,8 +64,6 @@
 #define LUA_USE_ULONGJMP
 #define LUA_USE_GMTIME_R
 #endif
-
-
 
 /*
 @@ LUA_PATH_DEFAULT is the default path that Lua uses to look for
@@ -108,7 +100,6 @@
 		LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" "./?.so"
 #endif			/* } */
 
-
 /*
 @@ LUA_DIRSEP is the directory separator (for submodules).
 ** CHANGE it if your machine does not use "/" as the directory separator
@@ -120,14 +111,12 @@
 #define LUA_DIRSEP	"/"
 #endif
 
-
 /*
 @@ LUA_ENV is the name of the variable that holds the current
 @@ environment, used to access global names.
 ** CHANGE it if you do not like this name.
 */
 #define LUA_ENV		"_ENV"
-
 
 /*
 @@ LUA_API is a mark for all core API functions.
@@ -152,11 +141,9 @@
 
 #endif				/* } */
 
-
 /* more often than not the libs go together with the core */
 #define LUALIB_API	LUA_API
 #define LUAMOD_API	LUALIB_API
-
 
 /*
 @@ LUAI_FUNC is a mark for all extern functions that are not to be
@@ -184,8 +171,6 @@
 #define LUAI_DDEF	/* empty */
 #endif				/* } */
 
-
-
 /*
 @@ LUA_QL describes how error messages quote program elements.
 ** CHANGE it if you want a different appearance.
@@ -193,14 +178,12 @@
 #define LUA_QL(x)	"'" x "'"
 #define LUA_QS		LUA_QL("%s")
 
-
 /*
 @@ LUA_IDSIZE gives the maximum size for the description of the source
 @* of a function in debug information.
 ** CHANGE it if you want a different size.
 */
 #define LUA_IDSIZE	60
-
 
 /*
 @@ luai_writestring/luai_writeline define how 'print' prints its results.
@@ -220,7 +203,6 @@
 #define luai_writestringerror(s,p) \
 	(fprintf(stderr, (s), (p)), fflush(stderr))
 
-
 /*
 @@ LUAI_MAXSHORTLEN is the maximum length for short strings, that is,
 ** strings that are internalized. (Cannot be smaller than reserved words
@@ -228,8 +210,6 @@
 ** #("function") = 8, #("__newindex") = 10.)
 */
 #define LUAI_MAXSHORTLEN        40
-
-
 
 /*
 ** {==================================================================
@@ -264,7 +244,6 @@
 	(lua_pushcfunction(L, (f)), \
 	 lua_pushlightuserdata(L,(u)), \
 	 lua_pcall(L,1,0,0))
-
 
 /*
 @@ LUA_COMPAT_LOG10 defines the function 'log10' in the math library.
@@ -305,8 +284,6 @@
 
 /* }================================================================== */
 
-
-
 /*
 @@ LUAI_BITSINT defines the number of bits in an int.
 ** CHANGE here if Lua cannot automatically detect the number of bits of
@@ -321,7 +298,6 @@
 #else				/* }{ */
 #error "you must define LUA_BITSINT with number of bits in an integer"
 #endif				/* } */
-
 
 /*
 @@ LUA_INT32 is a signed integer with exactly 32 bits.
@@ -344,7 +320,6 @@
 #define LUAI_MEM	long
 #endif				/* } */
 
-
 /*
 @@ LUAI_MAXSTACK limits the size of the Lua stack.
 ** CHANGE it if you need a different limit. This limit is arbitrary;
@@ -360,17 +335,11 @@
 /* reserve some space for error handling */
 #define LUAI_FIRSTPSEUDOIDX	(-LUAI_MAXSTACK - 1000)
 
-
-
-
 /*
 @@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
 ** CHANGE it if it uses too much C-stack space.
 */
 #define LUAL_BUFFERSIZE		BUFSIZ
-
-
-
 
 /*
 ** {==================================================================
@@ -390,7 +359,6 @@
 */
 #define LUAI_UACNUMBER	double
 
-
 /*
 @@ LUA_NUMBER_SCAN is the format for reading numbers.
 @@ LUA_NUMBER_FMT is the format for writing numbers.
@@ -402,12 +370,10 @@
 #define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 
-
 /*
 @@ l_mathop allows the addition of an 'l' or 'f' to all math operations
 */
 #define l_mathop(x)		(x)
-
 
 /*
 @@ lua_str2number converts a decimal numeric string to a number.
@@ -422,7 +388,6 @@
 #if defined(LUA_USE_STRTODHEX)
 #define lua_strx2number(s,p)	strtod((s), (p))
 #endif
-
 
 /*
 @@ The luai_num* macros define the primitive operations over numbers.
@@ -448,8 +413,6 @@
 #define luai_numisnan(L,a)	(!luai_numeq((a), (a)))
 #endif
 
-
-
 /*
 @@ LUA_INTEGER is the integral type used by lua_pushinteger/lua_tointeger.
 ** CHANGE that if ptrdiff_t is not adequate on your machine. (On most
@@ -462,8 +425,6 @@
 ** It must have at least 32 bits.
 */
 #define LUA_UNSIGNED	unsigned LUA_INT32
-
-
 
 /*
 ** Some tricks with doubles
@@ -502,7 +463,6 @@
 #define LUA_IEEEENDIAN		0
 #define LUA_NANTRICK
 
-
 /* pentium 32 bits? */
 #elif defined(__i386__) || defined(__i386) || defined(__X86__) /* }{ */
 
@@ -533,9 +493,6 @@
 
 /* }================================================================== */
 
-
-
-
 /* =================================================================== */
 
 /*
@@ -543,7 +500,4 @@
 ** without modifying the main part of the file.
 */
 
-
-
 #endif
-

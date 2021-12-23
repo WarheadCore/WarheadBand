@@ -13,7 +13,6 @@
 #include "ltm.h"
 #include "lzio.h"
 
-
 /*
 
 ** Some notes about garbage-collected objects:  All objects in Lua must
@@ -38,30 +37,23 @@
 
 */
 
-
 struct lua_longjmp;  /* defined in ldo.c */
-
-
 
 /* extra stack space to handle TM calls and some other extras */
 #define EXTRA_STACK   5
 
-
 #define BASIC_STACK_SIZE        (2*LUA_MINSTACK)
-
 
 /* kinds of Garbage Collection */
 #define KGC_NORMAL	0
 #define KGC_EMERGENCY	1	/* gc was forced by an allocation failure */
 #define KGC_GEN		2	/* generational collection */
 
-
 typedef struct stringtable {
   GCObject **hash;
   lu_int32 nuse;  /* number of elements */
   int size;
 } stringtable;
-
 
 /*
 ** information about a call
@@ -88,7 +80,6 @@ typedef struct CallInfo {
   } u;
 } CallInfo;
 
-
 /*
 ** Bits in CallInfo status
 */
@@ -102,9 +93,7 @@ typedef struct CallInfo {
 #define CIST_TAIL	(1<<6)	/* call was tail called */
 #define CIST_HOOKYIELD	(1<<7)	/* last hook called yielded */
 
-
 #define isLua(ci)	((ci)->callstatus & CIST_LUA)
-
 
 /*
 ** `global state', shared by all threads of this state
@@ -147,7 +136,6 @@ typedef struct global_State {
   struct Table *mt[LUA_NUMTAGS];  /* metatables for basic types */
 } global_State;
 
-
 /*
 ** `per thread' state
 */
@@ -175,9 +163,7 @@ struct lua_State {
   CallInfo base_ci;  /* CallInfo for first level (C calling Lua) */
 };
 
-
 #define G(L)	(L->l_G)
-
 
 /*
 ** Union of all collectable objects
@@ -192,7 +178,6 @@ union GCObject {
   struct UpVal uv;
   struct lua_State th;  /* thread */
 };
-
 
 #define gch(o)		(&(o)->gch)
 
@@ -214,7 +199,6 @@ union GCObject {
 /* macro to convert any Lua object into a GCObject */
 #define obj2gco(v)	(cast(GCObject *, (v)))
 
-
 /* actual number of total bytes allocated */
 #define gettotalbytes(g)	((g)->totalbytes + (g)->GCdebt)
 
@@ -223,6 +207,4 @@ LUAI_FUNC void luaE_freethread (lua_State *L, lua_State *L1);
 LUAI_FUNC CallInfo *luaE_extendCI (lua_State *L);
 LUAI_FUNC void luaE_freeCI (lua_State *L);
 
-
 #endif
-

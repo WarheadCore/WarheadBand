@@ -7,7 +7,6 @@
 #ifndef lapi_h
 #define lapi_h
 
-
 #include "llimits.h"
 #include "lstate.h"
 
@@ -19,6 +18,5 @@
 
 #define api_checknelems(L,n)	api_check(L, (n) < (L->top - L->ci->func), \
 				  "not enough elements in the stack")
-
 
 #endif

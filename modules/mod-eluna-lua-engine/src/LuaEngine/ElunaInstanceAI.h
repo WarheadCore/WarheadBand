@@ -94,7 +94,6 @@ public:
     const char* Save() const override;
 #endif
 
-
     /*
      * Calls `Load` with the last save data that was passed to
      * or from Eluna.

@@ -12,13 +12,11 @@
 #include "lopcodes.h"
 #include "lparser.h"
 
-
 /*
 ** Marks the end of a patch list. It is an invalid value both as an absolute
 ** address, and as a list link (would link an element to itself).
 */
 #define NO_JUMP (-1)
-
 
 /*
 ** grep "ORDER OPR" if you change these enums  (ORDER OP)
@@ -32,9 +30,7 @@ typedef enum BinOpr {
   OPR_NOBINOPR
 } BinOpr;
 
-
 typedef enum UnOpr { OPR_MINUS, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
-
 
 #define getcode(fs,e)	((fs)->f->code[(e)->u.info])
 
@@ -78,6 +74,5 @@ LUAI_FUNC void luaK_infix (FuncState *fs, BinOpr op, expdesc *v);
 LUAI_FUNC void luaK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
                             expdesc *v2, int line);
 LUAI_FUNC void luaK_setlist (FuncState *fs, int base, int nelems, int tostore);
-
 
 #endif

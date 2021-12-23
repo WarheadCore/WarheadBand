@@ -30,7 +30,7 @@ class OnlineReward
 public:
     static OnlineReward* instance();
 
-    void InitSystem();    
+    void InitSystem();
     void AddRewardHistory(ObjectGuid::LowType lowGuid);
     void DeleteRewardHistory(ObjectGuid::LowType lowGuid);
     void Update(uint32 diff);

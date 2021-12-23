@@ -7,13 +7,10 @@
 #ifndef llimits_h
 #define llimits_h
 
-
 #include <limits.h>
 #include <stddef.h>
 
-
 #include "lua.h"
-
 
 typedef unsigned LUA_INT32 lu_int32;
 
@@ -21,18 +18,14 @@ typedef LUAI_UMEM lu_mem;
 
 typedef LUAI_MEM l_mem;
 
-
-
 /* chars used as small naturals (so that `char' is reserved for characters) */
 typedef unsigned char lu_byte;
-
 
 #define MAX_SIZET	((size_t)(~(size_t)0)-2)
 
 #define MAX_LUMEM	((lu_mem)(~(lu_mem)0)-2)
 
 #define MAX_LMEM	((l_mem) ((MAX_LUMEM >> 1) - 2))
-
 
 #define MAX_INT (INT_MAX-2)  /* maximum value of an int (-2 for safety) */
 
@@ -43,8 +36,6 @@ typedef unsigned char lu_byte;
 */
 #define IntPoint(p)  ((unsigned int)(lu_mem)(p))
 
-
-
 /* type to ensure maximum alignment */
 #if !defined(LUAI_USER_ALIGNMENT_T)
 #define LUAI_USER_ALIGNMENT_T	union { double u; void *s; long l; }
@@ -52,10 +43,8 @@ typedef unsigned char lu_byte;
 
 typedef LUAI_USER_ALIGNMENT_T L_Umaxalign;
 
-
 /* result of a `usual argument conversion' over lua_Number */
 typedef LUAI_UACNUMBER l_uacNumber;
-
 
 /* internal assertions for in-house debugging */
 #if defined(lua_assert)
@@ -84,11 +73,9 @@ typedef LUAI_UACNUMBER l_uacNumber;
 
 #define api_check(l,e,msg)	luai_apicheck(l,(e) && msg)
 
-
 #if !defined(UNUSED)
 #define UNUSED(x)	((void)(x))	/* to avoid warnings */
 #endif
-
 
 #define cast(t, exp)	((t)(exp))
 
@@ -96,7 +83,6 @@ typedef LUAI_UACNUMBER l_uacNumber;
 #define cast_num(i)	cast(lua_Number, (i))
 #define cast_int(i)	cast(int, (i))
 #define cast_uchar(i)	cast(unsigned char, (i))
-
 
 /*
 ** non-return type
@@ -108,8 +94,6 @@ typedef LUAI_UACNUMBER l_uacNumber;
 #else
 #define l_noret		void
 #endif
-
-
 
 /*
 ** maximum depth for nested C calls and syntactical nested non-terminals
@@ -125,31 +109,24 @@ typedef LUAI_UACNUMBER l_uacNumber;
 */
 #define MAXUPVAL	UCHAR_MAX
 
-
 /*
 ** type for virtual-machine instructions
 ** must be an unsigned with (at least) 4 bytes (see details in lopcodes.h)
 */
 typedef lu_int32 Instruction;
 
-
-
 /* maximum stack for a Lua function */
 #define MAXSTACK	250
-
-
 
 /* minimum size for the string table (must be power of 2) */
 #if !defined(MINSTRTABSIZE)
 #define MINSTRTABSIZE	32
 #endif
 
-
 /* minimum size for string buffer */
 #if !defined(LUA_MINBUFFER)
 #define LUA_MINBUFFER	32
 #endif
-
 
 #if !defined(lua_lock)
 #define lua_lock(L)     ((void) 0)
@@ -159,7 +136,6 @@ typedef lu_int32 Instruction;
 #if !defined(luai_threadyield)
 #define luai_threadyield(L)     {lua_unlock(L); lua_lock(L);}
 #endif
-
 
 /*
 ** these macros allow user-specific actions on threads when you defined
@@ -208,7 +184,6 @@ typedef lu_int32 Instruction;
 #define lua_number2unsigned(i,n)  \
   {__int64 l; __asm {__asm fld n   __asm fistp l} i = (unsigned int)l;}
 
-
 #elif defined(LUA_IEEE754TRICK)		/* }{ */
 /* the next trick should work on any machine using IEEE754 with
    a 32-bit int type */
@@ -243,7 +218,6 @@ union luai_Cast { double l_d; LUA_INT32 l_p[2]; };
 
 #endif				/* } */
 
-
 /* the following definitions always work, but may be slow */
 
 #if !defined(lua_number2int)
@@ -266,15 +240,12 @@ union luai_Cast { double l_d; LUA_INT32 l_p[2]; };
 #endif
 #endif				/* } */
 
-
 #if !defined(lua_unsigned2number)
 /* on several machines, coercion from unsigned to double is slow,
    so it may be worth to avoid */
 #define lua_unsigned2number(u)  \
     (((u) <= (lua_Unsigned)INT_MAX) ? (lua_Number)(int)(u) : (lua_Number)(u))
 #endif
-
-
 
 #if defined(ltable_c) && !defined(luai_hashnum)
 
@@ -286,8 +257,6 @@ union luai_Cast { double l_d; LUA_INT32 l_p[2]; };
   lua_number2int(i, n); i += e; }
 
 #endif
-
-
 
 /*
 ** macro to control inclusion of some hard tests on stack reallocation

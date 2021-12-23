@@ -61,7 +61,7 @@ public:
     void OnUpdate(uint32 diff) override
     {
         sOL->Update(diff);
-    }    
+    }
 };
 
 // Group all custom scripts
