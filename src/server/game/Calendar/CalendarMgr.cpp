@@ -186,7 +186,7 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
     {
         CalendarInvite* invite = eventInvites[i];
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
-        stmt->setUInt64(0, invite->GetInviteId());
+        stmt->SetData(0, invite->GetInviteId());
         trans->Append(stmt);
 
         // guild events only? check invite status here?
@@ -200,7 +200,7 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
     _invites.erase(calendarEvent->GetEventId());
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_EVENT);
-    stmt->setUInt64(0, calendarEvent->GetEventId());
+    stmt->SetData(0, calendarEvent->GetEventId());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
 
@@ -226,7 +226,7 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, ObjectGuid /*rem
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
-    stmt->setUInt64(0, (*itr)->GetInviteId());
+    stmt->SetData(0, (*itr)->GetInviteId());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
 
@@ -247,29 +247,29 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, ObjectGuid /*rem
 void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_EVENT);
-    stmt->setUInt64(0, calendarEvent->GetEventId());
-    stmt->setUInt32(1, calendarEvent->GetCreatorGUID().GetCounter());
-    stmt->setString(2, calendarEvent->GetTitle());
-    stmt->setString(3, calendarEvent->GetDescription());
-    stmt->setUInt8(4, calendarEvent->GetType());
-    stmt->setInt32(5, calendarEvent->GetDungeonId());
-    stmt->setUInt32(6, uint32(calendarEvent->GetEventTime()));
-    stmt->setUInt32(7, calendarEvent->GetFlags());
-    stmt->setUInt32(8, calendarEvent->GetTimeZoneTime()); // correct?
+    stmt->SetData(0, calendarEvent->GetEventId());
+    stmt->SetData(1, calendarEvent->GetCreatorGUID().GetCounter());
+    stmt->SetData(2, calendarEvent->GetTitle());
+    stmt->SetData(3, calendarEvent->GetDescription());
+    stmt->SetData(4, calendarEvent->GetType());
+    stmt->SetData(5, calendarEvent->GetDungeonId());
+    stmt->SetData(6, uint32(calendarEvent->GetEventTime()));
+    stmt->SetData(7, calendarEvent->GetFlags());
+    stmt->SetData(8, calendarEvent->GetTimeZoneTime()); // correct?
     CharacterDatabase.Execute(stmt);
 }
 
 void CalendarMgr::UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_INVITE);
-    stmt->setUInt64(0, invite->GetInviteId());
-    stmt->setUInt64(1, invite->GetEventId());
-    stmt->setUInt32(2, invite->GetInviteeGUID().GetCounter());
-    stmt->setUInt32(3, invite->GetSenderGUID().GetCounter());
-    stmt->setUInt8(4, invite->GetStatus());
-    stmt->setUInt32(5, uint32(invite->GetStatusTime()));
-    stmt->setUInt8(6, invite->GetRank());
-    stmt->setString(7, invite->GetText());
+    stmt->SetData(0, invite->GetInviteId());
+    stmt->SetData(1, invite->GetEventId());
+    stmt->SetData(2, invite->GetInviteeGUID().GetCounter());
+    stmt->SetData(3, invite->GetSenderGUID().GetCounter());
+    stmt->SetData(4, invite->GetStatus());
+    stmt->SetData(5, uint32(invite->GetStatusTime()));
+    stmt->SetData(6, invite->GetRank());
+    stmt->SetData(7, invite->GetText());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 

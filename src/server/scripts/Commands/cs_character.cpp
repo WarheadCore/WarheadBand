@@ -121,7 +121,7 @@ public:
             if (isNumeric(searchString.c_str()))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
-                stmt->setUInt32(0, uint32(atoi(searchString.c_str())));
+                stmt->SetData(0, uint32(atoi(searchString.c_str())));
                 result = CharacterDatabase.Query(stmt);
             }
             // search by name
@@ -131,7 +131,7 @@ public:
                     return false;
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_NAME);
-                stmt->setString(0, searchString);
+                stmt->SetData(0, searchString);
                 result = CharacterDatabase.Query(stmt);
             }
         }
@@ -233,13 +233,13 @@ public:
         }
 
         auto* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_RESTORE_DELETE_INFO);
-        stmt->setString(0, delInfo.name);
-        stmt->setUInt32(1, delInfo.accountId);
-        stmt->setUInt32(2, delInfo.lowGuid);
+        stmt->SetData(0, delInfo.name);
+        stmt->SetData(1, delInfo.accountId);
+        stmt->SetData(2, delInfo.lowGuid);
         CharacterDatabase.Execute(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_NAME_DATA);
-        stmt->setUInt32(0, delInfo.lowGuid);
+        stmt->SetData(0, delInfo.lowGuid);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
             sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, delInfo.lowGuid), delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
@@ -268,8 +268,8 @@ public:
         {
             // Update level and reset XP, everything else will be updated at login
             auto* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
-            stmt->setUInt8(0, uint8(newLevel));
-            stmt->setUInt32(1, playerGuid.GetCounter());
+            stmt->SetData(0, uint8(newLevel));
+            stmt->SetData(1, playerGuid.GetCounter());
             CharacterDatabase.Execute(stmt);
 
             sCharacterCache->UpdateCharacterLevel(playerGuid, newLevel);
@@ -364,7 +364,7 @@ public:
             }
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
-            stmt->setString(0, newName);
+            stmt->SetData(0, newName);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
             if (result)
             {
@@ -375,7 +375,7 @@ public:
 
             // Remove declined name from db
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
-            stmt->setUInt32(0, player->GetGUID().GetCounter());
+            stmt->SetData(0, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
 
             if (Player* target = player->GetConnectedPlayer())
@@ -388,8 +388,8 @@ public:
             else
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_BY_GUID);
-                stmt->setString(0, newName);
-                stmt->setUInt32(1, player->GetGUID().GetCounter());
+                stmt->SetData(0, newName);
+                stmt->SetData(1, player->GetGUID().GetCounter());
                 CharacterDatabase.Execute(stmt);
             }
 
@@ -413,8 +413,8 @@ public:
                 handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-                stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
-                stmt->setUInt32(1, player->GetGUID().GetCounter());
+                stmt->SetData(0, uint16(AT_LOGIN_RENAME));
+                stmt->SetData(1, player->GetGUID().GetCounter());
                 CharacterDatabase.Execute(stmt);
             }
         }
@@ -468,8 +468,8 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, static_cast<uint16>(AT_LOGIN_CUSTOMIZE));
-            stmt->setUInt32(1, player->GetGUID().GetCounter());
+            stmt->SetData(0, static_cast<uint16>(AT_LOGIN_CUSTOMIZE));
+            stmt->SetData(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
         }
 
@@ -492,8 +492,8 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
-            stmt->setUInt32(1, player->GetGUID().GetCounter());
+            stmt->SetData(0, uint16(AT_LOGIN_CHANGE_FACTION));
+            stmt->SetData(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
         }
 
@@ -516,8 +516,8 @@ public:
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
-            stmt->setUInt32(1, player->GetGUID().GetCounter());
+            stmt->SetData(0, uint16(AT_LOGIN_CHANGE_RACE));
+            stmt->SetData(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
         }
 

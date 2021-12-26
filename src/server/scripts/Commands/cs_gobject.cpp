@@ -461,15 +461,15 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_NEAREST);
-        stmt->setFloat(0, player->GetPositionX());
-        stmt->setFloat(1, player->GetPositionY());
-        stmt->setFloat(2, player->GetPositionZ());
-        stmt->setUInt32(3, player->GetMapId());
-        stmt->setFloat(4, player->GetPositionX());
-        stmt->setFloat(5, player->GetPositionY());
-        stmt->setFloat(6, player->GetPositionZ());
-        stmt->setFloat(7, distance * distance);
-        stmt->setUInt32(8, player->GetPhaseMask());
+        stmt->SetData(0, player->GetPositionX());
+        stmt->SetData(1, player->GetPositionY());
+        stmt->SetData(2, player->GetPositionZ());
+        stmt->SetData(3, player->GetMapId());
+        stmt->SetData(4, player->GetPositionX());
+        stmt->SetData(5, player->GetPositionY());
+        stmt->SetData(6, player->GetPositionZ());
+        stmt->SetData(7, distance * distance);
+        stmt->SetData(8, player->GetPhaseMask());
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (result)

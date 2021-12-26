@@ -452,7 +452,7 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
     for (uint8 i = 0; i < 2; i++)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(stmts[i]);
-        stmt->setUInt32(0, spellId);
+        stmt->SetData(0, spellId);
         CharacterDatabase.Execute(stmt);
     }
 }

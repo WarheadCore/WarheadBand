@@ -94,7 +94,7 @@ public:
         if (CONF_GET_INT("PlayerSave.Stats.MinLevel"))
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
-            stmt->setUInt32(0, player->GetGUID().GetCounter());
+            stmt->SetData(0, player->GetGUID().GetCounter());
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
             if (result)

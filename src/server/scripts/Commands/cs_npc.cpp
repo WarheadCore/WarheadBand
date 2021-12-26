@@ -320,8 +320,8 @@ public:
         // Update movement type
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
 
-        stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
-        stmt->setUInt32(1, lowGuid);
+        stmt->SetData(0, uint8(WAYPOINT_MOTION_TYPE));
+        stmt->SetData(1, lowGuid);
 
         WorldDatabase.Execute(stmt);
 
@@ -472,8 +472,8 @@ public:
         // ..and DB
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
 
-        stmt->setUInt16(0, uint16(factionId));
-        stmt->setUInt32(1, creature->GetEntry());
+        stmt->SetData(0, uint16(factionId));
+        stmt->SetData(1, creature->GetEntry());
 
         WorldDatabase.Execute(stmt);
 
@@ -533,8 +533,8 @@ public:
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
 
-        stmt->setUInt32(0, NPCFlags(npcFlags));
-        stmt->setUInt32(1, creature->GetEntry());
+        stmt->SetData(0, NPCFlags(npcFlags));
+        stmt->SetData(1, creature->GetEntry());
 
         WorldDatabase.Execute(stmt);
 
@@ -658,15 +658,15 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_NEAREST);
-        stmt->setFloat(0, player->GetPositionX());
-        stmt->setFloat(1, player->GetPositionY());
-        stmt->setFloat(2, player->GetPositionZ());
-        stmt->setUInt32(3, player->GetMapId());
-        stmt->setFloat(4, player->GetPositionX());
-        stmt->setFloat(5, player->GetPositionY());
-        stmt->setFloat(6, player->GetPositionZ());
-        stmt->setFloat(7, distance * distance);
-        stmt->setUInt32(8, player->GetPhaseMask());
+        stmt->SetData(0, player->GetPositionX());
+        stmt->SetData(1, player->GetPositionY());
+        stmt->SetData(2, player->GetPositionZ());
+        stmt->SetData(3, player->GetMapId());
+        stmt->SetData(4, player->GetPositionX());
+        stmt->SetData(5, player->GetPositionY());
+        stmt->SetData(6, player->GetPositionZ());
+        stmt->SetData(7, distance * distance);
+        stmt->SetData(8, player->GetPhaseMask());
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (result)
@@ -746,11 +746,11 @@ public:
         }
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
-        stmt->setFloat(0, x);
-        stmt->setFloat(1, y);
-        stmt->setFloat(2, z);
-        stmt->setFloat(3, o);
-        stmt->setUInt32(4, lowguid);
+        stmt->SetData(0, x);
+        stmt->SetData(1, y);
+        stmt->SetData(2, z);
+        stmt->SetData(3, o);
+        stmt->SetData(4, lowguid);
 
         WorldDatabase.Execute(stmt);
 
@@ -972,9 +972,9 @@ public:
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_WANDER_DISTANCE);
 
-        stmt->setFloat(0, option);
-        stmt->setUInt8(1, uint8(mtype));
-        stmt->setUInt32(2, guidLow);
+        stmt->SetData(0, option);
+        stmt->SetData(1, uint8(mtype));
+        stmt->SetData(2, guidLow);
 
         WorldDatabase.Execute(stmt);
 
@@ -990,8 +990,8 @@ public:
             return false;
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_SPAWN_TIME_SECS);
-        stmt->setUInt32(0, spawnTime);
-        stmt->setUInt32(1, creature->GetSpawnId());
+        stmt->SetData(0, spawnTime);
+        stmt->SetData(1, creature->GetSpawnId());
         WorldDatabase.Execute(stmt);
 
         creature->SetRespawnDelay(spawnTime);
@@ -1239,11 +1239,11 @@ public:
         creature->SearchFormation();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
-        stmt->setUInt32(0, leaderGUID);
-        stmt->setUInt32(1, lowguid);
-        stmt->setFloat(2, group_member.follow_dist);
-        stmt->setFloat(3, group_member.follow_angle);
-        stmt->setUInt32(4, uint32(group_member.groupAI));
+        stmt->SetData(0, leaderGUID);
+        stmt->SetData(1, lowguid);
+        stmt->SetData(2, group_member.follow_dist);
+        stmt->SetData(3, group_member.follow_angle);
+        stmt->SetData(4, uint32(group_member.groupAI));
 
         WorldDatabase.Execute(stmt);
 

@@ -175,15 +175,15 @@ public:
         uint32 inventoryCount = 0;
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM);
-        stmt->setUInt32(0, itemId);
+        stmt->SetData(0, itemId);
         result = CharacterDatabase.Query(stmt);
 
         if (result)
             inventoryCount = (*result)[0].GetUInt64();
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_ITEM_BY_ENTRY);
-        stmt->setUInt32(0, itemId);
-        stmt->setUInt32(1, count);
+        stmt->SetData(0, itemId);
+        stmt->SetData(1, count);
         result = CharacterDatabase.Query(stmt);
 
         if (result)
@@ -224,7 +224,7 @@ public:
         uint32 mailCount = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT_ITEM);
-        stmt->setUInt32(0, itemId);
+        stmt->SetData(0, itemId);
         result = CharacterDatabase.Query(stmt);
 
         if (result)
@@ -233,8 +233,8 @@ public:
         if (count > 0)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_ITEMS_BY_ENTRY);
-            stmt->setUInt32(0, itemId);
-            stmt->setUInt32(1, count);
+            stmt->SetData(0, itemId);
+            stmt->SetData(1, count);
             result = CharacterDatabase.Query(stmt);
         }
         else
@@ -271,7 +271,7 @@ public:
         uint32 auctionCount = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONHOUSE_COUNT_ITEM);
-        stmt->setUInt32(0, itemId);
+        stmt->SetData(0, itemId);
         result = CharacterDatabase.Query(stmt);
 
         if (result)
@@ -280,8 +280,8 @@ public:
         if (count > 0)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONHOUSE_ITEM_BY_ENTRY);
-            stmt->setUInt32(0, itemId);
-            stmt->setUInt32(1, count);
+            stmt->SetData(0, itemId);
+            stmt->SetData(1, count);
             result = CharacterDatabase.Query(stmt);
         }
         else
@@ -308,15 +308,15 @@ public:
         uint32 guildCount = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_COUNT_ITEM);
-        stmt->setUInt32(0, itemId);
+        stmt->SetData(0, itemId);
         result = CharacterDatabase.Query(stmt);
 
         if (result)
             guildCount = (*result)[0].GetUInt64();
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEM_BY_ENTRY);
-        stmt->setUInt32(0, itemId);
-        stmt->setUInt32(1, count);
+        stmt->SetData(0, itemId);
+        stmt->SetData(1, count);
         result = CharacterDatabase.Query(stmt);
 
         if (result)

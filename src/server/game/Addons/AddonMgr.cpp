@@ -101,8 +101,8 @@ namespace AddonMgr
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
 
-        stmt->setString(0, name);
-        stmt->setUInt32(1, addon.CRC);
+        stmt->SetData(0, name);
+        stmt->SetData(1, addon.CRC);
 
         CharacterDatabase.Execute(stmt);
 

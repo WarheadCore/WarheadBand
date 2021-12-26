@@ -83,26 +83,26 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
     // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
-    stmt->setUInt32(  index, _id);
-    stmt->setUInt8 (++index, uint8(_type));
-    stmt->setUInt32(++index, _playerGuid.GetCounter());
-    stmt->setString(++index, _playerName);
-    stmt->setString(++index, _message);
-    stmt->setUInt32(++index, uint32(_createTime));
-    stmt->setUInt16(++index, _mapId);
-    stmt->setFloat (++index, _posX);
-    stmt->setFloat (++index, _posY);
-    stmt->setFloat (++index, _posZ);
-    stmt->setUInt32(++index, uint32(_lastModifiedTime));
-    stmt->setInt32 (++index, int32(_closedBy.GetCounter()));
-    stmt->setUInt32(++index, _assignedTo.GetCounter());
-    stmt->setString(++index, _comment);
-    stmt->setString(++index, _response);
-    stmt->setBool  (++index, _completed);
-    stmt->setUInt8 (++index, uint8(_escalatedStatus));
-    stmt->setBool  (++index, _viewed);
-    stmt->setBool  (++index, _needMoreHelp);
-    stmt->setInt32 (++index, int32(_resolvedBy.GetCounter()));
+    stmt->SetData(  index, _id);
+    stmt->SetData (++index, uint8(_type));
+    stmt->SetData(++index, _playerGuid.GetCounter());
+    stmt->SetData(++index, _playerName);
+    stmt->SetData(++index, _message);
+    stmt->SetData(++index, uint32(_createTime));
+    stmt->SetData(++index, _mapId);
+    stmt->SetData (++index, _posX);
+    stmt->SetData (++index, _posY);
+    stmt->SetData (++index, _posZ);
+    stmt->SetData(++index, uint32(_lastModifiedTime));
+    stmt->SetData (++index, int32(_closedBy.GetCounter()));
+    stmt->SetData(++index, _assignedTo.GetCounter());
+    stmt->SetData(++index, _comment);
+    stmt->SetData(++index, _response);
+    stmt->SetData  (++index, _completed);
+    stmt->SetData (++index, uint8(_escalatedStatus));
+    stmt->SetData  (++index, _viewed);
+    stmt->SetData  (++index, _needMoreHelp);
+    stmt->SetData (++index, int32(_resolvedBy.GetCounter()));
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -110,7 +110,7 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
 void GmTicket::DeleteFromDB()
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
-    stmt->setUInt32(0, _id);
+    stmt->SetData(0, _id);
     CharacterDatabase.Execute(stmt);
 }
 

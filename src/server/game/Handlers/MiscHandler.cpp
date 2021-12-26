@@ -630,8 +630,8 @@ void WorldSession::HandleBugOpcode(WorldPacket& recv_data)
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
 
-    stmt->setString(0, type);
-    stmt->setString(1, content);
+    stmt->SetData(0, type);
+    stmt->SetData(1, content);
 
     CharacterDatabase.Execute(stmt);
 }
@@ -1127,7 +1127,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_WHOIS);
 
-    stmt->setUInt32(0, accid);
+    stmt->SetData(0, accid);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
