@@ -44,13 +44,13 @@ public:
     uint32 GetParameterCount() const { return m_paramCount; }
 
 protected:
-    template<typename T>
-    void SetParameter(const uint8 index, T value);
-
     void SetParameter(const uint8 index, bool value);
     void SetParameter(const uint8 index, std::nullptr_t /*value*/);
     void SetParameter(const uint8 index, std::string const& value);
-    void SetParameter(const uint8 index, std::vector<uint8>& value);
+    void SetParameter(const uint8 index, std::vector<uint8> const& value);
+
+    template<typename T>
+    void SetParameter(const uint8 index, T value);
 
     MySQLStmt* GetSTMT() { return m_Mstmt; }
     MySQLBind* GetBind() { return m_bind; }

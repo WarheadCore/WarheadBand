@@ -169,7 +169,7 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)
     memcpy(param->buffer, value.c_str(), len);
 }
 
-void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8>& value)
+void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> const& value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
