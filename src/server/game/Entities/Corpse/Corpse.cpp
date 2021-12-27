@@ -96,23 +96,23 @@ void Corpse::SaveToDB()
     DeleteFromDB(trans);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
-    stmt->setUInt32(0, GetOwnerGUID().GetCounter());                            // guid
-    stmt->setFloat (1, GetPositionX());                                         // posX
-    stmt->setFloat (2, GetPositionY());                                         // posY
-    stmt->setFloat (3, GetPositionZ());                                         // posZ
-    stmt->setFloat (4, GetOrientation());                                       // orientation
-    stmt->setUInt16(5, GetMapId());                                             // mapId
-    stmt->setUInt32(6, GetUInt32Value(CORPSE_FIELD_DISPLAY_ID));                // displayId
-    stmt->setString(7, _ConcatFields(CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END));   // itemCache
-    stmt->setUInt32(8, GetUInt32Value(CORPSE_FIELD_BYTES_1));                   // bytes1
-    stmt->setUInt32(9, GetUInt32Value(CORPSE_FIELD_BYTES_2));                   // bytes2
-    stmt->setUInt32(10, GetUInt32Value(CORPSE_FIELD_GUILD));                    // guildId
-    stmt->setUInt8 (11, GetUInt32Value(CORPSE_FIELD_FLAGS));                    // flags
-    stmt->setUInt8 (12, GetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS));            // dynFlags
-    stmt->setUInt32(13, uint32(m_time));                                        // time
-    stmt->setUInt8 (14, GetType());                                             // corpseType
-    stmt->setUInt32(15, GetInstanceId());                                       // instanceId
-    stmt->setUInt32(16, GetPhaseMask());                                        // phaseMask
+    stmt->SetData(0, GetOwnerGUID().GetCounter());                            // guid
+    stmt->SetData (1, GetPositionX());                                         // posX
+    stmt->SetData (2, GetPositionY());                                         // posY
+    stmt->SetData (3, GetPositionZ());                                         // posZ
+    stmt->SetData (4, GetOrientation());                                       // orientation
+    stmt->SetData(5, GetMapId());                                             // mapId
+    stmt->SetData(6, GetUInt32Value(CORPSE_FIELD_DISPLAY_ID));                // displayId
+    stmt->SetData(7, _ConcatFields(CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END));   // itemCache
+    stmt->SetData(8, GetUInt32Value(CORPSE_FIELD_BYTES_1));                   // bytes1
+    stmt->SetData(9, GetUInt32Value(CORPSE_FIELD_BYTES_2));                   // bytes2
+    stmt->SetData(10, GetUInt32Value(CORPSE_FIELD_GUILD));                    // guildId
+    stmt->SetData (11, GetUInt32Value(CORPSE_FIELD_FLAGS));                    // flags
+    stmt->SetData (12, GetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS));            // dynFlags
+    stmt->SetData(13, uint32(m_time));                                        // time
+    stmt->SetData (14, GetType());                                             // corpseType
+    stmt->SetData(15, GetInstanceId());                                       // instanceId
+    stmt->SetData(16, GetPhaseMask());                                        // phaseMask
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -126,7 +126,7 @@ void Corpse::DeleteFromDB(CharacterDatabaseTransaction trans)
 void Corpse::DeleteFromDB(ObjectGuid const ownerGuid, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
-    stmt->setUInt32(0, ownerGuid.GetCounter());
+    stmt->SetData(0, ownerGuid.GetCounter());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 

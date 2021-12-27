@@ -291,10 +291,10 @@ bool Graveyard::AddGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, bool p
     {
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
 
-        stmt->setUInt32(0, id);
-        stmt->setUInt32(1, zoneId);
+        stmt->SetData(0, id);
+        stmt->SetData(1, zoneId);
         // Xinef: DB Data compatibility...
-        stmt->setUInt16(2, uint16(teamId == TEAM_NEUTRAL ? 0 : (teamId == TEAM_ALLIANCE ? ALLIANCE : HORDE)));
+        stmt->SetData(2, uint16(teamId == TEAM_NEUTRAL ? 0 : (teamId == TEAM_ALLIANCE ? ALLIANCE : HORDE)));
 
         WorldDatabase.Execute(stmt);
     }
@@ -342,10 +342,10 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
     {
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
 
-        stmt->setUInt32(0, id);
-        stmt->setUInt32(1, zoneId);
+        stmt->SetData(0, id);
+        stmt->SetData(1, zoneId);
         // Xinef: DB Data compatibility...
-        stmt->setUInt16(2, uint16(teamId == TEAM_NEUTRAL ? 0 : (teamId == TEAM_ALLIANCE ? ALLIANCE : HORDE)));
+        stmt->SetData(2, uint16(teamId == TEAM_NEUTRAL ? 0 : (teamId == TEAM_ALLIANCE ? ALLIANCE : HORDE)));
 
         WorldDatabase.Execute(stmt);
     }

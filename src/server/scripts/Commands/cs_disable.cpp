@@ -148,8 +148,8 @@ public:
         }
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
-        stmt->setUInt32(0, entry);
-        stmt->setUInt8(1, disableType);
+        stmt->SetData(0, entry);
+        stmt->SetData(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (result)
         {
@@ -159,10 +159,10 @@ public:
         }
 
         stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_DISABLES);
-        stmt->setUInt32(0, entry);
-        stmt->setUInt8(1, disableType);
-        stmt->setUInt16(2, flags);
-        stmt->setString(3, disableComment);
+        stmt->SetData(0, entry);
+        stmt->SetData(1, disableType);
+        stmt->SetData(2, flags);
+        stmt->SetData(3, disableComment);
         WorldDatabase.Execute(stmt);
 
         handler->PSendSysMessage("Add Disabled {} (Id: {}) for reason {}", disableTypeStr, entry, disableComment);
@@ -235,8 +235,8 @@ public:
         }
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
-        stmt->setUInt32(0, entry);
-        stmt->setUInt8(1, disableType);
+        stmt->SetData(0, entry);
+        stmt->SetData(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
         if (!result)
         {
@@ -246,8 +246,8 @@ public:
         }
 
         stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_DISABLES);
-        stmt->setUInt32(0, entry);
-        stmt->setUInt8(1, disableType);
+        stmt->SetData(0, entry);
+        stmt->SetData(1, disableType);
         WorldDatabase.Execute(stmt);
 
         handler->PSendSysMessage("Remove Disabled {} (Id: {})", disableTypeStr, entry);

@@ -1960,7 +1960,7 @@ public:
 
             // Query informations from the DB
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
-            stmt->setUInt32(0, lowguid);
+            stmt->SetData(0, lowguid);
             PreparedQueryResult charInfoResult = CharacterDatabase.Query(stmt);
 
             if (!charInfoResult)
@@ -1993,8 +1993,8 @@ public:
 
         // Query the prepared statement for login data
         loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        loginStmt->setInt32(0, int32(realm.Id.Realm));
-        loginStmt->setUInt32(1, accId);
+        loginStmt->SetData(0, int32(realm.Id.Realm));
+        loginStmt->SetData(1, accId);
 
         PreparedQueryResult accInfoResult = LoginDatabase.Query(loginStmt);
         if (accInfoResult)
@@ -2053,14 +2053,14 @@ public:
 
         // Returns banType, banTime, bannedBy, banreason
         LoginDatabasePreparedStatement* banQuery = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO_BANS);
-        banQuery->setUInt32(0, accId);
+        banQuery->SetData(0, accId);
 
         PreparedQueryResult accBannedResult = LoginDatabase.Query(banQuery);
         if (!accBannedResult)
         {
             banType = handler->GetWarheadString(LANG_CHARACTER);
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
-            stmt->setUInt32(0, lowguid);
+            stmt->SetData(0, lowguid);
             accBannedResult = CharacterDatabase.Query(stmt);
         }
 
@@ -2074,7 +2074,7 @@ public:
 
         // Can be used to query data from World database
         WorldDatabasePreparedStatement* xpQuery = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQ_XP);
-        xpQuery->setUInt8(0, level);
+        xpQuery->SetData(0, level);
 
         PreparedQueryResult xpResult = WorldDatabase.Query(xpQuery);
         if (xpResult)
@@ -2085,7 +2085,7 @@ public:
 
         // Can be used to query data from Characters database
         CharacterDatabasePreparedStatement* charXpQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
-        charXpQuery->setUInt32(0, lowguid);
+        charXpQuery->SetData(0, lowguid);
 
         PreparedQueryResult charXpResult = CharacterDatabase.Query(charXpQuery);
         if (charXpResult)
@@ -2097,7 +2097,7 @@ public:
             if (gguid != 0)
             {
                 CharacterDatabasePreparedStatement* guildQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
-                guildQuery->setUInt32(0, lowguid);
+                guildQuery->SetData(0, lowguid);
 
                 PreparedQueryResult guildInfoResult = CharacterDatabase.Query(guildQuery);
                 if (guildInfoResult)
@@ -2233,7 +2233,7 @@ public:
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
         CharacterDatabasePreparedStatement* mailQuery = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_MAILS);
-        mailQuery->setUInt32(0, lowguid);
+        mailQuery->SetData(0, lowguid);
 
         PreparedQueryResult mailInfoResult = CharacterDatabase.Query(mailQuery);
         if (mailInfoResult)
@@ -2400,7 +2400,7 @@ public:
     static bool HandleMuteInfoHelper(ChatHandler* handler, uint32 accountId, char const* accountName)
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO);
-        stmt->setUInt16(0, accountId);
+        stmt->SetData(0, accountId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         if (!result)
@@ -2735,7 +2735,7 @@ public:
         else if (!creatureTarget && target && !target->IsConnected())
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
-            stmt->setUInt32(0, target->GetGUID().GetCounter());
+            stmt->SetData(0, target->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
             handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, target->GetName().c_str());
             return true;

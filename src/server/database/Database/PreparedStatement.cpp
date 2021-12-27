@@ -24,100 +24,49 @@
 #include "QueryResult.h"
 
 PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
-m_index(index), statement_data(capacity) { }
+    m_index(index),
+    statement_data(capacity) { }
 
 PreparedStatementBase::~PreparedStatementBase() { }
 
 //- Bind to buffer
-void PreparedStatementBase::setBool(const uint8 index, const bool value)
+void PreparedStatementBase::SetData(const uint8 index)
+{
+    ASSERT(index < statement_data.size());
+    statement_data[index].data = nullptr;
+}
+
+template<typename T>
+void PreparedStatementBase::SetValidData(const uint8 index, T value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
 }
 
-void PreparedStatementBase::setUInt8(const uint8 index, const uint8 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setUInt16(const uint8 index, const uint16 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setUInt32(const uint8 index, const uint32 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setUInt64(const uint8 index, const uint64 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setInt8(const uint8 index, const int8 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setInt16(const uint8 index, const int16 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setInt32(const uint8 index, const int32 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setInt64(const uint8 index, const int64 value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setFloat(const uint8 index, const float value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setDouble(const uint8 index, const double value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setString(const uint8 index, const std::string& value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-}
-
-void PreparedStatementBase::setStringView(const uint8 index, const std::string_view value)
+template<>
+void PreparedStatementBase::SetValidData(const uint8 index, std::string_view value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data.emplace<std::string>(value);
 }
 
-void PreparedStatementBase::setBinary(const uint8 index, const std::vector<uint8>& value)
+template<>
+void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
+    statement_data[index].data = std::move(value);
 }
 
-void PreparedStatementBase::setNull(const uint8 index)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = nullptr;
-}
+template void PreparedStatementBase::SetValidData(const uint8 index, uint8 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int8 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, uint16 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int16 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, uint32 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int32 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, uint64 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int64 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, bool value);
+template void PreparedStatementBase::SetValidData(const uint8 index, float value);
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
@@ -156,7 +105,7 @@ bool PreparedStatementTask::Execute()
 template<typename T>
 std::string PreparedStatementData::ToString(T value)
 {
-    return fmt::format("{}", value);
+    return Warhead::StringFormat("{}", value);
 }
 
 std::string PreparedStatementData::ToString(bool value)
@@ -186,7 +135,7 @@ template std::string PreparedStatementData::ToString<double>(double);
 
 std::string PreparedStatementData::ToString(std::string const& value)
 {
-    return fmt::format("'{}'", value);
+    return Warhead::StringFormat("'{}'", value);
 }
 
 std::string PreparedStatementData::ToString(std::vector<uint8> const& /*value*/)

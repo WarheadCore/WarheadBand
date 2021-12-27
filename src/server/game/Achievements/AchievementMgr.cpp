@@ -536,11 +536,11 @@ void AchievementMgr::DeleteFromDB(ObjectGuid::LowType lowguid)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
-    stmt->setUInt32(0, lowguid);
+    stmt->SetData(0, lowguid);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS);
-    stmt->setUInt32(0, lowguid);
+    stmt->SetData(0, lowguid);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -556,14 +556,14 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
                 continue;
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
-            stmt->setUInt16(0, iter->first);
-            stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
+            stmt->SetData(0, iter->first);
+            stmt->SetData(1, GetPlayer()->GetGUID().GetCounter());
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
-            stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-            stmt->setUInt16(1, iter->first);
-            stmt->setUInt32(2, uint32(iter->second.date));
+            stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
+            stmt->SetData(1, iter->first);
+            stmt->SetData(2, uint32(iter->second.date));
             trans->Append(stmt);
 
             iter->second.changed = false;
@@ -580,18 +580,18 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
                 continue;
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
-            stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-            stmt->setUInt16(1, iter->first);
+            stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
+            stmt->SetData(1, iter->first);
             trans->Append(stmt);
 
             // pussywizard: insert only for (counter != 0) is very important! this is how criteria of completed achievements gets deleted from db (by setting counter to 0); if conflicted during merge - contact me
             if (iter->second.counter)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT_PROGRESS);
-                stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-                stmt->setUInt16(1, iter->first);
-                stmt->setUInt32(2, iter->second.counter);
-                stmt->setUInt32(3, uint32(iter->second.date));
+                stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
+                stmt->SetData(1, iter->first);
+                stmt->SetData(2, iter->second.counter);
+                stmt->SetData(3, uint32(iter->second.date));
                 trans->Append(stmt);
             }
 
@@ -646,7 +646,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
 
-                stmt->setUInt16(0, uint16(id));
+                stmt->SetData(0, uint16(id));
 
                 CharacterDatabase.Execute(stmt);
 
@@ -2793,7 +2793,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
 
-            stmt->setUInt16(0, uint16(achievementId));
+            stmt->SetData(0, uint16(achievementId));
             CharacterDatabase.Execute(stmt);
 
             continue;

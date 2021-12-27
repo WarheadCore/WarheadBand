@@ -1625,7 +1625,7 @@ public:
         }
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
-        stmt->setStringView(0, *ip);
+        stmt->SetData(0, *ip);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
@@ -1639,7 +1639,7 @@ public:
         }
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME);
-        stmt->setString(0, account);
+        stmt->SetData(0, account);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
@@ -1648,7 +1648,7 @@ public:
     static bool HandleLookupPlayerEmailCommand(ChatHandler* handler, std::string email, Optional<int32> limit)
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);
-        stmt->setString(0, email);
+        stmt->SetData(0, email);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
@@ -1680,7 +1680,7 @@ public:
             std::string accountName = fields[1].GetString();
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_NAME_BY_ACC);
-            stmt->setUInt32(0, accountId);
+            stmt->SetData(0, accountId);
             PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
 
             if (result2)

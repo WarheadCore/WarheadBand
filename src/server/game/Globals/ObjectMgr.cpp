@@ -1630,7 +1630,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
     {
         _linkedRespawnStore.erase(guid);
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
-        stmt->setUInt32(0, guidLow);
+        stmt->SetData(0, guidLow);
         WorldDatabase.Execute(stmt);
         return true;
     }
@@ -1659,8 +1659,8 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
 
     _linkedRespawnStore[guid] = linkedGuid;
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
-    stmt->setUInt32(0, guidLow);
-    stmt->setUInt32(1, linkedGuidLow);
+    stmt->SetData(0, guidLow);
+    stmt->SetData(1, linkedGuidLow);
     WorldDatabase.Execute(stmt);
     return true;
 }
@@ -1906,9 +1906,9 @@ void ObjectMgr::LoadCreatures()
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA);
 
-            stmt->setUInt32(0, zoneId);
-            stmt->setUInt32(1, areaId);
-            stmt->setUInt32(2, spawnId);
+            stmt->SetData(0, zoneId);
+            stmt->SetData(1, areaId);
+            stmt->SetData(2, spawnId);
 
             WorldDatabase.Execute(stmt);
         }
@@ -2212,9 +2212,9 @@ void ObjectMgr::LoadGameobjects()
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA);
 
-            stmt->setUInt32(0, zoneId);
-            stmt->setUInt32(1, areaId);
-            stmt->setUInt32(2, guid);
+            stmt->SetData(0, zoneId);
+            stmt->SetData(1, areaId);
+            stmt->SetData(2, guid);
 
             WorldDatabase.Execute(stmt);
         }
@@ -5534,14 +5534,14 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     time_t curTime = GameTime::GetGameTime().count();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
-    stmt->setUInt32(0, uint32(curTime));
+    stmt->SetData(0, uint32(curTime));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return;
 
     std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
-    stmt->setUInt32(0, uint32(curTime));
+    stmt->SetData(0, uint32(curTime));
     if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
     {
         MailItemInfo item;
@@ -5595,36 +5595,36 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 for (auto const& mailedItem : m->items)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->setUInt32(0, mailedItem.item_guid);
+                    stmt->SetData(0, mailedItem.item_guid);
                     CharacterDatabase.Execute(stmt);
                 }
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                stmt->setUInt32(0, m->messageID);
+                stmt->SetData(0, m->messageID);
                 CharacterDatabase.Execute(stmt);
             }
             else
             {
                 // Mail will be returned
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_RETURNED);
-                stmt->setUInt32(0, m->receiver);
-                stmt->setUInt32(1, m->sender);
-                stmt->setUInt32(2, uint32(curTime + 30 * DAY));
-                stmt->setUInt32(3, uint32(curTime));
-                stmt->setUInt8 (4, uint8(MAIL_CHECK_MASK_RETURNED));
-                stmt->setUInt32(5, m->messageID);
+                stmt->SetData(0, m->receiver);
+                stmt->SetData(1, m->sender);
+                stmt->SetData(2, uint32(curTime + 30 * DAY));
+                stmt->SetData(3, uint32(curTime));
+                stmt->SetData (4, uint8(MAIL_CHECK_MASK_RETURNED));
+                stmt->SetData(5, m->messageID);
                 CharacterDatabase.Execute(stmt);
                 for (auto const& mailedItem : m->items)
                 {
                     // Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_ITEM_RECEIVER);
-                    stmt->setUInt32(0, m->sender);
-                    stmt->setUInt32(1, mailedItem.item_guid);
+                    stmt->SetData(0, m->sender);
+                    stmt->SetData(1, mailedItem.item_guid);
                     CharacterDatabase.Execute(stmt);
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-                    stmt->setUInt32(0, m->sender);
-                    stmt->setUInt32(1, mailedItem.item_guid);
+                    stmt->SetData(0, m->sender);
+                    stmt->SetData(1, mailedItem.item_guid);
                     CharacterDatabase.Execute(stmt);
                 }
 
@@ -5641,7 +5641,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         sCharacterCache->DecreaseCharacterMailCount(ObjectGuid(HighGuid::Player, m->receiver));
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-        stmt->setUInt32(0, m->messageID);
+        stmt->SetData(0, m->messageID);
         CharacterDatabase.Execute(stmt);
         delete m;
         ++deletedCount;
@@ -7391,7 +7391,7 @@ void ObjectMgr::AddReservedPlayerName(std::string const& name)
         _reservedNamesStore.insert(wstr);
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_RESERVED_PLAYER_NAME);
-        stmt->setString(0, name);
+        stmt->SetData(0, name);
         CharacterDatabase.Execute(stmt);
     }
 }
@@ -7858,13 +7858,13 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAME_TELE);
 
-    stmt->setUInt32(0, new_id);
-    stmt->setFloat(1, tele.position_x);
-    stmt->setFloat(2, tele.position_y);
-    stmt->setFloat(3, tele.position_z);
-    stmt->setFloat(4, tele.orientation);
-    stmt->setUInt16(5, uint16(tele.mapId));
-    stmt->setString(6, tele.name);
+    stmt->SetData(0, new_id);
+    stmt->SetData(1, tele.position_x);
+    stmt->SetData(2, tele.position_y);
+    stmt->SetData(3, tele.position_z);
+    stmt->SetData(4, tele.orientation);
+    stmt->SetData(5, uint16(tele.mapId));
+    stmt->SetData(6, tele.name);
 
     WorldDatabase.Execute(stmt);
 
@@ -7887,7 +7887,7 @@ bool ObjectMgr::DeleteGameTele(std::string_view name)
         {
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_TELE);
 
-            stmt->setString(0, itr->second.name);
+            stmt->SetData(0, itr->second.name);
 
             WorldDatabase.Execute(stmt);
 
@@ -8089,7 +8089,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* s
 {
     // find all items from the reference vendor
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
-    stmt->setUInt32(0, uint32(item));
+    stmt->SetData(0, uint32(item));
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -8293,11 +8293,11 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
     {
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENDOR);
 
-        stmt->setUInt32(0, entry);
-        stmt->setUInt32(1, item);
-        stmt->setUInt8(2, maxcount);
-        stmt->setUInt32(3, incrtime);
-        stmt->setUInt32(4, extendedCost);
+        stmt->SetData(0, entry);
+        stmt->SetData(1, item);
+        stmt->SetData(2, maxcount);
+        stmt->SetData(3, incrtime);
+        stmt->SetData(4, extendedCost);
 
         WorldDatabase.Execute(stmt);
     }
@@ -8316,8 +8316,8 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool persist /*= tru
     {
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_NPC_VENDOR);
 
-        stmt->setUInt32(0, entry);
-        stmt->setUInt32(1, item);
+        stmt->SetData(0, entry);
+        stmt->SetData(1, item);
 
         WorldDatabase.Execute(stmt);
     }

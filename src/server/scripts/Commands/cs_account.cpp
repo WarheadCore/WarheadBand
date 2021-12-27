@@ -129,7 +129,7 @@ public:
 
         { // check if 2FA already enabled
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
-            stmt->setUInt32(0, accountId);
+            stmt->SetData(0, accountId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
             if (!result)
@@ -163,8 +163,8 @@ public:
                     Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(pair.first->second, *masterKey);
 
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                stmt->setBinary(0, pair.first->second);
-                stmt->setUInt32(1, accountId);
+                stmt->SetData(0, pair.first->second);
+                stmt->SetData(1, accountId);
                 LoginDatabase.Execute(stmt);
 
                 suggestions.erase(pair.first);
@@ -204,7 +204,7 @@ public:
         Warhead::Crypto::TOTP::Secret secret;
         { // get current TOTP secret
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
-            stmt->setUInt32(0, accountId);
+            stmt->SetData(0, accountId);
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
             if (!result)
@@ -243,8 +243,8 @@ public:
             if (Warhead::Crypto::TOTP::ValidateToken(secret, *token))
             {
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                stmt->setNull(0);
-                stmt->setUInt32(1, accountId);
+                stmt->SetData(0);
+                stmt->SetData(1, accountId);
                 LoginDatabase.Execute(stmt);
                 handler->SendSysMessage(LANG_2FA_REMOVE_COMPLETE);
                 return true;
@@ -281,8 +281,8 @@ public:
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
-        stmt->setUInt8(0, uint8(expansion));
-        stmt->setUInt32(1, accountId);
+        stmt->SetData(0, uint8(expansion));
+        stmt->SetData(1, accountId);
 
         LoginDatabase.Execute(stmt);
 
@@ -424,7 +424,7 @@ public:
             ///- Get the username, last IP and GM level of each account
             // No SQL injection. account is uint32.
             LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
-            stmt->setUInt32(0, account);
+            stmt->SetData(0, account);
 
             PreparedQueryResult resultLogin = LoginDatabase.Query(loginStmt);
 
@@ -475,8 +475,8 @@ public:
         }
 
         auto* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-        stmt->setString(0, "00");
-        stmt->setUInt32(1, accountId);
+        stmt->SetData(0, "00");
+        stmt->SetData(1, accountId);
         LoginDatabase.Execute(stmt);
         handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
 
@@ -501,8 +501,8 @@ public:
                 if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
                 {
                     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                    stmt->setString(0, location->CountryCode);
-                    stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+                    stmt->SetData(0, location->CountryCode);
+                    stmt->SetData(1, handler->GetSession()->GetAccountId());
                     LoginDatabase.Execute(stmt);
                     handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
                 }
@@ -516,8 +516,8 @@ public:
             else if (param == "off")
             {
                 LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                stmt->setString(0, "00");
-                stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+                stmt->SetData(0, "00");
+                stmt->SetData(1, handler->GetSession()->GetAccountId());
                 LoginDatabase.Execute(stmt);
                 handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
             }
@@ -546,16 +546,16 @@ public:
 
             if (param == "on")
             {
-                stmt->setBool(0, true);                                     // locked
+                stmt->SetData(0, true);                                     // locked
                 handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
             }
             else if (param == "off")
             {
-                stmt->setBool(0, false);                                    // unlocked
+                stmt->SetData(0, false);                                    // unlocked
                 handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
             }
 
-            stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+            stmt->SetData(1, handler->GetSession()->GetAccountId());
 
             LoginDatabase.Execute(stmt);
             return true;
@@ -666,8 +666,8 @@ public:
         if (secret == "off")
         {
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-            stmt->setNull(0);
-            stmt->setUInt32(1, targetAccountId);
+            stmt->SetData(0);
+            stmt->SetData(1, targetAccountId);
             LoginDatabase.Execute(stmt);
             handler->PSendSysMessage(LANG_2FA_REMOVE_COMPLETE);
             return true;
@@ -700,8 +700,8 @@ public:
             Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(*decoded, *masterKey);
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-        stmt->setBinary(0, *decoded);
-        stmt->setUInt32(1, targetAccountId);
+        stmt->SetData(0, *decoded);
+        stmt->SetData(1, targetAccountId);
         LoginDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_2FA_SECRET_SET_COMPLETE, accountName);
@@ -770,8 +770,8 @@ public:
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
-        stmt->setUInt8(0, expansion);
-        stmt->setUInt32(1, accountId);
+        stmt->SetData(0, expansion);
+        stmt->SetData(1, accountId);
 
         LoginDatabase.Execute(stmt);
 
@@ -849,8 +849,8 @@ public:
         {
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
 
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
+            stmt->SetData(0, targetAccountId);
+            stmt->SetData(1, uint8(gm));
 
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -876,13 +876,13 @@ public:
         if (gmRealmID == -1)
         {
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
-            stmt->setUInt32(0, targetAccountId);
+            stmt->SetData(0, targetAccountId);
         }
         else
         {
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt32(1, realm.Id.Realm);
+            stmt->SetData(0, targetAccountId);
+            stmt->SetData(1, realm.Id.Realm);
         }
 
         LoginDatabase.Execute(stmt);
@@ -891,9 +891,9 @@ public:
         {
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
 
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
-            stmt->setInt32(2, gmRealmID);
+            stmt->SetData(0, targetAccountId);
+            stmt->SetData(1, uint8(gm));
+            stmt->SetData(2, gmRealmID);
 
             LoginDatabase.Execute(stmt);
         }

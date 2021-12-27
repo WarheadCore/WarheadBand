@@ -809,9 +809,9 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& recvData)
 
     // update in db
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE_EXTENDED);
-    stmt->setUInt8(0, toggleExtendOn ? 1 : 0);
-    stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
-    stmt->setUInt32(2, instanceBind->save->GetInstanceId());
+    stmt->SetData(0, toggleExtendOn ? 1 : 0);
+    stmt->SetData(1, GetPlayer()->GetGUID().GetCounter());
+    stmt->SetData(2, instanceBind->save->GetInstanceId());
     CharacterDatabase.Execute(stmt);
 
     SendCalendarRaidLockoutUpdated(instanceBind->save, (bool)toggleExtendOn);

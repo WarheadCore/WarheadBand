@@ -20,9 +20,11 @@
 
 #include "Define.h"
 #include "SQLOperation.h"
+#include "Optional.h"
 #include <future>
 #include <variant>
 #include <vector>
+#include <tuple>
 
 struct PreparedStatementData
 {
@@ -57,45 +59,78 @@ struct PreparedStatementData
 //- Upper-level class that is used in code
 class WH_DATABASE_API PreparedStatementBase
 {
-    friend class PreparedStatementTask;
+friend class PreparedStatementTask;
 
-    public:
-        explicit PreparedStatementBase(uint32 index, uint8 capacity);
-        virtual ~PreparedStatementBase();
+public:
+    explicit PreparedStatementBase(uint32 index, uint8 capacity);
+    virtual ~PreparedStatementBase();
 
-        void setNull(const uint8 index);
-        void setBool(const uint8 index, const bool value);
-        void setUInt8(const uint8 index, const uint8 value);
-        void setUInt16(const uint8 index, const uint16 value);
-        void setUInt32(const uint8 index, const uint32 value);
-        void setUInt64(const uint8 index, const uint64 value);
-        void setInt8(const uint8 index, const int8 value);
-        void setInt16(const uint8 index, const int16 value);
-        void setInt32(const uint8 index, const int32 value);
-        void setInt64(const uint8 index, const int64 value);
-        void setFloat(const uint8 index, const float value);
-        void setDouble(const uint8 index, const double value);
-        void setString(const uint8 index, const std::string& value);
-        void setStringView(const uint8 index, const std::string_view value);
-        void setBinary(const uint8 index, const std::vector<uint8>& value);
-        template <size_t Size>
-        void setBinary(const uint8 index, std::array<uint8, Size> const& value)
-        {
-            std::vector<uint8> vec(value.begin(), value.end());
-            setBinary(index, vec);
-        }
+    // Set null
+    void SetData(const uint8 index);
 
-        uint32 GetIndex() const { return m_index; }
-        std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }
+    // Set numerlic and default binary
+    template<typename T>
+    std::enable_if_t<std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>> SetData(const uint8 index, T value)
+    {
+        SetValidData(index, value);
+    }
 
-    protected:
-        uint32 m_index;
+    // Set enums
+    template<typename T>
+    std::enable_if_t<std::is_enum_v<T>> SetData(const uint8 index, T value)
+    {
+        SetValidData(index, std::underlying_type_t<T>(value));
+    }
 
-        //- Buffer of parameters, not tied to MySQL in any way yet
-        std::vector<PreparedStatementData> statement_data;
+    // Set string
+    template<typename T>
+    std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_base_of_v<std::string_view, T> || std::is_same_v<const char*, T>> SetData(const uint8 index, T value)
+    {
+        SetValidData(index, std::string_view{ value });
+    }
 
-        PreparedStatementBase(PreparedStatementBase const& right) = delete;
-        PreparedStatementBase& operator=(PreparedStatementBase const& right) = delete;
+    // Set non default binary
+    template<std::size_t Size>
+    void SetData(const uint8 index, std::array<uint8, Size> const& value)
+    {
+        std::vector<uint8> vec(value.begin(), value.end());
+        SetValidData(index, vec);
+    }
+
+    // Set all
+    template <typename... Args>
+    void SetArguments(Args&&... args)
+    {
+        SetDataTuple(std::make_tuple(std::forward<Args>(args)...));
+    }
+
+    uint32 GetIndex() const { return m_index; }
+    std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }
+
+protected:
+    template<typename T>
+    void SetValidData(const uint8 index, T value);
+
+    template<typename... Ts>
+    void SetDataTuple(std::tuple<Ts...> const& argsList)
+    {
+        std::apply
+        (
+            [this](Ts const&... arguments)
+            {
+                uint8 index{ 0 };
+                ((SetData(index, arguments), index++), ...);
+            }, argsList
+        );
+    }
+
+    uint32 m_index;
+
+    //- Buffer of parameters, not tied to MySQL in any way yet
+    std::vector<PreparedStatementData> statement_data;
+
+    PreparedStatementBase(PreparedStatementBase const& right) = delete;
+    PreparedStatementBase& operator=(PreparedStatementBase const& right) = delete;
 };
 
 template<typename T>
@@ -114,17 +149,17 @@ private:
 //- Lower-level class, enqueuable operation
 class WH_DATABASE_API PreparedStatementTask : public SQLOperation
 {
-    public:
-        PreparedStatementTask(PreparedStatementBase* stmt, bool async = false);
-        ~PreparedStatementTask();
+public:
+    PreparedStatementTask(PreparedStatementBase* stmt, bool async = false);
+    ~PreparedStatementTask();
 
-        bool Execute() override;
-        PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
+    bool Execute() override;
+    PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
 
-    protected:
-        PreparedStatementBase* m_stmt;
-        bool m_has_result;
-        PreparedQueryResultPromise* m_result;
+protected:
+    PreparedStatementBase* m_stmt;
+    bool m_has_result;
+    PreparedQueryResultPromise* m_result;
 };
 
 #endif

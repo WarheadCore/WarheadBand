@@ -315,8 +315,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-        stmt->setUInt32(0, auction->bidder.GetCounter());
-        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
+        stmt->SetData(0, auction->bidder.GetCounter());
+        stmt->SetData(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
 
         if (bidder)
@@ -975,23 +975,23 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
-    stmt->setUInt32(0, Id);
+    stmt->SetData(0, Id);
     trans->Append(stmt);
 }
 
 void AuctionEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
-    stmt->setUInt32(0, Id);
-    stmt->setUInt8(1, houseId);
-    stmt->setUInt32(2, item_guid.GetCounter());
-    stmt->setUInt32(3, owner.GetCounter());
-    stmt->setUInt32 (4, buyout);
-    stmt->setUInt32(5, uint32(expire_time));
-    stmt->setUInt32(6, bidder.GetCounter());
-    stmt->setUInt32 (7, bid);
-    stmt->setUInt32 (8, startbid);
-    stmt->setUInt32 (9, deposit);
+    stmt->SetData(0, Id);
+    stmt->SetData(1, houseId);
+    stmt->SetData(2, item_guid.GetCounter());
+    stmt->SetData(3, owner.GetCounter());
+    stmt->SetData (4, buyout);
+    stmt->SetData(5, uint32(expire_time));
+    stmt->SetData(6, bidder.GetCounter());
+    stmt->SetData (7, bid);
+    stmt->SetData (8, startbid);
+    stmt->SetData (9, deposit);
     trans->Append(stmt);
 }
 

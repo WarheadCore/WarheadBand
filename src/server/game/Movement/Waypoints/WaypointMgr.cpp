@@ -114,7 +114,7 @@ void WaypointMgr::ReloadPath(uint32 id)
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
 
-    stmt->setUInt32(0, id);
+    stmt->SetData(0, id);
 
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 

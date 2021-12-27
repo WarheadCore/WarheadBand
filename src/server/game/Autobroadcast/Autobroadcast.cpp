@@ -39,7 +39,7 @@ void AutobroadcastMgr::Load()
     _autobroadcastsWeights.clear();
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realm.Id.Realm);
+    stmt->SetData(0, realm.Id.Realm);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)

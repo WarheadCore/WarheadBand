@@ -74,7 +74,7 @@ public:
 
         // Check existence of item in recovery table
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RECOVERY_ITEM);
-        stmt->setUInt32(0, restoreId);
+        stmt->SetData(0, restoreId);
         PreparedQueryResult fields = CharacterDatabase.Query(stmt);
 
         if (!fields || !(*fields)[1].GetUInt32() || (*fields)[3].GetUInt32() != player.GetGUID().GetCounter())
@@ -113,7 +113,7 @@ public:
 
         // Remove from recovery table
         CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RECOVERY_ITEM_BY_RECOVERY_ID);
-        delStmt->setUInt32(0, (*fields)[0].GetUInt32());
+        delStmt->SetData(0, (*fields)[0].GetUInt32());
         CharacterDatabase.Execute(delStmt);
 
         std::string nameLink = handler->playerLink(player.GetName());
@@ -131,7 +131,7 @@ public:
         }
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RECOVERY_ITEM_LIST);
-        stmt->setUInt32(0, player.GetGUID().GetCounter());
+        stmt->SetData(0, player.GetGUID().GetCounter());
         PreparedQueryResult disposedItems = CharacterDatabase.Query(stmt);
 
         if (!disposedItems)
@@ -266,8 +266,8 @@ public:
             ObjectGuid::LowType guid = player.GetGUID().GetCounter();
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_ITEM_BY_ENTRY_AND_OWNER);
-            stmt->setUInt32(0, itemId);
-            stmt->setUInt32(1, guid);
+            stmt->SetData(0, itemId);
+            stmt->SetData(1, guid);
 
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -276,7 +276,7 @@ public:
                 if (iece->reqhonorpoints)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HONORPOINTS);
-                    stmt->setUInt32(0, guid);
+                    stmt->SetData(0, guid);
 
                     PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
 
@@ -292,8 +292,8 @@ public:
                     }
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_HONOR_POINTS_ACCUMULATIVE);
-                    stmt->setUInt32(0, iece->reqhonorpoints);
-                    stmt->setUInt32(1, guid);
+                    stmt->SetData(0, iece->reqhonorpoints);
+                    stmt->SetData(1, guid);
                     trans->Append(stmt);
                     handler->PSendSysMessage(LANG_CMD_ITEM_REFUNDED_HONOR, item->Name1, item->ItemId, iece->reqhonorpoints);
                 }
@@ -301,7 +301,7 @@ public:
                 if (iece->reqarenapoints)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENAPOINTS);
-                    stmt->setUInt32(0, guid);
+                    stmt->SetData(0, guid);
 
                     PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
 
@@ -317,8 +317,8 @@ public:
                     }
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_ARENA_POINTS_ACCUMULATIVE);
-                    stmt->setUInt32(0, iece->reqarenapoints);
-                    stmt->setUInt32(1, guid);
+                    stmt->SetData(0, iece->reqarenapoints);
+                    stmt->SetData(1, guid);
                     trans->Append(stmt);
                     handler->PSendSysMessage(LANG_CMD_ITEM_REFUNDED_AP, item->Name1, item->ItemId, iece->reqarenapoints);
                 }
@@ -359,11 +359,11 @@ public:
                 Field* fields = result->Fetch();
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-                stmt->setUInt32(0, fields[0].GetUInt32());
+                stmt->SetData(0, fields[0].GetUInt32());
                 trans->Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                stmt->setUInt32(0, fields[0].GetUInt32());
+                stmt->SetData(0, fields[0].GetUInt32());
                 trans->Append(stmt);
 
                 CharacterDatabase.CommitTransaction(trans);

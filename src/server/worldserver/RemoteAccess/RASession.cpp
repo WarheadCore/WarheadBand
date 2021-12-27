@@ -127,7 +127,7 @@ bool RASession::CheckAccessLevel(const std::string& user)
     Utf8ToUpperOnlyLatin(safeUser);
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
-    stmt->setString(0, safeUser);
+    stmt->SetData(0, safeUser);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
@@ -164,7 +164,7 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
 
-    stmt->setString(0, safe_user);
+    stmt->SetData(0, safe_user);
 
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {

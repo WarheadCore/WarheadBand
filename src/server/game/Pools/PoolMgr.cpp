@@ -463,7 +463,7 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_POOL_QUEST_SAVE);
 
-        stmt->setUInt32(0, poolId);
+        stmt->SetData(0, poolId);
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -985,7 +985,7 @@ void PoolMgr::SaveQuestsToDB(bool daily, bool weekly, bool other)
                 continue;
         }
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_POOL_SAVE);
-        stmt->setUInt32(0, itr->second.GetPoolId());
+        stmt->SetData(0, itr->second.GetPoolId());
         trans->Append(stmt);
         deletedPools.insert(itr->second.GetPoolId());
     }
@@ -995,8 +995,8 @@ void PoolMgr::SaveQuestsToDB(bool daily, bool weekly, bool other)
             if (IsSpawnedObject<Quest>(itr->first))
             {
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_POOL_SAVE);
-                stmt->setUInt32(0, itr->second);
-                stmt->setUInt32(1, itr->first);
+                stmt->SetData(0, itr->second);
+                stmt->SetData(1, itr->first);
                 trans->Append(stmt);
             }
 

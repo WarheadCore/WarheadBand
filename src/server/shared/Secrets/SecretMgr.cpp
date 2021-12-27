@@ -111,7 +111,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
     Optional<std::string> oldDigest;
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SECRET_DIGEST);
-        stmt->setUInt32(0, i);
+        stmt->SetArguments(i);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
         if (result)
             oldDigest = result->Fetch()->GetString();
@@ -200,8 +200,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                     Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(totpSecret, newSecret->ToByteArray<Warhead::Crypto::AES::KEY_SIZE_BYTES>());
 
                 LoginDatabasePreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                updateStmt->setBinary(0, totpSecret);
-                updateStmt->setUInt32(1, id);
+                updateStmt->SetArguments(totpSecret, id);
                 trans->Append(updateStmt);
             } while (result->NextRow());
 
@@ -214,7 +213,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
     if (hadOldSecret)
     {
         LoginDatabasePreparedStatement* deleteStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_SECRET_DIGEST);
-        deleteStmt->setUInt32(0, i);
+        deleteStmt->SetArguments(i);
         trans->Append(deleteStmt);
     }
 
@@ -227,8 +226,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
             return std::string("Failed to hash new secret");
 
         LoginDatabasePreparedStatement* insertStmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_SECRET_DIGEST);
-        insertStmt->setUInt32(0, i);
-        insertStmt->setString(1, *hash);
+        insertStmt->SetArguments(i, *hash);
         trans->Append(insertStmt);
     }
 
