@@ -1690,7 +1690,7 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
         });
     }
 
-    FMT_LOG_WARN("server", "Time left until shutdown/restart: {}", time);
+    LOG_WARN("server", "Time left until shutdown/restart: {}", time);
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if (time == 0)
