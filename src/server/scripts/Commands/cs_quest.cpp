@@ -24,11 +24,11 @@ EndScriptData */
 
 #include "Chat.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "GameTime.h"
 
 using namespace Warhead::ChatCommands;
 

@@ -16,6 +16,7 @@
  */
 
 #include "MuteMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
@@ -26,7 +27,6 @@
 #include "TextBuilder.h"
 #include "Timer.h"
 #include "World.h"
-#include "CharacterCache.h"
 
 MuteMgr* MuteMgr::instance()
 {

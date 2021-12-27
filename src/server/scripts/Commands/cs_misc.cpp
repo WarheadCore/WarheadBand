@@ -45,8 +45,8 @@
 #include "TargetedMovementGenerator.h"
 #include "TextBuilder.h"
 #include "Timer.h"
-#include "WeatherMgr.h"
 #include "Tokenize.h"
+#include "WeatherMgr.h"
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue

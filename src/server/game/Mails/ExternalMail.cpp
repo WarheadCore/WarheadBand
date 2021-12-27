@@ -16,12 +16,12 @@
 */
 
 #include "ExternalMail.h"
-#include "Log.h"
-#include "GameConfig.h"
+#include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
+#include "Log.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
-#include "CharacterCache.h"
 #include "TaskScheduler.h"
 
 namespace

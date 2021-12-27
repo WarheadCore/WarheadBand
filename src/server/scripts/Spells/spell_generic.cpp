@@ -29,6 +29,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -40,7 +41,6 @@
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Vehicle.h"
-#include "GameTime.h"
 #include <array>
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE

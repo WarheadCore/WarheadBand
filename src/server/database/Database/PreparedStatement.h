@@ -19,12 +19,12 @@
 #define _PREPAREDSTATEMENT_H
 
 #include "Define.h"
-#include "SQLOperation.h"
 #include "Optional.h"
+#include "SQLOperation.h"
 #include <future>
+#include <tuple>
 #include <variant>
 #include <vector>
-#include <tuple>
 
 struct PreparedStatementData
 {

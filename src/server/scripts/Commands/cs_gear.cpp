@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "Chat.h"
+#include "GameConfig.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "WorldSession.h"
-#include "GameConfig.h"
 
 using namespace Warhead::ChatCommands;
 
