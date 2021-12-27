@@ -16,15 +16,15 @@
 */
 
 #include "OnlineReward.h"
-#include "Log.h"
-#include "ModulesConfig.h"
-#include "Player.h"
 #include "Chat.h"
 #include "ExternalMail.h"
+#include "Log.h"
 #include "ModuleLocale.h"
-#include "Tokenize.h"
+#include "ModulesConfig.h"
+#include "Player.h"
 #include "StringConvert.h"
 #include "TaskScheduler.h"
+#include "Tokenize.h"
 
 namespace
 {

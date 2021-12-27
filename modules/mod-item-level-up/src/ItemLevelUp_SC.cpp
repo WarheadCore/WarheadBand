@@ -15,12 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ScriptMgr.h"
+#include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
-#include "ModuleLocale.h"
-#include "Tokenize.h"
+#include "ScriptMgr.h"
 #include "StringConvert.h"
+#include "Tokenize.h"
 
 class ItemLevelUp_Item : public ItemScript
 {

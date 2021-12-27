@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
+#include "ExternalMail.h"
 #include "Log.h"
-#include "ScriptMgr.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
-#include "Chat.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "StringFormat.h"
-#include "ExternalMail.h"
 
 struct LevelRewardStruct
 {

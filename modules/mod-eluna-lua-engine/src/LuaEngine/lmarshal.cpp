@@ -29,14 +29,14 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <cstdint>
 #include <stdlib.h>
 #include <string.h>
-#include <cstdint>
 
 extern "C" {
+#include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
-#include "lauxlib.h"
 }
 
 #define MAR_TREF 1

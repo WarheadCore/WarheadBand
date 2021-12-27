@@ -19,9 +19,9 @@
 #define _ONLINE_REWARD_H_
 
 #include "Common.h"
-#include "Player.h"
-#include "ObjectGuid.h"
 #include "Duration.h"
+#include "ObjectGuid.h"
+#include "Player.h"
 #include <unordered_map>
 #include <vector>
 

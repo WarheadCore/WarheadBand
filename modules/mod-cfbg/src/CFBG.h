@@ -18,9 +18,9 @@
 #ifndef _CFBG_H_
 #define _CFBG_H_
 
-#include "Common.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include "Common.h"
 #include "Player.h"
 #include <unordered_map>
 

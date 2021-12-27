@@ -8,9 +8,9 @@ extern "C"
 #if defined TRINITY || defined AZEROTHCORE
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #endif
-#include "libs/httplib.h"
 #include "HttpManager.h"
 #include "LuaEngine.h"
+#include "libs/httplib.h"
 
 HttpWorkItem::HttpWorkItem(int funcRef, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string& contentType, const httplib::Headers& headers)
     : funcRef(funcRef),

@@ -7,8 +7,8 @@
 #ifndef _HOOK_HELPERS_H
 #define _HOOK_HELPERS_H
 
-#include "LuaEngine.h"
 #include "ElunaUtility.h"
+#include "LuaEngine.h"
 
 /*
  * Sets up the stack so that event handlers can be called.

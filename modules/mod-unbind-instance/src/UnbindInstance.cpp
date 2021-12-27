@@ -16,14 +16,14 @@
 */
 
 #include "UnbindInstance.h"
-#include "Log.h"
-#include "ModulesConfig.h"
-#include "StringFormat.h"
-#include "ScriptedGossip.h"
-#include "MapMgr.h"
-#include "InstanceSaveMgr.h"
-#include "GameLocale.h"
 #include "Chat.h"
+#include "GameLocale.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
+#include "MapMgr.h"
+#include "ModulesConfig.h"
+#include "ScriptedGossip.h"
+#include "StringFormat.h"
 
 namespace
 {

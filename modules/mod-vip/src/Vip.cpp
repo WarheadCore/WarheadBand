@@ -16,19 +16,19 @@
  */
 
 #include "Vip.h"
+#include "Chat.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "TaskScheduler.h"
 #include "ObjectGuid.h"
-#include "GameTime.h"
-#include "Timer.h"
 #include "Optional.h"
-#include "Tokenize.h"
 #include "Player.h"
 #include "SpellMgr.h"
-#include "Chat.h"
-#include <unordered_map>
+#include "TaskScheduler.h"
+#include "Timer.h"
+#include "Tokenize.h"
 #include <tuple>
+#include <unordered_map>
 
 namespace
 {

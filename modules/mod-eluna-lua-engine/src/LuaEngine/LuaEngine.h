@@ -8,8 +8,8 @@
 #define _LUA_ENGINE_H
 
 #include "Common.h"
-#include "SharedDefines.h"
 #include "DBCEnums.h"
+#include "SharedDefines.h"
 
 #include "Group.h"
 #include "Item.h"

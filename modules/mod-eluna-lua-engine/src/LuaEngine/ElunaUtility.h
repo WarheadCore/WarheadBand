@@ -7,16 +7,16 @@
 #ifndef _ELUNA_UTIL_H
 #define _ELUNA_UTIL_H
 
+#include "Common.h"
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
+#include <memory>
+#include <mutex>
 #include <unordered_map>
 #include <unordered_set>
-#include <mutex>
-#include <memory>
-#include "Common.h"
-#include "SharedDefines.h"
-#include "ObjectGuid.h"
 #ifdef TRINITY
-#include "QueryResult.h"
 #include "Log.h"
+#include "QueryResult.h"
 #ifdef CATA
 #include "Object.h"
 #endif

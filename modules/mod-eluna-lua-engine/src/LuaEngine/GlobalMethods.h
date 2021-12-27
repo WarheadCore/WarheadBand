@@ -8,8 +8,8 @@
 #define GLOBALMETHODS_H
 
 #include "BindingMap.h"
-#include "GameTime.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 
 #ifdef AZEROTHCORE
 

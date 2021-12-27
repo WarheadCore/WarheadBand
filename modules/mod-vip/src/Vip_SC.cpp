@@ -15,22 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Vip.h"
 #include "AccountMgr.h"
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
-#include "GameTime.h"
-#include "GameLocale.h"
-#include "Chat.h"
-#include "Player.h"
-#include "Timer.h"
-#include "ScriptedGossip.h"
-#include "StringConvert.h"
-#include "WorldSession.h"
-#include "Tokenize.h"
 #include "CharacterCache.h"
+#include "Chat.h"
+#include "GameLocale.h"
+#include "GameTime.h"
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedGossip.h"
 #include "Spell.h"
+#include "StringConvert.h"
+#include "Timer.h"
+#include "Tokenize.h"
+#include "Vip.h"
+#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 

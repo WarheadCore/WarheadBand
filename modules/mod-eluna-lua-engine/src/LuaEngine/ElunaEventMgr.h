@@ -7,8 +7,8 @@
 #ifndef _ELUNA_EVENT_MGR_H
 #define _ELUNA_EVENT_MGR_H
 
-#include "ElunaUtility.h"
 #include "Common.h"
+#include "ElunaUtility.h"
 #ifdef TRINITY
 #include "Random.h"
 #else

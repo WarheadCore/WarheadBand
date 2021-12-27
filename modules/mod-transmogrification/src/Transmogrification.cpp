@@ -16,11 +16,11 @@
  */
 
 #include "Transmogrification.h"
-#include "ModulesConfig.h"
+#include "GameEventMgr.h"
 #include "GameLocale.h"
 #include "ModuleLocale.h"
+#include "ModulesConfig.h"
 #include "ScriptedGossip.h"
-#include "GameEventMgr.h"
 
 Transmogrification* Transmogrification::instance()
 {

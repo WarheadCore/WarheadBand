@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CFBG.h"
 #include "BattlegroundMgr.h"
+#include "CFBG.h"
 #include "Chat.h"
 #include "GroupMgr.h"
 #include "Log.h"

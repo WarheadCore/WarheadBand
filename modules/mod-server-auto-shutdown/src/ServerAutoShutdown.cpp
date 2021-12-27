@@ -23,10 +23,10 @@
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "TaskScheduler.h"
+#include "Timer.h"
 #include "Tokenize.h"
 #include "Util.h"
 #include "World.h"
-#include "Timer.h"
 
 namespace
 {

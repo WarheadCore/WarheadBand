@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "Log.h"
-#include "OnlineReward.h"
 #include "ModulesConfig.h"
+#include "OnlineReward.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include <map>
 
 class OnlineReward_Player : public PlayerScript

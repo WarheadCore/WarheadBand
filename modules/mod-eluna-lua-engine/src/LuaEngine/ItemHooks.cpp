@@ -4,12 +4,12 @@
  * Please see the included DOCS/LICENSE.md for more information
  */
 
-#include "Hooks.h"
-#include "HookHelpers.h"
-#include "LuaEngine.h"
 #include "BindingMap.h"
 #include "ElunaIncludes.h"
 #include "ElunaTemplate.h"
+#include "HookHelpers.h"
+#include "Hooks.h"
+#include "LuaEngine.h"
 
 using namespace Hooks;
 

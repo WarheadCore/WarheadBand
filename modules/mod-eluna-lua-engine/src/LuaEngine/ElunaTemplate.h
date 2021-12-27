@@ -9,12 +9,12 @@
 
 extern "C"
 {
+#include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
-#include "lauxlib.h"
 };
-#include "LuaEngine.h"
 #include "ElunaUtility.h"
+#include "LuaEngine.h"
 #include "SharedDefines.h"
 
 class ElunaGlobal

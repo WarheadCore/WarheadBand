@@ -15,14 +15,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "UnbindInstance.h"
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
 #include "Chat.h"
+#include "Log.h"
+#include "ModulesConfig.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 #include "StringConvert.h"
+#include "UnbindInstance.h"
 
 class UnbindInstance_Creature : public CreatureScript
 {

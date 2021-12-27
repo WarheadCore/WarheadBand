@@ -4,15 +4,15 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#include "Hooks.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
+#include "ElunaCreatureAI.h"
 #include "ElunaEventMgr.h"
 #include "ElunaIncludes.h"
+#include "ElunaInstanceAI.h"
 #include "ElunaTemplate.h"
 #include "ElunaUtility.h"
-#include "ElunaCreatureAI.h"
-#include "ElunaInstanceAI.h"
+#include "Hooks.h"
 
 #if defined(WARHEAD_PLATFORM) && defined(WARHEAD_PLATFORM_WINDOWS)
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
@@ -39,9 +39,9 @@
 extern "C"
 {
 // Base lua libraries
+#include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
-#include "lauxlib.h"
 
 // Additional lua libraries
 };

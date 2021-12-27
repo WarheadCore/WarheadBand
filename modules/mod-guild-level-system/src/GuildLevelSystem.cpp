@@ -16,18 +16,18 @@
 */
 
 #include "GuildLevelSystem.h"
-#include "Log.h"
-#include "ModulesConfig.h"
 #include "Chat.h"
-#include "ScriptedGossip.h"
+#include "ExternalMail.h"
 #include "GameLocale.h"
 #include "GameTime.h"
-#include "World.h"
-#include "SpellMgr.h"
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
-#include "ExternalMail.h"
+#include "SpellMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "World.h"
 
 namespace
 {

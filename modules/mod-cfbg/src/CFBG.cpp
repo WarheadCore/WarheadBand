@@ -20,13 +20,13 @@
 #include "Chat.h"
 #include "Config.h"
 #include "Containers.h"
+#include "GameTime.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "ModulesConfig.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
-#include "ModulesConfig.h"
-#include "GameTime.h"
 #include "TextBuilder.h"
 
 CFBG* CFBG::instance()

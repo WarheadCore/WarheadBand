@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
 #include "Chat.h"
+#include "Log.h"
+#include "ModulesConfig.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 class DuelReset_Player : public PlayerScript
 {

@@ -7,15 +7,15 @@
 #ifndef _BINDING_MAP_H
 #define _BINDING_MAP_H
 
-#include <memory>
 #include "Common.h"
 #include "ElunaUtility.h"
+#include <memory>
 #include <type_traits>
 
 extern "C"
 {
-#include "lua.h"
 #include "lauxlib.h"
+#include "lua.h"
 };
 
 /*

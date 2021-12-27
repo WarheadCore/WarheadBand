@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ServerAutoShutdown.h"
 #include "Config.h"
 #include "Log.h"
 #include "ScriptMgr.h"
+#include "ServerAutoShutdown.h"
 #include "TaskScheduler.h"
 
 class ServerAutoShutdown_World : public WorldScript
