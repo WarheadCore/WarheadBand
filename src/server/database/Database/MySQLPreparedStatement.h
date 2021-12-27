@@ -50,6 +50,7 @@ protected:
     void SetParameter(const uint8 index, bool value);
     void SetParameter(const uint8 index, std::nullptr_t /*value*/);
     void SetParameter(const uint8 index, std::string const& value);
+    void SetParameter(const uint8 index, std::vector<uint8>& value);
 
     MySQLStmt* GetSTMT() { return m_Mstmt; }
     MySQLBind* GetBind() { return m_bind; }

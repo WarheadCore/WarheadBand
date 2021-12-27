@@ -133,24 +133,6 @@ void MySQLPreparedStatement::SetParameter(const uint8 index, T value)
     memcpy(param->buffer, &value, len);
 }
 
-template<>
-void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    uint32 len = uint32(value.size());
-    param->buffer_type = MYSQL_TYPE_BLOB;
-    delete[] static_cast<char*>(param->buffer);
-    param->buffer = new char[len];
-    param->buffer_length = len;
-    param->is_null_value = 0;
-    delete param->length;
-    param->length = new unsigned long(len);
-
-    memcpy(param->buffer, value.data(), len);
-}
-
 void MySQLPreparedStatement::SetParameter(const uint8 index, bool value)
 {
     SetParameter(index, uint8(value ? 1 : 0));
@@ -185,6 +167,23 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)
     param->length = new unsigned long(len);
 
     memcpy(param->buffer, value.c_str(), len);
+}
+
+void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8>& value)
+{
+    AssertValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    uint32 len = uint32(value.size());
+    param->buffer_type = MYSQL_TYPE_BLOB;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = len;
+    param->is_null_value = 0;
+    delete param->length;
+    param->length = new unsigned long(len);
+
+    memcpy(param->buffer, value.data(), len);
 }
 
 std::string MySQLPreparedStatement::getQueryString() const
