@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "old_hillsbrad.h"
+#include "ScriptedCreature.h"
 
 const Position instancePositions[INSTANCE_POSITIONS_COUNT] =
 {

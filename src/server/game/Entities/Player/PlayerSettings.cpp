@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -41,7 +41,7 @@ void Player::_LoadCharacterSettings(PreparedQueryResult result)
             std::string source = fields[0].GetString();;
             std::string data = fields[1].GetString();
 
-            std::vector<std::string_view> tokens = Acore::Tokenize(data, ' ', true);
+            std::vector<std::string_view> tokens = Warhead::Tokenize(data, ' ', true);
 
             PlayerSettingVector setting;
             setting.resize(tokens.size());
@@ -51,7 +51,7 @@ void Player::_LoadCharacterSettings(PreparedQueryResult result)
             for (auto token : tokens)
             {
                 PlayerSetting set;
-                set.value = Acore::StringTo<uint32>(token).value();
+                set.value = Warhead::StringTo<uint32>(token).value();
                 setting[++count] = set;
             }
 

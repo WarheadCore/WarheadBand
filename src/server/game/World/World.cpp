@@ -1495,6 +1495,9 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update playersSaveScheduler"));
         playersSaveScheduler.Update(diff);
+    }
+
+    {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update external mail system"));
         sExternalMail->Update(diff);
     }
