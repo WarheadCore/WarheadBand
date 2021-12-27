@@ -70,9 +70,11 @@ template void PreparedStatementBase::SetValidData(const uint8 index, float value
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
-m_stmt(stmt), m_result(nullptr)
+    m_stmt(stmt),
+    m_result(nullptr)
 {
     m_has_result = async; // If it's async, then there's a result
+
     if (async)
         m_result = new PreparedQueryResultPromise();
 }
@@ -80,7 +82,8 @@ m_stmt(stmt), m_result(nullptr)
 PreparedStatementTask::~PreparedStatementTask()
 {
     delete m_stmt;
-    if (m_has_result && m_result != nullptr)
+
+    if (m_has_result && m_result)
         delete m_result;
 }
 
@@ -95,6 +98,7 @@ bool PreparedStatementTask::Execute()
             m_result->set_value(PreparedQueryResult(nullptr));
             return false;
         }
+
         m_result->set_value(PreparedQueryResult(result));
         return true;
     }
@@ -108,42 +112,26 @@ std::string PreparedStatementData::ToString(T value)
     return Warhead::StringFormat("{}", value);
 }
 
-std::string PreparedStatementData::ToString(bool value)
-{
-    return ToString<uint32>(value);
-}
-
-std::string PreparedStatementData::ToString(uint8 value)
-{
-    return ToString<uint32>(value);
-}
-
-template std::string PreparedStatementData::ToString<uint16>(uint16);
-template std::string PreparedStatementData::ToString<uint32>(uint32);
-template std::string PreparedStatementData::ToString<uint64>(uint64);
-
-std::string PreparedStatementData::ToString(int8 value)
-{
-    return ToString<int32>(value);
-}
-
-template std::string PreparedStatementData::ToString<int16>(int16);
-template std::string PreparedStatementData::ToString<int32>(int32);
-template std::string PreparedStatementData::ToString<int64>(int64);
-template std::string PreparedStatementData::ToString<float>(float);
-template std::string PreparedStatementData::ToString<double>(double);
-
-std::string PreparedStatementData::ToString(std::string const& value)
-{
-    return Warhead::StringFormat("'{}'", value);
-}
-
-std::string PreparedStatementData::ToString(std::vector<uint8> const& /*value*/)
+template<>
+std::string PreparedStatementData::ToString(std::vector<uint8> /*value*/)
 {
     return "BINARY";
 }
 
-std::string PreparedStatementData::ToString(std::nullptr_t)
+template std::string PreparedStatementData::ToString(uint8);
+template std::string PreparedStatementData::ToString(uint16);
+template std::string PreparedStatementData::ToString(uint32);
+template std::string PreparedStatementData::ToString(uint64);
+template std::string PreparedStatementData::ToString(int8);
+template std::string PreparedStatementData::ToString(int16);
+template std::string PreparedStatementData::ToString(int32);
+template std::string PreparedStatementData::ToString(int64);
+template std::string PreparedStatementData::ToString(std::string);
+template std::string PreparedStatementData::ToString(float);
+template std::string PreparedStatementData::ToString(double);
+template std::string PreparedStatementData::ToString(bool);
+
+std::string PreparedStatementData::ToString(std::nullptr_t /*value*/)
 {
     return "NULL";
 }

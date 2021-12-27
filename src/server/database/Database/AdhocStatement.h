@@ -25,17 +25,17 @@
 /*! Raw, ad-hoc query. */
 class WH_DATABASE_API BasicStatementTask : public SQLOperation
 {
-    public:
-        BasicStatementTask(char const* sql, bool async = false);
-        ~BasicStatementTask();
+public:
+    BasicStatementTask(std::string_view sql, bool async = false);
+    ~BasicStatementTask();
 
-        bool Execute() override;
-        QueryResultFuture GetFuture() const { return m_result->get_future(); }
+    bool Execute() override;
+    QueryResultFuture GetFuture() const { return m_result->get_future(); }
 
-    private:
-        char const* m_sql;      //- Raw query to be executed
-        bool m_has_result;
-        QueryResultPromise* m_result;
+private:
+    std::string_view m_sql = {};      //- Raw query to be executed
+    bool m_has_result;
+    QueryResultPromise* m_result;
 };
 
 #endif

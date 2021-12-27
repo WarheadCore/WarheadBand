@@ -35,26 +35,27 @@ friend class MySQLConnection;
 template <typename T>
 friend class DatabaseWorkerPool;
 
-    public:
-        TransactionBase() : _cleanedUp(false) { }
-        virtual ~TransactionBase() { Cleanup(); }
+public:
+    TransactionBase() : _cleanedUp(false) { }
+    virtual ~TransactionBase() { Cleanup(); }
 
-        void Append(char const* sql);
-        template<typename Format, typename... Args>
-        void PAppend(Format&& sql, Args&&... args)
-        {
-            Append(Warhead::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
-        }
+    void Append(std::string_view sql);
 
-        std::size_t GetSize() const { return m_queries.size(); }
+    template<typename... Args>
+    void PAppend(std::string_view sql, Args&&... args)
+    {
+        Append(Warhead::StringFormat(sql, std::forward<Args>(args)...));
+    }
 
-    protected:
-        void AppendPreparedStatement(PreparedStatementBase* statement);
-        void Cleanup();
-        std::vector<SQLElementData> m_queries;
+    std::size_t GetSize() const { return m_queries.size(); }
 
-    private:
-        bool _cleanedUp;
+protected:
+    void AppendPreparedStatement(PreparedStatementBase* statement);
+    void Cleanup();
+    std::vector<SQLElementData> m_queries;
+
+private:
+    bool _cleanedUp;
 };
 
 template<typename T>
@@ -62,6 +63,7 @@ class Transaction : public TransactionBase
 {
 public:
     using TransactionBase::Append;
+
     void Append(PreparedStatement<T>* statement)
     {
         AppendPreparedStatement(statement);
@@ -71,21 +73,23 @@ public:
 /*! Low level class*/
 class WH_DATABASE_API TransactionTask : public SQLOperation
 {
-    template <class T> friend class DatabaseWorkerPool;
-    friend class DatabaseWorker;
-    friend class TransactionCallback;
+template <class T>
+friend class DatabaseWorkerPool;
 
-    public:
-        TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(trans) { }
-        ~TransactionTask() { }
+friend class DatabaseWorker;
+friend class TransactionCallback;
 
-    protected:
-        bool Execute() override;
-        int TryExecute();
-        void CleanupOnFailure();
+public:
+    TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(trans) { }
+    ~TransactionTask() { }
 
-        std::shared_ptr<TransactionBase> m_trans;
-        static std::mutex _deadlockLock;
+protected:
+    bool Execute() override;
+    int TryExecute();
+    void CleanupOnFailure();
+
+    std::shared_ptr<TransactionBase> m_trans;
+    static std::mutex _deadlockLock;
 };
 
 class WH_DATABASE_API TransactionWithResultTask : public TransactionTask

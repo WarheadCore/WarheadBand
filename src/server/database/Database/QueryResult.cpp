@@ -24,154 +24,155 @@
 
 namespace
 {
-static uint32 SizeForType(MYSQL_FIELD* field)
-{
-    switch (field->type)
+    static uint32 SizeForType(MYSQL_FIELD* field)
     {
-        case MYSQL_TYPE_NULL:
-            return 0;
-        case MYSQL_TYPE_TINY:
-            return 1;
-        case MYSQL_TYPE_YEAR:
-        case MYSQL_TYPE_SHORT:
-            return 2;
-        case MYSQL_TYPE_INT24:
-        case MYSQL_TYPE_LONG:
-        case MYSQL_TYPE_FLOAT:
-            return 4;
-        case MYSQL_TYPE_DOUBLE:
-        case MYSQL_TYPE_LONGLONG:
-        case MYSQL_TYPE_BIT:
-            return 8;
+        switch (field->type)
+        {
+            case MYSQL_TYPE_NULL:
+                return 0;
+            case MYSQL_TYPE_TINY:
+                return 1;
+            case MYSQL_TYPE_YEAR:
+            case MYSQL_TYPE_SHORT:
+                return 2;
+            case MYSQL_TYPE_INT24:
+            case MYSQL_TYPE_LONG:
+            case MYSQL_TYPE_FLOAT:
+                return 4;
+            case MYSQL_TYPE_DOUBLE:
+            case MYSQL_TYPE_LONGLONG:
+            case MYSQL_TYPE_BIT:
+                return 8;
 
-        case MYSQL_TYPE_TIMESTAMP:
-        case MYSQL_TYPE_DATE:
-        case MYSQL_TYPE_TIME:
-        case MYSQL_TYPE_DATETIME:
-            return sizeof(MYSQL_TIME);
+            case MYSQL_TYPE_TIMESTAMP:
+            case MYSQL_TYPE_DATE:
+            case MYSQL_TYPE_TIME:
+            case MYSQL_TYPE_DATETIME:
+                return sizeof(MYSQL_TIME);
 
-        case MYSQL_TYPE_TINY_BLOB:
-        case MYSQL_TYPE_MEDIUM_BLOB:
-        case MYSQL_TYPE_LONG_BLOB:
-        case MYSQL_TYPE_BLOB:
-        case MYSQL_TYPE_STRING:
-        case MYSQL_TYPE_VAR_STRING:
-            return field->max_length + 1;
+            case MYSQL_TYPE_TINY_BLOB:
+            case MYSQL_TYPE_MEDIUM_BLOB:
+            case MYSQL_TYPE_LONG_BLOB:
+            case MYSQL_TYPE_BLOB:
+            case MYSQL_TYPE_STRING:
+            case MYSQL_TYPE_VAR_STRING:
+                return field->max_length + 1;
 
-        case MYSQL_TYPE_DECIMAL:
-        case MYSQL_TYPE_NEWDECIMAL:
-            return 64;
+            case MYSQL_TYPE_DECIMAL:
+            case MYSQL_TYPE_NEWDECIMAL:
+                return 64;
 
-        case MYSQL_TYPE_GEOMETRY:
-            /*
-            Following types are not sent over the wire:
-            MYSQL_TYPE_ENUM:
-            MYSQL_TYPE_SET:
-            */
-        default:
-            LOG_WARN("sql.sql", "SQL::SizeForType(): invalid field type {}", uint32(field->type));
-            return 0;
-    }
-}
-
-DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
-{
-    switch (type)
-    {
-        case MYSQL_TYPE_NULL:
-            return DatabaseFieldTypes::Null;
-        case MYSQL_TYPE_TINY:
-            return DatabaseFieldTypes::Int8;
-        case MYSQL_TYPE_YEAR:
-        case MYSQL_TYPE_SHORT:
-            return DatabaseFieldTypes::Int16;
-        case MYSQL_TYPE_INT24:
-        case MYSQL_TYPE_LONG:
-            return DatabaseFieldTypes::Int32;
-        case MYSQL_TYPE_LONGLONG:
-        case MYSQL_TYPE_BIT:
-            return DatabaseFieldTypes::Int64;
-        case MYSQL_TYPE_FLOAT:
-            return DatabaseFieldTypes::Float;
-        case MYSQL_TYPE_DOUBLE:
-            return DatabaseFieldTypes::Double;
-        case MYSQL_TYPE_DECIMAL:
-        case MYSQL_TYPE_NEWDECIMAL:
-            return DatabaseFieldTypes::Decimal;
-        case MYSQL_TYPE_TIMESTAMP:
-        case MYSQL_TYPE_DATE:
-        case MYSQL_TYPE_TIME:
-        case MYSQL_TYPE_DATETIME:
-            return DatabaseFieldTypes::Date;
-        case MYSQL_TYPE_TINY_BLOB:
-        case MYSQL_TYPE_MEDIUM_BLOB:
-        case MYSQL_TYPE_LONG_BLOB:
-        case MYSQL_TYPE_BLOB:
-        case MYSQL_TYPE_STRING:
-        case MYSQL_TYPE_VAR_STRING:
-            return DatabaseFieldTypes::Binary;
-        default:
-            LOG_WARN("sql.sql", "MysqlTypeToFieldType(): invalid field type {}", uint32(type));
-            break;
+            case MYSQL_TYPE_GEOMETRY:
+                /*
+                Following types are not sent over the wire:
+                MYSQL_TYPE_ENUM:
+                MYSQL_TYPE_SET:
+                */
+            default:
+                LOG_WARN("sql.sql", "SQL::SizeForType(): invalid field type {}", uint32(field->type));
+                return 0;
+        }
     }
 
-    return DatabaseFieldTypes::Null;
-}
-
-static char const* FieldTypeToString(enum_field_types type)
-{
-    switch (type)
+    DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
     {
-        case MYSQL_TYPE_BIT:         return "BIT";
-        case MYSQL_TYPE_BLOB:        return "BLOB";
-        case MYSQL_TYPE_DATE:        return "DATE";
-        case MYSQL_TYPE_DATETIME:    return "DATETIME";
-        case MYSQL_TYPE_NEWDECIMAL:  return "NEWDECIMAL";
-        case MYSQL_TYPE_DECIMAL:     return "DECIMAL";
-        case MYSQL_TYPE_DOUBLE:      return "DOUBLE";
-        case MYSQL_TYPE_ENUM:        return "ENUM";
-        case MYSQL_TYPE_FLOAT:       return "FLOAT";
-        case MYSQL_TYPE_GEOMETRY:    return "GEOMETRY";
-        case MYSQL_TYPE_INT24:       return "INT24";
-        case MYSQL_TYPE_LONG:        return "LONG";
-        case MYSQL_TYPE_LONGLONG:    return "LONGLONG";
-        case MYSQL_TYPE_LONG_BLOB:   return "LONG_BLOB";
-        case MYSQL_TYPE_MEDIUM_BLOB: return "MEDIUM_BLOB";
-        case MYSQL_TYPE_NEWDATE:     return "NEWDATE";
-        case MYSQL_TYPE_NULL:        return "NULL";
-        case MYSQL_TYPE_SET:         return "SET";
-        case MYSQL_TYPE_SHORT:       return "SHORT";
-        case MYSQL_TYPE_STRING:      return "STRING";
-        case MYSQL_TYPE_TIME:        return "TIME";
-        case MYSQL_TYPE_TIMESTAMP:   return "TIMESTAMP";
-        case MYSQL_TYPE_TINY:        return "TINY";
-        case MYSQL_TYPE_TINY_BLOB:   return "TINY_BLOB";
-        case MYSQL_TYPE_VAR_STRING:  return "VAR_STRING";
-        case MYSQL_TYPE_YEAR:        return "YEAR";
-        default:                     return "-Unknown-";
-    }
-}
+        switch (type)
+        {
+            case MYSQL_TYPE_NULL:
+                return DatabaseFieldTypes::Null;
+            case MYSQL_TYPE_TINY:
+                return DatabaseFieldTypes::Int8;
+            case MYSQL_TYPE_YEAR:
+            case MYSQL_TYPE_SHORT:
+                return DatabaseFieldTypes::Int16;
+            case MYSQL_TYPE_INT24:
+            case MYSQL_TYPE_LONG:
+                return DatabaseFieldTypes::Int32;
+            case MYSQL_TYPE_LONGLONG:
+            case MYSQL_TYPE_BIT:
+                return DatabaseFieldTypes::Int64;
+            case MYSQL_TYPE_FLOAT:
+                return DatabaseFieldTypes::Float;
+            case MYSQL_TYPE_DOUBLE:
+                return DatabaseFieldTypes::Double;
+            case MYSQL_TYPE_DECIMAL:
+            case MYSQL_TYPE_NEWDECIMAL:
+                return DatabaseFieldTypes::Decimal;
+            case MYSQL_TYPE_TIMESTAMP:
+            case MYSQL_TYPE_DATE:
+            case MYSQL_TYPE_TIME:
+            case MYSQL_TYPE_DATETIME:
+                return DatabaseFieldTypes::Date;
+            case MYSQL_TYPE_TINY_BLOB:
+            case MYSQL_TYPE_MEDIUM_BLOB:
+            case MYSQL_TYPE_LONG_BLOB:
+            case MYSQL_TYPE_BLOB:
+            case MYSQL_TYPE_STRING:
+            case MYSQL_TYPE_VAR_STRING:
+                return DatabaseFieldTypes::Binary;
+            default:
+                LOG_WARN("sql.sql", "MysqlTypeToFieldType(): invalid field type {}", uint32(type));
+                break;
+        }
 
-void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField const* field, uint32 fieldIndex)
-{
-    meta->TableName = field->org_table;
-    meta->TableAlias = field->table;
-    meta->Name = field->org_name;
-    meta->Alias = field->name;
-    meta->TypeName = FieldTypeToString(field->type);
-    meta->Index = fieldIndex;
-    meta->Type = MysqlTypeToFieldType(field->type);
-}
+        return DatabaseFieldTypes::Null;
+    }
+
+    static std::string_view FieldTypeToString(enum_field_types type)
+    {
+        switch (type)
+        {
+            case MYSQL_TYPE_BIT:         return std::string_view{ "BIT" };
+            case MYSQL_TYPE_BLOB:        return std::string_view{ "BLOB" };
+            case MYSQL_TYPE_DATE:        return std::string_view{ "DATE" };
+            case MYSQL_TYPE_DATETIME:    return std::string_view{ "DATETIME" };
+            case MYSQL_TYPE_NEWDECIMAL:  return std::string_view{ "NEWDECIMAL" };
+            case MYSQL_TYPE_DECIMAL:     return std::string_view{ "DECIMAL" };
+            case MYSQL_TYPE_DOUBLE:      return std::string_view{ "DOUBLE" };
+            case MYSQL_TYPE_ENUM:        return std::string_view{ "ENUM" };
+            case MYSQL_TYPE_FLOAT:       return std::string_view{ "FLOAT" };
+            case MYSQL_TYPE_GEOMETRY:    return std::string_view{ "GEOMETRY" };
+            case MYSQL_TYPE_INT24:       return std::string_view{ "INT24" };
+            case MYSQL_TYPE_LONG:        return std::string_view{ "LONG" };
+            case MYSQL_TYPE_LONGLONG:    return std::string_view{ "LONGLONG" };
+            case MYSQL_TYPE_LONG_BLOB:   return std::string_view{ "LONG_BLOB" };
+            case MYSQL_TYPE_MEDIUM_BLOB: return std::string_view{ "MEDIUM_BLOB" };
+            case MYSQL_TYPE_NEWDATE:     return std::string_view{ "NEWDATE" };
+            case MYSQL_TYPE_NULL:        return std::string_view{ "NULL" };
+            case MYSQL_TYPE_SET:         return std::string_view{ "SET" };
+            case MYSQL_TYPE_SHORT:       return std::string_view{ "SHORT" };
+            case MYSQL_TYPE_STRING:      return std::string_view{ "STRING" };
+            case MYSQL_TYPE_TIME:        return std::string_view{ "TIME" };
+            case MYSQL_TYPE_TIMESTAMP:   return std::string_view{ "TIMESTAMP" };
+            case MYSQL_TYPE_TINY:        return std::string_view{ "TINY" };
+            case MYSQL_TYPE_TINY_BLOB:   return std::string_view{ "TINY_BLOB" };
+            case MYSQL_TYPE_VAR_STRING:  return std::string_view{ "VAR_STRING" };
+            case MYSQL_TYPE_YEAR:        return std::string_view{ "YEAR" };
+            default:                     return std::string_view{ "-Unknown-" };
+        }
+    }
+
+    void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField const* field, uint32 fieldIndex)
+    {
+        meta->TableName = field->org_table;
+        meta->TableAlias = field->table;
+        meta->Name = field->org_name;
+        meta->Alias = field->name;
+        meta->TypeName = FieldTypeToString(field->type);
+        meta->Index = fieldIndex;
+        meta->Type = MysqlTypeToFieldType(field->type);
+    }
 }
 
 ResultSet::ResultSet(MySQLResult* result, MySQLField* fields, uint64 rowCount, uint32 fieldCount) :
-_rowCount(rowCount),
-_fieldCount(fieldCount),
-_result(result),
-_fields(fields)
+    _rowCount(rowCount),
+    _fieldCount(fieldCount),
+    _result(result),
+    _fields(fields)
 {
     _fieldMetadata.resize(_fieldCount);
     _currentRow = new Field[_fieldCount];
+
     for (uint32 i = 0; i < _fieldCount; i++)
     {
         InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i);
@@ -180,12 +181,12 @@ _fields(fields)
 }
 
 PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint64 rowCount, uint32 fieldCount) :
-m_rowCount(rowCount),
-m_rowPosition(0),
-m_fieldCount(fieldCount),
-m_rBind(nullptr),
-m_stmt(stmt),
-m_metadataResult(result)
+    m_rowCount(rowCount),
+    m_rowPosition(0),
+    m_fieldCount(fieldCount),
+    m_rBind(nullptr),
+    m_stmt(stmt),
+    m_metadataResult(result)
 {
     if (!m_metadataResult)
         return;
@@ -224,6 +225,7 @@ m_metadataResult(result)
     MySQLField* field = reinterpret_cast<MySQLField*>(mysql_fetch_fields(m_metadataResult));
     m_fieldMetadata.resize(m_fieldCount);
     std::size_t rowSize = 0;
+
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
         uint32 size = SizeForType(&field[i]);
@@ -258,6 +260,7 @@ m_metadataResult(result)
     }
 
     m_rows.resize(uint32(m_rowCount) * m_fieldCount);
+
     while (_NextRow())
     {
         for (uint32 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
@@ -289,22 +292,20 @@ m_metadataResult(result)
                         break;
                 }
 
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
-                    (char const*)buffer,
-                    fetched_length);
+                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue((char const*)buffer, fetched_length);
 
                 // move buffer pointer to next part
                 m_stmt->bind[fIndex].buffer = (char*)buffer + rowSize;
             }
             else
             {
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
-                    nullptr,
-                    *m_rBind[fIndex].length);
+                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(nullptr, *m_rBind[fIndex].length);
             }
         }
+
         m_rowPosition++;
     }
+
     m_rowPosition = 0;
 
     /// All data is buffered, let go of mysql c api structures

@@ -35,8 +35,11 @@ template<> struct MySQLType<int64> : std::integral_constant<enum_field_types, MY
 template<> struct MySQLType<float> : std::integral_constant<enum_field_types, MYSQL_TYPE_FLOAT> { };
 template<> struct MySQLType<double> : std::integral_constant<enum_field_types, MYSQL_TYPE_DOUBLE> { };
 
-MySQLPreparedStatement::MySQLPreparedStatement(MySQLStmt* stmt, std::string queryString) :
-    m_stmt(nullptr), m_Mstmt(stmt), m_bind(nullptr), m_queryString(std::move(queryString))
+MySQLPreparedStatement::MySQLPreparedStatement(MySQLStmt* stmt, std::string_view queryString) :
+    m_stmt(nullptr),
+    m_Mstmt(stmt),
+    m_bind(nullptr),
+    m_queryString(queryString)
 {
     /// Initialize variable parameters
     m_paramCount = mysql_stmt_param_count(stmt);
@@ -57,6 +60,7 @@ MySQLPreparedStatement::~MySQLPreparedStatement()
         delete[] m_Mstmt->bind->length;
         delete[] m_Mstmt->bind->is_null;
     }
+
     mysql_stmt_close(m_Mstmt);
     delete[] m_bind;
 }
@@ -72,8 +76,10 @@ void MySQLPreparedStatement::BindParameters(PreparedStatementBase* stmt)
         {
             SetParameter(pos, param);
         }, data.data);
+
         ++pos;
     }
+
 #ifdef _DEBUG
     if (pos < m_paramCount)
         LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement {} did not bind all allocated parameters", stmt->GetIndex());
@@ -86,7 +92,7 @@ void MySQLPreparedStatement::ClearParameters()
     {
         delete m_bind[i].length;
         m_bind[i].length = nullptr;
-        delete[] (char*) m_bind[i].buffer;
+        delete[] (char*)m_bind[i].buffer;
         m_bind[i].buffer = nullptr;
         m_paramsSet[i] = false;
     }
@@ -94,7 +100,9 @@ void MySQLPreparedStatement::ClearParameters()
 
 static bool ParamenterIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 paramCount)
 {
-    LOG_ERROR("sql.driver", "Attempted to bind parameter {}{} on a PreparedStatement {} (statement has only {} parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
+    LOG_ERROR("sql.driver", "Attempted to bind parameter {}{} on a PreparedStatement {} (statement has only {} parameters)",
+        uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
+
     return false;
 }
 
@@ -107,7 +115,26 @@ void MySQLPreparedStatement::AssertValidIndex(uint8 index)
         LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: {}) trying to bind value on already bound index ({}).", m_stmt->GetIndex(), index);
 }
 
-void MySQLPreparedStatement::SetParameter(uint8 index, std::nullptr_t)
+template<typename T>
+void MySQLPreparedStatement::SetParameter(const uint8 index, T value)
+{
+    AssertValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    uint32 len = uint32(sizeof(T));
+    param->buffer_type = MySQLType<T>::value;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = 0;
+    param->is_null_value = 0;
+    param->length = nullptr; // Only != NULL for strings
+    param->is_unsigned = std::is_unsigned_v<T>;
+
+    memcpy(param->buffer, &value, len);
+}
+
+template<>
+void MySQLPreparedStatement::SetParameter(const uint8 index, std::nullptr_t /*value*/)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
@@ -121,37 +148,15 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::nullptr_t)
     param->length = nullptr;
 }
 
-void MySQLPreparedStatement::SetParameter(uint8 index, bool value)
-{
-    SetParameter(index, uint8(value ? 1 : 0));
-}
-
-template<typename T>
-void MySQLPreparedStatement::SetParameter(uint8 index, T value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    uint32 len = uint32(sizeof(T));
-    param->buffer_type = MySQLType<T>::value;
-    delete[] static_cast<char*>(param->buffer);
-    param->buffer = new char[len];
-    param->buffer_length = 0;
-    param->is_null_value = 0;
-    param->length = nullptr;               // Only != NULL for strings
-    param->is_unsigned = std::is_unsigned_v<T>;
-
-    memcpy(param->buffer, &value, len);
-}
-
-void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)
+template<>
+void MySQLPreparedStatement::SetParameter(uint8 index, std::string value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     uint32 len = uint32(value.size());
     param->buffer_type = MYSQL_TYPE_VAR_STRING;
-    delete [] static_cast<char*>(param->buffer);
+    delete[] static_cast<char*>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = len;
     param->is_null_value = 0;
@@ -161,14 +166,15 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)
     memcpy(param->buffer, value.c_str(), len);
 }
 
-void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> const& value)
+template<>
+void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     uint32 len = uint32(value.size());
     param->buffer_type = MYSQL_TYPE_BLOB;
-    delete [] static_cast<char*>(param->buffer);
+    delete[] static_cast<char*>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = len;
     param->is_null_value = 0;
@@ -178,11 +184,17 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> const&
     memcpy(param->buffer, value.data(), len);
 }
 
+void MySQLPreparedStatement::SetParameter(const uint8 index, bool value)
+{
+    SetParameter(index, uint8(value ? 1 : 0));
+}
+
 std::string MySQLPreparedStatement::getQueryString() const
 {
     std::string queryString(m_queryString);
 
     size_t pos = 0;
+
     for (PreparedStatementData const& data : m_stmt->GetParameters())
     {
         pos = queryString.find('?', pos);
