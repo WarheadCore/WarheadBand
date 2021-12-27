@@ -70,7 +70,7 @@ public:
 
     // Set numerlic and default binary
     template<typename T>
-    std::enable_if_t<std::is_integral_v<T> || std::is_same_v<std::vector<uint8>, T>> SetData(const uint8 index, T value)
+    std::enable_if_t<std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>> SetData(const uint8 index, T value)
     {
         SetValidData(index, value);
     }
@@ -84,7 +84,7 @@ public:
 
     // Set string
     template<typename T>
-    std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_same_v<const char*, T>> SetData(const uint8 index, T value)
+    std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_base_of_v<std::string_view, T> || std::is_same_v<const char*, T>> SetData(const uint8 index, T value)
     {
         SetValidData(index, std::string_view{ value });
     }

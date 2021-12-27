@@ -65,6 +65,8 @@ template void PreparedStatementBase::SetValidData(const uint8 index, uint32 valu
 template void PreparedStatementBase::SetValidData(const uint8 index, int32 value);
 template void PreparedStatementBase::SetValidData(const uint8 index, uint64 value);
 template void PreparedStatementBase::SetValidData(const uint8 index, int64 value);
+template void PreparedStatementBase::SetValidData(const uint8 index, bool value);
+template void PreparedStatementBase::SetValidData(const uint8 index, float value);
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
