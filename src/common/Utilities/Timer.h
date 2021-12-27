@@ -119,6 +119,11 @@ inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
     return getMSTimeDiff(oldMSTime, getMSTime());
 }
 
+inline Milliseconds GetMSTimeDiffToNow(Milliseconds oldMSTime)
+{
+    return GetMSTimeDiff(oldMSTime, GetTimeMS());
+}
+
 inline Seconds GetEpochTime()
 {
     using namespace std::chrono;
