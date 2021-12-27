@@ -8,6 +8,7 @@
 #define _ELUNA_CREATURE_AI_H
 
 #include "LuaEngine.h"
+#include "ScriptedCreature.h"
 
 #if defined TRINITY || AZEROTHCORE
 struct ScriptedAI;
