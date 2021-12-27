@@ -17,7 +17,7 @@
 
 #include "ExternalMail.h"
 #include "CharacterCache.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Mail.h"
