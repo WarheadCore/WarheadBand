@@ -41,11 +41,11 @@ enum class DatabaseFieldTypes : uint8
 
 struct QueryResultFieldMetadata
 {
-    char const* TableName = nullptr;
-    char const* TableAlias = nullptr;
-    char const* Name = nullptr;
-    char const* Alias = nullptr;
-    char const* TypeName = nullptr;
+    std::string_view TableName = {};
+    std::string_view TableAlias = {};
+    std::string_view Name = {};
+    std::string_view Alias = {};
+    std::string_view TypeName = {};
     uint32 Index = 0;
     DatabaseFieldTypes Type = DatabaseFieldTypes::Null;
 };
@@ -82,68 +82,68 @@ struct QueryResultFieldMetadata
 */
 class WH_DATABASE_API Field
 {
-    friend class ResultSet;
-    friend class PreparedResultSet;
+friend class ResultSet;
+friend class PreparedResultSet;
 
-    public:
-        Field();
-        ~Field();
+public:
+    Field();
+    ~Field() = default;
 
-        bool GetBool() const // Wrapper, actually gets integer
-        {
-            return GetUInt8() == 1 ? true : false;
-        }
+    bool GetBool() const // Wrapper, actually gets integer
+    {
+        return GetUInt8() == 1 ? true : false;
+    }
 
-        uint8 GetUInt8() const;
-        int8 GetInt8() const;
-        uint16 GetUInt16() const;
-        int16 GetInt16() const;
-        uint32 GetUInt32() const;
-        int32 GetInt32() const;
-        uint64 GetUInt64() const;
-        int64 GetInt64() const;
-        float GetFloat() const;
-        double GetDouble() const;
-        char const* GetCString() const;
-        std::string GetString() const;
-        std::string_view GetStringView() const;
-        std::vector<uint8> GetBinary() const;
-        template <size_t S>
-        std::array<uint8, S> GetBinary() const
-        {
-            std::array<uint8, S> buf;
-            GetBinarySizeChecked(buf.data(), S);
-            return buf;
-        }
+    uint8 GetUInt8() const;
+    int8 GetInt8() const;
+    uint16 GetUInt16() const;
+    int16 GetInt16() const;
+    uint32 GetUInt32() const;
+    int32 GetInt32() const;
+    uint64 GetUInt64() const;
+    int64 GetInt64() const;
+    float GetFloat() const;
+    double GetDouble() const;
+    char const* GetCString() const;
+    std::string GetString() const;
+    std::string_view GetStringView() const;
+    std::vector<uint8> GetBinary() const;
 
-        bool IsNull() const
-        {
-            return data.value == nullptr;
-        }
+    template <size_t S>
+    std::array<uint8, S> GetBinary() const
+    {
+        std::array<uint8, S> buf;
+        GetBinarySizeChecked(buf.data(), S);
+        return buf;
+    }
 
-        DatabaseFieldTypes GetType() { return meta->Type; }
+    bool IsNull() const
+    {
+        return data.value == nullptr;
+    }
 
-    protected:
-        struct
-        {
-            char const* value;          // Actual data in memory
-            uint32 length;              // Length
-            bool raw;                   // Raw bytes? (Prepared statement or ad hoc)
-         } data;
+    DatabaseFieldTypes GetType() { return meta->Type; }
 
-        void SetByteValue(char const* newValue, uint32 length);
-        void SetStructuredValue(char const* newValue, uint32 length);
+protected:
+    struct
+    {
+        char const* value; // Actual data in memory
+        uint32 length;     // Length
+        bool raw;          // Raw bytes? (Prepared statement or ad hoc)
+    } data;
 
-        bool IsType(DatabaseFieldTypes type) const;
+    void SetByteValue(char const* newValue, uint32 length);
+    void SetStructuredValue(char const* newValue, uint32 length);
 
-        bool IsNumeric() const;
+    bool IsType(DatabaseFieldTypes type) const;
+    bool IsNumeric() const;
 
-    private:
-        QueryResultFieldMetadata const* meta;
-        void LogWrongType(char const* getter) const;
-        void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
+private:
+    QueryResultFieldMetadata const* meta;
+    void LogWrongType(char const* getter) const;
+    void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
 
-        void GetBinarySizeChecked(uint8* buf, size_t size) const;
+    void GetBinarySizeChecked(uint8* buf, size_t size) const;
 };
 
 #endif

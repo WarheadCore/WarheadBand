@@ -28,8 +28,6 @@ Field::Field()
     meta = nullptr;
 }
 
-Field::~Field() = default;
-
 uint8 Field::GetUInt8() const
 {
     if (!data.value)
@@ -45,6 +43,7 @@ uint8 Field::GetUInt8() const
 
     if (data.raw)
         return *reinterpret_cast<uint8 const*>(data.value);
+
     return static_cast<uint8>(strtoul(data.value, nullptr, 10));
 }
 
@@ -63,6 +62,7 @@ int8 Field::GetInt8() const
 
     if (data.raw)
         return *reinterpret_cast<int8 const*>(data.value);
+
     return static_cast<int8>(strtol(data.value, nullptr, 10));
 }
 
@@ -81,6 +81,7 @@ uint16 Field::GetUInt16() const
 
     if (data.raw)
         return *reinterpret_cast<uint16 const*>(data.value);
+
     return static_cast<uint16>(strtoul(data.value, nullptr, 10));
 }
 
@@ -99,6 +100,7 @@ int16 Field::GetInt16() const
 
     if (data.raw)
         return *reinterpret_cast<int16 const*>(data.value);
+
     return static_cast<int16>(strtol(data.value, nullptr, 10));
 }
 
@@ -117,6 +119,7 @@ uint32 Field::GetUInt32() const
 
     if (data.raw)
         return *reinterpret_cast<uint32 const*>(data.value);
+
     return static_cast<uint32>(strtoul(data.value, nullptr, 10));
 }
 
@@ -135,6 +138,7 @@ int32 Field::GetInt32() const
 
     if (data.raw)
         return *reinterpret_cast<int32 const*>(data.value);
+
     return static_cast<int32>(strtol(data.value, nullptr, 10));
 }
 
@@ -153,6 +157,7 @@ uint64 Field::GetUInt64() const
 
     if (data.raw)
         return *reinterpret_cast<uint64 const*>(data.value);
+
     return static_cast<uint64>(strtoull(data.value, nullptr, 10));
 }
 
@@ -171,6 +176,7 @@ int64 Field::GetInt64() const
 
     if (data.raw)
         return *reinterpret_cast<int64 const*>(data.value);
+
     return static_cast<int64>(strtoll(data.value, nullptr, 10));
 }
 
@@ -189,6 +195,7 @@ float Field::GetFloat() const
 
     if (data.raw)
         return *reinterpret_cast<float const*>(data.value);
+
     return static_cast<float>(atof(data.value));
 }
 
@@ -207,6 +214,7 @@ double Field::GetDouble() const
 
     if (data.raw && !IsType(DatabaseFieldTypes::Decimal))
         return *reinterpret_cast<double const*>(data.value);
+
     return static_cast<double>(atof(data.value));
 }
 
@@ -222,6 +230,7 @@ char const* Field::GetCString() const
         return nullptr;
     }
 #endif
+
     return static_cast<char const*>(data.value);
 }
 
@@ -262,7 +271,7 @@ std::vector<uint8> Field::GetBinary() const
 
 void Field::GetBinarySizeChecked(uint8* buf, size_t length) const
 {
-    ASSERT(data.value && (data.length == length), "Expected %zu-byte binary blob, got {}data ({} bytes) instead", length, data.value ? "" : "no ", data.length);
+    ASSERT(data.value && (data.length == length), "Expected {}-byte binary blob, got {}data ({} bytes) instead", length, data.value ? "" : "no ", data.length);
     memcpy(buf, data.value, length);
 }
 

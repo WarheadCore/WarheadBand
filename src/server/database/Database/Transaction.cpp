@@ -26,24 +26,24 @@
 
 std::mutex TransactionTask::_deadlockLock;
 
-#define DEADLOCK_MAX_RETRY_TIME_MS 60000
+constexpr Milliseconds DEADLOCK_MAX_RETRY_TIME_MS = 1min;
 
 //- Append a raw ad-hoc query to the transaction
-void TransactionBase::Append(char const* sql)
+void TransactionBase::Append(std::string_view sql)
 {
-    SQLElementData data;
+    SQLElementData data = {};
     data.type = SQL_ELEMENT_RAW;
-    data.element.query = strdup(sql);
-    m_queries.push_back(data);
+    data.element.query = sql;
+    m_queries.emplace_back(data);
 }
 
 //- Append a prepared statement to the transaction
 void TransactionBase::AppendPreparedStatement(PreparedStatementBase* stmt)
 {
-    SQLElementData data;
+    SQLElementData data = {};
     data.type = SQL_ELEMENT_PREPARED;
     data.element.stmt = stmt;
-    m_queries.push_back(data);
+    m_queries.emplace_back(data);
 }
 
 void TransactionBase::Cleanup()
@@ -52,7 +52,7 @@ void TransactionBase::Cleanup()
     if (_cleanedUp)
         return;
 
-    for (SQLElementData const& data : m_queries)
+    for (SQLElementData& data : m_queries)
     {
         switch (data.type)
         {
@@ -60,7 +60,7 @@ void TransactionBase::Cleanup()
                 delete data.element.stmt;
             break;
             case SQL_ELEMENT_RAW:
-                free((void*)(data.element.query));
+                data.element.query = {};
             break;
         }
     }
@@ -72,6 +72,7 @@ void TransactionBase::Cleanup()
 bool TransactionTask::Execute()
 {
     int errorCode = TryExecute();
+
     if (!errorCode)
         return true;
 
@@ -81,15 +82,17 @@ bool TransactionTask::Execute()
         threadIdStream << std::this_thread::get_id();
         std::string threadId = threadIdStream.str();
 
-        // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-        std::lock_guard<std::mutex> lock(_deadlockLock);
-
-        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
-            if (!TryExecute())
-                return true;
+            // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
+            std::lock_guard<std::mutex> lock(_deadlockLock);
 
-            LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration, threadId);
+            for (Milliseconds loopDuration = 0s, startMSTime = GetTimeMS(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
+            {
+                if (!TryExecute())
+                    return true;
+
+                LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration.count(), threadId);
+            }
         }
 
         LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: {}", threadId);
@@ -126,17 +129,20 @@ bool TransactionWithResultTask::Execute()
         threadIdStream << std::this_thread::get_id();
         std::string threadId = threadIdStream.str();
 
-        // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
-        std::lock_guard<std::mutex> lock(_deadlockLock);
-        for (uint32 loopDuration = 0, startMSTime = getMSTime(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
         {
-            if (!TryExecute())
-            {
-                m_result.set_value(true);
-                return true;
-            }
+            // Make sure only 1 async thread retries a transaction so they don't keep dead-locking each other
+            std::lock_guard<std::mutex> lock(_deadlockLock);
 
-            LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration, threadId);
+            for (Milliseconds loopDuration = 0s, startMSTime = GetTimeMS(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
+            {
+                if (!TryExecute())
+                {
+                    m_result.set_value(true);
+                    return true;
+                }
+
+                LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration.count(), threadId);
+            }
         }
 
         LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: {}", threadId);
@@ -151,7 +157,7 @@ bool TransactionWithResultTask::Execute()
 
 bool TransactionCallback::InvokeIfReady()
 {
-    if (m_future.valid() && m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (m_future.valid() && m_future.wait_for(0s) == std::future_status::ready)
     {
         m_callback(m_future.get());
         return true;

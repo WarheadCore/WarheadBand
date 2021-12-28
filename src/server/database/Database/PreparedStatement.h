@@ -48,12 +48,7 @@ struct PreparedStatementData
     template<typename T>
     static std::string ToString(T value);
 
-    static std::string ToString(bool value);
-    static std::string ToString(uint8 value);
-    static std::string ToString(int8 value);
-    static std::string ToString(std::string const& value);
-    static std::string ToString(std::vector<uint8> const& value);
-    static std::string ToString(std::nullptr_t);
+    static std::string ToString(std::nullptr_t /*value*/);
 };
 
 //- Upper-level class that is used in code
