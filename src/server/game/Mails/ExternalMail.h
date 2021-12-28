@@ -18,6 +18,7 @@
 #ifndef _EXTERNAL_MAIL_H_
 #define _EXTERNAL_MAIL_H_
 
+#include "AsyncCallbackProcessor.h"
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
