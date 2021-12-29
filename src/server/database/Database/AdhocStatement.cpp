@@ -23,7 +23,7 @@
 /*! Basic, ad-hoc queries. */
 BasicStatementTask::BasicStatementTask(std::string_view sql, bool async) : m_result(nullptr)
 {
-    m_sql = sql;
+    m_sql = std::string(sql);
     m_has_result = async; // If the operation is async, then there's a result
 
     if (async)
@@ -32,6 +32,7 @@ BasicStatementTask::BasicStatementTask(std::string_view sql, bool async) : m_res
 
 BasicStatementTask::~BasicStatementTask()
 {
+    m_sql.clear();
     if (m_has_result && m_result)
         delete m_result;
 }

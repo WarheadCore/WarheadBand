@@ -26,6 +26,24 @@
 #include <variant>
 #include <vector>
 
+namespace Warhead::Types
+{
+    template <typename T>
+    using is_default = std::enable_if_t<std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>>;
+
+    template <typename T>
+    using is_string_v = std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_same_v<const char*, T>>;
+
+    template <typename T>
+    using is_enum_v = std::enable_if_t<std::is_enum_v<T>>;
+
+    template <typename T>
+    using is_non_string_view_v = std::enable_if_t<!std::is_base_of_v<std::string_view, T>>;
+
+    template <typename T>
+    using is_nullptr_v = std::enable_if_t<std::is_null_pointer_v<T>>;
+}
+
 struct PreparedStatementData
 {
     std::variant<
@@ -60,28 +78,30 @@ public:
     explicit PreparedStatementBase(uint32 index, uint8 capacity);
     virtual ~PreparedStatementBase();
 
-    // Set null
-    void SetData(const uint8 index);
-
     // Set numerlic and default binary
     template<typename T>
-    std::enable_if_t<std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>> SetData(const uint8 index, T value)
+    Warhead::Types::is_default<T> SetData(const uint8 index, T value)
     {
         SetValidData(index, value);
     }
 
     // Set enums
     template<typename T>
-    std::enable_if_t<std::is_enum_v<T>> SetData(const uint8 index, T value)
+    Warhead::Types::is_enum_v<T> SetData(const uint8 index, T value)
     {
         SetValidData(index, std::underlying_type_t<T>(value));
     }
 
-    // Set string
-    template<typename T>
-    std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_base_of_v<std::string_view, T> || std::is_same_v<const char*, T>> SetData(const uint8 index, T value)
+    // Set string_view
+    void SetData(const uint8 index, std::string_view value)
     {
-        SetValidData(index, std::string_view{ value });
+        SetValidData(index, value);
+    }
+
+    // Set nullptr
+    void SetData(const uint8 index, std::nullptr_t = nullptr)
+    {
+        SetValidData(index);
     }
 
     // Set non default binary
@@ -104,7 +124,10 @@ public:
 
 protected:
     template<typename T>
-    void SetValidData(const uint8 index, T value);
+    Warhead::Types::is_non_string_view_v<T> SetValidData(const uint8 index, T const& value);
+
+    void SetValidData(const uint8 index);
+    void SetValidData(const uint8 index, std::string_view value);
 
     template<typename... Ts>
     void SetDataTuple(std::tuple<Ts...> const& argsList)
