@@ -28,9 +28,6 @@ BasicStatementTask::BasicStatementTask(std::string_view sql, bool async) : m_res
 
     if (async)
         m_result = new QueryResultPromise();
-
-    if (m_sql != sql)
-        LOG_WARN("server", "\n\n >> \n\n {} - '{}' ({})\n\n", __FUNCTION__, sql, m_sql);
 }
 
 BasicStatementTask::~BasicStatementTask()
