@@ -23,15 +23,19 @@
 /*! Basic, ad-hoc queries. */
 BasicStatementTask::BasicStatementTask(std::string_view sql, bool async) : m_result(nullptr)
 {
-    m_sql = sql;
+    m_sql = std::string(sql);
     m_has_result = async; // If the operation is async, then there's a result
 
     if (async)
         m_result = new QueryResultPromise();
+
+    if (m_sql != sql)
+        LOG_WARN("server", "\n\n >> \n\n {} - '{}' ({})\n\n", __FUNCTION__, sql, m_sql);
 }
 
 BasicStatementTask::~BasicStatementTask()
 {
+    m_sql.clear();
     if (m_has_result && m_result)
         delete m_result;
 }

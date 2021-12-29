@@ -30,43 +30,61 @@ PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
 PreparedStatementBase::~PreparedStatementBase() { }
 
 //- Bind to buffer
-void PreparedStatementBase::SetData(const uint8 index)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = nullptr;
-}
+
 
 template<typename T>
-void PreparedStatementBase::SetValidData(const uint8 index, T value)
+std::enable_if_t<!Warhead::Mysql::Types::is_string_view_v<T>> PreparedStatementBase::SetValidData(const uint8 index, T const& value)
+{
+    ASSERT(index < statement_data.size());
+    statement_data[index].data = value;
+
+    LOG_WARN("server", "> T {} - '{}'", __FUNCTION__, value);
+}
+
+template<>
+void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value)
+{
+    ASSERT(index < statement_data.size());
+    statement_data[index].data = value;
+
+    LOG_WARN("server", "> std::string {} - '{}'", __FUNCTION__, value);
+}
+
+template<>
+void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
 }
 
-template<>
+// Non template functions
+void PreparedStatementBase::SetValidData(const uint8 index)
+{
+    ASSERT(index < statement_data.size());
+    statement_data[index].data = nullptr;
+
+    LOG_WARN("server", "> {} - nullptr", __FUNCTION__);
+}
+
 void PreparedStatementBase::SetValidData(const uint8 index, std::string_view value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data.emplace<std::string>(value);
+
+    LOG_WARN("server", "> std::string_view {} - '{}'", __FUNCTION__, value);
 }
 
-template<>
-void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data = std::move(value);
-}
+template void PreparedStatementBase::SetValidData(const uint8 index, uint8 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int8 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, uint16 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int16 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, uint32 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int32 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, uint64 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, int64 const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, bool const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, float const& value);
 
-template void PreparedStatementBase::SetValidData(const uint8 index, uint8 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int8 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, uint16 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int16 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, uint32 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int32 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, uint64 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int64 value);
-template void PreparedStatementBase::SetValidData(const uint8 index, bool value);
-template void PreparedStatementBase::SetValidData(const uint8 index, float value);
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
