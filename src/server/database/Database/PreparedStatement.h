@@ -26,22 +26,22 @@
 #include <variant>
 #include <vector>
 
-namespace Warhead::Mysql::Types
+namespace Warhead::Types
 {
     template <typename T>
-    inline constexpr bool is_default_v = std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>;
+    using is_default = std::enable_if_t<std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>>;
 
     template <typename T>
-    inline constexpr bool is_string_v = std::is_base_of_v<std::string, T> || std::is_same_v<const char*, T>;
+    using is_string_v = std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_same_v<const char*, T>>;
 
     template <typename T>
-    inline constexpr bool is_enum_v = std::is_enum_v<T>;
+    using is_enum_v = std::enable_if_t<std::is_enum_v<T>>;
 
     template <typename T>
-    inline constexpr bool is_string_view_v = std::is_base_of_v<std::string_view, T>;
+    using is_non_string_view_v = std::enable_if_t<!std::is_base_of_v<std::string_view, T>>;
 
     template <typename T>
-    inline constexpr bool is_nullptr_v = std::is_null_pointer_v<T>;
+    using is_nullptr_v = std::enable_if_t<std::is_null_pointer_v<T>>;
 }
 
 struct PreparedStatementData
@@ -80,24 +80,17 @@ public:
 
     // Set numerlic and default binary
     template<typename T>
-    std::enable_if_t<Warhead::Mysql::Types::is_default_v<T>> SetData(const uint8 index, T value)
+    Warhead::Types::is_default<T> SetData(const uint8 index, T value)
     {
         SetValidData(index, value);
     }
 
     // Set enums
     template<typename T>
-    std::enable_if_t<Warhead::Mysql::Types::is_enum_v<T>> SetData(const uint8 index, T value)
+    Warhead::Types::is_enum_v<T> SetData(const uint8 index, T value)
     {
         SetValidData(index, std::underlying_type_t<T>(value));
     }
-
-    //// Set string
-    //template<typename T>
-    //std::enable_if_t<Warhead::Mysql::Types::is_string_v<T>> SetData(const uint8 index, T value)
-    //{
-    //    SetValidData(index, std::string{ value });
-    //}
 
     // Set string_view
     void SetData(const uint8 index, std::string_view value)
@@ -131,7 +124,7 @@ public:
 
 protected:
     template<typename T>
-    std::enable_if_t<!Warhead::Mysql::Types::is_string_view_v<T>> SetValidData(const uint8 index, T const& value);
+    Warhead::Types::is_non_string_view_v<T> SetValidData(const uint8 index, T const& value);
 
     void SetValidData(const uint8 index);
     void SetValidData(const uint8 index, std::string_view value);

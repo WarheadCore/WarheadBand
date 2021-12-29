@@ -30,48 +30,38 @@ PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
 PreparedStatementBase::~PreparedStatementBase() { }
 
 //- Bind to buffer
-
-
 template<typename T>
-std::enable_if_t<!Warhead::Mysql::Types::is_string_view_v<T>> PreparedStatementBase::SetValidData(const uint8 index, T const& value)
+Warhead::Types::is_non_string_view_v<T> PreparedStatementBase::SetValidData(const uint8 index, T const& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-
-    LOG_WARN("server", "> T {} - '{}'", __FUNCTION__, value);
+    statement_data[index].data.emplace(value);
 }
 
 template<>
 void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-
-    LOG_WARN("server", "> std::string {} - '{}'", __FUNCTION__, value);
+    statement_data[index].data.emplace<std::string>(value);
 }
 
 template<>
 void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
+    statement_data[index].data.emplace<std::vector<uint8>>(value);
 }
 
 // Non template functions
 void PreparedStatementBase::SetValidData(const uint8 index)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = nullptr;
-
-    LOG_WARN("server", "> {} - nullptr", __FUNCTION__);
+    statement_data[index].data.emplace<std::nullptr_t>(nullptr);
 }
 
 void PreparedStatementBase::SetValidData(const uint8 index, std::string_view value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data.emplace<std::string>(value);
-
-    LOG_WARN("server", "> std::string_view {} - '{}'", __FUNCTION__, value);
 }
 
 template void PreparedStatementBase::SetValidData(const uint8 index, uint8 const& value);
@@ -84,7 +74,6 @@ template void PreparedStatementBase::SetValidData(const uint8 index, uint64 cons
 template void PreparedStatementBase::SetValidData(const uint8 index, int64 const& value);
 template void PreparedStatementBase::SetValidData(const uint8 index, bool const& value);
 template void PreparedStatementBase::SetValidData(const uint8 index, float const& value);
-
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
