@@ -166,7 +166,7 @@ public:
             return nullptr;
 
         if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
-            targetList.sort(Acore::ObjectDistanceOrderPred(me));
+            targetList.sort(Warhead::ObjectDistanceOrderPred(me));
 
         switch (targetType)
         {
@@ -227,13 +227,13 @@ public:
             return;
 
         if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
-            targetList.sort(Acore::ObjectDistanceOrderPred(me));
+            targetList.sort(Warhead::ObjectDistanceOrderPred(me));
 
         if (targetType == SelectTargetMethod::MinDistance || targetType == SelectTargetMethod::MinThreat)
             targetList.reverse();
 
         if (targetType == SelectTargetMethod::Random)
-            Acore::Containers::RandomResize(targetList, maxTargets);
+            Warhead::Containers::RandomResize(targetList, maxTargets);
         else
             targetList.resize(maxTargets);
     }

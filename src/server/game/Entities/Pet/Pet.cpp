@@ -142,20 +142,20 @@ public:
         CharacterDatabasePreparedStatement* stmt = nullptr;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-        stmt->setUInt32(0, ownerGuid);
-        stmt->setUInt32(1, petNumber);
+        stmt->SetData(0, ownerGuid);
+        stmt->SetData(1, petNumber);
         SetPreparedQuery(DECLINED_NAMES, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA);
-        stmt->setUInt32(0, petNumber);
+        stmt->SetData(0, petNumber);
         SetPreparedQuery(AURAS, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL);
-        stmt->setUInt32(0, petNumber);
+        stmt->SetData(0, petNumber);
         SetPreparedQuery(SPELLS, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_COOLDOWN);
-        stmt->setUInt32(0, petNumber);
+        stmt->SetData(0, petNumber);
         SetPreparedQuery(COOLDOWNS, stmt);
     }
 };
@@ -228,7 +228,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     // we are loading pet at that moment
     if (owner->IsSpectator() || owner->GetPet() || !owner->IsInWorld() || !owner->FindMap())
         return false;
-    }
 
     // Don't try to reload the current pet
     if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
@@ -277,8 +276,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         if (!IsPositionValid())
         {
-            LOG_ERROR("entities.pet", "Pet%s not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
-                GetGUID().ToString().c_str(), GetPositionX(), GetPositionY());
+            LOG_ERROR("entities.pet", "Pet{} not loaded. Suggested coordinates isn't valid (X: {} Y: {})",
+                GetGUID().ToString(), GetPositionX(), GetPositionY());
             return false;
         }
 
@@ -324,7 +323,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             break;
         default:
             if (!IsPetGhoul())
-                LOG_ERROR("entities.pet", "Pet have incorrect type (%u) for pet loading.", getPetType());
+                LOG_ERROR("entities.pet", "Pet have incorrect type ({}) for pet loading.", getPetType());
             break;
     }
 
@@ -342,8 +341,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     Relocate(px, py, pz, owner->GetOrientation());
     if (!IsPositionValid())
     {
-        LOG_ERROR("entities.pet", "Pet %s not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
-            GetGUID().ToString().c_str(), GetPositionX(), GetPositionY());
+        LOG_ERROR("entities.pet", "Pet {} not loaded. Suggested coordinates isn't valid (X: {} Y: {})",
+            GetGUID().ToString(), GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -464,7 +463,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         CleanupActionBar();                                     // remove unknown spells from action bar after load
 
-        LOG_DEBUG("entities.pet", "New Pet has %s", GetGUID().ToString().c_str());
+        LOG_DEBUG("entities.pet", "New Pet has {}", GetGUID().ToString());
 
         owner->PetSpellInitialize();
         owner->SendTalentsInfoData(true);
@@ -558,23 +557,23 @@ void Pet::SavePetToDB(PetSaveMode mode)
         FillPetInfo(&owner->GetPetStable()->CurrentPet.value());
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_PET);
-        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
-        stmt->setUInt32(1, GetEntry());
-        stmt->setUInt32(2, ownerLowGUID);
-        stmt->setUInt32(3, GetNativeDisplayId());
-        stmt->setUInt32(4, GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        stmt->setUInt8(5, uint8(getPetType()));
-        stmt->setUInt8(6, getLevel());
-        stmt->setUInt32(7, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
-        stmt->setUInt8(8, uint8(GetReactState()));
-        stmt->setString(9, GetName());
-        stmt->setUInt8(10, uint8(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1));
-        stmt->setUInt8(11, uint8(mode));
-        stmt->setUInt32(12, curhealth);
-        stmt->setUInt32(13, curmana);
-        stmt->setUInt32(14, GetPower(POWER_HAPPINESS));
-        stmt->setUInt32(15, time(nullptr));
-        stmt->setString(16, actionBar);
+        stmt->SetData(0, m_charmInfo->GetPetNumber());
+        stmt->SetData(1, GetEntry());
+        stmt->SetData(2, ownerLowGUID);
+        stmt->SetData(3, GetNativeDisplayId());
+        stmt->SetData(4, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->SetData(5, uint8(getPetType()));
+        stmt->SetData(6, getLevel());
+        stmt->SetData(7, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->SetData(8, uint8(GetReactState()));
+        stmt->SetData(9, GetName());
+        stmt->SetData(10, uint8(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1));
+        stmt->SetData(11, uint8(mode));
+        stmt->SetData(12, curhealth);
+        stmt->SetData(13, curmana);
+        stmt->SetData(14, GetPower(POWER_HAPPINESS));
+        stmt->SetData(15, time(nullptr));
+        stmt->SetData(16, actionBar);
 
         trans->Append(stmt);
         CharacterDatabase.CommitTransaction(trans);
@@ -676,8 +675,8 @@ void Pet::Update(uint32 diff)
                 {
                     if (owner->GetPetGUID() != GetGUID())
                     {
-                        LOG_ERROR("entities.pet", "Pet %u is not pet of owner %s, removed", GetEntry(), GetOwner()->GetName().c_str());
-                        ASSERT(getPetType() != HUNTER_PET, "Unexpected unlinked pet found for owner %s", owner->GetSession()->GetPlayerInfo().c_str());
+                        LOG_ERROR("entities.pet", "Pet {} is not pet of owner {}, removed", GetEntry(), GetOwner()->GetName());
+                        ASSERT(getPetType() != HUNTER_PET, "Unexpected unlinked pet found for owner {}", owner->GetSession()->GetPlayerInfo());
                         Remove(PET_SAVE_NOT_IN_SLOT);
                         return;
                     }
@@ -1723,7 +1722,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
         // do pet spell book cleanup
         if (state == PETSPELL_UNCHANGED)                    // spell load case
         {
-            LOG_ERROR("entities.pet", "Pet::addSpell: Non-existed in SpellStore spell #%u request, deleting for all pets in `pet_spell`.", spellId);
+            LOG_ERROR("entities.pet", "Pet::addSpell: Non-existed in SpellStore spell #{} request, deleting for all pets in `pet_spell`.", spellId);
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_PET_SPELL);
             stmt->SetData(0, spellId);

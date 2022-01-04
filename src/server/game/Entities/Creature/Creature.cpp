@@ -2598,7 +2598,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
     {
         if (idSchoolMask & (1 << i))
         {
-            m_ProhibitSchoolTime[i] = World::GetGameTimeMS() + unTimeMs;
+            m_ProhibitSchoolTime[i] = GameTime::GetGameTimeMS().count() + unTimeMs;
         }
     }
 }
@@ -2609,7 +2609,7 @@ bool Creature::IsSpellProhibited(SpellSchoolMask idSchoolMask) const
     {
         if (idSchoolMask & (1 << i))
         {
-            if (m_ProhibitSchoolTime[i] >= World::GetGameTimeMS())
+            if (m_ProhibitSchoolTime[i] >= GameTime::GetGameTimeMS().count())
             {
                 return true;
             }

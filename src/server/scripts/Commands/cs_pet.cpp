@@ -134,7 +134,7 @@ public:
         uint32 spellDifficultyId = sSpellMgr->GetSpellDifficultyId(spell->Id);
         if (bounds.first != bounds.second || spellDifficultyId)
         {
-            handler->PSendSysMessage("Spell %u cannot be learnt using a command!", spell->Id);
+            handler->PSendSysMessage("Spell {} cannot be learnt using a command!", spell->Id);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -142,13 +142,13 @@ public:
         // Check if pet already has it
         if (pet->HasSpell(spell->Id))
         {
-            handler->PSendSysMessage("Pet already has spell: %u", spell->Id);
+            handler->PSendSysMessage("Pet already has spell: {}", spell->Id);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         pet->learnSpell(spell->Id);
-        handler->PSendSysMessage("Pet has learned spell %u", spell->Id);
+        handler->PSendSysMessage("Pet has learned spell {}", spell->Id);
 
         return true;
     }

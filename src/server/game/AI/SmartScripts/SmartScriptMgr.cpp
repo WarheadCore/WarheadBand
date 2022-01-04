@@ -193,7 +193,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
         {
             if (!sObjectMgr->GetCreatureData(uint32(std::abs(temp.entryOrGuid))))
             {
-                LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
+                LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid ({}) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
                 continue;
             }
         }

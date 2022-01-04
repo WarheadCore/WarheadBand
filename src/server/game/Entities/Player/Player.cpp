@@ -3986,7 +3986,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
                 // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
                 // NOW we can finally clear other DB data related to character
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_IDS);
-                stmt->setUInt32(0, lowGuid);
+                stmt->SetData(0, lowGuid);
                 PreparedQueryResult resultPets = CharacterDatabase.Query(stmt);
 
                 if (resultPets)
@@ -5944,7 +5944,7 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
             else
                 victim_guid.Clear();                        // Don't show HK: <rank> message, only log.
 
-            honor_f = std::ceil(Acore::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
+            honor_f = std::ceil(Warhead::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
@@ -13917,13 +13917,13 @@ void Player::_SaveCharacter(bool create, CharacterDatabaseTransaction trans)
         stmt->SetData(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
-        stmt->setUInt32(index++, m_resetTalentsCost);
-        stmt->setUInt32(index++, uint32(m_resetTalentsTime));
-        stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++, m_petStable ? m_petStable->MaxStabledPets : 0);
-        stmt->setUInt16(index++, (uint16)m_atLoginFlags);
-        stmt->setUInt16(index++, GetZoneId());
-        stmt->setUInt32(index++, uint32(m_deathExpireTime));
+        stmt->SetData(index++, m_resetTalentsCost);
+        stmt->SetData(index++, uint32(m_resetTalentsTime));
+        stmt->SetData(index++, (uint16)m_ExtraFlags);
+        stmt->SetData(index++, m_petStable ? m_petStable->MaxStabledPets : 0);
+        stmt->SetData(index++, (uint16)m_atLoginFlags);
+        stmt->SetData(index++, GetZoneId());
+        stmt->SetData(index++, uint32(m_deathExpireTime));
 
         ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
@@ -14056,13 +14056,13 @@ void Player::_SaveCharacter(bool create, CharacterDatabaseTransaction trans)
         stmt->SetData(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
-        stmt->setUInt32(index++, m_resetTalentsCost);
-        stmt->setUInt32(index++, uint32(m_resetTalentsTime));
-        stmt->setUInt16(index++, (uint16)m_ExtraFlags);
-        stmt->setUInt8(index++, m_petStable ? m_petStable->MaxStabledPets : 0);
-        stmt->setUInt16(index++, (uint16)m_atLoginFlags);
-        stmt->setUInt16(index++, GetZoneId());
-        stmt->setUInt32(index++, uint32(m_deathExpireTime));
+        stmt->SetData(index++, m_resetTalentsCost);
+        stmt->SetData(index++, uint32(m_resetTalentsTime));
+        stmt->SetData(index++, (uint16)m_ExtraFlags);
+        stmt->SetData(index++, m_petStable ? m_petStable->MaxStabledPets : 0);
+        stmt->SetData(index++, (uint16)m_atLoginFlags);
+        stmt->SetData(index++, GetZoneId());
+        stmt->SetData(index++, uint32(m_deathExpireTime));
 
         ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
@@ -14994,7 +14994,7 @@ void Player::_LoadPetStable(uint8 petStableSlots, PreparedQueryResult result)
 
     if (m_petStable->MaxStabledPets > MAX_PET_STABLES)
     {
-        FMT_LOG_ERROR("entities.player", "Player::LoadFromDB: Player ({}) can't have more stable slots than {}, but has {} in DB",
+        LOG_ERROR("entities.player", "Player::LoadFromDB: Player ({}) can't have more stable slots than {}, but has {} in DB",
             GetGUID().ToString(), MAX_PET_STABLES, m_petStable->MaxStabledPets);
 
         m_petStable->MaxStabledPets = MAX_PET_STABLES;
@@ -15267,7 +15267,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
     {
-        LOG_ERROR("misc", "Player::SummonPet: Pet (%s, Entry: %d) not summoned. Suggested coordinates aren't valid (X: %f Y: %f)", pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
+        LOG_ERROR("misc", "Player::SummonPet: Pet ({}, Entry: {}) not summoned. Suggested coordinates aren't valid (X: {} Y: {})", pet->GetGUID().ToString(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return nullptr;
     }
@@ -15276,7 +15276,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
     if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, GetPhaseMask(), entry, pet_number))
     {
-        LOG_ERROR("misc", "Player::SummonPet: No such creature entry %u", entry);
+        LOG_ERROR("misc", "Player::SummonPet: No such creature entry {}", entry);
         delete pet;
         return nullptr;
     }
