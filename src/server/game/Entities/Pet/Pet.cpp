@@ -17,7 +17,6 @@
 
 #include "Pet.h"
 #include "ArenaSpectator.h"
-#include "Battleground.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
@@ -136,27 +135,27 @@ public:
         MAX
     };
 
-    PetLoadQueryHolder([[maybe_unused]] ObjectGuid::LowType ownerGuid, uint32 petNumber)
+    PetLoadQueryHolder(ObjectGuid::LowType ownerGuid, uint32 petNumber)
     {
         SetSize(MAX);
 
         CharacterDatabasePreparedStatement* stmt = nullptr;
 
-        /*stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-        stmt->SetData(0, ownerGuid);
-        stmt->SetData(1, petNumber);
-        SetPreparedQuery(DECLINED_NAMES, stmt);*/
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
+        stmt->setUInt32(0, ownerGuid);
+        stmt->setUInt32(1, petNumber);
+        SetPreparedQuery(DECLINED_NAMES, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA);
-        stmt->SetData(0, petNumber);
+        stmt->setUInt32(0, petNumber);
         SetPreparedQuery(AURAS, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL);
-        stmt->SetData(0, petNumber);
+        stmt->setUInt32(0, petNumber);
         SetPreparedQuery(SPELLS, stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_COOLDOWN);
-        stmt->SetData(0, petNumber);
+        stmt->setUInt32(0, petNumber);
         SetPreparedQuery(COOLDOWNS, stmt);
     }
 };
@@ -226,18 +225,19 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
         return false;
 
+    // we are loading pet at that moment
+    if (owner->IsSpectator() || owner->GetPet() || !owner->IsInWorld() || !owner->FindMap())
+        return false;
+    }
+
+    // Don't try to reload the current pet
+    if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
+        return false;
+
     bool forceLoadFromDB = false;
     sScriptMgr->OnBeforeLoadPetFromDB(owner, petEntry, petnumber, current, forceLoadFromDB);
 
     if (!forceLoadFromDB && (owner->getClass() == CLASS_DEATH_KNIGHT && !owner->CanSeeDKPet())) // DK Pet exception
-        return false;
-
-    // we are loading pet at that moment
-    // if (owner->IsSpectator() || owner->GetPet() || !owner->IsInWorld() || !owner->FindMap())
-    //     return false;
-
-    // Don't try to reload the current pet
-    if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
         return false;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petInfo->CreatedBySpellId);
@@ -328,7 +328,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime().count())); // cast can't be helped here
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -342,8 +342,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     Relocate(px, py, pz, owner->GetOrientation());
     if (!IsPositionValid())
     {
-        LOG_ERROR("entities.pet", "Pet {} not loaded. Suggested coordinates isn't valid (X: {} Y: {})",
-            GetGUID().ToString(), GetPositionX(), GetPositionY());
+        LOG_ERROR("entities.pet", "Pet %s not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
+            GetGUID().ToString().c_str(), GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -474,13 +474,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         if (getPetType() == HUNTER_PET)
         {
-            /*if (PreparedQueryResult result = holder.GetPreparedResult(PetLoadQueryHolder::DECLINED_NAMES))
+            if (PreparedQueryResult result = holder.GetPreparedResult(PetLoadQueryHolder::DECLINED_NAMES))
             {
                 m_declinedname = std::make_unique<DeclinedName>();
                 Field* fields = result->Fetch();
                 for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
                     m_declinedname->name[i] = fields[i].GetString();
-            }*/
+            }
         }
 
         // must be after SetMinion (owner guid check)
@@ -558,23 +558,23 @@ void Pet::SavePetToDB(PetSaveMode mode)
         FillPetInfo(&owner->GetPetStable()->CurrentPet.value());
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_PET);
-        stmt->SetData(0, m_charmInfo->GetPetNumber());
-        stmt->SetData(1, GetEntry());
-        stmt->SetData(2, ownerLowGUID);
-        stmt->SetData(3, GetNativeDisplayId());
-        stmt->SetData(4, GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        stmt->SetData(5, uint8(getPetType()));
-        stmt->SetData(6, getLevel());
-        stmt->SetData(7, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
-        stmt->SetData(8, uint8(GetReactState()));
-        stmt->SetData(9, GetName());
-        stmt->SetData(10, uint8(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1));
-        stmt->SetData(11, uint8(mode));
-        stmt->SetData(12, curhealth);
-        stmt->SetData(13, curmana);
-        stmt->SetData(14, GetPower(POWER_HAPPINESS));
-        stmt->SetData(15, time(nullptr));
-        stmt->SetData(16, actionBar);
+        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+        stmt->setUInt32(1, GetEntry());
+        stmt->setUInt32(2, ownerLowGUID);
+        stmt->setUInt32(3, GetNativeDisplayId());
+        stmt->setUInt32(4, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt8(5, uint8(getPetType()));
+        stmt->setUInt8(6, getLevel());
+        stmt->setUInt32(7, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->setUInt8(8, uint8(GetReactState()));
+        stmt->setString(9, GetName());
+        stmt->setUInt8(10, uint8(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1));
+        stmt->setUInt8(11, uint8(mode));
+        stmt->setUInt32(12, curhealth);
+        stmt->setUInt32(13, curmana);
+        stmt->setUInt32(14, GetPower(POWER_HAPPINESS));
+        stmt->setUInt32(15, time(nullptr));
+        stmt->setString(16, actionBar);
 
         trans->Append(stmt);
         CharacterDatabase.CommitTransaction(trans);

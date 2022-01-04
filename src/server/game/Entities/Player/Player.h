@@ -1074,9 +1074,6 @@ public:
 
     static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
-    void SetInWater(bool apply);
-
-    [[nodiscard]] bool IsInWater() const override { return m_isInWater; }
     [[nodiscard]] bool IsFalling() const;
     bool IsInAreaTriggerRadius(const AreaTrigger* trigger) const;
 
@@ -2156,7 +2153,7 @@ public:
     void DeleteEquipmentSet(uint64 setGuid);
 
     void SendInitWorldStates(uint32 zone, uint32 area);
-    void SendUpdateWorldState(uint32 Field, uint32 Value);
+    void SendUpdateWorldState(uint32 variable, uint32 value) const;
     void SendDirectMessage(WorldPacket const* data) const;
     void SendBGWeekendWorldStates();
     void SendBattlefieldWorldStates();
@@ -2890,7 +2887,6 @@ private:
     int32 m_MirrorTimer[MAX_TIMERS];
     uint8 m_MirrorTimerFlags;
     uint8 m_MirrorTimerFlagsLast;
-    bool m_isInWater;
 
     // Current teleport data
     WorldLocation teleportStore_dest;

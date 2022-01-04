@@ -2507,7 +2507,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             //float x, y, z;
             //m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
             // xinef: vehicles summoned in air, eg. Cold Hearted quest
-            if (fabs(m_caster->GetPositionZ() - destTarget->GetPositionZ()) > 6.0f)
+            if (std::fabs(m_caster->GetPositionZ() - destTarget->GetPositionZ()) > 6.0f)
                 destTarget->m_positionZ = m_caster->GetPositionZ();
 
             summon = m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_caster, m_spellInfo->Id);
@@ -3231,7 +3231,6 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
-
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET);
     if (!pet)
         return;
@@ -5433,6 +5432,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
     pet->setDeathState(ALIVE);
     pet->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_POSSESSED))); // xinef: just in case
     pet->SetHealth(pet->CountPctFromMaxHealth(damage));
+    pet->SetDisplayId(pet->GetNativeDisplayId());
 
     // xinef: restore movement
     if (auto ci = pet->GetCharmInfo())

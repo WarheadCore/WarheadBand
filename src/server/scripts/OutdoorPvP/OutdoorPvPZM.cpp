@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
-#include "GossipDef.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"

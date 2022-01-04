@@ -27,7 +27,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateMask.h"
-#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"

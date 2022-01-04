@@ -18,9 +18,7 @@
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GroupMgr.h"
-#include "LFG.h"
 #include "Language.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
