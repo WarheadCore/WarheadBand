@@ -334,18 +334,18 @@ namespace std
 namespace fmt
 {
     template<>
-    struct formatter<ObjectGuid> : formatter<string_view>
+    struct formatter<ObjectGuid> : formatter<std::string>
     {
         // parse is inherited from formatter<string_view>.
         template <typename FormatContext>
         auto format(ObjectGuid guid, FormatContext& ctx)
         {
-            string_view info = "<unknown>";
+            std::string info = "<unknown>";
 
             if (!guid.IsEmpty())
                 info = guid.ToString();
 
-            return formatter<string_view>::format(info, ctx);
+            return formatter<std::string>::format(info, ctx);
         }
     };
 }
