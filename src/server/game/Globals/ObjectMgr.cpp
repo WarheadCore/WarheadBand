@@ -1063,25 +1063,25 @@ void ObjectMgr::CheckCreatureMovement(char const* table, uint64 id, CreatureMove
 {
     if (creatureMovement.Ground >= CreatureGroundMovementType::Max)
     {
-        LOG_ERROR("sql.sql", "`%s`.`Ground` wrong value (%u) for Id " UI64FMTD ", setting to Run.", table, uint32(creatureMovement.Ground), id);
+        LOG_ERROR("sql.sql", "`{}`.`Ground` wrong value ({}) for Id {}, setting to Run.", table, uint32(creatureMovement.Ground), id);
         creatureMovement.Ground = CreatureGroundMovementType::Run;
     }
 
     if (creatureMovement.Flight >= CreatureFlightMovementType::Max)
     {
-        LOG_ERROR("sql.sql", "`%s`.`Flight` wrong value (%u) for Id " UI64FMTD ", setting to None.", table, uint32(creatureMovement.Flight), id);
+        LOG_ERROR("sql.sql", "`{}`.`Flight` wrong value ({}) for Id {}, setting to None.", table, uint32(creatureMovement.Flight), id);
         creatureMovement.Flight = CreatureFlightMovementType::None;
     }
 
     if (creatureMovement.Chase >= CreatureChaseMovementType::Max)
     {
-        LOG_ERROR("sql.sql", "`%s`.`Chase` wrong value (%u) for Id " UI64FMTD ", setting to Run.", table, uint32(creatureMovement.Chase), id);
+        LOG_ERROR("sql.sql", "`{}`.`Chase` wrong value ({}) for Id {}, setting to Run.", table, uint32(creatureMovement.Chase), id);
         creatureMovement.Chase = CreatureChaseMovementType::Run;
     }
 
     if (creatureMovement.Random >= CreatureRandomMovementType::Max)
     {
-        LOG_ERROR("sql.sql", "`%s`.`Random` wrong value (%u) for Id " UI64FMTD ", setting to Walk.", table, uint32(creatureMovement.Random), id);
+        LOG_ERROR("sql.sql", "`{}`.`Random` wrong value ({}) for Id {}, setting to Walk.", table, uint32(creatureMovement.Random), id);
         creatureMovement.Random = CreatureRandomMovementType::Walk;
     }
 }
@@ -1259,7 +1259,7 @@ CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
 
 CreatureMovementData const* ObjectMgr::GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const
 {
-    return Acore::Containers::MapGetValuePtr(_creatureMovementOverrides, spawnId);
+    return Warhead::Containers::MapGetValuePtr(_creatureMovementOverrides, spawnId);
 }
 
 EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
@@ -1396,7 +1396,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         ObjectGuid::LowType spawnId = fields[0].GetUInt32();
         if (!GetCreatureData(spawnId))
         {
-            LOG_ERROR("sql.sql", "Creature (GUID: %u) does not exist but has a record in `creature_movement_override`", spawnId);
+            LOG_ERROR("sql.sql", "Creature (GUID: {}) does not exist but has a record in `creature_movement_override`", spawnId);
             continue;
         }
 
@@ -1439,7 +1439,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded " SZFMTD " movement overrides in %u ms", _creatureMovementOverrides.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} movement overrides in {} ms", _creatureMovementOverrides.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId) const

@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -21,42 +21,39 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 
-namespace WorldPackets
+namespace WorldPackets::Chat
 {
-    namespace Chat
+    class Emote final : public ServerPacket
     {
-        class Emote final : public ServerPacket
-        {
-        public:
-            Emote() : ServerPacket(SMSG_EMOTE, 4 + 8) { }
+    public:
+        Emote() : ServerPacket(SMSG_EMOTE, 4 + 8) { }
 
-            WorldPacket const* Write() override;
+        WorldPacket const* Write() override;
 
-            uint32 EmoteID = 0;
-            ObjectGuid Guid;
-        };
+        uint32 EmoteID = 0;
+        ObjectGuid Guid;
+    };
 
-        class EmoteClient final : public ClientPacket
-        {
-        public:
-            EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
+    class EmoteClient final : public ClientPacket
+    {
+    public:
+        EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
 
-            void Read() override;
+        void Read() override;
 
-            uint32 EmoteID = 0;
-        };
+        uint32 EmoteID = 0;
+    };
 
-        class ChatServerMessage final : public ServerPacket
-        {
-        public:
-            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 20) { }
+    class ChatServerMessage final : public ServerPacket
+    {
+    public:
+        ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 20) { }
 
-            WorldPacket const* Write() override;
+        WorldPacket const* Write() override;
 
-            int32 MessageID = 0;
-            std::string StringParam;
-        };
-    }
+        int32 MessageID = 0;
+        std::string StringParam;
+    };
 }
 
 #endif // ChatPackets_h__

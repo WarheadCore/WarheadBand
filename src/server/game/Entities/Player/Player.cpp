@@ -8738,9 +8738,9 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         {
             // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-            stmt->setUInt8(0, PET_SAVE_NOT_IN_SLOT);
-            stmt->setUInt32(1, GetGUID().GetCounter());
-            stmt->setUInt32(2, m_petStable->CurrentPet->PetNumber);
+            stmt->SetData(0, PET_SAVE_NOT_IN_SLOT);
+            stmt->SetData(1, GetGUID().GetCounter());
+            stmt->SetData(2, m_petStable->CurrentPet->PetNumber);
             CharacterDatabase.Execute(stmt);
 
             m_petStable->UnslottedPets.push_back(std::move(*m_petStable->CurrentPet));
@@ -12388,7 +12388,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         if (!IsInWorld() || IsDuringRemoveFromWorld())
             return;
 
-        LOG_DEBUG("maps", "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
+        LOG_DEBUG("maps", "Player::CreateViewpoint: Player {} create seer {} (TypeId: {}).", GetName(), target->GetEntry(), target->GetTypeId());
 
         if (!AddGuidValue(PLAYER_FARSIGHT, target->GetGUID()))
         {

@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -23,23 +23,20 @@
 
 enum WeatherState : uint32;
 
-namespace WorldPackets
+namespace WorldPackets::Misc
 {
-    namespace Misc
+    class WH_GAME_API Weather final : public ServerPacket
     {
-        class AC_GAME_API Weather final : public ServerPacket
-        {
-        public:
-            Weather();
-            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+    public:
+        Weather();
+        Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
 
-            WorldPacket const* Write() override;
+        WorldPacket const* Write() override;
 
-            bool Abrupt = false;
-            float Intensity = 0.0f;
-            WeatherState WeatherID = WeatherState(0);
-        };
-    }
+        bool Abrupt = false;
+        float Intensity = 0.0f;
+        WeatherState WeatherID = WeatherState(0);
+    };
 }
 
 #endif // MiscPackets_h__

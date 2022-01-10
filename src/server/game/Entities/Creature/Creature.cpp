@@ -60,7 +60,7 @@
 
 CreatureMovementData::CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None),
                                                Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
-                                               Random(CreatureRandomMovementType::Walk), InteractionPauseTimer(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER)) {}
+                                               Random(CreatureRandomMovementType::Walk), InteractionPauseTimer(CONF_GET_UINT("Creature.MovingStopTimeForPlayer")) {}
 
 std::string CreatureMovementData::ToString() const
 {

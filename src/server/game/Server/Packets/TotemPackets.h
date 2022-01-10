@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -21,34 +21,31 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 
-namespace WorldPackets
+namespace WorldPackets::Totem
 {
-    namespace Totem
+    class TotemDestroyed final : public ClientPacket
     {
-        class TotemDestroyed final : public ClientPacket
-        {
-        public:
-            TotemDestroyed(WorldPacket&& packet) : ClientPacket(CMSG_TOTEM_DESTROYED, std::move(packet)) { }
+    public:
+        TotemDestroyed(WorldPacket&& packet) : ClientPacket(CMSG_TOTEM_DESTROYED, std::move(packet)) { }
 
-            void Read() override;
+        void Read() override;
 
-            uint8 Slot = 0;
-        };
+        uint8 Slot = 0;
+    };
 
-        class TotemCreated final : public ServerPacket
-        {
-        public:
-            TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4) { }
+    class TotemCreated final : public ServerPacket
+    {
+    public:
+        TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4) { }
 
-            WorldPacket const* Write() override;
+        WorldPacket const* Write() override;
 
-            uint8 Slot = 0;
-            ObjectGuid Totem;
-            uint32 Duration = 0;
-            uint32 SpellID = 0;
+        uint8 Slot = 0;
+        ObjectGuid Totem;
+        uint32 Duration = 0;
+        uint32 SpellID = 0;
 
-        };
-    }
+    };
 }
 
 #endif // TotemPackets_h__

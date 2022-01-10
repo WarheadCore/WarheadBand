@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -21,61 +21,59 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 
-namespace WorldPackets
+namespace WorldPackets::Bank
 {
-    namespace Bank
+    class AutoBankItem final : public ClientPacket
     {
-        class AutoBankItem final : public ClientPacket
-        {
-        public:
-            AutoBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_ITEM, std::move(packet)) { }
+    public:
+        AutoBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_ITEM, std::move(packet)) { }
 
-            void Read() override;
+        void Read() override;
 
-            uint8 Bag = 0;
-            uint8 Slot = 0;
-        };
+        uint8 Bag = 0;
+        uint8 Slot = 0;
+    };
 
-        class AutoStoreBankItem final : public ClientPacket
-        {
-        public:
-            AutoStoreBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_ITEM, std::move(packet)) { }
+    class AutoStoreBankItem final : public ClientPacket
+    {
+    public:
+        AutoStoreBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_ITEM, std::move(packet)) { }
 
-            void Read() override;
+        void Read() override;
 
-            uint8 Bag = 0;
-            uint8 Slot = 0;
-        };
+        uint8 Bag = 0;
+        uint8 Slot = 0;
+    };
 
-        class BuyBankSlot final : public ClientPacket
-        {
-        public:
-            BuyBankSlot(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BANK_SLOT, std::move(packet)) { }
+    class BuyBankSlot final : public ClientPacket
+    {
+    public:
+        BuyBankSlot(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BANK_SLOT, std::move(packet)) { }
 
-            void Read() override;
+        void Read() override;
 
-            ObjectGuid Banker;
-        };
+        ObjectGuid Banker;
+    };
 
-        class BuyBankSlotResult final : public ServerPacket
-        {
-        public:
-            BuyBankSlotResult() : ServerPacket(SMSG_BUY_BANK_SLOT_RESULT, 4) { }
+    class BuyBankSlotResult final : public ServerPacket
+    {
+    public:
+        BuyBankSlotResult() : ServerPacket(SMSG_BUY_BANK_SLOT_RESULT, 4) { }
 
-            WorldPacket const* Write() override;
+        WorldPacket const* Write() override;
 
-            uint32 Result = 0;
-        };
+        uint32 Result = 0;
+    };
 
-        class ShowBank final : public ServerPacket
-        {
-        public:
-            ShowBank() : ServerPacket(SMSG_SHOW_BANK, 8) { }
+    class ShowBank final : public ServerPacket
+    {
+    public:
+        ShowBank() : ServerPacket(SMSG_SHOW_BANK, 8) { }
 
-            WorldPacket const* Write() override;
+        WorldPacket const* Write() override;
 
-            ObjectGuid Banker;
-        };
-    }
+        ObjectGuid Banker;
+    };
 }
+
 #endif // BankPackets_h__

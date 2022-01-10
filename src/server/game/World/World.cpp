@@ -1763,12 +1763,13 @@ void World::ShutdownCancel()
 }
 
 /// Send a server message to the user(s)
-void World::SendServerMessage(ServerMessageType messageID, std::string stringParam /*= ""*/, Player* player /*= nullptr*/)
+void World::SendServerMessage(ServerMessageType messageID, std::string_view stringParam /*= {}*/, Player* player /*= nullptr*/)
 {
     WorldPackets::Chat::ChatServerMessage chatServerMessage;
     chatServerMessage.MessageID = int32(messageID);
+
     if (messageID <= SERVER_MSG_STRING)
-        chatServerMessage.StringParam = stringParam;
+        chatServerMessage.StringParam = std::string(stringParam);
 
     if (player)
         player->SendDirectMessage(chatServerMessage.Write());

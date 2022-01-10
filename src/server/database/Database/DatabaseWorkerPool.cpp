@@ -73,7 +73,7 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool() :
 #endif
 
     WPFatal(isSupportClientDB, "WarheadCore does not support MySQL versions below 5.7 and MariaDB 10.5\nSearch the wiki for ACE00043 in Common Errors (https://www.azerothcore.org/wiki/common-errors).");
-    WPFatal(isSameClientDB, "Used MySQL library version ({} id {}) does not match the version id used to compile AzerothCore (id {}).\nSearch the wiki for ACE00046 in Common Errors (https://www.azerothcore.org/wiki/common-errors).",
+    WPFatal(isSameClientDB, "Used MySQL library version ({} id {}) does not match the version id used to compile WarheadCore (id {}).\nSearch the wiki for ACE00046 in Common Errors (https://www.azerothcore.org/wiki/common-errors).",
         mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
 }
 
@@ -403,7 +403,7 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
         }
         else if (connection->GetServerVersion() < MIN_MYSQL_SERVER_VERSION)
         {
-            LOG_ERROR("sql.driver", "AzerothCore does not support MySQL versions below 5.7 or MariaDB versions below 10.5");
+            LOG_ERROR("sql.driver", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.5");
             return 1;
         }
         else
