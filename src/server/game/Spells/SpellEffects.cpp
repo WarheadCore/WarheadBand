@@ -486,7 +486,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         float multiple = ap / 410 + m_spellInfo->Effects[effIndex].DamageMultiplier;
                         int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -30));
                         damage += int32(energy * multiple);
-                        damage += int32(CalculatePct(m_caster->ToPlayer()->GetComboPoints() * ap, 7));
+                        damage += int32(CalculatePct(m_caster->GetComboPoints() * ap, 7));
                     }
                     // Wrath
                     else if (m_spellInfo->SpellFamilyFlags[0] & 0x00000001)
@@ -900,11 +900,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     }
                     return;
                 }
-            // Spell Lock, handled in interrupt effect
-            // launch is handled before hit triggers, thus silence removes current casted spell
-            // and interrupt is unable to detect any cast and doesnt work
-            case 24259:
-                return;
         }
     }
 
@@ -3409,8 +3404,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     // Hemorrhage
                     if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
                     {
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                            m_caster->ToPlayer()->AddComboPoints(unitTarget, 1);
+                        AddComboPointGain(unitTarget, 1);
                     }
                     // 50% more damage with daggers
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3470,8 +3464,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 // Mangle (Cat): CP
                 if (m_spellInfo->SpellFamilyFlags[1] & 0x400)
                 {
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        m_caster->ToPlayer()->AddComboPoints(unitTarget, 1);
+                    AddComboPointGain(unitTarget, 1);
                 }
                 // Shred, Maul - Rend and Tear
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
@@ -3721,7 +3714,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
     if (!unitTarget || !unitTarget->IsAlive())
@@ -3752,10 +3745,6 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             }
         }
     }
-
-    // Spell Lock
-    if (m_spellInfo->Id == 19647)
-        m_caster->CastSpell(unitTarget, m_spellInfo->Effects[EFFECT_1].TriggerSpell, true);
 }
 
 void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
@@ -4339,19 +4328,16 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
 void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    if (!m_caster->m_movedByPlayer || !unitTarget || damage <= 0)
-        return;
-
-    if (m_spellInfo->Id == 14157 || // Ruthlessness and Netherblade set
-            m_spellInfo->Id == 70802)   // xinef: mayhem, rogue t10p4
     {
-        m_caster->m_movedByPlayer->ToPlayer()->SetComboPointGain(m_caster->m_movedByPlayer->ToPlayer()->GetComboPointGain() + damage);
         return;
     }
 
-    m_caster->m_movedByPlayer->ToPlayer()->AddComboPoints(unitTarget, damage);
+    if (!unitTarget || damage <= 0)
+    {
+        return;
+    }
+
+    AddComboPointGain(unitTarget, damage);
 }
 
 void Spell::EffectDuel(SpellEffIndex effIndex)
@@ -4732,7 +4718,7 @@ void Spell::EffectDismissPet(SpellEffIndex effIndex)
     Pet* pet = unitTarget->ToPet();
 
     ExecuteLogEffectUnsummonObject(effIndex, pet);
-    pet->GetOwner()->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+    pet->Remove(PET_SAVE_NOT_IN_SLOT);
 }
 
 void Spell::EffectSummonObject(SpellEffIndex effIndex)

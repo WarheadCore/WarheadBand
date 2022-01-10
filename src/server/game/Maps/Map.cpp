@@ -32,6 +32,7 @@
 #include "MapInstanced.h"
 #include "MapMgr.h"
 #include "Metric.h"
+#include "MiscPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
@@ -42,6 +43,7 @@
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "Vehicle.h"
+#include "Weather.h"
 
 union u_map_magic
 {
@@ -57,6 +59,9 @@ u_map_magic MapLiquidMagic  = { {'M', 'L', 'I', 'Q'} };
 
 static uint16 const holetab_h[4] = { 0x1111, 0x2222, 0x4444, 0x8888 };
 static uint16 const holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
+
+ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), WeatherId(WEATHER_STATE_FINE),
+                                     WeatherGrade(0.0f), OverrideLightId(0), LightFadeInTime(0) { }
 
 Map::~Map()
 {
@@ -3660,13 +3665,10 @@ void Map::SendZoneDynamicInfo(Player* player)
         player->SendDirectMessage(&data);
     }
 
-    if (uint32 weather = itr->second.WeatherId)
+    if (WeatherState weatherId = itr->second.WeatherId)
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weather);
-        data << float(itr->second.WeatherGrade);
-        data << uint8(0);
-        player->SendDirectMessage(&data);
+        WorldPackets::Misc::Weather weather(weatherId, itr->second.WeatherGrade);
+        player->SendDirectMessage(weather.Write());
     }
 
     if (uint32 overrideLight = itr->second.OverrideLightId)
@@ -3714,7 +3716,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     }
 }
 
-void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
+void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade)
 {
     if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
         _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
@@ -3726,15 +3728,12 @@ void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
 
     if (!players.isEmpty())
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weatherId);
-        data << float(weatherGrade);
-        data << uint8(0);
+        WorldPackets::Misc::Weather weather(weatherId, weatherGrade);
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(weather.Write());
     }
 }
 
