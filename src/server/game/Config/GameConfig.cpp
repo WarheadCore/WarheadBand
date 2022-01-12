@@ -496,6 +496,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     "CreatureFamilyAssistanceDelay",
     "CreatureFamilyAssistancePeriod",
     "CreatureFamilyFleeDelay",
+    "Creature.MovingStopTimeForPlayer",
     "DBC.Locale",
     "Death.SicknessLevel",
     "DisableWaterBreath",
