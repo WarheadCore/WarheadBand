@@ -161,7 +161,7 @@ public:
             { "spell_threats",                 HandleReloadSpellThreatsCommand,               SEC_ADMINISTRATOR, Console::Yes },
             { "spell_group_stack_rules",       HandleReloadSpellGroupStackRulesCommand,       SEC_ADMINISTRATOR, Console::Yes },
             { "player_loot_template",          HandleReloadLootTemplatesPlayerCommand,        SEC_ADMINISTRATOR, Console::Yes },
-            { "acore_string",                  HandleReloadAcoreStringCommand,                SEC_ADMINISTRATOR, Console::Yes },
+            { "acore_string",                  HandleReloadWarheadStringCommand,                SEC_ADMINISTRATOR, Console::Yes },
             { "warden_action",                 HandleReloadWardenactionCommand,               SEC_ADMINISTRATOR, Console::Yes },
             { "waypoint_scripts",              HandleReloadWpScriptsCommand,                  SEC_ADMINISTRATOR, Console::Yes },
             { "waypoint_data",                 HandleReloadWpCommand,                         SEC_ADMINISTRATOR, Console::Yes },
@@ -200,7 +200,7 @@ public:
         HandleReloadMailLevelRewardCommand(handler);
         HandleReloadCommandCommand(handler);
         HandleReloadReservedNameCommand(handler);
-        HandleReloadAcoreStringCommand(handler);
+        HandleReloadWarheadStringCommand(handler);
         HandleReloadGameTeleCommand(handler);
         HandleReloadCreatureMovementOverrideCommand(handler);
 
@@ -698,7 +698,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadAcoreStringCommand(ChatHandler* handler)
+    static bool HandleReloadWarheadStringCommand(ChatHandler* handler)
     {
         LOG_INFO("server.loading", "Re-Loading acore_string Table!");
         sGameLocale->LoadWarheadStrings();

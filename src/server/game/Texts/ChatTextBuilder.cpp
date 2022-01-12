@@ -38,7 +38,7 @@ void Warhead::CustomChatTextBuilder::operator()(WorldPacket& data, LocaleConstan
     ChatHandler::BuildChatPacket(data, _msgType, _language, _source, _target, _text, 0, "", locale);
 }
 
-void Warhead::AcoreStringChatBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
+void Warhead::WarheadStringChatBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
 {
     char const* text = sGameLocale->GetWarheadString(_textId, locale);
 

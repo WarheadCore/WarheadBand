@@ -372,7 +372,7 @@ public:
         std::string normalizedName(name);
         WorldDatabase.EscapeString(normalizedName);
 
-        QueryResult result = WorldDatabase.PQuery("SELECT c.position_x, c.position_y, c.position_z, c.orientation, c.map, ct.name FROM creature c INNER JOIN creature_template ct ON c.creature_id1 = ct.entry WHERE ct.name LIKE '%s'", normalizedName.c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT c.position_x, c.position_y, c.position_z, c.orientation, c.map, ct.name FROM creature c INNER JOIN creature_template ct ON c.creature_id1 = ct.entry WHERE ct.name LIKE '{}'", normalizedName);
         if (!result)
         {
             handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);

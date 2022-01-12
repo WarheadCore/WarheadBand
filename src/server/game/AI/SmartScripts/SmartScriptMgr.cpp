@@ -32,7 +32,7 @@
 { \
     if (value > 1) \
     { \
-        LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses param %s of type Boolean with value %u, valid values are 0 or 1, skipped.", \
+        LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses param {} of type Boolean with value {}, valid values are 0 or 1, skipped.", \
             e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), STRINGIZE(value), value); \
         return false; \
     } \

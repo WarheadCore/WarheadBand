@@ -1920,23 +1920,23 @@ void ObjectMgr::LoadCreatures()
         CreatureTemplate const* cInfo = GetCreatureTemplate(id);
         if (!cInfo)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: %u) with non existing creature entry %u in creature_id1 field, skipped.", spawnId, id);
+            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: {}) with non existing creature entry {} in creature_id1 field, skipped.", spawnId, id);
             continue;
         }
         CreatureTemplate const* cInfo2 = GetCreatureTemplate(id2);
         if (!cInfo2 && id2)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: %u) with non existing creature entry %u in creature_id2 field, skipped.", spawnId, id2);
+            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: {}) with non existing creature entry {} in creature_id2 field, skipped.", spawnId, id2);
             continue;
         }
         if (!chance || chance > 100)
         {
-            LOG_ERROR("sql.sql", "Table `creature` chance_id1 (Value: %u) must be greater than 0 and less than or equal to 100, skipped.", chance);
+            LOG_ERROR("sql.sql", "Table `creature` chance_id1 (Value: {}) must be greater than 0 and less than or equal to 100, skipped.", chance);
             continue;
         }
         if (chance == 100 && id2)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has spawnid = %u chance = 100 even though creature_id2 has an entry. changed to 50.", spawnId);
+            LOG_ERROR("sql.sql", "Table `creature` has spawnid = {} chance = 100 even though creature_id2 has an entry. changed to 50.", spawnId);
             chance = 50;
         }
         CreatureData& data      = _creatureDataStore[spawnId];

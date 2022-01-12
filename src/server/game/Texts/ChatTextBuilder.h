@@ -61,10 +61,10 @@ namespace Warhead
             WorldObject const* _target;
     };
 
-    class AcoreStringChatBuilder
+    class WarheadStringChatBuilder
     {
         public:
-            AcoreStringChatBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, va_list* args = nullptr)
+            WarheadStringChatBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, va_list* args = nullptr)
                 : _source(obj), _msgType(msgType), _textId(textId), _target(target), _args(args) { }
 
             void operator()(WorldPacket& data, LocaleConstant locale) const;
