@@ -39,21 +39,21 @@ public:
 
     // Add config option
     template<typename T>
-    void AddOption(std::string const& optionName, Optional<T> def = std::nullopt) const;
+    void AddOption(std::string_view optionName, Optional<T> def = {}) const;
 
     // Add option without template
-    void AddOption(std::string const& optionName, Optional<std::string> def = std::nullopt) const;
+    void AddOption(std::string_view optionName, Optional<std::string> def = {}) const;
 
     // Add option list without template
-    void AddOption(std::initializer_list<std::string> optionList) const;
+    void AddOption(std::initializer_list<std::string> const& optionList) const;
 
     // Get config options
     template<typename T>
-    T GetOption(std::string const& optionName, Optional<T> = std::nullopt) const;
+    T GetOption(std::string_view optionName, Optional<T> = std::nullopt) const;
 
     // Set config option
     template<typename T>
-    void SetOption(std::string const& optionName, T value) const;
+    void SetOption(std::string_view optionName, T value) const;
 
 private:
     void LoadConfigs(bool reload = false);
