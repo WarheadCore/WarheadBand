@@ -185,7 +185,6 @@ ResultSet::~ResultSet()
     CleanUp();
 }
 
-
 bool ResultSet::NextRow()
 {
     MYSQL_ROW row;
