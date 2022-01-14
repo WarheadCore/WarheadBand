@@ -97,7 +97,7 @@ WH_GAME_API void GameConfig::AddOption(std::string_view optionName, Optional<T> 
     {
         LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
         return;
-    }    
+    }
 
     _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, GetDefaultValueString<T>(def)));
 }
