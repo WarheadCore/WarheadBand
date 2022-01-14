@@ -48,7 +48,7 @@ namespace
     }
 
     template<typename T>
-    inline bool IsCorrectFieldType(DatabaseFieldTypes type, bool isRaw)
+    inline bool IsCorrectFieldType(DatabaseFieldTypes type)
     {
         // Int8
         if ((std::is_same_v<T, bool> || std::is_same_v<T, int8> || std::is_same_v<T, uint8>) && type == DatabaseFieldTypes::Int8)
