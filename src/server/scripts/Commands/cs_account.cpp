@@ -223,7 +223,7 @@ public:
                 return false;
             }
 
-            secret = field->GetBinary();
+            secret = field->Get<Binary>();
         }
 
         if (token)
@@ -418,8 +418,8 @@ public:
         do
         {
             Field* fieldsDB = result->Fetch();
-            std::string name = fieldsDB[0].GetString();
-            uint32 account = fieldsDB[1].GetUInt32();
+            std::string name = fieldsDB[0].Get<std::string>();
+            uint32 account = fieldsDB[1].Get<uint32>();
 
             ///- Get the username, last IP and GM level of each account
             // No SQL injection. account is uint32.
@@ -432,9 +432,9 @@ public:
             {
                 Field* fieldsLogin = resultLogin->Fetch();
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                                         fieldsLogin[0].GetCString(), name, fieldsLogin[1].GetCString(),
-                                         fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt8(),
-                                         fieldsLogin[2].GetUInt8());
+                                         fieldsLogin[0].Get<std::string_view>(), name, fieldsLogin[1].Get<std::string_view>(),
+                                         fieldsDB[2].Get<uint16>(), fieldsDB[3].Get<uint16>(), fieldsLogin[3].Get<uint8>(),
+                                         fieldsLogin[2].Get<uint8>());
             }
             else
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_ERROR, name);

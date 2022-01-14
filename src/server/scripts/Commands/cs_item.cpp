@@ -77,7 +77,7 @@ public:
         stmt->SetData(0, restoreId);
         PreparedQueryResult fields = CharacterDatabase.Query(stmt);
 
-        if (!fields || !(*fields)[1].GetUInt32() || (*fields)[3].GetUInt32() != player.GetGUID().GetCounter())
+        if (!fields || !(*fields)[1].Get<uint32>() || (*fields)[3].Get<uint32>() != player.GetGUID().GetCounter())
         {
             handler->SendSysMessage(LANG_ITEM_RESTORE_MISSING);
             handler->SetSentErrorMessage(true);
@@ -85,8 +85,8 @@ public:
         }
 
         // Mail item to player
-        uint32 itemEntry = (*fields)[1].GetUInt32();
-        uint32 itemCount = (*fields)[2].GetUInt32();
+        uint32 itemEntry = (*fields)[1].Get<uint32>();
+        uint32 itemCount = (*fields)[2].Get<uint32>();
 
         if (Player* onlinePlayer = player.GetConnectedPlayer())
         {
@@ -113,7 +113,7 @@ public:
 
         // Remove from recovery table
         CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RECOVERY_ITEM_BY_RECOVERY_ID);
-        delStmt->SetData(0, (*fields)[0].GetUInt32());
+        delStmt->SetData(0, (*fields)[0].Get<uint32>());
         CharacterDatabase.Execute(delStmt);
 
         std::string nameLink = handler->playerLink(player.GetName());
@@ -144,9 +144,9 @@ public:
         do
         {
             Field* fields    = disposedItems->Fetch();
-            uint32 id        = fields[0].GetUInt32();
-            uint32 itemId    = fields[1].GetUInt32();
-            uint32 count     = fields[2].GetUInt32();
+            uint32 id        = fields[0].Get<uint32>();
+            uint32 itemId    = fields[1].Get<uint32>();
+            uint32 count     = fields[2].Get<uint32>();
 
             std::string itemName = "";
             if (ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId))
@@ -283,9 +283,9 @@ public:
                     if (queryResult)
                     {
                         Field* fields = queryResult->Fetch();
-                        if ((fields[0].GetUInt32() + iece->reqhonorpoints) > CONF_GET_UINT("MaxHonorPoints"))
+                        if ((fields[0].Get<uint32>() + iece->reqhonorpoints) > CONF_GET_UINT("MaxHonorPoints"))
                         {
-                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, CONF_GET_UINT("MaxHonorPoints"), fields[0].GetUInt32(), iece->reqhonorpoints);
+                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, CONF_GET_UINT("MaxHonorPoints"), fields[0].Get<uint32>(), iece->reqhonorpoints);
                             handler->SetSentErrorMessage(true);
                             return false;
                         }
@@ -308,9 +308,9 @@ public:
                     if (queryResult)
                     {
                         Field* fields = queryResult->Fetch();
-                        if ((fields[0].GetUInt32() + iece->reqhonorpoints) > CONF_GET_UINT("MaxArenaPoints"))
+                        if ((fields[0].Get<uint32>() + iece->reqhonorpoints) > CONF_GET_UINT("MaxArenaPoints"))
                         {
-                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, CONF_GET_UINT("MaxArenaPoints"), fields[0].GetUInt32(), iece->reqarenapoints);
+                            handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, CONF_GET_UINT("MaxArenaPoints"), fields[0].Get<uint32>(), iece->reqarenapoints);
                             handler->SetSentErrorMessage(true);
                             return false;
                         }
@@ -359,11 +359,11 @@ public:
                 Field* fields = result->Fetch();
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-                stmt->SetData(0, fields[0].GetUInt32());
+                stmt->SetData(0, fields[0].Get<uint32>());
                 trans->Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                stmt->SetData(0, fields[0].GetUInt32());
+                stmt->SetData(0, fields[0].Get<uint32>());
                 trans->Append(stmt);
 
                 CharacterDatabase.CommitTransaction(trans);

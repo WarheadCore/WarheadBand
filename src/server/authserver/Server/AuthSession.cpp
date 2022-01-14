@@ -390,7 +390,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     if (!fields[11].IsNull())
     {
         securityFlags = 4;
-        _totpSecret = fields[11].GetBinary();
+        _totpSecret = fields[11].Get<Binary>();
 
         if (auto const& secret = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY))
         {
@@ -406,8 +406,8 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     }
 
     _srp6.emplace(_accountInfo.Login,
-        fields[12].GetBinary<Warhead::Crypto::SRP6::SALT_LENGTH>(),
-        fields[13].GetBinary<Warhead::Crypto::SRP6::VERIFIER_LENGTH>());
+        fields[12].Get<Binary, Warhead::Crypto::SRP6::SALT_LENGTH>(),
+        fields[13].Get<Binary, Warhead::Crypto::SRP6::VERIFIER_LENGTH>());
 
     // Fill the response packet with the result
     if (AuthHelper::IsAcceptedClientBuild(_build))
@@ -657,7 +657,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    _sessionKey = fields[11].GetBinary<SESSION_KEY_LENGTH>();
+    _sessionKey = fields[11].Get<Binary, SESSION_KEY_LENGTH>();
     Warhead::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 

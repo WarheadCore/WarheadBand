@@ -25,6 +25,8 @@
 #include <string_view>
 #include <vector>
 
+using Binary = std::vector<uint8>;
+
 enum class DatabaseFieldTypes : uint8
 {
     Null,
@@ -90,7 +92,7 @@ public:
     ~Field() = default;
 
     template<typename T>
-    inline std::enable_if_t<std::is_arithmetic_v<T>, T> Get()
+    inline std::enable_if_t<std::is_arithmetic_v<T>, T> Get() const
     {
         return GetData<T>();
     }
@@ -108,88 +110,18 @@ public:
     }
 
     template<typename T>
-    inline std::enable_if_t<std::is_same_v<std::vector<uint8>, T>, T> Get() const
+    inline std::enable_if_t<std::is_same_v<Binary, T>, T> Get() const
     {
         return GetDataBinary();
     }
 
     template <typename T, size_t S>
-    inline std::enable_if_t<std::is_same_v<std::array<uint8, S>, T>, T> Get() const
+    inline std::enable_if_t<std::is_same_v<Binary, T>, std::array<uint8, S>> Get() const
     {
         std::array<uint8, S> buf = {};
         GetBinarySizeChecked(buf.data(), S);
         return buf;
     }
-
-    //bool GetBool() const// Wrapper, actually gets integer
-    //{
-    //    return GetData<uint8>() == 1 ? true : false;
-    //}
-
-    //uint8 GetUInt8() const
-    //{
-    //    return GetData<uint8>();
-    //}
-
-    //int8 GetInt8() const
-    //{
-    //    return GetData<int8>();
-    //}
-
-    //uint16 GetUInt16() const
-    //{
-    //    return GetData<uint16>();
-    //}
-
-    //int16 GetInt16() const
-    //{
-    //    return GetData<int16>();
-    //}
-
-    //uint32 GetUInt32() const
-    //{
-    //    return GetData<uint32>();
-    //}
-
-    //int32 GetInt32() const
-    //{
-    //    return GetData<int32>();
-    //}
-
-    //uint64 GetUInt64() const
-    //{
-    //    return GetData<uint64>();
-    //}
-
-    //int64 GetInt64() const
-    //{
-    //    return GetData<int64>();
-    //}
-
-    //float GetFloat() const
-    //{
-    //    return GetData<float>();
-    //}
-
-    //double GetDouble() const
-    //{
-    //    return GetData<double>();
-    //}
-
-    //std::string GetString() const
-    //{
-    //    return GetDataString();
-    //}
-
-    //std::string_view GetStringView() const
-    //{
-    //    return GetDataStringView();
-    //}
-
-    //std::vector<uint8> GetBinary() const
-    //{
-    //    return GetDataBinary();
-    //}
 
     bool IsNull() const
     {
@@ -213,18 +145,18 @@ protected:
     bool IsNumeric() const;
 
 private:
-    QueryResultFieldMetadata const* meta;
-    void LogWrongType(char const* getter) const;
-    void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
-
-    void GetBinarySizeChecked(uint8* buf, size_t size) const;
-
     template<typename T>
     T GetData() const;
 
     std::string GetDataString() const;
     std::string_view GetDataStringView() const;
-    std::vector<uint8> GetDataBinary() const;
+    Binary GetDataBinary() const;
+
+    QueryResultFieldMetadata const* meta;
+    void LogWrongType(char const* getter) const;
+    void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
+
+    void GetBinarySizeChecked(uint8* buf, size_t size) const;
 };
 
 #endif

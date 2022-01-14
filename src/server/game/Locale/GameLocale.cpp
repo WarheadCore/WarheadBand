@@ -90,14 +90,14 @@ bool GameLocale::LoadWarheadStrings()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
 
         auto& data = _warheadStringStore[entry];
 
         data.Content.resize(DEFAULT_LOCALE + 1);
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            Warhead::Locale::AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
+            Warhead::Locale::AddLocaleString(fields[i + 1].Get<std::string>(), LocaleConstant(i), data.Content);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} warhead strings in {} ms", static_cast<uint32>(_warheadStringStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -149,9 +149,9 @@ void GameLocale::LoadAchievementRewardLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 ID = fields[0].GetUInt32();
+        uint32 ID = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -160,8 +160,8 @@ void GameLocale::LoadAchievementRewardLocales()
 
         AchievementRewardLocale& data = _achievementRewardLocales[ID];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Subject);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Text);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Subject);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.Text);
 
     } while (result->NextRow());
 
@@ -191,19 +191,19 @@ void GameLocale::LoadBroadcastTexts()
 
         BroadcastText bct;
 
-        bct.Id = fields[0].GetUInt32();
-        bct.LanguageID = fields[1].GetUInt32();
-        bct.Text[DEFAULT_LOCALE] = fields[2].GetString();
-        bct.Text1[DEFAULT_LOCALE] = fields[3].GetString();
-        bct.EmoteId1 = fields[4].GetUInt32();
-        bct.EmoteId2 = fields[5].GetUInt32();
-        bct.EmoteId3 = fields[6].GetUInt32();
-        bct.EmoteDelay1 = fields[7].GetUInt32();
-        bct.EmoteDelay2 = fields[8].GetUInt32();
-        bct.EmoteDelay3 = fields[9].GetUInt32();
-        bct.SoundEntriesID = fields[10].GetUInt32();
-        bct.EmotesID = fields[11].GetUInt32();
-        bct.Flags = fields[12].GetUInt32();
+        bct.Id = fields[0].Get<uint32>();
+        bct.LanguageID = fields[1].Get<uint32>();
+        bct.Text[DEFAULT_LOCALE] = fields[2].Get<std::string>();
+        bct.Text1[DEFAULT_LOCALE] = fields[3].Get<std::string>();
+        bct.EmoteId1 = fields[4].Get<uint32>();
+        bct.EmoteId2 = fields[5].Get<uint32>();
+        bct.EmoteId3 = fields[6].Get<uint32>();
+        bct.EmoteDelay1 = fields[7].Get<uint32>();
+        bct.EmoteDelay2 = fields[8].Get<uint32>();
+        bct.EmoteDelay3 = fields[9].Get<uint32>();
+        bct.SoundEntriesID = fields[10].Get<uint32>();
+        bct.EmotesID = fields[11].Get<uint32>();
+        bct.Flags = fields[12].Get<uint32>();
 
         if (bct.SoundEntriesID && !sSoundEntriesStore.LookupEntry(bct.SoundEntriesID))
         {
@@ -258,7 +258,7 @@ void GameLocale::LoadBroadcastTextLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
         auto const& bct = _broadcastTextStore.find(id);
         if (bct == _broadcastTextStore.end())
@@ -267,15 +267,15 @@ void GameLocale::LoadBroadcastTextLocales()
             continue;
         }
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
         /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
             continue;*/
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, bct->second.Text);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, bct->second.Text1);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, bct->second.Text);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, bct->second.Text1);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} broadcast text locales in {} ms", static_cast<uint32>(_broadcastTextStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -295,9 +295,9 @@ void GameLocale::LoadCreatureLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -306,8 +306,8 @@ void GameLocale::LoadCreatureLocales()
 
         CreatureLocale& data = _creatureLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Title);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.Title);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} creature Locale strings in {} ms", static_cast<uint32>(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -328,10 +328,10 @@ void GameLocale::LoadGossipMenuItemsLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint16 menuId = fields[0].GetUInt16();
-        uint16 optionId = fields[1].GetUInt16();
+        uint16 menuId = fields[0].Get<uint16>();
+        uint16 optionId = fields[1].Get<uint16>();
 
-        LocaleConstant locale = GetLocaleByName(fields[2].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[2].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -340,8 +340,8 @@ void GameLocale::LoadGossipMenuItemsLocales()
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, optionId)];
 
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.OptionText);
-        Warhead::Locale::AddLocaleString(fields[4].GetString(), locale, data.BoxText);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.OptionText);
+        Warhead::Locale::AddLocaleString(fields[4].Get<std::string>(), locale, data.BoxText);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Gossip Menu Option Locale strings in {} ms", static_cast<uint32>(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -361,9 +361,9 @@ void GameLocale::LoadGameObjectLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -372,8 +372,8 @@ void GameLocale::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.CastBarCaption);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.CastBarCaption);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Gameobject Locale strings in {} ms", static_cast<uint32>(_gameObjectLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -392,9 +392,9 @@ void GameLocale::LoadItemLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -403,8 +403,8 @@ void GameLocale::LoadItemLocales()
 
         ItemLocale& data = _itemLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Description);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.Description);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Item Locale strings in {} ms", static_cast<uint32>(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -424,9 +424,9 @@ void GameLocale::LoadItemSetNameLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -435,7 +435,7 @@ void GameLocale::LoadItemSetNameLocales()
 
         ItemSetNameLocale& data = _itemSetNameLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Name);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Item Set Name Locale strings in {} ms", static_cast<uint32>(_itemSetNameLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -458,9 +458,9 @@ void GameLocale::LoadNpcTextLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -471,8 +471,8 @@ void GameLocale::LoadNpcTextLocales()
 
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            Warhead::Locale::AddLocaleString(fields[2 + i * 2].GetString(), locale, data.Text_0[i]);
-            Warhead::Locale::AddLocaleString(fields[3 + i * 2].GetString(), locale, data.Text_1[i]);
+            Warhead::Locale::AddLocaleString(fields[2 + i * 2].Get<std::string>(), locale, data.Text_0[i]);
+            Warhead::Locale::AddLocaleString(fields[3 + i * 2].Get<std::string>(), locale, data.Text_1[i]);
         }
     } while (result->NextRow());
 
@@ -494,9 +494,9 @@ void GameLocale::LoadPageTextLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -505,7 +505,7 @@ void GameLocale::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Text);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Text);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Page Text Locale strings in {} ms", static_cast<uint32>(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -526,9 +526,9 @@ void GameLocale::LoadPointOfInterestLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -537,7 +537,7 @@ void GameLocale::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Name);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Name);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Points Of Interest Locale strings in {} ms", static_cast<uint32>(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -557,9 +557,9 @@ void GameLocale::LoadQuestLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -568,14 +568,14 @@ void GameLocale::LoadQuestLocales()
 
         QuestLocale& data = _questLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Title);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.Details);
-        Warhead::Locale::AddLocaleString(fields[4].GetString(), locale, data.Objectives);
-        Warhead::Locale::AddLocaleString(fields[5].GetString(), locale, data.AreaDescription);
-        Warhead::Locale::AddLocaleString(fields[6].GetString(), locale, data.CompletedText);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Title);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.Details);
+        Warhead::Locale::AddLocaleString(fields[4].Get<std::string>(), locale, data.Objectives);
+        Warhead::Locale::AddLocaleString(fields[5].Get<std::string>(), locale, data.AreaDescription);
+        Warhead::Locale::AddLocaleString(fields[6].Get<std::string>(), locale, data.CompletedText);
 
         for (uint8 i = 0; i < 4; ++i)
-            Warhead::Locale::AddLocaleString(fields[i + 7].GetString(), locale, data.ObjectiveText[i]);
+            Warhead::Locale::AddLocaleString(fields[i + 7].Get<std::string>(), locale, data.ObjectiveText[i]);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Quest Locale strings in {} ms", static_cast<uint32>(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -595,9 +595,9 @@ void GameLocale::LoadQuestOfferRewardLocale()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -606,7 +606,7 @@ void GameLocale::LoadQuestOfferRewardLocale()
 
         QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.RewardText);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.RewardText);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Quest Offer Reward locale strings in {} ms", static_cast<uint32>(_questOfferRewardLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -626,9 +626,9 @@ void GameLocale::LoadQuestRequestItemsLocale()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -637,7 +637,7 @@ void GameLocale::LoadQuestRequestItemsLocale()
 
         QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.CompletionText);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.CompletionText);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Quest Request Items locale strings in {} ms", static_cast<uint32>(_questRequestItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -659,9 +659,9 @@ void GameLocale::LoadChatCommandsLocales()
     do
     {
         Field* fields = result->Fetch();
-        std::string commandName = fields[0].GetString();
+        std::string commandName = fields[0].Get<std::string>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -670,7 +670,7 @@ void GameLocale::LoadChatCommandsLocales()
 
         ChatCommandHelpLocale& data = _chatCommandStringStore[commandName];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Content);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Content);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Chat commands help strings locale in {} ms", _chatCommandStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -692,9 +692,9 @@ void GameLocale::LoadAutoBroadCastLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
+        uint32 id = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -703,7 +703,7 @@ void GameLocale::LoadAutoBroadCastLocales()
 
         auto& data = _autobroadLocaleStore[id];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.Text);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.Text);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} autobroadcast text locale in {} ms", _chatCommandStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -726,8 +726,8 @@ void GameLocale::LoadQuestGreetingLocales()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
-        uint8 type = fields[1].GetUInt8();
+        uint32 id = fields[0].Get<uint32>();
+        uint8 type = fields[1].Get<uint8>();
 
         // overwrite
         switch (type)
@@ -742,7 +742,7 @@ void GameLocale::LoadQuestGreetingLocales()
             break;
         }
 
-        LocaleConstant locale = GetLocaleByName(fields[2].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[2].Get<std::string>());
         if (locale == LOCALE_enUS)
             continue;
 
@@ -751,7 +751,7 @@ void GameLocale::LoadQuestGreetingLocales()
 
         QuestGreetingLocale& data = _questGreetingLocaleStore[MAKE_PAIR32(id, type)];
 
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.greeting);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.greeting);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} quest greeting locale strings in {} ms", static_cast<uint32>(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -881,17 +881,17 @@ void GameLocale::LoadRaceStrings()
     do
     {
         Field* fields = result->Fetch();
-        uint32 ID = fields[0].GetUInt32();
+        uint32 ID = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
 
         /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
             continue;*/
 
         auto& data = _raceStringStore[ID];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.NameMale);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.NameFemale);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.NameMale);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.NameFemale);
 
     } while (result->NextRow());
 
@@ -915,17 +915,17 @@ void GameLocale::LoadClassStrings()
     {
         Field* fields = result->Fetch();
 
-        uint32 ID = fields[0].GetUInt32();
+        uint32 ID = fields[0].Get<uint32>();
 
-        LocaleConstant locale = GetLocaleByName(fields[1].GetString());
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
 
         /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
             continue;*/
 
         auto& data = _classStringStore[ID];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), locale, data.NameMale);
-        Warhead::Locale::AddLocaleString(fields[3].GetString(), locale, data.NameFemale);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), locale, data.NameMale);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.NameFemale);
 
     } while (result->NextRow());
 

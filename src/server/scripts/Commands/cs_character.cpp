@@ -149,13 +149,13 @@ public:
 
                 DeletedInfo info;
 
-                info.lowGuid    = fields[0].GetUInt32();
-                info.name       = fields[1].GetString();
-                info.accountId  = fields[2].GetUInt32();
+                info.lowGuid    = fields[0].Get<uint32>();
+                info.name       = fields[1].Get<std::string>();
+                info.accountId  = fields[2].Get<uint32>();
 
                 // account name will be empty for nonexisting account
                 AccountMgr::GetName(info.accountId, info.accountName);
-                info.deleteDate = time_t(fields[3].GetUInt32());
+                info.deleteDate = time_t(fields[3].Get<uint32>());
                 foundList.push_back(info);
             } while (result->NextRow());
         }
@@ -242,7 +242,7 @@ public:
         stmt->SetData(0, delInfo.lowGuid);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
-            sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, delInfo.lowGuid), delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
+            sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, delInfo.lowGuid), delInfo.accountId, delInfo.name, (*result)[2].Get<uint8>(), (*result)[0].Get<uint8>(), (*result)[1].Get<uint8>(), (*result)[3].Get<uint8>());
         }
     }
 

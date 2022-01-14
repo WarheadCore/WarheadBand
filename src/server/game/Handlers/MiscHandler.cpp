@@ -599,7 +599,7 @@ void WorldSession::HandleCharacterAuraFrozen(PreparedQueryResult result)
     do
     {
         Field* fields = result->Fetch();
-        std::string player = fields[0].GetString();
+        std::string player = fields[0].Get<std::string>();
         handler.PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player);
     } while (result->NextRow());
 }
@@ -1128,13 +1128,13 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
     }
 
     Field* fields = result->Fetch();
-    std::string acc = fields[0].GetString();
+    std::string acc = fields[0].Get<std::string>();
     if (acc.empty())
         acc = "Unknown";
-    std::string email = fields[1].GetString();
+    std::string email = fields[1].Get<std::string>();
     if (email.empty())
         email = "Unknown";
-    std::string lastip = fields[2].GetString();
+    std::string lastip = fields[2].Get<std::string>();
     if (lastip.empty())
         lastip = "Unknown";
 

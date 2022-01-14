@@ -167,8 +167,8 @@ void MuteMgr::LoginAccount(uint32 accountID)
     }
 
     Field* fields = result->Fetch();
-    uint64 mutedate = fields[0].GetUInt64();
-    uint32 mutetime = fields[1].GetUInt32();
+    uint64 mutedate = fields[0].Get<uint64>();
+    uint32 mutetime = fields[1].Get<uint32>();
 
     if (!mutedate)
     {
@@ -201,7 +201,7 @@ Optional<MuteInfo> MuteMgr::GetMuteInfo(uint32 accountID)
 
     Field* fields = result->Fetch();
 
-    return std::make_tuple(fields[0].GetUInt64(), Seconds(fields[1].GetUInt32()), fields[2].GetString(), fields[3].GetString());
+    return std::make_tuple(fields[0].Get<uint64>(), Seconds(fields[1].Get<uint32>()), fields[2].Get<std::string>(), fields[3].Get<std::string>());
 }
 
 void MuteMgr::CheckSpeakTime(uint32 accountID, time_t muteDate)

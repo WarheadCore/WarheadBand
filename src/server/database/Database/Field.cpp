@@ -30,219 +30,57 @@ Field::Field()
     meta = nullptr;
 }
 
-//uint8 Field::GetUInt8() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int8))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<uint8 const*>(data.value);
-//
-//    return static_cast<uint8>(strtoul(data.value, nullptr, 10));
-//}
-//
-//int8 Field::GetInt8() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int8))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<int8 const*>(data.value);
-//
-//    return static_cast<int8>(strtol(data.value, nullptr, 10));
-//}
-//
-//uint16 Field::GetUInt16() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int16))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<uint16 const*>(data.value);
-//
-//    return static_cast<uint16>(strtoul(data.value, nullptr, 10));
-//}
-//
-//int16 Field::GetInt16() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int16))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<int16 const*>(data.value);
-//
-//    return static_cast<int16>(strtol(data.value, nullptr, 10));
-//}
-//
-//uint32 Field::GetUInt32() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int32))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<uint32 const*>(data.value);
-//
-//    return static_cast<uint32>(strtoul(data.value, nullptr, 10));
-//}
-//
-//int32 Field::GetInt32() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int32))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<int32 const*>(data.value);
-//
-//    return static_cast<int32>(strtol(data.value, nullptr, 10));
-//}
-//
-//uint64 Field::GetUInt64() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int64))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<uint64 const*>(data.value);
-//
-//    return static_cast<uint64>(strtoull(data.value, nullptr, 10));
-//}
-//
-//int64 Field::GetInt64() const
-//{
-//    if (!data.value)
-//        return 0;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Int64))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<int64 const*>(data.value);
-//
-//    return static_cast<int64>(strtoll(data.value, nullptr, 10));
-//}
-//
-//float Field::GetFloat() const
-//{
-//    if (!data.value)
-//        return 0.0f;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Float))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0.0f;
-//    }
-//#endif
-//
-//    if (data.raw)
-//        return *reinterpret_cast<float const*>(data.value);
-//
-//    return static_cast<float>(atof(data.value));
-//}
-//
-//double Field::GetDouble() const
-//{
-//    if (!data.value)
-//        return 0.0f;
-//
-//#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-//    if (!IsType(DatabaseFieldTypes::Double) && !IsType(DatabaseFieldTypes::Decimal))
-//    {
-//        LogWrongType(__FUNCTION__);
-//        return 0.0f;
-//    }
-//#endif
-//
-//    if (data.raw && !IsType(DatabaseFieldTypes::Decimal))
-//        return *reinterpret_cast<double const*>(data.value);
-//
-//    return static_cast<double>(atof(data.value));
-//}
-//
-//std::string Field::GetString() const
-//{
-//    return data.value;
-//}
-//
-//std::string_view Field::GetStringView() const
-//{
-//    if (data.value.empty())
-//        return {};
-//
-//    return { data.value };
-//}
-//
-//std::vector<uint8> Field::GetBinary() const
-//{
-//    std::vector<uint8> result;
-//    if (data.value.empty() || !data.length)
-//        return result;
-//
-//    result.resize(data.length);
-//    memcpy(result.data(), data.value.c_str(), data.length);
-//    return result;
-//}
+namespace
+{
+    template<typename T>
+    constexpr T GetDefaultValue()
+    {
+        if constexpr (std::is_same_v<T, bool>)
+            return false;
+        else if constexpr (std::is_integral_v<T>)
+            return 0;
+        else if constexpr (std::is_floating_point_v<T>)
+            return 1.0f;
+        else if constexpr (std::is_same_v<T, std::vector<uint8>> || std::is_same_v<std::string_view, T>)
+            return {};
+        else
+            return "";
+    }
+
+    template<typename T>
+    inline bool IsCorrectFieldType(DatabaseFieldTypes type, bool isRaw)
+    {
+        // Int8
+        if ((std::is_same_v<T, bool> || std::is_same_v<T, int8> || std::is_same_v<T, uint8>) && type == DatabaseFieldTypes::Int8)
+            return true;
+
+        // In16
+        if ((std::is_same_v<T, uint16> || std::is_same_v<T, int16>) && type == DatabaseFieldTypes::Int16)
+            return true;
+
+        // Int32
+        if ((std::is_same_v<T, uint32> || std::is_same_v<T, int32>) && type == DatabaseFieldTypes::Int32)
+            return true;
+
+        // Int64
+        if ((std::is_same_v<T, uint64> || std::is_same_v<T, int64>) && type == DatabaseFieldTypes::Int64)
+            return true;
+
+        // float
+        if (std::is_same_v<T, float> && type == DatabaseFieldTypes::Float)
+            return true;
+
+        // dobule
+        if (std::is_same_v<T, double> && (type == DatabaseFieldTypes::Double || type == DatabaseFieldTypes::Decimal))
+            return true;
+
+        // Binary
+        if (std::is_same_v<T, Binary> && type == DatabaseFieldTypes::Binary)
+            return true;
+
+        return false;
+    }
+}
 
 void Field::GetBinarySizeChecked(uint8* buf, size_t length) const
 {
@@ -292,24 +130,6 @@ void Field::SetMetadata(QueryResultFieldMetadata const* fieldMeta)
     meta = fieldMeta;
 }
 
-namespace
-{
-    template<typename T>
-    constexpr T GetDefaultValue()
-    {
-        if constexpr (std::is_same_v<T, bool>)
-            return false;
-        else if constexpr (std::is_integral_v<T>)
-            return 0;
-        else if constexpr (std::is_floating_point_v<T>)
-            return 1.0f;
-        else if constexpr (std::is_same_v<T, std::vector<uint8>> || std::is_same_v<std::string_view, T>)
-            return {};
-        else
-            return "";
-    }
-}
-
 template<typename T>
 T Field::GetData() const
 {
@@ -319,10 +139,10 @@ T Field::GetData() const
         return GetDefaultValue<T>();
 
 #ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-    if (!IsType(DatabaseFieldTypes::Int8))
+    if (!IsCorrectFieldType<T>(meta->Type, data.raw))
     {
         LogWrongType(__FUNCTION__);
-        return GetDefaultValue<T>();
+        //return GetDefaultValue<T>();
     }
 #endif
 
@@ -342,6 +162,7 @@ T Field::GetData() const
     return *result;
 }
 
+template bool Field::GetData() const;
 template uint8 Field::GetData() const;
 template uint16 Field::GetData() const;
 template uint32 Field::GetData() const;
@@ -358,7 +179,7 @@ std::string Field::GetDataString() const
         return "";
 
 #ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-    if (!IsType(DatabaseFieldTypes::Int8))
+    if (IsNumeric() && data.raw)
     {
         LogWrongType(__FUNCTION__);
         return "";
@@ -374,7 +195,7 @@ std::string_view Field::GetDataStringView() const
         return {};
 
 #ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-    if (!IsType(DatabaseFieldTypes::Int8))
+    if (IsNumeric() && data.raw)
     {
         LogWrongType(__FUNCTION__);
         return {};
@@ -384,20 +205,9 @@ std::string_view Field::GetDataStringView() const
     return { data.value, data.length };
 }
 
-std::vector<uint8> Field::GetDataBinary() const
+Binary Field::GetDataBinary() const
 {
-    if (!data.value)
-        return {};
-
-#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-    if (!IsType(DatabaseFieldTypes::Int8))
-    {
-        LogWrongType(__FUNCTION__);
-        return {};
-    }
-#endif
-
-    std::vector<uint8> result = {};
+    Binary result = {};
     if (!data.value || !data.length)
         return result;
 

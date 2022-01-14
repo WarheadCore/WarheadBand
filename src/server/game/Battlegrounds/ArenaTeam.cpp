@@ -144,8 +144,8 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     uint16 maxMMR;
     if (result)
     {
-        matchMakerRating = (*result)[0].GetUInt16();
-        uint16 Max = (*result)[1].GetUInt16();
+        matchMakerRating = (*result)[0].Get<uint16>();
+        uint16 Max = (*result)[1].Get<uint16>();
         maxMMR = std::max(Max, matchMakerRating);
     }
     else
@@ -201,21 +201,21 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
 
     Field* fields = result->Fetch();
 
-    TeamId            = fields[0].GetUInt32();
-    TeamName          = fields[1].GetString();
-    CaptainGuid       = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32());
-    Type              = fields[3].GetUInt8();
-    BackgroundColor   = fields[4].GetUInt32();
-    EmblemStyle       = fields[5].GetUInt8();
-    EmblemColor       = fields[6].GetUInt32();
-    BorderStyle       = fields[7].GetUInt8();
-    BorderColor       = fields[8].GetUInt32();
-    Stats.Rating      = fields[9].GetUInt16();
-    Stats.WeekGames   = fields[10].GetUInt16();
-    Stats.WeekWins    = fields[11].GetUInt16();
-    Stats.SeasonGames = fields[12].GetUInt16();
-    Stats.SeasonWins  = fields[13].GetUInt16();
-    Stats.Rank        = fields[14].GetUInt32();
+    TeamId            = fields[0].Get<uint32>();
+    TeamName          = fields[1].Get<std::string>();
+    CaptainGuid       = ObjectGuid::Create<HighGuid::Player>(fields[2].Get<uint32>());
+    Type              = fields[3].Get<uint8>();
+    BackgroundColor   = fields[4].Get<uint32>();
+    EmblemStyle       = fields[5].Get<uint8>();
+    EmblemColor       = fields[6].Get<uint32>();
+    BorderStyle       = fields[7].Get<uint8>();
+    BorderColor       = fields[8].Get<uint32>();
+    Stats.Rating      = fields[9].Get<uint16>();
+    Stats.WeekGames   = fields[10].Get<uint16>();
+    Stats.WeekWins    = fields[11].Get<uint16>();
+    Stats.SeasonGames = fields[12].Get<uint16>();
+    Stats.SeasonWins  = fields[13].Get<uint16>();
+    Stats.Rank        = fields[14].Get<uint32>();
 
     return true;
 }
@@ -235,26 +235,26 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
         if (!fields)
             break;
 
-        uint32 arenaTeamId = fields[0].GetUInt32();
+        uint32 arenaTeamId = fields[0].Get<uint32>();
 
         // We loaded all members for this arena_team already, break cycle
         if (arenaTeamId > TeamId)
             break;
 
         ArenaTeamMember newMember;
-        newMember.Guid             = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt32());
-        newMember.WeekGames        = fields[2].GetUInt16();
-        newMember.WeekWins         = fields[3].GetUInt16();
-        newMember.SeasonGames      = fields[4].GetUInt16();
-        newMember.SeasonWins       = fields[5].GetUInt16();
-        //newMember.Name             = fields[6].GetString();
-        newMember.Class            = fields[7].GetUInt8();
-        newMember.PersonalRating   = fields[8].GetUInt16();
-        newMember.MatchMakerRating = fields[9].GetUInt16() > 0 ? fields[9].GetUInt16() : CONF_GET_INT("Arena.ArenaStartMatchmakerRating");
-        newMember.MaxMMR           = std::max(fields[10].GetUInt16(), newMember.MatchMakerRating);
+        newMember.Guid             = ObjectGuid::Create<HighGuid::Player>(fields[1].Get<uint32>());
+        newMember.WeekGames        = fields[2].Get<uint16>();
+        newMember.WeekWins         = fields[3].Get<uint16>();
+        newMember.SeasonGames      = fields[4].Get<uint16>();
+        newMember.SeasonWins       = fields[5].Get<uint16>();
+        //newMember.Name             = fields[6].Get<std::string>();
+        newMember.Class            = fields[7].Get<uint8>();
+        newMember.PersonalRating   = fields[8].Get<uint16>();
+        newMember.MatchMakerRating = fields[9].Get<uint16>() > 0 ? fields[9].Get<uint16>() : CONF_GET_INT("Arena.ArenaStartMatchmakerRating");
+        newMember.MaxMMR           = std::max(fields[10].Get<uint16>(), newMember.MatchMakerRating);
 
         // Delete member if character information is missing
-        if (fields[6].GetString().empty())
+        if (fields[6].Get<std::string>().empty())
         {
             LOG_ERROR("sql.sql", "ArenaTeam {} has member with empty name - probably player {} doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.ToString());
             this->DelMember(newMember.Guid, true);

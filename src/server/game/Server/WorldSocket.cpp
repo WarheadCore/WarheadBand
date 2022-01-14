@@ -62,7 +62,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            if (fields[0].GetUInt64() != 0)
+            if (fields[0].Get<uint64>() != 0)
                 banned = true;
 
         } while (result->NextRow());
@@ -271,19 +271,19 @@ struct AccountInfo
         // LEFT JOIN account_banned ab ON a.id = ab.id
         // LEFT JOIN account r ON a.id = r.recruiter
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
-        Id = fields[0].GetUInt32();
-        SessionKey = fields[1].GetBinary<SESSION_KEY_LENGTH>();
-        LastIP = fields[2].GetString();
-        IsLockedToIP = fields[3].GetBool();
-        LockCountry = fields[4].GetString();
-        Expansion = fields[5].GetUInt8();
-        Locale = LocaleConstant(fields[6].GetUInt8());
-        Recruiter = fields[7].GetUInt32();
-        OS = fields[8].GetString();
-        TotalTime = fields[9].GetUInt32();
-        Security = AccountTypes(fields[10].GetUInt8());
-        IsBanned = fields[11].GetUInt64() != 0;
-        IsRectuiter = fields[12].GetUInt32() != 0;
+        Id = fields[0].Get<uint32>();
+        SessionKey = fields[1].Get<Binary, SESSION_KEY_LENGTH>();
+        LastIP = fields[2].Get<std::string>();
+        IsLockedToIP = fields[3].Get<bool>();
+        LockCountry = fields[4].Get<std::string>();
+        Expansion = fields[5].Get<uint8>();
+        Locale = LocaleConstant(fields[6].Get<uint8>());
+        Recruiter = fields[7].Get<uint32>();
+        OS = fields[8].Get<std::string>();
+        TotalTime = fields[9].Get<uint32>();
+        Security = AccountTypes(fields[10].Get<uint8>());
+        IsBanned = fields[11].Get<uint64>() != 0;
+        IsRectuiter = fields[12].Get<uint32>() != 0;
 
         uint32 world_expansion = CONF_GET_INT("Expansion");
         if (Expansion > world_expansion)

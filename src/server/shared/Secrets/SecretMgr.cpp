@@ -114,7 +114,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
         stmt->SetArguments(i);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
         if (result)
-            oldDigest = result->Fetch()->GetString();
+            oldDigest = result->Fetch()->Get<std::string>();
     }
 
     Optional<BigNumber> currentValue = GetHexFromConfig(info.configKey, info.bits);
@@ -183,8 +183,8 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                 if (fields[1].IsNull())
                     continue;
 
-                uint32 id = fields[0].GetUInt32();
-                std::vector<uint8> totpSecret = fields[1].GetBinary();
+                uint32 id = fields[0].Get<uint32>();
+                std::vector<uint8> totpSecret = fields[1].Get<Binary>();
 
                 if (hadOldSecret)
                 {

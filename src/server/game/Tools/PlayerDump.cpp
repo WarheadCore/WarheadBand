@@ -207,7 +207,7 @@ std::string CreateDumpString(char const* tableName, QueryResult result)
         if (i == 0) ss << '\'';
         else ss << ", '";
 
-        std::string s = fields[i].GetString();
+        std::string s = fields[i].Get<std::string>();
         CharacterDatabase.EscapeString(s);
         ss << s;
 
@@ -249,7 +249,7 @@ std::string PlayerDumpWriter::GenerateWhereStr(char const* field, GUIDs const& g
 void StoreGUID(QueryResult result, uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
-    uint32 guid = fields[field].GetUInt32();
+    uint32 guid = fields[field].Get<uint32>();
     if (guid)
         guids.insert(guid);
 }
@@ -257,7 +257,7 @@ void StoreGUID(QueryResult result, uint32 field, std::set<uint32>& guids)
 void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
-    std::string dataStr = fields[data].GetString();
+    std::string dataStr = fields[data].Get<std::string>();
     uint32 guid = atoi(gettoknth(dataStr, field).c_str());
     if (guid)
         guids.insert(guid);
@@ -342,7 +342,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const* tab
                         if (result->GetFieldCount() <= 74)          // avoid crashes on next check
                             LOG_FATAL("entities.player.dump", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
 
-                        if (result->Fetch()[74].GetUInt32())        // characters.deleteInfos_Account - if filled error
+                        if (result->Fetch()[74].Get<uint32>())        // characters.deleteInfos_Account - if filled error
                             return false;
                         break;
                     }

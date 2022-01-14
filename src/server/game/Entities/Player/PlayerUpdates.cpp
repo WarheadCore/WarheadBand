@@ -428,7 +428,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     if (resultNextDeliveryTime)
     {
         Field* fields          = resultNextDeliveryTime->Fetch();
-        m_nextMailDelivereTime = time_t(fields[0].GetUInt32());
+        m_nextMailDelivereTime = time_t(fields[0].Get<uint32>());
     }
 
     // Get unread mails count
@@ -442,7 +442,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     if (resultUnreadAmount)
     {
         Field* fields = resultUnreadAmount->Fetch();
-        unReadMails   = uint8(fields[0].GetUInt64());
+        unReadMails   = uint8(fields[0].Get<uint64>());
     }
 }
 

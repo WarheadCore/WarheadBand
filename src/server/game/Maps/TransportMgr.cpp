@@ -65,7 +65,7 @@ void TransportMgr::LoadTransportTemplates()
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (goInfo == nullptr)
         {
@@ -436,8 +436,8 @@ void TransportMgr::SpawnContinentTransports()
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
-                uint32 entry = fields[1].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].Get<uint32>();
+                uint32 entry = fields[1].Get<uint32>();
 
                 if (TransportTemplate const* tInfo = GetTransportTemplate(entry))
                     if (!tInfo->inInstance)
@@ -460,9 +460,9 @@ void TransportMgr::SpawnContinentTransports()
                 do
                 {
                     Field* fields = result->Fetch();
-                    uint16 mapId = fields[0].GetUInt16();
-                    float x = fields[1].GetFloat();
-                    float y = fields[2].GetFloat();
+                    uint16 mapId = fields[0].Get<uint16>();
+                    float x = fields[1].Get<float>();
+                    float y = fields[2].Get<float>();
 
                     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
                     if (mapEntry && !mapEntry->Instanceable())

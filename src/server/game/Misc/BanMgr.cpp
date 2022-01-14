@@ -55,7 +55,7 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
     stmtAccountBanned->SetData(0, AccountID);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmtAccountBanned);
-    if (banresult && ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32() || ((*banresult)[1].GetUInt32() > GameTime::GetGameTime().count() + DurationSecs && DurationSecs)))
+    if (banresult && ((*banresult)[0].Get<uint32>() == (*banresult)[1].Get<uint32>() || ((*banresult)[1].Get<uint32>() > GameTime::GetGameTime().count() + DurationSecs && DurationSecs)))
         return BAN_LONGER_EXISTS;
 
     // make sure there is only one active ban
@@ -113,7 +113,7 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
     stmtAccountBanned->SetData(0, AccountID);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmtAccountBanned);
-    if (banresult && ((*banresult)[0].GetUInt32() == (*banresult)[1].GetUInt32() || ((*banresult)[1].GetUInt32() > GameTime::GetGameTime().count() + DurationSecs && DurationSecs)))
+    if (banresult && ((*banresult)[0].Get<uint32>() == (*banresult)[1].Get<uint32>() || ((*banresult)[1].Get<uint32>() > GameTime::GetGameTime().count() + DurationSecs && DurationSecs)))
         return BAN_LONGER_EXISTS;
 
     // make sure there is only one active ban
@@ -192,7 +192,7 @@ BanReturn BanMgr::BanIP(std::string const& IP, std::string_view duration, std::s
     do
     {
         Field* fields = resultAccounts->Fetch();
-        uint32 AccountID = fields[0].GetUInt32();
+        uint32 AccountID = fields[0].Get<uint32>();
 
         if (WorldSession* session = sWorld->FindSession(AccountID))
             if (session->GetPlayerName() != author)

@@ -64,10 +64,10 @@ void ChannelMgr::LoadChannels()
     {
         Field* fields = result->Fetch();
 
-        uint32 channelDBId = fields[0].GetUInt32();
-        std::string channelName = fields[1].GetString();
-        TeamId team = TeamId(fields[2].GetUInt32());
-        std::string password = fields[5].GetString();
+        uint32 channelDBId = fields[0].Get<uint32>();
+        std::string channelName = fields[1].Get<std::string>();
+        TeamId team = TeamId(fields[2].Get<uint32>());
+        std::string password = fields[5].Get<std::string>();
 
         std::wstring channelWName;
         if (!Utf8toWStr(channelName, channelWName))
@@ -85,7 +85,7 @@ void ChannelMgr::LoadChannels()
             continue;
         }
 
-        Channel* newChannel = new Channel(channelName, 0, channelDBId, team, fields[3].GetUInt8(), fields[4].GetUInt8());
+        Channel* newChannel = new Channel(channelName, 0, channelDBId, team, fields[3].Get<uint8>(), fields[4].Get<uint8>());
         newChannel->SetPassword(password);
         mgr->channels[channelWName] = newChannel;
 
@@ -96,7 +96,7 @@ void ChannelMgr::LoadChannels()
                 Field* banFields = banResult->Fetch();
                 if (!banFields)
                     break;
-                newChannel->AddBan(ObjectGuid::Create<HighGuid::Player>(banFields[0].GetUInt32()), banFields[1].GetUInt32());
+                newChannel->AddBan(ObjectGuid::Create<HighGuid::Player>(banFields[0].Get<uint32>()), banFields[1].Get<uint32>());
             } while (banResult->NextRow());
         }
 
@@ -180,8 +180,8 @@ void ChannelMgr::LoadChannelRights()
     {
         Field* fields = result->Fetch();
         std::set<uint32> moderators;
-        const char* moderatorList = fields[5].GetCString();
-        if (moderatorList)
+        std::string moderatorList = fields[5].Get<std::string>();
+        if (!moderatorList.empty())
         {
             Tokenizer tokens(moderatorList, ' ');
             for (Tokenizer::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
@@ -192,7 +192,7 @@ void ChannelMgr::LoadChannelRights()
             }
         }
 
-        SetChannelRightsFor(fields[0].GetString(), fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetString(), fields[4].GetString(), moderators);
+        SetChannelRightsFor(fields[0].Get<std::string>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[3].Get<std::string>(), fields[4].Get<std::string>(), moderators);
 
         ++count;
     } while (result->NextRow());

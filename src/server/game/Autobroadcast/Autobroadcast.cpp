@@ -51,10 +51,10 @@ void AutobroadcastMgr::Load()
     do
     {
         Field* fields = result->Fetch();
-        uint8 id = fields[0].GetUInt8();
+        uint8 id = fields[0].Get<uint8>();
 
-        _autobroadcasts[id] = fields[2].GetString();
-        _autobroadcastsWeights[id] = fields[1].GetUInt8();
+        _autobroadcasts[id] = fields[2].Get<std::string>();
+        _autobroadcastsWeights[id] = fields[1].Get<uint8>();
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {} ms", _autobroadcasts.size(), GetMSTimeDiffToNow(oldMSTime));

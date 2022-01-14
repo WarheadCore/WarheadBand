@@ -156,7 +156,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadRankFromDB(fields);
@@ -198,7 +198,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadMemberFromDB(fields);
@@ -233,7 +233,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankRightFromDB(fields);
@@ -267,7 +267,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadEventLogFromDB(fields);
@@ -302,7 +302,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankEventLogFromDB(fields);
@@ -337,7 +337,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankTabFromDB(fields);
@@ -374,7 +374,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[11].GetUInt32();
+                uint32 guildId = fields[11].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

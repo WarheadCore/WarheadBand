@@ -1101,10 +1101,10 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
     Field* fields = result->Fetch();
 
-    ObjectGuid::LowType guidLow = fields[0].GetUInt32();
-    uint8 plrRace = fields[2].GetUInt8();
-    uint8 plrClass = fields[3].GetUInt8();
-    uint8 gender = fields[4].GetUInt8();
+    ObjectGuid::LowType guidLow = fields[0].Get<uint32>();
+    uint8 plrRace = fields[2].Get<uint8>();
+    uint8 plrClass = fields[3].Get<uint8>();
+    uint8 gender = fields[4].Get<uint8>();
 
     ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(guidLow);
 
@@ -1121,21 +1121,21 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     }
 
     *data << guid;
-    *data << fields[1].GetString();                          // name
+    *data << fields[1].Get<std::string>();                          // name
     *data << uint8(plrRace);                                 // race
     *data << uint8(plrClass);                                // class
     *data << uint8(gender);                                  // gender
 
-    uint8 skin = fields[5].GetUInt8();
-    uint8 face = fields[6].GetUInt8();
-    uint8 hairStyle = fields[7].GetUInt8();
-    uint8 hairColor = fields[8].GetUInt8();
-    uint8 facialStyle = fields[9].GetUInt8();
+    uint8 skin = fields[5].Get<uint8>();
+    uint8 face = fields[6].Get<uint8>();
+    uint8 hairStyle = fields[7].Get<uint8>();
+    uint8 hairColor = fields[8].Get<uint8>();
+    uint8 facialStyle = fields[9].Get<uint8>();
 
     uint32 charFlags = 0;
-    uint32 playerFlags = fields[17].GetUInt32();
-    uint16 atLoginFlags = fields[18].GetUInt16();
-    uint32 zone = (atLoginFlags & AT_LOGIN_FIRST) != 0 ? 0 : fields[11].GetUInt16(); // if first login do not show the zone
+    uint32 playerFlags = fields[17].Get<uint32>();
+    uint16 atLoginFlags = fields[18].Get<uint16>();
+    uint32 zone = (atLoginFlags & AT_LOGIN_FIRST) != 0 ? 0 : fields[11].Get<uint16>(); // if first login do not show the zone
 
     *data << uint8(skin);
     *data << uint8(face);
@@ -1143,15 +1143,15 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     *data << uint8(hairColor);
     *data << uint8(facialStyle);
 
-    *data << uint8(fields[10].GetUInt8());                   // level
+    *data << uint8(fields[10].Get<uint8>());                   // level
     *data << uint32(zone);                                   // zone
-    *data << uint32(fields[12].GetUInt16());                 // map
+    *data << uint32(fields[12].Get<uint16>());                 // map
 
-    *data << fields[13].GetFloat();                          // x
-    *data << fields[14].GetFloat();                          // y
-    *data << fields[15].GetFloat();                          // z
+    *data << fields[13].Get<float>();                          // x
+    *data << fields[14].Get<float>();                          // y
+    *data << fields[15].Get<float>();                          // z
 
-    *data << uint32(fields[16].GetUInt32());                 // guild id
+    *data << uint32(fields[16].Get<uint32>());                 // guild id
 
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
@@ -1163,11 +1163,11 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
         charFlags |= CHARACTER_FLAG_GHOST;
     if (atLoginFlags & AT_LOGIN_RENAME)
         charFlags |= CHARACTER_FLAG_RENAME;
-    if (fields[23].GetUInt32())
+    if (fields[23].Get<uint32>())
         charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
     if (CONF_GET_BOOL("DeclinedNames"))
     {
-        if (!fields[25].GetString().empty())
+        if (!fields[25].Get<std::string>().empty())
             charFlags |= CHARACTER_FLAG_DECLINED;
     }
     else
@@ -1194,14 +1194,14 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     uint32 petFamily = 0;
 
     // show pet at selection character in character list only for non-ghost character
-    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || (plrClass == CLASS_DEATH_KNIGHT && (fields[21].GetUInt32()&PLAYER_EXTRA_SHOW_DK_PET))))
+    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || (plrClass == CLASS_DEATH_KNIGHT && (fields[21].Get<uint32>()&PLAYER_EXTRA_SHOW_DK_PET))))
     {
-        uint32 entry = fields[19].GetUInt32();
+        uint32 entry = fields[19].Get<uint32>();
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
         if (creatureInfo)
         {
-            petDisplayId = fields[20].GetUInt32();
-            petLevel = fields[21].GetUInt16();
+            petDisplayId = fields[20].Get<uint32>();
+            petLevel = fields[21].Get<uint16>();
             petFamily = creatureInfo->family;
         }
     }
@@ -1210,7 +1210,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     *data << uint32(petLevel);
     *data << uint32(petFamily);
 
-    Tokenizer equipment(fields[22].GetString(), ' ');
+    Tokenizer equipment(fields[22].Get<std::string>(), ' ');
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
         uint32 visualBase = slot * 2;
@@ -3498,11 +3498,11 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            uint32 spell_id = fields[0].GetUInt32();
-            uint16 category = fields[1].GetUInt16();
-            uint32 item_id  = fields[2].GetUInt32();
-            uint32 db_time  = fields[3].GetUInt32();
-            bool needSend   = fields[4].GetBool();
+            uint32 spell_id = fields[0].Get<uint32>();
+            uint16 category = fields[1].Get<uint16>();
+            uint32 item_id  = fields[2].Get<uint32>();
+            uint32 db_time  = fields[3].Get<uint32>();
+            bool needSend   = fields[4].Get<bool>();
 
             if (!sSpellMgr->GetSpellInfo(spell_id))
             {
@@ -3935,7 +3935,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
                         do
                         {
                             Field* fields = resultItems->Fetch();
-                            uint32 mailId = fields[14].GetUInt32();
+                            uint32 mailId = fields[14].Get<uint32>();
                             if (Item* mailItem = _LoadMailedItem(playerGuid, nullptr, mailId, nullptr, fields))
                             {
                                 itemsByMail[mailId].push_back(mailItem);
@@ -3947,14 +3947,14 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
                     {
                         Field* mailFields = resultMail->Fetch();
 
-                        uint32 mail_id       = mailFields[0].GetUInt32();
-                        uint8 mailType       = mailFields[1].GetUInt8();
-                        uint16 mailTemplateId = mailFields[2].GetUInt16();
-                        uint32 sender        = mailFields[3].GetUInt32();
-                        std::string subject  = mailFields[4].GetString();
-                        std::string body     = mailFields[5].GetString();
-                        uint32 money         = mailFields[6].GetUInt32();
-                        bool has_items       = mailFields[7].GetBool();
+                        uint32 mail_id       = mailFields[0].Get<uint32>();
+                        uint8 mailType       = mailFields[1].Get<uint8>();
+                        uint16 mailTemplateId = mailFields[2].Get<uint16>();
+                        uint32 sender        = mailFields[3].Get<uint32>();
+                        std::string subject  = mailFields[4].Get<std::string>();
+                        std::string body     = mailFields[5].Get<std::string>();
+                        uint32 money         = mailFields[6].Get<uint32>();
+                        bool has_items       = mailFields[7].Get<bool>();
 
                         // We can return mail now
                         // So firstly delete the old one
@@ -4010,7 +4010,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
                 {
                     do
                     {
-                        ObjectGuid::LowType petguidlow = (*resultPets)[0].GetUInt32();
+                        ObjectGuid::LowType petguidlow = (*resultPets)[0].Get<uint32>();
                         Pet::DeleteFromDB(petguidlow);
                     } while (resultPets->NextRow());
                 }
@@ -4024,7 +4024,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
                 {
                     do
                     {
-                        if (Player* pFriend = ObjectAccessor::FindPlayerByLowGUID((*resultFriends)[0].GetUInt32()))
+                        if (Player* pFriend = ObjectAccessor::FindPlayerByLowGUID((*resultFriends)[0].Get<uint32>()))
                         {
                             pFriend->GetSocial()->RemoveFromSocialList(playerGuid, SOCIAL_FLAG_ALL);
                             sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, playerGuid, false);
@@ -4239,7 +4239,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
         do
         {
             Field* fields = result->Fetch();
-            Player::DeleteFromDB(fields[0].GetUInt32(), fields[1].GetUInt32(), true, true);
+            Player::DeleteFromDB(fields[0].Get<uint32>(), fields[1].Get<uint32>(), true, true);
         } while (result->NextRow());
     }
 }
@@ -6112,7 +6112,7 @@ uint32 Player::GetArenaTeamIdFromDB(ObjectGuid guid, uint8 type)
     if (!result)
         return 0;
 
-    uint32 id = (*result)[0].GetUInt32();
+    uint32 id = (*result)[0].Get<uint32>();
     return id;
 }
 
@@ -6128,7 +6128,7 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
         return 0;
 
     Field* fields = result->Fetch();
-    uint32 zone = fields[0].GetUInt16();
+    uint32 zone = fields[0].Get<uint16>();
 
     if (!zone)
     {
@@ -6143,10 +6143,10 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
         }
 
         fields = posResult->Fetch();
-        uint32 map = fields[0].GetUInt16();
-        float posx = fields[1].GetFloat();
-        float posy = fields[2].GetFloat();
-        float posz = fields[3].GetFloat();
+        uint32 map = fields[0].Get<uint16>();
+        float posx = fields[1].Get<float>();
+        float posy = fields[2].Get<float>();
+        float posz = fields[3].Get<float>();
 
         if (!sMapStore.LookupEntry(map))
             return 0;
@@ -9547,7 +9547,7 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
     do
     {
         Field* fields = result->Fetch();
-        uint32 arenaTeamId = fields[0].GetUInt32();
+        uint32 arenaTeamId = fields[0].Get<uint32>();
         if (arenaTeamId != 0)
         {
             ArenaTeam* arenaTeam = sArenaTeamMgr->GetArenaTeamById(arenaTeamId);
@@ -12873,9 +12873,9 @@ void Player::_LoadSkills(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            uint16 skill    = fields[0].GetUInt16();
-            uint16 value    = fields[1].GetUInt16();
-            uint16 max      = fields[2].GetUInt16();
+            uint16 skill    = fields[0].Get<uint16>();
+            uint16 value    = fields[1].Get<uint16>();
+            uint16 max      = fields[2].Get<uint16>();
 
             SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, getRace(), getClass());
             if (!rcEntry)
@@ -14122,16 +14122,16 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
 
-        uint8 spec = fields[0].GetUInt8();
+        uint8 spec = fields[0].Get<uint8>();
         if (spec >= m_specsCount)
             continue;
 
-        m_Glyphs[spec][0] = fields[1].GetUInt16();
-        m_Glyphs[spec][1] = fields[2].GetUInt16();
-        m_Glyphs[spec][2] = fields[3].GetUInt16();
-        m_Glyphs[spec][3] = fields[4].GetUInt16();
-        m_Glyphs[spec][4] = fields[5].GetUInt16();
-        m_Glyphs[spec][5] = fields[6].GetUInt16();
+        m_Glyphs[spec][0] = fields[1].Get<uint16>();
+        m_Glyphs[spec][1] = fields[2].Get<uint16>();
+        m_Glyphs[spec][2] = fields[3].Get<uint16>();
+        m_Glyphs[spec][3] = fields[4].Get<uint16>();
+        m_Glyphs[spec][4] = fields[5].Get<uint16>();
+        m_Glyphs[spec][5] = fields[6].Get<uint16>();
     } while (result->NextRow());
 }
 
@@ -14169,8 +14169,8 @@ void Player::_LoadTalents(PreparedQueryResult result)
         do
         {
             // xinef: checked
-            uint32 spellId = (*result)[0].GetUInt32();
-            uint8 specMask = (*result)[1].GetUInt8();
+            uint32 spellId = (*result)[0].Get<uint32>();
+            uint8 specMask = (*result)[1].Get<uint8>();
             addTalent(spellId, specMask, 0);
             TalentSpellPos const* talentPos = GetTalentSpellPos(spellId);
             ASSERT(talentPos);
@@ -14922,7 +14922,7 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
     do
     {
         Field* fields = result->Fetch();
-        _instanceResetTimes.insert(InstanceTimeMap::value_type(fields[0].GetUInt32(), fields[1].GetUInt64()));
+        _instanceResetTimes.insert(InstanceTimeMap::value_type(fields[0].Get<uint32>(), fields[1].Get<uint64>()));
     } while (result->NextRow());
 }
 
@@ -14932,7 +14932,7 @@ void Player::_LoadBrewOfTheMonth(PreparedQueryResult result)
     if (result)
     {
         Field* fields = result->Fetch();
-        lastEventId = fields[0].GetUInt32();
+        lastEventId = fields[0].Get<uint32>();
     }
 
     time_t curtime = GameTime::GetGameTime().count();
@@ -14991,22 +14991,22 @@ void Player::_LoadPetStable(uint8 petStableSlots, PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             PetStable::PetInfo petInfo;
-            petInfo.PetNumber = fields[0].GetUInt32();
-            petInfo.CreatureId = fields[1].GetUInt32();
-            petInfo.DisplayId = fields[2].GetUInt32();
-            petInfo.Level = fields[3].GetUInt16();
-            petInfo.Experience = fields[4].GetUInt32();
-            petInfo.ReactState = ReactStates(fields[5].GetUInt8());
-            PetSaveMode slot = PetSaveMode(fields[6].GetUInt8());
-            petInfo.Name = fields[7].GetString();
-            petInfo.WasRenamed = fields[8].GetBool();
-            petInfo.Health = fields[9].GetUInt32();
-            petInfo.Mana = fields[10].GetUInt32();
-            petInfo.Happiness = fields[11].GetUInt32();
-            petInfo.ActionBar = fields[12].GetString();
-            petInfo.LastSaveTime = fields[13].GetUInt32();
-            petInfo.CreatedBySpellId = fields[14].GetUInt32();
-            petInfo.Type = PetType(fields[15].GetUInt8());
+            petInfo.PetNumber = fields[0].Get<uint32>();
+            petInfo.CreatureId = fields[1].Get<uint32>();
+            petInfo.DisplayId = fields[2].Get<uint32>();
+            petInfo.Level = fields[3].Get<uint16>();
+            petInfo.Experience = fields[4].Get<uint32>();
+            petInfo.ReactState = ReactStates(fields[5].Get<uint8>());
+            PetSaveMode slot = PetSaveMode(fields[6].Get<uint8>());
+            petInfo.Name = fields[7].Get<std::string>();
+            petInfo.WasRenamed = fields[8].Get<bool>();
+            petInfo.Health = fields[9].Get<uint32>();
+            petInfo.Mana = fields[10].Get<uint32>();
+            petInfo.Happiness = fields[11].Get<uint32>();
+            petInfo.ActionBar = fields[12].Get<std::string>();
+            petInfo.LastSaveTime = fields[13].Get<uint32>();
+            petInfo.CreatedBySpellId = fields[14].Get<uint32>();
+            petInfo.Type = PetType(fields[15].Get<uint8>());
 
             if (slot == PET_SAVE_AS_CURRENT)
                 m_petStable->CurrentPet = std::move(petInfo);

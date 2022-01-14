@@ -437,7 +437,7 @@ void ObjectMgr::LoadCreatureTemplates()
 
 void ObjectMgr::LoadCreatureTemplate(Field* fields)
 {
-    uint32 entry = fields[0].GetUInt32();
+    uint32 entry = fields[0].Get<uint32>();
 
     CreatureTemplate& creatureTemplate = _creatureTemplateStore[entry];
 
@@ -445,54 +445,54 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
 
     for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
     {
-        creatureTemplate.DifficultyEntry[i] = fields[1 + i].GetUInt32();
+        creatureTemplate.DifficultyEntry[i] = fields[1 + i].Get<uint32>();
     }
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
     {
-        creatureTemplate.KillCredit[i] = fields[4 + i].GetUInt32();
+        creatureTemplate.KillCredit[i] = fields[4 + i].Get<uint32>();
     }
 
-    creatureTemplate.Modelid1         = fields[6].GetUInt32();
-    creatureTemplate.Modelid2         = fields[7].GetUInt32();
-    creatureTemplate.Modelid3         = fields[8].GetUInt32();
-    creatureTemplate.Modelid4         = fields[9].GetUInt32();
-    creatureTemplate.Name             = fields[10].GetString();
-    creatureTemplate.SubName          = fields[11].GetString();
-    creatureTemplate.IconName         = fields[12].GetString();
-    creatureTemplate.GossipMenuId     = fields[13].GetUInt32();
-    creatureTemplate.minlevel         = fields[14].GetUInt8();
-    creatureTemplate.maxlevel         = fields[15].GetUInt8();
-    creatureTemplate.expansion        = uint32(fields[16].GetInt16());
-    creatureTemplate.faction          = uint32(fields[17].GetUInt16());
-    creatureTemplate.npcflag          = fields[18].GetUInt32();
-    creatureTemplate.speed_walk       = fields[19].GetFloat();
-    creatureTemplate.speed_run        = fields[20].GetFloat();
-    creatureTemplate.speed_swim       = fields[21].GetFloat();
-    creatureTemplate.speed_flight     = fields[22].GetFloat();
-    creatureTemplate.detection_range  = fields[23].GetFloat();
-    creatureTemplate.scale            = fields[24].GetFloat();
-    creatureTemplate.rank             = uint32(fields[25].GetUInt8());
-    creatureTemplate.dmgschool        = uint32(fields[26].GetInt8());
-    creatureTemplate.DamageModifier   = fields[27].GetFloat();
-    creatureTemplate.BaseAttackTime   = fields[28].GetUInt32();
-    creatureTemplate.RangeAttackTime  = fields[29].GetUInt32();
-    creatureTemplate.BaseVariance     = fields[30].GetFloat();
-    creatureTemplate.RangeVariance    = fields[31].GetFloat();
-    creatureTemplate.unit_class       = uint32(fields[32].GetUInt8());
-    creatureTemplate.unit_flags       = fields[33].GetUInt32();
-    creatureTemplate.unit_flags2      = fields[34].GetUInt32();
-    creatureTemplate.dynamicflags     = fields[35].GetUInt32();
-    creatureTemplate.family           = uint32(fields[36].GetUInt8());
-    creatureTemplate.trainer_type     = uint32(fields[37].GetUInt8());
-    creatureTemplate.trainer_spell    = fields[38].GetUInt32();
-    creatureTemplate.trainer_class    = uint32(fields[39].GetUInt8());
-    creatureTemplate.trainer_race     = uint32(fields[40].GetUInt8());
-    creatureTemplate.type             = uint32(fields[41].GetUInt8());
-    creatureTemplate.type_flags       = fields[42].GetUInt32();
-    creatureTemplate.lootid           = fields[43].GetUInt32();
-    creatureTemplate.pickpocketLootId = fields[44].GetUInt32();
-    creatureTemplate.SkinLootId       = fields[45].GetUInt32();
+    creatureTemplate.Modelid1         = fields[6].Get<uint32>();
+    creatureTemplate.Modelid2         = fields[7].Get<uint32>();
+    creatureTemplate.Modelid3         = fields[8].Get<uint32>();
+    creatureTemplate.Modelid4         = fields[9].Get<uint32>();
+    creatureTemplate.Name             = fields[10].Get<std::string>();
+    creatureTemplate.SubName          = fields[11].Get<std::string>();
+    creatureTemplate.IconName         = fields[12].Get<std::string>();
+    creatureTemplate.GossipMenuId     = fields[13].Get<uint32>();
+    creatureTemplate.minlevel         = fields[14].Get<uint8>();
+    creatureTemplate.maxlevel         = fields[15].Get<uint8>();
+    creatureTemplate.expansion        = uint32(fields[16].Get<int16>());
+    creatureTemplate.faction          = uint32(fields[17].Get<uint16>());
+    creatureTemplate.npcflag          = fields[18].Get<uint32>();
+    creatureTemplate.speed_walk       = fields[19].Get<float>();
+    creatureTemplate.speed_run        = fields[20].Get<float>();
+    creatureTemplate.speed_swim       = fields[21].Get<float>();
+    creatureTemplate.speed_flight     = fields[22].Get<float>();
+    creatureTemplate.detection_range  = fields[23].Get<float>();
+    creatureTemplate.scale            = fields[24].Get<float>();
+    creatureTemplate.rank             = uint32(fields[25].Get<uint8>());
+    creatureTemplate.dmgschool        = uint32(fields[26].Get<int8>());
+    creatureTemplate.DamageModifier   = fields[27].Get<float>();
+    creatureTemplate.BaseAttackTime   = fields[28].Get<uint32>();
+    creatureTemplate.RangeAttackTime  = fields[29].Get<uint32>();
+    creatureTemplate.BaseVariance     = fields[30].Get<float>();
+    creatureTemplate.RangeVariance    = fields[31].Get<float>();
+    creatureTemplate.unit_class       = uint32(fields[32].Get<uint8>());
+    creatureTemplate.unit_flags       = fields[33].Get<uint32>();
+    creatureTemplate.unit_flags2      = fields[34].Get<uint32>();
+    creatureTemplate.dynamicflags     = fields[35].Get<uint32>();
+    creatureTemplate.family           = uint32(fields[36].Get<uint8>());
+    creatureTemplate.trainer_type     = uint32(fields[37].Get<uint8>());
+    creatureTemplate.trainer_spell    = fields[38].Get<uint32>();
+    creatureTemplate.trainer_class    = uint32(fields[39].Get<uint8>());
+    creatureTemplate.trainer_race     = uint32(fields[40].Get<uint8>());
+    creatureTemplate.type             = uint32(fields[41].Get<uint8>());
+    creatureTemplate.type_flags       = fields[42].Get<uint32>();
+    creatureTemplate.lootid           = fields[43].Get<uint32>();
+    creatureTemplate.pickpocketLootId = fields[44].Get<uint32>();
+    creatureTemplate.SkinLootId       = fields[45].Get<uint32>();
 
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
     {
@@ -504,49 +504,49 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
         creatureTemplate.spells[i] = 0;
     }
 
-    creatureTemplate.PetSpellDataId = fields[46].GetUInt32();
-    creatureTemplate.VehicleId      = fields[47].GetUInt32();
-    creatureTemplate.mingold        = fields[48].GetUInt32();
-    creatureTemplate.maxgold        = fields[49].GetUInt32();
-    creatureTemplate.AIName         = fields[50].GetString();
-    creatureTemplate.MovementType   = uint32(fields[51].GetUInt8());
+    creatureTemplate.PetSpellDataId = fields[46].Get<uint32>();
+    creatureTemplate.VehicleId      = fields[47].Get<uint32>();
+    creatureTemplate.mingold        = fields[48].Get<uint32>();
+    creatureTemplate.maxgold        = fields[49].Get<uint32>();
+    creatureTemplate.AIName         = fields[50].Get<std::string>();
+    creatureTemplate.MovementType   = uint32(fields[51].Get<uint8>());
     if (!fields[52].IsNull())
     {
-        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[52].GetUInt8());
+        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[52].Get<uint8>());
     }
 
-    creatureTemplate.Movement.Swim = fields[53].GetBool();
+    creatureTemplate.Movement.Swim = fields[53].Get<bool>();
     if (!fields[54].IsNull())
     {
-        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[54].GetUInt8());
+        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[54].Get<uint8>());
     }
 
-    creatureTemplate.Movement.Rooted = fields[55].GetBool();
+    creatureTemplate.Movement.Rooted = fields[55].Get<bool>();
     if (!fields[56].IsNull())
     {
-        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[56].GetUInt8());
+        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[56].Get<uint8>());
     }
     if (!fields[57].IsNull())
     {
-        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[57].GetUInt8());
+        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[57].Get<uint8>());
     }
     if (!fields[58].IsNull())
     {
-        creatureTemplate.Movement.InteractionPauseTimer = fields[58].GetUInt32();
+        creatureTemplate.Movement.InteractionPauseTimer = fields[58].Get<uint32>();
     }
 
-    creatureTemplate.HoverHeight           = fields[59].GetFloat();
-    creatureTemplate.ModHealth             = fields[60].GetFloat();
-    creatureTemplate.ModMana               = fields[61].GetFloat();
-    creatureTemplate.ModArmor              = fields[62].GetFloat();
-    creatureTemplate.ModExperience         = fields[63].GetFloat();
-    creatureTemplate.RacialLeader          = fields[64].GetBool();
-    creatureTemplate.movementId            = fields[65].GetUInt32();
-    creatureTemplate.RegenHealth           = fields[66].GetBool();
-    creatureTemplate.MechanicImmuneMask    = fields[67].GetUInt32();
-    creatureTemplate.SpellSchoolImmuneMask = fields[68].GetUInt8();
-    creatureTemplate.flags_extra           = fields[69].GetUInt32();
-    creatureTemplate.ScriptID              = GetScriptId(fields[70].GetCString());
+    creatureTemplate.HoverHeight           = fields[59].Get<float>();
+    creatureTemplate.ModHealth             = fields[60].Get<float>();
+    creatureTemplate.ModMana               = fields[61].Get<float>();
+    creatureTemplate.ModArmor              = fields[62].Get<float>();
+    creatureTemplate.ModExperience         = fields[63].Get<float>();
+    creatureTemplate.RacialLeader          = fields[64].Get<bool>();
+    creatureTemplate.movementId            = fields[65].Get<uint32>();
+    creatureTemplate.RegenHealth           = fields[66].Get<bool>();
+    creatureTemplate.MechanicImmuneMask    = fields[67].Get<uint32>();
+    creatureTemplate.SpellSchoolImmuneMask = fields[68].Get<uint8>();
+    creatureTemplate.flags_extra           = fields[69].Get<uint32>();
+    creatureTemplate.ScriptID              = GetScriptId(fields[70].Get<std::string>());
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -569,8 +569,8 @@ void ObjectMgr::LoadCreatureTemplateResistances()
     {
         Field* fields = result->Fetch();
 
-        uint32 creatureID = fields[0].GetUInt32();
-        uint8 school = fields[1].GetUInt8();
+        uint32 creatureID = fields[0].Get<uint32>();
+        uint8 school = fields[1].Get<uint8>();
 
         if (school == SPELL_SCHOOL_NORMAL || school >= MAX_SPELL_SCHOOL)
         {
@@ -586,7 +586,7 @@ void ObjectMgr::LoadCreatureTemplateResistances()
         }
 
         CreatureTemplate& creatureTemplate = itr->second;
-        creatureTemplate.resistance[school] = fields[2].GetInt16();
+        creatureTemplate.resistance[school] = fields[2].Get<int16>();
 
         ++count;
     } while (result->NextRow());
@@ -614,8 +614,8 @@ void ObjectMgr::LoadCreatureTemplateSpells()
     {
         Field* fields = result->Fetch();
 
-        uint32 creatureID = fields[0].GetUInt32();
-        uint8 index = fields[1].GetUInt8();
+        uint32 creatureID = fields[0].Get<uint32>();
+        uint8 index = fields[1].Get<uint8>();
 
         if (index >= MAX_CREATURE_SPELLS)
         {
@@ -631,7 +631,7 @@ void ObjectMgr::LoadCreatureTemplateSpells()
         }
 
         CreatureTemplate& creatureTemplate = itr->second;
-        creatureTemplate.spells[index] = fields[2].GetUInt32();
+        creatureTemplate.spells[index] = fields[2].Get<uint32>();
 
         ++count;
     } while (result->NextRow());
@@ -658,7 +658,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
@@ -668,14 +668,14 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         CreatureAddon& creatureAddon = _creatureTemplateAddonStore[entry];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
-        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[6].GetUInt8());
+        creatureAddon.path_id = fields[1].Get<uint32>();
+        creatureAddon.mount   = fields[2].Get<uint32>();
+        creatureAddon.bytes1  = fields[3].Get<uint32>();
+        creatureAddon.bytes2  = fields[4].Get<uint32>();
+        creatureAddon.emote   = fields[5].Get<uint32>();
+        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[6].Get<uint8>());
 
-        Tokenizer tokens(fields[7].GetString(), ' ');
+        Tokenizer tokens(fields[7].Get<std::string>(), ' ');
 
         creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -1105,7 +1105,7 @@ void ObjectMgr::LoadCreatureAddons()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType guid = fields[0].GetUInt32();
+        ObjectGuid::LowType guid = fields[0].Get<uint32>();
 
         CreatureData const* creData = GetCreatureData(guid);
         if (!creData)
@@ -1116,20 +1116,20 @@ void ObjectMgr::LoadCreatureAddons()
 
         CreatureAddon& creatureAddon = _creatureAddonStore[guid];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
+        creatureAddon.path_id = fields[1].Get<uint32>();
         if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
         {
             const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
             LOG_ERROR("sql.sql", "Creature (GUID {}) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
         }
 
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
-        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[6].GetUInt8());
+        creatureAddon.mount   = fields[2].Get<uint32>();
+        creatureAddon.bytes1  = fields[3].Get<uint32>();
+        creatureAddon.bytes2  = fields[4].Get<uint32>();
+        creatureAddon.emote   = fields[5].Get<uint32>();
+        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[6].Get<uint8>());
 
-        Tokenizer tokens(fields[7].GetString(), ' ');
+        Tokenizer tokens(fields[7].Get<std::string>(), ' ');
 
         creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -1197,7 +1197,7 @@ void ObjectMgr::LoadGameObjectAddons()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType guid = fields[0].GetUInt32();
+        ObjectGuid::LowType guid = fields[0].Get<uint32>();
 
         const GameObjectData* goData = GetGOData(guid);
         if (!goData)
@@ -1207,8 +1207,8 @@ void ObjectMgr::LoadGameObjectAddons()
         }
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
-        gameObjectAddon.invisibilityType = InvisibilityType(fields[1].GetUInt8());
-        gameObjectAddon.InvisibilityValue = fields[2].GetUInt32();
+        gameObjectAddon.invisibilityType = InvisibilityType(fields[1].Get<uint8>());
+        gameObjectAddon.InvisibilityValue = fields[2].Get<uint32>();
 
         if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
@@ -1307,7 +1307,7 @@ void ObjectMgr::LoadEquipmentTemplates()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
@@ -1315,7 +1315,7 @@ void ObjectMgr::LoadEquipmentTemplates()
             continue;
         }
 
-        uint8 id = fields[1].GetUInt8();
+        uint8 id = fields[1].Get<uint8>();
         if (!id)
         {
             LOG_ERROR("sql.sql", "Creature equipment template with id 0 found for creature {}, skipped.", entry);
@@ -1324,9 +1324,9 @@ void ObjectMgr::LoadEquipmentTemplates()
 
         EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry][id];
 
-        equipmentInfo.ItemEntry[0] = fields[2].GetUInt32();
-        equipmentInfo.ItemEntry[1] = fields[3].GetUInt32();
-        equipmentInfo.ItemEntry[2] = fields[4].GetUInt32();
+        equipmentInfo.ItemEntry[0] = fields[2].Get<uint32>();
+        equipmentInfo.ItemEntry[1] = fields[3].Get<uint32>();
+        equipmentInfo.ItemEntry[2] = fields[4].Get<uint32>();
 
         for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
         {
@@ -1393,7 +1393,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
     do
     {
         Field*              fields  = result->Fetch();
-        ObjectGuid::LowType spawnId = fields[0].GetUInt32();
+        ObjectGuid::LowType spawnId = fields[0].Get<uint32>();
         if (!GetCreatureData(spawnId))
         {
             LOG_ERROR("sql.sql", "Creature (GUID: {}) does not exist but has a record in `creature_movement_override`", spawnId);
@@ -1403,37 +1403,37 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         CreatureMovementData& movement = _creatureMovementOverrides[spawnId];
         if (!fields[1].IsNull())
         {
-            movement.Ground = static_cast<CreatureGroundMovementType>(fields[1].GetUInt8());
+            movement.Ground = static_cast<CreatureGroundMovementType>(fields[1].Get<uint8>());
         }
 
         if (!fields[2].IsNull())
         {
-            movement.Swim = fields[2].GetBool();
+            movement.Swim = fields[2].Get<bool>();
         }
 
         if (!fields[3].IsNull())
         {
-            movement.Flight = static_cast<CreatureFlightMovementType>(fields[3].GetUInt8());
+            movement.Flight = static_cast<CreatureFlightMovementType>(fields[3].Get<uint8>());
         }
 
         if (!fields[4].IsNull())
         {
-            movement.Rooted = fields[4].GetBool();
+            movement.Rooted = fields[4].Get<bool>();
         }
 
         if (!fields[5].IsNull())
         {
-            movement.Chase = static_cast<CreatureChaseMovementType>(fields[5].GetUInt8());
+            movement.Chase = static_cast<CreatureChaseMovementType>(fields[5].Get<uint8>());
         }
 
         if (!fields[6].IsNull())
         {
-            movement.Random = static_cast<CreatureRandomMovementType>(fields[6].GetUInt8());
+            movement.Random = static_cast<CreatureRandomMovementType>(fields[6].Get<uint8>());
         }
 
         if (!fields[7].IsNull())
         {
-            movement.InteractionPauseTimer = fields[7].GetUInt32();
+            movement.InteractionPauseTimer = fields[7].Get<uint32>();
         }
 
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
@@ -1523,14 +1523,14 @@ void ObjectMgr::LoadCreatureModelInfo()
     {
         Field* fields = result->Fetch();
 
-        uint32 modelId = fields[0].GetUInt32();
+        uint32 modelId = fields[0].Get<uint32>();
 
         CreatureModelInfo& modelInfo = _creatureModelStore[modelId];
 
-        modelInfo.bounding_radius      = fields[1].GetFloat();
-        modelInfo.combat_reach         = fields[2].GetFloat();
-        modelInfo.gender               = fields[3].GetUInt8();
-        modelInfo.modelid_other_gender = fields[4].GetUInt32();
+        modelInfo.bounding_radius      = fields[1].Get<float>();
+        modelInfo.combat_reach         = fields[2].Get<float>();
+        modelInfo.gender               = fields[3].Get<uint8>();
+        modelInfo.modelid_other_gender = fields[4].Get<uint32>();
 
         // Checks
 
@@ -1578,9 +1578,9 @@ void ObjectMgr::LoadLinkedRespawn()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType guidLow = fields[0].GetUInt32();
-        ObjectGuid::LowType linkedGuidLow = fields[1].GetUInt32();
-        uint8  linkType = fields[2].GetUInt8();
+        ObjectGuid::LowType guidLow = fields[0].Get<uint32>();
+        ObjectGuid::LowType linkedGuidLow = fields[1].Get<uint32>();
+        uint8  linkType = fields[2].Get<uint8>();
 
         ObjectGuid guid, linkedGuid;
         bool error = false;
@@ -1809,9 +1809,9 @@ void ObjectMgr::LoadTempSummons()
     {
         Field* fields = result->Fetch();
 
-        uint32 summonerId               = fields[0].GetUInt32();
-        SummonerType summonerType       = SummonerType(fields[1].GetUInt8());
-        uint8 group                     = fields[2].GetUInt8();
+        uint32 summonerId               = fields[0].Get<uint32>();
+        SummonerType summonerType       = SummonerType(fields[1].Get<uint8>());
+        uint8 group                     = fields[2].Get<uint8>();
 
         switch (summonerType)
         {
@@ -1842,7 +1842,7 @@ void ObjectMgr::LoadTempSummons()
         }
 
         TempSummonData data;
-        data.entry                      = fields[3].GetUInt32();
+        data.entry                      = fields[3].Get<uint32>();
 
         if (!GetCreatureTemplate(data.entry))
         {
@@ -1850,14 +1850,14 @@ void ObjectMgr::LoadTempSummons()
             continue;
         }
 
-        float posX                      = fields[4].GetFloat();
-        float posY                      = fields[5].GetFloat();
-        float posZ                      = fields[6].GetFloat();
-        float orientation               = fields[7].GetFloat();
+        float posX                      = fields[4].Get<float>();
+        float posY                      = fields[5].Get<float>();
+        float posZ                      = fields[6].Get<float>();
+        float orientation               = fields[7].Get<float>();
 
         data.pos.Relocate(posX, posY, posZ, orientation);
 
-        data.type                       = TempSummonType(fields[8].GetUInt8());
+        data.type                       = TempSummonType(fields[8].Get<uint8>());
 
         if (data.type > TEMPSUMMON_MANUAL_DESPAWN)
         {
@@ -1865,7 +1865,7 @@ void ObjectMgr::LoadTempSummons()
             continue;
         }
 
-        data.time                       = fields[9].GetUInt32();
+        data.time                       = fields[9].Get<uint32>();
 
         TempSummonGroupKey key(summonerId, summonerType, group);
         _tempSummonDataStore[key].push_back(data);
@@ -1912,10 +1912,10 @@ void ObjectMgr::LoadCreatures()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType spawnId     = fields[0].GetUInt32();
-        uint32 id                       = fields[1].GetUInt32();
-        uint32 id2                      = fields[2].GetUInt32();
-        uint32 chance                   = fields[3].GetUInt32();
+        ObjectGuid::LowType spawnId     = fields[0].Get<uint32>();
+        uint32 id                       = fields[1].Get<uint32>();
+        uint32 id2                      = fields[2].Get<uint32>();
+        uint32 chance                   = fields[3].Get<uint32>();
 
         CreatureTemplate const* cInfo = GetCreatureTemplate(id);
         if (!cInfo)
@@ -1943,26 +1943,26 @@ void ObjectMgr::LoadCreatures()
         data.id                 = id;
         data.id2                = id2;
         data.chance_id1         = chance;
-        data.mapid              = fields[4].GetUInt16();
-        data.equipmentId        = fields[5].GetInt8();
-        data.posX               = fields[6].GetFloat();
-        data.posY               = fields[7].GetFloat();
-        data.posZ               = fields[8].GetFloat();
-        data.orientation        = fields[9].GetFloat();
-        data.spawntimesecs      = fields[10].GetUInt32();
-        data.wander_distance    = fields[11].GetFloat();
-        data.currentwaypoint    = fields[12].GetUInt32();
-        data.curhealth          = fields[13].GetUInt32();
-        data.curmana            = fields[14].GetUInt32();
-        data.movementType       = fields[15].GetUInt8();
-        data.spawnMask          = fields[16].GetUInt8();
-        data.phaseMask          = fields[17].GetUInt32();
-        int16 gameEvent         = fields[18].GetInt8();
-        uint32 PoolId           = fields[19].GetUInt32();
-        data.npcflag            = fields[20].GetUInt32();
-        data.unit_flags         = fields[21].GetUInt32();
-        data.dynamicflags       = fields[22].GetUInt32();
-        data.ScriptId           = GetScriptId(fields[23].GetString());
+        data.mapid              = fields[4].Get<uint16>();
+        data.equipmentId        = fields[5].Get<int8>();
+        data.posX               = fields[6].Get<float>();
+        data.posY               = fields[7].Get<float>();
+        data.posZ               = fields[8].Get<float>();
+        data.orientation        = fields[9].Get<float>();
+        data.spawntimesecs      = fields[10].Get<uint32>();
+        data.wander_distance    = fields[11].Get<float>();
+        data.currentwaypoint    = fields[12].Get<uint32>();
+        data.curhealth          = fields[13].Get<uint32>();
+        data.curmana            = fields[14].Get<uint32>();
+        data.movementType       = fields[15].Get<uint8>();
+        data.spawnMask          = fields[16].Get<uint8>();
+        data.phaseMask          = fields[17].Get<uint32>();
+        int16 gameEvent         = fields[18].Get<int8>();
+        uint32 PoolId           = fields[19].Get<uint32>();
+        data.npcflag            = fields[20].Get<uint32>();
+        data.unit_flags         = fields[21].Get<uint32>();
+        data.dynamicflags       = fields[22].Get<uint32>();
+        data.ScriptId           = GetScriptId(fields[23].Get<std::string>());
 
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
@@ -2235,8 +2235,8 @@ void ObjectMgr::LoadGameobjects()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType guid    = fields[0].GetUInt32();
-        uint32 entry                = fields[1].GetUInt32();
+        ObjectGuid::LowType guid    = fields[0].Get<uint32>();
+        uint32 entry                = fields[1].Get<uint32>();
 
         GameObjectTemplate const* gInfo = GetGameObjectTemplate(entry);
         if (!gInfo)
@@ -2267,17 +2267,17 @@ void ObjectMgr::LoadGameobjects()
         GameObjectData& data = _gameObjectDataStore[guid];
 
         data.id             = entry;
-        data.mapid          = fields[2].GetUInt16();
-        data.posX           = fields[3].GetFloat();
-        data.posY           = fields[4].GetFloat();
-        data.posZ           = fields[5].GetFloat();
-        data.orientation    = fields[6].GetFloat();
-        data.rotation.x     = fields[7].GetFloat();
-        data.rotation.y     = fields[8].GetFloat();
-        data.rotation.z     = fields[9].GetFloat();
-        data.rotation.w     = fields[10].GetFloat();
-        data.spawntimesecs  = fields[11].GetInt32();
-        data.ScriptId       = GetScriptId(fields[18].GetString());
+        data.mapid          = fields[2].Get<uint16>();
+        data.posX           = fields[3].Get<float>();
+        data.posY           = fields[4].Get<float>();
+        data.posZ           = fields[5].Get<float>();
+        data.orientation    = fields[6].Get<float>();
+        data.rotation.x     = fields[7].Get<float>();
+        data.rotation.y     = fields[8].Get<float>();
+        data.rotation.z     = fields[9].Get<float>();
+        data.rotation.w     = fields[10].Get<float>();
+        data.spawntimesecs  = fields[11].Get<int32>();
+        data.ScriptId       = GetScriptId(fields[18].Get<std::string>());
         if (!data.ScriptId)
             data.ScriptId = gInfo->ScriptId;
 
@@ -2293,10 +2293,10 @@ void ObjectMgr::LoadGameobjects()
             LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.id);
         }
 
-        data.animprogress   = fields[12].GetUInt8();
+        data.animprogress   = fields[12].Get<uint8>();
         data.artKit         = 0;
 
-        uint32 go_state     = fields[13].GetUInt8();
+        uint32 go_state     = fields[13].Get<uint8>();
         if (go_state >= MAX_GO_STATE)
         {
             LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) with invalid `state` ({}) value, skip", guid, data.id, go_state);
@@ -2304,14 +2304,14 @@ void ObjectMgr::LoadGameobjects()
         }
         data.go_state       = GOState(go_state);
 
-        data.spawnMask      = fields[14].GetUInt8();
+        data.spawnMask      = fields[14].Get<uint8>();
 
         if (!_transportMaps.count(data.mapid) && data.spawnMask & ~spawnMasks[data.mapid])
             LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {}) that has wrong spawn mask {} including not supported difficulty modes for map (Id: {}), skip", guid, data.id, data.spawnMask, data.mapid);
 
-        data.phaseMask      = fields[15].GetUInt32();
-        int16 gameEvent     = fields[16].GetInt8();
-        uint32 PoolId        = fields[17].GetUInt32();
+        data.phaseMask      = fields[15].Get<uint32>();
+        int16 gameEvent     = fields[16].Get<int8>();
+        uint32 PoolId        = fields[17].Get<uint32>();
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
@@ -2451,38 +2451,38 @@ void ObjectMgr::LoadItemTemplates()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
 
         ItemTemplate& itemTemplate = _itemTemplateStore[entry];
 
         itemTemplate.ItemId                    = entry;
-        itemTemplate.Class                     = uint32(fields[1].GetUInt8());
-        itemTemplate.SubClass                  = uint32(fields[2].GetUInt8());
-        itemTemplate.SoundOverrideSubclass     = int32(fields[3].GetInt8());
-        itemTemplate.Name1                     = fields[4].GetString();
-        itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
-        itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
-        itemTemplate.Flags                     = fields[7].GetUInt32();
-        itemTemplate.Flags2                    = fields[8].GetUInt32();
-        itemTemplate.BuyCount                  = uint32(fields[9].GetUInt8());
-        itemTemplate.BuyPrice                  = int32(fields[10].GetInt64());
-        itemTemplate.SellPrice                 = uint32(fields[11].GetUInt32());
-        itemTemplate.InventoryType             = uint32(fields[12].GetUInt8());
-        itemTemplate.AllowableClass            = fields[13].GetInt32();
-        itemTemplate.AllowableRace             = fields[14].GetInt32();
-        itemTemplate.ItemLevel                 = uint32(fields[15].GetUInt16());
-        itemTemplate.RequiredLevel             = uint32(fields[16].GetUInt8());
-        itemTemplate.RequiredSkill             = uint32(fields[17].GetUInt16());
-        itemTemplate.RequiredSkillRank         = uint32(fields[18].GetUInt16());
-        itemTemplate.RequiredSpell             = fields[19].GetUInt32();
-        itemTemplate.RequiredHonorRank         = fields[20].GetUInt32();
-        itemTemplate.RequiredCityRank          = fields[21].GetUInt32();
-        itemTemplate.RequiredReputationFaction = uint32(fields[22].GetUInt16());
-        itemTemplate.RequiredReputationRank    = uint32(fields[23].GetUInt16());
-        itemTemplate.MaxCount                  = fields[24].GetInt32();
-        itemTemplate.Stackable                 = fields[25].GetInt32();
-        itemTemplate.ContainerSlots            = uint32(fields[26].GetUInt8());
-        itemTemplate.StatsCount                = uint32(fields[27].GetUInt8());
+        itemTemplate.Class                     = uint32(fields[1].Get<uint8>());
+        itemTemplate.SubClass                  = uint32(fields[2].Get<uint8>());
+        itemTemplate.SoundOverrideSubclass     = int32(fields[3].Get<int8>());
+        itemTemplate.Name1                     = fields[4].Get<std::string>();
+        itemTemplate.DisplayInfoID             = fields[5].Get<uint32>();
+        itemTemplate.Quality                   = uint32(fields[6].Get<uint8>());
+        itemTemplate.Flags                     = fields[7].Get<uint32>();
+        itemTemplate.Flags2                    = fields[8].Get<uint32>();
+        itemTemplate.BuyCount                  = uint32(fields[9].Get<uint8>());
+        itemTemplate.BuyPrice                  = int32(fields[10].Get<int64>());
+        itemTemplate.SellPrice                 = uint32(fields[11].Get<uint32>());
+        itemTemplate.InventoryType             = uint32(fields[12].Get<uint8>());
+        itemTemplate.AllowableClass            = fields[13].Get<int32>();
+        itemTemplate.AllowableRace             = fields[14].Get<int32>();
+        itemTemplate.ItemLevel                 = uint32(fields[15].Get<uint16>());
+        itemTemplate.RequiredLevel             = uint32(fields[16].Get<uint8>());
+        itemTemplate.RequiredSkill             = uint32(fields[17].Get<uint16>());
+        itemTemplate.RequiredSkillRank         = uint32(fields[18].Get<uint16>());
+        itemTemplate.RequiredSpell             = fields[19].Get<uint32>();
+        itemTemplate.RequiredHonorRank         = fields[20].Get<uint32>();
+        itemTemplate.RequiredCityRank          = fields[21].Get<uint32>();
+        itemTemplate.RequiredReputationFaction = uint32(fields[22].Get<uint16>());
+        itemTemplate.RequiredReputationRank    = uint32(fields[23].Get<uint16>());
+        itemTemplate.MaxCount                  = fields[24].Get<int32>();
+        itemTemplate.Stackable                 = fields[25].Get<int32>();
+        itemTemplate.ContainerSlots            = uint32(fields[26].Get<uint8>());
+        itemTemplate.StatsCount                = uint32(fields[27].Get<uint8>());
 
         // Rate.BuyValue and Rate.SellValue
         switch (itemTemplate.Quality)
@@ -2525,80 +2525,80 @@ void ObjectMgr::LoadItemTemplates()
 
         for (uint8 i = 0; i < itemTemplate.StatsCount; ++i)
         {
-            itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[28 + i * 2].GetUInt8());
-            itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 2].GetInt16());
+            itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[28 + i * 2].Get<uint8>());
+            itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 2].Get<int16>());
         }
 
-        itemTemplate.ScalingStatDistribution = uint32(fields[48].GetUInt16());
-        itemTemplate.ScalingStatValue        = fields[49].GetInt32();
+        itemTemplate.ScalingStatDistribution = uint32(fields[48].Get<uint16>());
+        itemTemplate.ScalingStatValue        = fields[49].Get<int32>();
 
         for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
         {
-            itemTemplate.Damage[i].DamageMin  = fields[50 + i * 3].GetFloat();
-            itemTemplate.Damage[i].DamageMax  = fields[51 + i * 3].GetFloat();
-            itemTemplate.Damage[i].DamageType = uint32(fields[52 + i * 3].GetUInt8());
+            itemTemplate.Damage[i].DamageMin  = fields[50 + i * 3].Get<float>();
+            itemTemplate.Damage[i].DamageMax  = fields[51 + i * 3].Get<float>();
+            itemTemplate.Damage[i].DamageType = uint32(fields[52 + i * 3].Get<uint8>());
         }
 
-        itemTemplate.Armor          = uint32(fields[56].GetUInt16());
-        itemTemplate.HolyRes        = uint32(fields[57].GetUInt8());
-        itemTemplate.FireRes        = uint32(fields[58].GetUInt8());
-        itemTemplate.NatureRes      = uint32(fields[59].GetUInt8());
-        itemTemplate.FrostRes       = uint32(fields[60].GetUInt8());
-        itemTemplate.ShadowRes      = uint32(fields[61].GetUInt8());
-        itemTemplate.ArcaneRes      = uint32(fields[62].GetUInt8());
-        itemTemplate.Delay          = uint32(fields[63].GetUInt16());
-        itemTemplate.AmmoType       = uint32(fields[64].GetUInt8());
-        itemTemplate.RangedModRange = fields[65].GetFloat();
+        itemTemplate.Armor          = uint32(fields[56].Get<uint16>());
+        itemTemplate.HolyRes        = uint32(fields[57].Get<uint8>());
+        itemTemplate.FireRes        = uint32(fields[58].Get<uint8>());
+        itemTemplate.NatureRes      = uint32(fields[59].Get<uint8>());
+        itemTemplate.FrostRes       = uint32(fields[60].Get<uint8>());
+        itemTemplate.ShadowRes      = uint32(fields[61].Get<uint8>());
+        itemTemplate.ArcaneRes      = uint32(fields[62].Get<uint8>());
+        itemTemplate.Delay          = uint32(fields[63].Get<uint16>());
+        itemTemplate.AmmoType       = uint32(fields[64].Get<uint8>());
+        itemTemplate.RangedModRange = fields[65].Get<float>();
 
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
-            itemTemplate.Spells[i].SpellId               = fields[66 + i * 7  ].GetInt32();
-            itemTemplate.Spells[i].SpellTrigger          = uint32(fields[67 + i * 7].GetUInt8());
-            itemTemplate.Spells[i].SpellCharges          = int32(fields[68 + i * 7].GetInt16());
-            itemTemplate.Spells[i].SpellPPMRate          = fields[69 + i * 7].GetFloat();
-            itemTemplate.Spells[i].SpellCooldown         = fields[70 + i * 7].GetInt32();
-            itemTemplate.Spells[i].SpellCategory         = uint32(fields[71 + i * 7].GetUInt16());
-            itemTemplate.Spells[i].SpellCategoryCooldown = fields[72 + i * 7].GetInt32();
+            itemTemplate.Spells[i].SpellId               = fields[66 + i * 7  ].Get<int32>();
+            itemTemplate.Spells[i].SpellTrigger          = uint32(fields[67 + i * 7].Get<uint8>());
+            itemTemplate.Spells[i].SpellCharges          = int32(fields[68 + i * 7].Get<int16>());
+            itemTemplate.Spells[i].SpellPPMRate          = fields[69 + i * 7].Get<float>();
+            itemTemplate.Spells[i].SpellCooldown         = fields[70 + i * 7].Get<int32>();
+            itemTemplate.Spells[i].SpellCategory         = uint32(fields[71 + i * 7].Get<uint16>());
+            itemTemplate.Spells[i].SpellCategoryCooldown = fields[72 + i * 7].Get<int32>();
         }
 
-        itemTemplate.Bonding        = uint32(fields[101].GetUInt8());
-        itemTemplate.Description    = fields[102].GetString();
-        itemTemplate.PageText       = fields[103].GetUInt32();
-        itemTemplate.LanguageID     = uint32(fields[104].GetUInt8());
-        itemTemplate.PageMaterial   = uint32(fields[105].GetUInt8());
-        itemTemplate.StartQuest     = fields[106].GetUInt32();
-        itemTemplate.LockID         = fields[107].GetUInt32();
-        itemTemplate.Material       = int32(fields[108].GetInt8());
-        itemTemplate.Sheath         = uint32(fields[109].GetUInt8());
-        itemTemplate.RandomProperty = fields[110].GetUInt32();
-        itemTemplate.RandomSuffix   = fields[111].GetInt32();
-        itemTemplate.Block          = fields[112].GetUInt32();
-        itemTemplate.ItemSet        = fields[113].GetUInt32();
-        itemTemplate.MaxDurability  = uint32(fields[114].GetUInt16());
-        itemTemplate.Area           = fields[115].GetUInt32();
-        itemTemplate.Map            = uint32(fields[116].GetUInt16());
-        itemTemplate.BagFamily      = fields[117].GetUInt32();
-        itemTemplate.TotemCategory  = fields[118].GetUInt32();
+        itemTemplate.Bonding        = uint32(fields[101].Get<uint8>());
+        itemTemplate.Description    = fields[102].Get<std::string>();
+        itemTemplate.PageText       = fields[103].Get<uint32>();
+        itemTemplate.LanguageID     = uint32(fields[104].Get<uint8>());
+        itemTemplate.PageMaterial   = uint32(fields[105].Get<uint8>());
+        itemTemplate.StartQuest     = fields[106].Get<uint32>();
+        itemTemplate.LockID         = fields[107].Get<uint32>();
+        itemTemplate.Material       = int32(fields[108].Get<int8>());
+        itemTemplate.Sheath         = uint32(fields[109].Get<uint8>());
+        itemTemplate.RandomProperty = fields[110].Get<uint32>();
+        itemTemplate.RandomSuffix   = fields[111].Get<int32>();
+        itemTemplate.Block          = fields[112].Get<uint32>();
+        itemTemplate.ItemSet        = fields[113].Get<uint32>();
+        itemTemplate.MaxDurability  = uint32(fields[114].Get<uint16>());
+        itemTemplate.Area           = fields[115].Get<uint32>();
+        itemTemplate.Map            = uint32(fields[116].Get<uint16>());
+        itemTemplate.BagFamily      = fields[117].Get<uint32>();
+        itemTemplate.TotemCategory  = fields[118].Get<uint32>();
 
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         {
-            itemTemplate.Socket[i].Color   = uint32(fields[119 + i * 2].GetUInt8());
-            itemTemplate.Socket[i].Content = fields[120 + i * 2].GetUInt32();
+            itemTemplate.Socket[i].Color   = uint32(fields[119 + i * 2].Get<uint8>());
+            itemTemplate.Socket[i].Content = fields[120 + i * 2].Get<uint32>();
         }
 
-        itemTemplate.socketBonus             = fields[125].GetUInt32();
-        itemTemplate.GemProperties           = fields[126].GetUInt32();
-        itemTemplate.RequiredDisenchantSkill = uint32(fields[127].GetInt16());
-        itemTemplate.ArmorDamageModifier     = fields[128].GetFloat();
-        itemTemplate.Duration                = fields[129].GetUInt32();
-        itemTemplate.ItemLimitCategory       = uint32(fields[130].GetInt16());
-        itemTemplate.HolidayId               = fields[131].GetUInt32();
-        itemTemplate.ScriptId                = sObjectMgr->GetScriptId(fields[132].GetString());
-        itemTemplate.DisenchantID            = fields[133].GetUInt32();
-        itemTemplate.FoodType                = uint32(fields[134].GetUInt8());
-        itemTemplate.MinMoneyLoot            = fields[135].GetUInt32();
-        itemTemplate.MaxMoneyLoot            = fields[136].GetUInt32();
-        itemTemplate.FlagsCu                 = fields[137].GetUInt32();
+        itemTemplate.socketBonus             = fields[125].Get<uint32>();
+        itemTemplate.GemProperties           = fields[126].Get<uint32>();
+        itemTemplate.RequiredDisenchantSkill = uint32(fields[127].Get<int16>());
+        itemTemplate.ArmorDamageModifier     = fields[128].Get<float>();
+        itemTemplate.Duration                = fields[129].Get<uint32>();
+        itemTemplate.ItemLimitCategory       = uint32(fields[130].Get<int16>());
+        itemTemplate.HolidayId               = fields[131].Get<uint32>();
+        itemTemplate.ScriptId                = sObjectMgr->GetScriptId(fields[132].Get<std::string>());
+        itemTemplate.DisenchantID            = fields[133].Get<uint32>();
+        itemTemplate.FoodType                = uint32(fields[134].Get<uint8>());
+        itemTemplate.MinMoneyLoot            = fields[135].Get<uint32>();
+        itemTemplate.MaxMoneyLoot            = fields[136].Get<uint32>();
+        itemTemplate.FlagsCu                 = fields[137].Get<uint32>();
 
         // Checks
         if (itemTemplate.Class >= MAX_ITEM_CLASS)
@@ -3068,7 +3068,7 @@ void ObjectMgr::LoadItemSetNames()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
         if (itemSetItems.find(entry) == itemSetItems.end())
         {
             LOG_ERROR("sql.sql", "Item set name (Entry: {}) not found in ItemSet.dbc, data useless.", entry);
@@ -3076,9 +3076,9 @@ void ObjectMgr::LoadItemSetNames()
         }
 
         ItemSetNameEntry& data = _itemSetNameStore[entry];
-        data.name = fields[1].GetString();
+        data.name = fields[1].Get<std::string>();
 
-        uint32 invType = fields[2].GetUInt8();
+        uint32 invType = fields[2].Get<uint8>();
         if (invType >= MAX_INVTYPE)
         {
             LOG_ERROR("sql.sql", "Item set name (Entry: {}) has wrong InventoryType value ({})", entry, invType);
@@ -3137,12 +3137,12 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
     {
         Field* fields = result->Fetch();
 
-        uint32 uiEntry      = fields[0].GetUInt32();
-        uint32 uiAccessory  = fields[1].GetUInt32();
-        int8   uiSeat       = int8(fields[2].GetInt8());
-        bool   bMinion      = fields[3].GetBool();
-        uint8  uiSummonType = fields[4].GetUInt8();
-        uint32 uiSummonTimer = fields[5].GetUInt32();
+        uint32 uiEntry      = fields[0].Get<uint32>();
+        uint32 uiAccessory  = fields[1].Get<uint32>();
+        int8   uiSeat       = int8(fields[2].Get<int8>());
+        bool   bMinion      = fields[3].Get<bool>();
+        uint8  uiSummonType = fields[4].Get<uint8>();
+        uint32 uiSummonTimer = fields[5].Get<uint32>();
 
         if (!sObjectMgr->GetCreatureTemplate(uiEntry))
         {
@@ -3193,12 +3193,12 @@ void ObjectMgr::LoadVehicleAccessories()
     {
         Field* fields = result->Fetch();
 
-        uint32 uiGUID       = fields[0].GetUInt32();
-        uint32 uiAccessory  = fields[1].GetUInt32();
-        int8   uiSeat       = int8(fields[2].GetInt16());
-        bool   bMinion      = fields[3].GetBool();
-        uint8  uiSummonType = fields[4].GetUInt8();
-        uint32 uiSummonTimer = fields[5].GetUInt32();
+        uint32 uiGUID       = fields[0].Get<uint32>();
+        uint32 uiAccessory  = fields[1].Get<uint32>();
+        int8   uiSeat       = int8(fields[2].Get<int16>());
+        bool   bMinion      = fields[3].Get<bool>();
+        uint8  uiSummonType = fields[4].Get<uint8>();
+        uint32 uiSummonTimer = fields[5].Get<uint32>();
 
         if (!sObjectMgr->GetCreatureTemplate(uiAccessory))
         {
@@ -3235,14 +3235,14 @@ void ObjectMgr::LoadPetLevelInfo()
     {
         Field* fields = result->Fetch();
 
-        uint32 creature_id = fields[0].GetUInt32();
+        uint32 creature_id = fields[0].Get<uint32>();
         if (!sObjectMgr->GetCreatureTemplate(creature_id))
         {
             LOG_ERROR("sql.sql", "Wrong creature id {} in `pet_levelstats` table, ignoring.", creature_id);
             continue;
         }
 
-        uint32 current_level = fields[1].GetUInt8();
+        uint32 current_level = fields[1].Get<uint8>();
         if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
         {
             if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
@@ -3268,14 +3268,14 @@ void ObjectMgr::LoadPetLevelInfo()
         // data for level 1 stored in [0] array element, ...
         PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level - 1];
 
-        pLevelInfo->health = fields[2].GetUInt16();
-        pLevelInfo->mana   = fields[3].GetUInt16();
-        pLevelInfo->armor  = fields[9].GetUInt32();
-        pLevelInfo->min_dmg = fields[10].GetUInt16();
-        pLevelInfo->max_dmg = fields[11].GetUInt16();
+        pLevelInfo->health = fields[2].Get<uint16>();
+        pLevelInfo->mana   = fields[3].Get<uint16>();
+        pLevelInfo->armor  = fields[9].Get<uint32>();
+        pLevelInfo->min_dmg = fields[10].Get<uint16>();
+        pLevelInfo->max_dmg = fields[11].Get<uint16>();
         for (int i = 0; i < MAX_STATS; i++)
         {
-            pLevelInfo->stats[i] = fields[i + 4].GetUInt16();
+            pLevelInfo->stats[i] = fields[i + 4].Get<uint16>();
         }
 
         ++count;
@@ -3376,14 +3376,14 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 Field* fields = result->Fetch();
 
-                uint32 current_race  = fields[0].GetUInt8();
-                uint32 current_class = fields[1].GetUInt8();
-                uint32 mapId         = fields[2].GetUInt16();
-                uint32 areaId        = fields[3].GetUInt32(); // zone
-                float  positionX     = fields[4].GetFloat();
-                float  positionY     = fields[5].GetFloat();
-                float  positionZ     = fields[6].GetFloat();
-                float  orientation   = fields[7].GetFloat();
+                uint32 current_race  = fields[0].Get<uint8>();
+                uint32 current_class = fields[1].Get<uint8>();
+                uint32 mapId         = fields[2].Get<uint16>();
+                uint32 areaId        = fields[3].Get<uint32>(); // zone
+                float  positionX     = fields[4].Get<float>();
+                float  positionY     = fields[5].Get<float>();
+                float  positionZ     = fields[6].Get<float>();
+                float  orientation   = fields[7].Get<float>();
 
                 if (current_race >= MAX_RACES)
                 {
@@ -3462,21 +3462,21 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 Field* fields = result->Fetch();
 
-                uint32 current_race = fields[0].GetUInt8();
+                uint32 current_race = fields[0].Get<uint8>();
                 if (current_race >= MAX_RACES)
                 {
                     LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo_item` table, ignoring.", current_race);
                     continue;
                 }
 
-                uint32 current_class = fields[1].GetUInt8();
+                uint32 current_class = fields[1].Get<uint8>();
                 if (current_class >= MAX_CLASSES)
                 {
                     LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo_item` table, ignoring.", current_class);
                     continue;
                 }
 
-                uint32 item_id = fields[2].GetUInt32();
+                uint32 item_id = fields[2].Get<uint32>();
 
                 if (!GetItemTemplate(item_id))
                 {
@@ -3484,7 +3484,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                int32 amount = fields[3].GetInt32();
+                int32 amount = fields[3].Get<int32>();
 
                 if (!amount)
                 {
@@ -3531,11 +3531,11 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 raceMask = fields[0].GetUInt32();
-                uint32 classMask = fields[1].GetUInt32();
+                uint32 raceMask = fields[0].Get<uint32>();
+                uint32 classMask = fields[1].Get<uint32>();
                 PlayerCreateInfoSkill skill;
-                skill.SkillId = fields[2].GetUInt16();
-                skill.Rank = fields[3].GetUInt16();
+                skill.SkillId = fields[2].Get<uint16>();
+                skill.Rank = fields[3].Get<uint16>();
 
                 if (skill.Rank >= MAX_SKILL_STEP)
                 {
@@ -3605,9 +3605,9 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 raceMask = fields[0].GetUInt32();
-                uint32 classMask = fields[1].GetUInt32();
-                uint32 spellId = fields[2].GetUInt32();
+                uint32 raceMask = fields[0].Get<uint32>();
+                uint32 classMask = fields[1].Get<uint32>();
+                uint32 spellId = fields[2].Get<uint32>();
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
@@ -3663,9 +3663,9 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields    = result->Fetch();
-                uint32 raceMask  = fields[0].GetUInt32();
-                uint32 classMask = fields[1].GetUInt32();
-                uint32 spellId   = fields[2].GetUInt32();
+                uint32 raceMask  = fields[0].Get<uint32>();
+                uint32 classMask = fields[1].Get<uint32>();
+                uint32 spellId   = fields[2].Get<uint32>();
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
@@ -3723,14 +3723,14 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 Field* fields = result->Fetch();
 
-                uint32 current_race = fields[0].GetUInt8();
+                uint32 current_race = fields[0].Get<uint8>();
                 if (current_race >= MAX_RACES)
                 {
                     LOG_ERROR("sql.sql", "Wrong race {} in `playercreateinfo_action` table, ignoring.", current_race);
                     continue;
                 }
 
-                uint32 current_class = fields[1].GetUInt8();
+                uint32 current_class = fields[1].Get<uint8>();
                 if (current_class >= MAX_CLASSES)
                 {
                     LOG_ERROR("sql.sql", "Wrong class {} in `playercreateinfo_action` table, ignoring.", current_class);
@@ -3738,7 +3738,7 @@ void ObjectMgr::LoadPlayerInfo()
                 }
 
                 if (PlayerInfo* info = _playerInfo[current_race][current_class])
-                    info->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
+                    info->action.push_back(PlayerCreateInfoAction(fields[2].Get<uint16>(), fields[3].Get<uint32>(), fields[4].Get<uint16>()));
 
                 ++count;
             } while (result->NextRow());
@@ -3768,14 +3768,14 @@ void ObjectMgr::LoadPlayerInfo()
         {
             Field* fields = result->Fetch();
 
-            uint32 current_class = fields[0].GetUInt8();
+            uint32 current_class = fields[0].Get<uint8>();
             if (current_class >= MAX_CLASSES)
             {
                 LOG_ERROR("sql.sql", "Wrong class {} in `player_classlevelstats` table, ignoring.", current_class);
                 continue;
             }
 
-            uint8 current_level = fields[1].GetUInt8();      // Can't be > than STRONG_MAX_LEVEL (hardcoded level maximum) due to var type
+            uint8 current_level = fields[1].Get<uint8>();      // Can't be > than STRONG_MAX_LEVEL (hardcoded level maximum) due to var type
             if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 LOG_INFO("sql.sql", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_classlevelstats` table, ignoring.", current_level);
@@ -3793,8 +3793,8 @@ void ObjectMgr::LoadPlayerInfo()
 
             PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level - 1];
 
-            levelInfo.basehealth = fields[2].GetUInt16();
-            levelInfo.basemana   = fields[3].GetUInt16();
+            levelInfo.basehealth = fields[2].Get<uint16>();
+            levelInfo.basemana   = fields[3].Get<uint16>();
 
             ++count;
         } while (result->NextRow());
@@ -3851,21 +3851,21 @@ void ObjectMgr::LoadPlayerInfo()
         {
             Field* fields = result->Fetch();
 
-            uint32 current_race = fields[0].GetUInt8();
+            uint32 current_race = fields[0].Get<uint8>();
             if (current_race >= MAX_RACES)
             {
                 LOG_ERROR("sql.sql", "Wrong race {} in `player_levelstats` table, ignoring.", current_race);
                 continue;
             }
 
-            uint32 current_class = fields[1].GetUInt8();
+            uint32 current_class = fields[1].Get<uint8>();
             if (current_class >= MAX_CLASSES)
             {
                 LOG_ERROR("sql.sql", "Wrong class {} in `player_levelstats` table, ignoring.", current_class);
                 continue;
             }
 
-            uint32 current_level = fields[2].GetUInt8();
+            uint32 current_level = fields[2].Get<uint8>();
             if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
@@ -3885,7 +3885,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
                 for (int i = 0; i < MAX_STATS; i++)
-                    levelInfo.stats[i] = fields[i + 3].GetUInt8();
+                    levelInfo.stats[i] = fields[i + 3].Get<uint8>();
             }
 
             ++count;
@@ -3964,8 +3964,8 @@ void ObjectMgr::LoadPlayerInfo()
         {
             Field* fields = result->Fetch();
 
-            uint32 current_level = fields[0].GetUInt8();
-            uint32 current_xp    = fields[1].GetUInt32();
+            uint32 current_level = fields[0].Get<uint8>();
+            uint32 current_xp    = fields[1].Get<uint32>();
 
             if (current_level >= CONF_GET_UINT("MaxPlayerLevel"))
             {
@@ -4192,7 +4192,7 @@ void ObjectMgr::LoadQuests()
         do
         {
             Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
+            uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
             if (itr != _questTemplates.end())
@@ -4215,7 +4215,7 @@ void ObjectMgr::LoadQuests()
         do
         {
             Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
+            uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
             if (itr != _questTemplates.end())
@@ -4238,7 +4238,7 @@ void ObjectMgr::LoadQuests()
         do
         {
             Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
+            uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
             if (itr != _questTemplates.end())
@@ -4263,7 +4263,7 @@ void ObjectMgr::LoadQuests()
         do
         {
             Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
+            uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
             if (itr != _questTemplates.end())
@@ -4888,18 +4888,18 @@ void ObjectMgr::LoadScripts(ScriptsType type)
         Field* fields = result->Fetch();
         ScriptInfo tmp;
         tmp.type      = type;
-        tmp.id           = fields[0].GetUInt32();
+        tmp.id           = fields[0].Get<uint32>();
         if (isSpellScriptTable)
-            tmp.id      |= fields[10].GetUInt8() << 24;
-        tmp.delay        = fields[1].GetUInt32();
-        tmp.command      = ScriptCommands(fields[2].GetUInt32());
-        tmp.Raw.nData[0] = fields[3].GetUInt32();
-        tmp.Raw.nData[1] = fields[4].GetUInt32();
-        tmp.Raw.nData[2] = fields[5].GetInt32();
-        tmp.Raw.fData[0] = fields[6].GetFloat();
-        tmp.Raw.fData[1] = fields[7].GetFloat();
-        tmp.Raw.fData[2] = fields[8].GetFloat();
-        tmp.Raw.fData[3] = fields[9].GetFloat();
+            tmp.id      |= fields[10].Get<uint8>() << 24;
+        tmp.delay        = fields[1].Get<uint32>();
+        tmp.command      = ScriptCommands(fields[2].Get<uint32>());
+        tmp.Raw.nData[0] = fields[3].Get<uint32>();
+        tmp.Raw.nData[1] = fields[4].Get<uint32>();
+        tmp.Raw.nData[2] = fields[5].Get<int32>();
+        tmp.Raw.fData[0] = fields[6].Get<float>();
+        tmp.Raw.fData[1] = fields[7].Get<float>();
+        tmp.Raw.fData[2] = fields[8].Get<float>();
+        tmp.Raw.fData[3] = fields[9].Get<float>();
 
         // generic command args check
         switch (tmp.command)
@@ -5254,7 +5254,7 @@ void ObjectMgr::LoadWaypointScripts()
         do
         {
             Field* fields = result->Fetch();
-            uint32 action = fields[0].GetUInt32();
+            uint32 action = fields[0].Get<uint32>();
 
             actionSet.erase(action);
         } while (result->NextRow());
@@ -5285,8 +5285,8 @@ void ObjectMgr::LoadSpellScriptNames()
     {
         Field* fields = result->Fetch();
 
-        int32 spellId          = fields[0].GetInt32();
-        const char* scriptName = fields[1].GetCString();
+        int32 spellId          = fields[0].Get<int32>();
+        std::string scriptName = fields[1].Get<std::string>();
 
         bool allRanks = false;
         if (spellId <= 0)
@@ -5298,7 +5298,7 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            LOG_ERROR("sql.sql", "Scriptname:`{}` spell (spell_id:{}) does not exist in `Spell.dbc`.", scriptName, fields[0].GetInt32());
+            LOG_ERROR("sql.sql", "Scriptname:`{}` spell (spell_id:{}) does not exist in `Spell.dbc`.", scriptName, fields[0].Get<int32>());
             continue;
         }
 
@@ -5306,7 +5306,7 @@ void ObjectMgr::LoadSpellScriptNames()
         {
             if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
             {
-                LOG_ERROR("sql.sql", "Scriptname:`{}` spell (spell_id:{}) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                LOG_ERROR("sql.sql", "Scriptname:`{}` spell (spell_id:{}) is not first rank of spell.", scriptName, fields[0].Get<int32>());
                 continue;
             }
             while (spellInfo)
@@ -5413,10 +5413,10 @@ void ObjectMgr::LoadPageTexts()
     {
         Field* fields = result->Fetch();
 
-        PageText& pageText = _pageTextStore[fields[0].GetUInt32()];
+        PageText& pageText = _pageTextStore[fields[0].Get<uint32>()];
 
-        pageText.Text     = fields[1].GetString();
-        pageText.NextPage = fields[2].GetUInt32();
+        pageText.Text     = fields[1].Get<std::string>();
+        pageText.NextPage = fields[2].Get<uint32>();
 
         ++count;
     } while (result->NextRow());
@@ -5463,7 +5463,7 @@ void ObjectMgr::LoadInstanceTemplate()
     {
         Field* fields = result->Fetch();
 
-        uint16 mapID = fields[0].GetUInt16();
+        uint16 mapID = fields[0].Get<uint16>();
 
         if (!MapMgr::IsValidMAP(mapID, true))
         {
@@ -5473,9 +5473,9 @@ void ObjectMgr::LoadInstanceTemplate()
 
         InstanceTemplate instanceTemplate;
 
-        instanceTemplate.AllowMount = fields[3].GetBool();
-        instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
+        instanceTemplate.AllowMount = fields[3].Get<bool>();
+        instanceTemplate.Parent     = uint32(fields[1].Get<uint16>());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].Get<std::string>());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -5513,10 +5513,10 @@ void ObjectMgr::LoadInstanceEncounters()
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-        uint8 creditType = fields[1].GetUInt8();
-        uint32 creditEntry = fields[2].GetUInt32();
-        uint32 lastEncounterDungeon = fields[3].GetUInt16();
+        uint32 entry = fields[0].Get<uint32>();
+        uint8 creditType = fields[1].Get<uint8>();
+        uint32 creditEntry = fields[2].Get<uint32>();
+        uint32 lastEncounterDungeon = fields[3].Get<uint16>();
         DungeonEncounterEntry const* dungeonEncounter = sDungeonEncounterStore.LookupEntry(entry);
         if (!dungeonEncounter)
         {
@@ -5621,7 +5621,7 @@ void ObjectMgr::LoadGossipText()
 
         Field* fields = result->Fetch();
 
-        uint32 id = fields[cic++].GetUInt32();
+        uint32 id = fields[cic++].Get<uint32>();
         if (!id)
         {
             LOG_ERROR("sql.sql", "Table `npc_text` has record wit reserved id 0, ignore.");
@@ -5633,16 +5633,16 @@ void ObjectMgr::LoadGossipText()
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             GossipTextOption& gOption = gText.Options[i];
-            gOption.Text_0           = fields[cic++].GetString();
-            gOption.Text_1           = fields[cic++].GetString();
-            gOption.BroadcastTextID  = fields[cic++].GetUInt32();
-            gOption.Language         = fields[cic++].GetUInt8();
-            gOption.Probability      = fields[cic++].GetFloat();
+            gOption.Text_0           = fields[cic++].Get<std::string>();
+            gOption.Text_1           = fields[cic++].Get<std::string>();
+            gOption.BroadcastTextID  = fields[cic++].Get<uint32>();
+            gOption.Language         = fields[cic++].Get<uint8>();
+            gOption.Probability      = fields[cic++].Get<float>();
 
             for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
             {
-                gOption.Emotes[j]._Delay = fields[cic++].GetUInt16();
-                gOption.Emotes[j]._Emote = fields[cic++].GetUInt16();
+                gOption.Emotes[j]._Delay = fields[cic++].Get<uint16>();
+                gOption.Emotes[j]._Emote = fields[cic++].Get<uint16>();
             }
 
             // check broadcast_text correctness
@@ -5692,9 +5692,9 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         do
         {
             Field* fields = items->Fetch();
-            item.item_guid = fields[0].GetUInt32();
-            item.item_template = fields[1].GetUInt32();
-            uint32 mailId = fields[2].GetUInt32();
+            item.item_guid = fields[0].Get<uint32>();
+            item.item_template = fields[1].Get<uint32>();
+            uint32 mailId = fields[2].Get<uint32>();
             itemsCache[mailId].push_back(item);
         } while (items->NextRow());
     }
@@ -5705,17 +5705,17 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     {
         Field* fields = result->Fetch();
         Mail* m = new Mail;
-        m->messageID      = fields[0].GetUInt32();
-        m->messageType    = fields[1].GetUInt8();
-        m->sender         = fields[2].GetUInt32();
-        m->receiver       = fields[3].GetUInt32();
-        bool has_items    = fields[4].GetBool();
-        m->expire_time    = time_t(fields[5].GetUInt32());
+        m->messageID      = fields[0].Get<uint32>();
+        m->messageType    = fields[1].Get<uint8>();
+        m->sender         = fields[2].Get<uint32>();
+        m->receiver       = fields[3].Get<uint32>();
+        bool has_items    = fields[4].Get<bool>();
+        m->expire_time    = time_t(fields[5].Get<uint32>());
         m->deliver_time   = time_t(0);
-        m->stationery     = fields[6].GetUInt8();
-        m->checked        = fields[7].GetUInt8();
-        m->mailTemplateId = fields[8].GetInt16();
-        m->auctionId      = fields[9].GetInt32();
+        m->stationery     = fields[6].Get<uint8>();
+        m->checked        = fields[7].Get<uint8>();
+        m->mailTemplateId = fields[8].Get<int16>();
+        m->auctionId      = fields[9].Get<int32>();
 
         Player* player = nullptr;
         if (serverUp)
@@ -5818,8 +5818,8 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
         Field* fields = result->Fetch();
 
-        uint32 trigger_ID = fields[0].GetUInt32();
-        uint32 quest_ID   = fields[1].GetUInt32();
+        uint32 trigger_ID = fields[0].Get<uint32>();
+        uint32 quest_ID   = fields[1].Get<uint32>();
 
         AreaTrigger const* atEntry = GetAreaTrigger(trigger_ID);
         if (!atEntry)
@@ -5876,7 +5876,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
 
         Field* fields = result->Fetch();
 
-        uint32 Trigger_ID      = fields[0].GetUInt32();
+        uint32 Trigger_ID      = fields[0].Get<uint32>();
 
         AreaTrigger const* atEntry = GetAreaTrigger(Trigger_ID);
         if (!atEntry)
@@ -5914,8 +5914,8 @@ void ObjectMgr::LoadAreaTriggerScripts()
 
         Field* fields = result->Fetch();
 
-        uint32 Trigger_ID      = fields[0].GetUInt32();
-        const char* scriptName = fields[1].GetCString();
+        uint32 Trigger_ID      = fields[0].Get<uint32>();
+        std::string scriptName = fields[1].Get<std::string>();
 
         AreaTrigger const* atEntry = GetAreaTrigger(Trigger_ID);
         if (!atEntry)
@@ -6057,16 +6057,16 @@ void ObjectMgr::LoadAreaTriggers()
 
         AreaTrigger at;
 
-        at.entry = fields[0].GetUInt32();
-        at.map = fields[1].GetUInt32();
-        at.x = fields[2].GetFloat();
-        at.y = fields[3].GetFloat();
-        at.z = fields[4].GetFloat();
-        at.radius = fields[5].GetFloat();
-        at.length = fields[6].GetFloat();
-        at.width = fields[7].GetFloat();
-        at.height = fields[8].GetFloat();
-        at.orientation = fields[9].GetFloat();
+        at.entry = fields[0].Get<uint32>();
+        at.map = fields[1].Get<uint32>();
+        at.x = fields[2].Get<float>();
+        at.y = fields[3].Get<float>();
+        at.z = fields[4].Get<float>();
+        at.radius = fields[5].Get<float>();
+        at.length = fields[6].Get<float>();
+        at.width = fields[7].Get<float>();
+        at.height = fields[8].Get<float>();
+        at.orientation = fields[9].Get<float>();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(at.map);
         if (!mapEntry)
@@ -6106,15 +6106,15 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         ++count;
 
-        uint32 Trigger_ID = fields[0].GetUInt32();
+        uint32 Trigger_ID = fields[0].Get<uint32>();
 
         AreaTriggerTeleport at;
 
-        at.target_mapId             = fields[1].GetUInt16();
-        at.target_X                 = fields[2].GetFloat();
-        at.target_Y                 = fields[3].GetFloat();
-        at.target_Z                 = fields[4].GetFloat();
-        at.target_Orientation       = fields[5].GetFloat();
+        at.target_mapId             = fields[1].Get<uint16>();
+        at.target_X                 = fields[2].Get<float>();
+        at.target_Y                 = fields[3].Get<float>();
+        at.target_Z                 = fields[4].Get<float>();
+        at.target_Orientation       = fields[5].Get<float>();
 
         AreaTrigger const* atEntry = GetAreaTrigger(Trigger_ID);
         if (!atEntry)
@@ -6192,15 +6192,15 @@ void ObjectMgr::LoadAccessRequirements()
         Field* fields = access_template_result->Fetch();
 
         //Get the common variables for the access requirements
-        uint8 dungeon_access_id = fields[0].GetUInt8();
-        uint32 mapid            = fields[1].GetUInt32();
-        uint8 difficulty        = fields[2].GetUInt8();
+        uint8 dungeon_access_id = fields[0].Get<uint8>();
+        uint32 mapid            = fields[1].Get<uint32>();
+        uint8 difficulty        = fields[2].Get<uint8>();
 
         //Set up the access requirements
         DungeonProgressionRequirements* ar = new DungeonProgressionRequirements();
-        ar->levelMin     = fields[3].GetUInt8();
-        ar->levelMax     = fields[4].GetUInt8();
-        ar->reqItemLevel = fields[5].GetUInt16();
+        ar->levelMin     = fields[3].Get<uint8>();
+        ar->levelMax     = fields[4].Get<uint8>();
+        ar->reqItemLevel = fields[5].Get<uint16>();
 
         //                                                                              0                 1               2                 3        4         6
         QueryResult progression_requirements_results = WorldDatabase.PQuery("SELECT requirement_type, requirement_id, requirement_note, faction, priority, leader_only FROM dungeon_access_requirements where dungeon_access_id = {}", dungeon_access_id);
@@ -6210,12 +6210,12 @@ void ObjectMgr::LoadAccessRequirements()
             {
                 Field* progression_requirement_row = progression_requirements_results->Fetch();
 
-                const uint8 requirement_type             = progression_requirement_row[0].GetUInt8();
-                const uint32 requirement_id              = progression_requirement_row[1].GetUInt32();
-                const std::string requirement_note       = progression_requirement_row[2].GetString();
-                const uint8 requirement_faction          = progression_requirement_row[3].GetUInt8();
-                const uint8 requirement_priority         = progression_requirement_row[4].IsNull() ? UINT8_MAX : progression_requirement_row[4].GetUInt8();
-                const bool requirement_checkLeaderOnly   = progression_requirement_row[5].GetBool();
+                const uint8 requirement_type             = progression_requirement_row[0].Get<uint8>();
+                const uint32 requirement_id              = progression_requirement_row[1].Get<uint32>();
+                const std::string requirement_note       = progression_requirement_row[2].Get<std::string>();
+                const uint8 requirement_faction          = progression_requirement_row[3].Get<uint8>();
+                const uint8 requirement_priority         = progression_requirement_row[4].IsNull() ? UINT8_MAX : progression_requirement_row[4].Get<uint8>();
+                const bool requirement_checkLeaderOnly   = progression_requirement_row[5].Get<bool>();
 
                 ProgressionRequirement* progression_requirement = new ProgressionRequirement();
                 progression_requirement->id              = requirement_id;
@@ -6363,11 +6363,11 @@ void ObjectMgr::SetHighestGuids()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].GetUInt32() + 1);
+        GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].Get<uint32>() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Item>().Set((*result)[0].GetUInt32() + 1);
+        GetGuidSequenceGenerator<HighGuid::Item>().Set((*result)[0].Get<uint32>() + 1);
 
     // Cleanup other tables from not existed guids ( >= _hiItemGuid)
     CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '{}'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());     // One-time query
@@ -6377,39 +6377,39 @@ void ObjectMgr::SetHighestGuids()
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Mo_Transport>().Set((*result)[0].GetUInt32() + 1);
+        GetGuidSequenceGenerator<HighGuid::Mo_Transport>().Set((*result)[0].Get<uint32>() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
-        _auctionId = (*result)[0].GetUInt32() + 1;
+        _auctionId = (*result)[0].Get<uint32>() + 1;
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
-        _mailId = (*result)[0].GetUInt32() + 1;
+        _mailId = (*result)[0].Get<uint32>() + 1;
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
-        sArenaTeamMgr->SetNextArenaTeamId((*result)[0].GetUInt32() + 1);
+        sArenaTeamMgr->SetNextArenaTeamId((*result)[0].Get<uint32>() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(fight_id) FROM log_arena_fights");
     if (result)
-        sArenaTeamMgr->SetLastArenaLogId((*result)[0].GetUInt32());
+        sArenaTeamMgr->SetLastArenaLogId((*result)[0].Get<uint32>());
 
     result = CharacterDatabase.Query("SELECT MAX(setguid) FROM character_equipmentsets");
     if (result)
-        _equipmentSetGuid = (*result)[0].GetUInt64() + 1;
+        _equipmentSetGuid = (*result)[0].Get<uint64>() + 1;
 
     result = CharacterDatabase.Query("SELECT MAX(guildId) FROM guild");
     if (result)
-        sGuildMgr->SetNextGuildId((*result)[0].GetUInt32() + 1);
+        sGuildMgr->SetNextGuildId((*result)[0].Get<uint32>() + 1);
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
     if (result)
-        _creatureSpawnId = (*result)[0].GetUInt32() + 1;
+        _creatureSpawnId = (*result)[0].Get<uint32>() + 1;
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
-        _gameObjectSpawnId = (*result)[0].GetUInt32() + 1;
+        _gameObjectSpawnId = (*result)[0].Get<uint32>() + 1;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6547,24 +6547,24 @@ void ObjectMgr::LoadGameObjectTemplate()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
 
         GameObjectTemplate& got = _gameObjectTemplateStore[entry];
 
         got.entry          = entry;
-        got.type           = uint32(fields[1].GetUInt8());
-        got.displayId      = fields[2].GetUInt32();
-        got.name           = fields[3].GetString();
-        got.IconName       = fields[4].GetString();
-        got.castBarCaption = fields[5].GetString();
-        got.unk1           = fields[6].GetString();
-        got.size           = fields[7].GetFloat();
+        got.type           = uint32(fields[1].Get<uint8>());
+        got.displayId      = fields[2].Get<uint32>();
+        got.name           = fields[3].Get<std::string>();
+        got.IconName       = fields[4].Get<std::string>();
+        got.castBarCaption = fields[5].Get<std::string>();
+        got.unk1           = fields[6].Get<std::string>();
+        got.size           = fields[7].Get<float>();
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
-            got.raw.data[i] = fields[8 + i].GetInt32(); // data1 and data6 can be -1
+            got.raw.data[i] = fields[8 + i].Get<int32>(); // data1 and data6 can be -1
 
-        got.AIName = fields[32].GetString();
-        got.ScriptId = GetScriptId(fields[33].GetString());
+        got.AIName = fields[32].Get<std::string>();
+        got.ScriptId = GetScriptId(fields[33].Get<std::string>());
         got.IsForQuests = false;
 
         // Checks
@@ -6726,7 +6726,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
 
         GameObjectTemplate const* got = sObjectMgr->GetGameObjectTemplate(entry);
         if (!got)
@@ -6736,10 +6736,10 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         }
 
         GameObjectTemplateAddon& gameObjectAddon = _gameObjectTemplateAddonStore[entry];
-        gameObjectAddon.faction = uint32(fields[1].GetUInt16());
-        gameObjectAddon.flags   = fields[2].GetUInt32();
-        gameObjectAddon.mingold = fields[3].GetUInt32();
-        gameObjectAddon.maxgold = fields[4].GetUInt32();
+        gameObjectAddon.faction = uint32(fields[1].Get<uint16>());
+        gameObjectAddon.flags   = fields[2].Get<uint32>();
+        gameObjectAddon.mingold = fields[3].Get<uint32>();
+        gameObjectAddon.maxgold = fields[4].Get<uint32>();
 
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
@@ -6787,8 +6787,8 @@ void ObjectMgr::LoadExplorationBaseXP()
     do
     {
         Field* fields = result->Fetch();
-        uint8 level  = fields[0].GetUInt8();
-        uint32 basexp = fields[1].GetInt32();
+        uint8 level  = fields[0].Get<uint8>();
+        uint32 basexp = fields[1].Get<int32>();
         _baseXPTable[level] = basexp;
         ++count;
     } while (result->NextRow());
@@ -6827,9 +6827,9 @@ void ObjectMgr::LoadPetNames()
     do
     {
         Field* fields = result->Fetch();
-        std::string word = fields[0].GetString();
-        uint32 entry     = fields[1].GetUInt32();
-        bool   half      = fields[2].GetBool();
+        std::string word = fields[0].Get<std::string>();
+        uint32 entry     = fields[1].Get<uint32>();
+        bool   half      = fields[2].Get<bool>();
         if (half)
             _petHalfName1[entry].push_back(word);
         else
@@ -6849,7 +6849,7 @@ void ObjectMgr::LoadPetNumber()
     if (result)
     {
         Field* fields = result->Fetch();
-        _hiPetNumber = fields[0].GetUInt32() + 1;
+        _hiPetNumber = fields[0].Get<uint32>() + 1;
     }
 
     LOG_INFO("server.loading", ">> Loaded the max pet number: {} in {} ms", _hiPetNumber - 1, GetMSTimeDiffToNow(oldMSTime));
@@ -6898,17 +6898,17 @@ void ObjectMgr::LoadReputationRewardRate()
     {
         Field* fields = result->Fetch();
 
-        uint32 factionId            = fields[0].GetUInt32();
+        uint32 factionId            = fields[0].Get<uint32>();
 
         RepRewardRate repRate;
 
-        repRate.questRate           = fields[1].GetFloat();
-        repRate.questDailyRate      = fields[2].GetFloat();
-        repRate.questWeeklyRate     = fields[3].GetFloat();
-        repRate.questMonthlyRate    = fields[4].GetFloat();
-        repRate.questRepeatableRate = fields[5].GetFloat();
-        repRate.creatureRate        = fields[6].GetFloat();
-        repRate.spellRate           = fields[7].GetFloat();
+        repRate.questRate           = fields[1].Get<float>();
+        repRate.questDailyRate      = fields[2].Get<float>();
+        repRate.questWeeklyRate     = fields[3].Get<float>();
+        repRate.questMonthlyRate    = fields[4].Get<float>();
+        repRate.questRepeatableRate = fields[5].Get<float>();
+        repRate.creatureRate        = fields[6].Get<float>();
+        repRate.spellRate           = fields[7].Get<float>();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
         if (!factionEntry)
@@ -6994,18 +6994,18 @@ void ObjectMgr::LoadReputationOnKill()
     {
         Field* fields = result->Fetch();
 
-        uint32 creature_id = fields[0].GetUInt32();
+        uint32 creature_id = fields[0].Get<uint32>();
 
         ReputationOnKillEntry repOnKill;
-        repOnKill.RepFaction1          = fields[1].GetInt16();
-        repOnKill.RepFaction2          = fields[2].GetInt16();
-        repOnKill.IsTeamAward1        = fields[3].GetBool();
-        repOnKill.ReputationMaxCap1  = fields[4].GetUInt8();
-        repOnKill.RepValue1            = fields[5].GetInt32();
-        repOnKill.IsTeamAward2        = fields[6].GetBool();
-        repOnKill.ReputationMaxCap2  = fields[7].GetUInt8();
-        repOnKill.RepValue2            = fields[8].GetInt32();
-        repOnKill.TeamDependent       = fields[9].GetUInt8();
+        repOnKill.RepFaction1          = fields[1].Get<int16>();
+        repOnKill.RepFaction2          = fields[2].Get<int16>();
+        repOnKill.IsTeamAward1        = fields[3].Get<bool>();
+        repOnKill.ReputationMaxCap1  = fields[4].Get<uint8>();
+        repOnKill.RepValue1            = fields[5].Get<int32>();
+        repOnKill.IsTeamAward2        = fields[6].Get<bool>();
+        repOnKill.ReputationMaxCap2  = fields[7].Get<uint8>();
+        repOnKill.RepValue2            = fields[8].Get<int32>();
+        repOnKill.TeamDependent       = fields[9].Get<uint8>();
 
         if (!GetCreatureTemplate(creature_id))
         {
@@ -7062,22 +7062,22 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
     {
         Field* fields = result->Fetch();
 
-        uint32 factionId                = fields[0].GetUInt16();
+        uint32 factionId                = fields[0].Get<uint16>();
 
         RepSpilloverTemplate repTemplate;
 
-        repTemplate.faction[0]          = fields[1].GetUInt16();
-        repTemplate.faction_rate[0]     = fields[2].GetFloat();
-        repTemplate.faction_rank[0]     = fields[3].GetUInt8();
-        repTemplate.faction[1]          = fields[4].GetUInt16();
-        repTemplate.faction_rate[1]     = fields[5].GetFloat();
-        repTemplate.faction_rank[1]     = fields[6].GetUInt8();
-        repTemplate.faction[2]          = fields[7].GetUInt16();
-        repTemplate.faction_rate[2]     = fields[8].GetFloat();
-        repTemplate.faction_rank[2]     = fields[9].GetUInt8();
-        repTemplate.faction[3]          = fields[10].GetUInt16();
-        repTemplate.faction_rate[3]     = fields[11].GetFloat();
-        repTemplate.faction_rank[3]     = fields[12].GetUInt8();
+        repTemplate.faction[0]          = fields[1].Get<uint16>();
+        repTemplate.faction_rate[0]     = fields[2].Get<float>();
+        repTemplate.faction_rank[0]     = fields[3].Get<uint8>();
+        repTemplate.faction[1]          = fields[4].Get<uint16>();
+        repTemplate.faction_rate[1]     = fields[5].Get<float>();
+        repTemplate.faction_rank[1]     = fields[6].Get<uint8>();
+        repTemplate.faction[2]          = fields[7].Get<uint16>();
+        repTemplate.faction_rate[2]     = fields[8].Get<float>();
+        repTemplate.faction_rank[2]     = fields[9].Get<uint8>();
+        repTemplate.faction[3]          = fields[10].Get<uint16>();
+        repTemplate.faction_rate[3]     = fields[11].Get<float>();
+        repTemplate.faction_rank[3]     = fields[12].Get<uint8>();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
@@ -7175,16 +7175,16 @@ void ObjectMgr::LoadPointsOfInterest()
     {
         Field* fields = result->Fetch();
 
-        uint32 point_id = fields[0].GetUInt32();
+        uint32 point_id = fields[0].Get<uint32>();
 
         PointOfInterest POI;
         POI.ID          = point_id;
-        POI.PositionX   = fields[1].GetFloat();
-        POI.PositionY   = fields[2].GetFloat();
-        POI.Icon        = fields[3].GetUInt32();
-        POI.Flags       = fields[4].GetUInt32();
-        POI.Importance  = fields[5].GetUInt32();
-        POI.Name        = fields[6].GetString();
+        POI.PositionX   = fields[1].Get<float>();
+        POI.PositionY   = fields[2].Get<float>();
+        POI.Icon        = fields[3].Get<uint32>();
+        POI.Flags       = fields[4].Get<uint32>();
+        POI.Importance  = fields[5].Get<uint32>();
+        POI.Name        = fields[6].Get<std::string>();
 
         if (!Warhead::IsValidMapCoord(POI.PositionX, POI.PositionY))
         {
@@ -7228,17 +7228,17 @@ void ObjectMgr::LoadQuestPOI()
     {
         // The first result should have the highest questId
         Field* fields = points->Fetch();
-        uint32 questIdMax = fields[0].GetUInt32();
+        uint32 questIdMax = fields[0].Get<uint32>();
         POIs.resize(questIdMax + 1);
 
         do
         {
             fields = points->Fetch();
 
-            uint32 questId            = fields[0].GetUInt32();
-            uint32 id                 = fields[1].GetUInt32();
-            int32  x                  = fields[2].GetInt32();
-            int32  y                  = fields[3].GetInt32();
+            uint32 questId            = fields[0].Get<uint32>();
+            uint32 id                 = fields[1].Get<uint32>();
+            int32  x                  = fields[2].Get<int32>();
+            int32  y                  = fields[3].Get<int32>();
 
             if (POIs[questId].size() <= id + 1)
                 POIs[questId].resize(id + 10);
@@ -7252,14 +7252,14 @@ void ObjectMgr::LoadQuestPOI()
     {
         Field* fields = result->Fetch();
 
-        uint32 questId            = fields[0].GetUInt32();
-        uint32 id                 = fields[1].GetUInt32();
-        int32 objIndex            = fields[2].GetInt32();
-        uint32 mapId              = fields[3].GetUInt32();
-        uint32 WorldMapAreaId     = fields[4].GetUInt32();
-        uint32 FloorId            = fields[5].GetUInt32();
-        uint32 unk3               = fields[6].GetUInt32();
-        uint32 unk4               = fields[7].GetUInt32();
+        uint32 questId            = fields[0].Get<uint32>();
+        uint32 id                 = fields[1].Get<uint32>();
+        int32 objIndex            = fields[2].Get<int32>();
+        uint32 mapId              = fields[3].Get<uint32>();
+        uint32 WorldMapAreaId     = fields[4].Get<uint32>();
+        uint32 FloorId            = fields[5].Get<uint32>();
+        uint32 unk3               = fields[6].Get<uint32>();
+        uint32 unk4               = fields[7].Get<uint32>();
 
         QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
         if (questId < POIs.size() && id < POIs[questId].size())
@@ -7298,7 +7298,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     {
         Field* fields = result->Fetch();
 
-        uint32 npc_entry = fields[0].GetUInt32();
+        uint32 npc_entry = fields[0].Get<uint32>();
         CreatureTemplate const* cInfo = GetCreatureTemplate(npc_entry);
         if (!cInfo)
         {
@@ -7306,7 +7306,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
-        uint32 spellid = fields[1].GetUInt32();
+        uint32 spellid = fields[1].Get<uint32>();
         SpellInfo const* spellinfo = sSpellMgr->GetSpellInfo(spellid);
         if (!spellinfo)
         {
@@ -7314,11 +7314,11 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
-        uint8 userType = fields[3].GetUInt16();
+        uint8 userType = fields[3].Get<uint16>();
         if (userType >= SPELL_CLICK_USER_MAX)
             LOG_ERROR("sql.sql", "Table npc_spellclick_spells references unknown user type {}. Skipping entry.", uint32(userType));
 
-        uint8 castFlags = fields[2].GetUInt8();
+        uint8 castFlags = fields[2].Get<uint8>();
         SpellClickInfo info;
         info.spellId = spellid;
         info.castFlags = castFlags;
@@ -7387,9 +7387,9 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
 
     do
     {
-        uint32 id     = result->Fetch()[0].GetUInt32();
-        uint32 quest  = result->Fetch()[1].GetUInt32();
-        uint32 poolId = result->Fetch()[2].GetUInt32();
+        uint32 id     = result->Fetch()[0].Get<uint32>();
+        uint32 quest  = result->Fetch()[1].Get<uint32>();
+        uint32 poolId = result->Fetch()[2].Get<uint32>();
 
         if (_questTemplates.find(quest) == _questTemplates.end())
         {
@@ -7486,7 +7486,7 @@ void ObjectMgr::LoadReservedPlayersNames()
     do
     {
         fields = result->Fetch();
-        std::string name = fields[0].GetString();
+        std::string name = fields[0].Get<std::string>();
 
         std::wstring wstr;
         if (!Utf8toWStr (name, wstr))
@@ -7783,8 +7783,8 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry  = fields[0].GetUInt32();
-        int32 skill   = fields[1].GetInt16();
+        uint32 entry  = fields[0].Get<uint32>();
+        int32 skill   = fields[1].Get<int16>();
 
         AreaTableEntry const* fArea = sAreaTableStore.LookupEntry(entry);
         if (!fArea)
@@ -7925,16 +7925,16 @@ void ObjectMgr::LoadGameTele()
     {
         Field* fields = result->Fetch();
 
-        uint32 id         = fields[0].GetUInt32();
+        uint32 id         = fields[0].Get<uint32>();
 
         GameTele gt;
 
-        gt.position_x     = fields[1].GetFloat();
-        gt.position_y     = fields[2].GetFloat();
-        gt.position_z     = fields[3].GetFloat();
-        gt.orientation    = fields[4].GetFloat();
-        gt.mapId          = fields[5].GetUInt16();
-        gt.name           = fields[6].GetString();
+        gt.position_x     = fields[1].Get<float>();
+        gt.position_y     = fields[2].Get<float>();
+        gt.position_z     = fields[3].Get<float>();
+        gt.orientation    = fields[4].Get<float>();
+        gt.mapId          = fields[5].Get<uint16>();
+        gt.name           = fields[6].Get<std::string>();
 
         if (!MapMgr::IsValidMapCoord(gt.mapId, gt.position_x, gt.position_y, gt.position_z, gt.orientation))
         {
@@ -8065,10 +8065,10 @@ void ObjectMgr::LoadMailLevelRewards()
     {
         Field* fields = result->Fetch();
 
-        uint8 level           = fields[0].GetUInt8();
-        uint32 raceMask       = fields[1].GetUInt32();
-        uint32 mailTemplateId = fields[2].GetUInt32();
-        uint32 senderEntry    = fields[3].GetUInt32();
+        uint8 level           = fields[0].Get<uint8>();
+        uint32 raceMask       = fields[1].Get<uint32>();
+        uint32 mailTemplateId = fields[2].Get<uint32>();
+        uint32 senderEntry    = fields[3].Get<uint32>();
 
         if (level > MAX_LEVEL)
         {
@@ -8212,13 +8212,13 @@ void ObjectMgr::LoadTrainerSpell()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry         = fields[0].GetUInt32();
-        uint32 spell         = fields[1].GetUInt32();
-        uint32 spellCost     = fields[2].GetUInt32();
-        uint32 reqSkill      = fields[3].GetUInt16();
-        uint32 reqSkillValue = fields[4].GetUInt16();
-        uint32 reqLevel      = fields[5].GetUInt8();
-        uint32 reqSpell      = fields[6].GetUInt32();
+        uint32 entry         = fields[0].Get<uint32>();
+        uint32 spell         = fields[1].Get<uint32>();
+        uint32 spellCost     = fields[2].Get<uint32>();
+        uint32 reqSkill      = fields[3].Get<uint16>();
+        uint32 reqSkillValue = fields[4].Get<uint16>();
+        uint32 reqLevel      = fields[5].Get<uint8>();
+        uint32 reqSpell      = fields[6].Get<uint32>();
 
         AddSpellToTrainer(entry, spell, spellCost, reqSkill, reqSkillValue, reqLevel, reqSpell);
 
@@ -8244,16 +8244,16 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* s
     {
         Field* fields = result->Fetch();
 
-        int32 item_id = fields[0].GetInt32();
+        int32 item_id = fields[0].Get<int32>();
 
         // if item is a negative, its a reference
         if (item_id < 0)
             count += LoadReferenceVendor(vendor, -item_id, skip_vendors);
         else
         {
-            int32  maxcount     = fields[1].GetUInt8();
-            uint32 incrtime     = fields[2].GetUInt32();
-            uint32 ExtendedCost = fields[3].GetUInt32();
+            int32  maxcount     = fields[1].Get<uint8>();
+            uint32 incrtime     = fields[2].Get<uint32>();
+            uint32 ExtendedCost = fields[3].Get<uint32>();
 
             if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, nullptr, skip_vendors))
                 continue;
@@ -8293,17 +8293,17 @@ void ObjectMgr::LoadVendors()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry        = fields[0].GetUInt32();
-        int32 item_id      = fields[1].GetInt32();
+        uint32 entry        = fields[0].Get<uint32>();
+        int32 item_id      = fields[1].Get<int32>();
 
         // if item is a negative, its a reference
         if (item_id < 0)
             count += LoadReferenceVendor(entry, -item_id, &skip_vendors);
         else
         {
-            uint32 maxcount     = fields[2].GetUInt8();
-            uint32 incrtime     = fields[3].GetUInt32();
-            uint32 ExtendedCost = fields[4].GetUInt32();
+            uint32 maxcount     = fields[2].Get<uint8>();
+            uint32 incrtime     = fields[3].Get<uint32>();
+            uint32 ExtendedCost = fields[4].Get<uint32>();
 
             if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, nullptr, &skip_vendors))
                 continue;
@@ -8340,8 +8340,8 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.MenuID        = fields[0].GetUInt16();
-        gMenu.TextID        = fields[1].GetUInt32();
+        gMenu.MenuID        = fields[0].Get<uint16>();
+        gMenu.TextID        = fields[1].Get<uint32>();
 
         if (!GetGossipText(gMenu.TextID))
         {
@@ -8380,19 +8380,19 @@ void ObjectMgr::LoadGossipMenuItems()
 
         GossipMenuItems gMenuItem;
 
-        gMenuItem.MenuID                    = fields[0].GetUInt16();
-        gMenuItem.OptionID                  = fields[1].GetUInt16();
-        gMenuItem.OptionIcon                = fields[2].GetUInt32();
-        gMenuItem.OptionText                = fields[3].GetString();
-        gMenuItem.OptionBroadcastTextID     = fields[4].GetUInt32();
-        gMenuItem.OptionType                = fields[5].GetUInt8();
-        gMenuItem.OptionNpcFlag             = fields[6].GetUInt32();
-        gMenuItem.ActionMenuID              = fields[7].GetUInt32();
-        gMenuItem.ActionPoiID               = fields[8].GetUInt32();
-        gMenuItem.BoxCoded                  = fields[9].GetBool();
-        gMenuItem.BoxMoney                  = fields[10].GetUInt32();
-        gMenuItem.BoxText                   = fields[11].GetString();
-        gMenuItem.BoxBroadcastTextID        = fields[12].GetUInt32();
+        gMenuItem.MenuID                    = fields[0].Get<uint16>();
+        gMenuItem.OptionID                  = fields[1].Get<uint16>();
+        gMenuItem.OptionIcon                = fields[2].Get<uint32>();
+        gMenuItem.OptionText                = fields[3].Get<std::string>();
+        gMenuItem.OptionBroadcastTextID     = fields[4].Get<uint32>();
+        gMenuItem.OptionType                = fields[5].Get<uint8>();
+        gMenuItem.OptionNpcFlag             = fields[6].Get<uint32>();
+        gMenuItem.ActionMenuID              = fields[7].Get<uint32>();
+        gMenuItem.ActionPoiID               = fields[8].Get<uint32>();
+        gMenuItem.BoxCoded                  = fields[9].Get<bool>();
+        gMenuItem.BoxMoney                  = fields[10].Get<uint32>();
+        gMenuItem.BoxText                   = fields[11].Get<std::string>();
+        gMenuItem.BoxBroadcastTextID        = fields[12].Get<uint32>();
 
         if (gMenuItem.OptionIcon >= GOSSIP_ICON_MAX)
         {
@@ -8597,7 +8597,7 @@ void ObjectMgr::LoadScriptNames()
 
     do
     {
-        _scriptNamesStore.push_back((*result)[0].GetString());
+        _scriptNamesStore.push_back((*result)[0].Get<std::string>());
     } while (result->NextRow());
 
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
@@ -8669,8 +8669,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     {
         Field* fields = result->Fetch();
 
-        uint8 Level = fields[0].GetUInt8();
-        uint8 Class = fields[1].GetUInt8();
+        uint8 Level = fields[0].Get<uint8>();
+        uint8 Class = fields[1].Get<uint8>();
 
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             LOG_ERROR("sql.sql", "Creature base stats for level {} has invalid class {}", Level, Class);
@@ -8679,7 +8679,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            stats.BaseHealth[i] = fields[2 + i].GetUInt16();
+            stats.BaseHealth[i] = fields[2 + i].Get<uint16>();
 
             if (stats.BaseHealth[i] == 0)
             {
@@ -8701,7 +8701,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
                 }
             }
 
-            stats.BaseDamage[i] = fields[9 + i].GetFloat();
+            stats.BaseDamage[i] = fields[9 + i].Get<float>();
             if (stats.BaseDamage[i] < 0.0f)
             {
                 LOG_ERROR("sql.sql", "Creature base stats for class {}, level {} has invalid negative base damage[{}] - set to 0.0", Class, Level, i);
@@ -8709,11 +8709,11 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[5].GetUInt16();
-        stats.BaseArmor = fields[6].GetUInt16();
+        stats.BaseMana = fields[5].Get<uint16>();
+        stats.BaseArmor = fields[6].Get<uint16>();
 
-        stats.AttackPower = fields[7].GetUInt16();
-        stats.RangedAttackPower = fields[8].GetUInt16();
+        stats.AttackPower = fields[7].Get<uint16>();
+        stats.RangedAttackPower = fields[8].Get<uint16>();
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 
@@ -8753,8 +8753,8 @@ void ObjectMgr::LoadFactionChangeAchievements()
     {
         Field* fields = result->Fetch();
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        uint32 alliance = fields[0].Get<uint32>();
+        uint32 horde = fields[1].Get<uint32>();
 
         if (!sAchievementStore.LookupEntry(alliance))
             LOG_ERROR("sql.sql", "Achievement {} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
@@ -8789,8 +8789,8 @@ void ObjectMgr::LoadFactionChangeItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        uint32 alliance = fields[0].Get<uint32>();
+        uint32 horde = fields[1].Get<uint32>();
 
         if (!GetItemTemplate(alliance))
             LOG_ERROR("sql.sql", "Item {} (alliance_id) referenced in `player_factionchange_items` does not exist, pair skipped!", alliance);
@@ -8825,8 +8825,8 @@ void ObjectMgr::LoadFactionChangeQuests()
     {
         Field* fields = result->Fetch();
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        uint32 alliance = fields[0].Get<uint32>();
+        uint32 horde = fields[1].Get<uint32>();
 
         if (!sObjectMgr->GetQuestTemplate(alliance))
             LOG_ERROR("sql.sql", "Quest {} (alliance_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
@@ -8861,8 +8861,8 @@ void ObjectMgr::LoadFactionChangeReputations()
     {
         Field* fields = result->Fetch();
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        uint32 alliance = fields[0].Get<uint32>();
+        uint32 horde = fields[1].Get<uint32>();
 
         if (!sFactionStore.LookupEntry(alliance))
             LOG_ERROR("sql.sql", "Reputation {} (alliance_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
@@ -8897,8 +8897,8 @@ void ObjectMgr::LoadFactionChangeSpells()
     {
         Field* fields = result->Fetch();
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        uint32 alliance = fields[0].Get<uint32>();
+        uint32 horde = fields[1].Get<uint32>();
 
         if (!sSpellMgr->GetSpellInfo(alliance))
             LOG_ERROR("sql.sql", "Spell {} (alliance_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", alliance);
@@ -8932,8 +8932,8 @@ void ObjectMgr::LoadFactionChangeTitles()
     {
         Field* fields = result->Fetch();
 
-        uint32 alliance = fields[0].GetUInt32();
-        uint32 horde = fields[1].GetUInt32();
+        uint32 alliance = fields[0].Get<uint32>();
+        uint32 horde = fields[1].Get<uint32>();
 
         if (!sCharTitlesStore.LookupEntry(alliance))
             LOG_ERROR("sql.sql", "Title {} (alliance_id) referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
@@ -9025,8 +9025,8 @@ void ObjectMgr::LoadGameObjectQuestItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
-        uint32 item = fields[1].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
+        uint32 item = fields[1].Get<uint32>();
 
         _gameObjectQuestItemStore[entry].push_back(item);
 
@@ -9055,8 +9055,8 @@ void ObjectMgr::LoadCreatureQuestItems()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
-        uint32 item = fields[1].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
+        uint32 item = fields[1].Get<uint32>();
 
         _creatureQuestItemStore[entry].push_back(item);
 
@@ -9085,14 +9085,14 @@ void ObjectMgr::LoadQuestMoneyRewards()
     do
     {
         Field* fields = result->Fetch();
-        uint32 Level = fields[0].GetUInt32();
+        uint32 Level = fields[0].Get<uint32>();
 
         QuestMoneyRewardArray& questMoneyReward = _questMoneyRewards[Level];
         questMoneyReward.fill(0);
 
         for (uint8 i = 0; i < MAX_QUEST_MONEY_REWARDS; ++i)
         {
-            questMoneyReward[i] = fields[1 + i].GetUInt32();
+            questMoneyReward[i] = fields[1 + i].Get<uint32>();
             ++count;
         }
     } while (result->NextRow());

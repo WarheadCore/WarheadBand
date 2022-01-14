@@ -273,9 +273,9 @@ void InstanceSaveMgr::LoadResetTimes()
         do
         {
             Field* fields = result->Fetch();
-            uint32 mapid = fields[0].GetUInt16();
-            Difficulty difficulty = Difficulty(fields[1].GetUInt8());
-            uint64 resettime = fields[2].GetUInt32();
+            uint32 mapid = fields[0].Get<uint16>();
+            Difficulty difficulty = Difficulty(fields[1].Get<uint8>());
+            uint64 resettime = fields[2].Get<uint32>();
 
             MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
             if (!mapDiff)
@@ -344,12 +344,12 @@ void InstanceSaveMgr::LoadInstanceSaves()
         {
             Field* fields = result->Fetch();
 
-            uint32 instanceId = fields[0].GetUInt32();
-            uint32 mapId = fields[1].GetUInt16();
-            time_t resettime = time_t(fields[2].GetUInt32());
-            uint8 difficulty = fields[3].GetUInt8();
-            uint32 completedEncounters = fields[4].GetUInt32();
-            std::string instanceData = fields[5].GetString();
+            uint32 instanceId = fields[0].Get<uint32>();
+            uint32 mapId = fields[1].Get<uint16>();
+            time_t resettime = time_t(fields[2].Get<uint32>());
+            uint8 difficulty = fields[3].Get<uint8>();
+            uint32 completedEncounters = fields[4].Get<uint32>();
+            std::string instanceData = fields[5].Get<std::string>();
 
             // Mark instance id as being used
             sMapMgr->RegisterInstanceId(instanceId);
@@ -377,10 +377,10 @@ void InstanceSaveMgr::LoadCharacterBinds()
         {
             Field* fields = result->Fetch();
 
-            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
-            uint32 instanceId = fields[1].GetUInt32();
-            bool perm = fields[2].GetBool();
-            bool extended = fields[3].GetBool();
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>());
+            uint32 instanceId = fields[1].Get<uint32>();
+            bool perm = fields[2].Get<bool>();
+            bool extended = fields[3].Get<bool>();
 
             if (InstanceSave* save = GetInstanceSave(instanceId))
             {

@@ -70,15 +70,15 @@ void CalendarMgr::LoadFromDB()
         {
             Field* fields = result->Fetch();
 
-            uint64 eventId          = fields[0].GetUInt64();
-            ObjectGuid creatorGUID  = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt32());
-            std::string title       = fields[2].GetString();
-            std::string description = fields[3].GetString();
-            CalendarEventType type  = CalendarEventType(fields[4].GetUInt8());
-            int32 dungeonId         = fields[5].GetInt32();
-            uint32 eventTime        = fields[6].GetUInt32();
-            uint32 flags            = fields[7].GetUInt32();
-            uint32 timezoneTime     = fields[8].GetUInt32();
+            uint64 eventId          = fields[0].Get<uint64>();
+            ObjectGuid creatorGUID  = ObjectGuid::Create<HighGuid::Player>(fields[1].Get<uint32>());
+            std::string title       = fields[2].Get<std::string>();
+            std::string description = fields[3].Get<std::string>();
+            CalendarEventType type  = CalendarEventType(fields[4].Get<uint8>());
+            int32 dungeonId         = fields[5].Get<int32>();
+            uint32 eventTime        = fields[6].Get<uint32>();
+            uint32 flags            = fields[7].Get<uint32>();
+            uint32 timezoneTime     = fields[8].Get<uint32>();
             uint32 guildId = 0;
 
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
@@ -103,14 +103,14 @@ void CalendarMgr::LoadFromDB()
         {
             Field* fields = result->Fetch();
 
-            uint64 inviteId             = fields[0].GetUInt64();
-            uint64 eventId              = fields[1].GetUInt64();
-            ObjectGuid invitee          = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32());
-            ObjectGuid senderGUID       = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt32());
-            CalendarInviteStatus status = CalendarInviteStatus(fields[4].GetUInt8());
-            uint32 statusTime           = fields[5].GetUInt32();
-            CalendarModerationRank rank = CalendarModerationRank(fields[6].GetUInt8());
-            std::string text            = fields[7].GetString();
+            uint64 inviteId             = fields[0].Get<uint64>();
+            uint64 eventId              = fields[1].Get<uint64>();
+            ObjectGuid invitee          = ObjectGuid::Create<HighGuid::Player>(fields[2].Get<uint32>());
+            ObjectGuid senderGUID       = ObjectGuid::Create<HighGuid::Player>(fields[3].Get<uint32>());
+            CalendarInviteStatus status = CalendarInviteStatus(fields[4].Get<uint8>());
+            uint32 statusTime           = fields[5].Get<uint32>();
+            CalendarModerationRank rank = CalendarModerationRank(fields[6].Get<uint8>());
+            std::string text            = fields[7].Get<std::string>();
 
             CalendarInvite* invite = new CalendarInvite(inviteId, eventId, invitee, senderGUID, time_t(statusTime), status, rank, text);
             _invites[eventId].push_back(invite);

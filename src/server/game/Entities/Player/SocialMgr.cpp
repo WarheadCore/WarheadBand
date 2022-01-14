@@ -329,9 +329,9 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid guid)
     {
         Field* fields = result->Fetch();
 
-        auto friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
-        auto flags = fields[1].GetUInt8();
-        auto note = fields[2].GetString();
+        auto friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>());
+        auto flags = fields[1].Get<uint8>();
+        auto note = fields[2].Get<std::string>();
 
         social->m_playerSocialMap[friendGuid] = FriendInfo(flags, note);
     } while (result->NextRow());

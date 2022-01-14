@@ -609,7 +609,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
         do
         {
             Field* fields = achievementResult->Fetch();
-            uint32 achievementid = fields[0].GetUInt16();
+            uint32 achievementid = fields[0].Get<uint16>();
 
             // must not happen: cleanup at server startup in sAchievementMgr->LoadCompletedAchievements()
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementid);
@@ -617,7 +617,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
-            ca.date = time_t(fields[1].GetUInt32());
+            ca.date = time_t(fields[1].Get<uint32>());
             ca.changed = false;
 
             // title achievement rewards are retroactive
@@ -634,9 +634,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
         do
         {
             Field* fields = criteriaResult->Fetch();
-            uint32 id      = fields[0].GetUInt16();
-            uint32 counter = fields[1].GetUInt32();
-            time_t date    = time_t(fields[2].GetUInt32());
+            uint32 id      = fields[0].Get<uint16>();
+            uint32 counter = fields[1].Get<uint32>();
+            time_t date    = time_t(fields[2].Get<uint32>());
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
             if (!criteria)
@@ -2644,7 +2644,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     do
     {
         Field* fields = result->Fetch();
-        uint32 criteria_id = fields[0].GetUInt32();
+        uint32 criteria_id = fields[0].Get<uint32>();
 
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(criteria_id);
 
@@ -2654,8 +2654,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             continue;
         }
 
-        uint32 dataType = fields[1].GetUInt8();
-        std::string scriptName = fields[4].GetString();
+        uint32 dataType = fields[1].Get<uint8>();
+        std::string scriptName = fields[4].Get<std::string>();
         uint32 scriptId = 0;
         if (scriptName.length()) // not empty
         {
@@ -2665,7 +2665,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 scriptId = sObjectMgr->GetScriptId(scriptName);
         }
 
-        AchievementCriteriaData data(dataType, fields[2].GetUInt32(), fields[3].GetUInt32(), scriptId);
+        AchievementCriteriaData data(dataType, fields[2].Get<uint32>(), fields[3].Get<uint32>(), scriptId);
 
         if (!data.IsValid(criteria))
             continue;
@@ -2784,7 +2784,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     {
         Field* fields = result->Fetch();
 
-        uint16 achievementId = fields[0].GetUInt16();
+        uint16 achievementId = fields[0].Get<uint16>();
         const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
@@ -2827,7 +2827,7 @@ void AchievementGlobalMgr::LoadRewards()
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(entry);
         if (!achievement)
         {
@@ -2836,13 +2836,13 @@ void AchievementGlobalMgr::LoadRewards()
         }
 
         AchievementReward reward;
-        reward.titleId[0]   = fields[1].GetUInt32(); // Alliance title
-        reward.titleId[1]   = fields[2].GetUInt32(); // Horde title
-        reward.itemId       = fields[3].GetUInt32();
-        reward.sender       = fields[4].GetUInt32(); // The sender of the mail (a creature from creature_template)
-        reward.subject      = fields[5].GetString();
-        reward.text         = fields[6].GetString(); // Body in DB
-        reward.mailTemplate = fields[7].GetUInt32();
+        reward.titleId[0]   = fields[1].Get<uint32>(); // Alliance title
+        reward.titleId[1]   = fields[2].Get<uint32>(); // Horde title
+        reward.itemId       = fields[3].Get<uint32>();
+        reward.sender       = fields[4].Get<uint32>(); // The sender of the mail (a creature from creature_template)
+        reward.subject      = fields[5].Get<std::string>();
+        reward.text         = fields[6].Get<std::string>(); // Body in DB
+        reward.mailTemplate = fields[7].Get<uint32>();
 
         // Must reward a title or send a mail else, skip it.
         if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)

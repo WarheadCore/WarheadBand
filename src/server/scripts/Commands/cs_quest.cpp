@@ -211,11 +211,11 @@ public:
                     Field* fields = result->Fetch();
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-                    stmt->SetData(0, fields[0].GetUInt32());
+                    stmt->SetData(0, fields[0].Get<uint32>());
                     trans->Append(stmt);
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->SetData(0, fields[0].GetUInt32());
+                    stmt->SetData(0, fields[0].Get<uint32>());
                     trans->Append(stmt);
                 }
             }
@@ -421,7 +421,7 @@ public:
                 if (result)
                 {
                     Field* fields = result->Fetch();
-                    uint32 curRep = fields[0].GetUInt32();
+                    uint32 curRep = fields[0].Get<uint32>();
 
                     if (curRep < repValue)
                     {
@@ -451,7 +451,7 @@ public:
                 if (result)
                 {
                     Field* fields = result->Fetch();
-                    uint32 curRep = fields[0].GetUInt32();
+                    uint32 curRep = fields[0].Get<uint32>();
 
                     if (curRep < repValue)
                     {
@@ -550,11 +550,11 @@ public:
                     Field* fields = result->Fetch();
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-                    stmt->SetData(0, fields[0].GetUInt32());
+                    stmt->SetData(0, fields[0].Get<uint32>());
                     trans->Append(stmt);
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->SetData(0, fields[0].GetUInt32());
+                    stmt->SetData(0, fields[0].Get<uint32>());
                     trans->Append(stmt);
                 }
             }
@@ -572,11 +572,11 @@ public:
                     Field* fields = result->Fetch();
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-                    stmt->SetData(0, fields[0].GetUInt32());
+                    stmt->SetData(0, fields[0].Get<uint32>());
                     trans->Append(stmt);
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->SetData(0, fields[0].GetUInt32());
+                    stmt->SetData(0, fields[0].Get<uint32>());
                     trans->Append(stmt);
                 }
             }
