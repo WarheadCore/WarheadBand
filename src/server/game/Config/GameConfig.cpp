@@ -587,8 +587,10 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
 }
 
 #define TEMPLATE_GAME_CONFIG_OPTION(__typename) \
-    template WH_GAME_API __typename GameConfig::GetOption(std::string_view optionName, Optional<__typename> def /*= std::nullopt*/) const;
+    template WH_GAME_API __typename GameConfig::GetOption(std::string_view optionName, Optional<__typename> def /*= std::nullopt*/) const; \
+    template WH_GAME_API void GameConfig::SetOption(std::string_view optionName, __typename value) const;
 
+TEMPLATE_GAME_CONFIG_OPTION(bool)
 TEMPLATE_GAME_CONFIG_OPTION(uint8)
 TEMPLATE_GAME_CONFIG_OPTION(int8)
 TEMPLATE_GAME_CONFIG_OPTION(uint16)
