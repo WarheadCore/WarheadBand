@@ -299,7 +299,7 @@ PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint6
             }
             else
             {
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(nullptr, *m_rBind[fIndex].length);
+                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue({}, *m_rBind[fIndex].length);
             }
         }
 
@@ -422,4 +422,10 @@ void PreparedResultSet::CleanUp()
         delete[] m_rBind;
         m_rBind = nullptr;
     }
+}
+
+void PreparedResultSet::AssertRows(std::size_t sizeRows)
+{
+    ASSERT(m_rowPosition < m_rowCount);
+    ASSERT(sizeRows == m_rowCount, "> Tuple size != count row");
 }

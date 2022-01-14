@@ -3370,8 +3370,8 @@ void Map::LoadRespawnTimes()
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid::LowType lowguid = fields[0].GetUInt32();
-            uint32 respawnTime = fields[1].GetUInt32();
+            ObjectGuid::LowType lowguid = fields[0].Get<uint32>();
+            uint32 respawnTime = fields[1].Get<uint32>();
 
             _creatureRespawnTimes[lowguid] = time_t(respawnTime);
         } while (result->NextRow());
@@ -3385,8 +3385,8 @@ void Map::LoadRespawnTimes()
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid::LowType lowguid = fields[0].GetUInt32();
-            uint32 respawnTime = fields[1].GetUInt32();
+            ObjectGuid::LowType lowguid = fields[0].Get<uint32>();
+            uint32 respawnTime = fields[1].Get<uint32>();
 
             _goRespawnTimes[lowguid] = time_t(respawnTime);
         } while (result->NextRow());
@@ -3955,8 +3955,8 @@ void Map::LoadCorpseData()
     do
     {
         Field* fields = result->Fetch();
-        CorpseType type = CorpseType(fields[13].GetUInt8());
-        uint32 guid = fields[16].GetUInt32();
+        CorpseType type = CorpseType(fields[13].Get<uint8>());
+        uint32 guid = fields[16].Get<uint32>();
         if (type >= MAX_CORPSE_TYPE || type == CORPSE_BONES)
         {
             LOG_ERROR("maps", "Corpse (guid: {}) have wrong corpse type ({}), not loading.", guid, type);

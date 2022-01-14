@@ -528,13 +528,13 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
 
-            FactionEntry const* factionEntry = sFactionStore.LookupEntry(fields[0].GetUInt16());
+            FactionEntry const* factionEntry = sFactionStore.LookupEntry(fields[0].Get<uint16>());
             if (factionEntry && (factionEntry->reputationListID >= 0))
             {
                 FactionState* faction = &_factions[factionEntry->reputationListID];
 
                 // update standing to current
-                faction->Standing = fields[1].GetInt32();
+                faction->Standing = fields[1].Get<int32>();
 
                 // update counters
                 int32 BaseRep = GetBaseReputation(factionEntry);
@@ -542,7 +542,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                 ReputationRank new_rank = ReputationToRank(BaseRep + faction->Standing);
                 UpdateRankCounters(old_rank, new_rank);
 
-                uint32 dbFactionFlags = fields[2].GetUInt16();
+                uint32 dbFactionFlags = fields[2].Get<uint16>();
 
                 if (dbFactionFlags & FACTION_FLAG_VISIBLE)
                     SetVisible(faction);                    // have internal checks for forced invisibility

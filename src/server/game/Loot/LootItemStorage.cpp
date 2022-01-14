@@ -53,9 +53,9 @@ void LootItemStorage::LoadStorageFromDB()
     {
         Field* fields = result->Fetch();
 
-        StoredLootItemList& itemList = lootItemStore[ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt32())];
-        itemList.push_back(StoredLootItem(fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetUInt32(), fields[4].GetInt32(), fields[5].GetUInt32(), fields[6].GetBool(),
-            fields[7].GetBool(), fields[8].GetBool(), fields[9].GetBool(), fields[10].GetBool(), fields[11].GetBool(), fields[12].GetUInt32()));
+        StoredLootItemList& itemList = lootItemStore[ObjectGuid::Create<HighGuid::Item>(fields[0].Get<uint32>())];
+        itemList.push_back(StoredLootItem(fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[3].Get<uint32>(), fields[4].Get<int32>(), fields[5].Get<uint32>(), fields[6].Get<bool>(),
+            fields[7].Get<bool>(), fields[8].Get<bool>(), fields[9].Get<bool>(), fields[10].Get<bool>(), fields[11].Get<bool>(), fields[12].Get<uint32>()));
 
         ++count;
     } while (result->NextRow());

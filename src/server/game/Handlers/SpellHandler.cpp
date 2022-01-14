@@ -268,8 +268,8 @@ void WorldSession::HandleOpenWrappedItemCallback(uint8 bagIndex, uint8 slot, Obj
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     Field* fields = result->Fetch();
-    uint32 entry = fields[0].GetUInt32();
-    uint32 flags = fields[1].GetUInt32();
+    uint32 entry = fields[0].Get<uint32>();
+    uint32 flags = fields[1].Get<uint32>();
 
     item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Empty);
     item->SetEntry(entry);

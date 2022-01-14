@@ -101,7 +101,7 @@ public:
 
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
 
-                uint32 maxpathid = result->Fetch()->GetInt32();
+                uint32 maxpathid = result->Fetch()->Get<int32>();
                 pathid = maxpathid + 1;
                 handler->PSendSysMessage("{}{}|r", "|cff00ff00", "New path started.");
             }
@@ -123,7 +123,7 @@ public:
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (result)
-            point = (*result)[0].GetUInt32();
+            point = (*result)[0].Get<uint32>();
 
         Player* player = handler->GetSession()->GetPlayer();
         //Map* map = player->GetMap();
@@ -324,7 +324,7 @@ public:
 
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
 
-                id = result->Fetch()->GetUInt32();
+                id = result->Fetch()->Get<uint32>();
 
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_WAYPOINT_SCRIPT);
 
@@ -350,7 +350,7 @@ public:
 
             uint32 a2, a3, a4, a5, a6;
             float a8, a9, a10, a11;
-            char const* a7;
+            std::string_view a7 = {};
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_BY_ID);
             stmt->SetData(0, id);
@@ -367,16 +367,16 @@ public:
             do
             {
                 fields = result->Fetch();
-                a2 = fields[0].GetUInt32();
-                a3 = fields[1].GetUInt32();
-                a4 = fields[2].GetUInt32();
-                a5 = fields[3].GetUInt32();
-                a6 = fields[4].GetUInt32();
-                a7 = fields[5].GetCString();
-                a8 = fields[6].GetFloat();
-                a9 = fields[7].GetFloat();
-                a10 = fields[8].GetFloat();
-                a11 = fields[9].GetFloat();
+                a2 = fields[0].Get<uint32>();
+                a3 = fields[1].Get<uint32>();
+                a4 = fields[2].Get<uint32>();
+                a5 = fields[3].Get<uint32>();
+                a6 = fields[4].Get<uint32>();
+                a7 = fields[5].Get<std::string_view>();
+                a8 = fields[6].Get<float>();
+                a9 = fields[7].Get<float>();
+                a10 = fields[8].Get<float>();
+                a11 = fields[9].Get<float>();
 
                 handler->PSendSysMessage("|cffff33ffid:|r|cff00ffff {}|r|cff00ff00, guid: |r|cff00ffff{}|r|cff00ff00, delay: |r|cff00ffff{}|r|cff00ff00, command: |r|cff00ffff{}|r|cff00ff00, datalong: |r|cff00ffff{}|r|cff00ff00, datalong2: |r|cff00ffff{}|r|cff00ff00, datatext: |r|cff00ffff{}|r|cff00ff00, posx: |r|cff00ffff{}|r|cff00ff00, posy: |r|cff00ffff{}|r|cff00ff00, posz: |r|cff00ffff{}|r|cff00ff00, orientation: |r|cff00ffff{}|r", id, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
             } while (result->NextRow());
@@ -629,8 +629,8 @@ public:
         do
         {
             Field* fields = result->Fetch();
-            pathid = fields[0].GetUInt32();
-            point  = fields[1].GetUInt32();
+            pathid = fields[0].Get<uint32>();
+            point  = fields[1].Get<uint32>();
         } while (result->NextRow());
 
         // We have the waypoint number and the GUID of the "master npc"
@@ -821,12 +821,12 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                pathid                  = fields[0].GetUInt32();
-                uint32 point            = fields[1].GetUInt32();
-                uint32 delay            = fields[2].GetUInt32();
-                uint32 flag             = fields[3].GetUInt32();
-                uint32 ev_id            = fields[4].GetUInt32();
-                uint32 ev_chance        = fields[5].GetUInt32();
+                pathid                  = fields[0].Get<uint32>();
+                uint32 point            = fields[1].Get<uint32>();
+                uint32 delay            = fields[2].Get<uint32>();
+                uint32 flag             = fields[3].Get<uint32>();
+                uint32 ev_id            = fields[4].Get<uint32>();
+                uint32 ev_chance        = fields[5].Get<uint32>();
 
                 handler->PSendSysMessage("|cff00ff00Show info: for current point: |r|cff00ffff{}|r|cff00ff00, Path ID: |r|cff00ffff{}|r", point, pathid);
                 handler->PSendSysMessage("|cff00ff00Show info: delay: |r|cff00ffff{}|r", delay);
@@ -868,7 +868,7 @@ public:
                 do
                 {
                     Field* fields = result2->Fetch();
-                    uint32 wpguid = fields[0].GetUInt32();
+                    uint32 wpguid = fields[0].Get<uint32>();
                     Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Unit>(VISUAL_WAYPOINT, wpguid));
 
                     if (!creature)
@@ -900,10 +900,10 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                uint32 point    = fields[0].GetUInt32();
-                float x         = fields[1].GetFloat();
-                float y         = fields[2].GetFloat();
-                float z         = fields[3].GetFloat();
+                uint32 point    = fields[0].Get<uint32>();
+                float x         = fields[1].Get<float>();
+                float y         = fields[2].Get<float>();
+                float z         = fields[3].Get<float>();
 
                 uint32 id = VISUAL_WAYPOINT;
 
@@ -964,9 +964,9 @@ public:
             }
 
             Field* fields = result->Fetch();
-            float x         = fields[0].GetFloat();
-            float y         = fields[1].GetFloat();
-            float z         = fields[2].GetFloat();
+            float x         = fields[0].Get<float>();
+            float y         = fields[1].Get<float>();
+            float z         = fields[2].Get<float>();
             uint32 id = VISUAL_WAYPOINT;
 
             Player* chr = handler->GetSession()->GetPlayer();
@@ -1014,10 +1014,10 @@ public:
             }
 
             Field* fields = result->Fetch();
-            float x = fields[0].GetFloat();
-            float y = fields[1].GetFloat();
-            float z = fields[2].GetFloat();
-            float o = fields[3].GetFloat();
+            float x = fields[0].Get<float>();
+            float y = fields[1].Get<float>();
+            float z = fields[2].Get<float>();
+            float o = fields[3].Get<float>();
             uint32 id = VISUAL_WAYPOINT;
 
             Player* chr = handler->GetSession()->GetPlayer();
@@ -1066,7 +1066,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Unit>(VISUAL_WAYPOINT, guid));
                 if (!creature)
                 {

@@ -25,6 +25,8 @@
 #include <string_view>
 #include <vector>
 
+using Binary = std::vector<uint8>;
+
 enum class DatabaseFieldTypes : uint8
 {
     Null,
@@ -89,30 +91,34 @@ public:
     Field();
     ~Field() = default;
 
-    bool GetBool() const // Wrapper, actually gets integer
+    template<typename T>
+    inline std::enable_if_t<std::is_arithmetic_v<T>, T> Get() const
     {
-        return GetUInt8() == 1 ? true : false;
+        return GetData<T>();
     }
 
-    uint8 GetUInt8() const;
-    int8 GetInt8() const;
-    uint16 GetUInt16() const;
-    int16 GetInt16() const;
-    uint32 GetUInt32() const;
-    int32 GetInt32() const;
-    uint64 GetUInt64() const;
-    int64 GetInt64() const;
-    float GetFloat() const;
-    double GetDouble() const;
-    char const* GetCString() const;
-    std::string GetString() const;
-    std::string_view GetStringView() const;
-    std::vector<uint8> GetBinary() const;
-
-    template <size_t S>
-    std::array<uint8, S> GetBinary() const
+    template<typename T>
+    inline std::enable_if_t<std::is_same_v<std::string, T>, T> Get() const
     {
-        std::array<uint8, S> buf;
+        return GetDataString();
+    }
+
+    template<typename T>
+    inline std::enable_if_t<std::is_same_v<std::string_view, T>, T> Get() const
+    {
+        return GetDataStringView();
+    }
+
+    template<typename T>
+    inline std::enable_if_t<std::is_same_v<Binary, T>, T> Get() const
+    {
+        return GetDataBinary();
+    }
+
+    template <typename T, size_t S>
+    inline std::enable_if_t<std::is_same_v<Binary, T>, std::array<uint8, S>> Get() const
+    {
+        std::array<uint8, S> buf = {};
         GetBinarySizeChecked(buf.data(), S);
         return buf;
     }
@@ -139,6 +145,13 @@ protected:
     bool IsNumeric() const;
 
 private:
+    template<typename T>
+    T GetData() const;
+
+    std::string GetDataString() const;
+    std::string_view GetDataStringView() const;
+    Binary GetDataBinary() const;
+
     QueryResultFieldMetadata const* meta;
     void LogWrongType(char const* getter) const;
     void SetMetadata(QueryResultFieldMetadata const* fieldMeta);

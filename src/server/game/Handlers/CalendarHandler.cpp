@@ -574,7 +574,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     if (QueryResult result = CharacterDatabase.PQuery("SELECT flags FROM character_social WHERE guid = {} AND friend = {}", inviteeGuid.GetCounter(), playerGuid.GetCounter()))
     {
         Field* fields = result->Fetch();
-        if (fields[0].GetUInt8() & SOCIAL_FLAG_IGNORED)
+        if (fields[0].Get<uint8>() & SOCIAL_FLAG_IGNORED)
         {
             sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_IGNORING_YOU_S, name.c_str());
             return;

@@ -4815,7 +4815,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
     delete m_declinedname;
     m_declinedname = new DeclinedName;
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        m_declinedname->name[i] = (*result)[i].GetString();
+        m_declinedname->name[i] = (*result)[i].Get<std::string>();
 }
 
 void Player::_LoadArenaTeamInfo()
@@ -4861,15 +4861,15 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
         Field* fields = result->Fetch();
         EquipmentSet eqSet;
 
-        eqSet.Guid      = fields[0].GetUInt64();
-        uint8 index    = fields[1].GetUInt8();
-        eqSet.Name      = fields[2].GetString();
-        eqSet.IconName  = fields[3].GetString();
-        eqSet.IgnoreMask = fields[4].GetUInt32();
+        eqSet.Guid      = fields[0].Get<uint64>();
+        uint8 index    = fields[1].Get<uint8>();
+        eqSet.Name      = fields[2].Get<std::string>();
+        eqSet.IconName  = fields[3].Get<std::string>();
+        eqSet.IgnoreMask = fields[4].Get<uint32>();
         eqSet.state     = EQUIPMENT_SET_UNCHANGED;
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            eqSet.Items[i] = ObjectGuid::Create<HighGuid::Item>(fields[5 + i].GetUInt32());
+            eqSet.Items[i] = ObjectGuid::Create<HighGuid::Item>(fields[5 + i].Get<uint32>());
 
         m_EquipmentSets[index] = eqSet;
 
@@ -4886,13 +4886,13 @@ void Player::_LoadEntryPointData(PreparedQueryResult result)
         return;
 
     Field* fields = result->Fetch();
-    m_entryPointData.joinPos      = WorldLocation(fields[4].GetUInt32(),  // Map
-                                    fields[0].GetFloat(),   // X
-                                    fields[1].GetFloat(),   // Y
-                                    fields[2].GetFloat(),   // Z
-                                    fields[3].GetFloat());  // Orientation
+    m_entryPointData.joinPos      = WorldLocation(fields[4].Get<uint32>(),  // Map
+                                    fields[0].Get<float>(),   // X
+                                    fields[1].Get<float>(),   // Y
+                                    fields[2].Get<float>(),   // Z
+                                    fields[3].Get<float>());  // Orientation
 
-    std::string taxi = fields[5].GetString();
+    std::string taxi = fields[5].Get<std::string>();
     if (!taxi.empty())
     {
         Tokenizer tokens(taxi, ' ');
@@ -4907,7 +4907,7 @@ void Player::_LoadEntryPointData(PreparedQueryResult result)
             m_entryPointData.ClearTaxiPath();
     }
 
-    m_entryPointData.mountSpell   = fields[6].GetUInt32();
+    m_entryPointData.mountSpell   = fields[6].Get<uint32>();
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid::LowType guid)
@@ -4921,12 +4921,12 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, flo
 
     Field* fields = result->Fetch();
 
-    x = fields[0].GetFloat();
-    y = fields[1].GetFloat();
-    z = fields[2].GetFloat();
-    o = fields[3].GetFloat();
-    mapid = fields[4].GetUInt16();
-    in_flight = !fields[5].GetString().empty();
+    x = fields[0].Get<float>();
+    y = fields[1].Get<float>();
+    z = fields[2].Get<float>();
+    o = fields[3].Get<float>();
+    mapid = fields[4].Get<uint16>();
+    in_flight = !fields[5].Get<std::string>().empty();
 
     return true;
 }
@@ -4994,7 +4994,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     Field* fields = result->Fetch();
 
-    uint32 dbAccountId = fields[1].GetUInt32();
+    uint32 dbAccountId = fields[1].Get<uint32>();
 
     // check if the character's account in the db and the logged in account match.
     // player should be able to load/delete character only with correct account!
@@ -5014,7 +5014,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     Object::_Create(guid, 0, HighGuid::Player);
 
-    m_name = fields[2].GetString();
+    m_name = fields[2].Get<std::string>();
 
     // check name limitations
     if (ObjectMgr::CheckPlayerName(m_name) != CHAR_NAME_SUCCESS ||
@@ -5027,7 +5027,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
         return false;
     }
 
-    uint8 Gender = fields[5].GetUInt8();
+    uint8 Gender = fields[5].Get<uint8>();
     if (!IsValidGender(Gender))
     {
         LOG_ERROR("entities.player", "Player (GUID: {}) has wrong gender ({}), can't be loaded.", guid, Gender);
@@ -5036,19 +5036,19 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     // overwrite some data fields
     uint32 bytes0 = 0;
-    bytes0 |= fields[3].GetUInt8();                         // race
-    bytes0 |= fields[4].GetUInt8() << 8;                    // class
+    bytes0 |= fields[3].Get<uint8>();                         // race
+    bytes0 |= fields[4].Get<uint8>() << 8;                    // class
     bytes0 |= Gender << 16;                                 // gender
     SetUInt32Value(UNIT_FIELD_BYTES_0, bytes0);
 
-    m_realRace = fields[3].GetUInt8(); // set real race
-    m_race = fields[3].GetUInt8(); // set real race
+    m_realRace = fields[3].Get<uint8>(); // set real race
+    m_race = fields[3].Get<uint8>(); // set real race
 
-    SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
-    SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
+    SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].Get<uint8>());
+    SetUInt32Value(PLAYER_XP, fields[7].Get<uint32>());
 
-    _LoadIntoDataField(fields[66].GetCString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[69].GetCString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2);
+    _LoadIntoDataField(fields[66].Get<std::string>(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
+    _LoadIntoDataField(fields[69].Get<std::string>(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2);
 
     SetObjectScale(1.0f);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
@@ -5056,29 +5056,29 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     // load achievements before anything else to prevent multiple gains for the same achievement/criteria on every loading (as loading does call UpdateAchievementCriteria)
     m_achievementMgr->LoadFromDB(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS));
 
-    uint32 money = fields[8].GetUInt32();
+    uint32 money = fields[8].Get<uint32>();
     if (money > MAX_MONEY_AMOUNT)
         money = MAX_MONEY_AMOUNT;
     SetMoney(money);
 
-    SetByteValue(PLAYER_BYTES, 0, fields[9].GetUInt8());
-    SetByteValue(PLAYER_BYTES, 1, fields[10].GetUInt8());
-    SetByteValue(PLAYER_BYTES, 2, fields[11].GetUInt8());
-    SetByteValue(PLAYER_BYTES, 3, fields[12].GetUInt8());
-    SetByteValue(PLAYER_BYTES_2, 0, fields[13].GetUInt8());
-    SetByteValue(PLAYER_BYTES_2, 2, fields[14].GetUInt8());
-    SetByteValue(PLAYER_BYTES_2, 3, fields[15].GetUInt8());
-    SetByteValue(PLAYER_BYTES_3, 0, fields[5].GetUInt8());
-    SetByteValue(PLAYER_BYTES_3, 1, fields[54].GetUInt8());
-    SetUInt32Value(PLAYER_FLAGS, fields[16].GetUInt32());
-    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[53].GetUInt32());
+    SetByteValue(PLAYER_BYTES, 0, fields[9].Get<uint8>());
+    SetByteValue(PLAYER_BYTES, 1, fields[10].Get<uint8>());
+    SetByteValue(PLAYER_BYTES, 2, fields[11].Get<uint8>());
+    SetByteValue(PLAYER_BYTES, 3, fields[12].Get<uint8>());
+    SetByteValue(PLAYER_BYTES_2, 0, fields[13].Get<uint8>());
+    SetByteValue(PLAYER_BYTES_2, 2, fields[14].Get<uint8>());
+    SetByteValue(PLAYER_BYTES_2, 3, fields[15].Get<uint8>());
+    SetByteValue(PLAYER_BYTES_3, 0, fields[5].Get<uint8>());
+    SetByteValue(PLAYER_BYTES_3, 1, fields[54].Get<uint8>());
+    SetUInt32Value(PLAYER_FLAGS, fields[16].Get<uint32>());
+    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[53].Get<uint32>());
 
-    SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, fields[52].GetUInt64());
+    SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, fields[52].Get<uint64>());
 
-    SetUInt32Value(PLAYER_AMMO_ID, fields[68].GetUInt32());
+    SetUInt32Value(PLAYER_AMMO_ID, fields[68].Get<uint32>());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[70].GetUInt8());
+    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[70].Get<uint8>());
 
     InitDisplayIds();
 
@@ -5109,21 +5109,21 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
     // init saved position, and fix it later if problematic
-    int32 transLowGUID = fields[35].GetInt32();
-    Relocate(fields[17].GetFloat(), fields[18].GetFloat(), fields[19].GetFloat(), fields[21].GetFloat());
-    uint32 mapId = fields[20].GetUInt16();
-    uint32 instanceId = fields[63].GetUInt32();
+    int32 transLowGUID = fields[35].Get<int32>();
+    Relocate(fields[17].Get<float>(), fields[18].Get<float>(), fields[19].Get<float>(), fields[21].Get<float>());
+    uint32 mapId = fields[20].Get<uint16>();
+    uint32 instanceId = fields[63].Get<uint32>();
 
-    uint32 dungeonDiff = fields[43].GetUInt8() & 0x0F;
+    uint32 dungeonDiff = fields[43].Get<uint8>() & 0x0F;
     if (dungeonDiff >= MAX_DUNGEON_DIFFICULTY)
         dungeonDiff = DUNGEON_DIFFICULTY_NORMAL;
-    uint32 raidDiff = (fields[43].GetUInt8() >> 4) & 0x0F;
+    uint32 raidDiff = (fields[43].Get<uint8>() >> 4) & 0x0F;
     if (raidDiff >= MAX_RAID_DIFFICULTY)
         raidDiff = RAID_DIFFICULTY_10MAN_NORMAL;
     SetDungeonDifficulty(Difficulty(dungeonDiff));          // may be changed in _LoadGroup
     SetRaidDifficulty(Difficulty(raidDiff));                // may be changed in _LoadGroup
 
-    std::string taxi_nodes = fields[42].GetString();
+    std::string taxi_nodes = fields[42].Get<std::string>();
 
     auto RelocateToHomebind = [this, &mapId, &instanceId]()
     {
@@ -5136,14 +5136,14 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     _LoadArenaTeamInfo();
 
-    SetArenaPoints(fields[44].GetUInt32());
+    SetArenaPoints(fields[44].Get<uint32>());
 
-    SetHonorPoints(fields[45].GetUInt32());
-    SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, fields[46].GetUInt32());
-    SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, fields[47].GetUInt32());
-    SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[48].GetUInt32());
-    SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[49].GetUInt16());
-    SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[50].GetUInt16());
+    SetHonorPoints(fields[45].Get<uint32>());
+    SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, fields[46].Get<uint32>());
+    SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, fields[47].Get<uint32>());
+    SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[48].Get<uint32>());
+    SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[49].Get<uint16>());
+    SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[50].Get<uint16>());
 
     _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
     _LoadEntryPointData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ENTRY_POINT));
@@ -5240,7 +5240,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
         if (m_transport)
         {
-            float x = fields[31].GetFloat(), y = fields[32].GetFloat(), z = fields[33].GetFloat(), o = fields[34].GetFloat();
+            float x = fields[31].Get<float>(), y = fields[32].Get<float>(), z = fields[33].Get<float>(), o = fields[34].Get<float>();
             m_movementInfo.transport.guid = m_transport->GetGUID();
             m_movementInfo.transport.pos.Relocate(x, y, z, o);
             m_transport->CalculatePassengerPosition(x, y, z, &o);
@@ -5360,7 +5360,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     SaveRecallPosition();
 
     time_t now = GameTime::GetGameTime().count();
-    time_t logoutTime = time_t(fields[27].GetUInt32());
+    time_t logoutTime = time_t(fields[27].Get<uint32>());
 
     // since last logout (in seconds)
     uint32 time_diff = uint32(now - logoutTime); //uint64 is excessive for a time_diff in seconds.. uint32 allows for 136~ year difference.
@@ -5377,20 +5377,20 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     SetDrunkValue(newDrunkValue);
 
-    m_cinematic = fields[23].GetUInt8();
-    m_Played_time[PLAYED_TIME_TOTAL] = fields[24].GetUInt32();
-    m_Played_time[PLAYED_TIME_LEVEL] = fields[25].GetUInt32();
+    m_cinematic = fields[23].Get<uint8>();
+    m_Played_time[PLAYED_TIME_TOTAL] = fields[24].Get<uint32>();
+    m_Played_time[PLAYED_TIME_LEVEL] = fields[25].Get<uint32>();
 
-    m_resetTalentsCost = fields[29].GetUInt32();
-    m_resetTalentsTime = time_t(fields[30].GetUInt32());
+    m_resetTalentsCost = fields[29].Get<uint32>();
+    m_resetTalentsTime = time_t(fields[30].Get<uint32>());
 
-    m_taxi.LoadTaxiMask(fields[22].GetCString());            // must be before InitTaxiNodesForLevel
+    m_taxi.LoadTaxiMask(fields[22].Get<std::string>());            // must be before InitTaxiNodesForLevel
 
-    uint32 extraflags = fields[36].GetUInt16();
+    uint32 extraflags = fields[36].Get<uint16>();
 
-    _LoadPetStable(fields[37].GetUInt8(), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS));
+    _LoadPetStable(fields[37].Get<uint8>(), holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PET_SLOTS));
 
-    m_atLoginFlags = fields[38].GetUInt16();
+    m_atLoginFlags = fields[38].Get<uint16>();
 
     if (HasAtLoginFlag(AT_LOGIN_RENAME))
     {
@@ -5403,7 +5403,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     m_lastHonorUpdateTime = logoutTime;
     UpdateHonorFields();
 
-    m_deathExpireTime = time_t(fields[41].GetUInt32());
+    m_deathExpireTime = time_t(fields[41].Get<uint32>());
 
     if (m_deathExpireTime > now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP)
         m_deathExpireTime = now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP - 1;
@@ -5442,7 +5442,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     ClearInCombat();
 
     // rest bonus can only be calculated after InitStatsForLevel()
-    _restBonus = fields[26].GetFloat();
+    _restBonus = fields[26].Get<float>();
 
     if (time_diff > 0)
     {
@@ -5450,14 +5450,14 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
         float bubble0 = 0.031f;
         //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
         float bubble1 = 0.125f;
-        float bubble = fields[28].GetUInt8() > 0
+        float bubble = fields[28].Get<uint8>() > 0
                        ? bubble1 * CONF_GET_FLOAT("Rate.Rest.Offline.InTavernOrCity")
                        : bubble0 * CONF_GET_FLOAT("Rate.Rest.Offline.InWilderness");
 
         SetRestBonus(GetRestBonus() + time_diff * ((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000)*bubble);
     }
 
-    uint32 innTriggerId = fields[72].GetUInt32();
+    uint32 innTriggerId = fields[72].Get<uint32>();
     if (innTriggerId)
     {
         SetRestFlag(REST_FLAG_IN_TAVERN, innTriggerId);
@@ -5469,8 +5469,8 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 
-    m_specsCount = fields[64].GetUInt8();
-    m_activeSpec = fields[65].GetUInt8();
+    m_specsCount = fields[64].Get<uint8>();
+    m_activeSpec = fields[65].Get<uint8>();
 
     LearnDefaultSkills();
     LearnCustomSpells();
@@ -5520,7 +5520,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
     // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
-    uint32 curTitle = fields[51].GetUInt32();
+    uint32 curTitle = fields[51].Get<uint32>();
     if (curTitle && !HasTitle(curTitle))
         curTitle = 0;
 
@@ -5543,11 +5543,11 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     UpdateAllStats();
 
     // restore remembered power/health values (but not more max values)
-    uint32 savedHealth = fields[55].GetUInt32();
+    uint32 savedHealth = fields[55].Get<uint32>();
     SetHealth(savedHealth > GetMaxHealth() ? GetMaxHealth() : savedHealth);
     for (uint8 i = 0; i < MAX_POWERS; ++i)
     {
-        uint32 savedPower = fields[56 + i].GetUInt32();
+        uint32 savedPower = fields[56 + i].Get<uint32>();
         SetPower(Powers(i), savedPower > GetMaxPower(Powers(i)) ? GetMaxPower(Powers(i)) : savedPower);
     }
 
@@ -5615,7 +5615,7 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     }
 
     // RaF stuff.
-    m_grantableLevels = fields[71].GetUInt8();
+    m_grantableLevels = fields[71].Get<uint8>();
     if (GetSession()->IsARecruiter() || (GetSession()->GetRecruiterId() != 0))
         SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_REFER_A_FRIEND);
 
@@ -5726,9 +5726,9 @@ void Player::_LoadActions(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            uint8 button = fields[0].GetUInt8();
-            uint32 action = fields[1].GetUInt32();
-            uint8 type = fields[2].GetUInt8();
+            uint8 button = fields[0].Get<uint8>();
+            uint32 action = fields[1].Get<uint32>();
+            uint8 type = fields[2].Get<uint8>();
 
             if (ActionButton* ab = addActionButton(button, action, type))
                 ab->uState = ACTIONBUTTON_UNCHANGED;
@@ -5760,21 +5760,21 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
             Field* fields = result->Fetch();
             int32 damage[3];
             int32 baseDamage[3];
-            ObjectGuid caster_guid = ObjectGuid(fields[0].GetUInt64());
-            ObjectGuid itemGuid = ObjectGuid(fields[1].GetUInt64());
-            uint32 spellid = fields[2].GetUInt32();
-            uint8 effmask = fields[3].GetUInt8();
-            uint8 recalculatemask = fields[4].GetUInt8();
-            uint8 stackcount = fields[5].GetUInt8();
-            damage[0] = fields[6].GetInt32();
-            damage[1] = fields[7].GetInt32();
-            damage[2] = fields[8].GetInt32();
-            baseDamage[0] = fields[9].GetInt32();
-            baseDamage[1] = fields[10].GetInt32();
-            baseDamage[2] = fields[11].GetInt32();
-            int32 maxduration = fields[12].GetInt32();
-            int32 remaintime = fields[13].GetInt32();
-            uint8 remaincharges = fields[14].GetUInt8();
+            ObjectGuid caster_guid = ObjectGuid(fields[0].Get<uint64>());
+            ObjectGuid itemGuid = ObjectGuid(fields[1].Get<uint64>());
+            uint32 spellid = fields[2].Get<uint32>();
+            uint8 effmask = fields[3].Get<uint8>();
+            uint8 recalculatemask = fields[4].Get<uint8>();
+            uint8 stackcount = fields[5].Get<uint8>();
+            damage[0] = fields[6].Get<int32>();
+            damage[1] = fields[7].Get<int32>();
+            damage[2] = fields[8].Get<int32>();
+            baseDamage[0] = fields[9].Get<int32>();
+            baseDamage[1] = fields[10].Get<int32>();
+            baseDamage[2] = fields[11].Get<int32>();
+            int32 maxduration = fields[12].Get<int32>();
+            int32 remaintime = fields[13].Get<int32>();
+            uint8 remaincharges = fields[14].Get<uint8>();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)
@@ -5868,7 +5868,7 @@ void Player::LoadCorpse(PreparedQueryResult result)
         if (result && !HasAtLoginFlag(AT_LOGIN_RESURRECT))
         {
             Field* fields = result->Fetch();
-            _corpseLocation.WorldRelocate(fields[0].GetUInt16(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
+            _corpseLocation.WorldRelocate(fields[0].Get<uint16>(), fields[1].Get<float>(), fields[2].Get<float>(), fields[3].Get<float>(), fields[4].Get<float>());
             ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(_corpseLocation.GetMapId())->Instanceable());
         }
         else
@@ -5902,8 +5902,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid::LowType bagGuid  = fields[11].GetUInt32();
-                uint8  slot     = fields[12].GetUInt8();
+                ObjectGuid::LowType bagGuid  = fields[11].Get<uint32>();
+                uint8  slot     = fields[12].Get<uint8>();
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -6013,8 +6013,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = nullptr;
-    ObjectGuid::LowType itemGuid  = fields[13].GetUInt32();
-    uint32 itemEntry = fields[14].GetUInt32();
+    ObjectGuid::LowType itemGuid  = fields[13].Get<uint32>();
+    uint32 itemEntry = fields[14].Get<uint32>();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -6057,9 +6057,9 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     stmt->SetData(1, GetGUID().GetCounter());
                     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                     {
-                        item->SetRefundRecipient((*result)[0].GetUInt32());
-                        item->SetPaidMoney((*result)[1].GetUInt32());
-                        item->SetPaidExtendedCost((*result)[2].GetUInt16());
+                        item->SetRefundRecipient((*result)[0].Get<uint32>());
+                        item->SetPaidMoney((*result)[1].Get<uint32>());
+                        item->SetPaidExtendedCost((*result)[2].Get<uint16>());
                         AddRefundReference(item->GetGUID());
                     }
                     else
@@ -6076,7 +6076,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                 stmt->SetData(0, item->GetGUID().GetCounter());
                 if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
-                    std::string strGUID = (*result)[0].GetString();
+                    std::string strGUID = (*result)[0].Get<std::string>();
                     Tokenizer GUIDlist(strGUID, ' ');
                     AllowedLooterSet looters;
                     for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
@@ -6140,8 +6140,8 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
 // load mailed item which should receive current player
 Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint32 mailId, Mail* mail, Field* fields)
 {
-    ObjectGuid::LowType itemGuid = fields[11].GetUInt32();
-    uint32 itemEntry = fields[12].GetUInt32();
+    ObjectGuid::LowType itemGuid = fields[11].Get<uint32>();
+    uint32 itemEntry = fields[12].Get<uint32>();
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
     if (!proto)
@@ -6161,7 +6161,7 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
 
     Item* item = NewItemOrBag(proto);
 
-    ObjectGuid ownerGuid = fields[13].GetUInt32() ? ObjectGuid::Create<HighGuid::Player>(fields[13].GetUInt32()) : ObjectGuid::Empty;
+    ObjectGuid ownerGuid = fields[13].Get<uint32>() ? ObjectGuid::Create<HighGuid::Player>(fields[13].Get<uint32>()) : ObjectGuid::Empty;
     if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
     {
         LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: {}) in mail ({}) doesn't exist, deleted from mail.", itemGuid, mailId);
@@ -6207,20 +6207,20 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
             Field* fields = mailsResult->Fetch();
             Mail* m = new Mail;
 
-            m->messageID      = fields[0].GetUInt32();
-            m->messageType    = fields[1].GetUInt8();
-            m->sender         = fields[2].GetUInt32();
-            m->receiver       = fields[3].GetUInt32();
-            m->subject        = fields[4].GetString();
-            m->body           = fields[5].GetString();
-            m->expire_time    = time_t(fields[6].GetUInt32());
-            m->deliver_time   = time_t(fields[7].GetUInt32());
-            m->money          = fields[8].GetUInt32();
-            m->COD            = fields[9].GetUInt32();
-            m->checked        = fields[10].GetUInt8();
-            m->stationery     = fields[11].GetUInt8();
-            m->mailTemplateId = fields[12].GetInt16();
-            m->auctionId = fields[13].GetInt32();
+            m->messageID      = fields[0].Get<uint32>();
+            m->messageType    = fields[1].Get<uint8>();
+            m->sender         = fields[2].Get<uint32>();
+            m->receiver       = fields[3].Get<uint32>();
+            m->subject        = fields[4].Get<std::string>();
+            m->body           = fields[5].Get<std::string>();
+            m->expire_time    = time_t(fields[6].Get<uint32>());
+            m->deliver_time   = time_t(fields[7].Get<uint32>());
+            m->money          = fields[8].Get<uint32>();
+            m->COD            = fields[9].Get<uint32>();
+            m->checked        = fields[10].Get<uint8>();
+            m->stationery     = fields[11].Get<uint8>();
+            m->mailTemplateId = fields[12].Get<int16>();
+            m->auctionId = fields[13].Get<int32>();
 
             if (m->mailTemplateId && !sMailTemplateStore.LookupEntry(m->mailTemplateId))
             {
@@ -6286,7 +6286,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
         do
         {
             Field* fields = mailItemsResult->Fetch();
-            uint32 mailId = fields[14].GetUInt32();
+            uint32 mailId = fields[14].Get<uint32>();
             _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields);
         } while (mailItemsResult->NextRow());
     }
@@ -6322,7 +6322,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
 
-            uint32 quest_id = fields[0].GetUInt32();
+            uint32 quest_id = fields[0].Get<uint32>();
             // used to be new, no delete?
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest)
@@ -6330,7 +6330,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 // find or create
                 QuestStatusData& questStatusData = m_QuestStatus[quest_id];
 
-                uint8 qstatus = fields[1].GetUInt8();
+                uint8 qstatus = fields[1].Get<uint8>();
                 if (qstatus < MAX_QUEST_STATUS)
                     questStatusData.Status = QuestStatus(qstatus);
                 else
@@ -6340,9 +6340,9 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                                    GetName(), GetGUID(), quest_id, qstatus);
                 }
 
-                questStatusData.Explored = (fields[2].GetUInt8() > 0);
+                questStatusData.Explored = (fields[2].Get<uint8>() > 0);
 
-                time_t quest_time = time_t(fields[3].GetUInt32());
+                time_t quest_time = time_t(fields[3].Get<uint32>());
 
                 if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id))
                 {
@@ -6357,12 +6357,12 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     quest_time = 0;
 
                 for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-                    questStatusData.CreatureOrGOCount[i] = fields[4 + i].GetUInt16();
+                    questStatusData.CreatureOrGOCount[i] = fields[4 + i].Get<uint16>();
 
                 for (uint32 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-                    questStatusData.ItemCount[i] = fields[8 + i].GetUInt16();
+                    questStatusData.ItemCount[i] = fields[8 + i].Get<uint16>();
 
-                questStatusData.PlayerCount = fields[14].GetUInt16();
+                questStatusData.PlayerCount = fields[14].Get<uint16>();
 
                 // add to quest log
                 if (slot < MAX_QUEST_LOG_SIZE && questStatusData.Status != QUEST_STATUS_NONE)
@@ -6405,7 +6405,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
 
-            uint32 quest_id = fields[0].GetUInt32();
+            uint32 quest_id = fields[0].Get<uint32>();
             // used to be new, no delete?
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest)
@@ -6445,12 +6445,12 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(fields[0].GetUInt32()))
+            if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(fields[0].Get<uint32>()))
             {
                 if (qQuest->IsDFQuest())
                 {
                     m_DFQuests.insert(qQuest->GetQuestId());
-                    m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
+                    m_lastDailyQuestTime = time_t(fields[1].Get<uint32>());
                     continue;
                 }
             }
@@ -6461,10 +6461,10 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 break;
             }
 
-            uint32 quest_id = fields[0].GetUInt32();
+            uint32 quest_id = fields[0].Get<uint32>();
 
             // save _any_ from daily quest times (it must be after last reset anyway)
-            m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
+            m_lastDailyQuestTime = time_t(fields[1].Get<uint32>());
 
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
@@ -6489,7 +6489,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            uint32 quest_id = fields[0].GetUInt32();
+            uint32 quest_id = fields[0].Get<uint32>();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
@@ -6511,8 +6511,8 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            uint32 quest_id = fields[0].GetUInt32();
-            uint32 event_id = fields[1].GetUInt32();
+            uint32 quest_id = fields[0].Get<uint32>();
+            uint32 event_id = fields[1].Get<uint32>();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
@@ -6534,7 +6534,7 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            uint32 quest_id = fields[0].GetUInt32();
+            uint32 quest_id = fields[0].Get<uint32>();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
@@ -6555,7 +6555,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
     {
         do
             // xinef: checked
-            addSpell((*result)[0].GetUInt32(), (*result)[1].GetUInt8(), true);
+            addSpell((*result)[0].Get<uint32>(), (*result)[1].Get<uint8>(), true);
         while (result->NextRow());
     }
 }
@@ -7071,11 +7071,11 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
 
-        m_homebindMapId = fields[0].GetUInt16();
-        m_homebindAreaId = fields[1].GetUInt16();
-        m_homebindX = fields[2].GetFloat();
-        m_homebindY = fields[3].GetFloat();
-        m_homebindZ = fields[4].GetFloat();
+        m_homebindMapId = fields[0].Get<uint16>();
+        m_homebindAreaId = fields[1].Get<uint16>();
+        m_homebindX = fields[2].Get<float>();
+        m_homebindY = fields[3].Get<float>();
+        m_homebindZ = fields[4].Get<float>();
 
         MapEntry const* bindMapEntry = sMapStore.LookupEntry(m_homebindMapId);
 

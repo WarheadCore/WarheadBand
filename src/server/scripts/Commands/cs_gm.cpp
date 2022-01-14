@@ -170,11 +170,11 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                char const* name = fields[0].GetCString();
-                uint8 security = fields[1].GetUInt8();
-                uint8 max = (16 - strlen(name)) / 2;
+                auto name = fields[0].Get<std::string_view>();
+                uint8 security = fields[1].Get<uint8>();
+                uint8 max = (16 - name.length()) / 2;
                 uint8 max2 = max;
-                if ((max + max2 + strlen(name)) == 16)
+                if ((max + max2 + name.length()) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
                     handler->PSendSysMessage("|    {} GMLevel {}", name, security);

@@ -478,7 +478,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
                 m_declinedname = std::make_unique<DeclinedName>();
                 Field* fields = result->Fetch();
                 for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                    m_declinedname->name[i] = fields[i].GetString();
+                    m_declinedname->name[i] = fields[i].Get<std::string>();
             }
         }
 
@@ -1428,9 +1428,9 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
 
-            uint32 spell_id = fields[0].GetUInt32();
-            uint16 category = fields[1].GetUInt16();
-            time_t db_time  = time_t(fields[2].GetUInt32());
+            uint32 spell_id = fields[0].Get<uint32>();
+            uint16 category = fields[1].Get<uint16>();
+            time_t db_time  = time_t(fields[2].Get<uint32>());
 
             if (!sSpellMgr->GetSpellInfo(spell_id))
             {
@@ -1499,7 +1499,7 @@ void Pet::_LoadSpells(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
 
-            addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
+            addSpell(fields[0].Get<uint32>(), ActiveStates(fields[1].Get<uint8>()), PETSPELL_UNCHANGED);
         } while (result->NextRow());
     }
 }
@@ -1565,23 +1565,23 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
             int32 damage[3];
             int32 baseDamage[3];
             Field* fields = result->Fetch();
-            ObjectGuid caster_guid = ObjectGuid(fields[0].GetUInt64());
+            ObjectGuid caster_guid = ObjectGuid(fields[0].Get<uint64>());
             // nullptr guid stored - pet is the caster of the spell - see Pet::_SaveAuras
             if (!caster_guid)
                 caster_guid = GetGUID();
-            uint32 spellid = fields[1].GetUInt32();
-            uint8 effmask = fields[2].GetUInt8();
-            uint8 recalculatemask = fields[3].GetUInt8();
-            uint8 stackcount = fields[4].GetUInt8();
-            damage[0] = fields[5].GetInt32();
-            damage[1] = fields[6].GetInt32();
-            damage[2] = fields[7].GetInt32();
-            baseDamage[0] = fields[8].GetInt32();
-            baseDamage[1] = fields[9].GetInt32();
-            baseDamage[2] = fields[10].GetInt32();
-            int32 maxduration = fields[11].GetInt32();
-            int32 remaintime = fields[12].GetInt32();
-            uint8 remaincharges = fields[13].GetUInt8();
+            uint32 spellid = fields[1].Get<uint32>();
+            uint8 effmask = fields[2].Get<uint8>();
+            uint8 recalculatemask = fields[3].Get<uint8>();
+            uint8 stackcount = fields[4].Get<uint8>();
+            damage[0] = fields[5].Get<int32>();
+            damage[1] = fields[6].Get<int32>();
+            damage[2] = fields[7].Get<int32>();
+            baseDamage[0] = fields[8].Get<int32>();
+            baseDamage[1] = fields[9].Get<int32>();
+            baseDamage[2] = fields[10].Get<int32>();
+            int32 maxduration = fields[11].Get<int32>();
+            int32 remaintime = fields[12].Get<int32>();
+            uint8 remaincharges = fields[13].Get<uint8>();
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
             if (!spellInfo)

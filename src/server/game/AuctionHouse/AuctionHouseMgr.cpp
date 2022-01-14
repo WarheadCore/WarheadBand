@@ -507,8 +507,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType item_guid = fields[11].GetUInt32();
-        uint32 item_template = fields[12].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[11].Get<uint32>();
+        uint32 item_template = fields[12].Get<uint32>();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item_template);
         if (!proto)
@@ -997,18 +997,18 @@ void AuctionEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 
 bool AuctionEntry::LoadFromDB(Field* fields)
 {
-    Id = fields[0].GetUInt32();
-    houseId = fields[1].GetUInt8();
-    item_guid = ObjectGuid::Create<HighGuid::Item>(fields[2].GetUInt32());
-    item_template = fields[3].GetUInt32();
-    itemCount = fields[4].GetUInt32();
-    owner = ObjectGuid::Create<HighGuid::Player>(fields[5].GetUInt32());
-    buyout = fields[6].GetUInt32();
-    expire_time = fields[7].GetUInt32();
-    bidder = ObjectGuid::Create<HighGuid::Player>(fields[8].GetUInt32());
-    bid = fields[9].GetUInt32();
-    startbid = fields[10].GetUInt32();
-    deposit = fields[11].GetUInt32();
+    Id = fields[0].Get<uint32>();
+    houseId = fields[1].Get<uint8>();
+    item_guid = ObjectGuid::Create<HighGuid::Item>(fields[2].Get<uint32>());
+    item_template = fields[3].Get<uint32>();
+    itemCount = fields[4].Get<uint32>();
+    owner = ObjectGuid::Create<HighGuid::Player>(fields[5].Get<uint32>());
+    buyout = fields[6].Get<uint32>();
+    expire_time = fields[7].Get<uint32>();
+    bidder = ObjectGuid::Create<HighGuid::Player>(fields[8].Get<uint32>());
+    bid = fields[9].Get<uint32>();
+    startbid = fields[10].Get<uint32>();
+    deposit = fields[11].Get<uint32>();
 
     auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntryFromHouse(houseId);
     if (!auctionHouseEntry)

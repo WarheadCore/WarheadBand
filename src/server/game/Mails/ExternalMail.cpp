@@ -127,14 +127,14 @@ void ExternalMail::SendMailsAsync(QueryResult result)
     {
         Field* fields = result->Fetch();
 
-        uint32 ID = fields[0].GetUInt32();
-        std::string PlayerName = fields[1].GetString();
-        std::string Subject = fields[2].GetString();
-        std::string Body = fields[3].GetString();
-        uint32 Money = fields[4].GetUInt32();
-        uint32 ItemID = fields[5].GetUInt32();
-        uint32 ItemCount = fields[6].GetUInt32();
-        uint32 CreatureEntry = fields[7].GetUInt32();
+        uint32 ID = fields[0].Get<uint32>();
+        std::string PlayerName = fields[1].Get<std::string>();
+        std::string Subject = fields[2].Get<std::string>();
+        std::string Body = fields[3].Get<std::string>();
+        uint32 Money = fields[4].Get<uint32>();
+        uint32 ItemID = fields[5].Get<uint32>();
+        uint32 ItemCount = fields[6].Get<uint32>();
+        uint32 CreatureEntry = fields[7].Get<uint32>();
 
         if (!normalizePlayerName(PlayerName))
         {

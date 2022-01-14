@@ -1969,17 +1969,17 @@ public:
             }
 
             Field* fields      = charInfoResult->Fetch();
-            totalPlayerTime    = fields[0].GetUInt32();
-            level              = fields[1].GetUInt8();
-            money              = fields[2].GetUInt32();
-            accId              = fields[3].GetUInt32();
-            raceid             = fields[4].GetUInt8();
-            classid            = fields[5].GetUInt8();
-            mapId              = fields[6].GetUInt16();
-            areaId             = fields[7].GetUInt16();
-            gender             = fields[8].GetUInt8();
-            uint32 health      = fields[9].GetUInt32();
-            uint32 playerFlags = fields[10].GetUInt32();
+            totalPlayerTime    = fields[0].Get<uint32>();
+            level              = fields[1].Get<uint8>();
+            money              = fields[2].Get<uint32>();
+            accId              = fields[3].Get<uint32>();
+            raceid             = fields[4].Get<uint8>();
+            classid            = fields[5].Get<uint8>();
+            mapId              = fields[6].Get<uint16>();
+            areaId             = fields[7].Get<uint16>();
+            gender             = fields[8].Get<uint8>();
+            uint32 health      = fields[9].Get<uint32>();
+            uint32 playerFlags = fields[10].Get<uint32>();
 
             if (!health || playerFlags & PLAYER_FLAGS_GHOST)
             {
@@ -2000,16 +2000,16 @@ public:
         if (accInfoResult)
         {
             Field* fields = accInfoResult->Fetch();
-            userName      = fields[0].GetString();
-            security      = fields[1].GetUInt8();
+            userName      = fields[0].Get<std::string>();
+            security      = fields[1].Get<uint8>();
 
             // Only fetch these fields if commander has sufficient rights)
             if (!handler->GetSession() || handler->GetSession()->GetSecurity() >= AccountTypes(security))
             {
-                eMail     = fields[2].GetString();
-                regMail   = fields[3].GetString();
-                lastIp    = fields[4].GetString();
-                lastLogin = fields[5].GetString();
+                eMail     = fields[2].Get<std::string>();
+                regMail   = fields[3].Get<std::string>();
+                lastIp    = fields[4].Get<std::string>();
+                lastLogin = fields[5].Get<std::string>();
 
                 if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(lastIp))
                 {
@@ -2026,9 +2026,9 @@ public:
                 lastLogin = handler->GetWarheadString(LANG_UNAUTHORIZED);
             }
 
-            failedLogins  = fields[6].GetUInt32();
-            locked        = fields[7].GetUInt8();
-            OS            = fields[8].GetString();
+            failedLogins  = fields[6].Get<uint32>();
+            locked        = fields[7].Get<uint8>();
+            OS            = fields[8].Get<std::string>();
         }
 
         // Check mute info if exist
@@ -2067,9 +2067,9 @@ public:
         if (accBannedResult)
         {
             Field* fields = accBannedResult->Fetch();
-            banTime       = int64(fields[1].GetUInt64() ? 0 : fields[0].GetUInt32());
-            bannedBy      = fields[2].GetString();
-            banReason     = fields[3].GetString();
+            banTime       = int64(fields[1].Get<uint64>() ? 0 : fields[0].Get<uint32>());
+            bannedBy      = fields[2].Get<std::string>();
+            banReason     = fields[3].Get<std::string>();
         }
 
         // Can be used to query data from World database
@@ -2080,7 +2080,7 @@ public:
         if (xpResult)
         {
             Field* fields = xpResult->Fetch();
-            xptotal       = fields[0].GetUInt32();
+            xptotal       = fields[0].Get<uint32>();
         }
 
         // Can be used to query data from Characters database
@@ -2091,8 +2091,8 @@ public:
         if (charXpResult)
         {
             Field* fields = charXpResult->Fetch();
-            xp = fields[0].GetUInt32();
-            ObjectGuid::LowType gguid = fields[1].GetUInt32();
+            xp = fields[0].Get<uint32>();
+            ObjectGuid::LowType gguid = fields[1].Get<uint32>();
 
             if (gguid != 0)
             {
@@ -2103,11 +2103,11 @@ public:
                 if (guildInfoResult)
                 {
                     Field* guildInfoFields  = guildInfoResult->Fetch();
-                    guildId        = guildInfoFields[0].GetUInt32();
-                    guildName      = guildInfoFields[1].GetString();
-                    guildRank      = guildInfoFields[2].GetString();
-                    note           = guildInfoFields[3].GetString();
-                    officeNote     = guildInfoFields[4].GetString();
+                    guildId        = guildInfoFields[0].Get<uint32>();
+                    guildName      = guildInfoFields[1].Get<std::string>();
+                    guildRank      = guildInfoFields[2].Get<std::string>();
+                    note           = guildInfoFields[3].Get<std::string>();
+                    officeNote     = guildInfoFields[4].Get<std::string>();
                 }
             }
         }
@@ -2239,8 +2239,8 @@ public:
         if (mailInfoResult)
         {
             Field* fields         = mailInfoResult->Fetch();
-            uint32 readmail       = uint32(fields[0].GetDouble());
-            uint32 totalmail      = uint32(fields[1].GetUInt64());
+            uint32 readmail       = uint32(fields[0].Get<uint64>());
+            uint32 totalmail      = uint32(fields[1].Get<uint64>());
 
             // Output XXI. LANG_INFO_CHR_MAILS if at least one mail is given
             if (totalmail >= 1)
@@ -2415,7 +2415,7 @@ public:
             Field* fields = result->Fetch();
 
             // we have to manually set the string for mutedate
-            time_t sqlTime = fields[0].GetUInt32();
+            time_t sqlTime = fields[0].Get<uint32>();
             tm timeInfo;
             char buffer[80];
 
@@ -2423,7 +2423,7 @@ public:
             localtime_r(&sqlTime, &timeInfo);
             strftime(buffer, sizeof(buffer), "%Y-%m-%d %I:%M%p", &timeInfo);
 
-            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, buffer, fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
+            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, buffer, fields[1].Get<uint32>(), fields[2].Get<std::string_view>(), fields[3].Get<std::string_view>());
         } while (result->NextRow());
 
         return true;

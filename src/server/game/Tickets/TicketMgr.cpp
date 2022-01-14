@@ -53,26 +53,26 @@ bool GmTicket::LoadFromDB(Field* fields)
     //  0    1        2       3       4          5        6      7     8     9          10            11         12         13       14        15         16        17        18         19
     // id, type, playerGuid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket, resolvedBy
     uint8 index = 0;
-    _id                 = fields[  index].GetUInt32();
-    _type               = TicketType(fields[++index].GetUInt8());
-    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt32());
-    _playerName         = fields[++index].GetString();
-    _message            = fields[++index].GetString();
-    _createTime         = fields[++index].GetUInt32();
-    _mapId              = fields[++index].GetUInt16();
-    _posX               = fields[++index].GetFloat();
-    _posY               = fields[++index].GetFloat();
-    _posZ               = fields[++index].GetFloat();
-    _lastModifiedTime   = fields[++index].GetUInt32();
-    _closedBy           = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetInt32());
-    _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt32());
-    _comment            = fields[++index].GetString();
-    _response           = fields[++index].GetString();
-    _completed          = fields[++index].GetBool();
-    _escalatedStatus    = GMTicketEscalationStatus(fields[++index].GetUInt8());
-    _viewed             = fields[++index].GetBool();
-    _needMoreHelp       = fields[++index].GetBool();
-    _resolvedBy         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetInt32());
+    _id                 = fields[  index].Get<uint32>();
+    _type               = TicketType(fields[++index].Get<uint8>());
+    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<uint32>());
+    _playerName         = fields[++index].Get<std::string>();
+    _message            = fields[++index].Get<std::string>();
+    _createTime         = fields[++index].Get<uint32>();
+    _mapId              = fields[++index].Get<uint16>();
+    _posX               = fields[++index].Get<float>();
+    _posY               = fields[++index].Get<float>();
+    _posZ               = fields[++index].Get<float>();
+    _lastModifiedTime   = fields[++index].Get<uint32>();
+    _closedBy           = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<int32>());
+    _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<uint32>());
+    _comment            = fields[++index].Get<std::string>();
+    _response           = fields[++index].Get<std::string>();
+    _completed          = fields[++index].Get<bool>();
+    _escalatedStatus    = GMTicketEscalationStatus(fields[++index].Get<uint8>());
+    _viewed             = fields[++index].Get<bool>();
+    _needMoreHelp       = fields[++index].Get<bool>();
+    _resolvedBy         = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<int32>());
 
     return true;
 }
@@ -353,7 +353,7 @@ void TicketMgr::LoadSurveys()
 
     uint32 oldMSTime = getMSTime();
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_survey"))
-        _lastSurveyId = (*result)[0].GetUInt32();
+        _lastSurveyId = (*result)[0].Get<uint32>();
 
     LOG_INFO("server.loading", ">> Loaded GM Survey count from database in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");

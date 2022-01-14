@@ -77,7 +77,7 @@ namespace AccountMgr
         {
             do
             {
-                ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt32());
+                ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].Get<uint32>());
 
                 // Kick if player is online
                 if (Player* p = ObjectAccessor::FindPlayer(guid))
@@ -202,7 +202,7 @@ namespace AccountMgr
         stmt->SetData(0, username);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-        return (result) ? (*result)[0].GetUInt32() : 0;
+        return (result) ? (*result)[0].Get<uint32>() : 0;
     }
 
     uint32 GetSecurity(uint32 accountId)
@@ -211,7 +211,7 @@ namespace AccountMgr
         stmt->SetData(0, accountId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-        return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
+        return (result) ? (*result)[0].Get<uint8>() : uint32(SEC_PLAYER);
     }
 
     uint32 GetSecurity(uint32 accountId, int32 realmId)
@@ -221,7 +221,7 @@ namespace AccountMgr
         stmt->SetData(1, realmId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-        return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
+        return (result) ? (*result)[0].Get<uint8>() : uint32(SEC_PLAYER);
     }
 
     bool GetName(uint32 accountId, std::string& name)
@@ -232,7 +232,7 @@ namespace AccountMgr
 
         if (result)
         {
-            name = (*result)[0].GetString();
+            name = (*result)[0].Get<std::string>();
             return true;
         }
 
@@ -251,10 +251,12 @@ namespace AccountMgr
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
         stmt->SetData(0, accountId);
+
         if (PreparedQueryResult result = LoginDatabase.Query(stmt))
         {
-            Warhead::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Warhead::Crypto::SRP6::SALT_LENGTH>();
-            Warhead::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Warhead::Crypto::SRP6::VERIFIER_LENGTH>();
+            Warhead::Crypto::SRP6::Salt salt = (*result)[0].Get<Binary, Warhead::Crypto::SRP6::SALT_LENGTH>();
+            Warhead::Crypto::SRP6::Verifier verifier = (*result)[1].Get<Binary, Warhead::Crypto::SRP6::VERIFIER_LENGTH>();
+
             if (Warhead::Crypto::SRP6::CheckLogin(username, password, salt, verifier))
                 return true;
         }
@@ -269,7 +271,7 @@ namespace AccountMgr
         stmt->SetData(0, accountId);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
-        return (result) ? (*result)[0].GetUInt64() : 0;
+        return (result) ? (*result)[0].Get<uint64>() : 0;
     }
 
     bool IsPlayerAccount(uint32 gmlevel)
