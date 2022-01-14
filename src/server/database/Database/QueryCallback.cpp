@@ -16,8 +16,8 @@
  */
 
 #include "QueryCallback.h"
-#include "Errors.h"
 #include "Duration.h"
+#include "Errors.h"
 
 template<typename T, typename... Args>
 inline void Construct(T& t, Args&&... args)

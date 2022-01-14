@@ -18,8 +18,8 @@
 #include "ModulesConfig.h"
 #include "Config.h"
 #include "Log.h"
-#include "StringFormat.h"
 #include "StringConvert.h"
+#include "StringFormat.h"
 #include <unordered_map>
 
 namespace

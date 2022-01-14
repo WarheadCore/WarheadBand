@@ -19,8 +19,8 @@
 #include "Errors.h"
 #include "Log.h"
 #include "MySQLHacks.h"
-#include "Types.h"
 #include "StringConvert.h"
+#include "Types.h"
 
 Field::Field()
 {

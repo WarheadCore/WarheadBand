@@ -17,11 +17,10 @@
 
 #include "DatabaseWorkerPool.h"
 #include "AdhocStatement.h"
-#include "Errors.h"
 #include "CharacterDatabase.h"
-#include "LoginDatabase.h"
-#include "WorldDatabase.h"
+#include "Errors.h"
 #include "Log.h"
+#include "LoginDatabase.h"
 #include "MySQLPreparedStatement.h"
 #include "MySQLWorkaround.h"
 #include "PCQueue.h"
@@ -31,6 +30,7 @@
 #include "QueryResult.h"
 #include "SQLOperation.h"
 #include "Transaction.h"
+#include "WorldDatabase.h"
 #include <mysqld_error.h>
 
 #ifdef WARHEAD_DEBUG

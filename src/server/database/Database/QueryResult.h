@@ -21,8 +21,8 @@
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include "Field.h"
-#include <vector>
 #include <tuple>
+#include <vector>
 
 class WH_DATABASE_API ResultSet
 {
