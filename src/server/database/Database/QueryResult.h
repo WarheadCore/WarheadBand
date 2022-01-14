@@ -37,21 +37,21 @@ public:
     Field* Fetch() const { return _currentRow; }
     Field const& operator[](std::size_t index) const;
 
-    //template<typename... Ts>
-    //std::tuple<Ts...> GetTuple()
-    //{
-    //    std::tuple<Ts...> theTuple = {};
+    template<typename... Ts>
+    std::tuple<Ts...> FetchTuple()
+    {
+        AssertRows(sizeof...(Ts));
 
-    //    //ASSERT(sizeof...(Ts) == _rowCount, "> Tuple size != count row");
+        std::tuple<Ts...> theTuple = {};
 
-    //    std::apply([this](auto&... args)
-    //    {
-    //        uint8 index{ 0 };
-    //        ((args = _currentRow[index].Get(), index++), ...);
-    //    }, theTuple);
+        std::apply([this](Ts&... args)
+        {
+            uint8 index{ 0 };
+            ((args = _currentRow[index].Get<Ts>(), index++), ...);
+        }, theTuple);
 
-    //    return theTuple;
-    //}
+        return theTuple;
+    }
 
 protected:
     std::vector<QueryResultFieldMetadata> _fieldMetadata;
@@ -61,6 +61,8 @@ protected:
 
 private:
     void CleanUp();
+    void AssertRows(std::size_t sizeRows);
+
     MySQLResult* _result;
     MySQLField* _fields;
 
