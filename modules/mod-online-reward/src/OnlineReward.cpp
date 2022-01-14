@@ -47,10 +47,10 @@ namespace
 
         RewardPerOnline data = {};
 
-        for (auto const& itr : Warhead::Tokenize(fields[0].GetStringView(), ',', false))
+        for (auto const& itr : Warhead::Tokenize(fields[0].Get<std::string_view>(), ',', false))
             data.emplace_back(Seconds(Warhead::StringTo<int32>(itr).value_or(0)));
 
-        _rewardHistoryDB.emplace(lowGuid, std::make_pair(data, RewardPerTime(fields[1].GetInt32())));
+        _rewardHistoryDB.emplace(lowGuid, std::make_pair(data, RewardPerTime(fields[1].Get<int32>())));
     }
 }
 
@@ -111,9 +111,9 @@ void OnlineReward::LoadRewards()
     {
         Field* fields = result->Fetch();
 
-        auto seconds = fields[0].GetInt32();
-        auto itemID = fields[1].GetUInt32();
-        auto itemCount = fields[2].GetUInt32();
+        auto seconds = fields[0].Get<int32>();
+        auto itemID = fields[1].Get<uint32>();
+        auto itemCount = fields[2].Get<uint32>();
 
         // Проверка
         if (!seconds)

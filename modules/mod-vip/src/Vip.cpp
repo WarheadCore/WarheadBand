@@ -524,11 +524,11 @@ void Vip::LoadRates()
     {
         Field* fields = result->Fetch();
 
-        auto level          = fields[0].GetUInt8();
-        auto rateXP         = fields[1].GetFloat();
-        auto rateHonor      = fields[2].GetFloat();
-        auto rateArenaPoint = fields[3].GetFloat();
-        auto rateReputaion  = fields[4].GetFloat();
+        auto level          = fields[0].Get<uint8>();
+        auto rateXP         = fields[1].Get<float>();
+        auto rateHonor      = fields[2].Get<float>();
+        auto rateArenaPoint = fields[3].Get<float>();
+        auto rateReputaion  = fields[4].Get<float>();
 
         if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputaion }))
             continue;
@@ -563,10 +563,10 @@ void Vip::LoadAccounts()
     {
         Field* fields = result->Fetch();
 
-        auto accountID  = fields[0].GetUInt32();
-        auto startTime  = fields[1].GetInt64();
-        auto endTime    = fields[2].GetInt64();
-        auto level      = fields[3].GetUInt8();
+        auto accountID  = fields[0].Get<uint32>();
+        auto startTime  = fields[1].Get<int64>();
+        auto endTime    = fields[2].Get<int64>();
+        auto level      = fields[3].Get<uint8>();
 
         if (level > MAX_VIP_LEVEL)
         {
@@ -604,8 +604,8 @@ void Vip::LoadUnbinds()
     {
         Field* fields = result->Fetch();
 
-        auto guid = fields[0].GetUInt64();
-        auto unbindTime = fields[1].GetUInt64();
+        auto guid = fields[0].Get<uint64>();
+        auto unbindTime = fields[1].Get<uint64>();
 
         storeUnbind.emplace(guid, unbindTime);
 
@@ -635,8 +635,8 @@ void Vip::LoadVipVendors()
     {
         Field* fields = result->Fetch();
 
-        auto creatureEntry = fields[0].GetUInt32();
-        auto vipLevel = fields[1].GetUInt8();
+        auto creatureEntry = fields[0].Get<uint32>();
+        auto vipLevel = fields[1].Get<uint8>();
 
         CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(creatureEntry);
         if (!creatureTemplate)

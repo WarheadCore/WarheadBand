@@ -387,13 +387,13 @@ void GuildLevelSystem::LoadBaseCriteria()
             return true;
         };
 
-        uint32 criteriaID                       = fields[0].GetUInt32();
-        uint32 stageID                          = fields[1].GetUInt32();
-        std::string listItemID                  = fields[2].GetString();
-        std::string listItemCount               = fields[3].GetString();
-        uint32 minPlayersCount                  = fields[4].GetUInt32();
-        float coef                              = fields[5].GetFloat();
-        std::string listRewardSpells            = fields[6].GetString();
+        uint32 criteriaID                       = fields[0].Get<uint32>();
+        uint32 stageID                          = fields[1].Get<uint32>();
+        std::string listItemID                  = fields[2].Get<std::string>();
+        std::string listItemCount               = fields[3].Get<std::string>();
+        uint32 minPlayersCount                  = fields[4].Get<uint32>();
+        float coef                              = fields[5].Get<float>();
+        std::string listRewardSpells            = fields[6].Get<std::string>();
 
         GuildCriteriaStruct _data;
         _data.CriteriaID        = criteriaID;
@@ -521,11 +521,11 @@ void GuildLevelSystem::LoadCriteriaProgress()
     {
         Field* fields = result->Fetch();
 
-        uint32 guildID              = fields[0].GetUInt32();
-        uint32 criteriaID           = fields[1].GetUInt32();
-        std::string listItemCount   = fields[2].GetString();
-        uint32 spellID              = fields[3].GetUInt32();
-        bool isDone                 = fields[4].GetBool();
+        uint32 guildID              = fields[0].Get<uint32>();
+        uint32 criteriaID           = fields[1].Get<uint32>();
+        std::string listItemCount   = fields[2].Get<std::string>();
+        uint32 spellID              = fields[3].Get<uint32>();
+        bool isDone                 = fields[4].Get<bool>();
 
         // Check guild
         if (!sGuildMgr->GetGuildById(guildID))
@@ -607,8 +607,8 @@ void GuildLevelSystem::LoadStageProgress()
     {
         Field* fields = result->Fetch();
 
-        uint32 guildID = fields[0].GetUInt32();
-        uint32 stageID = fields[1].GetUInt32();
+        uint32 guildID = fields[0].Get<uint32>();
+        uint32 stageID = fields[1].Get<uint32>();
 
         // Check guild
         if (!sGuildMgr->GetGuildById(guildID))

@@ -72,7 +72,7 @@ public:
 
         do
         {
-            _pattern += "(" + result->Fetch()->GetString() + ")|";
+            _pattern += "(" + result->Fetch()->Get<std::string>() + ")|";
         } while (result->NextRow());
 
         // Delete last (|)

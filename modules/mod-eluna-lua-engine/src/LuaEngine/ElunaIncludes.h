@@ -104,7 +104,7 @@ typedef Opcodes                 OpcodesList;
 #endif
 
 #ifdef AZEROTHCORE
-#define CORE_NAME               "AzerothCore"
+#define CORE_NAME               "WarheadCore"
 #endif
 
 #if defined TRINITY || defined AZEROTHCORE

@@ -182,12 +182,12 @@ void UnbindInstance::LoadCostData()
         Field* fields = result->Fetch();
 
         UnbindCost _UIData;
-        _UIData.ItemID = fields[0].GetUInt32();
-        _UIData.CountForDungeonHeroic   = fields[1].GetUInt32();
-        _UIData.CountForRaid10Normal    = fields[2].GetUInt32();
-        _UIData.CountForRaid25Normal    = fields[3].GetUInt32();
-        _UIData.CountForRaid10Heroic    = fields[4].GetUInt32();
-        _UIData.CountForRaid25Heroic    = fields[5].GetUInt32();
+        _UIData.ItemID = fields[0].Get<uint32>();
+        _UIData.CountForDungeonHeroic   = fields[1].Get<uint32>();
+        _UIData.CountForRaid10Normal    = fields[2].Get<uint32>();
+        _UIData.CountForRaid25Normal    = fields[3].Get<uint32>();
+        _UIData.CountForRaid10Heroic    = fields[4].Get<uint32>();
+        _UIData.CountForRaid25Heroic    = fields[5].Get<uint32>();
 
         // Check item
         if (!IsCorrectItemId(_UIData.ItemID))

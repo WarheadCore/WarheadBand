@@ -172,6 +172,7 @@ template int16 Field::GetData() const;
 template int32 Field::GetData() const;
 template int64 Field::GetData() const;
 template float Field::GetData() const;
+template double Field::GetData() const;
 
 std::string Field::GetDataString() const
 {

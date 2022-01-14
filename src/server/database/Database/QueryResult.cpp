@@ -180,6 +180,72 @@ ResultSet::ResultSet(MySQLResult* result, MySQLField* fields, uint64 rowCount, u
     }
 }
 
+ResultSet::~ResultSet()
+{
+    CleanUp();
+}
+
+
+bool ResultSet::NextRow()
+{
+    MYSQL_ROW row;
+
+    if (!_result)
+        return false;
+
+    row = mysql_fetch_row(_result);
+    if (!row)
+    {
+        CleanUp();
+        return false;
+    }
+
+    unsigned long* lengths = mysql_fetch_lengths(_result);
+    if (!lengths)
+    {
+        LOG_WARN("sql.sql", "{}:mysql_fetch_lengths, cannot retrieve value lengths. Error {}.", __FUNCTION__, mysql_error(_result->handle));
+        CleanUp();
+        return false;
+    }
+
+    for (uint32 i = 0; i < _fieldCount; i++)
+        _currentRow[i].SetStructuredValue(row[i], lengths[i]);
+
+    return true;
+}
+
+std::string ResultSet::GetFieldName(uint32 index) const
+{
+    ASSERT(index < _fieldCount);
+    return _fields[index].name;
+}
+
+void ResultSet::CleanUp()
+{
+    if (_currentRow)
+    {
+        delete[] _currentRow;
+        _currentRow = nullptr;
+    }
+
+    if (_result)
+    {
+        mysql_free_result(_result);
+        _result = nullptr;
+    }
+}
+
+Field const& ResultSet::operator[](std::size_t index) const
+{
+    ASSERT(index < _fieldCount);
+    return _currentRow[index];
+}
+
+void ResultSet::AssertRows(std::size_t sizeRows)
+{
+    ASSERT(sizeRows == _fieldCount);
+}
+
 PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint64 rowCount, uint32 fieldCount) :
     m_rowCount(rowCount),
     m_rowPosition(0),
@@ -274,22 +340,22 @@ PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint6
                 void* buffer = m_stmt->bind[fIndex].buffer;
                 switch (m_rBind[fIndex].buffer_type)
                 {
-                    case MYSQL_TYPE_TINY_BLOB:
-                    case MYSQL_TYPE_MEDIUM_BLOB:
-                    case MYSQL_TYPE_LONG_BLOB:
-                    case MYSQL_TYPE_BLOB:
-                    case MYSQL_TYPE_STRING:
-                    case MYSQL_TYPE_VAR_STRING:
-                        // warning - the string will not be null-terminated if there is no space for it in the buffer
-                        // when mysql_stmt_fetch returned MYSQL_DATA_TRUNCATED
-                        // we cannot blindly null-terminate the data either as it may be retrieved as binary blob and not specifically a string
-                        // in this case using Field::GetCString will result in garbage
-                        // TODO: remove Field::GetCString and use std::string_view in C++17
-                        if (fetched_length < buffer_length)
-                            *((char*)buffer + fetched_length) = '\0';
-                        break;
-                    default:
-                        break;
+                case MYSQL_TYPE_TINY_BLOB:
+                case MYSQL_TYPE_MEDIUM_BLOB:
+                case MYSQL_TYPE_LONG_BLOB:
+                case MYSQL_TYPE_BLOB:
+                case MYSQL_TYPE_STRING:
+                case MYSQL_TYPE_VAR_STRING:
+                    // warning - the string will not be null-terminated if there is no space for it in the buffer
+                    // when mysql_stmt_fetch returned MYSQL_DATA_TRUNCATED
+                    // we cannot blindly null-terminate the data either as it may be retrieved as binary blob and not specifically a string
+                    // in this case using Field::GetCString will result in garbage
+                    // TODO: remove Field::GetCString and use std::string_view in C++17
+                    if (fetched_length < buffer_length)
+                        *((char*)buffer + fetched_length) = '\0';
+                    break;
+                default:
+                    break;
                 }
 
                 m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue((char const*)buffer, fetched_length);
@@ -299,7 +365,7 @@ PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint6
             }
             else
             {
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue({}, *m_rBind[fIndex].length);
+                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(nullptr, *m_rBind[fIndex].length);
             }
         }
 
@@ -312,48 +378,9 @@ PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint6
     mysql_stmt_free_result(m_stmt);
 }
 
-ResultSet::~ResultSet()
-{
-    CleanUp();
-}
-
 PreparedResultSet::~PreparedResultSet()
 {
     CleanUp();
-}
-
-bool ResultSet::NextRow()
-{
-    MYSQL_ROW row;
-
-    if (!_result)
-        return false;
-
-    row = mysql_fetch_row(_result);
-    if (!row)
-    {
-        CleanUp();
-        return false;
-    }
-
-    unsigned long* lengths = mysql_fetch_lengths(_result);
-    if (!lengths)
-    {
-        LOG_WARN("sql.sql", "{}:mysql_fetch_lengths, cannot retrieve value lengths. Error {}.", __FUNCTION__, mysql_error(_result->handle));
-        CleanUp();
-        return false;
-    }
-
-    for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetStructuredValue(row[i], lengths[i]);
-
-    return true;
-}
-
-std::string ResultSet::GetFieldName(uint32 index) const
-{
-    ASSERT(index < _fieldCount);
-    return _fields[index].name;
 }
 
 bool PreparedResultSet::NextRow()
@@ -375,27 +402,6 @@ bool PreparedResultSet::_NextRow()
 
     int retval = mysql_stmt_fetch(m_stmt);
     return retval == 0 || retval == MYSQL_DATA_TRUNCATED;
-}
-
-void ResultSet::CleanUp()
-{
-    if (_currentRow)
-    {
-        delete [] _currentRow;
-        _currentRow = nullptr;
-    }
-
-    if (_result)
-    {
-        mysql_free_result(_result);
-        _result = nullptr;
-    }
-}
-
-Field const& ResultSet::operator[](std::size_t index) const
-{
-    ASSERT(index < _fieldCount);
-    return _currentRow[index];
 }
 
 Field* PreparedResultSet::Fetch() const

@@ -20,6 +20,7 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
+#include "Field.h"
 #include <vector>
 #include <tuple>
 
@@ -38,7 +39,7 @@ public:
     Field const& operator[](std::size_t index) const;
 
     template<typename... Ts>
-    std::tuple<Ts...> FetchTuple()
+    inline std::tuple<Ts...> FetchTuple()
     {
         AssertRows(sizeof...(Ts));
 
@@ -84,7 +85,7 @@ public:
     Field const& operator[](std::size_t index) const;
 
     template<typename... Ts>
-    std::tuple<Ts...> FetchTuple()
+    inline std::tuple<Ts...> FetchTuple()
     {
         AssertRows(sizeof...(Ts));
 

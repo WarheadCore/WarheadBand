@@ -68,9 +68,9 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
 
     do
     {
-        uint8 PresetID = (*result)[0].GetUInt8();
-        std::string SetName = (*result)[1].GetString();
-        std::istringstream SetData((*result)[2].GetString());
+        uint8 PresetID = (*result)[0].Get<uint8>();
+        std::string SetName = (*result)[1].Get<std::string>();
+        std::istringstream SetData((*result)[2].Get<std::string>());
 
         while (SetData.good())
         {
@@ -786,8 +786,8 @@ void Transmogrification::LoadPlayerAtLogin(Player* player)
         do
         {
             Field* field = result->Fetch();
-            ObjectGuid itemGUID(HighGuid::Item, 0, field[0].GetUInt32());
-            uint32 fakeEntry = (*result)[1].GetUInt32();
+            ObjectGuid itemGUID(HighGuid::Item, 0, field[0].Get<uint32>());
+            uint32 fakeEntry = (*result)[1].Get<uint32>();
 
             if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
             {

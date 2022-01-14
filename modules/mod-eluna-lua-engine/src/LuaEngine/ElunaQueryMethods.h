@@ -88,7 +88,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetBool());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<bool>());
         return 1;
     }
 
@@ -102,7 +102,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetUInt8());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<uint8>());
         return 1;
     }
 
@@ -116,7 +116,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetUInt16());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<uint16>());
         return 1;
     }
 
@@ -130,7 +130,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetUInt32());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<uint32>());
         return 1;
     }
 
@@ -144,7 +144,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetUInt64());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<uint64>());
         return 1;
     }
 
@@ -158,7 +158,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetInt8());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<int8>());
         return 1;
     }
 
@@ -172,7 +172,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetInt16());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<int16>());
         return 1;
     }
 
@@ -186,7 +186,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetInt32());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<int32>());
         return 1;
     }
 
@@ -200,7 +200,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetInt64());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<int64>());
         return 1;
     }
 
@@ -214,7 +214,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetFloat());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<float>());
         return 1;
     }
 
@@ -228,7 +228,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        Eluna::Push(L, RESULT->Fetch()[col].GetDouble());
+        Eluna::Push(L, RESULT->Fetch()[col].Get<double>());
         return 1;
     }
 
@@ -242,12 +242,7 @@ namespace LuaQuery
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-
-#ifndef TRINITY
-        Eluna::Push(L, RESULT->Fetch()[col].GetString());
-#else
-        Eluna::Push(L, RESULT->Fetch()[col].GetCString());
-#endif
+        Eluna::Push(L, RESULT->Fetch()[col].Get<std::string>());
         return 1;
     }
 
@@ -291,75 +286,31 @@ namespace LuaQuery
         lua_createtable(L, 0, col);
         int tbl = lua_gettop(L);
 
-#if !defined TRINITY && !AZEROTHCORE
-        const QueryFieldNames& names = RESULT->GetFieldNames();
-#endif
-
         for (uint32 i = 0; i < col; ++i)
         {
-#if defined TRINITY || AZEROTHCORE
             Eluna::Push(L, RESULT->GetFieldName(i));
 
-            const char* str = row[i].GetCString();
-            if (row[i].IsNull() || !str)
+            std::string str = row[i].Get<std::string>();
+            if (row[i].IsNull() || str.empty())
                 Eluna::Push(L);
             else
             {
                 // MYSQL_TYPE_LONGLONG Interpreted as string for lua
                 switch (row[i].GetType())
                 {
-#if defined TRINITY || AZEROTHCORE
                     case DatabaseFieldTypes::Int8:
                     case DatabaseFieldTypes::Int16:
                     case DatabaseFieldTypes::Int32:
                     case DatabaseFieldTypes::Int64:
                     case DatabaseFieldTypes::Float:
                     case DatabaseFieldTypes::Double:
-#else
-                    case MYSQL_TYPE_TINY:
-                    case MYSQL_TYPE_YEAR:
-                    case MYSQL_TYPE_SHORT:
-                    case MYSQL_TYPE_INT24:
-                    case MYSQL_TYPE_LONG:
-                    case MYSQL_TYPE_LONGLONG:
-                    case MYSQL_TYPE_BIT:
-                    case MYSQL_TYPE_FLOAT:
-                    case MYSQL_TYPE_DOUBLE:
-                    case MYSQL_TYPE_DECIMAL:
-                    case MYSQL_TYPE_NEWDECIMAL:
-#endif
-                        Eluna::Push(L, strtod(str, NULL));
-                        break;
-                    default:
-                        Eluna::Push(L, str);
-                        break;
-        }
-    }
-#else
-            Eluna::Push(L, names[i]);
-
-            const char* str = row[i].GetString();
-            if (row[i].IsNULL() || !str)
-                Eluna::Push(L);
-            else
-            {
-                // MYSQL_TYPE_LONGLONG Interpreted as string for lua
-                switch (row[i].GetType())
-                {
-                    case MYSQL_TYPE_TINY:
-                    case MYSQL_TYPE_SHORT:
-                    case MYSQL_TYPE_INT24:
-                    case MYSQL_TYPE_LONG:
-                    case MYSQL_TYPE_FLOAT:
-                    case MYSQL_TYPE_DOUBLE:
-                        Eluna::Push(L, strtod(str, NULL));
+                        Eluna::Push(L, strtod(str.c_str(), NULL));
                         break;
                     default:
                         Eluna::Push(L, str);
                         break;
                 }
             }
-#endif
 
             lua_rawset(L, tbl);
         }

@@ -1246,7 +1246,7 @@ namespace LuaGlobalFunctions
      *     local Q = WorldDBQuery("SELECT entry, name FROM creature_template LIMIT 10")
      *     if Q then
      *         repeat
-     *             local entry, name = Q:GetUInt32(0), Q:GetString(1)
+     *             local entry, name = Q:Get<uint32>(0), Q:Get<std::string>(1)
      *             print(entry, name)
      *         until not Q:NextRow()
      *     end
