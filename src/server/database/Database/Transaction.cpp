@@ -16,6 +16,7 @@
  */
 
 #include "Transaction.h"
+#include "Errors.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
