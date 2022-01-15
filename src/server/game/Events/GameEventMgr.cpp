@@ -509,11 +509,11 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
-                uint32 entry = fields[1].GetUInt32();
-                uint32 entry2 = fields[2].GetUInt32();
-                uint32 entry3 = fields[3].GetUInt32();
-                uint16 event_id = fields[4].GetUInt8();
+                ObjectGuid::LowType guid = fields[0].Get<uint32>();
+                uint32 entry = fields[1].Get<uint32>();
+                uint32 entry2 = fields[2].Get<uint32>();
+                uint32 entry3 = fields[3].Get<uint32>();
+                uint16 event_id = fields[4].Get<uint8>();
 
                 if (event_id >= mGameEventModelEquip.size())
                 {
@@ -523,8 +523,8 @@ void GameEventMgr::LoadFromDB()
 
                 ModelEquipList& equiplist = mGameEventModelEquip[event_id];
                 ModelEquip newModelEquipSet;
-                newModelEquipSet.modelid = fields[5].GetUInt32();
-                newModelEquipSet.equipment_id = fields[6].GetUInt8();
+                newModelEquipSet.modelid = fields[5].Get<uint32>();
+                newModelEquipSet.equipment_id = fields[6].Get<uint8>();
                 newModelEquipSet.equipement_id_prev = 0;
                 newModelEquipSet.modelid_prev = 0;
 

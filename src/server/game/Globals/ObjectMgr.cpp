@@ -1912,58 +1912,58 @@ void ObjectMgr::LoadCreatures()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType spawnId     = fields[0].GetUInt32();
-        uint32 id1                      = fields[1].GetUInt32();
-        uint32 id2                      = fields[2].GetUInt32();
-        uint32 id3                      = fields[3].GetUInt32();
+        ObjectGuid::LowType spawnId     = fields[0].Get<uint32>();
+        uint32 id1                      = fields[1].Get<uint32>();
+        uint32 id2                      = fields[2].Get<uint32>();
+        uint32 id3                      = fields[3].Get<uint32>();
 
         CreatureTemplate const* cInfo = GetCreatureTemplate(id1);
         if (!cInfo)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: %u) with non existing creature entry %u in id1 field, skipped.", spawnId, id1);
+            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: {}) with non existing creature entry {} in id1 field, skipped.", spawnId, id1);
             continue;
         }
         CreatureTemplate const* cInfo2 = GetCreatureTemplate(id2);
         if (!cInfo2 && id2)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: %u) with non existing creature entry %u in id2 field, skipped.", spawnId, id2);
+            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: {}) with non existing creature entry {} in id2 field, skipped.", spawnId, id2);
             continue;
         }
         CreatureTemplate const* cInfo3 = GetCreatureTemplate(id3);
         if (!cInfo3 && id3)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: %u) with non existing creature entry %u in id3 field, skipped.", spawnId, id3);
+            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: {}) with non existing creature entry {} in id3 field, skipped.", spawnId, id3);
             continue;
         }
         if (!id2 && id3)
         {
-            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: %u) with creature entry %u in id3 field but no entry in id2 field, skipped.", spawnId, id3);
+            LOG_ERROR("sql.sql", "Table `creature` has creature (SpawnId: {}) with creature entry {} in id3 field but no entry in id2 field, skipped.", spawnId, id3);
             continue;
         }
         CreatureData& data      = _creatureDataStore[spawnId];
         data.id1                = id1;
         data.id2                = id2;
         data.id3                = id3;
-        data.mapid              = fields[4].GetUInt16();
-        data.equipmentId        = fields[5].GetInt8();
-        data.posX               = fields[6].GetFloat();
-        data.posY               = fields[7].GetFloat();
-        data.posZ               = fields[8].GetFloat();
-        data.orientation        = fields[9].GetFloat();
-        data.spawntimesecs      = fields[10].GetUInt32();
-        data.wander_distance    = fields[11].GetFloat();
-        data.currentwaypoint    = fields[12].GetUInt32();
-        data.curhealth          = fields[13].GetUInt32();
-        data.curmana            = fields[14].GetUInt32();
-        data.movementType       = fields[15].GetUInt8();
-        data.spawnMask          = fields[16].GetUInt8();
-        data.phaseMask          = fields[17].GetUInt32();
-        int16 gameEvent         = fields[18].GetInt8();
-        uint32 PoolId           = fields[19].GetUInt32();
-        data.npcflag            = fields[20].GetUInt32();
-        data.unit_flags         = fields[21].GetUInt32();
-        data.dynamicflags       = fields[22].GetUInt32();
-        data.ScriptId           = GetScriptId(fields[23].GetString());
+        data.mapid              = fields[4].Get<uint16>();
+        data.equipmentId        = fields[5].Get<int8>();
+        data.posX               = fields[6].Get<float>();
+        data.posY               = fields[7].Get<float>();
+        data.posZ               = fields[8].Get<float>();
+        data.orientation        = fields[9].Get<float>();
+        data.spawntimesecs      = fields[10].Get<uint32>();
+        data.wander_distance    = fields[11].Get<float>();
+        data.currentwaypoint    = fields[12].Get<uint32>();
+        data.curhealth          = fields[13].Get<uint32>();
+        data.curmana            = fields[14].Get<uint32>();
+        data.movementType       = fields[15].Get<uint8>();
+        data.spawnMask          = fields[16].Get<uint8>();
+        data.phaseMask          = fields[17].Get<uint32>();
+        int16 gameEvent         = fields[18].Get<int8>();
+        uint32 PoolId           = fields[19].Get<uint32>();
+        data.npcflag            = fields[20].Get<uint32>();
+        data.unit_flags         = fields[21].Get<uint32>();
+        data.dynamicflags       = fields[22].Get<uint32>();
+        data.ScriptId           = GetScriptId(fields[23].Get<std::string>());
 
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
@@ -1989,7 +1989,7 @@ void ObjectMgr::LoadCreatures()
         {
             if ((_difficultyEntries[diff].find(data.id1) != _difficultyEntries[diff].end()) || (_difficultyEntries[diff].find(data.id2) != _difficultyEntries[diff].end()) || (_difficultyEntries[diff].find(data.id3) != _difficultyEntries[diff].end()))
             {
-                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: %u) that listed as difficulty %u template (Entries: %u, %u, %u) in `creature_template`, skipped.",
+                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: {}) that listed as difficulty {} template (Entries: {}, {}, {}) in `creature_template`, skipped.",
                                  spawnId, diff + 1, data.id1, data.id2, data.id3);
                 ok = false;
             }
@@ -2002,7 +2002,7 @@ void ObjectMgr::LoadCreatures()
         {
             if ((!GetEquipmentInfo(data.id1, data.equipmentId)) || (data.id2 && !GetEquipmentInfo(data.id2, data.equipmentId))  || (data.id3 && !GetEquipmentInfo(data.id3, data.equipmentId)))
             {
-                LOG_ERROR("sql.sql", "Table `creature` have creature (Entries: %u, %u, %u) one or more with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
+                LOG_ERROR("sql.sql", "Table `creature` have creature (Entries: {}, {}, {}) one or more with equipment_id {} not found in table `creature_equip_template`, set to no equipment.",
                     data.id1, data.id2, data.id3, data.equipmentId);
                 data.equipmentId = 0;
             }
@@ -2010,19 +2010,19 @@ void ObjectMgr::LoadCreatures()
         if ((cInfo->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND) || (data.id2 && cInfo2->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND) || (data.id3 && cInfo3->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND))
         {
             if (!mapEntry->IsDungeon())
-                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: %u Entries: %u, %u, %u) with a `creature_template`.`flags_extra` in one or more entries including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.",
+                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: {} Entries: {}, {}, {}) with a `creature_template`.`flags_extra` in one or more entries including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.",
                     spawnId, data.id1, data.id2, data.id3);
         }
         if (data.wander_distance < 0.0f)
         {
-            LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: %u Entries: %u, %u, %u) with `wander_distance`< 0, set to 0.", spawnId, data.id1, data.id2, data.id3);
+            LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: {} Entries: {}, {}, {}) with `wander_distance`< 0, set to 0.", spawnId, data.id1, data.id2, data.id3);
             data.wander_distance = 0.0f;
         }
         else if (data.movementType == RANDOM_MOTION_TYPE)
         {
             if (data.wander_distance == 0.0f)
             {
-                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: %u Entries: %u, %u, %u) with `MovementType`=1 (random movement) but with `wander_distance`=0, replace by idle movement type (0).",
+                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: {} Entries: {}, {}, {}) with `MovementType`=1 (random movement) but with `wander_distance`=0, replace by idle movement type (0).",
                     spawnId, data.id1, data.id2, data.id3);
                 data.movementType = IDLE_MOTION_TYPE;
             }
@@ -2031,14 +2031,14 @@ void ObjectMgr::LoadCreatures()
         {
             if (data.wander_distance != 0.0f)
             {
-                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: %u Entries: %u, %u, %u) with `MovementType`=0 (idle) have `wander_distance`<>0, set to 0.", spawnId, data.id1, data.id2, data.id3);
+                LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: {} Entries: {}, {}, {}) with `MovementType`=0 (idle) have `wander_distance`<>0, set to 0.", spawnId, data.id1, data.id2, data.id3);
                 data.wander_distance = 0.0f;
             }
         }
 
         if (data.phaseMask == 0)
         {
-            LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: %u Entries: %u, %u, %u) with `phaseMask`=0 (not visible for anyone), set to 1.", spawnId, data.id1, data.id2, data.id3);
+            LOG_ERROR("sql.sql", "Table `creature` have creature (SpawnId: {} Entries: {}, {}, {}) with `phaseMask`=0 (not visible for anyone), set to 1.", spawnId, data.id1, data.id2, data.id3);
             data.phaseMask = 1;
         }
 
