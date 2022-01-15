@@ -106,7 +106,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                 case FT_NA:
                     break;
                 default:
-                    ASSERT(false, "Unsupported data type '%c' in table '{}'", *dbcFormat, _sqlTableName);
+                    ABORT("Unsupported data type '{}' in table '{}'", *dbcFormat, _sqlTableName);
                     return nullptr;
             }
 

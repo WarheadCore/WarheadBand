@@ -153,9 +153,16 @@ T Field::GetData() const
     else
         result = Warhead::StringTo<T>(data.value);
 
+    // For dbc db loader
+    if (!data.raw && !result && std::is_same_v<T, uint32>)
+    {
+        result = std::numeric_limits<T>::max();
+    }
+
     if (!result)
     {
-        LOG_FATAL("sql.sql", "> Incorrect value '{}' for type '{}'", data.value, typeid(T).name());
+        LOG_FATAL("sql.sql", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, typeid(T).name(), data.raw);
+        LOG_FATAL("sql.sql", "> Field name '{}'. Table name '{}'", meta->Name, meta->TableName);
         return GetDefaultValue<T>();
     }
 

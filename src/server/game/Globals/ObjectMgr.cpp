@@ -6997,15 +6997,15 @@ void ObjectMgr::LoadReputationOnKill()
         uint32 creature_id = fields[0].Get<uint32>();
 
         ReputationOnKillEntry repOnKill;
-        repOnKill.RepFaction1          = fields[1].Get<int16>();
-        repOnKill.RepFaction2          = fields[2].Get<int16>();
-        repOnKill.IsTeamAward1        = fields[3].Get<bool>();
-        repOnKill.ReputationMaxCap1  = fields[4].Get<uint8>();
-        repOnKill.RepValue1            = fields[5].Get<int32>();
-        repOnKill.IsTeamAward2        = fields[6].Get<bool>();
-        repOnKill.ReputationMaxCap2  = fields[7].Get<uint8>();
-        repOnKill.RepValue2            = fields[8].Get<int32>();
-        repOnKill.TeamDependent       = fields[9].Get<uint8>();
+        repOnKill.RepFaction1           = fields[1].Get<int16>();
+        repOnKill.RepFaction2           = fields[2].Get<int16>();
+        repOnKill.IsTeamAward1          = fields[3].Get<bool>();
+        repOnKill.ReputationMaxCap1     = fields[4].Get<uint8>();
+        repOnKill.RepValue1             = fields[5].Get<int32>();
+        repOnKill.IsTeamAward2          = fields[6].Get<bool>();
+        repOnKill.ReputationMaxCap2     = fields[7].Get<uint8>();
+        repOnKill.RepValue2             = fields[8].Get<int32>();
+        repOnKill.TeamDependent         = fields[9].Get<uint8>();
 
         if (!GetCreatureTemplate(creature_id))
         {
