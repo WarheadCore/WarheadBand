@@ -429,7 +429,7 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 void InstanceScript::SendNotifyToInstance(std::string_view message)
 {
     auto const& players = instance->GetPlayers();
-    if (players.isEmpty())
+    if (players.IsEmpty())
         return;
 
     for (auto const& itr : players)
