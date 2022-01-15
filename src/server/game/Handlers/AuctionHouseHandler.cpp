@@ -279,7 +279,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
                 return;
             }
 
-            CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
+            CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id1);
             if (!auctioneerInfo)
             {
                 LOG_ERROR("network.opcode", "Non existing auctioneer ({})", auctioneer.ToString());

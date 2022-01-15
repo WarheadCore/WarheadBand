@@ -1316,7 +1316,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
             dynamicflags = 0;
     }
 
-    data.id = GetEntry();
+    data.id1 = GetEntry();
     data.mapid = mapid;
     data.phaseMask = phaseMask;
     data.displayid = displayId;
@@ -1360,25 +1360,27 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     uint8 index = 0;
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE);
-    stmt->SetData(index++, m_spawnId);
-    stmt->SetData(index++, GetEntry());
-    stmt->SetData(index++, uint16(mapid));
-    stmt->SetData(index++, spawnMask);
-    stmt->SetData(index++, GetPhaseMask());
-    stmt->SetData(index++, int32(GetCurrentEquipmentId()));
-    stmt->SetData(index++, GetPositionX());
-    stmt->SetData(index++, GetPositionY());
-    stmt->SetData(index++, GetPositionZ());
-    stmt->SetData(index++, GetOrientation());
-    stmt->SetData(index++, m_respawnDelay);
-    stmt->SetData(index++, m_wanderDistance);
-    stmt->SetData(index++, 0);
-    stmt->SetData(index++, GetHealth());
-    stmt->SetData(index++, GetPower(POWER_MANA));
-    stmt->SetData(index++, uint8(GetDefaultMovementType()));
-    stmt->SetData(index++, npcflag);
-    stmt->SetData(index++, unit_flags);
-    stmt->SetData(index++, dynamicflags);
+    stmt->setUInt32(index++, m_spawnId);
+    stmt->setUInt32(index++, GetEntry());
+    stmt->setUInt32(index++, 0);
+    stmt->setUInt32(index++, 0);
+    stmt->setUInt16(index++, uint16(mapid));
+    stmt->setUInt8(index++, spawnMask);
+    stmt->setUInt32(index++, GetPhaseMask());
+    stmt->setInt32(index++, int32(GetCurrentEquipmentId()));
+    stmt->setFloat(index++, GetPositionX());
+    stmt->setFloat(index++, GetPositionY());
+    stmt->setFloat(index++, GetPositionZ());
+    stmt->setFloat(index++, GetOrientation());
+    stmt->setUInt32(index++, m_respawnDelay);
+    stmt->setFloat(index++, m_wanderDistance);
+    stmt->setUInt32(index++, 0);
+    stmt->setUInt32(index++, GetHealth());
+    stmt->setUInt32(index++, GetPower(POWER_MANA));
+    stmt->setUInt8(index++, uint8(GetDefaultMovementType()));
+    stmt->setUInt32(index++, npcflag);
+    stmt->setUInt32(index++, unit_flags);
+    stmt->setUInt32(index++, dynamicflags);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1617,9 +1619,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
     m_spawnId = spawnId;
 
     // Add to world
-    uint32 entry = data->id;
-    if(data->id2)
-        entry = (roll_chance_f(data->chance_id1)) ? data->id : data->id2;
+    uint32 entry = GetRandomId(data->id1, data->id2, data->id3);
 
     if (!Create(map->GenerateLowGuid<HighGuid::Unit>(), map, data->phaseMask, entry, 0, data->posX, data->posY, data->posZ, data->orientation, data))
         return false;
@@ -1917,7 +1917,7 @@ void Creature::Respawn(bool force)
             // Respawn check if spawn has 2 entries
             if (data->id2)
             {
-                uint32 entry = (roll_chance_f(data->chance_id1)) ? data->id : data->id2;
+                uint32 entry = GetRandomId(data->id1, data->id2, data->id3);
                 UpdateEntry(entry, data, true);  // Select Random Entry
                 m_defaultMovementType = MovementGeneratorType(data->movementType);                    // Reload Movement Type
                 LoadEquipment(data->equipmentId);                                                     // Reload Equipment
@@ -3031,10 +3031,10 @@ bool Creature::SetSwim(bool enable)
  */
 bool Creature::CanSwim() const
 {
-    if (Unit::CanSwim())
+    if (Unit::CanSwim() || (!Unit::CanSwim() && !CanFly()))
         return true;
 
-    if (IsPet() || GetOwnerGUID().IsPlayer())
+    if (IsPet())
         return true;
 
     return false;
@@ -3461,6 +3461,36 @@ bool Creature::CanPeriodicallyCallForAssistance() const
         return false;
 
     return true;
+}
+
+uint32 Creature::GetRandomId(uint32 id1, uint32 id2, uint32 id3)
+{
+    uint32 id = id1;
+    uint8 ids = 0;
+
+    if (id2)
+    {
+        ++ids;
+        if (id3) ++ids;
+    }
+
+    if (ids)
+    {
+        uint8 idNumber = urand(0, ids);
+        switch (idNumber)
+        {
+            case 0:
+                id = id1;
+                break;
+            case 1:
+                id = id2;
+                break;
+            case 2:
+                id = id3;
+                break;
+        }
+    }
+    return id;
 }
 
 bool Creature::IsNotReachable() const

@@ -228,7 +228,7 @@ public:
             {
                 ObjectGuid::LowType guid = sObjectMgr->GenerateCreatureSpawnId();
                 CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
-                data.id = id;
+                data.id1 = id;
                 data.phaseMask = chr->GetPhaseMaskForSpawn();
                 data.posX = chr->GetTransOffsetX();
                 data.posY = chr->GetTransOffsetY();
@@ -599,7 +599,16 @@ public:
         uint32 spellSchoolImmuneMask = cInfo->SpellSchoolImmuneMask;
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
-        uint32 Entry = target->GetEntry();
+        uint32 entry = target->GetEntry();
+        uint32 id1 = 0;
+        uint32 id2 = 0;
+        uint32 id3 = 0;
+        if (CreatureData const* cData = target->GetCreatureData())
+        {
+            id1 = cData->id1;
+            id2 = cData->id2;
+            id3 = cData->id3;
+        }
 
         int64 curRespawnDelay = target->GetRespawnTimeEx() - GameTime::GetGameTime().count();
         if (curRespawnDelay < 0)
@@ -608,7 +617,7 @@ public:
         std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(uint64(curRespawnDelay));
         std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
 
-        handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetSpawnId(), target->GetGUID().GetCounter(), faction, npcflags, Entry, displayid, nativeid);
+        handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetSpawnId(), target->GetGUID().GetCounter(), entry, id1, id2, id3, displayid, nativeid, faction, npcflags);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
