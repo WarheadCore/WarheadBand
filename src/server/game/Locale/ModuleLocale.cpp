@@ -52,7 +52,8 @@ Optional<std::string> ModuleLocale::GetModuleString(std::string const& entry, ui
     if (itr == _modulesStringStore.end())
     {
         LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for entry ({})", entry);
-        return std::nullopt;
+        ABORT();
+        return {};
     }
 
     return itr->second.GetText(_locale);
