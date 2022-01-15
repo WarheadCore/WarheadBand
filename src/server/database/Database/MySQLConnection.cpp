@@ -396,7 +396,18 @@ int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transac
         {
             case SQL_ELEMENT_PREPARED:
             {
-                PreparedStatementBase* stmt = data.element.stmt;
+                PreparedStatementBase* stmt = nullptr;
+
+                try
+                {
+                    stmt = std::get<PreparedStatementBase*>(data.element);
+                }
+                catch (const std::bad_variant_access& ex)
+                {
+                    LOG_FATAL("sql.sql", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
+                    ABORT();
+                }
+
                 ASSERT(stmt);
 
                 if (!Execute(stmt))
@@ -410,7 +421,18 @@ int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transac
             break;
             case SQL_ELEMENT_RAW:
             {
-                std::string_view sql = data.element.query;
+                std::string sql{};
+
+                try
+                {
+                    sql = std::get<std::string>(data.element);
+                }
+                catch (const std::bad_variant_access& ex)
+                {
+                    LOG_FATAL("sql.sql", "> std::string not found in SQLElementData. {}", ex.what());
+                    ABORT();
+                }
+
                 ASSERT(!sql.empty());
 
                 if (!Execute(sql))

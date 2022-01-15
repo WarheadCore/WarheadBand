@@ -64,7 +64,7 @@ private:
     uint32 m_paramCount;
     std::vector<bool> m_paramsSet;
     MySQLBind* m_bind;
-    std::string_view m_queryString;
+    std::string m_queryString{};
 
     MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
     MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;

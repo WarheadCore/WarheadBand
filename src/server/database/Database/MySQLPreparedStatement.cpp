@@ -39,7 +39,7 @@ MySQLPreparedStatement::MySQLPreparedStatement(MySQLStmt* stmt, std::string_view
     m_stmt(nullptr),
     m_Mstmt(stmt),
     m_bind(nullptr),
-    m_queryString(queryString)
+    m_queryString(std::string(queryString))
 {
     /// Initialize variable parameters
     m_paramCount = mysql_stmt_param_count(stmt);

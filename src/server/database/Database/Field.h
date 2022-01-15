@@ -43,11 +43,11 @@ enum class DatabaseFieldTypes : uint8
 
 struct QueryResultFieldMetadata
 {
-    std::string_view TableName = {};
-    std::string_view TableAlias = {};
-    std::string_view Name = {};
-    std::string_view Alias = {};
-    std::string_view TypeName = {};
+    std::string TableName{};
+    std::string TableAlias{};
+    std::string Name{};
+    std::string Alias{};
+    std::string TypeName{};
     uint32 Index = 0;
     DatabaseFieldTypes Type = DatabaseFieldTypes::Null;
 };

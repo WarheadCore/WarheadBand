@@ -118,37 +118,37 @@ namespace
         return DatabaseFieldTypes::Null;
     }
 
-    static std::string_view FieldTypeToString(enum_field_types type)
+    static std::string FieldTypeToString(enum_field_types type)
     {
         switch (type)
         {
-            case MYSQL_TYPE_BIT:         return std::string_view{ "BIT" };
-            case MYSQL_TYPE_BLOB:        return std::string_view{ "BLOB" };
-            case MYSQL_TYPE_DATE:        return std::string_view{ "DATE" };
-            case MYSQL_TYPE_DATETIME:    return std::string_view{ "DATETIME" };
-            case MYSQL_TYPE_NEWDECIMAL:  return std::string_view{ "NEWDECIMAL" };
-            case MYSQL_TYPE_DECIMAL:     return std::string_view{ "DECIMAL" };
-            case MYSQL_TYPE_DOUBLE:      return std::string_view{ "DOUBLE" };
-            case MYSQL_TYPE_ENUM:        return std::string_view{ "ENUM" };
-            case MYSQL_TYPE_FLOAT:       return std::string_view{ "FLOAT" };
-            case MYSQL_TYPE_GEOMETRY:    return std::string_view{ "GEOMETRY" };
-            case MYSQL_TYPE_INT24:       return std::string_view{ "INT24" };
-            case MYSQL_TYPE_LONG:        return std::string_view{ "LONG" };
-            case MYSQL_TYPE_LONGLONG:    return std::string_view{ "LONGLONG" };
-            case MYSQL_TYPE_LONG_BLOB:   return std::string_view{ "LONG_BLOB" };
-            case MYSQL_TYPE_MEDIUM_BLOB: return std::string_view{ "MEDIUM_BLOB" };
-            case MYSQL_TYPE_NEWDATE:     return std::string_view{ "NEWDATE" };
-            case MYSQL_TYPE_NULL:        return std::string_view{ "NULL" };
-            case MYSQL_TYPE_SET:         return std::string_view{ "SET" };
-            case MYSQL_TYPE_SHORT:       return std::string_view{ "SHORT" };
-            case MYSQL_TYPE_STRING:      return std::string_view{ "STRING" };
-            case MYSQL_TYPE_TIME:        return std::string_view{ "TIME" };
-            case MYSQL_TYPE_TIMESTAMP:   return std::string_view{ "TIMESTAMP" };
-            case MYSQL_TYPE_TINY:        return std::string_view{ "TINY" };
-            case MYSQL_TYPE_TINY_BLOB:   return std::string_view{ "TINY_BLOB" };
-            case MYSQL_TYPE_VAR_STRING:  return std::string_view{ "VAR_STRING" };
-            case MYSQL_TYPE_YEAR:        return std::string_view{ "YEAR" };
-            default:                     return std::string_view{ "-Unknown-" };
+            case MYSQL_TYPE_BIT:         return "BIT";
+            case MYSQL_TYPE_BLOB:        return "BLOB";
+            case MYSQL_TYPE_DATE:        return "DATE";
+            case MYSQL_TYPE_DATETIME:    return "DATETIME";
+            case MYSQL_TYPE_NEWDECIMAL:  return "NEWDECIMAL";
+            case MYSQL_TYPE_DECIMAL:     return "DECIMAL";
+            case MYSQL_TYPE_DOUBLE:      return "DOUBLE";
+            case MYSQL_TYPE_ENUM:        return "ENUM";
+            case MYSQL_TYPE_FLOAT:       return "FLOAT";
+            case MYSQL_TYPE_GEOMETRY:    return "GEOMETRY";
+            case MYSQL_TYPE_INT24:       return "INT24";
+            case MYSQL_TYPE_LONG:        return "LONG";
+            case MYSQL_TYPE_LONGLONG:    return "LONGLONG";
+            case MYSQL_TYPE_LONG_BLOB:   return "LONG_BLOB";
+            case MYSQL_TYPE_MEDIUM_BLOB: return "MEDIUM_BLOB";
+            case MYSQL_TYPE_NEWDATE:     return "NEWDATE";
+            case MYSQL_TYPE_NULL:        return "NULL";
+            case MYSQL_TYPE_SET:         return "SET";
+            case MYSQL_TYPE_SHORT:       return "SHORT";
+            case MYSQL_TYPE_STRING:      return "STRING";
+            case MYSQL_TYPE_TIME:        return "TIME";
+            case MYSQL_TYPE_TIMESTAMP:   return "TIMESTAMP";
+            case MYSQL_TYPE_TINY:        return "TINY";
+            case MYSQL_TYPE_TINY_BLOB:   return "TINY_BLOB";
+            case MYSQL_TYPE_VAR_STRING:  return "VAR_STRING";
+            case MYSQL_TYPE_YEAR:        return "YEAR";
+            default:                     return "-Unknown-";
         }
     }
 

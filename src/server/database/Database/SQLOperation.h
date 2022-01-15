@@ -20,14 +20,7 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
-#include <string_view>
-
-//- Union that holds element data
-union SQLElementUnion
-{
-    PreparedStatementBase* stmt;
-    std::string_view query;
-};
+#include <variant>
 
 //- Type specifier of our element data
 enum SQLElementDataType
@@ -39,7 +32,7 @@ enum SQLElementDataType
 //- The element
 struct SQLElementData
 {
-    SQLElementUnion element;
+    std::variant<PreparedStatementBase*, std::string> element;
     SQLElementDataType type;
 };
 
