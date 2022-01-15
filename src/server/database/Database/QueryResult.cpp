@@ -432,5 +432,5 @@ void PreparedResultSet::CleanUp()
 void PreparedResultSet::AssertRows(std::size_t sizeRows)
 {
     ASSERT(m_rowPosition < m_rowCount);
-    ASSERT(sizeRows == m_rowCount, "> Tuple size != count row");
+    ASSERT(sizeRows == m_fieldCount, "> Tuple size != count fields");
 }
