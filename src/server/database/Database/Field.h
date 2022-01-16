@@ -20,10 +20,24 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
+#include "Duration.h"
 #include <array>
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace Warhead::Types
+{
+    template <typename T>
+    using is_chrono_v = std::enable_if_t<std::is_same_v<Milliseconds, T>
+        || std::is_same_v<Seconds, T>
+        || std::is_same_v<Minutes, T>
+        || std::is_same_v<Hours, T>
+        || std::is_same_v<Days, T>
+        || std::is_same_v<Weeks, T>
+        || std::is_same_v<Years, T>
+        || std::is_same_v<Months, T>, T>;
+}
 
 using Binary = std::vector<uint8>;
 
@@ -121,6 +135,12 @@ public:
         std::array<uint8, S> buf = {};
         GetBinarySizeChecked(buf.data(), S);
         return buf;
+    }
+
+    template<typename T>
+    inline Warhead::Types::is_chrono_v<T> Get(bool convertToUin32 = true) const
+    {
+        return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
     }
 
     bool IsNull() const

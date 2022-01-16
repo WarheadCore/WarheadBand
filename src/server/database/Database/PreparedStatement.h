@@ -32,16 +32,10 @@ namespace Warhead::Types
     using is_default = std::enable_if_t<std::is_arithmetic_v<T> || std::is_same_v<std::vector<uint8>, T>>;
 
     template <typename T>
-    using is_string_v = std::enable_if_t<std::is_base_of_v<std::string, T> || std::is_same_v<const char*, T>>;
-
-    template <typename T>
     using is_enum_v = std::enable_if_t<std::is_enum_v<T>>;
 
     template <typename T>
     using is_non_string_view_v = std::enable_if_t<!std::is_base_of_v<std::string_view, T>>;
-
-    template <typename T>
-    using is_nullptr_v = std::enable_if_t<std::is_null_pointer_v<T>>;
 }
 
 struct PreparedStatementData
@@ -80,41 +74,48 @@ public:
 
     // Set numerlic and default binary
     template<typename T>
-    Warhead::Types::is_default<T> SetData(const uint8 index, T value)
+    inline Warhead::Types::is_default<T> SetData(const uint8 index, T value)
     {
         SetValidData(index, value);
     }
 
     // Set enums
     template<typename T>
-    Warhead::Types::is_enum_v<T> SetData(const uint8 index, T value)
+    inline Warhead::Types::is_enum_v<T> SetData(const uint8 index, T value)
     {
         SetValidData(index, std::underlying_type_t<T>(value));
     }
 
     // Set string_view
-    void SetData(const uint8 index, std::string_view value)
+    inline void SetData(const uint8 index, std::string_view value)
     {
         SetValidData(index, value);
     }
 
     // Set nullptr
-    void SetData(const uint8 index, std::nullptr_t = nullptr)
+    inline void SetData(const uint8 index, std::nullptr_t = nullptr)
     {
         SetValidData(index);
     }
 
     // Set non default binary
     template<std::size_t Size>
-    void SetData(const uint8 index, std::array<uint8, Size> const& value)
+    inline void SetData(const uint8 index, std::array<uint8, Size> const& value)
     {
         std::vector<uint8> vec(value.begin(), value.end());
         SetValidData(index, vec);
     }
 
+    // Set duration
+    template<class _Rep, class _Period>
+    inline void SetData(const uint8 index, std::chrono::duration<_Rep, _Period> const& value, bool convertToUin32 = true)
+    {
+        SetValidData(index, convertToUin32 ? static_cast<uint32>(value.count()) : value.count());
+    }
+
     // Set all
     template <typename... Args>
-    void SetArguments(Args&&... args)
+    inline void SetArguments(Args&&... args)
     {
         SetDataTuple(std::make_tuple(std::forward<Args>(args)...));
     }
