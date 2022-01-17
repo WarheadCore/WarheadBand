@@ -90,6 +90,10 @@ INSERT INTO `string_race` (`ID`, `locale`, `NameMale`, `NameFemale`) VALUES
 (10, 'enUS', 'BloodElf', NULL),
 (11, 'enUS', 'Draenei', NULL);
 
+ALTER TABLE `broadcast_text`
+CHANGE COLUMN `MaleText` `Text` LONGTEXT NULL AFTER `LanguageID`,
+CHANGE COLUMN `FemaleText` `Text1` LONGTEXT NULL AFTER `Text`,
+
 ALTER TABLE `broadcast_text_locale`
 CHANGE COLUMN `MaleText` `Text` TEXT NULL AFTER `locale`,
 CHANGE COLUMN `FemaleText` `Text1` TEXT NULL AFTER `Text`;
