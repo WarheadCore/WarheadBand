@@ -54,7 +54,7 @@ public:
     //! Prepares all prepared statements
     bool PrepareStatements();
 
-    inline MySQLConnectionInfo const* GetConnectionInfo() const
+    [[nodiscard]] inline MySQLConnectionInfo const* GetConnectionInfo() const
     {
         return _connectionInfo.get();
     }
@@ -210,7 +210,7 @@ public:
 #endif
     }
 
-    size_t QueueSize() const;
+    [[nodiscard]] size_t QueueSize() const;
 
 private:
     uint32 OpenConnections(InternalIndex type, uint8 numConnections);

@@ -41,8 +41,8 @@ class MySQLConnection;
 class WH_DATABASE_API SQLOperation
 {
 public:
-    SQLOperation(): m_conn(nullptr) { }
-    virtual ~SQLOperation() { }
+    SQLOperation() = default;
+    virtual ~SQLOperation() = default;
 
     virtual int call()
     {
@@ -53,7 +53,7 @@ public:
     virtual bool Execute() = 0;
     virtual void SetConnection(MySQLConnection* con) { m_conn = con; }
 
-    MySQLConnection* m_conn;
+    MySQLConnection* m_conn{nullptr};
 
 private:
     SQLOperation(SQLOperation const& right) = delete;

@@ -135,8 +135,7 @@ struct IntervalTimer
 public:
     IntervalTimer()
 
-    {
-    }
+    = default;
 
     void Update(time_t diff)
     {

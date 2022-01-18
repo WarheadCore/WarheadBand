@@ -139,7 +139,7 @@ class WH_GAME_API ThreatContainer
 public:
     typedef std::list<HostileReference*> StorageType;
 
-    ThreatContainer() { }
+    ThreatContainer() = default;
 
     ~ThreatContainer() { clearReferences(); }
 

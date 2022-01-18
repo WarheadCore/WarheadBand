@@ -44,6 +44,7 @@ template <class T>
 class WH_GAME_API HashMapHolder
 {
     //Non instanceable only static
+    HashMapHolder() = default;
 
     HashMapHolder() { }
 public:

@@ -108,7 +108,7 @@ class WH_GAME_API InstanceSaveMgr
     friend class InstanceSave;
 
 private:
-    InstanceSaveMgr()  {};
+    InstanceSaveMgr()  = default;;
     ~InstanceSaveMgr();
 
 public:

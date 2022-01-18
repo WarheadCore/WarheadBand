@@ -146,10 +146,10 @@ namespace lfg
         ~Lfg5Guids() { delete roles; }
         void addRoles(LfgRolesMap const& r) { roles = new LfgRolesMap(r); }
         void clear() { guids.fill(ObjectGuid::Empty); }
-        bool empty() const { return guids[0] == ObjectGuid::Empty; }
-        ObjectGuid front() const { return guids[0]; }
+        [[nodiscard]] bool empty() const { return guids[0] == ObjectGuid::Empty; }
+        [[nodiscard]] ObjectGuid front() const { return guids[0]; }
 
-        uint8 size() const
+        [[nodiscard]] uint8 size() const
         {
             if (guids[2])
             {
@@ -421,7 +421,7 @@ namespace lfg
             }
         }
 
-        bool hasGuid(const ObjectGuid& g) const
+        [[nodiscard]] bool hasGuid(const ObjectGuid& g) const
         {
             return g && (guids[0] == g || guids[1] == g || guids[2] == g || guids[3] == g || guids[4] == g);
         }

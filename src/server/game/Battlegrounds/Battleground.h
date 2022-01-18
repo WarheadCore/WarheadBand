@@ -182,7 +182,7 @@ enum BattlegroundTeams
 
 struct BattlegroundObjectInfo
 {
-    BattlegroundObjectInfo()  {}
+    BattlegroundObjectInfo()  = default;
 
     GameObject*  object{nullptr};
     int32       timer{0};
@@ -281,7 +281,7 @@ struct BattlegroundScore
 class WH_GAME_API ArenaLogEntryData
 {
 public:
-    ArenaLogEntryData()  {}
+    ArenaLogEntryData()  = default;
     void Fill(const char* name, ObjectGuid::LowType guid, uint32 acc, uint32 arenaTeamId, std::string ip)
     {
         Name = std::string(name);

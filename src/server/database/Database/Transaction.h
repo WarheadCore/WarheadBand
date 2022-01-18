@@ -24,6 +24,7 @@
 #include "StringFormat.h"
 #include <functional>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 /*! Transactions, high level class. */
@@ -36,7 +37,7 @@ template <typename T>
 friend class DatabaseWorkerPool;
 
 public:
-    TransactionBase() : _cleanedUp(false) { }
+    TransactionBase()  = default;
     virtual ~TransactionBase() { Cleanup(); }
 
     void Append(std::string_view sql);
@@ -47,7 +48,7 @@ public:
         Append(Warhead::StringFormat(sql, std::forward<Args>(args)...));
     }
 
-    std::size_t GetSize() const { return m_queries.size(); }
+    [[nodiscard]] std::size_t GetSize() const { return m_queries.size(); }
 
 protected:
     void AppendPreparedStatement(PreparedStatementBase* statement);
@@ -55,7 +56,7 @@ protected:
     std::vector<SQLElementData> m_queries;
 
 private:
-    bool _cleanedUp;
+    bool _cleanedUp{false};
 };
 
 template<typename T>
@@ -80,8 +81,8 @@ friend class DatabaseWorker;
 friend class TransactionCallback;
 
 public:
-    TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(trans) { }
-    ~TransactionTask() { }
+    TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(std::move(trans)) { }
+    ~TransactionTask() override = default;
 
 protected:
     bool Execute() override;
