@@ -51,32 +51,53 @@ namespace
     inline constexpr bool IsCorrectFieldType(DatabaseFieldTypes type)
     {
         // Int8
-        if ((std::is_same_v<T, bool> || std::is_same_v<T, int8> || std::is_same_v<T, uint8>) && type == DatabaseFieldTypes::Int8)
-            return true;
+        if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, int8> || std::is_same_v<T, uint8>)
+        {
+            if (type == DatabaseFieldTypes::Int8)
+                return true;
+        }
 
         // In16
-        if ((std::is_same_v<T, uint16> || std::is_same_v<T, int16>) && type == DatabaseFieldTypes::Int16)
-            return true;
+        if constexpr (std::is_same_v<T, uint16> || std::is_same_v<T, int16>)
+        {
+            if (type == DatabaseFieldTypes::Int16)
+                return true;
+        }
 
         // Int32
-        if ((std::is_same_v<T, uint32> || std::is_same_v<T, int32>) && type == DatabaseFieldTypes::Int32)
-            return true;
+        if constexpr (std::is_same_v<T, uint32> || std::is_same_v<T, int32>)
+        {
+            if (type == DatabaseFieldTypes::Int32)
+                return true;
+        }
 
         // Int64
-        if ((std::is_same_v<T, uint64> || std::is_same_v<T, int64>) && type == DatabaseFieldTypes::Int64)
-            return true;
+        if constexpr (std::is_same_v<T, uint64> || std::is_same_v<T, int64>)
+        {
+            if (type == DatabaseFieldTypes::Int64)
+                return true;
+        }
 
         // float
-        if (std::is_same_v<T, float> && type == DatabaseFieldTypes::Float)
-            return true;
+        if constexpr (std::is_same_v<T, float>)
+        {
+            if (type == DatabaseFieldTypes::Float)
+                return true;
+        }
 
         // dobule
-        if (std::is_same_v<T, double> && (type == DatabaseFieldTypes::Double || type == DatabaseFieldTypes::Decimal))
-            return true;
+        if constexpr (std::is_same_v<T, double>)
+        {
+            if (type == DatabaseFieldTypes::Double || type == DatabaseFieldTypes::Decimal)
+                return true;
+        }
 
         // Binary
-        if (std::is_same_v<T, Binary> && type == DatabaseFieldTypes::Binary)
-            return true;
+        if constexpr (std::is_same_v<T, Binary>)
+        {
+            if (type == DatabaseFieldTypes::Binary)
+                return true;
+        }
 
         return false;
     }
@@ -119,10 +140,10 @@ bool Field::IsNumeric() const
         meta->Type == DatabaseFieldTypes::Double);
 }
 
-void Field::LogWrongType(char const* getter) const
+void Field::LogWrongType(std::string_view getter, std::string_view typeName) const
 {
-    LOG_WARN("sql.sql", "Warning: {} on {} field {}.{} ({}.{}) at index {}.",
-        getter, meta->TypeName, meta->TableAlias, meta->Alias, meta->TableName, meta->Name, meta->Index);
+    LOG_WARN("sql.sql", "Warning: {}<{}> on {} field {}.{} ({}.{}) at index {}.",
+        getter, typeName, meta->TypeName, meta->TableAlias, meta->Alias, meta->TableName, meta->Name, meta->Index);
 }
 
 void Field::SetMetadata(QueryResultFieldMetadata const* fieldMeta)
@@ -139,9 +160,9 @@ T Field::GetData() const
         return GetDefaultValue<T>();
 
 #ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
-    if (!IsCorrectFieldType<T>(meta->Type, data.raw))
+    if (!IsCorrectFieldType<T>(meta->Type))
     {
-        LogWrongType(__FUNCTION__);
+        LogWrongType(__FUNCTION__, typeid(T).name());
         //return GetDefaultValue<T>();
     }
 #endif
@@ -160,11 +181,9 @@ T Field::GetData() const
 
         if (!tableName.empty() && tableName.size() > 4)
         {
-            std::string_view suff = tableName.substr(tableName.length() - 4);
-
             auto signedResult = Warhead::StringTo<int32>(data.value);
 
-            if (signedResult && !result && suff == "_dbc")
+            if (signedResult && !result && tableName.substr(tableName.length() - 4) == "_dbc")
             {
                 LOG_DEBUG("sql.sql", "> Found incorrect value '{}' for type '{}' in _dbc table.", data.value, typeid(T).name());
                 LOG_DEBUG("sql.sql", "> Table name '{}'. Field name '{}'. Try return int32 value", meta->TableName, meta->Name);
@@ -203,7 +222,7 @@ std::string Field::GetDataString() const
 #ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
     if (IsNumeric() && data.raw)
     {
-        LogWrongType(__FUNCTION__);
+        LogWrongType(__FUNCTION__, "std::string");
         return "";
     }
 #endif
@@ -219,7 +238,7 @@ std::string_view Field::GetDataStringView() const
 #ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
     if (IsNumeric() && data.raw)
     {
-        LogWrongType(__FUNCTION__);
+        LogWrongType(__FUNCTION__, "std::string_view");
         return {};
     }
 #endif
@@ -232,6 +251,14 @@ Binary Field::GetDataBinary() const
     Binary result = {};
     if (!data.value || !data.length)
         return result;
+
+#ifdef WARHEAD_STRICT_DATABASE_TYPE_CHECKS
+    if (!IsCorrectFieldType<Binary>(meta->Type))
+    {
+        LogWrongType(__FUNCTION__, "Binary");
+        return {};
+    }
+#endif
 
     result.resize(data.length);
     memcpy(result.data(), data.value, data.length);

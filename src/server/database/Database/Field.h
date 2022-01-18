@@ -173,7 +173,7 @@ private:
     Binary GetDataBinary() const;
 
     QueryResultFieldMetadata const* meta;
-    void LogWrongType(char const* getter) const;
+    void LogWrongType(std::string_view getter, std::string_view typeName) const;
     void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
 
     void GetBinarySizeChecked(uint8* buf, size_t size) const;
