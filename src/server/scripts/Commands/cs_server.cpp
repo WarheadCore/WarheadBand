@@ -240,7 +240,6 @@ public:
         uint32 queuedSessionCount = sWorld->GetQueuedSessionCount();
         uint32 connPeak = sWorld->GetMaxActiveSessionCount();
         std::string uptime = Warhead::Time::ToTimeString<Seconds>(GameTime::GetUptime().count());
-        uint32 updateTime = sWorldUpdateTime.GetLastUpdateTime();
 
         handler->PSendSysMessage("{}", GitRevision::GetFullVersion());
 
@@ -251,7 +250,7 @@ public:
 
         handler->PSendSysMessage("Connection peak: {}.", connPeak);
         handler->PSendSysMessage(LANG_UPTIME, uptime);
-        handler->PSendSysMessage("Update time diff: {}ms,", updateTime);
+        handler->PSendSysMessage("Update time diff: {}ms, Average: {}ms", sWorldUpdateTime.GetLastUpdateTime(), sWorldUpdateTime.GetAverageUpdateTime());
 
         //! Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
