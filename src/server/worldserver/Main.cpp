@@ -73,8 +73,8 @@ char serviceDescription[] = "WarheadCore World of Warcraft emulator world servic
 int m_ServiceStatus = -1;
 #endif
 
-#ifndef _ACORE_CORE_CONFIG
-#define _ACORE_CORE_CONFIG "worldserver.conf"
+#ifndef _WARHEAD_CORE_CONFIG
+#define _WARHEAD_CORE_CONFIG "worldserver.conf"
 #endif
 
 #define WORLD_SLEEP_CONST 10
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
     signal(SIGABRT, &Warhead::AbortHandler);
 
     ///- Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_ACORE_CORE_CONFIG);
+    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG);
     int c = 1;
     while (c < argc)
     {

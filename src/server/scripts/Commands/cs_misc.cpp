@@ -2830,7 +2830,7 @@ public:
 
         if (!strcmp(str, "<error>"))
         {
-            handler->PSendSysMessage(LANG_NO_ACORE_STRING_FOUND, id);
+            handler->PSendSysMessage(LANG_NO_WARHEAD_STRING_FOUND, id);
             return true;
         }
         else
