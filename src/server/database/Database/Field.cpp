@@ -48,7 +48,7 @@ namespace
     }
 
     template<typename T>
-    inline bool IsCorrectFieldType(DatabaseFieldTypes type)
+    inline constexpr bool IsCorrectFieldType(DatabaseFieldTypes type)
     {
         // Int8
         if ((std::is_same_v<T, bool> || std::is_same_v<T, int8> || std::is_same_v<T, uint8>) && type == DatabaseFieldTypes::Int8)
@@ -153,16 +153,30 @@ T Field::GetData() const
     else
         result = Warhead::StringTo<T>(data.value);
 
-    // For dbc db loader
-    if (!data.raw && !result && std::is_same_v<T, uint32>)
+    // Check -1 for *_dbc db tables
+    if constexpr (std::is_same_v<T, uint32>)
     {
-        result = std::numeric_limits<T>::max();
+        std::string_view tableName{ meta->TableName };
+
+        if (!tableName.empty() && tableName.size() > 4)
+        {
+            std::string_view suff = tableName.substr(tableName.length() - 4);
+
+            auto signedResult = Warhead::StringTo<int32>(data.value);
+
+            if (signedResult && !result && suff == "_dbc")
+            {
+                LOG_DEBUG("sql.sql", "> Found incorrect value '{}' for type '{}' in _dbc table.", data.value, typeid(T).name());
+                LOG_DEBUG("sql.sql", "> Table name '{}'. Field name '{}'. Try return int32 value", meta->TableName, meta->Name);
+                return GetData<int32>();
+            }
+        }
     }
 
     if (!result)
     {
         LOG_FATAL("sql.sql", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, typeid(T).name(), data.raw);
-        LOG_FATAL("sql.sql", "> Field name '{}'. Table name '{}'", meta->Name, meta->TableName);
+        LOG_FATAL("sql.sql", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
         return GetDefaultValue<T>();
     }
 

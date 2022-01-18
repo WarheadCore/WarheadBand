@@ -2571,7 +2571,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.LockID         = fields[107].Get<uint32>();
         itemTemplate.Material       = int32(fields[108].Get<int8>());
         itemTemplate.Sheath         = uint32(fields[109].Get<uint8>());
-        itemTemplate.RandomProperty = fields[110].Get<uint32>();
+        itemTemplate.RandomProperty = fields[110].Get<int32>();
         itemTemplate.RandomSuffix   = fields[111].Get<int32>();
         itemTemplate.Block          = fields[112].Get<uint32>();
         itemTemplate.ItemSet        = fields[113].Get<uint32>();
