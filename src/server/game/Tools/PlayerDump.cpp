@@ -342,7 +342,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const* tab
                         if (result->GetFieldCount() <= 74)          // avoid crashes on next check
                             LOG_FATAL("entities.player.dump", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
 
-                        if (result->Fetch()[74].Get<uint32>())        // characters.deleteInfos_Account - if filled error
+                        if (result->Fetch()[74].Get<std::string_view>().empty()) // characters.deleteInfos_Account - if filled error
                             return false;
                         break;
                     }

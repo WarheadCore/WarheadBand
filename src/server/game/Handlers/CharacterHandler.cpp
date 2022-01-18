@@ -396,7 +396,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         if (result)
         {
             Field* fields = result->Fetch();
-            acctCharCount = fields[0].Get<uint64>();
+            acctCharCount = static_cast<uint64>(fields[0].Get<double>());
         }
 
         if (acctCharCount >= static_cast<uint64>(CONF_GET_INT("CharactersPerAccount")))

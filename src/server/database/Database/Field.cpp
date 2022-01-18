@@ -48,7 +48,7 @@ namespace
     }
 
     template<typename T>
-    inline constexpr bool IsCorrectFieldType(DatabaseFieldTypes type)
+    inline bool IsCorrectFieldType(DatabaseFieldTypes type)
     {
         // Int8
         if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, int8> || std::is_same_v<T, uint8>)
@@ -97,6 +97,47 @@ namespace
         {
             if (type == DatabaseFieldTypes::Binary)
                 return true;
+        }
+
+        return false;
+    }
+
+    inline Optional<std::string_view> GetCleanAliasName(std::string_view alias)
+    {
+        if (alias.empty())
+            return {};
+
+        auto pos = alias.find_first_of('(');
+        if (pos == std::string_view::npos)
+            return {};
+
+        alias.remove_suffix(alias.length() - pos);
+
+        return { alias };
+    }
+
+    template<typename T>
+    inline bool IsCorrectAlias(DatabaseFieldTypes type, std::string_view alias)
+    {
+        if constexpr (std::is_same_v<T, double>)
+        {
+            if ((StringEqualI(alias, "sum") || StringEqualI(alias, "avg")) && type == DatabaseFieldTypes::Decimal)
+                return true;
+
+            return false;
+        }
+
+        if constexpr (std::is_same_v<T, uint64>)
+        {
+            if (StringEqualI(alias, "count") && type == DatabaseFieldTypes::Int64)
+                return true;
+
+            return false;
+        }
+
+        if ((StringEqualI(alias, "min") || StringEqualI(alias, "max")) && IsCorrectFieldType<T>(type))
+        {
+            return true;
         }
 
         return false;
@@ -174,6 +215,15 @@ T Field::GetData() const
     else
         result = Warhead::StringTo<T>(data.value);
 
+    // Correct double fields... this undefined behavior :/
+    if constexpr (std::is_same_v<T, double>)
+    {
+        if (data.raw && !IsType(DatabaseFieldTypes::Decimal))
+            result = *reinterpret_cast<double const*>(data.value);
+        else
+            result = Warhead::StringTo<float>(data.value);
+    }
+
     // Check -1 for *_dbc db tables
     if constexpr (std::is_same_v<T, uint32>)
     {
@@ -192,10 +242,36 @@ T Field::GetData() const
         }
     }
 
+    if (auto alias = GetCleanAliasName(meta->Alias))
+    {
+        if ((StringEqualI(*alias, "min") || StringEqualI(*alias, "max")) && !IsCorrectAlias<T>(meta->Type, *alias))
+        {
+            LogWrongType(__FUNCTION__, typeid(T).name());
+            //ABORT();
+        }
+
+        if ((StringEqualI(*alias, "sum") || StringEqualI(*alias, "avg")) && !IsCorrectAlias<T>(meta->Type, *alias))
+        {
+            LogWrongType(__FUNCTION__, typeid(T).name());
+            LOG_WARN("sql.sql", "> Please use GetData<double>()");
+            return GetData<double>();
+            //ABORT();
+        }
+
+        if (StringEqualI(*alias, "count") && !IsCorrectAlias<T>(meta->Type, *alias))
+        {
+            LogWrongType(__FUNCTION__, typeid(T).name());
+            LOG_WARN("sql.sql", "> Please use GetData<uint64>()");
+            return GetData<uint64>();
+            //ABORT();
+        }
+    }
+
     if (!result)
     {
         LOG_FATAL("sql.sql", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, typeid(T).name(), data.raw);
         LOG_FATAL("sql.sql", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
+        //ABORT();
         return GetDefaultValue<T>();
     }
 

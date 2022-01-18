@@ -2239,7 +2239,7 @@ public:
         if (mailInfoResult)
         {
             Field* fields         = mailInfoResult->Fetch();
-            uint32 readmail       = uint32(fields[0].Get<uint64>());
+            uint32 readmail       = uint32(fields[0].Get<double>());
             uint32 totalmail      = uint32(fields[1].Get<uint64>());
 
             // Output XXI. LANG_INFO_CHR_MAILS if at least one mail is given
