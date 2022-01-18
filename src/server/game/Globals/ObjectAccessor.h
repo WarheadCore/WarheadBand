@@ -46,7 +46,6 @@ class WH_GAME_API HashMapHolder
     //Non instanceable only static
     HashMapHolder() = default;
 
-    HashMapHolder() { }
 public:
 
     typedef std::unordered_map<ObjectGuid, T*> MapType;

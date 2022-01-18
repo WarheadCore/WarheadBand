@@ -30,8 +30,7 @@
 namespace lfg
 {
     LfgQueueData::LfgQueueData() :
-        joinTime(time_t(GameTime::GetGameTime().count())), lastRefreshTime(joinTime), tanks(LFG_TANKS_NEEDED),
-        healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) { }
+        joinTime(time_t(GameTime::GetGameTime().count())), lastRefreshTime(joinTime) { }
 
     void LFGQueue::AddToQueue(ObjectGuid guid, bool failedProposal)
     {

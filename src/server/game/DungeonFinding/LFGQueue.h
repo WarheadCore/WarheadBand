@@ -44,14 +44,13 @@ namespace lfg
 
         LfgQueueData(time_t _joinTime, LfgDungeonSet  _dungeons, LfgRolesMap  _roles):
             joinTime(_joinTime), lastRefreshTime(_joinTime), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED),
-            dps(LFG_DPS_NEEDED), dungeons(std::move(_dungeons)), roles(std::move(_roles))
-        { }
+            dps(LFG_DPS_NEEDED), dungeons(std::move(_dungeons)), roles(std::move(_roles)) { }
 
         time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
         time_t lastRefreshTime;                                ///< pussywizard
-        uint8 tanks{LFG_TANKS_NEEDED};                                           ///< Tanks needed
-        uint8 healers{LFG_HEALERS_NEEDED};                                         ///< Healers needed
-        uint8 dps{LFG_DPS_NEEDED};                                             ///< Dps needed
+        uint8 tanks{LFG_TANKS_NEEDED};                         ///< Tanks needed
+        uint8 healers{LFG_HEALERS_NEEDED};                     ///< Healers needed
+        uint8 dps{LFG_DPS_NEEDED};                             ///< Dps needed
         LfgDungeonSet dungeons;                                ///< Selected Player/Group Dungeon/s
         LfgRolesMap roles;                                     ///< Selected Player Role/s
         Lfg5Guids bestCompatible;                              ///< Best compatible combination of people queued
