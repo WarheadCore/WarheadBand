@@ -95,11 +95,11 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
 bool PlayerTaxi::LoadTaxiMask(std::string_view data)
 {
     bool warn = false;
-    std::vector<std::string_view> tokens = Acore::Tokenize(data, ' ', false);
+    std::vector<std::string_view> tokens = Warhead::Tokenize(data, ' ', false);
 
     for (uint8 index = 0; (index < TaxiMaskSize) && (index < tokens.size()); ++index)
     {
-        if (Optional<uint32> mask = Acore::StringTo<uint32>(tokens[index]))
+        if (Optional<uint32> mask = Warhead::StringTo<uint32>(tokens[index]))
         {
             // load and set bits only for existing taxi nodes
             m_taximask[index] = sTaxiNodesMask[index] & *mask;
@@ -137,9 +137,9 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, TeamI
 {
     ClearTaxiDestinations();
 
-    for (auto const& itr : Acore::Tokenize(values, ' ', false))
+    for (auto const& itr : Warhead::Tokenize(values, ' ', false))
     {
-        if (Optional<uint32> node = Acore::StringTo<uint32>(itr))
+        if (Optional<uint32> node = Warhead::StringTo<uint32>(itr))
         {
             AddTaxiDestination(*node);
         }

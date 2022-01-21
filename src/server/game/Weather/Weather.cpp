@@ -91,7 +91,7 @@ bool Weather::ReGenerate()
 
     //78 days between January 1st and March 20nd; 365/4=91 days by season
     // season source http://aa.usno.navy.mil/data/docs/EarthSeasons.html
-    uint32 season = ((Acore::Time::GetDayInYear() - 78 + 365) / 91) % 4;
+    uint32 season = ((Warhead::Time::GetDayInYear() - 78 + 365) / 91) % 4;
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
     LOG_DEBUG("weather", "Generating a change in {} weather for zone {}.", seasonName[season], m_zone);

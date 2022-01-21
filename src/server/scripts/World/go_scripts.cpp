@@ -1892,7 +1892,7 @@ public:
                 case EVENT_TIME:
                 {
                     tzset(); // set timezone for localtime_r() -> fix issues due to daylight time
-                    tm local_tm = Acore::Time::TimeBreakdown();
+                    tm local_tm = Warhead::Time::TimeBreakdown();
                     uint8 _rings = (local_tm.tm_hour) % 12;
                     _rings = (_rings == 0) ? 12 : _rings; // 00:00 and 12:00
 

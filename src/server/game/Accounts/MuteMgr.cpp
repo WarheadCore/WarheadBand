@@ -87,7 +87,7 @@ void MuteMgr::SetMuteTime(uint32 accountID, uint64 muteDate)
     if (itr != _listSessions.end())
         _listSessions.erase(accountID);
 
-    LOG_DEBUG("entities.player.session", "> Set mute {} for account id {}", Warhead::Time::TimeToHumanReadable(muteDate), accountID);
+    LOG_DEBUG("entities.player.session", "> Set mute {} for account id {}", Warhead::Time::TimeToHumanReadable(Seconds(muteDate)), accountID);
 
     _listSessions.emplace(accountID, muteDate);
 }

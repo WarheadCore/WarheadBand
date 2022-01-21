@@ -4888,18 +4888,18 @@ void Player::_LoadEntryPointData(PreparedQueryResult result)
         return;
 
     Field* fields = result->Fetch();
-    m_entryPointData.joinPos = WorldLocation(fields[4].GetUInt32(),  // Map
-                                             fields[0].GetFloat(),   // X
-                                             fields[1].GetFloat(),   // Y
-                                             fields[2].GetFloat(),   // Z
-                                             fields[3].GetFloat());  // Orientation
+    m_entryPointData.joinPos = WorldLocation(fields[4].Get<uint32>(),  // Map
+                                             fields[0].Get<float>(),   // X
+                                             fields[1].Get<float>(),   // Y
+                                             fields[2].Get<float>(),   // Z
+                                             fields[3].Get<float>());  // Orientation
 
-    std::string_view taxi = fields[5].GetStringView();
+    std::string_view taxi = fields[5].Get<std::string_view>();
     if (!taxi.empty())
     {
-        for (auto const& itr : Acore::Tokenize(taxi, ' ', false))
+        for (auto const& itr : Warhead::Tokenize(taxi, ' ', false))
         {
-            uint32 node = Acore::StringTo<uint32>(itr).value_or(0);
+            uint32 node = Warhead::StringTo<uint32>(itr).value_or(0);
             m_entryPointData.taxiPath.emplace_back(node);
         }
 
@@ -5031,14 +5031,14 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].Get<uint8>());
     SetUInt32Value(PLAYER_XP, fields[7].Get<uint32>());
 
-    if (!_LoadIntoDataField(fields[66].GetString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE))
+    if (!_LoadIntoDataField(fields[66].Get<std::string>(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE))
     {
-        FMT_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid exploredzones data ({}). Forcing partial load.", guid, fields[66].GetStringView());
+        LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid exploredzones data ({}). Forcing partial load.", guid, fields[66].Get<std::string_view>());
     }
 
-    if (!_LoadIntoDataField(fields[69].GetString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2))
+    if (!_LoadIntoDataField(fields[69].Get<std::string>(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2))
     {
-        FMT_LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid knowntitles mask ({}). Forcing partial load.", guid, fields[69].GetStringView());
+        LOG_WARN("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid knowntitles mask ({}). Forcing partial load.", guid, fields[69].Get<std::string_view>());
     }
 
     SetObjectScale(1.0f);
@@ -6064,20 +6064,20 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
             else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
-                stmt->setUInt32(0, item->GetGUID().GetCounter());
+                stmt->SetData(0, item->GetGUID().GetCounter());
 
                 if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
                     AllowedLooterSet looters;
-                    for (std::string_view guidStr : Acore::Tokenize((*result)[0].GetStringView(), ' ', false))
+                    for (std::string_view guidStr : Warhead::Tokenize((*result)[0].Get<std::string_view>(), ' ', false))
                     {
-                        if (Optional<ObjectGuid::LowType> guid = Acore::StringTo<ObjectGuid::LowType>(guidStr))
+                        if (Optional<ObjectGuid::LowType> guid = Warhead::StringTo<ObjectGuid::LowType>(guidStr))
                         {
                             looters.insert(ObjectGuid::Create<HighGuid::Player>(*guid));
                         }
                         else
                         {
-                            FMT_LOG_WARN("entities.player.loading", "Player::_LoadInventory: invalid item_soulbound_trade_data GUID '%s' for item %s. Skipped.", guidStr, item->GetGUID().ToString());
+                            LOG_WARN("entities.player.loading", "Player::_LoadInventory: invalid item_soulbound_trade_data GUID '{}' for item {}. Skipped.", guidStr, item->GetGUID().ToString());
                         }
                     }
 

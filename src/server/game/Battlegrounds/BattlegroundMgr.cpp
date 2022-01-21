@@ -145,7 +145,7 @@ void BattlegroundMgr::Update(uint32 diff)
             {
                 sArenaTeamMgr->DistributeArenaPoints();
                 m_NextAutoDistributionTime = m_NextAutoDistributionTime + 1_days * CONF_GET_INT("Arena.AutoDistributeInterval");
-                sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, m_NextAutoDistributionTime);
+                sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, m_NextAutoDistributionTime.count());
             }
             m_AutoDistributionTimeChecker = 600000; // 10 minutes check
         }
@@ -634,7 +634,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     if (!CONF_GET_BOOL("Arena.AutoDistributePoints"))
         return;
 
-    Seconds wstime = sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME);
+    Seconds wstime = Seconds(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
     Seconds curtime = GameTime::GetGameTime();
 
     LOG_INFO("server.loading", "Initializing Automatic Arena Point Distribution");
@@ -1023,7 +1023,7 @@ void BattlegroundMgr::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, T
     ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
 
     // loop through the players
-    for (auto itr : ginfo->Players)
+    for (auto const& itr : ginfo->Players)
     {
         // get the player
         Player* player = ObjectAccessor::FindConnectedPlayer(itr);

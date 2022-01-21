@@ -483,8 +483,8 @@ bool AuthSession::HandleLogonProof()
             std::string token(reinterpret_cast<char*>(GetReadBuffer().GetReadPointer() + sizeof(sAuthLogonProof_C) + sizeof(size)), size);
             GetReadBuffer().ReadCompleted(sizeof(size) + size);
 
-            uint32 incomingToken = *Acore::StringTo<uint32>(token);
-            tokenSuccess = Acore::Crypto::TOTP::ValidateToken(*_totpSecret, incomingToken);
+            uint32 incomingToken = *Warhead::StringTo<uint32>(token);
+            tokenSuccess = Warhead::Crypto::TOTP::ValidateToken(*_totpSecret, incomingToken);
             memset(_totpSecret->data(), 0, _totpSecret->size());
         }
         else if (!sentToken && !_totpSecret)

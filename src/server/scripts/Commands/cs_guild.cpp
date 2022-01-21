@@ -231,7 +231,7 @@ public:
             handler->PSendSysMessage(LANG_GUILD_INFO_GUILD_MASTER, guildMasterName, guild->GetLeaderGUID().GetCounter()); // Guild Master
         }
 
-        handler->PSendSysMessage(LANG_GUILD_INFO_CREATION_DATE, Acore::Time::TimeToHumanReadable(Seconds(guild->GetCreatedDate())).c_str()); // Creation Date
+        handler->PSendSysMessage(LANG_GUILD_INFO_CREATION_DATE, Warhead::Time::TimeToHumanReadable(Seconds(guild->GetCreatedDate()))); // Creation Date
         handler->PSendSysMessage(LANG_GUILD_INFO_MEMBER_COUNT, guild->GetMemberCount()); // Number of Members
         handler->PSendSysMessage(LANG_GUILD_INFO_BANK_GOLD, guild->GetTotalBankMoney() / 100 / 100); // Bank Gold (in gold coins)
         handler->PSendSysMessage(LANG_GUILD_INFO_MOTD, guild->GetMOTD()); // Message of the day

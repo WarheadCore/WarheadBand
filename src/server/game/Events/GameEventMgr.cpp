@@ -160,7 +160,7 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         auto itr = _gameEventSeasonalQuestsMap.find(event_id);
         if (itr != _gameEventSeasonalQuestsMap.end() && !itr->second.empty())
         {
-            sWorld->setWorldState(event_id, sWorld->GetGameTime());
+            sWorld->setWorldState(event_id, GameTime::GetGameTime().count());
         }
 
         return false;
@@ -1854,7 +1854,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         tm timeInfo;
         if (singleDate)
         {
-            timeInfo = Acore::Time::TimeBreakdown(curTime);
+            timeInfo = Warhead::Time::TimeBreakdown(curTime);
             timeInfo.tm_year -= 1; // First try last year (event active through New Year)
         }
         else
@@ -1878,7 +1878,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         }
         else if (singleDate)
         {
-            tm tmCopy = Acore::Time::TimeBreakdown(curTime);
+            tm tmCopy = Warhead::Time::TimeBreakdown(curTime);
             int year = tmCopy.tm_year; // This year
             tmCopy = timeInfo;
             tmCopy.tm_year = year;

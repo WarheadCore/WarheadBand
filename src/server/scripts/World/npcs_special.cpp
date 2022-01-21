@@ -121,7 +121,7 @@ public:
             {
                 case EVENT_CLEARWATER_ANNOUNCE:
                     {
-                        tm strdate = Acore::Time::TimeBreakdown();
+                        tm strdate = Warhead::Time::TimeBreakdown();
 
                         if (!preWarning && strdate.tm_hour == 13 && strdate.tm_min == 55)
                         {
@@ -268,7 +268,7 @@ public:
             {
                 case EVENT_RIGGLE_ANNOUNCE:
                     {
-                        tm strdate = Acore::Time::TimeBreakdown();
+                        tm strdate = Warhead::Time::TimeBreakdown();
 
                         if (!startWarning && strdate.tm_hour == 14 && strdate.tm_min == 0)
                         {

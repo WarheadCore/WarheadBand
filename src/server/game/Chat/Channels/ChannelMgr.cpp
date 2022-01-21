@@ -182,13 +182,13 @@ void ChannelMgr::LoadChannelRights()
     {
         Field* fields = result->Fetch();
         std::set<uint32> moderators;
-        auto moderatorList = fields[5].GetStringView();
+        auto moderatorList = fields[5].Get<std::string_view>();
 
         if (!moderatorList.empty())
         {
-            for (auto const& itr : Acore::Tokenize(moderatorList, ' ', false))
+            for (auto const& itr : Warhead::Tokenize(moderatorList, ' ', false))
             {
-                uint64 moderator_acc = Acore::StringTo<uint64>(itr).value_or(0);
+                uint64 moderator_acc = Warhead::StringTo<uint64>(itr).value_or(0);
 
                 if (moderator_acc && ((uint32)moderator_acc) == moderator_acc)
                 {

@@ -2413,7 +2413,7 @@ public:
         do
         {
             Field* fields = result->Fetch();
-            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, Acore::Time::TimeToHumanReadable(Seconds(fields[0].GetUInt32())).c_str(), fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
+            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, Warhead::Time::TimeToHumanReadable(fields[0].Get<Seconds>()), fields[1].Get<uint32>(), fields[2].Get<std::string_view>(), fields[3].Get<std::string_view>());
         } while (result->NextRow());
 
         return true;

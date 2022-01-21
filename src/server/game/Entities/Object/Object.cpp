@@ -621,14 +621,14 @@ bool Object::_LoadIntoDataField(std::string const& data, uint32 startOffset, uin
     if (data.empty())
         return false;
 
-    std::vector<std::string_view> tokens = Acore::Tokenize(data, ' ', false);
+    std::vector<std::string_view> tokens = Warhead::Tokenize(data, ' ', false);
 
     if (tokens.size() != count)
         return false;
 
     for (uint32 index = 0; index < count; ++index)
     {
-        Optional<uint32> val = Acore::StringTo<uint32>(tokens[index]);
+        Optional<uint32> val = Warhead::StringTo<uint32>(tokens[index]);
         if (!val)
         {
             return false;

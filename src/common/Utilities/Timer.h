@@ -53,9 +53,21 @@ namespace Warhead::Time
 
     WH_COMMON_API time_t LocalTimeToUTCTime(time_t time);
     WH_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
-    WH_COMMON_API tm TimeBreakdown(time_t t);
-    WH_COMMON_API std::string TimeToTimestampStr(time_t t);
-    WH_COMMON_API std::string TimeToHumanReadable(time_t t);
+    WH_COMMON_API std::tm TimeBreakdown(time_t t = 0);
+    WH_COMMON_API std::string TimeToTimestampStr(Seconds time = 0s, std::string_view fmt = {});
+    WH_COMMON_API std::string TimeToHumanReadable(Seconds time = 0s, std::string_view fmt = {});
+
+    WH_COMMON_API time_t GetNextTimeWithDayAndHour(int8 dayOfWeek, int8 hour); // int8 dayOfWeek: 0 (sunday) to 6 (saturday)
+    WH_COMMON_API time_t GetNextTimeWithMonthAndHour(int8 month, int8 hour); // int8 month: 0 (january) to 11 (december)
+
+    WH_COMMON_API uint32 GetSeconds(Seconds time = 0s);      // seconds after the minute - [0, 60]
+    WH_COMMON_API uint32 GetMinutes(Seconds time = 0s);      // minutes after the hour - [0, 59]
+    WH_COMMON_API uint32 GetHours(Seconds time = 0s);        // hours since midnight - [0, 23]
+    WH_COMMON_API uint32 GetDayInWeek(Seconds time = 0s);    // days since Sunday - [0, 6]
+    WH_COMMON_API uint32 GetDayInMonth(Seconds time = 0s);   // day of the month - [1, 31]
+    WH_COMMON_API uint32 GetDayInYear(Seconds time = 0s);    // days since January 1 - [0, 365]
+    WH_COMMON_API uint32 GetMonth(Seconds time = 0s);        // months since January - [0, 11]
+    WH_COMMON_API uint32 GetYear(Seconds time = 0s);         // years since 1900
 }
 
 WH_COMMON_API struct tm* localtime_r(time_t const* time, struct tm* result);
@@ -91,25 +103,6 @@ inline uint32 getMSTime()
     using namespace std::chrono;
 
     return uint32(duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime()).count());
-}
-
-inline Milliseconds GetTimeMS()
-{
-    using namespace std::chrono;
-
-    return duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime());
-}
-
-inline Milliseconds GetMSTimeDiff(Milliseconds oldMSTime, Milliseconds newMSTime)
-{
-    if (oldMSTime > newMSTime)
-    {
-        return oldMSTime - newMSTime;
-    }
-    else
-    {
-        return newMSTime - oldMSTime;
-    }
 }
 
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)

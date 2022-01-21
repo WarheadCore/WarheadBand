@@ -110,7 +110,7 @@ uint32 MySQLConnection::Open()
     }
     else                                                    // generic case
     {
-        port = *Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
+        port = *Warhead::StringTo<uint32>(m_connectionInfo.port_or_socket);
         unix_socket = 0;
     }
 #else
@@ -124,7 +124,7 @@ uint32 MySQLConnection::Open()
     }
     else                                                    // generic case
     {
-        port = *Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
+        port = *Warhead::StringTo<uint32>(m_connectionInfo.port_or_socket);
         unix_socket = nullptr;
     }
 #endif

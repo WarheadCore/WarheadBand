@@ -90,6 +90,7 @@
 #include "WorldSession.h"
 #include "Tokenize.h"
 #include "StringConvert.h"
+#include "KillRewarder.h"
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue
@@ -1210,7 +1211,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     *data << uint32(petLevel);
     *data << uint32(petFamily);
 
-    std::vector<std::string_view> equipment = Acore::Tokenize(fields[22].GetStringView(), ' ', false);
+    std::vector<std::string_view> equipment = Warhead::Tokenize(fields[22].Get<std::string_view>(), ' ', false);
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
         uint32 const visualBase = slot * 2;
@@ -1218,7 +1219,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
         if (visualBase < equipment.size())
         {
-            itemId = Acore::StringTo<uint32>(equipment[visualBase]);
+            itemId = Warhead::StringTo<uint32>(equipment[visualBase]);
         }
 
         ItemTemplate const* proto = nullptr;
@@ -1231,7 +1232,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
         {
             if (!itemId || *itemId)
             {
-                FMT_LOG_WARN("entities.player.loading", "Player {} has invalid equipment '{}' in `equipmentcache` at index {}. Skipped.",
+                LOG_WARN("entities.player.loading", "Player {} has invalid equipment '{}' in `equipmentcache` at index {}. Skipped.",
                     guid.ToString(), (visualBase < equipment.size()) ? equipment[visualBase] : "<none>", visualBase);
             }
 
@@ -1247,12 +1248,12 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
         Optional<uint32> enchants = {};
         if ((visualBase + 1) < equipment.size())
         {
-            enchants = Acore::StringTo<uint32>(equipment[visualBase + 1]);
+            enchants = Warhead::StringTo<uint32>(equipment[visualBase + 1]);
         }
 
         if (!enchants)
         {
-            FMT_LOG_WARN("entities.player.loading", "Player {} has invalid enchantment info '{}' in `equipmentcache` at index {}. Skipped.",
+            LOG_WARN("entities.player.loading", "Player {} has invalid enchantment info '{}' in `equipmentcache` at index {}. Skipped.",
                 guid.ToString(), ((visualBase + 1) < equipment.size()) ? equipment[visualBase + 1] : "<none>", visualBase + 1);
 
             enchants = 0;
@@ -8767,7 +8768,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     pet->Relocate(x, y, z, ang);
     if (!pet->IsPositionValid())
     {
-        LOG_ERROR("misc", "Player::SummonPet: Pet (%s, Entry: %d) not summoned. Suggested coordinates aren't valid (X: %f Y: %f)", pet->GetGUID().ToString().c_str(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
+        LOG_ERROR("misc", "Player::SummonPet: Pet ({}, Entry: {}) not summoned. Suggested coordinates aren't valid (X: {} Y: {})", pet->GetGUID().ToString(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return nullptr;
     }
@@ -8776,7 +8777,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
     if (!pet->Create(map->GenerateLowGuid<HighGuid::Pet>(), map, GetPhaseMask(), entry, pet_number))
     {
-        LOG_ERROR("misc", "Player::SummonPet: No such creature entry %u", entry);
+        LOG_ERROR("misc", "Player::SummonPet: No such creature entry {}", entry);
         delete pet;
         return nullptr;
     }
@@ -15232,7 +15233,7 @@ void Player::_LoadBrewOfTheMonth(PreparedQueryResult result)
         lastEventId = fields[0].Get<uint32>();
     }
 
-    uint16 month = static_cast<uint16>(Acore::Time::GetMonth());
+    uint16 month = static_cast<uint16>(Warhead::Time::GetMonth());
     uint16 eventId = month;
     if (eventId < 9)
         eventId += 3;

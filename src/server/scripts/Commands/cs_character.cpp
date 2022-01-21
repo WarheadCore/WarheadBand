@@ -122,7 +122,7 @@ public:
             if (isNumeric(searchString.c_str()))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
-                stmt->setUInt32(0, *Acore::StringTo<uint32>(searchString));
+                stmt->SetData(0, *Warhead::StringTo<uint32>(searchString));
                 result = CharacterDatabase.Query(stmt);
             }
             // search by name
@@ -185,7 +185,7 @@ public:
 
         for (DeletedInfoList::const_iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
         {
-            std::string dateStr = Acore::Time::TimeToTimestampStr(Seconds(itr->deleteDate));
+            std::string dateStr = Warhead::Time::TimeToTimestampStr(Seconds(itr->deleteDate));
 
             if (!handler->GetSession())
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE,
