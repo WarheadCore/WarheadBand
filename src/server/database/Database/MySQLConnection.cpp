@@ -28,6 +28,7 @@
 #include "Tokenize.h"
 #include "Transaction.h"
 #include "Util.h"
+#include "StringConvert.h"
 #include <errmsg.h>
 #include <mysqld_error.h>
 
@@ -94,10 +95,10 @@ uint32 MySQLConnection::Open()
         return CR_UNKNOWN_ERROR;
     }
 
-    int port;
+    uint32 port;
     char const* unix_socket;
 
-    mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8mb4");
+    mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
 
 #ifdef _WIN32
     if (m_connectionInfo.host == ".")                                           // named pipe use option (Windows)
@@ -109,7 +110,7 @@ uint32 MySQLConnection::Open()
     }
     else                                                    // generic case
     {
-        port = *Warhead::StringTo<int>(m_connectionInfo.port_or_socket);
+        port = *Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
         unix_socket = 0;
     }
 #else
@@ -123,7 +124,7 @@ uint32 MySQLConnection::Open()
     }
     else                                                    // generic case
     {
-        port = *Warhead::StringTo<int>(m_connectionInfo.port_or_socket);
+        port = *Acore::StringTo<uint32>(m_connectionInfo.port_or_socket);
         unix_socket = nullptr;
     }
 #endif

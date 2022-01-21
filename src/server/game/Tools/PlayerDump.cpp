@@ -26,8 +26,9 @@
 #include "StringFormat.h"
 #include "UpdateFields.h"
 #include "World.h"
+#include "StringConvert.h"
 
-#define DUMP_TABLE_COUNT 27
+constexpr auto DUMP_TABLE_COUNT = 27;
 
 struct DumpTable
 {
@@ -180,6 +181,11 @@ bool changeGuid(std::string& str, int n, std::map<uint32, uint32>& guidMap, uint
     if (nonzero && !oldGuid)
         return true; // not an error
 
+    auto _oldGuid = Acore::StringTo<uint32>(getnth(str, n));
+    if (nonzero && (!_oldGuid || !*_oldGuid))
+        return true; // not an error
+
+    uint32 oldGuid = *_oldGuid;
     uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
 
     return changenth(str, n, Warhead::StringFormat("{}", newGuid), false, nonzero);
@@ -191,6 +197,7 @@ bool changetokGuid(std::string& str, int n, std::map<uint32, uint32>& guidMap, u
     if (nonzero && !oldGuid)
         return true; // not an error
 
+    uint32 oldGuid = *_oldGuid;
     uint32 newGuid = registerNewGuid(oldGuid, guidMap, hiGuid);
 
     return changetoknth(str, n, Warhead::StringFormat("{}", newGuid), false, nonzero);
@@ -257,10 +264,12 @@ void StoreGUID(QueryResult result, uint32 field, std::set<uint32>& guids)
 void StoreGUID(QueryResult result, uint32 data, uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
-    std::string dataStr = fields[data].Get<std::string>();
-    uint32 guid = atoi(gettoknth(dataStr, field).c_str());
-    if (guid)
-        guids.insert(guid);
+    std::string dataStr = fields[data].GetString();
+
+    if (auto guid = Acore::StringTo<uint32>(gettoknth(dataStr, field)))
+    {
+        guids.insert(*guid);
+    }
 }
 
 // Writing - High-level functions
@@ -651,10 +660,12 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                         lastpetid = Warhead::StringFormat("{}", currpetid);
                     }
 
-                    auto const& petids_iter = petids.find(*Warhead::StringTo<uint32>(currpetid));
+                    auto const& petids_iter = petids.find(Acore::StringTo<uint32>(currpetid).value_or(0));
 
                     if (petids_iter == petids.end())
-                        petids.emplace(*Warhead::StringTo<uint32>(currpetid), *Warhead::StringTo<uint32>(newpetid));
+                    {
+                        petids.emplace(Acore::StringTo<uint32>(currpetid).value_or(0), Acore::StringTo<uint32>(newpetid).value_or(0));
+                    }
 
                     if (!changenth(line, 1, newpetid))          // character_pet.id update
                         ROLLBACK(DUMP_FILE_BROKEN);
@@ -668,7 +679,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     std::string currpetid = Warhead::StringFormat("{}", getnth(line, 1));
 
                     // lookup currpetid and match to new inserted pet id
-                    auto const& petids_iter = petids.find(*Warhead::StringTo<uint32>(currpetid));
+                    std::map<uint32, uint32> :: const_iterator petids_iter = petids.find(Acore::StringTo<uint32>(currpetid).value_or(0));
                     if (petids_iter == petids.end())             // couldn't find new inserted id
                         ROLLBACK(DUMP_FILE_BROKEN);
 

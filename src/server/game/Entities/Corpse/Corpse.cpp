@@ -146,7 +146,13 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].Get<uint32>());
-    _LoadIntoDataField(fields[6].Get<std::string>(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END);
+
+    if (!_LoadIntoDataField(fields[6].GetString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END))
+    {
+        FMT_LOG_ERROR("entities.player", "Corpse ({}, owner: {}) is not created, given equipment info is not valid ('{}')",
+            GetGUID().ToString(), GetOwnerGUID().ToString(), fields[6].GetString());
+    }
+
     SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].Get<uint32>());
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].Get<uint32>());
     SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].Get<uint32>());

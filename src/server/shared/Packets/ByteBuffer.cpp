@@ -138,8 +138,7 @@ void ByteBuffer::append(uint8 const* src, size_t cnt)
 
 void ByteBuffer::AppendPackedTime(time_t time)
 {
-    tm lt;
-    localtime_r(&time, &lt);
+    tm lt = Acore::Time::TimeBreakdown(time);
     append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
 }
 

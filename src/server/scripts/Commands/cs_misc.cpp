@@ -2413,17 +2413,7 @@ public:
         do
         {
             Field* fields = result->Fetch();
-
-            // we have to manually set the string for mutedate
-            time_t sqlTime = fields[0].Get<uint32>();
-            tm timeInfo;
-            char buffer[80];
-
-            // set it to string
-            localtime_r(&sqlTime, &timeInfo);
-            strftime(buffer, sizeof(buffer), "%Y-%m-%d %I:%M%p", &timeInfo);
-
-            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, buffer, fields[1].Get<uint32>(), fields[2].Get<std::string_view>(), fields[3].Get<std::string_view>());
+            handler->PSendSysMessage(LANG_COMMAND_MUTEHISTORY_OUTPUT, Acore::Time::TimeToHumanReadable(Seconds(fields[0].GetUInt32())).c_str(), fields[1].GetUInt32(), fields[2].GetCString(), fields[3].GetCString());
         } while (result->NextRow());
 
         return true;

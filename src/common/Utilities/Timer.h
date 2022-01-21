@@ -67,6 +67,25 @@ inline TimePoint GetApplicationStartTime()
     return ApplicationStartTime;
 }
 
+inline Milliseconds GetTimeMS()
+{
+    using namespace std::chrono;
+
+    return duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime());
+}
+
+inline Milliseconds GetMSTimeDiff(Milliseconds oldMSTime, Milliseconds newMSTime)
+{
+    if (oldMSTime > newMSTime)
+    {
+        return oldMSTime - newMSTime;
+    }
+    else
+    {
+        return newMSTime - oldMSTime;
+    }
+}
+
 inline uint32 getMSTime()
 {
     using namespace std::chrono;
@@ -133,9 +152,7 @@ inline Seconds GetEpochTime()
 struct IntervalTimer
 {
 public:
-    IntervalTimer()
-
-    = default;
+    IntervalTimer() = default;
 
     void Update(time_t diff)
     {

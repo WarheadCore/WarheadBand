@@ -21,7 +21,7 @@
 #include "Define.h"
 #include <string>
 
-#define FILE_FORMAT_VERSION 18
+constexpr auto FILE_FORMAT_VERSION = 18;
 
 union u_map_fcc
 {
@@ -58,4 +58,5 @@ public:
     bool loadFile(std::string const& filename, bool log = true);
     virtual void free();
 };
+
 #endif
