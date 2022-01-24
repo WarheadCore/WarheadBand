@@ -831,7 +831,7 @@ namespace fmt
                 auto const& [startTime, endTime, level] = *vipInfo;
 
                 info = Warhead::StringFormat("Start time: {}. End time: {}. Level: {}",
-                    Warhead::Time::TimeToHumanReadable(startTime.count()), Warhead::Time::TimeToHumanReadable(endTime.count()), level);
+                    Warhead::Time::TimeToHumanReadable(startTime), Warhead::Time::TimeToHumanReadable(endTime), level);
             }
 
             return formatter<string_view>::format(info, ctx);
