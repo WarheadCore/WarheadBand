@@ -77,8 +77,6 @@ int m_ServiceStatus = -1;
 #define _WARHEAD_CORE_CONFIG "worldserver.conf"
 #endif
 
-constexpr auto WORLD_SLEEP_CONST = 1;
-
 class FreezeDetector
 {
 public:
