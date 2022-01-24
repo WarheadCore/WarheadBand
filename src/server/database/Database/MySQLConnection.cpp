@@ -28,7 +28,6 @@
 #include "Tokenize.h"
 #include "Transaction.h"
 #include "Util.h"
-#include "StringConvert.h"
 #include <errmsg.h>
 #include <mysqld_error.h>
 

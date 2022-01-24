@@ -19,9 +19,9 @@
 #include "GameConfig.h"
 #include "Log.h"
 #include "Player.h"
-#include "World.h"
-#include "Tokenize.h"
 #include "StringConvert.h"
+#include "Tokenize.h"
+#include "World.h"
 
 ChannelMgr::~ChannelMgr()
 {
