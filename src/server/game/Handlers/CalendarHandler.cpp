@@ -48,7 +48,7 @@ Copied events should probably have a new owner
 #include "Player.h"
 #include "SocialMgr.h"
 #include "WorldSession.h"
-#include "utf8.h"
+#include <utf8.h>
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {

@@ -23,7 +23,6 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "ConditionMgr.h"
-#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicObject.h"
 #include "GameConfig.h"
@@ -35,8 +34,6 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
-#include "MMapFactory.h"
-#include "MMapMgr.h"
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -59,7 +56,6 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 #ifdef ELUNA
 #include "ElunaUtility.h"
@@ -1500,6 +1496,11 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
                 dist *= float(rand_norm());
             }
 
+            if (targetType.GetTarget() == TARGET_DEST_TARGET_BACK)
+            {
+                dist += target->GetFloatValue(UNIT_FIELD_BOUNDINGRADIUS);
+            }
+
             Position pos = dest._position;
             target->MovePositionToFirstCollision(pos, dist, angle);
 
@@ -2446,7 +2447,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
     // Xinef: absorb delayed projectiles for 500ms
     if (getState() == SPELL_STATE_DELAYED && !m_spellInfo->IsTargetingArea() && !m_spellInfo->IsPositive() &&
-            (getMSTime() - target->timeDelay) <= effectUnit->m_lastSanctuaryTime && getMSTime() < (effectUnit->m_lastSanctuaryTime + 500) &&
+            (GameTime::GetGameTimeMS().count() - target->timeDelay) <= effectUnit->m_lastSanctuaryTime && GameTime::GetGameTimeMS().count() < (effectUnit->m_lastSanctuaryTime + 500) &&
             effectUnit->FindMap() && !effectUnit->FindMap()->IsDungeon()
        )
         return;                                             // No missinfo in that case
@@ -4467,7 +4468,7 @@ void Spell::SendSpellGo()
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
-    data << uint32(getMSTime());                 // timestamp
+    data << uint32(GameTime::GetGameTimeMS().count());                 // timestamp
 
     WriteSpellGoTargets(&data);
 
@@ -4967,7 +4968,7 @@ void Spell::TakePower()
 
     // Set the five second timer
     if (PowerType == POWER_MANA && m_powerCost > 0)
-        m_caster->SetLastManaUse(getMSTime());
+        m_caster->SetLastManaUse(GameTime::GetGameTimeMS().count());
 }
 
 void Spell::TakeAmmo()

@@ -912,7 +912,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
     loginStmt->SetData(1, GetAccountId());
     LoginDatabase.Execute(loginStmt);
 
-    pCurrChar->SetInGameTime(getMSTime());
+    pCurrChar->SetInGameTime(GameTime::GetGameTimeMS().count());
 
     // announce group about member online (must be after add to player list to receive announce to self)
     if (Group* group = pCurrChar->GetGroup())
@@ -1174,7 +1174,7 @@ void WorldSession::HandlePlayerLoginToCharInWorld(Player* pCurrChar)
     uint32 currZone, currArea;
     pCurrChar->GetZoneAndAreaId(currZone, currArea);
     pCurrChar->SendInitWorldStates(currZone, currArea);
-    pCurrChar->SetInGameTime(getMSTime());
+    pCurrChar->SetInGameTime(GameTime::GetGameTimeMS().count());
 
     // Xinef: we need to resend all spell mods
     for (uint16 Opcode = SMSG_SET_FLAT_SPELL_MODIFIER; Opcode <= SMSG_SET_PCT_SPELL_MODIFIER; ++Opcode) // PCT = FLAT+1

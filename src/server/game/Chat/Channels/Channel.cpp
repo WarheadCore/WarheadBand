@@ -20,8 +20,8 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "GameConfig.h"
 #include "GameTime.h"
+#include "GameConfig.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
@@ -37,7 +37,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, 
     _channelId(channelId),
     _channelDBId(channelDBId),
     _teamId(teamId),
-    lastSpeakTime(0),
+    _lastSpeakTime(0),
     _name(name),
     _password("")
 {
@@ -831,6 +831,17 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, 0, "", "", 0, false, _name);
 
     SendToAll(&data, pinfo.IsModerator() ? ObjectGuid::Empty : guid);
+}
+
+bool Channel::IsAllowedToSpeak(uint32 speakDelay)
+{
+    if (_lastSpeakTime + speakDelay <= GameTime::GetGameTime().count())
+    {
+        _lastSpeakTime = GameTime::GetGameTime().count();
+        return true;
+    }
+
+    return false;
 }
 
 void Channel::Invite(Player const* player, std::string const& newname)

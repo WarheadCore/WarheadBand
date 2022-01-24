@@ -496,6 +496,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea()
 
     if (_evadeCheckCooldown == GameTime::GetGameTime().count())
         return false;
+
     _evadeCheckCooldown = GameTime::GetGameTime().count();
 
     if (!CheckEvadeIfOutOfCombatArea())

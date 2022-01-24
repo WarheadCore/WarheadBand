@@ -17,7 +17,6 @@
 
 #include "WorldSocket.h"
 #include "AccountMgr.h"
-#include "BigNumber.h"
 #include "Config.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
@@ -351,7 +350,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 _worldSession->ResetTimeOutTime(true);
             return ReadDataHandlerResult::Ok;
         case CMSG_TIME_SYNC_RESP:
-            packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
+            packetToQueue = new WorldPacket(std::move(packet), GameTime::Now());
             break;
         default:
             packetToQueue = new WorldPacket(std::move(packet));

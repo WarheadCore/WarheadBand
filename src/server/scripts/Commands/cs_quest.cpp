@@ -300,6 +300,15 @@ public:
                 }
             }
 
+            // player kills
+            if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
+            {
+                if (uint32 reqPlayers = quest->GetPlayersSlain())
+                {
+                    player->KilledPlayerCreditForQuest(reqPlayers, quest);
+                }
+            }
+
             // If the quest requires reputation to complete
             if (uint32 repFaction = quest->GetRepObjectiveFaction())
             {
@@ -372,7 +381,7 @@ public:
                 // fill mail
                 MailDraft draft(quest->GetTitle(), std::string());
 
-                for (auto itr : questItems)
+                for (auto const& itr : questItems)
                 {
                     if (Item* item = Item::CreateItem(itr.first, itr.second))
                     {
@@ -608,7 +617,7 @@ public:
                 // fill mail
                 MailDraft draft(quest->GetTitle(), "This quest has been manually rewarded to you. This mail contains your quest rewards.");
 
-                for (auto itr : questRewardItems)
+                for (auto const& itr : questRewardItems)
                 {
                     if (!itr.first || !itr.second)
                     {

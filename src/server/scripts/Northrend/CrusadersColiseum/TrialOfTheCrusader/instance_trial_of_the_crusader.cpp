@@ -448,13 +448,13 @@ public:
 
                             HandleGameObject(GO_EnterGateGUID, true);
 
-                            if( AchievementTimer + 60 >= GameTime::GetGameTime().count())
+                            if( AchievementTimer + 60 >= GameTime::GetGameTime().count() )
                                 DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_RESILIENCE_WILL_FIX_IT_CREDIT);
                             AchievementTimer = 0;
 
                             SaveToDB();
                         }
-                        else if (Counter == 1)
+                        else if( Counter == 1 )
                             AchievementTimer = GameTime::GetGameTime().count();
                     }
                     break;

@@ -109,7 +109,7 @@ bool VendorItemData::RemoveItem(uint32 item_id)
 }
 
 VendorItemCount::VendorItemCount(uint32 _item, uint32 _count)
-    : itemId(_item), count(_count), lastIncrementTime(GameTime::GetGameTime().count()) {}
+    : itemId(_item), count(_count), lastIncrementTime(GameTime::GetGameTime().count()) { }
 
 VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extendedCost) const
 {
@@ -612,7 +612,7 @@ void Creature::Update(uint32 diff)
                     if (!sConditionMgr->IsObjectMeetToConditions(this, conditions))
                     {
                         // Creature should not respawn, reset respawn timer. Conditions will be checked again the next time it tries to respawn.
-                        m_respawnTime = time(nullptr) + m_respawnDelay;
+                        m_respawnTime = GameTime::GetGameTime().count() + m_respawnDelay;
                         break;
                     }
 

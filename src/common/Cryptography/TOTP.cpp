@@ -16,6 +16,7 @@
  */
 
 #include "TOTP.h"
+#include "Timer.h"
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 
@@ -46,7 +47,7 @@ static constexpr uint32 HMAC_RESULT_SIZE = 20;
 
 /*static*/ bool Warhead::Crypto::TOTP::ValidateToken(Secret const& secret, uint32 token)
 {
-    time_t now = time(nullptr);
+    time_t now = GetEpochTime().count();
     return (
         (token == GenerateToken(secret, now - TOTP_INTERVAL)) ||
         (token == GenerateToken(secret, now)) ||

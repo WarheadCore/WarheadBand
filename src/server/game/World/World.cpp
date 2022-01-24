@@ -1437,12 +1437,10 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_UPTIME].Reset();
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
-
         stmt->SetData(0, uint32(GameTime::GetUptime().count()));
         stmt->SetData(1, uint16(GetMaxPlayerCount()));
         stmt->SetData(2, realm.Id.Realm);
         stmt->SetData(3, uint32(GameTime::GetStartTime().count()));
-
         LoginDatabase.Execute(stmt);
     }
 
@@ -2184,16 +2182,13 @@ void World::LoadWorldStates()
         return;
     }
 
-    uint32 count = 0;
-
     do
     {
         Field* fields = result->Fetch();
         m_worldstates[fields[0].Get<uint32>()] = fields[1].Get<uint32>();
-        ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} world states in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    FMT_LOG_INFO("server.loading", ">> Loaded {} world states in %u ms", m_worldstates.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

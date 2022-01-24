@@ -1160,7 +1160,7 @@ public:
     [[nodiscard]] PetStable const* GetPetStable() const { return m_petStable.get(); }
 
     [[nodiscard]] Pet* GetPet() const;
-    Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, Milliseconds duration = 0s);
+    Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, Milliseconds duration = 0s, uint32 healthPct = 0);
     void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
     bool CanPetResurrect();
     bool IsExistPet();
@@ -1462,7 +1462,8 @@ public:
     void ItemRemovedQuestCheck(uint32 entry, uint32 count);
     void KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid);
     void KilledMonsterCredit(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
-    void KilledPlayerCredit();
+    void KilledPlayerCredit(uint16 count = 1);
+    void KilledPlayerCreditForQuest(uint16 count, Quest const* quest);
     void KillCreditGO(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
     void TalkedToCreature(uint32 entry, ObjectGuid guid);
     void MoneyChanged(uint32 value);
@@ -1717,7 +1718,6 @@ public:
     [[nodiscard]] bool HasSpellCooldown(uint32 spell_id) const override;
     [[nodiscard]] bool HasSpellItemCooldown(uint32 spell_id, uint32 itemid) const override;
     [[nodiscard]] uint32 GetSpellCooldownDelay(uint32 spell_id) const;
-
     void AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr, bool infinityCooldown = false);
     void AddSpellCooldown(uint32 spell_id, uint32 itemid, uint32 end_time, bool needSendToClient = false, bool forceSendToSpectator = false) override;
     void _AddSpellCooldown(uint32 spell_id, uint16 categoryId, uint32 itemid, uint32 end_time, bool needSendToClient = false, bool forceSendToSpectator = false);
@@ -2926,6 +2926,8 @@ private:
     WorldLocation _corpseLocation;
 
     Optional<float> _farSightDistance = { };
+
+    bool _wasOutdoor;
 };
 
 void AddItemsSetItem(Player* player, Item* item);

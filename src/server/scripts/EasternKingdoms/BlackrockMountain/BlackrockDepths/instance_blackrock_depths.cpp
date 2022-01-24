@@ -22,7 +22,7 @@
 #include "ScriptedCreature.h"
 #include "blackrock_depths.h"
 
-#define MAX_ENCOUNTER 6
+constexpr auto MAX_ENCOUNTER = 6;
 
 enum Timers
 {

@@ -251,7 +251,9 @@ void MapMgr::Update(uint32 diff)
     //if (mapUpdateStep == 0)
     {
         if (m_updater.activated())
+        {
             m_updater.schedule_lfg_update(diff);
+        }
         else
         {
             sLFGMgr->Update(diff, 1);

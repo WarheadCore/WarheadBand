@@ -1020,7 +1020,7 @@ void BattlegroundMgr::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, T
     if (bg->isArena() && bg->isRated())
         bg->SetArenaTeamIdForTeam(ginfo->teamId, ginfo->ArenaTeamId);
 
-    ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
+    ginfo->RemoveInviteTime = GameTime::GetGameTimeMS().count() + INVITE_ACCEPT_WAIT_TIME;
 
     // loop through the players
     for (auto const& itr : ginfo->Players)

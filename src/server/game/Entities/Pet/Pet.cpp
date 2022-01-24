@@ -205,7 +205,7 @@ std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable 
     return { nullptr, PET_SAVE_AS_DELETED };
 }
 
-bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current)
+bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current, uint32 healthPct /*= 0*/)
 {
     m_loading = true;
 
@@ -327,7 +327,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime().count())); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -415,7 +415,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         owner->ToPlayer()->SetLastPetNumber(petInfo->PetNumber);
 
     owner->GetSession()->AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(std::make_shared<PetLoadQueryHolder>(ownerid, petInfo->PetNumber)))
-        .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime, savedhealth = petInfo->Health, savedmana = petInfo->Mana]
+        .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime, savedhealth = petInfo->Health, savedmana = petInfo->Mana, healthPct]
         (SQLQueryHolderBase const& holder)
     {
         if (session->GetPlayer() != owner || owner->GetPet() != this)
@@ -427,7 +427,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         InitTalentForLevel(); // set original talents points before spell loading
 
-        uint32 timediff = uint32(time(nullptr) - lastSaveTime);
+        uint32 timediff = uint32(GameTime::GetGameTime().count() - lastSaveTime);
         _LoadAuras(holder.GetPreparedResult(PetLoadQueryHolder::AURAS), timediff);
 
         // load action bar, if data broken will fill later by default spells.
@@ -465,6 +465,12 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             }
         }
 
+        uint32 curHealth = savedhealth;
+        if (healthPct)
+        {
+            curHealth = CountPctFromMaxHealth(healthPct);
+        }
+
         if (getPetType() == SUMMON_PET && !current) //all (?) summon pets come with full health when called, but not when they are current
         {
             SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
@@ -472,11 +478,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         }
         else
         {
-            if (!savedhealth && getPetType() == HUNTER_PET)
+            if (!curHealth && getPetType() == HUNTER_PET)
                 setDeathState(JUST_DIED);
             else
             {
-                SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
+                SetHealth(curHealth > GetMaxHealth() ? GetMaxHealth() : curHealth);
                 SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
             }
         }
@@ -556,23 +562,23 @@ void Pet::SavePetToDB(PetSaveMode mode)
         FillPetInfo(&owner->GetPetStable()->CurrentPet.value());
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_PET);
-        stmt->SetData(0, m_charmInfo->GetPetNumber());
-        stmt->SetData(1, GetEntry());
-        stmt->SetData(2, ownerLowGUID);
-        stmt->SetData(3, GetNativeDisplayId());
-        stmt->SetData(4, GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        stmt->SetData(5, uint8(getPetType()));
-        stmt->SetData(6, getLevel());
-        stmt->SetData(7, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
-        stmt->SetData(8, uint8(GetReactState()));
-        stmt->SetData(9, GetName());
-        stmt->SetData(10, uint8(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1));
-        stmt->SetData(11, uint8(mode));
-        stmt->SetData(12, curhealth);
-        stmt->SetData(13, curmana);
-        stmt->SetData(14, GetPower(POWER_HAPPINESS));
-        stmt->SetData(15, time(nullptr));
-        stmt->SetData(16, actionBar);
+        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+        stmt->setUInt32(1, GetEntry());
+        stmt->setUInt32(2, ownerLowGUID);
+        stmt->setUInt32(3, GetNativeDisplayId());
+        stmt->setUInt32(4, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt8(5, uint8(getPetType()));
+        stmt->setUInt8(6, getLevel());
+        stmt->setUInt32(7, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->setUInt8(8, uint8(GetReactState()));
+        stmt->setString(9, GetName());
+        stmt->setUInt8(10, uint8(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1));
+        stmt->setUInt8(11, uint8(mode));
+        stmt->setUInt32(12, curhealth);
+        stmt->setUInt32(13, curmana);
+        stmt->setUInt32(14, GetPower(POWER_HAPPINESS));
+        stmt->setUInt32(15, GameTime::GetGameTime().count());
+        stmt->setString(16, actionBar);
 
         trans->Append(stmt);
         CharacterDatabase.CommitTransaction(trans);
@@ -652,7 +658,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
             {
-                if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= time(nullptr))
+                if (getPetType() != HUNTER_PET || m_corpseRemoveTime <= GameTime::GetGameTime().count())
                 {
                     Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                     return;
@@ -1603,10 +1609,12 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
                 continue;
 
             // negative effects should continue counting down after logout
-            if (remaintime != -1 && !spellInfo->IsPositive())
+            if (remaintime != -1 && (!spellInfo->IsPositive() || spellInfo->HasAttribute(SPELL_ATTR4_AURA_EXPIRES_OFFLINE)))
             {
                 if (remaintime / IN_MILLISECONDS <= int32(timediff))
+                {
                     continue;
+                }
 
                 remaintime -= timediff * IN_MILLISECONDS;
             }
@@ -2418,7 +2426,7 @@ void Pet::FillPetInfo(PetStable::PetInfo* petInfo) const
     petInfo->Mana = GetPower(POWER_MANA);
     petInfo->Happiness = GetPower(POWER_HAPPINESS);
     petInfo->ActionBar = GenerateActionBarData();
-    petInfo->LastSaveTime = time(nullptr);
+    petInfo->LastSaveTime = GameTime::GetGameTime().count();
     petInfo->CreatedBySpellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
     petInfo->Type = getPetType();
 }

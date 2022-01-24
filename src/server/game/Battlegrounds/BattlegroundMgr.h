@@ -32,8 +32,6 @@ typedef Battleground* (*bgRef)(Battleground*);
 typedef void(*bgMapRef)(WorldPacket*, Battleground::BattlegroundScoreMap::const_iterator);
 typedef void(*bgTypeRef)(WorldPacket*, Battleground::BattlegroundScoreMap::const_iterator, Battleground*);
 
-#define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400 // how many seconds in day
-
 struct CreateBattlegroundData
 {
     BattlegroundTypeId bgTypeId;

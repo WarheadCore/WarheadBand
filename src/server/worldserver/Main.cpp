@@ -23,7 +23,6 @@
 #include "CliRunnable.h"
 #include "Common.h"
 #include "Config.h"
-#include "Configuration/Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
@@ -35,7 +34,6 @@
 #include "Metric.h"
 #include "ModulesScriptLoader.h"
 #include "MySQLThreading.h"
-#include "ObjectAccessor.h"
 #include "OpenSSLCrypto.h"
 #include "OutdoorPvPMgr.h"
 #include "ProcessPriority.h"
@@ -50,10 +48,8 @@
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include <boost/asio/signal_set.hpp>
-#include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
-#include <iostream>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
@@ -322,6 +318,8 @@ int main(int argc, char** argv)
 
         sOutdoorPvPMgr->Die();                     // unload it before MapMgr
         sMapMgr->UnloadAll();                      // unload all grids (including locked in memory)
+
+        sScriptMgr->OnAfterUnloadAllMaps();
     });
 
     // Start the Remote Access port (acceptor) if enabled

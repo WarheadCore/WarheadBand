@@ -34,7 +34,6 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
     m_updateFlag = (UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_POSITION);
     m_valuesCount = CORPSE_END;
     m_time = GameTime::GetGameTime().count();
-
     lootRecipient = nullptr;
 }
 

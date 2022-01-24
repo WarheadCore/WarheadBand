@@ -17,6 +17,7 @@
 
 #include "AccountMgr.h"
 #include "GameConfig.h"
+#include "GameTime.h"
 #include "MapMgr.h"
 #include "MuteMgr.h"
 #include "Player.h"
@@ -33,7 +34,7 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
         return;
 
-    time_t current = time (nullptr);
+    time_t current = GameTime::GetGameTime().count();
     if (m_speakTime > current)
     {
         uint32 max_count = specialMessageLimit ? specialMessageLimit : CONF_GET_INT("ChatFlood.MessageCount");
