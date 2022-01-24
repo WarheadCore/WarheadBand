@@ -5610,7 +5610,7 @@ void Player::CheckAreaExploreAndOutdoor()
     uint32 areaId = GetAreaId();
     AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(areaId);
 
-    if (sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK) && _wasOutdoor != isOutdoor)
+    if (CONF_GET_BOOL("vmap.enableIndoorCheck") && _wasOutdoor != isOutdoor)
     {
         _wasOutdoor = isOutdoor;
 

@@ -2188,7 +2188,7 @@ void World::LoadWorldStates()
         m_worldstates[fields[0].Get<uint32>()] = fields[1].Get<uint32>();
     } while (result->NextRow());
 
-    FMT_LOG_INFO("server.loading", ">> Loaded {} world states in %u ms", m_worldstates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} world states in {} ms", m_worldstates.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 

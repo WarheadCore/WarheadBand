@@ -816,7 +816,7 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
 
         if (!IsAllowedToSpeak(speakDelay))
         {
-            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(lastSpeakTime + speakDelay - GameTime::GetGameTime().count());
+            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(_lastSpeakTime + static_cast<long long>(speakDelay) - GameTime::GetGameTime().count());
             if (_channelRights.speakMessage.length() > 0)
                 player->GetSession()->SendNotification("{}", _channelRights.speakMessage);
             player->GetSession()->SendNotification("You must wait {} before speaking again.", timeStr);
@@ -835,7 +835,7 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
 
 bool Channel::IsAllowedToSpeak(uint32 speakDelay)
 {
-    if (_lastSpeakTime + speakDelay <= GameTime::GetGameTime().count())
+    if (_lastSpeakTime + static_cast<long long>(speakDelay) <= GameTime::GetGameTime().count())
     {
         _lastSpeakTime = GameTime::GetGameTime().count();
         return true;
@@ -1309,15 +1309,4 @@ void Channel::MakeModerationOff(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_MODERATION_OFF_NOTICE);
     *data << guid;
-}
-
-bool Channel::IsAllowedToSpeak(uint32 speakDelay)
-{
-    if (lastSpeakTime + speakDelay <= GameTime::GetGameTime().count())
-    {
-        lastSpeakTime = GameTime::GetGameTime().count();
-        return true;
-    }
-
-    return false;
 }

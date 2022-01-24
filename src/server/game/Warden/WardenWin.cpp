@@ -31,6 +31,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 #include <openssl/md5.h>
 
 // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
