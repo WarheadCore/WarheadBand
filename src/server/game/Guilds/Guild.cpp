@@ -1658,8 +1658,8 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
     _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
 
     if (amount > 10 * GOLD)     // receiver_acc = Guild id, receiver_name = Guild name
-        CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"(guild members: %u, new amount: %u, leader guid low: %u, sender level: %u)\", NOW(), %u)",
-            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName().c_str(), session->GetRemoteAddress().c_str(), GetId(), GetName().c_str(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 3);
+        CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"(guild members: {}, new amount: {}, leader guid low: {}, sender level: {})\", NOW(), {})",
+            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), session->GetRemoteAddress(), GetId(), GetName(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 3);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair)
@@ -1702,8 +1702,8 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
     CharacterDatabase.CommitTransaction(trans);
 
     if (amount > 10 * GOLD)     // sender_acc = 0 (guild has no account), sender_guid = Guild id, sender_name = Guild name
-        CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"(guild, members: %u, new amount: %u, leader guid low: %u, withdrawer level: %u)\", NOW(), %u)",
-            0, GetId(), GetName().c_str(), session->GetRemoteAddress().c_str(), session->GetAccountId(), player->GetName().c_str(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 4);
+        CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"(guild, members: {}, new amount: {}, leader guid low: {}, withdrawer level: {})\", NOW(), {})",
+            0, GetId(), GetName(), session->GetRemoteAddress(), session->GetAccountId(), player->GetName(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 4);
 
     std::string aux = Warhead::Impl::ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
     _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
@@ -1994,7 +1994,7 @@ bool Guild::LoadBankItemFromDB(Field* fields)
     if (tabId >= _GetPurchasedTabsSize())
     {
         LOG_ERROR("guild", "Invalid tab for item (GUID: {}, id: #{}) in guild bank, skipped.",
-                       fields[14].GetUInt32(), fields[15].GetUInt32());
+                       fields[14].Get<uint32>(), fields[15].Get<uint32>());
         return false;
     }
     return m_bankTabs[tabId].LoadItemFromDB(fields);

@@ -60,7 +60,7 @@ public:
 
         LOG_INFO("module.antiad", "Loading anti advertisment...");
 
-        QueryResult result = WorldDatabase.PQuery("SELECT Pattern FROM `anti_ad_patterns`");
+        QueryResult result = WorldDatabase.Query("SELECT Pattern FROM `anti_ad_patterns`");
         if (!result)
         {
             LOG_INFO("module.antiad", ">> Loading 0 word. DB table `anti_ad_patterns` is empty.");

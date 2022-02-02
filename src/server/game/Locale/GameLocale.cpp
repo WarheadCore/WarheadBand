@@ -78,7 +78,7 @@ bool GameLocale::LoadWarheadStrings()
 
     _warheadStringStore.clear(); // for reload case
 
-    QueryResult result = WorldDatabase.PQuery("SELECT entry, content_default, locale_koKR, locale_frFR, locale_deDE, locale_zhCN, locale_zhTW, locale_esES, locale_esMX, locale_ruRU FROM acore_string");
+    QueryResult result = WorldDatabase.Query("SELECT entry, content_default, locale_koKR, locale_frFR, locale_deDE, locale_zhCN, locale_zhTW, locale_esES, locale_esMX, locale_ruRU FROM acore_string");
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 warhead strings. DB table `warhead_strings` is empty.");
@@ -683,7 +683,7 @@ void GameLocale::LoadAutoBroadCastLocales()
     _autobroadLocaleStore.clear(); // need for reload case
 
     //                                                 0          1       2
-    QueryResult result = LoginDatabase.PQuery("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm);
+    QueryResult result = LoginDatabase.Query("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm);
     if (!result)
     {
         return;

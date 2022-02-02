@@ -124,13 +124,13 @@ target_compile_definitions(warhead-compile-option-interface
 message(STATUS "MSVC: Disabled INTMAX_MAX warnings")
 
 # Ignore specific warnings
-target_compile_options(acore-compile-option-interface
+target_compile_options(warhead-compile-option-interface
   INTERFACE
     /wd4351  # C4351: new behavior: elements of array 'x' will be default initialized
     /wd4091) # C4091: 'typedef ': ignored on left of '' when no variable is declared
 
 if(NOT WITH_WARNINGS)
-  target_compile_options(acore-warning-interface
+  target_compile_options(warhead-warning-interface
     INTERFACE
       /wd4996  # C4996 deprecation
       /wd4985  # C4985 'symbol-name': attributes not present on previous declaration.
@@ -143,7 +143,7 @@ if(NOT WITH_WARNINGS)
 endif()
 
 # Move some warnings that are enabled for other compilers from level 4 to level 3
-target_compile_options(acore-compile-option-interface
+target_compile_options(warhead-compile-option-interface
   INTERFACE
     /w34100  # C4100 'identifier' : unreferenced formal parameter
     /w34101  # C4101: 'identifier' : unreferenced local variable
@@ -151,7 +151,7 @@ target_compile_options(acore-compile-option-interface
     /w34389) # C4189: 'equality-operator' : signed/unsigned mismatch
 
 if(BUILD_SHARED_LIBS)
-  target_compile_options(acore-compile-option-interface
+  target_compile_options(warhead-compile-option-interface
     INTERFACE
       /wd4251  # C4251: needs to have dll-interface to be used by clients of class '...'
       /wd4275) # C4275: non dll-interface class ...' used as base for dll-interface class '...'
@@ -160,7 +160,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
-target_compile_options(acore-warning-interface
+target_compile_options(warhead-warning-interface
   INTERFACE
     /we4263  # 'function' : member function does not override any base class virtual member function
     /we4264) # 'virtual_function' : no override available for virtual member function from base 'class'; function is hidden

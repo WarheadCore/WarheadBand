@@ -1784,17 +1784,17 @@ void SpellMgr::LoadSpellProcEvents()
 
         SpellProcEventEntry spellProcEvent;
 
-        spellProcEvent.schoolMask         = fields[1].GetInt8();
-        spellProcEvent.spellFamilyName    = fields[2].GetUInt16();
-        spellProcEvent.spellFamilyMask[0] = fields[3].GetUInt32();
-        spellProcEvent.spellFamilyMask[1] = fields[4].GetUInt32();
-        spellProcEvent.spellFamilyMask[2] = fields[5].GetUInt32();
-        spellProcEvent.procFlags          = fields[6].GetUInt32();
-        spellProcEvent.procEx             = fields[7].GetUInt32();
-        spellProcEvent.procPhase          = fields[8].GetUInt32();
-        spellProcEvent.ppmRate            = fields[9].GetFloat();
-        spellProcEvent.customChance       = fields[10].GetFloat();
-        spellProcEvent.cooldown           = fields[11].GetUInt32();
+        spellProcEvent.schoolMask         = fields[1].Get<int8>();
+        spellProcEvent.spellFamilyName    = fields[2].Get<uint16>();
+        spellProcEvent.spellFamilyMask[0] = fields[3].Get<uint32>();
+        spellProcEvent.spellFamilyMask[1] = fields[4].Get<uint32>();
+        spellProcEvent.spellFamilyMask[2] = fields[5].Get<uint32>();
+        spellProcEvent.procFlags          = fields[6].Get<uint32>();
+        spellProcEvent.procEx             = fields[7].Get<uint32>();
+        spellProcEvent.procPhase          = fields[8].Get<uint32>();
+        spellProcEvent.ppmRate            = fields[9].Get<float>();
+        spellProcEvent.customChance       = fields[10].Get<float>();
+        spellProcEvent.cooldown           = fields[11].Get<uint32>();
 
         // PROC_SPELL_PHASE_NONE is by default PROC_SPELL_PHASE_HIT
         if (spellProcEvent.procPhase == PROC_SPELL_PHASE_NONE)
@@ -1868,7 +1868,7 @@ void SpellMgr::LoadSpellProcs()
         {
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                LOG_ERROR("sql.sql", "Spell {} listed in `spell_proc` is not first rank of spell.", fields[0].GetInt32());
+                LOG_ERROR("sql.sql", "Spell {} listed in `spell_proc` is not first rank of spell.", fields[0].Get<int32>());
                 continue;
             }
         }
@@ -2679,9 +2679,9 @@ void SpellMgr::LoadSpellAreas()
 
     if (CONF_GET_INT("ICC.Buff.Horde") > 0)
     {
-        LOG_INFO("server.loading", ">> Using ICC buff Horde: {}", sWorld->getIntConfig(CONFIG_ICC_BUFF_HORDE));
-        SpellArea spellAreaICCBuffHorde = { sWorld->getIntConfig(CONFIG_ICC_BUFF_HORDE), ICC_AREA, 0, 0, 0, ICC_RACEMASK_HORDE, Gender(2), 64, 11, 1 };
-        SpellArea const* saICCBuffHorde = &mSpellAreaMap.insert(SpellAreaMap::value_type(sWorld->getIntConfig(CONFIG_ICC_BUFF_HORDE), spellAreaICCBuffHorde))->second;
+        LOG_INFO("server.loading", ">> Using ICC buff Horde: {}", CONF_GET_UINT("ICC.Buff.Horde"));
+        SpellArea spellAreaICCBuffHorde = { CONF_GET_UINT("ICC.Buff.Horde"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_HORDE, Gender(2), 64, 11, 1 };
+        SpellArea const* saICCBuffHorde = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_UINT("ICC.Buff.Horde"), spellAreaICCBuffHorde))->second;
         mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(ICC_AREA, saICCBuffHorde));
         ++count;
     }
@@ -2690,9 +2690,9 @@ void SpellMgr::LoadSpellAreas()
 
     if (CONF_GET_INT("ICC.Buff.Alliance") > 0)
     {
-        LOG_INFO("server.loading", ">> Using ICC buff Alliance: {}", sWorld->getIntConfig(CONFIG_ICC_BUFF_ALLIANCE));
-        SpellArea spellAreaICCBuffAlliance = { sWorld->getIntConfig(CONFIG_ICC_BUFF_ALLIANCE), ICC_AREA, 0, 0, 0, ICC_RACEMASK_ALLIANCE, Gender(2), 64, 11, 1 };
-        SpellArea const* saICCBuffAlliance = &mSpellAreaMap.insert(SpellAreaMap::value_type(sWorld->getIntConfig(CONFIG_ICC_BUFF_ALLIANCE), spellAreaICCBuffAlliance))->second;
+        LOG_INFO("server.loading", ">> Using ICC buff Alliance: {}", CONF_GET_UINT("ICC.Buff.Alliance"));
+        SpellArea spellAreaICCBuffAlliance = { CONF_GET_UINT("ICC.Buff.Alliance"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_ALLIANCE, Gender(2), 64, 11, 1 };
+        SpellArea const* saICCBuffAlliance = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_UINT("ICC.Buff.Alliance"), spellAreaICCBuffAlliance))->second;
         mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(ICC_AREA, saICCBuffAlliance));
         ++count;
     }

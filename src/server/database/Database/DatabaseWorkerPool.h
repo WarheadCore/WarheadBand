@@ -70,9 +70,9 @@ public:
     //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
     //! This method should only be used for queries that are only executed once, e.g during startup.
     template<typename... Args>
-    void PExecute(std::string_view sql, Args&&... args)
+    void Execute(std::string_view sql, Args&&... args)
     {
-        if (Warhead::IsFormatEmptyOrNull(sql))
+        if (sql.empty())
             return;
 
         Execute(Warhead::StringFormat(sql, std::forward<Args>(args)...));
@@ -93,9 +93,9 @@ public:
     //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
     //! This method should only be used for queries that are only executed once, e.g during startup.
     template<typename... Args>
-    void DirectPExecute(std::string_view sql, Args&&... args)
+    void DirectExecute(std::string_view sql, Args&&... args)
     {
-        if (Warhead::IsFormatEmptyOrNull(sql))
+        if (sql.empty())
             return;
 
         DirectExecute(Warhead::StringFormat(sql, std::forward<Args>(args)...));
@@ -111,25 +111,14 @@ public:
 
     //! Directly executes an SQL query in string format that will block the calling thread until finished.
     //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-    QueryResult Query(std::string_view, T* connection = nullptr);
+    QueryResult Query(std::string_view sql);
 
     //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
     //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
     template<typename... Args>
-    QueryResult PQuery(std::string_view sql, T* conn, Args&&... args)
+    QueryResult Query(std::string_view sql, Args&&... args)
     {
-        if (Warhead::IsFormatEmptyOrNull(sql))
-            return QueryResult(nullptr);
-
-        return Query(Warhead::StringFormat(sql, std::forward<Args>(args)...), conn);
-    }
-
-    //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
-    //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-    template<typename... Args>
-    QueryResult PQuery(std::string_view sql, Args&&... args)
-    {
-        if (Warhead::IsFormatEmptyOrNull(sql))
+        if (sql.empty())
             return QueryResult(nullptr);
 
         return Query(Warhead::StringFormat(sql, std::forward<Args>(args)...));

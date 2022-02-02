@@ -464,12 +464,12 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
         if( my_trade->GetMoney() >= 10 * GOLD )
         {
-            CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<TRADE>\", NOW())",
+            CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<TRADE>\", NOW())",
                 GetAccountId(), _player->GetGUID().GetCounter(), _player->GetName(), GetRemoteAddress(), trader->GetSession()->GetAccountId(), trader->GetName(), my_trade->GetMoney());
         }
         if( his_trade->GetMoney() >= 10 * GOLD )
         {
-            CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<TRADE>\", NOW())",
+            CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<TRADE>\", NOW())",
                 trader->GetSession()->GetAccountId(), trader->GetGUID().GetCounter(), trader->GetName(), trader->GetSession()->GetRemoteAddress(), GetAccountId(), _player->GetName(), his_trade->GetMoney());
         }
 

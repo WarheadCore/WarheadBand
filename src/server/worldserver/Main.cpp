@@ -175,7 +175,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                SYS_LOG_ERROR("Runtime-Error: unsupported option %s", argv[c]);
+                SYS_LOG_ERROR("Runtime-Error: unsupported option {}", argv[c]);
                 usage(argv[0]);
                 return 1;
             }
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
     LoadRealmInfo(*ioContext);
 
@@ -411,7 +411,7 @@ int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_VERSION_MISMATCH));
 
@@ -456,7 +456,7 @@ int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LOG_INFO("server.worldserver", "Halting process...");
 
@@ -507,7 +507,7 @@ bool StartDB()
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.Execute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
@@ -533,7 +533,7 @@ void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
     // pussywizard: tc query would set online=0 even if logged in on another realm >_>
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -692,7 +692,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
 
 bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
+    QueryResult result = LoginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 

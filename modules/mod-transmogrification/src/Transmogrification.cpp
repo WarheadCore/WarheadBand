@@ -62,7 +62,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
     _presetById[pGUID].clear();
     _presetByName[pGUID].clear();
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = {}", pGUID.GetCounter());
+    QueryResult result = CharacterDatabase.Query("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = {}", pGUID.GetCounter());
     if (!result)
         return;
 
@@ -96,7 +96,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
         else // should be deleted on startup, so  this never runs (shouldnt..)
         {
             _presetById[pGUID].erase(PresetID);
-            CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", pGUID.GetCounter(), PresetID);
+            CharacterDatabase.Execute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", pGUID.GetCounter(), PresetID);
         }
     } while (result->NextRow());
 }
@@ -328,7 +328,7 @@ void Transmogrification::SetFakeEntry(Player* player, uint32 newEntry, uint8 /*s
     _mapStore[player->GetGUID()][itemGUID] = newEntry;
     _dataMapStore[itemGUID] = player->GetGUID();
 
-    CharacterDatabase.PExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ({}, {}, {})", itemGUID.GetCounter(), newEntry, player->GetGUID().GetCounter());
+    CharacterDatabase.Execute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ({}, {}, {})", itemGUID.GetCounter(), newEntry, player->GetGUID().GetCounter());
     UpdateItem(player, itemTransmogrified);
 }
 
@@ -729,9 +729,9 @@ void Transmogrification::DeleteFakeFromDB(ObjectGuid::LowType itemLowGuid, Chara
     }
 
     if (trans)
-        (*trans)->PAppend("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
+        (*trans)->Append("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
     else
-        CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
+        CharacterDatabase.Execute("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
 }
 
 bool Transmogrification::CanTransmogSlot(uint8 slot) const
@@ -780,7 +780,7 @@ void Transmogrification::LoadPlayerAtLogin(Player* player)
 
     _mapStore.erase(playerGUID);
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
+    QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
     if (result)
     {
         do
@@ -895,7 +895,7 @@ void Transmogrification::SavePreset(Player* player, Creature* /* creature */, st
         }
 
         _presetByName[player->GetGUID()][presetID] = name; // Make sure code doesnt mess up SQL!
-        CharacterDatabase.PExecute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES ({}, {}, \"{}\", \"{}\")", player->GetGUID().GetCounter(), uint32(presetID), name, ss.str());
+        CharacterDatabase.Execute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES ({}, {}, \"{}\", \"{}\")", player->GetGUID().GetCounter(), uint32(presetID), name, ss.str());
 
         if (cost)
             player->ModifyMoney(-cost);
@@ -1076,7 +1076,7 @@ void Transmogrification::GossipViewPreset(Player* player, Creature* creature, ui
 void Transmogrification::GossipDeletePreset(Player* player, Creature* /* creature */, uint32 const& action)
 {
     // action = presetID
-    CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
+    CharacterDatabase.Execute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
     _presetById[player->GetGUID()][action].clear();
     _presetById[player->GetGUID()].erase(action);
     _presetByName[player->GetGUID()].erase(action);

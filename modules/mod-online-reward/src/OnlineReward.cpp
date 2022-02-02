@@ -149,7 +149,7 @@ void OnlineReward::AddRewardHistory(ObjectGuid::LowType lowGuid)
         return;
 
     _queryProcessor.AddCallback(
-        CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `RewardedPerOnline`, `RewardedPerHour` FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid).c_str()).
+        CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `RewardedPerOnline`, `RewardedPerHour` FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid)).
         WithCallback(std::bind(&AddRewardHistoryAsync, lowGuid, std::placeholders::_1)));
 }
 
@@ -257,10 +257,10 @@ void OnlineReward::SaveRewardDB()
         }
 
         // Delele old data
-        trans->PAppend("DELETE FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
+        trans->Append("DELETE FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
 
         // Insert new data
-        trans->PAppend("INSERT INTO `online_reward_history` (`PlayerGuid`, `RewardedPerOnline`, `RewardedPerHour`) VALUES ({}, '{}', {})", lowGuid, saveDataPerOnline, dataPerTime.count());
+        trans->Append("INSERT INTO `online_reward_history` (`PlayerGuid`, `RewardedPerOnline`, `RewardedPerHour`) VALUES ({}, '{}', {})", lowGuid, saveDataPerOnline, dataPerTime.count());
     }
 
     CharacterDatabase.CommitTransaction(trans);

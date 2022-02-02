@@ -3506,7 +3506,7 @@ void Map::LogEncounterFinished(EncounterCreditType type, uint32 creditEntry)
     }
 
     CleanStringForMysqlQuery(playersInfo);
-    CharacterDatabase.PExecute("INSERT INTO log_encounter VALUES(NOW(), {}, {}, {}, {}, '{}')", GetId(), (uint32)GetDifficulty(), type, creditEntry, playersInfo);
+    CharacterDatabase.Execute("INSERT INTO log_encounter VALUES(NOW(), {}, {}, {}, {}, '{}')", GetId(), (uint32)GetDifficulty(), type, creditEntry, playersInfo);
 }
 
 bool Map::AllTransportsEmpty() const

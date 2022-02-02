@@ -27,47 +27,47 @@ def islog(line):
     else :
         return False
 
-# def isSendSysMessage(line):
-#     substring = 'SendSysMessage'
-#     if substring in line:
-#         return True
-#     else :
-#         return False
+def isSendSysMessage(line):
+    substring = 'SendSysMessage'
+    if substring in line:
+        return True
+    else :
+        return False
 
-# def isPSendSysMessage(line):
-#     substring = 'PSendSysMessage'
-#     if substring in line:
-#         return True
-#     else :
-#         return False
+def isPSendSysMessage(line):
+    substring = 'PSendSysMessage'
+    if substring in line:
+        return True
+    else :
+        return False
 
-# def isPQuery(line):
-#     substring = 'PQuery'
-#     if substring in line:
-#         return True
-#     else :
-#         return False
+def isPQuery(line):
+    substring = 'PQuery'
+    if substring in line:
+        return True
+    else :
+        return False
 
-# def isPExecute(line):
-#     substring = 'PExecute'
-#     if substring in line:
-#         return True
-#     else :
-#         return False
+def isPExecute(line):
+    substring = 'PExecute'
+    if substring in line:
+        return True
+    else :
+        return False
 
-# def isPAppend(line):
-#     substring = 'PAppend'
-#     if substring in line:
-#         return True
-#     else :
-#         return False
+def isPAppend(line):
+    substring = 'PAppend'
+    if substring in line:
+        return True
+    else :
+        return False
 
-# def isStringFormat(line):
-#     substring = 'StringFormat'
-#     if substring in line:
-#         return True
-#     else :
-#         return False
+def isStringFormat(line):
+    substring = 'StringFormat'
+    if substring in line:
+        return True
+    else :
+        return False
 
 def haveDelimeter(line):
     if ';' in line:
@@ -83,18 +83,21 @@ def checkSoloLine(line):
         return handleCleanup(line), False
     elif islog(line):
         return handleCleanup(line), False
-    # elif isPExecute(line):
-    #     return handleCleanup(line), False
-    # elif isPQuery(line):
-    #     return handleCleanup(line), False
-    # elif isPAppend(line):
-    #     return handleCleanup(line), False
-    # elif isSendSysMessage(line):
-    #     return handleCleanup(line), False
-    # elif isPSendSysMessage(line):
-    #     return handleCleanup(line), False
-    # elif isStringFormat(line):
-    #     return handleCleanup(line), False
+    elif isPExecute(line):
+        line = line.replace("PExecute", "Execute");
+        return handleCleanup(line), False
+    elif isPQuery(line):
+        line = line.replace("PQuery", "Query");
+        return handleCleanup(line), False
+    elif isPAppend(line):
+        line = line.replace("PAppend", "Append");
+        return handleCleanup(line), False
+    elif isSendSysMessage(line):
+        return handleCleanup(line), False
+    elif isPSendSysMessage(line):
+        return handleCleanup(line), False
+    elif isStringFormat(line):
+        return handleCleanup(line), False
     else:
         return line, False
 
@@ -106,18 +109,21 @@ def startMultiLine(line):
         return handleCleanup(line), True
     elif islog(line):
         return handleCleanup(line), True
-    # elif isSendSysMessage(line):
-    #     return handleCleanup(line), True
-    # elif isPSendSysMessage(line):
-    #     return handleCleanup(line), True
-    # elif isPQuery(line):
-    #     return handleCleanup(line), True
-    # elif isPExecute(line):
-    #     return handleCleanup(line), True
-    # elif isPAppend(line):
-    #     return handleCleanup(line), True
-    # elif isStringFormat(line):
-    #     return handleCleanup(line), True
+    elif isSendSysMessage(line):
+        return handleCleanup(line), True
+    elif isPSendSysMessage(line):
+        return handleCleanup(line), True
+    elif isPQuery(line):
+        line = line.replace("PQuery", "Query");
+        return handleCleanup(line), True
+    elif isPExecute(line):
+        line = line.replace("PExecute", "Execute");
+        return handleCleanup(line), True
+    elif isPAppend(line):
+        line = line.replace("PAppend", "Append");
+        return handleCleanup(line), True
+    elif isStringFormat(line):
+        return handleCleanup(line), True
     else :
         return line, False
 
@@ -137,6 +143,7 @@ def checkTextLine(line, existPrevLine):
 
 def handleCleanup(line):
     line = line.replace("%s", "{}");
+    line = line.replace("%.*s", "{}");
     line = line.replace("%u", "{}");
     line = line.replace("%hu", "{}");
     line = line.replace("%lu", "{}");

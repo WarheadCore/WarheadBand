@@ -103,7 +103,7 @@ void ExternalMail::LoadSystem()
 void ExternalMail::AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
 {
     // Add mail item
-    CharacterDatabase.PExecute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('{}', '{}', {}, {}, '{}', {})",
+    CharacterDatabase.Execute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('{}', '{}', {}, {}, '{}', {})",
         charName, thanksSubject, itemID, itemCount, thanksText, creatureEntry);
 }
 
@@ -207,7 +207,7 @@ void ExternalMail::SendMailsAsync(QueryResult result)
             delete mail;
         }
 
-        trans->PAppend("DELETE FROM mail_external WHERE id = {}", exMail.ID);
+        trans->Append("DELETE FROM mail_external WHERE id = {}", exMail.ID);
     }
 
     CharacterDatabase.CommitTransaction(trans);

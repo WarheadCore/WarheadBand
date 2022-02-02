@@ -183,7 +183,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
     store.emplace(accountID, std::make_tuple(timeNow, endTime, level));
 
     // Add DB
-    LoginDatabase.PExecute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
+    LoginDatabase.Execute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
         accountID, timeNow.count(), endTime.count(), level);
 
     if (auto player = GetPlayerFromAccount(accountID))
@@ -205,7 +205,7 @@ bool Vip::Delete(uint32 accountID)
     }
 
     // Set inactive in DB
-    LoginDatabase.PExecute("UPDATE `account_premium` SET `IsActive` = 0 WHERE `AccountID` = {} AND `IsActive` = 1",
+    LoginDatabase.Execute("UPDATE `account_premium` SET `IsActive` = 0 WHERE `AccountID` = {} AND `IsActive` = 1",
         accountID);
 
     store.erase(accountID);
@@ -475,7 +475,7 @@ void Vip::UnBindInstances(Player* player)
 
             handler.PSendSysMessage("> {} {}", GetMapName(mapID, handler.GetSessionDbLocaleIndex()), GetDiffName(diff, bind.save->GetMapEntry()->IsRaid()));
             sInstanceSaveMgr->PlayerUnbindInstance(player->GetGUID(), mapID, diff, true, player);
-            CharacterDatabase.PExecute("REPLACE INTO `vip_unbind` (`PlayerGuid`) VALUES ({})", player->GetGUID().GetRawValue());
+            CharacterDatabase.Execute("REPLACE INTO `vip_unbind` (`PlayerGuid`) VALUES ({})", player->GetGUID().GetRawValue());
             count++;
         }
     }
@@ -497,7 +497,7 @@ void Vip::LoadRates()
 
     LOG_INFO("server.loading", "Load vip rates...");
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT VipLevel, RateXp, RateHonor, RateArenaPoint, RateReputation FROM vip_rates");
+    QueryResult result = CharacterDatabase.Query("SELECT VipLevel, RateXp, RateHonor, RateArenaPoint, RateReputation FROM vip_rates");
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 Vip rates. DB table `vip_rates` is empty.");
@@ -550,7 +550,7 @@ void Vip::LoadAccounts()
 
     LOG_INFO("server.loading", "Load vip accounts...");
 
-    QueryResult result = LoginDatabase.PQuery("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
+    QueryResult result = LoginDatabase.Query("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
@@ -584,7 +584,7 @@ void Vip::LoadUnbinds()
 
     LOG_INFO("server.loading", "Load vip unbinds...");
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT PlayerGuid, UNIX_TIMESTAMP(UnbindTime) FROM vip_unbind");
+    QueryResult result = CharacterDatabase.Query("SELECT PlayerGuid, UNIX_TIMESTAMP(UnbindTime) FROM vip_unbind");
     if (!result)
     {
         LOG_WARN("sql.sql", ">> Loaded 0 vip unbinds. DB table `vip_unbind` is empty.");
@@ -795,13 +795,13 @@ void Vip::AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel)
         storeVendors.erase(entry);
 
         // Del from DB
-        WorldDatabase.PExecute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
+        WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
     }
 
     storeVendors.emplace(entry, vendorVipLevel);
 
     // Add to DB
-    WorldDatabase.PExecute("INSERT INTO `vip_vendors` (`CreatureEntry`, `VipLevel`) VALUES({}, {})", entry, vendorVipLevel);
+    WorldDatabase.Execute("INSERT INTO `vip_vendors` (`CreatureEntry`, `VipLevel`) VALUES({}, {})", entry, vendorVipLevel);
 }
 
 void Vip::DeleteVendorVipLevel(uint32 entry)
@@ -812,7 +812,7 @@ void Vip::DeleteVendorVipLevel(uint32 entry)
     storeVendors.erase(entry);
 
     // Del from DB
-    WorldDatabase.PExecute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
+    WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
 }
 
 namespace fmt

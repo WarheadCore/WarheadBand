@@ -824,15 +824,15 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_IMPORT_SUCCESS);
             break;
         case DUMP_FILE_OPEN_ERROR:
-            handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileName.c_str());
+            handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileName);
             handler->SetSentErrorMessage(true);
             return false;
         case DUMP_FILE_BROKEN:
-            handler->PSendSysMessage(LANG_DUMP_BROKEN, fileName.c_str());
+            handler->PSendSysMessage(LANG_DUMP_BROKEN, fileName);
             handler->SetSentErrorMessage(true);
             return false;
         case DUMP_TOO_MANY_CHARS:
-            handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName().c_str(), account.GetID());
+            handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName(), account.GetID());
             handler->SetSentErrorMessage(true);
             return false;
         default:
@@ -871,7 +871,7 @@ public:
         case DUMP_SUCCESS:
             break;
         case DUMP_TOO_MANY_CHARS:
-            handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName().c_str(), account.GetID());
+            handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, account.GetName(), account.GetID());
             handler->SetSentErrorMessage(true);
             return false;
         case DUMP_FILE_OPEN_ERROR: // this error code should not happen
@@ -897,7 +897,7 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_EXPORT_SUCCESS);
             break;
         case DUMP_FILE_OPEN_ERROR:
-            handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileName.c_str());
+            handler->PSendSysMessage(LANG_FILE_OPEN_FAIL, fileName);
             handler->SetSentErrorMessage(true);
             return false;
         case DUMP_CHARACTER_DELETED:
