@@ -1246,6 +1246,10 @@ enum WarheadStrings
 
     // Room for more strings    5078-9999
 
+    LANG_CMD_GOQUEST_INVALID_SYNTAX     = 5082,
+
+    // Room for more strings    5083-9999
+
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
     LANG_WHISPER_REQ                    = 6605,

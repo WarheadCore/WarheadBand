@@ -346,7 +346,7 @@ Creature* MotionTransport::CreateNPCPassenger(ObjectGuid::LowType guid, Creature
     if (!creature->IsPositionValid())
     {
         LOG_ERROR("entities.transport", "Creature ({}) not created. Suggested coordinates aren't valid (X: {} Y: {})",
-            creature->GetGUID(), creature->GetPositionX(), creature->GetPositionY());
+            creature->GetGUID().ToString(), creature->GetPositionX(), creature->GetPositionY());
         delete creature;
         return nullptr;
     }
@@ -388,7 +388,7 @@ GameObject* MotionTransport::CreateGOPassenger(ObjectGuid::LowType guid, GameObj
     if (!go->IsPositionValid())
     {
         LOG_ERROR("entities.transport", "GameObject ({}) not created. Suggested coordinates aren't valid (X: {} Y: {})",
-            go->GetGUID(), go->GetPositionX(), go->GetPositionY());
+            go->GetGUID().ToString(), go->GetPositionX(), go->GetPositionY());
         delete go;
         return nullptr;
     }

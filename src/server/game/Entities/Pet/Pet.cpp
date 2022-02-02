@@ -944,7 +944,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     if (!IsPositionValid())
     {
         LOG_ERROR("entities.pet", "Pet {} not created base at creature. Suggested coordinates isn't valid (X: {} Y: {})",
-                       GetGUID(), GetPositionX(), GetPositionY());
+                       GetGUID().ToString(), GetPositionX(), GetPositionY());
         return false;
     }
 

@@ -1043,7 +1043,7 @@ void BattlegroundQueue::SendMessageBGQueue(Player* leader, Battleground* bg, PvP
     auto qTotal = qHorde + qAlliance;
 
     LOG_DEBUG("bg.battleground", "> Queue status for {} (Lvl: {} to {}) Queued: {} (Need at least {} more)",
-        bgName, q_min_level, q_max_level, qTotal, MaxPlayers - qTotal);
+        bgName, q_min_level, q_max_level, qAlliance + qHorde, MaxPlayers - qTotal);
 
     // Show queue status to player only (when joining battleground queue or Arena and arena world announcer is disabled)
     if (CONF_GET_BOOL("Battleground.QueueAnnouncer.PlayerOnly"))

@@ -220,6 +220,7 @@ bool WorldSocket::ReadHeaderHandler()
     {
         LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
             GetRemoteIpAddress().to_string(), header->size, header->cmd);
+
         return false;
     }
 
@@ -337,9 +338,8 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 HandleAuthSession(packet);
                 return ReadDataHandlerResult::WaitingForQuery;
             }
-            catch (ByteBufferException const&)
-            {
-            }
+            catch (ByteBufferException const&) { }
+
             LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client {} sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string());
             return ReadDataHandlerResult::Error;
         }

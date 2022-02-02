@@ -281,7 +281,7 @@ void CreatureGroup::FormationReset(bool dismiss, bool initMotionMaster)
                 {
                     member->GetMotionMaster()->MoveIdle();
                 }
-                LOG_DEBUG("entities.unit", "Set {} movement for member {}", dismiss ? "default" : "idle", member->GetGUID());
+                LOG_DEBUG("entities.unit", "Set {} movement for member {}", dismiss ? "default" : "idle", member->GetGUID().ToString());
             }
         }
     }

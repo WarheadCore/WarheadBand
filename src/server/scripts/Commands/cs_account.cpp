@@ -311,7 +311,7 @@ public:
                 {
                     LOG_DEBUG("warden", "Account: {} (IP: {}) Character:[{}] ({}) Change Password.",
                                    handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress(),
-                                   handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID());
+                                   handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().ToString());
                 }
                 break;
             case AOR_NAME_TOO_LONG:

@@ -1422,6 +1422,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                         int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48421, &bp, nullptr, nullptr, true);
                     }
+                    // Always cast Moonkin Aura
+                    target->CastSpell(target, 24907, true, nullptr, this, target->GetGUID());
                     break;
                 // Master Shapeshifter - Tree of Life
                 case FORM_TREE:
@@ -6683,7 +6685,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     }
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} power leech of {} for {} dmg inflicted by {}",
-                    GetCasterGUID(), target->GetGUID(), drainAmount, GetId());
+                    GetCasterGUID().ToString(), target->GetGUID().ToString(), drainAmount, GetId());
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if (PowerType == POWER_MANA)
         drainAmount -= target->GetSpellCritDamageReduction(drainAmount);
@@ -6748,7 +6750,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     // ignore negative values (can be result apply spellmods to aura damage
     uint32 amount = std::max(m_amount, 0) * target->GetMaxPower(PowerType) / 100;
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
-                    GetCasterGUID(), target->GetGUID(), amount, GetId());
+                    GetCasterGUID().ToString(), target->GetGUID().ToString(), amount, GetId());
     SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f, false);
     target->SendPeriodicAuraLog(&pInfo);
 
@@ -6785,7 +6787,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) cons
     target->SendPeriodicAuraLog(&pInfo);
 
     LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
-                    GetCasterGUID(), target->GetGUID(), amount, GetId());
+                    GetCasterGUID().ToString(), target->GetGUID().ToString(), amount, GetId());
     int32 gain = target->ModifyPower(PowerType, amount);
 
     if (caster)

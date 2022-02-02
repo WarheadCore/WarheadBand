@@ -230,7 +230,7 @@ bool validUtf8String(WorldPacket& recvData, std::string& s, std::string action, 
     if (!utf8::is_valid(s.begin(), s.end()))
     {
         LOG_INFO("network.opcode", "CalendarHandler: Player ({}) attempt to {} an event with invalid name or description (packet modification)",
-            playerGUID, action);
+            playerGUID.ToString(), action);
         recvData.rfinish();
         return false;
     }
@@ -400,8 +400,8 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recvData)
         return;
     }
 
-    LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [{}] "
-        "EventId [{}], InviteId [{}] Title {}, Description {}, type {} Repeatable {}, MaxInvites {}, Dungeon ID {}, Time {} Time2 {}, Flags {}",
+    LOG_DEBUG("network", "CMSG_CALENDAR_UPDATE_EVENT [{}] EventId [{}], InviteId [{}] Title {}, Description {}, type {} "
+        "Repeatable {}, MaxInvites {}, Dungeon ID {}, Time {} Time2 {}, Flags {}",
         guid.ToString(), eventId, inviteId, title, description, type, repetitionType, maxInvites, dungeonId, eventPackedTime, timeZoneTime, flags);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
@@ -688,7 +688,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recvData)
     recvData >> inviteId >> ownerInviteId >> eventId;
 
     LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_REMOVE_INVITE [{}] EventId [{}], ownerInviteId [{}], Invitee ([{}] id: [{}])",
-        guid, eventId, ownerInviteId, invitee, inviteId);
+                   guid.ToString(), eventId, ownerInviteId, invitee.ToString(), inviteId);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -749,7 +749,7 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recvData)
     recvData>> invitee.ReadAsPacked();
     recvData >> eventId >>  inviteId >> ownerInviteId >> rank;
     LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [{}] EventId [{}] ownerInviteId [{}], Invitee ([{}] id: [{}], rank {}",
-        guid, eventId, ownerInviteId, invitee, inviteId, rank);
+        guid.ToString(), eventId, ownerInviteId, invitee.ToString(), inviteId, rank);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(eventId))
     {
@@ -773,8 +773,7 @@ void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
     ObjectGuid complainGUID;
 
     recvData >> eventId >> complainGUID;
-    LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [{}] EventId [{}] guid [{}]",
-        guid, eventId, complainGUID);
+    LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [{}] EventId [{}] guid [{}]", guid.ToString(), eventId, complainGUID.ToString());
 
     // what to do with complains?
 }

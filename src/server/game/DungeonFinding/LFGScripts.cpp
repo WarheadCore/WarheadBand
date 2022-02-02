@@ -107,7 +107,7 @@ namespace lfg
                 player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
                 player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
                 LOG_DEBUG("lfg", "LFGPlayerScript::OnMapChanged, Player {} ({}) is in LFG dungeon map but does not have a valid group! Teleporting to homebind.",
-                    player->GetName(), player->GetGUID());
+                    player->GetName(), player->GetGUID().ToString());
                 return;
             }
 
@@ -151,7 +151,7 @@ namespace lfg
             LfgState gstate = sLFGMgr->GetState(gguid);
             LfgState state = sLFGMgr->GetState(guid);
             LOG_DEBUG("lfg", "LFGScripts::OnAddMember [{}]: added [{}] leader [{}] gstate: {}, state: {}",
-                gguid, guid, leader, gstate, state);
+                gguid.ToString(), guid.ToString(), leader.ToString(), gstate, state);
 
             if (state == LFG_STATE_QUEUED)
                 sLFGMgr->LeaveLfg(guid);
@@ -185,7 +185,7 @@ namespace lfg
 
         ObjectGuid gguid = group->GetGUID();
         LOG_DEBUG("lfg", "LFGScripts::OnRemoveMember [{}]: remove [{}] Method: {} Kicker: [{}] Reason: {}",
-            gguid, guid, method, kicker, (reason ? reason : ""));
+            gguid.ToString(), guid.ToString(), method, kicker.ToString(), (reason ? reason : ""));
 
         bool isLFG = group->isLFGGroup();
         LfgState state = sLFGMgr->GetState(gguid);
@@ -267,7 +267,7 @@ namespace lfg
         ObjectGuid gguid = group->GetGUID();
 
         LOG_DEBUG("lfg", "LFGScripts::OnChangeLeader [{}]: old [{}] new [{}]",
-            gguid, newLeaderGuid, oldLeaderGuid);
+            gguid.ToString(), newLeaderGuid.ToString(), oldLeaderGuid.ToString());
         sLFGMgr->SetLeader(gguid, newLeaderGuid);
 
         // pussywizard: after all necessary actions handle raid browser

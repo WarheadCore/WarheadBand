@@ -460,7 +460,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     if (!_LoadIntoDataField(fields[6].Get<std::string>(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET))
     {
-        LOG_WARN("entities.item", "Invalid enchantment data '{}' for item {}. Forcing partial load.", fields[6].Get<std::string>(), GetGUID().ToString());
+        LOG_WARN("entities.item", "Invalid enchantment data '{}' for item {}. Forcing partial load.", fields[6].GetString(), GetGUID().ToString());
     }
 
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].Get<int16>());

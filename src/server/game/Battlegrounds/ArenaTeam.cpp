@@ -316,8 +316,8 @@ void ArenaTeam::SetCaptain(ObjectGuid guid)
         /*if (oldCaptain)
         {
             LOG_DEBUG("bg.battleground", "Player: {} [{}] promoted player: {} [{}] to leader of arena team [Id: {}] [Type: {}].",
-                oldCaptain->GetName(), oldCaptain->GetGUID(), newCaptain->GetName(),
-                newCaptain->GetGUID(), GetId(), GetType());
+                oldCaptain->GetName(), oldCaptain->GetGUID().ToString(), newCaptain->GetName(),
+                newCaptain->GetGUID().ToString(), GetId(), GetType());
         }*/
     }
 }
@@ -623,7 +623,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
     auto const& itr = ArenaSlotByType.find(type);
     if (itr == ArenaSlotByType.end())
     {
-        LOG_ERROR("server", "FATAL: Unknown arena team type {} for some arena team", type);
+        LOG_ERROR("bg.arena", "Unknown arena team type {} for some arena team", type);
         return slot;
     }
 
@@ -637,7 +637,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
         return slot;
     }
 
-    LOG_ERROR("bg.arena", "FATAL: Unknown arena team type {} for some arena team", type);
+    LOG_ERROR("bg.arena", "Unknown arena team type {} for some arena team", type);
     return 0xFF;
 }
 
@@ -1014,7 +1014,7 @@ uint8 ArenaTeam::GetReqPlayersForType(uint32 type)
     auto const& itr = ArenaReqPlayersForType.find(type);
     if (itr == ArenaReqPlayersForType.end())
     {
-        LOG_ERROR("server", "FATAL: Unknown arena type {}!", type);
+        LOG_ERROR("bg.arena", "FATAL: Unknown arena type {}!", type);
         return 0xFF;
     }
 

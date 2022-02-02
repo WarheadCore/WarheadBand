@@ -1064,7 +1064,7 @@ bool Guild::Create(Player* pLeader, std::string_view name)
     m_createdDate = GameTime::GetGameTime().count();
 
     LOG_DEBUG("guild", "GUILD: creating guild [{}] for leader {} ({})",
-        name, pLeader->GetName(), m_leaderGuid);
+              m_name, pLeader->GetName(), m_leaderGuid.ToString());
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -1657,9 +1657,9 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
     std::string aux = Warhead::Impl::ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
     _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
 
-    if (amount > 10 * GOLD)
-        CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<GB DEPOSIT> {} (guild id: {}, members: {}, new amount: {}, leader guid low: {}, char level: {})\", NOW())",
-            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), session->GetRemoteAddress(), 0, "", amount, GetName(), GetId(), GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel());
+    if (amount > 10 * GOLD)     // receiver_acc = Guild id, receiver_name = Guild name
+        CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"(guild members: %u, new amount: %u, leader guid low: %u, sender level: %u)\", NOW(), %u)",
+            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName().c_str(), session->GetRemoteAddress().c_str(), GetId(), GetName().c_str(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 3);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair)
@@ -1701,9 +1701,9 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUID(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
-    if (amount > 10 * GOLD)
-        CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<GB WITHDRAW> {} (guild id: {}, members: {}, new amount: {}, leader guid low: {}, char level: {})\", NOW())",
-            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), session->GetRemoteAddress(), 0, "", amount, GetName(), GetId(), GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel());
+    if (amount > 10 * GOLD)     // sender_acc = 0 (guild has no account), sender_guid = Guild id, sender_name = Guild name
+        CharacterDatabase.PExecute("INSERT INTO log_money VALUES(%u, %u, \"%s\", \"%s\", %u, \"%s\", %u, \"(guild, members: %u, new amount: %u, leader guid low: %u, withdrawer level: %u)\", NOW(), %u)",
+            0, GetId(), GetName().c_str(), session->GetRemoteAddress().c_str(), session->GetAccountId(), player->GetName().c_str(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 4);
 
     std::string aux = Warhead::Impl::ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
     _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
@@ -1994,7 +1994,7 @@ bool Guild::LoadBankItemFromDB(Field* fields)
     if (tabId >= _GetPurchasedTabsSize())
     {
         LOG_ERROR("guild", "Invalid tab for item (GUID: {}, id: #{}) in guild bank, skipped.",
-                       fields[14].Get<uint32>(), fields[15].Get<uint32>());
+                       fields[14].GetUInt32(), fields[15].GetUInt32());
         return false;
     }
     return m_bankTabs[tabId].LoadItemFromDB(fields);

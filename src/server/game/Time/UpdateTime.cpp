@@ -129,7 +129,7 @@ void WorldUpdateTime::RecordUpdateTime(uint32 gameTimeMs, uint32 diff, uint32 se
     {
         if (getMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
         {
-            LOG_DEBUG("time.update", "Update time diff: {}. Players online: {}.", GetAverageUpdateTime(), sessionCount);
+            LOG_INFO("time.update", "Update time diff: {}. Players online: {}.", GetAverageUpdateTime(), sessionCount);
             _lastRecordTime = gameTimeMs;
         }
     }

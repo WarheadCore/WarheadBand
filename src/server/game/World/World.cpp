@@ -71,6 +71,7 @@
 #include "OutdoorPvPMgr.h"
 #include "PetitionMgr.h"
 #include "Player.h"
+#include "PlayerDump.h"
 #include "PoolMgr.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
@@ -645,6 +646,9 @@ void World::SetInitialWorldSettings()
 
     LOG_INFO("server.loading", "Loading spell dbc data corrections...");
     sSpellMgr->LoadDbcDataCorrections();
+
+    LOG_INFO("server.loading", "Initializing PlayerDump tables...");
+    PlayerDump::InitializeTables();
 
     LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();

@@ -124,7 +124,8 @@ namespace VMAP
                 instanceTree = iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr)).first;
             }
             else
-                ABORT("Invalid mapId {} tile [{}, {}] passed to VMapMgr2 after startup in thread unsafe environment", mapId, tileX, tileY);
+                ABORT("Invalid mapId {} tile [{}, {}] passed to VMapMgr2 after startup in thread unsafe environment",
+                       mapId, tileX, tileY);
         }
 
         if (!instanceTree->second)

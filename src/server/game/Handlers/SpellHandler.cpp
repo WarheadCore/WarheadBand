@@ -208,7 +208,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     {
         pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
         LOG_ERROR("network.opcode", "Possible hacking attempt: Player {} [{}] tried to open item [{}, entry: {}] which is not openable!",
-                       pUser->GetName(), pUser->GetGUID(), item->GetGUID(), proto->ItemId);
+                       pUser->GetName(), pUser->GetGUID().ToString(), item->GetGUID().ToString(), proto->ItemId);
         return;
     }
 
@@ -626,11 +626,6 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
 
     if (!unit)
         return;
-
-    if (_player->IsHostileTo(unit))
-    {
-        return;
-    }
 
     // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
     if (!unit->IsInWorld())

@@ -239,7 +239,7 @@ int main(int argc, char** argv)
     Warhead::Logo::Show("worldserver",
         [](std::string_view text)
         {
-            LOG_INFO("server.worldserver", "{}", text);
+            LOG_INFO("server.worldserver", text);
         },
         []()
         {

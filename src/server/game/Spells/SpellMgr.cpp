@@ -32,6 +32,7 @@
 #include "SpellAuraDefines.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
+#include "ScriptMgr.h"
 #include "World.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
@@ -739,9 +740,11 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
+    uint32 procEvent_procPhase = PROC_SPELL_PHASE_HIT;
 
     uint32 procFlags = eventInfo.GetTypeMask();
     uint32 procExtra = eventInfo.GetHitMask();
+    uint32 procPhase = eventInfo.GetSpellPhaseMask();
     SpellInfo const* procSpellInfo = eventInfo.GetSpellInfo();
 
     // check prockFlags for condition
@@ -799,6 +802,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
     {
         // Store extra req
         procEvent_procEx = spellProcEvent->procEx;
+        procEvent_procPhase = spellProcEvent->procPhase;
 
         // For melee triggers
         if (!procSpellInfo)
@@ -846,6 +850,11 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellInfo const* spellProto, Spell
     {
         if (!hasFamilyMask)
             return false;
+    }
+
+    if (!(procEvent_procPhase & procPhase))
+    {
+        return false;
     }
 
     // Check for extra req (if none) and hit/crit
@@ -1731,8 +1740,8 @@ void SpellMgr::LoadSpellProcEvents()
 
     mSpellProcEventMap.clear();                             // need for reload case
 
-    //                                                0      1           2                3                 4                 5                 6          7       8        9             10
-    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
+    //                                                0      1           2                3                 4                 5                 6          7       8          9             10       11
+    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, procPhase, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
@@ -1775,16 +1784,23 @@ void SpellMgr::LoadSpellProcEvents()
 
         SpellProcEventEntry spellProcEvent;
 
-        spellProcEvent.schoolMask         = fields[1].Get<int8>();
-        spellProcEvent.spellFamilyName    = fields[2].Get<uint16>();
-        spellProcEvent.spellFamilyMask[0] = fields[3].Get<uint32>();
-        spellProcEvent.spellFamilyMask[1] = fields[4].Get<uint32>();
-        spellProcEvent.spellFamilyMask[2] = fields[5].Get<uint32>();
-        spellProcEvent.procFlags          = fields[6].Get<uint32>();
-        spellProcEvent.procEx             = fields[7].Get<uint32>();
-        spellProcEvent.ppmRate            = fields[8].Get<float>();
-        spellProcEvent.customChance       = fields[9].Get<float>();
-        spellProcEvent.cooldown           = fields[10].Get<uint32>();
+        spellProcEvent.schoolMask         = fields[1].GetInt8();
+        spellProcEvent.spellFamilyName    = fields[2].GetUInt16();
+        spellProcEvent.spellFamilyMask[0] = fields[3].GetUInt32();
+        spellProcEvent.spellFamilyMask[1] = fields[4].GetUInt32();
+        spellProcEvent.spellFamilyMask[2] = fields[5].GetUInt32();
+        spellProcEvent.procFlags          = fields[6].GetUInt32();
+        spellProcEvent.procEx             = fields[7].GetUInt32();
+        spellProcEvent.procPhase          = fields[8].GetUInt32();
+        spellProcEvent.ppmRate            = fields[9].GetFloat();
+        spellProcEvent.customChance       = fields[10].GetFloat();
+        spellProcEvent.cooldown           = fields[11].GetUInt32();
+
+        // PROC_SPELL_PHASE_NONE is by default PROC_SPELL_PHASE_HIT
+        if (spellProcEvent.procPhase == PROC_SPELL_PHASE_NONE)
+        {
+            spellProcEvent.procPhase = PROC_SPELL_PHASE_HIT;
+        }
 
         while (spellInfo)
         {
@@ -1852,7 +1868,7 @@ void SpellMgr::LoadSpellProcs()
         {
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                LOG_ERROR("sql.sql", "Spell {} listed in `spell_proc` is not first rank of spell.", fields[0].Get<int32>());
+                LOG_ERROR("sql.sql", "Spell {} listed in `spell_proc` is not first rank of spell.", fields[0].GetInt32());
                 continue;
             }
         }
@@ -2663,9 +2679,9 @@ void SpellMgr::LoadSpellAreas()
 
     if (CONF_GET_INT("ICC.Buff.Horde") > 0)
     {
-        LOG_INFO("server", ">> Using ICC buff Horde: {}", CONF_GET_UINT("ICC.Buff.Horde"));
-        SpellArea spellAreaICCBuffHorde = { CONF_GET_UINT("ICC.Buff.Horde"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_HORDE, Gender(2), 64, 11, 1 };
-        SpellArea const* saICCBuffHorde = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_UINT("ICC.Buff.Horde"), spellAreaICCBuffHorde))->second;
+        LOG_INFO("server.loading", ">> Using ICC buff Horde: {}", sWorld->getIntConfig(CONFIG_ICC_BUFF_HORDE));
+        SpellArea spellAreaICCBuffHorde = { sWorld->getIntConfig(CONFIG_ICC_BUFF_HORDE), ICC_AREA, 0, 0, 0, ICC_RACEMASK_HORDE, Gender(2), 64, 11, 1 };
+        SpellArea const* saICCBuffHorde = &mSpellAreaMap.insert(SpellAreaMap::value_type(sWorld->getIntConfig(CONFIG_ICC_BUFF_HORDE), spellAreaICCBuffHorde))->second;
         mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(ICC_AREA, saICCBuffHorde));
         ++count;
     }
@@ -2674,9 +2690,9 @@ void SpellMgr::LoadSpellAreas()
 
     if (CONF_GET_INT("ICC.Buff.Alliance") > 0)
     {
-        LOG_INFO("server", ">> Using ICC buff Alliance: {}", CONF_GET_UINT("ICC.Buff.Alliance"));
-        SpellArea spellAreaICCBuffAlliance = { CONF_GET_UINT("ICC.Buff.Alliance"), ICC_AREA, 0, 0, 0, ICC_RACEMASK_ALLIANCE, Gender(2), 64, 11, 1 };
-        SpellArea const* saICCBuffAlliance = &mSpellAreaMap.insert(SpellAreaMap::value_type(CONF_GET_UINT("ICC.Buff.Alliance"), spellAreaICCBuffAlliance))->second;
+        LOG_INFO("server.loading", ">> Using ICC buff Alliance: {}", sWorld->getIntConfig(CONFIG_ICC_BUFF_ALLIANCE));
+        SpellArea spellAreaICCBuffAlliance = { sWorld->getIntConfig(CONFIG_ICC_BUFF_ALLIANCE), ICC_AREA, 0, 0, 0, ICC_RACEMASK_ALLIANCE, Gender(2), 64, 11, 1 };
+        SpellArea const* saICCBuffAlliance = &mSpellAreaMap.insert(SpellAreaMap::value_type(sWorld->getIntConfig(CONFIG_ICC_BUFF_ALLIANCE), spellAreaICCBuffAlliance))->second;
         mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(ICC_AREA, saICCBuffAlliance));
         ++count;
     }
@@ -3389,6 +3405,8 @@ void SpellMgr::LoadSpellCustomAttr()
             }
         }
        spellInfo->_InitializeExplicitTargetMask();
+
+       sScriptMgr->OnLoadSpellCustomAttr(spellInfo);
     }
 
     // Xinef: addition for binary spells, ommit spells triggering other spells
@@ -7483,7 +7501,7 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->ProcChance = 101;
         spellInfo->Effect[1] = 24;
         spellInfo->EffectImplicitTargetA[1] = 25;
-        spellInfo->EffectItemType[1] = 37889;
+        spellInfo->EffectItemType[1] = 37888;
     });
 
     // Serverside - Create Rocket Pack
@@ -7553,10 +7571,23 @@ void SpellMgr::LoadDbcDataCorrections()
         spellInfo->EffectSpellClassMask[EFFECT_1][1] = 0x00020000;
     });
 
+    // Focused Assault
+    // Brutal Assault
+    ApplySpellFix({ 46392, 46393 }, [](SpellEntry* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
+    });
+
     // Bestial Wrath
     ApplySpellFix({ 19574 }, [](SpellEntry* spellInfo)
     {
         spellInfo->AttributesEx4 |= SPELL_ATTR4_AURA_EXPIRES_OFFLINE;
+    });
+
+    // PX-238 Winter Wondervolt
+    ApplySpellFix({ 26157, 26272, 26273, 26274 }, [](SpellEntry* spellInfo)
+    {
+        spellInfo->Mechanic = 0;
     });
 
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)

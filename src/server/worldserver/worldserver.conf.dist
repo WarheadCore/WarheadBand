@@ -3615,6 +3615,14 @@ LFG.MaxKickCount = 2
 LFG.KickPreventionTimer = 900
 
 #
+#     JoinBGAndLFG.Enable
+#        Description: Allow queueing for BG and LFG at the same time.
+#        Default:     0 - Disabled
+#                     1 - Enabled
+
+JoinBGAndLFG.Enable = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################

@@ -607,8 +607,11 @@ namespace lfg
         if (!isRaid && joinData.result == LFG_JOIN_OK)
         {
             // Check player or group member restrictions
-            if (player->InBattleground() || player->InArena() || player->InBattlegroundQueue())
-                joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+            if (!sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG))
+            {
+                if (player->InBattleground() || player->InArena() || player->InBattlegroundQueue())
+                    joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+            }
             else if (player->HasAura(LFG_SPELL_DUNGEON_DESERTER))
                 joinData.result = LFG_JOIN_DESERTER;
             else if (dungeons.empty())
@@ -625,9 +628,15 @@ namespace lfg
                         if (Player* plrg = itr->GetSource())
                         {
                             if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
+                            {
                                 joinData.result = LFG_JOIN_PARTY_DESERTER;
-                            else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
-                                joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+                            }
+                            else if (!sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG))
+                            {
+                                if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
+                                    joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+                            }
+
                             ++memberCount;
                             players.insert(plrg->GetGUID());
                         }
@@ -2404,7 +2413,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Group: [{}] ({}) State: {}, oldState: {}",
-                    guid, debugMsg, ps, os);
+                    guid.ToString(), debugMsg, ps, os);
             }*/
 
             data.RestoreState();
@@ -2417,7 +2426,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Player: [{}] ({}) State: {}, oldState: {}",
-                    guid, debugMsg, ps, os);
+                    guid.ToString(), debugMsg, ps, os);
             }*/
             data.RestoreState();
         }

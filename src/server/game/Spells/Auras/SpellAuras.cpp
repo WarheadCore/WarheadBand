@@ -526,7 +526,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     if (itr == m_applications.end())
     {
         LOG_ERROR("spells.aura", "Aura::_UnapplyForTarget, target:{}, caster:{}, spell:{} was not found in owners application map!",
-                       target->GetGUID(), caster ? caster->GetGUID().ToString() : "", auraApp->GetBase()->GetSpellInfo()->Id);
+                       target->GetGUID().ToString(), caster ? caster->GetGUID().ToString() : "", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 
@@ -1186,7 +1186,7 @@ void Aura::UnregisterSingleTarget()
     Unit* caster = GetCaster();
     if (!caster)
     {
-        LOG_INFO("misc", "Aura::UnregisterSingleTarget (A1) - {}, {}, {}, {}", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName());
+        LOG_INFO("spells", "Aura::UnregisterSingleTarget: (A1) - {}, {}, {}, {}", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName());
         LOG_ERROR("spells", "Aura::UnregisterSingleTarget: No caster was found."); //ASSERT(caster);
     }
     else
@@ -1808,7 +1808,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     // Remove Vanish on stealth remove
                     if (GetId() == 1784)
+                    {
                         target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x800, 0, 0, ObjectGuid::Empty);
+                        target->RemoveAurasDueToSpell(18461);
+                    }
                     break;
                 }
 
@@ -2030,9 +2033,14 @@ bool Aura::CanStackWith(Aura const* existingAura, bool remove) const
         // xinef: check priority before effect mask
         SpellGroupSpecialFlags thisAuraFlag = sSpellMgr->GetSpellGroupSpecialFlags(GetId());
         SpellGroupSpecialFlags existingAuraFlag = sSpellMgr->GetSpellGroupSpecialFlags(existingSpellInfo->Id);
-        if (thisAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1 && existingAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1)
+        if (thisAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1 && thisAuraFlag <= SPELL_GROUP_SPECIAL_FLAG_PRIORITY4 &&
+            existingAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1 && existingAuraFlag <= SPELL_GROUP_SPECIAL_FLAG_PRIORITY4)
+        {
             if (thisAuraFlag < existingAuraFlag)
+            {
                 return false;
+            }
+        }
 
         // xinef: forced strongest aura in group by flag
         if (stackFlags & SPELL_GROUP_STACK_FLAG_FORCED_STRONGEST)

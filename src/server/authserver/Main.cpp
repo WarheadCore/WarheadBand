@@ -101,7 +101,7 @@ int main(int argc, char** argv)
     Warhead::Logo::Show("authserver",
         [](std::string_view text)
         {
-            LOG_INFO("server.authserver", "{}", text);
+            LOG_INFO("server.authserver", text);
         },
         []()
         {

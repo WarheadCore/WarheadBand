@@ -149,7 +149,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     if (!_LoadIntoDataField(fields[6].Get<std::string>(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END))
     {
         LOG_ERROR("entities.player", "Corpse ({}, owner: {}) is not created, given equipment info is not valid ('{}')",
-            GetGUID().ToString(), GetOwnerGUID().ToString(), fields[6].Get<std::string>());
+            GetGUID().ToString(), GetOwnerGUID().ToString(), fields[6].GetString());
     }
 
     SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].Get<uint32>());
@@ -173,7 +173,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     if (!IsPositionValid())
     {
         LOG_ERROR("entities.player", "Corpse ( {}, owner: {}) is not created, given coordinates are not valid (X: {}, Y: {}, Z: {})",
-            GetGUID(), GetOwnerGUID(), posX, posY, posZ);
+            GetGUID().ToString(), GetOwnerGUID().ToString(), posX, posY, posZ);
         return false;
     }
 

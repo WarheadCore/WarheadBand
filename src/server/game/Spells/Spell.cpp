@@ -543,10 +543,10 @@ void SpellCastTargets::OutDebug() const
         LOG_INFO("spells", "Trade item target: {}", m_itemTargetGUID.ToString());
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
         LOG_INFO("spells", "Source location: transport guid: {} trans offset: {} position: {}",
-            m_src._transportGUID, m_src._transportOffset.ToString(), m_src._position.ToString());
+            m_src._transportGUID.ToString(), m_src._transportOffset.ToString(), m_src._position.ToString());
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
         LOG_INFO("spells", "Destination location: transport guid: {} trans offset: {} position: {}",
-            m_dst._transportGUID, m_dst._transportOffset.ToString(), m_dst._position.ToString());
+            m_dst._transportGUID.ToString(), m_dst._transportOffset.ToString(), m_dst._position.ToString());
     if (m_targetMask & TARGET_FLAG_STRING)
         LOG_INFO("spells", "String: {}", m_strTarget);
     LOG_INFO("spells", "speed: {}", m_speed);
@@ -702,7 +702,7 @@ Spell::~Spell()
     {
         // Clean the reference to avoid later crash.
         // If this error is repeating, we may have to add an ASSERT to better track down how we get into this case.
-        LOG_ERROR("spells", "SPELL: deleting spell for spell ID {}. However, spell still referenced.", m_spellInfo->Id);
+        LOG_ERROR("spells", "Spell::~Spell: deleting spell for spell ID {}. However, spell still referenced.", m_spellInfo->Id);
         *m_selfContainer = nullptr;
     }
 
@@ -3726,6 +3726,51 @@ void Spell::_cast(bool skipCheck)
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
 
+    if (modOwner)
+        modOwner->SetSpellModTakingSpell(this, false);
+
+    if (m_originalCaster)
+    {
+        // Handle procs on cast
+        uint32 procAttacker = m_procAttacker;
+        if (!procAttacker)
+        {
+            bool IsPositive = m_spellInfo->IsPositive();
+            if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
+            {
+                procAttacker = IsPositive ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+            }
+            else
+            {
+                procAttacker = IsPositive ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+            }
+        }
+
+        uint32 procEx = PROC_EX_NORMAL_HIT;
+
+        for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+        {
+            if (ihit->missCondition != SPELL_MISS_NONE)
+            {
+                continue;
+            }
+
+            if (!ihit->crit)
+            {
+                continue;
+            }
+
+            procEx |= PROC_EX_CRITICAL_HIT;
+            break;
+        }
+
+        m_originalCaster->ProcDamageAndSpell(m_originalCaster, procAttacker, PROC_FLAG_NONE, procEx, 1, BASE_ATTACK, m_spellInfo, m_triggeredByAuraSpell.spellInfo,
+            m_triggeredByAuraSpell.effectIndex, this, nullptr, nullptr, PROC_SPELL_PHASE_CAST);
+    }
+
+    if (modOwner)
+        modOwner->SetSpellModTakingSpell(this, true);
+
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled())/* xinef: we dont need this || m_spellInfo->Id == 14157*/)
     {
@@ -3756,6 +3801,41 @@ void Spell::_cast(bool skipCheck)
     {
         // Immediate spell, no big deal
         handle_immediate();
+    }
+
+    if (IsAutoActionResetSpell())
+    {
+        bool found = false;
+        Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
+        for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
+        {
+            if ((*i)->IsAffectedOnSpell(m_spellInfo))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found && !m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
+        {
+            bool allow = true;
+            if (m_casttime == 0 && m_spellInfo->CalcCastTime())
+            {
+                allow = false;
+            }
+
+            if (allow)
+            {
+                m_caster->resetAttackTimer(BASE_ATTACK);
+
+                if (m_caster->haveOffhandWeapon())
+                {
+                    m_caster->resetAttackTimer(OFF_ATTACK);
+                }
+
+                m_caster->resetAttackTimer(RANGED_ATTACK);
+            }
+        }
     }
 
     CallScriptAfterCastHandlers();
@@ -3980,6 +4060,44 @@ void Spell::_handle_finish_phase()
                     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->IsCooldownStartedOnEvent())
                         m_caster->ToPlayer()->SendCooldownEvent(m_spellInfo);
             }
+
+    // Handle procs on finish
+    if (m_originalCaster)
+    {
+        uint32 procAttacker = m_procAttacker;
+        if (!procAttacker)
+        {
+            bool IsPositive = m_spellInfo->IsPositive();
+            if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
+            {
+                procAttacker = IsPositive ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+            }
+            else
+            {
+                procAttacker = IsPositive ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+            }
+        }
+
+        uint32 procEx = PROC_EX_NORMAL_HIT;
+        for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+        {
+            if (ihit->missCondition != SPELL_MISS_NONE)
+            {
+                continue;
+            }
+
+            if (!ihit->crit)
+            {
+                continue;
+            }
+
+            procEx |= PROC_EX_CRITICAL_HIT;
+            break;
+        }
+
+        m_originalCaster->ProcDamageAndSpell(m_originalCaster, procAttacker, PROC_FLAG_NONE, procEx, 1, BASE_ATTACK, m_spellInfo, m_triggeredByAuraSpell.spellInfo,
+            m_triggeredByAuraSpell.effectIndex, this, nullptr, nullptr, PROC_SPELL_PHASE_FINISH);
+    }
 }
 
 void Spell::SendSpellCooldown()
@@ -4161,34 +4279,6 @@ void Spell::finish(bool ok)
             LOG_DEBUG("spells.aura", "Statue {} is unsummoned in spell {} finish", m_caster->GetGUID().ToString(), m_spellInfo->Id);
             m_caster->setDeathState(JUST_DIED);
             return;
-        }
-    }
-
-    if (IsAutoActionResetSpell())
-    {
-        bool found = false;
-        Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
-        for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
-        {
-            if ((*i)->IsAffectedOnSpell(m_spellInfo))
-            {
-                found = true;
-                break;
-            }
-        }
-        if (!found && !m_spellInfo->HasAttribute(SPELL_ATTR2_DO_NOT_RESET_COMBAT_TIMERS))
-        {
-            bool allow = true;
-            if (m_casttime == 0 && m_spellInfo->CalcCastTime())
-                allow = false;
-
-            if (allow)
-            {
-                m_caster->resetAttackTimer(BASE_ATTACK);
-                if (m_caster->haveOffhandWeapon())
-                    m_caster->resetAttackTimer(OFF_ATTACK);
-                m_caster->resetAttackTimer(RANGED_ATTACK);
-            }
         }
     }
 
@@ -7638,7 +7728,7 @@ SpellEvent::~SpellEvent()
     else
     {
         LOG_ERROR("spells", "~SpellEvent: {} {} tried to delete non-deletable spell {}. Was not deleted, causes memory leak.",
-                       (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID(), m_Spell->m_spellInfo->Id);
+                       (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID().ToString(), m_Spell->m_spellInfo->Id);
         ABORT();
     }
 }

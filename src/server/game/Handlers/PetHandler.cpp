@@ -48,7 +48,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     if (!pet)
     {
         LOG_DEBUG("network", "Vanitypet ({}) does not exist - player {} ({} / account: {}) attempted to dismiss it (possibly lagged out)",
-            guid, GetPlayer()->GetName(), GetPlayer()->GetGUID(), GetAccountId());
+            guid.ToString(), GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString(), GetAccountId());
         return;
     }
 
@@ -749,7 +749,7 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
         if (!charmInfo)
         {
             LOG_ERROR("network.opcode", "WorldSession::HandlePetSetAction: object ({} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
-                pet->GetGUID(), pet->GetTypeId());
+                pet->GetGUID().ToString(), pet->GetTypeId());
             continue;
         }
 
@@ -1002,7 +1002,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
         if (!charmInfo)
         {
             LOG_ERROR("network.opcode", "WorldSession::HandlePetSpellAutocastOpcod: object ({} TypeId: {}) is considered pet-like but doesn't have a charminfo!",
-                pet->GetGUID(), pet->GetTypeId());
+                pet->GetGUID().ToString(), pet->GetTypeId());
             continue;
         }
 

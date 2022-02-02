@@ -133,7 +133,7 @@ void GameObject::RemoveFromOwner()
     }
 
     LOG_FATAL("entities.gameobject", "Delete GameObject ({} Entry: {} SpellId {} LinkedGO {}) that lost references to owner {} GO list. Crash possible later.",
-        GetGUID(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID);
+        GetGUID().ToString(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.ToString());
 
     SetOwnerGUID(ObjectGuid::Empty);
 }
@@ -1984,7 +1984,7 @@ void GameObject::Use(Unit* user)
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
                 LOG_ERROR("entities.gameobject", "GameObject::Use(): unit ({}, name: {}) tries to use object ({}, name: {}) of unknown type ({})",
-                               user->GetGUID(), user->GetName(), GetGUID(),  GetGOInfo()->name, GetGoType());
+                               user->GetGUID().ToString(), user->GetName(), GetGUID().ToString(),  GetGOInfo()->name, GetGoType());
             break;
     }
 

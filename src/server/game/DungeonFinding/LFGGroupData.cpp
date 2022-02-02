@@ -30,11 +30,23 @@ namespace lfg
 
     bool LfgGroupData::IsLfgGroup()
     {
-        return m_OldState != LFG_STATE_NONE;
+        return _isLFGGroup;
     }
 
     void LfgGroupData::SetState(LfgState state)
     {
+        switch (state)
+        {
+            case LFG_STATE_DUNGEON:
+                _isLFGGroup = true;
+                break;
+            case LFG_STATE_FINISHED_DUNGEON:
+                _isLFGGroup = false;
+                break;
+            default:
+                break;
+        }
+
         switch (state)
         {
             case LFG_STATE_NONE:

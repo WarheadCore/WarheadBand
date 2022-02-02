@@ -133,7 +133,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (!receiverGuid)
     {
         LOG_DEBUG("network.opcode", "Player {} is sending mail to {} (GUID: not existed!) with subject {} and body {} includes {} items, {} copper and {} COD copper with unk1 = {}, unk2 = {}",
-            player->GetGUID(), receiver, subject, body, items_count, money, COD, unk1, unk2);
+            player->GetGUID().ToString(), receiver, subject, body, items_count, money, COD, unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }

@@ -209,7 +209,7 @@ void BigNumber::GetBytes(uint8* buf, size_t bufsize, bool littleEndian) const
     std::size_t numBytes = static_cast<std::size_t>(nBytes);
 
     // too large to store
-    ASSERT(numBytes <= bufsize, "Buffer of size %zu is too small to hold bignum with %zu bytes.\n", bufsize, numBytes);
+    ASSERT(numBytes <= bufsize, "Buffer of size {} is too small to hold bignum with {} bytes.\n", bufsize, numBytes);
 
     // If we need more bytes than length of BigNumber set the rest to 0
     if (numBytes < bufsize)
@@ -226,7 +226,7 @@ void BigNumber::GetBytes(uint8* buf, size_t bufsize, bool littleEndian) const
     }
 #else
     int res = littleEndian ? BN_bn2lebinpad(_bn, buf, bufsize) : BN_bn2binpad(_bn, buf, bufsize);
-    ASSERT(res > 0, "Buffer of size %zu is too small to hold bignum with {} bytes.\n", bufsize, BN_num_bytes(_bn));
+    ASSERT(res > 0, "Buffer of size {} is too small to hold bignum with {} bytes.\n", bufsize, BN_num_bytes(_bn));
 #endif
 }
 

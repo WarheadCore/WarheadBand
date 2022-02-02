@@ -2085,7 +2085,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     if (pItemslot >= CURRENCYTOKEN_SLOT_START && pItemslot < CURRENCYTOKEN_SLOT_END)
     {
         LOG_ERROR("entities.player", "Possible hacking attempt: Player {} [{}] tried to move token [{}, entry: {}] out of the currency bag!",
-                       GetName(), GetGUID(), pItem->GetGUID(), pProto->ItemId);
+                  GetName(), GetGUID().ToString(), pItem->GetGUID().ToString(), pProto->ItemId);
         return EQUIP_ERR_ITEMS_CANT_BE_SWAPPED;
     }
 
@@ -4469,82 +4469,82 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             }
                         }
 
-                        LOG_DEBUG("entities.player.items", "Adding {} to stat nb {}", enchant_amount, enchant_spell_id);
-                        switch (enchant_spell_id)
-                        {
-                            case ITEM_MOD_MANA:
-                                LOG_DEBUG("entities.player.items", "+ {} MANA", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(enchant_amount), apply);
-                                break;
-                            case ITEM_MOD_HEALTH:
-                                LOG_DEBUG("entities.player.items", "+ {} HEALTH", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(enchant_amount), apply);
-                                break;
-                            case ITEM_MOD_AGILITY:
-                                LOG_DEBUG("entities.player.items", "+ {} AGILITY", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(enchant_amount), apply);
-                                ApplyStatBuffMod(STAT_AGILITY, (float)enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_STRENGTH:
-                                LOG_DEBUG("entities.player.items", "+ {} STRENGTH", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, float(enchant_amount), apply);
-                                ApplyStatBuffMod(STAT_STRENGTH, (float)enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_INTELLECT:
-                                LOG_DEBUG("entities.player.items", "+ {} INTELLECT", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(enchant_amount), apply);
-                                ApplyStatBuffMod(STAT_INTELLECT, (float)enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_SPIRIT:
-                                LOG_DEBUG("entities.player.items", "+ {} SPIRIT", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
-                                ApplyStatBuffMod(STAT_SPIRIT, (float)enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_STAMINA:
-                                LOG_DEBUG("entities.player.items", "+ {} STAMINA", enchant_amount);
-                                HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
-                                ApplyStatBuffMod(STAT_STAMINA, (float)enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_DEFENSE_SKILL_RATING:
-                                ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} DEFENCE", enchant_amount);
-                                break;
-                            case  ITEM_MOD_DODGE_RATING:
-                                ApplyRatingMod(CR_DODGE, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} DODGE", enchant_amount);
-                                break;
-                            case ITEM_MOD_PARRY_RATING:
-                                ApplyRatingMod(CR_PARRY, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} PARRY", enchant_amount);
-                                break;
-                            case ITEM_MOD_BLOCK_RATING:
-                                ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} SHIELD_BLOCK", enchant_amount);
-                                break;
-                            case ITEM_MOD_HIT_MELEE_RATING:
-                                ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} MELEE_HIT", enchant_amount);
-                                break;
-                            case ITEM_MOD_HIT_RANGED_RATING:
-                                ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} RANGED_HIT", enchant_amount);
-                                break;
-                            case ITEM_MOD_HIT_SPELL_RATING:
-                                ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} SPELL_HIT", enchant_amount);
-                                break;
-                            case ITEM_MOD_CRIT_MELEE_RATING:
-                                ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} MELEE_CRIT", enchant_amount);
-                                break;
-                            case ITEM_MOD_CRIT_RANGED_RATING:
-                                ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} RANGED_CRIT", enchant_amount);
-                                break;
-                            case ITEM_MOD_CRIT_SPELL_RATING:
-                                ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} SPELL_CRIT", enchant_amount);
-                                break;
+                    LOG_DEBUG("entities.player.items", "Adding {} to stat nb {}", enchant_amount, enchant_spell_id);
+                    switch (enchant_spell_id)
+                    {
+                        case ITEM_MOD_MANA:
+                            LOG_DEBUG("entities.player.items", "+ {} MANA", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_HEALTH:
+                            LOG_DEBUG("entities.player.items", "+ {} HEALTH", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(enchant_amount), apply);
+                            break;
+                        case ITEM_MOD_AGILITY:
+                            LOG_DEBUG("entities.player.items", "+ {} AGILITY", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(STAT_AGILITY, (float)enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_STRENGTH:
+                            LOG_DEBUG("entities.player.items", "+ {} STRENGTH", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(STAT_STRENGTH, (float)enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_INTELLECT:
+                            LOG_DEBUG("entities.player.items", "+ {} INTELLECT", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(STAT_INTELLECT, (float)enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_SPIRIT:
+                            LOG_DEBUG("entities.player.items", "+ {} SPIRIT", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(STAT_SPIRIT, (float)enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_STAMINA:
+                            LOG_DEBUG("entities.player.items", "+ {} STAMINA", enchant_amount);
+                            HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
+                            ApplyStatBuffMod(STAT_STAMINA, (float)enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_DEFENSE_SKILL_RATING:
+                            ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} DEFENCE", enchant_amount);
+                            break;
+                        case  ITEM_MOD_DODGE_RATING:
+                            ApplyRatingMod(CR_DODGE, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} DODGE", enchant_amount);
+                            break;
+                        case ITEM_MOD_PARRY_RATING:
+                            ApplyRatingMod(CR_PARRY, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} PARRY", enchant_amount);
+                            break;
+                        case ITEM_MOD_BLOCK_RATING:
+                            ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} SHIELD_BLOCK", enchant_amount);
+                            break;
+                        case ITEM_MOD_HIT_MELEE_RATING:
+                            ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} MELEE_HIT", enchant_amount);
+                            break;
+                        case ITEM_MOD_HIT_RANGED_RATING:
+                            ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} RANGED_HIT", enchant_amount);
+                            break;
+                        case ITEM_MOD_HIT_SPELL_RATING:
+                            ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} SPELL_HIT", enchant_amount);
+                            break;
+                        case ITEM_MOD_CRIT_MELEE_RATING:
+                            ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} MELEE_CRIT", enchant_amount);
+                            break;
+                        case ITEM_MOD_CRIT_RANGED_RATING:
+                            ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} RANGED_CRIT", enchant_amount);
+                            break;
+                        case ITEM_MOD_CRIT_SPELL_RATING:
+                            ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} SPELL_CRIT", enchant_amount);
+                            break;
                             //                        Values from ITEM_STAT_MELEE_HA_RATING to ITEM_MOD_HASTE_RANGED_RATING are never used
                             //                        in Enchantments
                             //                        case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
@@ -4568,24 +4568,24 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             //                        case ITEM_MOD_HASTE_MELEE_RATING:
                             //                            ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
                             //                            break;
-                            case ITEM_MOD_HASTE_RANGED_RATING:
-                                ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_HASTE_SPELL_RATING:
-                                ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
-                                break;
-                            case ITEM_MOD_HIT_RATING:
-                                ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
-                                ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
-                                ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} HIT", enchant_amount);
-                                break;
-                            case ITEM_MOD_CRIT_RATING:
-                                ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
-                                ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
-                                ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} CRITICAL", enchant_amount);
-                                break;
+                        case ITEM_MOD_HASTE_RANGED_RATING:
+                            ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_HASTE_SPELL_RATING:
+                            ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
+                            break;
+                        case ITEM_MOD_HIT_RATING:
+                            ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
+                            ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
+                            ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} HIT", enchant_amount);
+                            break;
+                        case ITEM_MOD_CRIT_RATING:
+                            ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
+                            ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
+                            ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} CRITICAL", enchant_amount);
+                            break;
                             //                        Values ITEM_MOD_HIT_TAKEN_RATING and ITEM_MOD_CRIT_TAKEN_RATING are never used in Enchantment
                             //                        case ITEM_MOD_HIT_TAKEN_RATING:
                             //                            ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
@@ -4597,65 +4597,63 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             //                            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
                             //                            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
                             //                            break;
-                            case ITEM_MOD_RESILIENCE_RATING:
-                                ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
-                                ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
-                                ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} RESILIENCE", enchant_amount);
-                                break;
-                            case ITEM_MOD_HASTE_RATING:
-                                ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
-                                ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
-                                ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} HASTE", enchant_amount);
-                                break;
-                            case ITEM_MOD_EXPERTISE_RATING:
-                                ApplyRatingMod(CR_EXPERTISE, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} EXPERTISE", enchant_amount);
-                                break;
-                            case ITEM_MOD_ATTACK_POWER:
-                                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);
-                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
-                                LOG_DEBUG("entities.player.items", "+ {} ATTACK_POWER", enchant_amount);
-                                break;
-                            case ITEM_MOD_RANGED_ATTACK_POWER:
-                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
-                                LOG_DEBUG("entities.player.items", "+ {} RANGED_ATTACK_POWER", enchant_amount);
-                                break;
-                                //                        case ITEM_MOD_FERAL_ATTACK_POWER:
-                                //                            ApplyFeralAPBonus(enchant_amount, apply);
-                                //                            LOG_DEBUG("entities.player.items", "+ {} FERAL_ATTACK_POWER", enchant_amount);
+                        case ITEM_MOD_RESILIENCE_RATING:
+                            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+                            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+                            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} RESILIENCE", enchant_amount);
+                            break;
+                        case ITEM_MOD_HASTE_RATING:
+                            ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
+                            ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
+                            ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} HASTE", enchant_amount);
+                            break;
+                        case ITEM_MOD_EXPERTISE_RATING:
+                            ApplyRatingMod(CR_EXPERTISE, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} EXPERTISE", enchant_amount);
+                            break;
+                        case ITEM_MOD_ATTACK_POWER:
+                            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);
+                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
+                            LOG_DEBUG("entities.player.items", "+ {} ATTACK_POWER", enchant_amount);
+                            break;
+                        case ITEM_MOD_RANGED_ATTACK_POWER:
+                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
+                            LOG_DEBUG("entities.player.items", "+ {} RANGED_ATTACK_POWER", enchant_amount);
+                            break;
+                            //                        case ITEM_MOD_FERAL_ATTACK_POWER:
+                            //                            ApplyFeralAPBonus(enchant_amount, apply);
+                            //                            LOG_DEBUG("entities.player.items", "+ {} FERAL_ATTACK_POWER", enchant_amount);
                             //                            break;
-                            case ITEM_MOD_MANA_REGENERATION:
-                                ApplyManaRegenBonus(enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} MANA_REGENERATION", enchant_amount);
-                                break;
-                            case ITEM_MOD_ARMOR_PENETRATION_RATING:
-                                ApplyRatingMod(CR_ARMOR_PENETRATION, enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} ARMOR PENETRATION", enchant_amount);
-                                break;
-                            case ITEM_MOD_SPELL_POWER:
-                                ApplySpellPowerBonus(enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} SPELL_POWER", enchant_amount);
-                                break;
-                            case ITEM_MOD_HEALTH_REGEN:
-                                ApplyHealthRegenBonus(enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} HEALTH_REGENERATION", enchant_amount);
-                                break;
-                            case ITEM_MOD_SPELL_PENETRATION:
-                                ApplySpellPenetrationBonus(enchant_amount, apply);
-                                LOG_DEBUG("entities.player.items", "+ {} SPELL_PENETRATION", enchant_amount);
-                                break;
-                            case ITEM_MOD_BLOCK_VALUE:
-                                HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
-                                LOG_DEBUG("entities.player.items", "+ {} BLOCK_VALUE", enchant_amount);
-                                break;
-                            case ITEM_MOD_SPELL_HEALING_DONE:   // deprecated
-                            case ITEM_MOD_SPELL_DAMAGE_DONE:    // deprecated
-                            default:
-                                break;
-                        }
-                        break;
+                        case ITEM_MOD_MANA_REGENERATION:
+                            ApplyManaRegenBonus(enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} MANA_REGENERATION", enchant_amount);
+                            break;
+                        case ITEM_MOD_ARMOR_PENETRATION_RATING:
+                            ApplyRatingMod(CR_ARMOR_PENETRATION, enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} ARMOR PENETRATION", enchant_amount);
+                            break;
+                        case ITEM_MOD_SPELL_POWER:
+                            ApplySpellPowerBonus(enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} SPELL_POWER", enchant_amount);
+                            break;
+                        case ITEM_MOD_HEALTH_REGEN:
+                            ApplyHealthRegenBonus(enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} HEALTH_REGENERATION", enchant_amount);
+                            break;
+                        case ITEM_MOD_SPELL_PENETRATION:
+                            ApplySpellPenetrationBonus(enchant_amount, apply);
+                            LOG_DEBUG("entities.player.items", "+ {} SPELL_PENETRATION", enchant_amount);
+                            break;
+                        case ITEM_MOD_BLOCK_VALUE:
+                            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
+                            LOG_DEBUG("entities.player.items", "+ {} BLOCK_VALUE", enchant_amount);
+                            break;
+                        case ITEM_MOD_SPELL_HEALING_DONE:   // deprecated
+                        case ITEM_MOD_SPELL_DAMAGE_DONE:    // deprecated
+                        default:
+                            break;
                     }
                 case ITEM_ENCHANTMENT_TYPE_TOTEM:           // Shaman Rockbiter Weapon
                     {
@@ -5959,7 +5957,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     else
                     {
                         LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) which doesnt have a valid bag (Bag GUID: {}, slot: {}). Possible cheat?",
-                                       GetGUID(), GetName(), item->GetGUID(), item->GetEntry(), bagGuid, slot);
+                                  GetGUID().ToString(), GetName(), item->GetGUID().ToString(), item->GetEntry(), bagGuid, slot);
                         item->DeleteFromInventoryDB(trans);
                         delete item;
                         continue;
@@ -5972,7 +5970,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 else
                 {
                     LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) which can't be loaded into inventory (Bag GUID: {}, slot: {}) by reason {}. Item will be sent by mail.",
-                                   GetGUID(), GetName(), item->GetGUID(), item->GetEntry(), bagGuid, slot, err);
+                              GetGUID().ToString(), GetName(), item->GetGUID().ToString(), item->GetEntry(), bagGuid, slot, err);
                     item->DeleteFromInventoryDB(trans);
                     problematicItems.push_back(item);
                 }
@@ -6017,14 +6015,14 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
             if (IsAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
             {
                 LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}', map: {}) has item ({}, entry: {}) limited to another map ({}). Deleting item.",
-                               GetGUID(), GetName(), GetMapId(), item->GetGUID(), item->GetEntry(), zoneId);
+                          GetGUID().ToString(), GetName(), GetMapId(), item->GetGUID().ToString(), item->GetEntry(), zoneId);
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
             else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_FLAG_CONJURED)
             {
                 LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}', diff: {}) has conjured item ({}, entry: {}) with expired lifetime (15 minutes). Deleting item.",
-                               GetGUID(), GetName(), timeDiff, item->GetGUID(), item->GetEntry());
+                          GetGUID().ToString(), GetName(), timeDiff, item->GetGUID().ToString(), item->GetEntry());
                 remove = true;
             }
             else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
@@ -6032,7 +6030,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                 if (item->GetPlayedTime() > (2 * HOUR))
                 {
                     LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) with expired refund time ({}). Deleting refund data and removing refundable flag.",
-                                   GetGUID(), GetName(), item->GetGUID(), item->GetEntry(), item->GetPlayedTime());
+                              GetGUID().ToString(), GetName(), item->GetGUID().ToString(), item->GetEntry(), item->GetPlayedTime());
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
                     stmt->SetData(0, item->GetGUID().GetCounter());
                     trans->Append(stmt);
@@ -6055,7 +6053,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     else
                     {
                         LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) with refundable flags, but without data in item_refund_instance. Removing flag.",
-                                       GetGUID(), GetName(), item->GetGUID(), item->GetEntry());
+                                  GetGUID().ToString(), GetName(), item->GetGUID().ToString(), item->GetEntry());
                         item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
                     }
                 }
@@ -6091,7 +6089,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                 else
                 {
                     LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player ({}, name: '{}') has item ({}, entry: {}) with ITEM_FIELD_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
-                                   GetGUID(), GetName(), item->GetGUID(), item->GetEntry());
+                              GetGUID().ToString(), GetName(), item->GetGUID().ToString(), item->GetEntry());
                     item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                 }
             }
@@ -6113,7 +6111,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
         else
         {
             LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has broken item (GUID: {}, entry: {}) in inventory. Deleting item.",
-                           GetGUID(), GetName(), itemGuid, itemEntry);
+                      GetGUID().ToString(), GetName(), itemGuid, itemEntry);
             remove = true;
         }
         // Remove item from inventory if necessary
@@ -6128,7 +6126,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
     else
     {
         LOG_ERROR("entities.player", "Player::_LoadInventory: player ({}, name: '{}') has unknown item (entry: {}) in inventory. Deleting item.",
-                       GetGUID(), GetName(), itemEntry);
+                  GetGUID().ToString(), GetName(), itemEntry);
         Item::DeleteFromInventoryDB(trans, itemGuid);
         Item::DeleteFromDB(trans, itemGuid);
     }
@@ -6335,7 +6333,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 {
                     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
                     LOG_ERROR("entities.player", "Player {} ({}) has invalid quest {} status ({}), replaced by QUEST_STATUS_INCOMPLETE(3).",
-                                   GetName(), GetGUID(), quest_id, qstatus);
+                              GetName(), GetGUID().ToString(), quest_id, qstatus);
                 }
 
                 questStatusData.Explored = (fields[2].Get<uint8>() > 0);
@@ -7108,7 +7106,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     }
 
     LOG_DEBUG("entities.player", "Setting player home position - mapid: {}, areaid: {}, X: {}, Y: {}, Z: {}",
-                         m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ);
+              m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ);
     return true;
 }
 
@@ -7389,7 +7387,7 @@ void Player::_SaveInventory(CharacterDatabaseTransaction trans)
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
                     bagTestGUID = test2->GetGUID().GetCounter();
                 LOG_ERROR("entities.player", "Player(GUID: {} Name: {})::_SaveInventory - the bag({}) and slot({}) values for the item {} (state {}) are incorrect, the player doesn't have an item at that position!",
-                    lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID(), (int32)item->GetState());
+                          lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString(), (int32)item->GetState());
                 // according to the test that was just performed nothing should be in this slot, delete
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_BAG_SLOT);
                 stmt->SetData(0, bagTestGUID);
@@ -7410,7 +7408,7 @@ void Player::_SaveInventory(CharacterDatabaseTransaction trans)
             else if (test != item)
             {
                 LOG_ERROR("entities.player", "Player(GUID: {} Name: {})::_SaveInventory - the bag({}) and slot({}) values for the item ({}) are incorrect, the item ({}) is there instead!",
-                    lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID(), test->GetGUID());
+                          lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString(), test->GetGUID().ToString());
                 // save all changes to the item...
                 if (item->GetState() != ITEM_NEW) // only for existing items, no dupes
                     item->SaveToDB(trans);

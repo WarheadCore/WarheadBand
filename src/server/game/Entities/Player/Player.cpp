@@ -1331,7 +1331,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (!MapMgr::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         LOG_ERROR("entities.player", "TeleportTo: invalid map ({}) or invalid coordinates (X: {}, Y: {}, Z: {}, O: {}) given when teleporting player ({}, name: {}, map: {}, X: {}, Y: {}, Z: {}, O: {}).",
-                       mapid, x, y, z, orientation, GetGUID(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+                       mapid, x, y, z, orientation, GetGUID().ToString(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         return false;
     }
 
@@ -2117,7 +2117,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTy
             }
 
             LOG_DEBUG("maps", "IsGameObjectOfTypeInRange: GameObject '{}' [{}] is too far away from player {} [{}] to be used by him (distance={}, maximal 10 is allowed)",
-                go->GetGOInfo()->name, go->GetGUID(), GetName(), GetGUID(), go->GetDistance(this));
+                go->GetGOInfo()->name, go->GetGUID().ToString(), GetName(), GetGUID().ToString(), go->GetDistance(this));
         }
     }
     return nullptr;
@@ -4271,7 +4271,6 @@ void Player::DeleteOldCharacters(uint32 keepDays)
     if (result)
     {
         LOG_INFO("server.loading", "Player::DeleteOldChars: Found {} character(s) to delete", result->GetRowCount());
-
         do
         {
             Field* fields = result->Fetch();
@@ -5654,7 +5653,7 @@ void Player::CheckAreaExploreAndOutdoor()
     if (!areaEntry)
     {
         LOG_ERROR("entities.player", "Player '{}' ({}) discovered unknown area (x: {} y: {} z: {} map: {})",
-                       GetName(), GetGUID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+                       GetName(), GetGUID().ToString(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
         return;
     }
 
@@ -6291,8 +6290,7 @@ void Player::DuelComplete(DuelCompleteType type)
     duel->State           = DUEL_STATE_COMPLETED;
     opponent->duel->State = DUEL_STATE_COMPLETED;
 
-    LOG_DEBUG("entities.unit", "Player::DuelComplete: Player '{}' ({}), Opponent: '{}' ({})",
-        GetName(), GetGUID().ToString(), opponent->GetName(), opponent->GetGUID().ToString());
+    LOG_DEBUG("entities.unit", "Player::DuelComplete: Player '{}' ({}), Opponent: '{}' ({})", GetName(), GetGUID().ToString(), opponent->GetName(), opponent->GetGUID().ToString());
 
     WorldPacket data(SMSG_DUEL_COMPLETE, (1));
     data << uint8((type != DUEL_INTERRUPTED) ? 1 : 0);
@@ -7173,7 +7171,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (!spellInfo)
             {
                 LOG_ERROR("entities.player", "Player::CastItemCombatSpell({}, name: {}, enchant: {}): unknown spell {} is casted, ignoring...",
-                               GetGUID(), GetName(), pEnchant->ID, pEnchant->spellid[s]);
+                               GetGUID().ToString(), GetName(), pEnchant->ID, pEnchant->spellid[s]);
                 continue;
             }
 
@@ -11484,7 +11482,7 @@ void Player::LearnCustomSpells()
     {
         uint32 tspell = *itr;
         LOG_DEBUG("entities.player.loading", "Player::LearnCustomSpells: Player '{}' ({}, Class: {} Race: {}): Adding initial spell (SpellID: {})",
-            GetName(), GetGUID(), uint32(getClass()), uint32(getRace()), tspell);
+            GetName(), GetGUID().ToString(), uint32(getClass()), uint32(getRace()), tspell);
         if (!IsInWorld())                                   // will send in INITIAL_SPELLS in list anyway at map add
         {
             addSpell(tspell, SPEC_MASK_ALL, true);
@@ -12709,9 +12707,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 {
     if (apply)
     {
-        // target must be in world
-        if (!target->IsInWorld())
-            return;
+        LOG_DEBUG("maps", "Player::CreateViewpoint: Player {} create seer {} (TypeId: {}).", GetName(), target->GetEntry(), target->GetTypeId());
 
         if (!IsInWorld() || IsDuringRemoveFromWorld())
             return;

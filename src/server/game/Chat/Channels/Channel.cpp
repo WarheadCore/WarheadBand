@@ -37,7 +37,6 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, 
     _channelId(channelId),
     _channelDBId(channelDBId),
     _teamId(teamId),
-    _lastSpeakTime(0),
     _name(name),
     _password("")
 {
@@ -526,8 +525,8 @@ void Channel::UnBan(Player const* player, std::string const& badname)
 
     if (_channelRights.flags & CHANNEL_RIGHT_CANT_BAN)
         LOG_GM(player->GetSession()->GetAccountId(), "Command: /unban {} {} (Moderator {} [{}, account: {}] unbanned {} [{}])",
-            GetName(), badname, player->GetName(), player->GetGUID(), player->GetSession()->GetAccountId(),
-            badname, victim);
+            GetName(), badname, player->GetName(), player->GetGUID().ToString(), player->GetSession()->GetAccountId(),
+            badname, victim.ToString());
 
     bannedStore.erase(victim);
     RemoveChannelBanFromDB(victim);
@@ -805,43 +804,18 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
     }
 
     Player* player = pinfo.plrPtr;
-
-    if (player && player->GetSession()->GetSecurity() == AccountTypes::SEC_PLAYER) // pussywizard: prevent spam on populated channels
-    {
-        uint32 speakDelay = 0;
-        if (_channelRights.speakDelay > 0)
-            speakDelay = _channelRights.speakDelay;
-        else if (playersStore.size() >= 10)
-            speakDelay = 5;
-
-        if (!IsAllowedToSpeak(speakDelay))
-        {
-            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(_lastSpeakTime + static_cast<long long>(speakDelay) - GameTime::GetGameTime().count());
-            if (_channelRights.speakMessage.length() > 0)
-                player->GetSession()->SendNotification("{}", _channelRights.speakMessage);
-            player->GetSession()->SendNotification("You must wait {} before speaking again.", timeStr);
-            return;
-        }
-    }
-
     WorldPacket data;
+
     if (player)
+    {
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
+    }
     else
+    {
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, 0, "", "", 0, false, _name);
+    }
 
     SendToAll(&data, pinfo.IsModerator() ? ObjectGuid::Empty : guid);
-}
-
-bool Channel::IsAllowedToSpeak(uint32 speakDelay)
-{
-    if (_lastSpeakTime + static_cast<long long>(speakDelay) <= GameTime::GetGameTime().count())
-    {
-        _lastSpeakTime = GameTime::GetGameTime().count();
-        return true;
-    }
-
-    return false;
 }
 
 void Channel::Invite(Player const* player, std::string const& newname)
