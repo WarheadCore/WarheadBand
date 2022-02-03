@@ -288,15 +288,16 @@ public:
         points *= sVip->GetRate<VipRate::Honor>(player);
     }
 
-    void OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
+    bool OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
     {
         if (!MOD_CONF_GET_BOOL("VIP.Enable"))
-            return;
+            return true;
 
         if (!sVip->IsVip(player))
-            return;
+            return true;
 
         standing *= sVip->GetRate<VipRate::Reputation>(player);
+        return true;
     }
 
     void OnLogin(Player* player) override
