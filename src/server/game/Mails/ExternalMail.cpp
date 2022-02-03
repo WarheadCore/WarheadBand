@@ -100,7 +100,7 @@ void ExternalMail::LoadSystem()
     LOG_INFO("server.loading", ">> External mail loaded");
 }
 
-void ExternalMail::AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
+void ExternalMail::AddMail(std::string_view charName, std::string_view thanksSubject, std::string_view thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
 {
     // Add mail item
     CharacterDatabase.Execute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('{}', '{}', {}, {}, '{}', {})",
