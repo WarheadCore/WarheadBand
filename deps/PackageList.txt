@@ -64,3 +64,6 @@ efws (Entropia File System Watcher - crossplatform file system watcher)
   https://github.com/fmtlib/fmt
   Version: 8.1.1
 
+DPP D++ Extremely Lightweight C++ Discord Library
+  https://github.com/brainboxdotcc/DPP
+  Version: 9.0.18
