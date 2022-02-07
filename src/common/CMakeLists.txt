@@ -54,6 +54,7 @@ target_link_libraries(common
   PRIVATE
     warhead-core-interface
   PUBLIC
+    libdpp
     argon2
     boost
     Poco::Foundation
