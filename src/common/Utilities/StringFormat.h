@@ -55,7 +55,6 @@ namespace Warhead::String
     template<class Str>
     WH_COMMON_API Str Trim(const Str& s, const std::locale& loc = std::locale());
 
-    WH_COMMON_API std::string Trim(std::string& str);
     WH_COMMON_API std::string TrimLeft(std::string& str);
     WH_COMMON_API std::string TrimLeftInPlace(std::string& str);
     WH_COMMON_API std::string TrimRight(std::string& str);

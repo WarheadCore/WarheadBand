@@ -34,6 +34,7 @@
 #    DEBUG
 #    METRIC SETTINGS
 #    EXTERNAL MAIL SETTINGS
+#    DISCORD SETTINGS
 #
 ###################################################################################################
 
@@ -3754,6 +3755,7 @@ JoinBGAndLFG.Enable = 0
 
 LogChannel.Console = "1","local","%H:%M:%S %t","lightRed lightRed red brown magenta cyan lightMagenta green"
 LogChannel.Server = "2","local","%Y-%m-%d %H:%M:%S %t","Server.log","true","daily","false","30 days","number"
+LogChannel.Discord = "2","local","%Y-%m-%d %H:%M:%S %t","Discord.log","true","daily","false","30 days","number"
 LogChannel.GM = "2","local","%Y-%m-%d %H:%M:%S %t","GM.log","true","daily","false","30 days","number"
 LogChannel.DBErrors = "2","local","%Y-%m-%d %H:%M:%S %t","DBErrors.log","true","daily","false","30 days","number"
 LogChannel.Modules = "2","local","%Y-%m-%d %H:%M:%S %t","Modules.log","true","daily","false","30 days","number"
@@ -3787,6 +3789,8 @@ Logger.sql.updates = 6,Console Server
 Logger.mmaps= 6,Server
 Logger.module = 6,Console Modules
 Logger.time.update = 7,Console Server
+Logger.discord = 6,Console Server
+Logger.discord.bot = 6,Console Discord
 
 #Logger.achievement=4,Console Server
 #Logger.addon=4,Console Server
@@ -3986,5 +3990,26 @@ Metric.OverallStatusInterval = 1
 #                     1 - (Enabled)
 #
 
-ExternalMail.Enable = 0
+ExternalMail.Enable = 1
+###################################################################################################
+
+###################################################################################################
+# DISCORD SETTINGS
+#
+#    Discord.Enable
+#        Description: Enable discord bot
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+#    Discord.Bot.Token
+#        Description: Discord bot token
+#        Default:     ""
+#
+#    Discord.Channel.ListID
+#        Description: List channels (General, ServerStatus, ChatLogs, Commands)
+#        Default:     ""
+
+Discord.Enable = 0
+Discord.Bot.Token = ""
+Discord.Channel.ListID = ""
 ###################################################################################################
