@@ -185,8 +185,8 @@ void Discord::SendServerStatus(bool isStartup)
 
     dpp::embed embed = dpp::embed();
     embed.set_color(static_cast<uint32>(isStartup ? DiscordMessageColor::Blue : DiscordMessageColor::Orange));
-    embed.set_title("Статус сервевра");
-    embed.set_description(isStartup ? "Сервер включен" : "Сервер выключен");
+    embed.set_title("Статус игрового мира");
+    embed.set_description(Warhead::StringFormat("Игровой мир `{}` {}", sWorld->GetRealmName(), isStartup ? "включен" : "выключен"));
     embed.set_timestamp(GameTime::GetGameTime().count());
 
     _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::ServerStatus), embed));
