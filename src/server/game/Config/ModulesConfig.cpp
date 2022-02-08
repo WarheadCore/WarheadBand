@@ -77,12 +77,8 @@ WH_GAME_API void ModulesConfig::AddOption(std::string_view optionName, Optional<
     std::string option{ optionName };
 
     // Check exist option
-    auto const& itr = _configOptions.find(option);
-    if (itr != _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
-        return;
-    }
+    if (_configOptions.find(option) != _configOptions.end())
+        _configOptions.erase(option);
 
     _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, GetDefaultValueString<T>(def)));
 }
@@ -119,7 +115,7 @@ WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> 
     itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
-        LOG_FATAL("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
+        LOG_FATAL("server.loading", "> ModulesConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
         return GetDefaultValue<T>();
     }
 
@@ -132,7 +128,7 @@ WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> 
 
     if (!result)
     {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, defStr);
+        LOG_ERROR("server.loading", "> ModulesConfig: Bad value defined for '{}', use '{}' instead", optionName, defStr);
         return GetDefaultValue<T>();
     }
 
@@ -150,7 +146,7 @@ WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, T value) 
     auto const& itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
+        LOG_ERROR("server.loading", "> ModulesConfig: option ({}) is not exists", optionName);
         return;
     }
 
