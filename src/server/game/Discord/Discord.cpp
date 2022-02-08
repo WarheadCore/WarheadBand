@@ -26,6 +26,8 @@
 #include "StringConvert.h"
 #include "WhoListCacheMgr.h"
 #include "GameLocale.h"
+#include "SharedDefines.h"
+#include "Channel.h"
 #include <dpp/dpp.h>
 
 Discord* Discord::instance()
@@ -217,6 +219,9 @@ int64 Discord::GetChannelIDForType(DiscordChannelType channelType)
 
 void Discord::SendDefaultMessage(std::string_view title, std::string_view description, DiscordMessageColor color /*= DiscordMessageColor::Blue*/)
 {
+    if (!_isEnable)
+        return;
+
     dpp::embed embed = dpp::embed();
     embed.set_color(static_cast<uint32>(color));
     embed.set_title(std::string(title));
@@ -224,4 +229,27 @@ void Discord::SendDefaultMessage(std::string_view title, std::string_view descri
     embed.set_timestamp(GameTime::GetGameTime().count());
 
     _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::General), embed));
+}
+
+void Discord::LogChat(Player* player, uint32 type, std::string_view msg, Channel* channel /*= nullptr*/)
+{
+    if (!_isEnable || !player)
+        return;
+
+    std::string message{};
+
+    if (channel && channel->IsLFG())
+        message = Warhead::StringFormat("**[{}][{}]**: {}", channel->GetName(), player->GetName(), msg);
+    else if (type == CHAT_MSG_SAY)
+        message = Warhead::StringFormat("**[{}]**: {}", player->GetName(), msg);
+    else
+        return;
+
+    dpp::embed embed = dpp::embed();
+    embed.set_color(static_cast<uint32>(DiscordMessageColor::Cyan));
+    embed.set_title(Warhead::StringFormat("Чат игрового мира {}", sWorld->GetRealmName()));
+    embed.set_description(message);
+    embed.set_timestamp(GameTime::GetGameTime().count());
+
+    _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::ChatLogs), embed));
 }

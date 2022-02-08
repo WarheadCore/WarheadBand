@@ -27,6 +27,9 @@ namespace dpp
     class cluster;
 }
 
+class Channel;
+class Player;
+
 enum class DiscordMessageColor : uint32
 {
     Blue = 0x28a745,
@@ -71,6 +74,9 @@ public:
     // Channels
     bool IsCorrectChannel(int64 channelID, DiscordChannelType channelType);
     int64 GetChannelIDForType(DiscordChannelType channelType);
+
+    // Chat
+    void LogChat(Player* player, uint32 type, std::string_view msg, Channel* channel = nullptr);
 
 private:
     bool _isEnable = false;
