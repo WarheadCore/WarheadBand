@@ -22,7 +22,6 @@
 #include "Define.h"
 #include "Duration.h"
 #include <array>
-#include <string>
 #include <string_view>
 #include <vector>
 
@@ -73,20 +72,20 @@ struct QueryResultFieldMetadata
 
     Guideline on field type matching:
 
-    |   MySQL type           |  method to use                         |
-    |------------------------|----------------------------------------|
-    | TINYINT                | GetBool, GetInt8, GetUInt8             |
-    | SMALLINT               | GetInt16, GetUInt16                    |
-    | MEDIUMINT, INT         | GetInt32, GetUInt32                    |
-    | BIGINT                 | GetInt64, GetUInt64                    |
-    | FLOAT                  | GetFloat                               |
-    | DOUBLE, DECIMAL        | GetDouble                              |
-    | CHAR, VARCHAR,         | GetCString, GetString                  |
-    | TINYTEXT, MEDIUMTEXT,  | GetCString, GetString                  |
-    | TEXT, LONGTEXT         | GetCString, GetString                  |
-    | TINYBLOB, MEDIUMBLOB,  | GetBinary, GetString                   |
-    | BLOB, LONGBLOB         | GetBinary, GetString                   |
-    | BINARY, VARBINARY      | GetBinary                              |
+    |   MySQL type           |  method to use                          |
+    |------------------------|-----------------------------------------|
+    | TINYINT                | Get<bool>, Get<int8>, Get<uint8>        |
+    | SMALLINT               | Get<int16>, Get<uint16>                 |
+    | MEDIUMINT, INT         | Get<int32>, Get<uint32>                 |
+    | BIGINT                 | Get<int64>, Get<uint64>                 |
+    | FLOAT                  | Get<float>                              |
+    | DOUBLE, DECIMAL        | Get<double>                             |
+    | CHAR, VARCHAR,         | Get<std::string>, Get<std::string_view> |
+    | TINYTEXT, MEDIUMTEXT,  | Get<std::string>, Get<std::string_view> |
+    | TEXT, LONGTEXT         | Get<std::string>, Get<std::string_view> |
+    | TINYBLOB, MEDIUMBLOB,  | Get<Binary>, Get<std::string>           |
+    | BLOB, LONGBLOB         | Get<Binary>, Get<std::string>           |
+    | BINARY, VARBINARY      | Get<Binary>                             |
 
     Return types of aggregate functions:
 

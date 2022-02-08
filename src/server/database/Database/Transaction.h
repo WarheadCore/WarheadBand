@@ -30,11 +30,11 @@
 /*! Transactions, high level class. */
 class WH_DATABASE_API TransactionBase
 {
-friend class TransactionTask;
-friend class MySQLConnection;
+    friend class TransactionTask;
+    friend class MySQLConnection;
 
-template <typename T>
-friend class DatabaseWorkerPool;
+    template <typename T>
+    friend class DatabaseWorkerPool;
 
 public:
     TransactionBase()  = default;
@@ -74,11 +74,11 @@ public:
 /*! Low level class*/
 class WH_DATABASE_API TransactionTask : public SQLOperation
 {
-template <class T>
-friend class DatabaseWorkerPool;
+    template <class T>
+    friend class DatabaseWorkerPool;
 
-friend class DatabaseWorker;
-friend class TransactionCallback;
+    friend class DatabaseWorker;
+    friend class TransactionCallback;
 
 public:
     TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(std::move(trans)) { }

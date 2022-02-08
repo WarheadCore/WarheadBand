@@ -737,7 +737,6 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
         do
         {
             auto const& [_accID, _count] = result->FetchTuple<uint32, uint8>();
-
             characterCounts[_accID] = _count;
         } while (result->NextRow());
     }

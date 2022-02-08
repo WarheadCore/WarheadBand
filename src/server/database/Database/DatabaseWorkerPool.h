@@ -212,7 +212,7 @@ private:
     //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
     T* GetFreeConnection();
 
-    std::string_view GetDatabaseName() const;
+    [[nodiscard]] std::string_view GetDatabaseName() const;
 
     //! Queue shared by async worker threads.
     std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;

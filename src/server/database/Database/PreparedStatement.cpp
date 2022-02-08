@@ -37,20 +37,6 @@ Warhead::Types::is_non_string_view_v<T> PreparedStatementBase::SetValidData(cons
     statement_data[index].data.emplace<T>(value);
 }
 
-template<>
-void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data.emplace<std::string>(value);
-}
-
-template<>
-void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value)
-{
-    ASSERT(index < statement_data.size());
-    statement_data[index].data.emplace<std::vector<uint8>>(value);
-}
-
 // Non template functions
 void PreparedStatementBase::SetValidData(const uint8 index)
 {
@@ -74,6 +60,8 @@ template void PreparedStatementBase::SetValidData(const uint8 index, uint64 cons
 template void PreparedStatementBase::SetValidData(const uint8 index, int64 const& value);
 template void PreparedStatementBase::SetValidData(const uint8 index, bool const& value);
 template void PreparedStatementBase::SetValidData(const uint8 index, float const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value);
+template void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value);
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :

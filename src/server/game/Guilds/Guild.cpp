@@ -1184,6 +1184,21 @@ void Guild::OnPlayerStatusChange(Player* player, uint32 flag, bool state)
     }
 }
 
+bool Guild::SetName(std::string_view const& name)
+{
+    if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+    {
+        return false;
+    }
+
+    m_name = name;
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_NAME);
+    stmt->SetData(0, m_name);
+    stmt->SetData(1, GetId());
+    CharacterDatabase.Execute(stmt);
+    return true;
+}
+
 void Guild::HandleRoster(WorldSession* session)
 {
     WorldPackets::Guild::GuildRoster roster;

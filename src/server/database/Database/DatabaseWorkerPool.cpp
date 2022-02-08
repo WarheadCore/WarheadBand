@@ -32,6 +32,7 @@
 #include "Transaction.h"
 #include "WorldDatabase.h"
 #include <mysqld_error.h>
+#include <limits>
 
 #ifdef WARHEAD_DEBUG
 #include <boost/stacktrace.hpp>

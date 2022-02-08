@@ -68,7 +68,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
 
                 while (reconnectCount < attempts)
                 {
-                    LOG_INFO(_logger, "> Retrying after {} seconds", static_cast<uint32>(reconnectSeconds.count()));
+                    LOG_WARN(_logger, "> Retrying after {} seconds", static_cast<uint32>(reconnectSeconds.count()));
                     std::this_thread::sleep_for(reconnectSeconds);
                     error = pool.Open();
 

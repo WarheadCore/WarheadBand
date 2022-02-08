@@ -22,6 +22,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "Common.h"
+#include "Config.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
@@ -1069,11 +1070,20 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     const_cast<CreatureTemplate*>(cInfo)->DamageModifier *= Creature::_GetDamageMod(cInfo->rank);
 
     // Hack for modules
-    switch (cInfo->Entry)
+    std::vector<uint32> CustomCreatures;
+    std::string stringCreatureIds(sConfigMgr->GetOption<std::string>("Creatures.CustomIDs", ""));
+    for (std::string_view id : Acore::Tokenize(stringCreatureIds, ',', false))
     {
-        case 190010: // Transmog Module
-          return;
+        uint32 entry = Acore::StringTo<uint32>(id).value_or(0);
+        CustomCreatures.emplace_back(entry);
     }
+
+    for (auto const& itr : CustomCreatures)
+    {
+        if (cInfo->Entry == itr)
+            return;
+    }
+
     if (cInfo->GossipMenuId && !(cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP))
     {
         LOG_ERROR("sql.sql", "Creature (Entry: {}) has assigned gossip menu {}, but npcflag does not include UNIT_NPC_FLAG_GOSSIP (1).", cInfo->Entry, cInfo->GossipMenuId);
@@ -5333,7 +5343,7 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            LOG_ERROR("sql.sql", "Scriptname:`{}` spell (spell_id:{}) does not exist in `Spell.dbc`.", scriptName, fields[0].Get<int32>());
+            LOG_ERROR("sql.sql", "Scriptname: `{}` spell (spell_id:{}) does not exist in `Spell.dbc`.", scriptName, fields[0].Get<int32>());
             continue;
         }
 
@@ -5341,7 +5351,7 @@ void ObjectMgr::LoadSpellScriptNames()
         {
             if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
             {
-                LOG_ERROR("sql.sql", "Scriptname:`{}` spell (spell_id:{}) is not first rank of spell.", scriptName, fields[0].Get<int32>());
+                LOG_ERROR("sql.sql", "Scriptname: `{}` spell (spell_id:{}) is not first rank of spell.", scriptName, fields[0].Get<int32>());
                 continue;
             }
             while (spellInfo)
