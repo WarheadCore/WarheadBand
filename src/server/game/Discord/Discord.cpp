@@ -113,67 +113,70 @@ void Discord::Start()
         }
     });
 
-    _bot->on_message_create([this](dpp::message_create_t const& event)
+    if (CONF_GET_BOOL("Discord.Channel.Command.Enable"))
     {
-        if (!IsCorrectChannel(event.msg.channel_id, DiscordChannelType::Commands))
-            return;
-
-        if (event.msg.content == ".core info")
+        _bot->on_message_create([this](dpp::message_create_t const& event)
         {
-            dpp::embed embed = dpp::embed();
-            embed.set_color(static_cast<uint32>(DiscordMessageColor::Indigo));
-            embed.set_author(GitRevision::GetCompanyNameStr(), GitRevision::GetUrlOrigin(), "https://avatars.githubusercontent.com/u/50081821?v=4");
-            embed.set_url(Warhead::StringFormat("{}/commit/{}", GitRevision::GetUrlOrigin(), GitRevision::GetFullHash()));
-            embed.set_title(Warhead::StringFormat("[{}/WarheadBand] ", GitRevision::GetCompanyNameStr()));
-            embed.add_field("Commit info", GitRevision::GetFullVersion());
-            embed.add_field("Uptime", Warhead::Time::ToTimeString(GameTime::GetUptime(), TimeOutput::Seconds, TimeFormat::FullText));
-            embed.add_field("Diff", Warhead::StringFormat("Update time diff: {}ms, Average: {}ms", sWorldUpdateTime.GetLastUpdateTime(), sWorldUpdateTime.GetAverageUpdateTime()));
-            embed.add_field("Realm info", Warhead::StringFormat("Realm name: {}. Players online: {}. Max players online: {}", sWorld->GetRealmName(), sWorld->GetPlayerCount(), sWorld->GetMaxActiveSessionCount()));
-            embed.set_timestamp(GameTime::GetGameTime().count());
+            if (!IsCorrectChannel(event.msg.channel_id, DiscordChannelType::Commands))
+                return;
 
-            _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::Commands), embed).set_reference(event.msg.id));
-        }
-
-        if (event.msg.content == ".players online")
-        {
-            auto const& playersCount = sWorld->GetPlayerCount();
-
-            dpp::embed embed = dpp::embed();
-            embed.set_color(static_cast<uint32>(DiscordMessageColor::Indigo));
-            embed.set_title("Онлайн сервера");
-
-            if (!playersCount)
-                embed.set_description("Нет игроков на сервере");
-            else
+            if (event.msg.content == ".core info")
             {
-                uint8 count = 0;
+                dpp::embed embed = dpp::embed();
+                embed.set_color(static_cast<uint32>(DiscordMessageColor::Indigo));
+                embed.set_author(GitRevision::GetCompanyNameStr(), GitRevision::GetUrlOrigin(), "https://avatars.githubusercontent.com/u/50081821?v=4");
+                embed.set_url(Warhead::StringFormat("{}/commit/{}", GitRevision::GetUrlOrigin(), GitRevision::GetFullHash()));
+                embed.set_title(Warhead::StringFormat("[{}/WarheadBand] ", GitRevision::GetCompanyNameStr()));
+                embed.add_field("Commit info", GitRevision::GetFullVersion());
+                embed.add_field("Uptime", Warhead::Time::ToTimeString(GameTime::GetUptime(), TimeOutput::Seconds, TimeFormat::FullText));
+                embed.add_field("Diff", Warhead::StringFormat("Update time diff: {}ms, Average: {}ms", sWorldUpdateTime.GetLastUpdateTime(), sWorldUpdateTime.GetAverageUpdateTime()));
+                embed.add_field("Realm info", Warhead::StringFormat("Realm name: {}. Players online: {}. Max players online: {}", sWorld->GetRealmName(), sWorld->GetPlayerCount(), sWorld->GetMaxActiveSessionCount()));
+                embed.set_timestamp(GameTime::GetGameTime().count());
 
-                for (auto const& target : sWhoListCacheMgr->GetWhoList())
-                {
-                    // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-                    /*if (target.GetSecurity() > AccountTypes(CONF_GET_INT("GM.InWhoList.Level")))
-                    {
-                        continue;
-                    }
-
-                    if (!target.IsVisible())
-                        continue;*/
-
-                    auto _race = sGameLocale->GetRaseString(target.GetRace());
-                    auto _class = sGameLocale->GetClassString(target.GetClass());
-                    auto gender = target.GetGender();
-                    auto raceStr = _race ? _race->GetText(sGameLocale->GetDBCLocaleIndex(), gender) : "Неизвестно";
-                    auto classStr = _class ? _class->GetText(sGameLocale->GetDBCLocaleIndex(), gender) : "Неизвестно";
-
-                    embed.add_field(Warhead::StringFormat("{}. {}", ++count, target.GetPlayerName()), Warhead::StringFormat("{} {}. Уровень {}", raceStr, classStr, target.GetLevel()));
-                }
+                _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::Commands), embed).set_reference(event.msg.id));
             }
 
-            embed.set_timestamp(GameTime::GetGameTime().count());
+            if (event.msg.content == ".players online")
+            {
+                auto const& playersCount = sWorld->GetPlayerCount();
 
-            _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::Commands), embed).set_reference(event.msg.id));
-        }
-    });
+                dpp::embed embed = dpp::embed();
+                embed.set_color(static_cast<uint32>(DiscordMessageColor::Indigo));
+                embed.set_title("Онлайн сервера");
+
+                if (!playersCount)
+                    embed.set_description("Нет игроков на сервере");
+                else
+                {
+                    uint8 count = 0;
+
+                    for (auto const& target : sWhoListCacheMgr->GetWhoList())
+                    {
+                        // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
+                        /*if (target.GetSecurity() > AccountTypes(CONF_GET_INT("GM.InWhoList.Level")))
+                        {
+                            continue;
+                        }
+
+                        if (!target.IsVisible())
+                            continue;*/
+
+                        auto _race = sGameLocale->GetRaseString(target.GetRace());
+                        auto _class = sGameLocale->GetClassString(target.GetClass());
+                        auto gender = target.GetGender();
+                        auto raceStr = _race ? _race->GetText(sGameLocale->GetDBCLocaleIndex(), gender) : "Неизвестно";
+                        auto classStr = _class ? _class->GetText(sGameLocale->GetDBCLocaleIndex(), gender) : "Неизвестно";
+
+                        embed.add_field(Warhead::StringFormat("{}. {}", ++count, target.GetPlayerName()), Warhead::StringFormat("{} {}. Уровень {}", raceStr, classStr, target.GetLevel()));
+                    }
+                }
+
+                embed.set_timestamp(GameTime::GetGameTime().count());
+
+                _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::Commands), embed).set_reference(event.msg.id));
+            }
+        });
+    }    
 
     _bot->start(true);
 }

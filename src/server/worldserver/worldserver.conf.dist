@@ -3999,7 +3999,6 @@ ExternalMail.Enable = 1
 #    Discord.Enable
 #        Description: Enable discord bot
 #        Default:     0 - (Disabled)
-#                     1 - (Enabled)
 #
 #    Discord.Bot.Token
 #        Description: Discord bot token
@@ -4008,8 +4007,14 @@ ExternalMail.Enable = 1
 #    Discord.Channel.ListID
 #        Description: List channels (General, ServerStatus, ChatLogs, Commands)
 #        Default:     ""
+#
+#    Discord.Channel.Command.Enable
+#        Description: Enable bot commands
+#        Default:     0
+#
 
 Discord.Enable = 0
 Discord.Bot.Token = ""
 Discord.Channel.ListID = ""
+Discord.Channel.Command.Enable = 0
 ###################################################################################################
