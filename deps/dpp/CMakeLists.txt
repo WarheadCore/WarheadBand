@@ -12,7 +12,13 @@
 
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
+  PRIVATE_SOURCES
+  # Exclude
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+if (USE_COREPCH)
+  set(PRIVATE_PCH_HEADER PrecompiledHeaders/libdppPCH.h)
+endif()
 
 # Group sources
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -22,10 +28,15 @@ add_library(libdpp STATIC
 
 target_compile_definitions(libdpp
   PUBLIC
-    -DDPP_BUILD
+    -DDPP_BUILD)
+
+if (WIN32 AND NOT MINGW)
+  target_compile_definitions(libdpp
+    PUBLIC
     -DWIN32_LEAN_AND_MEAN
     -D_WINSOCK_DEPRECATED_NO_WARNINGS
     -D_CRT_NONSTDC_NO_DEPRECATE)
+endif()
 
 if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /Od /DEBUG /Zi /sdl /MP /DFD_SETSIZE=1024")
@@ -42,6 +53,11 @@ target_link_libraries(libdpp
     fmt
     openssl
     threads)
+
+# Generate precompiled header
+if (USE_COREPCH)
+  add_cxx_pch(libdpp ${PRIVATE_PCH_HEADER})
+endif ()
 
 set_target_properties(libdpp
   PROPERTIES
