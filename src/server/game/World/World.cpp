@@ -44,6 +44,7 @@
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "Discord.h"
 #include "DynamicVisibility.h"
 #include "ExternalMail.h"
 #include "GameConfig.h"
@@ -1697,6 +1698,8 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
     }
 
     LOG_WARN("server", "Time left until shutdown/restart: {}", time);
+
+    sDiscord->SendDefaultMessage("Рестарт сервера", Warhead::StringFormat("Рестарт сервера через {} сек.", time), DiscordMessageColor::Yellow);
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if (time == 0)

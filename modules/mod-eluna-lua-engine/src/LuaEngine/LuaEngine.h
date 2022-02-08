@@ -20,7 +20,6 @@
 #include "World.h"
 #include "Hooks.h"
 #include "ElunaUtility.h"
-#include "HttpManager.h"
 #include <mutex>
 #include <memory>
 
@@ -229,7 +228,6 @@ public:
 
     lua_State* L;
     EventMgr* eventMgr;
-    HttpManager httpManager;
 
     BindingMap< EventKey<Hooks::ServerEvents> >*     ServerEventBindings;
     BindingMap< EventKey<Hooks::PlayerEvents> >*     PlayerEventBindings;
@@ -288,6 +286,7 @@ public:
     static void Push(lua_State* luastate, Pet const* pet);
     static void Push(lua_State* luastate, TempSummon const* summon);
     static void Push(lua_State* luastate, ObjectGuid const guid);
+
     template<typename T>
     static void Push(lua_State* luastate, T const* ptr)
     {

@@ -23,6 +23,8 @@
 namespace GitRevision
 {
     WH_COMMON_API char const* GetHash();
+    WH_COMMON_API char const* GetFullHash();
+    WH_COMMON_API char const* GetUrlOrigin();
     WH_COMMON_API char const* GetDate();
     WH_COMMON_API char const* GetBranch();
     WH_COMMON_API char const* GetCMakeCommand();

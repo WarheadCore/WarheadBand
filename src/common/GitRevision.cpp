@@ -23,6 +23,16 @@ char const* GitRevision::GetHash()
     return _HASH;
 }
 
+char const* GitRevision::GetFullHash()
+{
+    return _FULLHASH;
+}
+
+char const* GitRevision::GetUrlOrigin()
+{
+    return _URL_ORIGIN;
+}
+
 char const* GitRevision::GetDate()
 {
     return _DATE;
