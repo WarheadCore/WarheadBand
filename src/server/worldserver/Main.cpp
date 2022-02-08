@@ -707,6 +707,8 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
 
     Field* fields = result->Fetch();
     realm.Name = fields[1].Get<std::string>();
+    sWorld->SetRealmName(realm.Name);
+
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].Get<std::string>(), "");
     if (!externalAddress)
     {
