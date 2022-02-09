@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -174,7 +174,7 @@ bool Position::HasInArc(float arc, const Position* obj, float targetRadius) cons
 
 bool Position::IsPositionValid() const
 {
-    return Acore::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
+    return Warhead::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)

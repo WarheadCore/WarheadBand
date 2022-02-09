@@ -130,7 +130,7 @@ target_compile_options(warhead-compile-option-interface
     /wd4091) # C4091: 'typedef ': ignored on left of '' when no variable is declared
 
 # Define NOMINMAX
-target_compile_definitions(acore-compile-option-interface
+target_compile_definitions(warhead-compile-option-interface
   INTERFACE
     -DNOMINMAX)
 message(STATUS "MSVC: Enable NOMINMAX")

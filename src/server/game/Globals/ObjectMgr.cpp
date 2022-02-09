@@ -1072,9 +1072,9 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     // Hack for modules
     std::vector<uint32> CustomCreatures;
     std::string stringCreatureIds(sConfigMgr->GetOption<std::string>("Creatures.CustomIDs", ""));
-    for (std::string_view id : Acore::Tokenize(stringCreatureIds, ',', false))
+    for (std::string_view id : Warhead::Tokenize(stringCreatureIds, ',', false))
     {
-        uint32 entry = Acore::StringTo<uint32>(id).value_or(0);
+        uint32 entry = Warhead::StringTo<uint32>(id).value_or(0);
         CustomCreatures.emplace_back(entry);
     }
 
