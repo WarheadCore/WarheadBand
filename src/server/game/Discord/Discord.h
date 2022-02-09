@@ -21,6 +21,7 @@
 #include "Define.h"
 #include <array>
 #include <memory>
+#include <string_view>
 
 namespace dpp
 {

@@ -28,6 +28,7 @@
 #include "GameLocale.h"
 #include "SharedDefines.h"
 #include "Channel.h"
+#include "Player.h"
 #include <dpp/dpp.h>
 
 Discord* Discord::instance()
@@ -84,7 +85,7 @@ void Discord::Start()
 
     _bot = std::make_unique<dpp::cluster>(botToken);
 
-    _bot->on_ready([this](const auto& event)
+    _bot->on_ready([this]([[maybe_unused]] const auto& event)
     {
         LOG_INFO("discord.bot", "> DiscordBot: Logged in as {}", _bot->me.username);
     });
@@ -178,7 +179,7 @@ void Discord::Start()
                 _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::Commands), embed).set_reference(event.msg.id));
             }
         });
-    }    
+    }
 
     _bot->start(true);
 }
