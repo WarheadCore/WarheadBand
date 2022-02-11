@@ -83,6 +83,40 @@ void Discord::Start()
         _channels[i] = *channelID;
     }
 
+    if (CONF_GET_BOOL("Discord.GameChatLogs.Enable"))
+    {
+        std::string gameChatLogsChannelsList = CONF_GET_STR("Discord.GameChatLogs.ChannelsListID");
+        if (gameChatLogsChannelsList.empty())
+        {
+            LOG_FATAL("discord", "> Empty channel list ids for game chat logs. Disable system");
+            _isEnable = false;
+            return;
+        }
+
+        auto gameChatLogsChannelTokens = Warhead::Tokenize(gameChatLogsChannelsList, ',', false);
+        if (gameChatLogsChannelTokens.size() != MAX_CHANNEL_CHAT_TYPE)
+        {
+            LOG_FATAL("discord", "> Incorrect channel list ids for game chat logs. Disable system");
+            _isEnable = false;
+            return;
+        }
+
+        for (size_t i = 0; i < gameChatLogsChannelTokens.size(); i++)
+        {
+            std::string _channel = std::string(gameChatLogsChannelTokens.at(i));
+            auto channelID = Warhead::StringTo<int64>(Warhead::String::TrimLeft(_channel));
+
+            if (!channelID)
+            {
+                LOG_FATAL("discord", "> Incorrect channel id '{}' for game chat logs. Disable system", gameChatLogsChannelTokens.at(i));
+                _isEnable = false;
+                return;
+            }
+
+            _chatChannels[i] = *channelID;
+        }
+    }
+
     _bot = std::make_unique<dpp::cluster>(botToken);
 
     _bot->on_ready([this]([[maybe_unused]] const auto& event)
@@ -218,6 +252,16 @@ int64 Discord::GetChannelIDForType(DiscordChannelType channelType)
     return _channels.at(static_cast<uint8>(channelType));
 }
 
+int64 Discord::GetChannelIDForType(DiscordСhatChannelType channelType)
+{
+    if (!_isEnable)
+        return false;
+
+    ASSERT(!_chatChannels.empty());
+
+    return _chatChannels.at(static_cast<uint8>(channelType));
+}
+
 void Discord::SendDefaultMessage(std::string_view title, std::string_view description, DiscordMessageColor color /*= DiscordMessageColor::Blue*/)
 {
     if (!_isEnable)
@@ -234,23 +278,29 @@ void Discord::SendDefaultMessage(std::string_view title, std::string_view descri
 
 void Discord::LogChat(Player* player, uint32 type, std::string_view msg, Channel* channel /*= nullptr*/)
 {
-    if (!_isEnable || !player)
+    if (!_isEnable || !CONF_GET_BOOL("Discord.GameChatLogs.Enable") || !player)
         return;
 
     std::string message{};
+    auto channelType = DiscordСhatChannelType::Say;
+    uint32 messageColor = static_cast<uint32>(DiscordMessageColor::White);
 
     if (channel && channel->IsLFG())
+    {
         message = Warhead::StringFormat("**[{}][{}]**: {}", channel->GetName(), player->GetName(), msg);
+        channelType = DiscordСhatChannelType::Channel;
+        messageColor = static_cast<uint32>(DiscordMessageColor::Gray);
+    }
     else if (type == CHAT_MSG_SAY)
         message = Warhead::StringFormat("**[{}]**: {}", player->GetName(), msg);
     else
         return;
 
     dpp::embed embed = dpp::embed();
-    embed.set_color(static_cast<uint32>(DiscordMessageColor::Cyan));
+    embed.set_color(messageColor);
     embed.set_title(Warhead::StringFormat("Чат игрового мира {}", sWorld->GetRealmName()));
     embed.set_description(message);
     embed.set_timestamp(GameTime::GetGameTime().count());
 
-    _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::ChatLogs), embed));
+    _bot->message_create(dpp::message(GetChannelIDForType(channelType), embed));
 }

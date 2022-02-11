@@ -41,20 +41,29 @@ enum class DiscordMessageColor : uint32
     Yellow = 0xffc107,
     Teal = 0x20c997,
     Cyan = 0x17a2b8,
-    Gray = 0xadb5bd
+    Gray = 0xadb5bd,
+    White = 0xffffff
 };
 
 enum class DiscordChannelType : uint8
 {
     General,
     ServerStatus,
-    ChatLogs,
     Commands,
 
-    MaxType,
+    MaxType
+};
+
+enum class DiscordСhatChannelType : uint8
+{
+    Say,
+    Channel,
+
+    MaxType
 };
 
 constexpr uint8 MAX_CHANNEL_TYPE = static_cast<uint8>(DiscordChannelType::MaxType);
+constexpr uint8 MAX_CHANNEL_CHAT_TYPE = static_cast<uint8>(DiscordСhatChannelType::MaxType);
 
 class WH_GAME_API Discord
 {
@@ -75,6 +84,7 @@ public:
     // Channels
     bool IsCorrectChannel(int64 channelID, DiscordChannelType channelType);
     int64 GetChannelIDForType(DiscordChannelType channelType);
+    int64 GetChannelIDForType(DiscordСhatChannelType channelType);
 
     // Chat
     void LogChat(Player* player, uint32 type, std::string_view msg, Channel* channel = nullptr);
@@ -82,6 +92,7 @@ public:
 private:
     bool _isEnable = false;
     std::array<int64, MAX_CHANNEL_TYPE> _channels = {};
+    std::array<int64, MAX_CHANNEL_CHAT_TYPE> _chatChannels = {};
     std::unique_ptr<dpp::cluster> _bot = {};
 };
 

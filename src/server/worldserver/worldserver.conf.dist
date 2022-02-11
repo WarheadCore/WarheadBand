@@ -4047,9 +4047,20 @@ ExternalMail.Enable = 1
 #        Description: Enable bot commands
 #        Default:     0
 #
+#
+#    Discord.GameChatLogs.Enable
+#        Description: Enable game chat logs
+#        Default:     0
+#
+#    Discord.GameChatLogs.ChannelsListID
+#        Description: List channels for chat logs (Say, Channel)
+#        Default:     ""
+#
 
 Discord.Enable = 0
 Discord.Bot.Token = ""
 Discord.Channel.ListID = ""
 Discord.Channel.Command.Enable = 0
+Discord.GameChatLogs.Enable = 0
+Discord.GameChatLogs.ChannelsListID = ""
 ###################################################################################################
