@@ -49,8 +49,9 @@ public:
     void LoadConfig()
     {
         sModulesConfig->AddOption({ "IB.Enable",
-            "IB.Dungeon.Default.Enable", "IB.Dungeon.Heroic.Enable", "IB.Raid.10.Enable", "IB.Raid.25.Enable", "IB.Raid.10.Heroic.Enable", "IB.Raid.25.Heroic.Enable",
-            "IB.Dungeon.Default.BuffList", "IB.Dungeon.Heroic.BuffList", "IB.Raid.10.BuffList", "IB.Raid.25.BuffList"});
+            "IB.Dungeon.Default.Enable", "IB.Dungeon.Heroic.Enable",
+            "IB.Raid.10.Normal.Enable", "IB.Raid.25.Normal.Enable", "IB.Raid.10.Heroic.Enable", "IB.Raid.25.Heroic.Enable",
+            "IB.BuffList.Dungeon", "IB.BuffList.Raid.10Man", "IB.BuffList.Raid.25Man" });
 
         _IsEnable = MOD_CONF_GET_BOOL("IB.Enable");
 
@@ -109,11 +110,11 @@ public:
             return;
 
         // Check if enable 10 default
-        if (isRaid && !diff && !MOD_CONF_GET_BOOL("IB.Raid.10.Enable"))
+        if (isRaid && !diff && !MOD_CONF_GET_BOOL("IB.Raid.10.Normal.Enable"))
             return;
 
         // Check if enable 25 default
-        if (isRaid && diff && !MOD_CONF_GET_BOOL("IB.Raid.25.Enable"))
+        if (isRaid && diff && !MOD_CONF_GET_BOOL("IB.Raid.25.Normal.Enable"))
             return;
 
         // Check if enable 10 heroic
