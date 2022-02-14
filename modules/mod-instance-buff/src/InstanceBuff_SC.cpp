@@ -195,9 +195,9 @@ private:
         auto const& itr = _buffStore.find(*instanceDiff);
         if (itr != _buffStore.end())
         {
-            for (auto const& [playerCount, spellID] : itr->second)
+            for (auto const& [_playerCount, spellID] : itr->second)
             {
-                if (playerCount == playerCount)
+                if (playerCount == _playerCount)
                     return spellID;
             }
         }
