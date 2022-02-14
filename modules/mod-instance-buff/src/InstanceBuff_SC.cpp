@@ -313,9 +313,6 @@ public:
 
         Map* map = player->GetMap();
 
-        if (map->IsRaid() && map->IsHeroic())
-            return;
-
         if (map->IsDungeon() || map->IsRaid())
             sIB->ApplyBuffs(player);
     }
@@ -331,9 +328,6 @@ public:
         sIB->ClearBuffs(player, false);
 
         Map* map = player->GetMap();
-
-        if (map->IsRaid() && map->IsHeroic())
-            return;
 
         if (map->IsDungeon() || map->IsRaid())
             sIB->ApplyBuffs(player);
@@ -360,9 +354,6 @@ public:
         sIB->ClearBuffs(player, false);
 
         Map* map = player->GetMap();
-
-        if (map->IsRaid() && map->IsHeroic())
-            return;
 
         if (map->IsDungeon() || map->IsRaid())
             sIB->ApplyBuffs(player);
