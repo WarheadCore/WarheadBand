@@ -31,7 +31,9 @@ enum class InstanceDiff : uint8
     DungeonDefault,
     DungeonHeroic,
     Raid10ManDefault,
-    Raid25ManDefault
+    Raid25ManDefault,
+    Raid10ManHeroic,
+    Raid25ManHeroic
 };
 
 class InstanceBuff
@@ -47,7 +49,7 @@ public:
     void LoadConfig()
     {
         sModulesConfig->AddOption({ "IB.Enable",
-            "IB.Dungeon.Default.Enable", "IB.Dungeon.Heroic.Enable", "IB.Raid.10.Enable", "IB.Raid.25.Enable",
+            "IB.Dungeon.Default.Enable", "IB.Dungeon.Heroic.Enable", "IB.Raid.10.Enable", "IB.Raid.25.Enable", "IB.Raid.10.Heroic.Enable", "IB.Raid.25.Heroic.Enable",
             "IB.Dungeon.Default.BuffList", "IB.Dungeon.Heroic.BuffList", "IB.Raid.10.BuffList", "IB.Raid.25.BuffList"});
 
         _IsEnable = MOD_CONF_GET_BOOL("IB.Enable");
@@ -82,10 +84,12 @@ public:
             _buffStore.emplace(diff, buffs);
         };
 
-        ConfigureBuffList("IB.Dungeon.Default.BuffList", InstanceDiff::DungeonDefault);
-        ConfigureBuffList("IB.Dungeon.Heroic.BuffList", InstanceDiff::DungeonHeroic);
-        ConfigureBuffList("IB.Raid.10.BuffList", InstanceDiff::Raid10ManDefault);
-        ConfigureBuffList("IB.Raid.25.BuffList", InstanceDiff::Raid25ManDefault);
+        ConfigureBuffList("IB.BuffList.Dungeon", InstanceDiff::DungeonDefault);
+        ConfigureBuffList("IB.BuffList.Dungeon", InstanceDiff::DungeonHeroic);
+        ConfigureBuffList("IB.BuffList.Raid.10Man", InstanceDiff::Raid10ManDefault);
+        ConfigureBuffList("IB.BuffList.Raid.25Man", InstanceDiff::Raid25ManDefault);
+        ConfigureBuffList("IB.BuffList.Raid.10Man", InstanceDiff::Raid10ManHeroic);
+        ConfigureBuffList("IB.BuffList.Raid.25Man", InstanceDiff::Raid25ManHeroic);
     }
 
     // Manage system
@@ -110,6 +114,14 @@ public:
 
         // Check if enable 25 default
         if (isRaid && diff && !MOD_CONF_GET_BOOL("IB.Raid.25.Enable"))
+            return;
+
+        // Check if enable 10 heroic
+        if (isRaid && diff == RAID_DIFFICULTY_10MAN_HEROIC && !MOD_CONF_GET_BOOL("IB.Raid.10.Heroic.Enable"))
+            return;
+
+        // Check if enable 25 heroic
+        if (isRaid && diff == RAID_DIFFICULTY_25MAN_HEROIC && !MOD_CONF_GET_BOOL("IB.Raid.25.Heroic.Enable"))
             return;
 
         if (Group* group = player->GetGroup())
@@ -269,6 +281,10 @@ private:
             return InstanceDiff::Raid10ManDefault;
         else if (isRaid && diff)
             return InstanceDiff::Raid25ManDefault;
+        else if (isRaid && diff == RAID_DIFFICULTY_10MAN_HEROIC)
+            return InstanceDiff::Raid10ManHeroic;
+        else if (isRaid && diff == RAID_DIFFICULTY_25MAN_HEROIC)
+            return InstanceDiff::Raid25ManHeroic;
 
         return std::nullopt;
     }
