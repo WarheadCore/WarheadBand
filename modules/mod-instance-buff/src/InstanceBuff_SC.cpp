@@ -319,6 +319,35 @@ public:
     }
 };
 
+class InstanceBuff_Pet : public PetScript
+{
+public:
+    InstanceBuff_Pet() : PetScript("InstanceBuff_Pet") { }
+
+    void OnPetAddToWorld(Pet* pet) override
+    {
+        if (!MOD_CONF_GET_BOOL("IB.Enable"))
+            return;
+
+        if (!pet)
+            return;
+
+        Player* player = pet->GetOwner();
+        if (!player)
+            return;
+
+        sIB->ClearBuffs(player, false);
+
+        Map* map = player->GetMap();
+
+        if (map->IsRaid() && map->IsHeroic())
+            return;
+
+        if (map->IsDungeon() || map->IsRaid())
+            sIB->ApplyBuffs(player);
+    }
+};
+
 class InstanceBuff_World : public WorldScript
 {
 public:
@@ -335,4 +364,5 @@ void AddSC_InstanceBuff()
 {
     new InstanceBuff_World();
     new InstanceBuff_Player();
+    new InstanceBuff_Pet();
 }
