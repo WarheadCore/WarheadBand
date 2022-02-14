@@ -31,7 +31,7 @@ public:
 
         sDiscord->LogChat(player, type, msg);
     }
-    
+
     void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg, Channel* channel) override
     {
         if (!MOD_CONF_GET_BOOL("Discord.ChatLogs.Enable"))

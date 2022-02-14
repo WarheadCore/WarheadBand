@@ -904,7 +904,7 @@ public:
 
     void OnShutdown() override
     {
-        sEluna->OnShutdown();        
+        sEluna->OnShutdown();
     }
 
     void OnAfterUnloadAllMaps() override
