@@ -105,7 +105,7 @@ public:
             return;
 
         // Check if enable 25 default
-        if (isRaid && !diff && !MOD_CONF_GET_BOOL("IB.Raid.25.Enable"))
+        if (isRaid && diff && !MOD_CONF_GET_BOOL("IB.Raid.25.Enable"))
             return;
 
         if (Group* group = player->GetGroup())
