@@ -46,6 +46,10 @@ public:
     // Config load
     void LoadConfig()
     {
+        sModulesConfig->AddOption({ "IB.Enable",
+            "IB.Dungeon.Default.Enable", "IB.Dungeon.Heroic.Enable", "IB.Raid.10.Enable", "IB.Raid.25.Enable",
+            "IB.Dungeon.Default.BuffList", "IB.Dungeon.Heroic.BuffList", "IB.Raid.10.BuffList", "IB.Raid.25.BuffList"});
+
         _IsEnable = MOD_CONF_GET_BOOL("IB.Enable");
 
         if (!_IsEnable)
