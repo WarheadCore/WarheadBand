@@ -165,7 +165,7 @@ private:
 
     uint32 GetPlayerCountInInstance(Player* player)
     {
-        uint32 count = 1;
+        uint32 count = 0;
 
         if (Group* group = player->GetGroup())
         {
@@ -180,7 +180,7 @@ private:
             }
         }
 
-        return count;
+        return !count ? 1 : count;
     }
 
     uint32 GetSpellForDungeon(uint32 diff, bool isRaid, uint32 playerCount)
