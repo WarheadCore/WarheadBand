@@ -84,7 +84,7 @@ public:
         ConfigureBuffList("IB.Raid.25.BuffList", InstanceDiff::Raid25ManDefault);
     }
 
-    // Manage system    
+    // Manage system
     void ApplyBuffs(Player* player)
     {
         ClearBuffs(player, true);
@@ -166,7 +166,7 @@ private:
     uint32 GetPlayerCountInInstance(Player* player)
     {
         uint32 count = 1;
-        
+
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())

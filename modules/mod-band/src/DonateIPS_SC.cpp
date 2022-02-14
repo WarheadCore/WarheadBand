@@ -274,7 +274,7 @@ public:
 
         scheduler.Update(diff);
     }
-    
+
 private:
     TaskScheduler scheduler;
 };
