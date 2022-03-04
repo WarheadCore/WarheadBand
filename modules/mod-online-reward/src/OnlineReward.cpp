@@ -252,7 +252,7 @@ void OnlineReward::SaveRewardDB()
                 saveDataPerOnline += std::to_string(itr.count()) + ',';
 
             // Delete last (,)
-            if (!dataPerOnline.empty())
+            if (!saveDataPerOnline.empty())
                 saveDataPerOnline.erase(saveDataPerOnline.end() - 1, saveDataPerOnline.end());
         }
 
