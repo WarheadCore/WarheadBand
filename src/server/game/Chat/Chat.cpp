@@ -41,7 +41,7 @@ Player* ChatHandler::GetPlayer() const
     return m_session ? m_session->GetPlayer() : nullptr;
 }
 
-char const* ChatHandler::GetWarheadString(uint32 entry) const
+std::string ChatHandler::GetWarheadString(uint32 entry) const
 {
     return m_session->GetWarheadString(entry);
 }
@@ -796,7 +796,7 @@ std::string ChatHandler::GetNameLink(Player* chr) const
     return playerLink(chr->GetName());
 }
 
-char const* CliHandler::GetWarheadString(uint32 entry) const
+std::string CliHandler::GetWarheadString(uint32 entry) const
 {
     return sGameLocale->GetWarheadStringForDBCLocale(entry);
 }

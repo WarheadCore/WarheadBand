@@ -27,7 +27,7 @@
 #include "ModulesConfig.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 
 CFBG* CFBG::instance()
 {
@@ -85,7 +85,7 @@ uint32 CFBG::GetBGTeamAverageItemLevel(Battleground* bg, TeamId team)
     uint32 sum = 0;
     uint32 count = 0;
 
-    for (auto [playerGuid, player] : bg->GetPlayers())
+    for (auto const& [playerGuid, player] : bg->GetPlayers())
     {
         if (player && player->GetTeamId() == team)
         {
@@ -111,7 +111,7 @@ uint32 CFBG::GetBGTeamSumPlayerLevel(Battleground* bg, TeamId team)
 
     uint32 sum = 0;
 
-    for (auto [playerGuid, player] : bg->GetPlayers())
+    for (auto const& [playerGuid, player] : bg->GetPlayers())
     {
         if (player && player->GetTeamId() == team)
         {
@@ -483,7 +483,7 @@ void CFBG::SetFakeRaceAndMorph(Player* player)
     // generate random race and morph
     RandomRaceMorph(&FakeRace, &FakeMorph, player->GetTeamId(true), player->getClass(), player->getGender());
 
-    FakePlayer fakePlayer;
+    FakePlayer fakePlayer = {};
     fakePlayer.FakeMorph    = FakeMorph;
     fakePlayer.FakeRace     = FakeRace;
     fakePlayer.FakeTeamID   = player->TeamIdForRace(FakeRace);
@@ -533,7 +533,7 @@ void CFBG::DoForgetPlayersInList(Player* player)
 {
     // m_FakePlayers is filled from a vector within the battleground
     // they were in previously so all players that have been in that BG will be invalidated.
-    for (auto itr : _fakeNamePlayersStore)
+    for (auto const& itr : _fakeNamePlayersStore)
     {
         WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
         data << itr.second;
@@ -582,7 +582,7 @@ bool CFBG::ShouldForgetInListPlayers(Player* player)
 
 void CFBG::DoForgetPlayersInBG(Player* player, Battleground* bg)
 {
-    for (auto itr : bg->GetPlayers())
+    for (auto const& itr : bg->GetPlayers())
     {
         // Here we invalidate players in the bg to the added player
         WorldPacket data1(SMSG_INVALIDATE_PLAYER, 8);
@@ -716,7 +716,7 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, const
         {
             if (*Ali_itr && !(*Ali_itr)->Players.empty())
             {
-                auto playerGuid = *((*Ali_itr)->Players.begin());
+                auto const& playerGuid = *((*Ali_itr)->Players.begin());
                 if (auto player = ObjectAccessor::FindConnectedPlayer(playerGuid))
                 {
                     sumLevel += player->getLevel();
@@ -732,7 +732,7 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, const
         {
             if (*Horde_itr && !(*Horde_itr)->Players.empty())
             {
-                auto playerGuid = *((*Horde_itr)->Players.begin());
+                auto const& playerGuid = *((*Horde_itr)->Players.begin());
                 if (auto player = ObjectAccessor::FindConnectedPlayer(playerGuid))
                 {
                     sumLevel += player->getLevel();

@@ -18,6 +18,7 @@
 #include "AsyncAuctionListing.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -56,7 +57,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 {
     if (GetPlayer()->getLevel() < CONF_GET_INT("LevelReq.Auction"))
     {
-        SendNotification(GetWarheadString(LANG_AUCTION_REQ), CONF_GET_INT("LevelReq.Auction"));
+        Warhead::Text::SendNotification(this, LANG_AUCTION_REQ, CONF_GET_INT("LevelReq.Auction"));
         return;
     }
 

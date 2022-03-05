@@ -27,7 +27,7 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
 

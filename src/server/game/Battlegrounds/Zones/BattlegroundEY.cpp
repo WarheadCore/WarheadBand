@@ -23,7 +23,7 @@
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"

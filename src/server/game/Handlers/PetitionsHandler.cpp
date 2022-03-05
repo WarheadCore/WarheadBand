@@ -17,6 +17,7 @@
 
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -95,7 +96,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         // TODO: find correct opcode
         if (_player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
-            SendNotification(LANG_ARENA_ONE_TOOLOW, CONF_GET_INT("MaxPlayerLevel"));
+            Warhead::Text::SendNotification(this, LANG_ARENA_ONE_TOOLOW, CONF_GET_INT("MaxPlayerLevel"));
             return;
         }
 

@@ -17,6 +17,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundAV.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameObjectAI.h"
 #include "Group.h"
@@ -585,7 +586,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     // Check if player is in BG
                     if (_player->InBattleground())
                     {
-                        _player->GetSession()->SendNotification(LANG_BG_SHARE_QUEST_ERROR);
+                        Warhead::Text::SendNotification(this, LANG_BG_SHARE_QUEST_ERROR);
                         continue;
                     }
                 }

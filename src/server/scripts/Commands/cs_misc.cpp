@@ -21,6 +21,7 @@
 #include "CellImpl.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
@@ -43,7 +44,6 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
-#include "TextBuilder.h"
 #include "Timer.h"
 #include "Tokenize.h"
 #include "WeatherMgr.h"
@@ -438,7 +438,7 @@ public:
 
         auto SetDevMod = [&](bool enable)
         {
-            session->SendNotification(enable ? LANG_DEV_ON : LANG_DEV_OFF);
+            Warhead::Text::SendNotification(session, enable ? LANG_DEV_ON : LANG_DEV_OFF);
             session->GetPlayer()->SetDeveloper(enable);
             sScriptMgr->OnHandleDevCommand(handler->GetSession()->GetPlayer(), enable);
         };
@@ -1916,8 +1916,8 @@ public:
         uint32 mapId;
         uint32 areaId;
         uint32 phase            = 0;
-        char const* areaName    = nullptr;
-        char const* zoneName    = nullptr;
+        std::string areaName;
+        std::string zoneName;
 
         // Guild data print variables defined so that they exist, but are not necessarily used
         uint32 guildId           = 0;
@@ -2196,12 +2196,12 @@ public:
             }
         }
 
-        if (!zoneName)
+        if (zoneName.empty())
         {
             zoneName = handler->GetWarheadString(LANG_UNKNOWN);
         }
 
-        if (areaName)
+        if (!areaName.empty())
         {
             handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->name[locale], zoneName, areaName);
         }
@@ -2214,7 +2214,7 @@ public:
         if (!guildName.empty())
         {
             handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName, guildId);
-            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank, uint32(guildRankId));
+            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank, guildRankId);
 
             if (!note.empty())
             {
@@ -2816,9 +2816,9 @@ public:
             return false;
         }
 
-        const char* str = sGameLocale->GetWarheadString(id, locale ? static_cast<LocaleConstant>(*locale) : DEFAULT_LOCALE);
+        std::string str = sGameLocale->GetWarheadString(id, locale ? static_cast<LocaleConstant>(*locale) : DEFAULT_LOCALE);
 
-        if (!strcmp(str, "<error>"))
+        if (!StringEqualI(str, "<error>"))
         {
             handler->PSendSysMessage(LANG_NO_WARHEAD_STRING_FOUND, id);
             return true;

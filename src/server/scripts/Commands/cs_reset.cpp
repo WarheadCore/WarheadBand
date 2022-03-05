@@ -30,13 +30,7 @@ EndScriptData */
 #include "Pet.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
-
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-using namespace Warhead::ChatCommands;
+#include "ChatTextBuilder.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

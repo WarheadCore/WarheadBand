@@ -37,7 +37,7 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SpellAuras.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "WorldSession.h"
 
 namespace lfg

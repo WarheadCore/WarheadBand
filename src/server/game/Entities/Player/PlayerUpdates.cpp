@@ -495,14 +495,14 @@ void Player::UpdateLocalChannels(uint32 newZone)
                         usedChannel)
                         continue; // Already on the channel, as city channel names are not changing
 
-                    char const* currentNameExt;
+                    std::string currentNameExt;
 
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                         currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
-                        currentNameExt = current_zone_name.c_str();
+                        currentNameExt = current_zone_name;
 
-                    joinChannel = cMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt),
+                    joinChannel = cMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()),
                         channel->ChannelID);
 
                     if (usedChannel)

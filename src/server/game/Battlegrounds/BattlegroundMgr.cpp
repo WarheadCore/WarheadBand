@@ -44,7 +44,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <unordered_map>

@@ -749,22 +749,12 @@ bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string_view str)
     return false;
 }
 
-void WorldSession::_SendNotification(std::string_view message)
-{
-    if (message.empty())
-        return;
-
-    WorldPacket data(SMSG_NOTIFICATION, message.length() + 1);
-    data << message;
-    SendPacket(&data);
-}
-
 bool WorldSession::CanSpeak() const
 {
     return sMute->CanSpeak(GetAccountId());
 }
 
-char const* WorldSession::GetWarheadString(uint32 entry) const
+std::string WorldSession::GetWarheadString(uint32 entry) const
 {
     return sGameLocale->GetWarheadString(entry, GetSessionDbLocaleIndex());
 }

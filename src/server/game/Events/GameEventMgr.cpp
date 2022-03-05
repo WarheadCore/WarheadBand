@@ -29,7 +29,7 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "Transport.h"
 #include "UnitAI.h"
 #include "Util.h"

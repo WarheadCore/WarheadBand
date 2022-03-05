@@ -467,8 +467,8 @@ public:
 
         wstrToLower(namePart);
 
-        char const* talentStr = handler->GetWarheadString(LANG_TALENT);
-        char const* passiveStr = handler->GetWarheadString(LANG_PASSIVE);
+        std::string talentStr = handler->GetWarheadString(LANG_TALENT);
+        std::string passiveStr = handler->GetWarheadString(LANG_PASSIVE);
 
         Unit::AuraApplicationMap const& auras = unit->GetAppliedAuras();
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());

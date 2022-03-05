@@ -24,7 +24,7 @@
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "Timer.h"
 #include "World.h"
 
@@ -58,7 +58,7 @@ void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::s
     stmt->SetData(4, muteReason);
     LoginDatabase.Execute(stmt);
 
-    auto GetPlayerLink = [&]()
+    auto GetPlayerLink = [targetName]()
     {
         return "|cffffffff|Hplayer:" + targetName + "|h[" + targetName + "]|h|r";
     };

@@ -329,24 +329,6 @@ public:
     void SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos = 0);
     void SendClientCacheVersion(uint32 version);
 
-    template<typename... Args>
-    inline void SendNotification(std::string_view fmt, Args&&... args)
-    {
-        _SendNotification(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
-    }
-
-    template<typename... Args>
-    inline void SendNotification(uint32 string_id, Args&&... args)
-    {
-        _SendNotification(Warhead::StringFormat(GetWarheadString(string_id), std::forward<Args>(args)...));
-    }
-
-    template<typename... Args>
-    void SendAreaTriggerMessage(std::string_view fmt, Args&&... args)
-    {
-        _SendAreaTriggerMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
-    }
-
     AccountTypes GetSecurity() const { return _security; }
     bool CanSkipQueue() const { return _skipQueue; }
     uint32 GetAccountId() const { return _accountId; }
@@ -487,7 +469,7 @@ public:
     // Locales
     LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
     LocaleConstant GetSessionDbLocaleIndex() const { return m_sessionDbLocaleIndex; }
-    char const* GetWarheadString(uint32 entry) const;
+    std::string GetWarheadString(uint32 entry) const;
 
     uint32 GetLatency() const { return m_latency; }
     void SetLatency(uint32 latency) { m_latency = latency; }
@@ -1103,10 +1085,6 @@ protected:
     } AntiDOS;
 
 private:
-    // Send messages functions
-    void _SendNotification(std::string_view message);
-    void _SendAreaTriggerMessage(std::string_view message);
-
     // private trade methods
     void moveItems(Item* myItems[], Item* hisItems[]);
 

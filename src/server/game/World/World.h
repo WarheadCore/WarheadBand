@@ -282,11 +282,11 @@ public:
     void SetInitialWorldSettings();
     void LoadConfigSettings(bool reload = false);
 
-    void SendGlobalText(const char* text, WorldSession* self);
+    void SendGlobalText(std::string_view text, WorldSession* self);
     void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, TeamId teamId = TEAM_NEUTRAL);
     void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, TeamId teamId = TEAM_NEUTRAL);
     bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, TeamId teamId = TEAM_NEUTRAL);
-    void SendZoneText(uint32 zone, const char* text, WorldSession* self = nullptr, TeamId teamId = TEAM_NEUTRAL);
+    void SendZoneText(uint32 zone, std::string_view text, WorldSession* self = nullptr, TeamId teamId = TEAM_NEUTRAL);
     void SendServerMessage(ServerMessageType messageID, std::string_view stringParam = {}, Player* player = nullptr);
 
     /// Are we in the middle of a shutdown?

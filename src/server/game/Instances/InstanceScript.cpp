@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
+#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -438,7 +439,7 @@ void InstanceScript::SendNotifyToInstance(std::string_view message)
         if (!player)
             continue;
 
-        player->GetSession()->SendNotification(message);
+        Warhead::Text::SendNotification(player->GetSession(), message);
     }
 }
 

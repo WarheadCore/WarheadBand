@@ -106,14 +106,14 @@ bool GameLocale::LoadWarheadStrings()
     return true;
 }
 
-char const* GameLocale::GetWarheadString(uint32 entry, LocaleConstant locale) const
+std::string GameLocale::GetWarheadString(uint32 entry, LocaleConstant locale) const
 {
     if (auto as = GetWarheadString(entry))
     {
         if (as->Content.size() > size_t(locale) && !as->Content[locale].empty())
-            return as->Content[locale].c_str();
+            return as->Content[locale];
 
-        return as->Content[DEFAULT_LOCALE].c_str();
+        return as->Content[DEFAULT_LOCALE];
     }
 
     LOG_ERROR("sql.sql", "Warhead string entry {} not found in DB.", entry);

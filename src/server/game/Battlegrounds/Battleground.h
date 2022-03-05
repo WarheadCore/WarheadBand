@@ -474,7 +474,7 @@ public:
     virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
     void SendPacketToTeam(TeamId teamId, WorldPacket const* packet, Player* sender = nullptr, bool self = true);
     void SendPacketToAll(WorldPacket const* packet);
-    void YellToAll(Creature* creature, const char* text, uint32 language);
+    void YellToAll(Creature* creature, std::string_view text, uint32 language);
 
     void PlaySoundToAll(uint32 soundId);
     void CastSpellOnTeam(uint32 spellId, TeamId teamId);
@@ -566,7 +566,7 @@ public:
     void DoorOpen(uint32 type);
     void DoorClose(uint32 type);
     //to be removed
-    const char* GetWarheadString(int32 entry);
+    std::string GetWarheadString(int32 entry);
 
     virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
 

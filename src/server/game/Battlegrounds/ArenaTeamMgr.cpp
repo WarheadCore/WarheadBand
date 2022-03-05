@@ -23,7 +23,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "World.h"
 
 ArenaTeamMgr::ArenaTeamMgr()

@@ -28,6 +28,7 @@
 #include "Channel.h"
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "Config.h"
@@ -6803,7 +6804,7 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
         {
-            GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_INSTANCE_CLOSED));
+            Warhead::Text::SendAreaTriggerMessage(GetSession(), LANG_INSTANCE_CLOSED);
             return false;
         }
 
@@ -6930,11 +6931,11 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
                     }
                     else if (missingPlayerItems.size())
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, sObjectMgr->GetItemTemplate(missingPlayerItems[0]->id)->Name1.c_str());
+                        Warhead::Text::SendAreaTriggerMessage(GetSession(), LANG_LEVEL_MINREQUIRED_AND_ITEM, LevelMin, sObjectMgr->GetItemTemplate(missingPlayerItems[0]->id)->Name1);
                     }
                     else if (LevelMin)
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_LEVEL_MINREQUIRED), LevelMin);
+                        Warhead::Text::SendAreaTriggerMessage(GetSession(), LANG_LEVEL_MINREQUIRED, LevelMin);
                     }
                     else if (ilvlRequirementNotMet)
                     {
@@ -6992,11 +6993,11 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
 
                     if (LevelMin)
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_LEVEL_MINREQUIRED), LevelMin);
+                        Warhead::Text::SendAreaTriggerMessage(GetSession(), LANG_LEVEL_MINREQUIRED, LevelMin);
                     }
                     else if (LevelMax)
                     {
-                        GetSession()->SendAreaTriggerMessage(GetSession()->GetWarheadString(LANG_ACCESS_REQUIREMENT_MAX_LEVEL), LevelMax);
+                        Warhead::Text::SendAreaTriggerMessage(GetSession(), LANG_ACCESS_REQUIREMENT_MAX_LEVEL, LevelMax);
                     }
                     else if (mapDiff->hasErrorMessage && !errorAlreadyPrinted)
                     {

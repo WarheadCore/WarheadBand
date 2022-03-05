@@ -24,7 +24,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
+#include "ChatTextBuilder.h"
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
