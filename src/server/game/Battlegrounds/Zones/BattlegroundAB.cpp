@@ -17,6 +17,7 @@
 
 #include "BattlegroundAB.h"
 #include "BattlegroundMgr.h"
+#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "GameGraveyard.h"
 #include "Language.h"
@@ -182,13 +183,13 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
     {
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (player->GetTeamId() != TEAM_ALLIANCE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
+                Warhead::Text::SendAreaTriggerMessage(player->GetSession(), "Only The Alliance can use that portal");
             else
                 player->LeaveBattleground();
             break;
         case 3949:                                          // Arathi Basin Horde Exit.
             if (player->GetTeamId() != TEAM_HORDE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
+                Warhead::Text::SendAreaTriggerMessage(player->GetSession(), "Only The Horde can use that portal");
             else
                 player->LeaveBattleground();
             break;

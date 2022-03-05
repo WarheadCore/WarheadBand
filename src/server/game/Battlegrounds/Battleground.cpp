@@ -26,6 +26,7 @@
 #include "BattlegroundRL.h"
 #include "BattlegroundRV.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GameConfig.h"
@@ -41,7 +42,6 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
-#include "TextBuilder.h"
 #include "Transport.h"
 #include "Util.h"
 #include "World.h"
@@ -604,13 +604,13 @@ void Battleground::RemoveAuraOnTeam(uint32 spellId, TeamId teamId)
             itr->second->RemoveAura(spellId);
 }
 
-void Battleground::YellToAll(Creature* creature, char const* text, uint32 language)
+void Battleground::YellToAll(Creature* creature, std::string_view text, uint32 language)
 {
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for (auto const& itr : m_Players)
     {
         WorldPacket data;
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_MONSTER_YELL, Language(language), creature, itr->second, text);
-        itr->second->SendDirectMessage(&data);
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_MONSTER_YELL, Language(language), creature, itr.second, text);
+        itr.second->SendDirectMessage(&data);
     }
 }
 
@@ -1324,7 +1324,9 @@ void Battleground::ReadyMarkerClicked(Player* p)
     readyMarkerClickedSet.insert(p->GetGUID());
     uint32 count = readyMarkerClickedSet.size();
     uint32 req = ArenaTeam::GetReqPlayersForType(GetArenaType());
-    p->GetSession()->SendNotification("You are marked as ready {}/{}", count, req);
+
+    Warhead::Text::SendNotification(p->GetSession(), "You are marked as ready {}/{}", count, req);
+
     if (count == req)
     {
         m_Events |= BG_STARTING_EVENT_2;
@@ -1715,8 +1717,8 @@ void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* s
     {
         auto localeIndex = player->GetSession()->GetSessionDbLocaleIndex();
         auto message = sGameLocale->GetWarheadString(entry, localeIndex);
-        char const* arg1str = arg1 ? sGameLocale->GetWarheadString(arg1, localeIndex) : "";
-        char const* arg2str = arg2 ? sGameLocale->GetWarheadString(arg2, localeIndex) : "";
+        std::string arg1str = arg1 ? sGameLocale->GetWarheadString(arg1, localeIndex) : "";
+        std::string arg2str = arg2 ? sGameLocale->GetWarheadString(arg2, localeIndex) : "";
 
         WorldPacket data;
         ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, source, source, Warhead::StringFormat(message, arg1str, arg2str));
@@ -1731,7 +1733,7 @@ void Battleground::EndNow()
 }
 
 // To be removed
-char const* Battleground::GetWarheadString(int32 entry)
+std::string Battleground::GetWarheadString(int32 entry)
 {
     // FIXME: now we have different DBC locales and need localized message for each target client
     return sGameLocale->GetWarheadStringForDBCLocale(entry);

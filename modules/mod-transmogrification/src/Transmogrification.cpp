@@ -21,6 +21,7 @@
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "ScriptedGossip.h"
+#include "ChatTextBuilder.h"
 
 Transmogrification* Transmogrification::instance()
 {
@@ -56,7 +57,7 @@ void Transmogrification::PresetTransmog(Player* player, Item* itemTransmogrified
 
 void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
 {
-    for (auto itr : _presetById[pGUID])
+    for (auto& itr : _presetById[pGUID])
         itr.second.clear();
 
     _presetById[pGUID].clear();
@@ -103,7 +104,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
 
 void Transmogrification::UnloadPlayerSets(ObjectGuid pGUID)
 {
-    for (auto itr : _presetById[pGUID])
+    for (auto& itr : _presetById[pGUID])
         itr.second.clear();
 
     _presetById[pGUID].clear();
@@ -1134,9 +1135,7 @@ void Transmogrification::SendNotification(Player* player, std::string const& loc
     if (!session)
         return;
 
-    uint8 localeIndex = static_cast<uint8>(session->GetSessionDbLocaleIndex());
-
-    session->SendNotification("{}", sModuleLocale->GetModuleString(localeEntry, localeIndex).value());
+    Warhead::Text::SendNotification(session, *sModuleLocale->GetModuleString(localeEntry, static_cast<uint8>(session->GetSessionDbLocaleIndex())));
 }
 
 void Transmogrification::OnGossipHello(Player* player, Creature* creature)

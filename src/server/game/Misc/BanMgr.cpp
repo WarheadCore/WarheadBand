@@ -17,6 +17,7 @@
 
 #include "BanMgr.h"
 #include "AccountMgr.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
@@ -24,7 +25,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"

@@ -22,6 +22,7 @@
 #include "BattlegroundSpamProtect.h"
 #include "Channel.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Group.h"
@@ -30,7 +31,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
 #include <unordered_map>
 
 /*********************************************************/

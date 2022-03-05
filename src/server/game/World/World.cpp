@@ -82,7 +82,6 @@
 #include "SmartAI.h"
 #include "SpellMgr.h"
 #include "TaskScheduler.h"
-#include "TextBuilder.h"
 #include "TicketMgr.h"
 #include "Timer.h"
 #include "Tokenize.h"
@@ -1561,21 +1560,15 @@ void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, T
 }
 
 /// DEPRECATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
-void World::SendGlobalText(const char* text, WorldSession* self)
+void World::SendGlobalText(std::string_view text, WorldSession* self)
 {
     WorldPacket data;
 
-    // need copy to prevent corruption by strtok call in LineFromMessage original string
-    char* buf = strdup(text);
-    char* pos = buf;
-
-    while (char* line = ChatHandler::LineFromMessage(pos))
+    for (std::string_view line : Warhead::Tokenize(text, '\n', true))
     {
         ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         SendGlobalMessage(&data, self);
     }
-
-    free(buf);
 }
 
 /// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
@@ -1602,7 +1595,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
 }
 
 /// Send a System Message to all players in the zone (except self if mentioned)
-void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, TeamId teamId)
+void World::SendZoneText(uint32 zone, std::string_view text, WorldSession* self, TeamId teamId)
 {
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);

@@ -16,6 +16,7 @@
  */
 
 #include "InstanceScript.h"
+#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
@@ -438,7 +439,7 @@ void InstanceScript::SendNotifyToInstance(std::string_view message)
         if (!player)
             continue;
 
-        player->GetSession()->SendNotification(message);
+        Warhead::Text::SendNotification(player->GetSession(), message);
     }
 }
 

@@ -316,7 +316,7 @@ public:
                     return true;
                 }
 
-                char const* active = activeEvents.find(id) != activeEvents.end() ? handler->GetWarheadString(LANG_ACTIVE) : "";
+                std::string active = activeEvents.find(id) != activeEvents.end() ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
                 if (handler->GetSession())
                 {
@@ -810,7 +810,7 @@ public:
                                 return true;
                             }
 
-                            char const* statusStr = "";
+                            std::string statusStr;
 
                             if (target)
                             {
@@ -866,7 +866,7 @@ public:
                     return true;
                 }
 
-                char const* statusStr = "";
+                std::string statusStr;
 
                 if (target)
                 {
@@ -1503,8 +1503,8 @@ public:
                     return true;
                 }
 
-                char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetWarheadString(LANG_KNOWN) : "";
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index ? handler->GetWarheadString(LANG_ACTIVE) : "";
+                std::string knownStr = target && target->HasTitle(titleInfo) ? handler->GetWarheadString(LANG_KNOWN) : "";
+                std::string activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
                 std::string titleNameStr = Warhead::StringFormat(name, targetName);
 

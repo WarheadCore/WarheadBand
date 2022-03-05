@@ -16,6 +16,7 @@
  */
 
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Language.h"
@@ -176,8 +177,8 @@ public:
 
         /// - Send the message
         // Use SendAreaTriggerMessage for fastest delivery.
-        player->GetSession()->SendAreaTriggerMessage(message);
-        player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
+        Warhead::Text::SendAreaTriggerMessage(player->GetSession(), message);
+        Warhead::Text::SendAreaTriggerMessage(player->GetSession(), "|cffff0000[Message from administrator]:|r");
 
         // Confirmation message
         handler->PSendSysMessage(LANG_SENDMESSAGE, handler->playerLink(target->GetName()), message);

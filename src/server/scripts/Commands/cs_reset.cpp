@@ -24,19 +24,13 @@ EndScriptData */
 
 #include "AchievementMgr.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
-
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-using namespace Warhead::ChatCommands;
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

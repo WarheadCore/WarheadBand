@@ -3093,7 +3093,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_PLAYER_TALK:
             {
                 ObjectList* targets = GetTargets(e, unit);
-                char const* text = sGameLocale->GetWarheadString(e.action.playerTalk.textId, DEFAULT_LOCALE);
+                std::string text = sGameLocale->GetWarheadString(e.action.playerTalk.textId, DEFAULT_LOCALE);
 
                 if (targets)
                     for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)

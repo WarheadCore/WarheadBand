@@ -1625,7 +1625,7 @@ private:
 
     BG_AV_Nodes GetNodeThroughObject(uint32 object);
     uint32 GetObjectThroughNode(BG_AV_Nodes node);
-    char const* GetNodeName(BG_AV_Nodes node);
+    std::string GetNodeName(BG_AV_Nodes node);
     bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
     /*mine*/

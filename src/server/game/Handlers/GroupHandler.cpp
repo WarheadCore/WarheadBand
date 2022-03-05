@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Group.h"
@@ -764,7 +765,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
             // Check if player is in BG
             if (_player->InBattleground())
             {
-                _player->GetSession()->SendNotification(LANG_BG_READY_CHECK_ERROR);
+                Warhead::Text::SendNotification(this, LANG_BG_READY_CHECK_ERROR);
                 return;
             }
         }

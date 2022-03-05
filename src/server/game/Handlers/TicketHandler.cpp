@@ -16,12 +16,12 @@
  */
 
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "TextBuilder.h"
 #include "TicketMgr.h"
 #include "Util.h"
 #include "World.h"
@@ -37,7 +37,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 
     if (GetPlayer()->getLevel() < CONF_GET_INT("LevelReq.Ticket"))
     {
-        SendNotification(GetWarheadString(LANG_TICKET_REQ), CONF_GET_INT("LevelReq.Ticket"));
+        Warhead::Text::SendNotification(this, LANG_TICKET_REQ, CONF_GET_INT("LevelReq.Ticket"));
         return;
     }
 

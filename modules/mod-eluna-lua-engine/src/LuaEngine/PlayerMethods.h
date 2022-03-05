@@ -8,6 +8,7 @@
 #define PLAYERMETHODS_H
 
 #include "MuteMgr.h"
+#include "ChatTextBuilder.h"
 
 /***
  * Inherits all methods from: [Object], [WorldObject], [Unit]
@@ -3584,7 +3585,7 @@ namespace LuaPlayer
     {
         std::string msg = Eluna::CHECKVAL<std::string>(L, 2);
         if (msg.length() > 0)
-            player->GetSession()->SendAreaTriggerMessage("%s", msg.c_str());
+            Warhead::Text::SendAreaTriggerMessage(player->GetSession(), msg);
         return 0;
     }
 
@@ -3597,7 +3598,7 @@ namespace LuaPlayer
     {
         std::string msg = Eluna::CHECKVAL<std::string>(L, 2);
         if (msg.length() > 0)
-            player->GetSession()->SendNotification("%s", msg.c_str());
+            Warhead::Text::SendNotification(player->GetSession(), msg);
         return 0;
     }
 

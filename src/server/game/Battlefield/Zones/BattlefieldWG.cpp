@@ -20,6 +20,7 @@
 // TODO: Add proper implement of achievement
 
 #include "BattlefieldWG.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "MapMgr.h"
@@ -27,7 +28,6 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
-#include "TextBuilder.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
 

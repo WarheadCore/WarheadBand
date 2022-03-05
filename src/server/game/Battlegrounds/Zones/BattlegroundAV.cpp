@@ -16,6 +16,7 @@
  */
 
 #include "BattlegroundAV.h"
+#include "ChatTextBuilder.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
@@ -519,13 +520,13 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger)
         case 95:
         case 2608:
             if (player->GetTeamId() != TEAM_ALLIANCE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
+                Warhead::Text::SendAreaTriggerMessage(player->GetSession(), "Only The Alliance can use that portal");
             else
                 player->LeaveBattleground();
             break;
         case 2606:
             if (player->GetTeamId() != TEAM_HORDE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
+                Warhead::Text::SendAreaTriggerMessage(player->GetSession(), "Only The Horde can use that portal");
             else
                 player->LeaveBattleground();
             break;
@@ -629,16 +630,15 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
             }
         }
     }
-    //send a nice message to all :)
-    char buf[256];
-    if (IsTower(node))
-        sprintf(buf, GetWarheadString(LANG_BG_AV_TOWER_TAKEN), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
-    else
-        sprintf(buf, GetWarheadString(LANG_BG_AV_GRAVE_TAKEN), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
+    std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_TOWER_TAKEN), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
+    if (!IsTower(node))
+        yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_GRAVE_TAKEN), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
 
     Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
     if (creature)
-        YellToAll(creature, buf, LANG_UNIVERSAL);
+        YellToAll(creature, yellText, LANG_UNIVERSAL);
 }
 
 void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
@@ -710,12 +710,13 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
     if (teamId == TEAM_ALLIANCE || teamId == TEAM_HORDE)
     {
         m_Mine_Reclaim_Timer[mine] = AV_MINE_RECLAIM_TIMER;
-        char buf[256];
-        sprintf(buf, GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH),
-                (teamId == TEAM_ALLIANCE) ?  GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
+        std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH),
+            (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
         Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
         if (creature)
-            YellToAll(creature, buf, LANG_UNIVERSAL);
+            YellToAll(creature, yellText, LANG_UNIVERSAL);
     }
     else
     {
@@ -960,12 +961,12 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
             SpawnBGObject(((teamId == TEAM_ALLIANCE) ? BG_AV_OBJECT_SNOW_EYECANDY_A : BG_AV_OBJECT_SNOW_EYECANDY_H) + i, RESPAWN_IMMEDIATELY);
         }
     }
-    //send a nice message to all :)
-    char buf[256];
-    sprintf(buf, GetWarheadString((IsTower(node)) ? LANG_BG_AV_TOWER_DEFENDED : LANG_BG_AV_GRAVE_DEFENDED), GetNodeName(node), (teamId == TEAM_ALLIANCE) ?  GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
+    std::string yellText = Warhead::StringFormat(GetWarheadString((IsTower(node)) ? LANG_BG_AV_TOWER_DEFENDED : LANG_BG_AV_GRAVE_DEFENDED), GetNodeName(node), (teamId == TEAM_ALLIANCE) ?  GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
     Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
     if (creature)
-        YellToAll(creature, buf, LANG_UNIVERSAL);
+        YellToAll(creature, yellText.c_str(), LANG_UNIVERSAL);
     //update the statistic for the defending player
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_DEFENDED : SCORE_GRAVEYARDS_DEFENDED, 1);
     if (IsTower(node))
@@ -1072,12 +1073,12 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     // xinef: change here is too late, AssaultNode(node, team);
     UpdateNodeWorldState(node);
 
-    //send a nice message to all :)
-    char buf[256];
-    sprintf(buf, (IsTower(node)) ? GetWarheadString(LANG_BG_AV_TOWER_ASSAULTED) : GetWarheadString(LANG_BG_AV_GRAVE_ASSAULTED), GetNodeName(node),  (teamId == TEAM_ALLIANCE) ?  GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+    std::string yellText = Warhead::StringFormat(IsTower(node) ? GetWarheadString(LANG_BG_AV_TOWER_ASSAULTED) : GetWarheadString(LANG_BG_AV_GRAVE_ASSAULTED),
+        GetNodeName(node), (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+
     Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
     if (creature)
-        YellToAll(creature, buf, LANG_UNIVERSAL);
+        YellToAll(creature, yellText, LANG_UNIVERSAL);
     //update the statistic for the assaulting player
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
     PlaySoundToAll((teamId == TEAM_ALLIANCE) ? AV_SOUND_ALLIANCE_ASSAULTS : AV_SOUND_HORDE_ASSAULTS);
@@ -1420,7 +1421,7 @@ bool BattlegroundAV::SetupBattleground()
     return true;
 }
 
-char const* BattlegroundAV::GetNodeName(BG_AV_Nodes node)
+std::string BattlegroundAV::GetNodeName(BG_AV_Nodes node)
 {
     switch (node)
     {

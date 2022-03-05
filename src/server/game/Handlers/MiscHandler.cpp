@@ -21,6 +21,7 @@
 #include "BattlegroundMgr.h"
 #include "CharacterPackets.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "DBCEnums.h"
@@ -690,19 +691,6 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recv_data)
     GetPlayer()->ResurectUsingRequestData();
 }
 
-void WorldSession::_SendAreaTriggerMessage(std::string_view message)
-{
-    if (message.empty())
-        return;
-
-    uint32 length = message.length() + 1;
-
-    WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4 + length);
-    data << uint32(length);
-    data << message;
-    SendPacket(&data);
-}
-
 void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
 {
     uint32 triggerId;
@@ -1084,7 +1072,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
     if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
-        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
+        Warhead::Text::SendNotification(this, LANG_YOU_NOT_HAVE_PERMISSION);
 }
 
 void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
@@ -1095,13 +1083,13 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {
-        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
+        Warhead::Text::SendNotification(this, LANG_YOU_NOT_HAVE_PERMISSION);
         return;
     }
 
     if (charname.empty() || !normalizePlayerName (charname))
     {
-        SendNotification(LANG_NEED_CHARACTER_NAME);
+        Warhead::Text::SendNotification(this, LANG_NEED_CHARACTER_NAME);
         return;
     }
 
@@ -1109,7 +1097,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     if (!player)
     {
-        SendNotification(LANG_PLAYER_NOT_EXIST_OR_OFFLINE, charname);
+        Warhead::Text::SendNotification(this, LANG_PLAYER_NOT_EXIST_OR_OFFLINE, charname);
         return;
     }
 
@@ -1123,7 +1111,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     if (!result)
     {
-        SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, charname);
+        Warhead::Text::SendNotification(this, LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, charname);
         return;
     }
 

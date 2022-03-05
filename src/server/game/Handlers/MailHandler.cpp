@@ -17,6 +17,7 @@
 
 #include "AccountMgr.h"
 #include "CharacterCache.h"
+#include "ChatTextBuilder.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
@@ -120,7 +121,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (player->getLevel() < CONF_GET_INT("LevelReq.Mail"))
     {
-        SendNotification(GetWarheadString(LANG_MAIL_SENDER_REQ), CONF_GET_INT("LevelReq.Mail"));
+        Warhead::Text::SendNotification(this, LANG_MAIL_SENDER_REQ, CONF_GET_INT("LevelReq.Mail"));
         return;
     }
 
