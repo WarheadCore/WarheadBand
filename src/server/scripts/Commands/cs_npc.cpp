@@ -612,8 +612,8 @@ public:
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
 
-        std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(uint64(curRespawnDelay));
-        std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
+        std::string curRespawnDelayStr = Warhead::Time::ToTimeString(Seconds(curRespawnDelay));
+        std::string defRespawnDelayStr = Warhead::Time::ToTimeString(Seconds(target->GetRespawnDelay()));
 
         handler->PSendSysMessage(LANG_NPCINFO_CHAR,  target->GetSpawnId(), target->GetGUID().GetCounter(), entry, id1, id2, id3, displayid, nativeid, faction, npcflags);
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());

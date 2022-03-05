@@ -41,7 +41,7 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
     if (accountName.empty() || duration.empty())
         return BAN_SYNTAX_ERROR;
 
-    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
+    Seconds durationSecs = Warhead::Time::TimeStringTo(duration);
 
     uint32 AccountID = AccountMgr::GetId(accountName);
     if (!AccountID)
@@ -55,7 +55,7 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
     stmtAccountBanned->SetData(0, AccountID);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmtAccountBanned);
-    if (banresult && ((*banresult)[0].Get<uint32>() == (*banresult)[1].Get<uint32>() || ((*banresult)[1].Get<uint32>() > GameTime::GetGameTime().count() + DurationSecs && DurationSecs)))
+    if (banresult && ((*banresult)[0].Get<uint32>() == (*banresult)[1].Get<uint32>() || ((*banresult)[1].Get<Seconds>() > GameTime::GetGameTime() + durationSecs && durationSecs > 0s)))
         return BAN_LONGER_EXISTS;
 
     // make sure there is only one active ban
@@ -66,7 +66,7 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
     // No SQL injection with prepared statements
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_BANNED);
     stmt->SetData(0, AccountID);
-    stmt->SetData(1, DurationSecs);
+    stmt->SetData(1, durationSecs);
     stmt->SetData(2, author);
     stmt->SetData(3, reason);
     trans->Append(stmt);
@@ -83,9 +83,9 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        if (DurationSecs)
+        if (durationSecs > 0s)
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
-                author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+                author, accountName, Warhead::Time::ToTimeString(durationSecs), reason);
         else
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
     }
@@ -99,7 +99,7 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
     if (characterName.empty() || duration.empty())
         return BAN_SYNTAX_ERROR;
 
-    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
+    Seconds durationSecs = Warhead::Time::TimeStringTo(duration);
 
     uint32 AccountID = sCharacterCache->GetCharacterAccountIdByName(characterName);
     if (!AccountID)
@@ -113,7 +113,7 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
     stmtAccountBanned->SetData(0, AccountID);
 
     PreparedQueryResult banresult = LoginDatabase.Query(stmtAccountBanned);
-    if (banresult && ((*banresult)[0].Get<uint32>() == (*banresult)[1].Get<uint32>() || ((*banresult)[1].Get<uint32>() > GameTime::GetGameTime().count() + DurationSecs && DurationSecs)))
+    if (banresult && ((*banresult)[0].Get<uint32>() == (*banresult)[1].Get<uint32>() || ((*banresult)[1].Get<Seconds>() > GameTime::GetGameTime() + durationSecs && durationSecs > 0s)))
         return BAN_LONGER_EXISTS;
 
     // make sure there is only one active ban
@@ -124,7 +124,7 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
     // No SQL injection with prepared statements
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_BANNED);
     stmt->SetData(0, AccountID);
-    stmt->SetData(1, DurationSecs);
+    stmt->SetData(1, durationSecs);
     stmt->SetData(2, author);
     stmt->SetData(3, reason);
     trans->Append(stmt);
@@ -145,9 +145,9 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
 
         AccountMgr::GetName(AccountID, accountName);
 
-        if (DurationSecs)
+        if (durationSecs > 0s)
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
-                author, accountName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+                author, accountName, Warhead::Time::ToTimeString(durationSecs), reason);
         else
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
     }
@@ -161,7 +161,7 @@ BanReturn BanMgr::BanIP(std::string const& IP, std::string_view duration, std::s
     if (IP.empty() || duration.empty())
         return BAN_SYNTAX_ERROR;
 
-    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
+    Seconds durationSecs = Warhead::Time::TimeStringTo(duration);
 
     // No SQL injection with prepared statements
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
@@ -170,15 +170,15 @@ BanReturn BanMgr::BanIP(std::string const& IP, std::string_view duration, std::s
     PreparedQueryResult resultAccounts = LoginDatabase.Query(stmt);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_BANNED);
     stmt->SetData(0, IP);
-    stmt->SetData(1, DurationSecs);
+    stmt->SetData(1, durationSecs);
     stmt->SetData(2, author);
     stmt->SetData(3, reason);
     LoginDatabase.Execute(stmt);
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        if (DurationSecs)
-            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author, IP, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+        if (durationSecs > 0s)
+            Warhead::Text::SendWorldText(LANG_BAN_IP_YOUBANNEDMESSAGE_WORLD, author, IP, Warhead::Time::ToTimeString(durationSecs), reason);
         else
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author, IP, reason);
     }
@@ -212,7 +212,7 @@ BanReturn BanMgr::BanIP(std::string const& IP, std::string_view duration, std::s
 BanReturn BanMgr::BanCharacter(std::string const& characterName, std::string_view duration, std::string const& reason, std::string const& author)
 {
     Player* target = ObjectAccessor::FindPlayerByName(characterName, false);
-    uint32 DurationSecs = Warhead::Time::TimeStringTo<Seconds>(duration);
+    Seconds durationSecs = Warhead::Time::TimeStringTo(duration);
     ObjectGuid TargetGUID;
 
     /// Pick a player to ban if not online
@@ -232,7 +232,7 @@ BanReturn BanMgr::BanCharacter(std::string const& characterName, std::string_vie
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
     stmt->SetData(0, TargetGUID.GetCounter());
-    stmt->SetData(1, DurationSecs);
+    stmt->SetData(1, durationSecs);
     stmt->SetData(2, author);
     stmt->SetData(3, reason);
     CharacterDatabase.Execute(stmt);
@@ -242,9 +242,9 @@ BanReturn BanMgr::BanCharacter(std::string const& characterName, std::string_vie
 
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        if (DurationSecs)
+        if (durationSecs > 0s)
             Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD,
-                author, characterName, Warhead::Time::ToTimeString<Seconds>(DurationSecs), reason);
+                author, characterName, Warhead::Time::ToTimeString(durationSecs), reason);
         else
             Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author, characterName, reason);
     }

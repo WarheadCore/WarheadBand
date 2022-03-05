@@ -289,8 +289,8 @@ public:
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
-            std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(curRespawnDelay);
-            std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
+            std::string curRespawnDelayStr = Warhead::Time::ToTimeString(Seconds(curRespawnDelay));
+            std::string defRespawnDelayStr = Warhead::Time::ToTimeString(Seconds(target->GetRespawnDelay()));
 
             handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr, curRespawnDelayStr);
         }

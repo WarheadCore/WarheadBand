@@ -120,8 +120,8 @@ public:
         time_t nextTime = GameTime::GetGameTime().count() + delay;
         std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Warhead::Time::TimeToTimestampStr(Seconds(nextTime)) : "-";
 
-        std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE);
-        std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE);
+        std::string occurenceStr = Warhead::Time::ToTimeString(Minutes(eventData.occurence));
+        std::string lengthStr = Warhead::Time::ToTimeString(Minutes(eventData.length));
 
         handler->PSendSysMessage(LANG_EVENT_INFO, uint16(eventId), eventData.description, activeStr,
             startTimeStr, endTimeStr, occurenceStr, lengthStr,

@@ -138,7 +138,7 @@ void MuteMgr::CheckMuteExpired(uint32 accountID)
 
 std::string const MuteMgr::GetMuteTimeString(uint32 accountID)
 {
-    return Warhead::Time::ToTimeString<Seconds>(GetMuteDate(accountID) - GameTime::GetGameTime().count());
+    return Warhead::Time::ToTimeString(Seconds(GetMuteDate(accountID) - GameTime::GetGameTime().count()));
 }
 
 bool MuteMgr::CanSpeak(uint32 accountID)

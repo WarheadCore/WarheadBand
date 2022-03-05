@@ -239,7 +239,7 @@ public:
         uint32 activeSessionCount = sWorld->GetActiveSessionCount();
         uint32 queuedSessionCount = sWorld->GetQueuedSessionCount();
         uint32 connPeak = sWorld->GetMaxActiveSessionCount();
-        std::string uptime = Warhead::Time::ToTimeString<Seconds>(GameTime::GetUptime().count());
+        std::string uptime = Warhead::Time::ToTimeString(GameTime::GetUptime());
 
         handler->PSendSysMessage("{}", GitRevision::GetFullVersion());
 
@@ -254,7 +254,7 @@ public:
 
         //! Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
-            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString<Seconds>(sWorld->GetShutDownTimeLeft()));
+            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString(Seconds(sWorld->GetShutDownTimeLeft())));
 
         return true;
     }

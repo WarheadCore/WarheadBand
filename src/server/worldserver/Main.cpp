@@ -408,6 +408,8 @@ int main(int argc, char** argv)
 
         ///- Clean database before leaving
         ClearOnlineAccounts();
+
+        sDiscord->SendServerShutdown();
     });
 
     // Set server online (allow connecting now)
@@ -439,9 +441,6 @@ int main(int argc, char** argv)
         cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
     }
 
-    // Start discord bot
-    sDiscord->Start();
-
     // Launch CliRunnable thread
     std::shared_ptr<std::thread> auctionLisingThread;
     auctionLisingThread.reset(new std::thread(AuctionListingRunnable),
@@ -450,8 +449,6 @@ int main(int argc, char** argv)
         thr->join();
         delete thr;
     });
-
-    sDiscord->SendServerStatus(true);
 
     WorldUpdateLoop();
 
@@ -464,8 +461,6 @@ int main(int argc, char** argv)
     LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LOG_INFO("server.worldserver", "Halting process...");
-
-    sDiscord->SendServerStatus(false);
 
     // 0 - normal shutdown
     // 1 - shutdown at error

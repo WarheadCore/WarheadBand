@@ -23,33 +23,19 @@
 
 enum class TimeFormat : uint8
 {
-    FullText,       // 1 Days 2 Hours 3 Minutes 4 Seconds 5 Milliseconds
-    ShortText,      // 1d 2h 3m 4s 5ms
-    Numeric         // 1:2:3:4:5
-};
-
-enum class TimeOutput : uint8
-{
-    Days,         // 1d
-    Hours,        // 1d 2h
-    Minutes,      // 1d 2h 3m
-    Seconds,      // 1d 2h 3m 4s
-    Milliseconds, // 1d 2h 3m 4s 5ms
-    Microseconds  // 1d 2h 3m 4s 5ms 6us
+    FullText,       // 1 Days 2 Hours 3 Minutes 4 Seconds 5 Milliseconds 6 Microseconds
+    ShortText,      // 1d 2h 3m 4s 5ms 6us
+    Numeric         // 1:2:3:4:5:6
 };
 
 namespace Warhead::Time
 {
-    template<class T>
-    WH_COMMON_API uint32 TimeStringTo(std::string_view timestring);
+    WH_COMMON_API Seconds TimeStringTo(std::string_view timestring);
 
     template<class T>
-    WH_COMMON_API std::string ToTimeString(uint64 durationTime, TimeOutput timeOutput = TimeOutput::Seconds, TimeFormat timeFormat = TimeFormat::ShortText);
+    WH_COMMON_API std::string ToTimeString(std::string_view durationTime, uint8 outCount = 3, TimeFormat timeFormat = TimeFormat::ShortText);
 
-    template<class T>
-    WH_COMMON_API std::string ToTimeString(std::string_view durationTime, TimeOutput timeOutput = TimeOutput::Seconds, TimeFormat timeFormat = TimeFormat::ShortText);
-
-    WH_COMMON_API std::string ToTimeString(Microseconds durationTime, TimeOutput timeOutput = TimeOutput::Seconds, TimeFormat timeFormat = TimeFormat::ShortText);
+    WH_COMMON_API std::string ToTimeString(Microseconds durationTime, uint8 outCount = 3, TimeFormat timeFormat = TimeFormat::ShortText);
 
     WH_COMMON_API time_t LocalTimeToUTCTime(time_t time);
     WH_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);

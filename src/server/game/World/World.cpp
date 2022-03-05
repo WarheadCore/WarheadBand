@@ -99,6 +99,7 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "StopWatch.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
@@ -554,7 +555,7 @@ void World::LoadConfigSettings(bool reload)
 void World::SetInitialWorldSettings()
 {
     ///- Server startup begin
-    uint32 startupBegin = getMSTime();
+    StopWatch sw;
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime().count());
@@ -1202,13 +1203,18 @@ void World::SetInitialWorldSettings()
         }
     }
 
-    uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
+    // Start discord bot
+    sDiscord->Start();
+
+    std::string startupDuration = Warhead::Time::ToTimeString(sw.Elapsed(), sw.GetOutCount());
 
     LOG_INFO("server.loading", " ");
-    LOG_INFO("server.loading", "WORLD: World initialized in {} minutes {} seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000)); // outError for red color in console
+    LOG_INFO("server.loading", "WORLD: World initialized in {}", startupDuration); // outError for red color in console
     LOG_INFO("server.loading", " ");
 
-    METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
+    sDiscord->SendServerStartup(startupDuration);
+
+    METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
 
     if (sConfigMgr->isDryRun())
     {
@@ -1690,9 +1696,11 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
         });
     }
 
-    LOG_WARN("server", "Time left until shutdown/restart: {}", time);
+    std::string strTime = Warhead::Time::ToTimeString(Seconds(time));
 
-    sDiscord->SendDefaultMessage("Рестарт сервера", Warhead::StringFormat("Рестарт сервера через {} сек.", time), DiscordMessageColor::Yellow);
+    LOG_WARN("server", "> Time left until shutdown/restart: {}", strTime);
+
+    sDiscord->SendDefaultMessage("Рестарт сервера", Warhead::StringFormat("Рестарт сервера через {}", strTime), DiscordMessageColor::Yellow);
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if (time == 0)
@@ -1727,7 +1735,7 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
             (m_ShutdownTimer < 12 * HOUR && (m_ShutdownTimer % HOUR) == 0) || // < 12 h ; every 1 h
             (m_ShutdownTimer > 12 * HOUR && (m_ShutdownTimer % (12 * HOUR)) == 0)) // > 12 h ; every 12 h
     {
-        std::string str = Warhead::Time::ToTimeString<Seconds>(m_ShutdownTimer).append(".");
+        std::string str = Warhead::Time::ToTimeString(Seconds(m_ShutdownTimer)).append(".");
 
         if (!reason.empty())
         {

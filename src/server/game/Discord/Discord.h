@@ -78,7 +78,8 @@ public:
     static Discord* instance();
 
     void Start();
-    void SendServerStatus(bool isStartup);
+    void SendServerStartup(std::string_view duration);
+    void SendServerShutdown();
     void SendDefaultMessage(std::string_view title, std::string_view description, DiscordMessageColor color = DiscordMessageColor::Blue);
 
     // Channels

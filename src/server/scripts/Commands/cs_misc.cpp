@@ -2040,7 +2040,7 @@ public:
             muteTime = _muteTime;
 
             if (_muteDate)
-                muteLeft = Warhead::Time::ToTimeString<Seconds>(_muteDate + muteTime.count() - GameTime::GetGameTime().count());
+                muteLeft = Warhead::Time::ToTimeString(Seconds(_muteDate) + muteTime - GameTime::GetGameTime());
             else
                 muteLeft = Warhead::Time::ToTimeString(muteTime);
 
@@ -2124,7 +2124,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType, banReason, banTime > 0 ? Warhead::Time::ToTimeString<Seconds>(banTime - GameTime::GetGameTime().count()) : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy);
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType, banReason, banTime > 0 ? Warhead::Time::ToTimeString(Seconds(banTime) - GameTime::GetGameTime()) : handler->GetWarheadString(LANG_PERMANENTLY), bannedBy);
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0s)
@@ -2228,7 +2228,7 @@ public:
         }
 
         // Output XX. LANG_PINFO_CHR_PLAYEDTIME
-        handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, Warhead::Time::ToTimeString<Seconds>(totalPlayerTime));
+        handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, Warhead::Time::ToTimeString(Seconds(totalPlayerTime)));
 
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"

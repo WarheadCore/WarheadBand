@@ -129,7 +129,7 @@ public:
         }
 
         std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
-        uint32 duration = Warhead::Time::TimeStringTo<Seconds>(durationStr);
+        Seconds duration = Warhead::Time::TimeStringTo(durationStr);
 
         switch (sBan->BanCharacter(name, durationStr, reasonStr, author))
         {
@@ -138,8 +138,8 @@ public:
                 if (CONF_GET_BOOL("ShowBanInWorld"))
                     break;
 
-                if (duration)
-                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, name, Warhead::Time::ToTimeString<Seconds>(duration), reasonStr);
+                if (duration > 0s)
+                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, name, Warhead::Time::ToTimeString(duration), reasonStr);
                 else
                     handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name, reasonStr);
                 break;
@@ -228,7 +228,7 @@ public:
                 return false;
         }
 
-        uint32 duration = Warhead::Time::TimeStringTo<Seconds>(durationStr);
+        Seconds duration = Warhead::Time::TimeStringTo(durationStr);
 
         switch (banReturn)
         {
@@ -236,8 +236,8 @@ public:
                 if (CONF_GET_BOOL("ShowBanInWorld"))
                     break;
 
-                if (duration)
-                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP, Warhead::Time::ToTimeString<Seconds>(duration), reasonStr);
+                if (duration > 0s)
+                    handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP, Warhead::Time::ToTimeString(duration), reasonStr);
                 else
                     handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP, reasonStr);
                 break;
@@ -318,8 +318,8 @@ public:
             if (fields[2].Get<bool>() && (fields[1].Get<uint64>() == uint64(0) || unbanDate >= GameTime::GetGameTime().count()))
                 active = true;
 
-            bool permanent = (fields[1].Get<uint64>() == uint64(0));
-            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString<Seconds>(fields[1].Get<uint64>());
+            bool permanent = fields[1].Get<Seconds>(false) > 0s;
+            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString(fields[1].Get<Seconds>(false));
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
                 fields[0].Get<std::string_view>(), banTime, active ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO), fields[4].Get<std::string_view>(), fields[5].Get<std::string_view>());
         } while (result->NextRow());
@@ -367,7 +367,7 @@ public:
             if (fields[2].Get<uint8>() && (!fields[1].Get<uint32>() || unbanDate >= GameTime::GetGameTime().count()))
                 active = true;
             bool permanent = (fields[1].Get<uint32>() == uint32(0));
-            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString<Seconds>(fields[1].Get<uint64>());
+            std::string banTime = permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString(fields[1].Get<Seconds>(false));
             handler->PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
                 fields[0].Get<std::string_view>(), banTime, active ? handler->GetWarheadString(LANG_YES) : handler->GetWarheadString(LANG_NO), fields[4].Get<std::string_view>(), fields[5].Get<std::string_view>());
         } while (result->NextRow());
@@ -402,7 +402,7 @@ public:
 
         handler->PSendSysMessage(LANG_BANINFO_IPENTRY, fields[0].Get<std::string_view>(), fields[1].Get<std::string_view>(),
             permanent ? handler->GetWarheadString(LANG_BANINFO_NEVER) : fields[2].Get<std::string_view>(),
-            permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString<Seconds>(fields[3].Get<uint64>()),
+            permanent ? handler->GetWarheadString(LANG_BANINFO_INFINITE) : Warhead::Time::ToTimeString(fields[3].Get<Seconds>(false)),
             fields[4].Get<std::string_view>(), fields[5].Get<std::string_view>());
 
         return true;

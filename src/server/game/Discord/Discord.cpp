@@ -117,7 +117,7 @@ void Discord::Start()
         }
     }
 
-    _bot = std::make_unique<dpp::cluster>(botToken);
+    _bot = std::make_unique<dpp::cluster>(botToken, dpp::i_all_intents);
 
     _bot->on_ready([this]([[maybe_unused]] const auto& event)
     {
@@ -144,8 +144,8 @@ void Discord::Start()
             LOG_ERROR("discord.bot", "> DiscordBot: {}", event.message);
             break;
         case dpp::ll_critical:
-        default:
             LOG_CRIT("discord.bot", "> DiscordBot: {}", event.message);
+        default:
             break;
         }
     });
@@ -165,7 +165,7 @@ void Discord::Start()
                 embed.set_url(Warhead::StringFormat("{}/commit/{}", GitRevision::GetUrlOrigin(), GitRevision::GetFullHash()));
                 embed.set_title(Warhead::StringFormat("[{}/WarheadBand] ", GitRevision::GetCompanyNameStr()));
                 embed.add_field("Commit info", GitRevision::GetFullVersion());
-                embed.add_field("Uptime", Warhead::Time::ToTimeString(GameTime::GetUptime(), TimeOutput::Seconds, TimeFormat::FullText));
+                embed.add_field("Uptime", Warhead::Time::ToTimeString(GameTime::GetUptime(), 4, TimeFormat::FullText));
                 embed.add_field("Diff", Warhead::StringFormat("Update time diff: {}ms, Average: {}ms", sWorldUpdateTime.GetLastUpdateTime(), sWorldUpdateTime.GetAverageUpdateTime()));
                 embed.add_field("Realm info", Warhead::StringFormat("Realm name: {}. Players online: {}. Max players online: {}", sWorld->GetRealmName(), sWorld->GetPlayerCount(), sWorld->GetMaxActiveSessionCount()));
                 embed.set_timestamp(GameTime::GetGameTime().count());
@@ -218,15 +218,29 @@ void Discord::Start()
     _bot->start(true);
 }
 
-void Discord::SendServerStatus(bool isStartup)
+void Discord::SendServerStartup(std::string_view duration)
 {
     if (!_isEnable)
         return;
 
     dpp::embed embed = dpp::embed();
-    embed.set_color(static_cast<uint32>(isStartup ? DiscordMessageColor::Blue : DiscordMessageColor::Orange));
+    embed.set_color(static_cast<uint32>(DiscordMessageColor::Blue));
     embed.set_title("Статус игрового мира");
-    embed.set_description(Warhead::StringFormat("Игровой мир `{}` {}", sWorld->GetRealmName(), isStartup ? "включен" : "выключен"));
+    embed.set_description(Warhead::StringFormat("Игровой мир `{}` инициализирован за `{}`", sWorld->GetRealmName(), duration));
+    embed.set_timestamp(GameTime::GetGameTime().count());
+
+    _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::ServerStatus), embed));
+}
+
+void Discord::SendServerShutdown()
+{
+    if (!_isEnable)
+        return;
+
+    dpp::embed embed = dpp::embed();
+    embed.set_color(static_cast<uint32>(DiscordMessageColor::Orange));
+    embed.set_title("Статус игрового мира");
+    embed.set_description(Warhead::StringFormat("Игровой мир `{}` отключен", sWorld->GetRealmName()));
     embed.set_timestamp(GameTime::GetGameTime().count());
 
     _bot->message_create(dpp::message(GetChannelIDForType(DiscordChannelType::ServerStatus), embed));

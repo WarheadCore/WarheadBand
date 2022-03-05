@@ -164,43 +164,51 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
 {
     time_t curTime = GameTime::GetGameTime().count();
 
-    std::stringstream ss;
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, Warhead::Time::ToTimeString<Seconds>(curTime - _createTime).c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, Warhead::Time::ToTimeString<Seconds>(curTime - _lastModifiedTime).c_str());
+    std::string ss;
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, Warhead::Time::ToTimeString(Seconds(curTime - _createTime))));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, Warhead::Time::ToTimeString(Seconds(curTime - _lastModifiedTime))));
 
     std::string name;
     if (sCharacterCache->GetCharacterNameByGuid(_assignedTo, name))
     {
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name));
     }
 
     if (detailed)
     {
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTMESSAGE, _message.c_str());
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTMESSAGE, _message));
+
         if (!_comment.empty())
-            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTCOMMENT, _comment.c_str());
+            ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTCOMMENT, _comment));
+
         if (!_response.empty())
-            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTRESPONSE, _response.c_str());
+            ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTRESPONSE, _response));
     }
-    return ss.str();
+
+    return ss;
 }
 
 std::string GmTicket::FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName) const
 {
-    std::stringstream ss;
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
+    std::string ss;
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName));
+
     if (szClosedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName));
+
     if (szAssignedToName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName);
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName));
+
     if (szUnassignedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName);
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName));
+
     if (szDeletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName);
-    return ss.str();
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName));
+
+    return ss;
 }
 
 void GmTicket::SetUnassigned()
@@ -246,9 +254,10 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
     std::stringstream ss(log);
     std::stringstream newss;
     std::string line;
+
     while (std::getline(ss, line) && !time.empty())
     {
-        newss << Warhead::Time::ToTimeString<Seconds>(time.front()) << ": " << line << "\n";
+        newss << Warhead::Time::ToTimeString(Seconds(time.front())) << ": " << line << "\n";
         time.pop_front();
     }
 

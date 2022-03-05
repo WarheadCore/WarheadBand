@@ -27,6 +27,7 @@
 #include "TaskScheduler.h"
 #include "Timer.h"
 #include "Tokenize.h"
+#include "StopWatch.h"
 #include <tuple>
 #include <unordered_map>
 
@@ -96,7 +97,7 @@ namespace
 
         auto const& [startTime, endTime, level] = *vipInfo;
 
-        duration = Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), TimeOutput::Seconds, TimeFormat::FullText);
+        duration = Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
 
         return duration;
     }
@@ -188,7 +189,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
 
     if (auto player = GetPlayerFromAccount(accountID))
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), TimeOutput::Seconds, TimeFormat::FullText));
+        ChatHandler(player->GetSession()).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 4, TimeFormat::FullText));
         LearnSpells(player, level);
     }
 
@@ -491,7 +492,7 @@ void Vip::UnBindInstances(Player* player)
 
 void Vip::LoadRates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw(2);
 
     storeRates.clear(); // for reload case
 
@@ -538,13 +539,13 @@ void Vip::LoadRates()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip rates in {}", storeRates.size(), Warhead::Time::ToTimeString<Milliseconds>(oldMSTime, TimeOutput::Milliseconds));
+    LOG_INFO("server.loading", ">> Loaded {} vip rates in {}", storeRates.size(), sw);
     LOG_INFO("server.loading", "");
 }
 
 void Vip::LoadAccounts()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw(2);
 
     store.clear(); // for reload case
 
@@ -572,13 +573,13 @@ void Vip::LoadAccounts()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip accounts in {}", store.size(), Warhead::Time::ToTimeString<Milliseconds>(oldMSTime, TimeOutput::Milliseconds));
+    LOG_INFO("server.loading", ">> Loaded {} vip accounts in {}", store.size(), sw);
     LOG_INFO("server.loading", "");
 }
 
 void Vip::LoadUnbinds()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw(2);
 
     storeUnbind.clear(); // for reload case
 
@@ -603,13 +604,13 @@ void Vip::LoadUnbinds()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), Warhead::Time::ToTimeString<Milliseconds>(oldMSTime, TimeOutput::Milliseconds));
+    LOG_INFO("server.loading", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), sw);
     LOG_INFO("server.loading", "");
 }
 
 void Vip::LoadVipVendors()
 {
-    auto oldMSTime = GetTimeMS();
+    StopWatch sw(2);
 
     storeVendors.clear(); // for reload case
 
@@ -653,7 +654,7 @@ void Vip::LoadVipVendors()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip vendors in {}", storeVendors.size(), Warhead::Time::ToTimeString(oldMSTime, TimeOutput::Milliseconds));
+    LOG_INFO("server.loading", ">> Loaded {} vip vendors in {}", storeVendors.size(), sw);
     LOG_INFO("server.loading", "");
 }
 
