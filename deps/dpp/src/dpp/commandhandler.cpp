@@ -22,13 +22,20 @@
 #include <dpp/cluster.h>
 #include <dpp/exception.h>
 #include <dpp/stringops.h>
-#include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include <sstream>
 
 namespace dpp {
 
-param_info::param_info(parameter_type t, bool o, const std::string &d, const std::map<std::string, std::string> &opts) : type(t), optional(o), description(d), choices(opts)
+param_info::param_info(parameter_type t, bool o, const std::string &d, const std::map<command_value, std::string> &opts) : type(t), optional(o), description(d), choices(opts)
+{
+}
+
+command_source::command_source(const struct message_create_t& event) : guild_id(event.msg.guild_id), channel_id(event.msg.channel_id), command_id(0), issuer(event.msg.author), message_event(event), interaction_event(std::nullopt)
+{
+}
+
+command_source::command_source(const struct interaction_create_t& event) : guild_id(event.command.guild_id), channel_id(event.command.channel_id), command_id(event.command.id), command_token(event.command.token), issuer(event.command.usr), message_event(std::nullopt), interaction_event(event)
 {
 }
 
@@ -42,7 +49,7 @@ commandhandler::commandhandler(cluster* o, bool auto_hook_events, snowflake appl
 			this->route(event);
 		});
 		messages = o->on_message_create([this](const dpp::message_create_t & event) {
-			this->route(event.msg);
+			this->route(event);
 		});
 	} else {
 		interactions = messages = 0;
@@ -151,7 +158,7 @@ commandhandler& commandhandler::register_commands()
 	}
 	owner->global_bulk_command_create(bulk_registration_list_global, [this](const dpp::confirmation_callback_t &callback) {
 		if (callback.is_error()) {
-			this->owner->log(dpp::ll_error, fmt::format("Failed to register global slash commands: {}", callback.http_info.body));
+			this->owner->log(dpp::ll_error, "Failed to register global slash commands: " + callback.http_info.body);
 		}
 	});	
 	return *this;
@@ -173,9 +180,9 @@ bool commandhandler::string_has_prefix(std::string &str)
  * There isn't really a way around this for many things because there is no 'resolved' member for it.
  * We only get resolved information for the user issuing the command.
  */
-void commandhandler::route(const dpp::message& msg)
+void commandhandler::route(const struct dpp::message_create_t& event)
 {
-	std::string msg_content = msg.content;
+	std::string msg_content = event.msg.content;
 	if (string_has_prefix(msg_content)) {
 		/* Put the string into stringstream to parse parameters at spaces.
 		 * We use stringstream as it handles multiple spaces etc nicely.
@@ -187,7 +194,7 @@ void commandhandler::route(const dpp::message& msg)
 		auto found_cmd = commands.find(lowercase(command));
 		if (found_cmd != commands.end()) {
 			/* Filter out guild specific commands that are not for the current guild */
-			if (found_cmd->second.guild_id && found_cmd->second.guild_id != msg.guild_id) {
+			if (found_cmd->second.guild_id && found_cmd->second.guild_id != event.msg.guild_id) {
 				return;
 			}
 
@@ -246,7 +253,7 @@ void commandhandler::route(const dpp::message& msg)
 							if (u) {
 								dpp::resolved_user m;
 								m.user = *u;
-								dpp::guild* g = dpp::find_guild(msg.guild_id);
+								dpp::guild* g = dpp::find_guild(event.msg.guild_id);
 								if (g->members.find(uid) != g->members.end()) {
 									m.member = g->members[uid];
 								}
@@ -286,12 +293,7 @@ void commandhandler::route(const dpp::message& msg)
 			}
 
 			/* Call command handler */
-			command_source source;
-			source.command_id = 0;
-			source.guild_id = msg.guild_id;
-			source.channel_id = msg.channel_id;
-			source.issuer = msg.author;
-			found_cmd->second.func(command, call_params, source);
+			found_cmd->second.func(command, call_params, command_source(event));
 		}
 	}
 }
@@ -402,13 +404,7 @@ void commandhandler::route(const struct interaction_create_t & event)
 		}
 
 		/* Call command handler */
-		command_source source;
-		source.command_id = event.command.id;
-		source.command_token = event.command.token;
-		source.guild_id = event.command.guild_id;
-		source.channel_id = event.command.channel_id;
-		source.issuer = event.command.usr;
-		found_cmd->second.func(cmd.name, call_params, source);
+		found_cmd->second.func(cmd.name, call_params, command_source(event));
 	}
 }
 

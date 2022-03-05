@@ -20,6 +20,7 @@
  ************************************************************************************/
 #pragma once
 #include <dpp/export.h>
+#include <dpp/snowflake.h>
 #include <dpp/misc-enum.h>
 #include <string>
 #include <vector>
@@ -88,11 +89,11 @@ namespace dpp {
 		void DPP_EXPORT exec(const std::string& cmd, std::vector<std::string> parameters = {}, cmd_result_t callback = {});
 
 		/**
-		 * @brief Return a mentionable timestamp (used in a discord embed)
+		 * @brief Return a mentionable timestamp (used in a discord embed). These timestamps will display the given timestamp in the user's timezone and locale.
 		 * 
 		 * @param ts Time stamp to convert
 		 * @param tf Format of timestamp using dpp::utility::time_format
-		 * @return std::string 
+		 * @return std::string The formatted timestamp
 		 */
 		std::string DPP_EXPORT timestamp(time_t ts, time_format tf);
 
@@ -215,6 +216,13 @@ namespace dpp {
 			uptime(time_t diff);
 
 			/**
+			 * @brief Construct a new uptime object
+			 * 
+			 * @param diff A time_t to initialise the object from
+			 */
+			uptime(double diff);
+
+			/**
 			 * @brief Get uptime as string
 			 * 
 			 * @return std::string Uptime as string
@@ -304,7 +312,7 @@ namespace dpp {
 		 * @return std::string Validated string, truncated if necessary.
 		 * @throw dpp::length_exception if value UTF8 length < _min
 		 */
-		std::string validate(const std::string& value, size_t _min, size_t _max, const std::string& exception_message);
+		std::string DPP_EXPORT validate(const std::string& value, size_t _min, size_t _max, const std::string& exception_message);
 
 		/**
 		 * @brief Return the url parameter for an avatar size, or empty if the size is 0
@@ -312,7 +320,37 @@ namespace dpp {
 		 * @param size size to generate url parameter for
 		 * @return std::string url parameter
 		 */
-		std::string avatar_size(uint32_t size);
-	};
+		std::string DPP_EXPORT avatar_size(uint32_t size);
 
+		/**
+		 * @brief Split (tokenize) a string into a vector, using the given separators
+		 * 
+		 * @param in Input string
+		 * @param sep Separator characters
+		 * @return std::vector<std::string> Tokenized strings 
+		 */
+		std::vector<std::string> DPP_EXPORT tokenize(std::string const &in, const char* sep = "\r\n");
+
+		/**
+		 * @brief Create a bot invite
+		 * 
+		 * @param bot_id Bot ID
+		 * @param permissions Permissions of the bot to invite
+		 * @param scopes Scopes to use
+		 * @return Invite URL
+		 */
+		std::string DPP_EXPORT bot_invite_url(const snowflake bot_id, const uint64_t permissions = 0, const std::vector<std::string>& scopes = {"bot", "applications.commands"});
+
+		/**
+		 * @brief Escapes markdown sequences in a string
+		 * 
+		 * @param text Text to escape
+		 * @param escape_code_blocks If set to false, then code blocks are not escaped.
+		 * This means that you can still use a code block, and the text within will be left as-is.
+		 * If set to true, code blocks will also be escaped so that ` symbol may be used as a normal
+		 * character.
+		 * @return std::string escaped text
+		 */
+		std::string DPP_EXPORT markdown_escape(const std::string& text, bool escape_code_blocks = false);
+	};
 };

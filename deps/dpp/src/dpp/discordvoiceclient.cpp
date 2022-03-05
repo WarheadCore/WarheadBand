@@ -31,8 +31,7 @@
 #include <dpp/cluster.h>
 #include <thread>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
-#include <zlib.h>
+#include <fmt/core.h>
 
 #ifdef HAVE_VOICE
 #include <sodium.h>
@@ -106,14 +105,17 @@ discord_voice_client::discord_voice_client(dpp::cluster* _cluster, snowflake _ch
 	int opusError = 0;
 	encoder = opus_encoder_create(48000, 2, OPUS_APPLICATION_VOIP, &opusError);
 	if (opusError) {
-		throw dpp::voice_exception(fmt::format("discord_voice_client::discord_voice_client; opus_encoder_create() failed: {}", opusError));
+		throw dpp::voice_exception("discord_voice_client::discord_voice_client; opus_encoder_create() failed");
 	}
 	opusError = 0;
 	decoder = opus_decoder_create(48000, 2, &opusError);
 	if (opusError) {
-		throw dpp::voice_exception(fmt::format("discord_voice_client::discord_voice_client; opus_decoder_create() failed: {}", opusError));
+		throw dpp::voice_exception("discord_voice_client::discord_voice_client; opus_decoder_create() failed");
 	}
 	repacketizer = opus_repacketizer_create();
+	if (!repacketizer) {
+		throw dpp::voice_exception("discord_voice_client::discord_voice_client; opus_repacketizer_create() failed");
+	}
 	this->connect();
 #else
 	throw dpp::voice_exception("Voice support not enabled in this build of D++");
@@ -191,14 +193,14 @@ int discord_voice_client::udp_recv(char* data, size_t max_length)
 
 bool discord_voice_client::handle_frame(const std::string &data)
 {
-	log(dpp::ll_trace, fmt::format("R: {}", data));
+	log(dpp::ll_trace, std::string("R: ") + data);
 	json j;
 	
 	try {
 		j = json::parse(data);
 	}
 	catch (const std::exception &e) {
-		log(dpp::ll_error, fmt::format("discord_voice_client::handle_frame {} [{}]", e.what(), data));
+		log(dpp::ll_error, std::string("discord_voice_client::handle_frame ") + e.what() + ": " + data);
 		return true;
 	}
 
@@ -215,7 +217,7 @@ bool discord_voice_client::handle_frame(const std::string &data)
 					auto it = std::find_if(ssrcMap.begin(), ssrcMap.end(),
 					   [&u_id](const auto & p) { return p.second == u_id; });
 
-					if (it != ssrcMap.end()) 
+					if (it != ssrcMap.end())
 						ssrcMap.erase(it);
 
 					if (!creator->on_voice_client_disconnect.empty())
@@ -228,14 +230,14 @@ bool discord_voice_client::handle_frame(const std::string &data)
 				}
 			}
 			break;
-			/* Speaking */ 
+			/* Speaking */
 			case 5:
 			/* Client Connect (doesn't seem to work) */
 			case 12:
 			{
-				if (j.find("d") != j.end() 
+				if (j.find("d") != j.end()
 					&& j["d"].find("user_id") != j["d"].end() && !j["d"]["user_id"].is_null()
-					&& j["d"].find("ssrc") != j["d"].end() && !j["d"]["ssrc"].is_null() && j["d"]["ssrc"].is_number_integer()) 
+					&& j["d"].find("ssrc") != j["d"].end() && !j["d"]["ssrc"].is_null() && j["d"]["ssrc"].is_number_integer())
 				{
 					uint32_t u_ssrc = j["d"]["ssrc"].get<uint32_t>();
 					snowflake u_id = snowflake_not_null(&j["d"], "user_id");
@@ -346,7 +348,7 @@ bool discord_voice_client::handle_frame(const std::string &data)
 					if (bind(newfd, (sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
 						throw dpp::connection_exception("Can't bind() client UDP socket");
 					}
-					
+
 #ifdef _WIN32
 					u_long mode = 1;
 					int result = ioctlsocket(newfd, FIONBIO, &mode);
@@ -374,7 +376,7 @@ bool discord_voice_client::handle_frame(const std::string &data)
 						bound_port = ntohs(sin.sin_port);
 					}
 
-					log(ll_debug, fmt::format("External IP address: {}", external_ip));
+					log(ll_debug, "External IP address: " + external_ip);
 
 					this->write(json({
 						{ "op", 1 },
@@ -445,7 +447,7 @@ void discord_voice_client::read_ready()
 		vr.audio = nullptr;
 		vr.audio_size = 0;
 
-		if (r < 12) 
+		if (r < 12)
 			return;
 
 		/* Get the User ID of the speaker */
@@ -468,7 +470,7 @@ void discord_voice_client::read_ready()
 
 		if (!(packet[0] == 0xbe && packet[1] == 0xde && packet_len > 4))
 			return;
-		
+
 		/* Skip the RTP Extensions */
 		uint16_t header_extension_len;
 		memcpy(&header_extension_len, packet + 2, sizeof(uint16_t));
@@ -478,7 +480,7 @@ void discord_voice_client::read_ready()
 		for (size_t i = 0; i < header_extension_len; i++) {
 			uint8_t byte = packet[offset];
 			offset++;
-			if (byte == 0) 
+			if (byte == 0)
 				continue;
 			offset += 1 + (byte >> 4u);
 		}
@@ -705,6 +707,10 @@ size_t discord_voice_client::encode(uint8_t *input, size_t inDataSize, uint8_t *
 
 		memset(out, 0, sizeof(encode_buffer));
 		repacketizer = opus_repacketizer_init(repacketizer);
+		if (!repacketizer) {
+			log(ll_warning, "opus_repacketizer_init(): failure");
+			return outDataSize;
+		}
 		for (size_t i = 0; i < (inDataSize / mEncFrameBytes); ++ i) {
 			const opus_int16* pcm = (opus_int16*)(input + i * mEncFrameBytes);
 			int ret = opus_encode(encoder, pcm, mEncFrameSize, out, 65536);

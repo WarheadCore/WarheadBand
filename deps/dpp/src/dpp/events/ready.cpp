@@ -22,7 +22,7 @@
 #include <dpp/cluster.h>
 #include <dpp/stringops.h>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 using json = nlohmann::json;
 
@@ -34,7 +34,7 @@ std::mutex protect_the_loot;
 
 /**
  * @brief Handle event
- * 
+ *
  * @param client Websocket client (current shard)
  * @param j JSON data for the event
  * @param raw Raw JSON string

@@ -20,19 +20,12 @@
  ************************************************************************************/
 #include <dpp/cluster.h>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 namespace dpp {
 
 void cluster::guild_add_member(const guild_member& gm, const std::string &access_token, command_completion_event_t callback) {
-	json j;
-	try {
-		j = json::parse(gm.build_json());
-	}
-	catch (const std::exception &e) {
-		log(ll_error, fmt::format("guild_add_member(): {}", e.what()));
-		return;
-	}
+	json j = json::parse(gm.build_json());
 	j["access_token"] = access_token;
 	this->post_rest(API_PATH "/guilds", std::to_string(gm.guild_id), "members/" + std::to_string(gm.user_id), m_put, j.dump(), [callback](json &j, const http_request_completion_t& http) {
 		if (callback) {
@@ -66,16 +59,14 @@ void cluster::guild_get_members(snowflake guild_id, uint16_t limit, snowflake af
 		confirmation_callback_t e("confirmation", confirmation(), http);
 		if (!e.is_error()) {
 			for (auto & curr_member : j) {
-				guild_member gm;
-				snowflake user_id = 0;
 				if (curr_member.find("user") != curr_member.end()) {
-					user_id = snowflake_not_null(&(curr_member["user"]), "id");
+					snowflake user_id = snowflake_not_null(&(curr_member["user"]), "id");
+					guild_members[user_id] = guild_member().fill_from_json(&curr_member, guild_id, user_id);
 				}
-				guild_members[snowflake_not_null(&curr_member, "id")] = guild_member().fill_from_json(&curr_member, guild_id, user_id);
 			}
 		}
 		if (callback) {
-				callback(confirmation_callback_t("guild_member_map", guild_members, http));
+			callback(confirmation_callback_t("guild_member_map", guild_members, http));
 		}
 	});
 }
@@ -126,16 +117,14 @@ void cluster::guild_search_members(snowflake guild_id, const std::string& query,
 		confirmation_callback_t e("confirmation", confirmation(), http);
 		if (!e.is_error()) {
 			for (auto & curr_member : j) {
-				guild_member gm;
-				snowflake user_id = 0;
 				if (curr_member.find("user") != curr_member.end()) {
-					user_id = snowflake_not_null(&(curr_member["user"]), "id");
+					snowflake user_id = snowflake_not_null(&(curr_member["user"]), "id");
+					guild_members[user_id] = guild_member().fill_from_json(&curr_member, guild_id, user_id);
 				}
-				guild_members[snowflake_not_null(&curr_member, "id")] = guild_member().fill_from_json(&curr_member, guild_id, user_id);
 			}
 		}
 		if (callback) {
-				callback(confirmation_callback_t("guild_member_map", guild_members, http));
+			callback(confirmation_callback_t("guild_member_map", guild_members, http));
 		}
 	});
 }

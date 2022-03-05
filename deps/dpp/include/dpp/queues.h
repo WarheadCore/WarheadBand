@@ -41,8 +41,7 @@ namespace dpp {
 std::string url_encode(const std::string &value);
 
 /**
- * @brief Error values. Don't change the order or add extra values here,
- * as they map onto the error values of cpp-httplib
+ * @brief Error values. Most of these are currently unused in https_client.
  */
 enum http_error {
 	/// Request successful
@@ -104,7 +103,7 @@ struct DPP_EXPORT http_request_completion_t {
 
 /**
  * @brief Results of HTTP requests are called back to these std::function types.
- * @note Returned http_completion_events are called ASYNCRONOUSLY in your
+ * @note Returned http_completion_events are called ASYNCHRONOUSLY in your
  * code which means they execute in a separate thread. The completion events
  * arrive in order.
  */

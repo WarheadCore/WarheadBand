@@ -104,7 +104,7 @@ struct DPP_EXPORT param_info {
 	 * The key name is the string passed to the command handler
 	 * and the key value is its description displayed to the user.
 	 */
-	std::map<std::string, std::string> choices;
+	std::map<command_value, std::string> choices;
 
 	/**
 	 * @brief Construct a new param_info object
@@ -114,13 +114,13 @@ struct DPP_EXPORT param_info {
 	 * @param description The parameter description
 	 * @param opts The options for a multiple choice parameter
 	 */
-	param_info(parameter_type t, bool o, const std::string &description, const std::map<std::string, std::string> &opts = {});
+	param_info(parameter_type t, bool o, const std::string &description, const std::map<command_value, std::string> &opts = {});
 };
 
 /**
  * @brief Parameter list used during registration.
  * Note that use of vector/pair is important here to preserve parameter order,
- * as opposed to unordered_map (which doesnt guarantee any order at all) and 
+ * as opposed to unordered_map (which doesn't guarantee any order at all) and 
  * std::map, which reorders keys alphabetically.
  */
 typedef std::vector<std::pair<std::string, param_info>> parameter_registration_t;
@@ -138,20 +138,21 @@ typedef std::vector<std::pair<std::string, command_parameter>> parameter_list_t;
  * to the origin, which may be a slash command or a message. Both require different
  * response facilities but we want this to be transparent if you use the command
  * handler class.
+ * @deprecated commandhandler and message commands are deprecated and dpp::slashcommand is encouraged as a replacement.
  */
 struct DPP_EXPORT command_source {
 	/**
 	 * @brief Sending guild id
 	 */
-	snowflake guild_id = 0;
+	snowflake guild_id;
 	/**
 	 * @brief Source channel id
 	 */
-	snowflake channel_id = 0;
+	snowflake channel_id;
 	/**
 	 * @brief Command ID of a slash command
 	 */
-	snowflake command_id = 0;
+	snowflake command_id;
 	/**
 	 * @brief Token for sending a slash command reply
 	 */
@@ -160,16 +161,38 @@ struct DPP_EXPORT command_source {
 	 * @brief The user who issued the command
 	 */
 	user issuer;
+
+	/**
+	 * @brief Copy of the underlying message_create_t event, if it was a message create event
+	 */
+	std::optional<message_create_t> message_event;
+
+	/**
+	 * @brief Copy of the underlying interaction_create_t event, if it was an interaction create event
+	 */
+	std::optional<interaction_create_t> interaction_event;
+
+	/**
+	 * @brief Construct a command_source object from a message_create_t event
+	 */
+	command_source(const struct message_create_t& event);
+
+	/**
+	 * @brief Construct a command_source object from an interaction_create_t event
+	 */
+	command_source(const struct interaction_create_t& event);
 };
 
 /**
  * @brief The function definition for a command handler. Expects a command name string,
  * and a list of command parameters.
+ * @deprecated commandhandler and message commands are deprecated and dpp::slashcommand is encouraged as a replacement.
  */
 typedef std::function<void(const std::string&, const parameter_list_t&, command_source)> command_handler;
 
 /**
  * @brief Represents the details of a command added to the command handler class.
+ * @deprecated commandhandler and message commands are deprecated and dpp::slashcommand is encouraged as a replacement.
  */
 struct DPP_EXPORT command_info_t {
 	/**
@@ -193,6 +216,7 @@ struct DPP_EXPORT command_info_t {
  * 
  * It can automatically register slash commands, and handle routing of messages and interactions to separated command handler
  * functions.
+ * @deprecated commandhandler and message commands are deprecated and dpp::slashcommand is encouraged as a replacement.
  */
 class DPP_EXPORT commandhandler {
 private:
@@ -323,9 +347,9 @@ public:
 	 * Call this method from within your on_message_create with the received
 	 * dpp::message object if you have disabled automatic registration of events.
 	 * 
-	 * @param msg message to parse
+	 * @param event message create event to parse
 	 */
-	void route(const dpp::message& msg);
+	void route(const struct dpp::message_create_t& event);
 
 	/**
 	 * @brief Route a command from the on_interaction_create function.

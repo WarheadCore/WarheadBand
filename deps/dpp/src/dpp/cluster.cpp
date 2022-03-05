@@ -25,11 +25,12 @@
 #include <dpp/discordevents.h>
 #include <dpp/message.h>
 #include <dpp/cache.h>
+#include <dpp/once.h>
 #include <chrono>
 #include <iostream>
 #include <dpp/nlohmann/json.hpp>
 #include <utility>
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include <algorithm>
 
 namespace dpp {
@@ -44,20 +45,39 @@ thread_local std::string audit_reason;
 
 event_handle __next_handle = 1;
 
+/**
+ * @brief Make a warning lambda for missing message intents
+ * 
+ * @param cl Creating cluster
+ * @param required_intent Intent which is required
+ * @param message Message to display
+ * @return std::function<void()> Returned lambda
+ */
+std::function<void()> make_intent_warning(cluster* cl, const intents required_intent, const std::string& message) {
+	return [cl, required_intent, message]() {
+		if (!(cl->intents & required_intent)) {
+			cl->log(ll_warning, message);
+		}
+	};
+}
+
 cluster::cluster(const std::string &_token, uint32_t _intents, uint32_t _shards, uint32_t _cluster_id, uint32_t _maxclusters, bool comp, cache_policy_t policy)
 	: rest(nullptr), raw_rest(nullptr), compressed(comp), start_time(0), token(_token), last_identify(time(NULL) - 5), intents(_intents),
 	numshards(_shards), cluster_id(_cluster_id), maxclusters(_maxclusters), rest_ping(0.0), cache_policy(policy), ws_mode(ws_json)
 	
 {
+	/* Instantiate REST request queues */
 	rest = new request_queue(this);
 	raw_rest = new request_queue(this);
-#ifdef _WIN32
-	// Set up winsock.
-	WSADATA wsadata;
-	if (WSAStartup(MAKEWORD(2, 2), &wsadata)) {
-		throw dpp::connection_exception("WSAStartup failure");
-	}
-#endif
+
+	/* Add checks for missing intents, these emit a one-off warning to the log if bound without the right intents */
+	std::function<void()> message_intents_warning = make_intent_warning(this, i_message_content, "You have attached an event to cluster::on_message_*() but have not specified the privileged intent dpp::i_message_content. Message content, embeds, attachments, and components on received guild messages will be empty.");
+	std::function<void()> member_intents_warning = make_intent_warning(this, i_guild_members, "You have attached an event to cluster::on_guild_member_*() but have not specified the privileged intent dpp::i_guild_members. These events will not fire, and the cache will only fill when a user interacts with the bot or channels.");
+	on_message_create.set_warning_callback(message_intents_warning);
+	on_message_update.set_warning_callback(message_intents_warning);
+	on_guild_member_add.set_warning_callback(member_intents_warning);
+	on_guild_member_remove.set_warning_callback(member_intents_warning);
+	on_guild_member_update.set_warning_callback(member_intents_warning);
 }
 
 cluster::~cluster()
@@ -107,7 +127,7 @@ void cluster::auto_shard(const confirmation_callback_t &shardinfo) {
 
 void cluster::log(dpp::loglevel severity, const std::string &msg) const {
 	if (!on_log.empty()) {
-		/* Pass to user if theyve hooked the event */
+		/* Pass to user if they've hooked the event */
 		dpp::log_t logmsg(nullptr, msg);
 		logmsg.severity = severity;
 		logmsg.message = msg;
@@ -135,7 +155,7 @@ void cluster::start(bool return_after) {
 		log(ll_debug, fmt::format("Starting with {} shards...", numshards));
 
 		for (uint32_t s = 0; s < numshards; ++s) {
-			/* Filter out shards that arent part of the current cluster, if the bot is clustered */
+			/* Filter out shards that aren't part of the current cluster, if the bot is clustered */
 			if (s % maxclusters == cluster_id) {
 				/* Each discord_client spawns its own thread in its run() */
 				try {

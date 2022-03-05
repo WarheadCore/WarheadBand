@@ -29,7 +29,6 @@
 #include <dpp/cache.h>
 #include <dpp/stringops.h>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
 #include <time.h>
 #include <iomanip>
 #include <sstream>
@@ -101,6 +100,22 @@ void set_string_not_null(const json* j, const char *keyname, std::string &v) {
 	auto k = j->find(keyname);
 	if (k != j->end()) {
 		v = !k->is_null() && k->is_string() ? k->get<std::string>() : "";
+	}
+}
+
+double double_not_null(const json* j, const char *keyname) {
+	auto k = j->find(keyname);
+	if (k != j->end()) {
+		return !k->is_null() && !k->is_string() ? k->get<double>() : 0;
+	} else {
+		return 0;
+	}
+}
+
+void set_double_not_null(const json* j, const char *keyname, double &v) {
+	auto k = j->find(keyname);
+	if (k != j->end()) {
+		v = !k->is_null() && !k->is_string() ? k->get<double>() : 0;
 	}
 }
 
@@ -339,7 +354,7 @@ void discord_client::handle_event(const std::string &event, json &j, const std::
 			ev_iter->second->handle(this, j, raw);
 		}
 	} else {
-		log(dpp::ll_debug, fmt::format("Unhandled event: {}, {}", event, j.dump()));
+		log(dpp::ll_debug, "Unhandled event: " + event + ", " + j.dump());
 	}
 }
 

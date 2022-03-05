@@ -26,8 +26,6 @@
 #include <dpp/discordevents.h>
 #include <dpp/stringops.h>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
-
 
 using json = nlohmann::json;
 
@@ -134,6 +132,12 @@ channel& channel::set_user_limit(const uint8_t user_limit) {
 	return *this;
 }
 
+channel& channel::add_permission_overwrite(const snowflake id, const uint8_t type, const uint64_t allowed_permissions, const uint64_t denied_permissions) {
+	permission_overwrite po {id, type, allowed_permissions, denied_permissions};
+	this->permission_overwrites.push_back(po);
+	return *this;
+}
+
 bool channel::is_nsfw() const {
 	return flags & dpp::c_nsfw;
 }
@@ -207,7 +211,7 @@ thread& thread::fill_from_json(json* j) {
 	this->flags |= (type == GUILD_PRIVATE_THREAD) ? dpp::c_private_thread : 0;
 
 	set_int8_not_null(j, "message_count", this->message_count);
-	set_int8_not_null(j, "memeber_count", this->member_count);
+	set_int8_not_null(j, "member_count", this->member_count);
 	auto json_metadata = (*j)["thread_metadata"];
 	metadata.archived = bool_not_null(&json_metadata, "archived");
 	metadata.archive_timestamp = ts_not_null(&json_metadata, "archive_timestamp");

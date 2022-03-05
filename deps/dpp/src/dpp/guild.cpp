@@ -25,7 +25,7 @@
 #include <dpp/discordevents.h>
 #include <dpp/stringops.h>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 using json = nlohmann::json;
 
@@ -85,6 +85,8 @@ guild::guild() :
 
 
 guild_member::guild_member() :
+	guild_id(0),
+	user_id(0),
 	joined_at(0),
 	premium_since(0),
 	flags(0),
@@ -180,17 +182,23 @@ bool guild_member::has_animated_guild_avatar() const {
 
 std::string guild_member::build_json() const {
 	json j;
-	j["communication_disabled_until"] = ts_to_string(this->communication_disabled_until);
+	if (this->communication_disabled_until > 0) {
+		if (this->communication_disabled_until > std::time(nullptr)) {
+			j["communication_disabled_until"] = ts_to_string(this->communication_disabled_until);
+		} else {
+			j["communication_disabled_until"] = json::value_t::null;
+		}
+	}
 	if (!this->nickname.empty())
 		j["nick"] = this->nickname;
-	if (this->roles.size()) {
+	if (!this->roles.empty()) {
 		j["roles"] = {};
 		for (auto & role : roles) {
 			j["roles"].push_back(std::to_string(role));
 		}
 	}
 	if (is_muted()) {
-		j["muted"] = true;
+		j["mute"] = true;
 	}
 	if (is_deaf()) {
 		j["deaf"] = true;
@@ -480,7 +488,7 @@ guild& guild::fill_from_json(discord_client* shard, nlohmann::json* d) {
 				welcome_screen.welcome_channels.emplace_back(wchan);
 			}
 		}
-		
+
 	} else {
 		this->flags |= dpp::g_unavailable;
 	}
@@ -664,7 +672,7 @@ guild_member find_guild_member(const snowflake guild_id, const snowflake user_id
 
 		throw dpp::cache_exception("Requested member not found in the guild cache!");
 	}
-	
+
 	throw dpp::cache_exception("Requested guild cache not found!");
 }
 

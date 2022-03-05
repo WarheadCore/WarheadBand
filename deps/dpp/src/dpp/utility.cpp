@@ -33,6 +33,7 @@
 #include <streambuf>
 #include <array>
 #include <fmt/format.h>
+#include <dpp/dispatcher.h>
 
 #ifdef _WIN32
 	#include <stdio.h>
@@ -89,6 +90,9 @@ namespace dpp {
 		}
 
 		uptime::uptime() : days(0), hours(0), mins(0), secs(0) {
+		}
+
+		uptime::uptime(double diff) : uptime((time_t)diff) {
 		}
 
 		uptime::uptime(time_t diff) : uptime() {
@@ -302,7 +306,7 @@ namespace dpp {
 		std::string read_file(const std::string& filename)
 		{
 			try {
-				std::ifstream ifs(filename);
+				std::ifstream ifs(filename, std::ios::binary);
 				return std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 			}
 			catch (const std::exception& e) {
@@ -321,7 +325,7 @@ namespace dpp {
 		}
 
 
-		std::string DPP_EXPORT timestamp(time_t ts, time_format tf) {
+		std::string timestamp(time_t ts, time_format tf) {
 			char format[2] = { (char)tf, 0 };
 			return "<t:" + std::to_string(ts) + ":" + format + ">";
 		}
@@ -333,6 +337,75 @@ namespace dpp {
 			return std::string();
 		}
 
+		std::vector<std::string> tokenize(std::string const &in, const char* sep) {
+			std::string::size_type b = 0;
+			std::vector<std::string> result;
+
+			while ((b = in.find_first_not_of(sep, b)) != std::string::npos) {
+				auto e = in.find(sep, b);
+				result.push_back(in.substr(b, e-b));
+				b = e;
+			}
+			return result;
+		}
+
+		std::string bot_invite_url(const snowflake bot_id, const uint64_t permissions, const std::vector<std::string>& scopes) {
+			return fmt::format("https://discord.com/oauth2/authorize?client_id={}&permissions={}&scope={}",
+				bot_id,
+				permissions,
+				fmt::join(scopes, "+")
+			);
+		}
+
+		std::function<void(const dpp::log_t&)> cout_logger() {
+			return [](const dpp::log_t& event) {
+				if (event.severity > dpp::ll_trace) {
+					std::cout << dpp::utility::loglevel(event.severity) << ": " << event.message << "\n";
+				}
+			};
+		}
+
+		std::string markdown_escape(const std::string& text, bool escape_code_blocks) {
+			/**
+			 * @brief Represents the current state of the finite state machine
+			 * for the markdown_escape function.
+			 */
+			enum md_state {
+				/// normal text
+				md_normal = 0,
+				/// a paragraph code block, represented by three backticks
+				md_big_code_block = 1,
+				/// an inline code block, represented by one backtick
+				md_small_code_block = 2,
+			};
+
+			md_state state = md_normal;
+			std::string output;
+			const std::string markdown_chars("\\*_|~[]()");
+
+			for (size_t n = 0; n < text.length(); ++n) {
+				if (text.substr(n, 3) == "```") {
+					/* Start/end a paragraph code block */
+					output += (escape_code_blocks ? "\\`\\`\\`" : "```");
+					n += 2;
+					state = (state == md_normal) ? md_big_code_block : md_normal;
+				} else if (text[n] == '`' && (escape_code_blocks || state != md_big_code_block)) {
+					/* Start/end of an inline code block */
+					output += (escape_code_blocks ? "\\`" : "`");
+					state = (state == md_normal) ? md_small_code_block : md_normal;
+				} else {
+					/* Normal text */
+					if (escape_code_blocks || state == md_normal) {
+						/* Markdown sequence characters */
+						if (markdown_chars.find(text[n]) != std::string::npos) {
+							output += "\\";
+						}
+					}
+					output += text[n];
+				}
+			}
+			return output;
+		}
 	};
 
 };

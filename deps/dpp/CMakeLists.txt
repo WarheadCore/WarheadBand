@@ -39,7 +39,12 @@ if (WIN32 AND NOT MINGW)
 endif()
 
 if (MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /Od /DEBUG /Zi /sdl /MP /DFD_SETSIZE=1024")
+  target_compile_options(libdpp
+    PUBLIC
+      /DFD_SETSIZE=1024)
+
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /Od /DEBUG /Zi /sdl /MP /DFD_SETSIZE=1024")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DFD_SETSIZE=1024")
 endif()
 
 target_include_directories(libdpp

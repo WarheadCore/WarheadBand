@@ -23,7 +23,7 @@
 #include <dpp/utility.h>
 #include <dpp/emoji.h>
 #include <dpp/nlohmann/json.hpp>
-#include <fmt/format.h>
+#include <fmt/core.h>
 
 using json = nlohmann::json;
 
@@ -244,7 +244,7 @@ std::string presence::build_json() const {
 	json j({
 
 		{"op", 3},
-		{"d",	
+		{"d",
 			{
 				{ "status", status_name_mapping[status()] },
 				{ "since", json::value_t::null },
