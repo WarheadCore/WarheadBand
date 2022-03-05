@@ -26,6 +26,7 @@
 #include "BattlegroundRL.h"
 #include "BattlegroundRV.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GameConfig.h"
@@ -46,7 +47,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
-#include "ChatTextBuilder.h"
 
 #ifdef ELUNA
 #include "LuaEngine.h"

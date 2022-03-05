@@ -17,6 +17,7 @@
 
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
+#include "ChatTextBuilder.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameObjectAI.h"
@@ -29,7 +30,6 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
-#include "ChatTextBuilder.h"
 #include "Transport.h"
 #include "UnitAI.h"
 #include "Util.h"

@@ -17,6 +17,7 @@
 
 #include "LFGMgr.h"
 #include "CharacterCache.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "DisableMgr.h"
@@ -37,7 +38,6 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SpellAuras.h"
-#include "ChatTextBuilder.h"
 #include "WorldSession.h"
 
 namespace lfg

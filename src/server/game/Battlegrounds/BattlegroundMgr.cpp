@@ -31,6 +31,7 @@
 #include "BattlegroundSA.h"
 #include "BattlegroundWS.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
@@ -44,7 +45,6 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
-#include "ChatTextBuilder.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <unordered_map>

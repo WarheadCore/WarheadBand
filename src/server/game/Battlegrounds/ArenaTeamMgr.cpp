@@ -16,6 +16,7 @@
  */
 
 #include "ArenaTeamMgr.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "Define.h"
 #include "Language.h"
@@ -23,7 +24,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "ChatTextBuilder.h"
 #include "World.h"
 
 ArenaTeamMgr::ArenaTeamMgr()

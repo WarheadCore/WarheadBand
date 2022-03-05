@@ -17,12 +17,12 @@
 
 #include "Autobroadcast.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "Language.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ChatTextBuilder.h"
 #include "Tokenize.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()

@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "Channel.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -31,7 +32,6 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "ChatTextBuilder.h"
 #include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;

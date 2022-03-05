@@ -26,12 +26,14 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
+#include "Discord.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
 #include "Logo.h"
 #include "MapMgr.h"
 #include "Metric.h"
+#include "ModuleMgr.h"
 #include "ModulesScriptLoader.h"
 #include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
@@ -53,8 +55,6 @@
 #include <csignal>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
-#include "ModuleMgr.h"
-#include "Discord.h"
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"

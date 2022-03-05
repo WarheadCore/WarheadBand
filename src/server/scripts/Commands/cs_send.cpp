@@ -16,6 +16,7 @@
  */
 
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Language.h"
@@ -26,7 +27,6 @@
 #include "ScriptMgr.h"
 #include "Tokenize.h"
 #include "WorldSession.h"
-#include "ChatTextBuilder.h"
 
 using namespace Warhead::ChatCommands;
 

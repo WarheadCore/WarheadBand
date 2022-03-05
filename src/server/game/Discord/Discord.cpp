@@ -16,19 +16,19 @@
  */
 
 #include "Discord.h"
-#include "GameConfig.h"
-#include "Log.h"
-#include "UpdateTime.h"
-#include "World.h"
-#include "GitRevision.h"
-#include "GameTime.h"
-#include "Tokenize.h"
-#include "StringConvert.h"
-#include "WhoListCacheMgr.h"
-#include "GameLocale.h"
-#include "SharedDefines.h"
 #include "Channel.h"
+#include "GameConfig.h"
+#include "GameLocale.h"
+#include "GameTime.h"
+#include "GitRevision.h"
+#include "Log.h"
 #include "Player.h"
+#include "SharedDefines.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
+#include "UpdateTime.h"
+#include "WhoListCacheMgr.h"
+#include "World.h"
 #include <dpp/dpp.h>
 
 Discord* Discord::instance()

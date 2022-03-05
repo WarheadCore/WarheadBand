@@ -16,13 +16,13 @@
  */
 
 #include "BattlegroundSA.h"
+#include "ChatTextBuilder.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ChatTextBuilder.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
