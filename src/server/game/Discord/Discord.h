@@ -19,6 +19,7 @@
 #define _DISCORD_H_
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include "TaskScheduler.h"
 #include <array>
 #include <memory>
@@ -32,7 +33,6 @@ namespace dpp
 
 class Channel;
 class Player;
-class ObjectGuid;
 
 enum class DiscordMessageColor : uint32
 {

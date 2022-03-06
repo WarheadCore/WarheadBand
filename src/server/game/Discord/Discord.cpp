@@ -219,7 +219,7 @@ void Discord::LogLogin(Player* player)
 
     if (auto userID = GetUserID(accountID))
     {
-        _bot->user_get(userID, [this, player, security, channelID, accountName](dpp::confirmation_callback_t const callback)
+        _bot->user_get(userID, [this, player, channelID, accountName](dpp::confirmation_callback_t const callback)
         {
             dpp::user_identified user = std::get<dpp::user_identified>(callback.value);
 
@@ -309,7 +309,7 @@ void Discord::ConfigureCommands()
     if (!CONF_GET_BOOL("Discord.Channel.Command.Enable"))
         return;
 
-    _bot->on_ready([this](const dpp::ready_t& event)
+    _bot->on_ready([this](const dpp::ready_t& /*event*/)
     {
         dpp::slashcommand coreComand("core", "Категория команд для ядра сервера", _bot->me.id);
         dpp::slashcommand onlineComand("online", "Текущий онлайн сервера", _bot->me.id);
