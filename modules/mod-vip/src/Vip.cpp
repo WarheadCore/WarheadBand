@@ -496,7 +496,7 @@ void Vip::LoadRates()
 
     storeRates.clear(); // for reload case
 
-    LOG_INFO("server.loading", "Load vip rates...");
+    LOG_INFO("server.loading", "Loading vip rates...");
 
     QueryResult result = CharacterDatabase.Query("SELECT VipLevel, RateXp, RateHonor, RateArenaPoint, RateReputation FROM vip_rates");
     if (!result)
