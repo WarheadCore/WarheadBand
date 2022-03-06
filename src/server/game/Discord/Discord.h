@@ -116,7 +116,7 @@ public:
 
 private:
     void ConfigureLogs();
-    void ConfigureCommands();    
+    void ConfigureCommands();
     void LoadUsers();
     void ConfigureChannels();
 

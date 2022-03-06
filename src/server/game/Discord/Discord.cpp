@@ -235,7 +235,7 @@ void Discord::LogLogin(Player* player)
                 embed.add_field("Аккаунт", "`" + accountName + "`", true);
                 embed.add_field("Айпи", "`" + player->GetSession()->GetRemoteAddress() + "`", true);
             }
-            
+
             embed.set_timestamp(GameTime::GetGameTime().count());
 
             dpp::message message(GetChannelIDForType(channelID), embed);
@@ -468,7 +468,7 @@ void Discord::ConfigureCommands()
             m.set_flags(dpp::m_ephemeral);
 
             event.reply(m);
-        }        
+        }
     });
 }
 
@@ -574,7 +574,7 @@ void Discord::AddCode(ObjectGuid guid)
     {
         handler.PSendSysMessage("> У вас уже был код '{}'", itr->second);
         _codeList.erase(guid);
-    }    
+    }
 
     auto code = urand(100000, 900000);
 
