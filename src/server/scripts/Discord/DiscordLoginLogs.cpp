@@ -15,11 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// From SC
-void AddSC_DiscordChatLogs();
+#include "ScriptMgr.h"
+#include "Discord.h"
+#include "GameConfig.h"
 
-// Add all
-void Addmod_discord_chat_logsScripts()
+class DiscordLoginLogs_Player : public PlayerScript
 {
-    AddSC_DiscordChatLogs();
+public:
+    DiscordLoginLogs_Player() : PlayerScript("DiscordLoginLogs_Player") { }
+
+    void OnLogin(Player* player) override
+    {
+        sDiscord->LogLogin(player);
+    }
+
+    void OnLogout(Player* player) override
+    {
+
+    }
+};
+
+// Group all custom scripts
+void AddSC_DiscordLoginLogs()
+{
+    new DiscordLoginLogs_Player();
 }

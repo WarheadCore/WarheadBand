@@ -4039,6 +4039,10 @@ ExternalMail.Enable = 1
 #        Description: Discord bot token
 #        Default:     ""
 #
+#    Discord.Guild.ID
+#        Description: Discord server id
+#        Default:     0
+#
 #    Discord.Channel.ListID
 #        Description: List channels (General, ServerStatus, ChatLogs, Commands)
 #        Default:     ""
@@ -4046,7 +4050,6 @@ ExternalMail.Enable = 1
 #    Discord.Channel.Command.Enable
 #        Description: Enable bot commands
 #        Default:     0
-#
 #
 #    Discord.GameChatLogs.Enable
 #        Description: Enable game chat logs
@@ -4056,11 +4059,25 @@ ExternalMail.Enable = 1
 #        Description: List channels for chat logs (Say, Channel)
 #        Default:     ""
 #
+#    Discord.GameLoginLogs.Enable
+#        Description: Enable login logs
+#        Default:     0
+#
+#    Discord.GameLoginLogs.ChannelsListID
+#        Description: List channels for login logs (Default, GM, Admin)
+#        Default:     ""
+#
 
 Discord.Enable = 0
 Discord.Bot.Token = ""
+Discord.Guild.ID = 0
+
 Discord.Channel.ListID = ""
 Discord.Channel.Command.Enable = 0
+
 Discord.GameChatLogs.Enable = 0
 Discord.GameChatLogs.ChannelsListID = ""
+
+Discord.GameLoginLogs.Enable = 0
+Discord.GameLoginLogs.ChannelsListID = ""
 ###################################################################################################

@@ -1515,6 +1515,11 @@ void World::Update(uint32 diff)
     }
 
     {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update Discord code bind"));
+        sDiscord->Update(diff);
+    }
+
+    {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update metrics"));
         // Stats logger update
         sMetric->Update();

@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Discord.h"
-#include "ModulesConfig.h"
+#include "GameConfig.h"
 
 class DiscordChatLogs_Player : public PlayerScript
 {
@@ -26,7 +26,7 @@ public:
 
     void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg) override
     {
-        if (!MOD_CONF_GET_BOOL("Discord.ChatLogs.Enable"))
+        if (!CONF_GET_BOOL("Discord.GameChatLogs.Enable"))
             return;
 
         sDiscord->LogChat(player, type, msg);
@@ -34,7 +34,7 @@ public:
 
     void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg, Channel* channel) override
     {
-        if (!MOD_CONF_GET_BOOL("Discord.ChatLogs.Enable"))
+        if (!CONF_GET_BOOL("Discord.GameChatLogs.Enable"))
             return;
 
         sDiscord->LogChat(player, type, msg, channel);
@@ -48,7 +48,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sModulesConfig->AddOption("Discord.ChatLogs.Enable");
+        sGameConfig->AddOption("Discord.GameChatLogs.Enable");
     }
 };
 
