@@ -968,7 +968,7 @@ std::string const GameLocale::GetItemLink(uint32 itemID, int8 index_loc /*= DEFA
     std::string name = GetItemNameLocale(itemID, index_loc);
     uint32 color = ItemQualityColors[itemTemplate ? itemTemplate->Quality : uint32(ITEM_QUALITY_POOR)];
 
-    return Warhead::StringFormat("|c%08x|Hitem:{}:0:0:0:0:0:0:0:0|h[{}]|h|r", color, itemID, name);
+    return Warhead::StringFormat("|c{:08x}|Hitem:{}:0:0:0:0:0:0:0:0|h[{}]|h|r", color, itemID, name);
 }
 
 std::string const GameLocale::GetSpellLink(uint32 spellID, int8 index_loc /*= DEFAULT_LOCALE*/)
