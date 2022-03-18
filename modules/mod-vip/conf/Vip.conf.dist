@@ -22,7 +22,7 @@
 #       Default: 1
 #
 
-VIP.Enable = 1
+VIP.Enable = 0
 
 #
 #   VIP.Update.Delay
