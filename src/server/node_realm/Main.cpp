@@ -1,0 +1,700 @@
+/*
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AsyncAcceptor.h"
+#include "AsyncAuctionListing.h"
+#include "BattlegroundMgr.h"
+#include "BigNumber.h"
+#include "CliRunnable.h"
+#include "Common.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "DeadlineTimer.h"
+#include "Discord.h"
+#include "GameConfig.h"
+#include "GitRevision.h"
+#include "IoContext.h"
+#include "Logo.h"
+#include "MapMgr.h"
+#include "Metric.h"
+#include "ModuleMgr.h"
+#include "ModulesScriptLoader.h"
+#include "MySQLThreading.h"
+#include "OpenSSLCrypto.h"
+#include "OutdoorPvPMgr.h"
+#include "ProcessPriority.h"
+#include "RealmList.h"
+#include "Resolver.h"
+#include "ScriptLoader.h"
+#include "ScriptMgr.h"
+#include "SecretMgr.h"
+#include "SharedDefines.h"
+#include "SystemLog.h"
+#include "World.h"
+#include "WorldSocket.h"
+#include "WorldSocketMgr.h"
+#include "NodeMgr.h"
+#include <boost/asio/signal_set.hpp>
+#include <boost/program_options.hpp>
+#include <csignal>
+#include <openssl/crypto.h>
+#include <openssl/opensslv.h>
+
+#include "ClientSocketMgr.h"
+#include "NodeClientMgr.h"
+
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+#include "ServiceWin32.h"
+#include <boost/dll/shared_library.hpp>
+#include <timeapi.h>
+
+char serviceName[] = "NodeRealm";
+char serviceLongName[] = "WarheadCore Node Realm service";
+char serviceDescription[] = "WarheadCore World of Warcraft emulator Node Realm service";
+/*
+ * -1 - not in service mode
+ *  0 - stopped
+ *  1 - running
+ *  2 - paused
+ */
+int m_ServiceStatus = -1;
+#endif
+
+#ifndef _WARHEAD_NODE_CONFIG
+#define _WARHEAD_NODE_CONFIG "node_realm.conf"
+#endif
+
+class FreezeDetector
+{
+public:
+    FreezeDetector(Warhead::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
+        : _timer(ioContext), _worldLoopCounter(0), _lastChangeMsTime(getMSTime()), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
+
+    static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
+    {
+        freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
+        freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, std::weak_ptr<FreezeDetector>(freezeDetector), std::placeholders::_1));
+    }
+
+    static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
+
+private:
+    Warhead::Asio::DeadlineTimer _timer;
+    uint32 _worldLoopCounter;
+    uint32 _lastChangeMsTime;
+    uint32 _maxCoreStuckTimeInMs;
+};
+
+void SignalHandler(boost::system::error_code const& error, int signalNumber);
+void ClearOnlineAccounts();
+bool StartDB();
+void StopDB();
+bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext);
+void ShutdownCLIThread(std::thread* cliThread);
+void WorldUpdateLoop();
+
+/// Print out the usage string for this program on the console.
+void usage(const char* prog)
+{
+    SYS_LOG_INFO("Usage:");
+    SYS_LOG_INFO(" {} [<options>]", prog);
+    SYS_LOG_INFO("    -c config_file           use config_file as configuration file");
+#ifdef _WIN32
+    SYS_LOG_INFO("    Running as service functions:");
+    SYS_LOG_INFO("    --service                run as service");
+    SYS_LOG_INFO("    -s install               install service");
+    SYS_LOG_INFO("    -s uninstall             uninstall service");
+#endif
+}
+
+int main(int argc, char** argv)
+{
+    Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_NODE_REALM;
+    signal(SIGABRT, &Warhead::AbortHandler);
+
+    ///- Command line parsing to get the configuration file name
+    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_NODE_CONFIG);
+    int c = 1;
+
+    while (c < argc)
+    {
+        if (strcmp(argv[c], "--dry-run") == 0)
+        {
+            sConfigMgr->setDryRun(true);
+        }
+
+        if (!strcmp(argv[c], "-c"))
+        {
+            if (++c >= argc)
+            {
+                SYS_LOG_ERROR("Runtime-Error: -c option requires an input argument");
+                usage(argv[0]);
+                return 1;
+            }
+            else
+                configFile = argv[c];
+        }
+
+#ifdef _WIN32
+        if (strcmp(argv[c], "-s") == 0) // Services
+        {
+            if (++c >= argc)
+            {
+                SYS_LOG_ERROR("Runtime-Error: -s option requires an input argument");
+                usage(argv[0]);
+                return 1;
+            }
+
+            if (strcmp(argv[c], "install") == 0)
+            {
+                if (WinServiceInstall())
+                    SYS_LOG_INFO("Installing service\n");
+                return 1;
+            }
+            else if (strcmp(argv[c], "uninstall") == 0)
+            {
+                if (WinServiceUninstall())
+                    SYS_LOG_INFO("Uninstalling service\n");
+                return 1;
+            }
+            else
+            {
+                SYS_LOG_ERROR("Runtime-Error: unsupported option {}", argv[c]);
+                usage(argv[0]);
+                return 1;
+            }
+        }
+
+        if (strcmp(argv[c], "--service") == 0)
+            WinServiceRun();
+
+        Optional<UINT> newTimerResolution;
+        boost::system::error_code dllError;
+        std::shared_ptr<boost::dll::shared_library> winmm(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
+        {
+            try
+            {
+                if (newTimerResolution)
+                    lib->get<decltype(timeEndPeriod)>("timeEndPeriod")(*newTimerResolution);
+            }
+            catch (std::exception const&)
+            {
+                // ignore
+            }
+
+            delete lib;
+        });
+
+        if (winmm->is_loaded())
+        {
+            try
+            {
+                auto timeGetDevCapsPtr = winmm->get<decltype(timeGetDevCaps)>("timeGetDevCaps");
+
+                // setup timer resolution
+                TIMECAPS timeResolutionLimits;
+                if (timeGetDevCapsPtr(&timeResolutionLimits, sizeof(TIMECAPS)) == TIMERR_NOERROR)
+                {
+                    auto timeBeginPeriodPtr = winmm->get<decltype(timeBeginPeriod)>("timeBeginPeriod");
+                    newTimerResolution = std::min(std::max(timeResolutionLimits.wPeriodMin, 1u), timeResolutionLimits.wPeriodMax);
+                    timeBeginPeriodPtr(*newTimerResolution);
+                }
+            }
+            catch (std::exception const& e)
+            {
+                SYS_LOG_ERROR("Failed to initialize timer resolution: {}", e.what());
+            }
+        }
+#endif
+        ++c;
+    }
+
+    // Add file and args in config
+    sConfigMgr->Configure(configFile, { argv, argv + argc }, CONFIG_FILE_LIST);
+
+    if (!sConfigMgr->LoadAppConfigs())
+        return 1;
+
+    std::shared_ptr<Warhead::Asio::IoContext> ioContext = std::make_shared<Warhead::Asio::IoContext>();
+
+    // Init all logs
+    sLog->Initialize();
+
+    Warhead::Logo::Show(
+        [](std::string_view text)
+        {
+            LOG_INFO("server", text);
+        },
+        []()
+        {
+            LOG_INFO("server", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            LOG_INFO("server", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+        }
+    );
+
+    OpenSSLCrypto::threadsSetup();
+
+    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
+
+    // Seed the OpenSSL's PRNG here.
+    // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
+    BigNumber seed;
+    seed.SetRand(16 * 8);
+
+    /// node_realm PID file creation
+    std::string pidFile = sConfigMgr->GetOption<std::string>("PidFile", "");
+    if (!pidFile.empty())
+    {
+        if (uint32 pid = CreatePIDFile(pidFile))
+            LOG_ERROR("server", "Daemon PID: {}\n", pid); // outError for red color in console
+        else
+        {
+            LOG_ERROR("server", "Cannot create PID file {} (possible error: permission)\n", pidFile);
+            return 1;
+        }
+    }
+
+    // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
+    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+    signals.add(SIGBREAK);
+#endif
+    signals.async_wait(SignalHandler);
+
+    // Start the Boost based thread pool
+    int numThreads = sConfigMgr->GetOption<int32>("ThreadPool", 1);
+    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
+    {
+        ioContext->stop();
+        for (std::thread& thr : *del)
+            thr.join();
+
+        delete del;
+    });
+
+    if (numThreads < 1)
+        numThreads = 1;
+
+    for (int i = 0; i < numThreads; ++i)
+    {
+        threadPool->push_back(std::thread([ioContext]()
+        {
+            ioContext->run();
+        }));
+    }
+
+    // Set process priority according to configuration settings
+    SetProcessPriority("server", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
+
+    // Loading modules configs before scripts
+    sConfigMgr->LoadModulesConfigs();
+
+    sScriptMgr->SetScriptLoader(AddScripts);
+    sScriptMgr->SetModulesLoader(AddModulesScripts);
+
+    std::shared_ptr<void> sScriptMgrHandle(nullptr, [](void*)
+    {
+        sScriptMgr->Unload();
+        //sScriptReloadMgr->Unload();
+    });
+
+    LOG_INFO("server.loading", "Initializing Scripts...");
+    sScriptMgr->Initialize();
+
+    // Start the databases
+    if (!StartDB())
+        return 1;
+
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
+    // Init node info
+    sNodeMgr->Initialize();
+
+    // set server offline (not connectable)
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+
+    LoadRealmInfo(*ioContext);
+
+    std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
+    {
+        METRIC_EVENT("events", "Worldserver shutdown", "");
+        sMetric->Unload();
+    });
+
+    Warhead::Module::SetEnableModulesList(WH_MODULES_LIST);
+
+    ///- Initialize the World
+    sSecretMgr->Initialize();
+    sWorld->SetInitialWorldSettings();
+
+    std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
+    {
+        // unload battleground templates before different singletons destroyed
+        sBattlegroundMgr->DeleteAllBattlegrounds();
+
+        sOutdoorPvPMgr->Die();                     // unload it before MapMgr
+        sMapMgr->UnloadAll();                      // unload all grids (including locked in memory)
+
+        sScriptMgr->OnAfterUnloadAllMaps();
+    });
+
+    // Launch the node_realm listener socket
+    int networkThreads = sConfigMgr->GetOption<int32>("Network.Threads", 1);
+    if (networkThreads <= 0)
+    {
+        LOG_ERROR("server", "Network.Threads must be greater than 0");
+        World::StopNow(ERROR_EXIT_CODE);
+        return 1;
+    }
+
+    auto const& nodeInfo = sNodeMgr->GetThisNodeInfo();
+
+    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, "0.0.0.0", nodeInfo->WorldPort, networkThreads))
+    {
+        LOG_ERROR("server", "Failed to initialize network");
+        World::StopNow(ERROR_EXIT_CODE);
+        return 1;
+    }
+
+    // Player -> world socket
+    sClientSocketMgr->Initialize(*ioContext);
+
+    // Node -> node socket
+    sNodeClientMgr->Initialize(*ioContext);
+
+    std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
+    {
+        sWorld->KickAll();              // save and kick all players
+        sWorld->UpdateSessions(1);      // real players unload required UpdateSessions call
+
+        sWorldSocketMgr.StopNetwork();
+
+        ///- Clean database before leaving
+        ClearOnlineAccounts();
+
+        sDiscord->SendServerShutdown();
+
+        sClientSocketMgr->DisconnectAll();
+        sNodeClientMgr->DisconnectAll();
+    });
+
+    // Set server online (allow connecting now)
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    realm.PopulationLevel = 0.0f;
+    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_VERSION_MISMATCH));
+
+    // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
+    std::shared_ptr<FreezeDetector> freezeDetector;
+    if (int32 coreStuckTime = sConfigMgr->GetOption<int32>("MaxCoreStuckTime", 60))
+    {
+        freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
+        FreezeDetector::Start(freezeDetector);
+        LOG_INFO("server", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
+    }
+
+    LOG_INFO("server", "{} (node {}) ready...", nodeInfo->Name, GitRevision::GetFullVersion());
+
+    sScriptMgr->OnStartup();
+
+    // Launch CliRunnable thread
+    std::shared_ptr<std::thread> cliThread;
+#ifdef _WIN32
+    if (sConfigMgr->GetOption<bool>("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+#else
+    if (sConfigMgr->GetOption<bool>("Console.Enable", true))
+#endif
+    {
+        cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
+    }
+
+    WorldUpdateLoop();
+
+    // Shutdown starts here
+    threadPool.reset();
+
+    sScriptMgr->OnShutdown();
+
+    // set server offline
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+
+    LOG_INFO("server", "Halting process...");
+
+    // 0 - normal shutdown
+    // 1 - shutdown at error
+    // 2 - restart command used, this code can be used by restarter for restart Warheadd
+
+    return World::GetExitCode();
+}
+
+/// Initialize connection to the databases
+bool StartDB()
+{
+    MySQL::Library_Init();
+
+    // Load databases
+    DatabaseLoader loader("server", DatabaseLoader::DATABASE_NONE, WH_MODULES_LIST);
+    loader
+        .AddDatabase(LoginDatabase, "Login")
+        .AddDatabase(CharacterDatabase, "Character")
+        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(NodeDatabase, "Node");
+
+    if (!loader.Load())
+        return false;
+
+    ///- Get the realm Id from the configuration file
+    realm.Id.Realm = sConfigMgr->GetOption<uint32>("RealmID", 0);
+    if (!realm.Id.Realm)
+    {
+        LOG_ERROR("server", "Realm ID not defined in configuration file");
+        return false;
+    }
+    else if (realm.Id.Realm > 255)
+    {
+        /*
+         * Due to the client only being able to read a realm.Id.Realm
+         * with a size of uint8 we can "only" store up to 255 realms
+         * anything further the client will behave anormaly
+        */
+        LOG_ERROR("server", "Realm ID must range from 1 to 255");
+        return false;
+    }
+
+    LOG_INFO("server.loading", "Loading world information...");
+    LOG_INFO("server.loading", "> RealmID:              {}", realm.Id.Realm);
+
+    ///- Clean the database before starting
+    ClearOnlineAccounts();
+
+    ///- Insert version info into DB
+    WorldDatabase.Execute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+
+    sWorld->LoadDBVersion();
+
+    LOG_INFO("server.loading", "> Version DB:           {}", sWorld->GetDBVersion());
+    LOG_INFO("server.loading", "");
+
+    sScriptMgr->OnAfterDatabasesLoaded(loader.GetUpdateFlags());
+
+    return true;
+}
+
+void StopDB()
+{
+    CharacterDatabase.Close();
+    WorldDatabase.Close();
+    LoginDatabase.Close();
+    NodeDatabase.Close();
+
+    MySQL::Library_End();
+}
+
+/// Clear 'online' status for all accounts with characters in this realm
+void ClearOnlineAccounts()
+{
+    // Reset online status for all accounts with characters on the current realm
+    // pussywizard: tc query would set online=0 even if logged in on another realm >_>
+    LoginDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
+
+    // Reset online status for all characters
+    CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
+}
+
+void ShutdownCLIThread(std::thread* cliThread)
+{
+    if (cliThread != nullptr)
+    {
+#ifdef _WIN32
+        // First try to cancel any I/O in the CLI thread
+        if (!CancelSynchronousIo(cliThread->native_handle()))
+        {
+            // if CancelSynchronousIo() fails, print the error and try with old way
+            DWORD errorCode = GetLastError();
+            LPCSTR errorBuffer;
+
+            DWORD formatReturnCode = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
+            if (!formatReturnCode)
+                errorBuffer = "Unknown error";
+
+            LOG_DEBUG("server", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
+
+            if (!formatReturnCode)
+                LocalFree((LPSTR)errorBuffer);
+
+            // send keyboard input to safely unblock the CLI thread
+            INPUT_RECORD b[4];
+            HANDLE hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+            b[0].EventType = KEY_EVENT;
+            b[0].Event.KeyEvent.bKeyDown = TRUE;
+            b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
+            b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
+            b[0].Event.KeyEvent.wRepeatCount = 1;
+
+            b[1].EventType = KEY_EVENT;
+            b[1].Event.KeyEvent.bKeyDown = FALSE;
+            b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
+            b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
+            b[1].Event.KeyEvent.wRepeatCount = 1;
+
+            b[2].EventType = KEY_EVENT;
+            b[2].Event.KeyEvent.bKeyDown = TRUE;
+            b[2].Event.KeyEvent.dwControlKeyState = 0;
+            b[2].Event.KeyEvent.uChar.AsciiChar = '\r';
+            b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+            b[2].Event.KeyEvent.wRepeatCount = 1;
+            b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
+
+            b[3].EventType = KEY_EVENT;
+            b[3].Event.KeyEvent.bKeyDown = FALSE;
+            b[3].Event.KeyEvent.dwControlKeyState = 0;
+            b[3].Event.KeyEvent.uChar.AsciiChar = '\r';
+            b[3].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
+            b[3].Event.KeyEvent.wVirtualScanCode = 0x1c;
+            b[3].Event.KeyEvent.wRepeatCount = 1;
+            DWORD numb;
+            WriteConsoleInput(hStdIn, b, 4, &numb);
+        }
+#endif
+        cliThread->join();
+        delete cliThread;
+    }
+}
+
+void WorldUpdateLoop()
+{
+    uint32 realCurrTime = 0;
+    uint32 realPrevTime = getMSTime();
+
+    LoginDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
+
+    ///- While we have not World::m_stopEvent, update the world
+    while (!World::IsStopped())
+    {
+        ++World::m_worldLoopCounter;
+        realCurrTime = getMSTime();
+
+        uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+        if (!diff)
+        {
+            // sleep until enough time passes that we can update all timers
+            std::this_thread::sleep_for(1ms);
+            continue;
+        }
+
+        sWorld->Update(diff);
+        realPrevTime = realCurrTime;
+
+#ifdef _WIN32
+        if (m_ServiceStatus == 0)
+            World::StopNow(SHUTDOWN_EXIT_CODE);
+
+        while (m_ServiceStatus == 2)
+            Sleep(1000);
+#endif
+    }
+
+    LoginDatabase.WarnAboutSyncQueries(false);
+    CharacterDatabase.WarnAboutSyncQueries(false);
+    WorldDatabase.WarnAboutSyncQueries(false);
+}
+
+void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
+{
+    if (!error)
+        World::StopNow(SHUTDOWN_EXIT_CODE);
+}
+
+void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error)
+{
+    if (!error)
+    {
+        if (std::shared_ptr<FreezeDetector> freezeDetector = freezeDetectorRef.lock())
+        {
+            uint32 curtime = getMSTime();
+
+            uint32 worldLoopCounter = World::m_worldLoopCounter;
+            if (freezeDetector->_worldLoopCounter != worldLoopCounter)
+            {
+                freezeDetector->_lastChangeMsTime = curtime;
+                freezeDetector->_worldLoopCounter = worldLoopCounter;
+            }
+            // possible freeze
+            else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
+            {
+                LOG_ERROR("server", "World Thread hangs, kicking out server!");
+                ABORT();
+            }
+
+            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
+            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, freezeDetectorRef, std::placeholders::_1));
+        }
+    }
+}
+
+bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
+{
+    QueryResult result = LoginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
+    if (!result)
+        return false;
+
+    Warhead::Asio::Resolver resolver(ioContext);
+
+    Field* fields = result->Fetch();
+    realm.Name = fields[1].Get<std::string>();
+    sWorld->SetRealmName(realm.Name);
+
+    Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].Get<std::string>(), "");
+    if (!externalAddress)
+    {
+        LOG_ERROR("server", "Could not resolve address {}", fields[2].Get<std::string>());
+        return false;
+    }
+
+    realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(externalAddress->address());
+
+    Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].Get<std::string>(), "");
+    if (!localAddress)
+    {
+        LOG_ERROR("server", "Could not resolve address {}", fields[3].Get<std::string>());
+        return false;
+    }
+
+    realm.LocalAddress = std::make_unique<boost::asio::ip::address>(localAddress->address());
+
+    Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].Get<std::string>(), "");
+    if (!localSubmask)
+    {
+        LOG_ERROR("server", "Could not resolve address {}", fields[4].Get<std::string>());
+        return false;
+    }
+
+    realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(localSubmask->address());
+
+    realm.Port = fields[5].Get<uint16>();
+    realm.Type = fields[6].Get<uint8>();
+    realm.Flags = RealmFlags(fields[7].Get<uint8>());
+    realm.Timezone = fields[8].Get<uint8>();
+    realm.AllowedSecurityLevel = AccountTypes(fields[9].Get<uint8>());
+    realm.PopulationLevel = fields[10].Get<float>();
+    realm.Build = fields[11].Get<uint32>();
+    return true;
+}

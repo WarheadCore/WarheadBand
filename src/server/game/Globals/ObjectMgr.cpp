@@ -52,6 +52,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "NodeMgr.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -2492,6 +2493,8 @@ void ObjectMgr::LoadItemTemplates()
     _itemTemplateStore.rehash(result->GetRowCount());
     uint32 count = 0;
 
+    auto const& nodeType = sNodeMgr->GetThisNodeType();
+
     do
     {
         Field* fields = result->Fetch();
@@ -2646,6 +2649,9 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FlagsCu                 = fields[137].Get<uint32>();
 
         // Checks
+        if (nodeType == NodeType::Realm)
+            continue;
+
         if (itemTemplate.Class >= MAX_ITEM_CLASS)
         {
             LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong Class value ({})", entry, itemTemplate.Class);
@@ -2899,7 +2905,7 @@ void ObjectMgr::LoadItemTemplates()
         if (itemTemplate.Bonding >= MAX_BIND_TYPE)
             LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong Bonding value ({})", entry, itemTemplate.Bonding);
 
-        if (itemTemplate.PageText && !GetPageText(itemTemplate.PageText))
+        if (itemTemplate.PageText && !GetPageText(itemTemplate.PageText) && nodeType != NodeType::Realm)
             LOG_ERROR("sql.sql", "Item (Entry: {}) has non existing first page (Id:{})", entry, itemTemplate.PageText);
 
         if (itemTemplate.LockID && !sLockStore.LookupEntry(itemTemplate.LockID))

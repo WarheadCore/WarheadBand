@@ -116,7 +116,7 @@ public:
 
     static bool HandleServerDebugCommand(ChatHandler* handler)
     {
-        uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
+        uint16 nodePort = sGameConfig->GetOption<uint16>("NodeServerPort");
         std::string dbPortOutput;
 
         {
@@ -138,7 +138,7 @@ public:
 
         handler->PSendSysMessage("Compiled on: {}", GitRevision::GetHostOSVersion());
 
-        handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, worldPort);
+        handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, nodePort);
         handler->PSendSysMessage("{}", dbPortOutput);
 
         bool vmapIndoorCheck = CONF_GET_BOOL("vmap.enableIndoorCheck");

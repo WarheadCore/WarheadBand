@@ -252,15 +252,15 @@ UpdateResult UpdateFetcher::Update(bool const redundancyChecks,
 
     // Fill hash to name cache
     HashToFileNameStorage hashToName;
-    for (auto entry : applied)
+    for (auto const& entry : applied)
         hashToName.insert(std::make_pair(entry.second.hash, entry.first));
 
     size_t importedUpdates = 0;
 
     auto ApplyUpdateFile = [&](LocaleFileEntry const& sqlFile)
     {
-        auto filePath = sqlFile.first;
-        auto fileState = sqlFile.second;
+        auto const& filePath = sqlFile.first;
+        auto const& fileState = sqlFile.second;
 
         LOG_DEBUG("sql.updates", "Checking update \"{}\"...", filePath.filename().generic_string());
 

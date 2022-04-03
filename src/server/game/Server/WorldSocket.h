@@ -50,8 +50,8 @@ namespace WorldPackets
 {
     class ServerPacket;
 }
-#pragma pack(push, 1)
 
+#pragma pack(push, 1)
 struct ClientPktHeader
 {
     uint16 size;
@@ -60,10 +60,11 @@ struct ClientPktHeader
     bool IsValidSize() const { return size >= 4 && size < 10240; }
     bool IsValidOpcode() const { return cmd < NUM_OPCODE_HANDLERS; }
 };
-
 #pragma pack(pop)
 
 struct AuthSession;
+struct AccountSessionFromNode;
+struct NodeInfo;
 
 class WH_GAME_API WorldSocket : public Socket<WorldSocket>
 {
@@ -82,6 +83,11 @@ public:
     void SendPacket(WorldPacket const& packet);
 
     void SetSendBufferSize(std::size_t sendBufferSize) { _sendBufferSize = sendBufferSize; }
+
+    inline NodeInfo const* GetNodeInfo() { return _nodeInfo.get(); }
+    void SetNodeInfo(NodeInfo const* info);
+
+    bool HandlePing(WorldPacket& recvPacket);
 
 protected:
     void OnClose() override;
@@ -109,10 +115,12 @@ private:
     void HandleSendAuthSession();
     void HandleAuthSession(WorldPacket& recvPacket);
     void HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result);
-    void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void SendAuthResponseError(uint8 code);
 
-    bool HandlePing(WorldPacket& recvPacket);
+    void HandleAuthSessionFromNode(WorldPacket& recvPacket);
+    void HandleAuthSessionFromNodeCallback(std::string accountName, PreparedQueryResult result);
+    void HandleChangeNode(WorldPacket& recvPacket);
+    void HandleConnectNewNode(WorldPacket& recvPacket);
 
     std::array<uint8, 4> _authSeed;
     AuthCrypt _authCrypt;
@@ -121,6 +129,7 @@ private:
     uint32 _OverSpeedPings;
 
     std::mutex _worldSessionLock;
+    //std::unique_ptr<WorldSession> _worldSession;
     WorldSession* _worldSession;
     bool _authed;
 
@@ -131,6 +140,8 @@ private:
 
     QueryCallbackProcessor _queryProcessor;
     std::string _ipCountry;
+
+    std::unique_ptr<NodeInfo> _nodeInfo{ nullptr };
 };
 
 #endif

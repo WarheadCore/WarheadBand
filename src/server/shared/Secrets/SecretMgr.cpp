@@ -26,7 +26,7 @@
 #include "SharedDefines.h"
 
 #define SECRET_FLAG_FOR(key, val, server) server ## _ ## key = (val ## ull << (16*SERVER_PROCESS_ ## server))
-#define SECRET_FLAG(key, val) SECRET_FLAG_ ## key = val, SECRET_FLAG_FOR(key, val, AUTHSERVER), SECRET_FLAG_FOR(key, val, WORLDSERVER)
+#define SECRET_FLAG(key, val) SECRET_FLAG_ ## key = val, SECRET_FLAG_FOR(key, val, AUTHSERVER), SECRET_FLAG_FOR(key, val, NODE_REALM)
 enum SecretFlags : uint64
 {
     SECRET_FLAG(DEFER_LOAD, 0x1)
@@ -46,7 +46,7 @@ struct SecretInfo
 
 static constexpr SecretInfo secret_info[NUM_SECRETS] =
 {
-    { "TOTPMasterSecret", "TOTPOldMasterSecret", 128, SERVER_PROCESS_AUTHSERVER, WORLDSERVER_DEFER_LOAD }
+    { "TOTPMasterSecret", "TOTPOldMasterSecret", 128, SERVER_PROCESS_AUTHSERVER, NODE_REALM_DEFER_LOAD }
 };
 
 /*static*/ SecretMgr* SecretMgr::instance()

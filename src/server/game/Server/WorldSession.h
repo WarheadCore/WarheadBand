@@ -36,6 +36,7 @@
 #include "World.h"
 #include <map>
 #include <utility>
+#include <functional>
 
 class Creature;
 class GameObject;
@@ -157,7 +158,7 @@ enum AccountDataType
 
 struct AccountData
 {
-    AccountData() :  Data("") {}
+    AccountData() : Data("") { }
 
     time_t Time{0};
     std::string Data;
@@ -216,6 +217,7 @@ public:
 protected:
     WorldSession* const m_pSession;
 };
+
 //process only thread-safe packets in Map::Update()
 class WH_GAME_API MapSessionFilter : public PacketFilter
 {
@@ -302,12 +304,25 @@ struct PacketCounter
     uint32 amountCounter;
 };
 
+struct NodeInfo;
+enum class NodeType : uint8;
+
 /// Player session in the World
 class WH_GAME_API WorldSession
 {
 public:
     WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool skipQueue, uint32 TotalTime);
     ~WorldSession();
+
+    void ConnectToNode(uint32 id, std::function<void(bool)>&& execute);
+    void ConnectToNode(NodeType type, std::function<void(bool)>&& execute);
+    void SendPacketToNode(WorldPacket const& packet);
+    void LoginFromNode(uint32 nodeID, ObjectGuid playerGuid);
+    void LoginFromNode(NodeType type, ObjectGuid playerGuid);
+    void ChangeNode(uint32 nodeID, bool sendPacket = true);
+    void ChangeNode(NodeType type, bool sendPacket = true);
+
+    inline std::shared_ptr<WorldSocket> GetWorldSocket() { return _socket; }
 
     bool PlayerLoading() const { return m_playerLoading; }
     bool PlayerLogout() const { return m_playerLogout; }
@@ -332,6 +347,7 @@ public:
     AccountTypes GetSecurity() const { return _security; }
     bool CanSkipQueue() const { return _skipQueue; }
     uint32 GetAccountId() const { return _accountId; }
+    std::string GetAccountName() const { return _accountName; }
     Player* GetPlayer() const { return _player; }
     std::string const& GetPlayerName() const;
     std::string GetPlayerInfo() const;
@@ -1047,6 +1063,9 @@ public:                                                 // opcodes handlers
     TransactionCallback& AddTransactionCallback(TransactionCallback&& callback);
     SQLQueryHolderCallback& AddQueryHolderCallback(SQLQueryHolderCallback&& callback);
 
+    inline NodeInfo const* GetNodeInfo() { return _nodeInfo.get(); }
+    void SetNodeInfo(NodeInfo const* info);
+
 private:
     void ProcessQueryCallbacks();
 
@@ -1108,7 +1127,7 @@ private:
 
     ObjectGuid::LowType m_GUIDLow;
     Player* _player;
-    std::shared_ptr<WorldSocket> m_Socket;
+    std::shared_ptr<WorldSocket> _socket;
     std::string m_Address;
 
     AccountTypes _security;
@@ -1153,6 +1172,8 @@ private:
     std::map<uint32, uint32> _pendingTimeSyncRequests; // key: counter. value: server time when packet with that counter was sent.
     uint32 _timeSyncNextCounter;
     uint32 _timeSyncTimer;
+
+    std::unique_ptr<NodeInfo> _nodeInfo{ nullptr };
 
     WorldSession(WorldSession const& right) = delete;
     WorldSession& operator=(WorldSession const& right) = delete;

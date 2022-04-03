@@ -1338,17 +1338,29 @@ enum Opcodes : uint16
     SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT1         = 0x51C,
     SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT2         = 0x51D,
     SMSG_MULTIPLE_MOVES                             = 0x51E, // uncompressed version of SMSG_COMPRESSED_MOVES
-    NUM_MSG_TYPES                                   = 0x51F
+    NUM_MSG_TYPES                                   = 0x51F,
+
+    // Node opcodes
+    NODE_CONNECT_NEW_NODE                           = 0x520,
+    NODE_CONNECT_RESPONCE,
+    NODE_SEND_TEST_PACKET,
+    NODE_ADD_ACCOUNT,
+    NODE_CHANGE_NODE,
+    NODE_CHANGE_NODE_SESSION,
+
+    NUM_NODE_MSG_TYPES,
 };
 
 enum OpcodeMisc : uint16
 {
     NUM_OPCODE_HANDLERS = NUM_MSG_TYPES,
+    NUM_NODE_CODE_HANDLERS = NUM_NODE_MSG_TYPES,
     NULL_OPCODE = 0x0000
 };
 
-typedef Opcodes OpcodeClient;
-typedef Opcodes OpcodeServer;
+using OpcodeClient = Opcodes;
+using OpcodeServer = Opcodes;
+using OpcodeNode = Opcodes;
 
 /// Player state
 enum SessionStatus
@@ -1373,17 +1385,17 @@ class WorldPacket;
 class OpcodeHandler
 {
 public:
-    OpcodeHandler(char const* name, SessionStatus status) : Name(name), Status(status) { }
+    OpcodeHandler(std::string_view name, SessionStatus status) : Name(std::string(name)), Status(status) { }
     virtual ~OpcodeHandler() = default;
 
-    char const* Name;
+    std::string Name;
     SessionStatus Status;
 };
 
 class ClientOpcodeHandler : public OpcodeHandler
 {
 public:
-    ClientOpcodeHandler(char const* name, SessionStatus status, PacketProcessing processing)
+    ClientOpcodeHandler(std::string_view name, SessionStatus status, PacketProcessing processing)
         : OpcodeHandler(name, status), ProcessingPlace(processing) { }
 
     virtual void Call(WorldSession* session, WorldPacket& packet) const = 0;
@@ -1394,7 +1406,7 @@ public:
 class ServerOpcodeHandler : public OpcodeHandler
 {
 public:
-    ServerOpcodeHandler(char const* name, SessionStatus status)
+    ServerOpcodeHandler(std::string_view name, SessionStatus status)
         : OpcodeHandler(name, status) { }
 };
 
@@ -1409,6 +1421,7 @@ public:
     ~OpcodeTable();
 
     void Initialize();
+    void InitializeNode();
 
     ClientOpcodeHandler const* operator[](Opcodes index) const
     {
@@ -1417,11 +1430,12 @@ public:
 
 private:
     template<typename Handler, Handler HandlerFunction>
-    void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
+    void ValidateAndSetClientOpcode(OpcodeClient opcode, std::string_view name, SessionStatus status, PacketProcessing processing);
 
-    void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status);
+    void ValidateAndSetServerOpcode(OpcodeServer opcode, std::string_view name, SessionStatus status);
+    void ValidateAndSetNodeOpcode(OpcodeServer opcode, std::string_view name);
 
-    ClientOpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
+    std::array<ClientOpcodeHandler*, NUM_NODE_CODE_HANDLERS> _internalTableClient;
 };
 
 extern OpcodeTable opcodeTable;

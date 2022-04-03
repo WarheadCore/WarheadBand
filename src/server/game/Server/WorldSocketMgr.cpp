@@ -61,7 +61,7 @@ bool WorldSocketMgr::StartWorldNetwork(Warhead::Asio::IoContext& ioContext, std:
 
     if (_socketApplicationSendBufferSize <= 0)
     {
-        LOG_ERROR("misc", "Network.OutUBuff is wrong in your config file");
+        LOG_ERROR("network", "Network.OutUBuff is wrong in your config file");
         return false;
     }
 

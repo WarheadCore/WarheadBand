@@ -31,6 +31,7 @@
 #include "SQLOperation.h"
 #include "Transaction.h"
 #include "WorldDatabase.h"
+#include "NodeDatabase.h"
 #include <limits>
 #include <mysqld_error.h>
 
@@ -531,3 +532,4 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedSt
 template class WH_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
 template class WH_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
 template class WH_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
+template class WH_DATABASE_API DatabaseWorkerPool<NodeDatabaseConnection>;

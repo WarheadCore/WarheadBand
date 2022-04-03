@@ -132,6 +132,8 @@ public:
 
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
+    tcp::socket* GetSocket() { return &_socket; }
+
 protected:
     virtual void OnClose() { }
     virtual void ReadHandler() = 0;
@@ -145,6 +147,7 @@ protected:
 
 #ifdef WH_SOCKET_USE_IOCP
         MessageBuffer& buffer = _writeQueue.front();
+
         _socket.async_write_some(boost::asio::buffer(buffer.GetReadPointer(), buffer.GetActiveSize()), std::bind(&Socket<T>::WriteHandler,
             this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
 #else

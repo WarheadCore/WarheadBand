@@ -1,7 +1,6 @@
 ################################################
 # WarheadCore World Server configuration file #
 ################################################
-[worldserver]
 
 ###################################################################################################
 # SECTION INDEX
@@ -65,10 +64,17 @@
 RealmID = 1
 
 #
+#    Node.ID
+#        Description: Node id
+#        Default: 1
+
+Node.ID = 1
+
+#
 #    DataDir
 #        Description: Data directory setting.
 #        Important:   DataDir needs to be quoted, as the string might contain space characters.
-#        Example:     "@prefix@\home\youruser\azerothcore\data"
+#        Example:     "@prefix@\home\...\data"
 #        Default:     "."
 
 DataDir = "."
@@ -78,7 +84,7 @@ DataDir = "."
 #        Description: Logs directory setting.
 #        Important:   LogsDir needs to be quoted, as the string might contain space characters.
 #                     Logs directory must exists, or log file creation will be disabled.
-#        Example:     "/home/youruser/azerothcore/logs"
+#        Example:     "/home/.../logs"
 #        Default:     "" - (Log files will be stored in the current path)
 
 LogsDir = ""
@@ -97,6 +103,7 @@ LogsDir = ""
 #        Default:     "127.0.0.1;3306;warhead;warhead;warhead_auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_characters" - (CharacterDatabaseInfo)
+#                     "127.0.0.1;3306;warhead;warhead;warhead_node" - (NodeDatabaseInfo)
 #
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
@@ -105,6 +112,7 @@ LogsDir = ""
 LoginDatabaseInfo     = "127.0.0.1;3306;warhead;warhead;warhead_auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;warhead;warhead;warhead_world"
 CharacterDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
+NodeDatabaseInfo      = "127.0.0.1;3306;warhead;warhead;warhead_node"
 
 #
 #    Database.Reconnect.Seconds
@@ -128,23 +136,28 @@ Database.Reconnect.Attempts = 20
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
+#                     1 - (NodeDatabase.WorkerThreads)
 
 LoginDatabase.WorkerThreads     = 1
 WorldDatabase.WorkerThreads     = 1
 CharacterDatabase.WorkerThreads = 1
+NodeDatabase.WorkerThreads      = 1
 
 #
 #    LoginDatabase.SynchThreads
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
+#    NodeDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     2 - (CharacterDatabase.WorkerThreads)
+#                     1 - (NodeDatabase.WorkerThreads)
 
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
 CharacterDatabase.SynchThreads = 2
+NodeDatabase.SynchThreads      = 1
 
 #
 #    MaxPingTime
@@ -154,11 +167,11 @@ CharacterDatabase.SynchThreads = 2
 MaxPingTime = 30
 
 #
-#    WorldServerPort
+#    NodeServerPort
 #        Description: TCP port to reach the world server.
 #        Default:     8085
 
-WorldServerPort = 8085
+NodeServerPort = 8085
 
 #
 #    BindIP
@@ -3986,14 +3999,14 @@ Metric.Interval = 10
 #    Metric.ConnectionInfo
 #        Description: Connection settings for metric database (currently InfluxDB).
 #        Example:     "hostname;port;database"
-#        Default:     "127.0.0.1;8086;worldserver"
+#        Default:     "127.0.0.1;8086;node_realm"
 #
 
-Metric.ConnectionInfo = "127.0.0.1;8086;worldserver"
+Metric.ConnectionInfo = "127.0.0.1;8086;node_realm"
 
 #
 #    Metric.OverallStatusInterval
-#        Description: Interval between every gathering of overall worldserver status data in seconds
+#        Description: Interval between every gathering of overall node_realm status data in seconds
 #        Default:     1 second
 #
 

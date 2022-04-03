@@ -189,7 +189,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     {
         _notChangeConfigs =
         {
-            { "WorldServerPort", GetOption<int32>("WorldServerPort") },
+            { "NodeServerPort", GetOption<int32>("NodeServerPort") },
             { "GameType", GetOption<int32>("GameType") },
             { "RealmZone", GetOption<int32>("RealmZone") },
             { "MaxPlayerLevel", GetOption<int32>("MaxPlayerLevel") },

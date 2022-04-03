@@ -50,20 +50,24 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+#include "NodeMgr.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
+#include "NodeSocketMgr.h"
+#include "NodeSocket.h"
+
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 #include <boost/dll/shared_library.hpp>
 #include <timeapi.h>
 
-char serviceName[] = "worldserver";
-char serviceLongName[] = "WarheadCore world service";
-char serviceDescription[] = "WarheadCore World of Warcraft emulator world service";
+char serviceName[] = "NodeMaster";
+char serviceLongName[] = "WarheadCore Node Master service";
+char serviceDescription[] = "WarheadCore World of Warcraft emulator Node Master service";
 /*
  * -1 - not in service mode
  *  0 - stopped
@@ -73,8 +77,8 @@ char serviceDescription[] = "WarheadCore World of Warcraft emulator world servic
 int m_ServiceStatus = -1;
 #endif
 
-#ifndef _WARHEAD_CORE_CONFIG
-#define _WARHEAD_CORE_CONFIG "worldserver.conf"
+#ifndef _WARHEAD_NODE_CONFIG
+#define _WARHEAD_NODE_CONFIG "node_master.conf"
 #endif
 
 class FreezeDetector
@@ -123,15 +127,14 @@ void usage(const char* prog)
 #endif
 }
 
-/// Launch the Warhead server
 int main(int argc, char** argv)
 {
-    Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Warhead::AbortHandler);
 
     ///- Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG);
+    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_NODE_CONFIG);
     int c = 1;
+
     while (c < argc)
     {
         if (strcmp(argv[c], "--dry-run") == 0)
@@ -236,16 +239,16 @@ int main(int argc, char** argv)
     // Init all logs
     sLog->Initialize();
 
-    Warhead::Logo::Show("worldserver",
+    Warhead::Logo::Show(
         [](std::string_view text)
         {
-            LOG_INFO("server.worldserver", text);
+            LOG_INFO("server", text);
         },
         []()
         {
-            LOG_INFO("server.worldserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
-            LOG_INFO("server.worldserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-            LOG_INFO("server.worldserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            LOG_INFO("server", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            LOG_INFO("server", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
@@ -258,7 +261,7 @@ int main(int argc, char** argv)
     BigNumber seed;
     seed.SetRand(16 * 8);
 
-    /// worldserver PID file creation
+    /// node_master PID file creation
     std::string pidFile = sConfigMgr->GetOption<std::string>("PidFile", "");
     if (!pidFile.empty())
     {
@@ -301,7 +304,7 @@ int main(int argc, char** argv)
     }
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.worldserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
+    SetProcessPriority("server", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
 
     // Loading modules configs before scripts
     sConfigMgr->LoadModulesConfigs();
@@ -323,6 +326,9 @@ int main(int argc, char** argv)
         return 1;
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
+    // Init node info
+    sNodeMgr->Initialize();
 
     // set server offline (not connectable)
     LoginDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
@@ -379,22 +385,27 @@ int main(int argc, char** argv)
         });
     }
 
-    // Launch the worldserver listener socket
-    uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
-    std::string worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
-
+    // Launch the node_master listener socket
     int networkThreads = sConfigMgr->GetOption<int32>("Network.Threads", 1);
-
     if (networkThreads <= 0)
     {
-        LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        LOG_ERROR("server", "Network.Threads must be greater than 0");
         World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
+    auto const& nodeInfo = sNodeMgr->GetThisNodeInfo();
+
+    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, "0.0.0.0", nodeInfo->WorldPort, networkThreads))
     {
-        LOG_ERROR("server.worldserver", "Failed to initialize network");
+        LOG_ERROR("server", "Failed to initialize world network");
+        World::StopNow(ERROR_EXIT_CODE);
+        return 1;
+    }
+
+    if (!sNodeSocketMgr.StartWorldNetwork(*ioContext, "0.0.0.0", nodeInfo->NodePort, networkThreads))
+    {
+        LOG_ERROR("server", "Failed to initialize node network");
         World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
@@ -405,9 +416,7 @@ int main(int argc, char** argv)
         sWorld->UpdateSessions(1);      // real players unload required UpdateSessions call
 
         sWorldSocketMgr.StopNetwork();
-
-        ///- Clean database before leaving
-        ClearOnlineAccounts();
+        sNodeSocketMgr.StopNetwork();
 
         sDiscord->SendServerShutdown();
     });
@@ -423,10 +432,10 @@ int main(int argc, char** argv)
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
-        LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
+        LOG_INFO("server", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
-    LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    LOG_INFO("server", "{} (node {}) ready...", nodeInfo->Name, GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
 
@@ -460,7 +469,7 @@ int main(int argc, char** argv)
     // set server offline
     LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
-    LOG_INFO("server.worldserver", "Halting process...");
+    LOG_INFO("server", "Halting process...");
 
     // 0 - normal shutdown
     // 1 - shutdown at error
@@ -475,11 +484,12 @@ bool StartDB()
     MySQL::Library_Init();
 
     // Load databases
-    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE, WH_MODULES_LIST);
+    DatabaseLoader loader("server", DatabaseLoader::DATABASE_NONE, WH_MODULES_LIST);
     loader
         .AddDatabase(LoginDatabase, "Login")
         .AddDatabase(CharacterDatabase, "Character")
-        .AddDatabase(WorldDatabase, "World");
+        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(NodeDatabase, "Node");
 
     if (!loader.Load())
         return false;
@@ -488,7 +498,7 @@ bool StartDB()
     realm.Id.Realm = sConfigMgr->GetOption<uint32>("RealmID", 0);
     if (!realm.Id.Realm)
     {
-        LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
+        LOG_ERROR("server", "Realm ID not defined in configuration file");
         return false;
     }
     else if (realm.Id.Realm > 255)
@@ -498,7 +508,7 @@ bool StartDB()
          * with a size of uint8 we can "only" store up to 255 realms
          * anything further the client will behave anormaly
         */
-        LOG_ERROR("server.worldserver", "Realm ID must range from 1 to 255");
+        LOG_ERROR("server", "Realm ID must range from 1 to 255");
         return false;
     }
 
@@ -513,7 +523,7 @@ bool StartDB()
 
     sWorld->LoadDBVersion();
 
-    LOG_INFO("server.loading", "> Version DB world:     {}", sWorld->GetDBVersion());
+    LOG_INFO("server.loading", "> Version DB:           {}", sWorld->GetDBVersion());
     LOG_INFO("server.loading", "");
 
     sScriptMgr->OnAfterDatabasesLoaded(loader.GetUpdateFlags());
@@ -526,6 +536,7 @@ void StopDB()
     CharacterDatabase.Close();
     WorldDatabase.Close();
     LoginDatabase.Close();
+    NodeDatabase.Close();
 
     MySQL::Library_End();
 }
@@ -558,7 +569,7 @@ void ShutdownCLIThread(std::thread* cliThread)
             if (!formatReturnCode)
                 errorBuffer = "Unknown error";
 
-            LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
+            LOG_DEBUG("server", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
 
             if (!formatReturnCode)
                 LocalFree((LPSTR)errorBuffer);
@@ -665,7 +676,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
             // possible freeze
             else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
             {
-                LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
+                LOG_ERROR("server", "World Thread hangs, kicking out server!");
                 ABORT();
             }
 
@@ -683,7 +694,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
     AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
     if (!acceptor->Bind())
     {
-        LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
+        LOG_ERROR("server", "Failed to bind RA socket acceptor");
         delete acceptor;
         return nullptr;
     }
@@ -707,7 +718,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].Get<std::string>(), "");
     if (!externalAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].Get<std::string>());
+        LOG_ERROR("server", "Could not resolve address {}", fields[2].Get<std::string>());
         return false;
     }
 
@@ -716,7 +727,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].Get<std::string>(), "");
     if (!localAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].Get<std::string>());
+        LOG_ERROR("server", "Could not resolve address {}", fields[3].Get<std::string>());
         return false;
     }
 
@@ -725,7 +736,7 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].Get<std::string>(), "");
     if (!localSubmask)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].Get<std::string>());
+        LOG_ERROR("server", "Could not resolve address {}", fields[4].Get<std::string>());
         return false;
     }
 

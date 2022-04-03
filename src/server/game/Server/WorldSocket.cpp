@@ -33,28 +33,51 @@
 #include "WorldSession.h"
 #include <memory>
 
+#include "NodeMgr.h"
+#include "NodePktHeader.h"
+#include "ClientSocketMgr.h"
+
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
     : Socket(std::move(socket)), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
     Warhead::Crypto::GetRandomBytes(_authSeed);
-    _headerBuffer.Resize(sizeof(ClientPktHeader));
+
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+        _headerBuffer.Resize(sizeof(ClientPktHeader));
+    else
+        _headerBuffer.Resize(sizeof(NodeClientPktHeader));
+
+    _nodeInfo = std::make_unique<NodeInfo>(sNodeMgr->GetThisNodeInfo());
 }
 
 WorldSocket::~WorldSocket() = default;
 
 void WorldSocket::Start()
 {
-    std::string ip_address = GetRemoteIpAddress().to_string();
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->SetData(0, ip_address);
+    if (_nodeInfo->Type == NodeType::Realm)
+    {
+        std::string ip_address = GetRemoteIpAddress().to_string();
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+        stmt->SetData(0, ip_address);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+        _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+
+        return;
+    }
+
+    LOG_WARN("node", "{}", __FUNCTION__);
+
+    AsyncRead();
+
+    ASSERT(!_worldSession);
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 {
+    ASSERT(_nodeInfo->Type == NodeType::Realm);
+
     if (result)
     {
         bool banned = false;
@@ -83,32 +106,71 @@ bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
     MessageBuffer buffer(_sendBufferSize);
+
+    auto nodeType = sNodeMgr->GetThisNodeType();
+
+    uint32 accountID{ 0 };
+
+    /*if (_worldSession)
+        accountID = _worldSession->GetAccountId();*/
+
     while (_bufferQueue.Dequeue(queued))
     {
-        ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
-        if (queued->NeedsEncryption())
-            _authCrypt.EncryptSend(header.header, header.getHeaderLength());
-
-        if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
+        if (nodeType == NodeType::Realm)
         {
-            QueuePacket(std::move(buffer));
-            buffer.Resize(_sendBufferSize);
+            ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
+            if (queued->NeedsEncryption())
+                _authCrypt.EncryptSend(header.header, header.getHeaderLength());
+
+            if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
+            {
+                QueuePacket(std::move(buffer));
+                buffer.Resize(_sendBufferSize);
+            }
+
+            if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
+            {
+                buffer.Write(header.header, header.getHeaderLength());
+                if (!queued->empty())
+                    buffer.Write(queued->contents(), queued->size());
+            }
+            else    // single packet larger than 4096 bytes
+            {
+                MessageBuffer packetBuffer(queued->size() + header.getHeaderLength());
+                packetBuffer.Write(header.header, header.getHeaderLength());
+                if (!queued->empty())
+                    packetBuffer.Write(queued->contents(), queued->size());
+
+                QueuePacket(std::move(packetBuffer));
+            }
         }
-
-        if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
+        else
         {
-            buffer.Write(header.header, header.getHeaderLength());
-            if (!queued->empty())
-                buffer.Write(queued->contents(), queued->size());
-        }
-        else    // single packet larger than 4096 bytes
-        {
-            MessageBuffer packetBuffer(queued->size() + header.getHeaderLength());
-            packetBuffer.Write(header.header, header.getHeaderLength());
-            if (!queued->empty())
-                packetBuffer.Write(queued->contents(), queued->size());
+            NodeServerPktHeader header(queued->size() + sizeof(queued->GetOpcode()) + sizeof(accountID), queued->GetOpcode(), accountID);
+            if (queued->NeedsEncryption())
+                _authCrypt.EncryptSend(header.header, header.GetHeaderLength());
 
-            QueuePacket(std::move(packetBuffer));
+            if (buffer.GetRemainingSpace() < queued->size() + header.GetHeaderLength())
+            {
+                QueuePacket(std::move(buffer));
+                buffer.Resize(_sendBufferSize);
+            }
+
+            if (buffer.GetRemainingSpace() >= queued->size() + header.GetHeaderLength())
+            {
+                buffer.Write(header.header, header.GetHeaderLength());
+                if (!queued->empty())
+                    buffer.Write(queued->contents(), queued->size());
+            }
+            else    // single packet larger than 4096 bytes
+            {
+                MessageBuffer packetBuffer(queued->size() + header.GetHeaderLength());
+                packetBuffer.Write(header.header, header.GetHeaderLength());
+                if (!queued->empty())
+                    packetBuffer.Write(queued->contents(), queued->size());
+
+                QueuePacket(std::move(packetBuffer));
+            }
         }
 
         delete queued;
@@ -127,11 +189,13 @@ bool WorldSocket::Update()
 
 void WorldSocket::HandleSendAuthSession()
 {
+    ASSERT(_nodeInfo->Type == NodeType::Realm);
+
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 40);
-    packet << uint32(1);                                    // 1...31
+    packet << uint32(1); // 1...31
     packet.append(_authSeed);
 
-    packet.append(Warhead::Crypto::GetRandomBytes<32>());               // new encryption seeds
+    packet.append(Warhead::Crypto::GetRandomBytes<32>()); // new encryption seeds
 
     SendPacketAndLogOpcode(packet);
 }
@@ -141,6 +205,8 @@ void WorldSocket::OnClose()
     {
         std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
         _worldSession = nullptr;
+
+        LOG_WARN("node", "{}", __FUNCTION__);
     }
 }
 
@@ -207,24 +273,48 @@ void WorldSocket::ReadHandler()
 
 bool WorldSocket::ReadHeaderHandler()
 {
-    ASSERT(_headerBuffer.GetActiveSize() == sizeof(ClientPktHeader));
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+    {
+        ASSERT(_headerBuffer.GetActiveSize() == sizeof(ClientPktHeader));
 
-    if (_authCrypt.IsInitialized())
-        _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
+        if (_authCrypt.IsInitialized())
+            _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
 
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+
+        EndianConvertReverse(header->size);
+        EndianConvert(header->cmd);
+
+        if (!header->IsValidSize() || !header->IsValidOpcode())
+        {
+            LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
+                GetRemoteIpAddress().to_string(), header->size, header->cmd);
+
+            return false;
+        }
+
+        header->size -= sizeof(header->cmd);
+        _packetBuffer.Resize(header->size);
+        return true;
+    }
+
+    ASSERT(_headerBuffer.GetActiveSize() == sizeof(NodeClientPktHeader));
+    NodeClientPktHeader* header = reinterpret_cast<NodeClientPktHeader*>(_headerBuffer.GetReadPointer());
+
     EndianConvertReverse(header->size);
     EndianConvert(header->cmd);
+    EndianConvert(header->accoundID);
 
-    if (!header->IsValidSize() || !header->IsValidOpcode())
+    if (!header->IsValidSize() || !header->IsValidOpcode() || !header->IsValidAccountForWorldSocket())
     {
-        LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
-            GetRemoteIpAddress().to_string(), header->size, header->cmd);
+        LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} with id {} sent malformed packet (size: {}, cmd: {})",
+            GetRemoteIpAddress().to_string(), header->accoundID, header->size, header->cmd);
 
         return false;
     }
 
     header->size -= sizeof(header->cmd);
+    header->size -= sizeof(header->accoundID);
     _packetBuffer.Resize(header->size);
     return true;
 }
@@ -296,8 +386,27 @@ struct AccountInfo
 
 WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 {
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
-    OpcodeClient opcode = static_cast<OpcodeClient>(header->cmd);
+    uint16 cmd{ 0 };
+
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+    {
+        ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+        cmd = header->cmd;
+    }
+    else
+    {
+        NodeClientPktHeader* header = reinterpret_cast<NodeClientPktHeader*>(_headerBuffer.GetReadPointer());
+
+        if (_worldSession && _worldSession->GetAccountId() != header->accoundID)
+        {
+            LOG_WARN("node", "> Skip packet for incorrect account. This/From {}/{}", _worldSession->GetAccountId(), header->accoundID);
+            return ReadDataHandlerResult::Ok;
+        }
+
+        cmd = header->cmd;
+    }
+
+    OpcodeClient opcode = static_cast<OpcodeClient>(cmd);
 
     WorldPacket packet(opcode, std::move(_packetBuffer));
     WorldPacket* packetToQueue;
@@ -324,12 +433,15 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         }
         case CMSG_AUTH_SESSION:
         {
+            ASSERT(sNodeMgr->GetThisNodeType() == NodeType::Realm);
+
             LogOpcodeText(opcode, sessionGuard);
             if (_authed)
             {
                 // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
                 if (sessionGuard.try_lock())
                     LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from {}", _worldSession->GetPlayerInfo());
+
                 return ReadDataHandlerResult::Error;
             }
 
@@ -338,9 +450,79 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 HandleAuthSession(packet);
                 return ReadDataHandlerResult::WaitingForQuery;
             }
-            catch (ByteBufferException const&) { }
+            catch (ByteBufferException const&) {}
 
             LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client {} sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string());
+            return ReadDataHandlerResult::Error;
+        }
+        case NODE_CONNECT_NEW_NODE:
+        {
+            ASSERT(sNodeMgr->GetThisNodeType() == NodeType::Realm);
+            LogOpcodeText(opcode, sessionGuard);
+
+            if (!_authed)
+            {
+                // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
+                if (sessionGuard.try_lock())
+                    LOG_ERROR("network.opcode", "{}: Client not authed {}", __FUNCTION__, GetOpcodeNameForLogging(static_cast<OpcodeNode>(packet.GetOpcode())));
+
+                return ReadDataHandlerResult::Error;
+            }
+
+            try
+            {
+                HandleConnectNewNode(packet);
+                return ReadDataHandlerResult::Ok;
+            }
+            catch (ByteBufferException const&) {}
+
+            LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client {} sent malformed NODE_CONNECT_NEW_NODE", GetRemoteIpAddress().to_string());
+            return ReadDataHandlerResult::Error;
+        }
+        case NODE_ADD_ACCOUNT:
+        {
+            ASSERT(sNodeMgr->GetThisNodeType() != NodeType::Realm);
+
+            LogOpcodeText(opcode, sessionGuard);
+            if (_authed)
+            {
+                // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
+                if (sessionGuard.try_lock())
+                    LOG_ERROR("network", "WorldSocket::ProcessIncoming: received duplicate NODE_ADD_ACCOUNT from {}", _worldSession->GetPlayerInfo());
+
+                return ReadDataHandlerResult::Error;
+            }
+
+            try
+            {
+                HandleAuthSessionFromNode(packet);
+                return ReadDataHandlerResult::WaitingForQuery;
+            }
+            catch (ByteBufferException const&) {}
+
+            LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client {} sent malformed NODE_ADD_ACCOUNT", GetRemoteIpAddress().to_string());
+            return ReadDataHandlerResult::Error;
+        }
+        case NODE_CHANGE_NODE:
+        {
+            LogOpcodeText(opcode, sessionGuard);
+            if (!_authed)
+            {
+                // locking just to safely log offending user is probably overkill but we are disconnecting him anyway
+                if (sessionGuard.try_lock())
+                    LOG_ERROR("network.opcode", "{}: Client not authed {}", __FUNCTION__, GetOpcodeNameForLogging(static_cast<OpcodeNode>(packet.GetOpcode())));
+
+                return ReadDataHandlerResult::Error;
+            }
+
+            try
+            {
+                HandleChangeNode(packet);
+                return ReadDataHandlerResult::Ok;
+            }
+            catch (ByteBufferException const&) {}
+
+            LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client {} sent malformed NODE_ADD_ACCOUNT", GetRemoteIpAddress().to_string());
             return ReadDataHandlerResult::Error;
         }
         case CMSG_KEEP_ALIVE: // todo: handle this packet in the same way of CMSG_TIME_SYNC_RESP
@@ -379,8 +561,16 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
     // Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
     _worldSession->ResetTimeOutTime(false);
 
-    // Copy the packet to the heap before enqueuing
-    _worldSession->QueuePacket(packetToQueue);
+    if (_nodeInfo->Type == sNodeMgr->GetThisNodeType())
+    {
+        // Copy the packet to the heap before enqueuing
+        _worldSession->QueuePacket(packetToQueue);
+    }
+    else
+    {
+        _worldSession->SendPacket(packetToQueue);
+        delete packetToQueue;
+    }
 
     return ReadDataHandlerResult::Ok;
 }
@@ -389,18 +579,30 @@ void WorldSocket::LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex
 {
     if (!guard)
     {
-        LOG_TRACE("network.opcode", "C->S: {} {}", GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(opcode));
+        if (_nodeInfo->Type == NodeType::Realm)
+            LOG_TRACE("network.opcode", "Player->Realm: {} {}", GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(opcode));
+        else
+            LOG_TRACE("network.opcode", "Player->Realm->{}: {} {}", _nodeInfo->Name, GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(opcode));
     }
     else
     {
-        LOG_TRACE("network.opcode", "C->S: {} {}", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()),
-            GetOpcodeNameForLogging(opcode));
+        if (_nodeInfo->Type == NodeType::Realm)
+            LOG_TRACE("network.opcode", "Player->Realm: {} {}", (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()), GetOpcodeNameForLogging(opcode));
+        else
+            LOG_TRACE("network.opcode", "Player->Realm->{}: {} {}", _nodeInfo->Name, (_worldSession ? _worldSession->GetPlayerInfo() : GetRemoteIpAddress().to_string()), GetOpcodeNameForLogging(opcode));
     }
 }
 
 void WorldSocket::SendPacketAndLogOpcode(WorldPacket const& packet)
 {
-    LOG_TRACE("network.opcode", "S->C: {} {}", GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())));
+    if (sLog->ShouldLog("network.opcode", LogLevel::LOG_LEVEL_TRACE))
+    {
+        if (_nodeInfo->Type == NodeType::Realm)
+            LOG_TRACE("network.opcode", "Realm->Player: {} {}", GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())));
+        else
+            LOG_TRACE("network.opcode", "{}->Realm->Player: {} {}", _nodeInfo->Name, GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())));
+    }
+    
     SendPacket(packet);
 }
 
@@ -412,7 +614,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
-    _bufferQueue.Enqueue(new EncryptablePacket(packet, _authCrypt.IsInitialized()));
+    _bufferQueue.Enqueue(new EncryptablePacket(packet, sNodeMgr->GetThisNodeType() == NodeType::Realm ? _authCrypt.IsInitialized() : false));
 }
 
 void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
@@ -597,6 +799,87 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     AsyncRead();
 }
 
+void WorldSocket::HandleAuthSessionFromNode(WorldPacket& recvPacket)
+{
+    std::string accountName;
+    recvPacket >> accountName;
+
+    // Get the account information from the auth database
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    stmt->SetData(0, int32(realm.Id.Realm));
+    stmt->SetData(1, accountName);
+
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionFromNodeCallback, this, accountName, std::placeholders::_1)));
+}
+
+void WorldSocket::HandleAuthSessionFromNodeCallback(std::string accountName, PreparedQueryResult result)
+{
+    // Stop if the account is not found
+    if (!result)
+    {
+        // We can not log here, as we do not know the account. Thus, no accountId.
+        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
+        LOG_ERROR("network", "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
+        DelayedCloseSocket();
+        return;
+    }
+
+    AccountInfo account(result->Fetch());
+
+    // First reject the connection if packet contains invalid data or realm state doesn't allow logging in
+    if (sWorld->IsClosed())
+    {
+        SendAuthResponseError(AUTH_REJECT);
+        LOG_ERROR("network", "WorldSocket::HandleAuthSessionFromNode: World closed, denying client ({}).", accountName);
+        DelayedCloseSocket();
+        return;
+    }
+
+    // Must be done before WorldSession is created
+    bool wardenActive = CONF_GET_BOOL("Warden.Enabled");
+    if (wardenActive && account.OS != "Win" && account.OS != "OSX")
+    {
+        SendAuthResponseError(AUTH_REJECT);
+        LOG_ERROR("network", "WorldSocket::HandleAuthSessionFromNode: Client {} attempted to log in using invalid client OS ({}).", accountName, account.OS);
+        DelayedCloseSocket();
+        return;
+    }
+
+    // Check locked state for server
+    /*AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
+    LOG_DEBUG("network", "Allowed Level: {} Player Level {}", allowedAccountType, account.Security);
+    if (allowedAccountType > SEC_PLAYER && account.Security < allowedAccountType)
+    {
+        SendAuthResponseError(AUTH_UNAVAILABLE);
+        LOG_DEBUG("network", "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
+        sScriptMgr->OnFailedAccountLogin(account.Id);
+        DelayedCloseSocket();
+        return;
+    }*/
+
+    LOG_DEBUG("node", "WorldSocket::HandleAuthSessionFromNode: Client '{}' {} authenticated successfully", accountName, account.Id);
+
+    // At this point, we can safely hook a successful login
+    sScriptMgr->OnAccountLogin(account.Id);
+
+    _authed = true;
+
+    _worldSession = new WorldSession(account.Id, std::move(accountName), shared_from_this(), account.Security,
+        account.Expansion, account.Locale, account.Recruiter, account.IsRectuiter, account.Security ? true : false, account.TotalTime);
+
+    // Initialize Warden system only if it is enabled by config
+    if (wardenActive)
+        _worldSession->InitWarden(account.SessionKey, account.OS);
+
+    WorldPacket data(NODE_CONNECT_RESPONCE, 1);
+    data << uint8(0);
+    SendPacketAndLogOpcode(data);
+
+    sWorld->AddSession(_worldSession);
+
+    AsyncRead();
+}
+
 void WorldSocket::SendAuthResponseError(uint8 code)
 {
     WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
@@ -663,9 +946,75 @@ bool WorldSocket::HandlePing(WorldPacket& recvPacket)
         }
     }
 
-    WorldPacket packet(SMSG_PONG, 4);
-    packet << ping;
-    SendPacketAndLogOpcode(packet);
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+    {
+        WorldPacket packet(SMSG_PONG, 4);
+        packet << ping;
+        SendPacketAndLogOpcode(packet);
+    }
 
     return true;
+}
+
+void WorldSocket::HandleChangeNode(WorldPacket& recvPacket)
+{
+    uint32 nodeID{ 0 };
+    recvPacket >> nodeID;
+
+    auto const& nodeInfo = sNodeMgr->GetNodeInfo(nodeID);
+    if (!nodeInfo)
+    {
+        LOG_ERROR("node", "{}: Incorrect node id {}", __FUNCTION__, nodeID);
+        return;
+    }
+
+    if (!_worldSession)
+    {
+        LOG_ERROR("network.opcode", "{}: Client not authed send {}", __FUNCTION__, GetOpcodeNameForLogging(static_cast<OpcodeNode>(recvPacket.GetOpcode())));
+        return;
+    }
+
+    LOG_INFO("node", "> Set node {} for {}", nodeInfo->Name, _worldSession->GetPlayerInfo());
+
+    SetNodeInfo(nodeInfo);
+}
+
+void WorldSocket::HandleConnectNewNode(WorldPacket& recvPacket)
+{
+    uint32 nodeID{ 0 };
+    recvPacket >> nodeID;
+
+    auto nodeInfo = std::make_shared<NodeInfo>(sNodeMgr->GetNodeInfo(nodeID));
+    if (!nodeInfo)
+    {
+        LOG_ERROR("node", "{}: Incorrect node id {}", __FUNCTION__, nodeID);
+        return;
+    }
+
+    if (!_worldSession)
+    {
+        LOG_ERROR("node", "{}: Client not authed send {}", __FUNCTION__, GetOpcodeNameForLogging(static_cast<OpcodeNode>(recvPacket.GetOpcode())));
+        return;
+    }
+
+    _worldSession->ConnectToNode(nodeID, [this, nodeID, nodeInfo](bool isComplete)
+    {
+        if (!isComplete)
+        {
+            LOG_ERROR("node", "> Incorrect connect to node {}", nodeInfo->GetInfo());
+            return;
+        }
+
+        LOG_INFO("node", "> Set new node {} for {}", nodeInfo->GetInfo(), _worldSession->GetPlayerInfo());
+
+        SetNodeInfo(nodeInfo.get());
+    });
+}
+
+void WorldSocket::SetNodeInfo(NodeInfo const* info)
+{
+    _nodeInfo = std::make_unique<NodeInfo>(info);
+
+    if (_worldSession)
+        _worldSession->SetNodeInfo(info);
 }

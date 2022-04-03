@@ -40,6 +40,7 @@
 #include "Transport.h"
 #include "Warden.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <fstream>
 #include <set>
 
@@ -1248,7 +1249,6 @@ public:
 
     static bool HandleDebugDummyCommand(ChatHandler* handler)
     {
-        handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
         return true;
     }
 };

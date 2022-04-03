@@ -103,6 +103,10 @@
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
+#include "NodeMgr.h"
+#include "ClientSocketMgr.h"
+#include "NodeCodes.h"
+
 namespace
 {
     TaskScheduler playersSaveScheduler;
@@ -320,9 +324,11 @@ void World::AddSession_(WorldSession* s)
         return;
     }
 
-    s->SendAuthResponse(AUTH_OK, true);
-
-    FinalizePlayerWorldSession(s);
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+    {
+        s->SendAuthResponse(AUTH_OK, true);
+        FinalizePlayerWorldSession(s);
+    }
 
     UpdateMaxSessionCounters();
 }
@@ -445,52 +451,57 @@ void World::LoadConfigSettings(bool reload)
     // load update time related configs
     sWorldUpdateTime.LoadFromConfig();
 
-    if (reload)
+    auto const& nodeType = sNodeMgr->GetThisNodeType();
+
+    if (reload && nodeType == NodeType::Realm)
     {
         m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_INT("UpdateUptimeInterval") * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_UPTIME].Reset();
     }
 
-    auto rateAggro = CONF_GET_FLOAT("Rate.Creature.Aggro");
+    if (nodeType != NodeType::Realm)
+    {
+        auto rateAggro = CONF_GET_FLOAT("Rate.Creature.Aggro");
 
-    // Visibility on continents
-    m_MaxVisibleDistanceOnContinents = CONF_GET_FLOAT("Visibility.Distance.Continents");
-    if (m_MaxVisibleDistanceOnContinents < 45 * rateAggro)
-    {
-        LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be less max aggro radius {}", 45 * rateAggro);
-        m_MaxVisibleDistanceOnContinents = 45 * rateAggro;
-    }
-    else if (m_MaxVisibleDistanceOnContinents > MAX_VISIBILITY_DISTANCE)
-    {
-        LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be greater {}", MAX_VISIBILITY_DISTANCE);
-        m_MaxVisibleDistanceOnContinents = MAX_VISIBILITY_DISTANCE;
-    }
+        // Visibility on continents
+        m_MaxVisibleDistanceOnContinents = CONF_GET_FLOAT("Visibility.Distance.Continents");
+        if (m_MaxVisibleDistanceOnContinents < 45 * rateAggro)
+        {
+            LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be less max aggro radius {}", 45 * rateAggro);
+            m_MaxVisibleDistanceOnContinents = 45 * rateAggro;
+        }
+        else if (m_MaxVisibleDistanceOnContinents > MAX_VISIBILITY_DISTANCE)
+        {
+            LOG_ERROR("server.loading", "Visibility.Distance.Continents can't be greater {}", MAX_VISIBILITY_DISTANCE);
+            m_MaxVisibleDistanceOnContinents = MAX_VISIBILITY_DISTANCE;
+        }
 
-    // Visibility in instances
-    m_MaxVisibleDistanceInInstances = CONF_GET_FLOAT("Visibility.Distance.Instances");
-    if (m_MaxVisibleDistanceInInstances < 45 * rateAggro)
-    {
-        LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be less max aggro radius {}", 45 * rateAggro);
-        m_MaxVisibleDistanceInInstances = 45 * rateAggro;
-    }
-    else if (m_MaxVisibleDistanceInInstances > MAX_VISIBILITY_DISTANCE)
-    {
-        LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be greater {}", MAX_VISIBILITY_DISTANCE);
-        m_MaxVisibleDistanceInInstances = MAX_VISIBILITY_DISTANCE;
-    }
+        // Visibility in instances
+        m_MaxVisibleDistanceInInstances = CONF_GET_FLOAT("Visibility.Distance.Instances");
+        if (m_MaxVisibleDistanceInInstances < 45 * rateAggro)
+        {
+            LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be less max aggro radius {}", 45 * rateAggro);
+            m_MaxVisibleDistanceInInstances = 45 * rateAggro;
+        }
+        else if (m_MaxVisibleDistanceInInstances > MAX_VISIBILITY_DISTANCE)
+        {
+            LOG_ERROR("server.loading", "Visibility.Distance.Instances can't be greater {}", MAX_VISIBILITY_DISTANCE);
+            m_MaxVisibleDistanceInInstances = MAX_VISIBILITY_DISTANCE;
+        }
 
-    // Visibility in BG/Arenas
-    m_MaxVisibleDistanceInBGArenas = CONF_GET_FLOAT("Visibility.Distance.BGArenas");
-    if (m_MaxVisibleDistanceInBGArenas < 45 * rateAggro)
-    {
-        LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be less max aggro radius {}", 45 * rateAggro);
-        m_MaxVisibleDistanceInBGArenas = 45 * rateAggro;
-    }
-    else if (m_MaxVisibleDistanceInBGArenas > MAX_VISIBILITY_DISTANCE)
-    {
-        LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be greater {}", MAX_VISIBILITY_DISTANCE);
-        m_MaxVisibleDistanceInBGArenas = MAX_VISIBILITY_DISTANCE;
-    }
+        // Visibility in BG/Arenas
+        m_MaxVisibleDistanceInBGArenas = CONF_GET_FLOAT("Visibility.Distance.BGArenas");
+        if (m_MaxVisibleDistanceInBGArenas < 45 * rateAggro)
+        {
+            LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be less max aggro radius {}", 45 * rateAggro);
+            m_MaxVisibleDistanceInBGArenas = 45 * rateAggro;
+        }
+        else if (m_MaxVisibleDistanceInBGArenas > MAX_VISIBILITY_DISTANCE)
+        {
+            LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be greater {}", MAX_VISIBILITY_DISTANCE);
+            m_MaxVisibleDistanceInBGArenas = MAX_VISIBILITY_DISTANCE;
+        }
+    }    
 
     ///- Read the "Data" directory from the config file
     std::string dataPath = sConfigMgr->GetOption<std::string>("DataDir", "./");
@@ -511,41 +522,44 @@ void World::LoadConfigSettings(bool reload)
     else
         m_dataPath = dataPath;
 
-    bool enableIndoor = CONF_GET_BOOL("vmap.enableIndoorCheck");
-    bool enableLOS = CONF_GET_BOOL("vmap.enableLOS");
-    bool enableHeight = CONF_GET_BOOL("vmap.enableHeight");
-    bool enablePetLOS = CONF_GET_BOOL("vmap.petLOS");
-
-    if (!enableHeight)
-        LOG_ERROR("server.loading", "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
-
-    VMAP::VMapFactory::createOrGetVMapMgr()->setEnableLineOfSightCalc(enableLOS);
-    VMAP::VMapFactory::createOrGetVMapMgr()->setEnableHeightCalc(enableHeight);
-
-    if (!reload)
+    if (nodeType != NodeType::Realm)
     {
-        auto VMAPBoolToString = [](bool value)
+        bool enableIndoor = CONF_GET_BOOL("vmap.enableIndoorCheck");
+        bool enableLOS = CONF_GET_BOOL("vmap.enableLOS");
+        bool enableHeight = CONF_GET_BOOL("vmap.enableHeight");
+        bool enablePetLOS = CONF_GET_BOOL("vmap.petLOS");
+
+        if (!enableHeight)
+            LOG_ERROR("server.loading", "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
+
+        VMAP::VMapFactory::createOrGetVMapMgr()->setEnableLineOfSightCalc(enableLOS);
+        VMAP::VMapFactory::createOrGetVMapMgr()->setEnableHeightCalc(enableHeight);
+
+        if (!reload)
         {
-            return value ? "Enable" : "Disable";
-        };
+            auto VMAPBoolToString = [](bool value)
+            {
+                return value ? "Enable" : "Disable";
+            };
 
-        LOG_INFO("server.loading", "Loading data configurations...");
-        LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
-        LOG_INFO("server.loading", "");
-        LOG_INFO("server.loading", "Loading VMap configurations...");
-        LOG_INFO("server.loading", "> Line Of Sight:        {}", VMAPBoolToString(enableLOS));
-        LOG_INFO("server.loading", "> Get Height:           {}", VMAPBoolToString(enableHeight));
-        LOG_INFO("server.loading", "> Indoor Check:         {}", VMAPBoolToString(enableIndoor));
-        LOG_INFO("server.loading", "> Pet LOS:              {}", VMAPBoolToString(enablePetLOS));
+            LOG_INFO("server.loading", "Loading data configurations...");
+            LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
+            LOG_INFO("server.loading", "");
+            LOG_INFO("server.loading", "Loading VMap configurations...");
+            LOG_INFO("server.loading", "> Line Of Sight:        {}", VMAPBoolToString(enableLOS));
+            LOG_INFO("server.loading", "> Get Height:           {}", VMAPBoolToString(enableHeight));
+            LOG_INFO("server.loading", "> Indoor Check:         {}", VMAPBoolToString(enableIndoor));
+            LOG_INFO("server.loading", "> Pet LOS:              {}", VMAPBoolToString(enablePetLOS));
+        }
+
+        if (reload)
+        {
+            m_timers[WUPDATE_AUTOBROADCAST].SetInterval(CONF_GET_INT("AutoBroadcast.Timer"));
+            m_timers[WUPDATE_AUTOBROADCAST].Reset();
+        }
+
+        MMAP::MMapFactory::InitializeDisabledMaps();
     }
-
-    if (reload)
-    {
-        m_timers[WUPDATE_AUTOBROADCAST].SetInterval(CONF_GET_INT("AutoBroadcast.Timer"));
-        m_timers[WUPDATE_AUTOBROADCAST].Reset();
-    }
-
-    MMAP::MMapFactory::InitializeDisabledMaps();
 
     // call ScriptMgr if we're reloading the configuration
     sScriptMgr->OnAfterConfigLoad(reload);
@@ -563,10 +577,16 @@ void World::SetInitialWorldSettings()
     ///- Initialize detour memory management
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
+    auto const& nodeType = sNodeMgr->GetThisNodeType();
+
     ///- Initialize VMapMgr function pointers (to untangle game/collision circular deps)
     VMAP::VMapMgr2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapMgr();
-    vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
-    vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
+
+    if (nodeType != NodeType::Realm)
+    {
+        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+        vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
+    }
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -577,7 +597,7 @@ void World::SetInitialWorldSettings()
     ///- Init highest guids before any table loading to prevent using not initialized guids in some code.
     sObjectMgr->SetHighestGuids();
 
-    if (!sConfigMgr->isDryRun())
+    if (!sConfigMgr->isDryRun() && nodeType != NodeType::Realm)
     {
         ///- Check the existence of the map files for all starting areas.
         if (!MapMgr::ExistMapAndVMap(0, -6240.32f, 331.033f)
@@ -594,31 +614,34 @@ void World::SetInitialWorldSettings()
         }
     }
 
-    ///- Initialize pool manager
-    sPoolMgr->Initialize();
-
-    ///- Initialize game event manager
-    sGameEventMgr->Initialize();
-
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
     LOG_INFO("server", " ");
     LOG_INFO("server", "Loading Warhead strings...");
     if (!sGameLocale->LoadWarheadStrings())
-        exit(1);                                            // Error message displayed in function already
+        exit(1); // Error message displayed in function already
 
-    ///- Update the realm entry in the database with the realm type from the config file
-    //No SQL injection as values are treated as integers
+    if (nodeType != NodeType::Realm)
+    {
+        ///- Initialize pool manager
+        sPoolMgr->Initialize();
 
-    // not send custom type REALM_FFA_PVP to realm list
-    uint32 server_type;
-    if (IsFFAPvPRealm())
-        server_type = REALM_TYPE_PVP;
-    else
-        server_type = CONF_GET_INT("GameType");
+        ///- Initialize game event manager
+        sGameEventMgr->Initialize();
+    }
 
-    uint32 realm_zone = CONF_GET_INT("RealmZone");
+    if (nodeType == NodeType::Realm)
+    {
+        // not send custom type REALM_FFA_PVP to realm list
+        uint32 server_type;
+        if (IsFFAPvPRealm())
+            server_type = REALM_TYPE_PVP;
+        else
+            server_type = CONF_GET_INT("GameType");
 
-    LoginDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+        uint32 realm_zone = CONF_GET_INT("RealmZone");
+
+        LoginDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+    }
 
     ///- Custom Hook for loading DB items
     sScriptMgr->OnLoadCustomDatabaseTable();
@@ -631,432 +654,453 @@ void World::SetInitialWorldSettings()
     // Load IP Location Database
     sIPLocation->Load();
 
-    std::vector<uint32> mapIds;
-    for (auto const map : sMapStore)
+    if (nodeType != NodeType::Realm)
     {
-        mapIds.emplace_back(map->MapID);
+        std::vector<uint32> mapIds;
+        for (auto const map : sMapStore)
+        {
+            mapIds.emplace_back(map->MapID);
+        }
+
+        vmmgr2->InitializeThreadUnsafe(mapIds);
+
+        MMAP::MMapMgr* mmmgr = MMAP::MMapFactory::createOrGetMMapMgr();
+        mmmgr->InitializeThreadUnsafe(mapIds);
+
+        LOG_INFO("server.loading", "Loading Game Graveyard...");
+        sGraveyard->LoadGraveyardFromDB();
+
+        LOG_INFO("server.loading", "Loading spell dbc data corrections...");
+        sSpellMgr->LoadDbcDataCorrections();
+
+        LOG_INFO("server.loading", "Initializing PlayerDump tables...");
+        PlayerDump::InitializeTables();
+
+        LOG_INFO("server.loading", "Loading SpellInfo store...");
+        sSpellMgr->LoadSpellInfoStore();
+
+        LOG_INFO("server.loading", "Loading Spell Rank Data...");
+        sSpellMgr->LoadSpellRanks();
+
+        LOG_INFO("server.loading", "Loading Spell Specific And Aura State...");
+        sSpellMgr->LoadSpellSpecificAndAuraState();
+
+        LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
+        sSpellMgr->LoadSkillLineAbilityMap();
+
+        LOG_INFO("server.loading", "Loading spell custom attributes...");
+        sSpellMgr->LoadSpellCustomAttr();
+
+        LOG_INFO("server.loading", "Loading GameObject models...");
+        LoadGameObjectModelList(m_dataPath);
+
+        LOG_INFO("server.loading", "Loading Script Names...");
+        sObjectMgr->LoadScriptNames();
+
+        LOG_INFO("server.loading", "Loading Instance Template...");
+        sObjectMgr->LoadInstanceTemplate();
     }
-
-    vmmgr2->InitializeThreadUnsafe(mapIds);
-
-    MMAP::MMapMgr* mmmgr = MMAP::MMapFactory::createOrGetMMapMgr();
-    mmmgr->InitializeThreadUnsafe(mapIds);
-
-    LOG_INFO("server.loading", "Loading Game Graveyard...");
-    sGraveyard->LoadGraveyardFromDB();
-
-    LOG_INFO("server.loading", "Loading spell dbc data corrections...");
-    sSpellMgr->LoadDbcDataCorrections();
-
-    LOG_INFO("server.loading", "Initializing PlayerDump tables...");
-    PlayerDump::InitializeTables();
-
-    LOG_INFO("server.loading", "Loading SpellInfo store...");
-    sSpellMgr->LoadSpellInfoStore();
-
-    LOG_INFO("server.loading", "Loading Spell Rank Data...");
-    sSpellMgr->LoadSpellRanks();
-
-    LOG_INFO("server.loading", "Loading Spell Specific And Aura State...");
-    sSpellMgr->LoadSpellSpecificAndAuraState();
-
-    LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
-    sSpellMgr->LoadSkillLineAbilityMap();
-
-    LOG_INFO("server.loading", "Loading spell custom attributes...");
-    sSpellMgr->LoadSpellCustomAttr();
-
-    LOG_INFO("server.loading", "Loading GameObject models...");
-    LoadGameObjectModelList(m_dataPath);
-
-    LOG_INFO("server.loading", "Loading Script Names...");
-    sObjectMgr->LoadScriptNames();
-
-    LOG_INFO("server.loading", "Loading Instance Template...");
-    sObjectMgr->LoadInstanceTemplate();
 
     LOG_INFO("server.loading", "Load Character Cache...");
     sCharacterCache->LoadCharacterCacheStorage();
 
-    // Must be called before `creature_respawn`/`gameobject_respawn` tables
-    LOG_INFO("server.loading", "Loading instances...");
-    sInstanceSaveMgr->LoadInstances();
+    if (nodeType != NodeType::Realm)
+    {
+        // Must be called before `creature_respawn`/`gameobject_respawn` tables
+        LOG_INFO("server.loading", "Loading instances...");
+        sInstanceSaveMgr->LoadInstances();
 
-    LOG_INFO("server.loading", "Loading Game locale texts...");
-    sGameLocale->LoadAllLocales();
+        LOG_INFO("server.loading", "Loading Game locale texts...");
+        sGameLocale->LoadAllLocales();
 
-    LOG_INFO("server", "Loading Page Texts...");
-    sObjectMgr->LoadPageTexts();
+        LOG_INFO("server", "Loading Page Texts...");
+        sObjectMgr->LoadPageTexts();
 
-    LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
-    sObjectMgr->LoadGameObjectTemplate();
+        LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
+        sObjectMgr->LoadGameObjectTemplate();
 
-    LOG_INFO("server.loading", "Loading Game Object template addons...");
-    sObjectMgr->LoadGameObjectTemplateAddons();
+        LOG_INFO("server.loading", "Loading Game Object template addons...");
+        sObjectMgr->LoadGameObjectTemplateAddons();
 
-    LOG_INFO("server.loading", "Loading Transport templates...");
-    sTransportMgr->LoadTransportTemplates();
+        LOG_INFO("server.loading", "Loading Transport templates...");
+        sTransportMgr->LoadTransportTemplates();
 
-    LOG_INFO("server.loading", "Loading Spell Required Data...");
-    sSpellMgr->LoadSpellRequired();
+        LOG_INFO("server.loading", "Loading Spell Required Data...");
+        sSpellMgr->LoadSpellRequired();
 
-    LOG_INFO("server.loading", "Loading Spell Group types...");
-    sSpellMgr->LoadSpellGroups();
+        LOG_INFO("server.loading", "Loading Spell Group types...");
+        sSpellMgr->LoadSpellGroups();
 
-    LOG_INFO("server.loading", "Loading Spell Learn Skills...");
-    sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
+        LOG_INFO("server.loading", "Loading Spell Learn Skills...");
+        sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
 
-    LOG_INFO("server.loading", "Loading Spell Proc Event conditions...");
-    sSpellMgr->LoadSpellProcEvents();
+        LOG_INFO("server.loading", "Loading Spell Proc Event conditions...");
+        sSpellMgr->LoadSpellProcEvents();
 
-    LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
-    sSpellMgr->LoadSpellProcs();
+        LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
+        sSpellMgr->LoadSpellProcs();
 
-    LOG_INFO("server.loading", "Loading Spell Bonus Data...");
-    sSpellMgr->LoadSpellBonusess();
+        LOG_INFO("server.loading", "Loading Spell Bonus Data...");
+        sSpellMgr->LoadSpellBonusess();
 
-    LOG_INFO("server.loading", "Loading Aggro Spells Definitions...");
-    sSpellMgr->LoadSpellThreats();
+        LOG_INFO("server.loading", "Loading Aggro Spells Definitions...");
+        sSpellMgr->LoadSpellThreats();
 
-    LOG_INFO("server.loading", "Loading Mixology bonuses...");
-    sSpellMgr->LoadSpellMixology();
+        LOG_INFO("server.loading", "Loading Mixology bonuses...");
+        sSpellMgr->LoadSpellMixology();
 
-    LOG_INFO("server.loading", "Loading Spell Group Stack Rules...");
-    sSpellMgr->LoadSpellGroupStackRules();
+        LOG_INFO("server.loading", "Loading Spell Group Stack Rules...");
+        sSpellMgr->LoadSpellGroupStackRules();
 
-    LOG_INFO("server.loading", "Loading NPC Texts...");
-    sObjectMgr->LoadGossipText();
+        LOG_INFO("server.loading", "Loading NPC Texts...");
+        sObjectMgr->LoadGossipText();
 
-    LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
-    sSpellMgr->LoadSpellEnchantProcData();
+        LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
+        sSpellMgr->LoadSpellEnchantProcData();
 
-    LOG_INFO("server.loading", "Loading Item Random Enchantments Table...");
-    LoadRandomEnchantmentsTable();
+        LOG_INFO("server.loading", "Loading Item Random Enchantments Table...");
+        LoadRandomEnchantmentsTable();
 
-    LOG_INFO("server.loading", "Loading Disables");
-    DisableMgr::LoadDisables();                                  // must be before loading quests and items
+        LOG_INFO("server.loading", "Loading Disables");
+        DisableMgr::LoadDisables(); // must be before loading quests and items
+    }
 
     LOG_INFO("server.loading", "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
 
-    LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
-    sObjectMgr->LoadItemSetNames();
+    if (nodeType != NodeType::Realm)
+    {
+        LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
+        sObjectMgr->LoadItemSetNames();
 
-    LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
-    sObjectMgr->LoadCreatureModelInfo();
+        LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
+        sObjectMgr->LoadCreatureModelInfo();
 
-    LOG_INFO("server.loading", "Loading Creature templates...");
-    sObjectMgr->LoadCreatureTemplates();
+        LOG_INFO("server.loading", "Loading Creature templates...");
+        sObjectMgr->LoadCreatureTemplates();
 
-    LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
-    sObjectMgr->LoadEquipmentTemplates();
+        LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
+        sObjectMgr->LoadEquipmentTemplates();
 
-    LOG_INFO("server.loading", "Loading Creature template addons...");
-    sObjectMgr->LoadCreatureTemplateAddons();
+        LOG_INFO("server.loading", "Loading Creature template addons...");
+        sObjectMgr->LoadCreatureTemplateAddons();
 
-    LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
-    sObjectMgr->LoadReputationRewardRate();
+        LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
+        sObjectMgr->LoadReputationRewardRate();
 
-    LOG_INFO("server.loading", "Loading Creature Reputation OnKill Data...");
-    sObjectMgr->LoadReputationOnKill();
+        LOG_INFO("server.loading", "Loading Creature Reputation OnKill Data...");
+        sObjectMgr->LoadReputationOnKill();
 
-    LOG_INFO("server.loading", "Loading Reputation Spillover Data..." );
-    sObjectMgr->LoadReputationSpilloverTemplate();
+        LOG_INFO("server.loading", "Loading Reputation Spillover Data...");
+        sObjectMgr->LoadReputationSpilloverTemplate();
 
-    LOG_INFO("server.loading", "Loading Points Of Interest Data...");
-    sObjectMgr->LoadPointsOfInterest();
+        LOG_INFO("server.loading", "Loading Points Of Interest Data...");
+        sObjectMgr->LoadPointsOfInterest();
 
-    LOG_INFO("server.loading", "Loading Creature Base Stats...");
-    sObjectMgr->LoadCreatureClassLevelStats();
+        LOG_INFO("server.loading", "Loading Creature Base Stats...");
+        sObjectMgr->LoadCreatureClassLevelStats();
 
-    LOG_INFO("server.loading", "Loading Creature Data...");
-    sObjectMgr->LoadCreatures();
+        LOG_INFO("server.loading", "Loading Creature Data...");
+        sObjectMgr->LoadCreatures();
 
-    LOG_INFO("server.loading", "Loading Temporary Summon Data...");
-    sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
+        LOG_INFO("server.loading", "Loading Temporary Summon Data...");
+        sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
 
-    LOG_INFO("server.loading", "Loading pet levelup spells...");
-    sSpellMgr->LoadPetLevelupSpellMap();
+        LOG_INFO("server.loading", "Loading pet levelup spells...");
+        sSpellMgr->LoadPetLevelupSpellMap();
 
-    LOG_INFO("server.loading", "Loading pet default spells additional to levelup spells...");
-    sSpellMgr->LoadPetDefaultSpells();
+        LOG_INFO("server.loading", "Loading pet default spells additional to levelup spells...");
+        sSpellMgr->LoadPetDefaultSpells();
 
-    LOG_INFO("server.loading", "Loading Creature Addon Data...");
-    sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
+        LOG_INFO("server.loading", "Loading Creature Addon Data...");
+        sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
-    LOG_INFO("server.loading", "Loading Creature Movement Overrides...");
-    sObjectMgr->LoadCreatureMovementOverrides(); // must be after LoadCreatures()
+        LOG_INFO("server.loading", "Loading Creature Movement Overrides...");
+        sObjectMgr->LoadCreatureMovementOverrides(); // must be after LoadCreatures()
 
-    LOG_INFO("server.loading", "Loading Gameobject Data...");
-    sObjectMgr->LoadGameobjects();
+        LOG_INFO("server.loading", "Loading Gameobject Data...");
+        sObjectMgr->LoadGameobjects();
 
-    LOG_INFO("server.loading", "Loading GameObject Addon Data...");
-    sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjectTemplate() and LoadGameobjects()
+        LOG_INFO("server.loading", "Loading GameObject Addon Data...");
+        sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjectTemplate() and LoadGameobjects()
 
-    LOG_INFO("server.loading", "Loading GameObject Quest Items...");
-    sObjectMgr->LoadGameObjectQuestItems();
+        LOG_INFO("server.loading", "Loading GameObject Quest Items...");
+        sObjectMgr->LoadGameObjectQuestItems();
 
-    LOG_INFO("server.loading", "Loading Creature Quest Items...");
-    sObjectMgr->LoadCreatureQuestItems();
+        LOG_INFO("server.loading", "Loading Creature Quest Items...");
+        sObjectMgr->LoadCreatureQuestItems();
 
-    LOG_INFO("server.loading", "Loading Creature Linked Respawn...");
-    sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
+        LOG_INFO("server.loading", "Loading Creature Linked Respawn...");
+        sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
 
-    LOG_INFO("server.loading", "Loading Weather Data...");
-    WeatherMgr::LoadWeatherData();
+        LOG_INFO("server.loading", "Loading Weather Data...");
+        WeatherMgr::LoadWeatherData();
 
-    LOG_INFO("server.loading", "Loading Quests...");
-    sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
+        LOG_INFO("server.loading", "Loading Quests...");
+        sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    LOG_INFO("server.loading", "Checking Quest Disables");
-    DisableMgr::CheckQuestDisables();                           // must be after loading quests
+        LOG_INFO("server.loading", "Checking Quest Disables");
+        DisableMgr::CheckQuestDisables();                           // must be after loading quests
 
-    LOG_INFO("server.loading", "Loading Quest POI");
-    sObjectMgr->LoadQuestPOI();
+        LOG_INFO("server.loading", "Loading Quest POI");
+        sObjectMgr->LoadQuestPOI();
 
-    // Loading Quests Starters and Enders
-    sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
+        // Loading Quests Starters and Enders
+        sObjectMgr->LoadQuestStartersAndEnders();                    // must be after quest load
 
-    LOG_INFO("server.loading", "Loading Quest Money Rewards...");
-    sObjectMgr->LoadQuestMoneyRewards();
+        LOG_INFO("server.loading", "Loading Quest Money Rewards...");
+        sObjectMgr->LoadQuestMoneyRewards();
 
-    LOG_INFO("server.loading", "Loading Objects Pooling Data...");
-    sPoolMgr->LoadFromDB();
+        LOG_INFO("server.loading", "Loading Objects Pooling Data...");
+        sPoolMgr->LoadFromDB();
 
-    LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
-    sGameEventMgr->LoadHolidayDates();                           // Must be after loading DBC
-    sGameEventMgr->LoadFromDB();                                 // Must be after loading holiday dates
+        LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
+        sGameEventMgr->LoadHolidayDates();                           // Must be after loading DBC
+        sGameEventMgr->LoadFromDB();                                 // Must be after loading holiday dates
 
-    LOG_INFO("server.loading", "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
-    sObjectMgr->LoadNPCSpellClickSpells();
+        LOG_INFO("server.loading", "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
+        sObjectMgr->LoadNPCSpellClickSpells();
 
-    LOG_INFO("server.loading", "Loading Vehicle Template Accessories...");
-    sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+        LOG_INFO("server.loading", "Loading Vehicle Template Accessories...");
+        sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-    LOG_INFO("server.loading", "Loading Vehicle Accessories...");
-    sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+        LOG_INFO("server.loading", "Loading Vehicle Accessories...");
+        sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-    LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
-    sSpellMgr->LoadSpellAreas();
+        LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
+        sSpellMgr->LoadSpellAreas();
 
-    LOG_INFO("server.loading", "Loading Area Trigger definitions");
-    sObjectMgr->LoadAreaTriggers();
+        LOG_INFO("server.loading", "Loading Area Trigger definitions");
+        sObjectMgr->LoadAreaTriggers();
 
-    LOG_INFO("server.loading", "Loading Area Trigger Teleport definitions...");
-    sObjectMgr->LoadAreaTriggerTeleports();
+        LOG_INFO("server.loading", "Loading Area Trigger Teleport definitions...");
+        sObjectMgr->LoadAreaTriggerTeleports();
 
-    LOG_INFO("server.loading", "Loading Access Requirements...");
-    sObjectMgr->LoadAccessRequirements();                        // must be after item template load
+        LOG_INFO("server.loading", "Loading Access Requirements...");
+        sObjectMgr->LoadAccessRequirements();                        // must be after item template load
 
-    LOG_INFO("server.loading", "Loading Quest Area Triggers...");
-    sObjectMgr->LoadQuestAreaTriggers();                         // must be after LoadQuests
+        LOG_INFO("server.loading", "Loading Quest Area Triggers...");
+        sObjectMgr->LoadQuestAreaTriggers();                         // must be after LoadQuests
 
-    LOG_INFO("server.loading", "Loading Tavern Area Triggers...");
-    sObjectMgr->LoadTavernAreaTriggers();
+        LOG_INFO("server.loading", "Loading Tavern Area Triggers...");
+        sObjectMgr->LoadTavernAreaTriggers();
 
-    LOG_INFO("server.loading", "Loading AreaTrigger script names...");
-    sObjectMgr->LoadAreaTriggerScripts();
+        LOG_INFO("server.loading", "Loading AreaTrigger script names...");
+        sObjectMgr->LoadAreaTriggerScripts();
 
-    LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
-    sLFGMgr->LoadLFGDungeons();
+        LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
+        sLFGMgr->LoadLFGDungeons();
 
-    LOG_INFO("server.loading", "Loading Dungeon boss data...");
-    sObjectMgr->LoadInstanceEncounters();
+        LOG_INFO("server.loading", "Loading Dungeon boss data...");
+        sObjectMgr->LoadInstanceEncounters();
 
-    LOG_INFO("server.loading", "Loading LFG rewards...");
-    sLFGMgr->LoadRewards();
+        LOG_INFO("server.loading", "Loading LFG rewards...");
+        sLFGMgr->LoadRewards();
 
-    LOG_INFO("server.loading", "Loading Graveyard-zone links...");
-    sGraveyard->LoadGraveyardZones();
+        LOG_INFO("server.loading", "Loading Graveyard-zone links...");
+        sGraveyard->LoadGraveyardZones();
 
-    LOG_INFO("server.loading", "Loading spell pet auras...");
-    sSpellMgr->LoadSpellPetAuras();
+        LOG_INFO("server.loading", "Loading spell pet auras...");
+        sSpellMgr->LoadSpellPetAuras();
 
-    LOG_INFO("server.loading", "Loading Spell target coordinates...");
-    sSpellMgr->LoadSpellTargetPositions();
+        LOG_INFO("server.loading", "Loading Spell target coordinates...");
+        sSpellMgr->LoadSpellTargetPositions();
 
-    LOG_INFO("server.loading", "Loading enchant custom attributes...");
-    sSpellMgr->LoadEnchantCustomAttr();
+        LOG_INFO("server.loading", "Loading enchant custom attributes...");
+        sSpellMgr->LoadEnchantCustomAttr();
 
-    LOG_INFO("server.loading", "Loading linked spells...");
-    sSpellMgr->LoadSpellLinked();
+        LOG_INFO("server.loading", "Loading linked spells...");
+        sSpellMgr->LoadSpellLinked();
+    }
 
     LOG_INFO("server.loading", "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
-    LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
-    sObjectMgr->LoadExplorationBaseXP();
+    if (nodeType != NodeType::Realm)
+    {
+        LOG_INFO("server.loading", "Loading Exploration BaseXP Data...");
+        sObjectMgr->LoadExplorationBaseXP();
 
-    LOG_INFO("server.loading", "Loading Pet Name Parts...");
-    sObjectMgr->LoadPetNames();
+        LOG_INFO("server.loading", "Loading Pet Name Parts...");
+        sObjectMgr->LoadPetNames();
+    }
 
     CharacterDatabaseCleaner::CleanDatabase();
 
-    LOG_INFO("server.loading", "Loading the max pet number...");
-    sObjectMgr->LoadPetNumber();
+    if (nodeType != NodeType::Realm)
+    {
+        LOG_INFO("server.loading", "Loading the max pet number...");
+        sObjectMgr->LoadPetNumber();
 
-    LOG_INFO("server.loading", "Loading pet level stats...");
-    sObjectMgr->LoadPetLevelInfo();
+        LOG_INFO("server.loading", "Loading pet level stats...");
+        sObjectMgr->LoadPetLevelInfo();
 
-    LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
-    sObjectMgr->LoadMailLevelRewards();
+        LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
+        sObjectMgr->LoadMailLevelRewards();
 
-    // Loot tables
-    LoadLootTables();
+        // Loot tables
+        LoadLootTables();
 
-    LOG_INFO("server.loading", "Loading Skill Discovery Table...");
-    LoadSkillDiscoveryTable();
+        LOG_INFO("server.loading", "Loading Skill Discovery Table...");
+        LoadSkillDiscoveryTable();
 
-    LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
-    LoadSkillExtraItemTable();
+        LOG_INFO("server.loading", "Loading Skill Extra Item Table...");
+        LoadSkillExtraItemTable();
 
-    LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
-    LoadSkillPerfectItemTable();
+        LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
+        LoadSkillPerfectItemTable();
 
-    LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
-    sObjectMgr->LoadFishingBaseSkillLevel();
+        LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
+        sObjectMgr->LoadFishingBaseSkillLevel();
 
-    LOG_INFO("server.loading", "Loading Achievements...");
-    sAchievementMgr->LoadAchievementReferenceList();
+        LOG_INFO("server.loading", "Loading Achievements...");
+        sAchievementMgr->LoadAchievementReferenceList();
 
-    LOG_INFO("server", "Loading Achievement Criteria Lists...");
-    sAchievementMgr->LoadAchievementCriteriaList();
+        LOG_INFO("server", "Loading Achievement Criteria Lists...");
+        sAchievementMgr->LoadAchievementCriteriaList();
 
-    LOG_INFO("server", "Loading Achievement Criteria Data...");
-    sAchievementMgr->LoadAchievementCriteriaData();
+        LOG_INFO("server", "Loading Achievement Criteria Data...");
+        sAchievementMgr->LoadAchievementCriteriaData();
 
-    LOG_INFO("server", "Loading Achievement Rewards...");
-    sAchievementMgr->LoadRewards();
+        LOG_INFO("server", "Loading Achievement Rewards...");
+        sAchievementMgr->LoadRewards();
 
-    LOG_INFO("server", "Loading Completed Achievements...");
-    sAchievementMgr->LoadCompletedAchievements();
+        LOG_INFO("server", "Loading Completed Achievements...");
+        sAchievementMgr->LoadCompletedAchievements();
 
-    ///- Load dynamic data tables from the database
-    LOG_INFO("server.loading", "Loading Item Auctions...");
-    sAuctionMgr->LoadAuctionItems();
+        ///- Load dynamic data tables from the database
+        LOG_INFO("server.loading", "Loading Item Auctions...");
+        sAuctionMgr->LoadAuctionItems();
 
-    LOG_INFO("server", "Loading Auctions...");
-    sAuctionMgr->LoadAuctions();
+        LOG_INFO("server", "Loading Auctions...");
+        sAuctionMgr->LoadAuctions();
 
-    sGuildMgr->LoadGuilds();
+        sGuildMgr->LoadGuilds();
 
-    LOG_INFO("server.loading", "Loading ArenaTeams...");
-    sArenaTeamMgr->LoadArenaTeams();
+        LOG_INFO("server.loading", "Loading ArenaTeams...");
+        sArenaTeamMgr->LoadArenaTeams();
 
-    LOG_INFO("server.loading", "Loading Groups...");
-    sGroupMgr->LoadGroups();
+        LOG_INFO("server.loading", "Loading Groups...");
+        sGroupMgr->LoadGroups();
 
-    LOG_INFO("server.loading", "Loading ReservedNames...");
-    sObjectMgr->LoadReservedPlayersNames();
+        LOG_INFO("server.loading", "Loading ReservedNames...");
+        sObjectMgr->LoadReservedPlayersNames();
 
-    LOG_INFO("server.loading", "Loading GameObjects for quests...");
-    sObjectMgr->LoadGameObjectForQuests();
+        LOG_INFO("server.loading", "Loading GameObjects for quests...");
+        sObjectMgr->LoadGameObjectForQuests();
 
-    LOG_INFO("server.loading", "Loading BattleMasters...");
-    sBattlegroundMgr->LoadBattleMastersEntry();
+        LOG_INFO("server.loading", "Loading BattleMasters...");
+        sBattlegroundMgr->LoadBattleMastersEntry();
 
-    LOG_INFO("server.loading", "Loading GameTeleports...");
-    sObjectMgr->LoadGameTele();
+        LOG_INFO("server.loading", "Loading GameTeleports...");
+        sObjectMgr->LoadGameTele();
 
-    LOG_INFO("server.loading", "Loading Gossip menu...");
-    sObjectMgr->LoadGossipMenu();
+        LOG_INFO("server.loading", "Loading Gossip menu...");
+        sObjectMgr->LoadGossipMenu();
 
-    LOG_INFO("server.loading", "Loading Gossip menu options...");
-    sObjectMgr->LoadGossipMenuItems();
+        LOG_INFO("server.loading", "Loading Gossip menu options...");
+        sObjectMgr->LoadGossipMenuItems();
 
-    LOG_INFO("server.loading", "Loading Vendors...");
-    sObjectMgr->LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
+        LOG_INFO("server.loading", "Loading Vendors...");
+        sObjectMgr->LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
 
-    LOG_INFO("server.loading", "Loading Trainers...");
-    sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
+        LOG_INFO("server.loading", "Loading Trainers...");
+        sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
 
-    LOG_INFO("server.loading", "Loading Waypoints...");
-    sWaypointMgr->Load();
+        LOG_INFO("server.loading", "Loading Waypoints...");
+        sWaypointMgr->Load();
 
-    LOG_INFO("server.loading", "Loading SmartAI Waypoints...");
-    sSmartWaypointMgr->LoadFromDB();
+        LOG_INFO("server.loading", "Loading SmartAI Waypoints...");
+        sSmartWaypointMgr->LoadFromDB();
 
-    LOG_INFO("server.loading", "Loading Creature Formations...");
-    sFormationMgr->LoadCreatureFormations();
+        LOG_INFO("server.loading", "Loading Creature Formations...");
+        sFormationMgr->LoadCreatureFormations();
 
-    LOG_INFO("server.loading", "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
-    LoadWorldStates();
+        LOG_INFO("server.loading", "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
+        LoadWorldStates();
 
-    LOG_INFO("server.loading", "Loading Conditions...");
-    sConditionMgr->LoadConditions();
+        LOG_INFO("server.loading", "Loading Conditions...");
+        sConditionMgr->LoadConditions();
 
-    LOG_INFO("server.loading", "Loading faction change achievement pairs...");
-    sObjectMgr->LoadFactionChangeAchievements();
+        LOG_INFO("server.loading", "Loading faction change achievement pairs...");
+        sObjectMgr->LoadFactionChangeAchievements();
 
-    LOG_INFO("server.loading", "Loading faction change spell pairs...");
-    sObjectMgr->LoadFactionChangeSpells();
+        LOG_INFO("server.loading", "Loading faction change spell pairs...");
+        sObjectMgr->LoadFactionChangeSpells();
 
-    LOG_INFO("server.loading", "Loading faction change item pairs...");
-    sObjectMgr->LoadFactionChangeItems();
+        LOG_INFO("server.loading", "Loading faction change item pairs...");
+        sObjectMgr->LoadFactionChangeItems();
 
-    LOG_INFO("server.loading", "Loading faction change reputation pairs...");
-    sObjectMgr->LoadFactionChangeReputations();
+        LOG_INFO("server.loading", "Loading faction change reputation pairs...");
+        sObjectMgr->LoadFactionChangeReputations();
 
-    LOG_INFO("server.loading", "Loading faction change title pairs...");
-    sObjectMgr->LoadFactionChangeTitles();
+        LOG_INFO("server.loading", "Loading faction change title pairs...");
+        sObjectMgr->LoadFactionChangeTitles();
 
-    LOG_INFO("server.loading", "Loading faction change quest pairs...");
-    sObjectMgr->LoadFactionChangeQuests();
+        LOG_INFO("server.loading", "Loading faction change quest pairs...");
+        sObjectMgr->LoadFactionChangeQuests();
 
-    LOG_INFO("server.loading", "Loading GM tickets...");
-    sTicketMgr->LoadTickets();
+        LOG_INFO("server.loading", "Loading GM tickets...");
+        sTicketMgr->LoadTickets();
 
-    LOG_INFO("server.loading", "Loading GM surveys...");
-    sTicketMgr->LoadSurveys();
+        LOG_INFO("server.loading", "Loading GM surveys...");
+        sTicketMgr->LoadSurveys();
+    }
 
     LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
 
-    // pussywizard:
-    LOG_INFO("server.loading", "Deleting invalid mail items...");
-    LOG_INFO("server.loading", " ");
-    CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN item_instance ii ON mi.item_guid = ii.guid WHERE ii.guid IS NULL");
-    CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN mail m ON mi.mail_id = m.id WHERE m.id IS NULL");
-    CharacterDatabase.Execute("UPDATE mail m LEFT JOIN mail_items mi ON m.id = mi.mail_id SET m.has_items=0 WHERE m.has_items<>0 AND mi.mail_id IS NULL");
+    if (nodeType == NodeType::Realm)
+    {
+        // pussywizard:
+        LOG_INFO("server.loading", "Deleting invalid mail items...");
+        LOG_INFO("server.loading", " ");
+        CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN item_instance ii ON mi.item_guid = ii.guid WHERE ii.guid IS NULL");
+        CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN mail m ON mi.mail_id = m.id WHERE m.id IS NULL");
+        CharacterDatabase.Execute("UPDATE mail m LEFT JOIN mail_items mi ON m.id = mi.mail_id SET m.has_items=0 WHERE m.has_items<>0 AND mi.mail_id IS NULL");
+    }
 
-    ///- Handle outdated emails (delete/return)
-    LOG_INFO("server.loading", "Returning old mails...");
-    LOG_INFO("server.loading", " ");
-    sObjectMgr->ReturnOrDeleteOldMails(false);
+    if (nodeType != NodeType::Realm)
+    {
+        ///- Handle outdated emails (delete/return)
+        LOG_INFO("server.loading", "Returning old mails...");
+        LOG_INFO("server.loading", " ");
+        sObjectMgr->ReturnOrDeleteOldMails(false);
 
-    ///- Load AutoBroadCast
-    LOG_INFO("server.loading", "Loading Autobroadcasts...");
-    sAutobroadcastMgr->Load();
+        ///- Load AutoBroadCast
+        LOG_INFO("server.loading", "Loading Autobroadcasts...");
+        sAutobroadcastMgr->Load();
 
-    ///- Load and initialize scripts
-    sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
-    sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
-    sObjectMgr->LoadWaypointScripts();
+        ///- Load and initialize scripts
+        sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
+        sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
+        sObjectMgr->LoadWaypointScripts();
 
-    LOG_INFO("server.loading", "Loading spell script names...");
-    sObjectMgr->LoadSpellScriptNames();
+        LOG_INFO("server.loading", "Loading spell script names...");
+        sObjectMgr->LoadSpellScriptNames();
 
-    LOG_INFO("server.loading", "Loading Creature Texts...");
-    sCreatureTextMgr->LoadCreatureTexts();
+        LOG_INFO("server.loading", "Loading Creature Texts...");
+        sCreatureTextMgr->LoadCreatureTexts();
 
-    LOG_INFO("server.loading", "Loading Creature Text Locales...");
-    sCreatureTextMgr->LoadCreatureTextLocales();
+        LOG_INFO("server.loading", "Loading Creature Text Locales...");
+        sCreatureTextMgr->LoadCreatureTextLocales();
 
-    LOG_INFO("server.loading", "Loading Scripts...");
-    sScriptMgr->LoadDatabase();
+        LOG_INFO("server.loading", "Loading Scripts...");
+        sScriptMgr->LoadDatabase();
 
-    LOG_INFO("server.loading", "Validating spell scripts...");
-    sObjectMgr->ValidateSpellScripts();
+        LOG_INFO("server.loading", "Validating spell scripts...");
+        sObjectMgr->ValidateSpellScripts();
 
-    LOG_INFO("server.loading", "Loading SmartAI scripts...");
-    sSmartScriptMgr->LoadSmartAIFromDB();
+        LOG_INFO("server.loading", "Loading SmartAI scripts...");
+        sSmartScriptMgr->LoadSmartAIFromDB();
 
-    LOG_INFO("server.loading", "Loading Calendar data...");
-    sCalendarMgr->LoadFromDB();
+        LOG_INFO("server.loading", "Loading Calendar data...");
+        sCalendarMgr->LoadFromDB();
 
-    LOG_INFO("server.loading", "Initializing SpellInfo precomputed data..."); // must be called after loading items, professions, spells and pretty much anything
-    LOG_INFO("server.loading", " ");
-    sObjectMgr->InitializeSpellInfoPrecomputedData();
+        LOG_INFO("server.loading", "Initializing SpellInfo precomputed data..."); // must be called after loading items, professions, spells and pretty much anything
+        LOG_INFO("server.loading", " ");
+        sObjectMgr->InitializeSpellInfoPrecomputedData();
+    }
 
     LOG_INFO("server.loading", "Initialize commands...");
     Warhead::ChatCommands::LoadCommandMap();
@@ -1066,72 +1110,101 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", " ");
     GameTime::UpdateGameTimers();
 
-    LoginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
-                           realm.Id.Realm, uint32(GameTime::GetStartTime().count()), GitRevision::GetFullVersion()); // One-time query
+    // Todo: rework for nodes
+    if (nodeType == NodeType::Realm)
+    {
+        LoginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
+            realm.Id.Realm, uint32(GameTime::GetStartTime().count()), GitRevision::GetFullVersion()); // One-time query
 
-    m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
-    m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
-    m_timers[WUPDATE_AUCTIONS].SetCurrent(MINUTE * IN_MILLISECONDS);
-    m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_INT("UpdateUptimeInterval") *MINUTE * IN_MILLISECONDS);
-    //Update "uptime" table based on configuration entry in minutes.
+        m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_INT("UpdateUptimeInterval")* MINUTE* IN_MILLISECONDS);
+        //Update "uptime" table based on configuration entry in minutes.
+    }
 
-    m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
+    if (nodeType != NodeType::Realm)
+    {
+        m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
+        m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE* IN_MILLISECONDS);
+        m_timers[WUPDATE_AUCTIONS].SetCurrent(MINUTE* IN_MILLISECONDS);
 
-    // clean logs table every 14 days by default
-    m_timers[WUPDATE_AUTOBROADCAST].SetInterval(CONF_GET_INT("AutoBroadcast.Timer"));
+        m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
+
+        // clean logs table every 14 days by default
+        m_timers[WUPDATE_AUTOBROADCAST].SetInterval(CONF_GET_INT("AutoBroadcast.Timer"));
+    }    
 
     m_timers[WUPDATE_PINGDB].SetInterval(CONF_GET_INT("MaxPingTime") * MINUTE * IN_MILLISECONDS);  // Mysql ping time in minutes
 
     // our speed up
     m_timers[WUPDATE_5_SECS].SetInterval(5 * IN_MILLISECONDS);
 
-    m_timers[WUPDATE_WHO_LIST].SetInterval(5 * IN_MILLISECONDS); // update who list cache every 5 seconds
+    if (nodeType != NodeType::Realm)
+    {
+        m_timers[WUPDATE_WHO_LIST].SetInterval(5 * IN_MILLISECONDS); // update who list cache every 5 seconds
 
-    mail_expire_check_timer = GameTime::GetGameTime() + 6h;
+        mail_expire_check_timer = GameTime::GetGameTime() + 6h;
 
-    ///- Initilize static helper structures
-    AIRegistry::Initialize();
+        ///- Initilize static helper structures
+        AIRegistry::Initialize();
 
-    ///- Initialize MapMgr
-    LOG_INFO("server.loading", "Starting Map System");
-    LOG_INFO("server.loading", " ");
-    sMapMgr->Initialize();
+        ///- Initialize MapMgr
+        LOG_INFO("server.loading", "Starting Map System");
+        LOG_INFO("server.loading", " ");
+        sMapMgr->Initialize();
 
-    LOG_INFO("server.loading", "Starting Game Event system...");
-    LOG_INFO("server.loading", " ");
-    uint32 nextGameEvent = sGameEventMgr->StartSystem();
-    m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
+        LOG_INFO("server.loading", "Starting Game Event system...");
+        LOG_INFO("server.loading", " ");
+        uint32 nextGameEvent = sGameEventMgr->StartSystem();
+        m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
+    }
 
-    // Delete all characters which have been deleted X days before
-    Player::DeleteOldCharacters();
+    if (nodeType == NodeType::Realm)
+    {
+        // Delete all characters which have been deleted X days before
+        Player::DeleteOldCharacters();
+    }
 
-    // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
-    Channel::CleanOldChannelsInDB();
+    if (nodeType != NodeType::Realm)
+    {
+        // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
+        Channel::CleanOldChannelsInDB();
+    }    
 
     LOG_INFO("server.loading", "Initializing Opcodes...");
     opcodeTable.Initialize();
 
-    LOG_INFO("server.loading", "Starting Arena Season...");
-    LOG_INFO("server.loading", " ");
-    sGameEventMgr->StartArenaSeason();
+    LOG_INFO("server.loading", "Initializing Node codes...");
+    opcodeTable.InitializeNode();
 
-    sTicketMgr->Initialize();
+    if (nodeType == NodeType::Realm)
+    {
+        //LOG_INFO("server.loading", "Initializing Node codes...");
+        nodeCodeTable.Initialize();
+    }
 
-    ///- Initialize Battlegrounds
-    LOG_INFO("server.loading", "Starting Battleground System");
-    sBattlegroundMgr->CreateInitialBattlegrounds();
-    sBattlegroundMgr->InitAutomaticArenaPointDistribution();
+    if (nodeType != NodeType::Realm)
+    {
+        LOG_INFO("server.loading", "Starting Arena Season...");
+        LOG_INFO("server.loading", " ");
+        sGameEventMgr->StartArenaSeason();
 
-    ///- Initialize outdoor pvp
-    LOG_INFO("server.loading", "Starting Outdoor PvP System");
-    sOutdoorPvPMgr->InitOutdoorPvP();
+        sTicketMgr->Initialize();
 
-    ///- Initialize Battlefield
-    LOG_INFO("server.loading", "Starting Battlefield System");
-    sBattlefieldMgr->InitBattlefield();
+        ///- Initialize Battlegrounds
+        LOG_INFO("server.loading", "Starting Battleground System");
+        sBattlegroundMgr->CreateInitialBattlegrounds();
+        sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
-    LOG_INFO("server.loading", "Loading Transports...");
-    sTransportMgr->SpawnContinentTransports();
+        ///- Initialize outdoor pvp
+        LOG_INFO("server.loading", "Starting Outdoor PvP System");
+        sOutdoorPvPMgr->InitOutdoorPvP();
+
+        ///- Initialize Battlefield
+        LOG_INFO("server.loading", "Starting Battlefield System");
+        sBattlefieldMgr->InitBattlefield();
+
+        LOG_INFO("server.loading", "Loading Transports...");
+        sTransportMgr->SpawnContinentTransports();
+    }
 
     ///- Initialize Warden
     LOG_INFO("server.loading", "Loading Warden Checks..." );
@@ -1140,49 +1213,55 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Warden Action Overrides..." );
     sWardenCheckMgr->LoadWardenOverrides();
 
-    LOG_INFO("server.loading", "Deleting expired bans...");
-    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
+    if (nodeType == NodeType::Realm)
+    {
+        LOG_INFO("server.loading", "Deleting expired bans...");
+        LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
+    }
 
-    LOG_INFO("server.loading", "Calculate next daily quest reset time...");
-    InitDailyQuestResetTime();
+    if (nodeType != NodeType::Realm)
+    {
+        LOG_INFO("server.loading", "Calculate next daily quest reset time...");
+        InitDailyQuestResetTime();
 
-    LOG_INFO("server.loading", "Calculate next weekly quest reset time..." );
-    InitWeeklyQuestResetTime();
+        LOG_INFO("server.loading", "Calculate next weekly quest reset time...");
+        InitWeeklyQuestResetTime();
 
-    LOG_INFO("server.loading", "Calculate next monthly quest reset time...");
-    InitMonthlyQuestResetTime();
+        LOG_INFO("server.loading", "Calculate next monthly quest reset time...");
+        InitMonthlyQuestResetTime();
 
-    LOG_INFO("server.loading", "Calculate random battleground reset time..." );
-    InitRandomBGResetTime();
+        LOG_INFO("server.loading", "Calculate random battleground reset time...");
+        InitRandomBGResetTime();
 
-    LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
-    InitCalendarOldEventsDeletionTime();
+        LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
+        InitCalendarOldEventsDeletionTime();
 
-    LOG_INFO("server.loading", "Calculate Guild cap reset time...");
-    LOG_INFO("server.loading", " ");
-    InitGuildResetTime();
+        LOG_INFO("server.loading", "Calculate Guild cap reset time...");
+        LOG_INFO("server.loading", " ");
+        InitGuildResetTime();
 
-    LOG_INFO("server.loading", "Load Petitions...");
-    sPetitionMgr->LoadPetitions();
+        LOG_INFO("server.loading", "Load Petitions...");
+        sPetitionMgr->LoadPetitions();
 
-    LOG_INFO("server.loading", "Load Petition Signs...");
-    sPetitionMgr->LoadSignatures();
+        LOG_INFO("server.loading", "Load Petition Signs...");
+        sPetitionMgr->LoadSignatures();
 
-    LOG_INFO("server.loading", "Load Stored Loot Items...");
-    sLootItemStorage->LoadStorageFromDB();
+        LOG_INFO("server.loading", "Load Stored Loot Items...");
+        sLootItemStorage->LoadStorageFromDB();
 
-    LOG_INFO("server.loading", "Load Channel Rights...");
-    ChannelMgr::LoadChannelRights();
+        LOG_INFO("server.loading", "Load Channel Rights...");
+        ChannelMgr::LoadChannelRights();
 
-    LOG_INFO("server.loading", "Load Channels...");
-    ChannelMgr::LoadChannels();
+        LOG_INFO("server.loading", "Load Channels...");
+        ChannelMgr::LoadChannels();
 
-    LOG_INFO("server.loading", "Load external mail...");
-    sExternalMail->LoadSystem();
+        LOG_INFO("server.loading", "Load external mail...");
+        sExternalMail->LoadSystem();
+    }    
 
     sScriptMgr->OnBeforeWorldInitialized();
 
-    if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids"))
+    if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids") && sNodeMgr->GetThisNodeType() != NodeType::Realm)
     {
         LOG_INFO("server.loading", "Loading all grids for all non-instanced maps...");
 
@@ -1208,15 +1287,17 @@ void World::SetInitialWorldSettings()
 
     std::string startupDuration = Warhead::Time::ToTimeString(sw.Elapsed(), sw.GetOutCount());
 
+    auto const& nodeInfo = sNodeMgr->GetThisNodeInfo();
+
     LOG_INFO("server.loading", " ");
-    LOG_INFO("server.loading", "WORLD: World initialized in {}", startupDuration); // outError for red color in console
+    LOG_INFO("server.loading", "Node {} initialized in {}", nodeInfo->Name, startupDuration);
     LOG_INFO("server.loading", " ");
 
     sDiscord->SendServerStartup(startupDuration);
 
-    METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
+    METRIC_EVENT("events", "Node initialized", "Node " + nodeInfo->Name + "initialized in " + startupDuration);
 
-    if (sConfigMgr->isDryRun())
+    if (sConfigMgr->isDryRun() && sNodeMgr->GetThisNodeType() != NodeType::Realm)
     {
         sMapMgr->UnloadAll();
         LOG_INFO("server.loading", "Dry run completed, terminating.");
@@ -1282,7 +1363,10 @@ void World::Update(uint32 diff)
     // Record update if recording set in log and diff is greater then minimum set in log
     sWorldUpdateTime.RecordUpdateTime(getMSTime(), diff, GetActiveSessionCount());
 
-    DynamicVisibilityMgr::Update(GetActiveSessionCount());
+    auto const& nodeType = sNodeMgr->GetThisNodeType();
+
+    if (nodeType != NodeType::Realm)
+        DynamicVisibilityMgr::Update(GetActiveSessionCount());
 
     ///- Update the different timers
     for (int i = 0; i < WUPDATE_COUNT; ++i)
@@ -1293,145 +1377,158 @@ void World::Update(uint32 diff)
             m_timers[i].SetCurrent(0);
     }
 
-    // pussywizard: our speed up and functionality
-    if (m_timers[WUPDATE_5_SECS].Passed())
+    if (nodeType == NodeType::Realm)
     {
-        m_timers[WUPDATE_5_SECS].Reset();
-
-        // moved here from HandleCharEnumOpcode
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
-        CharacterDatabase.Execute(stmt);
-    }
-
-    ///- Update Who List Cache
-    if (m_timers[WUPDATE_WHO_LIST].Passed())
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update who list"));
-        m_timers[WUPDATE_WHO_LIST].Reset();
-        sWhoListCacheMgr->Update();
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Check quest reset times"));
-
-        /// Handle daily quests reset time
-        if (currentGameTime > m_NextDailyQuestReset)
+        // pussywizard: our speed up and functionality
+        if (m_timers[WUPDATE_5_SECS].Passed())
         {
-            ResetDailyQuests();
-        }
+            m_timers[WUPDATE_5_SECS].Reset();
 
-        /// Handle weekly quests reset time
-        if (currentGameTime > m_NextWeeklyQuestReset)
-        {
-            ResetWeeklyQuests();
-        }
-
-        /// Handle monthly quests reset time
-        if (currentGameTime > m_NextMonthlyQuestReset)
-        {
-            ResetMonthlyQuests();
+            // moved here from HandleCharEnumOpcode
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
+            CharacterDatabase.Execute(stmt);
         }
     }
 
-    if (currentGameTime > m_NextRandomBGReset)
+    if (nodeType != NodeType::Realm)
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset random BG"));
-        ResetRandomBG();
-    }
-
-    if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Delete old calendar events"));
-        CalendarDeleteOldEvents();
-    }
-
-    if (currentGameTime > m_NextGuildReset)
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset guild cap"));
-        ResetGuildCap();
-    }
-
-    // pussywizard:
-    // acquire mutex now, this is kind of waiting for listing thread to finish it's work (since it can't process next packet)
-    // so we don't have to do it in every packet that modifies auctions
-    AsyncAuctionListingMgr::SetAuctionListingAllowed(false);
-    {
-        std::lock_guard<std::mutex> guard(AsyncAuctionListingMgr::GetLock());
-
-        // pussywizard: handle auctions when the timer has passed
-        if (m_timers[WUPDATE_AUCTIONS].Passed())
+        ///- Update Who List Cache
+        if (m_timers[WUPDATE_WHO_LIST].Passed())
         {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
-
-            m_timers[WUPDATE_AUCTIONS].Reset();
-
-            // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
-            sAuctionMgr->Update();
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update who list"));
+            m_timers[WUPDATE_WHO_LIST].Reset();
+            sWhoListCacheMgr->Update();
         }
 
-        AsyncAuctionListingMgr::Update(diff);
-
-        if (currentGameTime > mail_expire_check_timer)
         {
-            sObjectMgr->ReturnOrDeleteOldMails(true);
-            mail_expire_check_timer = currentGameTime + 6h;
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Check quest reset times"));
+
+            /// Handle daily quests reset time
+            if (currentGameTime > m_NextDailyQuestReset)
+            {
+                ResetDailyQuests();
+            }
+
+            /// Handle weekly quests reset time
+            if (currentGameTime > m_NextWeeklyQuestReset)
+            {
+                ResetWeeklyQuests();
+            }
+
+            /// Handle monthly quests reset time
+            if (currentGameTime > m_NextMonthlyQuestReset)
+            {
+                ResetMonthlyQuests();
+            }
         }
 
+        if (currentGameTime > m_NextRandomBGReset)
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset random BG"));
+            ResetRandomBG();
+        }
+
+        if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Delete old calendar events"));
+            CalendarDeleteOldEvents();
+        }
+
+        if (currentGameTime > m_NextGuildReset)
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset guild cap"));
+            ResetGuildCap();
+        }
+
+        // pussywizard:
+        // acquire mutex now, this is kind of waiting for listing thread to finish it's work (since it can't process next packet)
+        // so we don't have to do it in every packet that modifies auctions
+        AsyncAuctionListingMgr::SetAuctionListingAllowed(false);
+        {
+            std::lock_guard<std::mutex> guard(AsyncAuctionListingMgr::GetLock());
+
+            // pussywizard: handle auctions when the timer has passed
+            if (m_timers[WUPDATE_AUCTIONS].Passed())
+            {
+                METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
+
+                m_timers[WUPDATE_AUCTIONS].Reset();
+
+                // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
+                sAuctionMgr->Update();
+            }
+
+            AsyncAuctionListingMgr::Update(diff);
+
+            if (currentGameTime > mail_expire_check_timer)
+            {
+                sObjectMgr->ReturnOrDeleteOldMails(true);
+                mail_expire_check_timer = currentGameTime + 6h;
+            }
+
+            /// <li> Handle session updates when the timer has passed
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
+            UpdateSessions(diff);
+        }
+
+        // end of section with mutex
+        AsyncAuctionListingMgr::SetAuctionListingAllowed(true);
+
+        /// <li> Handle weather updates when the timer has passed
+        if (m_timers[WUPDATE_WEATHERS].Passed())
+        {
+            m_timers[WUPDATE_WEATHERS].Reset();
+            WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 0"));
+            sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
+        }
+
+        {
+            ///- Update objects when the timer has passed (maps, transport, creatures, ...)
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update maps"));
+            sMapMgr->Update(diff);
+        }
+
+        if (CONF_GET_BOOL("AutoBroadcast.On"))
+        {
+            if (m_timers[WUPDATE_AUTOBROADCAST].Passed())
+            {
+                METRIC_TIMER("world_update_time", METRIC_TAG("type", "Send autobroadcast"));
+                m_timers[WUPDATE_AUTOBROADCAST].Reset();
+                sAutobroadcastMgr->Send();
+            }
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlegrounds"));
+            sBattlegroundMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update outdoor pvp"));
+            sOutdoorPvPMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlefields"));
+            sBattlefieldMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 2"));
+            sLFGMgr->Update(diff, 2); // pussywizard: handle created proposals
+        }
+    }
+
+    if (nodeType == NodeType::Realm)
+    {
         /// <li> Handle session updates when the timer has passed
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
         UpdateSessions(diff);
-    }
-
-    // end of section with mutex
-    AsyncAuctionListingMgr::SetAuctionListingAllowed(true);
-
-    /// <li> Handle weather updates when the timer has passed
-    if (m_timers[WUPDATE_WEATHERS].Passed())
-    {
-        m_timers[WUPDATE_WEATHERS].Reset();
-        WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 0"));
-        sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
-    }
-
-    {
-        ///- Update objects when the timer has passed (maps, transport, creatures, ...)
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update maps"));
-        sMapMgr->Update(diff);
-    }
-
-    if (CONF_GET_BOOL("AutoBroadcast.On"))
-    {
-        if (m_timers[WUPDATE_AUTOBROADCAST].Passed())
-        {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Send autobroadcast"));
-            m_timers[WUPDATE_AUTOBROADCAST].Reset();
-            sAutobroadcastMgr->Send();
-        }
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlegrounds"));
-        sBattlegroundMgr->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update outdoor pvp"));
-        sOutdoorPvPMgr->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlefields"));
-        sBattlefieldMgr->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 2"));
-        sLFGMgr->Update(diff, 2); // pussywizard: handle created proposals
-    }
+    }    
 
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Process query callbacks"));
@@ -1439,41 +1536,47 @@ void World::Update(uint32 diff)
         ProcessQueryCallbacks();
     }
 
-    /// <li> Update uptime table
-    if (m_timers[WUPDATE_UPTIME].Passed())
+    if (nodeType == NodeType::Realm)
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update uptime"));
-
-        m_timers[WUPDATE_UPTIME].Reset();
-
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
-        stmt->SetData(0, uint32(GameTime::GetUptime().count()));
-        stmt->SetData(1, uint16(GetMaxPlayerCount()));
-        stmt->SetData(2, realm.Id.Realm);
-        stmt->SetData(3, uint32(GameTime::GetStartTime().count()));
-        LoginDatabase.Execute(stmt);
-    }
-
-    ///- Erase corpses once every 20 minutes
-    if (m_timers[WUPDATE_CORPSES].Passed())
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Remove old corpses"));
-        m_timers[WUPDATE_CORPSES].Reset();
-
-        sMapMgr->DoForAllMaps([](Map* map)
+        /// <li> Update uptime table
+        if (m_timers[WUPDATE_UPTIME].Passed())
         {
-            map->RemoveOldCorpses();
-        });
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update uptime"));
+
+            m_timers[WUPDATE_UPTIME].Reset();
+
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
+            stmt->SetData(0, uint32(GameTime::GetUptime().count()));
+            stmt->SetData(1, uint16(GetMaxPlayerCount()));
+            stmt->SetData(2, realm.Id.Realm);
+            stmt->SetData(3, uint32(GameTime::GetStartTime().count()));
+            LoginDatabase.Execute(stmt);
+        }
     }
 
-    ///- Process Game events when necessary
-    if (m_timers[WUPDATE_EVENTS].Passed())
+    if (nodeType != NodeType::Realm)
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update game events"));
-        m_timers[WUPDATE_EVENTS].Reset();                   // to give time for Update() to be processed
-        uint32 nextGameEvent = sGameEventMgr->Update();
-        m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
-        m_timers[WUPDATE_EVENTS].Reset();
+        ///- Erase corpses once every 20 minutes
+        if (m_timers[WUPDATE_CORPSES].Passed())
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Remove old corpses"));
+            m_timers[WUPDATE_CORPSES].Reset();
+
+            sMapMgr->DoForAllMaps([](Map* map)
+            {
+                map->RemoveOldCorpses();
+            });
+        }
+
+        ///- Process Game events when necessary
+        if (m_timers[WUPDATE_EVENTS].Passed())
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update game events"));
+            m_timers[WUPDATE_EVENTS].Reset();                   // to give time for Update() to be processed
+            uint32 nextGameEvent = sGameEventMgr->Update();
+            m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
+            m_timers[WUPDATE_EVENTS].Reset();
+        }
     }
 
     ///- Ping to keep MySQL connections alive
@@ -1485,13 +1588,27 @@ void World::Update(uint32 diff)
         CharacterDatabase.KeepAlive();
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
+        NodeDatabase.KeepAlive();
     }
 
+    if (nodeType != NodeType::Realm)
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update instance reset times"));
-        // update the instance reset times
-        sInstanceSaveMgr->Update();
-    }
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update instance reset times"));
+            // update the instance reset times
+            sInstanceSaveMgr->Update();
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update world scripts"));
+            sScriptMgr->OnWorldUpdate(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update external mail system"));
+            sExternalMail->Update(diff);
+        }
+    }    
 
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Process cli commands"));
@@ -1500,19 +1617,9 @@ void World::Update(uint32 diff)
     }
 
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update world scripts"));
-        sScriptMgr->OnWorldUpdate(diff);
-    }
-
-    {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update playersSaveScheduler"));
         playersSaveScheduler.Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update external mail system"));
-        sExternalMail->Update(diff);
-    }
+    }    
 
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update Discord code bind"));
@@ -1804,64 +1911,65 @@ void World::UpdateSessions(uint32 diff)
     }
 
     ///- Then send an update signal to remaining ones
-    for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
+    for (auto& [accountID, session] : m_sessions)
     {
-        next = itr;
-        ++next;
-
         ///- and remove not active sessions from the list
-        WorldSession* pSession = itr->second;
-        WorldSessionFilter updater(pSession);
+        WorldSessionFilter updater(session);
 
         // pussywizard:
-        if (pSession->HandleSocketClosed())
+        if (session->HandleSocketClosed())
         {
-            if (!RemoveQueuedPlayer(pSession) && CONF_GET_INT("DisconnectToleranceInterval"))
-                m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime().count();
-            m_sessions.erase(itr);
+            if (!RemoveQueuedPlayer(session) && CONF_GET_INT("DisconnectToleranceInterval"))
+                m_disconnects[session->GetAccountId()] = GameTime::GetGameTime().count();
+
+            m_sessions.erase(accountID);
+
             // there should be no offline session if current one is logged onto a character
-            SessionMap::iterator iter;
-            if ((iter = m_offlineSessions.find(pSession->GetAccountId())) != m_offlineSessions.end())
+            auto const& itr = m_offlineSessions.find(accountID);
+            if (itr != m_offlineSessions.end())
             {
-                WorldSession* tmp = iter->second;
-                m_offlineSessions.erase(iter);
+                WorldSession* tmp = itr->second;
+                m_offlineSessions.erase(itr);
                 tmp->SetShouldSetOfflineInDB(false);
                 delete tmp;
             }
-            pSession->SetOfflineTime(GameTime::GetGameTime().count());
-            m_offlineSessions[pSession->GetAccountId()] = pSession;
+
+            session->SetOfflineTime(GameTime::GetGameTime().count());
+            m_offlineSessions[accountID] = session;
             continue;
         }
 
-        [[maybe_unused]] uint32 currentSessionId = itr->first;
-        METRIC_DETAILED_TIMER("world_update_sessions_time", METRIC_TAG("account_id", std::to_string(currentSessionId)));
+        METRIC_DETAILED_TIMER("world_update_sessions_time", METRIC_TAG("account_id", std::to_string(accountID)));
 
-        if (!pSession->Update(diff, updater))
+        if (!session->Update(diff, updater))
         {
-            if (!RemoveQueuedPlayer(pSession) && CONF_GET_INT("DisconnectToleranceInterval"))
-                m_disconnects[pSession->GetAccountId()] = GameTime::GetGameTime().count();
-            m_sessions.erase(itr);
-            if (m_offlineSessions.find(pSession->GetAccountId()) != m_offlineSessions.end()) // pussywizard: don't set offline in db because offline session for that acc is present (character is in world)
-                pSession->SetShouldSetOfflineInDB(false);
-            delete pSession;
+            if (!RemoveQueuedPlayer(session) && CONF_GET_INT("DisconnectToleranceInterval"))
+                m_disconnects[accountID] = GameTime::GetGameTime().count();
+
+            m_sessions.erase(accountID);
+
+            if (m_offlineSessions.find(session->GetAccountId()) != m_offlineSessions.end()) // pussywizard: don't set offline in db because offline session for that acc is present (character is in world)
+                session->SetShouldSetOfflineInDB(false);
+
+            delete session;
         }
     }
 
     // pussywizard:
     if (m_offlineSessions.empty())
         return;
+
     uint32 currTime = GameTime::GetGameTime().count();
-    for (SessionMap::iterator itr = m_offlineSessions.begin(), next; itr != m_offlineSessions.end(); itr = next)
+    for (auto& [accountID, session] : m_offlineSessions)
     {
-        next = itr;
-        ++next;
-        WorldSession* pSession = itr->second;
-        if (!pSession->GetPlayer() || pSession->GetOfflineTime() + 60 < currTime || pSession->IsKicked())
+        if (!session->GetPlayer() || session->GetOfflineTime() + 60 < currTime || session->IsKicked())
         {
-            m_offlineSessions.erase(itr);
-            if (m_sessions.find(pSession->GetAccountId()) != m_sessions.end())
-                pSession->SetShouldSetOfflineInDB(false); // pussywizard: don't set offline in db because new session for that acc is already created
-            delete pSession;
+            m_offlineSessions.erase(accountID);
+
+            if (m_sessions.find(accountID) != m_sessions.end())
+                session->SetShouldSetOfflineInDB(false); // pussywizard: don't set offline in db because new session for that acc is already created
+
+            delete session;
         }
     }
 }

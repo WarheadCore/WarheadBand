@@ -24,6 +24,7 @@
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/WorldDatabase.h"
+#include "Implementation/NodeDatabase.h"
 
 #include "Field.h"
 #include "PreparedStatement.h"
@@ -33,9 +34,14 @@
 
 /// Accessor to the world database
 WH_DATABASE_API extern DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabase;
+
 /// Accessor to the character database
 WH_DATABASE_API extern DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabase;
+
 /// Accessor to the realm/login database
 WH_DATABASE_API extern DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabase;
+
+/// Accessor to the realm/login database
+WH_DATABASE_API extern DatabaseWorkerPool<NodeDatabaseConnection> NodeDatabase;
 
 #endif

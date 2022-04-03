@@ -19,6 +19,7 @@
 #include "Log.h"
 #include "Packets/AllPackets.h"
 #include "WorldSession.h"
+#include "NodeMgr.h"
 #include <iomanip>
 #include <sstream>
 
@@ -26,10 +27,16 @@ template<class PacketClass, void(WorldSession::* HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
 {
 public:
-    PacketHandler(char const* name, SessionStatus status, PacketProcessing processing) : ClientOpcodeHandler(name, status, processing) { }
+    PacketHandler(std::string_view name, SessionStatus status, PacketProcessing processing) : ClientOpcodeHandler(name, status, processing) { }
 
     void Call(WorldSession* session, WorldPacket& packet) const override
     {
+        if (session->GetNodeInfo()->Type != sNodeMgr->GetThisNodeType())
+        {
+            session->SendPacket(&packet);
+            return;
+        }
+
         PacketClass nicePacket(std::move(packet));
         nicePacket.Read();
         (session->*HandlerFunction)(nicePacket);
@@ -40,10 +47,16 @@ template<void(WorldSession::* HandlerFunction)(WorldPacket&)>
 class PacketHandler<WorldPacket, HandlerFunction> : public ClientOpcodeHandler
 {
 public:
-    PacketHandler(char const* name, SessionStatus status, PacketProcessing processing) : ClientOpcodeHandler(name, status, processing) { }
+    PacketHandler(std::string_view name, SessionStatus status, PacketProcessing processing) : ClientOpcodeHandler(name, status, processing) { }
 
     void Call(WorldSession* session, WorldPacket& packet) const override
     {
+        if (session->GetNodeInfo()->Type != sNodeMgr->GetThisNodeType())
+        {
+            session->SendPacket(&packet);
+            return;
+        }
+
         (session->*HandlerFunction)(packet);
     }
 };
@@ -63,7 +76,7 @@ struct get_packet_class<void(WorldSession::*)(PacketClass&)>
 
 OpcodeTable::OpcodeTable()
 {
-    memset(_internalTableClient, 0, sizeof(_internalTableClient));
+    _internalTableClient.fill(0);
 }
 
 OpcodeTable::~OpcodeTable()
@@ -73,7 +86,7 @@ OpcodeTable::~OpcodeTable()
 }
 
 template<typename Handler, Handler HandlerFunction>
-void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing)
+void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, std::string_view name, SessionStatus status, PacketProcessing processing)
 {
     if (uint32(opcode) == NULL_OPCODE)
     {
@@ -96,7 +109,7 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
     _internalTableClient[opcode] = new PacketHandler<typename get_packet_class<Handler>::type, HandlerFunction>(name, status, processing);
 }
 
-void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status)
+void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, std::string_view name, SessionStatus status)
 {
     if (uint32(opcode) == NULL_OPCODE)
     {
@@ -117,6 +130,35 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
     }
 
     _internalTableClient[opcode] = new PacketHandler<WorldPacket, &WorldSession::Handle_ServerSide>(name, status, PROCESS_INPLACE);
+}
+
+void OpcodeTable::ValidateAndSetNodeOpcode(OpcodeServer opcode, std::string_view name)
+{
+    if (uint32(opcode) == NULL_OPCODE)
+    {
+        LOG_ERROR("network", "Opcode {} does not have a value", name);
+        return;
+    }
+
+    if (uint32(opcode) <= NUM_MSG_TYPES)
+    {
+        LOG_ERROR("network", "Tried to set handler for an invalid node opcode {}", uint32(opcode));
+        return;
+    }
+
+    if (uint32(opcode) >= NUM_NODE_CODE_HANDLERS)
+    {
+        LOG_ERROR("network", "Tried to set handler for an invalid node opcode {}", uint32(opcode));
+        return;
+    }
+
+    if (_internalTableClient[opcode])
+    {
+        LOG_ERROR("network", "Tried to override node handler of {} with {} (opcode {})", opcodeTable[opcode]->Name, name, uint32(opcode));
+        return;
+    }
+
+    _internalTableClient[opcode] = new PacketHandler<WorldPacket, &WorldSession::Handle_ServerSide>(name, STATUS_NEVER, PROCESS_INPLACE);
 }
 
 /// Correspondence between opcodes and their names
@@ -1444,6 +1486,21 @@ void OpcodeTable::Initialize()
 #undef DEFINE_SERVER_OPCODE_HANDLER
 }
 
+void OpcodeTable::InitializeNode()
+{
+#define DEFINE_NODE_OPCODE(opcode) \
+    ValidateAndSetNodeOpcode(opcode, #opcode)
+
+    DEFINE_NODE_OPCODE(NODE_CONNECT_NEW_NODE);
+    DEFINE_NODE_OPCODE(NODE_CONNECT_RESPONCE);
+    DEFINE_NODE_OPCODE(NODE_SEND_TEST_PACKET);
+    DEFINE_NODE_OPCODE(NODE_ADD_ACCOUNT);
+    DEFINE_NODE_OPCODE(NODE_CHANGE_NODE);
+    DEFINE_NODE_OPCODE(NODE_CHANGE_NODE_SESSION);
+
+#undef DEFINE_NODE_OPCODE
+}
+
 template<typename T>
 inline std::string GetOpcodeNameForLoggingImpl(T id)
 {
@@ -1451,7 +1508,7 @@ inline std::string GetOpcodeNameForLoggingImpl(T id)
     std::ostringstream ss;
     ss << '[';
 
-    if (static_cast<uint16>(id) < NUM_OPCODE_HANDLERS)
+    if (static_cast<uint16>(id) < NUM_NODE_CODE_HANDLERS)
     {
         if (OpcodeHandler const* handler = opcodeTable[id])
             ss << handler->Name;

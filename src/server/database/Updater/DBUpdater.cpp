@@ -160,6 +160,38 @@ std::string DBUpdater<CharacterDatabaseConnection>::GetDBModuleName()
     return "db_characters";
 }
 
+// Node Database
+template<>
+std::string DBUpdater<NodeDatabaseConnection>::GetConfigEntry()
+{
+    return "Updates.Node";
+}
+
+template<>
+std::string DBUpdater<NodeDatabaseConnection>::GetTableName()
+{
+    return "Node";
+}
+
+template<>
+std::string DBUpdater<NodeDatabaseConnection>::GetBaseFilesDirectory()
+{
+    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_node/";
+}
+
+template<>
+bool DBUpdater<NodeDatabaseConnection>::IsEnabled(uint32 const updateMask)
+{
+    // This way silences warnings under msvc
+    return (updateMask & DatabaseLoader::DATABASE_NODE) ? true : false;
+}
+
+template<>
+std::string DBUpdater<NodeDatabaseConnection>::GetDBModuleName()
+{
+    return "db_node";
+}
+
 // All
 template<class T>
 BaseLocation DBUpdater<T>::GetBaseLocationType()
@@ -407,7 +439,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
         {
             ApplyFile(pool, itr->path());
         }
-        catch (UpdateException&)
+        catch (UpdateException const&)
         {
             return false;
         }
@@ -516,3 +548,4 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 template class WH_DATABASE_API DBUpdater<LoginDatabaseConnection>;
 template class WH_DATABASE_API DBUpdater<WorldDatabaseConnection>;
 template class WH_DATABASE_API DBUpdater<CharacterDatabaseConnection>;
+template class WH_DATABASE_API DBUpdater<NodeDatabaseConnection>;
