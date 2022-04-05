@@ -31,6 +31,7 @@
 #include "World.h"
 #include "Random.h"
 #include "StopWatch.h"
+#include "Chat.h"
 #include <dpp/dpp.h>
 
 Discord* Discord::instance()

@@ -29,10 +29,10 @@ public:
         sDiscord->LogLogin(player);
     }
 
-    void OnLogout(Player* player) override
-    {
+    // void OnLogout(Player* player) override
+    // {
 
-    }
+    // }
 };
 
 // Group all custom scripts
