@@ -43,7 +43,7 @@ enum BattlegroundBEGameObjects
     BG_BE_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class AC_GAME_API BattlegroundBE : public Arena
+class WH_GAME_API BattlegroundBE : public Arena
 {
 public:
     BattlegroundBE();

@@ -528,16 +528,9 @@ struct QuestGreeting
     std::string Text;
 
     QuestGreeting() : EmoteType(0), EmoteDelay(0) { }
-    QuestGreeting(uint16 emoteType, uint32 emoteDelay, std::string text)
-        : EmoteType(emoteType), EmoteDelay(emoteDelay), Text(std::move(text)) { }
+    QuestGreeting(uint16 emoteType, uint32 emoteDelay, std::string text) :
+        EmoteType(emoteType), EmoteDelay(emoteDelay), Text(std::move(text)) { }
 };
-
-struct QuestGreetingLocale
-{
-    std::vector<std::string> Greeting;
-};
-
-typedef std::unordered_map<uint32, QuestGreetingLocale> QuestGreetingLocaleContainer;
 
 struct GossipMenuItems
 {

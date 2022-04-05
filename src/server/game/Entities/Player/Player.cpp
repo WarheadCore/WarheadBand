@@ -797,8 +797,9 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
         if (type == DAMAGE_FALL)                               // DealDamage not apply item durability loss at self damage
         {
             LOG_DEBUG("entities.player", "Player::EnvironmentalDamage: Player '{}' ({}) fall to death, losing {} durability",
-                GetName(), GetGUID().ToString(), sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
-            DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
+                GetName(), GetGUID().ToString(), CONF_GET_FLOAT("DurabilityLoss.OnDeath"));
+
+            DurabilityLossAll(CONF_GET_FLOAT("DurabilityLoss.OnDeath"), false);
             // durability lost message
             SendDurabilityLoss();
         }
@@ -6128,21 +6129,25 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool awar
 
 void Player::SetHonorPoints(uint32 value)
 {
-    if (value > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
+    uint32 maxHonorPoints = CONF_GET_UINT("MaxHonorPoints");
+
+    if (value > maxHonorPoints)
     {
-        if (int32 copperPerPoint = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS_MONEY_PER_POINT))
+        if (int32 copperPerPoint = maxHonorPoints)
         {
             // Only convert points on login, not when awarded honor points.
             if (isBeingLoaded())
             {
-                int32 excessPoints = value - sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+                int32 excessPoints = value - maxHonorPoints;
                 ModifyMoney(excessPoints * copperPerPoint);
             }
         }
 
-        value = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+        value = maxHonorPoints;
     }
+
     SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, value);
+
     if (value)
         AddKnownCurrency(ITEM_HONOR_POINTS_ID);
 }
@@ -9235,13 +9240,13 @@ void Player::TextEmote(std::string_view text, WorldObject const* /*= nullptr*/, 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this, this, _text);
 
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_EMOTE))
+    if (CONF_GET_BOOL("AllowTwoSide.Interaction.Emote"))
     {
-        SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
+        SendMessageToSetInRange(&data, CONF_GET_FLOAT("ListenRange.TextEmote"), true);
     }
     else
     {
-        SendMessageToSetInRange_OwnTeam(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
+        SendMessageToSetInRange_OwnTeam(&data, CONF_GET_FLOAT("ListenRange.TextEmote"), true);
     }
 }
 
@@ -11505,7 +11510,7 @@ void Player::resetSpells()
 
 void Player::LearnCustomSpells()
 {
-    if (!sWorld->getBoolConfig(CONFIG_START_CUSTOM_SPELLS))
+    if (!CONF_GET_BOOL("PlayerStart.CustomSpells"))
         return;
 
     // learn default race/class spells

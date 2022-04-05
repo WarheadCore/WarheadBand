@@ -43,7 +43,7 @@ enum BattlegroundNAGameObjects
     BG_NA_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class WH_GAME_API BattlegroundNA : public Battleground
+class WH_GAME_API BattlegroundNA : public Arena
 {
 public:
     BattlegroundNA();

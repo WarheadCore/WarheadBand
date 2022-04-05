@@ -759,12 +759,10 @@ void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 ar
 
 uint32 BattlegroundMgr::GetMaxRatingDifference() const
 {
-    uint32 diff = sWorld->getIntConfig(CONFIG_ARENA_MAX_RATING_DIFFERENCE);
+    uint32 diff = CONF_GET_UINT("Arena.MaxRatingDifference");
 
     if (diff == 0)
-    {
         diff = 5000;
-    }
 
     return diff;
 }

@@ -563,7 +563,7 @@ public:
     static bool HandleReloadLocalesQuestGreetingCommand(ChatHandler* handler)
     {
         LOG_INFO("server.loading", "Re-Loading Quest Greeting locales...");
-        sObjectMgr->LoadQuestGreetingsLocales();
+        sGameLocale->LoadQuestGreetingLocales();
         handler->SendGlobalGMSysMessage("DB table `quest_greeting_locale` reloaded.");
         return true;
     }

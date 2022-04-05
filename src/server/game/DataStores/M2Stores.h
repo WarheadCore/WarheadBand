@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -28,8 +28,8 @@ struct FlyByCamera
     Position locations;
 };
 
-AC_GAME_API void LoadM2Cameras(std::string const& dataPath);
+WH_GAME_API void LoadM2Cameras(std::string const& dataPath);
 
-AC_GAME_API std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId);
+WH_GAME_API std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId);
 
 #endif

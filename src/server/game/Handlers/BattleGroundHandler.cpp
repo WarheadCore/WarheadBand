@@ -158,7 +158,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         {
             err = ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND;
         }
-        else if (lfgState > lfg::LFG_STATE_NONE && (lfgState != lfg::LFG_STATE_QUEUED || !sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG))) // using lfg system
+        else if (lfgState > lfg::LFG_STATE_NONE && (lfgState != lfg::LFG_STATE_QUEUED || !CONF_GET_BOOL("JoinBGAndLFG.Enable"))) // using lfg system
         {
             err = ERR_LFG_CANT_USE_BATTLEGROUND;
         }
@@ -529,7 +529,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
         // track if player refuses to join the BG after being invited
         if (bg->isBattleground() && (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN))
         {
-            if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_TRACK_DESERTERS))
+            if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
             {
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                 stmt->SetData(0, _player->GetGUID().GetCounter());
@@ -722,7 +722,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
         {
             err = ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND;
         }
-        else if (lfgState > lfg::LFG_STATE_NONE && (lfgState != lfg::LFG_STATE_QUEUED || !sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG))) // using lfg system
+        else if (lfgState > lfg::LFG_STATE_NONE && (lfgState != lfg::LFG_STATE_QUEUED || !CONF_GET_BOOL("JoinBGAndLFG.Enable"))) // using lfg system
         {
             err = ERR_LFG_CANT_USE_BATTLEGROUND;
         }

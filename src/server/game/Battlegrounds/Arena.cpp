@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -131,7 +131,7 @@ void Arena::RemovePlayerAtLeave(Player* player)
 {
     if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (auto const& member = Acore::Containers::MapGetValuePtr(m_Players, player->GetGUID()))
+        if (auto const& member = Warhead::Containers::MapGetValuePtr(m_Players, player->GetGUID()))
         {
             // if the player was a match participant, calculate rating
             auto teamId = member->GetBgTeamId();

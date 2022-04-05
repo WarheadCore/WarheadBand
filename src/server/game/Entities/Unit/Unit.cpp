@@ -3060,17 +3060,11 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     int32 levelDiff = int32(victim->getLevelForTarget(this)) - thisLevel;
 
     int32 MISS_CHANCE_MULTIPLIER;
-    if (sWorld->getBoolConfig(CONFIG_MISS_CHANCE_MULTIPLIER_ONLY_FOR_PLAYERS) && GetTypeId() != TYPEID_PLAYER) // keep it as it was originally (7 and 11)
-    {
+
+    if (CONF_GET_BOOL("Rate.MissChanceMultiplier.OnlyAffectsPlayer") && GetTypeId() != TYPEID_PLAYER) // keep it as it was originally (7 and 11)
         MISS_CHANCE_MULTIPLIER = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    }
     else
-    {
-        MISS_CHANCE_MULTIPLIER = sWorld->getRate(
-            victim->GetTypeId() == TYPEID_PLAYER
-            ? RATE_MISS_CHANCE_MULTIPLIER_TARGET_PLAYER
-            : RATE_MISS_CHANCE_MULTIPLIER_TARGET_CREATURE);
-    }
+        MISS_CHANCE_MULTIPLIER = victim->GetTypeId() == TYPEID_PLAYER ? CONF_GET_FLOAT("Rate.MissChanceMultiplier.TargetPlayer") : CONF_GET_FLOAT("Rate.MissChanceMultiplier.TargetCreature");
 
     // Base hit chance from attacker and victim levels
     int32 modHitChance = levelDiff < 3

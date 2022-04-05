@@ -320,8 +320,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, std::string const
 
         LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
         if (localeConstant != LOCALE_enUS)
-            if (QuestGreetingLocale const* questGreetingLocale = sObjectMgr->GetQuestGreetingLocale(guid.GetTypeId(), guid.GetEntry()))
-                ObjectMgr::GetLocaleString(questGreetingLocale->Greeting, localeConstant, strGreeting);
+            if (QuestGreetingLocale const* questGreetingLocale = sGameLocale->GetQuestGreetingLocale(MAKE_PAIR32(guid.GetEntry(), guid.GetTypeId())))
+                GameLocale::GetLocaleString(questGreetingLocale->Greeting, localeConstant, strGreeting);
 
         data << strGreeting;
         data << uint32(questGreeting->EmoteDelay);
@@ -351,11 +351,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, std::string const
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
             if (localeConstant != LOCALE_enUS)
-                if (QuestLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(questID))
-                    ObjectMgr::GetLocaleString(questTemplateLocale->Title, localeConstant, title);
-            int32 locale = _session->GetSessionDbLocaleIndex();
-            if (QuestLocale const* localeData = sGameLocale->GetQuestLocale(questID))
-                GameLocale::GetLocaleString(localeData->Title, locale, title);
+                if (QuestLocale const* localeData = sGameLocale->GetQuestLocale(questID))
+                    GameLocale::GetLocaleString(localeData->Title, localeConstant, title);
 
             data << uint32(questID);
             data << uint32(questMenuItem.QuestIcon);

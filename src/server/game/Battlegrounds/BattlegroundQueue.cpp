@@ -404,7 +404,7 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, BattlegroundBracketId 
     uint32 hordeCount = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_HORDE].size();
 
     // try to get even teams
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_EVEN)
+    if (CONF_GET_UINT("Battleground.InvitationType") == BG_QUEUE_INVITATION_TYPE_EVEN)
     {
         // check if the teams are even
         if (hordeFree == 1 && aliFree == 1)
@@ -444,7 +444,7 @@ void BattlegroundQueue::FillPlayersToBG(Battleground* bg, BattlegroundBracketId 
         ++Horde_itr;
 
     //if ofc like BG queue invitation is set in config, then we are happy
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) == BG_QUEUE_INVITATION_TYPE_NO_BALANCE)
+    if (CONF_GET_UINT("Battleground.InvitationType") == BG_QUEUE_INVITATION_TYPE_NO_BALANCE)
         return;
 
     /*
@@ -550,7 +550,7 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
     // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
     // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
     // and when they click or after 80 seconds the queue info is removed from queue
-    uint32 time_before = GameTime::GetGameTimeMS().count() - sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH);
+    uint32 time_before = GameTime::GetGameTimeMS().count() - CONF_GET_UINT("Battleground.PremadeGroupWaitForMatch");
 
     for (uint32 i = 0; i < PVP_TEAMS_COUNT; i++)
     {
@@ -599,7 +599,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bgTemplate, BattlegroundB
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() < m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())
         j = TEAM_HORDE;
 
-    if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != BG_QUEUE_INVITATION_TYPE_NO_BALANCE
+    if (CONF_GET_UINT("Battleground.InvitationType") != BG_QUEUE_INVITATION_TYPE_NO_BALANCE
         && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j
@@ -859,7 +859,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId 
         int32 discardTime = GameTime::GetGameTimeMS().count() - sBattlegroundMgr->GetRatingDiscardTimer();
 
         // timer for previous opponents
-        int32 discardOpponentsTime = GameTime::GetGameTimeMS().count() - sWorld->getIntConfig(CONFIG_ARENA_PREV_OPPONENTS_DISCARD_TIMER);
+        int32 discardOpponentsTime = GameTime::GetGameTimeMS().count() - CONF_GET_UINT("Arena.PreviousOpponentsDiscardTimer");
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[PVP_TEAMS_COUNT];

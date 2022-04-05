@@ -39,7 +39,7 @@ enum BattlegroundRLObjects
     BG_RL_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class AC_GAME_API BattlegroundRL : public Arena
+class WH_GAME_API BattlegroundRL : public Arena
 {
 public:
     BattlegroundRL();

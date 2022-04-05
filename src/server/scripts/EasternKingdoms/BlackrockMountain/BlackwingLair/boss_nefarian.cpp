@@ -218,11 +218,11 @@ public:
                 // Victor Nefarius weekly mechanic drakonid spawn
                 // Pick 2 drakonids and keep them for the whole save duration (the drakonids can't be repeated).
                 std::vector<uint32> nefarianDrakonidSpawners = { NPC_BLACK_SPAWNER, NPC_BLUE_SPAWNER, NPC_BRONZE_SPAWNER, NPC_GREEN_SPAWNER, NPC_RED_SPAWNER };
-                _nefarianRightTunnel = Acore::Containers::SelectRandomContainerElement(nefarianDrakonidSpawners);
+                _nefarianRightTunnel = Warhead::Containers::SelectRandomContainerElement(nefarianDrakonidSpawners);
                 // delete the previous picked one so we don't get any repeated.
                 nefarianDrakonidSpawners.erase(std::remove(nefarianDrakonidSpawners.begin(), nefarianDrakonidSpawners.end(), _nefarianRightTunnel), nefarianDrakonidSpawners.end());
                 // Pick another one
-                _nefarianLeftTunnel = Acore::Containers::SelectRandomContainerElement(nefarianDrakonidSpawners);
+                _nefarianLeftTunnel = Warhead::Containers::SelectRandomContainerElement(nefarianDrakonidSpawners);
 
                 // save it to instance
                 instance->SetData(DATA_NEFARIAN_LEFT_TUNNEL, _nefarianLeftTunnel);
@@ -1077,7 +1077,7 @@ class spell_class_call_polymorph : public SpellScript
 
         if (!targets.empty())
         {
-            Acore::Containers::RandomResize(targets, 1);
+            Warhead::Containers::RandomResize(targets, 1);
             targetList.clear();
             targetList = targets;
         }
@@ -1138,7 +1138,7 @@ class spell_corrupted_totems : public SpellScript
         }
 
         std::list<uint32> spellList = { SPELL_CORRUPTED_FIRE_NOVA_TOTEM, SPELL_CORRUPTED_HEALING_TOTEM, SPELL_CORRUPTED_STONESKIN_TOTEM, SPELL_CORRUPTED_WINDFURY_TOTEM };
-        uint32 spellId = Acore::Containers::SelectRandomContainerElement(spellList);
+        uint32 spellId = Warhead::Containers::SelectRandomContainerElement(spellList);
         GetCaster()->CastSpell(GetCaster(), spellId);
     }
 
@@ -1207,7 +1207,7 @@ class spell_shadowblink : public SpellScript
         }
 
         // Selected target is not near any known position, randomize
-        auto spellId = Acore::Containers::SelectRandomContainerElement(spellPos);
+        auto spellId = Warhead::Containers::SelectRandomContainerElement(spellPos);
         caster->CastSpell(caster, spellId.first, true);
     }
 

@@ -751,7 +751,7 @@ void GameLocale::LoadQuestGreetingLocales()
 
         QuestGreetingLocale& data = _questGreetingLocaleStore[MAKE_PAIR32(id, type)];
 
-        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.greeting);
+        Warhead::Locale::AddLocaleString(fields[3].Get<std::string>(), locale, data.Greeting);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} quest greeting locale strings in {} ms", static_cast<uint32>(_questGreetingLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));

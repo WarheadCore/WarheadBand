@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -21,7 +21,7 @@
 #include "BattlegroundScore.h"
 #include "StringFormat.h"
 
-struct AC_GAME_API ArenaScore : public BattlegroundScore
+struct WH_GAME_API ArenaScore : public BattlegroundScore
 {
     friend class Arena;
 
@@ -35,13 +35,13 @@ protected:
     // For Logging purpose
     std::string ToString() const override
     {
-        return Acore::StringFormatFmt("Damage done: {}, Healing done: {}, Killing blows: {}", DamageDone, HealingDone, KillingBlows);
+        return Warhead::StringFormat("Damage done: {}, Healing done: {}, Killing blows: {}", DamageDone, HealingDone, KillingBlows);
     }
 
     uint8 PvPTeamId;
 };
 
-struct AC_GAME_API ArenaTeamScore
+struct WH_GAME_API ArenaTeamScore
 {
     friend class Arena;
     friend class Battleground;

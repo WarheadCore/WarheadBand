@@ -50,10 +50,6 @@
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
-#ifdef ELUNA
-#include "LuaEngine.h"
-#endif
-
 Battleground::Battleground()
 {
     m_RealTypeID        = BATTLEGROUND_TYPE_NONE;
@@ -156,6 +152,27 @@ Battleground::~Battleground()
 
     for (auto const& itr : PlayerScores)
         delete itr.second;
+}
+
+template<class Do>
+void Battleground::BroadcastWorker(Do& _do)
+{
+    for (auto const& [guid, player] : m_Players)
+        _do(player);
+}
+
+void BattlegroundScore::AppendToPacket(WorldPacket& data)
+{
+    data << PlayerGuid;
+
+    data << uint32(KillingBlows);
+    data << uint32(HonorableKills);
+    data << uint32(Deaths);
+    data << uint32(BonusHonor);
+    data << uint32(DamageDone);
+    data << uint32(HealingDone);
+
+    BuildObjectivesBlock(data);
 }
 
 void Battleground::Update(uint32 diff)
@@ -605,14 +622,14 @@ void Battleground::SendChatMessage(Creature* source, uint8 textId, WorldObject* 
 
 void Battleground::SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject const* target)
 {
-    if (!sObjectMgr->GetBroadcastText(id))
+    if (!sGameLocale->GetBroadcastText(id))
     {
         LOG_ERROR("bg.battleground", "Battleground::SendBroadcastText: `broadcast_text` (ID: {}) was not found", id);
         return;
     }
 
-    Acore::BroadcastTextBuilder builder(nullptr, msgType, id, GENDER_MALE, target);
-    Acore::LocalizedPacketDo<Acore::BroadcastTextBuilder> localizer(builder);
+    Warhead::BroadcastTextBuilder builder(nullptr, msgType, id, GENDER_MALE, target);
+    Warhead::LocalizedPacketDo<Warhead::BroadcastTextBuilder> localizer(builder);
     BroadcastWorker(localizer);
 }
 

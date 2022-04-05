@@ -608,7 +608,7 @@ namespace lfg
         if (!isRaid && joinData.result == LFG_JOIN_OK)
         {
             // Check player or group member restrictions
-            if (player->InBattleground() || (player->InBattlegroundQueue() && !sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG)))
+            if (player->InBattleground() || (player->InBattlegroundQueue() && !CONF_GET_BOOL("JoinBGAndLFG.Enable")))
             {
                 joinData.result = LFG_JOIN_USING_BG_SYSTEM;
             }
@@ -635,7 +635,7 @@ namespace lfg
                             {
                                 joinData.result = LFG_JOIN_PARTY_DESERTER;
                             }
-                            else if (plrg->InBattleground() || (plrg->InBattlegroundQueue() && !sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG)))
+                            else if (plrg->InBattleground() || (plrg->InBattlegroundQueue() && !CONF_GET_BOOL("JoinBGAndLFG.Enable")))
                             {
                                 joinData.result = LFG_JOIN_USING_BG_SYSTEM;
                             }

@@ -90,7 +90,7 @@ enum BattlegroundDSEvents
     BG_DS_EVENT_PIPE_KNOCKBACK          = 5
 };
 
-class AC_GAME_API BattlegroundDS : public Arena
+class WH_GAME_API BattlegroundDS : public Arena
 {
 public:
     BattlegroundDS();

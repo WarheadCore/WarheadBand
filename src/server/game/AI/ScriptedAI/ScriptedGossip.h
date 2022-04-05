@@ -91,8 +91,7 @@ WH_GAME_API void AddGossipItemFor(Player* player, uint32 icon, std::string const
 WH_GAME_API void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded);
 
 // Uses gossip item info from DB
-WH_GAME_API void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action);
-void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action, uint32 boxMoney = 0);
+WH_GAME_API void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action, uint32 boxMoney = 0);
 
 // Send menu text
 WH_GAME_API void SendGossipMenuFor(Player* player, uint32 npcTextID, ObjectGuid const guid);

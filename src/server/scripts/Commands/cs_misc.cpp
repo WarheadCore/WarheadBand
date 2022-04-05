@@ -2287,7 +2287,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        CellCoord p(Acore::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
+        CellCoord p(Warhead::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
         Cell cell(p);
         cell.SetNoCreate();
 

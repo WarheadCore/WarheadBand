@@ -64,10 +64,10 @@ WH_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, B
 
 WH_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
 
-LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
-LFGDungeonEntry const* GetZoneLFGDungeonEntry(std::string const& zoneName, LocaleConstant locale);
+WH_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
+WH_GAME_API LFGDungeonEntry const* GetZoneLFGDungeonEntry(std::string const& zoneName, LocaleConstant locale);
 
-uint32 GetDefaultMapLight(uint32 mapId);
+WH_GAME_API uint32 GetDefaultMapLight(uint32 mapId);
 
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;

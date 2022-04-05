@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -390,7 +390,7 @@ class spell_apothecary_lingering_fumes : public SpellScript
         if (triggers.empty())
             return;
 
-        Creature* trigger = Acore::Containers::SelectRandomContainerElement(triggers);
+        Creature* trigger = Warhead::Containers::SelectRandomContainerElement(triggers);
         caster->GetMotionMaster()->MovePoint(0, trigger->GetPosition());
 
     }
@@ -420,11 +420,11 @@ class spell_apothecary_validate_area : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Acore::UnitAuraCheck(true, SPELL_BUNNY_LOCKDOWN));
+        targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_BUNNY_LOCKDOWN));
         if (targets.empty())
             return;
 
-        WorldObject* target = Acore::Containers::SelectRandomContainerElement(targets);
+        WorldObject* target = Warhead::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(target);
     }

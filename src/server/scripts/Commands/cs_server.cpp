@@ -222,7 +222,7 @@ public:
         handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
         handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
 
-        if (Acore::Module::GetEnableModulesList().empty())
+        if (Warhead::Module::GetEnableModulesList().empty())
             handler->SendSysMessage("No modules enabled");
         else
             handler->SendSysMessage("> List enable modules:");

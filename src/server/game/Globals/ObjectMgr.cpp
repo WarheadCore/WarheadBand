@@ -5908,7 +5908,7 @@ QuestGreeting const* ObjectMgr::GetQuestGreeting(TypeID type, uint32 id) const
     else
         return nullptr;
 
-    return Acore::Containers::MapGetValuePtr(_questGreetingStore[typeIndex], id);
+    return Warhead::Containers::MapGetValuePtr(_questGreetingStore[typeIndex], id);
 }
 
 void ObjectMgr::LoadQuestGreetings()

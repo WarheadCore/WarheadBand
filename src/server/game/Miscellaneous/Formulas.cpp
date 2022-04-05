@@ -99,29 +99,27 @@ uint32 Warhead::XP::Gain(Player* player, Unit* unit, bool isBattleGround /*= fal
             switch (player->GetMapId())
             {
                 case MAP_BG_ALTERAC_VALLEY:
-                    xpMod *= sWorld->getRate(RATE_XP_BG_KILL_AV);
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillAV");
                     break;
                 case MAP_BG_WARSONG_GULCH:
-                    xpMod *= sWorld->getRate(RATE_XP_BG_KILL_WSG);
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillWSG");
                     break;
                 case MAP_BG_ARATHI_BASIN:
-                    xpMod *= sWorld->getRate(RATE_XP_BG_KILL_AB);
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillAB");
                     break;
                 case MAP_BG_EYE_OF_THE_STORM:
-                    xpMod *= sWorld->getRate(RATE_XP_BG_KILL_EOTS);
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillEOTS");
                     break;
                 case MAP_BG_STRAND_OF_THE_ANCIENTS:
-                    xpMod *= sWorld->getRate(RATE_XP_BG_KILL_SOTA);
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillSOTA");
                     break;
                 case MAP_BG_ISLE_OF_CONQUEST:
-                    xpMod *= sWorld->getRate(RATE_XP_BG_KILL_IC);
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillIC");
                     break;
             }
         }
         else
-        {
-            xpMod *= sWorld->getRate(RATE_XP_KILL);
-        }
+            xpMod *= CONF_GET_FLOAT("Rate.XP.Kill");
 
         // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
         if (creature && creature->m_PlayerDamageReq)

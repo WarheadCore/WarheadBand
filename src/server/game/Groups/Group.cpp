@@ -1932,7 +1932,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
 
         // check if someone in party is using dungeon system
         lfg::LfgState lfgState = sLFGMgr->GetState(member->GetGUID());
-        if (lfgState > lfg::LFG_STATE_NONE && (lfgState != lfg::LFG_STATE_QUEUED || !sWorld->getBoolConfig(CONFIG_ALLOW_JOIN_BG_AND_LFG)))
+        if (lfgState > lfg::LFG_STATE_NONE && (lfgState != lfg::LFG_STATE_QUEUED || !CONF_GET_BOOL("JoinBGAndLFG.Enable")))
         {
             return ERR_LFG_CANT_USE_BATTLEGROUND;
         }
