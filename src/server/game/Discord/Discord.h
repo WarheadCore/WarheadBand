@@ -23,8 +23,8 @@
 #include "TaskScheduler.h"
 #include <array>
 #include <memory>
-#include <unordered_map>
 #include <string_view>
+#include <unordered_map>
 
 namespace dpp
 {

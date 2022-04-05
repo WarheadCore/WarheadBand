@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "Discord.h"
 #include "GameConfig.h"
+#include "ScriptMgr.h"
 
 class DiscordChatLogs_Player : public PlayerScript
 {

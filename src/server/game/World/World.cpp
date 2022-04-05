@@ -64,10 +64,10 @@
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
+#include "M2Stores.h"
 #include "MMapFactory.h"
 #include "MapMgr.h"
 #include "Metric.h"
-#include "M2Stores.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -82,6 +82,7 @@
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "TaskScheduler.h"
 #include "TicketMgr.h"
 #include "Timer.h"
@@ -100,7 +101,6 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "StopWatch.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 

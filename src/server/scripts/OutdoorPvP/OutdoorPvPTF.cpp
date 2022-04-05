@@ -17,6 +17,7 @@
 
 #include "OutdoorPvPTF.h"
 #include "GameLocale.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
@@ -25,7 +26,6 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameTime.h"
 
 OutdoorPvPTF::OutdoorPvPTF()
 {

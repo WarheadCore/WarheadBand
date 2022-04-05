@@ -16,8 +16,8 @@
  */
 
 #include "Timer.h"
-#include "StringFormat.h"
 #include "StringConvert.h"
+#include "StringFormat.h"
 #include <iomanip>
 #include <sstream>
 
