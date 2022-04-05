@@ -30,7 +30,7 @@ public:
     void MoveInLineOfSight(Unit*) override {}
     void UpdateAI(uint32 diff) override;
 
-    static int Permissible(const Creature*);
+    static int Permissible(Creature const*);
 };
 
 #endif

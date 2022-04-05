@@ -104,7 +104,7 @@ public:
     bool operator()(Unit const* target) const;
 
 private:
-    const Unit* _me;
+    Unit const* _me;
     float _dist;
     bool _playerOnly;
     bool _inLos;
@@ -270,6 +270,9 @@ public:
 
     static AISpellInfoType* AISpellInfo;
     static void FillAISpellInfo();
+
+    // Called when a summon reaches a waypoint or point movement finished.
+    virtual void SummonMovementInform(Creature* /*creature*/, uint32 /*motionType*/, uint32 /*point*/) { }
 
     virtual void sGossipHello(Player* /*player*/) {}
     virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}

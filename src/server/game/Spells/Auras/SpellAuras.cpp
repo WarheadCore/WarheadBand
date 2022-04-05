@@ -287,7 +287,7 @@ void AuraApplication::ClientUpdate(bool remove)
     BuildUpdatePacket(data, remove);
 
     if (GetSlot() < MAX_AURAS)
-        if (const Player* plr = GetTarget()->ToPlayer())
+        if (Player const* plr = GetTarget()->ToPlayer())
             if (Aura* aura = GetBase())
                 if (plr->NeedSendSpectatorData() && ArenaSpectator::ShouldSendAura(aura, GetEffectMask(), GetTarget()->GetGUID(), remove))
                     ArenaSpectator::SendCommand_Aura(plr->FindMap(), plr->GetGUID(), "AUR", aura->GetCasterGUID(), aura->GetSpellInfo()->Id, aura->GetSpellInfo()->IsPositive(), aura->GetSpellInfo()->Dispel, aura->GetDuration(), aura->GetMaxDuration(), (aura->GetCharges() > 1 ? aura->GetCharges() : aura->GetStackAmount()), remove);
@@ -1510,6 +1510,16 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (target->HasAura(58039)) // Glyph of Blurred Speed
                         target->CastSpell(target, 61922, true); // Sprint (waterwalk)
                 break;
+            case SPELLFAMILY_SHAMAN:
+            {
+                // Ghost Wolf Speed (PvP 58 lvl set)
+                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000800 && target->HasAura(22801) && target->getLevel() <= 60)
+                {
+                    int32 bp0 = 15;
+                    target->CastCustomSpell(target, 47017, &bp0, 0, 0, true);
+                }
+                break;
+            }
             case SPELLFAMILY_DEATHKNIGHT:
                 if (!caster)
                     break;
@@ -1814,7 +1824,15 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
                 }
-
+            case SPELLFAMILY_SHAMAN:
+            {
+                // Ghost Wolf Speed (PvP 58 lvl set)
+                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000800)
+                {
+                    target->RemoveAurasDueToSpell(47017);
+                }
+                break;
+            }
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North
                 // Reaping

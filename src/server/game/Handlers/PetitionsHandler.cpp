@@ -96,7 +96,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         // TODO: find correct opcode
         if (_player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
-            Warhead::Text::SendNotification(this, LANG_ARENA_ONE_TOOLOW, CONF_GET_INT("MaxPlayerLevel"));
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 

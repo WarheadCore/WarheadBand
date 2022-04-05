@@ -195,6 +195,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 }
             }
         }
+
         PlayerTalkClass->SendQuestGiverQuestList(qe, title, guid);
     }
 }
@@ -738,6 +739,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
         AddPct(XP, (*i)->GetAmount());
 
+    sScriptMgr->OnQuestComputeXP(this, quest, XP);
     int32 moneyRew = 0;
     if (IsMaxLevel() || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(this))
     {

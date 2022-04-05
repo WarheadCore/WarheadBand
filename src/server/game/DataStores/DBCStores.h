@@ -26,7 +26,6 @@
 #include <unordered_set>
 
 typedef std::list<uint32> SimpleFactionsList;
-typedef std::vector<FlyByCamera> FlyByCameraCollection;
 
 WH_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
@@ -65,8 +64,10 @@ WH_GAME_API PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, B
 
 WH_GAME_API CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
 
-WH_GAME_API LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
-WH_GAME_API uint32 GetDefaultMapLight(uint32 mapId);
+LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
+LFGDungeonEntry const* GetZoneLFGDungeonEntry(std::string const& zoneName, LocaleConstant locale);
+
+uint32 GetDefaultMapLight(uint32 mapId);
 
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
 typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
@@ -184,9 +185,7 @@ extern DBCStorage <VehicleSeatEntry>             sVehicleSeatStore;
 extern DBCStorage <WMOAreaTableEntry>            sWMOAreaTableStore;
 //extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
-extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
 WH_GAME_API void LoadDBCStores(const std::string& dataPath);
-WH_GAME_API void LoadM2Cameras(const std::string& dataPath);
 
 #endif

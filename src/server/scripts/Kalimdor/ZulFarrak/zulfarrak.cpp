@@ -79,7 +79,7 @@ public:
             me->SetFaction(FACTION_FRIENDLY);
             postGossipStep = 0;
             Text_Timer = 0;
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         InstanceScript* instance;
@@ -296,7 +296,7 @@ public:
                 {
                     case NPC_BLY:
                     case NPC_WEEGLI:
-                        crew->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        crew->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         break;
                     default:
                         break;
@@ -356,7 +356,7 @@ public:
 
         void InitializeAI() override
         {
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             Reset();
         }
 
@@ -446,7 +446,7 @@ public:
             else if (instance->GetData(DATA_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
                 instance->SetData(DATA_PYRAMID, PYRAMID_MOVED_DOWNSTAIRS);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
             else if (instance->GetData(DATA_PYRAMID) == PYRAMID_DESTROY_GATES)
             {
@@ -469,7 +469,7 @@ public:
             else if (instance->GetData(DATA_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
                 instance->SetData(DATA_PYRAMID, PYRAMID_MOVED_DOWNSTAIRS);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
             else if (instance->GetData(DATA_PYRAMID) == PYRAMID_DESTROY_GATES)
             {
@@ -489,7 +489,7 @@ public:
                 instance->SetData(DATA_PYRAMID, PYRAMID_DESTROY_GATES);
                 if (Creature* sergeantBly = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_BLY)))
                 {
-                    sergeantBly->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    sergeantBly->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 }
             }
         }
