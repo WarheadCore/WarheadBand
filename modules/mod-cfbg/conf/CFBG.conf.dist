@@ -10,11 +10,6 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
 
-#############################
-# CFBG configuration system #
-#############################
-[worldserver]
-
 ###################################################################################################
 #   CFBG
 #
@@ -29,6 +24,25 @@
 #   CFBG.BalancedTeams
 #       Description: Enable check average player level for bg
 #       Default: 1
+#
+#   CFBG.BalancedTeams.Class.LowLevel
+#       Description: Enable class balance for BGs LowLevel
+#       Default: 0
+#                1 - (Enabled. Balance the number of Hunters per team)
+#
+#   CFBG.BalancedTeams.Class.MinLevel
+#       Description: Define min level to use the LowLevelClass balance
+#       Default: 10
+#
+#   CFBG.BalancedTeams.Class.MaxLevel
+#       Description: Define max level to use the LowLevelClass balance
+#       Default: 19
+#
+#   CFBG.BalancedTeams.Class.LevelDiff
+#       Description: Only taking into account characters having level >= BgMaxLevel - LevelDiff
+#                    for example in a 10-19 BG, if this value is set to 2, then it will consider only
+#                    players of level 17, 18, 19 (>= 19-2)
+#       Default: 2
 #
 #   CFBG.Players.Count.In.Group
 #       Description: Maximum players in party for enter queue
@@ -47,7 +61,13 @@
 
 CFBG.Enable = 1
 CFBG.BalancedTeams = 1
+CFBG.BalancedTeams.Class.LowLevel = 0
+CFBG.BalancedTeams.Class.MinLevel = 10
+CFBG.BalancedTeams.Class.MaxLevel = 19
+CFBG.BalancedTeams.Class.LevelDiff = 2
 CFBG.Include.Avg.Ilvl.Enable = 0
 CFBG.Players.Count.In.Group = 3
 CFBG.EvenTeams.Enabled = 0
-CFBG.EvenTeams.MaxPlayersThreshold = 5
+CFBG.EvenTeams.MaxPlayersThreshold = 0
+CFBG.ResetCooldowns = 0
+CFBG.Show.PlayerName = 0
