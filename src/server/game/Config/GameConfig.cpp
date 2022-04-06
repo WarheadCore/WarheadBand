@@ -571,8 +571,8 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     CheckLogRecordsCount("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
     CheckLogRecordsCount("Guild.BankEventLogRecordsCount", GUILD_BANKLOG_MAX_RECORDS);
 
-    if (CONF_GET_BOOL("PlayerStart.AllSpells"))
-        LOG_WARN("server.loading", "WORLD: WARNING: PlayerStart.AllSpells enabled - may not function as intended!");
+    if (CONF_GET_BOOL("PlayerStart.CustomSpells"))
+        LOG_WARN("server.loading", "WORLD: WARNING: PlayerStart.CustomSpells enabled - may not function as intended!");
 
     tempIntOption = CONF_GET_INT("PvPToken.ItemCount");
     if (tempIntOption < 1)
