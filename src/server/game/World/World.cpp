@@ -44,7 +44,6 @@
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
-#include "Discord.h"
 #include "DynamicVisibility.h"
 #include "ExternalMail.h"
 #include "GameConfig.h"
@@ -1213,16 +1212,11 @@ void World::SetInitialWorldSettings()
         }
     }
 
-    // Start discord bot
-    sDiscord->Start();
-
     std::string startupDuration = Warhead::Time::ToTimeString(sw.Elapsed(), sw.GetOutCount());
 
     LOG_INFO("server.loading", " ");
     LOG_INFO("server.loading", "WORLD: World initialized in {}", startupDuration); // outError for red color in console
     LOG_INFO("server.loading", " ");
-
-    sDiscord->SendServerStartup(startupDuration);
 
     METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
 
@@ -1525,11 +1519,6 @@ void World::Update(uint32 diff)
     }
 
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update Discord code bind"));
-        sDiscord->Update(diff);
-    }
-
-    {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update metrics"));
         // Stats logger update
         sMetric->Update();
@@ -1714,8 +1703,6 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
     std::string strTime = Warhead::Time::ToTimeString(Seconds(time));
 
     LOG_WARN("server", "> Time left until shutdown/restart: {}", strTime);
-
-    sDiscord->SendDefaultMessage("Рестарт сервера", Warhead::StringFormat("Рестарт сервера через {}", strTime), DiscordMessageColor::Yellow);
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
     if (time == 0)

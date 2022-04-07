@@ -29,7 +29,6 @@ if(SERVERS OR TOOLS)
   add_subdirectory(poco)
   add_subdirectory(argon2)
   add_subdirectory(stdfs)
-  add_subdirectory(dpp)
 endif()
 
 if(SERVERS)

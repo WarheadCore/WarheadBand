@@ -26,7 +26,6 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
-#include "Discord.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
@@ -408,8 +407,6 @@ int main(int argc, char** argv)
 
         ///- Clean database before leaving
         ClearOnlineAccounts();
-
-        sDiscord->SendServerShutdown();
     });
 
     // Set server online (allow connecting now)
