@@ -1,0 +1,100 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# DiscordClient module configuration
+########################################
+#
+#    Discord.Enable
+#        Description: Enable module
+#        Default: 0
+#
+
+Discord.Enable = 0
+
+#
+#    Discord.Server.Port
+#        Description: Host name for server
+#        Default:     ""
+#
+
+Discord.Server.Host = ""
+
+#
+#    Discord.Server.Port
+#        Description: TCP port for connect server.
+#        Default:     1000
+#
+
+Discord.Server.Port = 1000
+
+#
+#    Discord.Server.Account.Name
+#        Description: Account name for server
+#        Default:     ""
+#
+
+Discord.Server.Account.Name = ""
+
+#
+#    Discord.Server.Account.Key
+#        Description: Account key for server
+#        Default:     ""
+#
+
+Discord.Server.Account.Key = ""
+
+#
+#    Discord.Server.ID
+#        Description: Id for discord guild
+#        Default:     0
+#
+
+Discord.Server.ID = 0
+
+#
+#    Discord.Channel.ListID
+#        Description: List channels (General, ServerStatus)
+#        Default:     ""
+#
+
+Discord.DefaultChannel.ListID = ""
+
+#
+#    Discord.GameChatLogs.Enable
+#        Description: Enable game chat logs
+#        Default:     0
+#
+#    Discord.GameChatLogs.ChannelsListID
+#        Description: List channels for chat logs (Say, Channel)
+#        Default:     ""
+#
+
+Discord.GameChatLogs.Enable = 0
+Discord.GameChatLogs.ChannelsListID = ""
+
+#
+#    Discord.GameLoginLogs.Enable
+#        Description: Enable login logs
+#        Default:     0
+#
+#    Discord.GameLoginLogs.ChannelsListID
+#        Description: List channels for login logs (Default, GM, Admin)
+#        Default:     ""
+#
+
+Discord.GameLoginLogs.Enable = 0
+Discord.GameLoginLogs.ChannelsListID = ""
+###################################################################################################

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "IoContext.h"
 
 void ScriptMgr::OnNetworkStart()
 {
@@ -94,4 +95,12 @@ bool ScriptMgr::CanPacketSend(WorldSession* session, WorldPacket const& packet)
     }
 
     return true;
+}
+
+void ScriptMgr::OnIoContext(std::shared_ptr<Warhead::Asio::IoContext> ioContext)
+{
+    ExecuteScript<ServerScript>([ioContext](ServerScript* script)
+    {
+        script->OnIoContext(ioContext);
+    });
 }
