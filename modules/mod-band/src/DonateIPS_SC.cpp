@@ -310,7 +310,7 @@ public:
     void OnUpdate(uint32 diff) override
     {
         sDonateIPS->Update(Milliseconds(diff));
-    }    
+    }
 };
 
 // Group all custom scripts
