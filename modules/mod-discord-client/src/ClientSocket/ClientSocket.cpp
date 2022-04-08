@@ -55,7 +55,7 @@ void ClientSocket::Start()
 
 void ClientSocket::OnClose()
 {
-    LOG_DEBUG("module.discord", "> Disconnected from module.discord");
+    LOG_DEBUG("module.discord", "> Disconnected from server");
 }
 
 bool ClientSocket::Update()
