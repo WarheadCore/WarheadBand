@@ -90,11 +90,10 @@ void ExternalMail::LoadSystem()
     }
 
     scheduler.CancelAll();
-    scheduler.Schedule(10s, [this](TaskContext context)
+    scheduler.Schedule(15s, [this](TaskContext context)
     {
         SendMails();
-
-        context.Repeat();
+        context.Repeat(5s);
     });
 
     LOG_INFO("server.loading", ">> External mail loaded");
