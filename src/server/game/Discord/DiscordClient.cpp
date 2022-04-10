@@ -158,14 +158,11 @@ void DiscordClient::LogLogin(Player* player)
     if (!_isEnable || !player)
         return;
 
-    auto channelType = DiscordLoginChannelType::Default;
-    auto color = DiscordMessageColor::Orange;
-
-    auto accountID = player->GetSession()->GetAccountId();
     auto channelID = DiscordLoginChannelType::Default;
+    auto color = DiscordMessageColor::Orange;
+    auto accountID = player->GetSession()->GetAccountId();    
     auto security = player->GetSession()->GetSecurity();
     auto title = "Вход в игровой мир";
-    //auto description = "Вход в игровой мир";
 
     if (security > SEC_PLAYER)
         channelID = DiscordLoginChannelType::GM;
