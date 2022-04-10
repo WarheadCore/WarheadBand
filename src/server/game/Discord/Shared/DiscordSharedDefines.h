@@ -19,6 +19,7 @@
 #define __DISCORD_SHARED_DEFINES_H__
 
 #include "Define.h"
+#include <string>
 #include <string_view>
 #include <vector>
 
