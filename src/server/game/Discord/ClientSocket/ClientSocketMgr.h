@@ -21,6 +21,7 @@
 #include "AsioHacksFwd.h"
 #include "DiscordPacket.h"
 #include "PacketQueue.h"
+#include <atomic>
 #include <mutex>
 
 namespace Warhead::Asio
