@@ -136,7 +136,7 @@ void DiscordClient::LogChat(Player* player, uint32 type, std::string_view msg)
     SendEmbedMessage(channelID, color, title, description);
 }
 
-void DiscordClient::LogChat(Player* player, uint32 type, std::string_view msg, Channel* channel)
+void DiscordClient::LogChat(Player* player, uint32 /*type*/, std::string_view msg, Channel* channel)
 {
     if (!_isEnable || !MOD_CONF_GET_BOOL("Discord.GameChatLogs.Enable") || !player)
         return;
