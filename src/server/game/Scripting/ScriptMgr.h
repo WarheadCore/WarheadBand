@@ -255,7 +255,7 @@ public:
     /**
      * @brief This hook runs after all scripts loading and before itialized
      */
-    virtual void OnBeforeWorldInitialized(Microseconds elapsed) { }
+    virtual void OnBeforeWorldInitialized(Microseconds /*elapsed*/) { }
 };
 
 class WH_GAME_API FormulaScript : public ScriptObject
