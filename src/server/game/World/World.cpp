@@ -1187,7 +1187,7 @@ void World::SetInitialWorldSettings()
     ChannelMgr::LoadChannels();
 
     LOG_INFO("server.loading", "Load external mail...");
-    sExternalMail->LoadSystem();    
+    sExternalMail->LoadSystem();
 
     if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids"))
     {
