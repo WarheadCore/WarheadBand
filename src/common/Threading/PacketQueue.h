@@ -46,6 +46,8 @@ namespace Warhead::Impl
             //! Empty incoming PacketQueue
             for (auto& packet : _queue)
                 delete packet;
+
+            _queue.clear();
         }
 
         //! Adds an item to the queue.
@@ -135,11 +137,6 @@ namespace Warhead::Impl
                 delete element->first;
                 delete element;
             }
-        }
-
-        auto GetElementType()
-        {
-            return Element;
         }
 
         //! Adds an item to the queue.
