@@ -22,6 +22,7 @@
 #include "DiscordPacket.h"
 #include "PacketQueue.h"
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 namespace Warhead::Asio
