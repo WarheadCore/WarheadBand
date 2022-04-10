@@ -71,9 +71,10 @@ class DiscordClient_Server : public ServerScript
 public:
     DiscordClient_Server() : ServerScript("DiscordClient_Server") { }
 
-    void OnIoContext(std::shared_ptr<Warhead::Asio::IoContext> ioContext) override
+    void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext) override
     {
-        sClientSocketMgr->InitializeIo(*ioContext);
+        if (auto context = ioContext.lock())
+            sClientSocketMgr->InitializeIo(*context);
     }
 };
 

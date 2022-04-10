@@ -201,7 +201,7 @@ public:
      *
      * @param ioContext Contains information about the Warhead::Asio::IoContext
      */
-    virtual void OnIoContext(std::shared_ptr<Warhead::Asio::IoContext> ioContext) { }
+    virtual void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext) { }
 };
 
 class WH_GAME_API WorldScript : public ScriptObject
@@ -2056,7 +2056,7 @@ public: /* ServerScript */
     void OnSocketClose(std::shared_ptr<WorldSocket> socket);
     bool CanPacketReceive(WorldSession* session, WorldPacket const& packet);
     bool CanPacketSend(WorldSession* session, WorldPacket const& packet);
-    void OnIoContext(std::shared_ptr<Warhead::Asio::IoContext> ioContext);
+    void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext);
 
 public: /* WorldScript */
     void OnLoadCustomDatabaseTable();

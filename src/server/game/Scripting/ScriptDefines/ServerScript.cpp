@@ -97,7 +97,7 @@ bool ScriptMgr::CanPacketSend(WorldSession* session, WorldPacket const& packet)
     return true;
 }
 
-void ScriptMgr::OnIoContext(std::shared_ptr<Warhead::Asio::IoContext> ioContext)
+void ScriptMgr::OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext)
 {
     ExecuteScript<ServerScript>([ioContext](ServerScript* script)
     {
