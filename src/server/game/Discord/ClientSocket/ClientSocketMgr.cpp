@@ -23,6 +23,7 @@
 #include "Resolver.h"
 #include "Duration.h"
 #include "DiscordClient.h"
+#include <thread>
 
 /*static*/ ClientSocketMgr* ClientSocketMgr::instance()
 {
