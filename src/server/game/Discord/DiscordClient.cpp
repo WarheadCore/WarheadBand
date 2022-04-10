@@ -170,7 +170,7 @@ void DiscordClient::LogLogin(Player* player)
         channelID = DiscordLoginChannelType::Admin;
 
     std::string accountName;
-    AccountMgr::GetName(player->GetSession()->GetAccountId(), accountName);
+    AccountMgr::GetName(accountID, accountName);
 
     /*if (auto userID = GetUserID(accountID))
     {
