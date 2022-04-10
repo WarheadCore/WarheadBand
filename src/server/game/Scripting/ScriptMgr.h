@@ -201,7 +201,7 @@ public:
      *
      * @param ioContext Contains information about the Warhead::Asio::IoContext
      */
-    virtual void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext) { }
+    virtual void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> /*ioContext*/) { }
 };
 
 class WH_GAME_API WorldScript : public ScriptObject
