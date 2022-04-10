@@ -106,11 +106,11 @@ void ScriptMgr::OnShutdown()
     });
 }
 
-void ScriptMgr::OnBeforeWorldInitialized(Microseconds initTime)
+void ScriptMgr::OnBeforeWorldInitialized(Microseconds elapsed)
 {
-    ExecuteScript<WorldScript>([initTime](WorldScript* script)
+    ExecuteScript<WorldScript>([elapsed](WorldScript* script)
     {
-        script->OnBeforeWorldInitialized(initTime);
+        script->OnBeforeWorldInitialized(elapsed);
     });
 }
 

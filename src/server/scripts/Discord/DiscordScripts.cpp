@@ -60,9 +60,9 @@ public:
         sDiscord->Update(Milliseconds(diff));
     }
 
-    void OnBeforeWorldInitialized(Microseconds initTime) override
+    void OnBeforeWorldInitialized(Microseconds elapsed) override
     {
-        sDiscord->SendServerStartup(initTime);
+        sDiscord->SendServerStartup(elapsed);
     }
 };
 

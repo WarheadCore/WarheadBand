@@ -255,7 +255,7 @@ public:
     /**
      * @brief This hook runs after all scripts loading and before itialized
      */
-    virtual void OnBeforeWorldInitialized(Microseconds initTime) { }
+    virtual void OnBeforeWorldInitialized(Microseconds elapsed) { }
 };
 
 class WH_GAME_API FormulaScript : public ScriptObject
@@ -2070,7 +2070,7 @@ public: /* WorldScript */
     void OnWorldUpdate(uint32 diff);
     void OnStartup();
     void OnShutdown();
-    void OnBeforeWorldInitialized(Microseconds initTime);
+    void OnBeforeWorldInitialized(Microseconds elapsed);
     void OnAfterUnloadAllMaps();
 
 public: /* FormulaScript */
