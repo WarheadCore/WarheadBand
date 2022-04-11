@@ -2450,7 +2450,7 @@ bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, floa
         return false;
     }
 
-    if (sWorld->getBoolConfig(CONFIG_CHECK_GOBJECT_LOS) && (checks & LINEOFSIGHT_CHECK_GOBJECT_ALL))
+    if (CONF_GET_BOOL("CheckGameObjectLoS") && (checks & LINEOFSIGHT_CHECK_GOBJECT_ALL))
     {
         ignoreFlags = VMAP::ModelIgnoreFlags::Nothing;
         if (!(checks & LINEOFSIGHT_CHECK_GOBJECT_M2))

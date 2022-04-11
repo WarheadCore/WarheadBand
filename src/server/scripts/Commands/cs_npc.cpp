@@ -620,7 +620,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
         handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUnitFlags(), target->GetUnitFlags2(), target->GetDynamicFlags(), target->GetFaction());
-        handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
+        handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr, curRespawnDelayStr);
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
         handler->PSendSysMessage(LANG_NPCINFO_PHASEMASK, target->GetPhaseMask());

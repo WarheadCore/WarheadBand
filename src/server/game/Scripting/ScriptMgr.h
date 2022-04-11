@@ -2019,7 +2019,7 @@ public: /* Initialization */
     void FillSpellSummary();
     void CheckIfScriptsInDatabaseExist();
 
-    const char* ScriptsVersion() const { return "Integrated Azeroth Scripts"; }
+    const char* ScriptsVersion() const { return "Integrated Warhead Scripts"; }
 
     void IncrementScriptCount() { ++_scriptCount; }
     uint32 GetScriptCount() const { return _scriptCount; }

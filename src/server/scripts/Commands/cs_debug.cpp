@@ -128,14 +128,14 @@ public:
         // Dump camera locations
         if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cineSeq->cinematicCamera))
         {
-            handler->PSendSysMessage("Waypoints for sequence %u, camera %u", cinematicId, cineSeq->cinematicCamera);
+            handler->PSendSysMessage("Waypoints for sequence {}, camera {}", cinematicId, cineSeq->cinematicCamera);
             uint32 count = 1;
             for (FlyByCamera const& cam : *flyByCameras)
             {
-                handler->PSendSysMessage("%02u - %7ums [%s (%f degrees)]", count, cam.timeStamp, cam.locations.ToString().c_str(), cam.locations.GetOrientation() * (180 / M_PI));
+                handler->PSendSysMessage("{:02} - %7ums [{} ({} degrees)]", count, cam.timeStamp, cam.locations.ToString(), cam.locations.GetOrientation() * (180 / M_PI));
                 ++count;
             }
-            handler->PSendSysMessage("%u waypoints dumped", flyByCameras->size());
+            handler->PSendSysMessage("{} waypoints dumped", flyByCameras->size());
         }
 
         handler->GetPlayer()->SendCinematicStart(cinematicId);
@@ -999,10 +999,10 @@ public:
         if (Unit* unit = handler->getSelectedUnit())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            handler->PSendSysMessage("Checking LoS %s -> %s:", player->GetName().c_str(), unit->GetName().c_str());
-            handler->PSendSysMessage("    VMAP LoS: %s", player->IsWithinLOSInMap(unit, VMAP::ModelIgnoreFlags::Nothing, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
-            handler->PSendSysMessage("    GObj LoS: %s", player->IsWithinLOSInMap(unit, VMAP::ModelIgnoreFlags::Nothing, LINEOFSIGHT_CHECK_GOBJECT_ALL) ? "clear" : "obstructed");
-            handler->PSendSysMessage("%s is %sin line of sight of %s.", unit->GetName().c_str(), (player->IsWithinLOSInMap(unit) ? "" : "not "), player->GetName().c_str());
+            handler->PSendSysMessage("Checking LoS {} -> {}:", player->GetName(), unit->GetName());
+            handler->PSendSysMessage("    VMAP LoS: {}", player->IsWithinLOSInMap(unit, VMAP::ModelIgnoreFlags::Nothing, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
+            handler->PSendSysMessage("    GObj LoS: {}", player->IsWithinLOSInMap(unit, VMAP::ModelIgnoreFlags::Nothing, LINEOFSIGHT_CHECK_GOBJECT_ALL) ? "clear" : "obstructed");
+            handler->PSendSysMessage("{} is {}in line of sight of {}.", unit->GetName(), (player->IsWithinLOSInMap(unit) ? "" : "not "), player->GetName());
             return true;
         }
 
@@ -1307,7 +1307,7 @@ public:
 
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
     {
-        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: %u GameObjects: %u SetActive Objects: %u",
+        handler->PSendSysMessage("Map Id: {} Name: '{}' Instance Id: {} Creatures: {} GameObjects: {} SetActive Objects: {}",
                 map->GetId(), map->GetMapName(), map->GetInstanceId(),
                 uint64(map->GetObjectsStore().Size<Creature>()),
                 uint64(map->GetObjectsStore().Size<GameObject>()),
@@ -1320,7 +1320,7 @@ public:
         handler->PSendSysMessage("Top Creatures count:");
 
         for (auto&& p : worker.GetTopCreatureCount(5))
-            handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
+            handler->PSendSysMessage("Entry: {} Count: {}", p.first, p.second);
     }
 
     static bool HandleDebugDummyCommand(ChatHandler* handler)
