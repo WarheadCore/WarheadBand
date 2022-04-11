@@ -1189,8 +1189,6 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Load external mail...");
     sExternalMail->LoadSystem();
 
-    sScriptMgr->OnBeforeWorldInitialized();
-
     if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids"))
     {
         LOG_INFO("server.loading", "Loading all grids for all non-instanced maps...");
@@ -1212,10 +1210,14 @@ void World::SetInitialWorldSettings()
         }
     }
 
-    std::string startupDuration = Warhead::Time::ToTimeString(sw.Elapsed(), sw.GetOutCount());
+    auto elapsed = sw.Elapsed();
+
+    sScriptMgr->OnBeforeWorldInitialized(elapsed);
+
+    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
     LOG_INFO("server.loading", " ");
-    LOG_INFO("server.loading", "WORLD: World initialized in {}", startupDuration); // outError for red color in console
+    LOG_INFO("server.loading", "World initialized in {}", startupDuration);
     LOG_INFO("server.loading", " ");
 
     METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);

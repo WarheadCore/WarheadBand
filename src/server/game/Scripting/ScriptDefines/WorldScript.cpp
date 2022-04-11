@@ -20,7 +20,7 @@
 
 void ScriptMgr::OnOpenStateChange(bool open)
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([open](WorldScript* script)
     {
         script->OnOpenStateChange(open);
     });
@@ -28,7 +28,7 @@ void ScriptMgr::OnOpenStateChange(bool open)
 
 void ScriptMgr::OnLoadCustomDatabaseTable()
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([](WorldScript* script)
     {
         script->OnLoadCustomDatabaseTable();
     });
@@ -36,7 +36,7 @@ void ScriptMgr::OnLoadCustomDatabaseTable()
 
 void ScriptMgr::OnBeforeConfigLoad(bool reload)
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([reload](WorldScript* script)
     {
         script->OnBeforeConfigLoad(reload);
     });
@@ -44,7 +44,7 @@ void ScriptMgr::OnBeforeConfigLoad(bool reload)
 
 void ScriptMgr::OnAfterConfigLoad(bool reload)
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([reload](WorldScript* script)
     {
         script->OnAfterConfigLoad(reload);
     });
@@ -68,7 +68,7 @@ void ScriptMgr::OnMotdChange(std::string& newMotd)
 
 void ScriptMgr::OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([code, mask](WorldScript* script)
     {
         script->OnShutdownInitiate(code, mask);
     });
@@ -84,7 +84,7 @@ void ScriptMgr::OnShutdownCancel()
 
 void ScriptMgr::OnWorldUpdate(uint32 diff)
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([diff](WorldScript* script)
     {
         script->OnUpdate(diff);
     });
@@ -92,7 +92,7 @@ void ScriptMgr::OnWorldUpdate(uint32 diff)
 
 void ScriptMgr::OnStartup()
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([](WorldScript* script)
     {
         script->OnStartup();
     });
@@ -100,17 +100,17 @@ void ScriptMgr::OnStartup()
 
 void ScriptMgr::OnShutdown()
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([](WorldScript* script)
     {
         script->OnShutdown();
     });
 }
 
-void ScriptMgr::OnBeforeWorldInitialized()
+void ScriptMgr::OnBeforeWorldInitialized(Microseconds elapsed)
 {
-    ExecuteScript<WorldScript>([&](WorldScript* script)
+    ExecuteScript<WorldScript>([elapsed](WorldScript* script)
     {
-        script->OnBeforeWorldInitialized();
+        script->OnBeforeWorldInitialized(elapsed);
     });
 }
 

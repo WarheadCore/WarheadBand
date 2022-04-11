@@ -84,9 +84,17 @@ struct OutdoorPvPData;
 struct TargetInfo;
 struct SpellModifier;
 
-namespace Warhead::ChatCommands
+namespace Warhead
 {
-    struct ChatCommandBuilder;
+    namespace Asio
+    {
+        class IoContext;
+    }
+
+    namespace ChatCommands
+    {
+        struct ChatCommandBuilder;
+    }
 }
 
 #define VISIBLE_RANGE 166.0f //MAX visible range (size of grid)
@@ -187,6 +195,13 @@ public:
      * @return True if you want to continue receive the packet, false if you want to disallow receive the packet
      */
     [[nodiscard]] virtual bool CanPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { return true; }
+
+    /**
+     * @brief Called after scripts initialize
+     *
+     * @param ioContext Contains information about the Warhead::Asio::IoContext
+     */
+    virtual void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> /*ioContext*/) { }
 };
 
 class WH_GAME_API WorldScript : public ScriptObject
@@ -240,7 +255,7 @@ public:
     /**
      * @brief This hook runs after all scripts loading and before itialized
      */
-    virtual void OnBeforeWorldInitialized() { }
+    virtual void OnBeforeWorldInitialized(Microseconds /*elapsed*/) { }
 };
 
 class WH_GAME_API FormulaScript : public ScriptObject
@@ -2041,6 +2056,7 @@ public: /* ServerScript */
     void OnSocketClose(std::shared_ptr<WorldSocket> socket);
     bool CanPacketReceive(WorldSession* session, WorldPacket const& packet);
     bool CanPacketSend(WorldSession* session, WorldPacket const& packet);
+    void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext);
 
 public: /* WorldScript */
     void OnLoadCustomDatabaseTable();
@@ -2054,7 +2070,7 @@ public: /* WorldScript */
     void OnWorldUpdate(uint32 diff);
     void OnStartup();
     void OnShutdown();
-    void OnBeforeWorldInitialized();
+    void OnBeforeWorldInitialized(Microseconds elapsed);
     void OnAfterUnloadAllMaps();
 
 public: /* FormulaScript */
