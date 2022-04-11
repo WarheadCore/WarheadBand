@@ -19,8 +19,8 @@
 #define _PACKET_QUEUE_H_
 
 #include <deque>
-#include <mutex>
 #include <functional>
+#include <mutex>
 
 namespace Warhead::Impl
 {

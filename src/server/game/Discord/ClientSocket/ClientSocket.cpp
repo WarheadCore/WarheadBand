@@ -17,16 +17,16 @@
 
 #include "ClientSocket.h"
 #include "ClientSocketMgr.h"
-#include "DiscordPacketHeader.h"
 #include "DeadlineTimer.h"
-#include "IoContext.h"
+#include "DiscordClient.h"
+#include "DiscordPacketHeader.h"
 #include "Errors.h"
+#include "GitRevision.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "Timer.h"
-#include "GitRevision.h"
 #include "SmartEnum.h"
-#include "DiscordClient.h"
+#include "Timer.h"
 
 namespace
 {

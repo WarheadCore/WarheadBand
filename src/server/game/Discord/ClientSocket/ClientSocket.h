@@ -18,10 +18,10 @@
 #ifndef _CLIENT_SOCKET_H_
 #define _CLIENT_SOCKET_H_
 
-#include "Socket.h"
+#include "DiscordPacket.h"
 #include "Duration.h"
 #include "PacketQueue.h"
-#include "DiscordPacket.h"
+#include "Socket.h"
 #include <mutex>
 
 enum DiscordCode : uint16;

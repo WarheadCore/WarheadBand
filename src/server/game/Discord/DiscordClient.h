@@ -19,8 +19,8 @@
 #define _DISCORD_CLIENT_H_
 
 #include "Define.h"
-#include "Duration.h"
 #include "DiscordSharedDefines.h"
+#include "Duration.h"
 #include <array>
 #include <memory>
 

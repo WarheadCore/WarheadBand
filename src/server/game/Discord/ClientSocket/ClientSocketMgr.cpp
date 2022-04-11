@@ -17,12 +17,12 @@
 
 #include "ClientSocketMgr.h"
 #include "ClientSocket.h"
-#include "IoContext.h"
 #include "DeadlineTimer.h"
+#include "DiscordClient.h"
+#include "Duration.h"
+#include "IoContext.h"
 #include "ModulesConfig.h"
 #include "Resolver.h"
-#include "Duration.h"
-#include "DiscordClient.h"
 #include <thread>
 
 /*static*/ ClientSocketMgr* ClientSocketMgr::instance()

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DiscordSharedDefines.h"
 #include "Define.h"
+#include "DiscordSharedDefines.h"
 #include "SmartEnum.h"
 #include <stdexcept>
 

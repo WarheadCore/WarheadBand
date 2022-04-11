@@ -16,18 +16,18 @@
  */
 
 #include "DiscordClient.h"
-#include "DiscordPacket.h"
+#include "Channel.h"
 #include "ClientSocketMgr.h"
+#include "DiscordPacket.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "GameTime.h"
-#include "TaskScheduler.h"
-#include "Tokenize.h"
-#include "StringConvert.h"
-#include "World.h"
-#include "Timer.h"
-#include "Channel.h"
 #include "Player.h"
+#include "StringConvert.h"
+#include "TaskScheduler.h"
+#include "Timer.h"
+#include "Tokenize.h"
+#include "World.h"
 
 /*static*/ DiscordClient* DiscordClient::instance()
 {

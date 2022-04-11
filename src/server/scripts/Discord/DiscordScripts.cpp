@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ClientSocketMgr.h"
 #include "DiscordClient.h"
 #include "DiscordSharedDefines.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
 #include "IoContext.h"
-#include "ClientSocketMgr.h"
+#include "ModulesConfig.h"
+#include "ScriptMgr.h"
 
 class DiscordClient_World : public WorldScript
 {
