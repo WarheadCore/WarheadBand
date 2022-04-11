@@ -16,8 +16,6 @@
 ########################################
 # DonateIPS module configuration
 ########################################
-[worldserver]
-
 #
 #   IPSShop.Enable
 #       Описание: Система доната wowka.su
@@ -27,4 +25,10 @@
 
 IPSShop.Enable = 0
 
-#Logger.modules.ips = 6,Modules
+#
+#   IPSShop.Discord.ChannelID
+#       Описание: Номер канала дискорда для уведомлений
+#       Значение: 0 - выключить (по умолчанию)
+#
+
+IPSShop.Discord.ChannelID = 0

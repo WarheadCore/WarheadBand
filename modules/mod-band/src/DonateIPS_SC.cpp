@@ -26,6 +26,9 @@
 #include "Optional.h"
 #include "Realm.h"
 #include "StopWatch.h"
+#include "DiscordClient.h"
+#include "StringConvert.h"
+#include "GameLocale.h"
 #include <vector>
 #include <unordered_map>
 
@@ -73,6 +76,7 @@ public:
     {
         sModulesConfig->AddOption("IPSShop.Enable");
         _IsEnable = MOD_CONF_GET_BOOL("IPSShop.Enable");
+        _discordShannelID = sModulesConfig->GetOption<int64>("IPSShop.Discord.ChannelID", 0);
     }
 
     inline void Initialize()
@@ -203,7 +207,7 @@ private:
         auto ipsShopDefine = ipsShopLink->ItemID;
         if (!ipsShopDefine)
         {
-            LOG_FATAL("modules.ips", "> DonateIPS: Невозможно найти определение для номера {}", ipsShopLink->ID);
+            LOG_FATAL("module.ips", "> DonateIPS: Невозможно найти определение для номера {}", ipsShopLink->ID);
             return;
         }
 
@@ -222,7 +226,7 @@ private:
             SendRewardChangeFaction(ipsShopLink->NickName);
             break;
         default:
-            LOG_FATAL("modules.ips", "> DonateIPS: Неверый тип шоп айди ({})", static_cast<uint32>(ipsShopDefine->Type));
+            LOG_FATAL("module.ips", "> DonateIPS: Неверый тип шоп айди ({})", static_cast<uint32>(ipsShopDefine->Type));
             return;
         }
 
@@ -231,7 +235,15 @@ private:
 
     inline void SendRewardItem(std::string_view charName, uint32 itemID, uint32 itemCount)
     {
+        auto itemTemplate = sObjectMgr->GetItemTemplate(itemID);
+        if (!itemTemplate)
+        {
+            LOG_ERROR("module.ips", "Incorrect item id {}", itemID);
+            return;
+        }
+
         sExternalMail->AddMail(charName, _thanksSubject, _thanksText, itemID, itemCount, 37688);
+        SendNotificationItem(charName, sGameLocale->GetItemNameLocale(itemID, 8), itemCount);
     }
 
     inline void SendRewardRename(std::string const& charName)
@@ -243,6 +255,8 @@ private:
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->SetArguments(uint16(AT_LOGIN_RENAME), targetGuid.GetCounter());
         CharacterDatabase.Execute(stmt);
+
+        SendNotification(charName, "Смена имени");
     }
 
     inline void SendRewardChangeRace(std::string const& charName)
@@ -254,6 +268,8 @@ private:
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->SetArguments(uint16(AT_LOGIN_CHANGE_RACE), targetGuid.GetCounter());
         CharacterDatabase.Execute(stmt);
+
+        SendNotification(charName, "Смена рассы");
     }
 
     inline void SendRewardChangeFaction(std::string const& charName)
@@ -265,6 +281,8 @@ private:
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->SetArguments(uint16(AT_LOGIN_CHANGE_FACTION), targetGuid.GetCounter());
         CharacterDatabase.Execute(stmt);
+
+        SendNotification(charName, "Смена фракции");
     }
 
     inline Optional<IPSShopDefine> GetShopDefine(uint32 shopID)
@@ -278,16 +296,47 @@ private:
         return std::nullopt;
     }
 
+    inline void SendNotificationItem(std::string_view playerName, std::string_view itemName, uint32 itemCount)
+    {
+        if (!sDiscord->IsEnable() || !_discordShannelID)
+            return;
+
+        auto color = DiscordMessageColor::Indigo;
+        auto title = "Покупка в игровом магазине";
+        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку в игровом магазине. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
+        auto embedItemName = Warhead::StringFormat("`{}`", itemName);
+
+        DiscordEmbedFields fields;
+        fields.emplace_back(EmbedField("Предмет", embedItemName, true));
+        fields.emplace_back(EmbedField("Количество", Warhead::ToString(itemCount), true));
+        sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
+    }
+
+    inline void SendNotification(std::string_view playerName, std::string_view desc)
+    {
+        if (!sDiscord->IsEnable() || !_discordShannelID)
+            return;
+
+        auto color = DiscordMessageColor::Indigo;
+        auto title = "Покупка в игровом магазине";
+        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку в игровом магазине. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
+
+        DiscordEmbedFields fields;
+        fields.emplace_back(EmbedField("Услуга", std::string(desc), true));
+        sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
+    }
+
 private:
     std::vector<IPSShopLink> _ipsShopLinkStore;
     std::unordered_map<uint32 /*shop id*/, IPSShopDefine> _shopStore;
 
-    std::string const _thanksSubject = "Донат магазин";
+    std::string const _thanksSubject = "Игровой магазин";
     std::string const _thanksText = "Спасибо за покупку!";
 
     QueryCallbackProcessor _queryProcessor;
     TaskScheduler _scheduler;
     bool _IsEnable{ false };
+    int64 _discordShannelID{ 0 };
 };
 
 #define sDonateIPS DonateIPS::instance()

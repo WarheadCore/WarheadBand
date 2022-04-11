@@ -94,10 +94,10 @@ public:
     //void AddCode(ObjectGuid guid);
     //ObjectGuid GetGuidWithCode(uint32 code);
 
-private:
     void SendDefaultMessage(int64 channelID, std::string_view message);
     void SendEmbedMessage(int64 channelID, DiscordMessageColor color, std::string_view title, std::string_view description, DiscordEmbedFields const* fields = nullptr);
 
+private:
     int64 GetChannelIDForType(DiscordDefaultChannelType channelType);
     int64 GetChannelIDForType(DiscordСhatChannelType channelType);
     int64 GetChannelIDForType(DiscordLoginChannelType channelType);
