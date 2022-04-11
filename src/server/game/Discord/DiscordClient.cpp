@@ -160,7 +160,7 @@ void DiscordClient::LogLogin(Player* player)
 
     auto channelID = DiscordLoginChannelType::Default;
     auto color = DiscordMessageColor::Orange;
-    auto accountID = player->GetSession()->GetAccountId();    
+    auto accountID = player->GetSession()->GetAccountId();
     auto security = player->GetSession()->GetSecurity();
     auto title = "Вход в игровой мир";
 
