@@ -1985,7 +1985,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         ClearGossipMenuFor(player);
-        bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+        bool noXPGain = player->HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
         bool doSwitch = false;
         auto toggleXpCost = CONF_GET_INT("ToggleXP.Cost");
 
@@ -2013,12 +2013,12 @@ public:
             else if (noXPGain)
             {
                 player->ModifyMoney(-toggleXpCost);
-                player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                player->RemovePlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             }
             else if (!noXPGain)
             {
                 player->ModifyMoney(-toggleXpCost);
-                player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
+                player->SetPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN);
             }
         }
         player->PlayerTalkClass->SendCloseGossip();

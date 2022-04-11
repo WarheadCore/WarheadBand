@@ -311,6 +311,8 @@ public:
 
                         break;
                     case SPECIAL:
+                        if (EggEvent == NOT_STARTED)
+                            SetData(DATA_EGG_EVENT, IN_PROGRESS);
                         if (++EggCount >= EggList.size())
                         {
                             if (Creature* razor = instance->GetCreature(razorgoreGUID))
@@ -322,8 +324,6 @@ public:
                             _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1000);
                             _events.CancelEvent(EVENT_RAZOR_SPAWN);
                         }
-                        if (EggEvent == NOT_STARTED)
-                            SetData(DATA_EGG_EVENT, IN_PROGRESS);
                         break;
                 }
             }
@@ -448,7 +448,7 @@ public:
                                 }
                             }
 
-                            _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 12000, 17000);
+                            _events.ScheduleEvent(EVENT_RAZOR_SPAWN, 15000);
                         }
                         break;
                     case EVENT_RAZOR_PHASE_TWO:

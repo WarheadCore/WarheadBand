@@ -999,10 +999,10 @@ public:
         if (Unit* unit = handler->getSelectedUnit())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            handler->PSendSysMessage("Checking LoS {} -> {}:", player->GetName(), unit->GetName());
-            handler->PSendSysMessage("    VMAP LoS: {}", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
-            handler->PSendSysMessage("    GObj LoS: {}", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_GOBJECT) ? "clear" : "obstructed");
-            handler->PSendSysMessage("{} is {}in line of sight of {}.", unit->GetName(), (player->IsWithinLOSInMap(unit) ? "" : "not "), player->GetName());
+            handler->PSendSysMessage("Checking LoS %s -> %s:", player->GetName().c_str(), unit->GetName().c_str());
+            handler->PSendSysMessage("    VMAP LoS: %s", player->IsWithinLOSInMap(unit, VMAP::ModelIgnoreFlags::Nothing, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
+            handler->PSendSysMessage("    GObj LoS: %s", player->IsWithinLOSInMap(unit, VMAP::ModelIgnoreFlags::Nothing, LINEOFSIGHT_CHECK_GOBJECT_ALL) ? "clear" : "obstructed");
+            handler->PSendSysMessage("%s is %sin line of sight of %s.", unit->GetName().c_str(), (player->IsWithinLOSInMap(unit) ? "" : "not "), player->GetName().c_str());
             return true;
         }
 
