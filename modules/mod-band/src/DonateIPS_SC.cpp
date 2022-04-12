@@ -320,7 +320,7 @@ private:
 
         auto color = DiscordMessageColor::Indigo;
         auto title = "Покупка в игровом магазине";
-        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку в игровом магазине. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
+        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
 
         DiscordEmbedFields fields;
         fields.emplace_back(EmbedField("Услуга", std::string(desc), true));
