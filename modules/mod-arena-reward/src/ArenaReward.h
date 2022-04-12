@@ -18,8 +18,8 @@
 #ifndef _ARENA_REWARD_H_
 #define _ARENA_REWARD_H_
 
-#include "Common.h"
 #include "Battleground.h"
+#include "Common.h"
 #include "Player.h"
 
 class ArenaReward

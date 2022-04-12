@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "Item.h"
 #include "Language.h"
@@ -265,7 +266,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // not accept case incorrect money amount
     if (!_player->HasEnoughMoney(my_trade->GetMoney()))
     {
-        SendNotification(LANG_NOT_ENOUGH_GOLD);
+        Warhead::Text::SendNotification(this, LANG_NOT_ENOUGH_GOLD);
         my_trade->SetAccepted(false, true);
         return;
     }
@@ -273,7 +274,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     // not accept case incorrect money amount
     if (!trader->HasEnoughMoney(his_trade->GetMoney()))
     {
-        trader->GetSession()->SendNotification(LANG_NOT_ENOUGH_GOLD);
+        Warhead::Text::SendNotification(trader->GetSession(), LANG_NOT_ENOUGH_GOLD);
         his_trade->SetAccepted(false, true);
         return;
     }
@@ -423,8 +424,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         {
             clearAcceptTradeMode(my_trade, his_trade);
 
-            SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
-            trader->GetSession()->SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
+            Warhead::Text::SendNotification(this, LANG_NOT_FREE_TRADE_SLOTS);
+            Warhead::Text::SendNotification(trader->GetSession(), LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
             delete my_spell;
@@ -435,8 +436,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         {
             clearAcceptTradeMode(my_trade, his_trade);
 
-            SendNotification(LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
-            trader->GetSession()->SendNotification(LANG_NOT_FREE_TRADE_SLOTS);
+            Warhead::Text::SendNotification(this, LANG_NOT_PARTNER_FREE_TRADE_SLOTS);
+            Warhead::Text::SendNotification(trader->GetSession(), LANG_NOT_FREE_TRADE_SLOTS);
             my_trade->SetAccepted(false);
             his_trade->SetAccepted(false);
             delete my_spell;
@@ -464,13 +465,13 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
 
         if( my_trade->GetMoney() >= 10 * GOLD )
         {
-            CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<TRADE>\", NOW())",
-                GetAccountId(), _player->GetGUID().GetCounter(), _player->GetName(), GetRemoteAddress(), trader->GetSession()->GetAccountId(), trader->GetName(), my_trade->GetMoney());
+            CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"goods\", NOW(), {})",
+                GetAccountId(), _player->GetGUID().GetCounter(), _player->GetName(), GetRemoteAddress(), trader->GetSession()->GetAccountId(), trader->GetName(), my_trade->GetMoney(), 6);
         }
         if( his_trade->GetMoney() >= 10 * GOLD )
         {
-            CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<TRADE>\", NOW())",
-                trader->GetSession()->GetAccountId(), trader->GetGUID().GetCounter(), trader->GetName(), trader->GetSession()->GetRemoteAddress(), GetAccountId(), _player->GetName(), his_trade->GetMoney());
+            CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"goods\", NOW(), {})",
+                trader->GetSession()->GetAccountId(), trader->GetGUID().GetCounter(), trader->GetName(), trader->GetSession()->GetRemoteAddress(), GetAccountId(), _player->GetName(), his_trade->GetMoney(), 6);
         }
 
         // update money
@@ -573,7 +574,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
     if (GetPlayer()->getLevel() < CONF_GET_INT("LevelReq.Trade"))
     {
-        SendNotification(GetWarheadString(LANG_TRADE_REQ), CONF_GET_INT("LevelReq.Trade"));
+        Warhead::Text::SendNotification(this, LANG_TRADE_REQ, CONF_GET_INT("LevelReq.Trade"));
         return;
     }
 
@@ -638,7 +639,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 
     if (pOther->getLevel() < CONF_GET_INT("LevelReq.Trade"))
     {
-        SendNotification(GetWarheadString(LANG_TRADE_OTHER_REQ), CONF_GET_INT("LevelReq.Trade"));
+        Warhead::Text::SendNotification(this, LANG_TRADE_OTHER_REQ, CONF_GET_INT("LevelReq.Trade"));
         return;
     }
 

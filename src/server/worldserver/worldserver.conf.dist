@@ -19,6 +19,7 @@
 #    GAME MASTER SETTINGS
 #    VISIBILITY AND DISTANCES
 #    SERVER RATES
+#    STATS LIMITS
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
 #    BATTLEFIELD CONFIG
@@ -34,6 +35,7 @@
 #    DEBUG
 #    METRIC SETTINGS
 #    EXTERNAL MAIL SETTINGS
+#    DISCORD SETTINGS
 #
 ###################################################################################################
 
@@ -336,9 +338,9 @@ SessionAddDelay = 10000
 #
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
-#        Default:     100 - (0.1 second)
+#        Default:     100 - (0.01 second)
 
-MapUpdateInterval = 100
+MapUpdateInterval = 10
 
 #
 #    ChangeWeatherInterval
@@ -856,6 +858,14 @@ StartPlayerMoney = 0
 MaxHonorPoints = 75000
 
 #
+#    MaxHonorPointsMoneyPerPoint
+#        Description: Convert excess honor points into money if players got more points than allowed after changing the honor cap.
+#                     Honor points will be converted into copper according to the value set in this config.
+#        Default: 0 - Disabled
+
+MaxHonorPointsMoneyPerPoint = 0
+
+#
 #    StartHonorPoints
 #        Description: Amount of honor points that characters have after creation.
 #        Default:     0
@@ -1204,7 +1214,7 @@ Motd = "Welcome to an WarheadCore server."
 
 #    PLEASE NOTE: another (hardcoded) text will appear below the MOTD:
 #
-#        "This server runs on AzerothCore www.azerothcore.org"
+#        "This server runs on WarheadCore www.azerothcore.org"
 #
 #    All the WarheadCore contributors, as well as its father projects (MaNGOS, TrinityCore, etc..),
 #    have worked for free to provide you this software. Please do not remove the credits.
@@ -1757,6 +1767,14 @@ ListenRange.TextEmote = 40
 
 ListenRange.Yell = 300
 
+#
+#    Creature.MovingStopTimeForPlayer
+#        Description: Time (in milliseconds) during which creature will not move after
+#                     interaction with player.
+#        Default: 180000
+
+Creature.MovingStopTimeForPlayer = 180000
+
 #    WaypointMovementStopTimeForPlayer
 #        Description: Specifies the time (in seconds) that a creature with waypoint
 #                     movement will wait after a player interacts with it.
@@ -1786,6 +1804,17 @@ NpcRegenHPIfTargetIsUnreachable = 1
 #        Default:     10
 
 NpcRegenHPTimeIfTargetIsUnreachable = 10
+
+#    Creatures.CustomIDs
+#        Description: The list of custom creatures with gossip dialogues hardcoded in core,
+#                     divided by "," without spaces.
+#                     It is implied that you do not use for these NPC dialogs data from "gossip_menu" table.
+#                     Server will skip these IDs during the definitions validation process.
+#        Example:     Creatures.CustomIDs = "190010,55005,999991,25462,98888,601014" - Npcs for Transmog, Guild-zone, 1v1-arena, Skip Dk,
+#                                                                                      Racial Trait Swap, NPC - All Mounts Modules
+#        Default:     ""
+
+Creatures.CustomIDs = "190010,55005,999991,25462,98888,601014,34567,34568"
 
 #
 ###################################################################################################
@@ -2251,21 +2280,28 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Description: Experience rates (outside battleground)
 #        Default:     1 - (Rate.XP.Kill)
 #                     1 - (Rate.XP.Quest)
+#                     1 - (Rate.XP.Quest.DF) - Dungeon Finder/LFG quests only.
 #                     1 - (Rate.XP.Explore)
 #                     1 - (Rate.XP.Pet)
 
-Rate.XP.Kill    = 1
-Rate.XP.Quest   = 1
-Rate.XP.Explore = 1
-Rate.XP.Pet     = 1
+Rate.XP.Kill      = 1
+Rate.XP.Quest     = 1
+Rate.XP.Quest.DF  = 1
+Rate.XP.Explore   = 1
+Rate.XP.Pet       = 1
 
 #
-#    Rate.XP.BattlegroundKill
-#        Description: Experience rate for honorable kills in battlegrounds. Not affected by Rate.XP.Kill
+#    Rate.XP.BattlegroundKill...
+#        Description: Experience rate for honorable kills in battlegrounds. Not affected by Rate.XP.Kill. Defined for each battleground.
 #                     Only works if Battleground.GiveXPForKills = 1
 #        Default:     1
 
-Rate.XP.BattlegroundKill = 1
+Rate.XP.BattlegroundKillAV   = 1
+Rate.XP.BattlegroundKillWSG  = 1
+Rate.XP.BattlegroundKillAB   = 1
+Rate.XP.BattlegroundKillEOTS = 1
+Rate.XP.BattlegroundKillSOTA = 1
+Rate.XP.BattlegroundKillIC   = 1
 
 #
 #    Rate.RepairCost
@@ -2435,6 +2471,7 @@ DurabilityLoss.InPvP = 0
 #
 #    DurabilityLoss.OnDeath
 #        Description: Durability loss percentage on death.
+#        Note:        On 3.3.5 client always shows log message "Your items have lost 10% durability"
 #        Default:     10
 
 DurabilityLoss.OnDeath = 10
@@ -2511,6 +2548,53 @@ Death.Bones.BattlegroundOrArena = 1
 #                     0 - (Disabled)
 
 Die.Command.Mode = 1
+
+#    Rate.MissChanceMultiplier.Creature
+#    Rate.MissChanceMultiplier.Player
+#    Rate.MissChanceMultiplier.OnlyAffectsPlayer
+#
+#        Description: When the target is 3 or more level higher than the player,
+#                     the chance to hit is determined by the formula: 94 - (levelDiff - 2) * Rate.MissChanceMultiplier
+#                     The higher the Rate.MissChanceMultiplier constant, the higher is the chance to miss.
+#
+#                     Note: this does not affect when the player is less than 3 levels different than the target,
+#                     where this (linear) formula is used instead to calculate the hit chance: 96 - levelDiff.
+#                     You can set Rate.MissChanceMultiplier.OnlyAffectsPlayer to 1 if you only want to affect the MissChance
+#                     for player casters only. This way you won't be affecting creature missing chance.
+#
+#                     Example: if you want the chance to keep growing linearly, use 1.
+#
+#        Default:     Rate.MissChanceMultiplier.TargetCreature = 11
+#                     Rate.MissChanceMultiplier.TargetPlayer = 7
+#                     Rate.MissChanceMultiplier.OnlyAffectsPlayer = 0
+#
+
+Rate.MissChanceMultiplier.TargetCreature = 11
+Rate.MissChanceMultiplier.TargetPlayer = 7
+Rate.MissChanceMultiplier.OnlyAffectsPlayer = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# STATS LIMITS
+#
+#    Stats.Limits.Enable
+#        Description: Enable or disable stats system limitations
+#        Default:     0 - Disabled
+#                     1 - Enabled
+
+Stats.Limits.Enable = 0
+
+#
+#    Stats.Limit.[STAT]
+#        Description: Set percentage limit for dodge, parry, block and crit rating
+#        Default:     95.0 (95%)
+
+Stats.Limits.Dodge = 95.0
+Stats.Limits.Parry = 95.0
+Stats.Limits.Block = 95.0
+Stats.Limits.Crit  = 95.0
 
 #
 ###################################################################################################
@@ -2834,6 +2918,14 @@ Arena.MaxRatingDifference = 150
 Arena.RatingDiscardTimer = 600000
 
 #
+#    Arena.PreviousOpponentsDiscardTimer
+#        Description: Time (in milliseconds) after which the previous opponents will be ignored.
+#        Default:     120000 - (Enabled, 2 minutes - Blizzlike)
+#                     0      - (Disabled)
+
+Arena.PreviousOpponentsDiscardTimer = 120000
+
+#
 #    Arena.AutoDistributePoints
 #        Description: Automatically distribute arena points.
 #        Default:     0 - (Disabled)
@@ -3134,15 +3226,13 @@ ItemDelete.ItemLevel = 80
 PlayerStart.AllReputation = 0
 
 #
-#    PlayerStart.AllSpells
-#        Description: If enabled, players will start with all their class spells (not talents).
-#                     You must populate playercreateinfo_spell_custom table with the spells you
-#                     want, or this will not work! The table has data for all classes / races up
-#                     to TBC expansion.
+#    PlayerStart.CustomSpells
+#        Description: If enabled, players will start with custom spells defined in
+#                     playercreateinfo_spell_custom table.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.AllSpells = 0
+PlayerStart.CustomSpells = 0
 
 #
 #    PlayerStart.MapsExplored
@@ -3605,6 +3695,23 @@ LFG.MaxKickCount = 2
 LFG.KickPreventionTimer = 900
 
 #
+#     JoinBGAndLFG.Enable
+#        Description: Allow queueing for BG and LFG at the same time.
+#        Default:     0 - Disabled
+#                     1 - Enabled
+
+JoinBGAndLFG.Enable = 0
+
+#
+#     ChangeFaction.MaxMoney
+#        Description: Maximum amount of gold allowed on the character to perform a faction change.
+#        Default:     0 - Disabled
+#                     > 0 - Enabled (money in copper)
+#        Example:     If set to 10000, the maximum amount of money allowed on the character would be 1 gold.
+
+ChangeFaction.MaxMoney = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -3968,5 +4075,91 @@ Metric.OverallStatusInterval = 1
 #                     1 - (Enabled)
 #
 
-ExternalMail.Enable = 0
+ExternalMail.Enable = 1
+###################################################################################################
+
+########################################
+# DiscordClient module configuration
+########################################
+#
+#    Discord.Enable
+#        Description: Enable module
+#        Default: 0
+#
+
+Discord.Enable = 0
+
+#
+#    Discord.Server.Port
+#        Description: Host name for server
+#        Default:     ""
+#
+
+Discord.Server.Host = ""
+
+#
+#    Discord.Server.Port
+#        Description: TCP port for connect server.
+#        Default:     1000
+#
+
+Discord.Server.Port = 1000
+
+#
+#    Discord.Server.Account.Name
+#        Description: Account name for server
+#        Default:     ""
+#
+
+Discord.Server.Account.Name = ""
+
+#
+#    Discord.Server.Account.Key
+#        Description: Account key for server
+#        Default:     ""
+#
+
+Discord.Server.Account.Key = ""
+
+#
+#    Discord.Server.ID
+#        Description: Id for discord guild
+#        Default:     0
+#
+
+Discord.Server.ID = 0
+
+#
+#    Discord.Channel.ListID
+#        Description: List channels (General, ServerStatus)
+#        Default:     ""
+#
+
+Discord.DefaultChannel.ListID = ""
+
+#
+#    Discord.GameChatLogs.Enable
+#        Description: Enable game chat logs
+#        Default:     0
+#
+#    Discord.GameChatLogs.ChannelsListID
+#        Description: List channels for chat logs (Say, Channel)
+#        Default:     ""
+#
+
+Discord.GameChatLogs.Enable = 0
+Discord.GameChatLogs.ChannelsListID = ""
+
+#
+#    Discord.GameLoginLogs.Enable
+#        Description: Enable login logs
+#        Default:     0
+#
+#    Discord.GameLoginLogs.ChannelsListID
+#        Description: List channels for login logs (Default, GM, Admin)
+#        Default:     ""
+#
+
+Discord.GameLoginLogs.Enable = 0
+Discord.GameLoginLogs.ChannelsListID = ""
 ###################################################################################################

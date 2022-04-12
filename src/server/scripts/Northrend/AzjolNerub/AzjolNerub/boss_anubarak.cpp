@@ -125,7 +125,7 @@ class boss_anub_arak : public CreatureScript
             void Reset() override
             {
                 BossAI::Reset();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
 
@@ -145,7 +145,7 @@ class boss_anub_arak : public CreatureScript
 
             void SummonHelpers(float x, float y, float z, uint32 spellId)
             {
-                const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
                 me->SummonCreature(spellInfo->Effects[EFFECT_0].MiscValue, x, y, z);
             }
 
@@ -173,7 +173,7 @@ class boss_anub_arak : public CreatureScript
                         events.ScheduleEvent(EVENT_LEECHING_SWARM, 20000);
                         break;
                     case EVENT_POUND:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 10.0f))
                         {
                             me->CastSpell(me, SPELL_SELF_ROOT, true);
                             me->DisableRotate(true);
@@ -195,7 +195,7 @@ class boss_anub_arak : public CreatureScript
                             Talk(SAY_SUBMERGE);
                             me->CastSpell(me, SPELL_IMPALE_PERIODIC, true);
                             me->CastSpell(me, SPELL_SUBMERGE, false);
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
                             events.DelayEvents(46000, 0);
                             events.ScheduleEvent(EVENT_EMERGE, 45000);
@@ -213,7 +213,7 @@ class boss_anub_arak : public CreatureScript
                         me->CastSpell(me, SPELL_EMERGE, true);
                         me->RemoveAura(SPELL_SUBMERGE);
                         me->RemoveAura(SPELL_IMPALE_PERIODIC);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         break;
                     case EVENT_SUMMON_ASSASSINS:
                         SummonHelpers(509.32f, 247.42f, 239.48f, SPELL_SUMMON_ASSASSIN);
@@ -231,7 +231,7 @@ class boss_anub_arak : public CreatureScript
                         break;
                 }
 
-                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     DoMeleeAttackIfReady();
             }
         };

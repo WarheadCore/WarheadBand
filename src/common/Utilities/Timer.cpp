@@ -16,15 +16,21 @@
  */
 
 #include "Timer.h"
+#include "StringConvert.h"
 #include "StringFormat.h"
-#include <Poco/DateTime.h>
-#include <Poco/DateTimeFormat.h>
-#include <Poco/DateTimeFormatter.h>
-#include <Poco/Timespan.h>
+#include <iomanip>
 #include <sstream>
 
-template<>
-WH_COMMON_API uint32 Warhead::Time::TimeStringTo<Seconds>(std::string_view timestring)
+namespace Warhead::TimeDiff // in us
+{
+    constexpr uint64 MILLISECONDS = 1000;
+    constexpr uint64 SECONDS = 1000 * MILLISECONDS;
+    constexpr uint64 MINUTES = 60 * SECONDS;
+    constexpr uint64 HOURS = 60 * MINUTES;
+    constexpr uint64 DAYS = 24 * HOURS;
+}
+
+Seconds Warhead::Time::TimeStringTo(std::string_view timestring)
 {
     uint32 secs = 0;
     uint32 buffer = 0;
@@ -32,7 +38,7 @@ WH_COMMON_API uint32 Warhead::Time::TimeStringTo<Seconds>(std::string_view times
 
     for (char itr : timestring)
     {
-        if (isdigit(itr))
+        if (std::isdigit(itr))
         {
             buffer *= 10;
             buffer += itr - '0';
@@ -54,7 +60,7 @@ WH_COMMON_API uint32 Warhead::Time::TimeStringTo<Seconds>(std::string_view times
                 multiplier = 1;
                 break;
             default:
-                return 0; // bad format
+                return 0s; // bad format
             }
 
             buffer *= multiplier;
@@ -63,126 +69,115 @@ WH_COMMON_API uint32 Warhead::Time::TimeStringTo<Seconds>(std::string_view times
         }
     }
 
-    return secs;
+    return Seconds(secs);
 }
 
 template<>
-WH_COMMON_API std::string Warhead::Time::ToTimeString<Microseconds>(uint64 durationTime, TimeOutput timeOutput /*= TimeOutput::Seconds*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
+WH_COMMON_API std::string Warhead::Time::ToTimeString<Seconds>(std::string_view durationTime, uint8 outCount /*= 3*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
 {
-    Poco::Timespan span(durationTime);
+    return ToTimeString(TimeStringTo(durationTime), outCount, timeFormat);
+}
 
-    uint32 microsecs = span.microseconds();
-    uint32 millisecs = span.milliseconds();
-    uint32 secs = span.seconds();
-    uint32 minutes = span.minutes();
-    uint32 hours = span.hours();
-    uint32 days = span.days();
+std::string Warhead::Time::ToTimeString(Microseconds durationTime, uint8 outCount /*= 3*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
+{
+    uint64 microsecs = durationTime.count() % 1000;
+    uint64 millisecs = (durationTime.count() / TimeDiff::MILLISECONDS) % 1000;
+    uint64 secs = (durationTime.count() / TimeDiff::SECONDS) % 60;
+    uint64 minutes = (durationTime.count() / TimeDiff::MINUTES) % 60;
+    uint64 hours = (durationTime.count() / TimeDiff::HOURS) % 24;
+    uint64 days = durationTime.count() / TimeDiff::DAYS;
+
+    std::string out;
+    uint8 count = 0;
+    bool isFirst = false;
 
     if (timeFormat == TimeFormat::Numeric)
     {
+        auto AddOutNumerlic = [&isFirst, &out, &count, outCount](uint64 time)
+        {
+            if (count >= outCount)
+                return;
+
+            if (!isFirst)
+            {
+                isFirst = true;
+                out.append(Warhead::StringFormat("{}:", time));
+            }
+            else
+                out.append(Warhead::StringFormat("{:02}:", time));
+
+            count++;
+        };
+
         if (days)
-            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}:{:02}:{:02}", days, hours, minutes, secs, millisecs, microsecs);
-        else if (hours)
-            return Warhead::StringFormat("{}::{:02}{:02}:{:02}:{:02}", hours, minutes, secs, millisecs, microsecs);
-        else if (minutes)
-            return Warhead::StringFormat("{}:{:02}:{:02}:{:02}", minutes, secs, millisecs, microsecs);
-        else if (secs)
-            return Warhead::StringFormat("{}:{:02}:{:02}", secs, millisecs, microsecs);
-        else if (millisecs)
-            return Warhead::StringFormat("{}:{:02}", millisecs, microsecs);
-        else if (millisecs) // microsecs
-            return Warhead::StringFormat("{}", microsecs);
+            AddOutNumerlic(days);
+
+        if (hours)
+            AddOutNumerlic(hours);
+
+        if (minutes)
+            AddOutNumerlic(minutes);
+
+        if (secs)
+            AddOutNumerlic(secs);
+
+        if (millisecs)
+            AddOutNumerlic(millisecs);
+
+        if (microsecs)
+            AddOutNumerlic(microsecs);
+
+        // Delete last (:)
+        if (!out.empty())
+            out.erase(out.end() - 1, out.end());
+
+        return out;
     }
 
-    std::ostringstream ss;
-    std::string stringTime;
-
-    auto GetStringFormat = [&](uint32 timeType, std::string_view shortText, std::string_view fullText1, std::string_view fullText)
+    auto AddOut = [&out, &count, timeFormat, outCount](uint32 timeCount, std::string_view shortText, std::string_view fullText1, std::string_view fullText)
     {
-        ss << timeType;
+        if (count >= outCount)
+            return;
+
+        out.append(Warhead::ToString(timeCount));
 
         switch (timeFormat)
         {
-            case TimeFormat::ShortText:
-                ss << shortText;
-                break;
-            case TimeFormat::FullText:
-                ss << (timeType == 1 ? fullText1 : fullText);
-                break;
-            default:
-                ss << "<Unknown time format>";
+        case TimeFormat::ShortText:
+            out.append(shortText);
+            break;
+        case TimeFormat::FullText:
+            out.append(timeCount == 1 ? fullText1 : fullText);
+            break;
+        default:
+            out.append("<Unknown time format>");
         }
+
+        count++;
     };
 
     if (days)
-        GetStringFormat(days, "d ", " Day ", " Days ");
-
-    if (timeOutput == TimeOutput::Days)
-        stringTime = ss.str();
+        AddOut(days, "d ", " Day ", " Days ");
 
     if (hours)
-        GetStringFormat(hours, "h ", " Hour ", " Hours ");
-
-    if (timeOutput == TimeOutput::Hours)
-        stringTime = ss.str();
+        AddOut(hours, "h ", " Hour ", " Hours ");
 
     if (minutes)
-        GetStringFormat(minutes, "m ", " Minute ", " Minutes ");
-
-    if (timeOutput == TimeOutput::Minutes)
-        stringTime = ss.str();
+        AddOut(minutes, "m ", " Minute ", " Minutes ");
 
     if (secs)
-        GetStringFormat(secs, "s ", " Second ", " Seconds ");
-
-    if (timeOutput == TimeOutput::Seconds)
-        stringTime = ss.str();
+        AddOut(secs, "s ", " Second ", " Seconds ");
 
     if (millisecs)
-        GetStringFormat(millisecs, "ms ", " Millisecond ", " Milliseconds ");
-
-    if (timeOutput == TimeOutput::Milliseconds)
-        stringTime = ss.str();
+        AddOut(millisecs, "ms ", " Millisecond ", " Milliseconds ");
 
     if (microsecs)
-        GetStringFormat(microsecs, "us ", " Microsecond ", " Microseconds ");
+        AddOut(microsecs, "us ", " Microsecond ", " Microseconds ");
 
-    if (timeOutput == TimeOutput::Microseconds)
-        stringTime = ss.str();
-
-    return Warhead::String::TrimRightInPlace(stringTime);
+    return Warhead::String::TrimRightInPlace(out);
 }
 
-template<>
-WH_COMMON_API std::string Warhead::Time::ToTimeString<Milliseconds>(uint64 durationTime, TimeOutput timeOutput /*= TimeOutput::Seconds*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
-{
-    return ToTimeString<Microseconds>(durationTime * Poco::Timespan::MILLISECONDS, timeOutput, timeFormat);
-}
-
-template<>
-WH_COMMON_API std::string Warhead::Time::ToTimeString<Seconds>(uint64 durationTime, TimeOutput timeOutput /*= TimeOutput::Seconds*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
-{
-    return ToTimeString<Microseconds>(durationTime * Poco::Timespan::SECONDS, timeOutput, timeFormat);
-}
-
-template<>
-WH_COMMON_API std::string Warhead::Time::ToTimeString<Minutes>(uint64 durationTime, TimeOutput timeOutput /*= TimeOutput::Seconds*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
-{
-    return ToTimeString<Microseconds>(durationTime * Poco::Timespan::MINUTES, timeOutput, timeFormat);
-}
-
-template<>
-WH_COMMON_API std::string Warhead::Time::ToTimeString<Seconds>(std::string_view durationTime, TimeOutput timeOutput /*= TimeOutput::Seconds*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
-{
-    return ToTimeString<Seconds>(TimeStringTo<Seconds>(durationTime), timeOutput, timeFormat);
-}
-
-std::string Warhead::Time::ToTimeString(Microseconds durationTime, TimeOutput timeOutput /*= TimeOutput::Seconds*/, TimeFormat timeFormat /*= TimeFormat::ShortText*/)
-{
-    return ToTimeString<Microseconds>(durationTime.count(), timeOutput, timeFormat);
-}
-
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 struct tm* localtime_r(time_t const* time, struct tm* result)
 {
     localtime_s(result, time);
@@ -190,16 +185,21 @@ struct tm* localtime_r(time_t const* time, struct tm* result)
 }
 #endif
 
-tm Warhead::Time::TimeBreakdown(time_t time)
+std::tm Warhead::Time::TimeBreakdown(time_t time /*= 0*/)
 {
-    tm timeLocal;
+    if (!time)
+    {
+        time = GetEpochTime().count();
+    }
+
+    std::tm timeLocal;
     localtime_r(&time, &timeLocal);
     return timeLocal;
 }
 
 time_t Warhead::Time::LocalTimeToUTCTime(time_t time)
 {
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     return time + _timezone;
 #else
     return time + timezone;
@@ -222,16 +222,174 @@ time_t Warhead::Time::GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAf
     return hourLocal;
 }
 
-std::string Warhead::Time::TimeToTimestampStr(time_t t)
+std::string Warhead::Time::TimeToTimestampStr(Seconds time /*= 0s*/, std::string_view fmt /*= {}*/)
 {
-    return Poco::DateTimeFormatter::format(Poco::Timestamp::fromEpochTime(t), Poco::DateTimeFormat::RFC1123_FORMAT);
+    std::stringstream ss;
+    std::string format{ fmt };
+    time_t t = time.count();
+
+    if (format.empty())
+    {
+        format = "%Y-%m-%d %X";
+    }
+
+    ss << std::put_time(std::localtime(&t), format.c_str());
+    return ss.str();
 }
 
-std::string Warhead::Time::TimeToHumanReadable(time_t t)
+std::string Warhead::Time::TimeToHumanReadable(Seconds time /*= 0s*/, std::string_view fmt /*= {}*/)
 {
-    tm time;
-    localtime_r(&t, &time);
-    char buf[30];
-    strftime(buf, 30, "%c", &time);
-    return std::string(buf);
+    std::stringstream ss;
+    std::string format{ fmt };
+    time_t t = time.count();
+
+    if (format.empty())
+    {
+        format = "%a %b %d %Y %X";
+    }
+
+    ss << std::put_time(std::localtime(&t), format.c_str());
+    return ss.str();
+}
+
+time_t Warhead::Time::GetNextTimeWithDayAndHour(int8 dayOfWeek, int8 hour)
+{
+    if (hour < 0 || hour > 23)
+    {
+        hour = 0;
+    }
+
+    tm localTm = TimeBreakdown();
+    localTm.tm_hour = hour;
+    localTm.tm_min = 0;
+    localTm.tm_sec = 0;
+
+    if (dayOfWeek < 0 || dayOfWeek > 6)
+    {
+        dayOfWeek = (localTm.tm_wday + 1) % 7;
+    }
+
+    uint32 add;
+
+    if (localTm.tm_wday >= dayOfWeek)
+    {
+        add = (7 - (localTm.tm_wday - dayOfWeek)) * DAY;
+    }
+    else
+    {
+        add = (dayOfWeek - localTm.tm_wday) * DAY;
+    }
+
+    return mktime(&localTm) + add;
+}
+
+time_t Warhead::Time::GetNextTimeWithMonthAndHour(int8 month, int8 hour)
+{
+    if (hour < 0 || hour > 23)
+    {
+        hour = 0;
+    }
+
+    tm localTm = TimeBreakdown();
+    localTm.tm_mday = 1;
+    localTm.tm_hour = hour;
+    localTm.tm_min = 0;
+    localTm.tm_sec = 0;
+
+    if (month < 0 || month > 11)
+    {
+        month = (localTm.tm_mon + 1) % 12;
+
+        if (!month)
+        {
+            localTm.tm_year += 1;
+        }
+    }
+    else if (localTm.tm_mon >= month)
+    {
+        localTm.tm_year += 1;
+    }
+
+    localTm.tm_mon = month;
+    return mktime(&localTm);
+}
+
+uint32 Warhead::Time::GetSeconds(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_sec;
+}
+
+uint32 Warhead::Time::GetMinutes(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_min;
+}
+
+uint32 Warhead::Time::GetHours(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_hour;
+}
+
+uint32 Warhead::Time::GetDayInWeek(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_wday;
+}
+
+uint32 Warhead::Time::GetDayInMonth(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_mday;
+}
+
+uint32 Warhead::Time::GetDayInYear(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_yday;
+}
+
+uint32 Warhead::Time::GetMonth(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_mon;
+}
+
+uint32 Warhead::Time::GetYear(Seconds time /*= 0s*/)
+{
+    if (time == 0s)
+    {
+        time = GetEpochTime();
+    }
+
+    return TimeBreakdown(time.count()).tm_year;
 }

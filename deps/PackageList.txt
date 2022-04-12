@@ -62,4 +62,8 @@ efws (Entropia File System Watcher - crossplatform file system watcher)
 
 {fmt} is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams.
   https://github.com/fmtlib/fmt
-  Version: 7.1.3
+  Version: 8.1.1
+
+DPP D++ Extremely Lightweight C++ Discord Library
+  https://github.com/brainboxdotcc/DPP
+  Version: 10.0.2

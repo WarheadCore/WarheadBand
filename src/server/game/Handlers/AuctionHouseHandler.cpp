@@ -18,6 +18,7 @@
 #include "AsyncAuctionListing.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -27,7 +28,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateMask.h"
-#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -57,7 +57,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 {
     if (GetPlayer()->getLevel() < CONF_GET_INT("LevelReq.Auction"))
     {
-        SendNotification(GetWarheadString(LANG_AUCTION_REQ), CONF_GET_INT("LevelReq.Auction"));
+        Warhead::Text::SendNotification(this, LANG_AUCTION_REQ, CONF_GET_INT("LevelReq.Auction"));
         return;
     }
 
@@ -156,7 +156,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
     if (bid > MAX_MONEY_AMOUNT || buyout > MAX_MONEY_AMOUNT)
     {
         LOG_DEBUG("network", "WORLD: HandleAuctionSellItem - Player {} ({}) attempted to sell item with higher price than max gold amount.",
-            _player->GetName(), _player->GetGUID());
+            _player->GetName(), _player->GetGUID().ToString());
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
         return;
     }
@@ -280,7 +280,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
                 return;
             }
 
-            CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id);
+            CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id1);
             if (!auctioneerInfo)
             {
                 LOG_ERROR("network.opcode", "Non existing auctioneer ({})", auctioneer.ToString());
@@ -307,7 +307,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             AH->auctionHouseEntry = auctionHouseEntry;
 
             LOG_DEBUG("network.opcode", "CMSG_AUCTION_SELL_ITEM: Player {} ({}) is selling item {} entry {} ({}) with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
-                _player->GetName(), _player->GetGUID(), item->GetTemplate()->Name1, item->GetEntry(), item->GetGUID(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+                _player->GetName(), _player->GetGUID().ToString(), item->GetTemplate()->Name1, item->GetEntry(), item->GetGUID().ToString(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
             sAuctionMgr->AddAItem(item);
             auctionHouse->AddAuction(AH);
 
@@ -348,7 +348,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             AH->auctionHouseEntry = auctionHouseEntry;
 
             LOG_DEBUG("network.opcode", "CMSG_AUCTION_SELL_ITEM: Player {} ({}) is selling item {} entry {} ({}) with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
-                _player->GetName(), _player->GetGUID(), newItem->GetTemplate()->Name1, newItem->GetEntry(), newItem->GetGUID(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+                _player->GetName(), _player->GetGUID().ToString(), newItem->GetTemplate()->Name1, newItem->GetEntry(), newItem->GetGUID().ToString(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
             sAuctionMgr->AddAItem(newItem);
             auctionHouse->AddAuction(AH);
 
@@ -482,9 +482,9 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
-        stmt->setUInt32(0, auction->bidder.GetCounter());
-        stmt->setUInt32(1, auction->bid);
-        stmt->setUInt32(2, auction->Id);
+        stmt->SetData(0, auction->bidder.GetCounter());
+        stmt->SetData(1, auction->bid);
+        stmt->SetData(2, auction->Id);
         trans->Append(stmt);
 
         SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, ERR_AUCTION_OK, 0);
@@ -664,7 +664,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
 
     // pussywizard:
     const uint32 delay = 4500;
-    const uint32 now = getMSTime();
+    const uint32 now = GameTime::GetGameTimeMS().count();
     if (_lastAuctionListOwnerItemsMSTime > now) // list is pending
         return;
     uint32 diff = getMSTimeDiff(_lastAuctionListOwnerItemsMSTime, now);
@@ -679,7 +679,7 @@ void WorldSession::HandleAuctionListOwnerItemsEvent(ObjectGuid creatureGuid)
 {
     LOG_DEBUG("network", "WORLD: Received CMSG_AUCTION_LIST_OWNER_ITEMS");
 
-    _lastAuctionListOwnerItemsMSTime = getMSTime(); // pussywizard
+    _lastAuctionListOwnerItemsMSTime = GameTime::GetGameTimeMS().count(); // pussywizard
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(creatureGuid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -753,7 +753,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
 
     // pussywizard:
     const uint32 delay = 2000;
-    const uint32 now = getMSTime();
+    const uint32 now = GameTime::GetGameTimeMS().count();
     uint32 diff = getMSTimeDiff(_lastAuctionListItemsMSTime, now);
     if (diff > delay)
     {

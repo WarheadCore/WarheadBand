@@ -28,14 +28,14 @@ class Quest;
 class Unit;
 struct AISpellInfoType;
 
-//Selection method used by SelectTarget
-enum SelectAggroTarget
+// Selection method used by SelectTarget
+enum class SelectTargetMethod
 {
-    SELECT_TARGET_RANDOM = 0,                               //Just selects a random target
-    SELECT_TARGET_TOPAGGRO,                                 //Selects targes from top aggro to bottom
-    SELECT_TARGET_BOTTOMAGGRO,                              //Selects targets from bottom aggro to top
-    SELECT_TARGET_NEAREST,
-    SELECT_TARGET_FARTHEST,
+    Random,      // just pick a random target
+    MaxThreat,   // prefer targets higher in the threat list
+    MinThreat,   // prefer targets lower in the threat list
+    MaxDistance, // prefer targets further from us
+    MinDistance  // prefer targets closer to us
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
@@ -104,7 +104,7 @@ public:
     bool operator()(Unit const* target) const;
 
 private:
-    const Unit* _me;
+    Unit const* _me;
     float _dist;
     bool _playerOnly;
     bool _inLos;
@@ -136,10 +136,22 @@ public:
     virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id*/ = 0) {}
     virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
 
-    Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
-    // Select the targets satifying the predicate.
-    // predicate shall extend Warhead::unary_function<Unit*, bool>
-    template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
+    // Select the best target (in <targetType> order) from the threat list that fulfill the following:
+    // - Not among the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat order,
+    //   if <targetType> is SelectTargetMethod::Random).
+    // - Within at most <dist> yards (if dist > 0.0f)
+    // - At least -<dist> yards away (if dist < 0.0f)
+    // - Is a player (if playerOnly = true)
+    // - Not the current tank (if withTank = false)
+    // - Has aura with ID <aura> (if aura > 0)
+    // - Does not have aura with ID -<aura> (if aura < 0)
+    Unit* SelectTarget(SelectTargetMethod targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+
+    // Select the best target (in <targetType> order) satisfying <predicate> from the threat list.
+    // If <offset> is nonzero, the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat
+    // order, if <targetType> is SelectTargetMethod::Random) are skipped.
+    template <class PREDICATE>
+    Unit* SelectTarget(SelectTargetMethod targetType, uint32 position, PREDICATE const& predicate)
     {
         ThreatContainer::StorageType const& threatlist = me->getThreatMgr().getThreatList();
         if (position >= threatlist.size())
@@ -153,26 +165,26 @@ public:
         if (position >= targetList.size())
             return nullptr;
 
-        if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+        if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
             targetList.sort(Warhead::ObjectDistanceOrderPred(me));
 
         switch (targetType)
         {
-            case SELECT_TARGET_NEAREST:
-            case SELECT_TARGET_TOPAGGRO:
+            case SelectTargetMethod::MaxDistance:
+            case SelectTargetMethod::MaxThreat:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
                     std::advance(itr, position);
                     return *itr;
                 }
-            case SELECT_TARGET_FARTHEST:
-            case SELECT_TARGET_BOTTOMAGGRO:
+            case SelectTargetMethod::MinDistance:
+            case SelectTargetMethod::MinThreat:
                 {
                     std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
                     std::advance(ritr, position);
                     return *ritr;
                 }
-            case SELECT_TARGET_RANDOM:
+            case SelectTargetMethod::Random:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
                     std::advance(itr, urand(position, targetList.size() - 1));
@@ -185,11 +197,23 @@ public:
         return nullptr;
     }
 
-    void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+    // Select the best (up to) <num> targets (in <targetType> order) from the threat list that fulfill the following:
+    // - Not among the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat order,
+    //   if <targetType> is SelectTargetMethod::Random).
+    // - Within at most <dist> yards (if dist > 0.0f)
+    // - At least -<dist> yards away (if dist < 0.0f)
+    // - Is a player (if playerOnly = true)
+    // - Not the current tank (if withTank = false)
+    // - Has aura with ID <aura> (if aura > 0)
+    // - Does not have aura with ID -<aura> (if aura < 0)
+    // The resulting targets are stored in <targetList> (which is cleared first).
+    void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
-    // Select the targets satifying the predicate.
-    // predicate shall extend Warhead::unary_function<Unit*, bool>
-    template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
+    // Select the best (up to) <num> targets (in <targetType> order) satisfying <predicate> from the threat list and stores them in <targetList> (which is cleared first).
+    // If <offset> is nonzero, the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat
+    // order, if <targetType> is SelectTargetMethod::Random) are skipped.
+    template <class PREDICATE>
+    void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectTargetMethod targetType)
     {
         ThreatContainer::StorageType const& threatlist = me->getThreatMgr().getThreatList();
         if (threatlist.empty())
@@ -202,13 +226,13 @@ public:
         if (targetList.size() < maxTargets)
             return;
 
-        if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+        if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
             targetList.sort(Warhead::ObjectDistanceOrderPred(me));
 
-        if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
+        if (targetType == SelectTargetMethod::MinDistance || targetType == SelectTargetMethod::MinThreat)
             targetList.reverse();
 
-        if (targetType == SELECT_TARGET_RANDOM)
+        if (targetType == SelectTargetMethod::Random)
             Warhead::Containers::RandomResize(targetList, maxTargets);
         else
             targetList.resize(maxTargets);
@@ -246,6 +270,9 @@ public:
 
     static AISpellInfoType* AISpellInfo;
     static void FillAISpellInfo();
+
+    // Called when a summon reaches a waypoint or point movement finished.
+    virtual void SummonMovementInform(Creature* /*creature*/, uint32 /*motionType*/, uint32 /*point*/) { }
 
     virtual void sGossipHello(Player* /*player*/) {}
     virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}

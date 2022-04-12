@@ -42,7 +42,7 @@ namespace AddonMgr
         QueryResult result = CharacterDatabase.Query("SELECT name, crc FROM addons");
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 known addons. DB table `addons` is empty!");
+            LOG_WARN("server.loading", ">> Loaded 0 known addons. DB table `addons` is empty!");
             LOG_INFO("server.loading", " ");
             return;
         }
@@ -53,8 +53,8 @@ namespace AddonMgr
         {
             Field* fields = result->Fetch();
 
-            std::string name = fields[0].GetString();
-            uint32 crc = fields[1].GetUInt32();
+            std::string name = fields[0].Get<std::string>();
+            uint32 crc = fields[1].Get<uint32>();
 
             m_knownAddons.push_back(SavedAddon(name, crc));
 
@@ -75,12 +75,12 @@ namespace AddonMgr
             {
                 Field* fields = result->Fetch();
 
-                BannedAddon addon;
-                addon.Id = fields[0].GetUInt32() + offset;
-                addon.Timestamp = uint32(fields[3].GetUInt64());
+                BannedAddon addon{};
+                addon.Id = fields[0].Get<uint32>() + offset;
+                addon.Timestamp = uint32(fields[3].Get<uint64>());
 
-                std::string name = fields[1].GetString();
-                std::string version = fields[2].GetString();
+                std::string name = fields[1].Get<std::string>();
+                std::string version = fields[2].Get<std::string>();
 
                 MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
                 MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
@@ -101,8 +101,8 @@ namespace AddonMgr
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
 
-        stmt->setString(0, name);
-        stmt->setUInt32(1, addon.CRC);
+        stmt->SetData(0, name);
+        stmt->SetData(1, addon.CRC);
 
         CharacterDatabase.Execute(stmt);
 
@@ -111,11 +111,12 @@ namespace AddonMgr
 
     SavedAddon const* GetAddonInfo(const std::string& name)
     {
-        for (SavedAddonsList::const_iterator it = m_knownAddons.begin(); it != m_knownAddons.end(); ++it)
+        for (auto const& addon : m_knownAddons)
         {
-            SavedAddon const& addon = (*it);
             if (addon.Name == name)
+            {
                 return &addon;
+            }
         }
 
         return nullptr;

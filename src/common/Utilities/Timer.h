@@ -23,39 +23,37 @@
 
 enum class TimeFormat : uint8
 {
-    FullText,       // 1 Days 2 Hours 3 Minutes 4 Seconds 5 Milliseconds
-    ShortText,      // 1d 2h 3m 4s 5ms
-    Numeric         // 1:2:3:4:5
-};
-
-enum class TimeOutput : uint8
-{
-    Days,         // 1d
-    Hours,        // 1d 2h
-    Minutes,      // 1d 2h 3m
-    Seconds,      // 1d 2h 3m 4s
-    Milliseconds, // 1d 2h 3m 4s 5ms
-    Microseconds  // 1d 2h 3m 4s 5ms 6us
+    FullText,       // 1 Days 2 Hours 3 Minutes 4 Seconds 5 Milliseconds 6 Microseconds
+    ShortText,      // 1d 2h 3m 4s 5ms 6us
+    Numeric         // 1:2:3:4:5:6
 };
 
 namespace Warhead::Time
 {
-    template<class T>
-    WH_COMMON_API uint32 TimeStringTo(std::string_view timestring);
+    WH_COMMON_API Seconds TimeStringTo(std::string_view timestring);
 
     template<class T>
-    WH_COMMON_API std::string ToTimeString(uint64 durationTime, TimeOutput timeOutput = TimeOutput::Seconds, TimeFormat timeFormat = TimeFormat::ShortText);
+    WH_COMMON_API std::string ToTimeString(std::string_view durationTime, uint8 outCount = 3, TimeFormat timeFormat = TimeFormat::ShortText);
 
-    template<class T>
-    WH_COMMON_API std::string ToTimeString(std::string_view durationTime, TimeOutput timeOutput = TimeOutput::Seconds, TimeFormat timeFormat = TimeFormat::ShortText);
-
-    WH_COMMON_API std::string ToTimeString(Microseconds durationTime, TimeOutput timeOutput = TimeOutput::Seconds, TimeFormat timeFormat = TimeFormat::ShortText);
+    WH_COMMON_API std::string ToTimeString(Microseconds durationTime, uint8 outCount = 3, TimeFormat timeFormat = TimeFormat::ShortText);
 
     WH_COMMON_API time_t LocalTimeToUTCTime(time_t time);
     WH_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
-    WH_COMMON_API tm TimeBreakdown(time_t t);
-    WH_COMMON_API std::string TimeToTimestampStr(time_t t);
-    WH_COMMON_API std::string TimeToHumanReadable(time_t t);
+    WH_COMMON_API std::tm TimeBreakdown(time_t t = 0);
+    WH_COMMON_API std::string TimeToTimestampStr(Seconds time = 0s, std::string_view fmt = {});
+    WH_COMMON_API std::string TimeToHumanReadable(Seconds time = 0s, std::string_view fmt = {});
+
+    WH_COMMON_API time_t GetNextTimeWithDayAndHour(int8 dayOfWeek, int8 hour); // int8 dayOfWeek: 0 (sunday) to 6 (saturday)
+    WH_COMMON_API time_t GetNextTimeWithMonthAndHour(int8 month, int8 hour); // int8 month: 0 (january) to 11 (december)
+
+    WH_COMMON_API uint32 GetSeconds(Seconds time = 0s);      // seconds after the minute - [0, 60]
+    WH_COMMON_API uint32 GetMinutes(Seconds time = 0s);      // minutes after the hour - [0, 59]
+    WH_COMMON_API uint32 GetHours(Seconds time = 0s);        // hours since midnight - [0, 23]
+    WH_COMMON_API uint32 GetDayInWeek(Seconds time = 0s);    // days since Sunday - [0, 6]
+    WH_COMMON_API uint32 GetDayInMonth(Seconds time = 0s);   // day of the month - [1, 31]
+    WH_COMMON_API uint32 GetDayInYear(Seconds time = 0s);    // days since January 1 - [0, 365]
+    WH_COMMON_API uint32 GetMonth(Seconds time = 0s);        // months since January - [0, 11]
+    WH_COMMON_API uint32 GetYear(Seconds time = 0s);         // years since 1900
 }
 
 WH_COMMON_API struct tm* localtime_r(time_t const* time, struct tm* result);
@@ -65,13 +63,6 @@ inline TimePoint GetApplicationStartTime()
     static const TimePoint ApplicationStartTime = std::chrono::steady_clock::now();
 
     return ApplicationStartTime;
-}
-
-inline uint32 getMSTime()
-{
-    using namespace std::chrono;
-
-    return uint32(duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime()).count());
 }
 
 inline Milliseconds GetTimeMS()
@@ -91,6 +82,13 @@ inline Milliseconds GetMSTimeDiff(Milliseconds oldMSTime, Milliseconds newMSTime
     {
         return newMSTime - oldMSTime;
     }
+}
+
+inline uint32 getMSTime()
+{
+    using namespace std::chrono;
+
+    return uint32(duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime()).count());
 }
 
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
@@ -119,6 +117,11 @@ inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
     return getMSTimeDiff(oldMSTime, getMSTime());
 }
 
+inline Milliseconds GetMSTimeDiffToNow(Milliseconds oldMSTime)
+{
+    return GetMSTimeDiff(oldMSTime, GetTimeMS());
+}
+
 inline Seconds GetEpochTime()
 {
     using namespace std::chrono;
@@ -128,10 +131,7 @@ inline Seconds GetEpochTime()
 struct IntervalTimer
 {
 public:
-    IntervalTimer()
-
-    {
-    }
+    IntervalTimer() = default;
 
     void Update(time_t diff)
     {

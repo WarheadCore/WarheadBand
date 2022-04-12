@@ -20,13 +20,7 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
-
-//- Union that holds element data
-union SQLElementUnion
-{
-    PreparedStatementBase* stmt;
-    char const* query;
-};
+#include <variant>
 
 //- Type specifier of our element data
 enum SQLElementDataType
@@ -38,7 +32,7 @@ enum SQLElementDataType
 //- The element
 struct SQLElementData
 {
-    SQLElementUnion element;
+    std::variant<PreparedStatementBase*, std::string> element;
     SQLElementDataType type;
 };
 
@@ -46,23 +40,24 @@ class MySQLConnection;
 
 class WH_DATABASE_API SQLOperation
 {
-    public:
-        SQLOperation(): m_conn(nullptr) { }
-        virtual ~SQLOperation() { }
+public:
+    SQLOperation() = default;
+    virtual ~SQLOperation() = default;
 
-        virtual int call()
-        {
-            Execute();
-            return 0;
-        }
-        virtual bool Execute() = 0;
-        virtual void SetConnection(MySQLConnection* con) { m_conn = con; }
+    virtual int call()
+    {
+        Execute();
+        return 0;
+    }
 
-        MySQLConnection* m_conn;
+    virtual bool Execute() = 0;
+    virtual void SetConnection(MySQLConnection* con) { m_conn = con; }
 
-    private:
-        SQLOperation(SQLOperation const& right) = delete;
-        SQLOperation& operator=(SQLOperation const& right) = delete;
+    MySQLConnection* m_conn{nullptr};
+
+private:
+    SQLOperation(SQLOperation const& right) = delete;
+    SQLOperation& operator=(SQLOperation const& right) = delete;
 };
 
 #endif

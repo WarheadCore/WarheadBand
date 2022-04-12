@@ -1,8 +1,10 @@
 #ifndef __REVISION_H__
 #define __REVISION_H__
  #define _HASH                      "@rev_hash@"
+ #define _FULLHASH                  "@rev_hash_full@"
  #define _DATE                      "@rev_date@"
  #define _BRANCH                    "@rev_branch@"
+ #define _URL_ORIGIN                "@rev_url_origin@"
  #define _CMAKE_COMMAND             R"(@CMAKE_COMMAND@)"
  #define _CMAKE_VERSION             R"(@CMAKE_VERSION@)"
  #define _CMAKE_HOST_SYSTEM         R"(@CMAKE_HOST_SYSTEM_NAME@ @CMAKE_HOST_SYSTEM_VERSION@)"

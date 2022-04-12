@@ -24,7 +24,6 @@
 #include "GameLocale.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
 #include "InstanceScript.h"
@@ -41,12 +40,17 @@
 #include "UpdateFieldFlags.h"
 #include "Vehicle.h"
 #include "WeatherMgr.h"
+#include "WorldStatePackets.h"
 #include <fmt/printf.h>
+
+// TODO: this import is not necessary for compilation and marked as unused by the IDE
+//  however, for some reasons removing it would cause a damn linking issue
+//  there is probably some underlying problem with imports which should properly addressed
+//  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
+#include "GridNotifiersImpl.h"
 
 // Zone Interval should be 1 second
 constexpr auto ZONE_UPDATE_INTERVAL = 1000;
-constexpr auto CINEMATIC_UPDATEDIFF = 500;
-constexpr auto CINEMATIC_LOOKAHEAD  = 2000;
 
 void Player::Update(uint32 p_time)
 {
@@ -68,12 +72,11 @@ void Player::Update(uint32 p_time)
 
     // Update cinematic location, if 500ms have passed and we're doing a
     // cinematic now.
-    m_cinematicDiff += p_time;
-    if (m_cinematicCamera && m_activeCinematicCameraId &&
-        GetMSTimeDiffToNow(m_lastCinematicCheck) > CINEMATIC_UPDATEDIFF)
+    _cinematicMgr->m_cinematicDiff += p_time;
+    if (_cinematicMgr->m_cinematicCamera && _cinematicMgr->m_activeCinematicCameraId && GetMSTimeDiffToNow(_cinematicMgr->m_lastCinematicCheck) > CINEMATIC_UPDATEDIFF)
     {
-        m_lastCinematicCheck = getMSTime();
-        UpdateCinematicLocation(p_time);
+        _cinematicMgr->m_lastCinematicCheck = getMSTime();
+        _cinematicMgr->UpdateCinematicLocation(p_time);
     }
 
     // used to implement delayed far teleports
@@ -92,7 +95,7 @@ void Player::Update(uint32 p_time)
 
     // Xinef: update charm AI only if we are controlled by creature or
     // non-posses player charm
-    if (IsCharmed() && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
+    if (IsCharmed() && !HasUnitFlag(UNIT_FLAG_POSSESSED))
     {
         m_charmUpdateTimer += p_time;
         if (m_charmUpdateTimer >= 1000)
@@ -212,7 +215,7 @@ void Player::Update(uint32 p_time)
         }
     }
 
-    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
+    if (HasPlayerFlag(PLAYER_FLAGS_RESTING))
     {
         if (now > lastTick && _restTime > 0) // freeze update
         {
@@ -244,7 +247,7 @@ void Player::Update(uint32 p_time)
     if (!IsPositionValid()) // pussywizard: will crash below at eg. GetZoneAndAreaId
     {
         LOG_INFO("misc", "Player::Update - invalid position ({0:.1f}, {0:.1f}, {0:.1f})! Map: {}, MapId: {}, {}",
-            GetPositionX(), GetPositionY(), GetPositionZ(), (FindMap() ? FindMap()->GetId() : 0), GetMapId(), GetGUID());
+            GetPositionX(), GetPositionY(), GetPositionZ(), (FindMap() ? FindMap()->GetId() : 0), GetMapId(), GetGUID().ToString());
         GetSession()->KickPlayer("Invalid position");
         return;
     }
@@ -415,28 +418,28 @@ void Player::UpdateNextMailTimeAndUnreads()
     // Get the next delivery time
     CharacterDatabasePreparedStatement* stmtNextDeliveryTime =
         CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
-    stmtNextDeliveryTime->setUInt32(0, GetGUID().GetCounter());
-    stmtNextDeliveryTime->setUInt32(1, uint32(cTime));
+    stmtNextDeliveryTime->SetData(0, GetGUID().GetCounter());
+    stmtNextDeliveryTime->SetData(1, uint32(cTime));
     PreparedQueryResult resultNextDeliveryTime =
         CharacterDatabase.Query(stmtNextDeliveryTime);
     if (resultNextDeliveryTime)
     {
         Field* fields          = resultNextDeliveryTime->Fetch();
-        m_nextMailDelivereTime = time_t(fields[0].GetUInt32());
+        m_nextMailDelivereTime = time_t(fields[0].Get<uint32>());
     }
 
     // Get unread mails count
     CharacterDatabasePreparedStatement* stmtUnreadAmount =
         CharacterDatabase.GetPreparedStatement(
             CHAR_SEL_CHARACTER_MAILCOUNT_UNREAD_SYNCH);
-    stmtUnreadAmount->setUInt32(0, GetGUID().GetCounter());
-    stmtUnreadAmount->setUInt32(1, uint32(cTime));
+    stmtUnreadAmount->SetData(0, GetGUID().GetCounter());
+    stmtUnreadAmount->SetData(1, uint32(cTime));
     PreparedQueryResult resultUnreadAmount =
         CharacterDatabase.Query(stmtUnreadAmount);
     if (resultUnreadAmount)
     {
         Field* fields = resultUnreadAmount->Fetch();
-        unReadMails   = uint8(fields[0].GetUInt64());
+        unReadMails   = uint8(fields[0].Get<uint64>());
     }
 }
 
@@ -489,14 +492,14 @@ void Player::UpdateLocalChannels(uint32 newZone)
                         usedChannel)
                         continue; // Already on the channel, as city channel names are not changing
 
-                    char const* currentNameExt;
+                    std::string currentNameExt;
 
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                         currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
-                        currentNameExt = current_zone_name.c_str();
+                        currentNameExt = current_zone_name;
 
-                    joinChannel = cMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt),
+                    joinChannel = cMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()),
                         channel->ChannelID);
 
                     if (usedChannel)
@@ -1087,6 +1090,11 @@ void Player::UpdateArea(uint32 newArea)
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
 {
+    if (!newZone)
+    {
+        return;
+    }
+
     if (m_zoneUpdateId != newZone)
     {
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
@@ -1264,7 +1272,7 @@ void Player::UpdatePvPState()
     }
     else // in friendly area
     {
-        if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) &&
+        if (IsPvP() && !HasPlayerFlag(PLAYER_FLAGS_IN_PVP) &&
             pvpInfo.EndTimer == 0)
             pvpInfo.EndTimer = GameTime::GetGameTime().count(); // start toggle-off
     }
@@ -1349,7 +1357,7 @@ void Player::UpdatePvP(bool state, bool _override)
         SetPvP(state);
     }
 
-    RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+    RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
     sScriptMgr->OnPlayerPVPFlagChange(this, state);
 }
 
@@ -1384,107 +1392,6 @@ void Player::UpdatePotionCooldown(Spell* spell)
     }
 
     SetLastPotionId(0);
-}
-
-void Player::UpdateCinematicLocation(uint32 /*diff*/)
-{
-    Position lastPosition;
-    uint32   lastTimestamp = 0;
-    Position nextPosition;
-    uint32   nextTimestamp = 0;
-
-    if (m_cinematicCamera->size() == 0)
-    {
-        return;
-    }
-
-    // Obtain direction of travel
-    for (FlyByCamera cam : *m_cinematicCamera)
-    {
-        if (cam.timeStamp > m_cinematicDiff)
-        {
-            nextPosition  = Position(cam.locations.x, cam.locations.y,
-                                    cam.locations.z, cam.locations.w);
-            nextTimestamp = cam.timeStamp;
-            break;
-        }
-        lastPosition  = Position(cam.locations.x, cam.locations.y,
-                                cam.locations.z, cam.locations.w);
-        lastTimestamp = cam.timeStamp;
-    }
-    float angle = lastPosition.GetAngle(&nextPosition);
-    angle -= lastPosition.GetOrientation();
-    if (angle < 0)
-    {
-        angle += 2 * float(M_PI);
-    }
-
-    // Look for position around 2 second ahead of us.
-    int32 workDiff = m_cinematicDiff;
-
-    // Modify result based on camera direction (Humans for example, have the
-    // camera point behind)
-    workDiff += static_cast<int32>(float(CINEMATIC_LOOKAHEAD) * cos(angle));
-
-    // Get an iterator to the last entry in the cameras, to make sure we don't
-    // go beyond the end
-    FlyByCameraCollection::const_reverse_iterator endItr =
-        m_cinematicCamera->rbegin();
-    if (endItr != m_cinematicCamera->rend() &&
-        workDiff > static_cast<int32>(endItr->timeStamp))
-    {
-        workDiff = endItr->timeStamp;
-    }
-
-    // Never try to go back in time before the start of cinematic!
-    if (workDiff < 0)
-    {
-        workDiff = m_cinematicDiff;
-    }
-
-    // Obtain the previous and next waypoint based on timestamp
-    for (FlyByCamera cam : *m_cinematicCamera)
-    {
-        if (static_cast<int32>(cam.timeStamp) >= workDiff)
-        {
-            nextPosition  = Position(cam.locations.x, cam.locations.y,
-                                    cam.locations.z, cam.locations.w);
-            nextTimestamp = cam.timeStamp;
-            break;
-        }
-        lastPosition  = Position(cam.locations.x, cam.locations.y,
-                                cam.locations.z, cam.locations.w);
-        lastTimestamp = cam.timeStamp;
-    }
-
-    // Never try to go beyond the end of the cinematic
-    if (workDiff > static_cast<int32>(nextTimestamp))
-    {
-        workDiff = static_cast<int32>(nextTimestamp);
-    }
-
-    // Interpolate the position for this moment in time (or the adjusted moment
-    // in time)
-    uint32   timeDiff  = nextTimestamp - lastTimestamp;
-    uint32   interDiff = workDiff - lastTimestamp;
-    float    xDiff     = nextPosition.m_positionX - lastPosition.m_positionX;
-    float    yDiff     = nextPosition.m_positionY - lastPosition.m_positionY;
-    float    zDiff     = nextPosition.m_positionZ - lastPosition.m_positionZ;
-    Position interPosition(lastPosition.m_positionX +
-                               (xDiff * (float(interDiff) / float(timeDiff))),
-                           lastPosition.m_positionY +
-                               (yDiff * (float(interDiff) / float(timeDiff))),
-                           lastPosition.m_positionZ +
-                               (zDiff * (float(interDiff) / float(timeDiff))));
-
-    // Advance (at speed) to this position. The remote sight object is used
-    // to send update information to player in cinematic
-    if (m_CinematicObject && interPosition.IsPositionValid())
-    {
-        m_CinematicObject->MonsterMoveWithSpeed(
-            interPosition.m_positionX, interPosition.m_positionY,
-            interPosition.m_positionZ, 200.0f);
-    }
 }
 
 template void Player::UpdateVisibilityOf(Player* target, UpdateData& data, std::vector<Unit*>& visibleNow);
@@ -1659,8 +1566,7 @@ void Player::UpdateTriggerVisibility()
             // units (values dependent on GM state)
             if (!creature || (!creature->IsTrigger() &&
                               !creature->HasAuraType(SPELL_AURA_TRANSFORM) &&
-                              !creature->HasFlag(UNIT_FIELD_FLAGS,
-                                                 UNIT_FLAG_NOT_SELECTABLE)))
+                              !creature->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE)))
                 continue;
 
             creature->SetFieldNotifyFlag(UF_FLAG_PUBLIC);
@@ -1707,7 +1613,7 @@ void Player::UpdateForQuestWorldObjects()
                 continue;
 
             // check if this unit requires quest specific flags
-            if (!obj->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
+            if (!obj->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
                 continue;
 
             SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
@@ -2045,11 +1951,11 @@ void Player::UpdateSpecCount(uint8 count)
              itr != m_actionButtons.end(); ++itr)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-            stmt->setUInt32(0, GetGUID().GetCounter());
-            stmt->setUInt8(1, 1);
-            stmt->setUInt8(2, itr->first);
-            stmt->setUInt32(3, itr->second.GetAction());
-            stmt->setUInt8(4, uint8(itr->second.GetType()));
+            stmt->SetData(0, GetGUID().GetCounter());
+            stmt->SetData(1, 1);
+            stmt->SetData(2, itr->first);
+            stmt->SetData(3, itr->second.GetAction());
+            stmt->SetData(4, uint8(itr->second.GetType()));
             trans->Append(stmt);
         }
     }
@@ -2060,8 +1966,8 @@ void Player::UpdateSpecCount(uint8 count)
 
         stmt = CharacterDatabase.GetPreparedStatement(
             CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC);
-        stmt->setUInt8(0, m_activeSpec);
-        stmt->setUInt32(1, GetGUID().GetCounter());
+        stmt->SetData(0, m_activeSpec);
+        stmt->SetData(1, GetGUID().GetCounter());
         trans->Append(stmt);
 
         m_activeSpec = 0;
@@ -2073,12 +1979,12 @@ void Player::UpdateSpecCount(uint8 count)
     SendTalentsInfoData(false);
 }
 
-void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
+void Player::SendUpdateWorldState(uint32 variable, uint32 value) const
 {
-    WorldPacket data(SMSG_UPDATE_WORLD_STATE, 8);
-    data << Field;
-    data << Value;
-    GetSession()->SendPacket(&data);
+    WorldPackets::WorldState::UpdateWorldState worldstate;
+    worldstate.VariableID = variable;
+    worldstate.Value = value;
+    SendDirectMessage(worldstate.Write());
 }
 
 void Player::ProcessTerrainStatusUpdate()

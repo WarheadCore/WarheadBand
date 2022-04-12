@@ -19,7 +19,6 @@
 #include "GameObjectAI.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "LFGMgr.h"
 #include "PassiveAI.h"
@@ -28,6 +27,12 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
+
+// TODO: this import is not necessary for compilation and marked as unused by the IDE
+//  however, for some reasons removing it would cause a damn linking issue
+//  there is probably some underlying problem with imports which should properly addressed
+//  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
+#include "GridNotifiersImpl.h"
 
 ///////////////////////////////////////
 ////// ITEMS FIXES, BASIC STUFF
@@ -489,7 +494,7 @@ struct npc_soh_fire_trigger : public NullCreatureAI
         me->SetDisableGravity(true);
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
+    void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_START_FIRE)
         {
@@ -566,7 +571,7 @@ struct npc_hallows_end_soh : public ScriptedAI
     {
         scheduler.Schedule(6s, [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f, true))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.f, true))
             {
                 me->CastSpell(target, SPELL_HORSEMAN_CONFLAGRATION, false);
                 target->CastSpell(target, SPELL_HORSEMAN_CONFLAGRATION_SOUND, true);
@@ -649,7 +654,7 @@ struct npc_hallows_end_soh : public ScriptedAI
         events.ScheduleEvent(3, 63000);
 
         me->SetReactState(REACT_PASSIVE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
         me->SetCanFly(true);
         me->SetDisableGravity(true);
@@ -728,7 +733,7 @@ struct npc_hallows_end_soh : public ScriptedAI
                 }
                 case 4:
                 {
-                    me->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+                    me->ReplaceAllUnitFlags(UNIT_FLAG_NONE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Unit* target = me->SelectNearestPlayer(30.0f))
                         AttackStart(target);
@@ -877,7 +882,7 @@ struct npc_hallows_end_train_fire : public NullCreatureAI
                 me->CastSpell(me, SPELL_FIRE_AURA_BASE, true);
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
+    void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_WATER_SPLASH && caster->ToPlayer())
         {
@@ -978,7 +983,7 @@ struct boss_headless_horseman : public ScriptedAI
             (*itr)->ToCreature()->DespawnOrUnsummon(500);
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        if (!players.isEmpty() && players.begin()->GetSource() && players.begin()->GetSource()->GetGroup())
+        if (!players.IsEmpty() && players.begin()->GetSource() && players.begin()->GetSource()->GetGroup())
             sLFGMgr->FinishDungeon(players.begin()->GetSource()->GetGroup()->GetGUID(), lfg::LFG_DUNGEON_HEADLESS_HORSEMAN, me->FindMap());
     }
 
@@ -993,7 +998,7 @@ struct boss_headless_horseman : public ScriptedAI
         health = param;
     }
 
-    void SpellHitTarget(Unit* target, const SpellInfo* spellInfo) override
+    void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_SUMMONING_RHYME_TARGET)
         {
@@ -1002,7 +1007,7 @@ struct boss_headless_horseman : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit*  /*caster*/, const SpellInfo* spellInfo) override
+    void SpellHit(Unit*  /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_THROW_HEAD_BACK)
         {
@@ -1033,7 +1038,7 @@ struct boss_headless_horseman : public ScriptedAI
                 me->CastSpell(me, SPELL_HEAD_VISUAL, true);
             else if (point == 11)
             {
-                me->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+                me->ReplaceAllUnitFlags(UNIT_FLAG_NONE);
                 me->StopMoving();
 
                 me->SetInCombatWithZone();
@@ -1180,7 +1185,7 @@ struct boss_headless_horseman : public ScriptedAI
                 }
             case EVENT_HORSEMAN_CONFLAGRATION:
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         me->CastSpell(target, SPELL_HORSEMAN_CONFLAGRATION, false);
                         target->CastSpell(target, SPELL_HORSEMAN_CONFLAGRATION_SOUND, true);
@@ -1223,7 +1228,7 @@ struct boss_headless_horseman_head : public ScriptedAI
     uint32 timer;
     bool handled;
 
-    void SpellHitTarget(Unit*  /*target*/, const SpellInfo* spellInfo) override
+    void SpellHitTarget(Unit*  /*target*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_THROW_HEAD_BACK)
         {
@@ -1234,7 +1239,7 @@ struct boss_headless_horseman_head : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
+    void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {
@@ -1250,7 +1255,7 @@ struct boss_headless_horseman_head : public ScriptedAI
                     if (Player* player = me->SelectNearestPlayer(50.0f))
                         me->GetMotionMaster()->MoveFleeing(player);
 
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     timer = 26000;
                     break;
                 }
@@ -1351,7 +1356,7 @@ struct boss_headless_horseman_pumpkin : public ScriptedAI
         me->CastSpell(me, SPELL_PUMPKIN_VISUAL, true);
     }
 
-    void SpellHit(Unit*  /*caster*/, const SpellInfo* spellInfo) override
+    void SpellHit(Unit*  /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_SPROUTING)
         {

@@ -103,7 +103,7 @@ namespace lfg
                 break;
         }
 
-        return std::string(sGameLocale->GetWarheadStringForDBCLocale(entry));
+        return sGameLocale->GetWarheadStringForDBCLocale(entry);
     }
 
     std::string Lfg5Guids::toString() const // for debugging

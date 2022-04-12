@@ -16,12 +16,11 @@
 */
 
 #include "ExternalMail.h"
-#include "Log.h"
+#include "CharacterCache.h"
 #include "GameConfig.h"
-#include "DatabaseEnv.h"
+#include "Log.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
-#include "CharacterCache.h"
 #include "TaskScheduler.h"
 
 namespace
@@ -35,13 +34,13 @@ bool ExMail::AddItems(uint32 itemID, uint32 itemCount)
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
     if (!itemTemplate)
     {
-        LOG_ERROR("mail", "> External Mail: Предмета под номером {} не существует. ID ({})", itemID, ID);
+        LOG_ERROR("mail.external", "> External Mail: Предмета под номером {} не существует. ID ({})", itemID, ID);
         return false;
     }
 
     if (itemCount < 1 || (itemTemplate->MaxCount > 0 && itemCount > static_cast<uint32>(itemTemplate->MaxCount)))
     {
-        LOG_ERROR("mail", "> External Mail: Некорректное количество ({}) для предмета ({}). ID ({})", itemCount, itemID, ID);
+        LOG_ERROR("mail.external", "> External Mail: Некорректное количество ({}) для предмета ({}). ID ({})", itemCount, itemID, ID);
         return false;
     }
 
@@ -77,6 +76,7 @@ void ExternalMail::Update(uint32 diff)
         return;
 
     scheduler.Update(diff);
+    _queryProcessor.ProcessReadyCallbacks();
 }
 
 void ExternalMail::LoadSystem()
@@ -85,46 +85,59 @@ void ExternalMail::LoadSystem()
 
     if (!_isSystemEnable)
     {
-        LOG_INFO("server.loading", ">> External mail disable");
+        LOG_INFO("server.loading", ">> External mail disabled");
         return;
     }
 
     scheduler.CancelAll();
-    scheduler.Schedule(10s, [this](TaskContext context)
+    scheduler.Schedule(15s, [this](TaskContext context)
     {
-        GetMailsFromDB();
         SendMails();
-
-        context.Repeat();
+        context.Repeat(5s);
     });
 
     LOG_INFO("server.loading", ">> External mail loaded");
 }
 
-void ExternalMail::GetMailsFromDB()
+void ExternalMail::AddMail(std::string_view charName, std::string_view thanksSubject, std::string_view thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
 {
-    QueryResult result = CharacterDatabase.PQuery("SELECT ID, PlayerName, Subject, Message, Money, ItemID, ItemCount, CreatureEntry FROM mail_external ORDER BY id ASC");
+    // Add mail item
+    CharacterDatabase.Execute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('{}', '{}', {}, {}, '{}', {})",
+        charName, thanksSubject, itemID, itemCount, thanksText, creatureEntry);
+}
+
+void ExternalMail::SendMails()
+{
+    LOG_TRACE("mail.external", "> External Mail: GetMailsFromDB");
+
+    _queryProcessor.AddCallback(
+        CharacterDatabase.AsyncQuery("SELECT ID, PlayerName, Subject, Message, Money, ItemID, ItemCount, CreatureEntry FROM mail_external ORDER BY id ASC").
+        WithCallback(std::bind(&ExternalMail::SendMailsAsync, this, std::placeholders::_1)));
+}
+
+void ExternalMail::SendMailsAsync(QueryResult result)
+{
+    LOG_TRACE("mail.external", "> External Mail: GetMailsAsync");
+
     if (!result)
         return;
-
-    LOG_TRACE("mail", "> External Mail: GetMailsFromDB");
 
     do
     {
         Field* fields = result->Fetch();
 
-        uint32 ID = fields[0].GetUInt32();
-        std::string PlayerName = fields[1].GetString();
-        std::string Subject = fields[2].GetString();
-        std::string Body = fields[3].GetString();
-        uint32 Money = fields[4].GetUInt32();
-        uint32 ItemID = fields[5].GetUInt32();
-        uint32 ItemCount = fields[6].GetUInt32();
-        uint32 CreatureEntry = fields[7].GetUInt32();
+        uint32 ID = fields[0].Get<uint32>();
+        std::string PlayerName = fields[1].Get<std::string>();
+        std::string Subject = fields[2].Get<std::string>();
+        std::string Body = fields[3].Get<std::string>();
+        uint32 Money = fields[4].Get<uint32>();
+        uint32 ItemID = fields[5].Get<uint32>();
+        uint32 ItemCount = fields[6].Get<uint32>();
+        uint32 CreatureEntry = fields[7].Get<uint32>();
 
         if (!normalizePlayerName(PlayerName))
         {
-            LOG_ERROR("module", "> External Mail: Неверное имя персонажа ({})", PlayerName);
+            LOG_ERROR("mail.external", "> External Mail: Неверное имя персонажа ({})", PlayerName);
             continue;
         }
 
@@ -132,26 +145,18 @@ void ExternalMail::GetMailsFromDB()
         if (playerGuid.IsEmpty())
             continue;
 
-        bool _error = false;
-
         // Проверка
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(ItemID);
         if (!itemTemplate)
         {
-            LOG_ERROR("module", "> External Mail: Предмета под номером {} не существует. Пропуск", ItemID);
-            _error = true;
+            LOG_ERROR("mail.external", "> External Mail: Предмета под номером {} не существует. Пропуск", ItemID);
+            continue;
         }
 
         auto const* creature = sObjectMgr->GetCreatureTemplate(CreatureEntry);
         if (!creature)
         {
-            LOG_ERROR("module", "> External Mail: НПС под номером {} не существует. Пропуск", CreatureEntry);
-            _error = true;
-        }
-
-        if (_error)
-        {
-            CharacterDatabase.PExecute("UPDATE `mail_external` SET `SystemComment` = '{}' WHERE `ID` = {}", "Предмета либо НПС не существует!", ID);
+            LOG_ERROR("mail.external", "> External Mail: НПС под номером {} не существует. Пропуск", CreatureEntry);
             continue;
         }
 
@@ -169,29 +174,24 @@ void ExternalMail::GetMailsFromDB()
         _store.emplace(_data.ID, _data);
 
     } while (result->NextRow());
-}
 
-void ExternalMail::SendMails()
-{
     // Check mails
     if (_store.empty())
         return;
 
-    LOG_TRACE("mail", "> External Mail: SendMails");
+    LOG_TRACE("mail.external", "> External Mail: Send mails");
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    for (auto const& itr : _store)
+    for (auto const& [lowGuid, exMail] : _store)
     {
-        auto exmail = itr.second;
-
-        for (auto const& items : exmail.OverCountItems)
+        for (auto const& items : exMail.OverCountItems)
         {
-            Player* receiver = ObjectAccessor::FindPlayer(exmail.PlayerGuid);
-            MailDraft* mail = new MailDraft(exmail.Subject, exmail.Body);
+            Player* receiver = ObjectAccessor::FindPlayer(exMail.PlayerGuid);
+            MailDraft* mail = new MailDraft(exMail.Subject, exMail.Body);
 
-            if (exmail.Money)
-                mail->AddMoney(exmail.Money);
+            if (exMail.Money)
+                mail->AddMoney(exMail.Money);
 
             for (auto const& [itemID, itemCount] : items)
             {
@@ -202,25 +202,18 @@ void ExternalMail::SendMails()
                 }
             }
 
-            mail->SendMailTo(trans, receiver ? receiver : MailReceiver(exmail.PlayerGuid.GetCounter()), MailSender(MAIL_CREATURE, exmail.CreatureEntry, MAIL_STATIONERY_DEFAULT), MAIL_CHECK_MASK_RETURNED);
+            mail->SendMailTo(trans, receiver ? receiver : MailReceiver(exMail.PlayerGuid.GetCounter()), MailSender(MAIL_CREATURE, exMail.CreatureEntry, MAIL_STATIONERY_DEFAULT), MAIL_CHECK_MASK_RETURNED);
             delete mail;
         }
 
-        trans->PAppend("DELETE FROM mail_external WHERE id = {}", exmail.ID);
+        trans->Append("DELETE FROM mail_external WHERE id = {}", exMail.ID);
     }
 
     CharacterDatabase.CommitTransaction(trans);
 
-    LOG_DEBUG("module", "> External Mail: Отправлено ({}) писем", static_cast<uint32>(_store.size()));
-    LOG_DEBUG("module", "");
+    LOG_DEBUG("mail.external", "> External Mail: Отправлено ({}) писем", static_cast<uint32>(_store.size()));
+    LOG_DEBUG("mail.external", "");
 
     // Clear for next time
     _store.clear();
-}
-
-void ExternalMail::AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
-{
-    // Add mail item
-    CharacterDatabase.PExecute("INSERT INTO `mail_external` (PlayerName, Subject, ItemID, ItemCount, Message, CreatureEntry) VALUES ('{}', '{}', {}, {}, '{}', {})",
-                               charName, thanksSubject, itemID, itemCount, thanksText, creatureEntry);
 }

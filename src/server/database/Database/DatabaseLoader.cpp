@@ -94,8 +94,8 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             // If the error wasn't handled quit
             if (error)
             {
-                LOG_ERROR("sql.driver", "DatabasePool {} NOT opened. There were errors opening the MySQL connections. "
-                          "Check your SQLDriverLogFile for specific errors", name);
+                LOG_ERROR(_logger, "DatabasePool {} NOT opened. There were errors opening the MySQL connections. "
+                          "Check your log file for specific errors", name);
 
                 return false;
             }

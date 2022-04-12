@@ -16,16 +16,16 @@
 */
 
 #include "ArenaReward.h"
-#include "Log.h"
-#include "StringFormat.h"
-#include "StringConvert.h"
-#include "BanMgr.h"
-#include "ModulesConfig.h"
-#include "GameLocale.h"
 #include "ArenaTeamMgr.h"
-#include "ObjectAccessor.h"
-#include "Tokenize.h"
+#include "BanMgr.h"
 #include "Chat.h"
+#include "GameLocale.h"
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "ObjectAccessor.h"
+#include "StringConvert.h"
+#include "StringFormat.h"
+#include "Tokenize.h"
 #include <tuple>
 #include <unordered_map>
 #include <vector>

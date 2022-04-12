@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -562,31 +564,13 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recvData)
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
 
-void WorldSession::HandleRandomRollOpcode(WorldPacket& recvData)
+void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
-    LOG_DEBUG("network", "WORLD: Received MSG_RANDOM_ROLL");
+    uint32 minimum, maximum;
+    minimum = packet.Min;
+    maximum = packet.Max;
 
-    uint32 minimum, maximum, roll;
-    recvData >> minimum;
-    recvData >> maximum;
-
-    /** error handling **/
-    if (minimum > maximum || maximum > 10000)                // < 32768 for urand call
-        return;
-    /********************/
-
-    // everything's fine, do it
-    roll = urand(minimum, maximum);
-
-    WorldPacket data(MSG_RANDOM_ROLL, 4 + 4 + 4 + 8);
-    data << uint32(minimum);
-    data << uint32(maximum);
-    data << uint32(roll);
-    data << GetPlayer()->GetGUID();
-    if (GetPlayer()->GetGroup())
-        GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
-    else
-        SendPacket(&data);
+    GetPlayer()->DoRandomRoll(minimum, maximum);
 }
 
 void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket& recvData)
@@ -764,7 +748,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket& recvData)
             // Check if player is in BG
             if (_player->InBattleground())
             {
-                _player->GetSession()->SendNotification(LANG_BG_READY_CHECK_ERROR);
+                Warhead::Text::SendNotification(this, LANG_BG_READY_CHECK_ERROR);
                 return;
             }
         }
@@ -831,7 +815,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 
         if (!player->IsAlive())
         {
-            if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            if (player->HasPlayerFlag(PLAYER_FLAGS_GHOST))
                 playerStatus |= MEMBER_STATUS_GHOST;
             else
                 playerStatus |= MEMBER_STATUS_DEAD;
@@ -1033,7 +1017,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 
     if (!player->IsAlive())
     {
-        if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        if (player->HasPlayerFlag(PLAYER_FLAGS_GHOST))
             playerStatus |= MEMBER_STATUS_GHOST;
         else
             playerStatus |= MEMBER_STATUS_DEAD;

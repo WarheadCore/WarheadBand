@@ -575,46 +575,13 @@ void PathGenerator::BuildPointPath(const float* startPoint, const float* endPoin
     }
 
     _pathPoints.resize(pointCount);
-    uint32 newPointCount = 0;
-    for (uint32 i = 0; i < pointCount; ++i) {
-        G3D::Vector3 vector = G3D::Vector3(pathPoints[i * VERTEX_SIZE + 2], pathPoints[i * VERTEX_SIZE], pathPoints[i * VERTEX_SIZE + 1]);
-        LiquidData const& liquidData = _source->GetMap()->GetLiquidData(_source->GetPhaseMask(), vector.x, vector.y, vector.z, _source->GetCollisionHeight(), MAP_ALL_LIQUIDS);
-        // One of the points is not in the water
-        if (liquidData.Status == LIQUID_MAP_UNDER_WATER)
-        {
-            // if the first point is under water
-            // then set a proper z for it
-            if (i == 0)
-            {
-                vector.z = std::fmaxf(vector.z, _source->GetPositionZ());
-                _pathPoints[newPointCount] = vector;
-            }
-            // if the last point is under water
-            // then set the desired end position instead
-            else if (i == pointCount - 1)
-            {
-                _pathPoints[newPointCount] = GetActualEndPosition();
-            }
-            // if one of the mid-points of the path is underwater
-            // then we can create a shortcut between the previous one
-            // and the next one by not including it inside the list
-            else
-                continue;
-        }
-        else
-        {
-            _pathPoints[newPointCount] = vector;
-        }
-
-        newPointCount++;
-    }
-
-    _pathPoints.resize(newPointCount);
+    for (uint32 i = 0; i < pointCount; ++i)
+        _pathPoints[i] = G3D::Vector3(pathPoints[i * VERTEX_SIZE + 2], pathPoints[i * VERTEX_SIZE], pathPoints[i * VERTEX_SIZE + 1]);
 
     NormalizePath();
 
     // first point is always our current location - we need the next one
-    SetActualEndPosition(_pathPoints[newPointCount - 1]);
+    SetActualEndPosition(_pathPoints[pointCount - 1]);
 
     // force the given destination, if needed
     if (_forceDestination &&
@@ -906,7 +873,7 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
 
         if (dtStatusFailed(_navMeshQuery->getPolyHeight(polys[0], result, &result[1])))
             LOG_DEBUG("maps", "PathGenerator::FindSmoothPath: Cannot find height at position X: {} Y: {} Z: {} for {}",
-                result[2], result[0], result[1], _source->GetGUID());
+                result[2], result[0], result[1], _source->GetGUID().ToString());
         result[1] += 0.5f;
         dtVcopy(iterPos, result);
 
@@ -1003,7 +970,7 @@ bool PathGenerator::IsWalkableClimb(float x, float y, float z, float destX, floa
  */
 bool PathGenerator::IsWalkableClimb(float x, float y, float z, float destX, float destY, float destZ, float sourceHeight)
 {
-    float diffHeight = abs(destZ - z);
+    float diffHeight = std::abs(destZ - z);
     float reqHeight = GetRequiredHeightToClimb(x, y, z, destX, destY, destZ, sourceHeight);
     // check walkable slopes, based on unit height
     return diffHeight <= reqHeight;
@@ -1084,12 +1051,10 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
 
         // check if the shortened path is still in LoS with the target and it is walkable
         _source->GetHitSpherePointFor({ _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight }, x, y, z);
-        if (!_source->GetMap()->isInLineOfSight(x, y, z, _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight, _source->GetPhaseMask(), LINEOFSIGHT_ALL_CHECKS)
-            || (canCheckSlope
-                && !IsSwimmableSegment(_source->GetPositionX(), _source->GetPositionY(), _source->GetPositionZ(), _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z)
-                && !IsWalkableClimb(_source->GetPositionX(), _source->GetPositionY(), _source->GetPositionZ(), _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z)
-                )
-            )
+        if (!_source->GetMap()->isInLineOfSight(x, y, z, _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight,
+            _source->GetPhaseMask(), LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing) || (canCheckSlope &&
+                !IsSwimmableSegment(_source->GetPositionX(), _source->GetPositionY(), _source->GetPositionZ(), _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z) &&
+                !IsWalkableClimb(_source->GetPositionX(), _source->GetPositionY(), _source->GetPositionZ(), _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z)))
         {
             // whenver we find a point that is not valid anymore, simply use last valid path
             _pathPoints.resize(i + 1);

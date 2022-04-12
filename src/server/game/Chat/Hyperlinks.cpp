@@ -26,7 +26,6 @@
 #include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "advstd.h"
 
 using namespace Warhead::Hyperlinks;
 

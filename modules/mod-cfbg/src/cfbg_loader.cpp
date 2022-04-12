@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CFBG_LOADER_H_
-#define _CFBG_LOADER_H_
-
 // From SC
 void AddSC_CFBG();
 
@@ -26,5 +23,3 @@ void Addmod_cfbgScripts()
 {
     AddSC_CFBG();
 }
-
-#endif /* _CFBG_LOADER_H_ */

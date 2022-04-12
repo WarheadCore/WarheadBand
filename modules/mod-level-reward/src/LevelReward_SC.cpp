@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
+#include "ExternalMail.h"
 #include "Log.h"
-#include "ScriptMgr.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
-#include "Chat.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "StringFormat.h"
-#include "ExternalMail.h"
 
 struct LevelRewardStruct
 {
@@ -62,11 +62,11 @@ public:
 
             LevelRewardStruct _levelReward;
 
-            uint32 Level = fields[0].GetUInt32();
+            uint32 Level = fields[0].Get<uint32>();
 
-            _levelReward.Money = fields[1].GetUInt32();
-            _levelReward.ItemID = fields[2].GetUInt32();
-            _levelReward.ItemCount = fields[3].GetUInt32();
+            _levelReward.Money = fields[1].Get<uint32>();
+            _levelReward.ItemID = fields[2].Get<uint32>();
+            _levelReward.ItemCount = fields[3].Get<uint32>();
 
             // Проверка
             if (Level > MOD_CONF_GET_UINT("MaxPlayerLevel"))

@@ -99,7 +99,7 @@ public:
                     events.RepeatEvent(urand(8000, 10000));
                     break;
                 case EVENT_SPELL_OPTIC_LINK:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 40.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MinDistance, 0, 40.0f, true))
                     {
                         me->CastSpell(target, SPELL_OPTIC_LINK, false);
                         events.RepeatEvent(urand(18000, 21000));
@@ -124,7 +124,7 @@ public:
         {
             ScriptedAI::EnterEvadeMode();
             events.Reset();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             if (pInstance)
                 pInstance->SetData(DATA_FAILED, 1);
         }

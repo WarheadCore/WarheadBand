@@ -17,6 +17,7 @@
 
 #include "MapMgr.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GridDefines.h"
@@ -170,7 +171,7 @@ Map::EnterState MapMgr::PlayerCannotEnter(uint32 mapid, Player* player, bool log
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
             // TODO: this is not a good place to send the message
-            player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetWarheadString(LANG_INSTANCE_RAID_GROUP_ONLY), mapName);
+            Warhead::Text::SendAreaTriggerMessage(player->GetSession(), LANG_INSTANCE_RAID_GROUP_ONLY, mapName);
             LOG_DEBUG("maps", "MAP: Player '{}' must be in a raid group to enter instance '{}'", player->GetName(), mapName);
             return Map::CANNOT_ENTER_NOT_IN_RAID;
         }
@@ -231,7 +232,7 @@ Map::EnterState MapMgr::PlayerCannotEnter(uint32 mapid, Player* player, bool log
             instaceIdToCheck = save->GetInstanceId();
 
         // instaceIdToCheck can be 0 if save not found - means no bind so the instance is new
-        if (!player->CheckInstanceCount(instaceIdToCheck) && !player->isDead())
+        if (!player->CheckInstanceCount(instaceIdToCheck))
         {
             player->SendTransferAborted(mapid, TRANSFER_ABORT_TOO_MANY_INSTANCES);
             return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
@@ -251,7 +252,9 @@ void MapMgr::Update(uint32 diff)
     //if (mapUpdateStep == 0)
     {
         if (m_updater.activated())
+        {
             m_updater.schedule_lfg_update(diff);
+        }
         else
         {
             sLFGMgr->Update(diff, 1);
@@ -384,7 +387,7 @@ void MapMgr::InitInstanceIds()
     QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
     if (result)
     {
-        uint32 maxId = (*result)[0].GetUInt32();
+        uint32 maxId = (*result)[0].Get<uint32>();
         _instanceIds.resize(maxId + 1);
     }
 }

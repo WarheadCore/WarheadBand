@@ -15,22 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Vip.h"
 #include "AccountMgr.h"
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
-#include "GameTime.h"
-#include "GameLocale.h"
-#include "Chat.h"
-#include "Player.h"
-#include "Timer.h"
-#include "ScriptedGossip.h"
-#include "StringConvert.h"
-#include "WorldSession.h"
-#include "Tokenize.h"
 #include "CharacterCache.h"
+#include "Chat.h"
+#include "GameLocale.h"
+#include "GameTime.h"
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedGossip.h"
 #include "Spell.h"
+#include "StringConvert.h"
+#include "Timer.h"
+#include "Tokenize.h"
+#include "Vip.h"
+#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -97,10 +97,10 @@ public:
         if (sVip->IsVip(data->AccountId))
             handler->PSendSysMessage("> Игрок {} уже был випом.", target->GetName());
 
-        if (sVip->Add(data->AccountId, GameTime::GetGameTime().count() + uint64(duration * DAY), level, true))
+        if (sVip->Add(data->AccountId, GameTime::GetGameTime() + Days(duration), level, true))
         {
             handler->PSendSysMessage("> Обновление статуста премиум аккаунта для игрока {}.", target->GetName());
-            handler->PSendSysMessage("> Уровень {}. Оставшееся время {}.", level, Warhead::Time::ToTimeString<Seconds>(duration * DAY));
+            handler->PSendSysMessage("> Уровень {}. Оставшееся время {}.", level, Warhead::Time::ToTimeString(Days(duration)));
             return true;
         }
 
@@ -288,15 +288,16 @@ public:
         points *= sVip->GetRate<VipRate::Honor>(player);
     }
 
-    void OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
+    bool OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
     {
         if (!MOD_CONF_GET_BOOL("VIP.Enable"))
-            return;
+            return true;
 
         if (!sVip->IsVip(player))
-            return;
+            return true;
 
         standing *= sVip->GetRate<VipRate::Reputation>(player);
+        return true;
     }
 
     void OnLogin(Player* player) override

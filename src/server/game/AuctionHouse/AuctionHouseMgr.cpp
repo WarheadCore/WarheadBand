@@ -33,7 +33,6 @@
 #include "UpdateTime.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include <vector>
 
 constexpr auto AH_MINIMUM_DEPOSIT = 100;
@@ -316,8 +315,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-        stmt->setUInt32(0, auction->bidder.GetCounter());
-        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
+        stmt->SetData(0, auction->bidder.GetCounter());
+        stmt->SetData(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
 
         if (bidder)
@@ -355,7 +354,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
         if (sendMail) // can be changed in the hook
             MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING),
                 AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut(), deliveryDelay, timePacker.read<uint32>()))
-            .SendMailTo(trans, MailReceiver(owner, auction->owner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED, 0, 0, false, true, -static_cast<int32>(auction->Id));
+            .SendMailTo(trans, MailReceiver(owner, auction->owner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
     }
 }
 
@@ -385,7 +384,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, Character
         if (sendMail) // can be changed in the hook
             MailDraft(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->bidder, auction->bid, auction->buyout, auction->deposit, auction->GetAuctionCut()))
             .AddMoney(profit)
-            .SendMailTo(trans, MailReceiver(owner, auction->owner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED, CONF_GET_INT("MailDeliveryDelay"), 0, false, true, auction->Id);
+            .SendMailTo(trans, MailReceiver(owner, auction->owner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED, CONF_GET_INT("MailDeliveryDelay"));
 
         if (auction->bid >= 500 * GOLD)
             if (CharacterCacheEntry const* gpd = sCharacterCache->GetCharacterCacheByGuid(auction->bidder))
@@ -398,8 +397,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, Character
                     owner_name = gpd_owner->Name;
                     owner_level = gpd_owner->Level;
                 }
-                CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<AH> profit: {}g, bidder: {} {} lvl (guid: {}), seller: {} {} lvl (guid: {}), item {} ({})\", NOW())",
-                    gpd->AccountId, auction->bidder.GetCounter(), gpd->Name, bidder ? bidder->GetSession()->GetRemoteAddress() : "", owner_accId, owner_name, auction->bid, (profit / GOLD), gpd->Name, gpd->Level, auction->bidder.GetCounter(), owner_name, owner_level, auction->owner.GetCounter(), auction->item_template, auction->itemCount);
+                CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"profit: {}g, bidder: {} {} lvl (guid: {}), seller: {} {} lvl (guid: {}), item {} ({})\", NOW(), {})",
+                    gpd->AccountId, auction->bidder.GetCounter(), gpd->Name, bidder ? bidder->GetSession()->GetRemoteAddress() : "", owner_accId, owner_name, auction->bid, (profit / GOLD), gpd->Name, gpd->Level, auction->bidder.GetCounter(), owner_name, owner_level, auction->owner.GetCounter(), auction->item_template, auction->itemCount, 2);
             }
     }
 }
@@ -497,7 +496,7 @@ void AuctionHouseMgr::LoadAuctionItems()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 auction items. DB table `auctionhouse` or `item_instance` is empty!");
+        LOG_WARN("server.loading", ">> Loaded 0 auction items. DB table `auctionhouse` or `item_instance` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -508,8 +507,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType item_guid = fields[11].GetUInt32();
-        uint32 item_template = fields[12].GetUInt32();
+        ObjectGuid::LowType item_guid = fields[11].Get<uint32>();
+        uint32 item_template = fields[12].Get<uint32>();
 
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item_template);
         if (!proto)
@@ -542,7 +541,7 @@ void AuctionHouseMgr::LoadAuctions()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 auctions. DB table `auctionhouse` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -853,13 +852,13 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
                     if (propRefID < 0)
                     {
-                        const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
+                        ItemRandomSuffixEntry const* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
                         if (itemRandEntry)
                             suffix = &itemRandEntry->Name;
                     }
                     else
                     {
-                        const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
+                        ItemRandomPropertiesEntry const* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
                         if (itemRandEntry)
                             suffix = &itemRandEntry->Name;
                     }
@@ -976,40 +975,40 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
-    stmt->setUInt32(0, Id);
+    stmt->SetData(0, Id);
     trans->Append(stmt);
 }
 
 void AuctionEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
-    stmt->setUInt32(0, Id);
-    stmt->setUInt8(1, houseId);
-    stmt->setUInt32(2, item_guid.GetCounter());
-    stmt->setUInt32(3, owner.GetCounter());
-    stmt->setUInt32 (4, buyout);
-    stmt->setUInt32(5, uint32(expire_time));
-    stmt->setUInt32(6, bidder.GetCounter());
-    stmt->setUInt32 (7, bid);
-    stmt->setUInt32 (8, startbid);
-    stmt->setUInt32 (9, deposit);
+    stmt->SetData(0, Id);
+    stmt->SetData(1, houseId);
+    stmt->SetData(2, item_guid.GetCounter());
+    stmt->SetData(3, owner.GetCounter());
+    stmt->SetData (4, buyout);
+    stmt->SetData(5, uint32(expire_time));
+    stmt->SetData(6, bidder.GetCounter());
+    stmt->SetData (7, bid);
+    stmt->SetData (8, startbid);
+    stmt->SetData (9, deposit);
     trans->Append(stmt);
 }
 
 bool AuctionEntry::LoadFromDB(Field* fields)
 {
-    Id = fields[0].GetUInt32();
-    houseId = fields[1].GetUInt8();
-    item_guid = ObjectGuid::Create<HighGuid::Item>(fields[2].GetUInt32());
-    item_template = fields[3].GetUInt32();
-    itemCount = fields[4].GetUInt32();
-    owner = ObjectGuid::Create<HighGuid::Player>(fields[5].GetUInt32());
-    buyout = fields[6].GetUInt32();
-    expire_time = fields[7].GetUInt32();
-    bidder = ObjectGuid::Create<HighGuid::Player>(fields[8].GetUInt32());
-    bid = fields[9].GetUInt32();
-    startbid = fields[10].GetUInt32();
-    deposit = fields[11].GetUInt32();
+    Id = fields[0].Get<uint32>();
+    houseId = fields[1].Get<uint8>();
+    item_guid = ObjectGuid::Create<HighGuid::Item>(fields[2].Get<uint32>());
+    item_template = fields[3].Get<uint32>();
+    itemCount = fields[4].Get<uint32>();
+    owner = ObjectGuid::Create<HighGuid::Player>(fields[5].Get<uint32>());
+    buyout = fields[6].Get<uint32>();
+    expire_time = fields[7].Get<uint32>();
+    bidder = ObjectGuid::Create<HighGuid::Player>(fields[8].Get<uint32>());
+    bid = fields[9].Get<uint32>();
+    startbid = fields[10].Get<uint32>();
+    deposit = fields[11].Get<uint32>();
 
     auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntryFromHouse(houseId);
     if (!auctionHouseEntry)

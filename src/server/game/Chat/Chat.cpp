@@ -19,7 +19,6 @@
 #include "AccountMgr.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
@@ -42,7 +41,7 @@ Player* ChatHandler::GetPlayer() const
     return m_session ? m_session->GetPlayer() : nullptr;
 }
 
-char const* ChatHandler::GetWarheadString(uint32 entry) const
+std::string ChatHandler::GetWarheadString(uint32 entry) const
 {
     return m_session->GetWarheadString(entry);
 }
@@ -50,7 +49,7 @@ char const* ChatHandler::GetWarheadString(uint32 entry) const
 bool ChatHandler::IsAvailable(uint32 securityLevel) const
 {
     // check security level only for simple  command (without child commands)
-    return m_session->GetSecurity() >= AccountTypes(securityLevel);
+    return IsConsole() ? true : m_session->GetSecurity() >= AccountTypes(securityLevel);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
@@ -301,7 +300,7 @@ size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Languag
     return BuildChatPacket(data, chatType, language, senderGUID, receiverGUID, message, chatTag, senderName, receiverName, achievementId, gmMessage, channelName);
 }
 
-Player* ChatHandler::getSelectedPlayer()
+Player* ChatHandler::getSelectedPlayer() const
 {
     if (!m_session)
         return nullptr;
@@ -313,7 +312,7 @@ Player* ChatHandler::getSelectedPlayer()
     return ObjectAccessor::FindConnectedPlayer(selected);
 }
 
-Unit* ChatHandler::getSelectedUnit()
+Unit* ChatHandler::getSelectedUnit() const
 {
     if (!m_session)
         return nullptr;
@@ -324,7 +323,7 @@ Unit* ChatHandler::getSelectedUnit()
     return m_session->GetPlayer();
 }
 
-WorldObject* ChatHandler::getSelectedObject()
+WorldObject* ChatHandler::getSelectedObject() const
 {
     if (!m_session)
         return nullptr;
@@ -337,7 +336,7 @@ WorldObject* ChatHandler::getSelectedObject()
     return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
 }
 
-Creature* ChatHandler::getSelectedCreature()
+Creature* ChatHandler::getSelectedCreature() const
 {
     if (!m_session)
         return nullptr;
@@ -345,7 +344,7 @@ Creature* ChatHandler::getSelectedCreature()
     return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
 }
 
-Player* ChatHandler::getSelectedPlayerOrSelf()
+Player* ChatHandler::getSelectedPlayerOrSelf() const
 {
     if (!m_session)
         return nullptr;
@@ -475,7 +474,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     return nullptr;
 }
 
-GameObject* ChatHandler::GetNearbyGameObject()
+GameObject* ChatHandler::GetNearbyGameObject() const
 {
     if (!m_session)
         return nullptr;
@@ -797,7 +796,7 @@ std::string ChatHandler::GetNameLink(Player* chr) const
     return playerLink(chr->GetName());
 }
 
-char const* CliHandler::GetWarheadString(uint32 entry) const
+std::string CliHandler::GetWarheadString(uint32 entry) const
 {
     return sGameLocale->GetWarheadStringForDBCLocale(entry);
 }

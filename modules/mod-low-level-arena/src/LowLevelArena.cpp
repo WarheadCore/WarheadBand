@@ -28,8 +28,8 @@
 #include "StringFormat.h"
 #include "Tokenize.h"
 #include <unordered_set>
-//#include <unordered_map>
 //#include <tuple>
+//#include <unordered_map>
 
 //namespace
 //{
@@ -79,7 +79,6 @@ void LLA::AddQueue(Player* leader)
     }
 
     BattlegroundTypeId bgTypeId = bgt->GetBgTypeID();
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenaType);
 
     // expected bracket entry
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgt->GetMapId(), leader->getLevel());
@@ -98,6 +97,8 @@ void LLA::AddQueue(Player* leader)
 
     // queue result (default ok)
     GroupJoinBattlegroundResult err = GroupJoinBattlegroundResult(bgt->GetBgTypeID());
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenaType);
+    BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
 
     // id 29533
     /*if (!sScriptMgr->CanJoinInArenaQueue(leader, guid, arenaslot, bgTypeId, asGroup, isRated, err) && err <= 0)
@@ -108,7 +109,7 @@ void LLA::AddQueue(Player* leader)
         return;
     }*/
 
-    auto CheckPlayerEnterQueue = [&](Player* member)
+    auto CheckPlayerEnterQueue = [&err, leader, bgQueueTypeId](Player* member)
     {
         if (member->InBattleground()) // currently in battleground
             err = ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND;
@@ -118,6 +119,14 @@ void LLA::AddQueue(Player* leader)
             err = ERR_BATTLEGROUND_TOO_MANY_QUEUES;
         // don't let Death Knights join BG queues when they are not allowed to be teleported yet
         else if (leader->getClass() == CLASS_DEATH_KNIGHT && member->GetMapId() == 609 && !member->IsGameMaster() && !member->HasSpell(50977))
+            err = ERR_BATTLEGROUND_NONE;
+
+        // check if already in queue
+        if (member->GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+            err = ERR_BATTLEGROUND_NONE;
+
+        // check if has free queue slots
+        if (!member->HasFreeBattlegroundQueueId())
             err = ERR_BATTLEGROUND_NONE;
 
         if (err <= 0)
@@ -142,8 +151,7 @@ void LLA::AddQueue(Player* leader)
             return;
         }
 
-        BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
-        GroupQueueInfo* ginfo = bgQueue.AddGroup(leader, nullptr, bracketEntry, false, false, 0, 0, 0);
+        GroupQueueInfo* ginfo = bgQueue.AddGroup(leader, nullptr, bgTypeId, bracketEntry, arenaType, false, false, 0, 0, 0, 0);
         uint32 avgWaitTime = bgQueue.GetAverageQueueWaitTime(ginfo);
         uint32 queueSlot = leader->AddBattlegroundQueueId(bgQueueTypeId);
 
@@ -152,6 +160,8 @@ void LLA::AddQueue(Player* leader)
         leader->GetSession()->SendPacket(&data);
 
         sScriptMgr->OnPlayerJoinArena(leader);
+
+        LOG_DEBUG("bg.battleground", "Battleground: player joined queue for arena, skirmish, bg queue type {} bg type {}: {}, NAME {}", bgQueueTypeId, bgTypeId, leader->GetGUID().ToString(), leader->GetName());
 
         handler.PSendSysMessage("# You entered arena skirmish queue {}/{} ({:2}v{:2})",
             bracketEntry->minLevel, bracketEntry->maxLevel, arenaType);
@@ -166,71 +176,37 @@ void LLA::AddQueue(Player* leader)
             return;
         }
 
-        // pussywizard: for party members - remove queues for which leader is not queued to!
-        std::unordered_set<uint32> leaderQueueTypeIds;
+        err = group->CanJoinBattlegroundQueue(bgt, bgQueueTypeId, arenaType, arenaType, false, arenaSlot);
 
-        for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-            leaderQueueTypeIds.emplace(leader->GetBattlegroundQueueTypeId(i));
-
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        // Check queue group members
+        if (err)
         {
-            Player* member = itr->GetSource();
-            if (!member)
+            group->DoForAllMembers([&bgQueue, &err](Player* member)
             {
-                continue;
-            }
-
-            for (uint32 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
-            {
-                BattlegroundQueueTypeId mqtid = member->GetBattlegroundQueueTypeId(i);
-                if (mqtid == BATTLEGROUND_QUEUE_NONE)
-                {
-                    continue;
-                }
-
-                auto const& itr = leaderQueueTypeIds.find((uint32)mqtid);
-                if (itr != leaderQueueTypeIds.end())
-                {
-                    continue;
-                }
-
-                BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(mqtid);
-
                 if (bgQueue.IsPlayerInvitedToRatedArena(member->GetGUID()))
                 {
-                    WorldPacket data;
-                    sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_JOIN_FAILED);
-                    leader->GetSession()->SendPacket(&data);
-                    return;
+                    err = ERR_BATTLEGROUND_JOIN_FAILED;
                 }
-
-                bgQueue.RemovePlayer(member->GetGUID(), false, i);
-                member->RemoveBattlegroundQueueId(mqtid);
-            }
+            });
         }
-
-        err = group->CanJoinBattlegroundQueue(bgt, bgQueueTypeId, arenaType, arenaType, false, arenaSlot);
 
         uint32 avgWaitTime = 0;
         if (err > 0)
         {
             BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
-            GroupQueueInfo* ginfo = bgQueue.AddGroup(leader, group, bracketEntry, false, false, 0, 0, 0);
+            GroupQueueInfo* ginfo = bgQueue.AddGroup(leader, group, bgTypeId, bracketEntry, arenaType, false, false, 0, 0, 0, 0);
             avgWaitTime = bgQueue.GetAverageQueueWaitTime(ginfo);
         }
 
-        WorldPacket data;
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        group->DoForAllMembers([bgQueueTypeId, &err, bgt, avgWaitTime, arenaType](Player* member)
         {
-            Player* member = itr->GetSource();
-            if (!member)
-                continue;
+            WorldPacket data;
 
             if (err <= 0)
             {
                 sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
                 member->GetSession()->SendPacket(&data);
-                continue;
+                return;
             }
 
             uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
@@ -243,7 +219,7 @@ void LLA::AddQueue(Player* leader)
             member->GetSession()->SendPacket(&data);
 
             sScriptMgr->OnPlayerJoinArena(member);
-        }
+        });
 
         handler.PSendSysMessage("# You entered arena skirmish queue {}/{} ({}v{}) in group",
             bracketEntry->minLevel, bracketEntry->maxLevel, arenaType, arenaType);

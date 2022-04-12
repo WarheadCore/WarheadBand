@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "IoContext.h"
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
 
@@ -94,4 +95,12 @@ bool ScriptMgr::CanPacketSend(WorldSession* session, WorldPacket const& packet)
     }
 
     return true;
+}
+
+void ScriptMgr::OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext)
+{
+    ExecuteScript<ServerScript>([ioContext](ServerScript* script)
+    {
+        script->OnIoContext(ioContext);
+    });
 }

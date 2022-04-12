@@ -335,7 +335,7 @@ public:
             ResetGameObjects();
             events.Reset();
             summons.DespawnAll();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
             if (pInstance && pInstance->GetData(TYPE_MIMIRON) != DONE)
                 pInstance->SetData(TYPE_MIMIRON, NOT_STARTED);
@@ -358,7 +358,7 @@ public:
             me->setActive(true);
             DoZoneInCombat();
             me->RemoveAllAuras();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             events.Reset();
 
             if (Creature* c = GetLMK2())
@@ -472,11 +472,11 @@ public:
                                 Player* player = pg[index];
                                 float angle = rand_norm() * 2 * M_PI;
                                 float z = 364.35f;
-                                if (!player->IsWithinLOS(player->GetPositionX() + cos(angle) * 5.0f, player->GetPositionY() + sin(angle) * 5.0f, z))
+                                if (!player->IsWithinLOS(player->GetPositionX() + cos(angle) * 5.0f, player->GetPositionY() + std::sin(angle) * 5.0f, z))
                                 {
                                     angle = player->GetAngle(2744.65f, 2569.46f);
                                 }
-                                me->CastSpell(player->GetPositionX() + cos(angle) * 5.0f, player->GetPositionY() + sin(angle) * 5.0f, z, SPELL_SUMMON_FLAMES_INITIAL, true);
+                                me->CastSpell(player->GetPositionX() + cos(angle) * 5.0f, player->GetPositionY() + std::sin(angle) * 5.0f, z, SPELL_SUMMON_FLAMES_INITIAL, true);
                                 pg.erase(pg.begin() + index);
                             }
 
@@ -790,7 +790,7 @@ public:
 
                         float angle = VX001->GetOrientation();
                         float v_x = me->GetPositionX() + cos(angle) * 10.0f;
-                        float v_y = me->GetPositionY() + sin(angle) * 10.0f;
+                        float v_y = me->GetPositionY() + std::sin(angle) * 10.0f;
                         me->GetMotionMaster()->MoveJump(v_x, v_y, 364.32f, 7.0f, 7.0f);
 
                         if( pInstance )
@@ -818,9 +818,14 @@ public:
                     me->Yell(TEXT_VOLTRON_DEATH, LANG_UNIVERSAL);
                     me->PlayDirectSound(SOUND_VOLTRON_DEATH);
                     // spawn chest
-                    if( uint32 chestId = (hardmode ? RAID_MODE(GO_MIMIRON_CHEST_HARD, GO_MIMIRON_CHEST_HERO_HARD) : RAID_MODE(GO_MIMIRON_CHEST, GO_MIMIRON_CHEST_HERO)) )
-                        if( GameObject* go = me->SummonGameObject(chestId, 2744.65f, 2569.46f, 364.397f, 0, 0, 0, 0, 0, 0) )
-                            go->SetUInt32Value(GAMEOBJECT_FLAGS, 0);
+                    if (uint32 chestId = (hardmode ? RAID_MODE(GO_MIMIRON_CHEST_HARD, GO_MIMIRON_CHEST_HERO_HARD) : RAID_MODE(GO_MIMIRON_CHEST, GO_MIMIRON_CHEST_HERO)))
+                    {
+                        if (GameObject* go = me->SummonGameObject(chestId, 2744.65f, 2569.46f, 364.397f, 0, 0, 0, 0, 0, 0))
+                        {
+                            go->ReplaceAllGameObjectFlags((GameObjectFlags)0);
+                            go->SetLootRecipient(me->GetMap());
+                        }
+                    }
                     events.ScheduleEvent(EVENT_DISAPPEAR, 15000);
                     break;
                 case EVENT_DISAPPEAR:
@@ -901,7 +906,7 @@ public:
                 {
                     button->SetLootState(GO_READY);
                     button->UseDoorOrButton(0, false);
-                    button->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    button->RemoveGameObjectFlag(GO_FLAG_IN_USE);
                 }
         }
 
@@ -1025,8 +1030,8 @@ public:
                 c->ExitVehicle(); // this should never happen!
             if (Creature* c = me->SummonCreature(NPC_LEVIATHAN_MKII_CANNON, *me, TEMPSUMMON_MANUAL_DESPAWN))
                 c->EnterVehicle(me, 3);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
 
@@ -1045,7 +1050,7 @@ public:
                         break;
                     case 1:
                         Phase = 1;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         if (Unit* target = SelectTargetFromPlayerList(75.0f))
                             AttackStart(target);
                         DoZoneInCombat();
@@ -1062,7 +1067,7 @@ public:
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoResetThreat();
                         Phase = 4;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         if (Unit* target = SelectTargetFromPlayerList(75.0f))
                             AttackStart(target);
                         DoZoneInCombat();
@@ -1084,9 +1089,9 @@ public:
                 me->SetReactState(REACT_PASSIVE);
                 if (Phase == 1)
                 {
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->GetMotionMaster()->Clear();
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
@@ -1102,9 +1107,9 @@ public:
                 }
                 else if (Phase == 4)
                 {
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->InterruptNonMeleeSpells(false);
                         me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                         me->CastSpell(me, SPELL_SELF_REPAIR, false);
@@ -1152,7 +1157,7 @@ public:
                         if (!pList.empty())
                             pTarget = pList[urand(0, pList.size() - 1)];
                         else
-                            pTarget = (Player*)SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true);
+                            pTarget = (Player*)SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true);
 
                         if( pTarget )
                             cannon->CastSpell(pTarget, SPELL_NAPALM_SHELL, false);
@@ -1255,11 +1260,11 @@ public:
             return 0;
         }
 
-        void SpellHit(Unit*  /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit*  /*caster*/, SpellInfo const* spell) override
         {
             if( spell->Id == SPELL_SELF_REPAIR )
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
         }
@@ -1321,7 +1326,7 @@ public:
                         Phase = 2;
                         fighting = true;
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         events.Reset();
                         events.ScheduleEvent(EVENT_SPELL_HEAT_WAVE, 10000);
                         events.ScheduleEvent(EVENT_SPELL_ROCKET_STRIKE, 16000);
@@ -1338,7 +1343,7 @@ public:
                     case 4:
                         Phase = 4;
                         fighting = true;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         events.Reset();
                         events.ScheduleEvent(EVENT_REINSTALL_ROCKETS, 3000);
                         events.ScheduleEvent(EVENT_SPELL_ROCKET_STRIKE, 16000);
@@ -1377,9 +1382,9 @@ public:
                 me->SetReactState(REACT_PASSIVE);
                 if (Phase == 2)
                 {
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         SetData(1, 0);
                         me->InterruptNonMeleeSpells(false);
                         me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
@@ -1392,9 +1397,9 @@ public:
                 }
                 else if (Phase == 4)
                 {
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->InterruptNonMeleeSpells(false);
                         me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                         me->CastSpell(me, SPELL_SELF_REPAIR, false);
@@ -1455,7 +1460,7 @@ public:
                                         trigger->CastSpell(trigger, SPELL_ROCKET_STRIKE_AURA, true);
                                     Position exitPos = r->GetPosition();
                                     exitPos.m_positionX += cos(me->GetOrientation()) * 2.35f;
-                                    exitPos.m_positionY += sin(me->GetOrientation()) * 2.35f;
+                                    exitPos.m_positionY += std::sin(me->GetOrientation()) * 2.35f;
                                     exitPos.m_positionZ += 2.0f * Phase;
                                     r->_ExitVehicle(&exitPos);
                                     me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, r->GetGUID());
@@ -1597,11 +1602,11 @@ public:
                 p->ToCreature()->DespawnOrUnsummon(8000);
         }
 
-        void SpellHit(Unit*  /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit*  /*caster*/, SpellInfo const* spell) override
         {
             if( spell->Id == SPELL_SELF_REPAIR )
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
         }
@@ -1661,7 +1666,7 @@ public:
                         break;
                     case 3:
                         Phase = 3;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         if (Unit* target = SelectTargetFromPlayerList(75.0f))
                             AttackStart(target);
                         DoZoneInCombat();
@@ -1678,7 +1683,7 @@ public:
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoResetThreat();
                         Phase = 4;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         if (Unit* target = SelectTargetFromPlayerList(75.0f))
                             AttackStart(target);
                         DoZoneInCombat();
@@ -1709,9 +1714,9 @@ public:
                 me->SetReactState(REACT_PASSIVE);
                 if (Phase == 3)
                 {
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->GetMotionMaster()->Clear();
                         me->StopMoving();
                         me->AttackStop();
@@ -1729,9 +1734,9 @@ public:
                 }
                 else if (Phase == 4)
                 {
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
                     {
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->InterruptNonMeleeSpells(false);
                         me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                         me->CastSpell(me, SPELL_SELF_REPAIR, false);
@@ -1761,7 +1766,7 @@ public:
                         float angle = victim->GetAngle(me->GetPositionX(), me->GetPositionY());
                         me->SetOrientation( me->GetAngle(victim->GetPositionX(), victim->GetPositionY()) );
                         float x = victim->GetPositionX() + 15.0f * cos(angle);
-                        float y = victim->GetPositionY() + 15.0f * sin(angle);
+                        float y = victim->GetPositionY() + 15.0f * std::sin(angle);
 
                         // check if there's magnetic core in line of movement
                         Creature* mc = nullptr;
@@ -1807,7 +1812,7 @@ public:
                         }
                         else
                         {
-                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 27.5f, true))
+                            if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 27.5f, true))
                             {
                                 me->SetFacingToObject(victim);
                                 me->CastSpell(victim, SPELL_PLASMA_BALL, false);
@@ -1926,11 +1931,11 @@ public:
             summons.Despawn(s);
         }
 
-        void SpellHit(Unit*  /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit*  /*caster*/, SpellInfo const* spell) override
         {
             if( spell->Id == SPELL_SELF_REPAIR )
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
         }
@@ -1962,9 +1967,9 @@ public:
 
         void AttackStart(Unit* /*who*/) override {}
         void MoveInLineOfSight(Unit* /*who*/) override {}
-        bool CanAIAttack(const Unit*  /*target*/) const override { return false; }
+        bool CanAIAttack(Unit const*  /*target*/) const override { return false; }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             if (target && spell && target->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_MINE_EXPLOSION)
                 if (InstanceScript* pInstance = me->GetInstanceScript())
@@ -2205,7 +2210,7 @@ public:
 
         bool Load() override
         {
-            lastMSTime = getMSTime();
+            lastMSTime = GameTime::GetGameTimeMS().count();
             lastOrientation = -1.0f;
             return true;
         }
@@ -2216,14 +2221,14 @@ public:
             {
                 if (c->GetTypeId() != TYPEID_UNIT)
                     return;
-                uint32 diff = getMSTimeDiff(lastMSTime, getMSTime());
+                uint32 diff = getMSTimeDiff(lastMSTime, GameTime::GetGameTimeMS().count());
                 if (lastOrientation == -1.0f)
                 {
                     lastOrientation = (c->ToCreature()->AI()->GetData(0) * 2 * M_PI) / 100.0f;
                     diff = 0;
                 }
                 float new_o = Position::NormalizeOrientation(lastOrientation - (M_PI / 60) * (diff / 250.0f));
-                lastMSTime = getMSTime();
+                lastMSTime = GameTime::GetGameTimeMS().count();
                 lastOrientation = new_o;
                 c->SetFacingTo(new_o);
 
@@ -2378,7 +2383,7 @@ public:
                             if (target && prevdist >= 4.0f) // no need to spread when player is standing in fire, check distance
                             {
                                 float angle = last->GetAngle(target->GetPositionX(), target->GetPositionY()) - M_PI / 8 + rand_norm() * 2 * M_PI / 8;
-                                SpreadFlame(last->GetPositionX() + 7.0f * cos(angle), last->GetPositionY() + 7.0f * sin(angle));
+                                SpreadFlame(last->GetPositionX() + 7.0f * cos(angle), last->GetPositionY() + 7.0f * std::sin(angle));
                             }
                         }
 
@@ -2404,7 +2409,7 @@ public:
     {
         npc_ulduar_flames_spreadAI(Creature* pCreature) : NullCreatureAI(pCreature) {}
 
-        void SpellHit(Unit*  /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit*  /*caster*/, SpellInfo const* spell) override
         {
             switch( spell->Id )
             {
@@ -2470,9 +2475,9 @@ public:
                     break;
                 case EVENT_EMERGENCY_BOT_CHECK:
                     events.RepeatEvent(15000); // just in case, will be rescheduled
-                    if( Creature* flame = me->FindNearestCreature(NPC_FLAMES_SPREAD, 150.0f, true) )
+                    if (Creature* flame = me->FindNearestCreature(NPC_FLAMES_SPREAD, 150.0f, true))
                     {
-                        me->m_orientation = me->GetAngle(flame->GetPositionX(), flame->GetPositionY());
+                        me->SetOrientation(me->GetAngle(flame->GetPositionX(), flame->GetPositionY()));
                         float dist = me->GetExactDist2d(flame);
                         if (dist <= 5.0f)
                             events.ScheduleEvent(EVENT_EMERGENCY_BOT_ATTACK, 0);
@@ -2503,7 +2508,7 @@ public:
     {
         npc_ulduar_rocket_strike_triggerAI(Creature* pCreature) : NullCreatureAI(pCreature) {}
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             if (!target || !spell)
                 return;

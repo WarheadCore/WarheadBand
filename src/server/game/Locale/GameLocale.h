@@ -119,7 +119,7 @@ struct QuestOfferRewardLocale
 
 struct QuestGreetingLocale
 {
-    std::vector<std::string> greeting;
+    std::vector<std::string> Greeting;
 };
 
 struct BroadcastText
@@ -260,8 +260,8 @@ public:
     }
 
     WarheadString const* GetWarheadString(uint32 entry) const;
-    char const* GetWarheadString(uint32 entry, LocaleConstant locale) const;
-    char const* GetWarheadStringForDBCLocale(uint32 entry) const { return GetWarheadString(entry, DBCLocaleIndex); }
+    std::string GetWarheadString(uint32 entry, LocaleConstant locale) const;
+    std::string GetWarheadStringForDBCLocale(uint32 entry) const { return GetWarheadString(entry, DBCLocaleIndex); }
 
     LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
     void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }

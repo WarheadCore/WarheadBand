@@ -19,8 +19,8 @@
 #define _UNBIND_INSTANCE_H_
 
 #include "Common.h"
-#include "Player.h"
 #include "Creature.h"
+#include "Player.h"
 #include <unordered_map>
 
 constexpr uint32 GOSSIP_SENDER_DIFFICULTY = 10;

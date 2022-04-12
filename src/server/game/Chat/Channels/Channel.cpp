@@ -37,7 +37,6 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, 
     _channelId(channelId),
     _channelDBId(channelDBId),
     _teamId(teamId),
-    lastSpeakTime(0),
     _name(name),
     _password("")
 {
@@ -87,10 +86,10 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, 
             _channelDBId = ++ChannelMgr::_channelIdMax;
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
-            stmt->setUInt32(0, _channelDBId);
-            stmt->setString(1, name);
-            stmt->setUInt32(2, _teamId);
-            stmt->setUInt8(3, _announce);
+            stmt->SetData(0, _channelDBId);
+            stmt->SetData(1, name);
+            stmt->SetData(2, _teamId);
+            stmt->SetData(3, _announce);
             CharacterDatabase.Execute(stmt);
         }
     }
@@ -107,9 +106,9 @@ void Channel::UpdateChannelInDB() const
     if (_IsSaved)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
-        stmt->setBool(0, _announce);
-        stmt->setString(1, _password);
-        stmt->setUInt32(2, _channelDBId);
+        stmt->SetData(0, _announce);
+        stmt->SetData(1, _password);
+        stmt->SetData(2, _channelDBId);
         CharacterDatabase.Execute(stmt);
 
         LOG_DEBUG("chat.system", "Channel({}) updated in database", _name);
@@ -119,24 +118,24 @@ void Channel::UpdateChannelInDB() const
 void Channel::UpdateChannelUseageInDB() const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
-    stmt->setUInt32(0, _channelDBId);
+    stmt->SetData(0, _channelDBId);
     CharacterDatabase.Execute(stmt);
 }
 
 void Channel::AddChannelBanToDB(ObjectGuid guid, uint32 time) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL_BAN);
-    stmt->setUInt32(0, _channelDBId);
-    stmt->setUInt32(1, guid.GetCounter());
-    stmt->setUInt32(2, time);
+    stmt->SetData(0, _channelDBId);
+    stmt->SetData(1, guid.GetCounter());
+    stmt->SetData(2, time);
     CharacterDatabase.Execute(stmt);
 }
 
 void Channel::RemoveChannelBanFromDB(ObjectGuid guid) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL_BAN);
-    stmt->setUInt32(0, _channelDBId);
-    stmt->setUInt32(1, guid.GetCounter());
+    stmt->SetData(0, _channelDBId);
+    stmt->SetData(1, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -147,7 +146,7 @@ void Channel::CleanOldChannelsInDB()
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
-        stmt->setUInt32(0, CONF_GET_INT("PreserveCustomChannelDuration") * DAY);
+        stmt->SetData(0, CONF_GET_INT("PreserveCustomChannelDuration") * DAY);
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS_BANS);
@@ -526,8 +525,8 @@ void Channel::UnBan(Player const* player, std::string const& badname)
 
     if (_channelRights.flags & CHANNEL_RIGHT_CANT_BAN)
         LOG_GM(player->GetSession()->GetAccountId(), "Command: /unban {} {} (Moderator {} [{}, account: {}] unbanned {} [{}])",
-            GetName(), badname, player->GetName(), player->GetGUID(), player->GetSession()->GetAccountId(),
-            badname, victim);
+            GetName(), badname, player->GetName(), player->GetGUID().ToString(), player->GetSession()->GetAccountId(),
+            badname, victim.ToString());
 
     bannedStore.erase(victim);
     RemoveChannelBanFromDB(victim);
@@ -805,30 +804,16 @@ void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang)
     }
 
     Player* player = pinfo.plrPtr;
-
-    if (player && player->GetSession()->GetSecurity() == AccountTypes::SEC_PLAYER) // pussywizard: prevent spam on populated channels
-    {
-        uint32 speakDelay = 0;
-        if (_channelRights.speakDelay > 0)
-            speakDelay = _channelRights.speakDelay;
-        else if (playersStore.size() >= 10)
-            speakDelay = 5;
-
-        if (!IsAllowedToSpeak(speakDelay))
-        {
-            std::string timeStr = Warhead::Time::ToTimeString<Seconds>(lastSpeakTime + speakDelay - GameTime::GetGameTime().count());
-            if (_channelRights.speakMessage.length() > 0)
-                player->GetSession()->SendNotification("{}", _channelRights.speakMessage);
-            player->GetSession()->SendNotification("You must wait {} before speaking again.", timeStr);
-            return;
-        }
-    }
-
     WorldPacket data;
+
     if (player)
+    {
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, _name);
+    }
     else
+    {
         ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, 0, "", "", 0, false, _name);
+    }
 
     SendToAll(&data, pinfo.IsModerator() ? ObjectGuid::Empty : guid);
 }
@@ -1298,15 +1283,4 @@ void Channel::MakeModerationOff(WorldPacket* data, ObjectGuid guid)
 {
     MakeNotifyPacket(data, CHAT_MODERATION_OFF_NOTICE);
     *data << guid;
-}
-
-bool Channel::IsAllowedToSpeak(uint32 speakDelay)
-{
-    if (lastSpeakTime + speakDelay <= GameTime::GetGameTime().count())
-    {
-        lastSpeakTime = GameTime::GetGameTime().count();
-        return true;
-    }
-
-    return false;
 }

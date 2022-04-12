@@ -19,12 +19,12 @@
 #define DEF_TRANSMOGRIFICATION_H
 
 #include "Common.h"
-#include "Player.h"
 #include "Item.h"
+#include "Player.h"
 #include "WorldSession.h"
+#include <map>
 #include <set>
 #include <unordered_map>
-#include <map>
 
 #define MAX_OPTIONS 25 // do not alter
 

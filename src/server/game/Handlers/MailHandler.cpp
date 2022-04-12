@@ -17,6 +17,7 @@
 
 #include "AccountMgr.h"
 #include "CharacterCache.h"
+#include "ChatTextBuilder.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
@@ -120,7 +121,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (player->getLevel() < CONF_GET_INT("LevelReq.Mail"))
     {
-        SendNotification(GetWarheadString(LANG_MAIL_SENDER_REQ), CONF_GET_INT("LevelReq.Mail"));
+        Warhead::Text::SendNotification(this, LANG_MAIL_SENDER_REQ, CONF_GET_INT("LevelReq.Mail"));
         return;
     }
 
@@ -133,7 +134,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (!receiverGuid)
     {
         LOG_DEBUG("network.opcode", "Player {} is sending mail to {} (GUID: not existed!) with subject {} and body {} includes {} items, {} copper and {} COD copper with unk1 = {}, unk2 = {}",
-            player->GetGUID(), receiver, subject, body, items_count, money, COD, unk1, unk2);
+            player->GetGUID().ToString(), receiver, subject, body, items_count, money, COD, unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
@@ -316,8 +317,8 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         if( money >= 10 * GOLD )
         {
             CleanStringForMysqlQuery(subject);
-            CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<MAIL> {}\", NOW())",
-                GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), rc_account, receiver, money, subject);
+            CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"{}\", NOW(), {})",
+                GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), rc_account, receiver, money, subject, 5);
         }
     }
 
@@ -415,11 +416,11 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-    stmt->setUInt32(0, mailId);
+    stmt->SetData(0, mailId);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-    stmt->setUInt32(0, mailId);
+    stmt->SetData(0, mailId);
     trans->Append(stmt);
 
     player->RemoveMail(mailId);
@@ -535,8 +536,8 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                     }
                     std::string subj = m->subject;
                     CleanStringForMysqlQuery(subj);
-                    CharacterDatabase.PExecute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"<COD> {}\", NOW())",
-                        GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), sender_accId, senderName, m->COD, subj);
+                    CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"{}\", NOW(), {})",
+                        GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), sender_accId, senderName, m->COD, subj, 1);
                 }
             }
 
@@ -629,7 +630,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         }
 
         // skip deleted or not delivered (deliver delay not expired) mails
-        if (mail->state == MAIL_STATE_DELETED || cur_time < mail->deliver_time)
+        if (mail->state == MAIL_STATE_DELETED || cur_time < mail->deliver_time || cur_time > mail->expire_time)
         {
             continue;
         }
@@ -814,8 +815,8 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
             if (mail->checked & MAIL_CHECK_MASK_READ)
                 continue;
 
-            // and already delivered
-            if (now < mail->deliver_time)
+            // and already delivered or expired
+            if (now < mail->deliver_time || now > mail->expire_time)
                 continue;
 
             // only send each mail sender once

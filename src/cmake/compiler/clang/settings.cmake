@@ -28,30 +28,6 @@ else()
   message(STATUS "Clang: Minimum version required is ${CLANG_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
-# This tests for a bug in clang-7 that causes linkage to fail for 64-bit from_chars (in some configurations)
-# If the clang requirement is bumped to >= clang-8, you can remove this check, as well as
-# the associated ifdef block in src/common/Utilities/StringConvert.h
-include(CheckCXXSourceCompiles)
-
-check_cxx_source_compiles("
-#include <charconv>
-#include <cstdint>
-int main()
-{
-    uint64_t n;
-    char const c[] = \"0\";
-    std::from_chars(c, c+1, n);
-    return static_cast<int>(n);
-}
-" CLANG_HAVE_PROPER_CHARCONV)
-
-if (NOT CLANG_HAVE_PROPER_CHARCONV)
-  message(STATUS "Clang: Detected from_chars bug for 64-bit integers, workaround enabled")
-  target_compile_definitions(warhead-compile-option-interface
-  INTERFACE
-    -DWARHEAD_NEED_CHARCONV_WORKAROUND)
-endif()
-
 if(WITH_WARNINGS)
   target_compile_options(warhead-warning-interface
     INTERFACE
@@ -62,6 +38,12 @@ if(WITH_WARNINGS)
       -Wfatal-errors
       -Wno-mismatched-tags
       -Woverloaded-virtual)
+
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
+    target_compile_options(warhead-warning-interface
+      INTERFACE
+        -Wno-deprecated-copy) # warning in g3d
+  endif()
   message(STATUS "Clang: All warnings enabled")
 endif()
 

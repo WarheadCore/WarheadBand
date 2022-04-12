@@ -121,8 +121,8 @@ public:
 
         {
             uint16 dbPort = 0;
-            if (QueryResult res = LoginDatabase.PQuery("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
-                dbPort = (*res)[0].GetUInt16();
+            if (QueryResult res = LoginDatabase.Query("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
+                dbPort = (*res)[0].Get<uint16>();
 
             if (dbPort)
                 dbPortOutput = Warhead::StringFormat("Realmlist (Realm Id: {}) configured in port %" PRIu16, realm.Id.Realm, dbPort);
@@ -218,11 +218,14 @@ public:
         handler->PSendSysMessage("Using Character DB Revision: {}", sWorld->GetCharacterDBRevision());
         handler->PSendSysMessage("Using Auth DB Revision: {}", sWorld->GetAuthDBRevision());
 
-        handler->PSendSysMessage("LoginDatabase queue size: %zu", LoginDatabase.QueueSize());
-        handler->PSendSysMessage("CharacterDatabase queue size: %zu", CharacterDatabase.QueueSize());
-        handler->PSendSysMessage("WorldDatabase queue size: %zu", WorldDatabase.QueueSize());
+        handler->PSendSysMessage("LoginDatabase queue size: {}", LoginDatabase.QueueSize());
+        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
+        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
 
-        handler->SendSysMessage("> List enable modules:");
+        if (Warhead::Module::GetEnableModulesList().empty())
+            handler->SendSysMessage("No modules enabled");
+        else
+            handler->SendSysMessage("> List enable modules:");
 
         for (auto const& modName : Warhead::Module::GetEnableModulesList())
         {
@@ -239,8 +242,7 @@ public:
         uint32 activeSessionCount = sWorld->GetActiveSessionCount();
         uint32 queuedSessionCount = sWorld->GetQueuedSessionCount();
         uint32 connPeak = sWorld->GetMaxActiveSessionCount();
-        std::string uptime = Warhead::Time::ToTimeString<Seconds>(GameTime::GetUptime().count());
-        uint32 updateTime = sWorldUpdateTime.GetLastUpdateTime();
+        std::string uptime = Warhead::Time::ToTimeString(GameTime::GetUptime());
 
         handler->PSendSysMessage("{}", GitRevision::GetFullVersion());
 
@@ -251,11 +253,11 @@ public:
 
         handler->PSendSysMessage("Connection peak: {}.", connPeak);
         handler->PSendSysMessage(LANG_UPTIME, uptime);
-        handler->PSendSysMessage("Update time diff: {}ms,", updateTime);
+        handler->PSendSysMessage("Update time diff: {}ms, Average: {}ms", sWorldUpdateTime.GetLastUpdateTime(), sWorldUpdateTime.GetAverageUpdateTime());
 
         //! Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
-            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString<Seconds>(sWorld->GetShutDownTimeLeft()));
+            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString(Seconds(sWorld->GetShutDownTimeLeft())));
 
         return true;
     }

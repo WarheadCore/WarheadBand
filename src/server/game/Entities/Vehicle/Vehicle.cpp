@@ -17,7 +17,6 @@
 
 #include "Vehicle.h"
 #include "BattlefieldWG.h"
-#include "Common.h"
 #include "CreatureAI.h"
 #include "Log.h"
 #include "MoveSplineInit.h"
@@ -28,7 +27,6 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
-#include "WorldPacket.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
     _me(unit), _vehicleInfo(vehInfo), _usableSeatNum(0), _creatureEntry(creatureEntry), _status(STATUS_NONE)
@@ -104,7 +102,7 @@ void Vehicle::Uninstall()
     if (_status == STATUS_UNINSTALLING && !GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
     {
         LOG_ERROR("vehicles", "Vehicle {} attempts to uninstall, but already has STATUS_UNINSTALLING! "
-                       "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID());
+                       "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().ToString());
         return;
     }
     _status = STATUS_UNINSTALLING;
@@ -121,14 +119,14 @@ void Vehicle::Reset(bool evading /*= false*/)
     if (_me->GetTypeId() == TYPEID_PLAYER)
     {
         if (_usableSeatNum)
-            _me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+            _me->SetNpcFlag(UNIT_NPC_FLAG_PLAYER_VEHICLE);
     }
     else
     {
         ApplyAllImmunities();
         InstallAllAccessories(evading);
         if (_usableSeatNum)
-            _me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            _me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
     }
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
@@ -266,7 +264,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     if (_status == STATUS_UNINSTALLING)
     {
         LOG_ERROR("vehicles", "Vehicle {} attempts to install accessory Entry: {} on seat {} with STATUS_UNINSTALLING! "
-                       "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID(), entry, (int32)seatId);
+                       "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().ToString(), entry, (int32)seatId);
         return;
     }
 
@@ -310,7 +308,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (_status == STATUS_UNINSTALLING)
     {
         LOG_DEBUG("vehicles", "Passenger {}, attempting to board vehicle {} during uninstall! SeatId: {}",
-            unit->GetGUID(), _me->GetGUID(), (int32)seatId);
+            unit->GetGUID().ToString(), _me->GetGUID().ToString(), (int32)seatId);
         return false;
     }
 
@@ -345,10 +343,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     }
 
     LOG_DEBUG("vehicles", "Unit {} enter vehicle entry {} id {} ({}) seat {}",
-        unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID(), (int32)seat->first);
+        unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID().ToString(), (int32)seat->first);
 
     seat->second.Passenger.Guid = unit->GetGUID();
-    seat->second.Passenger.IsUnselectable = unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    seat->second.Passenger.IsUnselectable = unit->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
     if (seat->second.SeatInfo->CanEnterOrExit())
     {
@@ -357,9 +355,9 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         if (!_usableSeatNum)
         {
             if (_me->GetTypeId() == TYPEID_PLAYER)
-                _me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+                _me->RemoveNpcFlag(UNIT_NPC_FLAG_PLAYER_VEHICLE);
             else
-                _me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                _me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
         }
     }
 
@@ -371,7 +369,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->ToPlayer()->UnsummonPetTemporaryIfAny();
 
     if (seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
-        unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        unit->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
@@ -459,14 +457,14 @@ void Vehicle::RemovePassenger(Unit* unit)
     }
 
     LOG_DEBUG("vehicles", "Unit {} exit vehicle entry {} id {} ({}) seat {}",
-        unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID(), (int32)seat->first);
+        unit->GetName(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUID().ToString(), (int32)seat->first);
 
     if (seat->second.SeatInfo->CanEnterOrExit() && ++_usableSeatNum)
-        _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
+        _me->SetNpcFlag((_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     // Remove UNIT_FLAG_NOT_SELECTABLE if passenger did not have it before entering vehicle
     if (seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
-        unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        unit->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
     seat->second.Passenger.Reset();
 

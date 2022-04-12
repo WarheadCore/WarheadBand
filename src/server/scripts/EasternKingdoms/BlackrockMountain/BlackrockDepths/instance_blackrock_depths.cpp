@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "blackrock_depths.h"
-#include "GameTime.h"
 
-#define MAX_ENCOUNTER 6
+constexpr auto MAX_ENCOUNTER = 6;
 
 enum Timers
 {
@@ -183,7 +183,7 @@ public:
 
             // check if all players saved her.
             Map::PlayerList const& lPlayers = instance->GetPlayers();
-            if (!lPlayers.isEmpty())
+            if (!lPlayers.IsEmpty())
             {
                 for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                 {
@@ -448,7 +448,7 @@ public:
 
         void SetData(uint32 type, uint32 data) override
         {
-            LOG_DEBUG("scripts.ai", "TSCR: Instance Blackrock Depths: SetData update (Type: {} Data {})", type, data);
+            LOG_DEBUG("scripts.ai", "Instance Blackrock Depths: SetData update (Type: {} Data {})", type, data);
 
             switch (type)
             {
@@ -753,7 +753,7 @@ public:
                 {
                     ++TombEventCounter;
                     boss->SetFaction(FACTION_DARK_IRON_DWARVES);
-                    boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    boss->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
 
                     // find suitable target here.
                     Player* target = boss->SelectNearestPlayer(130);
@@ -787,7 +787,7 @@ public:
                         boss->SetLootRecipient(nullptr);
                     }
                     boss->SetFaction(FACTION_FRIENDLY);
-                    boss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // think this is useless
+                    boss->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC); // think this is useless
                     if (i == 6) // doomrel needs explicit reset
                     {
                         boss->AI()->Reset();

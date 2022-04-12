@@ -20,7 +20,6 @@
 #include "Errors.h"
 #include "Log.h"
 #include "MapDefines.h"
-#include "StringFormat.h"
 
 namespace MMAP
 {
@@ -238,8 +237,7 @@ namespace MMAP
 
         mmap->loadedTileRefs.erase(packedGridPos);
         --loadedTiles;
-        LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:03}{:02}{:02} from {:03}", mapId, x, y, mapId);
-
+        LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:03}[{:02},{:02}] from {:03}", mapId, x, y, mapId);
         return true;
     }
 

@@ -25,6 +25,7 @@
 #include "DatabaseEnv.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "GossipDef.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Mail.h"
@@ -179,7 +180,7 @@ enum eScriptFlags
     SF_CASTSPELL_SEARCH_CREATURE  = 4,
     SF_CASTSPELL_TRIGGERED      = 0x1,
 
-    // PlaySound flags
+    // Playsound flags
     SF_PLAYSOUND_TARGET_PLAYER  = 0x1,
     SF_PLAYSOUND_DISTANCE_SOUND = 0x2,
 
@@ -309,7 +310,7 @@ struct ScriptInfo
         {
             uint32 SoundID;         // datalong
             uint32 Flags;           // datalong2
-        } PlaySound;
+        } Playsound;
 
         struct                      // SCRIPT_COMMAND_CREATE_ITEM (17)
         {
@@ -466,7 +467,7 @@ struct PetLevelInfo
 
 struct MailLevelReward
 {
-    MailLevelReward()  {}
+    MailLevelReward()  = default;
     MailLevelReward(uint32 _raceMask, uint32 _mailTemplateId, uint32 _senderEntry) : raceMask(_raceMask), mailTemplateId(_mailTemplateId), senderEntry(_senderEntry) {}
 
     uint32 raceMask{0};
@@ -520,6 +521,17 @@ struct PointOfInterest
     std::string Name;
 };
 
+struct QuestGreeting
+{
+    uint16 EmoteType;
+    uint32 EmoteDelay;
+    std::string Text;
+
+    QuestGreeting() : EmoteType(0), EmoteDelay(0) { }
+    QuestGreeting(uint16 emoteType, uint32 emoteDelay, std::string text) :
+        EmoteType(emoteType), EmoteDelay(emoteDelay), Text(std::move(text)) { }
+};
+
 struct GossipMenuItems
 {
     uint32          MenuID;
@@ -557,7 +569,7 @@ struct QuestPOIPoint
     int32 x{0};
     int32 y{0};
 
-    QuestPOIPoint()  {}
+    QuestPOIPoint()  = default;
     QuestPOIPoint(int32 _x, int32 _y) : x(_x), y(_y) {}
 };
 
@@ -572,12 +584,14 @@ struct QuestPOI
     uint32 Unk4{0};
     std::vector<QuestPOIPoint> points;
 
-    QuestPOI()  {}
+    QuestPOI()  = default;
     QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 floorId, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), FloorId(floorId), Unk3(unk3), Unk4(unk4) {}
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;
 typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
+
+typedef std::array<std::unordered_map<uint32, QuestGreeting>, 2> QuestGreetingContainer;
 
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
 typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
@@ -681,7 +695,7 @@ public:
 
     CreatureTemplate const* GetCreatureTemplate(uint32 entry);
     [[nodiscard]] CreatureTemplateContainer const* GetCreatureTemplates() const { return &_creatureTemplateStore; }
-    CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
+    CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId) const;
     CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
     static uint32 ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data = nullptr);
     static void ChooseCreatureFlags(CreatureTemplate const* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, CreatureData const* data = nullptr);
@@ -690,6 +704,7 @@ public:
     GameObjectAddon const* GetGameObjectAddon(ObjectGuid::LowType lowguid);
     [[nodiscard]] GameObjectTemplateAddon const* GetGameObjectTemplateAddon(uint32 entry) const;
     CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
+    CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
     ItemTemplate const* GetItemTemplate(uint32 entry);
     [[nodiscard]] ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
     [[nodiscard]] std::vector<ItemTemplate*> const* GetItemTemplateStoreFast() const { return &_itemTemplateStoreFast; }
@@ -926,6 +941,7 @@ public:
     void LoadCreatureTemplateResistances();
     void LoadCreatureTemplateSpells();
     void CheckCreatureTemplate(CreatureTemplate const* cInfo);
+    void CheckCreatureMovement(char const* table, uint64 id, CreatureMovementData& creatureMovement);
     void LoadGameObjectQuestItems();
     void LoadCreatureQuestItems();
     void LoadTempSummons();
@@ -936,6 +952,7 @@ public:
     void LoadGameObjectAddons();
     void LoadCreatureModelInfo();
     void LoadEquipmentTemplates();
+    void LoadCreatureMovementOverrides();
     void LoadGameobjects();
     void LoadItemTemplates();
     void LoadItemSetNames();
@@ -951,6 +968,7 @@ public:
     void LoadAreaTriggerTeleports();
     void LoadAccessRequirements();
     void LoadQuestAreaTriggers();
+    void LoadQuestGreetings();
     void LoadAreaTriggerScripts();
     void LoadTavernAreaTriggers();
     void LoadGameObjectForQuests();
@@ -1070,7 +1088,7 @@ public:
         return nullptr;
     }
 
-    CreatureDataContainer const& GetAllCreatureData() const { return _creatureDataStore; }
+    [[nodiscard]] CreatureDataContainer const& GetAllCreatureData() const { return _creatureDataStore; }
     [[nodiscard]] CreatureData const* GetCreatureData(ObjectGuid::LowType spawnId) const
     {
         CreatureDataContainer::const_iterator itr = _creatureDataStore.find(spawnId);
@@ -1087,13 +1105,15 @@ public:
         return itr->second;
     }
 
-    GameObjectDataContainer const& GetAllGOData() const { return _gameObjectDataStore; }
+    [[nodiscard]] GameObjectDataContainer const& GetAllGOData() const { return _gameObjectDataStore; }
     [[nodiscard]] GameObjectData const* GetGOData(ObjectGuid::LowType spawnId) const
     {
         GameObjectDataContainer::const_iterator itr = _gameObjectDataStore.find(spawnId);
         if (itr == _gameObjectDataStore.end()) return nullptr;
             return &itr->second;
     }
+
+    QuestGreeting const* GetQuestGreeting(TypeID type, uint32 id) const;
 
     GameObjectData& NewGOData(ObjectGuid::LowType guid) { return _gameObjectDataStore[guid]; }
     void DeleteGOData(ObjectGuid::LowType guid);
@@ -1235,6 +1255,7 @@ private:
     QuestAreaTriggerContainer _questAreaTriggerStore;
     TavernAreaTriggerContainer _tavernAreaTriggerStore;
     GossipTextContainer _gossipTextStore;
+    QuestGreetingContainer _questGreetingStore;
     AreaTriggerContainer _areaTriggerStore;
     AreaTriggerTeleportContainer _areaTriggerTeleportStore;
     AreaTriggerScriptContainer _areaTriggerScriptStore;
@@ -1318,6 +1339,7 @@ private:
     CreatureModelContainer _creatureModelStore;
     CreatureAddonContainer _creatureAddonStore;
     CreatureAddonContainer _creatureTemplateAddonStore;
+    std::unordered_map<ObjectGuid::LowType, CreatureMovementData> _creatureMovementOverrides;
     GameObjectAddonContainer _gameObjectAddonStore;
     GameObjectQuestItemMap _gameObjectQuestItemStore;
     CreatureQuestItemMap _creatureQuestItemStore;

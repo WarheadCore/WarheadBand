@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
-#include "Chat.h"
-#include "Player.h"
 #include "AccountMgr.h"
+#include "Chat.h"
 #include "GameTime.h"
+#include "Log.h"
 #include "ModuleLocale.h"
+#include "ModulesConfig.h"
 #include "MuteMgr.h"
-#include <Poco/RegularExpression.h>
+#include "Player.h"
+#include "ScriptMgr.h"
 #include <Poco/Exception.h>
+#include <Poco/RegularExpression.h>
 #include <vector>
 
 enum AntiADChannelsType : uint8
@@ -60,7 +60,7 @@ public:
 
         LOG_INFO("module.antiad", "Loading anti advertisment...");
 
-        QueryResult result = WorldDatabase.PQuery("SELECT Pattern FROM `anti_ad_patterns`");
+        QueryResult result = WorldDatabase.Query("SELECT Pattern FROM `anti_ad_patterns`");
         if (!result)
         {
             LOG_INFO("module.antiad", ">> Loading 0 word. DB table `anti_ad_patterns` is empty.");
@@ -72,7 +72,7 @@ public:
 
         do
         {
-            _pattern += "(" + result->Fetch()->GetString() + ")|";
+            _pattern += "(" + result->Fetch()->Get<std::string>() + ")|";
         } while (result->NextRow());
 
         // Delete last (|)

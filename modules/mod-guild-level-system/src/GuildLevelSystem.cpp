@@ -16,18 +16,18 @@
 */
 
 #include "GuildLevelSystem.h"
-#include "Log.h"
-#include "ModulesConfig.h"
 #include "Chat.h"
-#include "ScriptedGossip.h"
+#include "ExternalMail.h"
 #include "GameLocale.h"
 #include "GameTime.h"
-#include "World.h"
-#include "SpellMgr.h"
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
-#include "ExternalMail.h"
+#include "SpellMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "World.h"
 
 namespace
 {
@@ -219,8 +219,8 @@ void GuildCriteria::SaveToDB(uint32 criteriaID)
     auto trans = CharacterDatabase.BeginTransaction();
 
     // gls_criteria_progress
-    trans->PAppend("DELETE FROM `gls_criteria_progress` WHERE `GuildID` = {} AND `CriteriaID` = {}", progressStruct->GuildID, progressStruct->CriteriaID);
-    trans->PAppend("INSERT INTO `gls_criteria_progress`(`GuildID`, `CriteriaID`, `ItemCount`, `SelectedSpell`, `IsDone`) VALUES ({}, {}, '{}', {}, {})",
+    trans->Append("DELETE FROM `gls_criteria_progress` WHERE `GuildID` = {} AND `CriteriaID` = {}", progressStruct->GuildID, progressStruct->CriteriaID);
+    trans->Append("INSERT INTO `gls_criteria_progress`(`GuildID`, `CriteriaID`, `ItemCount`, `SelectedSpell`, `IsDone`) VALUES ({}, {}, '{}', {}, {})",
                    _guildID, progressStruct->CriteriaID, itemsCount, progressStruct->SelectedSpell, progressStruct->IsDone);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -273,7 +273,7 @@ void GuildCriteria::UnLearnSpells(ObjectGuid guid)
             player->removeSpell(spellID, SPEC_MASK_ALL, false);
 
         if (!player)
-            trans->PAppend("DELETE FROM `character_spell` WHERE `guid` = {} AND `spell` = {}", guid.GetCounter(), spellID);
+            trans->Append("DELETE FROM `character_spell` WHERE `guid` = {} AND `spell` = {}", guid.GetCounter(), spellID);
     }
 
     CharacterDatabase.CommitTransaction(trans);
@@ -300,8 +300,8 @@ void GuildCriteria::SetStageID(uint32 stage, bool saveDB /*= true*/)
     auto trans = CharacterDatabase.BeginTransaction();
 
     // gls_stages_progress
-    trans->PAppend("DELETE FROM `gls_stages_progress` WHERE `GuildID` = {}", _guildID);
-    trans->PAppend("INSERT INTO `gls_stages_progress`(`GuildID`, `StageID`) VALUES ({}, {})", _guildID, _stageID);
+    trans->Append("DELETE FROM `gls_stages_progress` WHERE `GuildID` = {}", _guildID);
+    trans->Append("INSERT INTO `gls_stages_progress`(`GuildID`, `StageID`) VALUES ({}, {})", _guildID, _stageID);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -387,13 +387,13 @@ void GuildLevelSystem::LoadBaseCriteria()
             return true;
         };
 
-        uint32 criteriaID                       = fields[0].GetUInt32();
-        uint32 stageID                          = fields[1].GetUInt32();
-        std::string listItemID                  = fields[2].GetString();
-        std::string listItemCount               = fields[3].GetString();
-        uint32 minPlayersCount                  = fields[4].GetUInt32();
-        float coef                              = fields[5].GetFloat();
-        std::string listRewardSpells            = fields[6].GetString();
+        uint32 criteriaID                       = fields[0].Get<uint32>();
+        uint32 stageID                          = fields[1].Get<uint32>();
+        std::string listItemID                  = fields[2].Get<std::string>();
+        std::string listItemCount               = fields[3].Get<std::string>();
+        uint32 minPlayersCount                  = fields[4].Get<uint32>();
+        float coef                              = fields[5].Get<float>();
+        std::string listRewardSpells            = fields[6].Get<std::string>();
 
         GuildCriteriaStruct _data;
         _data.CriteriaID        = criteriaID;
@@ -521,11 +521,11 @@ void GuildLevelSystem::LoadCriteriaProgress()
     {
         Field* fields = result->Fetch();
 
-        uint32 guildID              = fields[0].GetUInt32();
-        uint32 criteriaID           = fields[1].GetUInt32();
-        std::string listItemCount   = fields[2].GetString();
-        uint32 spellID              = fields[3].GetUInt32();
-        bool isDone                 = fields[4].GetBool();
+        uint32 guildID              = fields[0].Get<uint32>();
+        uint32 criteriaID           = fields[1].Get<uint32>();
+        std::string listItemCount   = fields[2].Get<std::string>();
+        uint32 spellID              = fields[3].Get<uint32>();
+        bool isDone                 = fields[4].Get<bool>();
 
         // Check guild
         if (!sGuildMgr->GetGuildById(guildID))
@@ -607,8 +607,8 @@ void GuildLevelSystem::LoadStageProgress()
     {
         Field* fields = result->Fetch();
 
-        uint32 guildID = fields[0].GetUInt32();
-        uint32 stageID = fields[1].GetUInt32();
+        uint32 guildID = fields[0].Get<uint32>();
+        uint32 stageID = fields[1].Get<uint32>();
 
         // Check guild
         if (!sGuildMgr->GetGuildById(guildID))
@@ -1005,7 +1005,7 @@ void GuildLevelSystem::GetRewardsCriteria(Player* player, Creature* /* creature 
     for (auto const& [memberID, member] : player->GetGuild()->GetAllMembers())
     {
         if (!member.IsOnline())
-            trans->PAppend("INSERT INTO `character_spell` (`guid`, `spell`, `specMask`) VALUES ({}, {}, 255)", member.GetGUID().GetCounter(), spellID);
+            trans->Append("INSERT INTO `character_spell` (`guid`, `spell`, `specMask`) VALUES ({}, {}, 255)", member.GetGUID().GetCounter(), spellID);
         else
         {
             auto player = member.FindPlayer();

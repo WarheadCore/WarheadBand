@@ -17,6 +17,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundAV.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameObjectAI.h"
 #include "Group.h"
@@ -37,6 +38,11 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
     uint32 questStatus = DIALOG_STATUS_NONE;
+
+    GossipMenu& gossipMenu = _player->PlayerTalkClass->GetGossipMenu();
+    // Did we already get get a gossip menu? if so no need to status query
+    if (!gossipMenu.Empty())
+        return;
 
     Object* questGiver = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
     if (!questGiver)
@@ -86,9 +92,11 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
     // Stop the npc if moving
-    //if (!creature->GetTransport()) // pussywizard: reverted with new spline (old: without this check, npc would stay in place and the transport would continue moving, so the npc falls off. NPCs on transports don't have waypoints, so stopmoving is not needed)
-    creature->StopMoving();
+    if (uint32 pause = creature->GetMovementTemplate().GetInteractionPauseTimer())
+        creature->PauseMovement(pause);
+    creature->SetHomePosition(creature->GetPosition());
 
     if (sScriptMgr->OnGossipHello(_player, creature))
         return;
@@ -128,7 +136,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         // pussywizard: exploit fix, can't share quests that give items to be sold
         if (object->GetTypeId() == TYPEID_PLAYER)
             if (uint32 itemId = quest->GetSrcItemId())
-                if (const ItemTemplate* srcItem = sObjectMgr->GetItemTemplate(itemId))
+                if (ItemTemplate const* srcItem = sObjectMgr->GetItemTemplate(itemId))
                     if (srcItem->SellPrice > 0)
                         return;
 
@@ -245,7 +253,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     if (reward >= QUEST_REWARD_CHOICES_COUNT)
     {
         LOG_ERROR("network.opcode", "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {} ({}) tried to get invalid reward ({}) (probably packet hacking)",
-            _player->GetName(), _player->GetGUID(), reward);
+            _player->GetName(), _player->GetGUID().ToString(), reward);
         return;
     }
 
@@ -265,7 +273,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                 (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete() && quest->GetQuestMethod()))
         {
             LOG_ERROR("network.opcode", "HACK ALERT: Player {} ({}) is trying to complete quest (id: {}) but he has no right to do it!",
-                           _player->GetName(), _player->GetGUID(), questId);
+                           _player->GetName(), _player->GetGUID().ToString(), questId);
             return;
         }
         if (_player->CanRewardQuest(quest, reward, true))
@@ -426,8 +434,8 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             {
                 // prepare Quest Tracker datas
                 auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_ABANDON_TIME);
-                stmt->setUInt32(0, questId);
-                stmt->setUInt32(1, _player->GetGUID().GetCounter());
+                stmt->SetData(0, questId);
+                stmt->SetData(1, _player->GetGUID().GetCounter());
 
                 // add to Quest Tracker
                 CharacterDatabase.Execute(stmt);
@@ -464,7 +472,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 
         // pussywizard: exploit fix, can't share quests that give items to be sold
         if (uint32 itemId = quest->GetSrcItemId())
-            if (const ItemTemplate* srcItem = sObjectMgr->GetItemTemplate(itemId))
+            if (ItemTemplate const* srcItem = sObjectMgr->GetItemTemplate(itemId))
                 if (srcItem->SellPrice > 0)
                     return;
 
@@ -497,7 +505,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
         if (!_player->CanSeeStartQuest(quest) && _player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
         {
             LOG_ERROR("network.opcode", "Possible hacking attempt: Player {} [{}] tried to complete quest [entry: {}] without being in possession of the quest!",
-                           _player->GetName(), _player->GetGUID(), questId);
+                           _player->GetName(), _player->GetGUID().ToString(), questId);
             return;
         }
 
@@ -578,7 +586,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                     // Check if player is in BG
                     if (_player->InBattleground())
                     {
-                        _player->GetSession()->SendNotification(LANG_BG_SHARE_QUEST_ERROR);
+                        Warhead::Text::SendNotification(this, LANG_BG_SHARE_QUEST_ERROR);
                         continue;
                     }
                 }

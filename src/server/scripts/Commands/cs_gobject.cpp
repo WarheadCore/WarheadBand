@@ -173,7 +173,7 @@ public:
         float z = player->GetPositionZ();
         float ang = player->GetOrientation();
 
-        float rot2 = sin(ang / 2);
+        float rot2 = std::sin(ang / 2);
         float rot3 = cos(ang / 2);
 
         player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
@@ -191,14 +191,14 @@ public:
         {
             if (objectId->holds_alternative<GameObjectEntry>())
             {
-                result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE map = '{}' AND id = '{}' ORDER BY order_ ASC LIMIT 1",
+                result = WorldDatabase.Query("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE map = '{}' AND id = '{}' ORDER BY order_ ASC LIMIT 1",
                                               player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), static_cast<uint32>(objectId->get<GameObjectEntry>()));
             }
             else
             {
                 std::string name = std::string(objectId->get<std::string_view>());
                 WorldDatabase.EscapeString(name);
-                result = WorldDatabase.PQuery(
+                result = WorldDatabase.Query(
                         "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - {}, 2) + POW(position_y - {}, 2) + POW(position_z - {}, 2)) AS order_ "
                         "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = {} AND name LIKE '%{}%' ORDER BY order_ ASC LIMIT 1",
                         player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name);
@@ -226,7 +226,7 @@ public:
             else
                 eventFilter << ')';
 
-            result = WorldDatabase.PQuery("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, phaseMask, "
+            result = WorldDatabase.Query("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, phaseMask, "
                                           "(POW(position_x - {}, 2) + POW(position_y - {}, 2) + POW(position_z - {}, 2)) AS order_ FROM gameobject "
                                           "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '{}' {} ORDER BY order_ ASC LIMIT 10",
                                           handler->GetSession()->GetPlayer()->GetPositionX(),
@@ -252,14 +252,14 @@ public:
         do
         {
             Field* fields = result->Fetch();
-            guidLow = fields[0].GetUInt32();
-            id =      fields[1].GetUInt32();
-            x =       fields[2].GetFloat();
-            y =       fields[3].GetFloat();
-            z =       fields[4].GetFloat();
-            o =       fields[5].GetFloat();
-            mapId =   fields[6].GetUInt16();
-            phase =   fields[7].GetUInt32();
+            guidLow = fields[0].Get<uint32>();
+            id =      fields[1].Get<uint32>();
+            x =       fields[2].Get<float>();
+            y =       fields[3].Get<float>();
+            z =       fields[4].Get<float>();
+            o =       fields[5].Get<float>();
+            mapId =   fields[6].Get<uint16>();
+            phase =   fields[7].Get<uint32>();
             poolId =  sPoolMgr->IsPartOfAPool<GameObject>(guidLow);
             if (!poolId || sPoolMgr->IsSpawnedObject<GameObject>(guidLow))
                 found = true;
@@ -289,8 +289,8 @@ public:
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
-            std::string curRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(curRespawnDelay);
-            std::string defRespawnDelayStr = Warhead::Time::ToTimeString<Seconds>(target->GetRespawnDelay());
+            std::string curRespawnDelayStr = Warhead::Time::ToTimeString(Seconds(curRespawnDelay));
+            std::string defRespawnDelayStr = Warhead::Time::ToTimeString(Seconds(target->GetRespawnDelay()));
 
             handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr, curRespawnDelayStr);
         }
@@ -461,15 +461,15 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_NEAREST);
-        stmt->setFloat(0, player->GetPositionX());
-        stmt->setFloat(1, player->GetPositionY());
-        stmt->setFloat(2, player->GetPositionZ());
-        stmt->setUInt32(3, player->GetMapId());
-        stmt->setFloat(4, player->GetPositionX());
-        stmt->setFloat(5, player->GetPositionY());
-        stmt->setFloat(6, player->GetPositionZ());
-        stmt->setFloat(7, distance * distance);
-        stmt->setUInt32(8, player->GetPhaseMask());
+        stmt->SetData(0, player->GetPositionX());
+        stmt->SetData(1, player->GetPositionY());
+        stmt->SetData(2, player->GetPositionZ());
+        stmt->SetData(3, player->GetMapId());
+        stmt->SetData(4, player->GetPositionX());
+        stmt->SetData(5, player->GetPositionY());
+        stmt->SetData(6, player->GetPositionZ());
+        stmt->SetData(7, distance * distance);
+        stmt->SetData(8, player->GetPhaseMask());
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (result)
@@ -477,12 +477,12 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
-                uint32 entry = fields[1].GetUInt32();
-                float x = fields[2].GetFloat();
-                float y = fields[3].GetFloat();
-                float z = fields[4].GetFloat();
-                uint16 mapId = fields[5].GetUInt16();
+                ObjectGuid::LowType guid = fields[0].Get<uint32>();
+                uint32 entry = fields[1].Get<uint32>();
+                float x = fields[2].Get<float>();
+                float y = fields[3].Get<float>();
+                float z = fields[4].Get<float>();
+                uint16 mapId = fields[5].Get<uint16>();
 
                 GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 

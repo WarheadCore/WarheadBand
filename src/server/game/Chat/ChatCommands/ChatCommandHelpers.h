@@ -121,7 +121,8 @@ namespace Warhead::Impl::ChatCommands
     };
 
     WH_GAME_API void SendErrorMessageToHandler(ChatHandler* handler, std::string_view str);
-    WH_GAME_API char const* GetWarheadString(ChatHandler const* handler, WarheadStrings which);
+    WH_GAME_API std::string GetWarheadString(ChatHandler const* handler, WarheadStrings which);
+
     template <typename... Ts>
     std::string FormatWarheadString(ChatHandler const* handler, WarheadStrings which, Ts&&... args)
     {

@@ -56,7 +56,7 @@ void TransportMgr::LoadTransportTemplates()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 transport templates. DB table `gameobject_template` has no transports!");
+        LOG_WARN("server.loading", ">> Loaded 0 transport templates. DB table `gameobject_template` has no transports!");
         return;
     }
 
@@ -65,7 +65,7 @@ void TransportMgr::LoadTransportTemplates()
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (goInfo == nullptr)
         {
@@ -147,7 +147,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
                 KeyFrame k(node_i);
                 G3D::Vector3 h;
                 orientationSpline.evaluate_derivative(i + 1, 0.0f, h);
-                k.InitialOrientation = Position::NormalizeOrientation(atan2(h.y, h.x) + M_PI);
+                k.InitialOrientation = Position::NormalizeOrientation(std::atan2(h.y, h.x) + M_PI);
 
                 keyFrames.push_back(k);
                 splinePath.push_back(G3D::Vector3(node_i->x, node_i->y, node_i->z));
@@ -284,22 +284,22 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
             if (keyFrames[i].DistSinceStop < keyFrames[i].DistUntilStop) // is still accelerating
             {
                 // calculate accel+brake time for this short segment
-                float segment_time = 2.0f * sqrt((keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / accel);
+                float segment_time = 2.0f * std::sqrt((keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / accel);
                 // substract acceleration time
-                keyFrames[i].TimeTo = segment_time - sqrt(2 * keyFrames[i].DistSinceStop / accel);
+                keyFrames[i].TimeTo = segment_time - std::sqrt(2 * keyFrames[i].DistSinceStop / accel);
             }
             else // slowing down
-                keyFrames[i].TimeTo = sqrt(2 * keyFrames[i].DistUntilStop / accel);
+                keyFrames[i].TimeTo = std::sqrt(2 * keyFrames[i].DistUntilStop / accel);
         }
         else if (keyFrames[i].DistSinceStop < accel_dist) // still accelerating (but will reach full speed)
         {
             // calculate accel + cruise + brake time for this long segment
             float segment_time = (keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / speed + (speed / accel);
             // substract acceleration time
-            keyFrames[i].TimeTo = segment_time - sqrt(2 * keyFrames[i].DistSinceStop / accel);
+            keyFrames[i].TimeTo = segment_time - std::sqrt(2 * keyFrames[i].DistSinceStop / accel);
         }
         else if (keyFrames[i].DistUntilStop < accel_dist) // already slowing down (but reached full speed)
-            keyFrames[i].TimeTo = sqrt(2 * keyFrames[i].DistUntilStop / accel);
+            keyFrames[i].TimeTo = std::sqrt(2 * keyFrames[i].DistUntilStop / accel);
         else // at full speed
             keyFrames[i].TimeTo = (keyFrames[i].DistUntilStop / speed) + (0.5f * speed / accel);
     }
@@ -424,58 +424,57 @@ void TransportMgr::SpawnContinentTransports()
     if (_transportTemplates.empty())
         return;
 
-    uint32 oldMSTime, count = 0;
-    oldMSTime = getMSTime();
-    QueryResult result;
+    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
+    QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
 
     if (CONF_GET_BOOL("IsContinentTransport.Enabled"))
     {
-        result = WorldDatabase.Query("SELECT guid, entry FROM transports");
+
         if (result)
         {
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt32();
-                uint32 entry = fields[1].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].Get<uint32>();
+                uint32 entry = fields[1].Get<uint32>();
 
                 if (TransportTemplate const* tInfo = GetTransportTemplate(entry))
                     if (!tInfo->inInstance)
                         if (CreateTransport(entry, guid))
                             ++count;
+
             } while (result->NextRow());
         }
 
         LOG_INFO("server.loading", ">> Spawned {} continent motion transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+    }
 
-        if (CONF_GET_BOOL("IsPreloadedContinentTransport.Enabled"))
+    if (CONF_GET_BOOL("IsPreloadedContinentTransport.Enabled"))
+    {
+        // pussywizard: preload grids for continent static transports
+        QueryResult result2 = WorldDatabase.Query("SELECT map, position_x, position_y FROM gameobject g JOIN gameobject_template t ON g.id = t.entry WHERE t.type = 11");
+
+        if (result2)
         {
-            // pussywizard: preload grids for continent static transports
-            oldMSTime = getMSTime();
-            result = WorldDatabase.Query("SELECT map, position_x, position_y FROM gameobject g JOIN gameobject_template t ON g.id = t.entry WHERE t.type = 11");
-            count = 0;
-            if (result)
+            do
             {
-                do
-                {
-                    Field* fields = result->Fetch();
-                    uint16 mapId = fields[0].GetUInt16();
-                    float x = fields[1].GetFloat();
-                    float y = fields[2].GetFloat();
+                Field* fields = result2->Fetch();
+                uint16 mapId = fields[0].Get<uint16>();
+                float x = fields[1].Get<float>();
+                float y = fields[2].Get<float>();
 
-                    MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-                    if (mapEntry && !mapEntry->Instanceable())
-                        if (Map* map = sMapMgr->CreateBaseMap(mapId))
-                        {
-                            map->LoadGrid(x, y);
-                            ++count;
-                        }
-                } while (result->NextRow());
-            }
-
-            LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+                MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+                if (mapEntry && !mapEntry->Instanceable())
+                    if (Map* map = sMapMgr->CreateBaseMap(mapId))
+                    {
+                        map->LoadGrid(x, y);
+                        ++count;
+                    }
+            } while (result2->NextRow());
         }
+
+        LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }
 

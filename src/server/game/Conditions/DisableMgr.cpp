@@ -24,6 +24,8 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
 #include "World.h"
 
 namespace DisableMgr
@@ -62,7 +64,7 @@ namespace DisableMgr
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 disables. DB table `disables` is empty!");
+            LOG_WARN("server.loading", ">> Loaded 0 disables. DB table `disables` is empty!");
             LOG_INFO("server.loading", " ");
             return;
         }
@@ -71,17 +73,17 @@ namespace DisableMgr
         do
         {
             fields = result->Fetch();
-            DisableType type = DisableType(fields[0].GetUInt32());
+            DisableType type = DisableType(fields[0].Get<uint32>());
             if (type >= MAX_DISABLE_TYPES)
             {
                 LOG_ERROR("sql.sql", "Invalid type {} specified in `disables` table, skipped.", type);
                 continue;
             }
 
-            uint32 entry = fields[1].GetUInt32();
-            uint8 flags = fields[2].GetUInt8();
-            std::string params_0 = fields[3].GetString();
-            std::string params_1 = fields[4].GetString();
+            uint32 entry = fields[1].Get<uint32>();
+            uint8 flags = fields[2].Get<uint8>();
+            std::string params_0 = fields[3].Get<std::string>();
+            std::string params_1 = fields[4].Get<std::string>();
 
             DisableData data;
             data.flags = flags;
@@ -112,16 +114,24 @@ namespace DisableMgr
 
                     if (flags & SPELL_DISABLE_MAP)
                     {
-                        Tokenizer tokens(params_0, ',');
-                        for (uint8 i = 0; i < tokens.size(); )
-                            data.params[0].insert(atoi(tokens[i++]));
+                        for (std::string_view mapStr : Warhead::Tokenize(params_0, ',', true))
+                        {
+                            if (Optional<uint32> mapId = Warhead::StringTo<uint32>(mapStr))
+                                data.params[0].insert(*mapId);
+                            else
+                                LOG_ERROR("sql.sql", "Disable map '{}' for spell {} is invalid, skipped.", mapStr, entry);
+                        }
                     }
 
                     if (flags & SPELL_DISABLE_AREA)
                     {
-                        Tokenizer tokens(params_1, ',');
-                        for (uint8 i = 0; i < tokens.size(); )
-                            data.params[1].insert(atoi(tokens[i++]));
+                        for (std::string_view areaStr : Warhead::Tokenize(params_1, ',', true))
+                        {
+                            if (Optional<uint32> areaId = Warhead::StringTo<uint32>(areaStr))
+                                data.params[1].insert(*areaId);
+                            else
+                                LOG_ERROR("sql.sql", "Disable area '{}' for spell {} is invalid, skipped.", areaStr, entry);
+                        }
                     }
 
                     // xinef: if spell has disabled los, add flag

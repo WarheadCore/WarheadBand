@@ -17,7 +17,6 @@
 
 #include "WorldSocket.h"
 #include "AccountMgr.h"
-#include "BigNumber.h"
 #include "Config.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
@@ -49,7 +48,7 @@ void WorldSocket::Start()
 {
     std::string ip_address = GetRemoteIpAddress().to_string();
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->setString(0, ip_address);
+    stmt->SetData(0, ip_address);
 
     _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
 }
@@ -62,7 +61,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            if (fields[0].GetUInt64() != 0)
+            if (fields[0].Get<uint64>() != 0)
                 banned = true;
 
         } while (result->NextRow());
@@ -221,6 +220,7 @@ bool WorldSocket::ReadHeaderHandler()
     {
         LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
             GetRemoteIpAddress().to_string(), header->size, header->cmd);
+
         return false;
     }
 
@@ -271,19 +271,19 @@ struct AccountInfo
         // LEFT JOIN account_banned ab ON a.id = ab.id
         // LEFT JOIN account r ON a.id = r.recruiter
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
-        Id = fields[0].GetUInt32();
-        SessionKey = fields[1].GetBinary<SESSION_KEY_LENGTH>();
-        LastIP = fields[2].GetString();
-        IsLockedToIP = fields[3].GetBool();
-        LockCountry = fields[4].GetString();
-        Expansion = fields[5].GetUInt8();
-        Locale = LocaleConstant(fields[6].GetUInt8());
-        Recruiter = fields[7].GetUInt32();
-        OS = fields[8].GetString();
-        TotalTime = fields[9].GetUInt32();
-        Security = AccountTypes(fields[10].GetUInt8());
-        IsBanned = fields[11].GetUInt64() != 0;
-        IsRectuiter = fields[12].GetUInt32() != 0;
+        Id = fields[0].Get<uint32>();
+        SessionKey = fields[1].Get<Binary, SESSION_KEY_LENGTH>();
+        LastIP = fields[2].Get<std::string>();
+        IsLockedToIP = fields[3].Get<bool>();
+        LockCountry = fields[4].Get<std::string>();
+        Expansion = fields[5].Get<uint8>();
+        Locale = LocaleConstant(fields[6].Get<uint8>());
+        Recruiter = fields[7].Get<uint32>();
+        OS = fields[8].Get<std::string>();
+        TotalTime = fields[9].Get<uint32>();
+        Security = AccountTypes(fields[10].Get<uint8>());
+        IsBanned = fields[11].Get<uint64>() != 0;
+        IsRectuiter = fields[12].Get<uint32>() != 0;
 
         uint32 world_expansion = CONF_GET_INT("Expansion");
         if (Expansion > world_expansion)
@@ -338,9 +338,8 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 HandleAuthSession(packet);
                 return ReadDataHandlerResult::WaitingForQuery;
             }
-            catch (ByteBufferException const&)
-            {
-            }
+            catch (ByteBufferException const&) { }
+
             LOG_ERROR("network", "WorldSocket::ReadDataHandler(): client {} sent malformed CMSG_AUTH_SESSION", GetRemoteIpAddress().to_string());
             return ReadDataHandlerResult::Error;
         }
@@ -351,7 +350,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 _worldSession->ResetTimeOutTime(true);
             return ReadDataHandlerResult::Ok;
         case CMSG_TIME_SYNC_RESP:
-            packetToQueue = new WorldPacket(std::move(packet), std::chrono::steady_clock::now());
+            packetToQueue = new WorldPacket(std::move(packet), GameTime::Now());
             break;
         default:
             packetToQueue = new WorldPacket(std::move(packet));
@@ -436,8 +435,8 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // Get the account information from the auth database
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
-    stmt->setInt32(0, int32(realm.Id.Realm));
-    stmt->setString(1, authSession->Account);
+    stmt->SetData(0, int32(realm.Id.Realm));
+    stmt->SetData(1, authSession->Account);
 
     _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
 }
@@ -463,8 +462,8 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
-    stmt->setString(0, address);
-    stmt->setString(1, authSession->Account);
+    stmt->SetData(0, address);
+    stmt->SetData(1, authSession->Account);
     LoginDatabase.Execute(stmt);
     // This also allows to check for possible "hack" attempts on account
 
@@ -572,8 +571,8 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     // Update the last_ip in the database as it was successful for login
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
-    stmt->setString(0, address);
-    stmt->setString(1, authSession->Account);
+    stmt->SetData(0, address);
+    stmt->SetData(1, authSession->Account);
 
     LoginDatabase.Execute(stmt);
 

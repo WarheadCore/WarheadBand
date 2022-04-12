@@ -16,11 +16,12 @@
  */
 
 #include "Transmogrification.h"
-#include "ModulesConfig.h"
+#include "GameEventMgr.h"
 #include "GameLocale.h"
 #include "ModuleLocale.h"
+#include "ModulesConfig.h"
 #include "ScriptedGossip.h"
-#include "GameEventMgr.h"
+#include "ChatTextBuilder.h"
 
 Transmogrification* Transmogrification::instance()
 {
@@ -56,21 +57,21 @@ void Transmogrification::PresetTransmog(Player* player, Item* itemTransmogrified
 
 void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
 {
-    for (auto itr : _presetById[pGUID])
+    for (auto& itr : _presetById[pGUID])
         itr.second.clear();
 
     _presetById[pGUID].clear();
     _presetByName[pGUID].clear();
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = {}", pGUID.GetCounter());
+    QueryResult result = CharacterDatabase.Query("SELECT `PresetID`, `SetName`, `SetData` FROM `custom_transmogrification_sets` WHERE Owner = {}", pGUID.GetCounter());
     if (!result)
         return;
 
     do
     {
-        uint8 PresetID = (*result)[0].GetUInt8();
-        std::string SetName = (*result)[1].GetString();
-        std::istringstream SetData((*result)[2].GetString());
+        uint8 PresetID = (*result)[0].Get<uint8>();
+        std::string SetName = (*result)[1].Get<std::string>();
+        std::istringstream SetData((*result)[2].Get<std::string>());
 
         while (SetData.good())
         {
@@ -96,14 +97,14 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
         else // should be deleted on startup, so  this never runs (shouldnt..)
         {
             _presetById[pGUID].erase(PresetID);
-            CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", pGUID.GetCounter(), PresetID);
+            CharacterDatabase.Execute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", pGUID.GetCounter(), PresetID);
         }
     } while (result->NextRow());
 }
 
 void Transmogrification::UnloadPlayerSets(ObjectGuid pGUID)
 {
-    for (auto itr : _presetById[pGUID])
+    for (auto& itr : _presetById[pGUID])
         itr.second.clear();
 
     _presetById[pGUID].clear();
@@ -328,7 +329,7 @@ void Transmogrification::SetFakeEntry(Player* player, uint32 newEntry, uint8 /*s
     _mapStore[player->GetGUID()][itemGUID] = newEntry;
     _dataMapStore[itemGUID] = player->GetGUID();
 
-    CharacterDatabase.PExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ({}, {}, {})", itemGUID.GetCounter(), newEntry, player->GetGUID().GetCounter());
+    CharacterDatabase.Execute("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES ({}, {}, {})", itemGUID.GetCounter(), newEntry, player->GetGUID().GetCounter());
     UpdateItem(player, itemTransmogrified);
 }
 
@@ -729,9 +730,9 @@ void Transmogrification::DeleteFakeFromDB(ObjectGuid::LowType itemLowGuid, Chara
     }
 
     if (trans)
-        (*trans)->PAppend("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
+        (*trans)->Append("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
     else
-        CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
+        CharacterDatabase.Execute("DELETE FROM custom_transmogrification WHERE GUID = {}", itemLowGuid);
 }
 
 bool Transmogrification::CanTransmogSlot(uint8 slot) const
@@ -780,14 +781,14 @@ void Transmogrification::LoadPlayerAtLogin(Player* player)
 
     _mapStore.erase(playerGUID);
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
+    QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
     if (result)
     {
         do
         {
             Field* field = result->Fetch();
-            ObjectGuid itemGUID(HighGuid::Item, 0, field[0].GetUInt32());
-            uint32 fakeEntry = (*result)[1].GetUInt32();
+            ObjectGuid itemGUID(HighGuid::Item, 0, field[0].Get<uint32>());
+            uint32 fakeEntry = (*result)[1].Get<uint32>();
 
             if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
             {
@@ -895,7 +896,7 @@ void Transmogrification::SavePreset(Player* player, Creature* /* creature */, st
         }
 
         _presetByName[player->GetGUID()][presetID] = name; // Make sure code doesnt mess up SQL!
-        CharacterDatabase.PExecute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES ({}, {}, \"{}\", \"{}\")", player->GetGUID().GetCounter(), uint32(presetID), name, ss.str());
+        CharacterDatabase.Execute("REPLACE INTO `custom_transmogrification_sets` (`Owner`, `PresetID`, `SetName`, `SetData`) VALUES ({}, {}, \"{}\", \"{}\")", player->GetGUID().GetCounter(), uint32(presetID), name, ss.str());
 
         if (cost)
             player->ModifyMoney(-cost);
@@ -1076,7 +1077,7 @@ void Transmogrification::GossipViewPreset(Player* player, Creature* creature, ui
 void Transmogrification::GossipDeletePreset(Player* player, Creature* /* creature */, uint32 const& action)
 {
     // action = presetID
-    CharacterDatabase.PExecute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
+    CharacterDatabase.Execute("DELETE FROM `custom_transmogrification_sets` WHERE Owner = {} AND PresetID = {}", player->GetGUID().GetCounter(), action);
     _presetById[player->GetGUID()][action].clear();
     _presetById[player->GetGUID()].erase(action);
     _presetByName[player->GetGUID()].erase(action);
@@ -1134,9 +1135,7 @@ void Transmogrification::SendNotification(Player* player, std::string const& loc
     if (!session)
         return;
 
-    uint8 localeIndex = static_cast<uint8>(session->GetSessionDbLocaleIndex());
-
-    session->SendNotification("{}", sModuleLocale->GetModuleString(localeEntry, localeIndex).value());
+    Warhead::Text::SendNotification(session, *sModuleLocale->GetModuleString(localeEntry, static_cast<uint8>(session->GetSessionDbLocaleIndex())));
 }
 
 void Transmogrification::OnGossipHello(Player* player, Creature* creature)

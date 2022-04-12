@@ -52,7 +52,7 @@ public:
     static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
     // function with different implementation for chat/console
-    virtual char const* GetWarheadString(uint32 entry) const;
+    virtual std::string GetWarheadString(uint32 entry) const;
     virtual void SendSysMessage(std::string_view str, bool escapeCharacters = false);
 
     void SendSysMessage(uint32 entry);
@@ -91,12 +91,12 @@ public:
     bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
     void SendGlobalGMSysMessage(const char* str);
-    Player*   getSelectedPlayer();
-    Creature* getSelectedCreature();
-    Unit*     getSelectedUnit();
-    WorldObject* getSelectedObject();
+    Player* getSelectedPlayer() const;
+    Creature* getSelectedCreature() const;
+    Unit* getSelectedUnit() const;
+    WorldObject* getSelectedObject() const;
     // Returns either the selected player or self if there is no selected player
-    Player*   getSelectedPlayerOrSelf();
+    Player* getSelectedPlayerOrSelf() const;
 
     char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
     char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
@@ -112,7 +112,7 @@ public:
     std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name; }
     std::string GetNameLink(Player* chr) const;
 
-    GameObject* GetNearbyGameObject();
+    GameObject* GetNearbyGameObject() const;
     GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
     Creature* GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
     bool HasSentErrorMessage() const { return sentErrorMessage; }
@@ -139,7 +139,7 @@ public:
     explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
     // overwrite functions
-    char const* GetWarheadString(uint32 entry) const override;
+    std::string GetWarheadString(uint32 entry) const override;
     void SendSysMessage(std::string_view, bool escapeCharacters) override;
     bool ParseCommands(std::string_view str) override;
     std::string GetNameLink() const override;

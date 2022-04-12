@@ -28,6 +28,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "Timer.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -61,7 +62,7 @@ public:
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
 
-        char const* active = handler->GetWarheadString(LANG_ACTIVE);
+        std::string active = handler->GetWarheadString(LANG_ACTIVE);
 
         for (uint16 eventId : activeEvents)
         {
@@ -110,17 +111,17 @@ public:
 
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         bool active = activeEvents.find(eventId) != activeEvents.end();
-        char const* activeStr = active ? handler->GetWarheadString(LANG_ACTIVE) : "";
+        std::string activeStr = active ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
-        std::string startTimeStr = Warhead::Time::TimeToTimestampStr(eventData.start);
-        std::string endTimeStr = Warhead::Time::TimeToTimestampStr(eventData.end);
+        std::string startTimeStr = Warhead::Time::TimeToTimestampStr(Seconds(eventData.start));
+        std::string endTimeStr = Warhead::Time::TimeToTimestampStr(Seconds(eventData.end));
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
         time_t nextTime = GameTime::GetGameTime().count() + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Warhead::Time::TimeToTimestampStr(GameTime::GetGameTime().count() + delay) : "-";
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Warhead::Time::TimeToTimestampStr(Seconds(nextTime)) : "-";
 
-        std::string occurenceStr = Warhead::Time::ToTimeString<Seconds>(eventData.occurence * MINUTE);
-        std::string lengthStr = Warhead::Time::ToTimeString<Seconds>(eventData.length * MINUTE);
+        std::string occurenceStr = Warhead::Time::ToTimeString(Minutes(eventData.occurence));
+        std::string lengthStr = Warhead::Time::ToTimeString(Minutes(eventData.length));
 
         handler->PSendSysMessage(LANG_EVENT_INFO, uint16(eventId), eventData.description, activeStr,
             startTimeStr, endTimeStr, occurenceStr, lengthStr,

@@ -17,6 +17,7 @@
 
 #include "LFGQueue.h"
 #include "Containers.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -30,8 +31,7 @@
 namespace lfg
 {
     LfgQueueData::LfgQueueData() :
-        joinTime(time_t(GameTime::GetGameTime().count())), lastRefreshTime(joinTime), tanks(LFG_TANKS_NEEDED),
-        healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) { }
+        joinTime(time_t(GameTime::GetGameTime().count())), lastRefreshTime(joinTime) { }
 
     void LFGQueue::AddToQueue(ObjectGuid guid, bool failedProposal)
     {
@@ -406,7 +406,7 @@ namespace lfg
         }
 
         proposal.queues = strGuids;
-        proposal.isNew = numLfgGroups != 1 || sLFGMgr->GetOldState(proposal.group) != LFG_STATE_DUNGEON;
+        proposal.isNew = numLfgGroups != 1;
 
         if (!sLFGMgr->AllQueued(check)) // can't create proposal
             return LFG_COMPATIBILITY_PENDING;

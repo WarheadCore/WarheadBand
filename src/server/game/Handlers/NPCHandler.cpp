@@ -22,7 +22,6 @@
 #include "DatabaseEnv.h"
 #include "GameGraveyard.h"
 #include "Language.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -68,36 +67,6 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 {
     WorldPacket data(MSG_TABARDVENDOR_ACTIVATE, 8);
     data << guid;
-    SendPacket(&data);
-}
-
-void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-
-    LOG_DEBUG("network", "WORLD: Received CMSG_BANKER_ACTIVATE");
-
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!unit)
-    {
-        LOG_DEBUG("network", "WORLD: HandleBankerActivateOpcode - Unit ({}) not found or you can not interact with him.", guid.ToString());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    SendShowBank(guid);
-}
-
-void WorldSession::SendShowBank(ObjectGuid guid)
-{
-    WorldPacket data(SMSG_SHOW_BANK, 8);
-    data << guid;
-    m_currentBankerGUID = guid;
     SendPacket(&data);
 }
 
@@ -318,11 +287,11 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 
     // xinef: check if we have ANY npc flags
-    if (unit->GetUInt32Value(UNIT_NPC_FLAGS) == UNIT_NPC_FLAG_NONE)
+    if (unit->GetNpcFlags() == UNIT_NPC_FLAG_NONE)
         return;
 
     // xinef: do not allow to open gossip when npc is in combat
-    if (unit->GetUInt32Value(UNIT_NPC_FLAGS) == UNIT_NPC_FLAG_GOSSIP && unit->IsInCombat()) // should work on all flags?
+    if (unit->GetNpcFlags() == UNIT_NPC_FLAG_GOSSIP && unit->IsInCombat()) // should work on all flags?
         return;
 
     // set faction visible if needed
@@ -334,12 +303,10 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     //if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    // xinef: and if he has pure gossip or is banker and moves or is tabard designer?
-    //if (unit->IsArmorer() || unit->IsCivilian() || unit->IsQuestGiver() || unit->IsServiceProvider() || unit->IsGuard())
-    {
-        //if (!unit->GetTransport()) // pussywizard: reverted with new spline (old: without this check, npc would stay in place and the transport would continue moving, so the npc falls off. NPCs on transports don't have waypoints, so stopmoving is not needed)
-        unit->StopMoving();
-    }
+    // Stop the npc if moving
+    if (uint32 pause = unit->GetMovementTemplate().GetInteractionPauseTimer())
+        unit->PauseMovement(pause);
+    unit->SetHomePosition(unit->GetPosition());
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->IsSpiritGuide())
@@ -639,9 +606,9 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
             }
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-            stmt->setUInt8(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot));
-            stmt->setUInt32(1, _player->GetGUID().GetCounter());
-            stmt->setUInt32(2, petStable->UnslottedPets[0].PetNumber);
+            stmt->SetData(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot));
+            stmt->SetData(1, _player->GetGUID().GetCounter());
+            stmt->SetData(2, petStable->UnslottedPets[0].PetNumber);
             CharacterDatabase.Execute(stmt);
 
             // stable unsummoned pet
@@ -725,9 +692,9 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
         }
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + std::distance(petStable->StabledPets.begin(), stabledPet)));
-        stmt->setUInt32(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petStable->UnslottedPets[0].PetNumber);
+        stmt->SetData(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + std::distance(petStable->StabledPets.begin(), stabledPet)));
+        stmt->SetData(1, _player->GetGUID().GetCounter());
+        stmt->SetData(2, petStable->UnslottedPets[0].PetNumber);
         CharacterDatabase.Execute(stmt);
 
         // move unsummoned pet into CurrentPet slot so that it gets moved into stable slot later
@@ -750,9 +717,9 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, PET_SAVE_NOT_IN_SLOT);
-        stmt->setUInt32(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petnumber);
+        stmt->SetData(0, PET_SAVE_NOT_IN_SLOT);
+        stmt->SetData(1, _player->GetGUID().GetCounter());
+        stmt->SetData(2, petnumber);
         CharacterDatabase.Execute(stmt);
 
         SendStableResult(STABLE_ERR_STABLE);
@@ -761,9 +728,9 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     {
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-        stmt->setUInt32(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petnumber);
+        stmt->SetData(0, PET_SAVE_AS_CURRENT);
+        stmt->SetData(1, _player->GetGUID().GetCounter());
+        stmt->SetData(2, petnumber);
         CharacterDatabase.Execute(stmt);
 
         SendStableResult(STABLE_SUCCESS_UNSTABLE);
@@ -877,9 +844,9 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
         }
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + std::distance(petStable->StabledPets.begin(), stabledPet)));
-        stmt->setUInt32(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petStable->UnslottedPets[0].PetNumber);
+        stmt->SetData(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + std::distance(petStable->StabledPets.begin(), stabledPet)));
+        stmt->SetData(1, _player->GetGUID().GetCounter());
+        stmt->SetData(2, petStable->UnslottedPets[0].PetNumber);
         CharacterDatabase.Execute(stmt);
 
         // move unsummoned pet into CurrentPet slot so that it gets moved into stable slot later
@@ -904,18 +871,18 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, PET_SAVE_NOT_IN_SLOT);
-        stmt->setUInt32(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petId);
+        stmt->SetData(0, PET_SAVE_NOT_IN_SLOT);
+        stmt->SetData(1, _player->GetGUID().GetCounter());
+        stmt->SetData(2, petId);
         CharacterDatabase.Execute(stmt);
     }
     else
     {
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
-        stmt->setUInt32(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, petId);
+        stmt->SetData(0, PET_SAVE_AS_CURRENT);
+        stmt->SetData(1, _player->GetGUID().GetCounter());
+        stmt->SetData(2, petId);
         CharacterDatabase.Execute(stmt);
 
         SendStableResult(STABLE_SUCCESS_UNSTABLE);
@@ -957,7 +924,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     }
     else
     {
-        LOG_DEBUG("network", "ITEM: Repair all items, npc %s", npcGUID.ToString().c_str());
+        LOG_DEBUG("network", "ITEM: Repair all items, npc {}", npcGUID.ToString());
         _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }

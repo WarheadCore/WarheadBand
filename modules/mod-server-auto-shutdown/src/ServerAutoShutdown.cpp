@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ServerAutoShutdown.h"
-#include "Config.h"
+#include "ModulesConfig.h"
 #include "Duration.h"
 #include "Language.h"
 #include "Log.h"
@@ -23,29 +23,30 @@
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "TaskScheduler.h"
+#include "Timer.h"
 #include "Tokenize.h"
 #include "Util.h"
 #include "World.h"
-#include "Timer.h"
+#include "GameTime.h"
 
 namespace
 {
     // Scheduler - for update
     TaskScheduler scheduler;
 
-    time_t GetNextResetTime(time_t time, uint8 hour, uint8 minute, uint8 second)
+    Seconds GetNextResetTime(Seconds time, uint8 hour, uint8 minute, uint8 second)
     {
-        tm timeLocal = Warhead::Time::TimeBreakdown(time);
+        tm timeLocal = Warhead::Time::TimeBreakdown(time.count());
         timeLocal.tm_hour = hour;
         timeLocal.tm_min = minute;
         timeLocal.tm_sec = second;
 
         time_t midnightLocal = mktime(&timeLocal);
 
-        if (midnightLocal <= time)
+        if (midnightLocal <= time.count())
             midnightLocal += DAY;
 
-        return midnightLocal;
+        return Seconds(midnightLocal);
     }
 }
 
@@ -57,12 +58,12 @@ namespace
 
 void ServerAutoShutdown::Init()
 {
-    _isEnableModule = sConfigMgr->GetOption<bool>("ServerAutoShutdown.Enabled", false);
+    _isEnableModule = MOD_CONF_GET_BOOL("ServerAutoShutdown.Enabled");
 
     if (!_isEnableModule)
         return;
 
-    std::string configTime = sConfigMgr->GetOption<std::string>("ServerAutoShutdown.Time", "04:00:00");
+    std::string configTime = MOD_CONF_GET_STR("ServerAutoShutdown.Time");
     auto const& tokens = Warhead::Tokenize(configTime, ':', false);
 
     if (tokens.size() != 3)
@@ -77,7 +78,7 @@ void ServerAutoShutdown::Init()
     {
         for (auto const& itr : index)
         {
-            if (Warhead::StringTo<uint8>(tokens.at(itr)) == std::nullopt)
+            if (!Warhead::StringTo<uint8>(tokens.at(itr)))
                 return false;
         }
 
@@ -111,17 +112,17 @@ void ServerAutoShutdown::Init()
         _isEnableModule = false;
     }
 
-    auto nowTime = time(nullptr);
-    uint64 nextResetTime = GetNextResetTime(nowTime, hour, minute, second);
-    uint32 diffToShutdown = nextResetTime - static_cast<uint32>(nowTime);
+    Seconds nowTime = GameTime::GetGameTime();
+    Seconds nextResetTime = GetNextResetTime(nowTime, hour, minute, second);
+    Seconds diffToShutdown = nextResetTime - nowTime;
 
-    if (diffToShutdown < 10)
+    if (diffToShutdown < 10s)
     {
         LOG_INFO("modules", "> ServerAutoShutdown: Next time to shutdown < 10 seconds, Set next day");
-        nextResetTime += DAY;
+        nextResetTime += 1_days;
     }
 
-    diffToShutdown = nextResetTime - static_cast<uint32>(nowTime);
+    diffToShutdown = nextResetTime - nowTime;
 
     LOG_INFO("modules", " ");
     LOG_INFO("modules", "> ServerAutoShutdown: System loading");
@@ -131,41 +132,41 @@ void ServerAutoShutdown::Init()
     sWorld->ShutdownCancel();
 
     LOG_INFO("modules", "> ServerAutoShutdown: Next time to shutdown - {}", Warhead::Time::TimeToHumanReadable(nextResetTime));
-    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to shutdown - {}", Warhead::Time::ToTimeString<Seconds>(diffToShutdown));
+    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to shutdown - {}", Warhead::Time::ToTimeString(diffToShutdown));
     LOG_INFO("modules", " ");
 
-    uint32 preAnnounceSeconds = sConfigMgr->GetOption<uint32>("ServerAutoShutdown.PreAnnounce.Seconds", 3600);
-    if (preAnnounceSeconds > DAY)
+    Seconds preAnnounceSeconds = Seconds(MOD_CONF_GET_UINT("ServerAutoShutdown.PreAnnounce.Seconds"));
+    if (preAnnounceSeconds > 1_days)
     {
-        LOG_INFO("modules", "> ServerAutoShutdown: Ahah, how could this happen? Time to preannouce more 1 day? ({}). Set to 1 hour (3600)", preAnnounceSeconds);
-        preAnnounceSeconds = 3600;
+        LOG_INFO("modules", "> ServerAutoShutdown: Ahah, how could this happen? Time to preannouce more 1 day? ({}). Set to 1 hour (3600)", preAnnounceSeconds.count());
+        preAnnounceSeconds = 1h;
     }
 
-    uint32 timeToPreAnnounce = static_cast<uint32>(nextResetTime) - preAnnounceSeconds;
-    uint32 diffToPreAnnounce = timeToPreAnnounce - static_cast<uint32>(nowTime);
+    Seconds timeToPreAnnounce = nextResetTime - preAnnounceSeconds;
+    Seconds diffToPreAnnounce = timeToPreAnnounce - nowTime;
 
     // Ingnore pre announce time and set is left
     if (diffToShutdown < preAnnounceSeconds)
     {
-        timeToPreAnnounce = static_cast<uint32>(nowTime) + 1;
-        diffToPreAnnounce = 1;
+        timeToPreAnnounce = nowTime + 1s;
+        diffToPreAnnounce = 1s;
         preAnnounceSeconds = diffToShutdown;
     }
 
     LOG_INFO("modules", "> ServerAutoShutdown: Next time to pre annouce - {}", Warhead::Time::TimeToHumanReadable(timeToPreAnnounce));
-    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to pre annouce - {}", Warhead::Time::ToTimeString<Seconds>(diffToPreAnnounce));
+    LOG_INFO("modules", "> ServerAutoShutdown: Remaining time to pre annouce - {}", Warhead::Time::ToTimeString(diffToPreAnnounce));
     LOG_INFO("modules", " ");
 
     // Add task for pre shutdown announce
-    scheduler.Schedule(Seconds(diffToPreAnnounce), [preAnnounceSeconds](TaskContext /*context*/)
+    scheduler.Schedule(diffToPreAnnounce, [preAnnounceSeconds](TaskContext /*context*/)
     {
-        std::string preAnnounceMessageFormat = sConfigMgr->GetOption<std::string>("ServerAutoShutdown.PreAnnounce.Message", "[SERVER]: Automated (quick) server restart in %s");
-        std::string message = Warhead::StringFormat(preAnnounceMessageFormat, Warhead::Time::ToTimeString<Seconds>(preAnnounceSeconds));
+        std::string preAnnounceMessageFormat = MOD_CONF_GET_STR("ServerAutoShutdown.PreAnnounce.Message");
+        std::string message = Warhead::StringFormat(preAnnounceMessageFormat, Warhead::Time::ToTimeString(preAnnounceSeconds));
 
         LOG_INFO("modules", "> {}", message);
 
-        sWorld->SendServerMessage(SERVER_MSG_STRING, message.c_str());
-        sWorld->ShutdownServ(preAnnounceSeconds, 0, SHUTDOWN_EXIT_CODE);
+        sWorld->SendServerMessage(SERVER_MSG_STRING, message);
+        sWorld->ShutdownServ(preAnnounceSeconds.count(), 0, SHUTDOWN_EXIT_CODE);
     });
 }
 

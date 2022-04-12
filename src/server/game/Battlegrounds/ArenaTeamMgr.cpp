@@ -16,6 +16,7 @@
  */
 
 #include "ArenaTeamMgr.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "Define.h"
 #include "Language.h"
@@ -23,7 +24,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TextBuilder.h"
 #include "World.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
@@ -158,7 +158,7 @@ void ArenaTeamMgr::LoadArenaTeams()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
+        LOG_WARN("server.loading", ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -221,8 +221,8 @@ void ArenaTeamMgr::DistributeArenaPoints()
         else    // Update database
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ARENA_POINTS);
-            stmt->setUInt32(0, playerItr->second);
-            stmt->setUInt32(1, playerItr->first.GetCounter());
+            stmt->SetData(0, playerItr->second);
+            stmt->SetData(1, playerItr->first.GetCounter());
             trans->Append(stmt);
         }
     }

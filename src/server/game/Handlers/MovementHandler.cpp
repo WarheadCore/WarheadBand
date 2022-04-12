@@ -108,7 +108,7 @@ void WorldSession::HandleMoveWorldportAck()
     if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
         LOG_ERROR("network.opcode", "WORLD: failed to teleport player {} ({}) to map {} because of unknown reason!",
-            GetPlayer()->GetName(), GetPlayer()->GetGUID(), loc.GetMapId());
+            GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString(), loc.GetMapId());
         GetPlayer()->ResetMap();
         GetPlayer()->SetMap(oldMap);
         GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
@@ -127,7 +127,7 @@ void WorldSession::HandleMoveWorldportAck()
             _player->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         }
 
-    if (!_player->getHostileRefMgr().isEmpty())
+    if (!_player->getHostileRefMgr().IsEmpty())
         _player->getHostileRefMgr().deleteReferences(true); // pussywizard: multithreading crashfix
 
     CellCoord pair(Warhead::ComputeCellCoord(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY()));
@@ -170,7 +170,7 @@ void WorldSession::HandleMoveWorldportAck()
 
         if (uint32 inviteInstanceId = _player->GetPendingSpectatorInviteInstanceId())
         {
-            if (Battleground* tbg = sBattlegroundMgr->GetBattleground(inviteInstanceId))
+            if (Battleground* tbg = sBattlegroundMgr->GetBattleground(inviteInstanceId, BATTLEGROUND_TYPE_NONE))
                 tbg->RemoveToBeTeleported(_player->GetGUID());
             _player->SetPendingSpectatorInviteInstanceId(0);
         }
@@ -237,7 +237,7 @@ void WorldSession::HandleMoveWorldportAck()
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 
     // in friendly area
-    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
 
     // resummon pet
@@ -297,7 +297,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
                 plMover->CastSpell(plMover, 2479, true);
 
             // in friendly area
-            else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+            else if (plMover->IsPvP() && !plMover->HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
                 plMover->UpdatePvP(false, false);
         }
     }
@@ -373,7 +373,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     }
 
     // Xinef: do not allow to move with UNIT_FLAG_DISABLE_MOVE
-    if (mover->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+    if (mover->HasUnitFlag(UNIT_FLAG_DISABLE_MOVE))
     {
         // Xinef: skip moving packets
         if (movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING))
@@ -404,7 +404,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             {
                 sScriptMgr->AnticheatSetSkipOnePacketForASH(plrMover, true);
                 sScriptMgr->AnticheatUpdateMovementInfo(plrMover, movementInfo);
-                //TC_LOG_INFO("anticheat", "MovementHandler:: 2 We were teleported, skip packets that were broadcast before teleport");
+                //LOG_INFO("anticheat", "MovementHandler:: 2 We were teleported, skip packets that were broadcast before teleport");
             }
             recvData.rfinish();                 // prevent warnings spam
             return;
@@ -499,6 +499,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ(), plrMover->GetCollisionHeight()));
     }
 
+    if (plrMover)//Hook for OnPlayerMove
+    {
+        sScriptMgr->OnPlayerMove(plrMover, movementInfo, opcode);
+    }
+
     bool jumpopcode = false;
     if (opcode == MSG_MOVE_JUMP)
     {
@@ -565,13 +570,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             {
                 if (plrMover->IsAlive())
                 {
-                    plrMover->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
+                    plrMover->SetPlayerFlag(PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
                     plrMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // player can be alive if GM
                     if (plrMover->IsAlive())
                         plrMover->KillPlayer();
                 }
-                else if (!plrMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS))
+                else if (!plrMover->HasPlayerFlag(PLAYER_FLAGS_IS_OUT_OF_BOUNDS))
                 {
                     GraveyardStruct const* grave = sGraveyard->GetClosestGraveyard(plrMover, plrMover->GetTeamId());
                     if (grave)
@@ -673,7 +678,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket& recvData)
             return;
     }
 
-    if (!_player->GetTransport() && fabs(_player->GetSpeed(move_type) - newspeed) > 0.01f)
+    if (!_player->GetTransport() && std::fabs(_player->GetSpeed(move_type) - newspeed) > 0.01f)
     {
         if (_player->GetSpeed(move_type) > newspeed)         // must be greater - just correct
         {
@@ -701,7 +706,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvData)
     {
         if (_player->m_mover->GetGUID() != guid)
             LOG_ERROR("network.opcode", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is {} and should be {}",
-                guid, _player->m_mover->GetGUID());
+                guid.ToString(), _player->m_mover->GetGUID().ToString());
     }
 }
 
@@ -899,14 +904,14 @@ void WorldSession::ComputeNewClockDelta()
     std::vector<uint32> latencies;
     std::vector<int64> clockDeltasAfterFiltering;
 
-    for (auto pair : _timeSyncClockDeltaQueue.content())
+    for (auto& pair : _timeSyncClockDeltaQueue.content())
         latencies.push_back(pair.second);
 
     uint32 latencyMedian = median(latencies);
     uint32 latencyStandardDeviation = standard_deviation(latencies);
 
     uint32 sampleSizeAfterFiltering = 0;
-    for (auto pair : _timeSyncClockDeltaQueue.content())
+    for (auto& pair : _timeSyncClockDeltaQueue.content())
     {
         if (pair.second <= latencyMedian + latencyStandardDeviation) {
             clockDeltasAfterFiltering.push_back(pair.first);

@@ -66,7 +66,7 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
             if (G3D::fuzzyEq(unit->GetPositionX(), i_x) && G3D::fuzzyEq(unit->GetPositionY(), i_y))
             {
                 i_x += 0.2f * cos(unit->GetOrientation());
-                i_y += 0.2f * sin(unit->GetOrientation());
+                i_y += 0.2f * std::sin(unit->GetOrientation());
             }
 
             init.MoveTo(i_x, i_y, i_z, true);
@@ -78,7 +78,7 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
         if (G3D::fuzzyEq(unit->GetPositionX(), i_x) && G3D::fuzzyEq(unit->GetPositionY(), i_y))
         {
             i_x += 0.2f * cos(unit->GetOrientation());
-            i_y += 0.2f * sin(unit->GetOrientation());
+            i_y += 0.2f * std::sin(unit->GetOrientation());
         }
 
         init.MoveTo(i_x, i_y, i_z, true);
@@ -100,9 +100,19 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
     if (!unit)
         return false;
 
-    if (unit->HasUnitState(UNIT_STATE_NOT_MOVE) || unit->IsMovementPreventedByCasting())
+    if (unit->IsMovementPreventedByCasting())
     {
         unit->StopMoving();
+        return true;
+    }
+
+    if (unit->HasUnitState(UNIT_STATE_NOT_MOVE))
+    {
+        if (!unit->HasUnitState(UNIT_STATE_CHARGING))
+        {
+            unit->StopMoving();
+        }
+
         return true;
     }
 
@@ -153,9 +163,12 @@ void PointMovementGenerator<T>::DoFinalize(T* unit)
     {
         unit->ClearUnitState(UNIT_STATE_CHARGING);
 
-        if (Unit* target = ObjectAccessor::GetUnit(*unit, _chargeTargetGUID))
+        if (_chargeTargetGUID && _chargeTargetGUID == unit->GetTarget())
         {
-            unit->Attack(target, true);
+            if (Unit* target = ObjectAccessor::GetUnit(*unit, _chargeTargetGUID))
+            {
+                unit->Attack(target, true);
+            }
         }
     }
 
@@ -185,6 +198,14 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit
 {
     if (unit->AI())
         unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
+
+    if (Unit* summoner = unit->GetCharmerOrOwner())
+    {
+        if (UnitAI* AI = summoner->GetAI())
+        {
+            AI->SummonMovementInform(unit, POINT_MOTION_TYPE, id);
+        }
+    }
 }
 
 template void PointMovementGenerator<Player>::DoInitialize(Player*);

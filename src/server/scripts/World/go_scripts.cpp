@@ -42,6 +42,7 @@ go_veil_skith_cage
 EndContentData */
 
 #include "CellImpl.h"
+#include "ChatTextBuilder.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -296,7 +297,7 @@ public:
             requireSummon = 0;
             int8 count = urand(1, 3);
             for (int8 i = 0; i < count; ++i)
-                me->SummonCreature(NPC_WINTERFIN_TADPOLE, me->GetPositionX() + cos(2 * M_PI * i / 3.0f) * 0.60f, me->GetPositionY() + sin(2 * M_PI * i / 3.0f) * 0.60f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                me->SummonCreature(NPC_WINTERFIN_TADPOLE, me->GetPositionX() + cos(2 * M_PI * i / 3.0f) * 0.60f, me->GetPositionY() + std::sin(2 * M_PI * i / 3.0f) * 0.60f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
         }
 
         void OnStateChanged(uint32 state, Unit*  /*unit*/) override
@@ -895,7 +896,7 @@ public:
                 if (player->GetQuestStatus(QUEST_THE_FIRST_TRIAL) == QUEST_STATUS_INCOMPLETE)
                 {
                     _playerGUID = player->GetGUID();
-                    me->SetFlag(GAMEOBJECT_FLAGS, 1);
+                    me->SetGameObjectFlag((GameObjectFlags)1);
                     me->RemoveByteFlag(GAMEOBJECT_BYTES_1, 0, 1);
                     _events.ScheduleEvent(EVENT_STILLBLADE_SPAWN, 1000);
                 }
@@ -922,7 +923,7 @@ public:
                 }
                 case EVENT_RESET_BRAZIER:
                 {
-                    me->RemoveFlag(GAMEOBJECT_FLAGS, 1);
+                    me->RemoveGameObjectFlag((GameObjectFlags)1);
                     me->SetByteFlag(GAMEOBJECT_BYTES_1, 0, 1);
                     break;
                 }
@@ -1120,7 +1121,7 @@ public:
         if (player->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
             return false;
 
-        player->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
+        Warhead::Text::SendNotification(player->GetSession(), GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
 
         return true;
     }
@@ -1661,7 +1662,7 @@ public:
         else
         {
             CloseGossipMenuFor(player);
-            player->GetSession()->SendNotification(GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
+            Warhead::Text::SendNotification(player->GetSession(), GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
             return false;
         }
     }
@@ -1891,11 +1892,8 @@ public:
                 {
                 case EVENT_TIME:
                 {
-                    // Get how many times it should ring
-                    time_t t = GameTime::GetGameTime().count();
-                    tm local_tm;
                     tzset(); // set timezone for localtime_r() -> fix issues due to daylight time
-                    localtime_r(&t, &local_tm);
+                    tm local_tm = Warhead::Time::TimeBreakdown();
                     uint8 _rings = (local_tm.tm_hour) % 12;
                     _rings = (_rings == 0) ? 12 : _rings; // 00:00 and 12:00
 
@@ -1929,6 +1927,30 @@ public:
     }
 };
 
+/*########
+#### go_duskwither_spire_power_source
+#####*/
+
+enum DuskwitherSpirePowersource
+{
+    NPC_POWER_SOURCE_INVISIBLE_BUNNY = 17984
+};
+
+class go_duskwither_spire_power_source : public GameObjectScript
+{
+public:
+    go_duskwither_spire_power_source() : GameObjectScript("go_duskwither_spire_power_source") {}
+
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    {
+        if (Creature* bunny = go->FindNearestCreature(NPC_POWER_SOURCE_INVISIBLE_BUNNY, 1.0f))
+        {
+            bunny->DespawnOrUnsummon(0ms, 10s);
+        }
+        return false;
+    }
+};
+
 void AddSC_go_scripts()
 {
     // Ours
@@ -1944,6 +1966,7 @@ void AddSC_go_scripts()
     new go_flames();
     new go_heat();
     new go_bear_trap();
+    new go_duskwither_spire_power_source();
 
     // Theirs
     new go_brewfest_music();
@@ -1974,4 +1997,3 @@ void AddSC_go_scripts()
     new go_veil_skith_cage();
     new go_bells();
 }
-

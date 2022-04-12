@@ -19,7 +19,6 @@
 
 #include <cerrno>
 #include <cstdio>
-#include <iostream>
 #include <list>
 #include <map>
 #include <sys/stat.h>

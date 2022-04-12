@@ -28,6 +28,7 @@
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
+#include "TotemPackets.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -207,7 +208,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     {
         pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, nullptr);
         LOG_ERROR("network.opcode", "Possible hacking attempt: Player {} [{}] tried to open item [{}, entry: {}] which is not openable!",
-                       pUser->GetName(), pUser->GetGUID(), item->GetGUID(), proto->ItemId);
+                       pUser->GetName(), pUser->GetGUID().ToString(), item->GetGUID().ToString(), proto->ItemId);
         return;
     }
 
@@ -235,7 +236,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))// wrapped?
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
-        stmt->setUInt32(0, item->GetGUID().GetCounter());
+        stmt->SetData(0, item->GetGUID().GetCounter());
         _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
             .WithPreparedCallback(std::bind(&WorldSession::HandleOpenWrappedItemCallback, this, bagIndex, slot, item->GetGUID().GetCounter(), std::placeholders::_1)));
     }
@@ -267,8 +268,8 @@ void WorldSession::HandleOpenWrappedItemCallback(uint8 bagIndex, uint8 slot, Obj
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     Field* fields = result->Fetch();
-    uint32 entry = fields[0].GetUInt32();
-    uint32 flags = fields[1].GetUInt32();
+    uint32 entry = fields[0].Get<uint32>();
+    uint32 flags = fields[1].Get<uint32>();
 
     item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Empty);
     item->SetEntry(entry);
@@ -279,7 +280,7 @@ void WorldSession::HandleOpenWrappedItemCallback(uint8 bagIndex, uint8 slot, Obj
     GetPlayer()->SaveInventoryAndGoldToDB(trans);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
-    stmt->setUInt32(0, item->GetGUID().GetCounter());
+    stmt->SetData(0, item->GetGUID().GetCounter());
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -578,17 +579,15 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL, true, true, true);
 }
 
-void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)
 {
     // ignore for remote control state
     if (_player->m_mover != _player)
         return;
 
-    uint8 slotId;
+    uint8 slotId = totemDestroyed.Slot;
+    slotId += SUMMON_SLOT_TOTEM;
 
-    recvPacket >> slotId;
-
-    ++slotId;
     if (slotId >= MAX_TOTEM_SLOT)
         return;
 
@@ -627,11 +626,6 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
 
     if (!unit)
         return;
-
-    if (_player->IsHostileTo(unit))
-    {
-        return;
-    }
 
     // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
     if (!unit->IsInWorld())
@@ -695,9 +689,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         // Display items in visible slots
         for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
         {
-            if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
+            if (*itr == EQUIPMENT_SLOT_HEAD && player->HasPlayerFlag(PLAYER_FLAGS_HIDE_HELM))
                 data << uint32(0);
-            else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
+            else if (*itr == EQUIPMENT_SLOT_BACK && player->HasPlayerFlag(PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
             {

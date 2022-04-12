@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Transmogrification.h"
-#include "ScriptMgr.h"
 #include "ModulesConfig.h"
+#include "ScriptMgr.h"
+#include "Transmogrification.h"
 
 class Transmogrification_NPC : public CreatureScript
 {

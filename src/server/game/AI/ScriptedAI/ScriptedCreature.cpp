@@ -256,7 +256,7 @@ void ScriptedAI::DoPlayMusic(uint32 soundId, bool zone)
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
         targets = new ObjectList();
 
-        if (!players.isEmpty())
+        if (!players.IsEmpty())
         {
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
@@ -298,7 +298,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         return nullptr;
 
     //Silenced so we can't cast
-    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+    if (me->HasUnitFlag(UNIT_FLAG_SILENCED))
         return nullptr;
 
     //Using the extended script system we first create a list of viable spells
@@ -496,6 +496,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea()
 
     if (_evadeCheckCooldown == GameTime::GetGameTime().count())
         return false;
+
     _evadeCheckCooldown = GameTime::GetGameTime().count();
 
     if (!CheckEvadeIfOutOfCombatArea())
@@ -703,7 +704,7 @@ void WorldBossAI::_JustDied()
 
 void WorldBossAI::_EnterCombat()
 {
-    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
     if (target)
         AttackStart(target);
 }
@@ -711,7 +712,7 @@ void WorldBossAI::_EnterCombat()
 void WorldBossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
     if (target)
         summon->AI()->AttackStart(target);
 }

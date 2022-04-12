@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "ServerMotd.h"
 #include "StringConvert.h"
+#include "StringFormat.h"
 #include "World.h"
 #include <unordered_map>
 
@@ -35,6 +36,36 @@ namespace
     constexpr auto CONF_DEFAULT_STR = "";
     constexpr auto CONF_DEFAULT_INT = 0;
     constexpr auto CONF_DEFAULT_FLOAT = 1.0f;
+
+    template<typename T>
+    inline std::string GetDefaultValueString(Optional<T> def)
+    {
+        std::string defStr;
+
+        if constexpr (std::is_same_v<T, bool>)
+            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_BOOL : *def);
+        else if constexpr (std::is_integral_v<T>)
+            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_INT : *def);
+        else if constexpr (std::is_floating_point_v<T>)
+            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_FLOAT : *def);
+        else
+            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_STR : *def);
+
+        return defStr;
+    }
+
+    template<typename T>
+    constexpr T GetDefaultValue()
+    {
+        if constexpr (std::is_same_v<T, bool>)
+            return CONF_DEFAULT_BOOL;
+        else if constexpr (std::is_integral_v<T>)
+            return CONF_DEFAULT_INT;
+        else if constexpr (std::is_floating_point_v<T>)
+            return CONF_DEFAULT_FLOAT;
+        else
+            return CONF_DEFAULT_STR;
+    }
 }
 
 GameConfig* GameConfig::instance()
@@ -55,78 +86,29 @@ void GameConfig::Load(bool reload)
 
 // Add option
 template<typename T>
-WH_GAME_API void GameConfig::AddOption(std::string const& optionName, Optional<T> def /*= std::nullopt*/) const
+WH_GAME_API void GameConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/) const
 {
-    static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
+    // copy from string_view
+    std::string option{ optionName };
 
     // Check exist option
-    auto itr = _configOptions.find(optionName);
+    auto const& itr = _configOptions.find(option);
     if (itr != _configOptions.end())
     {
         LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
         return;
     }
 
-    std::string value = Warhead::ToString<T>(sConfigMgr->GetOption<T>(optionName, def == std::nullopt ? CONF_DEFAULT_INT : *def));
-
-    _configOptions.emplace(optionName, value);
-}
-
-template<>
-WH_GAME_API void GameConfig::AddOption<bool>(std::string const& optionName, Optional<bool> def /*= std::nullopt*/) const
-{
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr != _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
-        return;
-    }
-
-    std::string value = Warhead::ToString(sConfigMgr->GetOption<bool>(optionName, def == std::nullopt ? CONF_DEFAULT_BOOL : *def));
-
-    _configOptions.emplace(optionName, value);
-}
-
-template<>
-WH_GAME_API void GameConfig::AddOption<std::string>(std::string const& optionName, Optional<std::string> def /*= std::nullopt*/) const
-{
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr != _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
-        return;
-    }
-
-    std::string value = sConfigMgr->GetOption<std::string>(optionName, def == std::nullopt ? CONF_DEFAULT_STR : *def);
-
-    _configOptions.emplace(optionName, value);
-}
-
-template<>
-WH_GAME_API void GameConfig::AddOption<float>(std::string const& optionName, Optional<float> def /*= std::nullopt*/) const
-{
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr != _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is already exists", optionName);
-        return;
-    }
-
-    std::string value = Warhead::ToString(sConfigMgr->GetOption<float>(optionName, def == std::nullopt ? CONF_DEFAULT_FLOAT : *def));
-
-    _configOptions.emplace(optionName, value);
+    _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, GetDefaultValueString<T>(def)));
 }
 
 // Add option without template
-void GameConfig::AddOption(std::string const& optionName, Optional<std::string> def /*= std::nullopt*/) const
+void GameConfig::AddOption(std::string_view optionName, Optional<std::string> def /*= std::nullopt*/) const
 {
     AddOption<std::string>(optionName, def);
 }
 
-void GameConfig::AddOption(std::initializer_list<std::string> optionList) const
+void GameConfig::AddOption(std::initializer_list<std::string> const& optionList) const
 {
     for (auto const& option : optionList)
         AddOption(option);
@@ -134,154 +116,68 @@ void GameConfig::AddOption(std::initializer_list<std::string> optionList) const
 
 // Get option
 template<typename T>
-WH_GAME_API T GameConfig::GetOption(std::string const& optionName, Optional<T> def /*= std::nullopt*/) const
+WH_GAME_API T GameConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/) const
 {
-    static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
+    // copy from string_view
+    std::string option{ optionName };
 
-    auto retValueDef = def == std::nullopt ? CONF_DEFAULT_INT : *def;
-    std::string defStr = fmt::format("{}", retValueDef);
-
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
+    // Check exist option part 1
+    auto itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
-        return retValueDef;
+        AddOption(optionName, def);
     }
 
-    Optional<T> result = Warhead::StringTo<T>(_configOptions.at(optionName));
+    std::string defStr = GetDefaultValueString(def);
+
+    // Check exist option part 2
+    itr = _configOptions.find(option);
+    if (itr == _configOptions.end())
+    {
+        LOG_FATAL("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
+        return GetDefaultValue<T>();
+    }
+
+    Optional<T> result = {};
+
+    if constexpr (std::is_same_v<T, std::string>)
+        result = _configOptions.at(option);
+    else
+        result = Warhead::StringTo<T>(_configOptions.at(option));
+
     if (!result)
     {
         LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, defStr);
-        return retValueDef;
+        return GetDefaultValue<T>();
     }
 
     return *result;
-}
-
-template<>
-WH_GAME_API bool GameConfig::GetOption<bool>(std::string const& optionName, Optional<bool> def /*= std::nullopt*/) const
-{
-    auto retValueDef = def == std::nullopt ? CONF_DEFAULT_BOOL : *def;
-
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr == _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, retValueDef ? "true" : "false");
-        return retValueDef;
-    }
-
-    Optional<bool> result = Warhead::StringTo<bool>(_configOptions.at(optionName));
-    if (!result)
-    {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, retValueDef ? "true" : "false");
-        return retValueDef;
-    }
-
-    return *result;
-}
-
-template<>
-WH_GAME_API float GameConfig::GetOption<float>(std::string const& optionName, Optional<float> def /*= std::nullopt*/) const
-{
-    auto retValueDef = def == std::nullopt ? CONF_DEFAULT_FLOAT : *def;
-
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr == _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, retValueDef);
-        return retValueDef;
-    }
-
-    Optional<float> result = Warhead::StringTo<float>(_configOptions.at(optionName));
-    if (!result)
-    {
-        LOG_ERROR("server.loading", "> GameConfig: Bad value defined for '{}', use '{}' instead", optionName, retValueDef);
-        return retValueDef;
-    }
-
-    return *result;
-}
-
-template<>
-WH_GAME_API std::string GameConfig::GetOption<std::string>(std::string const& optionName, Optional<std::string> def /*= std::nullopt*/) const
-{
-    auto retValueDef = def == std::nullopt ? CONF_DEFAULT_STR : *def;
-
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr == _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists. Returned ({})", optionName, retValueDef);
-        return retValueDef;
-    }
-
-    return _configOptions.at(optionName);
 }
 
 // Set option
 template<typename T>
-WH_GAME_API void GameConfig::SetOption(std::string const& optionName, T value) const
+WH_GAME_API void GameConfig::SetOption(std::string_view optionName, T value) const
 {
-    static_assert(std::is_integral_v<T> && !std::is_same_v<T, bool>, "Bad config template. Use only integral and no bool");
+    // copy from string_view
+    std::string option{ optionName };
 
     // Check exist option
-    auto itr = _configOptions.find(optionName);
+    auto const& itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
         LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
         return;
     }
 
-    _configOptions.erase(optionName);
-    _configOptions.emplace(optionName, Warhead::ToString(int32(value)));
-}
+    std::string valueStr{};
 
-template<>
-WH_GAME_API void GameConfig::SetOption<bool>(std::string const& optionName, bool value) const
-{
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr == _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
-        return;
-    }
+    if constexpr (std::is_same_v<T, std::string>)
+        valueStr = value;
+    else
+        valueStr = Warhead::ToString(value);
 
-    _configOptions.erase(optionName);
-    _configOptions.emplace(optionName, Warhead::ToString(value));
-}
-
-template<>
-WH_GAME_API void GameConfig::SetOption<std::string>(std::string const& optionName, std::string value) const
-{
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr == _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
-        return;
-    }
-
-    _configOptions.erase(optionName);
-    _configOptions.emplace(optionName, value);
-}
-
-template<>
-WH_GAME_API void GameConfig::SetOption<float>(std::string const& optionName, float value) const
-{
-    // Check exist option
-    auto itr = _configOptions.find(optionName);
-    if (itr == _configOptions.end())
-    {
-        LOG_ERROR("server.loading", "> GameConfig: option ({}) is not exists", optionName);
-        return;
-    }
-
-    _configOptions.erase(optionName);
-    _configOptions.emplace(optionName, Warhead::ToString(value));
+    _configOptions.erase(option);
+    _configOptions.emplace(option, valueStr);
 }
 
 // Loading
@@ -303,436 +199,6 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
 
     _configOptions.clear();
 
-    /*
-     * bool configs
-     */
-    AddOption({ "ActivateWeather",
-    "AddonChannel",
-    "AllFlightPaths",
-    "Allow.IP.Based.Action.Logging",
-    "AllowPlayerCommands",
-    "AllowTickets",
-    "AllowTwoSide.Accounts",
-    "AllowTwoSide.AddFriend",
-    "AllowTwoSide.Interaction.Auction",
-    "AllowTwoSide.Interaction.Calendar",
-    "AllowTwoSide.Interaction.Channel",
-    "AllowTwoSide.Interaction.Chat",
-    "AllowTwoSide.Interaction.Emote",
-    "AllowTwoSide.Interaction.Group",
-    "AllowTwoSide.Interaction.Guild",
-    "AllowTwoSide.Interaction.Mail",
-    "AllowTwoSide.Trade",
-    "AllowTwoSide.WhoList",
-    "AlwaysMaxSkillForLevel",
-    "AlwaysMaxWeaponSkill",
-    "Arena.ArenaSeason.ID",
-    "Arena.ArenaSeason.InProgress",
-    "Arena.AutoDistributePoints",
-    "Arena.QueueAnnouncer.Enable",
-    "Arena.QueueAnnouncer.PlayerOnly",
-    "AutoBroadcast.On",
-    "Battleground.CastDeserter",
-    "Battleground.DisableQuestShareInBG",
-    "Battleground.DisableReadyCheckInBG",
-    "Battleground.GiveXPForKills",
-    "Battleground.QueueAnnouncer.Enable",
-    "Battleground.QueueAnnouncer.PlayerOnly",
-    "Battleground.StoreStatistics.Enable",
-    "Battleground.TrackDeserters.Enable",
-    "Calculate.Creature.Zone.Area.Data",
-    "Calculate.Gameoject.Zone.Area.Data",
-    "Channel.RestrictedLfg",
-    "Channel.SilentlyGMJoin",
-    "Chat.MuteFirstLogin",
-    "ChatFakeMessagePreventing",
-    "CheckGameObjectLoS",
-    "CleanCharacterDB",
-    "CloseIdleConnections",
-    "Console.Enable",
-    "Death.Bones.BattlegroundOrArena",
-    "Death.Bones.World",
-    "Death.CorpseReclaimDelay.PvE",
-    "Death.CorpseReclaimDelay.PvP",
-    "Debug.Arena",
-    "Debug.Battleground",
-    "DeclinedNames",
-    "DeletedCharacterTicketTrace",
-    "DetectPosCollision",
-    "Die.Command.Mode",
-    "DontCacheRandomMovementPaths",
-    "DungeonAccessRequirements.LFGLevelDBCOverride",
-    "DungeonAccessRequirements.PortalAvgIlevelCheck",
-    "DurabilityLoss.InPvP",
-    "EnableLoginAfterDC",
-    "ExternalMail.Enable",
-    "GM.AllowFriend",
-    "GM.AllowInvite",
-    "GM.LowerSecurity",
-    "Guild.AllowMultipleGuildMaster",
-    "Instance.GMSummonPlayer",
-    "Instance.IgnoreLevel",
-    "Instance.IgnoreRaid",
-    "Instance.SharedNormalHeroicId",
-    "IsContinentTransport.Enabled",
-    "IsPreloadedContinentTransport.Enabled",
-    "Item.SetItemTradeable",
-    "ItemDelete.Method",
-    "ItemDelete.Vendor",
-    "LFG.Location.All",
-    "Minigob.Manabonk.Enable",
-    "MoveMaps.Enable",
-    "Mute.AddAfterLogin.Enable",
-    "Network.TcpNodelay",
-    "NoResetTalentsCost",
-    "NpcRegenHPIfTargetIsUnreachable",
-    "OffhandCheckAtSpellUnlearn",
-    "PlayerDump.DisallowOverwrite",
-    "PlayerDump.DisallowPaths",
-    "PlayerSave.Stats.SaveOnlyOnLogout",
-    "PlayerStart.AllReputation",
-    "PlayerStart.AllSpells",
-    "PlayerStart.MapsExplored",
-    "PreloadAllNonInstancedMapGrids",
-    "PreserveCustomChannels",
-    "PvPToken.Enable",
-    "Quests.EnableQuestTracker",
-    "Quests.IgnoreAutoAccept",
-    "Quests.IgnoreAutoComplete",
-    "Quests.IgnoreRaid",
-    "Ra.Enable",
-    "SOAP.Enabled",
-    "SaveRespawnTimeImmediately",
-    "SetAllCreaturesWithWaypointMovementActive",
-    "ShowBanInWorld",
-    "ShowKickInWorld",
-    "ShowMuteInWorld",
-    "SkillChance.Milling",
-    "SkillChance.Prospecting",
-    "TalentsInspecting",
-    "Warden.Enabled",
-    "Wintergrasp.Enable",
-    "vmap.enableHeight",
-    "vmap.enableIndoorCheck",
-    "vmap.enableLOS",
-    "vmap.petLOS",
-    "World.RealmAvailability" });
-
-    /*
-     * string configs
-     */
-    AddOption({ "BindIP",
-    "DataDir",
-    "IPLocationFile",
-    "LogsDir",
-    "Motd",
-    "PacketLogFile",
-    "PidFile",
-    "PlayerStart.String",
-    "Ra.IP",
-    "SOAP.IP" });
-
-    /*
-     * int configs
-     */
-    AddOption({ "AccountInstancesPerHour",
-    "Arena.ArenaStartMatchmakerRating",
-    "Arena.ArenaStartRating",
-    "Arena.RatingDiscardTimer",
-    "ArenaTeam.CharterCost.2v2",
-    "ArenaTeam.CharterCost.3v3",
-    "ArenaTeam.CharterCost.5v5",
-    "AutoBroadcast.Center",
-    "AutoBroadcast.Timer",
-    "Battleground.BerserkingBuffRespawn",
-    "Battleground.InvitationType",
-    "Battleground.PlayerRespawn",
-    "Battleground.PremadeGroupWaitForMatch",
-    "Battleground.QueueAnnouncer.Limit.MinLevel",
-    "Battleground.QueueAnnouncer.Limit.MinPlayers",
-    "Battleground.QueueAnnouncer.SpamProtection.Delay",
-    "Battleground.Random.ResetHour",
-    "Battleground.ReportAFK",
-    "Battleground.ReportAFK.Timer",
-    "Battleground.RestorationBuffRespawn",
-    "Battleground.RewardLoserHonorFirst",
-    "Battleground.RewardLoserHonorLast",
-    "Battleground.RewardWinnerArenaFirst",
-    "Battleground.RewardWinnerArenaLast",
-    "Battleground.RewardWinnerHonorFirst",
-    "Battleground.RewardWinnerHonorLast",
-    "Battleground.SpeedBuffRespawn",
-    "BirthdayTime",
-    "Calendar.DeleteOldEventsHour",
-    "ChangeWeatherInterval",
-    "Channel.ModerationGMLevel",
-    "CharDelete.KeepDays",
-    "CharDelete.Method",
-    "CharDelete.MinLevel",
-    "CharacterCreating.Disabled",
-    "CharacterCreating.Disabled.ClassMask",
-    "CharacterCreating.Disabled.RaceMask",
-    "CharacterCreating.MinLevelForHeroicCharacter",
-    "CharactersPerAccount",
-    "CharactersPerRealm",
-    "Chat.MuteTimeFirstLogin",
-    "ChatFlood.MessageCount",
-    "ChatFlood.MessageDelay",
-    "ChatFlood.MuteTime",
-    "ChatLevelReq.Channel",
-    "ChatLevelReq.Say",
-    "ChatLevelReq.Whisper",
-    "ChatStrictLinkChecking.Kick",
-    "ChatStrictLinkChecking.Severity",
-    "ClientCacheVersion",
-    "Command.LookupMaxResults",
-    "Compression",
-    "Corpse.Decay.ELITE",
-    "Corpse.Decay.NORMAL",
-    "Corpse.Decay.RARE",
-    "Corpse.Decay.RAREELITE",
-    "Corpse.Decay.WORLDBOSS",
-    "CreatureFamilyAssistanceDelay",
-    "CreatureFamilyAssistancePeriod",
-    "CreatureFamilyFleeDelay",
-    "DBC.Locale",
-    "Death.SicknessLevel",
-    "DisableWaterBreath",
-    "DisconnectToleranceInterval",
-    "DungeonAccessRequirements.OptionalStringID",
-    "DungeonAccessRequirements.PrintMode",
-    "DungeonFinder.Expansion",
-    "DungeonFinder.OptionsMask",
-    "Event.Announce",
-    "Expansion",
-    "FFAPvPTimer",
-    "GM.Chat",
-    "GM.InGMList.Level",
-    "GM.InWhoList.Level",
-    "GM.LoginState",
-    "GM.StartLevel",
-    "GM.Visible",
-    "GM.WhisperingTo",
-    "GameType",
-    "Guild.BankEventLogRecordsCount",
-    "Guild.BankInitialTabs",
-    "Guild.BankTabCost0",
-    "Guild.BankTabCost1",
-    "Guild.BankTabCost2",
-    "Guild.BankTabCost3",
-    "Guild.BankTabCost4",
-    "Guild.BankTabCost5",
-    "Guild.CharterCost",
-    "Guild.EventLogRecordsCount",
-    "Guild.ResetHour",
-    "HeroicCharactersPerRealm",
-    "HonorPointsAfterDuel",
-    "ICC.Buff.Alliance",
-    "ICC.Buff.Horde",
-    "Instance.ResetTimeHour",
-    "Instance.ResetTimeRelativeTimestamp",
-    "Instance.UnloadDelay",
-    "InstantFlightPaths",
-    "InstantLogout",
-    "ItemDelete.ItemLevel",
-    "ItemDelete.Quality",
-    "LFG.MaxKickCount",
-    "LevelReq.Auction",
-    "LevelReq.Mail",
-    "LevelReq.Ticket",
-    "LevelReq.Trade",
-    "MailDeliveryDelay",
-    "MapUpdate.Threads",
-    "MapUpdateInterval",
-    "MaxAllowedMMRDrop",
-    "MaxArenaPoints",
-    "MaxCoreStuckTime",
-    "MaxHonorPoints",
-    "MaxOverspeedPings",
-    "MaxPingTime",
-    "MaxPlayerLevel",
-    "MaxPrimaryTradeSkill",
-    "MaxWhoListReturns",
-    "MinCharterName",
-    "MinDualSpecLevel",
-    "MinPetName",
-    "MinPetitionSigns",
-    "MinPlayerName",
-    "MinRecordUpdateTimeDiff",
-    "Network.OutKBuff",
-    "Network.OutUBuff",
-    "Network.Threads",
-    "NpcEvadeIfTargetIsUnreachable",
-    "NpcRegenHPTimeIfTargetIsUnreachable",
-    "PacketSpoof.BanDuration",
-    "PacketSpoof.BanMode",
-    "PacketSpoof.Policy",
-    "PartyLevelReq",
-    "PersistentCharacterCleanFlags",
-    "PlayerLimit",
-    "PlayerSave.Stats.MinLevel",
-    "PlayerSaveInterval",
-    "PreserveCustomChannelDuration",
-    "PreventAFKLogout",
-    "PvPToken.ItemCount",
-    "PvPToken.ItemID",
-    "PvPToken.MapAllowType",
-    "Quests.HighLevelHideDiff",
-    "Quests.LowLevelHideDiff",
-    "Ra.MinLevel",
-    "Ra.Port",
-    "RealmID",
-    "RealmZone",
-    "RecordUpdateTimeDiffInterval",
-    "RecruitAFriend.MaxDifference",
-    "RecruitAFriend.MaxLevel",
-    "SOAP.Port",
-    "Server.LoginInfo",
-    "SessionAddDelay",
-    "SkillChance.Green",
-    "SkillChance.Grey",
-    "SkillChance.MiningSteps",
-    "SkillChance.Orange",
-    "SkillChance.SkinningSteps",
-    "SkillChance.Yellow",
-    "SkillGain.Crafting",
-    "SkillGain.Defense",
-    "SkillGain.Gathering",
-    "SkillGain.Weapon",
-    "SkipCinematics",
-    "SocketTimeOutTime",
-    "SocketTimeOutTimeActive",
-    "StartArenaPoints",
-    "StartHeroicPlayerLevel",
-    "StartHonorPoints",
-    "StartPlayerLevel",
-    "StartPlayerMoney",
-    "StrictPlayerNames",
-    "TeleportTimeoutFar",
-    "TeleportTimeoutNear",
-    "ThreadPool",
-    "ToggleXP.Cost",
-    "UpdateUptimeInterval",
-    "Visibility.GroupMode",
-    "Warden.BanDuration",
-    "Warden.ClientCheckFailAction",
-    "Warden.ClientCheckHoldOff",
-    "Warden.ClientResponseDelay",
-    "Warden.NumLuaChecks",
-    "Warden.NumMemChecks",
-    "Warden.NumOtherChecks",
-    "WaypointMovementStopTimeForPlayer",
-    "Wintergrasp.BattleTimer",
-    "Wintergrasp.CrashRestartTimer",
-    "Wintergrasp.NoBattleTimer",
-    "Wintergrasp.PlayerMax",
-    "Wintergrasp.PlayerMin",
-    "Wintergrasp.PlayerMinLvl",
-    "WorldBossLevelDiff",
-    "WorldServerPort" });
-
-    /*
-     * float configs
-     */
-    AddOption({ "Arena.ArenaLoseRatingModifier",
-    "Arena.ArenaMatchmakerRatingModifier",
-    "Arena.ArenaWinRatingModifier1",
-    "Arena.ArenaWinRatingModifier2",
-    "CreatureFamilyAssistanceRadius",
-    "CreatureFamilyFleeAssistanceRadius",
-    "DurabilityLoss.OnDeath",
-    "DurabilityLossChance.Absorb",
-    "DurabilityLossChance.Block",
-    "DurabilityLossChance.Damage",
-    "DurabilityLossChance.Parry",
-    "GM.TicketSystem.ChanceOfGMSurvey",
-    "ListenRange.Say",
-    "ListenRange.TextEmote",
-    "ListenRange.Yell",
-    "MaxGroupXPDistance",
-    "MaxRecruitAFriendBonusDistance",
-    "MonsterSight",
-    "Rate.ArenaPoints",
-    "Rate.Auction.Cut",
-    "Rate.Auction.Deposit",
-    "Rate.Auction.Time",
-    "Rate.BuyValue.Item.Artifact",
-    "Rate.BuyValue.Item.Epic",
-    "Rate.BuyValue.Item.Heirloom",
-    "Rate.BuyValue.Item.Legendary",
-    "Rate.BuyValue.Item.Normal",
-    "Rate.BuyValue.Item.Poor",
-    "Rate.BuyValue.Item.Rare",
-    "Rate.BuyValue.Item.Uncommon",
-    "Rate.Corpse.Decay.Looted",
-    "Rate.Creature.Aggro",
-    "Rate.Creature.Elite.Elite.Damage",
-    "Rate.Creature.Elite.Elite.HP",
-    "Rate.Creature.Elite.Elite.SpellDamage",
-    "Rate.Creature.Elite.RARE.Damage",
-    "Rate.Creature.Elite.RARE.HP",
-    "Rate.Creature.Elite.RARE.SpellDamage",
-    "Rate.Creature.Elite.RAREELITE.Damage",
-    "Rate.Creature.Elite.RAREELITE.HP",
-    "Rate.Creature.Elite.RAREELITE.SpellDamage",
-    "Rate.Creature.Elite.WORLDBOSS.Damage",
-    "Rate.Creature.Elite.WORLDBOSS.HP",
-    "Rate.Creature.Elite.WORLDBOSS.SpellDamage",
-    "Rate.Creature.Normal.Damage",
-    "Rate.Creature.Normal.HP",
-    "Rate.Creature.Normal.SpellDamage",
-    "Rate.Damage.Fall",
-    "Rate.Drop.Item.Artifact",
-    "Rate.Drop.Item.Epic",
-    "Rate.Drop.Item.Legendary",
-    "Rate.Drop.Item.Normal",
-    "Rate.Drop.Item.Poor",
-    "Rate.Drop.Item.Rare",
-    "Rate.Drop.Item.Referenced",
-    "Rate.Drop.Item.ReferencedAmount",
-    "Rate.Drop.Item.Uncommon",
-    "Rate.Drop.Money",
-    "Rate.Energy",
-    "Rate.Focus",
-    "Rate.Health",
-    "Rate.Honor",
-    "Rate.InstanceResetTime",
-    "Rate.Mana",
-    "Rate.MoveSpeed",
-    "Rate.Pet.LevelXP",
-    "Rate.Rage.Income",
-    "Rate.Rage.Loss",
-    "Rate.RepairCost",
-    "Rate.Reputation.Gain",
-    "Rate.Reputation.LowLevel.Kill",
-    "Rate.Reputation.LowLevel.Quest",
-    "Rate.Reputation.RecruitAFriendBonus",
-    "Rate.Rest.InGame",
-    "Rate.Rest.Offline.InTavernOrCity",
-    "Rate.Rest.Offline.InWilderness",
-    "Rate.RewardBonusMoney",
-    "Rate.RunicPower.Income",
-    "Rate.RunicPower.Loss",
-    "Rate.SellValue.Item.Artifact",
-    "Rate.SellValue.Item.Epic",
-    "Rate.SellValue.Item.Heirloom",
-    "Rate.SellValue.Item.Legendary",
-    "Rate.SellValue.Item.Normal",
-    "Rate.SellValue.Item.Poor",
-    "Rate.SellValue.Item.Rare",
-    "Rate.SellValue.Item.Uncommon",
-    "Rate.Skill.Discovery",
-    "Rate.Talent",
-    "Rate.XP.BattlegroundKill",
-    "Rate.XP.Explore",
-    "Rate.XP.Kill",
-    "Rate.XP.Pet",
-    "Rate.XP.Quest",
-    "TargetPosRecalculateRange",
-    "Visibility.Distance.BGArenas",
-    "Visibility.Distance.Continents",
-    "Visibility.Distance.Instances" });
-
     if (reload)
         AddOption<int32>("ClientCacheVersion");
 
@@ -741,7 +207,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
     {
         for (auto const& [optionName, optionValue] : _notChangeConfigs)
         {
-            int32 configValue = sConfigMgr->GetOption<int32>(optionName, optionValue);
+            int32 configValue = sConfigMgr->GetOption(optionName, optionValue);
 
             if (configValue != optionValue)
                 LOG_ERROR("server.loading", "{} option can't be changed at worldserver.conf reload, using current value ({})", optionName, optionValue);
@@ -750,7 +216,7 @@ void GameConfig::LoadConfigs(bool reload /*= false*/)
         }
     }
 
-    LOG_INFO("server.loading", "> Loaded {} config options", static_cast<uint32>(_configOptions.size()));
+    LOG_INFO("server.loading", "> Loaded {} config options", _configOptions.size());
 }
 
 void GameConfig::CheckOptions(bool reload /*= false*/)
@@ -1105,8 +571,8 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     CheckLogRecordsCount("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
     CheckLogRecordsCount("Guild.BankEventLogRecordsCount", GUILD_BANKLOG_MAX_RECORDS);
 
-    if (CONF_GET_BOOL("PlayerStart.AllSpells"))
-        LOG_WARN("server.loading", "WORLD: WARNING: PlayerStart.AllSpells enabled - may not function as intended!");
+    if (CONF_GET_BOOL("PlayerStart.CustomSpells"))
+        LOG_WARN("server.loading", "WORLD: WARNING: PlayerStart.CustomSpells enabled - may not function as intended!");
 
     tempIntOption = CONF_GET_INT("PvPToken.ItemCount");
     if (tempIntOption < 1)
@@ -1121,10 +587,10 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
 }
 
 #define TEMPLATE_GAME_CONFIG_OPTION(__typename) \
-    template WH_GAME_API void GameConfig::AddOption(std::string const& optionName, Optional<__typename> def /*= std::nullopt*/) const; \
-    template WH_GAME_API __typename GameConfig::GetOption(std::string const& optionName, Optional<__typename> def /*= std::nullopt*/) const; \
-    template WH_GAME_API void GameConfig::SetOption(std::string const& optionName, __typename value) const;
+    template WH_GAME_API __typename GameConfig::GetOption(std::string_view optionName, Optional<__typename> def /*= std::nullopt*/) const; \
+    template WH_GAME_API void GameConfig::SetOption(std::string_view optionName, __typename value) const;
 
+TEMPLATE_GAME_CONFIG_OPTION(bool)
 TEMPLATE_GAME_CONFIG_OPTION(uint8)
 TEMPLATE_GAME_CONFIG_OPTION(int8)
 TEMPLATE_GAME_CONFIG_OPTION(uint16)
@@ -1133,5 +599,7 @@ TEMPLATE_GAME_CONFIG_OPTION(uint32)
 TEMPLATE_GAME_CONFIG_OPTION(int32)
 TEMPLATE_GAME_CONFIG_OPTION(uint64)
 TEMPLATE_GAME_CONFIG_OPTION(int64)
+TEMPLATE_GAME_CONFIG_OPTION(float)
+TEMPLATE_GAME_CONFIG_OPTION(std::string)
 
 #undef TEMPLATE_GAME_CONFIG_OPTION

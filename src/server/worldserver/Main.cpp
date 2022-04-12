@@ -23,7 +23,6 @@
 #include "CliRunnable.h"
 #include "Common.h"
 #include "Config.h"
-#include "Configuration/Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
@@ -33,9 +32,9 @@
 #include "Logo.h"
 #include "MapMgr.h"
 #include "Metric.h"
+#include "ModuleMgr.h"
 #include "ModulesScriptLoader.h"
 #include "MySQLThreading.h"
-#include "ObjectAccessor.h"
 #include "OpenSSLCrypto.h"
 #include "OutdoorPvPMgr.h"
 #include "ProcessPriority.h"
@@ -46,21 +45,21 @@
 #include "ScriptMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
+#include "SystemLog.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include <boost/asio/signal_set.hpp>
-#include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
-#include <iostream>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
-#include "ModuleMgr.h"
-
-#ifdef _WIN32
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
+#include <boost/dll/shared_library.hpp>
+#include <timeapi.h>
+
 char serviceName[] = "worldserver";
 char serviceLongName[] = "WarheadCore world service";
 char serviceDescription[] = "WarheadCore World of Warcraft emulator world service";
@@ -73,11 +72,9 @@ char serviceDescription[] = "WarheadCore World of Warcraft emulator world servic
 int m_ServiceStatus = -1;
 #endif
 
-#ifndef _ACORE_CORE_CONFIG
-#define _ACORE_CORE_CONFIG "worldserver.conf"
+#ifndef _WARHEAD_CORE_CONFIG
+#define _WARHEAD_CORE_CONFIG "worldserver.conf"
 #endif
-
-#define WORLD_SLEEP_CONST 10
 
 class FreezeDetector
 {
@@ -114,14 +111,14 @@ void WorldUpdateLoop();
 /// Print out the usage string for this program on the console.
 void usage(const char* prog)
 {
-    printf("Usage:\n");
-    printf(" %s [<options>]\n", prog);
-    printf("    -c config_file           use config_file as configuration file\n");
+    SYS_LOG_INFO("Usage:");
+    SYS_LOG_INFO(" {} [<options>]", prog);
+    SYS_LOG_INFO("    -c config_file           use config_file as configuration file");
 #ifdef _WIN32
-    printf("    Running as service functions:\n");
-    printf("    --service                run as service\n");
-    printf("    -s install               install service\n");
-    printf("    -s uninstall             uninstall service\n");
+    SYS_LOG_INFO("    Running as service functions:");
+    SYS_LOG_INFO("    --service                run as service");
+    SYS_LOG_INFO("    -s install               install service");
+    SYS_LOG_INFO("    -s uninstall             uninstall service");
 #endif
 }
 
@@ -132,7 +129,7 @@ int main(int argc, char** argv)
     signal(SIGABRT, &Warhead::AbortHandler);
 
     ///- Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_ACORE_CORE_CONFIG);
+    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG);
     int c = 1;
     while (c < argc)
     {
@@ -145,7 +142,7 @@ int main(int argc, char** argv)
         {
             if (++c >= argc)
             {
-                printf("Runtime-Error: -c option requires an input argument");
+                SYS_LOG_ERROR("Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
@@ -153,12 +150,12 @@ int main(int argc, char** argv)
                 configFile = argv[c];
         }
 
-#ifdef _WIN32
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
         if (strcmp(argv[c], "-s") == 0) // Services
         {
             if (++c >= argc)
             {
-                printf("Runtime-Error: -s option requires an input argument");
+                SYS_LOG_ERROR("Runtime-Error: -s option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
@@ -166,18 +163,18 @@ int main(int argc, char** argv)
             if (strcmp(argv[c], "install") == 0)
             {
                 if (WinServiceInstall())
-                    printf("Installing service\n");
+                    SYS_LOG_INFO("Installing service\n");
                 return 1;
             }
             else if (strcmp(argv[c], "uninstall") == 0)
             {
                 if (WinServiceUninstall())
-                    printf("Uninstalling service\n");
+                    SYS_LOG_INFO("Uninstalling service\n");
                 return 1;
             }
             else
             {
-                printf("Runtime-Error: unsupported option %s", argv[c]);
+                SYS_LOG_ERROR("Runtime-Error: unsupported option {}", argv[c]);
                 usage(argv[0]);
                 return 1;
             }
@@ -188,6 +185,47 @@ int main(int argc, char** argv)
 #endif
         ++c;
     }
+
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+    Optional<UINT> newTimerResolution;
+    boost::system::error_code dllError;
+
+    std::shared_ptr<boost::dll::shared_library> winmm(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
+    {
+        try
+        {
+            if (newTimerResolution)
+                lib->get<decltype(timeEndPeriod)>("timeEndPeriod")(*newTimerResolution);
+        }
+        catch (std::exception const&)
+        {
+            // ignore
+        }
+
+        delete lib;
+    });
+
+    if (winmm->is_loaded())
+    {
+        try
+        {
+            auto timeGetDevCapsPtr = winmm->get<decltype(timeGetDevCaps)>("timeGetDevCaps");
+
+            // setup timer resolution
+            TIMECAPS timeResolutionLimits;
+            if (timeGetDevCapsPtr(&timeResolutionLimits, sizeof(TIMECAPS)) == TIMERR_NOERROR)
+            {
+                auto timeBeginPeriodPtr = winmm->get<decltype(timeBeginPeriod)>("timeBeginPeriod");
+                newTimerResolution = std::min(std::max(timeResolutionLimits.wPeriodMin, 1u), timeResolutionLimits.wPeriodMax);
+                timeBeginPeriodPtr(*newTimerResolution);
+            }
+        }
+        catch (std::exception const& e)
+        {
+            SYS_LOG_ERROR("Failed to initialize timer resolution: {}", e.what());
+        }
+    }
+#endif
 
     // Add file and args in config
     sConfigMgr->Configure(configFile, { argv, argv + argc }, CONFIG_FILE_LIST);
@@ -203,7 +241,7 @@ int main(int argc, char** argv)
     Warhead::Logo::Show("worldserver",
         [](std::string_view text)
         {
-            LOG_INFO("server.worldserver", "{}", text);
+            LOG_INFO("server.worldserver", text);
         },
         []()
         {
@@ -281,6 +319,7 @@ int main(int argc, char** argv)
 
     LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();
+    sScriptMgr->OnIoContext(ioContext);
 
     // Start the databases
     if (!StartDB())
@@ -289,7 +328,7 @@ int main(int argc, char** argv)
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
     LoadRealmInfo(*ioContext);
 
@@ -322,6 +361,8 @@ int main(int argc, char** argv)
 
         sOutdoorPvPMgr->Die();                     // unload it before MapMgr
         sMapMgr->UnloadAll();                      // unload all grids (including locked in memory)
+
+        sScriptMgr->OnAfterUnloadAllMaps();
     });
 
     // Start the Remote Access port (acceptor) if enabled
@@ -373,7 +414,7 @@ int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_VERSION_MISMATCH));
 
@@ -418,7 +459,7 @@ int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LOG_INFO("server.worldserver", "Halting process...");
 
@@ -469,7 +510,7 @@ bool StartDB()
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.Execute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
@@ -495,7 +536,7 @@ void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
     // pussywizard: tc query would set online=0 even if logged in on another realm >_>
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
+    LoginDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -578,15 +619,15 @@ void WorldUpdateLoop()
         realCurrTime = getMSTime();
 
         uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+        if (!diff)
+        {
+            // sleep until enough time passes that we can update all timers
+            std::this_thread::sleep_for(1ms);
+            continue;
+        }
 
         sWorld->Update(diff);
         realPrevTime = realCurrTime;
-
-        uint32 executionTimeDiff = getMSTimeDiff(realCurrTime, getMSTime());
-
-        // we know exactly how long it took to update the world, if the update took less than WORLD_SLEEP_CONST, sleep for WORLD_SLEEP_CONST - world update time
-        if (executionTimeDiff < WORLD_SLEEP_CONST)
-            std::this_thread::sleep_for(Milliseconds(WORLD_SLEEP_CONST - executionTimeDiff));
 
 #ifdef _WIN32
         if (m_ServiceStatus == 0)
@@ -654,48 +695,50 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
 
 bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
 {
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
+    QueryResult result = LoginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
     Warhead::Asio::Resolver resolver(ioContext);
 
     Field* fields = result->Fetch();
-    realm.Name = fields[1].GetString();
-    Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
+    realm.Name = fields[1].Get<std::string>();
+    sWorld->SetRealmName(realm.Name);
+
+    Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].Get<std::string>(), "");
     if (!externalAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].GetString());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[2].Get<std::string>());
         return false;
     }
 
     realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(externalAddress->address());
 
-    Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
+    Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].Get<std::string>(), "");
     if (!localAddress)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].GetString());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[3].Get<std::string>());
         return false;
     }
 
     realm.LocalAddress = std::make_unique<boost::asio::ip::address>(localAddress->address());
 
-    Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
+    Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].Get<std::string>(), "");
     if (!localSubmask)
     {
-        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].GetString());
+        LOG_ERROR("server.worldserver", "Could not resolve address {}", fields[4].Get<std::string>());
         return false;
     }
 
     realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(localSubmask->address());
 
-    realm.Port = fields[5].GetUInt16();
-    realm.Type = fields[6].GetUInt8();
-    realm.Flags = RealmFlags(fields[7].GetUInt8());
-    realm.Timezone = fields[8].GetUInt8();
-    realm.AllowedSecurityLevel = AccountTypes(fields[9].GetUInt8());
-    realm.PopulationLevel = fields[10].GetFloat();
-    realm.Build = fields[11].GetUInt32();
+    realm.Port = fields[5].Get<uint16>();
+    realm.Type = fields[6].Get<uint8>();
+    realm.Flags = RealmFlags(fields[7].Get<uint8>());
+    realm.Timezone = fields[8].Get<uint8>();
+    realm.AllowedSecurityLevel = AccountTypes(fields[9].Get<uint8>());
+    realm.PopulationLevel = fields[10].Get<float>();
+    realm.Build = fields[11].Get<uint32>();
     return true;
 }
 

@@ -53,26 +53,26 @@ bool GmTicket::LoadFromDB(Field* fields)
     //  0    1        2       3       4          5        6      7     8     9          10            11         12         13       14        15         16        17        18         19
     // id, type, playerGuid, name, message, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, haveTicket, resolvedBy
     uint8 index = 0;
-    _id                 = fields[  index].GetUInt32();
-    _type               = TicketType(fields[++index].GetUInt8());
-    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt32());
-    _playerName         = fields[++index].GetString();
-    _message            = fields[++index].GetString();
-    _createTime         = fields[++index].GetUInt32();
-    _mapId              = fields[++index].GetUInt16();
-    _posX               = fields[++index].GetFloat();
-    _posY               = fields[++index].GetFloat();
-    _posZ               = fields[++index].GetFloat();
-    _lastModifiedTime   = fields[++index].GetUInt32();
-    _closedBy           = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetInt32());
-    _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetUInt32());
-    _comment            = fields[++index].GetString();
-    _response           = fields[++index].GetString();
-    _completed          = fields[++index].GetBool();
-    _escalatedStatus    = GMTicketEscalationStatus(fields[++index].GetUInt8());
-    _viewed             = fields[++index].GetBool();
-    _needMoreHelp       = fields[++index].GetBool();
-    _resolvedBy         = ObjectGuid::Create<HighGuid::Player>(fields[++index].GetInt32());
+    _id                 = fields[  index].Get<uint32>();
+    _type               = TicketType(fields[++index].Get<uint8>());
+    _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<uint32>());
+    _playerName         = fields[++index].Get<std::string>();
+    _message            = fields[++index].Get<std::string>();
+    _createTime         = fields[++index].Get<uint32>();
+    _mapId              = fields[++index].Get<uint16>();
+    _posX               = fields[++index].Get<float>();
+    _posY               = fields[++index].Get<float>();
+    _posZ               = fields[++index].Get<float>();
+    _lastModifiedTime   = fields[++index].Get<uint32>();
+    _closedBy           = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<int32>());
+    _assignedTo         = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<uint32>());
+    _comment            = fields[++index].Get<std::string>();
+    _response           = fields[++index].Get<std::string>();
+    _completed          = fields[++index].Get<bool>();
+    _escalatedStatus    = GMTicketEscalationStatus(fields[++index].Get<uint8>());
+    _viewed             = fields[++index].Get<bool>();
+    _needMoreHelp       = fields[++index].Get<bool>();
+    _resolvedBy         = ObjectGuid::Create<HighGuid::Player>(fields[++index].Get<int32>());
 
     return true;
 }
@@ -83,26 +83,26 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
     // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
-    stmt->setUInt32(  index, _id);
-    stmt->setUInt8 (++index, uint8(_type));
-    stmt->setUInt32(++index, _playerGuid.GetCounter());
-    stmt->setString(++index, _playerName);
-    stmt->setString(++index, _message);
-    stmt->setUInt32(++index, uint32(_createTime));
-    stmt->setUInt16(++index, _mapId);
-    stmt->setFloat (++index, _posX);
-    stmt->setFloat (++index, _posY);
-    stmt->setFloat (++index, _posZ);
-    stmt->setUInt32(++index, uint32(_lastModifiedTime));
-    stmt->setInt32 (++index, int32(_closedBy.GetCounter()));
-    stmt->setUInt32(++index, _assignedTo.GetCounter());
-    stmt->setString(++index, _comment);
-    stmt->setString(++index, _response);
-    stmt->setBool  (++index, _completed);
-    stmt->setUInt8 (++index, uint8(_escalatedStatus));
-    stmt->setBool  (++index, _viewed);
-    stmt->setBool  (++index, _needMoreHelp);
-    stmt->setInt32 (++index, int32(_resolvedBy.GetCounter()));
+    stmt->SetData(  index, _id);
+    stmt->SetData (++index, uint8(_type));
+    stmt->SetData(++index, _playerGuid.GetCounter());
+    stmt->SetData(++index, _playerName);
+    stmt->SetData(++index, _message);
+    stmt->SetData(++index, uint32(_createTime));
+    stmt->SetData(++index, _mapId);
+    stmt->SetData (++index, _posX);
+    stmt->SetData (++index, _posY);
+    stmt->SetData (++index, _posZ);
+    stmt->SetData(++index, uint32(_lastModifiedTime));
+    stmt->SetData (++index, int32(_closedBy.GetCounter()));
+    stmt->SetData(++index, _assignedTo.GetCounter());
+    stmt->SetData(++index, _comment);
+    stmt->SetData(++index, _response);
+    stmt->SetData  (++index, _completed);
+    stmt->SetData (++index, uint8(_escalatedStatus));
+    stmt->SetData  (++index, _viewed);
+    stmt->SetData  (++index, _needMoreHelp);
+    stmt->SetData (++index, int32(_resolvedBy.GetCounter()));
 
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -110,7 +110,7 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
 void GmTicket::DeleteFromDB()
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
-    stmt->setUInt32(0, _id);
+    stmt->SetData(0, _id);
     CharacterDatabase.Execute(stmt);
 }
 
@@ -164,43 +164,51 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
 {
     time_t curTime = GameTime::GetGameTime().count();
 
-    std::stringstream ss;
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, Warhead::Time::ToTimeString<Seconds>(curTime - _createTime).c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, Warhead::Time::ToTimeString<Seconds>(curTime - _lastModifiedTime).c_str());
+    std::string ss;
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, Warhead::Time::ToTimeString(Seconds(curTime - _createTime))));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, Warhead::Time::ToTimeString(Seconds(curTime - _lastModifiedTime))));
 
     std::string name;
     if (sCharacterCache->GetCharacterNameByGuid(_assignedTo, name))
     {
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name.c_str());
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, name));
     }
 
     if (detailed)
     {
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTMESSAGE, _message.c_str());
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTMESSAGE, _message));
+
         if (!_comment.empty())
-            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTCOMMENT, _comment.c_str());
+            ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTCOMMENT, _comment));
+
         if (!_response.empty())
-            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTRESPONSE, _response.c_str());
+            ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTRESPONSE, _response));
     }
-    return ss.str();
+
+    return ss;
 }
 
 std::string GmTicket::FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName) const
 {
-    std::stringstream ss;
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
+    std::string ss;
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id));
+    ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName));
+
     if (szClosedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName);
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETCLOSED, szClosedName));
+
     if (szAssignedToName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName);
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTASSIGNEDTO, szAssignedToName));
+
     if (szUnassignedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName);
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETLISTUNASSIGNED, szUnassignedName));
+
     if (szDeletedName)
-        ss << handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName);
-    return ss.str();
+        ss.append(handler.PGetParseString(LANG_COMMAND_TICKETDELETED, szDeletedName));
+
+    return ss;
 }
 
 void GmTicket::SetUnassigned()
@@ -246,9 +254,10 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
     std::stringstream ss(log);
     std::stringstream newss;
     std::string line;
+
     while (std::getline(ss, line) && !time.empty())
     {
-        newss << Warhead::Time::ToTimeString<Seconds>(time.front()) << ": " << line << "\n";
+        newss << Warhead::Time::ToTimeString(Seconds(time.front())) << ": " << line << "\n";
         time.pop_front();
     }
 
@@ -315,7 +324,7 @@ void TicketMgr::LoadTickets()
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
+        LOG_WARN("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
 
         return;
     }
@@ -353,7 +362,7 @@ void TicketMgr::LoadSurveys()
 
     uint32 oldMSTime = getMSTime();
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_survey"))
-        _lastSurveyId = (*result)[0].GetUInt32();
+        _lastSurveyId = (*result)[0].Get<uint32>();
 
     LOG_INFO("server.loading", ">> Loaded GM Survey count from database in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");

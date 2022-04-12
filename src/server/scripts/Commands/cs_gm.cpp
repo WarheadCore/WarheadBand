@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Language.h"
@@ -46,13 +47,13 @@ public:
     {
         static ChatCommandTable gmCommandTable =
         {
-            { "chat",    HandleGMChatCommand,       SEC_GAMEMASTER, Console::No },
-            { "fly",     HandleGMFlyCommand,        SEC_GAMEMASTER, Console::No },
-            { "ingame",  HandleGMListIngameCommand, SEC_PLAYER,     Console::Yes },
-            { "list",    HandleGMListFullCommand,   SEC_GAMEMASTER, Console::Yes },
-            { "visible", HandleGMVisibleCommand,    SEC_GAMEMASTER, Console::No },
-            { "on",      HandleGMOnCommand,         SEC_GAMEMASTER, Console::No },
-            { "off",     HandleGMOffCommand,        SEC_GAMEMASTER, Console::No }
+            { "chat",    HandleGMChatCommand,       SEC_GAMEMASTER,     Console::No  },
+            { "fly",     HandleGMFlyCommand,        SEC_GAMEMASTER,     Console::No  },
+            { "ingame",  HandleGMListIngameCommand, SEC_PLAYER,         Console::Yes },
+            { "list",    HandleGMListFullCommand,   SEC_ADMINISTRATOR,  Console::Yes },
+            { "visible", HandleGMVisibleCommand,    SEC_GAMEMASTER,     Console::No  },
+            { "on",      HandleGMOnCommand,         SEC_MODERATOR,      Console::No  },
+            { "off",     HandleGMOffCommand,        SEC_MODERATOR,      Console::No  }
         };
         static ChatCommandTable commandTable =
         {
@@ -69,22 +70,22 @@ public:
             if (!enableArg)
             {
                 if (!AccountMgr::IsPlayerAccount(session->GetSecurity()) && session->GetPlayer()->isGMChat())
-                    session->SendNotification(LANG_GM_CHAT_ON);
+                    Warhead::Text::SendNotification(session, LANG_GM_CHAT_ON);
                 else
-                    session->SendNotification(LANG_GM_CHAT_OFF);
+                    Warhead::Text::SendNotification(session, LANG_GM_CHAT_OFF);
                 return true;
             }
 
             if (*enableArg)
             {
                 session->GetPlayer()->SetGMChat(true);
-                session->SendNotification(LANG_GM_CHAT_ON);
+                Warhead::Text::SendNotification(session, LANG_GM_CHAT_ON);
                 return true;
             }
             else
             {
                 session->GetPlayer()->SetGMChat(false);
-                session->SendNotification(LANG_GM_CHAT_OFF);
+                Warhead::Text::SendNotification(session, LANG_GM_CHAT_OFF);
                 return true;
             }
         }
@@ -133,17 +134,10 @@ public:
                     handler->SendSysMessage(LANG_GMS_ON_SRV);
                     handler->SendSysMessage("========================");
                 }
+
                 std::string const& name = player->GetName();
-                uint8 size = uint8(name.size());
                 uint8 security = playerSec;
-                uint8 max = ((16 - size) / 2);
-                uint8 max2 = max;
-                if ((max + max2 + size) == 16)
-                    max2 = max - 1;
-                if (handler->GetSession())
-                    handler->PSendSysMessage("|    {} GMLevel {}", name, security);
-                else
-                    handler->PSendSysMessage("|%*s{}%*s|   {}  |", max, " ", name, max2, " ", security);
+                handler->PSendSysMessage("|    {} GMLevel {}", name, security);
             }
         }
         if (footer)
@@ -158,8 +152,8 @@ public:
     {
         ///- Get the accounts with GM Level >0
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
-        stmt->setUInt8(0, uint8(SEC_MODERATOR));
-        stmt->setInt32(1, int32(realm.Id.Realm));
+        stmt->SetData(0, uint8(SEC_MODERATOR));
+        stmt->SetData(1, int32(realm.Id.Realm));
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         if (result)
@@ -170,11 +164,11 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                char const* name = fields[0].GetCString();
-                uint8 security = fields[1].GetUInt8();
-                uint8 max = (16 - strlen(name)) / 2;
+                auto name = fields[0].Get<std::string_view>();
+                uint8 security = fields[1].Get<uint8>();
+                uint8 max = (16 - name.length()) / 2;
                 uint8 max2 = max;
-                if ((max + max2 + strlen(name)) == 16)
+                if ((max + max2 + name.length()) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
                     handler->PSendSysMessage("|    {} GMLevel {}", name, security);
@@ -208,14 +202,14 @@ public:
 
             _player->SetGMVisible(true);
             _player->UpdateObjectVisibility();
-            handler->GetSession()->SendNotification(LANG_INVISIBLE_VISIBLE);
+            Warhead::Text::SendNotification(handler->GetSession(), LANG_INVISIBLE_VISIBLE);
         }
         else
         {
             _player->AddAura(VISUAL_AURA, _player);
             _player->SetGMVisible(false);
             _player->UpdateObjectVisibility();
-            handler->GetSession()->SendNotification(LANG_INVISIBLE_INVISIBLE);
+            Warhead::Text::SendNotification(handler->GetSession(), LANG_INVISIBLE_INVISIBLE);
         }
 
         return true;
@@ -225,7 +219,7 @@ public:
     {
         handler->GetPlayer()->SetGameMaster(true);
         handler->GetPlayer()->UpdateTriggerVisibility();
-        handler->GetSession()->SendNotification(LANG_GM_ON);
+        Warhead::Text::SendNotification(handler->GetSession(), LANG_GM_ON);
         return true;
     }
 
@@ -233,7 +227,7 @@ public:
     {
         handler->GetPlayer()->SetGameMaster(false);
         handler->GetPlayer()->UpdateTriggerVisibility();
-        handler->GetSession()->SendNotification(LANG_GM_OFF);
+        Warhead::Text::SendNotification(handler->GetSession(), LANG_GM_OFF);
         return true;
     }
 };

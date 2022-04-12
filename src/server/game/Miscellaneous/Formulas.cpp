@@ -16,6 +16,7 @@
  */
 
 #include "Formulas.h"
+#include "Battleground.h"
 #include "Creature.h"
 #include "GameConfig.h"
 #include "Log.h"
@@ -93,7 +94,32 @@ uint32 Warhead::XP::Gain(Player* player, Unit* unit, bool isBattleGround /*= fal
             xpMod *= creature->GetCreatureTemplate()->ModExperience;
         }
 
-        xpMod *= isBattleGround ? CONF_GET_FLOAT("Rate.XP.BattlegroundKill") : CONF_GET_FLOAT("Rate.XP.Kill");
+        if (isBattleGround)
+        {
+            switch (player->GetMapId())
+            {
+                case MAP_BG_ALTERAC_VALLEY:
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillAV");
+                    break;
+                case MAP_BG_WARSONG_GULCH:
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillWSG");
+                    break;
+                case MAP_BG_ARATHI_BASIN:
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillAB");
+                    break;
+                case MAP_BG_EYE_OF_THE_STORM:
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillEOTS");
+                    break;
+                case MAP_BG_STRAND_OF_THE_ANCIENTS:
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillSOTA");
+                    break;
+                case MAP_BG_ISLE_OF_CONQUEST:
+                    xpMod *= CONF_GET_FLOAT("Rate.XP.BattlegroundKillIC");
+                    break;
+            }
+        }
+        else
+            xpMod *= CONF_GET_FLOAT("Rate.XP.Kill");
 
         // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
         if (creature && creature->m_PlayerDamageReq)

@@ -16,7 +16,9 @@
  */
 
 #include "LFGMgr.h"
+#include "BattlegroundMgr.h"
 #include "CharacterCache.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "DisableMgr.h"
@@ -37,7 +39,6 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SpellAuras.h"
-#include "TextBuilder.h"
 #include "WorldSession.h"
 
 namespace lfg
@@ -74,10 +75,10 @@ namespace lfg
         if (!guid.IsGroup())
             return;
 
-        SetLeader(guid, ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()));
+        SetLeader(guid, ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>()));
 
-        uint32 dungeon = fields[17].GetUInt32();
-        uint8 state = fields[18].GetUInt8();
+        uint32 dungeon = fields[17].Get<uint32>();
+        uint8 state = fields[18].Get<uint8>();
 
         if (!dungeon || !state)
             return;
@@ -101,9 +102,9 @@ namespace lfg
             return;
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_LFG_DATA);
-        stmt->setUInt32(0, guid.GetCounter());
-        stmt->setUInt32(1, GetDungeon(guid));
-        stmt->setUInt32(2, GetState(guid));
+        stmt->SetData(0, guid.GetCounter());
+        stmt->SetData(1, GetDungeon(guid));
+        stmt->SetData(2, GetState(guid));
         CharacterDatabase.Execute(stmt);
     }
 
@@ -131,10 +132,10 @@ namespace lfg
         do
         {
             fields = result->Fetch();
-            uint32 dungeonId = fields[0].GetUInt32();
-            uint32 maxLevel = fields[1].GetUInt8();
-            uint32 firstQuestId = fields[2].GetUInt32();
-            uint32 otherQuestId = fields[3].GetUInt32();
+            uint32 dungeonId = fields[0].Get<uint32>();
+            uint32 maxLevel = fields[1].Get<uint8>();
+            uint32 firstQuestId = fields[2].Get<uint32>();
+            uint32 otherQuestId = fields[3].Get<uint32>();
 
             if (!GetLFGDungeonEntry(dungeonId))
             {
@@ -217,7 +218,7 @@ namespace lfg
         do
         {
             Field* fields = result->Fetch();
-            uint32 dungeonId = fields[0].GetUInt32();
+            uint32 dungeonId = fields[0].Get<uint32>();
             LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
             if (dungeonItr == LfgDungeonStore.end())
             {
@@ -226,10 +227,10 @@ namespace lfg
             }
 
             LFGDungeonData& data = dungeonItr->second;
-            data.x = fields[1].GetFloat();
-            data.y = fields[2].GetFloat();
-            data.z = fields[3].GetFloat();
-            data.o = fields[4].GetFloat();
+            data.x = fields[1].Get<float>();
+            data.y = fields[2].Get<float>();
+            data.z = fields[3].Get<float>();
+            data.o = fields[4].Get<float>();
 
             ++count;
         } while (result->NextRow());
@@ -580,8 +581,7 @@ namespace lfg
                             rDungeonId = (*dungeons.begin());
                             sScriptMgr->OnPlayerQueueRandomDungeon(player, rDungeonId);
                         }
-                        // No break on purpose (Random can only be dungeon or heroic dungeon)
-                        [[fallthrough]];
+                        [[fallthrough]]; // On purpose (Random can only be dungeon or heroic dungeon)
                     case LFG_TYPE_HEROIC:
                     case LFG_TYPE_DUNGEON:
                         if (isRaid)
@@ -608,12 +608,18 @@ namespace lfg
         if (!isRaid && joinData.result == LFG_JOIN_OK)
         {
             // Check player or group member restrictions
-            if (player->InBattleground() || player->InArena() || player->InBattlegroundQueue())
+            if (player->InBattleground() || (player->InBattlegroundQueue() && !CONF_GET_BOOL("JoinBGAndLFG.Enable")))
+            {
                 joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+            }
             else if (player->HasAura(LFG_SPELL_DUNGEON_DESERTER))
+            {
                 joinData.result = LFG_JOIN_DESERTER;
+            }
             else if (dungeons.empty())
+            {
                 joinData.result = LFG_JOIN_NOT_MEET_REQS;
+            }
             else if (grp)
             {
                 if (grp->GetMembersCount() > MAXGROUPSIZE)
@@ -626,9 +632,14 @@ namespace lfg
                         if (Player* plrg = itr->GetSource())
                         {
                             if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
+                            {
                                 joinData.result = LFG_JOIN_PARTY_DESERTER;
-                            else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
+                            }
+                            else if (plrg->InBattleground() || (plrg->InBattlegroundQueue() && !CONF_GET_BOOL("JoinBGAndLFG.Enable")))
+                            {
                                 joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+                            }
+
                             ++memberCount;
                             players.insert(plrg->GetGUID());
                         }
@@ -968,8 +979,10 @@ namespace lfg
                 m_raidBrowserUpdateTimer[team] = 0;
         }
 
-        if (getMSTimeDiff(getMSTime(), getMSTime()) > (70 * 7) / 5) // prevent lagging
+        if (GetMSTimeDiff(GameTime::GetGameTimeMS(), GetTimeMS()) > 98ms) // prevent lagging
+        {
             return;
+        }
 
         ObjectGuid guid, groupGuid, instanceGuid;
         uint8 level, Class, race, talents[3];
@@ -1676,8 +1689,7 @@ namespace lfg
         bool leaderTeleportIncluded = false;
         for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
-            Player* plr = itr->GetSource();
-            if (plr)
+            if (Player* plr = itr->GetSource())
             {
                 if (grp->IsLeader(plr->GetGUID()) && playersToTeleport.find(plr->GetGUID()) != playersToTeleport.end())
                 {
@@ -1688,6 +1700,19 @@ namespace lfg
                 {
                     teleportLocation = plr;
                     break;
+                }
+
+                // Remove from battleground queues
+                for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+                {
+                    if (BattlegroundQueueTypeId bgQueueTypeId = plr->GetBattlegroundQueueTypeId(i))
+                    {
+                        if (bgQueueTypeId != BATTLEGROUND_QUEUE_NONE)
+                        {
+                            plr->RemoveBattlegroundQueueId(bgQueueTypeId);
+                            sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId).RemovePlayer(plr->GetGUID(), true);
+                        }
+                    }
                 }
             }
         }
@@ -2403,7 +2428,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Group: [{}] ({}) State: {}, oldState: {}",
-                    guid, debugMsg, ps, os);
+                    guid.ToString(), debugMsg, ps, os);
             }*/
 
             data.RestoreState();
@@ -2416,7 +2441,7 @@ namespace lfg
                 std::string const& ps = GetStateString(data.GetState());
                 std::string const& os = GetStateString(data.GetOldState());
                 LOG_TRACE("lfg", "LFGMgr::RestoreState: Player: [{}] ({}) State: {}, oldState: {}",
-                    guid, debugMsg, ps, os);
+                    guid.ToString(), debugMsg, ps, os);
             }*/
             data.RestoreState();
         }

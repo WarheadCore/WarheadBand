@@ -17,12 +17,12 @@
 
 #include "Autobroadcast.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "Language.h"
 #include "Player.h"
 #include "Realm.h"
-#include "TextBuilder.h"
 #include "Tokenize.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()
@@ -39,7 +39,7 @@ void AutobroadcastMgr::Load()
     _autobroadcastsWeights.clear();
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realm.Id.Realm);
+    stmt->SetData(0, realm.Id.Realm);
 
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
@@ -51,10 +51,10 @@ void AutobroadcastMgr::Load()
     do
     {
         Field* fields = result->Fetch();
-        uint8 id = fields[0].GetUInt8();
+        uint8 id = fields[0].Get<uint8>();
 
-        _autobroadcasts[id] = fields[2].GetString();
-        _autobroadcastsWeights[id] = fields[1].GetUInt8();
+        _autobroadcasts[id] = fields[2].Get<std::string>();
+        _autobroadcastsWeights[id] = fields[1].Get<uint8>();
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {} ms", _autobroadcasts.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -107,7 +107,7 @@ void AutobroadcastMgr::Send()
 
     std::string message{ _autobroadcasts[textID] };
 
-    auto SendNotification = [&]()
+    auto SendNotification = [_msg = message, textID]()
     {
         for (auto const& [accountID, session] : sWorld->GetAllSessions())
         {
@@ -117,12 +117,14 @@ void AutobroadcastMgr::Send()
                 return;
             }
 
+            std::string localeMsg{ _msg };
+
             if (auto autoBroadCastLocale = sGameLocale->GetAutoBroadCastLocale(textID))
             {
-                GameLocale::GetLocaleString(autoBroadCastLocale->Text, player->GetSession()->GetSessionDbLocaleIndex(), message);
+                GameLocale::GetLocaleString(autoBroadCastLocale->Text, player->GetSession()->GetSessionDbLocaleIndex(), localeMsg);
             }
 
-            for (std::string_view line : Warhead::Tokenize(message, '\n', true))
+            for (std::string_view line : Warhead::Tokenize(localeMsg, '\n', true))
             {
                 WorldPacket data(SMSG_NOTIFICATION, line.size() + 1);
                 data << line;
@@ -131,7 +133,7 @@ void AutobroadcastMgr::Send()
         }
     };
 
-    auto SendWorldText = [&]()
+    auto SendWorldText = [_msg = message, textID]()
     {
         for (auto const& [accountID, session] : sWorld->GetAllSessions())
         {
@@ -141,16 +143,28 @@ void AutobroadcastMgr::Send()
                 return;
             }
 
-            if (auto autoBroadCastLocale = sGameLocale->GetAutoBroadCastLocale(textID))
+            std::string localeMsg{ _msg };
+
+            if (auto const& autoBroadCastLocale = sGameLocale->GetAutoBroadCastLocale(textID))
             {
-                GameLocale::GetLocaleString(autoBroadCastLocale->Text, player->GetSession()->GetSessionDbLocaleIndex(), message);
+                GameLocale::GetLocaleString(autoBroadCastLocale->Text, player->GetSession()->GetSessionDbLocaleIndex(), localeMsg);
             }
 
-            Warhead::Text::SendWorldText(LANG_AUTO_BROADCAST, message);
+            std::string fmtMessage = Warhead::StringFormat(sGameLocale->GetWarheadString(LANG_AUTO_BROADCAST, player->GetSession()->GetSessionDbLocaleIndex()), localeMsg);
+
+            for (std::string_view line : Warhead::Tokenize(fmtMessage, '\n', true))
+            {
+                WorldPacket data;
+                ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+                player->SendDirectMessage(&data);
+            }
         }
     };
 
     const AnnounceType announceType = static_cast<AnnounceType>(CONF_GET_UINT("AutoBroadcast.Center"));
+
+    // Send before localize
+    LOG_INFO("server.worldserver", "AutoBroadcast: '{}'", message);
 
     switch (announceType)
     {
@@ -161,10 +175,8 @@ void AutobroadcastMgr::Send()
         SendNotification();
         break;
     case AnnounceType::BOTH:
-        SendWorldText();
         SendNotification();
+        SendWorldText();
         break;
     }
-
-    LOG_INFO("server.worldserver", "AutoBroadcast: '{}'", message);
 }

@@ -174,9 +174,6 @@ private:
 #define LOG_TRACE(filterType__, ...) \
     LOG_MSG_BODY(filterType__, LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
 
-#define LOG_CHAR_DUMP(message__, accountId__, guid__, name__) \
-    sLog->outCharDump(message__, accountId__, guid__, name__)
-
 #define LOG_GM(accountId__, ...) \
     sLog->outCommand(accountId__, __VA_ARGS__)
 

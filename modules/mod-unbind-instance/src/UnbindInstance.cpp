@@ -16,14 +16,14 @@
 */
 
 #include "UnbindInstance.h"
-#include "Log.h"
-#include "ModulesConfig.h"
-#include "StringFormat.h"
-#include "ScriptedGossip.h"
-#include "MapMgr.h"
-#include "InstanceSaveMgr.h"
-#include "GameLocale.h"
 #include "Chat.h"
+#include "GameLocale.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
+#include "MapMgr.h"
+#include "ModulesConfig.h"
+#include "ScriptedGossip.h"
+#include "StringFormat.h"
 
 namespace
 {
@@ -182,12 +182,12 @@ void UnbindInstance::LoadCostData()
         Field* fields = result->Fetch();
 
         UnbindCost _UIData;
-        _UIData.ItemID = fields[0].GetUInt32();
-        _UIData.CountForDungeonHeroic   = fields[1].GetUInt32();
-        _UIData.CountForRaid10Normal    = fields[2].GetUInt32();
-        _UIData.CountForRaid25Normal    = fields[3].GetUInt32();
-        _UIData.CountForRaid10Heroic    = fields[4].GetUInt32();
-        _UIData.CountForRaid25Heroic    = fields[5].GetUInt32();
+        _UIData.ItemID = fields[0].Get<uint32>();
+        _UIData.CountForDungeonHeroic   = fields[1].Get<uint32>();
+        _UIData.CountForRaid10Normal    = fields[2].Get<uint32>();
+        _UIData.CountForRaid25Normal    = fields[3].Get<uint32>();
+        _UIData.CountForRaid10Heroic    = fields[4].Get<uint32>();
+        _UIData.CountForRaid25Heroic    = fields[5].Get<uint32>();
 
         // Check item
         if (!IsCorrectItemId(_UIData.ItemID))
@@ -441,6 +441,6 @@ void UnbindInstance::SaveLogUnbind(Player* player, uint32 mapID, uint8 diff, uin
 
     std::string const& info = Warhead::StringFormat("{} ({}). {}. {}", mapName, diffName, player->GetName(), itemName);
 
-    CharacterDatabase.PExecute("INSERT INTO `unbind_instance_logs`(`Info`, `PlayerGuid`, `MapID`, `Difficulty`, `ItemID`) VALUES ('{}', {}, {}, {}, {})",
+    CharacterDatabase.Execute("INSERT INTO `unbind_instance_logs`(`Info`, `PlayerGuid`, `MapID`, `Difficulty`, `ItemID`) VALUES ('{}', {}, {}, {}, {})",
                                info, player->GetGUID().GetCounter(), mapID, diff, itemID);
 }

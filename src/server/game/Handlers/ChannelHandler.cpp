@@ -40,11 +40,19 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
             return;
     }
 
-    if (channelName.empty())
+    if (channelName.empty() || isdigit((unsigned char)channelName[0]))
+    {
+        WorldPacket data(SMSG_CHANNEL_NOTIFY, 1 + channelName.size());
+        data << uint8(CHAT_INVALID_NAME_NOTICE) << channelName;
+        SendPacket(&data);
         return;
+    }
 
-    if (isdigit(channelName[0]))
+    if (password.length() > MAX_CHANNEL_PASS_STR)
+    {
+        LOG_ERROR("network", "Player {} tried to create a channel with a password more than {} characters long - blocked", GetPlayer()->GetGUID().ToString(), MAX_CHANNEL_PASS_STR);
         return;
+    }
 
     if (channelName.size() >= 100 || !DisallowHyperlinksAndMaybeKick(channelName))
     {

@@ -327,7 +327,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return !target->HealthAbovePct(health.percent);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
             if (target && !target->IsAlive())
-                if (const Player* player = target->ToPlayer())
+                if (Player const* player = target->ToPlayer())
                     if (player->GetDeathTimer() != 0)
                         // flag set == must be same team, not set == different team
                         return (player->GetTeamId() == source->GetTeamId()) == (player_dead.own_team_flag != 0);
@@ -420,9 +420,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return source->GetMapId() == map_id.mapId;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY:
         {
-            time_t birthday_start = time_t(CONF_GET_INT("BirthdayTime"));
-            tm birthday_tm;
-            localtime_r(&birthday_start, &birthday_tm);
+            tm birthday_tm = Warhead::Time::TimeBreakdown(CONF_GET_INT("BirthdayTime"));
 
             // exactly N birthday
             birthday_tm.tm_year += birthday_login.nth_birthday;
@@ -446,7 +444,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             }
 
-            TeamId winnerTeam = bg->GetWinner();
+            TeamId winnerTeam = GetTeamId(bg->GetWinner());
             if (winnerTeam == TEAM_NEUTRAL)
             {
                 return false;
@@ -536,11 +534,11 @@ void AchievementMgr::DeleteFromDB(ObjectGuid::LowType lowguid)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
-    stmt->setUInt32(0, lowguid);
+    stmt->SetData(0, lowguid);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS);
-    stmt->setUInt32(0, lowguid);
+    stmt->SetData(0, lowguid);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -556,14 +554,14 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
                 continue;
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
-            stmt->setUInt16(0, iter->first);
-            stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
+            stmt->SetData(0, iter->first);
+            stmt->SetData(1, GetPlayer()->GetGUID().GetCounter());
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
-            stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-            stmt->setUInt16(1, iter->first);
-            stmt->setUInt32(2, uint32(iter->second.date));
+            stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
+            stmt->SetData(1, iter->first);
+            stmt->SetData(2, uint32(iter->second.date));
             trans->Append(stmt);
 
             iter->second.changed = false;
@@ -580,18 +578,18 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
                 continue;
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
-            stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-            stmt->setUInt16(1, iter->first);
+            stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
+            stmt->SetData(1, iter->first);
             trans->Append(stmt);
 
             // pussywizard: insert only for (counter != 0) is very important! this is how criteria of completed achievements gets deleted from db (by setting counter to 0); if conflicted during merge - contact me
             if (iter->second.counter)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT_PROGRESS);
-                stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-                stmt->setUInt16(1, iter->first);
-                stmt->setUInt32(2, iter->second.counter);
-                stmt->setUInt32(3, uint32(iter->second.date));
+                stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
+                stmt->SetData(1, iter->first);
+                stmt->SetData(2, iter->second.counter);
+                stmt->SetData(3, uint32(iter->second.date));
                 trans->Append(stmt);
             }
 
@@ -609,7 +607,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
         do
         {
             Field* fields = achievementResult->Fetch();
-            uint32 achievementid = fields[0].GetUInt16();
+            uint32 achievementid = fields[0].Get<uint16>();
 
             // must not happen: cleanup at server startup in sAchievementMgr->LoadCompletedAchievements()
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementid);
@@ -617,7 +615,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
-            ca.date = time_t(fields[1].GetUInt32());
+            ca.date = time_t(fields[1].Get<uint32>());
             ca.changed = false;
 
             // title achievement rewards are retroactive
@@ -634,9 +632,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
         do
         {
             Field* fields = criteriaResult->Fetch();
-            uint32 id      = fields[0].GetUInt16();
-            uint32 counter = fields[1].GetUInt32();
-            time_t date    = time_t(fields[2].GetUInt32());
+            uint32 id      = fields[0].Get<uint16>();
+            uint32 counter = fields[1].Get<uint32>();
+            time_t date    = time_t(fields[2].Get<uint32>());
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
             if (!criteria)
@@ -646,7 +644,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
 
-                stmt->setUInt16(0, uint16(id));
+                stmt->SetData(0, uint16(id));
 
                 CharacterDatabase.Execute(stmt);
 
@@ -2432,7 +2430,7 @@ bool AchievementGlobalMgr::IsRealmCompleted(AchievementEntry const* achievement)
     // it may allow more than one group to achieve it (highly unlikely)
     // but apparently this is how blizz handles it as well
     if (achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
-        return (std::chrono::system_clock::now() - itr->second) > std::chrono::minutes(1);
+        return (GameTime::GetSystemTime() - itr->second) > 1min;
 
     sScriptMgr->SetRealmCompleted(achievement);
 
@@ -2444,7 +2442,7 @@ void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement
     if (IsRealmCompleted(achievement))
         return;
 
-    m_allCompletedAchievements[achievement->ID] = std::chrono::system_clock::now();
+    m_allCompletedAchievements[achievement->ID] = GameTime::GetSystemTime();
 }
 
 //==========================================================
@@ -2454,7 +2452,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 achievement criteria.");
+        LOG_WARN("server.loading", ">> Loaded 0 achievement criteria.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2603,7 +2601,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     if (sAchievementStore.GetNumRows() == 0)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 achievement references.");
+        LOG_WARN("server.loading", ">> Loaded 0 achievement references.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2634,7 +2632,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2644,7 +2642,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     do
     {
         Field* fields = result->Fetch();
-        uint32 criteria_id = fields[0].GetUInt32();
+        uint32 criteria_id = fields[0].Get<uint32>();
 
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(criteria_id);
 
@@ -2654,8 +2652,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             continue;
         }
 
-        uint32 dataType = fields[1].GetUInt8();
-        std::string scriptName = fields[4].GetString();
+        uint32 dataType = fields[1].Get<uint8>();
+        std::string scriptName = fields[4].Get<std::string>();
         uint32 scriptId = 0;
         if (scriptName.length()) // not empty
         {
@@ -2665,7 +2663,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 scriptId = sObjectMgr->GetScriptId(scriptName);
         }
 
-        AchievementCriteriaData data(dataType, fields[2].GetUInt32(), fields[3].GetUInt32(), scriptId);
+        AchievementCriteriaData data(dataType, fields[2].Get<uint32>(), fields[3].Get<uint32>(), scriptId);
 
         if (!data.IsValid(criteria))
             continue;
@@ -2775,7 +2773,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2784,7 +2782,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     {
         Field* fields = result->Fetch();
 
-        uint16 achievementId = fields[0].GetUInt16();
+        uint16 achievementId = fields[0].Get<uint16>();
         const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
@@ -2793,7 +2791,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
 
-            stmt->setUInt16(0, uint16(achievementId));
+            stmt->SetData(0, uint16(achievementId));
             CharacterDatabase.Execute(stmt);
 
             continue;
@@ -2817,7 +2815,7 @@ void AchievementGlobalMgr::LoadRewards()
 
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2827,7 +2825,7 @@ void AchievementGlobalMgr::LoadRewards()
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
+        uint32 entry = fields[0].Get<uint32>();
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(entry);
         if (!achievement)
         {
@@ -2836,13 +2834,13 @@ void AchievementGlobalMgr::LoadRewards()
         }
 
         AchievementReward reward;
-        reward.titleId[0]   = fields[1].GetUInt32(); // Alliance title
-        reward.titleId[1]   = fields[2].GetUInt32(); // Horde title
-        reward.itemId       = fields[3].GetUInt32();
-        reward.sender       = fields[4].GetUInt32(); // The sender of the mail (a creature from creature_template)
-        reward.subject      = fields[5].GetString();
-        reward.text         = fields[6].GetString(); // Body in DB
-        reward.mailTemplate = fields[7].GetUInt32();
+        reward.titleId[0]   = fields[1].Get<uint32>(); // Alliance title
+        reward.titleId[1]   = fields[2].Get<uint32>(); // Horde title
+        reward.itemId       = fields[3].Get<uint32>();
+        reward.sender       = fields[4].Get<uint32>(); // The sender of the mail (a creature from creature_template)
+        reward.subject      = fields[5].Get<std::string>();
+        reward.text         = fields[6].Get<std::string>(); // Body in DB
+        reward.mailTemplate = fields[7].Get<uint32>();
 
         // Must reward a title or send a mail else, skip it.
         if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)

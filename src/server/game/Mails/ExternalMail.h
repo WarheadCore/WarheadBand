@@ -18,7 +18,9 @@
 #ifndef _EXTERNAL_MAIL_H_
 #define _EXTERNAL_MAIL_H_
 
+#include "AsyncCallbackProcessor.h"
 #include "Common.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
 
@@ -44,13 +46,17 @@ public:
     void Update(uint32 diff);
     void LoadSystem();
 
-    void AddMail(std::string charName, std::string const thanksSubject, std::string const thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry);
+    void AddMail(std::string_view charName, std::string_view thanksSubject, std::string_view thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry);
 
 private:
     void SendMails();
-    void GetMailsFromDB();
+
+    // Async
+    void SendMailsAsync(QueryResult result);
 
     std::unordered_map<uint32, ExMail> _store;
+
+    QueryCallbackProcessor _queryProcessor;
 };
 
 #define sExternalMail ExternalMail::instance()

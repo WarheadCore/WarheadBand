@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blackrock_depths.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "blackrock_depths.h"
 
 enum Spells
 {
@@ -78,7 +78,7 @@ public:
                 switch (eventId)
                 {
                 case SPELL_ARCANE_BOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     {
                         DoCast(target, SPELL_ARCANE_BOLT);
                     }
@@ -97,7 +97,7 @@ public:
                     events.ScheduleEvent(SPELL_ARCANE_EXPLOSION, nextArcaneExplosionTime);
                     break;
                 case SPELL_POLYMORPH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     {
                         DoCast(target, SPELL_POLYMORPH);
                     }

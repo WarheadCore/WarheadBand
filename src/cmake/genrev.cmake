@@ -35,9 +35,15 @@ else()
       COMMAND "${GIT_EXECUTABLE}" describe --long --match 0.1 --dirty=+ --abbrev=12 --always
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_info
-      OUTPUT_STRIP_TRAILING_WHITESPACE
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-    )
+    # Create a full revision-string that we can use
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" rev-parse --verify HEAD
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE rev_hash_full
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
 
     # And grab the commits timestamp
     execute_process(
@@ -45,8 +51,7 @@ else()
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_date
       OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
+      ERROR_QUIET)
 
     # Also retrieve branch name
     execute_process(
@@ -54,8 +59,15 @@ else()
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_branch
       OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
+      ERROR_QUIET)
+
+    # Also retrieve url origin
+    execute_process(
+      COMMAND "${GIT_EXECUTABLE}" config --get remote.origin.url
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE rev_url_origin
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
   endif()
 
   # Last minute check - ensure that we have a proper revision
@@ -67,6 +79,9 @@ else()
     Continuing anyway - note that the versionstring will be set to \"unknown 1970-01-01 00:00:00 (Archived)\"")
     set(rev_date "1970-01-01 00:00:00 +0000")
     set(rev_hash "unknown")
+    set(rev_full_hash "unknown")
+    set(rev_full_hash "unknown")
+    set(rev_url_origin "unknown")
     set(rev_branch "Archived")
     # No valid git commit date, use today
     string(TIMESTAMP rev_date_fallback "%Y-%m-%d %H:%M:%S" UTC)

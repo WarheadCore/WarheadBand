@@ -107,7 +107,7 @@ void GuildMgr::LoadGuilds()
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild definitions. DB table `guild` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild definitions. DB table `guild` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -147,7 +147,7 @@ void GuildMgr::LoadGuilds()
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild ranks. DB table `guild_rank` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild ranks. DB table `guild_rank` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -156,7 +156,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadRankFromDB(fields);
@@ -188,7 +188,7 @@ void GuildMgr::LoadGuilds()
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild members. DB table `guild_member` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild members. DB table `guild_member` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -198,7 +198,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadMemberFromDB(fields);
@@ -224,7 +224,7 @@ void GuildMgr::LoadGuilds()
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -233,7 +233,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankRightFromDB(fields);
@@ -251,14 +251,14 @@ void GuildMgr::LoadGuilds()
     {
         uint32 oldMSTime = getMSTime();
 
-        CharacterDatabase.DirectPExecute("DELETE FROM guild_eventlog WHERE LogGuid > {}", CONF_GET_INT("Guild.EventLogRecordsCount"));
+        CharacterDatabase.DirectExecute("DELETE FROM guild_eventlog WHERE LogGuid > {}", CONF_GET_INT("Guild.EventLogRecordsCount"));
 
         //          0        1        2          3            4            5        6
         QueryResult result = CharacterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -267,7 +267,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadEventLogFromDB(fields);
@@ -286,14 +286,14 @@ void GuildMgr::LoadGuilds()
         uint32 oldMSTime = getMSTime();
 
         // Remove log entries that exceed the number of allowed entries per guild
-        CharacterDatabase.DirectPExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > {}", CONF_GET_INT("Guild.BankEventLogRecordsCount"));
+        CharacterDatabase.DirectExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > {}", CONF_GET_INT("Guild.BankEventLogRecordsCount"));
 
         //          0        1      2        3          4           5            6               7          8
         QueryResult result = CharacterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -302,7 +302,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankEventLogFromDB(fields);
@@ -328,7 +328,7 @@ void GuildMgr::LoadGuilds()
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -337,7 +337,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankTabFromDB(fields);
@@ -365,7 +365,7 @@ void GuildMgr::LoadGuilds()
 
         if (!result)
         {
-            LOG_INFO("server.loading", ">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -374,7 +374,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[11].GetUInt32();
+                uint32 guildId = fields[11].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

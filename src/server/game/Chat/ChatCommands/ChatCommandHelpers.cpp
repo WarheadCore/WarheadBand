@@ -25,7 +25,7 @@ void Warhead::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler
     handler->SetSentErrorMessage(true);
 }
 
-char const* Warhead::Impl::ChatCommands::GetWarheadString(ChatHandler const* handler, WarheadStrings which)
+std::string Warhead::Impl::ChatCommands::GetWarheadString(ChatHandler const* handler, WarheadStrings which)
 {
     return handler->GetWarheadString(which);
 }

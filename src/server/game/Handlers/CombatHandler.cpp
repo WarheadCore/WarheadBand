@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CombatPackets.h"
 #include "CreatureAI.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -70,18 +71,15 @@ void WorldSession::HandleAttackStopOpcode(WorldPacket& /*recvData*/)
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
+void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& packet)
 {
-    uint32 sheathed;
-    recvData >> sheathed;
-
-    if (sheathed >= MAX_SHEATH_STATE)
+    if (packet.CurrentSheathState >= MAX_SHEATH_STATE)
     {
-        LOG_ERROR("network.opcode", "Unknown sheath state {} ??", sheathed);
+        LOG_ERROR("network.opcode", "Unknown sheath state {} ??", packet.CurrentSheathState);
         return;
     }
 
-    GetPlayer()->SetSheath(SheathState(sheathed));
+    _player->SetSheath(SheathState(packet.CurrentSheathState));
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)

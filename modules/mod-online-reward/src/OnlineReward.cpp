@@ -16,14 +16,43 @@
 */
 
 #include "OnlineReward.h"
-#include "Log.h"
-#include "ModulesConfig.h"
-#include "Player.h"
 #include "Chat.h"
 #include "ExternalMail.h"
+#include "Log.h"
 #include "ModuleLocale.h"
-#include "Tokenize.h"
+#include "ModulesConfig.h"
+#include "Player.h"
 #include "StringConvert.h"
+#include "TaskScheduler.h"
+#include "Tokenize.h"
+
+namespace
+{
+    using RewardPerOnline = std::vector<Seconds>;
+    using RewardPerTime = Seconds;
+    using RewardsPair = std::pair<uint32/*item id*/, uint32/*item count*/>;
+    using RewardHistoryPair = std::pair<RewardPerOnline, RewardPerTime>;
+
+    std::unordered_map<int32 /*time*/, RewardsPair> _rewards; // for per online
+    std::unordered_map<ObjectGuid::LowType, RewardHistoryPair> _rewardHistoryDB;
+    TaskScheduler scheduler;
+    bool IsSystemEnable = false;
+
+    void AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryResult result)
+    {
+        if (!result)
+            return;
+
+        auto fields = result->Fetch();
+
+        RewardPerOnline data = {};
+
+        for (auto const& itr : Warhead::Tokenize(fields[0].Get<std::string_view>(), ',', false))
+            data.emplace_back(Seconds(Warhead::StringTo<int32>(itr).value_or(0)));
+
+        _rewardHistoryDB.emplace(lowGuid, std::make_pair(data, RewardPerTime(fields[1].Get<int32>())));
+    }
+}
 
 OnlineReward* OnlineReward::instance()
 {
@@ -33,13 +62,34 @@ OnlineReward* OnlineReward::instance()
 
 void OnlineReward::InitSystem()
 {
-    if (MOD_CONF_GET_BOOL("OnlineReward.Enable") && !MOD_CONF_GET_BOOL("OnlineReward.PerOnline.Enable") && !MOD_CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
+    if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
+        return;
+
+    if (!MOD_CONF_GET_BOOL("OnlineReward.PerOnline.Enable") && !MOD_CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
     {
         sModulesConfig->SetOption<bool>("OnlineReward.Enable", false);
         return;
     }
 
+    IsSystemEnable = true;
+
     LoadRewards();
+
+    scheduler.Schedule(30s, [this](TaskContext context)
+    {
+        RewardPlayers();
+
+        context.Repeat(10s, 1min);
+    });
+}
+
+void OnlineReward::Update(uint32 diff)
+{
+    if (!IsSystemEnable)
+        return;
+
+    scheduler.Update(diff);
+    _queryProcessor.ProcessReadyCallbacks();
 }
 
 void OnlineReward::LoadRewards()
@@ -61,11 +111,9 @@ void OnlineReward::LoadRewards()
     {
         Field* fields = result->Fetch();
 
-        uint32 seconds = fields[0].GetUInt32();
-
-        RewardPlayedTime RPT;
-        RPT.ItemID = fields[1].GetUInt32();
-        RPT.ItemCount = fields[2].GetUInt32();
+        auto seconds = fields[0].Get<int32>();
+        auto itemID = fields[1].Get<uint32>();
+        auto itemCount = fields[2].Get<uint32>();
 
         // Проверка
         if (!seconds)
@@ -74,20 +122,20 @@ void OnlineReward::LoadRewards()
             continue;
         }
 
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RPT.ItemID);
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
         if (!itemTemplate)
         {
-            LOG_ERROR("module", "-> Item with number {} not found. Skip", RPT.ItemID);
+            LOG_ERROR("module", "-> Item with number {} not found. Skip", itemID);
             continue;
         }
 
-        if (!RPT.ItemCount)
+        if (!itemCount)
         {
-            LOG_ERROR("module", "-> Item count for number {} - 0. Set to 1", RPT.ItemID);
-            RPT.ItemCount = 1;
+            LOG_ERROR("module", "-> Item count for number {} - 0. Set to 1", itemID);
+            itemCount = 1;
         }
 
-        _rewards.emplace(seconds, RPT);
+        _rewards.emplace(seconds, std::make_pair(itemID, itemCount));
 
     } while (result->NextRow());
 
@@ -97,28 +145,17 @@ void OnlineReward::LoadRewards()
 
 void OnlineReward::AddRewardHistory(ObjectGuid::LowType lowGuid)
 {
-    if (IsExistHistory(lowGuid))
+    if (!IsSystemEnable)
         return;
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT `RewardedPerOnline`, `RewardedPerHour` FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
-    if (!result)
-        return;
-
-    auto fields = result->Fetch();
-
-    RewardTimeHistory _data;
-
-    for (auto const& itr : Warhead::Tokenize(fields[0].GetStringView(), ',', true))
-        _data.PerOnline.insert(Warhead::StringTo<uint32>(itr).value_or(0));
-
-    _data.PerTime = fields[1].GetUInt32();
-
-    _rewardHistoryDB.emplace(lowGuid, _data);
+    _queryProcessor.AddCallback(
+        CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `RewardedPerOnline`, `RewardedPerHour` FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid)).
+        WithCallback(std::bind(&AddRewardHistoryAsync, lowGuid, std::placeholders::_1)));
 }
 
 void OnlineReward::DeleteRewardHistory(ObjectGuid::LowType lowGuid)
 {
-    if (!IsExistHistory(lowGuid))
+    if (!IsSystemEnable)
         return;
 
     _rewardHistoryDB.erase(lowGuid);
@@ -126,10 +163,7 @@ void OnlineReward::DeleteRewardHistory(ObjectGuid::LowType lowGuid)
 
 void OnlineReward::RewardPlayers()
 {
-    if (!MOD_CONF_GET_BOOL("OnlineReward.Enable"))
-        return;
-
-    auto sessions = sWorld->GetAllSessions();
+    auto const& sessions = sWorld->GetAllSessions();
     if (sessions.empty())
         return;
 
@@ -141,37 +175,39 @@ void OnlineReward::RewardPlayers()
             continue;
 
         if (MOD_CONF_GET_BOOL("OnlineReward.PerOnline.Enable"))
-            RewardPerOnline(player);
+            RewardPlayersPerOnline(player);
 
         if (MOD_CONF_GET_BOOL("OnlineReward.PerTime.Enable"))
-            RewardPerTime(player);
+            RewardPlayersPerTime(player);
     }
 
     // Save data to DB
     SaveRewardDB();
 }
 
-void OnlineReward::RewardPerOnline(Player* player)
+void OnlineReward::RewardPlayersPerOnline(Player* player)
 {
     ChatHandler handler(player->GetSession());
-    uint32 playedTimeSec = player->GetTotalPlayedTime();
+    int32 playedTimeSec = player->GetTotalPlayedTime();
     auto lowGuid = player->GetGUID().GetCounter();
 
-    auto IsRewarded = [&](uint32 rewardSeconds) -> bool
+    auto IsRewarded = [this, lowGuid](int32 rewardSeconds)
     {
         if (!IsExistHistory(lowGuid))
             return false;
 
-        auto const& secondsFind = GetHistoryPerOnline(lowGuid)->find(rewardSeconds);
-        if (secondsFind != GetHistoryPerOnline(lowGuid)->end())
-            return true;
+        for (auto const& seconds : *GetHistoryPerOnline(lowGuid))
+        {
+            if (seconds.count() == rewardSeconds)
+                return true;
+        }
 
         return false;
     };
 
-    for (auto const& [seconds, data] : _rewards)
+    for (auto const& [seconds, items] : _rewards)
     {
-        // Go next is rewarded
+        // Go next if rewarded
         if (IsRewarded(seconds))
             continue;
 
@@ -179,23 +215,23 @@ void OnlineReward::RewardPerOnline(Player* player)
         if (seconds > playedTimeSec)
             continue;
 
-        SendRewardForPlayer(player, data.ItemID, data.ItemCount, seconds);
+        SendRewardForPlayer(player, items.first, items.second, Seconds(seconds));
     }
 }
 
-void OnlineReward::RewardPerTime(Player* player)
+void OnlineReward::RewardPlayersPerTime(Player* player)
 {
     auto lowGuid = player->GetGUID().GetCounter();
-    uint32 LastRewarded = GetHistoryPerTime(lowGuid);
-    uint32 playedTimeSec = player->GetTotalPlayedTime();
-    uint32 diffTime = 0;
+    Seconds lastRewarded = GetHistoryPerTime(lowGuid);
+    Seconds playedTimeSec = Seconds(player->GetTotalPlayedTime());
+    Seconds diffTime = 0s;
 
     while (diffTime < playedTimeSec)
     {
-        if (LastRewarded < diffTime)
+        if (lastRewarded < diffTime)
             SendRewardForPlayer(player, MOD_CONF_GET_INT("OnlineReward.PerTime.ItemID"), MOD_CONF_GET_INT("OnlineReward.PerTime.ItemCount"), diffTime, false);
 
-        diffTime += MOD_CONF_GET_INT("OnlineReward.PerTime.Time");
+        diffTime += Seconds(MOD_CONF_GET_INT("OnlineReward.PerTime.Time"));
     }
 }
 
@@ -204,78 +240,61 @@ void OnlineReward::SaveRewardDB()
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Save data for exist history
-    for (auto const& itr : _rewardHistoryDB)
+    for (auto const& [lowGuid, saveDataPair] : _rewardHistoryDB)
     {
-        uint32 lowGuid = itr.first;
+        auto const& [dataPerOnline, dataPerTime] = saveDataPair;
+        std::string saveDataPerOnline;
 
-        auto GetRewardedData = [&]() -> RewardTimeHistory *
-        {
-            auto const& _historyData = _rewardHistoryDB.find(lowGuid);
-            if (_historyData != _rewardHistoryDB.end())
-                return &_historyData->second;
-
-            return nullptr;
-        };
-
-        auto _saveData = GetRewardedData();
-
-        // Check data
-        if (!_saveData)
-            return;
-
-        uint32 dataPerTime = _saveData->PerTime;
-        std::string dataPerOnline;
-
-        if (!_saveData->PerOnline.empty())
+        if (!dataPerOnline.empty())
         {
             // Add rewarded seconds
-            for (auto const& itr : _saveData->PerOnline)
-                dataPerOnline += std::to_string(itr) + ',';
+            for (auto const& itr : dataPerOnline)
+                saveDataPerOnline += std::to_string(itr.count()) + ',';
 
             // Delete last (,)
-            if (!dataPerOnline.empty())
-                dataPerOnline.erase(dataPerOnline.end() - 1, dataPerOnline.end());
+            if (!saveDataPerOnline.empty())
+                saveDataPerOnline.erase(saveDataPerOnline.end() - 1, saveDataPerOnline.end());
         }
 
         // Delele old data
-        trans->PAppend("DELETE FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
+        trans->Append("DELETE FROM `online_reward_history` WHERE `PlayerGuid` = {}", lowGuid);
 
         // Insert new data
-        trans->PAppend("INSERT INTO `online_reward_history`(`PlayerGuid`, `RewardedPerOnline`, `RewardedPerHour`) VALUES ({}, '{}', {})", lowGuid, dataPerOnline, dataPerTime);
+        trans->Append("INSERT INTO `online_reward_history` (`PlayerGuid`, `RewardedPerOnline`, `RewardedPerHour`) VALUES ({}, '{}', {})", lowGuid, saveDataPerOnline, dataPerTime.count());
     }
 
     CharacterDatabase.CommitTransaction(trans);
 }
 
-std::unordered_set<uint32>* OnlineReward::GetHistoryPerOnline(ObjectGuid::LowType lowGuid)
+std::vector<Seconds>* OnlineReward::GetHistoryPerOnline(ObjectGuid::LowType lowGuid)
 {
     if (_rewardHistoryDB.empty())
         return nullptr;
 
     auto const& itr = _rewardHistoryDB.find(lowGuid);
     if (itr != _rewardHistoryDB.end())
-        return &itr->second.PerOnline;
+        return &itr->second.first;
 
     return nullptr;
 }
 
-uint32 OnlineReward::GetHistoryPerTime(ObjectGuid::LowType lowGuid)
+Seconds OnlineReward::GetHistoryPerTime(ObjectGuid::LowType lowGuid)
 {
     if (_rewardHistoryDB.empty())
-        return 0;
+        return 0s;
 
     auto const& itr = _rewardHistoryDB.find(lowGuid);
     if (itr != _rewardHistoryDB.end())
-        return itr->second.PerTime;
+        return itr->second.second;
 
-    return 0;
+    return 0s;
 }
 
-void OnlineReward::SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, uint32 secondsOnine, bool isPerOnline /*= true*/)
+void OnlineReward::SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, Seconds secondsOnine, bool isPerOnline /*= true*/)
 {
     ChatHandler handler(player->GetSession());
     std::string subject, text;
-    std::string playedTimeSecStr = Warhead::Time::ToTimeString<Seconds>(secondsOnine);
+    std::string playedTimeSecStr = Warhead::Time::ToTimeString(secondsOnine);
     uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
     subject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
@@ -291,31 +310,28 @@ void OnlineReward::SendRewardForPlayer(Player* player, uint32 itemID, uint32 ite
     sModuleLocale->SendPlayerMessage(player, "OR_LOCALE_MESSAGE", playedTimeSecStr);
 }
 
-void OnlineReward::SaveDataForDB(ObjectGuid::LowType lowGuid, uint32 seconds, bool isPerOnline /*= true*/)
+void OnlineReward::SaveDataForDB(ObjectGuid::LowType lowGuid, Seconds seconds, bool isPerOnline /*= true*/)
 {
     auto const& _historyData = _rewardHistoryDB.find(lowGuid);
     if (_historyData == _rewardHistoryDB.end())
     {
-        RewardTimeHistory _data;
+        RewardHistoryPair rewardHistoryPair = {};
 
         if (isPerOnline)
-        {
-            _data.PerOnline.insert(seconds);
-            _data.PerTime = 0;
-        }
+            rewardHistoryPair.first.emplace_back(seconds);
         else
-            _data.PerTime = seconds;
+            rewardHistoryPair.second = seconds;
 
-        _rewardHistoryDB.emplace(lowGuid, _data);
+        _rewardHistoryDB.emplace(lowGuid, rewardHistoryPair);
     }
     else
     {
-        auto& __data = _historyData->second;
+        RewardHistoryPair& rewardHistoryPair = _historyData->second;
 
         if (isPerOnline)
-            __data.PerOnline.emplace(seconds);
+            rewardHistoryPair.first.emplace_back(seconds);
         else
-            __data.PerTime = seconds;
+            rewardHistoryPair.second = seconds;
     }
 }
 

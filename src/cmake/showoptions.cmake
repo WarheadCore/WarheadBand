@@ -152,7 +152,7 @@ if(WITH_STRICT_DATABASE_TYPE_CHECKS)
   message(" *** Validates uses of database Get***() functions from Field class")
   message(" *** invalid calls will result in returning value 0")
   message(" *** NOT COMPATIBLE WITH MARIADB!")
-  add_definitions(-DACORE_STRICT_DATABASE_TYPE_CHECKS)
+  add_definitions(-DWARHEAD_STRICT_DATABASE_TYPE_CHECKS)
 endif()
 
 if(WITHOUT_METRICS)
@@ -179,12 +179,6 @@ if(BUILD_SHARED_LIBS)
   add_definitions(-DWARHEAD_API_USE_DYNAMIC_LINKING)
 
   WarnAboutSpacesInBuildPath()
-endif()
-
-if (USE_CPP_20)
-  message("")
-  message(" *** Enabled C++20 standart")
-  message(" *** Please note that this is an experimental feature!")
 endif()
 
 if (CONFIG_ABORT_INCORRECT_OPTIONS)

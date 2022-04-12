@@ -19,9 +19,9 @@
 #define _GUILD_LEVEL_SYSTEM_H_
 
 #include "Common.h"
+#include "Creature.h"
 #include "GuildMgr.h"
 #include "Player.h"
-#include "Creature.h"
 #include <unordered_map>
 
 uint32 constexpr GLS_ITEMS_COUNT = 3;

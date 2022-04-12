@@ -18,10 +18,8 @@
 #include "ArenaSpectator.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "DynamicObject.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -36,6 +34,12 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
+
+// TODO: this import is not necessary for compilation and marked as unused by the IDE
+//  however, for some reasons removing it would cause a damn linking issue
+//  there is probably some underlying problem with imports which should properly addressed
+//  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
+#include "GridNotifiersImpl.h"
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 static constexpr int32 UPDATE_TARGET_MAP_INTERVAL = 500;
@@ -186,7 +190,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
         {
             AuraApplication* strongestApp = apply ? this : nullptr;
             AuraEffect* strongestEff = apply ? aurEff : nullptr;
-            int32 amount = apply ? abs(aurEff->GetAmount()) : 0;
+            int32 amount = apply ? std::abs(aurEff->GetAmount()) : 0;
             Unit* target = GetTarget();
             Unit::AuraEffectList const& auraList = target->GetAuraEffectsByType(aurEff->GetAuraType());
             for (Unit::AuraEffectList::const_iterator iter = auraList.begin(); iter != auraList.end(); ++iter)
@@ -204,7 +208,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
                 if (!aurApp)
                     continue;
 
-                if (amount < abs((*iter)->GetForcedAmount()))
+                if (amount < std::abs((*iter)->GetForcedAmount()))
                 {
                     // xinef: if we have strongest aura and it is active, turn it off
                     // xinef: otherwise just save new aura;
@@ -217,7 +221,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
                     }
                     strongestApp = aurApp;
                     strongestEff = (*iter);
-                    amount = abs((*iter)->GetAmount());
+                    amount = std::abs((*iter)->GetAmount());
                 }
                 // xinef: itered aura is weaker, deactivate if active
                 else if (aurApp->IsActive((*iter)->GetEffIndex()))
@@ -283,7 +287,7 @@ void AuraApplication::ClientUpdate(bool remove)
     BuildUpdatePacket(data, remove);
 
     if (GetSlot() < MAX_AURAS)
-        if (const Player* plr = GetTarget()->ToPlayer())
+        if (Player const* plr = GetTarget()->ToPlayer())
             if (Aura* aura = GetBase())
                 if (plr->NeedSendSpectatorData() && ArenaSpectator::ShouldSendAura(aura, GetEffectMask(), GetTarget()->GetGUID(), remove))
                     ArenaSpectator::SendCommand_Aura(plr->FindMap(), plr->GetGUID(), "AUR", aura->GetCasterGUID(), aura->GetSpellInfo()->Id, aura->GetSpellInfo()->IsPositive(), aura->GetSpellInfo()->Dispel, aura->GetDuration(), aura->GetMaxDuration(), (aura->GetCharges() > 1 ? aura->GetCharges() : aura->GetStackAmount()), remove);
@@ -522,7 +526,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     if (itr == m_applications.end())
     {
         LOG_ERROR("spells.aura", "Aura::_UnapplyForTarget, target:{}, caster:{}, spell:{} was not found in owners application map!",
-                       target->GetGUID(), caster ? caster->GetGUID().ToString() : "", auraApp->GetBase()->GetSpellInfo()->Id);
+                       target->GetGUID().ToString(), caster ? caster->GetGUID().ToString() : "", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 
@@ -939,6 +943,28 @@ void Aura::RefreshTimers(bool periodicReset /*= false*/)
     }
 }
 
+// xinef: dot's rolling function
+void Aura::RefreshTimersWithMods()
+{
+    Unit* caster = GetCaster();
+    m_maxDuration = CalcMaxDuration();
+    if ((caster && caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo)) || m_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC))
+    {
+        m_maxDuration = int32(m_maxDuration * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+    }
+
+    // xinef: we should take ModSpellDuration into account, but none of the spells using this function is affected by contents of ModSpellDuration
+    RefreshDuration();
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (AuraEffect* aurEff = m_effects[i])
+        {
+            aurEff->CalculatePeriodic(caster, false, false);
+        }
+    }
+}
+
 void Aura::SetCharges(uint8 charges)
 {
     if (m_procCharges == charges)
@@ -1160,7 +1186,7 @@ void Aura::UnregisterSingleTarget()
     Unit* caster = GetCaster();
     if (!caster)
     {
-        LOG_INFO("misc", "Aura::UnregisterSingleTarget (A1) - {}, {}, {}, {}", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName());
+        LOG_INFO("spells", "Aura::UnregisterSingleTarget: (A1) - {}, {}, {}, {}", GetId(), GetOwner()->GetTypeId(), GetOwner()->GetEntry(), GetOwner()->GetName());
         LOG_ERROR("spells", "Aura::UnregisterSingleTarget: No caster was found."); //ASSERT(caster);
     }
     else
@@ -1484,6 +1510,16 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (target->HasAura(58039)) // Glyph of Blurred Speed
                         target->CastSpell(target, 61922, true); // Sprint (waterwalk)
                 break;
+            case SPELLFAMILY_SHAMAN:
+            {
+                // Ghost Wolf Speed (PvP 58 lvl set)
+                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000800 && target->HasAura(22801) && target->getLevel() <= 60)
+                {
+                    int32 bp0 = 15;
+                    target->CastCustomSpell(target, 47017, &bp0, 0, 0, true);
+                }
+                break;
+            }
             case SPELLFAMILY_DEATHKNIGHT:
                 if (!caster)
                     break;
@@ -1782,10 +1818,21 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     // Remove Vanish on stealth remove
                     if (GetId() == 1784)
+                    {
                         target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x800, 0, 0, ObjectGuid::Empty);
+                        target->RemoveAurasDueToSpell(18461);
+                    }
                     break;
                 }
-
+            case SPELLFAMILY_SHAMAN:
+            {
+                // Ghost Wolf Speed (PvP 58 lvl set)
+                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000800)
+                {
+                    target->RemoveAurasDueToSpell(47017);
+                }
+                break;
+            }
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North
                 // Reaping
@@ -1929,11 +1976,11 @@ bool Aura::IsAuraStronger(Aura const* newAura) const
                 continue;
 
             // xinef: assume that all spells are either positive or negative, otherwise they should not be in one group
-            int32 curValue = abs(thisEffect->GetAmount());
-            if (curValue < abs(newEffect->GetAmount()))
+            int32 curValue = std::abs(thisEffect->GetAmount());
+            if (curValue < std::abs(newEffect->GetAmount()))
                 return true;
 
-            if (curValue == abs(newEffect->GetAmount()))
+            if (curValue == std::abs(newEffect->GetAmount()))
                 if(!IsPassive() && !IsPermanent() && GetDuration() < newAura->GetDuration())
                     return true;
         }
@@ -2004,9 +2051,14 @@ bool Aura::CanStackWith(Aura const* existingAura, bool remove) const
         // xinef: check priority before effect mask
         SpellGroupSpecialFlags thisAuraFlag = sSpellMgr->GetSpellGroupSpecialFlags(GetId());
         SpellGroupSpecialFlags existingAuraFlag = sSpellMgr->GetSpellGroupSpecialFlags(existingSpellInfo->Id);
-        if (thisAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1 && existingAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1)
+        if (thisAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1 && thisAuraFlag <= SPELL_GROUP_SPECIAL_FLAG_PRIORITY4 &&
+            existingAuraFlag >= SPELL_GROUP_SPECIAL_FLAG_PRIORITY1 && existingAuraFlag <= SPELL_GROUP_SPECIAL_FLAG_PRIORITY4)
+        {
             if (thisAuraFlag < existingAuraFlag)
+            {
                 return false;
+            }
+        }
 
         // xinef: forced strongest aura in group by flag
         if (stackFlags & SPELL_GROUP_STACK_FLAG_FORCED_STRONGEST)
@@ -2111,7 +2163,7 @@ bool Aura::IsProcOnCooldown() const
 {
     /*if (m_procCooldown)
     {
-        if (m_procCooldown > GameTime::GetGameTime())
+        if (m_procCooldown > GameTime::GetGameTime().count())
             return true;
     }*/
     return false;
@@ -2119,7 +2171,7 @@ bool Aura::IsProcOnCooldown() const
 
 void Aura::AddProcCooldown(uint32 /*msec*/)
 {
-    //m_procCooldown = GameTime::GetGameTime() + msec;
+    //m_procCooldown = GameTime::GetGameTime().count() + msec;
 }
 
 void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo)

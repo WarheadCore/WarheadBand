@@ -19,6 +19,8 @@
 #include "GameConfig.h"
 #include "Log.h"
 #include "Player.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
 #include "World.h"
 
 ChannelMgr::~ChannelMgr()
@@ -52,10 +54,10 @@ void ChannelMgr::LoadChannels()
     uint32 count = 0;
 
     //                                                    0          1     2     3         4          5
-    QueryResult result = CharacterDatabase.PQuery("SELECT channelId, name, team, announce, ownership, password FROM channels ORDER BY channelId ASC");
+    QueryResult result = CharacterDatabase.Query("SELECT channelId, name, team, announce, ownership, password FROM channels ORDER BY channelId ASC");
     if (!result)
     {
-        LOG_INFO("server.loading", ">> Loaded 0 channels. DB table `channels` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 channels. DB table `channels` is empty.");
         return;
     }
 
@@ -64,10 +66,10 @@ void ChannelMgr::LoadChannels()
     {
         Field* fields = result->Fetch();
 
-        uint32 channelDBId = fields[0].GetUInt32();
-        std::string channelName = fields[1].GetString();
-        TeamId team = TeamId(fields[2].GetUInt32());
-        std::string password = fields[5].GetString();
+        uint32 channelDBId = fields[0].Get<uint32>();
+        std::string channelName = fields[1].Get<std::string>();
+        TeamId team = TeamId(fields[2].Get<uint32>());
+        std::string password = fields[5].Get<std::string>();
 
         std::wstring channelWName;
         if (!Utf8toWStr(channelName, channelWName))
@@ -85,18 +87,18 @@ void ChannelMgr::LoadChannels()
             continue;
         }
 
-        Channel* newChannel = new Channel(channelName, 0, channelDBId, team, fields[3].GetUInt8(), fields[4].GetUInt8());
+        Channel* newChannel = new Channel(channelName, 0, channelDBId, team, fields[3].Get<uint8>(), fields[4].Get<uint8>());
         newChannel->SetPassword(password);
         mgr->channels[channelWName] = newChannel;
 
-        if (QueryResult banResult = CharacterDatabase.PQuery("SELECT playerGUID, banTime FROM channels_bans WHERE channelId = {}", channelDBId))
+        if (QueryResult banResult = CharacterDatabase.Query("SELECT playerGUID, banTime FROM channels_bans WHERE channelId = {}", channelDBId))
         {
             do
             {
                 Field* banFields = banResult->Fetch();
                 if (!banFields)
                     break;
-                newChannel->AddBan(ObjectGuid::Create<HighGuid::Player>(banFields[0].GetUInt32()), banFields[1].GetUInt32());
+                newChannel->AddBan(ObjectGuid::Create<HighGuid::Player>(banFields[0].Get<uint32>()), banFields[1].Get<uint32>());
             } while (banResult->NextRow());
         }
 
@@ -108,8 +110,8 @@ void ChannelMgr::LoadChannels()
     for (auto pair : toDelete)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
-        stmt->setString(0, pair.first);
-        stmt->setUInt32(1, pair.second);
+        stmt->SetData(0, pair.first);
+        stmt->SetData(1, pair.second);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -170,7 +172,7 @@ void ChannelMgr::LoadChannelRights()
     QueryResult result = CharacterDatabase.Query("SELECT name, flags, speakdelay, joinmessage, delaymessage, moderators FROM channels_rights");
     if (!result)
     {
-        LOG_INFO("server.loading", ">>  Loaded 0 Channel Rights!");
+        LOG_WARN("server.loading", ">> Loaded 0 Channel Rights!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -180,19 +182,22 @@ void ChannelMgr::LoadChannelRights()
     {
         Field* fields = result->Fetch();
         std::set<uint32> moderators;
-        const char* moderatorList = fields[5].GetCString();
-        if (moderatorList)
+        auto moderatorList = fields[5].Get<std::string_view>();
+
+        if (!moderatorList.empty())
         {
-            Tokenizer tokens(moderatorList, ' ');
-            for (Tokenizer::const_iterator i = tokens.begin(); i != tokens.end(); ++i)
+            for (auto const& itr : Warhead::Tokenize(moderatorList, ' ', false))
             {
-                uint64 moderator_acc = atol(*i);
+                uint64 moderator_acc = Warhead::StringTo<uint64>(itr).value_or(0);
+
                 if (moderator_acc && ((uint32)moderator_acc) == moderator_acc)
+                {
                     moderators.insert((uint32)moderator_acc);
+                }
             }
         }
 
-        SetChannelRightsFor(fields[0].GetString(), fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetString(), fields[4].GetString(), moderators);
+        SetChannelRightsFor(fields[0].Get<std::string>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[3].Get<std::string>(), fields[4].Get<std::string>(), moderators);
 
         ++count;
     } while (result->NextRow());

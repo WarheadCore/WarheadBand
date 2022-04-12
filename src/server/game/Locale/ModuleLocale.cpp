@@ -52,7 +52,8 @@ Optional<std::string> ModuleLocale::GetModuleString(std::string const& entry, ui
     if (itr == _modulesStringStore.end())
     {
         LOG_FATAL("locale.module", "> ModulesLocales: Not found strings for entry ({})", entry);
-        return std::nullopt;
+        ABORT();
+        return {};
     }
 
     return itr->second.GetText(_locale);
@@ -76,9 +77,9 @@ void ModuleLocale::LoadModuleString()
     {
         Field* fields = result->Fetch();
 
-        auto& data = _modulesStringStore[fields[0].GetString()];
+        auto& data = _modulesStringStore[fields[0].Get<std::string>()];
 
-        Warhead::Locale::AddLocaleString(fields[2].GetString(), GetLocaleByName(fields[1].GetString()), data.Content);
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string>(), GetLocaleByName(fields[1].Get<std::string>()), data.Content);
 
     } while (result->NextRow());
 

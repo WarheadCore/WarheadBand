@@ -137,6 +137,7 @@ enum CharacterDatabaseStatements : uint32
 
     CHAR_INS_GUILD,
     CHAR_DEL_GUILD,
+    CHAR_UPD_GUILD_NAME,
     CHAR_INS_GUILD_MEMBER,
     CHAR_DEL_GUILD_MEMBER,
     CHAR_DEL_GUILD_MEMBERS,
@@ -472,6 +473,7 @@ enum CharacterDatabaseStatements : uint32
     CHAR_SEL_CHAR_PET_IDS,
     CHAR_DEL_CHAR_PET_DECLINEDNAME,
     CHAR_ADD_CHAR_PET_DECLINEDNAME,
+    CHAR_SEL_PET_DECLINED_NAME,
     CHAR_UPD_CHAR_PET_NAME,
     CHAR_UPD_CHAR_PET_SLOT_BY_ID,
     CHAR_DEL_CHAR_PET_BY_ID,
@@ -502,6 +504,9 @@ enum CharacterDatabaseStatements : uint32
     CHAR_DEL_RECOVERY_ITEM,
     CHAR_DEL_RECOVERY_ITEM_BY_RECOVERY_ID,
 
+    CHAR_SEL_HONORPOINTS,
+    CHAR_SEL_ARENAPOINTS,
+
     CHAR_INS_RESERVED_PLAYER_NAME,
 
     MAX_CHARACTERDATABASE_STATEMENTS
@@ -515,7 +520,7 @@ public:
     //- Constructors for sync and async connections
     CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
     CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
-    ~CharacterDatabaseConnection();
+    ~CharacterDatabaseConnection() override;
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;

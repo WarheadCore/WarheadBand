@@ -70,7 +70,7 @@ struct npc_brewfest_keg_thrower : public ScriptedAI
         }
     }
 
-    bool CanBeSeen(const Player* player) override
+    bool CanBeSeen(Player const* player) override
     {
         if (player->GetMountID() == RAM_DISPLAY_ID)
             return true;
@@ -343,7 +343,7 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
     void MoveInLineOfSight(Unit*  /*who*/) override {}
     void EnterCombat(Unit*) override {}
 
-    void SpellHit(Unit* caster, const SpellInfo* spellInfo) override
+    void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_REPORT_DEATH)
         {
@@ -382,7 +382,7 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
                         float rand = 8 + rand_norm() * 12;
                         float angle = rand_norm() * 2 * M_PI;
                         float x = 1201.8f + rand * cos(angle);
-                        float y = -4299.6f + rand * sin(angle);
+                        float y = -4299.6f + rand * std::sin(angle);
                         if (Creature* cr = me->SummonCreature(NPC_MOLE_MACHINE_TRIGGER, x, y, 21.3f, 0.0f))
                             cr->CastSpell(cr, SPELL_SPAWN_MOLE_MACHINE, true);
                     }
@@ -391,7 +391,7 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
                         float rand = rand_norm() * 20;
                         float angle = rand_norm() * 2 * M_PI;
                         float x = -5157.1f + rand * cos(angle);
-                        float y = -598.98f + rand * sin(angle);
+                        float y = -598.98f + rand * std::sin(angle);
                         if (Creature* cr = me->SummonCreature(NPC_MOLE_MACHINE_TRIGGER, x, y, 398.11f, 0.0f))
                             cr->CastSpell(cr, SPELL_SPAWN_MOLE_MACHINE, true);
                     }
@@ -423,7 +423,7 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
                         thrown = 0;
                         sayer->Say("SOMEONE TRY THIS SUPER BREW!", LANG_UNIVERSAL);
                         //sayer->CastSpell(sayer, SPELL_CREATE_SUPER_BREW, true);
-                        sayer->SummonCreature(NPC_SUPER_BREW_TRIGGER, sayer->GetPositionX() + 15 * cos(sayer->GetOrientation()), sayer->GetPositionY() + 15 * sin(sayer->GetOrientation()), sayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                        sayer->SummonCreature(NPC_SUPER_BREW_TRIGGER, sayer->GetPositionX() + 15 * cos(sayer->GetOrientation()), sayer->GetPositionY() + 15 * std::sin(sayer->GetOrientation()), sayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                     }
                     else
                     {
@@ -533,11 +533,9 @@ struct npc_dark_iron_attack_generator : public ScriptedAI
 
     bool AllowStart()
     {
-        time_t curtime = GameTime::GetGameTime().count();
-        tm strDate;
-        localtime_r(&curtime, &strDate);
+        auto minutes = Warhead::Time::GetMinutes();
 
-        if (strDate.tm_min == 0 || strDate.tm_min == 30)
+        if (!minutes || minutes == 30)
             return true;
 
         return false;
@@ -735,7 +733,7 @@ struct npc_dark_iron_guzzler : public ScriptedAI
         who->CastSpell(who, SPELL_REPORT_DEATH, true);
     }
 
-    void SpellHit(Unit*  /*caster*/, const SpellInfo* spellInfo) override
+    void SpellHit(Unit*  /*caster*/, SpellInfo const* spellInfo) override
     {
         if (me->IsAlive() && spellInfo->Id == SPELL_PLAYER_MUG)
         {
@@ -1559,7 +1557,7 @@ struct npc_coren_direbrew : public ScriptedAI
     {
         _events.Reset();
         _summons.DespawnAll();
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         me->SetFaction(FACTION_FRIENDLY);
         _events.SetPhase(PHASE_ALL);
 
@@ -1598,7 +1596,7 @@ struct npc_coren_direbrew : public ScriptedAI
         if (action == ACTION_START_FIGHT)
         {
             _events.SetPhase(PHASE_ONE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
             DoZoneInCombat();
 
@@ -1642,7 +1640,7 @@ struct npc_coren_direbrew : public ScriptedAI
         _summons.DespawnAll();
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        if (!players.isEmpty())
+        if (!players.IsEmpty())
         {
             if (Group* group = players.begin()->GetSource()->GetGroup())
             {
@@ -1773,7 +1771,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
         })
         .Schedule(Seconds(2), [this](TaskContext mugChuck)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
             {
                 DoCast(target, SPELL_CHUCK_MUG);
             }
@@ -1832,7 +1830,7 @@ struct npc_direbrew_antagonist : public ScriptedAI
                 Talk(SAY_ANTAGONIST_2);
                 break;
             case ACTION_ANTAGONIST_HOSTILE:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
                 DoZoneInCombat();
                 break;

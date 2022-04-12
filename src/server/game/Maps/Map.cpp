@@ -32,6 +32,7 @@
 #include "MapInstanced.h"
 #include "MapMgr.h"
 #include "Metric.h"
+#include "MiscPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
@@ -42,6 +43,7 @@
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "Vehicle.h"
+#include "Weather.h"
 
 union u_map_magic
 {
@@ -57,6 +59,9 @@ u_map_magic MapLiquidMagic  = { {'M', 'L', 'I', 'Q'} };
 
 static uint16 const holetab_h[4] = { 0x1111, 0x2222, 0x4444, 0x8888 };
 static uint16 const holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
+
+ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), WeatherId(WEATHER_STATE_FINE),
+                                     WeatherGrade(0.0f), OverrideLightId(0), LightFadeInTime(0) { }
 
 Map::~Map()
 {
@@ -116,12 +121,20 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
     {
         if (vmgr->isMapLoadingEnabled())
         {
-            bool exists = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(),  mapid, gx, gy);
-            if (!exists)
+            VMAP::LoadResult result = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(), mapid, gx, gy);
+            std::string name = vmgr->getDirFileName(mapid, gx, gy);
+            switch (result)
             {
-                std::string name = vmgr->getDirFileName(mapid, gx, gy);
-                LOG_ERROR("maps", "VMap file '{}' is missing or points to wrong version of vmap file. Redo vmaps with latest version of vmap_assembler.exe.", (sWorld->GetDataPath() + "vmaps/" + name));
-                return false;
+                case VMAP::LoadResult::Success:
+                    break;
+                case VMAP::LoadResult::FileNotFound:
+                    LOG_ERROR("maps", "VMap file '{}' does not exist", (sWorld->GetDataPath() + "vmaps/" + name));
+                    LOG_ERROR("maps", "Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({}), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/"));
+                    return false;
+                case VMAP::LoadResult::VersionMismatch:
+                    LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name));
+                    LOG_ERROR("maps", "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
+                    return false;
             }
         }
     }
@@ -380,7 +393,7 @@ void Map::SwitchGridContainers(GameObject* obj, bool on)
     if (!IsGridLoaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
         return;
 
-    //TC_LOG_DEBUG(LOG_FILTER_MAPS, "Switch object {} from grid[{}, {}] {}", obj->GetGUID().ToString(), cell.data.Part.grid_x, cell.data.Part.grid_y, on);
+    //LOG_DEBUG(LOG_FILTER_MAPS, "Switch object {} from grid[{}, {}] {}", obj->GetGUID().ToString(), cell.data.Part.grid_x, cell.data.Part.grid_y, on);
     NGridType* ngrid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(ngrid != nullptr);
 
@@ -622,7 +635,7 @@ bool Map::AddToMap(MotionTransport* obj, bool /*checkTransport*/)
     _transports.insert(obj);
 
     // Broadcast creation to players
-    if (!GetPlayers().isEmpty())
+    if (!GetPlayers().IsEmpty())
     {
         for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
@@ -951,7 +964,7 @@ void Map::RemoveFromMap(MotionTransport* obj, bool remove)
         RemoveFromActive(obj);
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.IsEmpty())
     {
         UpdateData data;
         obj->BuildOutOfRangeUpdateBlock(&data);
@@ -2013,7 +2026,7 @@ Transport* Map::GetTransportForPos(uint32 phase, float x, float y, float z, Worl
         if ((*itr)->IsInWorld() && (*itr)->GetExactDistSq(x, y, z) < 75.0f * 75.0f && (*itr)->m_model)
         {
             float dist = 30.0f;
-            bool hit = (*itr)->m_model->intersectRay(r, dist, false, phase);
+            bool hit = (*itr)->m_model->intersectRay(r, dist, false, phase, VMAP::ModelIgnoreFlags::Nothing);
             if (hit)
                 return *itr;
         }
@@ -2023,7 +2036,7 @@ Transport* Map::GetTransportForPos(uint32 phase, float x, float y, float z, Worl
             if (staticTrans->m_model)
             {
                 float dist = 10.0f;
-                bool hit = staticTrans->m_model->intersectRay(r, dist, false, phase);
+                bool hit = staticTrans->m_model->intersectRay(r, dist, false, phase, VMAP::ModelIgnoreFlags::Nothing);
                 if (hit)
                     if (GetHeight(phase, x, y, z, true, 30.0f) < (v.z - dist + 1.0f))
                         return staticTrans->ToTransport();
@@ -2057,7 +2070,7 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
 
             // we are already under the surface or vmap height above map heigt
             // or if the distance of the vmap height is less the land height distance
-            if (vmapHeight > mapHeight || fabs(mapHeight - z) > fabs(vmapHeight - z))
+            if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height
@@ -2430,14 +2443,27 @@ float Map::GetWaterLevel(float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask, LineOfSightChecks checks) const
+bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
-    if ((checks & LINEOFSIGHT_CHECK_VMAP) && !VMAP::VMapFactory::createOrGetVMapMgr()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2))
+    if ((checks & LINEOFSIGHT_CHECK_VMAP) && !VMAP::VMapFactory::createOrGetVMapMgr()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2, ignoreFlags))
+    {
         return false;
+    }
 
-    if (CONF_GET_BOOL("CheckGameObjectLoS") && (checks & LINEOFSIGHT_CHECK_GOBJECT)
-            && !_dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask))
-        return false;
+    if (CONF_GET_BOOL("CheckGameObjectLoS") && (checks & LINEOFSIGHT_CHECK_GOBJECT_ALL))
+    {
+        ignoreFlags = VMAP::ModelIgnoreFlags::Nothing;
+        if (!(checks & LINEOFSIGHT_CHECK_GOBJECT_M2))
+        {
+            ignoreFlags = VMAP::ModelIgnoreFlags::M2;
+        }
+
+        if (!_dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask, ignoreFlags))
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -2795,6 +2821,7 @@ InstanceMap::~InstanceMap()
 {
     delete instance_data;
     instance_data = nullptr;
+    sInstanceSaveMgr->DeleteInstanceSaveIfNeeded(GetInstanceId(), true);
 }
 
 void InstanceMap::InitVisibilityDistance()
@@ -2872,7 +2899,7 @@ Map::EnterState InstanceMap::CannotEnter(Player* player, bool loginCheck)
 
     // cannot enter if instance is in use by another party/soloer that have a permanent save in the same instance id
     PlayerList const& playerList = GetPlayers();
-    if (!playerList.isEmpty())
+    if (!playerList.IsEmpty())
         for (PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
             if (Player* iPlayer = i->GetSource())
             {
@@ -3065,7 +3092,7 @@ bool InstanceMap::Reset(uint8 method, GuidList* globalResetSkipList)
             m_resetAfterUnload = true;
         }
 
-        return m_mapRefMgr.isEmpty();
+        return m_mapRefMgr.IsEmpty();
     }
 
     if (HavePlayers())
@@ -3082,7 +3109,7 @@ bool InstanceMap::Reset(uint8 method, GuidList* globalResetSkipList)
         m_resetAfterUnload = true;
     }
 
-    return m_mapRefMgr.isEmpty();
+    return m_mapRefMgr.IsEmpty();
 }
 
 std::string const& InstanceMap::GetScriptName() const
@@ -3303,10 +3330,10 @@ void Map::SaveCreatureRespawnTime(ObjectGuid::LowType spawnId, time_t& respawnTi
     _creatureRespawnTimes[spawnId] = respawnTime;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt32(1, uint32(respawnTime));
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
+    stmt->SetData(0, spawnId);
+    stmt->SetData(1, uint32(respawnTime));
+    stmt->SetData(2, GetId());
+    stmt->SetData(3, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -3315,9 +3342,9 @@ void Map::RemoveCreatureRespawnTime(ObjectGuid::LowType spawnId)
     _creatureRespawnTimes.erase(spawnId);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt16(1, GetId());
-    stmt->setUInt32(2, GetInstanceId());
+    stmt->SetData(0, spawnId);
+    stmt->SetData(1, GetId());
+    stmt->SetData(2, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -3337,10 +3364,10 @@ void Map::SaveGORespawnTime(ObjectGuid::LowType spawnId, time_t& respawnTime)
     _goRespawnTimes[spawnId] = respawnTime;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt32(1, uint32(respawnTime));
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
+    stmt->SetData(0, spawnId);
+    stmt->SetData(1, uint32(respawnTime));
+    stmt->SetData(2, GetId());
+    stmt->SetData(3, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -3349,39 +3376,39 @@ void Map::RemoveGORespawnTime(ObjectGuid::LowType spawnId)
     _goRespawnTimes.erase(spawnId);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt16(1, GetId());
-    stmt->setUInt32(2, GetInstanceId());
+    stmt->SetData(0, spawnId);
+    stmt->SetData(1, GetId());
+    stmt->SetData(2, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 
 void Map::LoadRespawnTimes()
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS);
-    stmt->setUInt16(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
+    stmt->SetData(0, GetId());
+    stmt->SetData(1, GetInstanceId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid::LowType lowguid = fields[0].GetUInt32();
-            uint32 respawnTime = fields[1].GetUInt32();
+            ObjectGuid::LowType lowguid = fields[0].Get<uint32>();
+            uint32 respawnTime = fields[1].Get<uint32>();
 
             _creatureRespawnTimes[lowguid] = time_t(respawnTime);
         } while (result->NextRow());
     }
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GO_RESPAWNS);
-    stmt->setUInt16(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
+    stmt->SetData(0, GetId());
+    stmt->SetData(1, GetInstanceId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid::LowType lowguid = fields[0].GetUInt32();
-            uint32 respawnTime = fields[1].GetUInt32();
+            ObjectGuid::LowType lowguid = fields[0].Get<uint32>();
+            uint32 respawnTime = fields[1].Get<uint32>();
 
             _goRespawnTimes[lowguid] = time_t(respawnTime);
         } while (result->NextRow());
@@ -3399,13 +3426,13 @@ void Map::DeleteRespawnTimes()
 void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
-    stmt->setUInt16(0, mapId);
-    stmt->setUInt32(1, instanceId);
+    stmt->SetData(0, mapId);
+    stmt->SetData(1, instanceId);
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN_BY_INSTANCE);
-    stmt->setUInt16(0, mapId);
-    stmt->setUInt32(1, instanceId);
+    stmt->SetData(0, mapId);
+    stmt->SetData(1, instanceId);
     CharacterDatabase.Execute(stmt);
 }
 
@@ -3501,7 +3528,7 @@ void Map::LogEncounterFinished(EncounterCreditType type, uint32 creditEntry)
     }
 
     CleanStringForMysqlQuery(playersInfo);
-    CharacterDatabase.PExecute("INSERT INTO log_encounter VALUES(NOW(), {}, {}, {}, {}, '{}')", GetId(), (uint32)GetDifficulty(), type, creditEntry, playersInfo);
+    CharacterDatabase.Execute("INSERT INTO log_encounter VALUES(NOW(), {}, {}, {}, {}, '{}')", GetId(), (uint32)GetDifficulty(), type, creditEntry, playersInfo);
 }
 
 bool Map::AllTransportsEmpty() const
@@ -3654,19 +3681,12 @@ void Map::SendZoneDynamicInfo(Player* player)
         return;
 
     if (uint32 music = itr->second.MusicId)
-    {
-        WorldPacket data(SMSG_PLAY_MUSIC, 4);
-        data << uint32(music);
-        player->SendDirectMessage(&data);
-    }
+        player->SendDirectMessage(WorldPackets::Misc::PlayMusic(music).Write());
 
-    if (uint32 weather = itr->second.WeatherId)
+    if (WeatherState weatherId = itr->second.WeatherId)
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weather);
-        data << float(itr->second.WeatherGrade);
-        data << uint8(0);
-        player->SendDirectMessage(&data);
+        WorldPackets::Misc::Weather weather(weatherId, itr->second.WeatherGrade);
+        player->SendDirectMessage(weather.Write());
     }
 
     if (uint32 overrideLight = itr->second.OverrideLightId)
@@ -3682,7 +3702,7 @@ void Map::SendZoneDynamicInfo(Player* player)
 void Map::PlayDirectSoundToMap(uint32 soundId, uint32 zoneId)
 {
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.IsEmpty())
     {
         WorldPacket data(SMSG_PLAY_SOUND, 4);
         data << uint32(soundId);
@@ -3702,19 +3722,19 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.IsEmpty())
     {
-        WorldPacket data(SMSG_PLAY_MUSIC, 4);
-        data << uint32(musicId);
+        WorldPackets::Misc::PlayMusic playMusic(musicId);
+        playMusic.Write();
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(playMusic.GetRawPacket());
     }
 }
 
-void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
+void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade)
 {
     if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
         _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
@@ -3724,17 +3744,14 @@ void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
     info.WeatherGrade = weatherGrade;
     Map::PlayerList const& players = GetPlayers();
 
-    if (!players.isEmpty())
+    if (!players.IsEmpty())
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weatherId);
-        data << float(weatherGrade);
-        data << uint8(0);
+        WorldPackets::Misc::Weather weather(weatherId, weatherGrade);
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(weather.Write());
     }
 }
 
@@ -3748,7 +3765,7 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, Milliseconds fadeI
     info.LightFadeInTime = static_cast<uint32>(fadeInTime.count());
     Map::PlayerList const& players = GetPlayers();
 
-    if (!players.isEmpty())
+    if (!players.IsEmpty())
     {
         WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4);
         data << uint32(_defaultLight);
@@ -3762,13 +3779,24 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, Milliseconds fadeI
     }
 }
 
+void Map::DoForAllPlayers(std::function<void(Player*)> exec)
+{
+    for (auto const& it : GetPlayers())
+    {
+        if (Player* player = it.GetSource())
+        {
+            exec(player);
+        }
+    }
+}
+
 /**
  * @brief Check if a given source can reach a specific point following a path
  * and normalize the coords. Use this method for long paths, otherwise use the
  * overloaded method with the start coords when you need to do a quick check on small segments
  *
  */
-bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, PathGenerator *path, float &destX, float &destY, float &destZ, bool failOnCollision, bool failOnSlopes) const
+bool Map::CanReachPositionAndGetValidCoords(WorldObject const* source, PathGenerator *path, float &destX, float &destY, float &destZ, bool failOnCollision, bool failOnSlopes) const
 {
     G3D::Vector3 prevPath = path->GetStartPosition();
     for (auto & vector : path->GetPath())
@@ -3808,19 +3836,19 @@ bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, PathGener
  *
  **/
 
-bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, float& destX, float& destY, float& destZ, bool failOnCollision, bool failOnSlopes) const
+bool Map::CanReachPositionAndGetValidCoords(WorldObject const* source, float& destX, float& destY, float& destZ, bool failOnCollision, bool failOnSlopes) const
 {
     return CanReachPositionAndGetValidCoords(source, source->GetPositionX(), source->GetPositionY(), source->GetPositionZ(), destX, destY, destZ, failOnCollision, failOnSlopes);
 }
 
-bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, float startX, float startY, float startZ, float &destX, float &destY, float &destZ, bool failOnCollision, bool failOnSlopes) const
+bool Map::CanReachPositionAndGetValidCoords(WorldObject const* source, float startX, float startY, float startZ, float &destX, float &destY, float &destZ, bool failOnCollision, bool failOnSlopes) const
 {
     if (!CheckCollisionAndGetValidCoords(source, startX, startY, startZ, destX, destY, destZ, failOnCollision))
     {
         return false;
     }
 
-    const Unit* unit = source->ToUnit();
+    Unit const* unit = source->ToUnit();
     // if it's not an unit (Object) then we do not have to continue
     // with walkable checks
     if (!unit)
@@ -3832,7 +3860,7 @@ bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, float sta
      * Walkable checks
      */
     bool isWaterNext = HasEnoughWater(unit, destX, destY, destZ);
-    const Creature* creature = unit->ToCreature();
+    Creature const* creature = unit->ToCreature();
     bool cannotEnterWater = isWaterNext && (creature && !creature->CanEnterWater());
     bool cannotWalkOrFly = !isWaterNext && !source->ToPlayer() && !unit->CanFly() && (creature && !creature->CanWalk());
     if (cannotEnterWater || cannotWalkOrFly ||
@@ -3851,7 +3879,7 @@ bool Map::CanReachPositionAndGetValidCoords(const WorldObject* source, float sta
  * @return true if the destination is valid, false otherwise
  *
  **/
-bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float startX, float startY, float startZ, float &destX, float &destY, float &destZ, bool failOnCollision) const
+bool Map::CheckCollisionAndGetValidCoords(WorldObject const* source, float startX, float startY, float startZ, float &destX, float &destY, float &destZ, bool failOnCollision) const
 {
     // Prevent invalid coordinates here, position is unchanged
     if (!Warhead::IsValidMapCoord(startX, startY, startZ) || !Warhead::IsValidMapCoord(destX, destY, destZ))
@@ -3868,7 +3896,7 @@ bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float start
     path.SetUseRaycast(true);
     bool result = path.CalculatePath(startX, startY, startZ, destX, destY, destZ, false);
 
-    const Unit* unit = source->ToUnit();
+    Unit const* unit = source->ToUnit();
     bool notOnGround = path.GetPathType() & PATHFIND_NOT_USING_PATH
         || isWaterNext || (unit && unit->IsFlying());
 
@@ -3944,8 +3972,8 @@ bool Map::CheckCollisionAndGetValidCoords(const WorldObject* source, float start
 void Map::LoadCorpseData()
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
-    stmt->setUInt32(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
+    stmt->SetData(0, GetId());
+    stmt->SetData(1, GetInstanceId());
 
     //        0     1     2     3            4      5          6          7       8       9        10     11        12    13          14          15         16
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, guildId, flags, dynFlags, time, corpseType, instanceId, phaseMask, guid FROM corpse WHERE mapId = ? AND instanceId = ?
@@ -3956,8 +3984,8 @@ void Map::LoadCorpseData()
     do
     {
         Field* fields = result->Fetch();
-        CorpseType type = CorpseType(fields[13].GetUInt8());
-        uint32 guid = fields[16].GetUInt32();
+        CorpseType type = CorpseType(fields[13].Get<uint8>());
+        uint32 guid = fields[16].Get<uint32>();
         if (type >= MAX_CORPSE_TYPE || type == CORPSE_BONES)
         {
             LOG_ERROR("maps", "Corpse (guid: {}) have wrong corpse type ({}), not loading.", guid, type);
@@ -3982,7 +4010,7 @@ void Map::DeleteCorpseData()
 {
     // DELETE FROM corpse WHERE mapId = ? AND instanceId = ?
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSES_FROM_MAP);
-    stmt->setUInt32(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
+    stmt->SetData(0, GetId());
+    stmt->SetData(1, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }

@@ -1,0 +1,75 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+#
+
+########################################
+# InstanceBuff module configuration
+########################################
+
+###################################################################################################
+#   INSTANCE BUFF
+#
+#   IB.Enable
+#       Описание: Включить систему выдачи бафов в подземельях и рейдах
+#       По умолчанию: 0
+#
+#   IB.Dungeon.Default.Enable
+#       Описание: Включить для подземелий обычной сложности
+#       По умолчанию: 1
+#
+#   IB.Dungeon.Heroic.Enable
+#       Описание: Включить для подземелий героической сложности
+#       По умолчанию: 1
+#
+#   IB.Raid.10.Normal.Enable
+#       Описание: Включить для рейдов 10 об сложности
+#       По умолчанию: 1
+#
+#   IB.Raid.25.Normal.Enable
+#       Описание: Включить для рейдов 25 об сложности
+#       По умолчанию: 1
+#
+#   IB.Raid.10.Heroic.Enable
+#       Описание: Включить для рейдов 10 гер сложности
+#       По умолчанию: 1
+#
+#   IB.Raid.25.Heroic.Enable
+#       Описание: Включить для рейдов 25 гер сложности
+#       По умолчанию: 1
+#
+#   IB.BuffList.Dungeon
+#       Описание: Список номеров спеллов (баффов) для подземелий (по количеству игроков от 1 до 4)
+#       По умолчанию: 700201, 700202, 700203, 700204, 700205
+#
+#   IB.BuffList.Raid.10Man
+#       Описание: Список номеров спеллов (баффов) для рейдов на 10 человек (по количеству игроков от 1 до 9)
+#       По умолчанию: 700201, 700202, 700203, 700204, 700205
+#
+#   IB.BuffList.Raid.25Man
+#       Описание: Список номеров спеллов (баффов) для рейдов на 25 человек (по количеству игроков от 1 до 24)
+#       По умолчанию: 700201, 700202, 700203, 700204, 700205
+#
+
+IB.Enable = 0
+
+IB.Dungeon.Default.Enable = 0
+IB.Dungeon.Heroic.Enable = 0
+IB.Raid.10.Normal.Enable = 0
+IB.Raid.25.Normal.Enable = 0
+IB.Raid.10.Heroic.Enable = 0
+IB.Raid.25.Heroic.Enable = 0
+
+IB.BuffList.Dungeon = "26662,26662,26662,26662"
+IB.BuffList.Raid.10Man = "26662,26662,26662,26662,26662,26662,26662,26662,26662"
+IB.BuffList.Raid.25Man = "26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662,26662"

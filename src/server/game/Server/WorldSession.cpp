@@ -22,6 +22,7 @@
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "BattlegroundMgr.h"
+#include "CharacterPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
@@ -147,7 +148,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     {
         m_Address = sock->GetRemoteIpAddress().to_string();
         ResetTimeOutTime(false);
-        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = {};", GetAccountId());     // One-time query
+        LoginDatabase.Execute("UPDATE account SET online = 1 WHERE id = {};", GetAccountId()); // One-time query
     }
 }
 
@@ -156,7 +157,7 @@ WorldSession::~WorldSession()
 {
     sScriptMgr->OnAccountLogout(GetAccountId());
 
-    LoginDatabase.PExecute("UPDATE account SET totaltime = {} WHERE id = {}", GetTotalTime(), GetAccountId());
+    LoginDatabase.Execute("UPDATE account SET totaltime = {} WHERE id = {}", GetTotalTime(), GetAccountId());
 
     ///- unload player if not unloaded
     if (_player)
@@ -175,7 +176,7 @@ WorldSession::~WorldSession()
         delete packet;
 
     if (GetShouldSetOfflineInDB())
-        LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = {};", GetAccountId());     // One-time query
+        LoginDatabase.Execute("UPDATE account SET online = 0 WHERE id = {};", GetAccountId());     // One-time query
 }
 
 std::string const& WorldSession::GetPlayerName() const
@@ -222,13 +223,13 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
 
-    static time_t firstTime = GameTime::GetGameTime();
+    static time_t firstTime = GameTime::GetGameTime().count();
     static time_t lastTime = firstTime;                     // next 60 secs start time
 
     static uint64 sendLastPacketCount = 0;
     static uint64 sendLastPacketBytes = 0;
 
-    time_t cur_time = GameTime::GetGameTime();
+    time_t cur_time = GameTime::GetGameTime().count();
 
     if ((cur_time - lastTime) < 60)
     {
@@ -589,20 +590,22 @@ void WorldSession::LogoutPlayer(bool save)
         for (int i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
-                _player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId).RemovePlayer(_player->GetGUID(), false, i);
                 // track if player logs out after invited to join BG
                 if (_player->IsInvitedForBattlegroundInstance())
                 {
                     if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
-                        stmt->setUInt32(0, _player->GetGUID().GetCounter());
-                        stmt->setUInt8(1, BG_DESERTION_TYPE_INVITE_LOGOUT);
+                        stmt->SetData(0, _player->GetGUID().GetCounter());
+                        stmt->SetData(1, BG_DESERTION_TYPE_INVITE_LOGOUT);
                         CharacterDatabase.Execute(stmt);
                     }
+
                     sScriptMgr->OnBattlegroundDesertion(_player, BG_DESERTION_TYPE_INVITE_LOGOUT);
                 }
+
+                _player->RemoveBattlegroundQueueId(bgQueueTypeId);
+                sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId).RemovePlayer(_player->GetGUID(), true);
             }
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
@@ -610,7 +613,7 @@ void WorldSession::LogoutPlayer(bool save)
             guild->HandleMemberLogout(this);
 
         ///- Remove pet
-        _player->RemovePet(nullptr, PET_SAVE_AS_CURRENT);
+        _player->RemovePet(nullptr, PET_SAVE_AS_CURRENT, true);
 
         // pussywizard: on logout remove auras that are removed at map change (before saving to db)
         // there are some positive auras from boss encounters that can be kept by logging out and logging in after boss is dead, and may be used on next bosses
@@ -660,7 +663,7 @@ void WorldSession::LogoutPlayer(bool save)
             Map::PlayerList const& playerList = _player->GetMap()->GetPlayers();
 
             if (_player->GetMap()->IsDungeon() || _player->GetMap()->IsRaidOrHeroicDungeon())
-                if (playerList.isEmpty())
+                if (playerList.IsEmpty())
                     _player->TeleportToEntryPoint();
         }
 
@@ -691,19 +694,18 @@ void WorldSession::LogoutPlayer(bool save)
 
         //! Send the 'logout complete' packet to the client
         //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
-        WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Character::LogoutComplete().Write());
         LOG_DEBUG("network", "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
         //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
-        stmt->setUInt32(0, GetAccountId());
+        stmt->SetData(0, GetAccountId());
         CharacterDatabase.Execute(stmt);
     }
 
     m_playerLogout = false;
     m_playerSave = false;
-    LogoutRequest(0);
+    SetLogoutStartTime(0);
 }
 
 /// Kick a player out of the World
@@ -749,22 +751,12 @@ bool WorldSession::DisallowHyperlinksAndMaybeKick(std::string_view str)
     return false;
 }
 
-void WorldSession::_SendNotification(std::string_view message)
-{
-    if (message.empty())
-        return;
-
-    WorldPacket data(SMSG_NOTIFICATION, message.length() + 1);
-    data << message;
-    SendPacket(&data);
-}
-
 bool WorldSession::CanSpeak() const
 {
     return sMute->CanSpeak(GetAccountId());
 }
 
-char const* WorldSession::GetWarheadString(uint32 entry) const
+std::string WorldSession::GetWarheadString(uint32 entry) const
 {
     return sGameLocale->GetWarheadString(entry, GetSessionDbLocaleIndex());
 }
@@ -814,7 +806,7 @@ void WorldSession::SendAuthWaitQueue(uint32 position)
 void WorldSession::LoadGlobalAccountData()
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
-    stmt->setUInt32(0, GetAccountId());
+    stmt->SetData(0, GetAccountId());
     LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
 }
 
@@ -830,7 +822,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
     do
     {
         Field* fields = result->Fetch();
-        uint32 type = fields[0].GetUInt8();
+        uint32 type = fields[0].Get<uint8>();
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
             LOG_ERROR("network", "Table `{}` have invalid account data type ({}), ignore.", mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
@@ -843,8 +835,8 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
             continue;
         }
 
-        m_accountData[type].Time = time_t(fields[1].GetUInt32());
-        m_accountData[type].Data = fields[2].GetString();
+        m_accountData[type].Time = time_t(fields[1].Get<uint32>());
+        m_accountData[type].Data = fields[2].Get<std::string>();
     } while (result->NextRow());
 }
 
@@ -868,10 +860,10 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
     }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
-    stmt->setUInt32(0, id);
-    stmt->setUInt8(1, type);
-    stmt->setUInt32(2, uint32(tm));
-    stmt->setString(3, data);
+    stmt->SetData(0, id);
+    stmt->SetData(1, type);
+    stmt->SetData(2, uint32(tm));
+    stmt->SetData(3, data);
     CharacterDatabase.Execute(stmt);
 
     m_accountData[type].Time = tm;
@@ -895,10 +887,10 @@ void WorldSession::LoadTutorialsData()
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
-    stmt->setUInt32(0, GetAccountId());
+    stmt->SetData(0, GetAccountId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-            m_Tutorials[i] = (*result)[i].GetUInt32();
+            m_Tutorials[i] = (*result)[i].Get<uint32>();
 
     m_TutorialsChanged = false;
 }
@@ -917,14 +909,14 @@ void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
         return;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
-    stmt->setUInt32(0, GetAccountId());
+    stmt->SetData(0, GetAccountId());
     bool hasTutorials = bool(CharacterDatabase.Query(stmt));
 
     stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
 
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        stmt->setUInt32(i, m_Tutorials[i]);
-    stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
+        stmt->SetData(i, m_Tutorials[i]);
+    stmt->SetData(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
     trans->Append(stmt);
 
     m_TutorialsChanged = false;
@@ -1346,7 +1338,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_CORPSE_MAP_POSITION_QUERY:            //   0               1
         case CMSG_MOVE_TIME_SKIPPED:                    //   0               1
         case MSG_QUERY_NEXT_MAIL_TIME:                  //   0               1
-        case CMSG_SETSHEATHED:                          //   0               1
+        case CMSG_SET_SHEATHED:                         //   0               1
         case MSG_RAID_TARGET_UPDATE:                    //   0               1
         case CMSG_PLAYER_LOGOUT:                        //   0               1
         case CMSG_LOGOUT_REQUEST:                       //   0               1

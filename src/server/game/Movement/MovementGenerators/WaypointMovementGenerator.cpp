@@ -41,7 +41,7 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
     {
         // No movement found for entry
         LOG_ERROR("sql.sql", "WaypointMovementGenerator::LoadPath: creature {} ({}) doesn't have waypoint path id: {}",
-            creature->GetName(), creature->GetGUID(), path_id);
+            creature->GetName(), creature->GetGUID().ToString(), path_id);
         return;
     }
 
@@ -79,7 +79,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     if (i_path->at(i_currentNode)->event_id && urand(0, 99) < i_path->at(i_currentNode)->event_chance)
     {
         LOG_DEBUG("maps.script", "Creature movement start script {} at point {} for {}.",
-            i_path->at(i_currentNode)->event_id, i_currentNode, creature->GetGUID());
+            i_path->at(i_currentNode)->event_id, i_currentNode, creature->GetGUID().ToString());
         creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         creature->GetMap()->ScriptsStart(sWaypointScripts, i_path->at(i_currentNode)->event_id, creature, nullptr);
     }
@@ -139,6 +139,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         // Xinef: moved the upper IF here
         if ((i_currentNode == i_path->size() - 1) && !repeating) // If that's our last waypoint
         {
+            creature->AI()->PathEndReached(path_id);
             creature->GetMotionMaster()->Initialize();
             return false;
         }
@@ -193,12 +194,14 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         case WAYPOINT_MOVE_TYPE_WALK:
             init.SetWalk(true);
             break;
+        default:
+            break;
     }
 
     init.Launch();
 
     //Call for creature group update
-    if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
+    if (creature->GetFormation() && creature->GetFormation()->GetLeader() == creature)
         creature->GetFormation()->LeaderMoveTo(formationDest.x, formationDest.y, formationDest.z, node->move_type == WAYPOINT_MOVE_TYPE_RUN);
 
     return true;
@@ -254,6 +257,14 @@ void WaypointMovementGenerator<Creature>::MovementInform(Creature* creature)
 {
     if (creature->AI())
         creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, i_currentNode);
+
+    if (Unit* owner = creature->GetCharmerOrOwner())
+    {
+        if (UnitAI* AI = owner->GetAI())
+        {
+            AI->SummonMovementInform(creature, WAYPOINT_MOTION_TYPE, i_currentNode);
+        }
+    }
 }
 
 //----------------------------------------------------//
@@ -306,7 +317,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
 
     // xinef: this should be cleaned by CleanupAfterTaxiFlight(); function!
     player->Dismount();
-    player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player->RemoveUnitFlag(UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 
     if (player->m_taxi.empty())
     {
@@ -318,7 +329,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
         player->SetFallInformation(GameTime::GetGameTime().count(), player->GetPositionZ());
     }
 
-    player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
+    player->RemovePlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
 }
 
 #define PLAYER_FLIGHT_SPEED 32.0f
@@ -327,7 +338,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
 {
     player->getHostileRefMgr().setOnlineOfflineState(false);
     player->AddUnitState(UNIT_STATE_IN_FLIGHT);
-    player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player->SetUnitFlag(UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 
     Movement::MoveSplineInit init(player);
     uint32 end = GetPathAtMapEnd();
@@ -364,7 +375,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
             if (i_currentNode >= i_path.size())
             {
                 LOG_INFO("misc", "TAXI NODE WAS GREATER THAN PATH SIZE, {}, POINTID: {}, NODESIZE: {}, CURRENT: {}",
-                    player->GetGUID(), pointId, i_path.size(), i_currentNode);
+                    player->GetGUID().ToString(), pointId, i_path.size(), i_currentNode);
                 player->CleanupAfterTaxiFlight();
                 return false;
             }
