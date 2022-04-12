@@ -49,7 +49,7 @@ ClientSocket::ClientSocket(tcp::socket&& socket) :
 
 void ClientSocket::Start()
 {
-    LOG_INFO("module.discord", "Start process auth from server. Account name '{}'", sDiscord->GetAccountName());
+    LOG_DEBUG("module.discord", "Start process auth from server. Account name '{}'", sDiscord->GetAccountName());
     SendAuthSession();
 }
 
@@ -297,7 +297,7 @@ void ClientSocket::HandlePong(DiscordPacket& packet)
     Microseconds timeNow = duration_cast<Microseconds>(steady_clock::now().time_since_epoch());
     _latency = duration_cast<Microseconds>(timeNow - Microseconds(timePacket));
 
-    LOG_INFO("module.discord", "> Latency {}", Warhead::Time::ToTimeString(_latency));
+    LOG_DEBUG("module.discord", "> Latency {}", Warhead::Time::ToTimeString(_latency));
 }
 
 void ClientSocket::SendAuthSession()
