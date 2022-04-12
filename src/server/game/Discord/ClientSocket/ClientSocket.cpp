@@ -221,7 +221,8 @@ void ClientSocket::SendPacket(DiscordPacket const* packet)
     DiscordServerPktHeader header(packet->size() + sizeof(packet->GetOpcode()), packet->GetOpcode());
     if (buffer.GetRemainingSpace() < packet->size() + header.GetHeaderLength())
     {
-        QueuePacket(std::move(buffer));
+        MessageBuffer packetBuffer(buffer);
+        QueuePacket(std::move(packetBuffer));
         buffer.Resize(4096);
     }
 
