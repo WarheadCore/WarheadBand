@@ -303,12 +303,13 @@ private:
 
         auto color = DiscordMessageColor::Indigo;
         auto title = "Покупка в игровом магазине";
-        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку в игровом магазине. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
+        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
         auto embedItemName = Warhead::StringFormat("`{}`", itemName);
+        auto embedItemItemCount = Warhead::StringFormat("`{}`", Warhead::ToString(itemCount));
 
         DiscordEmbedFields fields;
         fields.emplace_back(EmbedField("Предмет", embedItemName, true));
-        fields.emplace_back(EmbedField("Количество", Warhead::ToString(itemCount), true));
+        fields.emplace_back(EmbedField("Количество", embedItemItemCount, true));
         sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
     }
 
