@@ -164,10 +164,10 @@ void DiscordClient::LogLogin(Player* player)
     auto security = player->GetSession()->GetSecurity();
     auto title = "Вход в игровой мир";
 
-    if (security > SEC_PLAYER)
-        channelID = DiscordLoginChannelType::GM;
-    else if (security >= SEC_ADMINISTRATOR)
+    if (security >= SEC_ADMINISTRATOR)
         channelID = DiscordLoginChannelType::Admin;
+    else if (security > SEC_PLAYER)
+        channelID = DiscordLoginChannelType::GM;
 
     std::string accountName;
     AccountMgr::GetName(accountID, accountName);
