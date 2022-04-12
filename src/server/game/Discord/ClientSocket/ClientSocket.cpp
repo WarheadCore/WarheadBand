@@ -264,7 +264,7 @@ void ClientSocket::HandleAuthResponce(DiscordPacket& packet)
 
     if (responseCode != DiscordAuthResponseCodes::Ok)
     {
-        LOG_INFO("module.discord", "Auth incorrect. Code {}", codeString);
+        LOG_ERROR("module.discord", "Auth incorrect. Code {}", codeString);
         sClientSocketMgr->Disconnect();
         return;
     }
@@ -297,7 +297,7 @@ void ClientSocket::HandlePong(DiscordPacket& packet)
     Microseconds timeNow = duration_cast<Microseconds>(steady_clock::now().time_since_epoch());
     _latency = duration_cast<Microseconds>(timeNow - Microseconds(timePacket));
 
-    LOG_DEBUG("module.discord", "> Latency {}", Warhead::Time::ToTimeString(_latency));
+    LOG_TRACE("module.discord", "> Latency {}", Warhead::Time::ToTimeString(_latency));
 }
 
 void ClientSocket::SendAuthSession()
