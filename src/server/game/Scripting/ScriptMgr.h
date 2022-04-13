@@ -484,7 +484,7 @@ protected:
 
 public:
     //Called whenever a player moves
-    virtual void OnPlayerMove(Player* /*player*/, MovementInfo /*movementInfo*/, uint32 /*opcode*/) { }
+    virtual void OnPlayerMove(Player* /*player*/, MovementInfo* /*movementInfo*/, uint32 /*opcode*/) { }
 };
 
 class WH_GAME_API AllMapScript : public ScriptObject
@@ -2414,7 +2414,7 @@ public: /* UnitScript */
     void OnUnitUpdate(Unit* unit, uint32 diff);
 
 public: /* MovementHandlerScript */
-    void OnPlayerMove(Player* player, MovementInfo movementInfo, uint32 opcode);
+    void OnPlayerMove(Player* player, MovementInfo* movementInfo, uint32 opcode);
 
 public: /* AllCreatureScript */
     //listener function (OnAllCreatureUpdate) is called by OnCreatureUpdate

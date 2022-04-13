@@ -1,5 +1,5 @@
 /*
- * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+ * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -15,13 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptMgrMacros.h"
+void AddSC_Anticheat();
+void AddSC_anticheat_commandscript();
 
-void ScriptMgr::OnPlayerMove(Player* player, MovementInfo* movementInfo, uint32 opcode)
+void Addmod_anticheatScripts()
 {
-    ExecuteScript<MovementHandlerScript>([player, movementInfo, opcode](MovementHandlerScript* script)
-    {
-        script->OnPlayerMove(player, movementInfo, opcode);
-    });
+    AddSC_Anticheat();
+    AddSC_anticheat_commandscript();
 }
