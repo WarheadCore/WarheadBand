@@ -1,7 +1,3 @@
-[worldserver]
-#
-###################################################################################################
-
 ###################################################################################################
 #   ANTICHEAT MODULE
 #
@@ -43,19 +39,6 @@ Anticheat.MaxReportsForDailyReport = 70
 
 Anticheat.ReportinChat.Min = 70
 Anticheat.ReportinChat.Max = 80
-
-#     Anticheat.LoginMessage
-#       Description: Enable login message "This server is running an Anticheat module."
-#       Default: 1 
-
-Anticheat.LoginMessage = 0
-
-#     Anticheat.WriteLog
-#       Description: Enable writing to log when a player is detected using hacks
-#       Default:    0 - (Disabled)
-#                   1 - (Enabled)
-
-Anticheat.WriteLog = 0
 
 #     Anticheat.SaveReportsTime
 #       Description: Set the time between each report save in seconds
