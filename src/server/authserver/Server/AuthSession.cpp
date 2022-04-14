@@ -837,7 +837,7 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Warhead::Crypto::
         return true;
 
     Warhead::Crypto::SHA1::Digest zeros{};
-    Warhead::Crypto::SHA1::Digest const* versionHash = nullptr;
+    Warhead::Crypto::SHA1::Digest const* versionHash{ nullptr };
 
     if (!isReconnect)
     {
