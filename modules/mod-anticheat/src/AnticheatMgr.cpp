@@ -16,15 +16,15 @@
  */
 
 #include "AnticheatMgr.h"
-#include "Log.h"
-#include "MapMgr.h"
-#include "Player.h"
-#include "SpellAuras.h"
-#include "ModulesConfig.h"
+#include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "GameTime.h"
+#include "Log.h"
+#include "MapMgr.h"
 #include "ModuleLocale.h"
-#include "Chat.h"
+#include "ModulesConfig.h"
+#include "Player.h"
+#include "SpellAuras.h"
 
 constexpr float CLIMB_ANGLE = 1.87f;
 

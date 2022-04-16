@@ -13,12 +13,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Language.h"
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "Chat.h"
 #include "AnticheatMgr.h"
+#include "Chat.h"
+#include "Language.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 using namespace Warhead::ChatCommands;
 
