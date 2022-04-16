@@ -5,6 +5,7 @@
 #       Description: Enables or disables the Anticheat System functionality
 #       Default:     1 - (Enabled)
 #                    0 - (Disabled)
+#
 
 Anticheat.Enable = 1
 
@@ -20,36 +21,25 @@ Anticheat.GM.Enable = 0
 #
 #     Anticheat.ReportsForIngameWarnings
 #       Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
-#       Default:     70
+#       Default:     5
 #
 
-Anticheat.ReportsForIngameWarnings = 70
+Anticheat.ReportsForIngameWarnings = 5
 
-#     Anticheat.MaxReportsForDailyReport
-#       Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
-#       Default:     70
-
-Anticheat.MaxReportsForDailyReport = 70
-
-#     Anticheat.ReportinChat
-#       Description: min and max total reports to trigger gm chat message spam.
-#       Default:     So with 70 being min and 80 being max, it will spam gm in chat 10 times.
-# Anticheat.ReportinChat.Min = 70
-# Anticheat.ReportinChat.Max = 80
-
-Anticheat.ReportinChat.Min = 70
-Anticheat.ReportinChat.Max = 80
-
+#
 #     Anticheat.SaveReportsTime
 #       Description: Set the time between each report save in seconds
 #       Default:    60 - (seconds)
+#
 
 Anticheat.SaveReportsTime = 60
 
+#
 #     Anticheat.Detect
 #       Description: It represents which detections are enabled (ClimbHack disabled by default).
 #       Default:    1 - (Enabled)
 #                   0 - (Disabled)
+#
 
 Anticheat.Detect.FlyHack        = 1
 Anticheat.Detect.WaterWalkHack  = 1
@@ -59,16 +49,18 @@ Anticheat.Detect.SpeedHack      = 1
 Anticheat.Detect.ClimbHack      = 1
 Anticheat.Detect.TelePortHack   = 1
 Anticheat.Detect.ZaxisHack      = 1
+Anticheat.IgnoreControlHack     = 1
 
-Anticheat.IgnoreControlHack = 1
-
+#
 #     Anticheat.StricterFlyHackCheck
 #       Description: Checks moveflag ascending (may give false positives)
 #       Default:    0 - (Disabled)
 #                   1 - (Enabled)
+#
 
 Anticheat.StricterFlyHackCheck = 0
 
+#
 #     Automatic Moderation Features
 #
 #     Anticheat.KickPlayer
@@ -77,12 +69,13 @@ Anticheat.StricterFlyHackCheck = 0
 #       Description: Enables and Auto kick when reports reach threshhold
 #       Default:    0 - (Disabled)
 #                   1 - (Enabled)
-#       Default:    70 - (Kick at 70 auto reports)
+#       Default:    50 - (Kick at 50 auto reports)
 #
 
-Anticheat.KickPlayer = 0
-Anticheat.ReportsForKick = 70
+Anticheat.KickPlayer = 1
+Anticheat.ReportsForKick = 50
 
+#
 #     Anticheat.BanPlayer
 #     Anticheat.ReportsForBan
 #
@@ -95,6 +88,7 @@ Anticheat.ReportsForKick = 70
 Anticheat.BanPlayer = 0
 Anticheat.ReportsForBan = 70
 
+#
 #     Anticheat.JailPlayer
 #     Anticheat.ReportsForJail
 #
@@ -107,13 +101,15 @@ Anticheat.ReportsForBan = 70
 Anticheat.JailPlayer = 0
 Anticheat.ReportsForJail = 70
 
+#
 #     Anticheat.AnnounceKick
 #     Anticheat.AnnounceBan
 #     Anticheat.AnnounceJail
 #       Description: Send a message to all players when a user kicked, banned, jailed.
 #       Default:    0 - (Disabled)
 #                   1 - (Enabled)
+#
 
-Anticheat.AnnounceKick = 0
-Anticheat.AnnounceBan = 0
-Anticheat.AnnounceJail = 0
+Anticheat.AnnounceKick = 1
+Anticheat.AnnounceBan = 1
+Anticheat.AnnounceJail = 1

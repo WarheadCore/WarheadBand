@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "Duration.h"
-#include "Chat.h"
 #include "ObjectGuid.h"
 #include <array>
 #include <unordered_map>
@@ -84,9 +83,6 @@ public:
     inline Milliseconds GetTempReportsTimer(AnticheatDetectionType type) const { return _reportsTempTimer.at(static_cast<uint8>(type)); }
     inline void SetTempReportsTimer(Milliseconds time, AnticheatDetectionType type) { _reportsTempTimer[static_cast<uint8>(type)] = time; }
 
-    inline bool GetDailyReportState() const { return _hasDailyReport; }
-    inline void SetDailyReportState(bool value) { _hasDailyReport = value; }
-
     inline void Clear()
     {
         SetTotalReports(0);
@@ -107,7 +103,6 @@ private:
     Milliseconds _creationTime{ 0ms };
     std::array<uint32, MAX_ANTICHEAT_DETECT_TYPE> _reportsTemp{};
     std::array<Milliseconds, MAX_ANTICHEAT_DETECT_TYPE> _reportsTempTimer{};
-    bool _hasDailyReport{ false };
 };
 
 class AnticheatMgr
@@ -128,7 +123,6 @@ public:
     void LoadConfig(bool reload);
 
     void StartHackDetection(Player* player, MovementInfo* movementInfo, uint32 opcode);
-    void SavePlayerData(Player* player);
 
     void HandlePlayerLogin(Player* player);
     void HandlePlayerLogout(Player* player);
@@ -137,10 +131,7 @@ public:
     float GetAverage(ObjectGuid guid);
     uint32 GetTypeReports(ObjectGuid guid, AnticheatDetectionType type);
 
-    void AnticheatGlobalCommand(ChatHandler* handler);
     void AnticheatDeleteCommand(ObjectGuid guid);
-    void AnticheatPurgeCommand(ChatHandler* handler);
-    void ResetDailyReportStates();
 private:
     void SpeedHackDetection(Player* player, MovementInfo* movementInfo);
     void FlyHackDetection(Player* player, MovementInfo* movementInfo);
@@ -161,7 +152,6 @@ private:
     void SetLastMovementInfo(ObjectGuid guid, MovementInfo* movementInfo);
     uint32 GetTotalReports(ObjectGuid guid) const;
     AnticheatData* GetAnticheatData(ObjectGuid guid);
-
 
     // Values
     bool _enable{ false };

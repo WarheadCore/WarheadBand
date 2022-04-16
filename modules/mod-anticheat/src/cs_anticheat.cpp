@@ -31,13 +31,10 @@ public:
     {
         static ChatCommandTable anticheatCommandTable =
         {
-            { "global", HandleAntiCheatGlobalCommand,   SEC_GAMEMASTER,     Console::Yes },
             { "player", HandleAntiCheatPlayerCommand,   SEC_GAMEMASTER,     Console::Yes },
             { "delete", HandleAntiCheatDeleteCommand,   SEC_ADMINISTRATOR,  Console::Yes },
             { "jail",   HandleAnticheatJailCommand,     SEC_GAMEMASTER,     Console::No },
-            { "parole", HandleAnticheatParoleCommand,   SEC_GAMEMASTER,     Console::No },
-            { "purge",  HandleAntiCheatPurgeCommand,    SEC_ADMINISTRATOR,  Console::Yes },
-            { "warn",   HandleAnticheatWarnCommand,     SEC_GAMEMASTER,     Console::Yes },
+            { "parole", HandleAnticheatParoleCommand,   SEC_GAMEMASTER,     Console::No }
         };
 
         static ChatCommandTable commandTable =
@@ -46,38 +43,6 @@ public:
         };
 
         return commandTable;
-    }
-
-    static bool HandleAnticheatWarnCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
-    {
-        if (!sAnticheatMgr->IsEnable())
-        {
-            handler->PSendSysMessage("> Anticheat disable");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (!target)
-            target = PlayerIdentifier::FromTargetOrSelf(handler);
-
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        auto player = target->GetConnectedPlayer();
-        if (!player)
-        {
-            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        ChatHandler targetHandler(player->GetSession());
-        targetHandler.PSendSysMessage("The anticheat system has reported several times that you may be cheating. You will be monitored to confirm if this is accurate.");
-        return true;
     }
 
     static bool HandleAnticheatJailCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
@@ -228,33 +193,6 @@ public:
         handler->PSendSysMessage("Speed Reports: {} || Fly Reports: {} || Jump Reports: {}", speedReports, flyReports, jumpReports);
         handler->PSendSysMessage("Walk On Water Reports: {} || Teleport To Plane Reports: {}", waterWalkReports, teleportPlaneReports);
         handler->PSendSysMessage("Climb Reports: {}", climbReports);
-        return true;
-    }
-
-    static bool HandleAntiCheatGlobalCommand(ChatHandler* handler)
-    {
-        if (!sAnticheatMgr->IsEnable())
-        {
-            handler->PSendSysMessage("> Anticheat disable");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        sAnticheatMgr->AnticheatGlobalCommand(handler);
-        return true;
-    }
-
-    static bool HandleAntiCheatPurgeCommand(ChatHandler* handler)
-    {
-        if (!sAnticheatMgr->IsEnable())
-        {
-            handler->PSendSysMessage("> Anticheat disable");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        sAnticheatMgr->AnticheatPurgeCommand(handler);
-        handler->PSendSysMessage("The Anticheat daily_player_reports has been purged.");
         return true;
     }
 };

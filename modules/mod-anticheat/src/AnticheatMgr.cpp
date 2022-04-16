@@ -23,12 +23,10 @@
 #include "ModulesConfig.h"
 #include "ChatTextBuilder.h"
 #include "GameTime.h"
+#include "ModuleLocale.h"
+#include "Chat.h"
 
 constexpr float CLIMB_ANGLE = 1.87f;
-
-constexpr uint32 LANG_ANTICHEAT_ALERT = 30087;
-constexpr uint32 LANG_ANTICHEAT_TELEPORT = 30087;
-constexpr uint32 LANG_ANTICHEAT_IGNORECONTROL = 30087;
 
 AnticheatMgr::~AnticheatMgr()
 {
@@ -160,18 +158,8 @@ void AnticheatMgr::IgnoreControlHackDetection(Player* player, MovementInfo* move
     if (movementInfo->pos.GetPositionX() == pos.GetPositionX() || movementInfo->pos.GetPositionY() == pos.GetPositionY())
         return;
 
-    auto totalReports = GetTotalReports(player->GetGUID());
-    if (totalReports > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
-    {
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Possible Ignore Control Hack Detected!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
-
-        if (totalReports >= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Min") && totalReports <= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Max"))
-            Warhead::Text::SendGMText(LANG_ANTICHEAT_IGNORECONTROL, player->GetName());
-    }
+    if (GetTotalReports(player->GetGUID()) > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
+        sModuleLocale->SendGlobalMessage(true, "ANTICHEAT_LOCALE_IGNORE_CONTROL", player->GetName());
 
     LOG_WARN("module.anticheat", "Anticheat: Ignore Control - Hack detected player {} ({})", player->GetName(), player->GetGUID().ToString());
     BuildReport(player, AnticheatDetectionType::IngnoreControl);
@@ -230,18 +218,8 @@ void AnticheatMgr::ZAxisHackDetection(Player* player, MovementInfo* movementInfo
     if (player->GetPositionZ() < groundZ + 5.0f)
         return;
 
-    auto totalReports = GetTotalReports(player->GetGUID());
-    if (totalReports > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
-    {
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Possible Ignore Zaxis Hack Detected!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
-
-        if (totalReports >= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Min") && totalReports <= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Max"))
-            Warhead::Text::SendGMText(LANG_ANTICHEAT_ALERT, player->GetName());
-    }
+    if (GetTotalReports(player->GetGUID()) > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
+        sModuleLocale->SendGlobalMessage(true, "ANTICHEAT_LOCALE_ALERT", player->GetName());
 
     LOG_WARN("module.anticheat", "Anticheat: Ignore Zaxis - Hack detected player {} ({})", player->GetName(), player->GetGUID().ToString());
     BuildReport(player, AnticheatDetectionType::ZaxisHack);
@@ -277,18 +255,8 @@ void AnticheatMgr::TeleportHackDetection(Player* player, MovementInfo* movementI
     if (xDiff < 50.0f || yDiff < 50.0f)
         return;
 
-    auto totalReports = GetTotalReports(player->GetGUID());
-    if (totalReports > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
-    {
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Possible Teleport Hack Detected!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
-
-        if (totalReports >= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Min") && totalReports <= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Max"))
-            Warhead::Text::SendGMText(LANG_ANTICHEAT_TELEPORT, player->GetName());
-    }
+    if (GetTotalReports(player->GetGUID()) > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
+        sModuleLocale->SendGlobalMessage(true, "ANTICHEAT_LOCALE_TELEPORT", player->GetName());
 
     LOG_WARN("module.anticheat", "Anticheat: Teleport-Hack detected player {} ({})", player->GetName(), player->GetGUID().ToString());
     BuildReport(player, AnticheatDetectionType::TeleportHack);
@@ -299,7 +267,10 @@ void AnticheatMgr::StartHackDetection(Player* player, MovementInfo* movementInfo
     if (!_enable)
         return;
 
-    if (player->IsGameMaster() && !_enableGM)
+    if (player->IsGameMaster())
+        return;
+
+    if (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && !_enableGM)
         return;
 
     ObjectGuid playerGuid = player->GetGUID();
@@ -409,7 +380,7 @@ void AnticheatMgr::SpeedHackDetection(Player* player, MovementInfo* movementInfo
     if (!distance2D)
         return;
 
-    uint8 moveType = 0;   
+    UnitMoveType moveType = MOVE_RUN;
 
     // we need to know HOW is the player moving
     // TO-DO: Should we check the incoming movement flags?
@@ -419,12 +390,10 @@ void AnticheatMgr::SpeedHackDetection(Player* player, MovementInfo* movementInfo
         moveType = MOVE_FLIGHT;
     else if (player->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
         moveType = MOVE_WALK;
-    else
-        moveType = MOVE_RUN;
 
     // how many yards the player can do in one sec.
     // We remove the added speed for jumping because otherwise permanently jumping doubles your allowed speed
-    uint32 speedRate = (uint32)(player->GetSpeed(UnitMoveType(moveType)));
+    uint32 speedRate = static_cast<uint32>(player->GetSpeed(moveType));
 
     if (lastMovement->time > movementInfo->time)
         BuildReport(player, AnticheatDetectionType::SpeedHack);
@@ -461,9 +430,6 @@ void AnticheatMgr::HandlePlayerLogin(Player* player)
     auto anticheatData = GetAnticheatData(player->GetGUID());
     ASSERT(!anticheatData);
 
-    // we must delete this to prevent errors in case of crash
-    CharacterDatabase.Execute("DELETE FROM players_reports_status WHERE guid={}", playerGuid.GetCounter());
-
     _players.emplace(player->GetGUID(), AnticheatData());
 
     anticheatData = GetAnticheatData(player->GetGUID());
@@ -471,10 +437,6 @@ void AnticheatMgr::HandlePlayerLogin(Player* player)
 
     // we initialize the pos of lastMovementPosition var.
     anticheatData->SetPosition(player->GetPosition());
-    QueryResult resultDB = CharacterDatabase.Query("SELECT * FROM daily_players_reports WHERE guid={};", player->GetGUID().GetCounter());
-
-    if (resultDB)
-        anticheatData->SetDailyReportState(true);
 }
 
 void AnticheatMgr::HandlePlayerLogout(Player* player)
@@ -482,32 +444,8 @@ void AnticheatMgr::HandlePlayerLogout(Player* player)
     if (!_enable)
         return;
 
-    // TO-DO Make a table that stores the cheaters of the day, with more detailed information.
-
-    // We must also delete it at logout to prevent have data of offline players in the db when we query the database (IE: The GM Command)
-    CharacterDatabase.Execute("DELETE FROM players_reports_status WHERE guid={}", player->GetGUID().GetCounter());
-
     // Delete not needed data from the memory.
     _players.erase(player->GetGUID());
-}
-
-void AnticheatMgr::SavePlayerData(Player* player)
-{
-    auto anticheatData = GetAnticheatData(player->GetGUID());
-    ASSERT(anticheatData);
-
-    //                                                              1       2         3            4           5            6                 7                     8             9               10
-    CharacterDatabase.Execute("REPLACE INTO players_reports_status (guid,average,total_reports,speed_reports,fly_reports,jump_reports,waterwalk_reports,teleportplane_reports,climb_reports,creation_time) VALUES ({},{},{},{},{},{},{},{},{},{});",
-        player->GetGUID().GetCounter(),
-        anticheatData->GetAverage(),
-        anticheatData->GetTotalReports(),
-        anticheatData->GetTypeReports(AnticheatDetectionType::SpeedHack),
-        anticheatData->GetTypeReports(AnticheatDetectionType::FlyHack),
-        anticheatData->GetTypeReports(AnticheatDetectionType::JumpHack),
-        anticheatData->GetTypeReports(AnticheatDetectionType::WaterWalk),
-        anticheatData->GetTypeReports(AnticheatDetectionType::TeleportPlaneHack),
-        anticheatData->GetTypeReports(AnticheatDetectionType::ClimbHack),
-        anticheatData->GetCreationTime().count());
 }
 
 uint32 AnticheatMgr::GetTotalReports(ObjectGuid guid)
@@ -558,7 +496,7 @@ bool AnticheatMgr::MustCheckTempReports(AnticheatDetectionType type)
 // mistake that was here or not, please increment the
 // following counter as a warning to the next guy:
 //
-// total_hours_wasted_here = 42 + 1 (Winfidonarleyan)
+// total_hours_wasted_here = 42 + 2 (Winfidonarleyan)
 //
 
 void AnticheatMgr::BuildReport(Player* player, AnticheatDetectionType type)
@@ -618,48 +556,12 @@ void AnticheatMgr::BuildReport(Player* player, AnticheatDetectionType type)
         anticheatData->SetAverage(float(totalReports) / float(diffTime.count()));
     }
 
-    if (MOD_CONF_GET_UINT("Anticheat.MaxReportsForDailyReport") < totalReports)
-    {
-        if (!anticheatData->GetDailyReportState())
-        {
-            //                                                             1    2       3             4             5           6            7                 8                     9             10
-            CharacterDatabase.Execute("REPLACE INTO daily_players_reports (guid,average,total_reports,speed_reports,fly_reports,jump_reports,waterwalk_reports,teleportplane_reports,climb_reports,creation_time) VALUES ({},{},{},{},{},{},{},{},{},{});",
-                player->GetGUID().GetCounter(),
-                anticheatData->GetAverage(),
-                anticheatData->GetTotalReports(),
-                anticheatData->GetTypeReports(AnticheatDetectionType::SpeedHack),
-                anticheatData->GetTypeReports(AnticheatDetectionType::FlyHack),
-                anticheatData->GetTypeReports(AnticheatDetectionType::JumpHack),
-                anticheatData->GetTypeReports(AnticheatDetectionType::WaterWalk),
-                anticheatData->GetTypeReports(AnticheatDetectionType::TeleportPlaneHack),
-                anticheatData->GetTypeReports(AnticheatDetectionType::ClimbHack),
-                anticheatData->GetCreationTime().count());
-            anticheatData->SetDailyReportState(true);
-        }
-    }
-
     if (totalReports > MOD_CONF_GET_UINT("Anticheat.ReportsForIngameWarnings"))
-    {
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Possible cheater!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
-
-        if (totalReports >= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Min") && totalReports <= MOD_CONF_GET_UINT("Anticheat.ReportinChat.Max"))
-            Warhead::Text::SendGMText(LANG_ANTICHEAT_ALERT, player->GetName());
-    }
+        sModuleLocale->SendGlobalMessage(true, "ANTICHEAT_LOCALE_ALERT", player->GetName());
 
     if (MOD_CONF_GET_BOOL("Anticheat.KickPlayer") && totalReports > MOD_CONF_GET_UINT("Anticheat.ReportsForKick"))
     {
         LOG_WARN("module.anticheat", "Anticheat: Reports reached assigned threshhold and counteracted by kicking player {} ({})", player->GetName(), player->GetGUID().ToString());
-
-        // display warning at the center of the screen, hacky way?
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Auto Kicked for Reaching Cheat Threshhold!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
 
         player->GetSession()->KickPlayer(true);
 
@@ -678,16 +580,9 @@ void AnticheatMgr::BuildReport(Player* player, AnticheatDetectionType type)
     {
         LOG_WARN("module.anticheat", "Anticheat: Reports reached assigned threshhold and counteracted by banning player {} ({})", player->GetName(), player->GetGUID().ToString());
 
-        // display warning at the center of the screen, hacky way?
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Auto Banned Account for Reaching Cheat Threshhold!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
-
         std::string accountName;
         AccountMgr::GetName(player->GetSession()->GetAccountId(), accountName);
-        sBan->BanAccount(accountName, "0s", "Anticheat module Auto Banned Account for Reach Cheat Threshhold", "Server");
+        sBan->BanAccount(accountName, "0s", "Anticheat Auto Banned Account for Reach Cheat Threshhold", "Server");
 
         if (MOD_CONF_GET_BOOL("Anticheat.AnnounceBan"))
         {
@@ -704,13 +599,6 @@ void AnticheatMgr::BuildReport(Player* player, AnticheatDetectionType type)
     {
         LOG_WARN("module.anticheat", "Anticheat: Reports reached assigned threshhold and counteracted by jailing player {} ({})", player->GetName(), player->GetGUID().ToString());
 
-        // display warning at the center of the screen, hacky way?
-        auto message = Warhead::StringFormat("[AntiCheat]: {} Auto Jailed Account for Reaching Cheat Threshhold!", player->GetName());
-
-        WorldPacket packet(SMSG_NOTIFICATION, message.length() + 1);
-        packet << message;
-        sWorld->SendGlobalGMMessage(&packet);
-
         WorldLocation loc;
         loc = WorldLocation(1, 16226.5f, 16403.6f, -64.5f, 3.2f); // GM Jail Location
         player->TeleportTo(loc);
@@ -719,7 +607,7 @@ void AnticheatMgr::BuildReport(Player* player, AnticheatDetectionType type)
         player->AddAura(static_cast<uint32>(SpellMisc::LfgDeserter), player);
         player->AddAura(static_cast<uint32>(SpellMisc::BgDeserter), player);
 
-        if (MOD_CONF_GET_BOOL("Anticheat.AnnounceJail", true))
+        if (MOD_CONF_GET_BOOL("Anticheat.AnnounceJail"))
         {
             std::string colorMsg = "|cff7bbef7";
             std::string colorTag = "|cffff0000";
@@ -731,62 +619,6 @@ void AnticheatMgr::BuildReport(Player* player, AnticheatDetectionType type)
     }
 }
 
-void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* handler)
-{
-    // MySQL will sort all for us, anyway this is not the best way we must only save the anticheat data not whole player's data!.
-    ObjectAccessor::SaveAllPlayers();
-
-    QueryResult resultDB = CharacterDatabase.Query("SELECT guid,average,total_reports FROM players_reports_status WHERE total_reports != 0 ORDER BY average ASC LIMIT 3;");
-    if (!resultDB)
-    {
-        handler->PSendSysMessage("No players found.");
-        return;
-    }
-    else
-    {
-        handler->SendSysMessage("=============================");
-        handler->PSendSysMessage("Players with the lowest averages:");
-        do
-        {
-            Field* fieldsDB = resultDB->Fetch();
-
-            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(fieldsDB[0].Get<uint32>());
-            float average = fieldsDB[1].Get<float>();
-            uint32 total_reports = fieldsDB[2].Get<uint32>();
-
-            if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-                handler->PSendSysMessage("Player: {} Average: {} Total Reports: {}", player->GetName().c_str(), average, total_reports);
-
-        } while (resultDB->NextRow());
-    }
-
-    resultDB = CharacterDatabase.Query("SELECT guid,average,total_reports FROM players_reports_status WHERE total_reports != 0 ORDER BY total_reports DESC LIMIT 3;");
-
-    // this should never happen
-    if (!resultDB)
-    {
-        handler->PSendSysMessage("No players found.");
-        return;
-    }
-    else
-    {
-        handler->PSendSysMessage("=============================");
-        handler->PSendSysMessage("Players with the more reports:");
-        do
-        {
-            Field* fieldsDB = resultDB->Fetch();
-
-            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(fieldsDB[0].Get<uint32>());
-            float average = fieldsDB[1].Get<float>();
-            uint32 total_reports = fieldsDB[2].Get<uint32>();
-
-            if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-                handler->PSendSysMessage("Player: {} Total Reports: {} Average: {}", player->GetName().c_str(), total_reports, average);
-
-        } while (resultDB->NextRow());
-    }
-}
-
 void AnticheatMgr::AnticheatDeleteCommand(ObjectGuid guid)
 {
     if (!guid)
@@ -794,7 +626,6 @@ void AnticheatMgr::AnticheatDeleteCommand(ObjectGuid guid)
         for (auto& [guid, data] : _players)
             data.Clear();
 
-        CharacterDatabase.Execute("DELETE FROM players_reports_status");
         return;
     }
 
@@ -803,19 +634,6 @@ void AnticheatMgr::AnticheatDeleteCommand(ObjectGuid guid)
         return;
 
     anticheatData->Clear();
-
-    CharacterDatabase.Execute("DELETE FROM players_reports_status WHERE guid={}", guid.GetCounter());
-}
-
-void AnticheatMgr::AnticheatPurgeCommand(ChatHandler* /*handler*/)
-{
-    CharacterDatabase.Execute("TRUNCATE TABLE daily_players_reports");
-}
-
-void AnticheatMgr::ResetDailyReportStates()
-{
-    for (auto& [guid, data] : _players)
-        data.SetDailyReportState(false);
 }
 
 uint16 AnticheatMgr::GetLastOpcode(ObjectGuid guid) const
