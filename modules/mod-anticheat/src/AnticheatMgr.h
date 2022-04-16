@@ -25,6 +25,7 @@
 #include <unordered_map>
 
 class Player;
+struct MovementInfo;
 
 enum class AnticheatDetectionType : uint8
 {
