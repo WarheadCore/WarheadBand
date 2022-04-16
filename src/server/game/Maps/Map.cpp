@@ -2048,7 +2048,7 @@ Transport* Map::GetTransportForPos(uint32 phase, float x, float y, float z, Worl
 float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
     Position pos = Position{ x, y, z };
-    return GetHeight(pos);
+    return GetHeight(pos, checkVMap, maxSearchDist);
 }
 
 float Map::GetHeight(Position const& pos, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
