@@ -84,6 +84,15 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo* moveme
     if (!lastMovement)
         return;
 
+    auto MakeReport = [this, player]()
+    {
+        BuildReport(player, AnticheatDetectionType::WaterWalk);
+        LOG_WARN("module.anticheat", "Anticheat: Walk on Water - Hack detected player {} ({})", player->GetName(), player->GetGUID().ToString());
+    };
+
+    if (player->GetLiquidData().Status == LIQUID_MAP_WATER_WALK && !lastMovement->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !movementInfo->HasMovementFlag(MOVEMENTFLAG_WATERWALKING))
+        MakeReport();
+
     /* Thanks to @LilleCarl */
     if (lastMovement->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && movementInfo->HasMovementFlag(MOVEMENTFLAG_WATERWALKING))
     {
@@ -95,8 +104,7 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo* moveme
     else if (!lastMovement->HasMovementFlag(MOVEMENTFLAG_WATERWALKING) && !movementInfo->HasMovementFlag(MOVEMENTFLAG_WATERWALKING))
         return;
 
-    BuildReport(player, AnticheatDetectionType::WaterWalk);
-    LOG_WARN("module.anticheat", "Anticheat: Walk on Water - Hack detected player {} ({})", player->GetName(), player->GetGUID().ToString());
+    MakeReport();
 }
 
 void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo* movementInfo)
