@@ -142,11 +142,10 @@ void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo* move
     if (movementInfo->HasMovementFlag(MOVEMENTFLAG_FALLING))
         return;
 
-    float x, y, z;
-    player->GetPosition(x, y, z);
+    auto const& pos = player->GetPosition();
 
     // we are not really walking there
-    if (std::fabs(player->GetMap()->GetHeight(x, y, z) - z) <= 1.0f)
+    if (std::fabs(player->GetMap()->GetHeight(pos) - pos.GetPositionZ()) <= 1.0f)
         return;
 
     BuildReport(player, AnticheatDetectionType::TeleportPlaneHack);
