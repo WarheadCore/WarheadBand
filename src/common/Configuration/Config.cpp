@@ -239,12 +239,7 @@ ConfigMgr* ConfigMgr::instance()
 
 bool ConfigMgr::Reload()
 {
-    if (!LoadAppConfigs(true))
-    {
-        return false;
-    }
-
-    return LoadModulesConfigs(true, false);
+    return LoadAppConfigs(true) && LoadModulesConfigs(true);
 }
 
 template<class T>
@@ -369,9 +364,7 @@ void ConfigMgr::Configure(std::string const& initFileName, std::vector<std::stri
     if (!modulesConfigList.empty())
     {
         for (auto const& itr : Warhead::Tokenize(modulesConfigList, ',', false))
-        {
             _additonalFiles.emplace_back(itr);
-        }
     }
 }
 
@@ -379,31 +372,21 @@ bool ConfigMgr::LoadAppConfigs(bool isReload /*= false*/)
 {
     // #1 - Load init config file .conf.dist
     if (!LoadInitial(_filename + ".dist", isReload))
-    {
         return false;
-    }
 
     // #2 - Load .conf file
     if (!LoadAdditionalFile(_filename, true, isReload))
-    {
         _usingDistConfig = true;
-    }
 
-    return true;
+    return LoadModulesConfigs(isReload);
 }
 
-bool ConfigMgr::LoadModulesConfigs(bool isReload /*= false*/, bool isNeedPrintInfo /*= true*/)
+bool ConfigMgr::LoadModulesConfigs(bool isReload /*= false*/)
 {
     if (_additonalFiles.empty())
     {
         // Send successful load if no found files
         return true;
-    }
-
-    if (isNeedPrintInfo)
-    {
-        LOG_INFO("server.loading", " ");
-        LOG_INFO("server.loading", "Loading modules configuration...");
     }
 
     // Start loading module configs
@@ -416,57 +399,41 @@ bool ConfigMgr::LoadModulesConfigs(bool isReload /*= false*/, bool isNeedPrintIn
         std::string defaultFileName = distFileName;
 
         if (!defaultFileName.empty())
-        {
             defaultFileName.erase(defaultFileName.end() - 5, defaultFileName.end());
-        }
 
         // Load .conf.dist config
         isExistDistConfig = LoadAdditionalFile(moduleConfigPath + distFileName, false, isReload);
 
         if (!isReload && !isExistDistConfig)
-        {
-            LOG_FATAL("server.loading", "> ConfigMgr::LoadModulesConfigs: Not found original config '{}'. Stop loading", distFileName);
-            ABORT();
-        }
+            ABORT("> ConfigMgr::LoadModulesConfigs: Not found original config '{}'. Stop loading", distFileName);
 
         // Load .conf config
         isExistDefaultConfig = LoadAdditionalFile(moduleConfigPath + defaultFileName, true, isReload);
 
         if (isExistDefaultConfig && isExistDistConfig)
-        {
             _moduleConfigFiles.emplace_back(defaultFileName);
-        }
         else if (!isExistDefaultConfig && isExistDistConfig)
-        {
             _moduleConfigFiles.emplace_back(distFileName);
-        }
-    }
-
-    if (isNeedPrintInfo)
-    {
-        if (!_moduleConfigFiles.empty())
-        {
-            // Print modules configurations
-            LOG_INFO("server.loading", " ");
-            LOG_INFO("server.loading", "Using modules configuration:");
-
-            for (auto const& itr : _moduleConfigFiles)
-            {
-                LOG_INFO("server.loading", "> {}", itr);
-            }
-        }
-        else
-        {
-            LOG_INFO("server.loading", "> Not found modules config files");
-        }
-    }
-
-    if (isNeedPrintInfo)
-    {
-        LOG_INFO("server.loading", " ");
     }
 
     return true;
+}
+
+void ConfigMgr::ShowModulesConfigs()
+{
+    if (!_moduleConfigFiles.empty())
+    {
+        // Print modules configurations
+        LOG_INFO("server.loading", "");
+        LOG_INFO("server.loading", "Using modules configuration:");
+
+        for (auto const& configName : _moduleConfigFiles)
+            LOG_INFO("server.loading", "> {}", configName);
+    }
+    else
+        LOG_INFO("server.loading", "> Not found modules config files");
+
+    LOG_INFO("server.loading", "");
 }
 
 #define TEMPLATE_CONFIG_OPTION(__typename) \
