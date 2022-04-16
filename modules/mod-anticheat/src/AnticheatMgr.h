@@ -26,6 +26,7 @@
 
 class Player;
 struct MovementInfo;
+struct Position;
 
 enum class AnticheatDetectionType : uint8
 {
@@ -63,7 +64,6 @@ public:
     inline MovementInfo const* GetLastMovementInfo() const { return _lastMovementInfo.get(); }
     inline void SetLastMovementInfo(MovementInfo const* moveInfo) { _lastMovementInfo = std::make_unique<MovementInfo>(*moveInfo); }
 
-    //inline void SetPosition(float x, float y, float z, float o) {_lastMovementInfo->pos = { x, y, z, o }; }
     inline void SetPosition(Position const& pos) { _lastMovementInfo->pos = pos; }
 
     inline uint32 GetTotalReports() const { return _totalReports; }
