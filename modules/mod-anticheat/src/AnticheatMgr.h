@@ -64,7 +64,7 @@ public:
     inline MovementInfo const* GetLastMovementInfo() const { return _lastMovementInfo.get(); }
     inline void SetLastMovementInfo(MovementInfo const* moveInfo) { _lastMovementInfo = std::make_unique<MovementInfo>(*moveInfo); }
 
-    inline void SetPosition(Position const& pos) { _lastMovementInfo->pos = pos; }
+    void SetPosition(Position const& pos);
 
     inline uint32 GetTotalReports() const { return _totalReports; }
     inline void SetTotalReports(uint32 totalReports) { _totalReports = totalReports; }

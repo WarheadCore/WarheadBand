@@ -28,6 +28,11 @@
 
 constexpr float CLIMB_ANGLE = 1.87f;
 
+void AnticheatData::SetPosition(Position const& pos)
+{
+    _lastMovementInfo->pos = pos;
+}
+
 AnticheatMgr::~AnticheatMgr()
 {
     _players.clear();
