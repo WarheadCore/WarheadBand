@@ -203,7 +203,7 @@ void AnticheatMgr::ZAxisHackDetection(Player* player, MovementInfo* movementInfo
     auto newX = movementInfo->pos.GetPositionX();
 
     auto lastY = lastMovement->pos.GetPositionY();
-    auto newY = movementInfo->pos.GetPositionY();    
+    auto newY = movementInfo->pos.GetPositionY();
 
     auto xDiff = std::fabs(lastX - newX);
     auto yDiff = std::fabs(lastY - newY);
