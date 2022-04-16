@@ -2082,7 +2082,7 @@ float Map::GetHeight(Position const& pos, bool checkVMap /*= true*/, float maxSe
             return mapHeight; // better use .map surface height
         }
 
-        return vmapHeight; // we have only vmapHeight (if have)            
+        return vmapHeight; // we have only vmapHeight (if have)
     }
 
     return mapHeight; // explicitly use map data
