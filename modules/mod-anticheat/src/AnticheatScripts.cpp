@@ -15,15 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
 #include "AnticheatMgr.h"
-#include "Chat.h"
-#include "GameTime.h"
-#include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "Timer.h"
-//#include "World.h"
 
 class AnticheatPlayerScript : public PlayerScript
 {
@@ -46,41 +40,10 @@ class AnticheatWorldScript : public WorldScript
 public:
     AnticheatWorldScript() : WorldScript("AnticheatWorldScript") { }
 
-    void OnUpdate(uint32 /*diff*/) override
-    {
-        if (GameTime::GetGameTime() > _resetTime)
-        {
-            LOG_INFO("module", "Anticheat: Resetting daily report states.");
-            sAnticheatMgr->ResetDailyReportStates();
-            UpdateReportResetTime();
-            LOG_INFO("module", "Anticheat: Next daily report reset: {}", Warhead::Time::TimeToHumanReadable(_resetTime));
-        }
-
-        if (GameTime::GetUptime() > _lastIterationPlayer)
-        {
-            _lastIterationPlayer = GameTime::GetUptime() + Seconds(MOD_CONF_GET_UINT("Anticheat.SaveReportsTime"));
-
-            LOG_INFO("module", "Saving reports for {} players.", sWorld->GetPlayerCount());
-
-            for (SessionMap::const_iterator itr = sWorld->GetAllSessions().begin(); itr != sWorld->GetAllSessions().end(); ++itr)
-                if (Player* plr = itr->second->GetPlayer())
-                    sAnticheatMgr->SavePlayerData(plr);
-        }
-    }
-
     void OnAfterConfigLoad(bool reload) override
     {
         sAnticheatMgr->LoadConfig(reload);
     }
-
-private:
-    void UpdateReportResetTime()
-    {
-        _resetTime = Seconds(Warhead::Time::GetNextTimeWithDayAndHour(-1, 6));
-    }
-
-    Seconds _resetTime = 0s;
-    Seconds _lastIterationPlayer = GameTime::GetUptime() + 30s; //TODO: change 30 secs static to a configurable option
 };
 
 class AnticheatMovementHandlerScript : public MovementHandlerScript

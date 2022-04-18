@@ -89,6 +89,13 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo* moveme
     if (!lastMovement)
         return;
 
+    uint32 distance2D = (uint32)movementInfo->pos.GetExactDist2d(lastMovement->pos);
+
+    // We don't need to check for a water walking hack if the player hasn't moved
+    // This is necessary since MovementHandler fires if you rotate the camera in place
+    if (!distance2D)
+        return;
+
     auto MakeReport = [this, player]()
     {
         BuildReport(player, AnticheatDetectionType::WaterWalk);
@@ -322,11 +329,16 @@ void AnticheatMgr::ClimbHackDetection(Player* player, MovementInfo* movementInfo
         return;
 
     auto const& lastMovement = GetLastMovementInfo(player->GetGUID());
-    if (!lastMovement || lastMovement->HasMovementFlag(MOVEMENTFLAG_FALLING))
+    if (!lastMovement)
         return;
 
     Position playerPos = player->GetPosition();
-    if (Position::NormalizeOrientation(std::tan(std::fabs(playerPos.GetPositionZ() - movementInfo->pos.GetPositionZ()) / movementInfo->pos.GetExactDist2d(&playerPos))) <= CLIMB_ANGLE)
+    float deltaZ = std::fabs(playerPos.GetPositionZ() - movementInfo->pos.GetPositionZ());
+    float deltaXY = movementInfo->pos.GetExactDist2d(lastMovement->pos);
+
+    float angle = Position::NormalizeOrientation(std::tan(deltaZ / deltaXY));
+
+    if (angle <= CLIMB_ANGLE)
         return;
 
     LOG_WARN("module.anticheat", "Anticheat: Climb-Hack detected player {} ({})", player->GetName(), player->GetGUID().ToString());
