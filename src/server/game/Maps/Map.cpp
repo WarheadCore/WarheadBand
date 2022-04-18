@@ -2047,17 +2047,23 @@ Transport* Map::GetTransportForPos(uint32 phase, float x, float y, float z, Worl
 
 float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
+    Position pos = Position{ x, y, z };
+    return GetHeight(pos, checkVMap, maxSearchDist);
+}
+
+float Map::GetHeight(Position const& pos, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
+{
     // find raw .map surface under Z coordinates
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    float gridHeight = GetGridHeight(x, y);
-    if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
+    float gridHeight = GetGridHeight(pos.GetPositionX(), pos.GetPositionY());
+    if (G3D::fuzzyGe(pos.GetPositionZ(), gridHeight - GROUND_HEIGHT_TOLERANCE))
         mapHeight = gridHeight;
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
     {
         VMAP::IVMapMgr* vmgr = VMAP::VMapFactory::createOrGetVMapMgr();
-        vmapHeight = vmgr->getHeight(GetId(), x, y, z, maxSearchDist);   // look from a bit higher pos to find the floor
+        vmapHeight = vmgr->getHeight(GetId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), maxSearchDist);   // look from a bit higher pos to find the floor
     }
 
     // mapHeight set for any above raw ground Z or <= INVALID_HEIGHT
@@ -2070,16 +2076,16 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
 
             // we are already under the surface or vmap height above map heigt
             // or if the distance of the vmap height is less the land height distance
-            if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
+            if (vmapHeight > mapHeight || std::fabs(mapHeight - pos.GetPositionZ()) > std::fabs(vmapHeight - pos.GetPositionZ()))
                 return vmapHeight;
-            else
-                return mapHeight;                           // better use .map surface height
+
+            return mapHeight; // better use .map surface height
         }
-        else
-            return vmapHeight;                              // we have only vmapHeight (if have)
+
+        return vmapHeight; // we have only vmapHeight (if have)
     }
 
-    return mapHeight;                               // explicitly use map data
+    return mapHeight; // explicitly use map data
 }
 
 float Map::GetGridHeight(float x, float y) const
