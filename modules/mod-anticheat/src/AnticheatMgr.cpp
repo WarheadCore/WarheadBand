@@ -451,12 +451,12 @@ void AnticheatMgr::HandlePlayerLogin(Player* player)
         return;
 
     auto playerGuid = player->GetGUID();
-    auto anticheatData = GetAnticheatData(player->GetGUID());
+    auto anticheatData = GetAnticheatData(playerGuid);
     ASSERT(!anticheatData);
 
-    _players.emplace(player->GetGUID(), AnticheatData());
+    _players.emplace(playerGuid, AnticheatData());
 
-    anticheatData = GetAnticheatData(player->GetGUID());
+    anticheatData = GetAnticheatData(playerGuid);
     ASSERT(anticheatData);
 
     // we initialize the pos of lastMovementPosition var.
