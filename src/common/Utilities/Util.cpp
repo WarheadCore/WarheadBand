@@ -102,7 +102,7 @@ bool IsIPAddress(char const* ipaddress)
 uint32 CreatePIDFile(std::string const& filename)
 {
     FILE* pid_file = fopen(filename.c_str(), "w");
-    if (pid_file == nullptr)
+    if (!pid_file)
     {
         return 0;
     }

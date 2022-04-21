@@ -78,7 +78,7 @@ public:
         {
             { "setbit",         HandleDebugSet32BitCommand,            SEC_ADMINISTRATOR, Console::No },
             { "threat",         HandleDebugThreatListCommand,          SEC_ADMINISTRATOR, Console::No },
-            { "hostil",         HandleDebugHostileRefListCommand,      SEC_ADMINISTRATOR, Console::No },
+            { "hostile",        HandleDebugHostileRefListCommand,      SEC_ADMINISTRATOR, Console::No },
             { "anim",           HandleDebugAnimCommand,                SEC_ADMINISTRATOR, Console::No },
             { "arena",          HandleDebugArenaCommand,               SEC_ADMINISTRATOR, Console::No },
             { "bg",             HandleDebugBattlegroundCommand,        SEC_ADMINISTRATOR, Console::No },
@@ -620,7 +620,7 @@ public:
                         continue;
                     }
 
-                    if (updateQueue[qp] == nullptr)
+                    if (!updateQueue[qp])
                     {
                         handler->PSendSysMessage("The item with slot {} and guid {} has its queuepos ({}) pointing to NULL in the queue!", item->GetSlot(), item->GetGUID().GetCounter(), qp);
                         error = true;
@@ -688,7 +688,7 @@ public:
                                 continue;
                             }
 
-                            if (updateQueue[qp] == nullptr)
+                            if (!updateQueue[qp])
                             {
                                 handler->PSendSysMessage("The item in bag {} at slot {} having guid {} has a queuepos ({}) that points to NULL in the queue!", bag->GetSlot(), item2->GetSlot(), item2->GetGUID().GetCounter(), qp);
                                 error = true;
@@ -737,7 +737,7 @@ public:
 
                 Item* test = player->GetItemByPos(item->GetBagSlot(), item->GetSlot());
 
-                if (test == nullptr)
+                if (!test)
                 {
                     handler->PSendSysMessage("queue({}): The bag({}) and slot({}) values for {} are incorrect, the player doesn't have any item at that position!", index, item->GetBagSlot(), item->GetSlot(), item->GetGUID().ToString());
                     error = true;
@@ -845,7 +845,7 @@ public:
             ref = ref->next();
         }
 
-        handler->SendSysMessage("End of hostil reference list.");
+        handler->SendSysMessage("End of hostile reference list.");
         return true;
     }
 

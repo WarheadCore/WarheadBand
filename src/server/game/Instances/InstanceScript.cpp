@@ -33,6 +33,12 @@
 #include "Spell.h"
 #include "WorldSession.h"
 
+BossBoundaryData::~BossBoundaryData()
+{
+    for (const_iterator it = begin(); it != end(); ++it)
+        delete it->boundary;
+}
+
 void InstanceScript::SaveToDB()
 {
     std::string data = GetSaveData();
@@ -122,6 +128,13 @@ bool InstanceScript::IsEncounterInProgress() const
     return false;
 }
 
+void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
+{
+    for (BossBoundaryEntry const& entry : data)
+        if (entry.bossId < bosses.size())
+            bosses[entry.bossId].boundary.push_back(entry.boundary);
+}
+
 void InstanceScript::LoadMinionData(const MinionData* data)
 {
     while (data->entry)
@@ -139,7 +152,7 @@ void InstanceScript::LoadDoorData(const DoorData* data)
     while (data->entry)
     {
         if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));
+            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type)));
 
         ++data;
     }
@@ -270,28 +283,6 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
         if (add)
         {
             data.bossInfo->door[data.type].insert(door);
-            switch (data.boundary)
-            {
-                default:
-                case BOUNDARY_NONE:
-                    break;
-                case BOUNDARY_N:
-                case BOUNDARY_S:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX();
-                    break;
-                case BOUNDARY_E:
-                case BOUNDARY_W:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionY();
-                    break;
-                case BOUNDARY_NW:
-                case BOUNDARY_SE:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() + door->GetPositionY();
-                    break;
-                case BOUNDARY_NE:
-                case BOUNDARY_SW:
-                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() - door->GetPositionY();
-                    break;
-            }
         }
         else
             data.bossInfo->door[data.type].erase(door);

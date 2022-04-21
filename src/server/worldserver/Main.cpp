@@ -543,7 +543,7 @@ void ClearOnlineAccounts()
 
 void ShutdownCLIThread(std::thread* cliThread)
 {
-    if (cliThread != nullptr)
+    if (cliThread)
     {
 #ifdef _WIN32
         // First try to cancel any I/O in the CLI thread
@@ -793,7 +793,7 @@ void AuctionListingRunnable()
 
 void ShutdownAuctionListingThread(std::thread* thread)
 {
-    if (thread != nullptr)
+    if (thread)
     {
         thread->join();
         delete thread;

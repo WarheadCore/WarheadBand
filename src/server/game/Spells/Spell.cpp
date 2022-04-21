@@ -1689,7 +1689,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
     if (a > -0.0001f)
         a = 0;
 
-    LOG_ERROR("spells", "Spell::SelectTrajTargets: a {} b {}", a, b);
+    LOG_DEBUG("spells", "Spell::SelectTrajTargets: a {} b {}", a, b);
 
     // Xinef: hack for distance, many trajectory spells have RangeEntry 1 (self)
     float bestDist = m_spellInfo->GetMaxRange(false) * 2;
@@ -4501,13 +4501,25 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNE)
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
+    PackedGuid realCasterGUID = m_caster->GetPackGUID();
+    if (TempSummon const* tempSummon = m_caster->ToTempSummon())
+    {
+        if (tempSummon->GetEntry() == WORLD_TRIGGER)
+        {
+            if (GameObject* casterGameobject = tempSummon->GetSummonerGameObject())
+            {
+                realCasterGUID = casterGameobject->GetPackGUID();
+            }
+        }
+    }
+
     WorldPacket data(SMSG_SPELL_START, (8 + 8 + 4 + 4 + 2));
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
     else
-        data << m_caster->GetPackGUID();
+        data << realCasterGUID;
 
-    data << m_caster->GetPackGUID();
+    data << realCasterGUID;
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
@@ -4587,14 +4599,26 @@ void Spell::SendSpellGo()
     if (!m_spellInfo->StartRecoveryTime)
         castFlags |= CAST_FLAG_NO_GCD;
 
+    PackedGuid realCasterGUID = m_caster->GetPackGUID();
+    if (TempSummon const* tempSummon = m_caster->ToTempSummon())
+    {
+        if (tempSummon->GetEntry() == WORLD_TRIGGER)
+        {
+            if (GameObject* casterGameobject = tempSummon->GetSummonerGameObject())
+            {
+                realCasterGUID = casterGameobject->GetPackGUID();
+            }
+        }
+    }
+
     WorldPacket data(SMSG_SPELL_GO, 150);                    // guess size
 
     if (m_CastItem)
         data << m_CastItem->GetPackGUID();
     else
-        data << m_caster->GetPackGUID();
+        data << realCasterGUID;
 
-    data << m_caster->GetPackGUID();
+    data << realCasterGUID;
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
@@ -6018,6 +6042,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (m_pathFinder->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE) || target->GetExactDistSq(endPos.x, endPos.y, endPos.z) > maxdist * maxdist || m_pathFinder->getPathLength() > (40.0f + (m_caster->HasAura(58097) ? 5.0f : 0.0f)))
                             return SPELL_FAILED_NOPATH;
                     }
+                    m_caster->ToPlayer()->SetCanTeleport(true);
                     break;
                 }
             case SPELL_EFFECT_SKINNING:
