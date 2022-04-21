@@ -17,6 +17,7 @@
 
 #include "BattlegroundAV.h"
 #include "ChatTextBuilder.h"
+#include "CreatureTextMgr.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
