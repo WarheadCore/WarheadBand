@@ -96,14 +96,4 @@ WH_COMMON_API void CleanStringForMysqlQuery(std::string& str);
 
 #define MAX_QUERY_LEN 32*1024
 
-namespace Warhead
-{
-    template<class ArgumentType, class ResultType>
-    struct unary_function
-    {
-        typedef ArgumentType argument_type;
-        typedef ResultType result_type;
-    };
-}
-
 #endif

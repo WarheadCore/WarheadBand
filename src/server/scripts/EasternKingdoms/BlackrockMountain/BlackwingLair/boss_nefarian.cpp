@@ -199,7 +199,7 @@ std::unordered_map<uint32, uint32> spawnerSpells =
     { NPC_RED_SPAWNER,    SPELL_SPAWN_RED_DRAKONID }
 };
 
-struct ClassCallSelector : public Warhead::unary_function<Unit*, bool>
+struct ClassCallSelector
 {
     ClassCallSelector(Unit const* unit, uint8 targetClass) : _me(unit), _targetClass(targetClass) { }
 
