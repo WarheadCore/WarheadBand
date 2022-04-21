@@ -1,5 +1,5 @@
 /*
- * This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+ * This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by the
@@ -20,7 +20,7 @@
 
 #include "Position.h"
 
-class AC_GAME_API AreaBoundary
+class WH_GAME_API AreaBoundary
 {
     public:
         bool IsWithinBoundary(Position const* pos) const { return pos && (IsWithinBoundaryArea(pos) != _isInvertedBoundary); }
@@ -72,7 +72,7 @@ class AC_GAME_API AreaBoundary
         bool _isInvertedBoundary;
 };
 
-class AC_GAME_API RectangleBoundary : public AreaBoundary
+class WH_GAME_API RectangleBoundary : public AreaBoundary
 {
     public:
         // X axis is north/south, Y axis is east/west, larger values are northwest
@@ -85,7 +85,7 @@ class AC_GAME_API RectangleBoundary : public AreaBoundary
         float const _minX, _maxX, _minY, _maxY;
 };
 
-class AC_GAME_API CircleBoundary : public AreaBoundary
+class WH_GAME_API CircleBoundary : public AreaBoundary
 {
     public:
         CircleBoundary(Position const& center, double radius, bool isInverted = false);
@@ -99,7 +99,7 @@ class AC_GAME_API CircleBoundary : public AreaBoundary
         double const _radiusSq;
 };
 
-class AC_GAME_API EllipseBoundary : public AreaBoundary
+class WH_GAME_API EllipseBoundary : public AreaBoundary
 {
     public:
         EllipseBoundary(Position const& center, double radiusX, double radiusY, bool isInverted = false);
@@ -112,7 +112,7 @@ class AC_GAME_API EllipseBoundary : public AreaBoundary
         double const _radiusYSq, _scaleXSq;
 };
 
-class AC_GAME_API TriangleBoundary : public AreaBoundary
+class WH_GAME_API TriangleBoundary : public AreaBoundary
 {
     public:
         TriangleBoundary(Position const& pointA, Position const& pointB, Position const& pointC, bool isInverted = false);
@@ -125,7 +125,7 @@ class AC_GAME_API TriangleBoundary : public AreaBoundary
         double const _abx, _bcx, _cax, _aby, _bcy, _cay;
 };
 
-class AC_GAME_API ParallelogramBoundary : public AreaBoundary
+class WH_GAME_API ParallelogramBoundary : public AreaBoundary
 {
     public:
         // Note: AB must be orthogonal to AD
@@ -139,7 +139,7 @@ class AC_GAME_API ParallelogramBoundary : public AreaBoundary
         double const _abx, _dax, _aby, _day;
 };
 
-class AC_GAME_API ZRangeBoundary : public AreaBoundary
+class WH_GAME_API ZRangeBoundary : public AreaBoundary
 {
     public:
         ZRangeBoundary(float minZ, float maxZ, bool isInverted = false);
@@ -151,7 +151,7 @@ class AC_GAME_API ZRangeBoundary : public AreaBoundary
         float const _minZ, _maxZ;
 };
 
-class AC_GAME_API BoundaryUnionBoundary : public AreaBoundary
+class WH_GAME_API BoundaryUnionBoundary : public AreaBoundary
 {
     public:
         BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted = false);

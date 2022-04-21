@@ -5044,8 +5044,8 @@ Unit* SmartScript::DoSelectLowestHpPercentFriendly(float range, uint32 minHpPct,
     }
 
     Unit* unit = nullptr;
-    Acore::MostHPPercentMissingInRange u_check(me, range, minHpPct, maxHpPct);
-    Acore::UnitLastSearcher<Acore::MostHPPercentMissingInRange> searcher(me, unit, u_check);
+    Warhead::MostHPPercentMissingInRange u_check(me, range, minHpPct, maxHpPct);
+    Warhead::UnitLastSearcher<Warhead::MostHPPercentMissingInRange> searcher(me, unit, u_check);
     Cell::VisitGridObjects(me, searcher, range);
     return unit;
 }

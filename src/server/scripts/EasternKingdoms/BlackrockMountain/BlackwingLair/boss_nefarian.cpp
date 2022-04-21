@@ -199,7 +199,7 @@ std::unordered_map<uint32, uint32> spawnerSpells =
     { NPC_RED_SPAWNER,    SPELL_SPAWN_RED_DRAKONID }
 };
 
-struct ClassCallSelector : public Acore::unary_function<Unit*, bool>
+struct ClassCallSelector : public Warhead::unary_function<Unit*, bool>
 {
     ClassCallSelector(Unit const* unit, uint8 targetClass) : _me(unit), _targetClass(targetClass) { }
 
@@ -242,7 +242,7 @@ public:
                 // Victor Nefarius weekly mechanic drakonid spawn
                 // Pick 2 drakonids and keep them for the whole save duration (the drakonids can't be repeated).
                 std::vector<uint32> nefarianDrakonidSpawners = { NPC_BLACK_SPAWNER, NPC_BLUE_SPAWNER, NPC_BRONZE_SPAWNER, NPC_GREEN_SPAWNER, NPC_RED_SPAWNER };
-                Acore::Containers::RandomResize(nefarianDrakonidSpawners, 2);
+                Warhead::Containers::RandomResize(nefarianDrakonidSpawners, 2);
 
                 _nefarianRightTunnel = nefarianDrakonidSpawners[0];
                 _nefarianLeftTunnel = nefarianDrakonidSpawners[1];
@@ -680,7 +680,7 @@ struct boss_nefarian : public BossAI
                             classesPresent.insert(ref->getTarget()->getClass());
                         }
                     }
-                    uint8 targetClass = Acore::Containers::SelectRandomContainerElement(classesPresent);
+                    uint8 targetClass = Warhead::Containers::SelectRandomContainerElement(classesPresent);
 
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, ClassCallSelector(me, targetClass)))
                     {
