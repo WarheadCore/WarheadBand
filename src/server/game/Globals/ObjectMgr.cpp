@@ -9300,9 +9300,9 @@ void ObjectMgr::LoadMailServerTemplates()
         servMail.body        = fields[10].Get<std::string>();
         servMail.active      = fields[11].Get<uint8>();
 
-        if (servMail.reqLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (servMail.reqLevel > CONF_GET_UINT("MaxPlayerLevel"))
         {
-            LOG_ERROR("sql.sql", "Table `mail_server_template` has reqLevel {} but max level is {} for id {}, skipped.", servMail.reqLevel, sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), servMail.id);
+            LOG_ERROR("sql.sql", "Table `mail_server_template` has reqLevel {} but max level is {} for id {}, skipped.", servMail.reqLevel, CONF_GET_UINT("MaxPlayerLevel"), servMail.id);
             return;
         }
 
