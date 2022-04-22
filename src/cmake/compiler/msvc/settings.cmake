@@ -171,6 +171,14 @@ target_compile_options(warhead-warning-interface
     /we4263  # 'function' : member function does not override any base class virtual member function
     /we4264) # 'virtual_function' : no override available for virtual member function from base 'class'; function is hidden
 
+# Disable Visual Studio 2022 build process management
+# This will make compiler behave like in 2019 - compiling num_cpus * num_projects at the same time
+# it is neccessary because of a bug in current implementation that makes scripts build only a single
+# file at the same time after game project finishes building
+if (NOT MSVC_TOOLSET_VERSION LESS 143)
+  file(COPY "${CMAKE_CURRENT_LIST_DIR}/Directory.Build.props" DESTINATION "${CMAKE_BINARY_DIR}")
+endif()
+
 # Disable incremental linking in debug builds.
 # To prevent linking getting stuck (which might be fixed in a later VS version).
 macro(DisableIncrementalLinking variable)
