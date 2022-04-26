@@ -25,9 +25,9 @@
 #include "MySQLThreading.h"
 #include "Util.h"
 #include <boost/version.hpp>
+#include <csignal>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
-#include <csignal>
 
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
