@@ -18,6 +18,16 @@
 #include "PlayerBotMgr.h"
 #include "Log.h"
 
+BotsData::~BotsData()
+{
+    Master = nullptr;
+
+    for (auto& [botGuid, playerBot] : PlayerBotsStore)
+        delete playerBot;
+
+    PlayerBotsStore.clear();
+}
+
 PlayerBotMgr* PlayerBotMgr::instance()
 {
     static PlayerBotMgr instance;
