@@ -15,7 +15,20 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
   ${CMAKE_CURRENT_SOURCE_DIR}/Platform
+  ${CMAKE_CURRENT_SOURCE_DIR}/Collision
+  ${CMAKE_CURRENT_SOURCE_DIR}/Navigation
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+
+if (BUILD_APPLICATION_WORLDSERVER OR TOOLS)
+  unset(PRIVATE_SOURCES)
+  CollectSourceFiles(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE_SOURCES
+    # Exclude
+    ${CMAKE_CURRENT_SOURCE_DIR}/Debugging
+    ${CMAKE_CURRENT_SOURCE_DIR}/Platform
+    ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+endif()
 
 # Manually set sources for Debugging directory as we don't want to include WheatyExceptionReport in common project
 # It needs to be included both in authserver and worldserver for the static global variable to be properly initialized
@@ -57,8 +70,6 @@ target_link_libraries(common
     argon2
     boost
     Poco::Foundation
-    g3dlib
-    Detour
     sfmt
     utf8cpp
     openssl
@@ -67,6 +78,13 @@ target_link_libraries(common
     stdfs
     fmt
     valgrind)
+
+if (BUILD_APPLICATION_WORLDSERVER OR TOOLS)
+  target_link_libraries(common
+    PUBLIC
+      g3dlib
+      Detour)
+endif()
 
 set_target_properties(common
   PROPERTIES

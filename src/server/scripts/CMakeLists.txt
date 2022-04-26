@@ -9,11 +9,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-message("")
-
 # Make the script module list available in the current scope
 GetScriptModuleList(SCRIPT_MODULE_LIST)
-GetModuleSourceList(MODULES_MODULE_LIST)
 
 # Make the native install offset available in this scope
 GetInstallOffset(INSTALL_OFFSET)
@@ -28,18 +25,6 @@ elseif(SCRIPTS MATCHES "static")
   set(SCRIPTS_DEFAULT_LINKAGE "static")
 else()
   set(SCRIPTS_DEFAULT_LINKAGE "disabled")
-endif()
-
-# Sets the MODULES_${SOURCE_MODULE} variables
-# when using predefined templates for script building
-# like dynamic, static
-# Sets MODULES_DEFAULT_LINKAGE
-if(MODULES MATCHES "dynamic")
-  set(MODULES_DEFAULT_LINKAGE "dynamic")
-elseif(MODULES MATCHES "static")
-  set(MODULES_DEFAULT_LINKAGE "static")
-else()
-  set(MODULES_DEFAULT_LINKAGE "disabled")
 endif()
 
 # Sets SCRIPTS_USE_WHITELIST
@@ -104,8 +89,6 @@ foreach(SCRIPT_GRAPH_KEY ${SCRIPT_GRAPH_KEYS})
   endforeach()
   message("  |")
 endforeach()
-
-message("")
 
 # Base sources which are used by every script project
 if(USE_SCRIPTPCH)

@@ -44,6 +44,7 @@ include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
 include(ConfigureScripts)
 include(ConfigureModules)
+include(ConfigureApplications)
 include(DynamicLibInstall)
 
 # some utils for cmake
@@ -100,7 +101,7 @@ include(src/cmake/showoptions.cmake)
 
 add_subdirectory(deps)
 
-if (SERVERS OR TOOLS)
+if (TOOLS)
   add_subdirectory(src/common)
 endif()
 
@@ -115,8 +116,10 @@ endif()
 # add core sources
 add_subdirectory(src)
 
-# add modules sources
-add_subdirectory(modules)
+if (BUILD_APPLICATION_WORLDSERVER)
+  # add modules sources
+  add_subdirectory(modules)
+endif()
 
 if( BUILD_TESTING )
     # we use these flags to get code coverage
