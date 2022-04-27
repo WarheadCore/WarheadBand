@@ -9,6 +9,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+add_subdirectory(apps)
+
 if (APPS_BUILD AND NOT APPS_BUILD STREQUAL "none")
   add_subdirectory(database)
 endif()
@@ -21,5 +23,3 @@ if (BUILD_APPLICATION_WORLDSERVER)
   add_subdirectory(game)
   add_subdirectory(scripts)
 endif()
-
-add_subdirectory(apps)
