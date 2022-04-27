@@ -10,9 +10,9 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
 
-set(BUILD_APPLICATION_AUTHSERVER 0)
-set(BUILD_APPLICATION_WORLDSERVER 0)
-set(BUILD_APPLICATION_DBIMPORT 0)
+option(BUILD_APPLICATION_AUTHSERVER 0)
+option(BUILD_APPLICATION_WORLDSERVER 0)
+option(BUILD_APPLICATION_DBIMPORT 0)
 
 # Returns the base path to the apps directory in the source directory
 function(GetApplicationsBasePath variable)
@@ -100,14 +100,19 @@ foreach(BUILD_APP ${APPLICATIONS_BUILD_LIST})
     endif()
   endif()
 
+  message("BUILD_APP - ${BUILD_APP} - ${BUILD_APP_VARIABLE} - ${${BUILD_APP_VARIABLE}}")
+
   # Build the Graph values
   if(${BUILD_APP_VARIABLE} MATCHES "enabled")
     if (${BUILD_APP} MATCHES "authserver")
       set (BUILD_APPLICATION_AUTHSERVER 1)
+      message("set (BUILD_APPLICATION_AUTHSERVER 1)")
     elseif(${BUILD_APP} MATCHES "worldserver")
       set (BUILD_APPLICATION_WORLDSERVER 1)
+      message("set (BUILD_APPLICATION_WORLDSERVER 1)")
     elseif(${BUILD_APP} MATCHES "dbimport")
       set (BUILD_APPLICATION_DBIMPORT 1)
+      message("set (BUILD_APPLICATION_DBIMPORT 1)")
     endif()
   endif()
 endforeach()
