@@ -100,10 +100,7 @@ include(src/cmake/showoptions.cmake)
 #
 
 add_subdirectory(deps)
-
-if (TOOLS)
-  add_subdirectory(src/common)
-endif()
+add_subdirectory(src/common)
 
 if (TOOLS)
   add_subdirectory(src/tools)

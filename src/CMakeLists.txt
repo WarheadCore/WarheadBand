@@ -18,9 +18,4 @@ if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
 endif()
 
 add_subdirectory(genrev)
-
-if (APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none"))
-  add_subdirectory(common)
-endif()
-
 add_subdirectory(server)
