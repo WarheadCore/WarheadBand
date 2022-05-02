@@ -27,10 +27,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: var/ccache
-          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}:auth
           restore-keys: |
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:auth
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:auth
       - name: Configure OS
         run: source ./acore.sh install-deps
         env:
