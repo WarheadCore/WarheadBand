@@ -5,7 +5,6 @@ set -e
 # Start mysql
 sudo systemctl start mysql
 
-echo "[worldserver]" >> ./env/dist/etc/worldserver.conf
 echo "DataDir = \"../data/\"" >> ./env/dist/etc/worldserver.conf
 echo "LoginDatabaseInfo     = \"localhost;3306;root;root;acore_auth\"" >> ./env/dist/etc/worldserver.conf
 echo "WorldDatabaseInfo     = \"localhost;3306;root;root;acore_world\"" >> ./env/dist/etc/worldserver.conf

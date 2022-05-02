@@ -27,7 +27,7 @@ endfunction()
 
 # Stores the project name of the given app in the variable
 function(GetProjectNameOfApplicationName app variable)
-  string(TOLOWER "app_${app}" GENERATED_NAME)
+  string(TOLOWER "${app}" GENERATED_NAME)
   set(${variable} "${GENERATED_NAME}" PARENT_SCOPE)
 endfunction()
 
