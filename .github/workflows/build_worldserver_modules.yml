@@ -1,18 +1,26 @@
-name: db-import
+name: worldserver
 on:
   push:
     branches:
       - 'master'  # only default branch
   pull_request:
 
+concurrency:
+  group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
+  cancel-in-progress: true
+
 jobs:
-  import:
+  build:
     strategy:
       fail-fast: false
       matrix:
         # the result of the matrix will be the combination of all attributes, so we get os*compiler*modules builds
         os: [ubuntu-latest]
+        compiler: [clang12]
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.compiler }}
+    env:
+      COMPILER: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure OS
@@ -20,6 +28,8 @@ jobs:
         env:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf-db.sh
-      - name: Import db
-        run: source ./apps/ci/ci-import-db.sh
+        run: source ./apps/ci/ci-configure-world.sh static ON ON
+      - name: Build
+        run: source ./apps/ci/ci-compile.sh
+      - name: Dry run
+        run: source ./apps/ci/ci-dry-run.sh worldserver

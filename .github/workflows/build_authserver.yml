@@ -23,6 +23,14 @@ jobs:
       COMPILER: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: var/ccache
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}
       - name: Configure OS
         run: source ./acore.sh install-deps
         env:
