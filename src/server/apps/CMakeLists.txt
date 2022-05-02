@@ -36,14 +36,12 @@ endif()
 if (APPS_BUILD MATCHES "-only")
   set(BUILD_APPS_USE_WHITELIST ON)
 
-  if (APPS_BUILD STREQUAL "dbimport-only")
-    # Whitelist which is used when db import only is selected
-    list(APPEND BUILD_APPS_WHITELIST dbimport)
+  if (APPS_BUILD STREQUAL "servers-only")
+    list(APPEND BUILD_APPS_WHITELIST authserver worldserver)
   endif()
 
-  if (APPS_BUILD STREQUAL "server-only")
-    # Whitelist which is used when server only is selected
-    list(APPEND BUILD_APPS_WHITELIST authserver worldserver)
+  if (APPS_BUILD STREQUAL "dbimport-only")
+    list(APPEND BUILD_APPS_WHITELIST dbimport)
   endif()
 endif()
 

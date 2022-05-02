@@ -1,4 +1,4 @@
-name: main
+name: authserver
 on:
   push:
     branches:
@@ -28,8 +28,8 @@ jobs:
         env:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf.sh ON none
+        run: source ./apps/ci/ci-configure-auth.sh
       - name: Build
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run
-        run: source ./apps/ci/ci-worldserver-dry-run.sh
+        run: source ./apps/ci/ci-dry-run.sh authserver
