@@ -18,7 +18,7 @@ jobs:
         os: [ubuntu-latest]
         compiler: [clang12]
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.compiler }}
+    # name: ${{ matrix.compiler }}
     env:
       COMPILER: ${{ matrix.compiler }}
     steps:

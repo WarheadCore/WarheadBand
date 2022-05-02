@@ -1,4 +1,3 @@
-name: check-codestyle
 on:
   push:
     branches:
@@ -12,6 +11,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
+    name: check-codestyle
     steps:
       - uses: actions/checkout@v2
       - name: Check core codestyle
