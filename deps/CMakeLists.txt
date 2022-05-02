@@ -15,11 +15,18 @@
 
 add_subdirectory(threads)
 
-if(SERVERS OR TOOLS)
-  add_subdirectory(boost)
+if (APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none"))
+  add_subdirectory(mysql)
+endif()
+
+if (BUILD_APPLICATION_WORLDSERVER OR TOOLS)
   add_subdirectory(zlib)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
+endif()
+
+if ((APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none")) OR TOOLS)
+  add_subdirectory(boost)
   add_subdirectory(fmt)
   add_subdirectory(SFMT)
   add_subdirectory(utf8cpp)
@@ -31,15 +38,14 @@ if(SERVERS OR TOOLS)
   add_subdirectory(stdfs)
 endif()
 
-if(SERVERS)
-  add_subdirectory(mysql)
+if (BUILD_APPLICATION_WORLDSERVER)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
   add_subdirectory(gperftools)
 endif()
 
-if(TOOLS)
+if (TOOLS)
   add_subdirectory(bzip2)
   add_subdirectory(libmpq)
 endif()
