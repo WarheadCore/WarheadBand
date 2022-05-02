@@ -10,9 +10,9 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
 
-option(BUILD_APPLICATION_AUTHSERVER 0)
-option(BUILD_APPLICATION_WORLDSERVER 0)
-option(BUILD_APPLICATION_DBIMPORT 0)
+set(BUILD_APPLICATION_AUTHSERVER 0)
+set(BUILD_APPLICATION_WORLDSERVER 0)
+set(BUILD_APPLICATION_DBIMPORT 0)
 
 # Returns the base path to the apps directory in the source directory
 function(GetApplicationsBasePath variable)
@@ -58,61 +58,58 @@ function(ApplicationNameToVariable application variable)
   set(${variable} ${${variable}} PARENT_SCOPE)
 endfunction()
 
-GetApplicationsList(APPLICATIONS_BUILD_LIST)
+function(CheckApplicationsBuildList)
+  GetApplicationsList(APPLICATIONS_BUILD_LIST)
 
-if (APPS_BUILD STREQUAL "none")
-  set(APPS_DEFAULT_BUILD "disabled")
-else()
-  set(APPS_DEFAULT_BUILD "enabled")
-endif()
-
-# Sets BUILD_APPS_USE_WHITELIST
-# Sets BUILD_APPS_WHITELIST
-if (APPS_BUILD MATCHES "-only")
-  set(BUILD_APPS_USE_WHITELIST ON)
-
-  if (APPS_BUILD STREQUAL "dbimport-only")
-    # Whitelist which is used when db import only is selected
-    list(APPEND BUILD_APPS_WHITELIST dbimport)
+  if (APPS_BUILD STREQUAL "none")
+    set(APPS_DEFAULT_BUILD "disabled")
+  else()
+    set(APPS_DEFAULT_BUILD "enabled")
   endif()
 
-  if (APPS_BUILD STREQUAL "server-only")
-    # Whitelist which is used when server only is selected
-    list(APPEND BUILD_APPS_WHITELIST authserver worldserver)
+  # Sets BUILD_APPS_USE_WHITELIST
+  # Sets BUILD_APPS_WHITELIST
+  if (APPS_BUILD MATCHES "-only")
+    set(BUILD_APPS_USE_WHITELIST ON)
+
+    if (APPS_BUILD STREQUAL "dbimport-only")
+      # Whitelist which is used when db import only is selected
+      list(APPEND BUILD_APPS_WHITELIST dbimport)
+    endif()
+
+    if (APPS_BUILD STREQUAL "server-only")
+      # Whitelist which is used when server only is selected
+      list(APPEND BUILD_APPS_WHITELIST authserver worldserver)
+    endif()
   endif()
-endif()
 
-# Set the SCRIPTS_${BUILD_APP} variables from the
-# variables set above
-foreach(BUILD_APP ${APPLICATIONS_BUILD_LIST})
-  ApplicationNameToVariable(${BUILD_APP} BUILD_APP_VARIABLE)
+  # Set the SCRIPTS_${APPLICATION_BUILD_NAME} variables from the
+  # variables set above
+  foreach(APPLICATION_BUILD_NAME ${APPLICATIONS_BUILD_LIST})
+    ApplicationNameToVariable(${APPLICATION_BUILD_NAME} APPLICATION_BUILD_VARIABLE)
 
-  if(${BUILD_APP_VARIABLE} STREQUAL "default")
-    if(BUILD_APPS_USE_WHITELIST)
-      list(FIND BUILD_APPS_WHITELIST "${BUILD_APP}" INDEX)
-      if(${INDEX} GREATER -1)
-        set(${BUILD_APP_VARIABLE} ${APPS_DEFAULT_BUILD})
+    if(${APPLICATION_BUILD_VARIABLE} STREQUAL "default")
+      if(BUILD_APPS_USE_WHITELIST)
+        list(FIND BUILD_APPS_WHITELIST "${APPLICATION_BUILD_NAME}" INDEX)
+        if(${INDEX} GREATER -1)
+          set(${APPLICATION_BUILD_VARIABLE} ${APPS_DEFAULT_BUILD})
+        else()
+          set(${APPLICATION_BUILD_VARIABLE} "disabled")
+        endif()
       else()
-        set(${BUILD_APP_VARIABLE} "disabled")
+        set(${APPLICATION_BUILD_VARIABLE} ${APPS_DEFAULT_BUILD})
       endif()
-    else()
-      set(${BUILD_APP_VARIABLE} ${APPS_DEFAULT_BUILD})
     endif()
-  endif()
 
-  message("BUILD_APP - ${BUILD_APP} - ${BUILD_APP_VARIABLE} - ${${BUILD_APP_VARIABLE}}")
-
-  # Build the Graph values
-  if(${BUILD_APP_VARIABLE} MATCHES "enabled")
-    if (${BUILD_APP} MATCHES "authserver")
-      set (BUILD_APPLICATION_AUTHSERVER 1)
-      message("set (BUILD_APPLICATION_AUTHSERVER 1)")
-    elseif(${BUILD_APP} MATCHES "worldserver")
-      set (BUILD_APPLICATION_WORLDSERVER 1)
-      message("set (BUILD_APPLICATION_WORLDSERVER 1)")
-    elseif(${BUILD_APP} MATCHES "dbimport")
-      set (BUILD_APPLICATION_DBIMPORT 1)
-      message("set (BUILD_APPLICATION_DBIMPORT 1)")
+    # Build the Graph values
+    if(${APPLICATION_BUILD_VARIABLE} MATCHES "enabled")
+      if (${APPLICATION_BUILD_NAME} MATCHES "authserver")
+        set (BUILD_APPLICATION_AUTHSERVER 1 PARENT_SCOPE)
+      elseif(${APPLICATION_BUILD_NAME} MATCHES "worldserver")
+        set (BUILD_APPLICATION_WORLDSERVER 1 PARENT_SCOPE)
+      elseif(${APPLICATION_BUILD_NAME} MATCHES "dbimport")
+        set (BUILD_APPLICATION_DBIMPORT 1 PARENT_SCOPE)
+      endif()
     endif()
-  endif()
-endforeach()
+  endforeach()
+endfunction()

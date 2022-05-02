@@ -66,9 +66,9 @@ endforeach()
 
 # Build a list of all applications when -DBUILD_APPS="custom" is selected
 GetApplicationsList(APPLICATIONS_BUILD_LIST)
-foreach(APPLICATION_BUILD ${APPLICATIONS_BUILD_LIST})
-  ApplicationNameToVariable(${APPLICATION_BUILD} APPLICATION_BUILD_VARIABLE)
-  set(${APPLICATION_BUILD_VARIABLE} "default" CACHE STRING "Enable build the ${APPLICATION_BUILD} application.")
+foreach(APPLICATION_BUILD_NAME ${APPLICATIONS_BUILD_LIST})
+  ApplicationNameToVariable(${APPLICATION_BUILD_NAME} APPLICATION_BUILD_VARIABLE)
+  set(${APPLICATION_BUILD_VARIABLE} "default" CACHE STRING "Enable build the ${APPLICATION_BUILD_NAME} application.")
   set_property(CACHE ${APPLICATION_BUILD_VARIABLE} PROPERTY STRINGS default enabled disabled)
 endforeach()
 
@@ -87,6 +87,7 @@ option(WITH_STRICT_DATABASE_TYPE_CHECKS "Enable strict checking of database fiel
 option(WITHOUT_METRICS     "Disable metrics reporting (i.e. InfluxDB and Grafana)"       0)
 option(WITH_DETAILED_METRICS  "Enable detailed metrics reporting (i.e. time each session takes to update)" 0)
 
+CheckApplicationsBuildList()
 IsDynamicLinkingRequired(WITH_DYNAMIC_LINKING_FORCED)
 IsDynamicLinkingModulesRequired(WITH_DYNAMIC_LINKING_FORCED)
 
