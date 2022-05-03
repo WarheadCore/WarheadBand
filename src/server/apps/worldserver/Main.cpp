@@ -100,7 +100,7 @@ private:
 };
 
 using namespace boost::program_options;
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void ClearOnlineAccounts();
