@@ -4,11 +4,8 @@ set -e
 
 cat >>conf/config.sh <<CONFIG_SH
 MTHREADS=$(($(grep -c ^processor /proc/cpuinfo) + 2))
-CWARNINGS=ON
 CTYPE=RelWithDebInfo
-CSCRIPTS=static
 CMODULES=$1
-CBUILD_TESTING=OFF
 CCOREPCH=$2
 CSCRIPTPCH=$3
 CBUILD_APPS_LIST='-DAPP_AUTHSERVER=disabled'
