@@ -39,10 +39,10 @@ jobs:
         env:
           CONTINUOUS_INTEGRATION: true
       - if: ${{ matrix.modules == 'with' }}
-        name: Create conf/config.sh ${{ matrix.modules }} modules
+        name: Create conf/config.sh with modules
         run: source ./apps/ci/ci-configure-world.sh static
       - if: ${{ matrix.modules == 'without' }}
-        name: Create conf/config.sh ${{ matrix.modules }} modules
+        name: Create conf/config.sh without modules
         run: source ./apps/ci/ci-configure-world.sh none
       - name: Build
         run: source ./apps/ci/ci-compile.sh
