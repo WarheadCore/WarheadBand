@@ -38,10 +38,10 @@ jobs:
         run: source ./acore.sh install-deps
         env:
           CONTINUOUS_INTEGRATION: true
-      - if: matrix.modules == 'with'
+      - if: ${{ matrix.modules == 'with' }}
         name: Create conf/config.sh ${{ matrix.modules }} modules
         run: source ./apps/ci/ci-configure-world.sh static
-      - if: matrix.modules == 'without'
+      - if: ${{ matrix.modules == 'without' }}
         name: Create conf/config.sh ${{ matrix.modules }} modules
         run: source ./apps/ci/ci-configure-world.sh none
       - name: Build
