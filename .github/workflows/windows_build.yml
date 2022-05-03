@@ -2,9 +2,8 @@ name: windows-build
 on:
   push:
     branches:
-      - 'master'
+      - 'master'  # only default branch
   pull_request:
-    types: ['labeled', 'labeled', 'opened', 'synchronize', 'reopened']
 
 concurrency:
   group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
@@ -17,11 +16,11 @@ jobs:
     runs-on: windows-latest
     name: ${{ matrix.compiler }}
     env:
-      BOOST_ROOT: C:\local\boost_1_74_0
+      BOOST_ROOT: C:\local\boost_1_78_0
     steps:
       - uses: actions/checkout@v2
       - name: Configure OS
-        run: choco install --no-progress openssl boost-msvc-14.2
+        run: choco install --no-progress openssl boost-msvc-14.3
       - name: Build
         shell: bash
         run: |
@@ -36,5 +35,5 @@ jobs:
           cp "/c/Program Files/OpenSSL-Win64/bin/libssl-1_1-x64.dll" "build/bin/Release/"
       - uses: actions/upload-artifact@v2
         with:
-          name: windows-2019-MSVC16-release
+          name: windows-2022-MSVC17-release
           path: build/bin/Release

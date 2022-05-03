@@ -20,7 +20,6 @@
 
 #include "DBCEnums.h"
 #include "Define.h"
-#include "DetourNavMesh.h"
 #include "EnumFlag.h"
 #include <cassert>
 

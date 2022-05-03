@@ -24,8 +24,11 @@
 #include "Logo.h"
 #include "MySQLThreading.h"
 #include "Util.h"
+#include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <csignal>
+#include <filesystem>
+#include <iostream>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
@@ -33,8 +36,12 @@
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
 #endif
 
+using namespace boost::program_options;
+namespace fs = std::filesystem;
+
 bool StartDB();
 void StopDB();
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
 
 /// Print out the usage string for this program on the console.
 void usage(const char* prog)
@@ -48,29 +55,16 @@ int main(int argc, char** argv)
 {
     signal(SIGABRT, &Warhead::AbortHandler);
 
-    // Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_DB_IMPORT_CONFIG);
-    int count = 1;
+    // Command line parsing
+    auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_DB_IMPORT_CONFIG));
+    auto vm = GetConsoleArguments(argc, argv, configFile);
 
-    while (count < argc)
-    {
-        if (strcmp(argv[count], "-c") == 0)
-        {
-            if (++count >= argc)
-            {
-                printf("Runtime-Error: -c option requires an input argument\n");
-                usage(argv[0]);
-                return 1;
-            }
-            else
-                configFile = argv[count];
-        }
-
-        ++count;
-    }
+    // exit if help or version is enabled
+    if (vm.count("help"))
+        return 0;
 
     // Add file and args in config
-    sConfigMgr->Configure(configFile, std::vector<std::string>(argv, argv + argc));
+    sConfigMgr->Configure(configFile.generic_string(), std::vector<std::string>(argv, argv + argc));
 
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
@@ -128,4 +122,33 @@ void StopDB()
     WorldDatabase.Close();
     LoginDatabase.Close();
     MySQL::Library_End();
+}
+
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile)
+{
+    options_description all("Allowed options");
+    all.add_options()
+        ("help,h", "print usage message")
+        ("version,v", "print version build info")
+        ("dry-run,d", "Dry run")
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_DB_IMPORT_CONFIG))), "use <arg> as configuration file");
+
+    variables_map variablesMap;
+
+    try
+    {
+        store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), variablesMap);
+        notify(variablesMap);
+    }
+    catch (std::exception const& e)
+    {
+        std::cerr << e.what() << "\n";
+    }
+
+    if (variablesMap.count("help"))
+        std::cout << all << "\n";
+    else if (variablesMap.count("dry-run"))
+        sConfigMgr->setDryRun(true);
+
+    return variablesMap;
 }

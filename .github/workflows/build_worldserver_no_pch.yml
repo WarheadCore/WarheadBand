@@ -1,4 +1,4 @@
-name: main
+name: build-world-no-pch
 on:
   push:
     branches:
@@ -23,13 +23,21 @@ jobs:
       COMPILER: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: var/ccache
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}:world
+          restore-keys: |
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:world
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:world
       - name: Configure OS
         run: source ./acore.sh install-deps
         env:
           CONTINUOUS_INTEGRATION: true
       - name: Create conf/config.sh
-        run: source ./apps/ci/ci-conf.sh ON none
+        run: source ./apps/ci/ci-configure-world.sh static OFF OFF
       - name: Build
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run
-        run: source ./apps/ci/ci-worldserver-dry-run.sh
+        run: source ./apps/ci/ci-dry-run.sh worldserver

@@ -54,7 +54,6 @@ INSTALLER_PULL_FROM=
 CCOMPILERC="/usr/bin/clang"
 CCOMPILERCXX="/usr/bin/clang++"
 
-
 # how many thread must be used for compilation ( leave zero to use all available )
 MTHREADS=${MTHREADS:-0}
 # enable/disable warnings during compilation
@@ -71,21 +70,20 @@ CDEBUG=OFF
 CTYPE=${CTYPE:-Release}
 # compile scripts
 CSCRIPTS=${CSCRIPTS:-static}
+# compile modules
+CMODULES=${CMODULES:-static}
 # compile unit tests
 CBUILD_TESTING=OFF
-# compile server
-CSERVERS=${CSERVERS:-ON}
 # compile tools
 CTOOLS=${CTOOLS:-OFF}
 # use precompiled headers ( fatest compilation but not optimized if you change headers often )
 CSCRIPTPCH=${CSCRIPTPCH:-ON}
 CCOREPCH=${CCOREPCH:-ON}
-# compile with C++20
-CUSE_CPP_20=${CUSE_CPP_20:-OFF}
+# build apps list variable
+CAPPS_BUILD=${CAPPS_BUILD:-servers-only}
 
-# Skip specific modules from compilation (cmake reconfigure needed)
-# use semicolon ; to separate modules
-CDISABLED_AC_MODULES=""
+# build apps list
+CBUILD_APPS_LIST=${CBUILD_APPS_LIST:-''}
 
 # you can add your custom definitions here ( -D )
 # example:  CCUSTOMOPTIONS=" -DWITH_PERFTOOLS=ON

@@ -52,6 +52,8 @@
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
+#include <filesystem>
+#include <iostream>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
@@ -97,6 +99,9 @@ private:
     uint32 _maxCoreStuckTimeInMs;
 };
 
+using namespace boost::program_options;
+namespace fs = std::filesystem;
+
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void ClearOnlineAccounts();
 bool StartDB();
@@ -107,20 +112,7 @@ void ShutdownCLIThread(std::thread* cliThread);
 void AuctionListingRunnable();
 void ShutdownAuctionListingThread(std::thread* thread);
 void WorldUpdateLoop();
-
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
-{
-    SYS_LOG_INFO("Usage:");
-    SYS_LOG_INFO(" {} [<options>]", prog);
-    SYS_LOG_INFO("    -c config_file           use config_file as configuration file");
-#ifdef _WIN32
-    SYS_LOG_INFO("    Running as service functions:");
-    SYS_LOG_INFO("    --service                run as service");
-    SYS_LOG_INFO("    -s install               install service");
-    SYS_LOG_INFO("    -s uninstall             uninstall service");
-#endif
-}
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& cfg_service);
 
 /// Launch the Warhead server
 int main(int argc, char** argv)
@@ -128,63 +120,23 @@ int main(int argc, char** argv)
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Warhead::AbortHandler);
 
-    ///- Command line parsing to get the configuration file name
-    std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG);
-    int c = 1;
-    while (c < argc)
-    {
-        if (strcmp(argv[c], "--dry-run") == 0)
-        {
-            sConfigMgr->setDryRun(true);
-        }
+    // Command line parsing
+    auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG));
+    std::string configService;
+    auto vm = GetConsoleArguments(argc, argv, configFile, configService);
 
-        if (!strcmp(argv[c], "-c"))
-        {
-            if (++c >= argc)
-            {
-                SYS_LOG_ERROR("Runtime-Error: -c option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-            else
-                configFile = argv[c];
-        }
+    // exit if help or version is enabled
+    if (vm.count("help"))
+        return 0;
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-        if (strcmp(argv[c], "-s") == 0) // Services
-        {
-            if (++c >= argc)
-            {
-                SYS_LOG_ERROR("Runtime-Error: -s option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-
-            if (strcmp(argv[c], "install") == 0)
-            {
-                if (WinServiceInstall())
-                    SYS_LOG_INFO("Installing service\n");
-                return 1;
-            }
-            else if (strcmp(argv[c], "uninstall") == 0)
-            {
-                if (WinServiceUninstall())
-                    SYS_LOG_INFO("Uninstalling service\n");
-                return 1;
-            }
-            else
-            {
-                SYS_LOG_ERROR("Runtime-Error: unsupported option {}", argv[c]);
-                usage(argv[0]);
-                return 1;
-            }
-        }
-
-        if (strcmp(argv[c], "--service") == 0)
-            WinServiceRun();
+    if (configService.compare("install") == 0)
+        return WinServiceInstall() == true ? 0 : 1;
+    else if (configService.compare("uninstall") == 0)
+        return WinServiceUninstall() == true ? 0 : 1;
+    else if (configService.compare("run") == 0)
+        WinServiceRun();
 #endif
-        ++c;
-    }
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     Optional<UINT> newTimerResolution;
@@ -228,7 +180,7 @@ int main(int argc, char** argv)
 #endif
 
     // Add file and args in config
-    sConfigMgr->Configure(configFile, { argv, argv + argc }, CONFIG_FILE_LIST);
+    sConfigMgr->Configure(configFile.generic_string(), {argv, argv + argc}, CONFIG_FILE_LIST);
 
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
@@ -432,7 +384,7 @@ int main(int argc, char** argv)
 
     // Launch CliRunnable thread
     std::shared_ptr<std::thread> cliThread;
-#ifdef _WIN32
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     if (sConfigMgr->GetOption<bool>("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
     if (sConfigMgr->GetOption<bool>("Console.Enable", true))
@@ -798,4 +750,42 @@ void ShutdownAuctionListingThread(std::thread* thread)
         thread->join();
         delete thread;
     }
+}
+
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& configService)
+{
+    options_description all("Allowed options");
+    all.add_options()
+        ("help,h", "print usage message")
+        ("version,v", "print version build info")
+        ("dry-run,d", "Dry run")
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG))), "use <arg> as configuration file")
+        ("update-databases-only,u", "updates databases only");
+
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+    options_description win("Windows platform specific options");
+    win.add_options()
+        ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]");
+
+    all.add(win);
+#endif
+
+    variables_map vm;
+
+    try
+    {
+        store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), vm);
+        notify(vm);
+    }
+    catch (std::exception const& e)
+    {
+        std::cerr << e.what() << "\n";
+    }
+
+    if (vm.count("help"))
+        std::cout << all << "\n";
+    else if (vm.count("dry-run"))
+        sConfigMgr->setDryRun(true);
+
+    return vm;
 }

@@ -12,12 +12,10 @@ function comp_ccacheEnable() {
     [ "$AC_CCACHE" != true ] && return
 
     export CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-'1000MB'}
-    #export CCACHE_DEPEND=true
     export CCACHE_SLOPPINESS=${CCACHE_SLOPPINESS:-pch_defines,time_macros,include_file_mtime}
     export CCACHE_CPP2=${CCACHE_CPP2:-true} # optimization for clang
     export CCACHE_COMPRESS=${CCACHE_COMPRESS:-1}
     export CCACHE_COMPRESSLEVEL=${CCACHE_COMPRESSLEVEL:-9}
-    #export CCACHE_NODIRECT=true
 
     unamestr=$(uname)
     if [[ "$unamestr" == 'Darwin' ]]; then
@@ -56,12 +54,6 @@ function comp_configure() {
   echo "DEBUG info: $CDEBUG"
   echo "Compilation type: $CTYPE"
   echo "CCache: $AC_CCACHE"
-  # -DCMAKE_BUILD_TYPE=$CCTYPE disable optimization "slow and huge amount of ram"
-  # -DWITH_COREDEBUG=$CDEBUG compiled with debug information
-
-  #-DSCRIPTS_COMMANDS=$CSCRIPTS -DSCRIPTS_CUSTOM=$CSCRIPTS -DSCRIPTS_EASTERNKINGDOMS=$CSCRIPTS -DSCRIPTS_EVENTS=$CSCRIPTS -DSCRIPTS_KALIMDOR=$CSCRIPTS \
-  #-DSCRIPTS_NORTHREND=$CSCRIPTS -DSCRIPTS_OUTDOORPVP=$CSCRIPTS -DSCRIPTS_OUTLAND=$CSCRIPTS -DSCRIPTS_PET=$CSCRIPTS -DSCRIPTS_SPELLS=$CSCRIPTS -DSCRIPTS_WORLD=$CSCRIPTS \
-  #-DAC_WITH_UNIT_TEST=$CAC_UNIT_TEST -DAC_WITH_PLUGINS=$CAC_PLG \
 
   local DCONF=""
   if [ ! -z "$CONFDIR" ]; then
@@ -70,27 +62,24 @@ function comp_configure() {
 
   comp_ccacheEnable
 
-  cmake $SRCPATH -DCMAKE_INSTALL_PREFIX=$BINPATH $DCONF -DSERVERS=$CSERVERS \
+  cmake $SRCPATH -DCMAKE_INSTALL_PREFIX=$BINPATH $DCONF \
+  -DAPPS_BUILD=$CAPPS_BUILD \
   -DSCRIPTS=$CSCRIPTS \
   -DMODULES=$CMODULES \
-  -DUSE_CPP_20=$CUSE_CPP_20 \
   -DBUILD_TESTING=$CBUILD_TESTING \
   -DTOOLS=$CTOOLS \
   -DUSE_SCRIPTPCH=$CSCRIPTPCH \
   -DUSE_COREPCH=$CCOREPCH \
-  -DWITH_COREDEBUG=$CDEBUG  \
   -DCMAKE_BUILD_TYPE=$CTYPE \
   -DWITH_WARNINGS=$CWARNINGS \
   -DCMAKE_C_COMPILER=$CCOMPILERC \
   -DCMAKE_CXX_COMPILER=$CCOMPILERCXX \
-  "-DDISABLED_AC_MODULES=$CDISABLED_AC_MODULES" \
-  $CCUSTOMOPTIONS
+  $CBUILD_APPS_LIST $CCUSTOMOPTIONS
 
   cd $CWD
 
   runHooks "ON_AFTER_CONFIG"
 }
-
 
 function comp_compile() {
   [ $MTHREADS == 0 ] && MTHREADS=$(grep -c ^processor /proc/cpuinfo) && MTHREADS=$(($MTHREADS + 2))
@@ -110,17 +99,17 @@ function comp_compile() {
 
   cd $CWD
 
-  if [[ $DOCKER = 1 ]]; then
-    echo "Generating confs..."
-    cp -n "env/dist/etc/worldserver.conf.dockerdist" "env/dist/etc/worldserver.conf"
-    cp -n "env/dist/etc/authserver.conf.dockerdist" "env/dist/etc/authserver.conf"
-  fi
+  # if [[ $DOCKER = 1 ]]; then
+  #   echo "Generating confs..."
+  #   cp -n "env/dist/etc/worldserver.conf.dockerdist" "env/dist/etc/worldserver.conf"
+  #   cp -n "env/dist/etc/authserver.conf.dockerdist" "env/dist/etc/authserver.conf"
+  # fi
 
   runHooks "ON_AFTER_BUILD"
 
-  # set worldserver SUID bit
-  sudo chown root:root "$AC_BINPATH_FULL/worldserver"
-  sudo chmod u+s "$AC_BINPATH_FULL/worldserver"
+  # set all aplications SUID bit
+  sudo chown -R root:root "$AC_BINPATH_FULL"
+  sudo chmod -R u+s "$AC_BINPATH_FULL"
 }
 
 function comp_build() {
@@ -129,6 +118,6 @@ function comp_build() {
 }
 
 function comp_all() {
-    comp_clean
-    comp_build
+  comp_clean
+  comp_build
 }

@@ -32,9 +32,9 @@ message("")
 # Show infomation about the options selected during configuration
 
 if (APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none"))
-  message("* Build application               : Yes (${APPS_BUILD})")
+  message("* Build applications              : Yes (${APPS_BUILD})")
 else()
-  message("* Build application               : No")
+  message("* Build applications              : No")
 endif()
 
 if (SCRIPTS AND (NOT SCRIPTS STREQUAL "none"))

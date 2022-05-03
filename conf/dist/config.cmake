@@ -12,11 +12,11 @@
 
 set(SCRIPTS_AVAILABLE_OPTIONS none static dynamic minimal-static minimal-dynamic)
 set(MODULES_AVAILABLE_OPTIONS none static dynamic)
-set(BUILD_APPS_AVAILABLE_OPTIONS none all dbimport-only server-only)
+set(BUILD_APPS_AVAILABLE_OPTIONS none all servers-only dbimport-only)
 
 set(SCRIPTS "static" CACHE STRING "Build core with scripts")
 set(MODULES "static" CACHE STRING "Build core with modules")
-set(APPS_BUILD "server-only" CACHE STRING "Build list for applications")
+set(APPS_BUILD "servers-only" CACHE STRING "Build list for applications")
 set_property(CACHE SCRIPTS PROPERTY STRINGS ${SCRIPTS_AVAILABLE_OPTIONS})
 set_property(CACHE MODULES PROPERTY STRINGS ${MODULES_AVAILABLE_OPTIONS})
 set_property(CACHE APPS_BUILD PROPERTY STRINGS ${BUILD_APPS_AVAILABLE_OPTIONS})
