@@ -18,7 +18,7 @@ jobs:
         compiler: [clang12]
         modules: [with, without]
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.compiler }}
+    name: ${{ matrix.compiler }} ${{ matrix.modules }} modules
     env:
       COMPILER: ${{ matrix.compiler }}
     steps:
