@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
     signal(SIGABRT, &Warhead::AbortHandler);
 
-    // Command line parsing to get the configuration file name
+    // Command line parsing
     auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_REALM_CONFIG));
     auto vm = GetConsoleArguments(argc, argv, configFile);
 
