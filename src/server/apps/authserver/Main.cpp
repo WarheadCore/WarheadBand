@@ -149,6 +149,13 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    // Stop auth server if dry run
+    if (sConfigMgr->isDryRun())
+    {
+        LOG_INFO("server.authserver", "Dry run completed, terminating.");
+        return 0;
+    }
+
     // Start the listening port (acceptor) for auth connections
     int32 port = sConfigMgr->GetOption<int32>("RealmServerPort", 3724);
     if (port < 0 || port > 0xFFFF)
