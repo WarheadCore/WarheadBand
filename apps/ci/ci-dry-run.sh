@@ -10,8 +10,10 @@ APP_NAME=$1
 echo "LoginDatabaseInfo     = \"localhost;3306;root;root;acore_auth\"" >> ./env/dist/etc/$APP_NAME.conf
 
 if [[ $APP_NAME != "authserver" ]]; then
-    echo "WorldDatabaseInfo     = \"localhost;3306;root;root;acore_world\"" >> ./env/dist/etc/$APP_NAME.conf
-    echo "CharacterDatabaseInfo = \"localhost;3306;root;root;acore_characters\"" >> ./env/dist/etc/$APP_NAME.conf
+    {
+        echo "WorldDatabaseInfo     = \"localhost;3306;root;root;acore_world\""
+        echo "CharacterDatabaseInfo = \"localhost;3306;root;root;acore_characters\""
+    } >> ./env/dist/etc/$APP_NAME.conf
 fi
 
 if [[ $APP_NAME == "worldserver" ]]; then
