@@ -76,9 +76,6 @@ function comp_configure() {
   -DCMAKE_CXX_COMPILER=$CCOMPILERCXX \
   $CBUILD_APPS_LIST $CCUSTOMOPTIONS
 
-  echo "DAPPS_BUILD: $CAPPS_BUILD"
-  echo "CBUILD_APPS_LIST: $CBUILD_APPS_LIST"
-
   cd $CWD
 
   runHooks "ON_AFTER_CONFIG"
@@ -102,11 +99,11 @@ function comp_compile() {
 
   cd $CWD
 
-  if [[ $DOCKER = 1 ]]; then
-    echo "Generating confs..."
-    cp -n "env/dist/etc/worldserver.conf.dockerdist" "env/dist/etc/worldserver.conf"
-    cp -n "env/dist/etc/authserver.conf.dockerdist" "env/dist/etc/authserver.conf"
-  fi
+  # if [[ $DOCKER = 1 ]]; then
+  #   echo "Generating confs..."
+  #   cp -n "env/dist/etc/worldserver.conf.dockerdist" "env/dist/etc/worldserver.conf"
+  #   cp -n "env/dist/etc/authserver.conf.dockerdist" "env/dist/etc/authserver.conf"
+  # fi
 
   runHooks "ON_AFTER_BUILD"
 

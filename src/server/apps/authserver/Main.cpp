@@ -73,6 +73,7 @@ int main(int argc, char** argv)
     // Command line parsing to get the configuration file name
     std::string configFile = sConfigMgr->GetConfigPath() + std::string(_WARHEAD_REALM_CONFIG);
     int count = 1;
+
     while (count < argc)
     {
         if (strcmp(argv[count], "-c") == 0)
@@ -187,8 +188,16 @@ int main(int argc, char** argv)
     banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
     banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(banExpiryCheckTimer), banExpiryCheckInterval, std::placeholders::_1));
 
-    // Start the io service worker loop
-    ioContext->run();
+    if (!sConfigMgr->isDryRun())
+    {
+        // Start the io service worker loop
+        ioContext->run();
+    }
+    else
+    {
+        // Start io servrice for 5 seconds
+        ioContext->get_executor().context().run_for(5s);
+    }
 
     banExpiryCheckTimer->cancel();
     dbPingTimer->cancel();
