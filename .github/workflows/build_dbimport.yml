@@ -1,4 +1,4 @@
-name: dbimport
+name: build-db
 on:
   push:
     branches:

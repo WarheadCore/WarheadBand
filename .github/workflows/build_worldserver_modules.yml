@@ -1,4 +1,4 @@
-name: worldserver_modules
+name: build-world-modules
 on:
   push:
     branches:

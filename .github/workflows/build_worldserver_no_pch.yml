@@ -1,4 +1,4 @@
-name: worldserver_no_pch
+name: build-world-no-pch
 on:
   push:
     branches:

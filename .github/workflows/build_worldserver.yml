@@ -1,4 +1,4 @@
-name: worldserver
+name: build-world
 on:
   push:
     branches:
