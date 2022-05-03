@@ -24,13 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-auth
         with:
           path: var/ccache
-          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ github.sha }}:auth
+          key: ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:auth
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:auth
+            ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-
+            ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-
+            ${{ env.cache-name }}-${{ matrix.os }}-
       - name: Configure OS
         run: source ./acore.sh install-deps
         env:
