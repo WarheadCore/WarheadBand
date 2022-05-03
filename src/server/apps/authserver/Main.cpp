@@ -188,16 +188,8 @@ int main(int argc, char** argv)
     banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
     banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(banExpiryCheckTimer), banExpiryCheckInterval, std::placeholders::_1));
 
-    if (!sConfigMgr->isDryRun())
-    {
-        // Start the io service worker loop
-        ioContext->run();
-    }
-    else
-    {
-        // Start io servrice for 5 seconds
-        ioContext->get_executor().context().run_for(5s);
-    }
+    // Start the io service worker loop
+    ioContext->run();
 
     banExpiryCheckTimer->cancel();
     dbPingTimer->cancel();

@@ -16,6 +16,7 @@
  */
 
 #include "RealmList.h"
+#include "Config.h"
 #include "DatabaseEnv.h"
 #include "DeadlineTimer.h"
 #include "IoContext.h"
@@ -197,6 +198,13 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
         LOG_INFO("server.authserver", "Removed realm \"{}\".", itr->second);
+
+    // Stop auth server if dry run
+    if (sConfigMgr->isDryRun())
+    {
+        LOG_INFO("server.authserver", "Dry run completed, terminating.");
+        exit(0);
+    }
 
     if (_updateInterval)
     {
