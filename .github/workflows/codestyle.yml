@@ -1,4 +1,4 @@
-name: check-codestyle
+name: 'check-codestyle'
 on:
   push:
     branches:
