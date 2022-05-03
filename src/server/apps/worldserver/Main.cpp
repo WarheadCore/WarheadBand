@@ -52,11 +52,10 @@
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
-#include <openssl/crypto.h>
-#include <openssl/opensslv.h>
-#include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
+#include <openssl/crypto.h>
+#include <openssl/opensslv.h>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"

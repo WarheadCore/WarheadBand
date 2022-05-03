@@ -24,13 +24,13 @@
 #include "Logo.h"
 #include "MySQLThreading.h"
 #include "Util.h"
+#include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <csignal>
-#include <openssl/crypto.h>
-#include <openssl/opensslv.h>
-#include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
+#include <openssl/crypto.h>
+#include <openssl/opensslv.h>
 
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
