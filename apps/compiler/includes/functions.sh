@@ -110,8 +110,8 @@ function comp_compile() {
   runHooks "ON_AFTER_BUILD"
 
   # set all aplications SUID bit
-  sudo chown root:root "$AC_BINPATH_FULL/*"
-  sudo chmod u+s "$AC_BINPATH_FULL/*"
+  sudo chown root:root "$AC_BINPATH_FULL"
+  sudo chmod u+s "$AC_BINPATH_FULL"
 }
 
 function comp_build() {
