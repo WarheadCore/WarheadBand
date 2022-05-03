@@ -14,21 +14,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # the result of the matrix will be the combination of all attributes, so we get os*compiler*modules builds
-        os: [ubuntu-latest]
-        compiler: [clang12]
+        os: ubuntu-latest
+        compiler: clang12
+        modules: [with, without]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.compiler }}
     env:
       COMPILER: ${{ matrix.compiler }}
     steps:
       - uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-world
+        with:
+          path: var/ccache
+          key: ${{ env.cache-name }}-${{ matrix.modules }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ env.cache-name }}-${{ matrix.modules }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-
+            ${{ env.cache-name }}-${{ matrix.modules }}-${{ matrix.os }}-${{ matrix.compiler }}-
+            ${{ env.cache-name }}-${{ matrix.modules }}-${{ matrix.os }}-
       - name: Configure OS
         run: source ./acore.sh install-deps
         env:
           CONTINUOUS_INTEGRATION: true
-      - name: Create conf/config.sh
-        run: source ./apps/ci/ci-configure-world.sh none ON ON
+      - if: ${{ matrix.modules }} == 'with'
+        name: Create conf/config.sh ${{ matrix.modules }} modules
+        run: source ./apps/ci/ci-configure-world.sh static
+      - if: ${{ matrix.modules }} == 'without'
+        name: Create conf/config.sh ${{ matrix.modules }} modules
+        run: source ./apps/ci/ci-configure-world.sh none
       - name: Build
         run: source ./apps/ci/ci-compile.sh
       - name: Dry run
