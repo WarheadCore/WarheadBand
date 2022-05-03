@@ -82,7 +82,7 @@ public:
             // Select the 2 breaths that we are going to use until despawned so we don't end up casting 2 of the same breath.
             _breathSpells = { SPELL_INCINERATE, SPELL_TIMELAPSE,  SPELL_CORROSIVEACID, SPELL_IGNITEFLESH, SPELL_FROSTBURN };
 
-            Acore::Containers::RandomResize(_breathSpells, 2);
+            Warhead::Containers::RandomResize(_breathSpells, 2);
         }
 
         void Initialize()
