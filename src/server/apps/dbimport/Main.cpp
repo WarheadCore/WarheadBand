@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 
     while (count < argc)
     {
-        if (strcmp(argv[c], "--dry-run") == 0)
+        if (strcmp(argv[count], "--dry-run") == 0)
         {
             sConfigMgr->setDryRun(true);
         }

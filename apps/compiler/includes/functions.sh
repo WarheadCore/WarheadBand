@@ -82,7 +82,6 @@ function comp_configure() {
   runHooks "ON_AFTER_CONFIG"
 }
 
-
 function comp_compile() {
   [ $MTHREADS == 0 ] && MTHREADS=$(grep -c ^processor /proc/cpuinfo) && MTHREADS=$(($MTHREADS + 2))
 
