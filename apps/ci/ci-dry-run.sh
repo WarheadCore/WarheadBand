@@ -12,7 +12,7 @@ echo "LoginDatabaseInfo     = \"localhost;3306;root;root;acore_auth\"" >> ./env/
 echo "WorldDatabaseInfo     = \"localhost;3306;root;root;acore_world\"" >> ./env/dist/etc/$APP_NAME.conf
 echo "CharacterDatabaseInfo = \"localhost;3306;root;root;acore_characters\"" >> ./env/dist/etc/$APP_NAME.conf
 
-if [[ $APP_NAME -eq "worldserver" ]]; then
+if [[ $APP_NAME == "worldserver" ]]; then
     git clone --depth=1 --branch=master --single-branch https://github.com/ac-data/ac-data.git ./env/dist/data
 fi
 

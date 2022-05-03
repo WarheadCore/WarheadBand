@@ -109,9 +109,9 @@ function comp_compile() {
 
   runHooks "ON_AFTER_BUILD"
 
-  # set worldserver SUID bit
-  sudo chown root:root "$AC_BINPATH_FULL/worldserver"
-  sudo chmod u+s "$AC_BINPATH_FULL/worldserver"
+  # set all aplications SUID bit
+  sudo chown root:root "$AC_BINPATH_FULL/*"
+  sudo chmod u+s "$AC_BINPATH_FULL/*"
 }
 
 function comp_build() {
@@ -120,6 +120,6 @@ function comp_build() {
 }
 
 function comp_all() {
-    comp_clean
-    comp_build
+  comp_clean
+  comp_build
 }
