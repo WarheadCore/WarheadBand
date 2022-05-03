@@ -76,6 +76,11 @@ int main(int argc, char** argv)
 
     while (count < argc)
     {
+        if (strcmp(argv[count], "--dry-run") == 0)
+        {
+            sConfigMgr->setDryRun(true);
+        }
+
         if (strcmp(argv[count], "-c") == 0)
         {
             if (++count >= argc)
@@ -87,6 +92,7 @@ int main(int argc, char** argv)
             else
                 configFile = argv[count];
         }
+
         ++count;
     }
 
