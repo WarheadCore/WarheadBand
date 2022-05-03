@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ubuntu-latest
-        compiler: clang12
+        os: [ubuntu-latest]
+        compiler: [clang12]
         modules: [with, without]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.compiler }}
