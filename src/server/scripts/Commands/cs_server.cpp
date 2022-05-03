@@ -214,9 +214,6 @@ public:
         handler->PSendSysMessage("Using {} DBC Locale as default. All available DBC locales: {}", localeNames[defaultLocale], availableLocales);
 
         handler->PSendSysMessage("Using World DB: {}", sWorld->GetDBVersion());
-        handler->PSendSysMessage("Using World DB Revision: {}", sWorld->GetWorldDBRevision());
-        handler->PSendSysMessage("Using Character DB Revision: {}", sWorld->GetCharacterDBRevision());
-        handler->PSendSysMessage("Using Auth DB Revision: {}", sWorld->GetAuthDBRevision());
 
         handler->PSendSysMessage("LoginDatabase queue size: {}", LoginDatabase.QueueSize());
         handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());

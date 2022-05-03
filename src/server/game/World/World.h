@@ -332,12 +332,8 @@ public:
     [[nodiscard]] LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
     // used World DB version
-    void LoadDBVersion();
-    void LoadDBRevision();
-    [[nodiscard]] char const* GetDBVersion() const { return m_DBVersion.c_str(); }
-    [[nodiscard]] char const* GetWorldDBRevision() const { return m_WorldDBRevision.c_str(); }
-    [[nodiscard]] char const* GetCharacterDBRevision() const { return m_CharacterDBRevision.c_str(); }
-    [[nodiscard]] char const* GetAuthDBRevision() const { return m_AuthDBRevision.c_str(); }
+    void LoadDBVersion() override;
+    [[nodiscard]] char const* GetDBVersion() const override { return m_DBVersion.c_str(); }
 
     void UpdateAreaDependentAuras();
 
@@ -437,9 +433,6 @@ private:
 
     // used versions
     std::string m_DBVersion;
-    std::string m_WorldDBRevision;
-    std::string m_CharacterDBRevision;
-    std::string m_AuthDBRevision;
 
     void ProcessQueryCallbacks();
     QueryCallbackProcessor _queryProcessor;
