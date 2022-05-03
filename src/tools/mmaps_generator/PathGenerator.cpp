@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DBCFileLoader.h"
 #include "MapBuilder.h"
 #include "PathCommon.h"
 #include "Timer.h"
-#include "DBCFileLoader.h"
-#include "PathCommon.h"
 #include <boost/filesystem.hpp>
 #include <unordered_map>
 

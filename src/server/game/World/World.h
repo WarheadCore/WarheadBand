@@ -332,8 +332,8 @@ public:
     [[nodiscard]] LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
     // used World DB version
-    void LoadDBVersion() override;
-    [[nodiscard]] char const* GetDBVersion() const override { return m_DBVersion.c_str(); }
+    void LoadDBVersion();
+    [[nodiscard]] char const* GetDBVersion() const { return m_DBVersion.c_str(); }
 
     void UpdateAreaDependentAuras();
 
