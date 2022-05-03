@@ -114,20 +114,6 @@ void ShutdownAuctionListingThread(std::thread* thread);
 void WorldUpdateLoop();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& cfg_service);
 
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
-{
-    SYS_LOG_INFO("Usage:");
-    SYS_LOG_INFO(" {} [<options>]", prog);
-    SYS_LOG_INFO("    -c config_file           use config_file as configuration file");
-#ifdef _WIN32
-    SYS_LOG_INFO("    Running as service functions:");
-    SYS_LOG_INFO("    --service                run as service");
-    SYS_LOG_INFO("    -s install               install service");
-    SYS_LOG_INFO("    -s uninstall             uninstall service");
-#endif
-}
-
 /// Launch the Warhead server
 int main(int argc, char** argv)
 {
@@ -772,7 +758,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("-dry-run,d", "Dry run")
+        ("dry-run,d", "Dry run")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG))), "use <arg> as configuration file")
         ("update-databases-only,u", "updates databases only");
 
@@ -798,7 +784,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [
 
     if (vm.count("help"))
         std::cout << all << "\n";
-    else if (vm.count("-dry-run"))
+    else if (vm.count("dry-run"))
         sConfigMgr->setDryRun(true);
 
     return vm;

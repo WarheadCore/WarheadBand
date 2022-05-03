@@ -20,7 +20,7 @@ if [[ $APP_NAME == "worldserver" ]]; then
     git clone --depth=1 --branch=master --single-branch https://github.com/ac-data/ac-data.git ./env/dist/data
 fi
 
-(cd ./env/dist/bin/ && timeout 5m ./$APP_NAME --dry-run)
+(cd ./env/dist/bin/ && timeout 5m ./$APP_NAME -dry-run)
 
 # Stop mysql
 sudo systemctl stop mysql

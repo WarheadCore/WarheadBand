@@ -271,7 +271,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile)
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("-dry-run,d", "Dry run")
+        ("dry-run,d", "Dry run")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_REALM_CONFIG))), "use <arg> as configuration file");
 
     variables_map variablesMap;
@@ -288,7 +288,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile)
 
     if (variablesMap.count("help"))
         std::cout << all << "\n";
-    else if (variablesMap.count("-dry-run"))
+    else if (variablesMap.count("dry-run"))
         sConfigMgr->setDryRun(true);
 
     return variablesMap;
