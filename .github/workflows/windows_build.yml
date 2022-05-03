@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     name: ${{ matrix.compiler }}
     env:
-      BOOST_ROOT: C:\local\boost_1_78_0
+      BOOST_ROOT: C:\local\boost_1_79_0
     steps:
       - uses: actions/checkout@v2
       - name: Configure OS
