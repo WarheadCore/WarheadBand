@@ -39,4 +39,3 @@ jobs:
         run: source ./apps/ci/ci-configure-tools.sh
       - name: Build
         run: source ./apps/ci/ci-compile.sh
-
