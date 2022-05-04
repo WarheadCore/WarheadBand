@@ -1,25 +1,49 @@
-name: linter
+name: Static analysis
+
 on:
+  # Will run on push when merging to 'branches'. The output will be shown in the console
   push:
     branches:
-      - 'master'  # only default branch
-  pull_request:
+      - develop
+      - master
+      - main
+
+  # 'pull_request_target' allows this Action to also run on forked repositories
+  # The output will be shown in PR comments (unless the 'force_console_print' flag is used)
+  pull_request_target:
+    branches:
+      - "*"
 
 jobs:
-  cpp-linter:
+  static_analysis:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: shenxianpeng/cpp-linter-action@v1
-        id: linter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          style: file
 
-      - name: Fail fast?!
-        if: steps.linter.outputs.checks-failed > 0
-        run: |
-          echo "Some files failed the linting checks!"
-        # for actual deployment
-        # run: exit 1
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup init_script
+      shell: bash
+      run: |
+        echo "#!/bin/bash
+        add-apt-repository ppa:oibaf/graphics-drivers
+        apt update
+        apt upgrade
+        apt install -y libvulkan1 mesa-vulkan-drivers vulkan-utils" > init_script.sh
+
+    - name: Run static analysis
+      uses: JacobDomagala/StaticAnalysis@master
+      with:
+        # Exclude any issues found in ${Project_root_dir}/lib
+        exclude_dir: lib
+
+        # Additional apt packages that need to be installed before running Cmake
+        apt_pckgs: software-properties-common libglu1-mesa-dev freeglut3-dev mesa-common-dev
+
+        # Additional script that will be run (sourced) AFTER 'apt_pckgs' and before running Cmake
+        init_script: init_script.sh
+
+        # (Optional) clang-tidy args
+        clang_tidy_args: -checks='*,fuchsia-*,google-*,zircon-*,abseil-*,modernize-use-trailing-return-type'
+
+        # (Optional) cppcheck args
+        cppcheck_args: --enable=all --suppress=missingInclude
