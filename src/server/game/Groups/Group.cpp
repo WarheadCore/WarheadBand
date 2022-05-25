@@ -745,6 +745,8 @@ void Group::Disband(bool hideDestroy /* = false */)
     sScriptMgr->OnGroupDisband(this);
 
     Player* player;
+    uint32 instanceId = 0;
+
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         if (!isBGGroup() && !isBFGroup())
@@ -753,6 +755,11 @@ void Group::Disband(bool hideDestroy /* = false */)
         }
 
         player = ObjectAccessor::FindConnectedPlayer(citr->guid);
+
+        if (player && !instanceId && !isBGGroup() && !isBFGroup())
+        {
+            instanceId = player->GetInstanceId();
+        }
 
         _homebindIfInstance(player);
         if (!isBGGroup() && !isBFGroup())
@@ -819,6 +826,14 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
         stmt->SetData(0, GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmt);
+    }
+
+    // Cleaning up instance saved data for gameobjects when a group is disbanded
+    if (instanceId)
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DELETE_INSTANCE_SAVED_DATA);
+        stmt->SetData(0, instanceId);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -2023,6 +2038,16 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
     }
 }
 
+void Group::ResetInstanceSavedGameobjects(uint32 instanceId)
+{
+    if (instanceId)
+    {
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DELETE_INSTANCE_SAVED_DATA);
+        stmt->SetData(0, instanceId);
+        CharacterDatabase.Execute(stmt);
+    }
+}
+
 void Group::ResetInstances(uint8 method, bool isRaid, Player* leader)
 {
     if (isBGGroup() || isBFGroup() || isLFGGroup())
@@ -2050,7 +2075,11 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* leader)
                         toUnbind.push_back(instanceSave);
                     }
                     else
+                    {
                         leader->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                    }
+
+                    ResetInstanceSavedGameobjects(instanceSave->GetInstanceId());
                 }
                 for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
                     sInstanceSaveMgr->UnbindAllFor(*itr);
@@ -2074,7 +2103,11 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* leader)
                         toUnbind.push_back(instanceSave);
                     }
                     else
+                    {
                         leader->SendResetInstanceFailed(0, instanceSave->GetMapId());
+                    }
+
+                    ResetInstanceSavedGameobjects(instanceSave->GetInstanceId());
                 }
                 for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
                     sInstanceSaveMgr->UnbindAllFor(*itr);
