@@ -30,12 +30,12 @@ BINPATH="$AC_PATH_ROOT/env/dist"
 # DATAPATH_ZIP="$DATAPATH/data.zip"
 
 # azerothcore's official remote source address to pull from
-# by default git will fetch form the azrothcore remote 
+# by default git will fetch form the azrothcore remote
 # You can change it to "origin" if you want to fetch/pull from the set remote
 ORIGIN_REMOTE="https://github.com/azerothcore/azerothcore-wotlk.git"
 
-# Branch configuration for the installer to pull from. 
-# By default git will select the current working branch 
+# Branch configuration for the installer to pull from.
+# By default git will select the current working branch
 # You can set it to "master" if you want the latest updates
 INSTALLER_PULL_FROM=
 
@@ -44,8 +44,6 @@ INSTALLER_PULL_FROM=
 #  COMPILER_CONFIGURATIONS
 #
 ##############################################
-
-
 # Set preferred compilers.
 # To use gcc (not suggested) instead of clang change in:
 #  CCOMPILERC="/usr/bin/gcc"
@@ -68,22 +66,31 @@ CDEBUG=OFF
 # * RelWithDebInfo: optimized, *with* debug info, but no debug (output) code or asserts.
 # * MinSizeRel: same as Release but optimizing for size rather than speed.
 CTYPE=${CTYPE:-Release}
+
 # compile scripts
 CSCRIPTS=${CSCRIPTS:-static}
-# compile modules
-CMODULES=${CMODULES:-static}
+
+# compile scripts
+CMODULES=${CMODULES:-none}
+
 # compile unit tests
 CBUILD_TESTING=OFF
-# compile tools
-CTOOLS=${CTOOLS:-OFF}
+
 # use precompiled headers ( fatest compilation but not optimized if you change headers often )
 CSCRIPTPCH=${CSCRIPTPCH:-ON}
 CCOREPCH=${CCOREPCH:-ON}
+
 # build apps list variable
-CAPPS_BUILD=${CAPPS_BUILD:-servers-only}
+CAPPS_BUILD=${CAPPS_BUILD:-all}
+
+# build tools list variable
+CTOOLS_BUILD=${CTOOLS_BUILD:-none}
 
 # build apps list
 CBUILD_APPS_LIST=${CBUILD_APPS_LIST:-''}
+
+# build tools list
+CBUILD_TOOLS_LIST=${CBUILD_TOOLS_LIST:-''}
 
 # you can add your custom definitions here ( -D )
 # example:  CCUSTOMOPTIONS=" -DWITH_PERFTOOLS=ON

@@ -75,8 +75,8 @@ list(SORT SCRIPT_GRAPH_KEYS)
 list(REMOVE_DUPLICATES SCRIPT_GRAPH_KEYS)
 
 # Display the script graph
-message("* Script configuration (${SCRIPTS}):
-  |")
+message("* Script configuration (${SCRIPTS}):")
+message("  |")
 
 foreach(SCRIPT_GRAPH_KEY ${SCRIPT_GRAPH_KEYS})
   if(NOT SCRIPT_GRAPH_KEY STREQUAL "disabled")
@@ -91,7 +91,7 @@ foreach(SCRIPT_GRAPH_KEY ${SCRIPT_GRAPH_KEYS})
 endforeach()
 
 # Base sources which are used by every script project
-if(USE_SCRIPTPCH)
+if (USE_SCRIPTPCH)
   set(PRIVATE_PCH_HEADER ScriptPCH.h)
 endif()
 

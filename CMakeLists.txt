@@ -45,6 +45,7 @@ include(CheckIncludeFiles)
 include(ConfigureScripts)
 include(ConfigureModules)
 include(ConfigureApplications)
+include(ConfigureTools)
 include(DynamicLibInstall)
 
 # some utils for cmake
@@ -102,10 +103,6 @@ include(src/cmake/showoptions.cmake)
 add_subdirectory(deps)
 add_subdirectory(src/common)
 
-if (TOOLS)
-  add_subdirectory(src/tools)
-endif()
-
 #
 # Loading application sources
 #
@@ -118,7 +115,7 @@ if (BUILD_APPLICATION_WORLDSERVER)
   add_subdirectory(modules)
 endif()
 
-if( BUILD_TESTING )
+if (BUILD_TESTING AND BUILD_APPLICATION_WORLDSERVER)
     # we use these flags to get code coverage
     set(UNIT_TEST_CXX_FLAGS "-fprofile-arcs -ftest-coverage -fno-inline")
 

@@ -177,16 +177,6 @@ void Player::SendResetFailedNotify(uint32 mapid)
     GetSession()->SendPacket(&data);
 }
 
-void DeleteInstanceSavedData(uint32 instanceId)
-{
-    if (instanceId)
-    {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DELETE_INSTANCE_SAVED_DATA);
-        stmt->SetData(0, instanceId);
-        CharacterDatabase.Execute(stmt);
-    }
-}
-
 /// Reset all solo instances and optionally send a message on success for each
 void Player::ResetInstances(ObjectGuid guid, uint8 method, bool isRaid)
 {
@@ -220,7 +210,7 @@ void Player::ResetInstances(ObjectGuid guid, uint8 method, bool isRaid)
                     p->SendResetInstanceFailed(0, instanceSave->GetMapId());
                 }
 
-                DeleteInstanceSavedData(instanceSave->GetInstanceId());
+                sInstanceSaveMgr->DeleteInstanceSavedData(instanceSave->GetInstanceId());
             }
 
             for (auto const& itr : toUnbind)
@@ -255,7 +245,7 @@ void Player::ResetInstances(ObjectGuid guid, uint8 method, bool isRaid)
                     p->SendResetInstanceFailed(0, instanceSave->GetMapId());
                 }
 
-                DeleteInstanceSavedData(instanceSave->GetInstanceId());
+                sInstanceSaveMgr->DeleteInstanceSavedData(instanceSave->GetInstanceId());
             }
 
             for (auto const& itr : toUnbind)
@@ -287,7 +277,7 @@ void Player::ResetInstances(ObjectGuid guid, uint8 method, bool isRaid)
                     //else
                     //  p->SendResetInstanceFailed(0, instanceSave->GetMapId());
 
-                    DeleteInstanceSavedData(instanceSave->GetInstanceId());
+                    sInstanceSaveMgr->DeleteInstanceSavedData(instanceSave->GetInstanceId());
                 }
 
                 for (std::vector<InstanceSave*>::const_iterator itr = toUnbind.begin(); itr != toUnbind.end(); ++itr)
