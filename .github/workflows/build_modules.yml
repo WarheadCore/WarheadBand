@@ -1,4 +1,4 @@
-name: build-world
+name: build-modules
 on:
   push:
     branches:
