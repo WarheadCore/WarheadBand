@@ -1,5 +1,5 @@
 #
-# This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -73,10 +73,6 @@ function(CheckApplicationsBuildList)
 
     if (APPS_BUILD STREQUAL "servers-only")
       list(APPEND BUILD_APPS_WHITELIST authserver worldserver)
-    endif()
-
-    if (APPS_BUILD STREQUAL "dbimport-only")
-      list(APPEND BUILD_APPS_WHITELIST dbimport)
     endif()
   endif()
 

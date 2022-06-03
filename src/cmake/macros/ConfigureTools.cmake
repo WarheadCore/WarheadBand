@@ -1,5 +1,5 @@
 #
-# This file is part of the AzerothCore Project. See AUTHORS file for Copyright information
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -75,9 +75,9 @@ function(CheckToolsBuildList)
       list(APPEND BUILD_TOOLS_WHITELIST map_extractor mmaps_generator vmap4_assembler vmap4_extractor)
     endif()
 
-    # if (TOOLS_BUILD STREQUAL "db-only")
-    #   list(APPEND BUILD_TOOLS_WHITELIST dbimport)
-    # endif()
+    if (TOOLS_BUILD STREQUAL "db-only")
+      list(APPEND BUILD_TOOLS_WHITELIST dbimport)
+    endif()
   endif()
 
   # Set the TOOL_${TOOL_BUILD_NAME} variables from the

@@ -13,24 +13,19 @@
 # This is done EACH compile so they can be alerted about the consequences.
 #
 
-add_subdirectory(threads)
-
-if (APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none"))
-  add_subdirectory(mysql)
-endif()
-
 add_subdirectory(SFMT)
 add_subdirectory(argon2)
 add_subdirectory(boost)
 add_subdirectory(fmt)
 add_subdirectory(jemalloc)
 add_subdirectory(openssl)
+add_subdirectory(poco)
 add_subdirectory(stdfs)
 add_subdirectory(threads)
 add_subdirectory(utf8cpp)
+add_subdirectory(valgrind)
 
-# if ((APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none")) OR BUILD_TOOLS_DB_IMPORT) #DB import PR
-if ((APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none")))
+if ((APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none")) OR BUILD_TOOLS_DB_IMPORT)
   add_subdirectory(mysql)
 endif()
 

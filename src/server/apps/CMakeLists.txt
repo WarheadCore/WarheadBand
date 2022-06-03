@@ -39,10 +39,6 @@ if (APPS_BUILD MATCHES "-only")
   if (APPS_BUILD STREQUAL "servers-only")
     list(APPEND BUILD_APPS_WHITELIST authserver worldserver)
   endif()
-
-  if (APPS_BUILD STREQUAL "dbimport-only")
-    list(APPEND BUILD_APPS_WHITELIST dbimport)
-  endif()
 endif()
 
 # Set the SCRIPTS_${BUILD_APP} variables from the
@@ -69,13 +65,6 @@ foreach(BUILD_APP ${APPLICATIONS_BUILD_LIST})
     set(BUILD_APP_VALUE_DISPLAY_apps apps)
     list(APPEND BUILD_APP_VALUE_CONTAINS_apps ${BUILD_APP})
 
-    if (${BUILD_APP} MATCHES "authserver")
-      set (BUILD_APPLICATION_AUTHSERVER 1)
-    elseif(${BUILD_APP} MATCHES "worldserver")
-      set (BUILD_APPLICATION_WORLDSERVER 1)
-    elseif(${BUILD_APP} MATCHES "dbimport")
-      set (BUILD_APPLICATION_DBIMPORT 1)
-    endif()
   else()
     list(APPEND BUILD_APP_GRAPH_KEYS disabled)
     set(BUILD_APP_VALUE_DISPLAY_disabled disabled)
@@ -171,14 +160,6 @@ foreach(APPLICATION_NAME ${APPLICATIONS_BUILD_LIST})
     if (WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
       add_dependencies(${APP_PROJECT_NAME} ${WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES})
     endif()
-  elseif(${APP_PROJECT_NAME} MATCHES "dbimport")
-    target_link_libraries(${APP_PROJECT_NAME}
-      PUBLIC
-        database)
-  else()
-    target_link_libraries(${APP_PROJECT_NAME}
-      PUBLIC
-        common)
   endif()
 
   unset(APP_PUBLIC_INCLUDES)
@@ -204,7 +185,7 @@ foreach(APPLICATION_NAME ${APPLICATIONS_BUILD_LIST})
         "server")
 
   # Install config
-  CopyDefaultConfig(${APP_PROJECT_NAME} ${APPLICATION_NAME})
+  CopyApplicationConfig(${APP_PROJECT_NAME} ${APPLICATION_NAME})
 
   if (UNIX)
     install(TARGETS ${APP_PROJECT_NAME} DESTINATION bin)
