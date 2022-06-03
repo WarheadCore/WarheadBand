@@ -115,14 +115,14 @@ foreach(TOOL_NAME ${TOOLS_BUILD_LIST})
   # Need fix errors in maps tools
   # target_link_libraries(${TOOL_PROJECT_NAME}
   #   PRIVATE
-  #     acore-core-interface)
+  #     warhead-core-interface)
 
   if (${TOOL_PROJECT_NAME} MATCHES "dbimport")
     target_link_libraries(${TOOL_PROJECT_NAME}
       PUBLIC
         database
       PRIVATE
-        acore-core-interface)
+        warhead-core-interface)
 
     # Install config
     CopyToolConfig(${TOOL_PROJECT_NAME} ${TOOL_NAME})
