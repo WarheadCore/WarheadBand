@@ -91,6 +91,7 @@ WH_GAME_API extern DBCStorage <ChrRacesEntry>                sChrRacesStore;
 WH_GAME_API extern DBCStorage <CinematicCameraEntry>         sCinematicCameraStore;
 WH_GAME_API extern DBCStorage <CinematicSequencesEntry>      sCinematicSequencesStore;
 WH_GAME_API extern DBCStorage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
+WH_GAME_API extern DBCStorage <CreatureDisplayInfoExtraEntry>sCreatureDisplayInfoExtraStore;
 WH_GAME_API extern DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore;
 WH_GAME_API extern DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore;
 WH_GAME_API extern DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore;
