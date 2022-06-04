@@ -56,8 +56,10 @@ CCOMPILERCXX="/usr/bin/clang++"
 MTHREADS=${MTHREADS:-0}
 # enable/disable warnings during compilation
 CWARNINGS=ON
+
 # enable/disable some debug informations ( it's not a debug compilation )
 CDEBUG=OFF
+
 # specify compilation type:
 # * Release: high optimization level, no debug info, code or asserts.
 # * Debug: No optimization, asserts enabled, [custom debug (output) code enabled],

@@ -18,6 +18,7 @@
 #include "DBCFileLoader.h"
 #include "MapBuilder.h"
 #include "PathCommon.h"
+#include "StopWatch.h"
 #include "Timer.h"
 #include <boost/filesystem.hpp>
 #include <unordered_map>
@@ -329,7 +330,7 @@ int main(int argc, char** argv)
     MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
-    uint32 start = getMSTime();
+    StopWatch sw;
     if (file)
         builder.buildMeshFromFile(file);
     else if (tileX > -1 && tileY > -1 && mapnum >= 0)
@@ -340,6 +341,6 @@ int main(int argc, char** argv)
         builder.buildMaps({});
 
     if (!silent)
-        printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
+        printf("Finished. MMAPS were built in %s\n", Warhead::Time::ToTimeString(sw.Elapsed(), sw.GetOutCount()).c_str());
     return 0;
 }
