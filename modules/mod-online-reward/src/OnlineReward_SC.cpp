@@ -29,12 +29,12 @@ public:
 
     void OnLogin(Player* player) override
     {
-        sOL->AddRewardHistory(player->GetGUID().GetCounter());
+        sOLMgr->AddRewardHistory(player->GetGUID().GetCounter());
     }
 
     void OnLogout(Player* player) override
     {
-        sOL->DeleteRewardHistory(player->GetGUID().GetCounter());
+        sOLMgr->DeleteRewardHistory(player->GetGUID().GetCounter());
     }
 };
 
@@ -45,22 +45,25 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sModulesConfig->AddOption<bool>("OnlineReward.Enable");
-        sModulesConfig->AddOption<bool>("OnlineReward.PerOnline.Enable");
-        sModulesConfig->AddOption<bool>("OnlineReward.PerTime.Enable");
-        sModulesConfig->AddOption<int32>("OnlineReward.PerTime.Time", 3600);
-        sModulesConfig->AddOption<int32>("OnlineReward.PerTime.ItemID", 47241);
-        sModulesConfig->AddOption<int32>("OnlineReward.PerTime.ItemCount", 1);
+        sModulesConfig->AddOption<bool>("OR.Enable");
+        sModulesConfig->AddOption<bool>("OR.PerOnline.Enable");
+        sModulesConfig->AddOption<bool>("OR.PerTime.Enable");
+        sModulesConfig->AddOption<bool>("OR.ForceSendMail.Enable");
+        sModulesConfig->AddOption<int32>("OR.PerTime.Time", 3600);
+        sModulesConfig->AddOption<int32>("OR.PerTime.ItemID", 47241);
+        sModulesConfig->AddOption<int32>("OR.PerTime.ItemCount", 1);
+
+        sOLMgr->LoadConfig();
     }
 
     void OnStartup() override
     {
-        sOL->InitSystem();
+        sOLMgr->InitSystem();
     }
 
     void OnUpdate(uint32 diff) override
     {
-        sOL->Update(diff);
+        sOLMgr->Update(Milliseconds(diff));
     }
 };
 

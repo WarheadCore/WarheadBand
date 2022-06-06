@@ -18,41 +18,81 @@
 #ifndef _ONLINE_REWARD_H_
 #define _ONLINE_REWARD_H_
 
-#include "Common.h"
+#include "Define.h"
+#include "AsyncCallbackProcessor.h"
+#include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
-#include "Player.h"
+#include "TaskScheduler.h"
 #include <unordered_map>
 #include <vector>
 
-class OnlineReward
+class Player;
+
+class OnlineRewardMgr
 {
+    using RewardPerOnline = std::vector<Seconds>;
+    using RewardsPair = std::pair<uint32/*item id*/, uint32/*item count*/>;
+    using RewardHistoryPair = std::pair<RewardPerOnline, Seconds>;
+
+    OnlineRewardMgr() = default;
+    ~OnlineRewardMgr() = default;
+
+    OnlineRewardMgr(OnlineRewardMgr const&) = delete;
+    OnlineRewardMgr(OnlineRewardMgr&&) = delete;
+    OnlineRewardMgr& operator= (OnlineRewardMgr const&) = delete;
+    OnlineRewardMgr& operator= (OnlineRewardMgr&&) = delete;
+
 public:
-    static OnlineReward* instance();
+    static OnlineRewardMgr* instance();
 
     void InitSystem();
+    void LoadConfig();
+    inline bool IsEnable() { return _isEnable; };
+
+    // Player hooks
     void AddRewardHistory(ObjectGuid::LowType lowGuid);
     void DeleteRewardHistory(ObjectGuid::LowType lowGuid);
-    void Update(uint32 diff);
+
+    // World hooks
+    void Update(Milliseconds diff);
 
 private:
-    void LoadRewards();
+    void LoadDBData();
     void RewardPlayers();
     bool IsExistHistory(ObjectGuid::LowType lowGuid);
     void RewardPlayersPerOnline(Player* player);
     void RewardPlayersPerTime(Player* player);
     void SaveRewardDB();
 
-    std::vector<Seconds>* GetHistoryPerOnline(ObjectGuid::LowType lowGuid);
+    RewardPerOnline* GetHistoryPerOnline(ObjectGuid::LowType lowGuid);
     Seconds GetHistoryPerTime(ObjectGuid::LowType lowGuid);
 
     void SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, Seconds secondsOnine, bool isPerOnline = true);
     void SaveDataForDB(ObjectGuid::LowType lowGuid, Seconds seconds, bool isPerOnline = true);
 
 private:
+    void AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryResult result);
+
+    // Config
+    bool _isEnable{ false };
+    bool _isPerOnlineEnable{ false };
+    bool _isPerTimeEnable{ false };
+    bool _isForceMailReward{ true };
+
+    // Config per time
+    Seconds _perTimeTime{ 0s };
+    uint32 _perTimeItemID{ 0 };
+    uint32 _perTimeItemCount{ 0 };
+
+    // Containers
+    std::unordered_map<int32 /*time*/, RewardsPair> _rewards; // for per online
+    std::unordered_map<ObjectGuid::LowType, RewardHistoryPair> _rewardHistoryDB;
+    TaskScheduler scheduler;
+    
     QueryCallbackProcessor _queryProcessor;
 };
 
-#define sOL OnlineReward::instance()
+#define sOLMgr OnlineRewardMgr::instance()
 
 #endif /* _ONLINE_REWARD_H_ */
