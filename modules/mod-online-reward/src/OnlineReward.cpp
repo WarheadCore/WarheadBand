@@ -281,7 +281,7 @@ void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 itemID, uint32 
     std::string playedTimeSecStr = Warhead::Time::ToTimeString(secondsOnine, 3, TimeFormat::FullText);
     uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
-    auto SendItemsViaMail = [this, player, itemID, itemCount, &playedTimeSecStr, &localeIndex]()
+    auto SendItemsViaMail = [player, itemID, itemCount, &playedTimeSecStr, &localeIndex]()
     {
         auto const& mailSubject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
         auto const& MailText = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
