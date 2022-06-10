@@ -33,6 +33,7 @@
 #include <openssl/opensslv.h>
 
 #include "ProgressBar.h"
+#include <Poco/Environment.h>
 
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
@@ -86,6 +87,9 @@ int main(int argc, char** argv)
             LOG_INFO("dbimport", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
+
+    LOG_INFO("server", "> OS: {}", Poco::Environment::osDisplayName());
+    LOG_INFO("server", "> Version: {}", Poco::Environment::osVersion());
 
     // Initialize the database connection
     if (!StartDB())

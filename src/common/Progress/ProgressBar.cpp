@@ -21,6 +21,8 @@
 #include <indicators/terminal_size.hpp>
 #include <iostream>
 
+#include "Poco/Environment.h"
+
 constexpr std::size_t ADDITIONAL_INFO_SIZE = 15;
 constexpr std::size_t DEFAULT_POST_INFO_SIZE = 50;
 constexpr std::size_t DEFAULT_POST_BAR_SIZE = ADDITIONAL_INFO_SIZE + DEFAULT_POST_INFO_SIZE;

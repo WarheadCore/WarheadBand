@@ -435,7 +435,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 {
     std::vector<std::string> args;
 
-#ifdef MARIADB_VERSION_ID
+#if MARIADB_VERSION_ID || WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     args.reserve(7);
 
     // CLI Client connection info
@@ -467,7 +467,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back("-P" + port_or_socket);
 
 #endif
-#else
+#else // ubuntu/debian
     args.reserve(7 - 4);
     args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
 #endif
