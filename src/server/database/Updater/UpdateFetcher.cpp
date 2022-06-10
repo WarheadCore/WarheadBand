@@ -247,7 +247,7 @@ UpdateResult UpdateFetcher::Update() const
 
     size_t importedUpdates = 0;
 
-    ProgressBar progress(available.size());
+    ProgressBar progress("", available.size());
 
     auto ApplyUpdateFile = [this, &applied, &hashToName, &available, &importedUpdates, &progress](LocaleFileEntry const& sqlFile)
     {
@@ -258,26 +258,22 @@ UpdateResult UpdateFetcher::Update() const
         auto filePath = sqlFile.first;
         auto fileState = sqlFile.second;
 
-        progress.Update(1);
-
-        LOG_DEBUG("sql.updates", "Checking update \"{}\"...", filePath.filename().generic_string());
-
         auto const& iter = applied.find(filePath.filename().string());
         if (iter != applied.end())
         {
             // If redundancy is disabled, skip it, because the update is already applied.
             if (!redundancyChecks)
             {
-                LOG_DEBUG("sql.updates", ">> Update is already applied, skipping redundancy checks.");
                 applied.erase(iter);
+                progress.Update();
                 return;
             }
 
             // If the update is in an archived directory and is marked as archived in our database, skip redundancy checks (archived updates never change).
             if (!archivedRedundancy && (iter->second.state == ARCHIVED) && (sqlFile.second == ARCHIVED))
             {
-                LOG_DEBUG("sql.updates", ">> Update is archived and marked as archived in database, skipping redundancy checks.");
                 applied.erase(iter);
+                progress.Update();
                 return;
             }
         }
@@ -303,58 +299,52 @@ UpdateResult UpdateFetcher::Update() const
                 // Conflict!
                 if (localeIter != available.end())
                 {
+                    progress.ClearLine();
                     LOG_WARN("sql.updates", ">> It seems like the update \"{}\" \'{}\' was renamed, but the old file is still there! " \
                              "Treating it as a new file! (It is probably an unmodified copy of the file \"{}\")",
-                             filePath.filename().string(), hash.substr(0, 7),
-                             localeIter->first.filename().string());
+                             filePath.filename().string(), hash.substr(0, 7), localeIter->first.filename().string());
                 }
                 else // It is safe to treat the file as renamed here
                 {
+                    progress.ClearLine();
                     LOG_INFO("sql.updates", ">> Renaming update \"{}\" to \"{}\" \'{}\'.",
                              hashIter->second, filePath.filename().string(), hash.substr(0, 7));
 
                     RenameEntry(hashIter->second, filePath.filename().string());
                     applied.erase(hashIter->second);
+                    progress.Update();
                     return;
                 }
             }
             // Apply the update if it was never seen before.
             else
-            {
-                LOG_INFO("sql.updates", ">> Applying update \"{}\" \'{}\'...",
-                    filePath.filename().string(), hash.substr(0, 7));
-            }
+                progress.UpdatePostfixText(Warhead::StringFormat("{} '{}'", filePath.filename().string(), hash.substr(0, 7)));
         }
         // Rehash the update entry if it exists in our database with an empty hash.
         else if (allowRehash && iter->second.hash.empty())
         {
             mode = MODE_REHASH;
 
-            LOG_INFO("sql.updates", ">> Re-hashing update \"{}\" \'{}\'...", filePath.filename().string(),
-                hash.substr(0, 7));
+            progress.ClearLine();
+            LOG_INFO("sql.updates", ">> Re-hashing update \"{}\" \'{}\'...", filePath.filename().string(), hash.substr(0, 7));
         }
         else
         {
             // If the hash of the files differs from the one stored in our database, reapply the update (because it changed).
             if (iter->second.hash != hash)
             {
-                LOG_INFO("sql.updates", ">> Reapplying update \"{}\" \'{}\' -> \'{}\' (it changed)...", filePath.filename().string(),
-                    iter->second.hash.substr(0, 7), hash.substr(0, 7));
+                progress.ClearLine();
+                LOG_INFO("sql.updates", ">> Reapplying update \"{}\" \'{}\' -> \'{}\' (it changed)...",
+                    filePath.filename().string(), iter->second.hash.substr(0, 7), hash.substr(0, 7));
             }
             else
             {
                 // If the file wasn't changed and just moved, update its state (if necessary).
                 if (iter->second.state != fileState)
-                {
-                    LOG_DEBUG("sql.updates", ">> Updating the state of \"{}\" to \'{}\'...",
-                              filePath.filename().string(), AppliedFileEntry::StateConvert(fileState));
-
                     UpdateState(filePath.filename().string(), fileState);
-                }
-
-                LOG_DEBUG("sql.updates", ">> Update is already applied and matches the hash \'{}\'.", hash.substr(0, 7));
 
                 applied.erase(iter);
+                progress.Update();
                 return;
             }
         }
@@ -377,6 +367,8 @@ UpdateResult UpdateFetcher::Update() const
 
         if (mode == MODE_APPLY)
             ++importedUpdates;
+
+        progress.Update();
     };
 
     // Apply default updates
@@ -410,6 +402,7 @@ UpdateResult UpdateFetcher::Update() const
         {
             if (entry.second.state != MODULE)
             {
+                progress.ClearLine();
                 LOG_WARN("sql.updates",
                          ">> The file \'{}\' was applied to the database, but is missing in"
                          " your update directory now!",
@@ -417,6 +410,7 @@ UpdateResult UpdateFetcher::Update() const
 
                 if (doCleanup)
                 {
+                    //progress.ClearLine();
                     LOG_INFO("sql.updates", "Deleting orphaned entry \'{}\'...", entry.first);
                     toCleanup.insert(entry);
                 }
@@ -429,6 +423,7 @@ UpdateResult UpdateFetcher::Update() const
                 CleanUp(toCleanup);
             else
             {
+                progress.ClearLine();
                 LOG_ERROR("sql.updates",
                           "Cleanup is disabled! There were {} dirty files applied to your database, "
                           "but they are now missing in your source directory!",

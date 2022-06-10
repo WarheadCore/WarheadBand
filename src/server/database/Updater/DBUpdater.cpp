@@ -383,24 +383,28 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
         return false;
     }
 
+    ProgressBar progress("", filesCount);
+
     for (auto const& dirEntry : std::filesystem::directory_iterator(dirPath))
     {
         auto const& path = dirEntry.path();
         if (path.extension() != ".sql")
-            continue;
-
-        LOG_INFO("sql.updates", ">> Applying \'{}\'...", path.filename().generic_string());
+            continue;        
 
         try
         {
+            progress.UpdatePostfixText(path.filename().generic_string());
+            progress.Update();
             ApplyFile(pool, path);
         }
         catch (UpdateException&)
         {
+            progress.Stop();
             return false;
         }
     }
 
+    progress.Stop();
     LOG_INFO("sql.updates", ">> Done!");
     LOG_INFO("sql.updates", "");
     return true;

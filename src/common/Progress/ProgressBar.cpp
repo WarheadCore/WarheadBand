@@ -16,65 +16,90 @@
  */
 
 #include "ProgressBar.h"
-#include "StringFormat.h"
-#include "Log.h"
+#include <indicators/cursor_control.hpp>
+#include <indicators/cursor_movement.hpp>
 #include <iostream>
-#include <iomanip>
-#include <sstream>
 
-constexpr auto LENGTH_OF_PROGRESS_BAR = 50;
-constexpr auto PERCENTAGE_BIN_SIZE = 100.0 / LENGTH_OF_PROGRESS_BAR;
-
-namespace
+ProgressBar::ProgressBar(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/)
 {
-    void PrintProgressBar(unsigned int percentage, std::size_t size, std::size_t current)
-    {
-        const int progress = static_cast<int>(percentage / PERCENTAGE_BIN_SIZE);
-
-        std::ostringstream ss;
-        ss << " " << std::setw(3) << std::right << percentage << "% ";
-        std::string bar("[" + std::string(LENGTH_OF_PROGRESS_BAR - 2, ' ') + "]");
-        //bar.append(" " + Warhead::StringFormat("({}/{})", current, size));
-
-        unsigned int numberOfSymbols = std::min(std::max(0, progress - 1), LENGTH_OF_PROGRESS_BAR - 2);
-
-        bar.replace(1, numberOfSymbols, std::string(numberOfSymbols, '*'));
-
-        ss << bar;
-        std::cout << ss.str() << "\r" << std::flush;
-    }
+    _bar = std::make_unique<indicators::ProgressBar>();
+    Init(prefixText, size, current);
 }
 
-ProgressBar::ProgressBar(std::size_t totalSize, std::size_t currentSize /*= 0*/) :
-    _totalSize(totalSize),
-    _currentSize(currentSize),
-    mEnded(false)
+void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/)
 {
     std::cout << "\n";
-    PrintProgressBar(0, totalSize, currentSize);
+
+    _bar->set_option(indicators::option::BarWidth{ 40 });
+    _bar->set_option(indicators::option::Start{ "[" });
+    _bar->set_option(indicators::option::Fill{ "=" });
+    _bar->set_option(indicators::option::Lead{ ">" });
+    _bar->set_option(indicators::option::Remainder{ " " });
+    _bar->set_option(indicators::option::End{ "]" });
+    _bar->set_option(indicators::option::PrefixText{ std::string(prefixText) + " " });
+    _bar->set_option(indicators::option::ForegroundColor{ indicators::Color::green });
+    //_bar->set_option(indicators::option::ShowElapsedTime{ true });
+    _bar->set_option(indicators::option::ShowRemainingTime{ true });
+    _bar->set_option(indicators::option::ShowPercentage{ true });
+    _bar->set_option(indicators::option::MinProgress{ current });
+    _bar->set_option(indicators::option::MaxProgress{ size });
+    _bar->set_option(indicators::option::FontStyles{ std::vector<indicators::FontStyle>{ indicators::FontStyle::bold } });
+
+    indicators::show_console_cursor(false);
 }
 
-ProgressBar::~ProgressBar()
+void ProgressBar::Stop(bool hide /*= false*/)
 {
-    Stop();
+    if (hide)
+        ClearLine();
+
+    // Show cursor
+    indicators::show_console_cursor(true);
+
+    // Reset color and print new line
+    std::cout << termcolor::reset;
+    std::cout << "\n";
+
+    if (IsCompleted())
+        return;
+
+    _bar->mark_as_completed();
 }
 
-void ProgressBar::Update(std::size_t readSize)
+void ProgressBar::Update(std::size_t progress /*= 0*/)
 {
-    if (mEnded)
-        throw std::runtime_error("Attempted to use progress bar after having terminated it");
+    if (IsCompleted())
+        return;
 
-    _currentSize += readSize;
+    if (progress)
+        _bar->set_progress(progress);
 
-    const unsigned int percentage = static_cast<unsigned int>(_currentSize * 100 / _totalSize);
-
-    PrintProgressBar(percentage, _totalSize, _currentSize);
+    _bar->tick();
 }
 
-void ProgressBar::Stop()
+bool ProgressBar::IsCompleted()
 {
-    if (!mEnded)
-        std::cout << std::string(2, '\n');
+    return _bar->is_completed();
+}
 
-    mEnded = true;
+std::size_t ProgressBar::GetProgress()
+{
+    return _bar->current();
+}
+
+void ProgressBar::ClearLine()
+{
+    indicators::move_up(1);
+    indicators::erase_line();
+    std::cout << std::flush;
+}
+
+void ProgressBar::UpdatePrefixText(std::string_view text)
+{
+    _bar->set_option(indicators::option::PrefixText{ std::string(text) + " " });
+}
+
+void ProgressBar::UpdatePostfixText(std::string_view text)
+{
+    _bar->set_option(indicators::option::PostfixText{ std::string(text) + " " });
 }

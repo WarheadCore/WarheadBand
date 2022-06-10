@@ -18,49 +18,44 @@
 #define PROGRESS_BAR_H
 
 #include "Define.h"
+#include <memory>
 #include <string_view>
-#include <functional>
+#include <indicators/progress_bar.hpp>
 
-/**
- * RAII implementation of a progress bar.
- */
 class ProgressBar
 {
-public:
-    /**
-     * Constructor.
-     * It takes two values: the expected number of iterations whose progress we
-     * want to monitor and an initial message to be displayed on top of the bar
-     * (which can be updated with updateLastPrintedMessage()).
-     */
-    ProgressBar(std::size_t totalSize, std::size_t currentSize = 0);
+public:    
+    ProgressBar(std::string_view prefixText, std::size_t totalSize, std::size_t currentSize = 0);
+    //~ProgressBar() = default;
 
-    /**
-     * Destructor to guarantee RAII.
-     */
-    ~ProgressBar();
+    // Initialize ProgressBar
+    void Init(std::string_view prefixText, std::size_t size, std::size_t current = 0);
+
+    // Stop
+    void Stop(bool hide = false);
+
+    // Update with progress if need
+    void Update(std::size_t progress = 0);
+
+    // Check if completed
+    bool IsCompleted();
+
+    // Get current progress
+    std::size_t GetProgress();
+
+    // Clear current line
+    void ClearLine();
+
+    // Text's
+    void UpdatePrefixText(std::string_view text);
+    void UpdatePostfixText(std::string_view text);
+
+private:
+    std::unique_ptr<indicators::ProgressBar> _bar;
 
     // Make the object non-copyable
     ProgressBar(const ProgressBar& o) = delete;
     ProgressBar& operator=(const ProgressBar& o) = delete;
-
-    /**
-     * Must be invoked when the progress bar is no longer needed to restore the
-     * position of the cursor to the end of the output.
-     * It is automatically invoked when the object is destroyed.
-     */
-    void Stop();
-
-    /**
-     * Overloaded prefix operator, used to indicate that the has been a new
-     * iteration.
-     */
-    void Update(std::size_t readSize);
-
-private:
-    std::size_t _currentSize{ 0 };
-    std::size_t _totalSize{ 0 };
-    bool mEnded;
 };
 
 #endif /* PROGRESS_BAR_H */

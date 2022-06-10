@@ -78,7 +78,8 @@ target_link_libraries(common
     jemalloc
     stdfs
     fmt
-    valgrind)
+    valgrind
+    indicators::indicators)
 
 if (BUILD_APPLICATION_WORLDSERVER OR BUILD_TOOLS_MAPS)
   target_link_libraries(common
