@@ -435,42 +435,67 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 {
     std::vector<std::string> args;
 
-#if MARIADB_VERSION_ID || WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    args.reserve(7);
+    auto CanUseExtraFile = []()
+    {
+#ifdef MARIADB_VERSION_ID
+        return false;
+#endif
 
-    // CLI Client connection info
-    args.emplace_back("-h" + host);
-    args.emplace_back("-u" + user);
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
 
-    if (!password.empty())
-        args.emplace_back("-p" + password);
+        // For Ubuntu/Debian only
+        try
+        {
+            return std::filesystem::is_regular_file("/etc/mysql/debian.cnf");
+        }
+        catch (const std::error_code& error)
+        {
+            LOG_FATAL("sql.updates", "> Error at check '/etc/mysql/debian.cnf'. {}", error.message());
+            return false;
+        }
+#endif
 
-    // Check if we want to connect through ip or socket (Unix only)
+        return false;
+    };
+
+    if (CanUseExtraFile())
+    {
+        args.reserve(7 - 4);
+        args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
+    }
+    else
+    {
+        args.reserve(7);
+
+        // CLI Client connection info
+        args.emplace_back("-h" + host);
+        args.emplace_back("-u" + user);
+
+        if (!password.empty())
+            args.emplace_back("-p" + password);
+
+        // Check if we want to connect through ip or socket (Unix only)
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 
-    if (host == ".")
-        args.emplace_back("--protocol=PIPE");
-    else
-        args.emplace_back("-P" + port_or_socket);
+        if (host == ".")
+            args.emplace_back("--protocol=PIPE");
+        else
+            args.emplace_back("-P" + port_or_socket);
 
 #else
 
-    if (!std::isdigit(port_or_socket[0]))
-    {
-        // We can't check if host == "." here, because it is named localhost if socket option is enabled
-        args.emplace_back("-P0");
-        args.emplace_back("--protocol=SOCKET");
-        args.emplace_back("-S" + port_or_socket);
+        if (!std::isdigit(port_or_socket[0]))
+        {
+            // We can't check if host == "." here, because it is named localhost if socket option is enabled
+            args.emplace_back("-P0");
+            args.emplace_back("--protocol=SOCKET");
+            args.emplace_back("-S" + port_or_socket);
+        }
+        else
+            // generic case
+            args.emplace_back("-P" + port_or_socket);
+#endif
     }
-    else
-        // generic case
-        args.emplace_back("-P" + port_or_socket);
-
-#endif
-#else // ubuntu/debian
-    args.reserve(7 - 4);
-    args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
-#endif
 
     // Set the default charset to utf8
     args.emplace_back("--default-character-set=utf8mb4");
@@ -479,15 +504,11 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     args.emplace_back("--max-allowed-packet=1GB");
 
 #if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
-
     if (ssl == "ssl")
         args.emplace_back("--ssl-mode=REQUIRED");
-
 #else
-
     if (ssl == "ssl")
         args.emplace_back("--ssl");
-
 #endif
 
     // Database
