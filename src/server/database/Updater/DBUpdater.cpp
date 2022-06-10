@@ -434,6 +434,8 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
                              std::string const& password, std::string const& port_or_socket, std::string const& database, std::string const& ssl, Path const& path)
 {
     std::vector<std::string> args;
+
+#ifdef MARIADB_VERSION_ID
     args.reserve(7);
 
     // CLI Client connection info
@@ -444,7 +446,7 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back("-p" + password);
 
     // Check if we want to connect through ip or socket (Unix only)
-#ifdef _WIN32
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 
     if (host == ".")
         args.emplace_back("--protocol=PIPE");
@@ -465,9 +467,13 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back("-P" + port_or_socket);
 
 #endif
+#else
+    args.reserve(7 - 4);
+    args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
+#endif
 
     // Set the default charset to utf8
-    args.emplace_back("--default-character-set=utf8");
+    args.emplace_back("--default-character-set=utf8mb4");
 
     // Set max allowed packet to 1 GB
     args.emplace_back("--max-allowed-packet=1GB");
