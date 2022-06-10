@@ -20,15 +20,11 @@
 
 #include "DatabaseEnv.h"
 #include "Define.h"
+#include <filesystem>
 #include <string>
 
 template <class T>
 class DatabaseWorkerPool;
-
-namespace std::filesystem
-{
-    class path;
-}
 
 class WH_DATABASE_API UpdateException : public std::exception
 {
