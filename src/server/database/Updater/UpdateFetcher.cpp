@@ -247,16 +247,11 @@ UpdateResult UpdateFetcher::Update() const
 
     size_t importedUpdates = 0;
 
-    ProgressBar progress("", available.size());
-
-    auto ApplyUpdateFile = [this, &applied, &hashToName, &available, &importedUpdates, &progress](LocaleFileEntry const& sqlFile)
+    auto ApplyUpdateFile = [this, &applied, &hashToName, &available, &importedUpdates](Path const& filePath, State const& fileState, ProgressBar const& progress)
     {
         bool const redundancyChecks = sConfigMgr->GetOption<bool>("Updates.Redundancy", true);
         bool const allowRehash = sConfigMgr->GetOption<bool>("Updates.AllowRehash", true);
         bool const archivedRedundancy = sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false);
-
-        auto const& filePath = sqlFile.first;
-        auto const& fileState = sqlFile.second;
 
         auto const& iter = applied.find(filePath.filename().string());
         if (iter != applied.end())
@@ -265,15 +260,13 @@ UpdateResult UpdateFetcher::Update() const
             if (!redundancyChecks)
             {
                 applied.erase(iter);
-                progress.Update();
                 return;
             }
 
             // If the update is in an archived directory and is marked as archived in our database, skip redundancy checks (archived updates never change).
-            if (!archivedRedundancy && (iter->second.state == ARCHIVED) && (sqlFile.second == ARCHIVED))
+            if (!archivedRedundancy && (iter->second.state == ARCHIVED) && (fileState == ARCHIVED))
             {
                 applied.erase(iter);
-                progress.Update();
                 return;
             }
         }
@@ -312,19 +305,14 @@ UpdateResult UpdateFetcher::Update() const
 
                     RenameEntry(hashIter->second, filePath.filename().string());
                     applied.erase(hashIter->second);
-                    progress.Update();
                     return;
                 }
             }
-            // Apply the update if it was never seen before.
-            else
-                progress.UpdatePostfixText(Warhead::StringFormat("{} '{}'", filePath.filename().string(), hash.substr(0, 7)));
         }
         // Rehash the update entry if it exists in our database with an empty hash.
         else if (allowRehash && iter->second.hash.empty())
         {
             mode = MODE_REHASH;
-
             progress.ClearLine();
             LOG_INFO("sql.updates", ">> Re-hashing update \"{}\" \'{}\'...", filePath.filename().string(), hash.substr(0, 7));
         }
@@ -344,7 +332,6 @@ UpdateResult UpdateFetcher::Update() const
                     UpdateState(filePath.filename().string(), fileState);
 
                 applied.erase(iter);
-                progress.Update();
                 return;
             }
         }
@@ -367,30 +354,44 @@ UpdateResult UpdateFetcher::Update() const
 
         if (mode == MODE_APPLY)
             ++importedUpdates;
-
-        progress.Update();
     };
 
+    ProgressBar progress("", available.size());
+
     // Apply default updates
-    for (auto const& availableQuery : available)
+    for (auto const& [path, state] : available)
     {
-        if (availableQuery.second == RELEASED || availableQuery.second == ARCHIVED)
-            ApplyUpdateFile(availableQuery);
+        if (state == RELEASED || state == ARCHIVED)
+        {
+            ApplyUpdateFile(path, state, progress);
+            progress.UpdatePostfixText(path.filename().generic_string());
+            progress.Update();
+        }
     }
 
     // Apply only custom updates
-    for (auto const& availableQuery : available)
+    for (auto const& [path, state] : available)
     {
-        if (availableQuery.second == CUSTOM)
-            ApplyUpdateFile(availableQuery);
+        if (state == CUSTOM)
+        {
+            ApplyUpdateFile(path, state, progress);
+            progress.UpdatePostfixText(path.filename().generic_string());
+            progress.Update();
+        }
     }
 
     // Apply only module updates
-    for (auto const& availableQuery : available)
+    for (auto const& [path, state] : available)
     {
-        if (availableQuery.second == MODULE)
-            ApplyUpdateFile(availableQuery);
+        if (state == MODULE)
+        {
+            ApplyUpdateFile(path, state, progress);
+            progress.UpdatePostfixText(path.filename().generic_string());
+            progress.Update();
+        }
     }
+
+    progress.Stop();
 
     // Cleanup up orphaned entries (if enabled)
     if (!applied.empty() && !_setDirectories)
@@ -402,15 +403,11 @@ UpdateResult UpdateFetcher::Update() const
         {
             if (entry.second.state != MODULE)
             {
-                progress.ClearLine();
-                LOG_WARN("sql.updates",
-                         ">> The file \'{}\' was applied to the database, but is missing in"
-                         " your update directory now!",
-                         entry.first);
+                LOG_WARN("sql.updates", ">> The file \'{}\' was applied to the database, but is missing in your update directory now!",
+                    entry.first);
 
                 if (doCleanup)
                 {
-                    //progress.ClearLine();
                     LOG_INFO("sql.updates", "Deleting orphaned entry \'{}\'...", entry.first);
                     toCleanup.insert(entry);
                 }
@@ -423,16 +420,11 @@ UpdateResult UpdateFetcher::Update() const
                 CleanUp(toCleanup);
             else
             {
-                progress.ClearLine();
-                LOG_ERROR("sql.updates",
-                          "Cleanup is disabled! There were {} dirty files applied to your database, "
-                          "but they are now missing in your source directory!",
-                          toCleanup.size());
+                LOG_ERROR("sql.updates", "Cleanup is disabled! There were {} dirty files applied to your database, "
+                    "but they are now missing in your source directory!", toCleanup.size());
             }
         }
     }
-
-    progress.Stop();
 
     return UpdateResult(importedUpdates, countRecentUpdates, countArchivedUpdates);
 }
@@ -448,7 +440,7 @@ uint32 UpdateFetcher::Apply(Path const& path) const
     _applyFile(path);
 
     // Return the time it took the query to apply
-    return uint32(std::chrono::duration_cast<std::chrono::milliseconds>(Time::now() - begin).count());
+    return uint32(std::chrono::duration_cast<Milliseconds>(Time::now() - begin).count());
 }
 
 void UpdateFetcher::UpdateEntry(AppliedFileEntry const& entry, uint32 const speed) const

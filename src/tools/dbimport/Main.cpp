@@ -32,7 +32,7 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
-#include "ProgressBar.h"
+#include <indicators/terminal_size.hpp>
 
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
@@ -87,17 +87,9 @@ int main(int argc, char** argv)
         }
     );
 
-    /*std::size_t size{ 100 };
-    ProgressBar bar(size);
+    LOG_INFO("server", "Size: {}", indicators::terminal_width());
 
-    for (size_t i = 0; i < size; i++)
-    {
-        std::this_thread::sleep_for(500ms);
-        LOG_INFO("dbimport", "> Using configuration file:       {}", sConfigMgr->GetFilename());
-        bar.Update(1);
-    }
-
-    return 0;*/
+    //return 0;
 
     // Initialize the database connection
     if (!StartDB())

@@ -18,7 +18,10 @@
 #include "ProgressBar.h"
 #include <indicators/cursor_control.hpp>
 #include <indicators/cursor_movement.hpp>
+#include <indicators/terminal_size.hpp>
 #include <iostream>
+
+constexpr std::size_t ADDITIONAL_INFO_SIZE = 15;
 
 ProgressBar::ProgressBar(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/)
 {
@@ -26,17 +29,20 @@ ProgressBar::ProgressBar(std::string_view prefixText, std::size_t size, std::siz
     Init(prefixText, size, current);
 }
 
-void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/)
+void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/) const
 {
     std::cout << "\n";
 
-    _bar->set_option(indicators::option::BarWidth{ 40 });
+    if (!prefixText.empty())
+        _bar->set_option(indicators::option::PrefixText{ std::string(prefixText) + " " });
+
+    _bar->set_option(indicators::option::BarWidth{ indicators::terminal_width() / 2 - ADDITIONAL_INFO_SIZE });
     _bar->set_option(indicators::option::Start{ "[" });
     _bar->set_option(indicators::option::Fill{ "=" });
     _bar->set_option(indicators::option::Lead{ ">" });
     _bar->set_option(indicators::option::Remainder{ " " });
     _bar->set_option(indicators::option::End{ "]" });
-    _bar->set_option(indicators::option::PrefixText{ std::string(prefixText) + " " });
+    //_bar->set_option(indicators::option::PrefixText{ std::string(prefixText) + " " });
     _bar->set_option(indicators::option::ForegroundColor{ indicators::Color::green });
     //_bar->set_option(indicators::option::ShowElapsedTime{ true });
     _bar->set_option(indicators::option::ShowRemainingTime{ true });
@@ -48,7 +54,7 @@ void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_
     indicators::show_console_cursor(false);
 }
 
-void ProgressBar::Stop(bool hide /*= false*/)
+void ProgressBar::Stop(bool hide /*= false*/) const
 {
     if (hide)
         ClearLine();
@@ -66,7 +72,7 @@ void ProgressBar::Stop(bool hide /*= false*/)
     _bar->mark_as_completed();
 }
 
-void ProgressBar::Update(std::size_t progress /*= 0*/)
+void ProgressBar::Update(std::size_t progress /*= 0*/) const
 {
     if (IsCompleted())
         return;
@@ -77,29 +83,29 @@ void ProgressBar::Update(std::size_t progress /*= 0*/)
     _bar->tick();
 }
 
-bool ProgressBar::IsCompleted()
+bool ProgressBar::IsCompleted() const
 {
     return _bar->is_completed();
 }
 
-std::size_t ProgressBar::GetProgress()
+std::size_t ProgressBar::GetProgress() const
 {
     return _bar->current();
 }
 
-void ProgressBar::ClearLine()
+void ProgressBar::ClearLine() const
 {
     indicators::move_up(1);
     indicators::erase_line();
     std::cout << std::flush;
 }
 
-void ProgressBar::UpdatePrefixText(std::string_view text)
+void ProgressBar::UpdatePrefixText(std::string_view text) const
 {
     _bar->set_option(indicators::option::PrefixText{ std::string(text) + " " });
 }
 
-void ProgressBar::UpdatePostfixText(std::string_view text)
+void ProgressBar::UpdatePostfixText(std::string_view text) const
 {
     _bar->set_option(indicators::option::PostfixText{ std::string(text) + " " });
 }

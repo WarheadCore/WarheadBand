@@ -29,26 +29,26 @@ public:
     //~ProgressBar() = default;
 
     // Initialize ProgressBar
-    void Init(std::string_view prefixText, std::size_t size, std::size_t current = 0);
+    void Init(std::string_view prefixText, std::size_t size, std::size_t current = 0) const;
 
     // Stop
-    void Stop(bool hide = false);
+    void Stop(bool hide = false) const;
 
     // Update with progress if need
-    void Update(std::size_t progress = 0);
+    void Update(std::size_t progress = 0) const;
 
     // Check if completed
-    bool IsCompleted();
+    bool IsCompleted() const;
 
     // Get current progress
-    std::size_t GetProgress();
+    std::size_t GetProgress() const;
 
     // Clear current line
-    void ClearLine();
+    void ClearLine() const;
 
     // Text's
-    void UpdatePrefixText(std::string_view text);
-    void UpdatePostfixText(std::string_view text);
+    void UpdatePrefixText(std::string_view text) const;
+    void UpdatePostfixText(std::string_view text) const;
 
 private:
     std::unique_ptr<indicators::ProgressBar> _bar;
