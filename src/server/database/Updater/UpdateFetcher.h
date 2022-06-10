@@ -28,15 +28,14 @@
 
 struct WH_DATABASE_API UpdateResult
 {
-    UpdateResult()
-        : updated(0), recent(0), archived(0) { }
+    UpdateResult() { }
 
     UpdateResult(size_t const updated_, size_t const recent_, size_t const archived_)
         : updated(updated_), recent(recent_), archived(archived_) { }
 
-    size_t updated;
-    size_t recent;
-    size_t archived;
+    size_t updated{ 0 };
+    size_t recent{ 0 };
+    size_t archived{ 0 };
 };
 
 class WH_DATABASE_API UpdateFetcher
@@ -58,8 +57,7 @@ public:
 
     ~UpdateFetcher();
 
-    UpdateResult Update(bool const redundancyChecks, bool const allowRehash,
-                        bool const archivedRedundancy, int32 const cleanDeadReferencesMaxCount) const;
+    UpdateResult Update() const;
 
 private:
     enum UpdateMode

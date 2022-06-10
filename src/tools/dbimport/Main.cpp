@@ -32,6 +32,8 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
+#include "ProgressBar.h"
+
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
 #endif
@@ -84,6 +86,18 @@ int main(int argc, char** argv)
             LOG_INFO("dbimport", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
+
+    /*std::size_t size{ 100 };
+    ProgressBar bar(size);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        std::this_thread::sleep_for(500ms);
+        LOG_INFO("dbimport", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+        bar.Update(1);
+    }
+
+    return 0;*/
 
     // Initialize the database connection
     if (!StartDB())

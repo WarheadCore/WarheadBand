@@ -20,18 +20,14 @@
 
 #include "DatabaseEnv.h"
 #include "Define.h"
-#include <filesystem>
 #include <string>
 
 template <class T>
 class DatabaseWorkerPool;
 
-namespace boost
+namespace std::filesystem
 {
-    namespace filesystem
-    {
-        class path;
-    }
+    class path;
 }
 
 class WH_DATABASE_API UpdateException : public std::exception
@@ -44,12 +40,6 @@ public:
 
 private:
     std::string const _msg;
-};
-
-enum BaseLocation
-{
-    LOCATION_REPOSITORY,
-    LOCATION_DOWNLOAD
 };
 
 class WH_DATABASE_API DBUpdaterUtil
@@ -73,7 +63,6 @@ public:
     static inline std::string GetTableName();
     static std::string GetBaseFilesDirectory();
     static bool IsEnabled(uint32 const updateMask);
-    static BaseLocation GetBaseLocationType();
     static bool Create(DatabaseWorkerPool<T>& pool);
     static bool Update(DatabaseWorkerPool<T>& pool, std::string_view modulesList = {});
     static bool Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> const* setDirectories);

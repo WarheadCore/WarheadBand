@@ -25,9 +25,12 @@
 #include "QueryResult.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
+#include "ProgressBar.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+
+constexpr auto SQL_BASE_DIR = "/data/sql/base/";
 
 std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {
@@ -80,7 +83,7 @@ std::string DBUpdater<LoginDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<LoginDatabaseConnection>::GetBaseFilesDirectory()
 {
-    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_auth/";
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_auth/";
 }
 
 template<>
@@ -112,7 +115,7 @@ std::string DBUpdater<WorldDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<WorldDatabaseConnection>::GetBaseFilesDirectory()
 {
-    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_world/";
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_world/";
 }
 
 template<>
@@ -144,7 +147,7 @@ std::string DBUpdater<CharacterDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<CharacterDatabaseConnection>::GetBaseFilesDirectory()
 {
-    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_characters/";
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_characters/";
 }
 
 template<>
@@ -158,13 +161,6 @@ template<>
 std::string DBUpdater<CharacterDatabaseConnection>::GetDBModuleName()
 {
     return "db_characters";
-}
-
-// All
-template<class T>
-BaseLocation DBUpdater<T>::GetBaseLocationType()
-{
-    return LOCATION_REPOSITORY;
 }
 
 template<class T>
@@ -267,11 +263,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::string_view modulesL
     UpdateResult result;
     try
     {
-        result = updateFetcher.Update(
-                     sConfigMgr->GetOption<bool>("Updates.Redundancy", true),
-                     sConfigMgr->GetOption<bool>("Updates.AllowRehash", true),
-                     sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false),
-                     sConfigMgr->GetOption<int32>("Updates.CleanDeadRefMaxCount", 3));
+        result = updateFetcher.Update();
     }
     catch (UpdateException&)
     {
@@ -338,11 +330,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> 
     UpdateResult result;
     try
     {
-        result = updateFetcher.Update(
-                     sConfigMgr->GetOption<bool>("Updates.Redundancy", true),
-                     sConfigMgr->GetOption<bool>("Updates.AllowRehash", true),
-                     sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false),
-                     sConfigMgr->GetOption<int32>("Updates.CleanDeadRefMaxCount", 3));
+        result = updateFetcher.Update();
     }
     catch (UpdateException&)
     {
@@ -366,46 +354,46 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
 
     LOG_INFO("sql.updates", "Database {} is empty, auto populating it...", DBUpdater<T>::GetTableName());
 
-    std::string const DirPathStr = DBUpdater<T>::GetBaseFilesDirectory();
+    std::string const dirPathStr = DBUpdater<T>::GetBaseFilesDirectory();
 
-    Path const DirPath(DirPathStr);
-    if (!std::filesystem::is_directory(DirPath))
+    Path const dirPath(dirPathStr);
+    if (dirPath.empty())
     {
-        LOG_ERROR("sql.updates", ">> Directory \"{}\" not exist", DirPath.generic_string());
+        LOG_ERROR("sql.updates", ">> Directory \"{}\" is empty", dirPath.generic_string());
         return false;
     }
 
-    if (DirPath.empty())
+    if (!std::filesystem::is_directory(dirPath))
     {
-        LOG_ERROR("sql.updates", ">> Directory \"{}\" is empty", DirPath.generic_string());
+        LOG_ERROR("sql.updates", ">> Directory \"{}\" not exist", dirPath.generic_string());
         return false;
     }
 
-    std::filesystem::directory_iterator const DirItr;
-    uint32 FilesCount = 0;
+    std::size_t filesCount{ 0 };
 
-    for (std::filesystem::directory_iterator itr(DirPath); itr != DirItr; ++itr)
+    for (auto const& dirEntry : std::filesystem::directory_iterator(dirPath))
     {
-        if (itr->path().extension() == ".sql")
-            FilesCount++;
+        if (dirEntry.path().extension() == ".sql")
+            filesCount++;
     }
 
-    if (!FilesCount)
+    if (!filesCount)
     {
-        LOG_ERROR("sql.updates", ">> In directory \"{}\" not exist '*.sql' files", DirPath.generic_string());
+        LOG_ERROR("sql.updates", ">> In directory \"{}\" not exist '*.sql' files", dirPath.generic_string());
         return false;
     }
 
-    for (std::filesystem::directory_iterator itr(DirPath); itr != DirItr; ++itr)
+    for (auto const& dirEntry : std::filesystem::directory_iterator(dirPath))
     {
-        if (itr->path().extension() != ".sql")
+        auto const& path = dirEntry.path();
+        if (path.extension() != ".sql")
             continue;
 
-        LOG_INFO("sql.updates", ">> Applying \'{}\'...", itr->path().filename().generic_string());
+        LOG_INFO("sql.updates", ">> Applying \'{}\'...", path.filename().generic_string());
 
         try
         {
-            ApplyFile(pool, itr->path());
+            ApplyFile(pool, path);
         }
         catch (UpdateException&)
         {
