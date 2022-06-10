@@ -255,8 +255,8 @@ UpdateResult UpdateFetcher::Update() const
         bool const allowRehash = sConfigMgr->GetOption<bool>("Updates.AllowRehash", true);
         bool const archivedRedundancy = sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false);
 
-        auto filePath = sqlFile.first;
-        auto fileState = sqlFile.second;
+        auto const& filePath = sqlFile.first;
+        auto const& fileState = sqlFile.second;
 
         auto const& iter = applied.find(filePath.filename().string());
         if (iter != applied.end())
