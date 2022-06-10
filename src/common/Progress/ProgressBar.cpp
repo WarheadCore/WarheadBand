@@ -16,12 +16,11 @@
  */
 
 #include "ProgressBar.h"
+#include "Errors.h"
 #include <indicators/cursor_control.hpp>
 #include <indicators/cursor_movement.hpp>
 #include <indicators/terminal_size.hpp>
 #include <iostream>
-
-#include "Poco/Environment.h"
 
 constexpr std::size_t ADDITIONAL_INFO_SIZE = 15;
 constexpr std::size_t DEFAULT_POST_INFO_SIZE = 50;
