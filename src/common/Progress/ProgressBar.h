@@ -51,6 +51,8 @@ public:
     void UpdatePostfixText(std::string_view text) const;
 
 private:
+    std::size_t GetTerninalWidth() const;
+
     std::unique_ptr<indicators::ProgressBar> _bar;
 
     // Make the object non-copyable

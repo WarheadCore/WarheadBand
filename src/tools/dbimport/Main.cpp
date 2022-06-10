@@ -32,7 +32,7 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
-#include <indicators/terminal_size.hpp>
+#include "ProgressBar.h"
 
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
@@ -86,10 +86,6 @@ int main(int argc, char** argv)
             LOG_INFO("dbimport", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
-
-    LOG_INFO("server", "Size: {}", indicators::terminal_width());
-
-    //return 0;
 
     // Initialize the database connection
     if (!StartDB())
