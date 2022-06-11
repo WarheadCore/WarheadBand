@@ -41,6 +41,10 @@ void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_
 
     std::size_t terminalWidth{ GetTerninalWidth() };
 
+    // CI
+    if (!terminalWidth)
+        terminalWidth = 120;
+
     ASSERT(terminalWidth > DEFAULT_POST_BAR_SIZE, "For using ProgressBar need terminal width > {} chars. You {}.", DEFAULT_POST_BAR_SIZE, terminalWidth);
 
     _bar->set_option(indicators::option::BarWidth{ terminalWidth - DEFAULT_POST_BAR_SIZE });
