@@ -89,7 +89,7 @@ private:
     std::unordered_map<int32 /*time*/, RewardsPair> _rewards; // for per online
     std::unordered_map<ObjectGuid::LowType, RewardHistoryPair> _rewardHistoryDB;
     TaskScheduler scheduler;
-    
+
     QueryCallbackProcessor _queryProcessor;
 };
 

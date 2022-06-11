@@ -25,9 +25,12 @@
 #include "QueryResult.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
+#include "ProgressBar.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+
+constexpr auto SQL_BASE_DIR = "/data/sql/base/";
 
 std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {
@@ -80,7 +83,7 @@ std::string DBUpdater<LoginDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<LoginDatabaseConnection>::GetBaseFilesDirectory()
 {
-    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_auth/";
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_auth/";
 }
 
 template<>
@@ -112,7 +115,7 @@ std::string DBUpdater<WorldDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<WorldDatabaseConnection>::GetBaseFilesDirectory()
 {
-    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_world/";
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_world/";
 }
 
 template<>
@@ -144,7 +147,7 @@ std::string DBUpdater<CharacterDatabaseConnection>::GetTableName()
 template<>
 std::string DBUpdater<CharacterDatabaseConnection>::GetBaseFilesDirectory()
 {
-    return BuiltInConfig::GetSourceDirectory() + "/data/sql/base/db_characters/";
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_characters/";
 }
 
 template<>
@@ -158,13 +161,6 @@ template<>
 std::string DBUpdater<CharacterDatabaseConnection>::GetDBModuleName()
 {
     return "db_characters";
-}
-
-// All
-template<class T>
-BaseLocation DBUpdater<T>::GetBaseLocationType()
-{
-    return LOCATION_REPOSITORY;
 }
 
 template<class T>
@@ -267,11 +263,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::string_view modulesL
     UpdateResult result;
     try
     {
-        result = updateFetcher.Update(
-                     sConfigMgr->GetOption<bool>("Updates.Redundancy", true),
-                     sConfigMgr->GetOption<bool>("Updates.AllowRehash", true),
-                     sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false),
-                     sConfigMgr->GetOption<int32>("Updates.CleanDeadRefMaxCount", 3));
+        result = updateFetcher.Update();
     }
     catch (UpdateException&)
     {
@@ -338,11 +330,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> 
     UpdateResult result;
     try
     {
-        result = updateFetcher.Update(
-                     sConfigMgr->GetOption<bool>("Updates.Redundancy", true),
-                     sConfigMgr->GetOption<bool>("Updates.AllowRehash", true),
-                     sConfigMgr->GetOption<bool>("Updates.ArchivedRedundancy", false),
-                     sConfigMgr->GetOption<int32>("Updates.CleanDeadRefMaxCount", 3));
+        result = updateFetcher.Update();
     }
     catch (UpdateException&)
     {
@@ -366,53 +354,57 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
 
     LOG_INFO("sql.updates", "Database {} is empty, auto populating it...", DBUpdater<T>::GetTableName());
 
-    std::string const DirPathStr = DBUpdater<T>::GetBaseFilesDirectory();
+    std::string const dirPathStr = DBUpdater<T>::GetBaseFilesDirectory();
 
-    Path const DirPath(DirPathStr);
-    if (!std::filesystem::is_directory(DirPath))
+    Path const dirPath(dirPathStr);
+    if (dirPath.empty())
     {
-        LOG_ERROR("sql.updates", ">> Directory \"{}\" not exist", DirPath.generic_string());
+        LOG_ERROR("sql.updates", ">> Directory \"{}\" is empty", dirPath.generic_string());
         return false;
     }
 
-    if (DirPath.empty())
+    if (!std::filesystem::is_directory(dirPath))
     {
-        LOG_ERROR("sql.updates", ">> Directory \"{}\" is empty", DirPath.generic_string());
+        LOG_ERROR("sql.updates", ">> Directory \"{}\" not exist", dirPath.generic_string());
         return false;
     }
 
-    std::filesystem::directory_iterator const DirItr;
-    uint32 FilesCount = 0;
+    std::size_t filesCount{ 0 };
 
-    for (std::filesystem::directory_iterator itr(DirPath); itr != DirItr; ++itr)
+    for (auto const& dirEntry : std::filesystem::directory_iterator(dirPath))
     {
-        if (itr->path().extension() == ".sql")
-            FilesCount++;
+        if (dirEntry.path().extension() == ".sql")
+            filesCount++;
     }
 
-    if (!FilesCount)
+    if (!filesCount)
     {
-        LOG_ERROR("sql.updates", ">> In directory \"{}\" not exist '*.sql' files", DirPath.generic_string());
+        LOG_ERROR("sql.updates", ">> In directory \"{}\" not exist '*.sql' files", dirPath.generic_string());
         return false;
     }
 
-    for (std::filesystem::directory_iterator itr(DirPath); itr != DirItr; ++itr)
+    ProgressBar progress("", filesCount);
+
+    for (auto const& dirEntry : std::filesystem::directory_iterator(dirPath))
     {
-        if (itr->path().extension() != ".sql")
+        auto const& path = dirEntry.path();
+        if (path.extension() != ".sql")
             continue;
-
-        LOG_INFO("sql.updates", ">> Applying \'{}\'...", itr->path().filename().generic_string());
 
         try
         {
-            ApplyFile(pool, itr->path());
+            progress.UpdatePostfixText(path.filename().generic_string());
+            progress.Update();
+            ApplyFile(pool, path);
         }
         catch (UpdateException&)
         {
+            progress.Stop();
             return false;
         }
     }
 
+    progress.Stop();
     LOG_INFO("sql.updates", ">> Done!");
     LOG_INFO("sql.updates", "");
     return true;
@@ -442,54 +434,81 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
                              std::string const& password, std::string const& port_or_socket, std::string const& database, std::string const& ssl, Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(7);
 
-    // CLI Client connection info
-    args.emplace_back("-h" + host);
-    args.emplace_back("-u" + user);
+    auto CanUseExtraFile = []()
+    {
+#ifdef MARIADB_VERSION_ID
+        return false;
+#endif
 
-    if (!password.empty())
-        args.emplace_back("-p" + password);
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
 
-    // Check if we want to connect through ip or socket (Unix only)
-#ifdef _WIN32
+        // For Ubuntu/Debian only
+        try
+        {
+            return std::filesystem::is_regular_file("/etc/mysql/debian.cnf");
+        }
+        catch (const std::error_code& error)
+        {
+            LOG_FATAL("sql.updates", "> Error at check '/etc/mysql/debian.cnf'. {}", error.message());
+            return false;
+        }
+#endif
 
-    if (host == ".")
-        args.emplace_back("--protocol=PIPE");
+        return false;
+    };
+
+    if (CanUseExtraFile())
+    {
+        args.reserve(7 - 4);
+        args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
+    }
     else
-        args.emplace_back("-P" + port_or_socket);
+    {
+        args.reserve(7);
+
+        // CLI Client connection info
+        args.emplace_back("-h" + host);
+        args.emplace_back("-u" + user);
+
+        if (!password.empty())
+            args.emplace_back("-p" + password);
+
+        // Check if we want to connect through ip or socket (Unix only)
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+
+        if (host == ".")
+            args.emplace_back("--protocol=PIPE");
+        else
+            args.emplace_back("-P" + port_or_socket);
 
 #else
 
-    if (!std::isdigit(port_or_socket[0]))
-    {
-        // We can't check if host == "." here, because it is named localhost if socket option is enabled
-        args.emplace_back("-P0");
-        args.emplace_back("--protocol=SOCKET");
-        args.emplace_back("-S" + port_or_socket);
-    }
-    else
-        // generic case
-        args.emplace_back("-P" + port_or_socket);
-
+        if (!std::isdigit(port_or_socket[0]))
+        {
+            // We can't check if host == "." here, because it is named localhost if socket option is enabled
+            args.emplace_back("-P0");
+            args.emplace_back("--protocol=SOCKET");
+            args.emplace_back("-S" + port_or_socket);
+        }
+        else
+            // generic case
+            args.emplace_back("-P" + port_or_socket);
 #endif
+    }
 
     // Set the default charset to utf8
-    args.emplace_back("--default-character-set=utf8");
+    args.emplace_back("--default-character-set=utf8mb4");
 
     // Set max allowed packet to 1 GB
     args.emplace_back("--max-allowed-packet=1GB");
 
 #if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 80000
-
     if (ssl == "ssl")
         args.emplace_back("--ssl-mode=REQUIRED");
-
 #else
-
     if (ssl == "ssl")
         args.emplace_back("--ssl");
-
 #endif
 
     // Database
