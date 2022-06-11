@@ -29,6 +29,7 @@ constexpr std::size_t DEFAULT_POST_BAR_SIZE = ADDITIONAL_INFO_SIZE + DEFAULT_POS
 ProgressBar::ProgressBar(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/)
 {
     _bar = std::make_unique<indicators::ProgressBar>();
+    _size = size;
     Init(prefixText, size, current);
 }
 
@@ -73,25 +74,30 @@ void ProgressBar::Stop(bool hide /*= false*/) const
     // Show cursor
     indicators::show_console_cursor(true);
 
+    if (!_bar->is_completed())
+        _bar->mark_as_completed();
+
     // Reset color and print new line
     std::cout << termcolor::reset;
     std::cout << "\n";
-
-    if (IsCompleted())
-        return;
-
-    _bar->mark_as_completed();
 }
 
-void ProgressBar::Update(std::size_t progress /*= 0*/) const
+void ProgressBar::Update(std::size_t progress /*= 0*/)
 {
     if (IsCompleted())
         return;
 
-    if (progress)
-        _bar->set_progress(progress);
+    SaveUnprintProgress(progress);
 
-    _bar->tick();
+    if (!CanPrintProgress())
+        return;
+
+    if (_unprintProgress)
+        _bar->set_progress(_bar->current() + _unprintProgress);
+    else
+        _bar->tick();
+
+    ClearUnprintProgress();
 }
 
 bool ProgressBar::IsCompleted() const
@@ -127,4 +133,35 @@ void ProgressBar::UpdatePostfixText(std::string_view text) const
 std::size_t ProgressBar::GetTerninalWidth() const
 {
     return indicators::terminal_width();
+}
+
+void ProgressBar::SaveUnprintProgress(std::size_t progress)
+{
+    if (progress)
+        _unprintProgress += progress;
+    else
+        _unprintProgress++;
+}
+
+void ProgressBar::ClearUnprintProgress()
+{
+    _unprintProgress = 0;
+}
+
+bool ProgressBar::CanPrintProgress()
+{
+    if (_bar->current() + _unprintProgress >= _size)
+        return true;
+
+    auto timeNow = std::chrono::duration_cast<Microseconds>(std::chrono::steady_clock::now().time_since_epoch());
+    if (_lastUpdateTime > 0us && _lastUpdateTime + _tickTime > timeNow)
+        return false;
+
+    _lastUpdateTime = timeNow;
+    return true;
+}
+
+void ProgressBar::SetTickTime(Microseconds tickTime)
+{
+    _tickTime = tickTime;
 }
