@@ -32,9 +32,6 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
-#include "ProgressBar.h"
-#include <Poco/Environment.h>
-
 #ifndef _WARHEAD_DB_IMPORT_CONFIG
 #define _WARHEAD_DB_IMPORT_CONFIG "dbimport.conf"
 #endif
