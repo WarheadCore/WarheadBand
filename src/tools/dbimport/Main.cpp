@@ -85,12 +85,6 @@ int main(int argc, char** argv)
         }
     );
 
-    LOG_INFO("server", "> osDisplayName: {}", Poco::Environment::osDisplayName());
-    LOG_INFO("server", "> osVersion: {}", Poco::Environment::osVersion());
-    LOG_INFO("server", "> nodeName: {}", Poco::Environment::nodeName());
-    LOG_INFO("server", "> osName: {}", Poco::Environment::osName());
-    LOG_INFO("server", "> processorCount: {}", Poco::Environment::processorCount());
-
     // Initialize the database connection
     if (!StartDB())
         return 1;
