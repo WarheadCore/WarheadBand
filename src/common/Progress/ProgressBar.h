@@ -24,7 +24,7 @@
 
 class ProgressBar
 {
-public:    
+public:
     ProgressBar(std::string_view prefixText, std::size_t totalSize, std::size_t currentSize = 0);
     //~ProgressBar() = default;
 

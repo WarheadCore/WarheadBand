@@ -58,7 +58,7 @@ public:
 
     void RewardPlayer(Player* player, Battleground* bg, TeamId winnerTeamId);
 
-private:    
+private:
     BOARRewardItemsVector* GetReward(BattlegroundTypeId bgType);
     bool CreateReward(BattlegroundTypeId bgType, uint32 winnerItemID, uint32 winnerItemCount, uint32 loserItemID, uint32 loserItemCount);
 

@@ -83,7 +83,7 @@ void OnlineRewardMgr::LoadDBData()
 
     LOG_INFO("module", "Loading online rewards for time...");
 
-    _rewards.clear();    
+    _rewards.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT RewardPlayedTime, ItemID, Count FROM online_reward");
     if (!result)

@@ -389,7 +389,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
     {
         auto const& path = dirEntry.path();
         if (path.extension() != ".sql")
-            continue;        
+            continue;
 
         try
         {

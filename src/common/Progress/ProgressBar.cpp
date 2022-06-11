@@ -52,8 +52,8 @@ void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_
     _bar->set_option(indicators::option::Fill{ "=" });
     _bar->set_option(indicators::option::Lead{ ">" });
     _bar->set_option(indicators::option::Remainder{ " " });
-    _bar->set_option(indicators::option::End{ "]" });    
-    _bar->set_option(indicators::option::ForegroundColor{ indicators::Color::green });    
+    _bar->set_option(indicators::option::End{ "]" });
+    _bar->set_option(indicators::option::ForegroundColor{ indicators::Color::green });
     _bar->set_option(indicators::option::ShowRemainingTime{ true });
     _bar->set_option(indicators::option::ShowPercentage{ true });
     _bar->set_option(indicators::option::MinProgress{ current });
