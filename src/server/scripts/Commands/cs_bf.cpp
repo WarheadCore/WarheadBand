@@ -123,27 +123,22 @@ public:
         return true;
     }
 
-    static bool HandleBattlefieldTimer(ChatHandler* handler, uint32 battleId, std::string timeStr)
+    static bool HandleBattlefieldTimer(ChatHandler* handler, uint32 battleId, std::string_view timeStr)
     {
         if (timeStr.empty())
         {
             return false;
         }
 
-        if (Acore::StringTo<int32>(timeStr).value_or(0) < 0)
+        if (Warhead::StringTo<int32>(timeStr).value_or(0) < 0)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        int32 time = TimeStringToSecs(timeStr);
-        if (time <= 0)
-        {
-            time = Acore::StringTo<int32>(timeStr).value_or(0);
-        }
-
-        if (time <= 0)
+        Seconds time = Warhead::Time::TimeStringTo(timeStr);
+        if (time == 0s)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -155,8 +150,9 @@ public:
         if (!bf)
             return false;
 
-        bf->SetTimer(time * IN_MILLISECONDS);
+        bf->SetTimer(time.count() * IN_MILLISECONDS);
         bf->SendInitWorldStatesToAll();
+
         if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command timer used)");
 

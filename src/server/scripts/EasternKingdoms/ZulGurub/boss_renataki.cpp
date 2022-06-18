@@ -172,7 +172,7 @@ public:
 
                             if (!targetList.empty())
                             {
-                                Acore::Containers::RandomShuffle(targetList);
+                                Warhead::Containers::RandomShuffle(targetList);
 
                                 // First get ranged targets
                                 for (Unit* target : targetList)
@@ -197,7 +197,7 @@ public:
 
                                 if (!_thousandBladesTargets.empty())
                                 {
-                                    Acore::Containers::RandomResize(_thousandBladesTargets, _thousandBladesCount);
+                                    Warhead::Containers::RandomResize(_thousandBladesTargets, _thousandBladesCount);
                                 }
                             }
                         }

@@ -293,7 +293,7 @@ class spell_hatch_eggs : public SpellScript
 
     void HandleObjectAreaTargetSelect(std::list<WorldObject*>& targets)
     {
-        targets.sort(Acore::ObjectDistanceOrderPred(GetCaster()));
+        targets.sort(Warhead::ObjectDistanceOrderPred(GetCaster()));
         targets.resize(GetSpellInfo()->MaxAffectedTargets);
     }
 

@@ -32,44 +32,46 @@ namespace Warhead::TimeDiff // in us
 
 Seconds Warhead::Time::TimeStringTo(std::string_view timestring)
 {
-    uint32 secs = 0;
-    uint32 buffer = 0;
-    uint32 multiplier = 0;
+    Seconds secs = 0s;
+    Seconds buffer = 0s;
+    Seconds multiplier = 0s;
 
-    for (char itr : timestring)
+    for (char const& itr : timestring)
     {
+        if (itr == ' ')
+            continue;
+
         if (std::isdigit(itr))
         {
             buffer *= 10;
-            buffer += itr - '0';
+            buffer += Seconds(itr - '0');
+            continue;
         }
-        else
-        {
-            switch (itr)
-            {
-            case 'd':
-                multiplier = DAY;
-                break;
-            case 'h':
-                multiplier = HOUR;
-                break;
-            case 'm':
-                multiplier = MINUTE;
-                break;
-            case 's':
-                multiplier = 1;
-                break;
-            default:
-                return 0s; // bad format
-            }
 
-            buffer *= multiplier;
-            secs += buffer;
-            buffer = 0;
+        switch (itr)
+        {
+        case 'd':
+            multiplier = 1_days;
+            break;
+        case 'h':
+            multiplier = 1h;
+            break;
+        case 'm':
+            multiplier = 1min;
+            break;
+        case 's':
+            multiplier = 1s;
+            break;
+        default:
+            return 0s; // bad format
         }
+
+        buffer *= multiplier.count();
+        secs += buffer;
+        buffer = 0s;
     }
 
-    return Seconds(secs);
+    return secs;
 }
 
 template<>

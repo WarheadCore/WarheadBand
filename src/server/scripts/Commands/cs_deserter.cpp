@@ -99,7 +99,7 @@ public:
     * .deserter bg add 1h30m
     * @endcode
     */
-    static bool HandleDeserterAdd(ChatHandler* handler, Optional<std::string> playerName, Optional<std::string> time, bool isInstance)
+    static bool HandleDeserterAdd(ChatHandler* handler, Optional<std::string> playerName, Optional<std::string_view> time, bool isInstance)
     {
         Player* target = handler->getSelectedPlayerOrSelf();
         ObjectGuid guid;
@@ -148,14 +148,9 @@ public:
             time = isInstance ? "30m" : "15m";
         }
 
-        int32 duration = TimeStringToSecs(*time);
+        Seconds duration = Warhead::Time::TimeStringTo(*time);
 
-        if (duration == 0)
-        {
-            duration = Acore::StringTo<int32>(*time).value_or(0);
-        }
-
-        if (duration == 0)
+        if (duration == 0s)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -165,9 +160,9 @@ public:
         if (target)
         {
             Aura* aura = target->GetAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER);
-            if (aura && aura->GetDuration() >= duration * IN_MILLISECONDS)
+            if (aura && aura->GetDuration() >= duration.count() * IN_MILLISECONDS)
             {
-                handler->PSendSysMessage("Player %s already has a longer %s Deserter active.", handler->playerLink(*playerName), isInstance ? "Instance" : "Battleground");
+                handler->PSendSysMessage("Player {} already has a longer {} Deserter active.", handler->playerLink(*playerName), isInstance ? "Instance" : "Battleground");
                 return true;
             }
 
@@ -178,8 +173,8 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            aura->SetDuration(duration * IN_MILLISECONDS);
 
+            aura->SetDuration(duration.count() * IN_MILLISECONDS);
             return true;
         }
 
@@ -189,9 +184,9 @@ public:
             Field* fields = result->Fetch();
             remainTime = fields[0].Get<int32>();
 
-            if (remainTime < 0 || remainTime >= duration * IN_MILLISECONDS)
+            if (remainTime < 0 || remainTime >= duration.count() * IN_MILLISECONDS)
             {
-                handler->PSendSysMessage("Player %s already has a longer %s Deserter active.", handler->playerLink(*playerName), isInstance ? "Instance" : "Battleground");
+                handler->PSendSysMessage("Player {} already has a longer {} Deserter active.", handler->playerLink(*playerName), isInstance ? "Instance" : "Battleground");
                 return true;
             }
             CharacterDatabase.Query("DELETE FROM character_aura WHERE guid = {} AND spell = {}", guid.GetCounter(), isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER);

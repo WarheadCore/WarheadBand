@@ -992,14 +992,14 @@ public:
     }
 
     //spawn time handling
-    static bool HandleNpcSetSpawnTimeCommand(ChatHandler* handler, std::string spawnTimeStr)
+    static bool HandleNpcSetSpawnTimeCommand(ChatHandler* handler, std::string_view spawnTimeStr)
     {
         if (spawnTimeStr.empty())
         {
             return false;
         }
 
-        if (Acore::StringTo<int32>(spawnTimeStr).value_or(0) < 0)
+        if (Warhead::StringTo<int32>(spawnTimeStr).value_or(0) < 0)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -1010,13 +1010,10 @@ public:
         if (!creature)
             return false;
 
-        int32 spawnTime = TimeStringToSecs(spawnTimeStr);
-        if (spawnTime <= 0)
-        {
-            spawnTime = Acore::StringTo<int32>(spawnTimeStr).value_or(0);
-        }
 
-        if (spawnTime <= 0)
+        Seconds spawnTime = Warhead::Time::TimeStringTo(spawnTimeStr);
+
+        if (spawnTime == 0s)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -1028,8 +1025,8 @@ public:
         stmt->SetData(1, creature->GetSpawnId());
         WorldDatabase.Execute(stmt);
 
-        creature->SetRespawnDelay(spawnTime);
-        handler->PSendSysMessage(LANG_COMMAND_SPAWNTIME, secsToTimeString(spawnTime, true).c_str());
+        creature->SetRespawnDelay(spawnTime.count());
+        handler->PSendSysMessage(LANG_COMMAND_SPAWNTIME, Warhead::Time::ToTimeString(spawnTime));
 
         return true;
     }

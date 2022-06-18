@@ -105,6 +105,7 @@ WH_GAME_API extern DBCStorage <EmotesEntry>                  sEmotesStore;
 WH_GAME_API extern DBCStorage <EmotesTextEntry>              sEmotesTextStore;
 WH_GAME_API extern DBCStorage <FactionEntry>                 sFactionStore;
 WH_GAME_API extern DBCStorage <FactionTemplateEntry>         sFactionTemplateStore;
+WH_GAME_API extern DBCStorage <GameObjectArtKitEntry>        sGameObjectArtKitStore;
 WH_GAME_API extern DBCStorage <GameObjectDisplayInfoEntry>   sGameObjectDisplayInfoStore;
 WH_GAME_API extern DBCStorage <GemPropertiesEntry>           sGemPropertiesStore;
 WH_GAME_API extern DBCStorage <GlyphPropertiesEntry>         sGlyphPropertiesStore;
