@@ -374,7 +374,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        
+
         if (!reason.empty())
         {
             if (!Utf8toWStr(reason, wReason))

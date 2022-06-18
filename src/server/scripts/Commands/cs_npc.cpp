@@ -1010,7 +1010,6 @@ public:
         if (!creature)
             return false;
 
-
         Seconds spawnTime = Warhead::Time::TimeStringTo(spawnTimeStr);
 
         if (spawnTime == 0s)
