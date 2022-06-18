@@ -72,8 +72,8 @@ CTYPE=${CTYPE:-Release}
 # compile scripts
 CSCRIPTS=${CSCRIPTS:-static}
 
-# compile scripts
-CMODULES=${CMODULES:-none}
+# compile modules
+CMODULES=${CMODULES:-static}
 
 # compile unit tests
 CBUILD_TESTING=OFF

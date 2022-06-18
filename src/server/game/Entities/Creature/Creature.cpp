@@ -706,7 +706,7 @@ void Creature::Update(uint32 diff)
                 }
 
                 // periodic check to see if the creature has passed an evade boundary
-                if (IsAIEnabled && !IsInEvadeMode() && IsInCombat())
+                if (IsAIEnabled && !IsInEvadeMode() && IsEngaged())
                 {
                     if (diff >= m_boundaryCheckTime)
                     {
@@ -1811,6 +1811,21 @@ bool Creature::CanAlwaysSee(WorldObject const* obj) const
     return false;
 }
 
+bool Creature::IsAlwaysDetectableFor(WorldObject const* seer) const
+{
+    if (Unit::IsAlwaysDetectableFor(seer))
+    {
+        return true;
+    }
+
+    if (IsAIEnabled && AI()->CanAlwaysBeDetectable(seer))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool Creature::CanStartAttack(Unit const* who) const
 {
     if (IsCivilian())
@@ -1840,7 +1855,7 @@ bool Creature::CanStartAttack(Unit const* who) const
     // pussywizard: at this point we are either hostile to who or friendly to who->getAttackerForHelper()
     // pussywizard: if who is in combat and has an attacker, help him if the distance is right (help because who is hostile or help because attacker is friendly)
     bool assist = false;
-    if (who->IsInCombat() && IsWithinDist(who, ATTACK_DISTANCE))
+    if (who->IsEngaged() && IsWithinDist(who, ATTACK_DISTANCE))
         if (Unit* victim = who->getAttackerForHelper())
             if (IsWithinDistInMap(victim, CONF_GET_FLOAT("CreatureFamilyAssistanceRadius")))
                 assist = true;
@@ -2359,7 +2374,7 @@ bool Creature::CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction /
         return false;
 
     // skip fighting creature
-    if (IsInCombat())
+    if (IsEngaged())
         return false;
 
     // only free creature
@@ -2410,11 +2425,10 @@ bool Creature::_IsTargetAcceptable(Unit const* target) const
             return false;
     }
 
-    Unit const* myVictim = getAttackerForHelper();
     Unit const* targetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-    if (myVictim == target || targetVictim == this || IsHostileTo(target))
+    if (IsEngagedBy(target) || IsHostileTo(target))
         return true;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable

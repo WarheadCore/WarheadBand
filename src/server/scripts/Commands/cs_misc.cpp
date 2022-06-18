@@ -2301,9 +2301,21 @@ public:
     }
 
     // mute player for some times
-    static bool HandleMuteCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, uint32 notSpeakTime, Tail muteReason)
+    static bool HandleMuteCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, std::string notSpeakTime, Tail muteReason)
     {
         std::string muteReasonStr{ muteReason };
+
+        if (notSpeakTime.empty())
+        {
+            return false;
+        }
+
+        if (Acore::StringTo<int32>(notSpeakTime).value_or(0) < 0)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         if (muteReason.empty())
             muteReasonStr = handler->GetWarheadString(LANG_NO_REASON);

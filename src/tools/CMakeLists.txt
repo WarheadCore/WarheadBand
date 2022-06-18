@@ -66,7 +66,7 @@ list(SORT TOOL_BUILD_GRAPH_KEYS)
 list(REMOVE_DUPLICATES TOOL_BUILD_GRAPH_KEYS)
 
 # Display the graphs
-# message("")
+message("")
 message("* Tools build list (${TOOLS_BUILD}):")
 message("  |")
 
@@ -127,6 +127,10 @@ foreach(TOOL_NAME ${TOOLS_BUILD_LIST})
     # Install config
     CopyToolConfig(${TOOL_PROJECT_NAME} ${TOOL_NAME})
   else()
+    target_link_libraries(${TOOL_PROJECT_NAME}
+    PRIVATE
+      acore-dependency-interface)
+
     target_link_libraries(${TOOL_PROJECT_NAME}
       PUBLIC
         common
