@@ -128,8 +128,8 @@ foreach(TOOL_NAME ${TOOLS_BUILD_LIST})
     CopyToolConfig(${TOOL_PROJECT_NAME} ${TOOL_NAME})
   else()
     target_link_libraries(${TOOL_PROJECT_NAME}
-    PRIVATE
-      acore-dependency-interface)
+      PRIVATE
+        warhead-dependency-interface)
 
     target_link_libraries(${TOOL_PROJECT_NAME}
       PUBLIC
