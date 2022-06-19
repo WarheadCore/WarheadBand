@@ -24,10 +24,10 @@
 #include "Optional.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "TaskScheduler.h"
 #include "Timer.h"
 #include "Tokenize.h"
-#include "StopWatch.h"
 #include <tuple>
 #include <unordered_map>
 

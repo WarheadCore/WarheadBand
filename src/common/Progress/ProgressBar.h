@@ -19,9 +19,9 @@
 
 #include "Define.h"
 #include "Duration.h"
+#include <indicators/progress_bar.hpp>
 #include <memory>
 #include <string_view>
-#include <indicators/progress_bar.hpp>
 
 constexpr Microseconds DEFAULT_TICK_TIME = 100ms;
 

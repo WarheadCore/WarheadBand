@@ -18,11 +18,11 @@
 #ifndef _BG_OR_ARENA_REWARD_H_
 #define _BG_OR_ARENA_REWARD_H_
 
-#include "Define.h"
 #include "Battleground.h"
+#include "Define.h"
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
 
 enum class BOARRewardType : uint8
 {

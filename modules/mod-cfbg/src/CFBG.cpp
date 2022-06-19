@@ -18,17 +18,17 @@
 #include "CFBG.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
+#include "ChatTextBuilder.h"
 #include "Containers.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "ModulesConfig.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "GameTime.h"
-#include "ModulesConfig.h"
-#include "GameConfig.h"
-#include "ChatTextBuilder.h"
 
 constexpr uint32 FactionFrostwolfClan  = 729;
 constexpr uint32 FactionStormpikeGuard = 730;

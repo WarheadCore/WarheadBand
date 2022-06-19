@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
 #include "Chat.h"
-#include "Player.h"
 #include "Group.h"
-#include "Tokenize.h"
-#include "StringConvert.h"
-#include "Pet.h"
+#include "Log.h"
+#include "ModulesConfig.h"
 #include "Optional.h"
+#include "Pet.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
 
 enum class InstanceDiff : uint8
 {

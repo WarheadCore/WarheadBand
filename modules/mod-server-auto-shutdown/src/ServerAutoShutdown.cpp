@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ServerAutoShutdown.h"
-#include "ModulesConfig.h"
 #include "Duration.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
+#include "ModulesConfig.h"
 #include "ObjectMgr.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
@@ -27,7 +28,6 @@
 #include "Tokenize.h"
 #include "Util.h"
 #include "World.h"
-#include "GameTime.h"
 
 namespace
 {

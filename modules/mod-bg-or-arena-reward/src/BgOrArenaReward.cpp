@@ -17,11 +17,11 @@
 
 #include "BgOrArenaReward.h"
 #include "Battleground.h"
-#include "Player.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "StopWatch.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "StopWatch.h"
 
 BOARMgr* BOARMgr::instance()
 {

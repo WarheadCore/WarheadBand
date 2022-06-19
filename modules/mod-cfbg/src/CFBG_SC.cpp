@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CFBG.h"
 #include "BattlegroundMgr.h"
+#include "CFBG.h"
 #include "Chat.h"
 #include "GroupMgr.h"
 #include "Opcodes.h"
-#include "ScriptMgr.h"
 #include "ReputationMgr.h"
+#include "ScriptMgr.h"
 
 // CFBG custom script
 class CFBG_BG : public BGScript

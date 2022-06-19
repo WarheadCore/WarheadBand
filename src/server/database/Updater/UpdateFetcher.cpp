@@ -19,9 +19,9 @@
 #include "Config.h"
 #include "CryptoHash.h"
 #include "DBUpdater.h"
-#include "ProgressBar.h"
 #include "Field.h"
 #include "Log.h"
+#include "ProgressBar.h"
 #include "Tokenize.h"
 #include "Util.h"
 #include <filesystem>

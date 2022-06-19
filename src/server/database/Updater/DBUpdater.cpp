@@ -22,10 +22,10 @@
 #include "DatabaseLoader.h"
 #include "GitRevision.h"
 #include "Log.h"
+#include "ProgressBar.h"
 #include "QueryResult.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
-#include "ProgressBar.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>

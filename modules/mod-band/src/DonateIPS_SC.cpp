@@ -16,21 +16,21 @@
  */
 
 #include "AsyncCallbackProcessor.h"
-#include "Log.h"
-#include "ScriptMgr.h"
-#include "ModulesConfig.h"
-#include "ExternalMail.h"
-#include "TaskScheduler.h"
-#include "Player.h"
 #include "CharacterCache.h"
-#include "Optional.h"
-#include "Realm.h"
-#include "StopWatch.h"
 #include "DiscordClient.h"
-#include "StringConvert.h"
+#include "ExternalMail.h"
 #include "GameLocale.h"
-#include <vector>
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "Optional.h"
+#include "Player.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "StopWatch.h"
+#include "StringConvert.h"
+#include "TaskScheduler.h"
 #include <unordered_map>
+#include <vector>
 
 enum class IPSShopType : uint8
 {
