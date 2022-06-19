@@ -16,18 +16,18 @@
 */
 
 #include "OnlineReward.h"
+#include "AsyncCallbackMgr.h"
 #include "Chat.h"
 #include "ExternalMail.h"
 #include "Log.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
-#include "Player.h"
-#include "StringConvert.h"
-#include "StopWatch.h"
-#include "Tokenize.h"
-#include "ReputationMgr.h"
-#include "AsyncCallbackMgr.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "ReputationMgr.h"
+#include "StopWatch.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
 
 OnlineRewardMgr* OnlineRewardMgr::instance()
 {

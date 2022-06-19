@@ -18,15 +18,15 @@
 #ifndef _ONLINE_REWARD_H_
 #define _ONLINE_REWARD_H_
 
-#include "Define.h"
 #include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
+#include "Define.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
 #include "TaskScheduler.h"
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
 
 class Player;
 
