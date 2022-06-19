@@ -23,7 +23,7 @@
 #include <vector>
 
 //template <class T>
-//concept AsyncCallback = requires(T t) { { t.InvokeIfReady() } -> std::convertible_to<bool> };
+//concept AsyncCallback = requires(T t) { { t.InvokeIfReady() } -> std::convertible_to<bool>; };
 
 template<typename T> // requires AsyncCallback<T>
 class AsyncCallbackProcessor

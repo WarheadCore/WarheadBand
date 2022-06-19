@@ -25,6 +25,7 @@
 #include "AddonMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AsyncAuctionListing.h"
+#include "AsyncCallbackMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Autobroadcast.h"
 #include "BattlefieldMgr.h"
@@ -1524,6 +1525,11 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update external mail system"));
         sExternalMail->Update(diff);
+    }
+
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async callback mgr"));
+        sAsyncCallbackMgr->ProcessReadyCallbacks();
     }
 
     {
