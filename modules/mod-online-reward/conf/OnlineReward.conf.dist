@@ -31,18 +31,6 @@
 #        Description: Type 2 (periodic awards for periods of time).
 #        Default: 1
 #
-#    OR.PerTime.Time
-#        Description: The period of time after which the award will be given (type 2). In seconds
-#        Default: 3600 (1 hour)
-#
-#    OR.PerTime.ItemID
-#        Description: The item to be given out during the periodic issue. (Type 2)
-#        Default: 47241 (The emblem of triumph)
-#
-#    OR.PerTime.ItemCount
-#        Description: Reward item count for reward type per time. (Type 2)
-#        Default: 1
-#
 #    OR.ForceSendMail.Enable
 #        Description: Send items via mail. If disable - send via `player->AddItem` if not bags slot, sends via mail
 #        Default: 0
@@ -51,7 +39,4 @@
 OR.Enable = 0
 OR.PerOnline.Enable = 1
 OR.PerTime.Enable = 1
-OR.PerTime.Time = 1800
-OR.PerTime.ItemID = 47241
-OR.PerTime.ItemCount = 1
 OR.ForceSendMail.Enable = 0
