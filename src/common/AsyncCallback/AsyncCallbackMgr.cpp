@@ -38,7 +38,7 @@ void Warhead::Async::AsyncCallbackMgr::AddAsyncCallback(std::function<void()>&& 
     {
         if (delay > 0us)
             std::this_thread::sleep_for(delay);
-            
+
         execute();
     })));
 }
