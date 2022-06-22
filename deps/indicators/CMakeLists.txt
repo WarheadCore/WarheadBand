@@ -10,8 +10,3 @@ target_link_libraries(indicators INTERFACE threads)
 target_link_libraries(indicators
   INTERFACE
     warhead-dependency-interface)
-
-set_target_properties(indicators
-  PROPERTIES
-    FOLDER
-      "deps")
