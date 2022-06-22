@@ -19,6 +19,7 @@
 #include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -219,7 +220,7 @@ void Corpse::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targe
             if (index == CORPSE_FIELD_BYTES_1 || index == CORPSE_FIELD_BYTES_2)
             {
                 Player* owner = ObjectAccessor::GetPlayer(*this, GetOwnerGUID());
-                if (owner && owner != target && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && owner->IsInRaidWith(target) && owner->GetTeamId() != target->GetTeamId())
+                if (owner && owner != target && CONF_GET_BOOL("AllowTwoSide.Interaction.Group") && owner->IsInRaidWith(target) && owner->GetTeamId() != target->GetTeamId())
                 {
                     uint32 playerBytes = target->GetUInt32Value(PLAYER_BYTES);
                     uint32 playerBytes2 = target->GetUInt32Value(PLAYER_BYTES_2);
