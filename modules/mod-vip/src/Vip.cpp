@@ -138,10 +138,9 @@ void Vip::InitSystem(bool reload)
     {
         LoadAccounts();
         LoadUnbinds();
+        LoadRates();
+        LoadVipVendors();
     }
-
-    LoadRates();
-    LoadVipVendors();
 
     std::string configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
     for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
