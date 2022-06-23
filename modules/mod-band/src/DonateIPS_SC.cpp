@@ -74,7 +74,6 @@ public:
 
     inline void LoadConfig()
     {
-        sModulesConfig->AddOption("IPSShop.Enable");
         _IsEnable = MOD_CONF_GET_BOOL("IPSShop.Enable");
         _discordShannelID = sModulesConfig->GetOption<int64>("IPSShop.Discord.ChannelID", 0);
     }

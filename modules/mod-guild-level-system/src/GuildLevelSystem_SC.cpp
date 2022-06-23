@@ -169,11 +169,6 @@ class GuildLevelSystem_World : public WorldScript
 public:
     GuildLevelSystem_World() : WorldScript("GuildLevelSystem_World") { }
 
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption({ "GLS.Enable", "GLS.MaxLevel", "GLS.Exp.ItemID", "GLS.ColorChat.Rank0", "GLS.ColorChat.Rank1"});
-    }
-
     void OnStartup() override
     {
         if (!MOD_CONF_GET_BOOL("GLS.Enable"))

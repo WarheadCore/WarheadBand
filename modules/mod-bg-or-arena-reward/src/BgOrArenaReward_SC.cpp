@@ -78,7 +78,6 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sModulesConfig->AddOption<bool>("BOAR.Enable");
         sBOARMgr->LoadConig();
     }
 

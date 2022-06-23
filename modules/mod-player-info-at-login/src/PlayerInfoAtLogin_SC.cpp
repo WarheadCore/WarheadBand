@@ -60,20 +60,8 @@ public:
     }
 };
 
-class PlayerInfoAtLogin_World : public WorldScript
-{
-public:
-    PlayerInfoAtLogin_World() : WorldScript("PlayerInfoAtLogin_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("PlayerInfoAtLogin.Enable");
-    }
-};
-
 // Group all custom scripts
 void AddSC_PlayerInfoAtLogin()
 {
     new PlayerInfoAtLogin_Player();
-    new PlayerInfoAtLogin_World();
 }

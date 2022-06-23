@@ -70,23 +70,8 @@ private:
     };
 };
 
-class GMChatColor_World : public WorldScript
-{
-public:
-    GMChatColor_World() : WorldScript("GMChatColor_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("GMChatColor.Enable");
-        sModulesConfig->AddOption<std::string>("GMChatColor.Level.1", "|cff0000ff");
-        sModulesConfig->AddOption<std::string>("GMChatColor.Level.2", "|cff0000ff");
-        sModulesConfig->AddOption<std::string>("GMChatColor.Level.3", "|cffff0000");
-    }
-};
-
 // Group all custom scripts
 void AddSC_GMChatColor()
 {
     new GMChatColor_Player();
-    new GMChatColor_World();
 }

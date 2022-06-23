@@ -20,6 +20,8 @@
 
 #include "Common.h"
 #include "Optional.h"
+#include "Types.h"
+#include <unordered_map>
 
 class WH_GAME_API ModulesConfig
 {
@@ -35,22 +37,29 @@ public:
     static ModulesConfig* instance();
 
     // Add config option
-    template<typename T>
-    void AddOption(std::string_view optionName, Optional<T> def = {}) const;
+    template<Warhead::Types::ConfigValue T>
+    void AddOption(std::string_view optionName, Optional<T> def = {});
 
     // Add option without template
-    void AddOption(std::string_view optionName, Optional<std::string> def = {}) const;
+    void AddOption(std::string_view optionName, Optional<std::string> def = {});
 
     // Add option list without template
-    void AddOption(std::initializer_list<std::string> const& optionList) const;
+    template<typename... Args>
+    inline void AddOptions(Args&&... args)
+    {
+        (AddOption(std::forward<Args>(args)), ...);
+    }
 
     // Get config options
-    template<typename T>
-    T GetOption(std::string_view optionName, Optional<T> = std::nullopt) const;
+    template<Warhead::Types::ConfigValue T>
+    T GetOption(std::string_view optionName, Optional<T> = std::nullopt);
 
     // Set config option
-    template<typename T>
-    void SetOption(std::string_view optionName, T value) const;
+    template<Warhead::Types::ConfigValue T>
+    void SetOption(std::string_view optionName, T value);
+
+private:
+    std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
 };
 
 #define sModulesConfig ModulesConfig::instance()

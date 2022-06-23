@@ -16,6 +16,7 @@
  */
 
 #include "GameConfig.h"
+#include "CommonConfig.h"
 #include "Config.h"
 #include "Log.h"
 #include "MapMgr.h"
@@ -23,48 +24,7 @@
 #include "Player.h"
 #include "ServerMotd.h"
 #include "StringConvert.h"
-#include "StringFormat.h"
 #include "World.h"
-#include <unordered_map>
-
-namespace
-{
-    // Default values if no exist in config files
-    constexpr auto CONF_DEFAULT_BOOL = false;
-    constexpr auto CONF_DEFAULT_STR = "";
-    constexpr auto CONF_DEFAULT_INT = 0;
-    constexpr auto CONF_DEFAULT_FLOAT = 1.0f;
-
-    template<Warhead::Types::ConfigValue T>
-    inline std::string GetDefaultValueString(Optional<T> def)
-    {
-        std::string defStr;
-
-        if constexpr (std::is_same_v<T, bool>)
-            defStr = Warhead::StringFormat("{}", !def ? CONF_DEFAULT_BOOL : *def);
-        else if constexpr (std::is_integral_v<T>)
-            defStr = Warhead::StringFormat("{}", !def ? CONF_DEFAULT_INT : *def);
-        else if constexpr (std::is_floating_point_v<T>)
-            defStr = Warhead::StringFormat("{}", !def ? CONF_DEFAULT_FLOAT : *def);
-        else
-            defStr = Warhead::StringFormat("{}", !def ? CONF_DEFAULT_STR : *def);
-
-        return defStr;
-    }
-
-    template<Warhead::Types::ConfigValue T>
-    inline constexpr T GetDefaultValue()
-    {
-        if constexpr (std::is_same_v<T, bool>)
-            return CONF_DEFAULT_BOOL;
-        else if constexpr (std::is_integral_v<T>)
-            return CONF_DEFAULT_INT;
-        else if constexpr (std::is_floating_point_v<T>)
-            return CONF_DEFAULT_FLOAT;
-        else
-            return CONF_DEFAULT_STR;
-    }
-}
 
 GameConfig* GameConfig::instance()
 {
@@ -97,7 +57,7 @@ WH_GAME_API void GameConfig::AddOption(std::string_view optionName, Optional<T> 
         return;
     }
 
-    _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, GetDefaultValueString<T>(def)));
+    _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, Warhead::Config::GetDefaultValueString<T>(def)));
 }
 
 // Add option without template
@@ -124,14 +84,14 @@ WH_GAME_API T GameConfig::GetOption(std::string_view optionName, Optional<T> def
     if (itr == _configOptions.end())
         AddOption(optionName, def);
 
-    std::string defStr = GetDefaultValueString(def);
+    std::string defStr = Warhead::Config::GetDefaultValueString(def);
 
     // Check exist option part 2
     itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
         LOG_FATAL("server.loading", "> GameConfig::GetOption: option ({}) is not exists. Returned ({})", optionName, defStr);
-        return GetDefaultValue<T>();
+        return Warhead::Config::GetDefaultValue<T>();
     }
 
     Optional<T> result;
@@ -144,7 +104,7 @@ WH_GAME_API T GameConfig::GetOption(std::string_view optionName, Optional<T> def
     if (!result)
     {
         LOG_ERROR("server.loading", "> GameConfig::GetOption: Bad value defined for '{}', use '{}' instead", optionName, defStr);
-        return GetDefaultValue<T>();
+        return Warhead::Config::GetDefaultValue<T>();
     }
 
     return *result;

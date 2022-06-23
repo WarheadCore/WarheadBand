@@ -41,43 +41,8 @@ public:
     }
 };
 
-class ArenaReward_World : public WorldScript
-{
-public:
-    ArenaReward_World() : WorldScript("ArenaReward_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("ArenaReward.Enable");
-
-        sModulesConfig->AddOption<bool>("ArenaReward.Reward.Rating.Enable");
-        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemID");
-        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemCount.WinnerTeam");
-        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Rating.ItemCount.LoserTeam");
-
-        sModulesConfig->AddOption<bool>("ArenaReward.Reward.Skirmish.Enable");
-        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemID");
-        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemCount.WinnerTeam");
-        sModulesConfig->AddOption<int32>("ArenaReward.Reward.Skirmish.ItemCount.LoserTeam");
-
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Enable");
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.IP.Enable");
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.Equipment.Enable");
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Check.Health.Enable");
-
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.SpellApply.Enable");
-
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Teleport.Enable");
-        sModulesConfig->AddOption<std::string>("ArenaReward.AntiFarm.Teleport.Location");
-
-        sModulesConfig->AddOption<bool>("ArenaReward.AntiFarm.Ban.Enable");
-        sModulesConfig->AddOption<std::string>("ArenaReward.AntiFarm.Ban.Duration");
-    }
-};
-
 // Group all custom scripts
 void AddSC_ArenaReward()
 {
     new ArenaReward_BG();
-    new ArenaReward_World();
 }

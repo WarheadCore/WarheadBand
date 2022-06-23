@@ -16,52 +16,10 @@
  */
 
 #include "ModulesConfig.h"
+#include "CommonConfig.h"
 #include "Config.h"
 #include "Log.h"
 #include "StringConvert.h"
-#include "StringFormat.h"
-#include <unordered_map>
-
-namespace
-{
-    std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
-
-    // Default values if no exist in config files
-    constexpr auto CONF_DEFAULT_BOOL = false;
-    constexpr auto CONF_DEFAULT_STR = "";
-    constexpr auto CONF_DEFAULT_INT = 0;
-    constexpr auto CONF_DEFAULT_FLOAT = 1.0f;
-
-    template<typename T>
-    inline std::string GetDefaultValueString(Optional<T> def)
-    {
-        std::string defStr;
-
-        if constexpr (std::is_same_v<T, bool>)
-            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_BOOL : *def);
-        else if constexpr (std::is_integral_v<T>)
-            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_INT : *def);
-        else if constexpr (std::is_floating_point_v<T>)
-            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_FLOAT : *def);
-        else
-            defStr = Warhead::StringFormat("{}", def == std::nullopt ? CONF_DEFAULT_STR : *def);
-
-        return defStr;
-    }
-
-    template<typename T>
-    constexpr T GetDefaultValue()
-    {
-        if constexpr (std::is_same_v<T, bool>)
-            return CONF_DEFAULT_BOOL;
-        else if constexpr (std::is_integral_v<T>)
-            return CONF_DEFAULT_INT;
-        else if constexpr (std::is_floating_point_v<T>)
-            return CONF_DEFAULT_FLOAT;
-        else
-            return CONF_DEFAULT_STR;
-    }
-}
 
 ModulesConfig* ModulesConfig::instance()
 {
@@ -70,8 +28,8 @@ ModulesConfig* ModulesConfig::instance()
 }
 
 // Add option
-template<typename T>
-WH_GAME_API void ModulesConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/) const
+template<Warhead::Types::ConfigValue T>
+WH_GAME_API void ModulesConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -80,24 +38,18 @@ WH_GAME_API void ModulesConfig::AddOption(std::string_view optionName, Optional<
     if (_configOptions.find(option) != _configOptions.end())
         _configOptions.erase(option);
 
-    _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, GetDefaultValueString<T>(def)));
+    _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, Warhead::Config::GetDefaultValueString<T>(def)));
 }
 
 // Add option without template
-void ModulesConfig::AddOption(std::string_view optionName, Optional<std::string> def /*= std::nullopt*/) const
+void ModulesConfig::AddOption(std::string_view optionName, Optional<std::string> def /*= std::nullopt*/)
 {
     AddOption<std::string>(optionName, def);
 }
 
-void ModulesConfig::AddOption(std::initializer_list<std::string> const& optionList) const
-{
-    for (auto const& option : optionList)
-        AddOption(option);
-}
-
 // Get option
-template<typename T>
-WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/) const
+template<Warhead::Types::ConfigValue T>
+WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -105,39 +57,37 @@ WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> 
     // Check exist option part 1
     auto itr = _configOptions.find(option);
     if (itr == _configOptions.end())
-    {
         AddOption(optionName, def);
-    }
 
-    std::string defStr = GetDefaultValueString(def);
+    std::string defStr = Warhead::Config::GetDefaultValueString(def);
 
     // Check exist option part 2
     itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
         LOG_FATAL("server.loading", "> ModulesConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
-        return GetDefaultValue<T>();
+        return Warhead::Config::GetDefaultValue<T>();
     }
 
-    Optional<T> result = {};
+    Optional<T> result;
 
     if constexpr (std::is_same_v<T, std::string>)
-        result = _configOptions.at(option);
+        result = itr->second;
     else
-        result = Warhead::StringTo<T>(_configOptions.at(option));
+        result = Warhead::StringTo<T>(itr->second);
 
     if (!result)
     {
         LOG_ERROR("server.loading", "> ModulesConfig: Bad value defined for '{}', use '{}' instead", optionName, defStr);
-        return GetDefaultValue<T>();
+        return Warhead::Config::GetDefaultValue<T>();
     }
 
     return *result;
 }
 
 // Set option
-template<typename T>
-WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, T value) const
+template<Warhead::Types::ConfigValue T>
+WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, T value)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -150,7 +100,7 @@ WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, T value) 
         return;
     }
 
-    std::string valueStr{};
+    std::string valueStr;
 
     if constexpr (std::is_same_v<T, std::string>)
         valueStr = value;
@@ -162,8 +112,7 @@ WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, T value) 
 }
 
 #define TEMPLATE_GAME_CONFIG_OPTION(__typename) \
-    template WH_GAME_API __typename ModulesConfig::GetOption(std::string_view optionName, Optional<__typename> def /*= std::nullopt*/) const; \
-    template WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, __typename value) const;
+    template WH_GAME_API __typename ModulesConfig::GetOption(std::string_view optionName, Optional<__typename> def /*= std::nullopt*/);
 
 TEMPLATE_GAME_CONFIG_OPTION(bool)
 TEMPLATE_GAME_CONFIG_OPTION(uint8)

@@ -141,24 +141,8 @@ private:
     }
 };
 
-class ItemLevelUp_World : public WorldScript
-{
-public:
-    ItemLevelUp_World() : WorldScript("ItemLevelUp_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("ILU.Enable");
-        sModulesConfig->AddOption<bool>("ILU.Teleport.Enable");
-        sModulesConfig->AddOption<bool>("ILU.SetMaxSkills.Enable");
-        sModulesConfig->AddOption<int32>("ILU.LevelUP");
-        sModulesConfig->AddOption<std::string>("ILU.Teleport.Location");
-    }
-};
-
 // Group all custom scripts
 void AddSC_ItemLevelUp()
 {
     new ItemLevelUp_Item();
-    new ItemLevelUp_World();
 }

@@ -72,4 +72,10 @@ namespace Warhead
     constexpr bool dependant_false_v = dependant_false<T>::value;
 }
 
+namespace Warhead::Types
+{
+    template<typename T>
+    concept ConfigValue = std::is_arithmetic_v<T> || std::is_same_v<std::string, T>;
+}
+
 #endif // _TYPES_H_

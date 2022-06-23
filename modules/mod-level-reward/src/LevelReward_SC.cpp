@@ -168,12 +168,6 @@ class LevelReward_World : public WorldScript
 public:
     LevelReward_World() : WorldScript("LevelReward_World") { }
 
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("LevelReward.Enable");
-        sModulesConfig->AddOption<int32>("LevelReward.NpcID", 37688);
-    }
-
     void OnStartup() override
     {
         if (!MOD_CONF_GET_BOOL("LevelReward.Enable"))

@@ -86,21 +86,8 @@ public:
     }
 };
 
-class DuelReset_World : public WorldScript
-{
-public:
-    DuelReset_World() : WorldScript("DuelReset_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("DuelResetCooldowns");
-        sModulesConfig->AddOption<bool>("DuelResetHealthMana");
-    }
-};
-
 // Group all custom scripts
 void AddSC_DuelReset()
 {
     new DuelReset_Player();
-    new DuelReset_World();
 }

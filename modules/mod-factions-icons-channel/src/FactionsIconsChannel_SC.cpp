@@ -51,22 +51,8 @@ public:
     }
 };
 
-class FactionsIconsChannel_World : public WorldScript
-{
-public:
-    FactionsIconsChannel_World() : WorldScript("FactionsIconsChannel_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("ChannelIconFaction.Enable");
-        sModulesConfig->AddOption<bool>("ChannelIconFaction.OnlyLFG");
-        sModulesConfig->AddOption<bool>("ChannelIconFaction.GM");
-    }
-};
-
 // Group all custom scripts
 void AddSC_FactionsIconsChannel()
 {
     new FactionsIconsChannel_Player();
-    new FactionsIconsChannel_World();
 }

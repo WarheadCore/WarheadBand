@@ -41,20 +41,8 @@ public:
     }
 };
 
-class NotifyMuted_World : public WorldScript
-{
-public:
-    NotifyMuted_World() : WorldScript("NotifyMuted_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("NotCanSpeakMsg.Enable");
-    }
-};
-
 // Group all custom scripts
 void AddSC_NotifyMuted()
 {
     new NotifyMuted_Player();
-    new NotifyMuted_World();
 }

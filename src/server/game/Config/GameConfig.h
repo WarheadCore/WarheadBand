@@ -20,14 +20,8 @@
 
 #include "Common.h"
 #include "Optional.h"
-#include <type_traits>
+#include "Types.h"
 #include <unordered_map>
-
-namespace Warhead::Types
-{
-    template<typename T>
-    concept ConfigValue = std::is_arithmetic_v<T> || std::is_same_v<std::string, T>;
-}
 
 class WH_GAME_API GameConfig
 {

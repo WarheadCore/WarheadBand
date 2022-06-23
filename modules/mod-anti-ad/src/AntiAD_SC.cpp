@@ -217,17 +217,6 @@ class AntiAD_World : public WorldScript
 public:
     AntiAD_World() : WorldScript("AntiAD_World") { }
 
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption({ "AntiAD.Enable",
-            "AntiAD.Send.GMMessage.Enable",
-            "AntiAD.Send.SelfMessage.Enable",
-            "AntiAD.Mute.Player.Enable",
-            "AntiAD.Mute.GM.Enable",
-            "AntiAD.Mute.Count",
-            "AntiAD.Check.Channels" });
-    }
-
     void OnStartup() override
     {
         if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))

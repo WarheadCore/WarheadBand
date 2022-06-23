@@ -349,13 +349,6 @@ public:
 
     void OnAfterConfigLoad(bool reload) override
     {
-        sModulesConfig->AddOption({ "VIP.Enable",
-            "VIP.Update.Delay",
-            "VIP.Mount.MinLevel",
-            "VIP.Mount.SpellID",
-            "VIP.Spells.List",
-            "VIP.Unbind.Duration" });
-
         if (reload)
             sVip->InitSystem(true);
     }

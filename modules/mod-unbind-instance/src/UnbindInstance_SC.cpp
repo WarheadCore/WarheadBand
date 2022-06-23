@@ -89,11 +89,6 @@ class UnbindInstance_World : public WorldScript
 public:
     UnbindInstance_World() : WorldScript("UnbindInstance_World") { }
 
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("UnbindInsance.Enable");
-    }
-
     void OnStartup() override
     {
         sUI->Init();

@@ -100,20 +100,8 @@ private:
     }
 };
 
-class Boss_Announcer_World : public WorldScript
-{
-public:
-    Boss_Announcer_World() : WorldScript("Boss_Announcer_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("BossAnnouncer.Enable");
-    }
-};
-
 // Group all custom scripts
 void AddSC_BossAnnouncer()
 {
     new Boss_Announcer_Player();
-    new Boss_Announcer_World();
 }

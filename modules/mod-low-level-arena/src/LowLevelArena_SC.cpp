@@ -97,21 +97,9 @@ public:
     }
 };
 
-//class LowLevelArena_World : public WorldScript
-//{
-//public:
-//    LowLevelArena_World() : WorldScript("LowLevelArena_World") { }
-//
-//    void OnAfterConfigLoad(bool /*reload*/) override
-//    {
-//        // Add conigs options configiration
-//    }
-//};
-
 // Group all custom scripts
 void AddSC_LowLevelArena()
 {
     //new LowLevelArena_BG();
     new LowLevelArena_Command();
-    //new LowLevelArena_World();
 }

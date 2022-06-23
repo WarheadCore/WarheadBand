@@ -67,28 +67,8 @@ public:
     }
 };
 
-class BGReward_World : public WorldScript
-{
-public:
-    BGReward_World() : WorldScript("BGReward_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("BGReward.Enable");
-        sModulesConfig->AddOption<int32>("BGReward.ItemID.WSG", ITEM_WS_MARK_OF_HONOR);
-        sModulesConfig->AddOption<int32>("BGReward.ItemID.Arathi", ITEM_AB_MARK_OF_HONOR);
-        sModulesConfig->AddOption<int32>("BGReward.ItemID.Alterac", ITEM_AV_MARK_OF_HONOR);
-        sModulesConfig->AddOption<int32>("BGReward.ItemID.Isle", ITEM_IC_MARK_OF_HONOR);
-        sModulesConfig->AddOption<int32>("BGReward.ItemID.Ancients", ITEM_SA_MARK_OF_HONOR);
-        sModulesConfig->AddOption<int32>("BGReward.ItemID.Eye", ITEM_EY_MARK_OF_HONOR);
-        sModulesConfig->AddOption<int32>("BGReward.WinnerTeam.Count", 3);
-        sModulesConfig->AddOption<int32>("BGReward.LoserTeam.Count", 1);
-    }
-};
-
 // Group all custom scripts
 void AddSC_BGReward()
 {
     new BGReward_Player();
-    new BGReward_World();
 }
