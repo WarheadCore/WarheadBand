@@ -34,20 +34,8 @@ public:
     }
 };
 
-class NewPlayerAnnounce_World : public WorldScript
-{
-public:
-    NewPlayerAnnounce_World() : WorldScript("NewPlayerAnnounce_World") { }
-
-    void OnAfterConfigLoad(bool /*reload*/) override
-    {
-        sModulesConfig->AddOption<bool>("NPA.Enable");
-    }
-};
-
 // Group all custom scripts
 void AddSC_NewPlayerAnnounce()
 {
     new NewPlayerAnnounce_Player();
-    new NewPlayerAnnounce_World();
 }
