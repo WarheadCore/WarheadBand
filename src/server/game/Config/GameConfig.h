@@ -20,6 +20,14 @@
 
 #include "Common.h"
 #include "Optional.h"
+#include <type_traits>
+#include <unordered_map>
+
+namespace Warhead::Types
+{
+    template<typename T>
+    concept ConfigValue = std::is_arithmetic_v<T> || std::is_same_v<std::string, T>;
+}
 
 class WH_GAME_API GameConfig
 {
@@ -38,25 +46,27 @@ public:
     void CheckOptions(bool reload = false);
 
     // Add config option
-    template<typename T>
-    void AddOption(std::string_view optionName, Optional<T> def = {}) const;
+    template<Warhead::Types::ConfigValue T>
+    void AddOption(std::string_view optionName, Optional<T> def = {});
 
     // Add option without template
-    void AddOption(std::string_view optionName, Optional<std::string> def = {}) const;
+    void AddOption(std::string_view optionName, Optional<std::string> def = {});
 
     // Add option list without template
-    void AddOption(std::initializer_list<std::string> const& optionList) const;
+    void AddOption(std::initializer_list<std::string> const& optionList);
 
     // Get config options
-    template<typename T>
-    T GetOption(std::string_view optionName, Optional<T> = std::nullopt) const;
+    template<Warhead::Types::ConfigValue T>
+    T GetOption(std::string_view optionName, Optional<T> = std::nullopt);
 
     // Set config option
-    template<typename T>
-    void SetOption(std::string_view optionName, T value) const;
+    template<Warhead::Types::ConfigValue T>
+    void SetOption(std::string_view optionName, T value);
 
 private:
     void LoadConfigs(bool reload = false);
+
+    std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
 };
 
 #define sGameConfig GameConfig::instance()
