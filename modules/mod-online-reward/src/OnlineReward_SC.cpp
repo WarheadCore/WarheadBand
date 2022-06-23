@@ -45,14 +45,6 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sModulesConfig->AddOption<bool>("OR.Enable");
-        sModulesConfig->AddOption<bool>("OR.PerOnline.Enable");
-        sModulesConfig->AddOption<bool>("OR.PerTime.Enable");
-        sModulesConfig->AddOption<bool>("OR.ForceSendMail.Enable");
-        sModulesConfig->AddOption<int32>("OR.PerTime.Time", 3600);
-        sModulesConfig->AddOption<int32>("OR.PerTime.ItemID", 47241);
-        sModulesConfig->AddOption<int32>("OR.PerTime.ItemCount", 1);
-
         sOLMgr->LoadConfig();
     }
 

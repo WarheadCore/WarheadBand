@@ -37,6 +37,9 @@ OnlineRewardMgr* OnlineRewardMgr::instance()
 
 void OnlineRewardMgr::LoadConfig()
 {
+    // Check module config file
+    sModulesConfig->AddOption({ "OR.Enable", "OR.PerOnline.Enable", "OR.PerTime.Enable", "OR.ForceSendMail.Enable" });
+
     _isEnable = MOD_CONF_GET_BOOL("OR.Enable");
     if (!_isEnable)
         return;
