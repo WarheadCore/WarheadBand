@@ -19,9 +19,8 @@
 #define _UNBIND_INSTANCE_H_
 
 #include "Common.h"
-#include "Creature.h"
-#include "Player.h"
 #include <unordered_map>
+#include <vector>
 
 constexpr uint32 GOSSIP_SENDER_DIFFICULTY = 10;
 constexpr uint32 GOSSIP_ACTION_INFO_MAIN_MENU = 1000;
@@ -31,12 +30,19 @@ constexpr uint32 GOSSIP_ACTION_INFO_RAID_25_NORMAL = GOSSIP_ACTION_INFO_RAID_10_
 constexpr uint32 GOSSIP_ACTION_INFO_RAID_10_HEROIC = GOSSIP_ACTION_INFO_RAID_25_NORMAL + 1;
 constexpr uint32 GOSSIP_ACTION_INFO_RAID_25_HEROIC = GOSSIP_ACTION_INFO_RAID_10_HEROIC + 1;
 
+class Player;
+class Creature;
+
 class UnbindInstance
 {
 public:
     static UnbindInstance* instance();
 
+    inline bool IsEnable() { return _isEnable; }
+    inline bool IsEnableCommand() { return _isEnableCommand; }
+
     void Init();
+    void LoadConfig();
     void LoadCostData();
 
     void SendGossipHello(Player* player, Creature* creature);
@@ -44,6 +50,9 @@ public:
     void BindInfo(Player* player, Creature* creature, uint32 sender, uint32 action);
     void Unbind(Player* player, Creature* creature, uint32 sender, uint32 action, uint32 itemID);
     void SaveLogUnbind(Player* player, uint32 mapID, uint8 diff, uint32 itemID, bool isRaid = true);
+
+    // .ui command
+    bool IsDisabledMap(uint32 mapID);
 
 private:
     struct UnbindCost
@@ -56,7 +65,12 @@ private:
         uint32 CountForRaid25Heroic;
     };
 
+    // Config
+    bool _isEnable{ false };
+    bool _isEnableCommand{ false };
+
     std::unordered_map<uint32 /*itemid*/, UnbindCost> _costStore;
+    std::vector<uint32 /*id*/> _disabledIds;
 };
 
 #define sUI UnbindInstance::instance()

@@ -24,6 +24,10 @@
 #include "ModulesConfig.h"
 #include "ScriptedGossip.h"
 #include "StringFormat.h"
+#include "Player.h"
+#include "Creature.h"
+#include "Tokenize.h"
+#include "StringConvert.h"
 
 namespace
 {
@@ -129,8 +133,40 @@ namespace
 
 void UnbindInstance::Init()
 {
+    if (!_isEnable)
+        return;
+
     LOG_INFO("module.unbind", "Загрузка вариантов стоимости сброса кд...");
     LoadCostData();
+}
+
+void UnbindInstance::LoadConfig()
+{
+    _isEnable = MOD_CONF_GET_BOOL("UnbindInsance.Enable");
+    _isEnableCommand = MOD_CONF_GET_BOOL("UI.Command.Enable");
+
+    // Support reload config
+    _disabledIds.clear();
+
+    std::string disabledIds = MOD_CONF_GET_STR("UI.Command.DisabledIds");
+    if (disabledIds.empty())
+        return;
+
+    std::vector<std::string_view> tokens = Warhead::Tokenize(disabledIds, ',', false);
+    if (tokens.empty())
+        return;
+
+    for (auto const& idStr : tokens)
+    {
+        auto id = Warhead::StringTo<uint32>(idStr);
+        if (!id)
+        {
+            LOG_ERROR("module", "> UnbindInstance::LoadConfig: Error at parse id from '{}'", idStr);
+            continue;
+        }
+
+        _disabledIds.emplace_back(*id);
+    }
 }
 
 void UnbindInstance::LoadCostData()
@@ -443,4 +479,11 @@ void UnbindInstance::SaveLogUnbind(Player* player, uint32 mapID, uint8 diff, uin
 
     CharacterDatabase.Execute("INSERT INTO `unbind_instance_logs`(`Info`, `PlayerGuid`, `MapID`, `Difficulty`, `ItemID`) VALUES ('{}', {}, {}, {}, {})",
                                info, player->GetGUID().GetCounter(), mapID, diff, itemID);
+}
+
+// .ui command
+bool UnbindInstance::IsDisabledMap(uint32 mapID)
+{
+    auto const& itr = std::find(std::begin(_disabledIds), std::end(_disabledIds), mapID);
+    return itr != std::end(_disabledIds);
 }
