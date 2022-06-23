@@ -171,8 +171,7 @@ public:
 
     void OnAfterConfigLoad(bool /*reload*/) override
     {
-        sModulesConfig->AddOption<bool>("GLS.Enable");
-        sModulesConfig->AddOption<bool>("GLS.Criteria.ShowItems.Enable");
+        sModulesConfig->AddOption({ "GLS.Enable", "GLS.MaxLevel", "GLS.Exp.ItemID", "GLS.ColorChat.Rank0", "GLS.ColorChat.Rank1"});
     }
 
     void OnStartup() override

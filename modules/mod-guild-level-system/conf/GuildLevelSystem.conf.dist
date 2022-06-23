@@ -16,8 +16,6 @@
 ########################################
 # GuildLevelSystem module configuration
 ########################################
-[worldserver]
-
 #
 #    GLS.Enable
 #        Enable leveling system in guilds
