@@ -29,18 +29,6 @@ public:
 
     void OnAfterConfigLoad(bool reload) override
     {
-        if (!reload)
-            sModulesConfig->AddOption({ "Discord.Server.Host", "Discord.Server.Port", });
-
-        sModulesConfig->AddOption({
-            "Discord.Enable",
-            "Discord.Server.ID",
-            "Discord.DefaultChannel.ListID",
-            "Discord.GameChatLogs.Enable",
-            "Discord.GameChatLogs.ChannelsListID",
-            "Discord.GameLoginLogs.Enable",
-            "Discord.GameLoginLogs.ChannelsListID" });
-
         sDiscord->LoadConfig(reload);
     }
 

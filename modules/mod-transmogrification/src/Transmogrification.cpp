@@ -653,7 +653,7 @@ bool Transmogrification::IsAllowedQuality(uint32 quality) const
 void Transmogrification::LoadConfig(bool reload)
 {
     if (MOD_CONF_GET_INT("Transmogrification.MaxSets") > MAX_OPTIONS)
-        sModulesConfig->SetOption<int32>("Transmogrification.MaxSets", MAX_OPTIONS);
+        sModulesConfig->SetOption("Transmogrification.MaxSets", MAX_OPTIONS);
 
     std::istringstream issAllowed(MOD_CONF_GET_STR("Transmogrification.Allowed"));
     std::istringstream issNotAllowed(MOD_CONF_GET_STR("Transmogrification.NotAllowed"));
@@ -713,7 +713,7 @@ void Transmogrification::Init()
     if (!sObjectMgr->GetItemTemplate(tokenEntry))
     {
         LOG_ERROR("module.transmog", "Transmogrification.TokenEntry ({}) does not exist. Using default.", tokenEntry);
-        sModulesConfig->SetOption<int32>("Transmogrification.TokenEntry", 49426);
+        sModulesConfig->SetOption("Transmogrification.TokenEntry", 49426);
     }
 }
 

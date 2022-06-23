@@ -90,7 +90,7 @@ public:
             LOG_FATAL("module.antiad", ">> Regular expression failed loaded ({})", _pattern);
 
             // Set disable module
-            sModulesConfig->SetOption<bool>("AntiAD.Enable", false);
+            sModulesConfig->SetOption("AntiAD.Enable", false);
         }
 
         LOG_INFO("module.antiad", "");
