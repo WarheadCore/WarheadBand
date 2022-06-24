@@ -44,6 +44,7 @@ public:
     void Init();
     void LoadConfig();
     void LoadCostData();
+    void LoadDisabledMaps();
 
     void SendGossipHello(Player* player, Creature* creature);
     void SendBindList(Player* player, Creature* creature, uint8 diff, bool isRaid = true);
@@ -57,12 +58,12 @@ public:
 private:
     struct UnbindCost
     {
-        uint32 ItemID;
-        uint32 CountForDungeonHeroic;
-        uint32 CountForRaid10Normal;
-        uint32 CountForRaid25Normal;
-        uint32 CountForRaid10Heroic;
-        uint32 CountForRaid25Heroic;
+        uint32 ItemID{ 0 };
+        uint32 CountForDungeonHeroic{ 0 };
+        uint32 CountForRaid10Normal{ 0 };
+        uint32 CountForRaid25Normal{ 0 };
+        uint32 CountForRaid10Heroic{ 0 };
+        uint32 CountForRaid25Heroic{ 0 };
     };
 
     // Config

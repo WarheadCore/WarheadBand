@@ -28,6 +28,7 @@
 #include "Creature.h"
 #include "Tokenize.h"
 #include "StringConvert.h"
+#include "StopWatch.h"
 
 namespace
 {
@@ -135,48 +136,27 @@ void UnbindInstance::Init()
 {
     if (!_isEnable)
         return;
-
-    LOG_INFO("module.unbind", "Загрузка вариантов стоимости сброса кд...");
+    
     LoadCostData();
+    LoadDisabledMaps();
 }
 
 void UnbindInstance::LoadConfig()
 {
     _isEnable = MOD_CONF_GET_BOOL("UnbindInsance.Enable");
     _isEnableCommand = MOD_CONF_GET_BOOL("UI.Command.Enable");
-
-    // Support reload config
-    _disabledIds.clear();
-
-    std::string disabledIds = MOD_CONF_GET_STR("UI.Command.DisabledIds");
-    if (disabledIds.empty())
-        return;
-
-    std::vector<std::string_view> tokens = Warhead::Tokenize(disabledIds, ',', false);
-    if (tokens.empty())
-        return;
-
-    for (auto const& idStr : tokens)
-    {
-        auto id = Warhead::StringTo<uint32>(idStr);
-        if (!id)
-        {
-            LOG_ERROR("module", "> UnbindInstance::LoadConfig: Error at parse id from '{}'", idStr);
-            continue;
-        }
-
-        _disabledIds.emplace_back(*id);
-    }
 }
 
 void UnbindInstance::LoadCostData()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     _costStore.clear();
 
-    if (!MOD_CONF_GET_BOOL("UnbindInsance.Enable"))
+    if (!_isEnable)
         return;
+
+    LOG_INFO("module.unbind", "Загрузка вариантов стоимости сброса кд...");
 
     QueryResult result = CharacterDatabase.Query("SELECT "
                          "`ItemID`,"                 // 0
@@ -190,6 +170,7 @@ void UnbindInstance::LoadCostData()
     if (!result)
     {
         LOG_WARN("module.unbind", "> Загружено 0 вариантов стоимости. Таблица `unbind_instance_cost` пустая.");
+        LOG_INFO("module.unbind", "");
         return;
     }
 
@@ -218,7 +199,7 @@ void UnbindInstance::LoadCostData()
         Field* fields = result->Fetch();
 
         UnbindCost _UIData;
-        _UIData.ItemID = fields[0].Get<uint32>();
+        _UIData.ItemID                  = fields[0].Get<uint32>();
         _UIData.CountForDungeonHeroic   = fields[1].Get<uint32>();
         _UIData.CountForRaid10Normal    = fields[2].Get<uint32>();
         _UIData.CountForRaid25Normal    = fields[3].Get<uint32>();
@@ -232,10 +213,47 @@ void UnbindInstance::LoadCostData()
         if (!IsCorrectCount({ _UIData.CountForRaid10Normal, _UIData.CountForRaid25Normal, _UIData.CountForRaid10Heroic, _UIData.CountForRaid25Heroic }))
             continue;
 
-        _costStore.insert(std::make_pair(_UIData.ItemID, _UIData));
+        _costStore.emplace(_UIData.ItemID, _UIData);
     } while (result->NextRow());
 
-    LOG_INFO("module.unbind", ">> Загружено {} вариантов за {} мс", static_cast<uint32>(_costStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("module.unbind", ">> Загружено {} вариантов за {}", _costStore.size(), sw);
+    LOG_INFO("module.unbind", "");
+}
+
+void UnbindInstance::LoadDisabledMaps()
+{
+    StopWatch sw;
+
+    _disabledIds.clear();
+
+    if (!_isEnable)
+        return;
+
+    LOG_INFO("module.unbind", "Loading disabled maps for unbind instance command...");
+
+    QueryResult result = CharacterDatabase.Query("SELECT `MapID` FROM `unbind_instance_disabled_maps`");
+
+    if (!result)
+    {
+        LOG_INFO("module.unbind", "> Loaded 0 disabled maps. Table `unbind_instance_cost` is empty.");
+        LOG_INFO("module.unbind", "");
+        return;
+    }
+
+    do
+    {
+        auto const& [mapID] = result->FetchTuple<uint32>();
+
+        if (!sMapStore.LookupEntry(mapID))
+        {
+            LOG_ERROR("module.unbind", "> UI::LoadDisabledMaps: Incorrect map {}. Skip", mapID);
+            continue;
+        }
+
+        _disabledIds.emplace_back(mapID);
+    } while (result->NextRow());
+
+    LOG_INFO("module.unbind", ">> Loaded {} disabled maps in {}", _disabledIds.size(), sw);
     LOG_INFO("module.unbind", "");
 }
 

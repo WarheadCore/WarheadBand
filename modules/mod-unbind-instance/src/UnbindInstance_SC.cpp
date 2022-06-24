@@ -36,19 +36,33 @@ public:
 
     ChatCommandTable GetCommands() const override
     {
+        static ChatCommandTable uiCommandTable =
+        {
+            { "reload", HandleUnbindInstanceReloadCommand, SEC_ADMINISTRATOR, Console::Yes },
+            { "unbind", HandleUnbindInstanceCommand, SEC_PLAYER, Console::No }
+        };
+
         static ChatCommandTable commandTable =
         {
-            { "ui", HandleUnbindInstanceCommand, SEC_PLAYER, Console::No }
+            { "ui", uiCommandTable }
         };
 
         return commandTable;
     }
 
-    static bool HandleUnbindInstanceCommand(ChatHandler* handler, Variant<uint16, EXACT_SEQUENCE("all")> mapArg, Optional<uint8> difficultyArg)
+    static bool HandleUnbindInstanceReloadCommand(ChatHandler* handler)
+    {
+        sUI->LoadCostData();
+        sUI->LoadDisabledMaps();
+        handler->PSendSysMessage("> Reloaded db tables for unbind instance");
+        return true;
+    }
+
+    static bool HandleUnbindInstanceCommand(ChatHandler* handler)
     {
         if (!sUI->IsEnableCommand() && AccountMgr::IsPlayerAccount(handler->GetPlayer()->GetSession()->GetSecurity()))
         {
-            handler->PSendSysMessage("> This comamnd is disable");
+            handler->PSendSysMessage("> This comamnd is disable for players");
             handler->SetSentErrorMessage(true);
             return true;
         }
@@ -59,16 +73,6 @@ public:
 
         if (!player)
             return false;
-
-        uint16 counter = 0;
-        uint16 mapId = 0;
-
-        if (mapArg.holds_alternative<uint16>())
-        {
-            mapId = mapArg.get<uint16>();
-            if (!mapId)
-                return false;
-        }
 
         bool isExistDisabledMap{ false };
         std::vector<std::pair<uint32/*mapID*/, Difficulty>> toUnbind;
@@ -91,7 +95,7 @@ public:
                 }
 
                 InstanceSave const* save = instancePlayerBind.save;
-                if (bindingMapID != player->GetMapId() && (!mapId || mapId == bindingMapID) && (!difficultyArg || difficultyArg == save->GetDifficulty()))
+                if (bindingMapID != player->GetMapId())
                 {
                     Seconds resetTime = instancePlayerBind.extended ? Seconds(save->GetExtendedResetTime()) : Seconds(save->GetResetTime());
                     Seconds ttr = resetTime >= GameTime::GetGameTime() ? resetTime - GameTime::GetGameTime() : 0s;
@@ -183,6 +187,11 @@ class UnbindInstance_World : public WorldScript
 {
 public:
     UnbindInstance_World() : WorldScript("UnbindInstance_World") { }
+
+    void OnAfterConfigLoad(bool /*reload*/) override
+    {
+        sUI->LoadConfig();
+    }
 
     void OnStartup() override
     {
