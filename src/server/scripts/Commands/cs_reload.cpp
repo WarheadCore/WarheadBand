@@ -86,6 +86,7 @@ public:
             { "broadcast_text",                HandleReloadBroadcastTextCommand,              SEC_ADMINISTRATOR, Console::Yes },
             { "battleground_template",         HandleReloadBattlegroundTemplate,              SEC_ADMINISTRATOR, Console::Yes },
             { "command",                       HandleReloadCommandCommand,                    SEC_ADMINISTRATOR, Console::Yes },
+            { "commands_help_locale",          HandleReloadLocalesChatCommandsHelpCommand,    SEC_ADMINISTRATOR, Console::Yes },
             { "conditions",                    HandleReloadConditions,                        SEC_ADMINISTRATOR, Console::Yes },
             { "config",                        HandleReloadConfigCommand,                     SEC_ADMINISTRATOR, Console::Yes },
             { "creature_text",                 HandleReloadCreatureText,                      SEC_ADMINISTRATOR, Console::Yes },
@@ -338,6 +339,7 @@ public:
         HandleReloadLocalesQuestCommand(handler);
         HandleReloadLocalesQuestOfferRewardCommand(handler);
         HandleReloadLocalesQuestRequestItemsCommand(handler);
+        HandleReloadLocalesChatCommandsHelpCommand(handler);
         return true;
     }
 
