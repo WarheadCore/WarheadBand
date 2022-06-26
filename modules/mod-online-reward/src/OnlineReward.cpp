@@ -64,10 +64,15 @@ void OnlineRewardMgr::InitSystem()
     if (!_isEnable)
         return;
 
+    ScheduleReward();
+}
+
+void OnlineRewardMgr::ScheduleReward()
+{
     scheduler.Schedule(30s, [this](TaskContext context)
     {
         RewardPlayers();
-        context.Repeat(1min, 5min);
+        context.Repeat(15min);
     });
 }
 
@@ -80,6 +85,13 @@ void OnlineRewardMgr::Update(Milliseconds diff)
     _queryProcessor.ProcessReadyCallbacks();
 }
 
+void OnlineRewardMgr::RewardNow()
+{
+    scheduler.CancelAll();
+    RewardPlayers();
+    ScheduleReward();
+}
+
 void OnlineRewardMgr::LoadDBData()
 {
     StopWatch sw;
@@ -88,7 +100,7 @@ void OnlineRewardMgr::LoadDBData()
 
     _rewards.clear();
 
-    QueryResult result = CharacterDatabase.Query("SELECT IsPerOnline, Seconds, ItemID, ItemCount, FactionID, ReputationCount FROM online_reward");
+    QueryResult result = CharacterDatabase.Query("SELECT `IsPerOnline`, `Seconds`, `Items`, `Reputations` FROM `online_reward`");
     if (!result)
     {
         LOG_WARN("module", "> DB table `online_reward` is empty! Disable module");
@@ -99,61 +111,141 @@ void OnlineRewardMgr::LoadDBData()
 
     do
     {
-        auto const& [isPerOnline, seconds, itemID, itemCount, factionID, reputationCount] =
-            result->FetchTuple<bool, int32, uint32, uint32, uint32, uint32>();
+        auto const& [isPerOnline, seconds, items, reputations] =
+            result->FetchTuple<bool, int32, std::string_view, std::string_view>();
 
-        // Проверка
-        if (!seconds)
+        AddReward(isPerOnline, Seconds(seconds), items, reputations);
+    } while (result->NextRow());
+
+    LOG_INFO("module", ">> Loaded {} online rewards in {}", _rewards.size(), sw);
+    LOG_INFO("module", "");
+}
+
+bool OnlineRewardMgr::AddReward(bool isPerOnline, Seconds seconds, std::string_view items, std::string_view reputations, ChatHandler* handler /*= nullptr*/)
+{
+    auto SendErrorMesasge = [handler](std::string_view message)
+    {
+        LOG_ERROR("module", message);
+
+        if (handler)
+            handler->SendSysMessage(message);
+    };
+
+    // Start checks
+    if (seconds == 0s)
+    {
+        SendErrorMesasge("> OnlineRewardMgr::AddReward: Seconds = 0? Really? Skip...");
+        return false;
+    }
+
+    auto data = OnlineRewards(isPerOnline, seconds);
+    auto const& itemData = Warhead::Tokenize(items, ',', false);
+    auto const& reputationsData = Warhead::Tokenize(reputations, ',', false);
+
+    if (itemData.empty() && reputationsData.empty())
+    {
+        SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::AddReward: Not found rewards. IsPerOnline?: {}. Seconds: {}", isPerOnline, seconds.count()));
+        return false;
+    }
+
+    if (!itemData.empty())
+    {
+        // Items
+        for (auto const& pairItems : Warhead::Tokenize(items, ',', false))
         {
-            LOG_ERROR("module", "> OnlineReward: RewardPlayedTime = 0? Really? Skip...");
-            continue;
+            auto itemTokens = Warhead::Tokenize(pairItems, ':', false);
+            if (itemTokens.size() != 2)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::LoadDBData: Error at extract `itemTokens` from '{}'", pairItems));
+                continue;
+            }
+
+            auto itemID = Warhead::StringTo<uint32>(itemTokens.at(0));
+            auto itemCount = Warhead::StringTo<uint32>(itemTokens.at(1));
+
+            if (!itemID || !itemCount)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::LoadDBData: Error at extract `itemID` or `itemCount` from '{}'", pairItems));
+                continue;
+            }
+
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(*itemID);
+            if (!itemTemplate)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::LoadDBData: Item with number {} not found. Skip", *itemID));
+                continue;
+            }
+
+            if (*itemID && !*itemCount)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::LoadDBData: For item with number {} item count set 0. Skip", *itemID));
+                continue;
+            }
+
+            data.Items.emplace_back(*itemID, *itemCount);
         }
+    }
 
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
-        if (!itemTemplate)
+    if (!reputationsData.empty())
+    {
+        // Reputations
+        for (auto const& pairReputations : Warhead::Tokenize(reputations, ',', false))
         {
-            LOG_ERROR("module", "> OnlineReward: Item with number {} not found. Skip", itemID);
-            continue;
-        }
+            auto reputationsTokens = Warhead::Tokenize(pairReputations, ':', false);
+            if (reputationsTokens.size() != 2)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::LoadDBData: Error at extract `reputationsTokens` from '{}'", pairReputations));
+                continue;
+            }
 
-        if (!itemCount)
-        {
-            LOG_ERROR("module", "> OnlineReward: Item count for item id {} - 0. Skip", itemID);
-            continue;
-        }
+            auto factionID = Warhead::StringTo<uint32>(reputationsTokens.at(0));
+            auto reputationCount = Warhead::StringTo<uint32>(reputationsTokens.at(1));
 
-        if (factionID)
-        {
-            FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionID);
+            if (!factionID || !reputationCount)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::LoadDBData: Error at extract `factionID` or `reputationCount` from '{}'", pairReputations));
+                continue;
+            }
+
+            FactionEntry const* factionEntry = sFactionStore.LookupEntry(*factionID);
             if (!factionEntry)
             {
-                LOG_ERROR("module", "> OnlineReward: Not found faction with id {}. Skip", factionID);
+                SendErrorMesasge(Warhead::StringFormat("> OnlineReward: Not found faction with id {}. Skip", *factionID));
                 continue;
             }
 
             if (factionEntry->reputationListID < 0)
             {
-                LOG_ERROR("module", "> OnlineReward: Faction {} can't have reputation. Skip", factionID);
+                SendErrorMesasge(Warhead::StringFormat("> OnlineReward: Faction {} can't have reputation. Skip", *factionID));
                 continue;
             }
-        }
 
-        if (!factionID && reputationCount)
-        {
-            LOG_ERROR("module", "> OnlineReward: reputation count {} for empty faction. Skip", reputationCount);
-            continue;
-        }
-        else if (reputationCount > ReputationMgr::Reputation_Cap)
-        {
-            LOG_ERROR("module", "> OnlineReward: reputation count {} > repitation cap {}. Skip", reputationCount, ReputationMgr::Reputation_Cap);
-            continue;
-        }
+            if (*reputationCount > ReputationMgr::Reputation_Cap)
+            {
+                SendErrorMesasge(Warhead::StringFormat("> OnlineReward: reputation count {} > repitation cap {}. Skip", *reputationCount, ReputationMgr::Reputation_Cap));
+                continue;
+            }
 
-        _rewards.emplace_back(OnlineRewards(isPerOnline, Seconds(seconds), itemID, itemCount, factionID, reputationCount));
-    } while (result->NextRow());
+            data.Reputations.emplace_back(*factionID, *reputationCount);
+        }
+    }
 
-    LOG_INFO("module", ">> Loaded {} online rewards in {}", _rewards.size(), sw);
-    LOG_INFO("module", "");
+    if (data.Items.empty() && data.Reputations.empty())
+    {
+        SendErrorMesasge(Warhead::StringFormat("> OnlineRewardMgr::AddReward: Not found rewards after check items and reputations. IsPerOnline?: {}. Seconds: {}", isPerOnline, seconds.count()));
+        return false;
+    }
+
+    _rewards.emplace_back(data);
+
+    // If add from command - save to db
+    if (handler)
+    {
+        CharacterDatabase.Execute("INSERT INTO `online_reward` (`IsPerOnline`, `Seconds`, `Items`, `Reputations`) VALUES ({:d}, {}, '{}', '{}')",
+            isPerOnline, seconds.count(), items, reputations);
+    }
+
+    return true;
 }
 
 void OnlineRewardMgr::AddRewardHistory(ObjectGuid::LowType lowGuid)
@@ -197,7 +289,7 @@ void OnlineRewardMgr::RewardPlayers()
 
         LOG_DEBUG("module", "> OR: Start rewars players...");
 
-        for (auto const& [isPerOnline, seconds, itemID, itemCount, factionID, reputationCount] : _rewards)
+        for (auto const& [isPerOnline, seconds, items, reputations] : _rewards)
         {
             if (isPerOnline && !_isPerOnlineEnable)
                 continue;
@@ -205,7 +297,7 @@ void OnlineRewardMgr::RewardPlayers()
             if (!isPerOnline && !_isPerTimeEnable)
                 continue;
 
-            CheckPlayersForReward(isPerOnline, seconds, itemID, itemCount, factionID, reputationCount);
+            CheckPlayersForReward(isPerOnline, seconds, items, reputations);
         }
 
         // Send reward
@@ -276,36 +368,39 @@ OnlineRewardMgr::RewardHistory* OnlineRewardMgr::GetHistory(ObjectGuid::LowType 
     return &itr->second;
 }
 
-void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 itemID, uint32 itemCount, Seconds secondsOnine, uint32 faction, uint32 reputation)
+void OnlineRewardMgr::SendRewardForPlayer(Player* player, Seconds secondsOnine, RewardsVector const& items, RewardsVector const& reputations)
 {
-    LOG_DEBUG("module", "Send reward for player guid {}. ItemID {}. ItemCount {}. RewardSeconds {}. Faction {}. Reputation {}",
-        player->GetGUID().GetCounter(), itemID, itemCount, secondsOnine.count(), faction, reputation);
+    //LOG_TRACE("module", "Send reward for player guid {}. RewardSeconds {}", player->GetGUID().GetCounter(), secondsOnine.count());
 
     ChatHandler handler(player->GetSession());
     std::string playedTimeSecStr = Warhead::Time::ToTimeString(secondsOnine, 3, TimeFormat::FullText);
     uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
-    auto SendItemsViaMail = [player, itemID, itemCount, &playedTimeSecStr, &localeIndex]()
+    auto SendItemsViaMail = [player, items, &playedTimeSecStr, &localeIndex]()
     {
         auto const& mailSubject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
         auto const& MailText = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
 
         // Send External mail
-        sExternalMail->AddMail(player->GetName(), mailSubject, MailText, itemID, itemCount, 37688);
+        for (auto const& [itemID, itemCount] : items)
+            sExternalMail->AddMail(player->GetName(), mailSubject, MailText, itemID, itemCount, 37688);
     };
 
-    if (faction)
+    if (!reputations.empty())
     {
-        ReputationMgr& repMgr = player->GetReputationMgr();
-        auto const& factionEntry = sFactionStore.LookupEntry(faction);
-        if (factionEntry)
+        for (auto const& [faction, reputation] : reputations)
         {
-            repMgr.SetOneFactionReputation(factionEntry, reputation, true);
-            repMgr.SendState(repMgr.GetState(factionEntry));
+            ReputationMgr& repMgr = player->GetReputationMgr();
+            auto const& factionEntry = sFactionStore.LookupEntry(faction);
+            if (factionEntry)
+            {
+                repMgr.SetOneFactionReputation(factionEntry, reputation, true);
+                repMgr.SendState(repMgr.GetState(factionEntry));
+            }
         }
     }
 
-    if (_isForceMailReward)
+    if (_isForceMailReward && !items.empty())
     {
         SendItemsViaMail();
 
@@ -314,12 +409,18 @@ void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 itemID, uint32 
         return;
     }
 
-    if (!player->AddItem(itemID, itemCount))
+    if (!items.empty())
     {
-        SendItemsViaMail();
+        for (auto const& [itemID, itemCount] : items)
+        {
+            if (!player->AddItem(itemID, itemCount))
+            {
+                SendItemsViaMail();
 
-        // Send chat text
-        sModuleLocale->SendPlayerMessage(player, "OR_LOCALE_NOT_ENOUGH_BAG");
+                // Send chat text
+                sModuleLocale->SendPlayerMessage(player, "OR_LOCALE_NOT_ENOUGH_BAG");
+            }
+        }
     }
 
     // Send chat text
@@ -439,22 +540,22 @@ bool OnlineRewardMgr::IsRewarded(ObjectGuid::LowType lowGuid, Seconds perTime, S
     return itr != std::end(perTimeStore) && itr->second >= rewardTime;
 }
 
-void OnlineRewardMgr::CheckPlayersForReward(bool isPerOnline, Seconds seconds, uint32 itemID, uint32 itemCount, uint32 faction, uint32 reputation)
+void OnlineRewardMgr::CheckPlayersForReward(bool isPerOnline, Seconds seconds, RewardsVector const& items, RewardsVector const& reputations)
 {
     auto const& sessions = sWorld->GetAllSessions();
     if (sessions.empty())
         return;
 
-    auto AddToStore = [this](ObjectGuid::LowType playerGuid, Seconds seconds, uint32 itemID, uint32 itemCount, uint32 faction, uint32 reputation)
+    auto AddToStore = [this](ObjectGuid::LowType playerGuid, Seconds seconds, RewardsVector const& items, RewardsVector const& reputations)
     {
         auto const& itr = _rewardPending.find(playerGuid);
         if (itr == _rewardPending.end())
         {
-            _rewardPending.emplace(playerGuid, std::vector<RewardPending>{ { seconds, itemID, itemCount, faction, reputation } });
+            _rewardPending.emplace(playerGuid, std::vector<RewardPending>{ { seconds, items, reputations } });
             return;
         }
 
-        itr->second.emplace_back(seconds, itemID, itemCount, faction, reputation);
+        itr->second.emplace_back(seconds, items, reputations);
     };
 
     auto CanAddPendingPerOnline = [this, seconds](ObjectGuid::LowType lowGuid, Seconds playedTimeSec)
@@ -487,7 +588,7 @@ void OnlineRewardMgr::CheckPlayersForReward(bool isPerOnline, Seconds seconds, u
 
         if (isPerOnline && CanAddPendingPerOnline(lowGuid, playedTimeSec))
         {
-            AddToStore(lowGuid, seconds, itemID, itemCount, faction, reputation);
+            AddToStore(lowGuid, seconds, items, reputations);
             AddHistory(lowGuid, seconds);
         }
 
@@ -497,7 +598,7 @@ void OnlineRewardMgr::CheckPlayersForReward(bool isPerOnline, Seconds seconds, u
             {
                 if (CanAddPendingPerTime(lowGuid, playedTimeSec, diffTime))
                 {
-                    AddToStore(lowGuid, diffTime, itemID, itemCount, faction, reputation);
+                    AddToStore(lowGuid, diffTime, items, reputations);
                     AddHistory(lowGuid, seconds, diffTime);
                 }
             }
@@ -507,6 +608,9 @@ void OnlineRewardMgr::CheckPlayersForReward(bool isPerOnline, Seconds seconds, u
 
 void OnlineRewardMgr::SendRewards()
 {
+    if (_rewardPending.empty())
+        return;
+
     for (auto const& [lowGuid, rewards] : _rewardPending)
     {
         auto player = ObjectAccessor::FindPlayerByLowGUID(lowGuid);
@@ -517,9 +621,33 @@ void OnlineRewardMgr::SendRewards()
             continue;
         }
 
-        for (auto const& [seconds, itemID, itemCount, faction, reputation] : rewards)
-            SendRewardForPlayer(player, itemID, itemCount, seconds, faction, reputation);
+        for (auto const& [seconds, items, reputations] : rewards)
+            SendRewardForPlayer(player, seconds, items, reputations);
     }
 
     _rewardPending.clear();
+}
+
+bool OnlineRewardMgr::IsExistReward(bool isPerOnline, Seconds seconds)
+{
+    auto const& itr = std::find_if(std::begin(_rewards), std::end(_rewards), [isPerOnline, seconds](OnlineRewards const& onlineReward)
+    {
+        return onlineReward.IsPerOnline == isPerOnline && onlineReward.Seconds == seconds;
+    });
+
+    return itr != std::end(_rewards);
+}
+
+bool OnlineRewardMgr::DeleteReward(bool isPerOnline, Seconds seconds)
+{
+    auto erased = std::erase_if(_rewards, [isPerOnline, seconds](OnlineRewards const& onlineReward)
+    {
+        return onlineReward.IsPerOnline == isPerOnline && onlineReward.Seconds == seconds;
+    });
+
+    if (!erased)
+        return false;
+
+    CharacterDatabase.Execute("DELETE FROM `online_reward` WHERE `IsPerOnline` = {:d} AND `Seconds` = {}",isPerOnline, seconds.count());
+    return true;
 }

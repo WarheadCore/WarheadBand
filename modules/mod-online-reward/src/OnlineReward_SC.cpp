@@ -15,12 +15,121 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "OnlineReward.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include <map>
+
+using namespace Warhead::ChatCommands;
+
+class OnlineReward_CS : public CommandScript
+{
+public:
+    OnlineReward_CS() : CommandScript("OnlineReward_CS") { }
+
+    ChatCommandTable GetCommands() const override
+    {
+        static ChatCommandTable vipCommandTable =
+        {
+            { "add",        HandleOnlineRewardAddCommand,       SEC_ADMINISTRATOR,  Console::Yes },
+            { "delete",     HandleOnlineRewardDeleteCommand,    SEC_ADMINISTRATOR,  Console::Yes },
+            { "list",       HandleOnlineRewardListCommand,      SEC_ADMINISTRATOR,  Console::Yes },
+            { "reload",     HandleOnlineRewardReloadCommand,    SEC_ADMINISTRATOR,  Console::Yes },
+            { "init",       HandleOnlineRewardInitCommand,      SEC_ADMINISTRATOR,  Console::Yes },
+        };
+
+        static ChatCommandTable commandTable =
+        {
+            { "or", vipCommandTable }
+        };
+
+        return commandTable;
+    }
+
+    static bool HandleOnlineRewardAddCommand(ChatHandler* handler, bool isPerOnline, uint32 secs, Tail items, Tail reputations)
+    {
+        if (!sOLMgr->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        if (!secs)
+        {
+            handler->PSendSysMessage("> Нужно указать количество секунд");
+            return true;
+        }
+
+        Seconds seconds{ secs };
+        auto timeString = Warhead::Time::ToTimeString(seconds);
+        timeString.append(Warhead::StringFormat(" ({})", seconds.count()));
+
+        if (sOLMgr->IsExistReward(isPerOnline, seconds))
+        {
+            handler->PSendSysMessage("> Награда для {} уже существует. IsPerOnline? {}", timeString, isPerOnline);
+            return true;
+        }
+
+        if (sOLMgr->AddReward(isPerOnline, seconds, items, reputations, handler))
+            handler->PSendSysMessage("> Награда добавлена");
+
+        return true;
+    }
+
+    static bool HandleOnlineRewardDeleteCommand(ChatHandler* handler, bool isPerOnline, uint32 secs)
+    {
+        handler->PSendSysMessage("> Награда {}была удалена", sOLMgr->DeleteReward(isPerOnline, Seconds(secs)) ? "" : "не ");
+        return true;
+    }
+
+    static bool HandleOnlineRewardListCommand(ChatHandler* handler)
+    {
+        handler->PSendSysMessage("> Список наград за онлайн:");
+
+        std::size_t count{ 0 };
+
+        for (auto const& onlineRewards : *sOLMgr->GetOnlineRewards())
+        {
+            handler->PSendSysMessage("{}. {}. IsPerOnline? {}", ++count, Warhead::Time::ToTimeString(onlineRewards.Seconds), onlineRewards.IsPerOnline);
+
+            if (!onlineRewards.Items.empty())
+            {
+                handler->SendSysMessage("-- Предметы:");
+
+                for (auto const& [itemID, itemCount] : onlineRewards.Items)
+                    handler->PSendSysMessage("> {}/{}", itemID, itemCount);
+            }
+
+            if (!onlineRewards.Reputations.empty())
+            {
+                handler->SendSysMessage("-- Репутация:");
+
+                for (auto const& [faction, reputation] : onlineRewards.Reputations)
+                    handler->PSendSysMessage("> {}/{}", faction, reputation);
+            }
+
+            handler->SendSysMessage("--");
+        }
+
+        return true;
+    }
+
+    static bool HandleOnlineRewardReloadCommand(ChatHandler* handler)
+    {
+        sOLMgr->LoadDBData();
+        handler->PSendSysMessage("> Награды перезагружены");
+        return true;
+    }
+
+    static bool HandleOnlineRewardInitCommand(ChatHandler* handler)
+    {
+        sOLMgr->RewardNow();
+        handler->PSendSysMessage("> Инициализирована выдача наград за онлайн");
+        return true;
+    }
+};
 
 class OnlineReward_Player : public PlayerScript
 {
@@ -62,6 +171,7 @@ public:
 // Group all custom scripts
 void AddSC_OnlineReward()
 {
+    new OnlineReward_CS();
     new OnlineReward_Player();
     new OnlineReward_World();
 }
