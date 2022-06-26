@@ -9,19 +9,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# Specified files for Windows
-if (WIN32)
-# Crash logs
-set(winDebugging
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.cpp
-  ${CMAKE_SOURCE_DIR}/src/common/Debugging/WheatyExceptionReport.h)
-
-# Service
-set(winService
-  ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.cpp
-  ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.h)
-endif()
-
 # Make the script module list available in the current scope
 GetApplicationsList(APPLICATIONS_BUILD_LIST)
 
