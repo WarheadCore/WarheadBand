@@ -19,6 +19,17 @@ jobs:
       BOOST_ROOT: C:\local\boost_1_79_0
     steps:
       - uses: actions/checkout@v2
+      - name: Cache
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-win
+        with:
+          path: ./build
+          key: ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-
+            ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-
+            ${{ env.cache-name }}-${{ matrix.os }}-
       - name: Configure OS
         run: choco install --no-progress openssl boost-msvc-14.3
       - name: Build
