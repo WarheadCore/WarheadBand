@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "OnlineReward.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "Chat.h"
 
 using namespace Warhead::ChatCommands;
 
