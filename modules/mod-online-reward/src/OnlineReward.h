@@ -69,6 +69,8 @@ public:
     void LoadConfig();
     inline bool IsEnable() { return _isEnable; };
 
+    void RewardNow();
+
     // Player hooks
     void AddRewardHistory(ObjectGuid::LowType lowGuid);
     void DeleteRewardHistory(ObjectGuid::LowType lowGuid);
@@ -84,7 +86,7 @@ public:
 
     void LoadDBData();
 
-private:    
+private:
     void RewardPlayers();
     bool IsExistHistory(ObjectGuid::LowType lowGuid);
     void SaveRewardHistoryToDB();
@@ -102,6 +104,8 @@ private:
 
     void CheckPlayersForReward(bool isPerOnline, Seconds seconds, RewardsVector const& items, RewardsVector const& reputations);
     void SendRewards();
+
+    void ScheduleReward();
 
     // Config
     bool _isEnable{ false };

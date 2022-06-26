@@ -64,10 +64,15 @@ void OnlineRewardMgr::InitSystem()
     if (!_isEnable)
         return;
 
+    ScheduleReward();
+}
+
+void OnlineRewardMgr::ScheduleReward()
+{
     scheduler.Schedule(30s, [this](TaskContext context)
     {
         RewardPlayers();
-        context.Repeat(30s, 1min);
+        context.Repeat(15min);
     });
 }
 
@@ -78,6 +83,13 @@ void OnlineRewardMgr::Update(Milliseconds diff)
 
     scheduler.Update(diff);
     _queryProcessor.ProcessReadyCallbacks();
+}
+
+void OnlineRewardMgr::RewardNow()
+{
+    scheduler.CancelAll();
+    RewardPlayers();
+    ScheduleReward();
 }
 
 void OnlineRewardMgr::LoadDBData()

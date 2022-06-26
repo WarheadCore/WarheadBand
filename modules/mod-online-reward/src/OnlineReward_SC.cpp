@@ -36,7 +36,8 @@ public:
             { "add",        HandleOnlineRewardAddCommand,       SEC_ADMINISTRATOR,  Console::Yes },
             { "delete",     HandleOnlineRewardDeleteCommand,    SEC_ADMINISTRATOR,  Console::Yes },
             { "list",       HandleOnlineRewardListCommand,      SEC_ADMINISTRATOR,  Console::Yes },
-            { "reload",     HandleOnlineRewardReloadCommand,    SEC_ADMINISTRATOR,  Console::Yes }
+            { "reload",     HandleOnlineRewardReloadCommand,    SEC_ADMINISTRATOR,  Console::Yes },
+            { "init",       HandleOnlineRewardInitCommand,      SEC_ADMINISTRATOR,  Console::Yes },
         };
 
         static ChatCommandTable commandTable =
@@ -118,7 +119,14 @@ public:
     static bool HandleOnlineRewardReloadCommand(ChatHandler* handler)
     {
         sOLMgr->LoadDBData();
-        handler->PSendSysMessage("> награды перезагружены");
+        handler->PSendSysMessage("> Награды перезагружены");
+        return true;
+    }
+
+    static bool HandleOnlineRewardInitCommand(ChatHandler* handler)
+    {
+        sOLMgr->RewardNow();
+        handler->PSendSysMessage("> Инициализирована выдача наград за онлайн");
         return true;
     }
 };
