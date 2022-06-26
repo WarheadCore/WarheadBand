@@ -370,7 +370,7 @@ OnlineRewardMgr::RewardHistory* OnlineRewardMgr::GetHistory(ObjectGuid::LowType 
 
 void OnlineRewardMgr::SendRewardForPlayer(Player* player, Seconds secondsOnine, RewardsVector const& items, RewardsVector const& reputations)
 {
-    LOG_DEBUG("module", "Send reward for player guid {}. RewardSeconds {}", player->GetGUID().GetCounter(), secondsOnine.count());
+    //LOG_TRACE("module", "Send reward for player guid {}. RewardSeconds {}", player->GetGUID().GetCounter(), secondsOnine.count());
 
     ChatHandler handler(player->GetSession());
     std::string playedTimeSecStr = Warhead::Time::ToTimeString(secondsOnine, 3, TimeFormat::FullText);
@@ -608,6 +608,9 @@ void OnlineRewardMgr::CheckPlayersForReward(bool isPerOnline, Seconds seconds, R
 
 void OnlineRewardMgr::SendRewards()
 {
+    if (_rewardPending.empty())
+        return;
+
     for (auto const& [lowGuid, rewards] : _rewardPending)
     {
         auto player = ObjectAccessor::FindPlayerByLowGUID(lowGuid);
