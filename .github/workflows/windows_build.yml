@@ -25,11 +25,10 @@ jobs:
           cache-name: cache-win
         with:
           path: ./build
-          key: ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-${{ github.sha }}
+          key: ${{ env.cache-name }}-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-${{ github.ref }}-
-            ${{ env.cache-name }}-${{ matrix.os }}-${{ matrix.compiler }}-
-            ${{ env.cache-name }}-${{ matrix.os }}-
+            ${{ env.cache-name }}-${{ github.ref }}-
+            ${{ env.cache-name }}-
       - name: Configure OS
         run: choco install --no-progress openssl boost-msvc-14.3
       - name: Build
