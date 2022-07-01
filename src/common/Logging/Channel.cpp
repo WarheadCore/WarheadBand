@@ -21,7 +21,7 @@
 #include "StringConvert.h"
 #include "Timer.h"
 #include <filesystem>
-#include <fmt/format.h>
+#include <fmt/chrono.h>
 
 Warhead::Channel::Channel(ChannelType type, std::string_view name, LogLevel level, std::string_view pattern /*= {}*/) :
     _type(type), _name(name), _level(level), _pattern(pattern)
@@ -120,7 +120,8 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
 
     text.clear();
 
-    auto epochTime = std::chrono::duration_cast<Seconds>(msg.GetTime().time_since_epoch());
+    auto timePoint = msg.GetTime();
+    auto epochTime = std::chrono::duration_cast<Seconds>(timePoint.time_since_epoch());    
 
     for (auto const& pa : _patternActions)
     {
@@ -157,20 +158,20 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
                 break;
             }
             case 'u': text.append(Warhead::ToString(msg.GetSourceLine())); break;
-            case 'w': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%a")); break;
-            case 'W': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%A")); break;
-            case 'b': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%b")); break;
-            case 'B': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%B")); break;
-            case 'd': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%d")); break;
-            case 'm': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%m")); break;
-            case 'n': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%Om")); break;
-            case 'y': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%y")); break;
-            case 'Y': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%Y")); break;
-            case 'h': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OH")); break;
-            case 'H': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OI")); break;
-            case 'A': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%p")); break;
-            case 'M': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OM")); break;
-            case 'S': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OS")); break;
+            case 'w': text.append(fmt::format("{:%a}", timePoint)); break;
+            case 'W': text.append(fmt::format("{:%A}", timePoint)); break;
+            case 'b': text.append(fmt::format("{:%b}", timePoint)); break;
+            case 'B': text.append(fmt::format("{:%B}", timePoint)); break;
+            case 'd': text.append(fmt::format("{:%d}", timePoint)); break;
+            case 'm': text.append(fmt::format("{:%m}", timePoint)); break;
+            case 'n': text.append(fmt::format("{:%Om}", timePoint)); break;
+            case 'y': text.append(fmt::format("{:%y}", timePoint)); break;
+            case 'Y': text.append(fmt::format("{:%Y}", timePoint)); break;
+            case 'h': text.append(fmt::format("{:%OH}", timePoint)); break;
+            case 'H': text.append(fmt::format("{:%OI}", timePoint)); break;
+            case 'A': text.append(fmt::format("{:%p}", timePoint)); break;
+            case 'M': text.append(fmt::format("{:%OM}", timePoint)); break;
+            case 'S': text.append(fmt::format("{:%OS}", timePoint)); break;
             case 'E': text.append(fmt::format("{}", epochTime.count())); break;
             case 'v':
             {
