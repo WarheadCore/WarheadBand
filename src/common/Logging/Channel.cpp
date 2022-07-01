@@ -21,7 +21,7 @@
 #include "StringConvert.h"
 #include "Timer.h"
 #include <filesystem>
-#include <format>
+#include <fmt/format.h>
 
 Warhead::Channel::Channel(ChannelType type, std::string_view name, LogLevel level, std::string_view pattern /*= {}*/) :
     _type(type), _name(name), _level(level), _pattern(pattern)
@@ -120,9 +120,7 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
 
     text.clear();
 
-    std::chrono::zoned_time localTime{ std::chrono::current_zone(), msg.GetTime() };
-
-    auto epoch = localTime.get_local_time().time_since_epoch();
+    auto epochTime = std::chrono::duration_cast<Seconds>(msg.GetTime().time_since_epoch());
 
     for (auto const& pa : _patternActions)
     {
@@ -159,21 +157,21 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
                 break;
             }
             case 'u': text.append(Warhead::ToString(msg.GetSourceLine())); break;
-            case 'w': text.append(std::format("{0:%a}", localTime)); break;
-            case 'W': text.append(std::format("{0:%A}", localTime)); break;
-            case 'b': text.append(std::format("{0:%b}", localTime)); break;
-            case 'B': text.append(std::format("{0:%B}", localTime)); break;
-            case 'd': text.append(std::format("{0:%d}", localTime)); break;
-            case 'm': text.append(std::format("{0:%m}", localTime)); break;
-            case 'n': text.append(std::format("{0:%Om}", localTime)); break;
-            case 'y': text.append(std::format("{0:%y}", localTime)); break;
-            case 'Y': text.append(std::format("{0:%Y}", localTime)); break;
-            case 'h': text.append(std::format("{0:%OH}", localTime)); break;
-            case 'H': text.append(std::format("{0:%OI}", localTime)); break;
-            case 'A': text.append(std::format("{0:%p}", localTime)); break;
-            case 'M': text.append(std::format("{0:%OM}", localTime)); break;
-            case 'S': text.append(std::format("{0:%OS}", localTime)); break;
-            case 'E': text.append(std::format("{}", std::chrono::duration_cast<Seconds>(localTime.get_local_time().time_since_epoch()).count())); break;
+            case 'w': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%a")); break;
+            case 'W': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%A")); break;
+            case 'b': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%b")); break;
+            case 'B': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%B")); break;
+            case 'd': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%d")); break;
+            case 'm': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%m")); break;
+            case 'n': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%Om")); break;
+            case 'y': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%y")); break;
+            case 'Y': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%Y")); break;
+            case 'h': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OH")); break;
+            case 'H': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OI")); break;
+            case 'A': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%p")); break;
+            case 'M': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OM")); break;
+            case 'S': text.append(Warhead::Time::TimeToTimestampStr(epochTime, "%OS")); break;
+            case 'E': text.append(fmt::format("{}", epochTime.count())); break;
             case 'v':
             {
                 if (pa.length > msg.GetSource().length())	//append spaces
