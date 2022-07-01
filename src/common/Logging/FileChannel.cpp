@@ -109,7 +109,7 @@ bool Warhead::FileChannel::OpenFile()
     if (_logFile)
         return _logFile->is_open();
 
-    uint32 openMode = std::ios::out;
+    std::ios::openmode openMode = std::ios::out;
     if (_isOpenModeAppend)
         openMode |= std::ios_base::app;
 
