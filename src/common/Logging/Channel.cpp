@@ -121,7 +121,7 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
     text.clear();
 
     auto timePoint = msg.GetTime();
-    auto epochTime = std::chrono::duration_cast<Seconds>(timePoint.time_since_epoch());    
+    auto epochTime = std::chrono::duration_cast<Seconds>(timePoint.time_since_epoch());
 
     for (auto const& pa : _patternActions)
     {
