@@ -45,11 +45,11 @@ namespace Warhead
 
         /// Destroys the exception.
         ~Exception() noexcept = default;
-        
+
         /// Returns a string consisting of the
         /// message name and the message text.
         inline std::string_view GetErrorMessage() const { return _msg; }
-	
+
     private:
         std::string _msg;
 

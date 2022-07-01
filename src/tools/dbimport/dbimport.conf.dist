@@ -289,7 +289,6 @@ Updates.CleanDeadRefMaxCount = 3
 #                           false: Just using filename (default)
 #
 
-
 LogChannel.Console = "1","5","[%H:%M:%S] %t","lightRed lightRed red brown cyan lightMagenta green"
 LogChannel.DBImport = "2","5","[%Y-%m-%d %H:%M:%S] %t","DBImport.log"
 
