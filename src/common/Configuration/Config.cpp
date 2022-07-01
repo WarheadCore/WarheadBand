@@ -19,12 +19,12 @@
 #include "Log.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
-#include "SystemLog.h"
 #include "Tokenize.h"
 #include "Util.h"
 #include <fstream>
 #include <mutex>
 #include <unordered_map>
+#include <fmt/core.h>
 
 namespace
 {
@@ -60,7 +60,7 @@ namespace
 
         if (IsAppConfig(filename))
         {
-            SYS_LOG_ERROR(message)
+            fmt::print(message + "\n");
         }
         else
         {

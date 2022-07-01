@@ -103,6 +103,7 @@ int main(int argc, char** argv)
             LOG_INFO("server.authserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
             LOG_INFO("server.authserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
             LOG_INFO("server.authserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            LOG_INFO("server.authserver", "> Using logs directory:           '{}'", sLog->GetLogsDir());
         }
     );
 

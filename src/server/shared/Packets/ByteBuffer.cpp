@@ -153,7 +153,7 @@ void ByteBuffer::put(size_t pos, uint8 const* src, size_t cnt)
 
 void ByteBuffer::print_storage() const
 {
-    if (!sLog->ShouldLog("network.opcode.buffer", LogLevel::LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network.opcode.buffer", Warhead::LogLevel::Fatal)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
@@ -169,7 +169,7 @@ void ByteBuffer::print_storage() const
 
 void ByteBuffer::textlike() const
 {
-    if (!sLog->ShouldLog("network.opcode.buffer", LogLevel::LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network.opcode.buffer", Warhead::LogLevel::Trace)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
@@ -185,7 +185,7 @@ void ByteBuffer::textlike() const
 
 void ByteBuffer::hexlike() const
 {
-    if (!sLog->ShouldLog("network.opcode.buffer", LogLevel::LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network.opcode.buffer", Warhead::LogLevel::Trace)) // optimize disabled trace output
         return;
 
     uint32 j = 1, k = 1;

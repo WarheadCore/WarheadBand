@@ -7813,7 +7813,7 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans)
 
 void Player::outDebugValues() const
 {
-    if (!sLog->ShouldLog("entities.player", LogLevel::LOG_LEVEL_DEBUG))                                  // optimize disabled debug output
+    if (!sLog->ShouldLog("entities.player", Warhead::LogLevel::Debug)) // optimize disabled debug output
         return;
 
     LOG_DEBUG("entities.player", "HP is: \t\t\t{}\t\tMP is: \t\t\t{}", GetMaxHealth(), GetMaxPower(POWER_MANA));
