@@ -45,7 +45,6 @@
 #include "ScriptMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
-#include "SystemLog.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
@@ -61,6 +60,7 @@
 #include "ServiceWin32.h"
 #include <boost/dll/shared_library.hpp>
 #include <timeapi.h>
+#include <fmt/core.h>
 
 char serviceName[] = "worldserver";
 char serviceLongName[] = "WarheadCore world service";
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
         }
         catch (std::exception const& e)
         {
-            SYS_LOG_ERROR("Failed to initialize timer resolution: {}", e.what());
+            fmt::print("Failed to initialize timer resolution: {}\n", e.what());
         }
     }
 #endif
@@ -200,6 +200,7 @@ int main(int argc, char** argv)
             LOG_INFO("server.worldserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
             LOG_INFO("server.worldserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
             LOG_INFO("server.worldserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            LOG_INFO("server.worldserver", "> Using logs directory:           '{}'", sLog->GetLogsDir());
         }
     );
 

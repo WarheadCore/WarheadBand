@@ -19,8 +19,7 @@
 #define __WARHEAD_SECRETMGR_H__
 
 #include "BigNumber.h"
-#include "Common.h"
-#include "Log.h"
+#include "LogCommon.h"
 #include "Optional.h"
 #include <array>
 #include <mutex>
@@ -64,7 +63,7 @@ public:
     Secret const& GetSecret(Secrets i);
 
 private:
-    void AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std::mutex> const&);
+    void AttemptLoad(Secrets i, Warhead::LogLevel errorLevel, std::unique_lock<std::mutex> const&);
     [[nodiscard]] Optional<std::string> AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const;
 
     std::array<Secret, NUM_SECRETS> _secrets;
