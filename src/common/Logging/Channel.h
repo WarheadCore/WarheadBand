@@ -65,7 +65,7 @@ namespace Warhead
         std::vector<PatternAction> _patternActions;
 
         Channel(const Channel&) = delete;
-	    Channel& operator= (const Channel&) = delete;
+        Channel& operator= (const Channel&) = delete;
     };
 
 } // namespace Warhead

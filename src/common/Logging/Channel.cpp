@@ -175,7 +175,7 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
             case 'E': text.append(fmt::format("{}", epochTime.count())); break;
             case 'v':
             {
-                if (pa.length > msg.GetSource().length())	//append spaces
+                if (pa.length > msg.GetSource().length())    //append spaces
                     text.append(msg.GetSource()).append(pa.length - msg.GetSource().length(), ' ');
                 else if (pa.length && pa.length < msg.GetSource().length()) // crop
                     text.append(msg.GetSource(), msg.GetSource().length() - pa.length, pa.length);

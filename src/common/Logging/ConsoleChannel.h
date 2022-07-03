@@ -45,24 +45,24 @@ namespace Warhead
 
     private:
         enum Color
-	    {
-		    CC_BLACK        = 0x0000,
-		    CC_RED          = 0x0004,
-		    CC_GREEN        = 0x0002,
-		    CC_BROWN        = 0x0006,
-		    CC_BLUE         = 0x0001,
-		    CC_MAGENTA      = 0x0005,
-		    CC_CYAN         = 0x0003,
-		    CC_GRAY         = 0x0007,
-		    CC_DARKGRAY     = 0x0008,
-		    CC_LIGHTRED     = 0x000C,
-		    CC_LIGHTGREEN   = 0x000A,
-		    CC_YELLOW       = 0x000E,
-		    CC_LIGHTBLUE    = 0x0009,
-		    CC_LIGHTMAGENTA = 0x000D,
-		    CC_LIGHTCYAN    = 0x000B,
-		    CC_WHITE        = 0x000F
-	    };
+        {
+            CC_BLACK        = 0x0000,
+            CC_RED          = 0x0004,
+            CC_GREEN        = 0x0002,
+            CC_BROWN        = 0x0006,
+            CC_BLUE         = 0x0001,
+            CC_MAGENTA      = 0x0005,
+            CC_CYAN         = 0x0003,
+            CC_GRAY         = 0x0007,
+            CC_DARKGRAY     = 0x0008,
+            CC_LIGHTRED     = 0x000C,
+            CC_LIGHTGREEN   = 0x000A,
+            CC_YELLOW       = 0x000E,
+            CC_LIGHTBLUE    = 0x0009,
+            CC_LIGHTMAGENTA = 0x000D,
+            CC_LIGHTCYAN    = 0x000B,
+            CC_WHITE        = 0x000F
+        };
 
         void InitDefaultColors();
         WORD ParseColor(std::string_view color) const;
@@ -89,25 +89,25 @@ namespace Warhead
 
     private:
         enum Color
-	    {
-		    CC_DEFAULT      = 0x0027,
-		    CC_BLACK        = 0x001e,
-		    CC_RED          = 0x001f,
-		    CC_GREEN        = 0x0020,
-		    CC_BROWN        = 0x0021,
-		    CC_BLUE         = 0x0022,
-		    CC_MAGENTA      = 0x0023,
-		    CC_CYAN         = 0x0024,
-		    CC_GRAY         = 0x0025,
-		    CC_DARKGRAY     = 0x011e,
-		    CC_LIGHTRED     = 0x011f,
-		    CC_LIGHTGREEN   = 0x0120,
-		    CC_YELLOW       = 0x0121,
-		    CC_LIGHTBLUE    = 0x0122,
-		    CC_LIGHTMAGENTA = 0x0123,
-		    CC_LIGHTCYAN    = 0x0124,
-		    CC_WHITE        = 0x0125
-	    };
+        {
+            CC_DEFAULT      = 0x0027,
+            CC_BLACK        = 0x001e,
+            CC_RED          = 0x001f,
+            CC_GREEN        = 0x0020,
+            CC_BROWN        = 0x0021,
+            CC_BLUE         = 0x0022,
+            CC_MAGENTA      = 0x0023,
+            CC_CYAN         = 0x0024,
+            CC_GRAY         = 0x0025,
+            CC_DARKGRAY     = 0x011e,
+            CC_LIGHTRED     = 0x011f,
+            CC_LIGHTGREEN   = 0x0120,
+            CC_YELLOW       = 0x0121,
+            CC_LIGHTBLUE    = 0x0122,
+            CC_LIGHTMAGENTA = 0x0123,
+            CC_LIGHTCYAN    = 0x0124,
+            CC_WHITE        = 0x0125
+        };
 
         void InitDefaultColors();
         Color ParseColor(std::string_view color) const;

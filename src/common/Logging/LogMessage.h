@@ -30,7 +30,7 @@ namespace Warhead
         using MessageLevel = LogLevel;
 
         LogMessage(std::string_view source, std::string_view text, MessageLevel level, std::string_view option = {});
-	    LogMessage(std::string_view source, std::string_view text, MessageLevel level, std::string_view file, std::size_t line, std::string_view function, std::string_view option = {});
+        LogMessage(std::string_view source, std::string_view text, MessageLevel level, std::string_view file, std::size_t line, std::string_view function, std::string_view option = {});
 
         ~LogMessage() = default;
 
@@ -56,12 +56,12 @@ namespace Warhead
         inline std::string_view GetOption() const { return _option; }
 
     private:
-	    std::string _source;
-	    std::string _text;
+        std::string _source;
+        std::string _text;
         MessageLevel _level{ MessageLevel::Fatal };
         SystemTimePoint _time{ std::chrono::system_clock::now() };
 
-	    std::string _file;
+        std::string _file;
         std::size_t _line{ 0 };
         std::string _function;
         std::string _option;
