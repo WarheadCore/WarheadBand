@@ -312,5 +312,5 @@ LogChannel.DBImport = "2","5","[%Y-%m-%d %H:%M:%S] %t","DBImport.log"
 #                     (Using spaces as separator).
 #
 
-Logger.root = 6,Console DBImport
+Logger.root = 5,Console DBImport
 ###################################################################################################

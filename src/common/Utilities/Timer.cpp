@@ -32,6 +32,9 @@ namespace Warhead::TimeDiff // in us
 
 Seconds Warhead::Time::TimeStringTo(std::string_view timestring)
 {
+    if (timestring.starts_with('-'))
+        return Seconds(std::numeric_limits<int32>().max());
+
     Seconds secs = 0s;
     Seconds buffer = 0s;
     Seconds multiplier = 0s;

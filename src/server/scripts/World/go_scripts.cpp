@@ -823,8 +823,8 @@ public:
                                 break;
 
                             std::list<Player*> targets;
-                            Acore::AnyPlayerInObjectRangeCheck check(me, me->GetVisibilityRange(), false);
-                            Acore::PlayerListSearcherWithSharedVision<Acore::AnyPlayerInObjectRangeCheck> searcher(me, targets, check);
+                            Warhead::AnyPlayerInObjectRangeCheck check(me, me->GetVisibilityRange(), false);
+                            Warhead::PlayerListSearcherWithSharedVision<Warhead::AnyPlayerInObjectRangeCheck> searcher(me, targets, check);
                             Cell::VisitWorldObjects(me, searcher, me->GetVisibilityRange());
                             for (Player* player : targets)
                             {
