@@ -12,7 +12,7 @@ CREATE TABLE `wh_online_rewards` (
 DROP TABLE IF EXISTS `wh_online_rewards_history`;
 CREATE TABLE `wh_online_rewards_history` (
   `PlayerGuid` int(20) NOT NULL DEFAULT 0,
-  `RewardedIds` longtext DEFAULT NULL,
+  `RewardID` int(11) NOT NULL DEFAULT 0,
   `RewardedSeconds` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`PlayerGuid`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
