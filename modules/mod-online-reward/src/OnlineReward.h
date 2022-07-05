@@ -31,16 +31,17 @@
 class Player;
 class ChatHandler;
 
-using RewardsPair = std::pair<uint32/*id*/, uint32/*count*/>;
-using RewardsVector = std::vector<RewardsPair>;
-
-struct OnlineRewards
+struct OnlineReward
 {
-    OnlineRewards() = delete;
+    using RewardsPair = std::pair<uint32/*id*/, uint32/*count*/>;
+    using RewardsVector = std::vector<RewardsPair>;
 
-    OnlineRewards(bool isPerOnline, Seconds time) :
-        IsPerOnline(isPerOnline), Seconds(time) { }
+    OnlineReward() = delete;
 
+    OnlineReward(uint32 id, bool isPerOnline, Seconds time) :
+        ID(id), IsPerOnline(isPerOnline), Seconds(time) { }
+
+    uint32 ID{ 0 };
     bool IsPerOnline{ true };
     Seconds Seconds{ 0s };
 
@@ -58,9 +59,11 @@ class OnlineRewardMgr
     OnlineRewardMgr& operator= (OnlineRewardMgr const&) = delete;
     OnlineRewardMgr& operator= (OnlineRewardMgr&&) = delete;
 
-    using RewardHistoryPerTime = std::unordered_map<int32/*per time*/, Seconds/*reward time*/>;
-    using RewardHistory = std::pair<std::vector<Seconds>, RewardHistoryPerTime>;
-    using RewardPending = std::tuple<Seconds, RewardsVector/*items*/, RewardsVector/*reputations*/>;
+    using RewardHistoryStruct = std::pair<uint32/*reward id*/, Seconds/*rewarded seconds*/>;
+    using RewardPendingStruct = uint32/*reward id*/;
+
+    using RewardHistory = std::vector<RewardHistoryStruct>;
+    using RewardPending = std::vector<RewardPendingStruct>;
 
 public:
     static OnlineRewardMgr* instance();
@@ -78,9 +81,9 @@ public:
     // World hooks
     void Update(Milliseconds diff);
 
-    bool AddReward(bool isPerOnline, Seconds seconds, std::string_view items, std::string_view reputations, ChatHandler* handler = nullptr);
-    bool DeleteReward(bool isPerOnline, Seconds seconds);
-    bool IsExistReward(bool isPerOnline, Seconds seconds);
+    bool AddReward(uint32 id, bool isPerOnline, Seconds seconds, std::string_view items, std::string_view reputations, ChatHandler* handler = nullptr);
+    bool DeleteReward(uint32 id);
+    bool IsExistReward(uint32 id);
 
     auto const& GetOnlineRewards() { return &_rewards; }
 
@@ -92,17 +95,17 @@ private:
     void SaveRewardHistoryToDB();
 
     RewardHistory* GetHistory(ObjectGuid::LowType lowGuid);
+    Seconds GetHistorySecondsForReward(ObjectGuid::LowType lowGuid, uint32 id);
+    OnlineReward const* GetOnlineReward(uint32 id);
 
-    void SendRewardForPlayer(Player* player, Seconds secondsOnine, RewardsVector const& items, RewardsVector const& reputations);
-    void AddHistory(ObjectGuid::LowType lowGuid, Seconds seconds);
-    void AddHistory(ObjectGuid::LowType lowGuid, Seconds perTime, Seconds rewardTime);
+    void SendRewardForPlayer(Player* player, uint32 rewardID);
+    void AddHistory(ObjectGuid::LowType lowGuid, uint32 rewardId, Seconds playerOnlineTime);
 
     void AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryResult result);
 
-    bool IsRewarded(ObjectGuid::LowType lowGuid, Seconds seconds);
-    bool IsRewarded(ObjectGuid::LowType lowGuid, Seconds perTime, Seconds rewardTime);
+    bool IsRewarded(ObjectGuid::LowType lowGuid, uint32 id, Seconds rewardTime);
 
-    void CheckPlayersForReward(bool isPerOnline, Seconds seconds, RewardsVector const& items, RewardsVector const& reputations);
+    void CheckPlayerForReward(ObjectGuid::LowType lowGuid, Seconds playedTime, OnlineReward const* onlineReward);
     void SendRewards();
 
     void ScheduleReward();
@@ -113,10 +116,13 @@ private:
     bool _isPerTimeEnable{ false };
     bool _isForceMailReward{ true };
 
+    // New version
+    void CorrectDBData();
+
     // Containers
-    std::vector<OnlineRewards> _rewards;
+    std::unordered_map<uint32, OnlineReward> _rewards;
     std::unordered_map<ObjectGuid::LowType, RewardHistory> _rewardHistory;
-    std::unordered_map<ObjectGuid::LowType, std::vector<RewardPending>> _rewardPending;
+    std::unordered_map<ObjectGuid::LowType, RewardPending> _rewardPending;
     TaskScheduler scheduler;
 
     QueryCallbackProcessor _queryProcessor;

@@ -48,7 +48,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleOnlineRewardAddCommand(ChatHandler* handler, bool isPerOnline, uint32 secs, Tail items, Tail reputations)
+    static bool HandleOnlineRewardAddCommand(ChatHandler* handler, uint32 id, bool isPerOnline, uint32 secs, Tail items, Tail reputations)
     {
         if (!sOLMgr->IsEnable())
         {
@@ -66,21 +66,21 @@ public:
         auto timeString = Warhead::Time::ToTimeString(seconds);
         timeString.append(Warhead::StringFormat(" ({})", seconds.count()));
 
-        if (sOLMgr->IsExistReward(isPerOnline, seconds))
+        if (sOLMgr->IsExistReward(id))
         {
-            handler->PSendSysMessage("> Награда для {} уже существует. IsPerOnline? {}", timeString, isPerOnline);
+            handler->PSendSysMessage("> Награда {} уже существует", id);
             return true;
         }
 
-        if (sOLMgr->AddReward(isPerOnline, seconds, items, reputations, handler))
+        if (sOLMgr->AddReward(id, isPerOnline, seconds, items, reputations, handler))
             handler->PSendSysMessage("> Награда добавлена");
 
         return true;
     }
 
-    static bool HandleOnlineRewardDeleteCommand(ChatHandler* handler, bool isPerOnline, uint32 secs)
+    static bool HandleOnlineRewardDeleteCommand(ChatHandler* handler, uint32 id)
     {
-        handler->PSendSysMessage("> Награда {}была удалена", sOLMgr->DeleteReward(isPerOnline, Seconds(secs)) ? "" : "не ");
+        handler->PSendSysMessage("> Награда {}была удалена", sOLMgr->DeleteReward(id) ? "" : "не ");
         return true;
     }
 
@@ -90,23 +90,23 @@ public:
 
         std::size_t count{ 0 };
 
-        for (auto const& onlineRewards : *sOLMgr->GetOnlineRewards())
+        for (auto const& [id, onlineReward] : *sOLMgr->GetOnlineRewards())
         {
-            handler->PSendSysMessage("{}. {}. IsPerOnline? {}", ++count, Warhead::Time::ToTimeString(onlineRewards.Seconds), onlineRewards.IsPerOnline);
+            handler->PSendSysMessage("{}. {}. IsPerOnline? {}", ++count, Warhead::Time::ToTimeString(onlineReward.Seconds), onlineReward.IsPerOnline);
 
-            if (!onlineRewards.Items.empty())
+            if (!onlineReward.Items.empty())
             {
                 handler->SendSysMessage("-- Предметы:");
 
-                for (auto const& [itemID, itemCount] : onlineRewards.Items)
+                for (auto const& [itemID, itemCount] : onlineReward.Items)
                     handler->PSendSysMessage("> {}/{}", itemID, itemCount);
             }
 
-            if (!onlineRewards.Reputations.empty())
+            if (!onlineReward.Reputations.empty())
             {
                 handler->SendSysMessage("-- Репутация:");
 
-                for (auto const& [faction, reputation] : onlineRewards.Reputations)
+                for (auto const& [faction, reputation] : onlineReward.Reputations)
                     handler->PSendSysMessage("> {}/{}", faction, reputation);
             }
 
