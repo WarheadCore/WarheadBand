@@ -250,8 +250,8 @@ bool OnlineRewardMgr::AddReward(uint32 id, bool isPerOnline, Seconds seconds, st
     // If add from command - save to db
     if (handler)
     {
-        CharacterDatabase.Execute("INSERT INTO `wh_online_rewards` (`IsPerOnline`, `Seconds`, `Items`, `Reputations`) VALUES ({:d}, {}, '{}', '{}')",
-            isPerOnline, seconds.count(), items, reputations);
+        CharacterDatabase.Execute("INSERT INTO `wh_online_rewards` (`ID`, `IsPerOnline`, `Seconds`, `Items`, `Reputations`) VALUES ({}, {:d}, {}, '{}', '{}')",
+            id, isPerOnline, seconds.count(), items, reputations);
     }
 
     return true;
