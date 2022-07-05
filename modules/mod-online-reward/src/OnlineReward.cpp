@@ -318,9 +318,6 @@ void OnlineRewardMgr::RewardPlayers()
 
                 CheckPlayerForReward(lowGuid, playedTimeSec, &reward);
             }
-
-            // Update last played seconds
-            //UpdateRewardedSecondsForPlayer(lowGuid, playedTimeSec);
         }
 
         // Send reward
@@ -392,11 +389,11 @@ void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 rewardID)
     if (!onlineReward)
         return;
 
-    ChatHandler handler(player->GetSession());
-    std::string playedTimeSecStr = Warhead::Time::ToTimeString(onlineReward->Seconds, 3, TimeFormat::FullText);
-    uint8 localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
+    ChatHandler handler{ player->GetSession() };
+    std::string playedTimeSecStr{ Warhead::Time::ToTimeString(onlineReward->Seconds, 3, TimeFormat::FullText) };
+    uint8 localeIndex{ static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex()) };
 
-    auto SendItemsViaMail = [player, onlineReward, &playedTimeSecStr, &localeIndex]()
+    auto SendItemsViaMail = [player, onlineReward, playedTimeSecStr, &localeIndex]()
     {
         auto const& mailSubject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
         auto const& MailText = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
@@ -507,7 +504,7 @@ void OnlineRewardMgr::CheckPlayerForReward(ObjectGuid::LowType lowGuid, Seconds 
     if (!onlineReward || !lowGuid || playedTime == 0s)
         return;
 
-    auto AddToStore = [this, onlineReward, playedTime](ObjectGuid::LowType playerGuid)
+    auto AddToStore = [this, onlineReward](ObjectGuid::LowType playerGuid)
     {
         auto const& itr = _rewardPending.find(playerGuid);
         if (itr == _rewardPending.end())

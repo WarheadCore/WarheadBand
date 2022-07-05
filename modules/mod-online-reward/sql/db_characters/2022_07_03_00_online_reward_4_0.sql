@@ -14,7 +14,7 @@ CREATE TABLE `wh_online_rewards_history` (
   `PlayerGuid` int(20) NOT NULL DEFAULT 0,
   `RewardID` int(11) NOT NULL DEFAULT 0,
   `RewardedSeconds` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`PlayerGuid`) USING BTREE
+  PRIMARY KEY (`PlayerGuid`, `RewardID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT;
 
 -- Add from old table
