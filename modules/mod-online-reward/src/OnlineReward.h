@@ -100,7 +100,6 @@ private:
 
     void SendRewardForPlayer(Player* player, uint32 rewardID);
     void AddHistory(ObjectGuid::LowType lowGuid, uint32 rewardId, Seconds playerOnlineTime);
-    void UpdateRewardedSecondsForPlayer(ObjectGuid::LowType lowGuid, Seconds playerOnlineTime);
 
     void AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryResult result);
 

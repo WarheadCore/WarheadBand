@@ -468,19 +468,6 @@ void OnlineRewardMgr::AddHistory(ObjectGuid::LowType lowGuid, uint32 rewardId, S
     history->emplace_back(rewardId, playerOnlineTime);
 }
 
-void OnlineRewardMgr::UpdateRewardedSecondsForPlayer(ObjectGuid::LowType lowGuid, Seconds playerOnlineTime)
-{
-    auto history = GetHistory(lowGuid);
-    if (!history)
-    {
-        LOG_FATAL("module", "> OnlineRewardMgr::UpdateRewardedSecondsForPlayer: Cannot find history for player guid {}", lowGuid);
-        return;
-    }
-
-    for (auto& [__, seconds] : *history)
-        seconds = playerOnlineTime;
-}
-
 bool OnlineRewardMgr::IsExistHistory(ObjectGuid::LowType lowGuid)
 {
     return _rewardHistory.find(lowGuid) != _rewardHistory.end();
