@@ -595,7 +595,6 @@ void OnlineRewardMgr::CorrectDBData()
                 return id;
         }
 
-        LOG_FATAL("server", "> {}/{}", isPerOnline, seconds.count());
         return 0;
     };
 
@@ -608,7 +607,7 @@ void OnlineRewardMgr::CorrectDBData()
             auto const& seconds = Warhead::StringTo<int32>(stringSeconds);
             if (!seconds || !*seconds)
             {
-                LOG_ERROR("module", "> OnlineRewardMgr::AddRewardHistoryAsync: Error at extract seconds from '{}'", stringSeconds);
+                LOG_ERROR("module", "> OnlineRewardMgr::CorrectDBData: Error at extract seconds from '{}'", stringSeconds);
                 continue;
             }
 
@@ -624,7 +623,7 @@ void OnlineRewardMgr::CorrectDBData()
             auto perTimeData = Warhead::Tokenize(perTimeString, ':', false);
             if (perTimeData.size() != 2)
             {
-                LOG_ERROR("module", "> OnlineRewardMgr::AddRewardHistoryAsync: Error at extract `perTimeString` from '{}'", perTimeString);
+                LOG_ERROR("module", "> OnlineRewardMgr::CorrectDBData: Error at extract `perTimeString` from '{}'", perTimeString);
                 continue;
             }
 
@@ -633,7 +632,7 @@ void OnlineRewardMgr::CorrectDBData()
 
             if (!perTime || !rewardTime)
             {
-                LOG_ERROR("module", "> OnlineRewardMgr::AddRewardHistoryAsync: Error at extract `perTime` or `rewardTime` from '{}'", perTimeString);
+                LOG_ERROR("module", "> OnlineRewardMgr::CorrectDBData: Error at extract `perTime` or `rewardTime` from '{}'", perTimeString);
                 continue;
             }
 
