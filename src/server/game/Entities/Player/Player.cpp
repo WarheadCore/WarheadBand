@@ -6538,156 +6538,10 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             val = proto->ItemStat[i].ItemStatValue;
         }
 
-        if (val == 0)
+        if (!val)
             continue;
 
-        switch (statType)
-        {
-            case ITEM_MOD_MANA:
-                HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(val), apply);
-                break;
-            case ITEM_MOD_HEALTH:                           // modify HP
-                HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(val), apply);
-                break;
-            case ITEM_MOD_AGILITY:                          // modify agility
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_AGILITY, float(val), apply);
-                break;
-            case ITEM_MOD_STRENGTH:                         //modify strength
-                HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_STRENGTH, float(val), apply);
-                break;
-            case ITEM_MOD_INTELLECT:                        //modify intellect
-                HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_INTELLECT, float(val), apply);
-                break;
-            case ITEM_MOD_SPIRIT:                           //modify spirit
-                HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_SPIRIT, float(val), apply);
-                break;
-            case ITEM_MOD_STAMINA:                          //modify stamina
-                HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), apply);
-                ApplyStatBuffMod(STAT_STAMINA, float(val), apply);
-                break;
-            case ITEM_MOD_DEFENSE_SKILL_RATING:
-                ApplyRatingMod(CR_DEFENSE_SKILL, int32(val), apply);
-                break;
-            case ITEM_MOD_DODGE_RATING:
-                ApplyRatingMod(CR_DODGE, int32(val), apply);
-                break;
-            case ITEM_MOD_PARRY_RATING:
-                ApplyRatingMod(CR_PARRY, int32(val), apply);
-                break;
-            case ITEM_MOD_BLOCK_RATING:
-                ApplyRatingMod(CR_BLOCK, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_MELEE_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_RANGED_RATING:
-                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_SPELL_RATING:
-                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_MELEE_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_RANGED_RATING:
-                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_SPELL_RATING:
-                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
-                ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
-                ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
-                ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
-                ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
-                ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
-                ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_HASTE_MELEE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
-                break;
-            case ITEM_MOD_HASTE_RANGED_RATING:
-                ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
-                break;
-            case ITEM_MOD_HASTE_SPELL_RATING:
-                ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_RATING:
-                ApplyRatingMod(CR_HIT_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HIT_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HIT_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_RATING:
-                ApplyRatingMod(CR_CRIT_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_HIT_TAKEN_RATING:
-                ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_CRIT_TAKEN_RATING:
-            case ITEM_MOD_RESILIENCE_RATING:
-                ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_HASTE_RATING:
-                ApplyRatingMod(CR_HASTE_MELEE, int32(val), apply);
-                ApplyRatingMod(CR_HASTE_RANGED, int32(val), apply);
-                ApplyRatingMod(CR_HASTE_SPELL, int32(val), apply);
-                break;
-            case ITEM_MOD_EXPERTISE_RATING:
-                ApplyRatingMod(CR_EXPERTISE, int32(val), apply);
-                break;
-            case ITEM_MOD_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
-                break;
-            case ITEM_MOD_RANGED_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
-                break;
-            //            case ITEM_MOD_FERAL_ATTACK_POWER:
-            //                ApplyFeralAPBonus(int32(val), apply);
-            //                break;
-            case ITEM_MOD_MANA_REGENERATION:
-                ApplyManaRegenBonus(int32(val), apply);
-                break;
-            case ITEM_MOD_ARMOR_PENETRATION_RATING:
-                ApplyRatingMod(CR_ARMOR_PENETRATION, int32(val), apply);
-                break;
-            case ITEM_MOD_SPELL_POWER:
-                ApplySpellPowerBonus(int32(val), apply);
-                break;
-            case ITEM_MOD_HEALTH_REGEN:
-                ApplyHealthRegenBonus(int32(val), apply);
-                break;
-            case ITEM_MOD_SPELL_PENETRATION:
-                ApplySpellPenetrationBonus(val, apply);
-                break;
-            case ITEM_MOD_BLOCK_VALUE:
-                HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(val), apply);
-                break;
-            // deprecated item mods
-            case ITEM_MOD_SPELL_HEALING_DONE:
-            case ITEM_MOD_SPELL_DAMAGE_DONE:
-                break;
-        }
+        ApplyItemStatBonuses(statType, val, apply);
     }
 
     // Apply Spell Power from ScalingStatValue if set
@@ -6781,6 +6635,157 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         sScriptMgr->OnGetFeralApBonus(this, feral_bonus, dpsMod, proto, ssv);
         if (feral_bonus)
             ApplyFeralAPBonus(feral_bonus, apply);
+    }
+}
+
+void Player::ApplyItemStatBonuses(uint32 statType, int32 value, bool isApply)
+{
+    switch (statType)
+    {
+    case ITEM_MOD_MANA:
+        HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(value), isApply);
+        break;
+    case ITEM_MOD_HEALTH:                           // modify HP
+        HandleStatModifier(UNIT_MOD_HEALTH, BASE_VALUE, float(value), isApply);
+        break;
+    case ITEM_MOD_AGILITY:                          // modify agility
+        HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(value), isApply);
+        ApplyStatBuffMod(STAT_AGILITY, float(value), isApply);
+        break;
+    case ITEM_MOD_STRENGTH:                         //modify strength
+        HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(value), isApply);
+        ApplyStatBuffMod(STAT_STRENGTH, float(value), isApply);
+        break;
+    case ITEM_MOD_INTELLECT:                        //modify intellect
+        HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(value), isApply);
+        ApplyStatBuffMod(STAT_INTELLECT, float(value), isApply);
+        break;
+    case ITEM_MOD_SPIRIT:                           //modify spirit
+        HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(value), isApply);
+        ApplyStatBuffMod(STAT_SPIRIT, float(value), isApply);
+        break;
+    case ITEM_MOD_STAMINA:                          //modify stamina
+        HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(value), isApply);
+        ApplyStatBuffMod(STAT_STAMINA, float(value), isApply);
+        break;
+    case ITEM_MOD_DEFENSE_SKILL_RATING:
+        ApplyRatingMod(CR_DEFENSE_SKILL, int32(value), isApply);
+        break;
+    case ITEM_MOD_DODGE_RATING:
+        ApplyRatingMod(CR_DODGE, int32(value), isApply);
+        break;
+    case ITEM_MOD_PARRY_RATING:
+        ApplyRatingMod(CR_PARRY, int32(value), isApply);
+        break;
+    case ITEM_MOD_BLOCK_RATING:
+        ApplyRatingMod(CR_BLOCK, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_MELEE_RATING:
+        ApplyRatingMod(CR_HIT_MELEE, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_RANGED_RATING:
+        ApplyRatingMod(CR_HIT_RANGED, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_SPELL_RATING:
+        ApplyRatingMod(CR_HIT_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_MELEE_RATING:
+        ApplyRatingMod(CR_CRIT_MELEE, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_RANGED_RATING:
+        ApplyRatingMod(CR_CRIT_RANGED, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_SPELL_RATING:
+        ApplyRatingMod(CR_CRIT_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
+        ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
+        ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
+        ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
+        ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+        ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
+        ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_HASTE_MELEE_RATING:
+        ApplyRatingMod(CR_HASTE_MELEE, int32(value), isApply);
+        break;
+    case ITEM_MOD_HASTE_RANGED_RATING:
+        ApplyRatingMod(CR_HASTE_RANGED, int32(value), isApply);
+        break;
+    case ITEM_MOD_HASTE_SPELL_RATING:
+        ApplyRatingMod(CR_HASTE_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_RATING:
+        ApplyRatingMod(CR_HIT_MELEE, int32(value), isApply);
+        ApplyRatingMod(CR_HIT_RANGED, int32(value), isApply);
+        ApplyRatingMod(CR_HIT_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_RATING:
+        ApplyRatingMod(CR_CRIT_MELEE, int32(value), isApply);
+        ApplyRatingMod(CR_CRIT_RANGED, int32(value), isApply);
+        ApplyRatingMod(CR_CRIT_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_HIT_TAKEN_RATING:
+        ApplyRatingMod(CR_HIT_TAKEN_MELEE, int32(value), isApply);
+        ApplyRatingMod(CR_HIT_TAKEN_RANGED, int32(value), isApply);
+        ApplyRatingMod(CR_HIT_TAKEN_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_CRIT_TAKEN_RATING:
+    case ITEM_MOD_RESILIENCE_RATING:
+        ApplyRatingMod(CR_CRIT_TAKEN_MELEE, int32(value), isApply);
+        ApplyRatingMod(CR_CRIT_TAKEN_RANGED, int32(value), isApply);
+        ApplyRatingMod(CR_CRIT_TAKEN_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_HASTE_RATING:
+        ApplyRatingMod(CR_HASTE_MELEE, int32(value), isApply);
+        ApplyRatingMod(CR_HASTE_RANGED, int32(value), isApply);
+        ApplyRatingMod(CR_HASTE_SPELL, int32(value), isApply);
+        break;
+    case ITEM_MOD_EXPERTISE_RATING:
+        ApplyRatingMod(CR_EXPERTISE, int32(value), isApply);
+        break;
+    case ITEM_MOD_ATTACK_POWER:
+        HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(value), isApply);
+        HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(value), isApply);
+        break;
+    case ITEM_MOD_RANGED_ATTACK_POWER:
+        HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(value), isApply);
+        break;
+    //case ITEM_MOD_FERAL_ATTACK_POWER:
+    //    ApplyFeralAPBonus(int32(value), apply);
+    //    break;
+    case ITEM_MOD_MANA_REGENERATION:
+        ApplyManaRegenBonus(int32(value), isApply);
+        break;
+    case ITEM_MOD_ARMOR_PENETRATION_RATING:
+        ApplyRatingMod(CR_ARMOR_PENETRATION, int32(value), isApply);
+        break;
+    case ITEM_MOD_SPELL_POWER:
+        ApplySpellPowerBonus(int32(value), isApply);
+        break;
+    case ITEM_MOD_HEALTH_REGEN:
+        ApplyHealthRegenBonus(int32(value), isApply);
+        break;
+    case ITEM_MOD_SPELL_PENETRATION:
+        ApplySpellPenetrationBonus(value, isApply);
+        break;
+    case ITEM_MOD_BLOCK_VALUE:
+        HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(value), isApply);
+        break;
+        // deprecated item mods
+    case ITEM_MOD_SPELL_HEALING_DONE:
+    case ITEM_MOD_SPELL_DAMAGE_DONE:
+        break;
     }
 }
 

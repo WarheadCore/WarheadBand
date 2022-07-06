@@ -2148,6 +2148,7 @@ public:
     void _ApplyAllItemMods();
     void _ApplyAllLevelScaleItemMods(bool apply);
     void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
+    void ApplyItemStatBonuses(uint32 statType, int32 value, bool isApply);
     void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply);
     void _ApplyAmmoBonuses();
     bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
