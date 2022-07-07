@@ -1426,6 +1426,10 @@ public:
      */
     virtual void OnQuestAbandon(Player* /*player*/, uint32 /*questId*/) { }
 
+    virtual void OnBeforeApplyItemBonuses(Player* /*player*/, Item* /*item*/, uint32& /*statsCount*/) { }
+
+    virtual void OnApplyItemBonuses(Player* /*player*/, Item* /*item*/, uint32 /*statIndex*/, uint32& /*statType*/, int32& /*value*/) { }
+
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }
     virtual void AnticheatSetCanFlybyServer(Player* /*player*/, bool /*apply*/) { }
@@ -2345,6 +2349,8 @@ public: /* PlayerScript */
     void OnPlayerEnterCombat(Player* player, Unit* enemy);
     void OnPlayerLeaveCombat(Player* player);
     void OnQuestAbandon(Player* player, uint32 questId);
+    void OnBeforeApplyItemBonuses(Player* player, Item* item, uint32& statsCount);
+    void OnApplyItemBonuses(Player* player, Item* item, uint32 statIndex, uint32& statType, int32& value);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);

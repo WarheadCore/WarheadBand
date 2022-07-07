@@ -1526,3 +1526,19 @@ bool ScriptMgr::AnticheatCheckMovementInfo(Player* player, MovementInfo const& m
 
     return true;
 }
+
+void ScriptMgr::OnBeforeApplyItemBonuses(Player* player, Item* item, uint32& statsCount)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnBeforeApplyItemBonuses(player, item, statsCount);
+    });
+}
+
+void ScriptMgr::OnApplyItemBonuses(Player* player, Item* item, uint32 statIndex, uint32& statType, int32& value)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnApplyItemBonuses(player, item, statIndex, statType, value);
+    });
+}

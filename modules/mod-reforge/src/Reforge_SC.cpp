@@ -56,9 +56,28 @@ public:
 
         handler->PSendSysMessage("> Item {}", item->GetGUID().ToString());
 
-        //item->
+        if (sReforgeMgr->ChangeItem(player, item, 36, 1000))
+            handler->PSendSysMessage("> Item changed");
+        else
+            handler->PSendSysMessage("> Item not changed");
 
         return true;
+    }
+};
+
+class Reforge_Player : public PlayerScript
+{
+public:
+    Reforge_Player() : PlayerScript("Reforge_Player") { }
+
+    void OnBeforeApplyItemBonuses(Player* player, Item* item, uint32& statsCount) override
+    {
+        sReforgeMgr->OnBeforeApplyItemBonuses(player, item, statsCount);
+    }
+
+    void OnApplyItemBonuses(Player* player, Item* item, uint32 statIndex, uint32& statType, int32& value) override
+    {
+        sReforgeMgr->OnApplyItemBonuses(player, item, statIndex, statType, value);
     }
 };
 
@@ -66,4 +85,5 @@ public:
 void AddSC_Reforge()
 {
     new Reforge_CS();
+    new Reforge_Player();
 }

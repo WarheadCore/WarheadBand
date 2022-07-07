@@ -6505,10 +6505,17 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     if (only_level_scale && !ssv)
         return;
 
+    auto statsCount = proto->StatsCount;
+    Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
+    if (statsCount < MAX_ITEM_PROTO_STATS)
+        sScriptMgr->OnBeforeApplyItemBonuses(this, item, statsCount);
+
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
         uint32 statType = 0;
         int32  val = 0;
+
         // If set ScalingStatDistribution need get stats and values from it
         if (ssv)
         {
@@ -6522,7 +6529,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             }
             else
             {
-                if (i >= proto->StatsCount)
+                if (i >= statsCount)
                     continue;
 
                 // OnCustomScalingStatValue(Player* player, ItemTemplate const* proto, uint32& statType, int32& val, uint8 itemProtoStatNumber, uint32 ScalingStatValue, ScalingStatValuesEntry const* ssv)
@@ -6531,14 +6538,16 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         }
         else
         {
-            if (i >= proto->StatsCount)
+            if (i >= statsCount)
                 continue;
 
             statType = proto->ItemStat[i].ItemStatType;
             val = proto->ItemStat[i].ItemStatValue;
         }
 
-        if (!val)
+        sScriptMgr->OnApplyItemBonuses(this, item, i, statType, val);
+
+        if (val == 0)
             continue;
 
         ApplyItemStatBonuses(statType, val, apply);

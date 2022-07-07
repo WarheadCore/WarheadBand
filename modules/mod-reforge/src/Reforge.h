@@ -18,23 +18,68 @@
 #ifndef _REFORGE_H_
 #define _REFORGE_H_
 
-#include "Define.h"
+#include "Singleton.h"
+#include "ItemTemplate.h"
+#include "ObjectGuid.h"
+#include <array>
 
-class ReforgeMgr
+class Player;
+class Item;
+
+class ReforgeItem
 {
-    ReforgeMgr() = default;
-    ~ReforgeMgr() = default;
-
-    ReforgeMgr(ReforgeMgr const&) = delete;
-    ReforgeMgr(ReforgeMgr&&) = delete;
-    ReforgeMgr& operator=(ReforgeMgr const&) = delete;
-    ReforgeMgr& operator=(ReforgeMgr&&) = delete;
-
 public:
-    static ReforgeMgr* instance();
+    ReforgeItem(ObjectGuid itemGuid, uint32 id) : _guid(itemGuid), _id(id)
+    {
+        Reset();
+    }
+
+    ~ReforgeItem() = default;
+
+    void Reset();
+    bool AddStat(uint32 statType, int32 value);
+    bool SetStat(uint32 statType, int32 value);
+    int32 GetValueForStat(uint32 statType) const;
+    void SaveToDB();
+
+    inline uint32 GetID() const { return _id; }
+    inline ObjectGuid GetGUID() const { return _guid; }
+    inline uint32 GetStatsCount() const { return _itemStatsCount; }
+    inline std::array<_ItemStat, MAX_ITEM_PROTO_STATS> const* GetStats() const { return &_itemStats; }
+
+    inline _ItemStat const* GetItemsStatsForIndex(uint32 index)
+    {
+        if (index > _itemStatsCount)
+            return nullptr;
+
+        return &_itemStats[index];
+    }
 
 private:
+    ObjectGuid _guid{ ObjectGuid::Empty };
+    uint32 _id{ 0 };
+    std::array<_ItemStat, MAX_ITEM_PROTO_STATS> _itemStats{};
+    uint32 _itemStatsCount{ 0 };
+};
 
+class ReforgeMgr : public Warhead::Singleton<ReforgeMgr>
+{
+public:
+    void Initialize();
+
+    // Hooks
+    void OnBeforeApplyItemBonuses(Player* player, Item* item, uint32& statsCount);
+    void OnApplyItemBonuses(Player* player, Item* item, uint32 statIndex, uint32& statType, int32& value);
+
+    bool ChangeItem(Player* player, Item* item, uint32 statType, int32 value);
+
+private:
+    void UpdateItemForPlayer(Player* player, Item* item);
+    void CreateBaseReforgeItem(Item* item);
+    void CreateBaseReforgeItem(ObjectGuid itemGuid, uint32 id);
+    ReforgeItem* GetReforgeItem(ObjectGuid rawGuid);
+
+    std::unordered_map<uint64, ReforgeItem> _store;
 };
 
 #define sReforgeMgr ReforgeMgr::instance()
