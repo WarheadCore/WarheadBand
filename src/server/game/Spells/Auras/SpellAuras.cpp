@@ -426,11 +426,12 @@ Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* 
     // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
 }
 
-AuraScript* Aura::GetScriptByName(std::string const& scriptName) const
+AuraScript* Aura::GetScriptByName(std::string_view scriptName) const
 {
-    for (std::list<AuraScript*>::const_iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
-        if ((*itr)->_GetScriptName()->compare(scriptName) == 0)
-            return *itr;
+    for (auto const& auraScript : m_loadedScripts)
+        if (auraScript->_GetScriptName() == scriptName)
+            return auraScript;
+
     return nullptr;
 }
 
@@ -2342,7 +2343,7 @@ void Aura::LoadScripts()
             m_loadedScripts.erase(bitr);
             continue;
         }
-        LOG_DEBUG("spells.aura", "Aura::LoadScripts: Script `{}` for aura `{}` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
+        LOG_DEBUG("spells.aura", "Aura::LoadScripts: Script `{}` for aura `{}` is loaded now", (*itr)->_GetScriptName(), m_spellInfo->Id);
         (*itr)->Register();
         ++itr;
     }

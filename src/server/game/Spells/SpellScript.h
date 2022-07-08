@@ -60,12 +60,12 @@ protected:
     virtual bool _Validate(SpellInfo const* entry);
 
 public:
-    _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(nullptr), m_scriptSpellId(0) {}
+    _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptSpellId(0) {}
     virtual ~_SpellScript() {}
     virtual void _Register();
     virtual void _Unload();
-    virtual void _Init(std::string const* scriptname, uint32 spellId);
-    std::string const* _GetScriptName() const;
+    virtual void _Init(std::string_view scriptname, uint32 spellId);
+    std::string_view _GetScriptName() const;
 
 protected:
     class WH_GAME_API EffectHook
@@ -103,7 +103,7 @@ protected:
     };
 
     uint8 m_currentScriptState;
-    std::string const* m_scriptName;
+    std::string m_scriptName;
     uint32 m_scriptSpellId;
 public:
     //

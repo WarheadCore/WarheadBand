@@ -16,11 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptRegistryMgr.h"
 
 bool ScriptMgr::OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
 {
     ASSERT(condition);
 
-    auto tempScript = ScriptRegistry<ConditionScript>::GetScriptById(condition->ScriptId);
+    auto tempScript = sScriptRegistryMgr(ConditionScript)->GetScriptById(condition->ScriptId);
     return tempScript ? tempScript->OnConditionCheck(condition, sourceInfo) : true;
 }

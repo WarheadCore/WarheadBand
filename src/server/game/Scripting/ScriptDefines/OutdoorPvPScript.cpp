@@ -17,11 +17,12 @@
 
 #include "OutdoorPvPMgr.h"
 #include "ScriptMgr.h"
+#include "ScriptRegistryMgr.h"
 
 OutdoorPvP* ScriptMgr::CreateOutdoorPvP(OutdoorPvPData const* data)
 {
     ASSERT(data);
 
-    auto tempScript = ScriptRegistry<OutdoorPvPScript>::GetScriptById(data->ScriptId);
+    auto tempScript = sScriptRegistryMgr(OutdoorPvPScript)->GetScriptById(data->ScriptId);
     return tempScript ? tempScript->GetOutdoorPvP() : nullptr;
 }

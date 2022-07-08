@@ -30,36 +30,25 @@ namespace
     inline void ForeachMaps(Map* map, std::function<void(WorldMapScript*)> executeHook)
     {
         auto mapEntry = map->GetEntry();
-
         if (!mapEntry)
-        {
             return;
-        }
 
         if (!mapEntry->IsWorldMap())
-        {
             return;
-        }
 
-        if (ScriptRegistry<WorldMapScript>::ScriptPointerList.empty())
-        {
+        if (sScriptRegistryMgr(WorldMapScript)->GetScriptPointerList()->empty())
             return;
-        }
 
-        for (auto const& [scriptID, script] : ScriptRegistry<WorldMapScript>::ScriptPointerList)
+        for (auto const& [scriptID, script] : *sScriptRegistryMgr(WorldMapScript)->GetScriptPointerList())
         {
             MapEntry const* mapEntry = script->GetEntry();
             if (!mapEntry)
-            {
                 continue;
-            }
 
             if (mapEntry->MapID != map->GetId())
-            {
                 continue;
-            }
 
-            executeHook(script);
+            executeHook(script.get());
             return;
         }
     }
@@ -68,36 +57,25 @@ namespace
     inline void ForeachMaps(Map* map, std::function<void(InstanceMapScript*)> executeHook)
     {
         auto mapEntry = map->GetEntry();
-
         if (!mapEntry)
-        {
             return;
-        }
 
         if (!mapEntry->IsDungeon())
-        {
             return;
-        }
 
-        if (ScriptRegistry<InstanceMapScript>::ScriptPointerList.empty())
-        {
+        if (sScriptRegistryMgr(InstanceMapScript)->GetScriptPointerList()->empty())
             return;
-        }
 
-        for (auto const& [scriptID, script] : ScriptRegistry<InstanceMapScript>::ScriptPointerList)
+        for (auto const& [scriptID, script] : *sScriptRegistryMgr(InstanceMapScript)->GetScriptPointerList())
         {
             MapEntry const* mapEntry = script->GetEntry();
             if (!mapEntry)
-            {
                 continue;
-            }
 
             if (mapEntry->MapID != map->GetId())
-            {
                 continue;
-            }
 
-            executeHook(script);
+            executeHook(script.get());
             return;
         }
     }
@@ -106,36 +84,25 @@ namespace
     inline void ForeachMaps(Map* map, std::function<void(BattlegroundMapScript*)> executeHook)
     {
         auto mapEntry = map->GetEntry();
-
         if (!mapEntry)
-        {
             return;
-        }
 
         if (!mapEntry->IsBattleground())
-        {
             return;
-        }
 
-        if (ScriptRegistry<BattlegroundMapScript>::ScriptPointerList.empty())
-        {
+        if (sScriptRegistryMgr(BattlegroundMapScript)->GetScriptPointerList()->empty())
             return;
-        }
 
-        for (auto const& [scriptID, script] : ScriptRegistry<BattlegroundMapScript>::ScriptPointerList)
+        for (auto const& [scriptID, script] : *sScriptRegistryMgr(BattlegroundMapScript)->GetScriptPointerList())
         {
             MapEntry const* mapEntry = script->GetEntry();
             if (!mapEntry)
-            {
                 continue;
-            }
 
             if (mapEntry->MapID != map->GetId())
-            {
                 continue;
-            }
 
-            executeHook(script);
+            executeHook(script.get());
             return;
         }
     }

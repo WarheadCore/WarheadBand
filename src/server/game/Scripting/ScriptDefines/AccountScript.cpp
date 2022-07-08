@@ -20,7 +20,7 @@
 
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnAccountLogin(accountId);
     });
@@ -28,7 +28,7 @@ void ScriptMgr::OnAccountLogin(uint32 accountId)
 
 void ScriptMgr::OnAccountLogout(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnAccountLogout(accountId);
     });
@@ -36,7 +36,7 @@ void ScriptMgr::OnAccountLogout(uint32 accountId)
 
 void ScriptMgr::OnLastIpUpdate(uint32 accountId, std::string ip)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnLastIpUpdate(accountId, ip);
     });
@@ -44,7 +44,7 @@ void ScriptMgr::OnLastIpUpdate(uint32 accountId, std::string ip)
 
 void ScriptMgr::OnFailedAccountLogin(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnFailedAccountLogin(accountId);
     });
@@ -52,7 +52,7 @@ void ScriptMgr::OnFailedAccountLogin(uint32 accountId)
 
 void ScriptMgr::OnEmailChange(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnEmailChange(accountId);
     });
@@ -60,7 +60,7 @@ void ScriptMgr::OnEmailChange(uint32 accountId)
 
 void ScriptMgr::OnFailedEmailChange(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnFailedEmailChange(accountId);
     });
@@ -68,7 +68,7 @@ void ScriptMgr::OnFailedEmailChange(uint32 accountId)
 
 void ScriptMgr::OnPasswordChange(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnPasswordChange(accountId);
     });
@@ -76,7 +76,7 @@ void ScriptMgr::OnPasswordChange(uint32 accountId)
 
 void ScriptMgr::OnFailedPasswordChange(uint32 accountId)
 {
-    ExecuteScript<AccountScript>([&](AccountScript* script)
+    ExecuteScript<AccountScript>([=](AccountScript* script)
     {
         script->OnFailedPasswordChange(accountId);
     });

@@ -20,18 +20,14 @@
 
 uint32 ScriptMgr::DealDamage(Unit* AttackerUnit, Unit* pVictim, uint32 damage, DamageEffectType damagetype)
 {
-    if (ScriptRegistry<UnitScript>::ScriptPointerList.empty())
-    {
+    if (sScriptRegistryMgr(UnitScript)->GetScriptPointerList()->empty())
         return damage;
-    }
 
-    for (auto const& [scriptID, script] : ScriptRegistry<UnitScript>::ScriptPointerList)
+    for (auto const& [scriptID, script] : *sScriptRegistryMgr(UnitScript)->GetScriptPointerList())
     {
         auto const& dmg = script->DealDamage(AttackerUnit, pVictim, damage, damagetype);
         if (dmg != damage)
-        {
             return damage;
-        }
     }
 
     return damage;
@@ -85,11 +81,13 @@ void ScriptMgr::ModifyHealRecieved(Unit* target, Unit* attacker, uint32& damage)
     });
 }
 
-void ScriptMgr::OnBeforeRollMeleeOutcomeAgainst(Unit const* attacker, Unit const* victim, WeaponAttackType attType, int32& attackerMaxSkillValueForLevel, int32& victimMaxSkillValueForLevel, int32& attackerWeaponSkill, int32& victimDefenseSkill, int32& crit_chance, int32& miss_chance, int32& dodge_chance, int32& parry_chance, int32& block_chance)
+void ScriptMgr::OnBeforeRollMeleeOutcomeAgainst(Unit const* attacker, Unit const* victim, WeaponAttackType attType, int32& attackerMaxSkillValueForLevel,
+    int32& victimMaxSkillValueForLevel, int32& attackerWeaponSkill, int32& victimDefenseSkill, int32& crit_chance, int32& miss_chance, int32& dodge_chance, int32& parry_chance, int32& block_chance)
 {
     ExecuteScript<UnitScript>([&](UnitScript* script)
     {
-        script->OnBeforeRollMeleeOutcomeAgainst(attacker, victim, attType, attackerMaxSkillValueForLevel, victimMaxSkillValueForLevel, attackerWeaponSkill, victimDefenseSkill, crit_chance, miss_chance, dodge_chance, parry_chance, block_chance);
+        script->OnBeforeRollMeleeOutcomeAgainst(attacker, victim, attType, attackerMaxSkillValueForLevel, victimMaxSkillValueForLevel,
+            attackerWeaponSkill, victimDefenseSkill, crit_chance, miss_chance, dodge_chance, parry_chance, block_chance);
     });
 }
 

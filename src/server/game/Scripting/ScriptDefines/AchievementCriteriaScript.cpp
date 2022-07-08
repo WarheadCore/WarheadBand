@@ -16,12 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptRegistryMgr.h"
 
 bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target, uint32 criteria_id)
 {
     ASSERT(source);
     // target can be nullptr.
 
-    auto tempScript = ScriptRegistry<AchievementCriteriaScript>::GetScriptById(scriptId);
+    auto tempScript = sScriptRegistryMgr(AchievementCriteriaScript)->GetScriptById(scriptId);
     return tempScript ? tempScript->OnCheck(source, target, criteria_id) : false;
 }

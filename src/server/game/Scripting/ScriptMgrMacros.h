@@ -19,18 +19,17 @@
 #define _SCRIPT_MGR_MACRO_H_
 
 #include "ScriptMgr.h"
+#include "ScriptRegistryMgr.h"
 
 template<typename ScriptName>
 inline Optional<bool> IsValidBoolScript(std::function<bool(ScriptName*)> executeHook)
 {
-    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+    if (sScriptRegistryMgr(ScriptName)->GetScriptPointerList()->empty())
         return {};
 
-    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
-    {
-        if (executeHook(script))
+    for (auto const& [scriptID, script] : *sScriptRegistryMgr(ScriptName)->GetScriptPointerList())
+        if (executeHook(script.get()))
             return true;
-    }
 
     return false;
 }
@@ -38,16 +37,12 @@ inline Optional<bool> IsValidBoolScript(std::function<bool(ScriptName*)> execute
 template<typename ScriptName, class T>
 inline T* GetReturnAIScript(std::function<T*(ScriptName*)> executeHook)
 {
-    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+    if (sScriptRegistryMgr(ScriptName)->GetScriptPointerList()->empty())
         return nullptr;
 
-    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
-    {
-        if (T* scriptAI = executeHook(script))
-        {
+    for (auto const& [scriptID, script] : *sScriptRegistryMgr(ScriptName)->GetScriptPointerList())
+        if (T* scriptAI = executeHook(script.get()))
             return scriptAI;
-        }
-    }
 
     return nullptr;
 }
@@ -55,13 +50,11 @@ inline T* GetReturnAIScript(std::function<T*(ScriptName*)> executeHook)
 template<typename ScriptName>
 inline void ExecuteScript(std::function<void(ScriptName*)> executeHook)
 {
-    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+    if (sScriptRegistryMgr(ScriptName)->GetScriptPointerList()->empty())
         return;
 
-    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
-    {
-        executeHook(script);
-    }
+    for (auto const& [scriptID, script] : *sScriptRegistryMgr(ScriptName)->GetScriptPointerList())
+        executeHook(script.get());
 }
 
 inline bool ReturnValidBool(Optional<bool> ret, bool need = false)

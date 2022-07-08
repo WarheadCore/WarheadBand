@@ -21,39 +21,13 @@
 #include "SmartAI.h"
 #include "SpellMgr.h"
 #include "UnitAI.h"
-
-namespace
-{
-    template<typename T>
-    inline void SCR_CLEAR()
-    {
-        for (auto const& [scriptID, script] : ScriptRegistry<T>::ScriptPointerList)
-        {
-            delete script;
-        }
-
-        ScriptRegistry<T>::ScriptPointerList.clear();
-    }
-}
+#include "ScriptRegistryMgr.h"
 
 struct TSpellSummary
 {
     uint8 Targets; // set of enum SelectTarget
     uint8 Effects; // set of enum SelectEffect
 }*SpellSummary;
-
-ScriptMgr::ScriptMgr()
-    : _scriptCount(0),
-    _script_loader_callback(nullptr),
-    _modules_loader_callback(nullptr) { }
-
-ScriptMgr::~ScriptMgr() { }
-
-ScriptMgr* ScriptMgr::instance()
-{
-    static ScriptMgr instance;
-    return &instance;
-}
 
 void ScriptMgr::Initialize()
 {
@@ -74,52 +48,53 @@ void ScriptMgr::Initialize()
 
 void ScriptMgr::Unload()
 {
-    SCR_CLEAR<AccountScript>();
-    SCR_CLEAR<AchievementCriteriaScript>();
-    SCR_CLEAR<AchievementScript>();
-    SCR_CLEAR<AllCreatureScript>();
-    SCR_CLEAR<AllGameObjectScript>();
-    SCR_CLEAR<AllItemScript>();
-    SCR_CLEAR<AllMapScript>();
-    SCR_CLEAR<AreaTriggerScript>();
-    SCR_CLEAR<ArenaScript>();
-    SCR_CLEAR<ArenaTeamScript>();
-    SCR_CLEAR<AuctionHouseScript>();
-    SCR_CLEAR<BGScript>();
-    SCR_CLEAR<BattlegroundMapScript>();
-    SCR_CLEAR<BattlegroundScript>();
-    SCR_CLEAR<CommandSC>();
-    SCR_CLEAR<CommandScript>();
-    SCR_CLEAR<ConditionScript>();
-    SCR_CLEAR<CreatureScript>();
-    SCR_CLEAR<DatabaseScript>();
-    SCR_CLEAR<DynamicObjectScript>();
-    SCR_CLEAR<ElunaScript>();
-    SCR_CLEAR<FormulaScript>();
-    SCR_CLEAR<GameEventScript>();
-    SCR_CLEAR<GameObjectScript>();
-    SCR_CLEAR<GlobalScript>();
-    SCR_CLEAR<GroupScript>();
-    SCR_CLEAR<GuildScript>();
-    SCR_CLEAR<InstanceMapScript>();
-    SCR_CLEAR<ItemScript>();
-    SCR_CLEAR<LootScript>();
-    SCR_CLEAR<MailScript>();
-    SCR_CLEAR<MiscScript>();
-    SCR_CLEAR<MovementHandlerScript>();
-    SCR_CLEAR<OutdoorPvPScript>();
-    SCR_CLEAR<PetScript>();
-    SCR_CLEAR<PlayerScript>();
-    SCR_CLEAR<ServerScript>();
-    SCR_CLEAR<SpellSC>();
-    SCR_CLEAR<SpellScriptLoader>();
-    SCR_CLEAR<TransportScript>();
-    SCR_CLEAR<UnitScript>();
-    SCR_CLEAR<VehicleScript>();
-    SCR_CLEAR<WeatherScript>();
-    SCR_CLEAR<WorldMapScript>();
-    SCR_CLEAR<WorldObjectScript>();
-    SCR_CLEAR<WorldScript>();
+    sScriptRegistryMgr(AccountScript)->ClearPoinerList();
+    sScriptRegistryMgr(AchievementCriteriaScript)->ClearPoinerList();
+    sScriptRegistryMgr(AchievementScript)->ClearPoinerList();
+    sScriptRegistryMgr(AllCreatureScript)->ClearPoinerList();
+    sScriptRegistryMgr(AllGameObjectScript)->ClearPoinerList();
+    sScriptRegistryMgr(AllItemScript)->ClearPoinerList();
+    sScriptRegistryMgr(AllMapScript)->ClearPoinerList();
+    sScriptRegistryMgr(AreaTriggerScript)->ClearPoinerList();
+    sScriptRegistryMgr(ArenaScript)->ClearPoinerList();
+    sScriptRegistryMgr(ArenaTeamScript)->ClearPoinerList();
+    sScriptRegistryMgr(AuctionHouseScript)->ClearPoinerList();
+    sScriptRegistryMgr(BGScript)->ClearPoinerList();
+    sScriptRegistryMgr(BattlegroundMapScript)->ClearPoinerList();
+    sScriptRegistryMgr(BattlegroundScript)->ClearPoinerList();
+    sScriptRegistryMgr(CommandSC)->ClearPoinerList();
+    sScriptRegistryMgr(CommandScript)->ClearPoinerList();
+    sScriptRegistryMgr(ConditionScript)->ClearPoinerList();
+    sScriptRegistryMgr(CreatureScript)->ClearPoinerList();
+    sScriptRegistryMgr(DatabaseScript)->ClearPoinerList();
+    sScriptRegistryMgr(DynamicObjectScript)->ClearPoinerList();
+    sScriptRegistryMgr(ElunaScript)->ClearPoinerList();
+    sScriptRegistryMgr(FormulaScript)->ClearPoinerList();
+    sScriptRegistryMgr(GameEventScript)->ClearPoinerList();
+    sScriptRegistryMgr(GameObjectScript)->ClearPoinerList();
+    sScriptRegistryMgr(GlobalScript)->ClearPoinerList();
+    sScriptRegistryMgr(GroupScript)->ClearPoinerList();
+    sScriptRegistryMgr(GuildScript)->ClearPoinerList();
+    sScriptRegistryMgr(InstanceMapScript)->ClearPoinerList();
+    sScriptRegistryMgr(ItemScript)->ClearPoinerList();
+    sScriptRegistryMgr(LootScript)->ClearPoinerList();
+    sScriptRegistryMgr(MailScript)->ClearPoinerList();
+    sScriptRegistryMgr(MiscScript)->ClearPoinerList();
+    sScriptRegistryMgr(ModuleScript)->ClearPoinerList();
+    sScriptRegistryMgr(MovementHandlerScript)->ClearPoinerList();
+    sScriptRegistryMgr(OutdoorPvPScript)->ClearPoinerList();
+    sScriptRegistryMgr(PetScript)->ClearPoinerList();
+    sScriptRegistryMgr(PlayerScript)->ClearPoinerList();
+    sScriptRegistryMgr(ServerScript)->ClearPoinerList();
+    sScriptRegistryMgr(SpellSC)->ClearPoinerList();
+    sScriptRegistryMgr(SpellScriptLoader)->ClearPoinerList();
+    sScriptRegistryMgr(TransportScript)->ClearPoinerList();
+    sScriptRegistryMgr(UnitScript)->ClearPoinerList();
+    sScriptRegistryMgr(VehicleScript)->ClearPoinerList();
+    sScriptRegistryMgr(WeatherScript)->ClearPoinerList();
+    sScriptRegistryMgr(WorldMapScript)->ClearPoinerList();
+    sScriptRegistryMgr(WorldObjectScript)->ClearPoinerList();
+    sScriptRegistryMgr(WorldScript)->ClearPoinerList();
 
     delete[] SpellSummary;
 }
@@ -131,20 +106,20 @@ void ScriptMgr::LoadDatabase()
     sScriptSystemMgr->LoadScriptWaypoints();
 
     // Add all scripts that must be loaded after db/maps
-    ScriptRegistry<WorldMapScript>::AddALScripts();
-    ScriptRegistry<BattlegroundMapScript>::AddALScripts();
-    ScriptRegistry<InstanceMapScript>::AddALScripts();
-    ScriptRegistry<SpellScriptLoader>::AddALScripts();
-    ScriptRegistry<ItemScript>::AddALScripts();
-    ScriptRegistry<CreatureScript>::AddALScripts();
-    ScriptRegistry<GameObjectScript>::AddALScripts();
-    ScriptRegistry<AreaTriggerScript>::AddALScripts();
-    ScriptRegistry<BattlegroundScript>::AddALScripts();
-    ScriptRegistry<OutdoorPvPScript>::AddALScripts();
-    ScriptRegistry<WeatherScript>::AddALScripts();
-    ScriptRegistry<ConditionScript>::AddALScripts();
-    ScriptRegistry<TransportScript>::AddALScripts();
-    ScriptRegistry<AchievementCriteriaScript>::AddALScripts();
+    sScriptRegistryMgr(WorldMapScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(BattlegroundMapScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(InstanceMapScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(SpellScriptLoader)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(ItemScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(CreatureScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(GameObjectScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(AreaTriggerScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(BattlegroundScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(OutdoorPvPScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(WeatherScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(ConditionScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(TransportScript)->AddAfterLoadDBScripts();
+    sScriptRegistryMgr(AchievementCriteriaScript)->AddAfterLoadDBScripts();
 
     FillSpellSummary();
 
@@ -166,39 +141,39 @@ void ScriptMgr::CheckIfScriptsInDatabaseExist()
     {
         if (uint32 sid = sObjectMgr->GetScriptId(scriptName.c_str()))
         {
-            if (!ScriptRegistry<SpellScriptLoader>::GetScriptById(sid) &&
-                !ScriptRegistry<ServerScript>::GetScriptById(sid) &&
-                !ScriptRegistry<WorldScript>::GetScriptById(sid) &&
-                !ScriptRegistry<FormulaScript>::GetScriptById(sid) &&
-                !ScriptRegistry<WorldMapScript>::GetScriptById(sid) &&
-                !ScriptRegistry<InstanceMapScript>::GetScriptById(sid) &&
-                !ScriptRegistry<BattlegroundMapScript>::GetScriptById(sid) &&
-                !ScriptRegistry<ItemScript>::GetScriptById(sid) &&
-                !ScriptRegistry<CreatureScript>::GetScriptById(sid) &&
-                !ScriptRegistry<GameObjectScript>::GetScriptById(sid) &&
-                !ScriptRegistry<AreaTriggerScript>::GetScriptById(sid) &&
-                !ScriptRegistry<BattlegroundScript>::GetScriptById(sid) &&
-                !ScriptRegistry<OutdoorPvPScript>::GetScriptById(sid) &&
-                !ScriptRegistry<CommandScript>::GetScriptById(sid) &&
-                !ScriptRegistry<WeatherScript>::GetScriptById(sid) &&
-                !ScriptRegistry<AuctionHouseScript>::GetScriptById(sid) &&
-                !ScriptRegistry<ConditionScript>::GetScriptById(sid) &&
-                !ScriptRegistry<VehicleScript>::GetScriptById(sid) &&
-                !ScriptRegistry<DynamicObjectScript>::GetScriptById(sid) &&
-                !ScriptRegistry<TransportScript>::GetScriptById(sid) &&
-                !ScriptRegistry<AchievementCriteriaScript>::GetScriptById(sid) &&
-                !ScriptRegistry<PlayerScript>::GetScriptById(sid) &&
-                !ScriptRegistry<GuildScript>::GetScriptById(sid) &&
-                !ScriptRegistry<BGScript>::GetScriptById(sid) &&
-                !ScriptRegistry<AchievementScript>::GetScriptById(sid) &&
-                !ScriptRegistry<ArenaTeamScript>::GetScriptById(sid) &&
-                !ScriptRegistry<SpellSC>::GetScriptById(sid) &&
-                !ScriptRegistry<MiscScript>::GetScriptById(sid) &&
-                !ScriptRegistry<PetScript>::GetScriptById(sid) &&
-                !ScriptRegistry<CommandSC>::GetScriptById(sid) &&
-                !ScriptRegistry<ArenaScript>::GetScriptById(sid) &&
-                !ScriptRegistry<GroupScript>::GetScriptById(sid) &&
-                !ScriptRegistry<DatabaseScript>::GetScriptById(sid))
+            if (!sScriptRegistryMgr(SpellScriptLoader)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(ServerScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(WorldScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(FormulaScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(WorldMapScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(InstanceMapScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(BattlegroundMapScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(ItemScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(CreatureScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(GameObjectScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(AreaTriggerScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(BattlegroundScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(OutdoorPvPScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(CommandScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(WeatherScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(AuctionHouseScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(ConditionScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(VehicleScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(DynamicObjectScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(TransportScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(AchievementCriteriaScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(PlayerScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(GuildScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(BGScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(AchievementScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(ArenaTeamScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(SpellSC)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(MiscScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(PetScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(CommandSC)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(ArenaScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(GroupScript)->GetScriptById(sid) &&
+                !sScriptRegistryMgr(DatabaseScript)->GetScriptById(sid))
                 {
                     LOG_ERROR("sql.sql", "Script named '{}' is assigned in the database, but has no code!", scriptName);
                 }
@@ -294,95 +269,95 @@ void ScriptMgr::FillSpellSummary()
 }
 
 ///-
-AllMapScript::AllMapScript(const char* name)
+AllMapScript::AllMapScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AllMapScript>::AddScript(this);
+    sScriptRegistryMgr(AllMapScript)->AddScript(this);
 }
 
-AllCreatureScript::AllCreatureScript(const char* name)
+AllCreatureScript::AllCreatureScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AllCreatureScript>::AddScript(this);
+    sScriptRegistryMgr(AllCreatureScript)->AddScript(this);
 }
 
-UnitScript::UnitScript(const char* name, bool addToScripts)
+UnitScript::UnitScript(std::string_view name, bool addToScripts)
     : ScriptObject(name)
 {
     if (addToScripts)
-        ScriptRegistry<UnitScript>::AddScript(this);
+        sScriptRegistryMgr(UnitScript)->AddScript(this);
 }
 
-MovementHandlerScript::MovementHandlerScript(const char* name)
+MovementHandlerScript::MovementHandlerScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<MovementHandlerScript>::AddScript(this);
+    sScriptRegistryMgr(MovementHandlerScript)->AddScript(this);
 }
 
-SpellScriptLoader::SpellScriptLoader(const char* name)
+SpellScriptLoader::SpellScriptLoader(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<SpellScriptLoader>::AddScript(this);
+    sScriptRegistryMgr(SpellScriptLoader)->AddScript(this);
 }
 
-ServerScript::ServerScript(const char* name)
+ServerScript::ServerScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<ServerScript>::AddScript(this);
+    sScriptRegistryMgr(ServerScript)->AddScript(this);
 }
 
-WorldScript::WorldScript(const char* name)
+WorldScript::WorldScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<WorldScript>::AddScript(this);
+    sScriptRegistryMgr(WorldScript)->AddScript(this);
 }
 
-FormulaScript::FormulaScript(const char* name)
+FormulaScript::FormulaScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<FormulaScript>::AddScript(this);
+    sScriptRegistryMgr(FormulaScript)->AddScript(this);
 }
 
-WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
+WorldMapScript::WorldMapScript(std::string_view name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(mapId)
 {
-    ScriptRegistry<WorldMapScript>::AddScript(this);
+    sScriptRegistryMgr(WorldMapScript)->AddScript(this);
 }
 
-InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
+InstanceMapScript::InstanceMapScript(std::string_view name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(mapId)
 {
-    ScriptRegistry<InstanceMapScript>::AddScript(this);
+    sScriptRegistryMgr(InstanceMapScript)->AddScript(this);
 }
 
-BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
+BattlegroundMapScript::BattlegroundMapScript(std::string_view name, uint32 mapId)
     : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
 {
-    ScriptRegistry<BattlegroundMapScript>::AddScript(this);
+    sScriptRegistryMgr(BattlegroundMapScript)->AddScript(this);
 }
 
-ItemScript::ItemScript(const char* name)
+ItemScript::ItemScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<ItemScript>::AddScript(this);
+    sScriptRegistryMgr(ItemScript)->AddScript(this);
 }
 
-CreatureScript::CreatureScript(const char* name)
+CreatureScript::CreatureScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<CreatureScript>::AddScript(this);
+    sScriptRegistryMgr(CreatureScript)->AddScript(this);
 }
 
-GameObjectScript::GameObjectScript(const char* name)
+GameObjectScript::GameObjectScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<GameObjectScript>::AddScript(this);
+    sScriptRegistryMgr(GameObjectScript)->AddScript(this);
 }
 
-AreaTriggerScript::AreaTriggerScript(const char* name)
+AreaTriggerScript::AreaTriggerScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AreaTriggerScript>::AddScript(this);
+    sScriptRegistryMgr(AreaTriggerScript)->AddScript(this);
 }
 
 bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTrigger const* trigger)
@@ -417,236 +392,194 @@ void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(Player const* player, AreaT
     }
 }
 
-BattlegroundScript::BattlegroundScript(const char* name)
+BattlegroundScript::BattlegroundScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<BattlegroundScript>::AddScript(this);
+    sScriptRegistryMgr(BattlegroundScript)->AddScript(this);
 }
 
-OutdoorPvPScript::OutdoorPvPScript(const char* name)
+OutdoorPvPScript::OutdoorPvPScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<OutdoorPvPScript>::AddScript(this);
+    sScriptRegistryMgr(OutdoorPvPScript)->AddScript(this);
 }
 
-CommandScript::CommandScript(const char* name)
+CommandScript::CommandScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<CommandScript>::AddScript(this);
+    sScriptRegistryMgr(CommandScript)->AddScript(this);
 }
 
-WeatherScript::WeatherScript(const char* name)
+WeatherScript::WeatherScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<WeatherScript>::AddScript(this);
+    sScriptRegistryMgr(WeatherScript)->AddScript(this);
 }
 
-AuctionHouseScript::AuctionHouseScript(const char* name)
+AuctionHouseScript::AuctionHouseScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AuctionHouseScript>::AddScript(this);
+    sScriptRegistryMgr(AuctionHouseScript)->AddScript(this);
 }
 
-ConditionScript::ConditionScript(const char* name)
+ConditionScript::ConditionScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<ConditionScript>::AddScript(this);
+    sScriptRegistryMgr(ConditionScript)->AddScript(this);
 }
 
-VehicleScript::VehicleScript(const char* name)
+VehicleScript::VehicleScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<VehicleScript>::AddScript(this);
+    sScriptRegistryMgr(VehicleScript)->AddScript(this);
 }
 
-DynamicObjectScript::DynamicObjectScript(const char* name)
+DynamicObjectScript::DynamicObjectScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<DynamicObjectScript>::AddScript(this);
+    sScriptRegistryMgr(DynamicObjectScript)->AddScript(this);
 }
 
-TransportScript::TransportScript(const char* name)
+TransportScript::TransportScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<TransportScript>::AddScript(this);
+    sScriptRegistryMgr(TransportScript)->AddScript(this);
 }
 
-AchievementCriteriaScript::AchievementCriteriaScript(const char* name)
+AchievementCriteriaScript::AchievementCriteriaScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AchievementCriteriaScript>::AddScript(this);
+    sScriptRegistryMgr(AchievementCriteriaScript)->AddScript(this);
 }
 
-PlayerScript::PlayerScript(const char* name)
+PlayerScript::PlayerScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<PlayerScript>::AddScript(this);
+    sScriptRegistryMgr(PlayerScript)->AddScript(this);
 }
 
-AccountScript::AccountScript(const char* name)
+AccountScript::AccountScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AccountScript>::AddScript(this);
+    sScriptRegistryMgr(AccountScript)->AddScript(this);
 }
 
-GuildScript::GuildScript(const char* name)
+GuildScript::GuildScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<GuildScript>::AddScript(this);
+    sScriptRegistryMgr(GuildScript)->AddScript(this);
 }
 
-GroupScript::GroupScript(const char* name)
+GroupScript::GroupScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<GroupScript>::AddScript(this);
+    sScriptRegistryMgr(GroupScript)->AddScript(this);
 }
 
-GlobalScript::GlobalScript(const char* name)
+GlobalScript::GlobalScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<GlobalScript>::AddScript(this);
+    sScriptRegistryMgr(GlobalScript)->AddScript(this);
 }
 
-BGScript::BGScript(char const* name)
+BGScript::BGScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<BGScript>::AddScript(this);
+    sScriptRegistryMgr(BGScript)->AddScript(this);
 }
 
-ArenaTeamScript::ArenaTeamScript(const char* name)
+ArenaTeamScript::ArenaTeamScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<ArenaTeamScript>::AddScript(this);
+    sScriptRegistryMgr(ArenaTeamScript)->AddScript(this);
 }
 
-SpellSC::SpellSC(char const* name)
+SpellSC::SpellSC(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<SpellSC>::AddScript(this);
+    sScriptRegistryMgr(SpellSC)->AddScript(this);
 }
 
-ModuleScript::ModuleScript(const char* name)
+ModuleScript::ModuleScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<ModuleScript>::AddScript(this);
+    sScriptRegistryMgr(ModuleScript)->AddScript(this);
 }
 
-GameEventScript::GameEventScript(const char* name)
+GameEventScript::GameEventScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<GameEventScript>::AddScript(this);
+    sScriptRegistryMgr(GameEventScript)->AddScript(this);
 }
 
-MailScript::MailScript(const char* name)
+MailScript::MailScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<MailScript>::AddScript(this);
+    sScriptRegistryMgr(MailScript)->AddScript(this);
 }
 
-AchievementScript::AchievementScript(const char* name)
+AchievementScript::AchievementScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<AchievementScript>::AddScript(this);
+    sScriptRegistryMgr(AchievementScript)->AddScript(this);
 }
 
-PetScript::PetScript(const char* name)
+PetScript::PetScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<PetScript>::AddScript(this);
+    sScriptRegistryMgr(PetScript)->AddScript(this);
 }
 
-ArenaScript::ArenaScript(const char* name)
+ArenaScript::ArenaScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<ArenaScript>::AddScript(this);
+    sScriptRegistryMgr(ArenaScript)->AddScript(this);
 }
 
-MiscScript::MiscScript(const char* name)
+MiscScript::MiscScript(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<MiscScript>::AddScript(this);
+    sScriptRegistryMgr(MiscScript)->AddScript(this);
 }
 
-CommandSC::CommandSC(const char* name)
+CommandSC::CommandSC(std::string_view name)
     : ScriptObject(name)
 {
-    ScriptRegistry<CommandSC>::AddScript(this);
+    sScriptRegistryMgr(CommandSC)->AddScript(this);
 }
 
-DatabaseScript::DatabaseScript(const char* name) : ScriptObject(name)
+DatabaseScript::DatabaseScript(std::string_view name)
+    : ScriptObject(name)
 {
-    ScriptRegistry<DatabaseScript>::AddScript(this);
+    sScriptRegistryMgr(DatabaseScript)->AddScript(this);
 }
 
-WorldObjectScript::WorldObjectScript(const char* name) : ScriptObject(name)
+WorldObjectScript::WorldObjectScript(std::string_view name)
+    : ScriptObject(name)
 {
-    ScriptRegistry<WorldObjectScript>::AddScript(this);
+    sScriptRegistryMgr(WorldObjectScript)->AddScript(this);
 }
 
-LootScript::LootScript(const char* name) : ScriptObject(name)
+LootScript::LootScript(std::string_view name)
+    : ScriptObject(name)
 {
-    ScriptRegistry<LootScript>::AddScript(this);
+    sScriptRegistryMgr(LootScript)->AddScript(this);
 }
 
-ElunaScript::ElunaScript(const char* name) : ScriptObject(name)
+ElunaScript::ElunaScript(std::string_view name)
+    : ScriptObject(name)
 {
-    ScriptRegistry<ElunaScript>::AddScript(this);
+    sScriptRegistryMgr(ElunaScript)->AddScript(this);
 }
 
-AllItemScript::AllItemScript(const char* name) : ScriptObject(name)
+AllItemScript::AllItemScript(std::string_view name)
+    : ScriptObject(name)
 {
-    ScriptRegistry<AllItemScript>::AddScript(this);
+    sScriptRegistryMgr(AllItemScript)->AddScript(this);
 }
 
-AllGameObjectScript::AllGameObjectScript(const char* name) : ScriptObject(name)
+AllGameObjectScript::AllGameObjectScript(std::string_view name)
+    : ScriptObject(name)
 {
-    ScriptRegistry<AllGameObjectScript>::AddScript(this);
+    sScriptRegistryMgr(AllGameObjectScript)->AddScript(this);
 }
-
-// Specialize for each script type class like so:
-template class WH_GAME_API ScriptRegistry<AccountScript>;
-template class WH_GAME_API ScriptRegistry<AchievementCriteriaScript>;
-template class WH_GAME_API ScriptRegistry<AchievementScript>;
-template class WH_GAME_API ScriptRegistry<AllCreatureScript>;
-template class WH_GAME_API ScriptRegistry<AllGameObjectScript>;
-template class WH_GAME_API ScriptRegistry<AllItemScript>;
-template class WH_GAME_API ScriptRegistry<AllMapScript>;
-template class WH_GAME_API ScriptRegistry<AreaTriggerScript>;
-template class WH_GAME_API ScriptRegistry<ArenaScript>;
-template class WH_GAME_API ScriptRegistry<ArenaTeamScript>;
-template class WH_GAME_API ScriptRegistry<AuctionHouseScript>;
-template class WH_GAME_API ScriptRegistry<BGScript>;
-template class WH_GAME_API ScriptRegistry<BattlegroundMapScript>;
-template class WH_GAME_API ScriptRegistry<BattlegroundScript>;
-template class WH_GAME_API ScriptRegistry<CommandSC>;
-template class WH_GAME_API ScriptRegistry<CommandScript>;
-template class WH_GAME_API ScriptRegistry<ConditionScript>;
-template class WH_GAME_API ScriptRegistry<CreatureScript>;
-template class WH_GAME_API ScriptRegistry<DatabaseScript>;
-template class WH_GAME_API ScriptRegistry<DynamicObjectScript>;
-template class WH_GAME_API ScriptRegistry<ElunaScript>;
-template class WH_GAME_API ScriptRegistry<FormulaScript>;
-template class WH_GAME_API ScriptRegistry<GameEventScript>;
-template class WH_GAME_API ScriptRegistry<GameObjectScript>;
-template class WH_GAME_API ScriptRegistry<GlobalScript>;
-template class WH_GAME_API ScriptRegistry<GroupScript>;
-template class WH_GAME_API ScriptRegistry<GuildScript>;
-template class WH_GAME_API ScriptRegistry<InstanceMapScript>;
-template class WH_GAME_API ScriptRegistry<ItemScript>;
-template class WH_GAME_API ScriptRegistry<LootScript>;
-template class WH_GAME_API ScriptRegistry<MailScript>;
-template class WH_GAME_API ScriptRegistry<MiscScript>;
-template class WH_GAME_API ScriptRegistry<MovementHandlerScript>;
-template class WH_GAME_API ScriptRegistry<OutdoorPvPScript>;
-template class WH_GAME_API ScriptRegistry<PetScript>;
-template class WH_GAME_API ScriptRegistry<PlayerScript>;
-template class WH_GAME_API ScriptRegistry<ServerScript>;
-template class WH_GAME_API ScriptRegistry<SpellSC>;
-template class WH_GAME_API ScriptRegistry<SpellScriptLoader>;
-template class WH_GAME_API ScriptRegistry<TransportScript>;
-template class WH_GAME_API ScriptRegistry<UnitScript>;
-template class WH_GAME_API ScriptRegistry<VehicleScript>;
-template class WH_GAME_API ScriptRegistry<WeatherScript>;
-template class WH_GAME_API ScriptRegistry<WorldMapScript>;
-template class WH_GAME_API ScriptRegistry<WorldObjectScript>;
-template class WH_GAME_API ScriptRegistry<WorldScript>;

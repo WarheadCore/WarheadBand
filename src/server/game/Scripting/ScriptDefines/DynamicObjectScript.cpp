@@ -16,13 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptRegistryMgr.h"
 
 void ScriptMgr::OnDynamicObjectUpdate(DynamicObject* dynobj, uint32 diff)
 {
     ASSERT(dynobj);
 
-    for (auto const& [scriptID, script] : ScriptRegistry<DynamicObjectScript>::ScriptPointerList)
-    {
+    for (auto const& [scriptID, script] : *sScriptRegistryMgr(DynamicObjectScript)->GetScriptPointerList())
         script->OnUpdate(dynobj, diff);
-    }
 }

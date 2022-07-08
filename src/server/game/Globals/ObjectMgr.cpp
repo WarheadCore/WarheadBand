@@ -5402,7 +5402,7 @@ void ObjectMgr::ValidateSpellScripts()
             }
             if (spellScript)
             {
-                spellScript->_Init(&sitr->first->GetName(), spellEntry->Id);
+                spellScript->_Init(sitr->first->GetName(), spellEntry->Id);
                 spellScript->_Register();
                 if (!spellScript->_Validate(spellEntry))
                     valid = false;
@@ -5410,7 +5410,7 @@ void ObjectMgr::ValidateSpellScripts()
             }
             if (auraScript)
             {
-                auraScript->_Init(&sitr->first->GetName(), spellEntry->Id);
+                auraScript->_Init(sitr->first->GetName(), spellEntry->Id);
                 auraScript->_Register();
                 if (!auraScript->_Validate(spellEntry))
                     valid = false;
@@ -8740,15 +8740,17 @@ std::string const& ObjectMgr::GetScriptName(uint32 id) const
     return id < _scriptNamesStore.size() ? _scriptNamesStore[id] : empty;
 }
 
-uint32 ObjectMgr::GetScriptId(std::string const& name)
+uint32 ObjectMgr::GetScriptId(std::string_view name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
     if (name.empty())
         return 0;
 
-    ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
-    if (itr == _scriptNamesStore.end() || (*itr != name))
+    std::string saveName{ name };
+
+    auto const& itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), saveName);
+    if (itr == _scriptNamesStore.end() || (*itr != saveName))
         return 0;
 
     return uint32(itr - _scriptNamesStore.begin());

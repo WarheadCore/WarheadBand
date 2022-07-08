@@ -33,6 +33,6 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTrigger const* trigger)
         return false;
     }
 
-    auto tempScript = ScriptRegistry<AreaTriggerScript>::GetScriptById(sObjectMgr->GetAreaTriggerScriptId(trigger->entry));
+    auto tempScript = sScriptRegistryMgr(AreaTriggerScript)->GetScriptById(sObjectMgr->GetAreaTriggerScriptId(trigger->entry));
     return tempScript ? tempScript->OnTrigger(player, trigger) : false;
 }

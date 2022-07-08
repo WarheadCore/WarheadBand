@@ -16,11 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptRegistryMgr.h"
 
 InstanceScript* ScriptMgr::CreateInstanceScript(InstanceMap* map)
 {
     ASSERT(map);
 
-    auto tempScript = ScriptRegistry<InstanceMapScript>::GetScriptById(map->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(InstanceMapScript)->GetScriptById(map->GetScriptId());
     return tempScript ? tempScript->GetInstanceScript(map) : nullptr;
 }

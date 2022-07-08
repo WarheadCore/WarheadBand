@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "ScriptRegistryMgr.h"
 
 void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector)
 {
@@ -24,7 +25,7 @@ void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scri
 
     for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        SpellScriptLoader* tempScript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
+        SpellScriptLoader* tempScript = sScriptRegistryMgr(SpellScriptLoader)->GetScriptById(itr->second);
         if (!tempScript)
             continue;
 
@@ -33,9 +34,8 @@ void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scri
         if (!script)
             continue;
 
-        script->_Init(&tempScript->GetName(), spellId);
-
-        scriptVector.push_back(script);
+        script->_Init(tempScript->GetName(), spellId);
+        scriptVector.emplace_back(script);
     }
 }
 
@@ -45,7 +45,7 @@ void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& script
 
     for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        SpellScriptLoader* tempScript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
+        SpellScriptLoader* tempScript = sScriptRegistryMgr(SpellScriptLoader)->GetScriptById(itr->second);
         if (!tempScript)
             continue;
 
@@ -54,9 +54,8 @@ void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& script
         if (!script)
             continue;
 
-        script->_Init(&tempScript->GetName(), spellId);
-
-        scriptVector.push_back(script);
+        script->_Init(tempScript->GetName(), spellId);
+        scriptVector.emplace_back(script);
     }
 }
 
@@ -67,7 +66,7 @@ void ScriptMgr::CreateSpellScriptLoaders(uint32 spellId, std::vector<std::pair<S
 
     for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        SpellScriptLoader* tempScript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
+        SpellScriptLoader* tempScript = sScriptRegistryMgr(SpellScriptLoader)->GetScriptById(itr->second);
         if (!tempScript)
             continue;
 

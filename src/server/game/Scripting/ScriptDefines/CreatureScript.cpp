@@ -34,7 +34,7 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
         return true;
     }
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     ClearGossipMenuFor(player);
     return tempScript ? tempScript->OnGossipHello(player, creature) : false;
 }
@@ -54,7 +54,7 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
         return true;
     }
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     return tempScript ? tempScript->OnGossipSelect(player, creature, sender, action) : false;
 }
 
@@ -74,7 +74,7 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
         return true;
     }
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     return tempScript ? tempScript->OnGossipSelectCode(player, creature, sender, action, code) : false;
 }
 
@@ -94,7 +94,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
         return true;
     }
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     ClearGossipMenuFor(player);
     return tempScript ? tempScript->OnQuestAccept(player, creature, quest) : false;
 }
@@ -105,7 +105,7 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     ClearGossipMenuFor(player);
     return tempScript ? tempScript->OnQuestSelect(player, creature, quest) : false;
 }
@@ -116,7 +116,7 @@ bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const*
     ASSERT(creature);
     ASSERT(quest);
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     ClearGossipMenuFor(player);
     return tempScript ? tempScript->OnQuestComplete(player, creature, quest) : false;
 }
@@ -137,7 +137,7 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
         return false;
     }
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     ClearGossipMenuFor(player);
     return tempScript ? tempScript->OnQuestReward(player, creature, quest, opt) : false;
 }
@@ -147,7 +147,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     ClearGossipMenuFor(player);
     return tempScript ? tempScript->GetDialogStatus(player, creature) : DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
@@ -166,7 +166,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
         return retAI;
     }
 
-    auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId());
+    auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId());
     return tempScript ? tempScript->GetAI(creature) : nullptr;
 }
 
@@ -179,7 +179,7 @@ void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
         script->OnAllCreatureUpdate(creature, diff);
     });
 
-    if (auto tempScript = ScriptRegistry<CreatureScript>::GetScriptById(creature->GetScriptId()))
+    if (auto tempScript = sScriptRegistryMgr(CreatureScript)->GetScriptById(creature->GetScriptId()))
     {
         tempScript->OnUpdate(creature, diff);
     }

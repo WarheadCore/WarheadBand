@@ -18,6 +18,7 @@
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
 
+#include "Singleton.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
 #include "AuctionHouseMgr.h"
@@ -36,6 +37,7 @@
 #include "Weather.h"
 #include "World.h"
 #include <atomic>
+#include <string_view>
 
 class AuctionHouseObject;
 class AuraScript;
@@ -110,31 +112,29 @@ namespace Warhead
 
 class WH_GAME_API ScriptObject
 {
-    friend class ScriptMgr;
+    //friend class ScriptMgr;
 
 public:
+    ScriptObject(std::string_view name)
+        : _name(name) { }
+
+    virtual ~ScriptObject() = default;
+
     // Do not override this in scripts; it should be overridden by the various script type classes. It indicates
     // whether or not this script type must be assigned in the database.
     [[nodiscard]] virtual bool IsDatabaseBound() const { return false; }
     [[nodiscard]] virtual bool isAfterLoadScript() const { return IsDatabaseBound(); }
+
     virtual void checkValidity() { }
 
-    [[nodiscard]] const std::string& GetName() const { return _name; }
-
-protected:
-    ScriptObject(const char* name)
-        : _name(std::string(name))
-    {
-    }
-
-    virtual ~ScriptObject() = default;
+    [[nodiscard]] const std::string_view GetName() const { return _name; }
 
 private:
     const std::string _name;
 };
 
 template<class TObject>
-WH_GAME_API class UpdatableScript
+class WH_GAME_API UpdatableScript
 {
 protected:
     UpdatableScript() = default;
@@ -146,7 +146,7 @@ public:
 class WH_GAME_API SpellScriptLoader : public ScriptObject
 {
 protected:
-    SpellScriptLoader(const char* name);
+    SpellScriptLoader(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -161,7 +161,7 @@ public:
 class WH_GAME_API ServerScript : public ScriptObject
 {
 protected:
-    ServerScript(const char* name);
+    ServerScript(std::string_view name);
 
 public:
     // Called when reactive socket I/O is started (WorldSocketMgr).
@@ -207,7 +207,7 @@ public:
 class WH_GAME_API WorldScript : public ScriptObject
 {
 protected:
-    WorldScript(const char* name);
+    WorldScript(std::string_view name);
 
 public:
     // Called when the open/closed state of the world changes.
@@ -261,7 +261,7 @@ public:
 class WH_GAME_API FormulaScript : public ScriptObject
 {
 protected:
-    FormulaScript(const char* name);
+    FormulaScript(std::string_view name);
 
 public:
     // Called after calculating honor.
@@ -295,14 +295,12 @@ public:
 template<class TMap>
 WH_GAME_API class MapScript : public UpdatableScript<TMap>
 {
-    MapEntry const* _mapEntry;
-    uint32 _mapId;
+    MapEntry const* _mapEntry{ nullptr };
+    uint32 _mapId{ 0 };
 
 protected:
     MapScript(uint32 mapId)
-        : _mapId(mapId)
-    {
-    }
+        : _mapId(mapId) { }
 
 public:
     void checkMap()
@@ -341,7 +339,7 @@ public:
 class WH_GAME_API WorldMapScript : public ScriptObject, public MapScript<Map>
 {
 protected:
-    WorldMapScript(const char* name, uint32 mapId);
+    WorldMapScript(std::string_view name, uint32 mapId);
 
 public:
     [[nodiscard]] bool isAfterLoadScript() const override { return true; }
@@ -358,7 +356,7 @@ public:
 class WH_GAME_API InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 {
 protected:
-    InstanceMapScript(const char* name, uint32 mapId);
+    InstanceMapScript(std::string_view name, uint32 mapId);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -378,7 +376,7 @@ public:
 class WH_GAME_API BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
 {
 protected:
-    BattlegroundMapScript(const char* name, uint32 mapId);
+    BattlegroundMapScript(std::string_view name, uint32 mapId);
 
 public:
     [[nodiscard]] bool isAfterLoadScript() const override { return true; }
@@ -395,7 +393,7 @@ public:
 class WH_GAME_API ItemScript : public ScriptObject
 {
 protected:
-    ItemScript(const char* name);
+    ItemScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -425,7 +423,7 @@ public:
 class WH_GAME_API UnitScript : public ScriptObject
 {
 protected:
-    UnitScript(const char* name, bool addToScripts = true);
+    UnitScript(std::string_view name, bool addToScripts = true);
 
 public:
     // Called when a unit deals healing to another unit
@@ -480,7 +478,7 @@ public:
 class WH_GAME_API MovementHandlerScript : public ScriptObject
 {
 protected:
-    MovementHandlerScript(const char* name);
+    MovementHandlerScript(std::string_view name);
 
 public:
     //Called whenever a player moves
@@ -490,7 +488,7 @@ public:
 class WH_GAME_API AllMapScript : public ScriptObject
 {
 protected:
-    AllMapScript(const char* name);
+    AllMapScript(std::string_view name);
 
 public:
     /**
@@ -554,7 +552,7 @@ public:
 class WH_GAME_API AllCreatureScript : public ScriptObject
 {
 protected:
-    AllCreatureScript(const char* name);
+    AllCreatureScript(std::string_view name);
 
 public:
     // Called from End of Creature Update.
@@ -635,7 +633,7 @@ public:
 class WH_GAME_API AllItemScript : public ScriptObject
 {
 protected:
-    AllItemScript(const char* name);
+    AllItemScript(std::string_view name);
 
 public:
     // Called when a player accepts a quest from the item.
@@ -660,7 +658,7 @@ public:
 class WH_GAME_API AllGameObjectScript : public ScriptObject
 {
 protected:
-    AllGameObjectScript(const char* name);
+    AllGameObjectScript(std::string_view name);
 
 public:
     /**
@@ -723,7 +721,7 @@ public:
 class WH_GAME_API CreatureScript : public ScriptObject, public UpdatableScript<Creature>
 {
 protected:
-    CreatureScript(const char* name);
+    CreatureScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -759,7 +757,7 @@ public:
 class WH_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 {
 protected:
-    GameObjectScript(const char* name);
+    GameObjectScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -801,7 +799,7 @@ public:
 class WH_GAME_API AreaTriggerScript : public ScriptObject
 {
 protected:
-    AreaTriggerScript(const char* name);
+    AreaTriggerScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -826,7 +824,7 @@ protected:
 class WH_GAME_API BattlegroundScript : public ScriptObject
 {
 protected:
-    BattlegroundScript(const char* name);
+    BattlegroundScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -838,7 +836,7 @@ public:
 class WH_GAME_API OutdoorPvPScript : public ScriptObject
 {
 protected:
-    OutdoorPvPScript(const char* name);
+    OutdoorPvPScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -850,7 +848,7 @@ public:
 class WH_GAME_API CommandScript : public ScriptObject
 {
 protected:
-    CommandScript(const char* name);
+    CommandScript(std::string_view name);
 
 public:
     // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
@@ -860,7 +858,7 @@ public:
 class WH_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 {
 protected:
-    WeatherScript(const char* name);
+    WeatherScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -872,7 +870,7 @@ public:
 class WH_GAME_API AuctionHouseScript : public ScriptObject
 {
 protected:
-    AuctionHouseScript(const char* name);
+    AuctionHouseScript(std::string_view name);
 
 public:
     // Called when an auction is added to an auction house.
@@ -912,7 +910,7 @@ public:
 class WH_GAME_API ConditionScript : public ScriptObject
 {
 protected:
-    ConditionScript(const char* name);
+    ConditionScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -924,7 +922,7 @@ public:
 class WH_GAME_API VehicleScript : public ScriptObject
 {
 protected:
-    VehicleScript(const char* name);
+    VehicleScript(std::string_view name);
 
 public:
     // Called after a vehicle is installed.
@@ -949,13 +947,13 @@ public:
 class WH_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
 {
 protected:
-    DynamicObjectScript(const char* name);
+    DynamicObjectScript(std::string_view name);
 };
 
 class WH_GAME_API TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
 protected:
-    TransportScript(const char* name);
+    TransportScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -976,7 +974,7 @@ public:
 class WH_GAME_API AchievementCriteriaScript : public ScriptObject
 {
 protected:
-    AchievementCriteriaScript(const char* name);
+    AchievementCriteriaScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return true; }
@@ -987,7 +985,7 @@ public:
 class WH_GAME_API PlayerScript : public ScriptObject
 {
 protected:
-    PlayerScript(const char* name);
+    PlayerScript(std::string_view name);
 
 public:
     virtual void OnPlayerReleasedGhost(Player* /*player*/) { }
@@ -1440,7 +1438,7 @@ public:
 class WH_GAME_API AccountScript : public ScriptObject
 {
 protected:
-    AccountScript(const char* name);
+    AccountScript(std::string_view name);
 
 public:
     // Called when an account logged in successfully
@@ -1475,7 +1473,7 @@ public:
 class WH_GAME_API GuildScript : public ScriptObject
 {
 protected:
-    GuildScript(const char* name);
+    GuildScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return false; }
@@ -1518,7 +1516,7 @@ public:
 class WH_GAME_API GroupScript : public ScriptObject
 {
 protected:
-    GroupScript(const char* name);
+    GroupScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return false; }
@@ -1547,7 +1545,7 @@ public:
 class WH_GAME_API GlobalScript : public ScriptObject
 {
 protected:
-    GlobalScript(const char* name);
+    GlobalScript(std::string_view name);
 
 public:
     // items
@@ -1584,7 +1582,7 @@ public:
 class WH_GAME_API BGScript : public ScriptObject
 {
 protected:
-    BGScript(const char* name);
+    BGScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return false; }
@@ -1669,7 +1667,7 @@ public:
 class WH_GAME_API ArenaTeamScript : public ScriptObject
 {
 protected:
-    ArenaTeamScript(const char* name);
+    ArenaTeamScript(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return false; };
@@ -1684,7 +1682,7 @@ public:
 class WH_GAME_API SpellSC : public ScriptObject
 {
 protected:
-    SpellSC(const char* name);
+    SpellSC(std::string_view name);
 
 public:
     [[nodiscard]] bool IsDatabaseBound() const override { return false; }
@@ -1746,13 +1744,13 @@ public:
 class WH_GAME_API ModuleScript : public ScriptObject
 {
 protected:
-    ModuleScript(const char* name);
+    ModuleScript(std::string_view name);
 };
 
 class WH_GAME_API GameEventScript : public ScriptObject
 {
 protected:
-    GameEventScript(const char* name);
+    GameEventScript(std::string_view name);
 
 public:
     // Runs on start event
@@ -1768,7 +1766,7 @@ public:
 class WH_GAME_API MailScript : public ScriptObject
 {
 protected:
-    MailScript(const char* name);
+    MailScript(std::string_view name);
 
 public:
     // Called before mail is sent
@@ -1779,7 +1777,7 @@ class WH_GAME_API AchievementScript : public ScriptObject
 {
 protected:
 
-    AchievementScript(const char* name);
+    AchievementScript(std::string_view name);
 
 public:
 
@@ -1801,7 +1799,7 @@ class WH_GAME_API PetScript : public ScriptObject
 {
 protected:
 
-    PetScript(const char* name);
+    PetScript(std::string_view name);
 
 public:
 
@@ -1829,7 +1827,7 @@ class WH_GAME_API ArenaScript : public ScriptObject
 {
 protected:
 
-    ArenaScript(const char* name);
+    ArenaScript(std::string_view name);
 
 public:
 
@@ -1846,7 +1844,7 @@ class WH_GAME_API MiscScript : public ScriptObject
 {
 protected:
 
-    MiscScript(const char* name);
+    MiscScript(std::string_view name);
 
 public:
 
@@ -1899,7 +1897,7 @@ class WH_GAME_API CommandSC : public ScriptObject
 {
 protected:
 
-    CommandSC(const char* name);
+    CommandSC(std::string_view name);
 
 public:
 
@@ -1920,7 +1918,7 @@ class WH_GAME_API DatabaseScript : public ScriptObject
 {
 protected:
 
-    DatabaseScript(const char* name);
+    DatabaseScript(std::string_view name);
 
 public:
 
@@ -1933,7 +1931,7 @@ class WH_GAME_API WorldObjectScript : public ScriptObject
 {
 protected:
 
-    WorldObjectScript(const char* name);
+    WorldObjectScript(std::string_view name);
 
 public:
 
@@ -1980,7 +1978,7 @@ class WH_GAME_API LootScript : public ScriptObject
 {
 protected:
 
-    LootScript(const char* name);
+    LootScript(std::string_view name);
 
 public:
 
@@ -1999,7 +1997,7 @@ class WH_GAME_API ElunaScript : public ScriptObject
 {
 protected:
 
-    ElunaScript(const char* name);
+    ElunaScript(std::string_view name);
 
 public:
     /**
@@ -2016,16 +2014,11 @@ public:
 };
 
 // Manages registration, loading, and execution of scripts.
-class WH_GAME_API ScriptMgr
+class WH_GAME_API ScriptMgr : public Warhead::Singleton<ScriptMgr>
 {
-    friend class ScriptObject;
-
-private:
-    ScriptMgr();
-    virtual ~ScriptMgr();
+    //friend class ScriptObject;
 
 public: /* Initialization */
-    static ScriptMgr* instance();
     void Initialize();
     void LoadDatabase();
     void FillSpellSummary();
@@ -2562,9 +2555,11 @@ public: /* LootScript */
 private:
     uint32 _scriptCount{ 0 };
 
-    ScriptLoaderCallbackType _script_loader_callback;
-    ModulesLoaderCallbackType _modules_loader_callback;
+    ScriptLoaderCallbackType _script_loader_callback{ nullptr };
+    ModulesLoaderCallbackType _modules_loader_callback{ nullptr };
 };
+
+#define sScriptMgr ScriptMgr::instance()
 
 namespace Warhead::SpellScripts
 {
@@ -2625,6 +2620,7 @@ public:
     GenericCreatureScript(char const* name) : CreatureScript(name) { }
     CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
 };
+
 #define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
 
 template <class AI, AI* (*AIFactory)(Creature*)>
@@ -2634,6 +2630,7 @@ public:
     FactoryCreatureScript(char const* name) : CreatureScript(name) { }
     CreatureAI* GetAI(Creature* me) const override { return AIFactory(me); }
 };
+
 #define RegisterCreatureAIWithFactory(ai_name, factory_fn) new FactoryCreatureScript<ai_name, &factory_fn>(#ai_name)
 
 // Cannot be used due gob scripts not working like this
@@ -2644,6 +2641,7 @@ class GenericGameObjectScript : public GameObjectScript
         GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
         GameObjectAI* GetAI(GameObject* me) const override { return new AI(me); }
 };
+
 #define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
 
 // Cannot be used due gob scripts not working like this
@@ -2653,150 +2651,151 @@ template <class AI, AI* (*AIFactory)(GameObject*)> class FactoryGameObjectScript
         FactoryGameObjectScript(char const* name) : GameObjectScript(name) {}
         GameObjectAI* GetAI(GameObject* me) const override { return AIFactory(me); }
 };
+
 #define RegisterGameObjectAIWithFactory(ai_name, factory_fn) new FactoryGameObjectScript<ai_name, &factory_fn>(#ai_name)
 
-#define sScriptMgr ScriptMgr::instance()
-
-template<class TScript>
-class ScriptRegistry
-{
-public:
-    typedef std::map<uint32, TScript*> ScriptMap;
-    typedef typename ScriptMap::iterator ScriptMapIterator;
-
-    typedef std::vector<TScript*> ScriptVector;
-    typedef typename ScriptVector::iterator ScriptVectorIterator;
-
-    // The actual list of scripts. This will be accessed concurrently, so it must not be modified
-    // after server startup.
-    static ScriptMap ScriptPointerList;
-    // After database load scripts
-    static ScriptVector ALScripts;
-
-    static void AddScript(TScript* const script)
-    {
-        ASSERT(script);
-
-        if (!_checkMemory(script))
-            return;
-
-        if (script->isAfterLoadScript())
-        {
-            ALScripts.push_back(script);
-        }
-        else
-        {
-            script->checkValidity();
-
-            // We're dealing with a code-only script; just add it.
-            ScriptPointerList[_scriptIdCounter++] = script;
-            sScriptMgr->IncrementScriptCount();
-        }
-    }
-
-    static void AddALScripts()
-    {
-        for (ScriptVectorIterator it = ALScripts.begin(); it != ALScripts.end(); ++it)
-        {
-            TScript* const script = *it;
-
-            script->checkValidity();
-
-            if (script->IsDatabaseBound())
-            {
-                if (!_checkMemory(script))
-                {
-                    return;
-                }
-
-                // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
-                // through a script name (or similar).
-                uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
-                if (id)
-                {
-                    // Try to find an existing script.
-                    TScript const* oldScript = nullptr;
-                    for (auto iterator = ScriptPointerList.begin(); iterator != ScriptPointerList.end(); ++iterator)
-                    {
-                        // If the script names match...
-                        if (iterator->second->GetName() == script->GetName())
-                        {
-                            // ... It exists.
-                            oldScript = iterator->second;
-                            break;
-                        }
-                    }
-
-                    // If the script is already assigned -> delete it!
-                    if (oldScript)
-                    {
-                        delete oldScript;
-                    }
-
-                    // Assign new script!
-                    ScriptPointerList[id] = script;
-
-                    // Increment script count only with new scripts
-                    if (!oldScript)
-                    {
-                        sScriptMgr->IncrementScriptCount();
-                    }
-                }
-                else
-                {
-                    // The script uses a script name from database, but isn't assigned to anything.
-                    if (script->GetName().find("Smart") == std::string::npos)
-                        LOG_ERROR("sql.sql", "Script named '{}' is not assigned in the database.",
-                                         script->GetName());
-                }
-            }
-            else
-            {
-                // We're dealing with a code-only script; just add it.
-                ScriptPointerList[_scriptIdCounter++] = script;
-                sScriptMgr->IncrementScriptCount();
-            }
-        }
-    }
-
-    // Gets a script by its ID (assigned by ObjectMgr).
-    static TScript* GetScriptById(uint32 id)
-    {
-        ScriptMapIterator it = ScriptPointerList.find(id);
-        if (it != ScriptPointerList.end())
-            return it->second;
-
-        return nullptr;
-    }
-
-private:
-    // See if the script is using the same memory as another script. If this happens, it means that
-    // someone forgot to allocate new memory for a script.
-    static bool _checkMemory(TScript* const script)
-    {
-        // See if the script is using the same memory as another script. If this happens, it means that
-        // someone forgot to allocate new memory for a script.
-        for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
-        {
-            if (it->second == script)
-            {
-                LOG_ERROR("scripts", "Script '{}' has same memory pointer as '{}'.",
-                               script->GetName(), it->second->GetName());
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    // Counter used for code-only scripts.
-    static uint32 _scriptIdCounter;
-};
-
-// Instantiate static members of ScriptRegistry.
-template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
-template<class TScript> std::vector<TScript*> ScriptRegistry<TScript>::ALScripts;
-template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
+//template<class TScript>
+//class ScriptRegistry
+//{
+//public:
+//    typedef std::map<uint32, TScript*> ScriptMap;
+//    typedef typename ScriptMap::iterator ScriptMapIterator;
+//
+//    typedef std::vector<TScript*> ScriptVector;
+//    typedef typename ScriptVector::iterator ScriptVectorIterator;
+//
+//    // The actual list of scripts. This will be accessed concurrently, so it must not be modified
+//    // after server startup.
+//    static ScriptMap ScriptPointerList;
+//    // After database load scripts
+//    static ScriptVector ALScripts;
+//
+//    static void AddScript(TScript* const script)
+//    {
+//        ASSERT(script);
+//
+//        if (!_checkMemory(script))
+//            return;
+//
+//        if (script->isAfterLoadScript())
+//        {
+//            ALScripts.push_back(script);
+//        }
+//        else
+//        {
+//            script->checkValidity();
+//
+//            // We're dealing with a code-only script; just add it.
+//            ScriptPointerList[_scriptIdCounter++] = script;
+//            sScriptMgr->IncrementScriptCount();
+//        }
+//    }
+//
+//    static void AddALScripts()
+//    {
+//        for (ScriptVectorIterator it = ALScripts.begin(); it != ALScripts.end(); ++it)
+//        {
+//            TScript* const script = *it;
+//
+//            script->checkValidity();
+//
+//            if (script->IsDatabaseBound())
+//            {
+//                if (!_checkMemory(script))
+//                {
+//                    return;
+//                }
+//
+//                // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
+//                // through a script name (or similar).
+//                uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
+//                if (id)
+//                {
+//                    // Try to find an existing script.
+//                    TScript const* oldScript = nullptr;
+//                    for (auto iterator = ScriptPointerList.begin(); iterator != ScriptPointerList.end(); ++iterator)
+//                    {
+//                        // If the script names match...
+//                        if (iterator->second->GetName() == script->GetName())
+//                        {
+//                            // ... It exists.
+//                            oldScript = iterator->second;
+//                            break;
+//                        }
+//                    }
+//
+//                    // If the script is already assigned -> delete it!
+//                    if (oldScript)
+//                    {
+//                        delete oldScript;
+//                    }
+//
+//                    // Assign new script!
+//                    ScriptPointerList[id] = script;
+//
+//                    // Increment script count only with new scripts
+//                    if (!oldScript)
+//                    {
+//                        sScriptMgr->IncrementScriptCount();
+//                    }
+//                }
+//                else
+//                {
+//                    // The script uses a script name from database, but isn't assigned to anything.
+//                    if (script->GetName().find("Smart") == std::string::npos)
+//                        LOG_ERROR("sql.sql", "Script named '{}' is not assigned in the database.",
+//                                         script->GetName());
+//                }
+//            }
+//            else
+//            {
+//                // We're dealing with a code-only script; just add it.
+//                ScriptPointerList[_scriptIdCounter++] = script;
+//                sScriptMgr->IncrementScriptCount();
+//            }
+//        }
+//    }
+//
+//    // Gets a script by its ID (assigned by ObjectMgr).
+//    static TScript* GetScriptById(uint32 id)
+//    {
+//        ScriptMapIterator it = ScriptPointerList.find(id);
+//        if (it != ScriptPointerList.end())
+//            return it->second;
+//
+//        return nullptr;
+//    }
+//
+//private:
+//    // See if the script is using the same memory as another script. If this happens, it means that
+//    // someone forgot to allocate new memory for a script.
+//    static bool _checkMemory(TScript* const script)
+//    {
+//        // See if the script is using the same memory as another script. If this happens, it means that
+//        // someone forgot to allocate new memory for a script.
+//        for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+//        {
+//            if (it->second == script)
+//            {
+//                LOG_ERROR("scripts", "Script '{}' has same memory pointer as '{}'.",
+//                               script->GetName(), it->second->GetName());
+//
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
+//
+//    // Counter used for code-only scripts.
+//    static uint32 _scriptIdCounter;
+//};
+//
+//// Instantiate static members of ScriptRegistry.
+//template<class TScript>
+//std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
+//
+//template<class TScript> std::vector<TScript*> ScriptRegistry<TScript>::ALScripts;
+//template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
 
 #endif

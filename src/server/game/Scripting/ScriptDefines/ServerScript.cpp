@@ -18,6 +18,7 @@
 #include "IoContext.h"
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptRegistryMgr.h"
 
 void ScriptMgr::OnNetworkStart()
 {
@@ -57,7 +58,7 @@ void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket)
 
 bool ScriptMgr::CanPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    if (ScriptRegistry<ServerScript>::ScriptPointerList.empty())
+    if (sScriptRegistryMgr(ServerScript)->GetScriptPointerList()->empty())
         return true;
 
     WorldPacket copy(packet);
@@ -79,7 +80,7 @@ bool ScriptMgr::CanPacketSend(WorldSession* session, WorldPacket const& packet)
 {
     ASSERT(session);
 
-    if (ScriptRegistry<ServerScript>::ScriptPointerList.empty())
+    if (sScriptRegistryMgr(ServerScript)->GetScriptPointerList()->empty())
         return true;
 
     WorldPacket copy(packet);
