@@ -2031,7 +2031,7 @@ public: /* Initialization */
     void FillSpellSummary();
     void CheckIfScriptsInDatabaseExist();
 
-    const char* ScriptsVersion() const { return "Integrated Warhead Scripts"; }
+    std::string_view ScriptsVersion() const { return "Integrated Warhead Scripts"; }
 
     void IncrementScriptCount() { ++_scriptCount; }
     uint32 GetScriptCount() const { return _scriptCount; }
@@ -2560,7 +2560,7 @@ public: /* LootScript */
     void OnLootMoney(Player* player, uint32 gold);
 
 private:
-    uint32 _scriptCount;
+    uint32 _scriptCount{ 0 };
 
     ScriptLoaderCallbackType _script_loader_callback;
     ModulesLoaderCallbackType _modules_loader_callback;
