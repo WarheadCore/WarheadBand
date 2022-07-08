@@ -33,8 +33,13 @@
 
 void ClientSocketMgr::Disconnect()
 {
+    if (!MOD_CONF_GET_BOOL("Discord.Enable"))
+        return;
+
     _stopped = true;
-    _updateTimer->cancel();
+
+    if (_updateTimer)
+        _updateTimer->cancel();
 
     if (_clientSocket && _clientSocket->IsOpen())
         _clientSocket->CloseSocket();
