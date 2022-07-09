@@ -37,6 +37,8 @@ void ScriptRegistryMgr<T>::AddScript(T* const script)
 
     script->checkValidity();
 
+    LOG_INFO("server", "> Add script {}", script->GetName());
+
     // We're dealing with a code-only script; just add it.
     _scriptPointerList.emplace(_scriptIdCounter++, std::unique_ptr<T>(script));
     sScriptMgr->IncrementScriptCount();
