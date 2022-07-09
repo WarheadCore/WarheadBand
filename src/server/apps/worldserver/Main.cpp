@@ -271,7 +271,7 @@ int main(int argc, char** argv)
 
     LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();
-    sScriptMgr->OnIoContext(ioContext);
+    //sScriptMgr->OnIoContext(ioContext);
 
     // Start the databases
     if (!StartDB())

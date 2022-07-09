@@ -33,8 +33,6 @@ struct TSpellSummary
 
 void ScriptMgr::Initialize()
 {
-    LOG_INFO("server.loading", "> Loading C++ scripts");
-
     StopWatch sw;
 
     AddSC_SmartScripts();
@@ -48,7 +46,7 @@ void ScriptMgr::Initialize()
     _script_loader_callback();
     _modules_loader_callback();
 
-    LOG_INFO("server", ">> Loaded {} before loaded DB c++ scripts in {}", GetScriptCount(), sw);
+    LOG_INFO("server", ">> Loaded {} before loaded DB C++ scripts in {}", GetScriptCount(), sw);
     LOG_INFO("server", " ");
 }
 
@@ -131,7 +129,7 @@ void ScriptMgr::LoadDatabase()
 
     CheckIfScriptsInDatabaseExist();
 
-    LOG_INFO("server", ">> Loaded {} after loaded DB c++ scripts in {}", GetScriptCount(), sw);
+    LOG_INFO("server", ">> Loaded {} after loaded DB C++ scripts in {}", GetScriptCount(), sw);
     LOG_INFO("server", " ");
 
     ASSERT(_script_loader_callback,
