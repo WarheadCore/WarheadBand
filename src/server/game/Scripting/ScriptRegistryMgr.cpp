@@ -37,7 +37,7 @@ void ScriptRegistryMgr<T>::AddScript(T* const script)
 
     script->checkValidity();
 
-    LOG_INFO("server", "> Add script {}", script->GetName());
+    LOG_INFO("server", "> Add base script {}", script->GetName());
 
     // We're dealing with a code-only script; just add it.
     _scriptPointerList.emplace(_scriptIdCounter++, std::unique_ptr<T>(script));
@@ -77,6 +77,7 @@ void ScriptRegistryMgr<T>::AddAfterLoadDBScripts()
 
                 // Assign new script!
                 _scriptPointerList.emplace(id, std::unique_ptr<T>(afterLoadDBScripts.get()));
+                LOG_INFO("server", "> Add DatabaseBound script {}", script->GetName());
 
                 // Increment script count only with new scripts
                 sScriptMgr->IncrementScriptCount();
@@ -93,6 +94,7 @@ void ScriptRegistryMgr<T>::AddAfterLoadDBScripts()
         {
             // We're dealing with a code-only script; just add it.
             _scriptPointerList.emplace(_scriptIdCounter++, std::unique_ptr<T>(afterLoadDBScripts.get()));
+            LOG_INFO("server", "> Add non DatabaseBound script {}", script->GetName());
             sScriptMgr->IncrementScriptCount();
         }
     }
