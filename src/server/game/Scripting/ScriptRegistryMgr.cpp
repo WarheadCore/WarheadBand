@@ -37,7 +37,7 @@ void ScriptRegistryMgr<T>::AddScript(T* const script)
 
     script->checkValidity();
 
-    LOG_INFO("server", "> Add base script {}", script->GetName());
+    LOG_INFO("server", "> Add base script {}/{}", script->GetName(), _scriptPointerList.size());
 
     // We're dealing with a code-only script; just add it.
     _scriptPointerList.emplace(_scriptIdCounter++, std::unique_ptr<T>(script));
