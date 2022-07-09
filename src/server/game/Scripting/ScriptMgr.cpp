@@ -23,6 +23,7 @@
 #include "UnitAI.h"
 #include "ScriptRegistryMgr.h"
 #include "ScriptObject.h"
+#include "StopWatch.h"
 
 struct TSpellSummary
 {
@@ -33,7 +34,8 @@ struct TSpellSummary
 void ScriptMgr::Initialize()
 {
     LOG_INFO("server.loading", "> Loading C++ scripts");
-    LOG_INFO("server.loading", "");
+
+    StopWatch sw;
 
     AddSC_SmartScripts();
 
@@ -45,6 +47,9 @@ void ScriptMgr::Initialize()
 
     _script_loader_callback();
     _modules_loader_callback();
+
+    LOG_INFO("server", ">> Loaded {} before loaded DB c++ scripts in {}", GetScriptCount(), sw);
+    LOG_INFO("server", " ");
 }
 
 void ScriptMgr::Unload()
@@ -102,7 +107,7 @@ void ScriptMgr::Unload()
 
 void ScriptMgr::LoadDatabase()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     sScriptSystemMgr->LoadScriptWaypoints();
 
@@ -126,7 +131,7 @@ void ScriptMgr::LoadDatabase()
 
     CheckIfScriptsInDatabaseExist();
 
-    LOG_INFO("server", ">> Loaded {} C++ scripts in {} ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server", ">> Loaded {} after loaded DB c++ scripts in {}", GetScriptCount(), sw);
     LOG_INFO("server", " ");
 
     ASSERT(_script_loader_callback,
