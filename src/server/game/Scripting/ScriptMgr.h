@@ -112,8 +112,6 @@ namespace Warhead
 
 class WH_GAME_API ScriptObject
 {
-    //friend class ScriptMgr;
-
 public:
     ScriptObject(std::string_view name)
         : _name(name) { }
@@ -2016,8 +2014,6 @@ public:
 // Manages registration, loading, and execution of scripts.
 class WH_GAME_API ScriptMgr : public Warhead::Singleton<ScriptMgr>
 {
-    //friend class ScriptObject;
-
 public: /* Initialization */
     void Initialize();
     void LoadDatabase();
@@ -2578,7 +2574,7 @@ class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
     using ArgsType = typename Warhead::find_type_if_t<Warhead::is_tuple, Ts...>;
 
 public:
-    GenericSpellAndAuraScriptLoader(char const* name, ArgsType&& args) : SpellScriptLoader(name), _args(std::move(args)) { }
+    GenericSpellAndAuraScriptLoader(std::string_view name, ArgsType&& args) : SpellScriptLoader(name), _args(std::move(args)) { }
 
 private:
     [[nodiscard]] SpellScript* GetSpellScript() const override
@@ -2653,149 +2649,5 @@ template <class AI, AI* (*AIFactory)(GameObject*)> class FactoryGameObjectScript
 };
 
 #define RegisterGameObjectAIWithFactory(ai_name, factory_fn) new FactoryGameObjectScript<ai_name, &factory_fn>(#ai_name)
-
-//template<class TScript>
-//class ScriptRegistry
-//{
-//public:
-//    typedef std::map<uint32, TScript*> ScriptMap;
-//    typedef typename ScriptMap::iterator ScriptMapIterator;
-//
-//    typedef std::vector<TScript*> ScriptVector;
-//    typedef typename ScriptVector::iterator ScriptVectorIterator;
-//
-//    // The actual list of scripts. This will be accessed concurrently, so it must not be modified
-//    // after server startup.
-//    static ScriptMap ScriptPointerList;
-//    // After database load scripts
-//    static ScriptVector ALScripts;
-//
-//    static void AddScript(TScript* const script)
-//    {
-//        ASSERT(script);
-//
-//        if (!_checkMemory(script))
-//            return;
-//
-//        if (script->isAfterLoadScript())
-//        {
-//            ALScripts.push_back(script);
-//        }
-//        else
-//        {
-//            script->checkValidity();
-//
-//            // We're dealing with a code-only script; just add it.
-//            ScriptPointerList[_scriptIdCounter++] = script;
-//            sScriptMgr->IncrementScriptCount();
-//        }
-//    }
-//
-//    static void AddALScripts()
-//    {
-//        for (ScriptVectorIterator it = ALScripts.begin(); it != ALScripts.end(); ++it)
-//        {
-//            TScript* const script = *it;
-//
-//            script->checkValidity();
-//
-//            if (script->IsDatabaseBound())
-//            {
-//                if (!_checkMemory(script))
-//                {
-//                    return;
-//                }
-//
-//                // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
-//                // through a script name (or similar).
-//                uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
-//                if (id)
-//                {
-//                    // Try to find an existing script.
-//                    TScript const* oldScript = nullptr;
-//                    for (auto iterator = ScriptPointerList.begin(); iterator != ScriptPointerList.end(); ++iterator)
-//                    {
-//                        // If the script names match...
-//                        if (iterator->second->GetName() == script->GetName())
-//                        {
-//                            // ... It exists.
-//                            oldScript = iterator->second;
-//                            break;
-//                        }
-//                    }
-//
-//                    // If the script is already assigned -> delete it!
-//                    if (oldScript)
-//                    {
-//                        delete oldScript;
-//                    }
-//
-//                    // Assign new script!
-//                    ScriptPointerList[id] = script;
-//
-//                    // Increment script count only with new scripts
-//                    if (!oldScript)
-//                    {
-//                        sScriptMgr->IncrementScriptCount();
-//                    }
-//                }
-//                else
-//                {
-//                    // The script uses a script name from database, but isn't assigned to anything.
-//                    if (script->GetName().find("Smart") == std::string::npos)
-//                        LOG_ERROR("sql.sql", "Script named '{}' is not assigned in the database.",
-//                                         script->GetName());
-//                }
-//            }
-//            else
-//            {
-//                // We're dealing with a code-only script; just add it.
-//                ScriptPointerList[_scriptIdCounter++] = script;
-//                sScriptMgr->IncrementScriptCount();
-//            }
-//        }
-//    }
-//
-//    // Gets a script by its ID (assigned by ObjectMgr).
-//    static TScript* GetScriptById(uint32 id)
-//    {
-//        ScriptMapIterator it = ScriptPointerList.find(id);
-//        if (it != ScriptPointerList.end())
-//            return it->second;
-//
-//        return nullptr;
-//    }
-//
-//private:
-//    // See if the script is using the same memory as another script. If this happens, it means that
-//    // someone forgot to allocate new memory for a script.
-//    static bool _checkMemory(TScript* const script)
-//    {
-//        // See if the script is using the same memory as another script. If this happens, it means that
-//        // someone forgot to allocate new memory for a script.
-//        for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
-//        {
-//            if (it->second == script)
-//            {
-//                LOG_ERROR("scripts", "Script '{}' has same memory pointer as '{}'.",
-//                               script->GetName(), it->second->GetName());
-//
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
-//
-//    // Counter used for code-only scripts.
-//    static uint32 _scriptIdCounter;
-//};
-//
-//// Instantiate static members of ScriptRegistry.
-//template<class TScript>
-//std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
-//
-//template<class TScript> std::vector<TScript*> ScriptRegistry<TScript>::ALScripts;
-//template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
 
 #endif
