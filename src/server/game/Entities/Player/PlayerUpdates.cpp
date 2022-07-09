@@ -41,6 +41,8 @@
 #include "Vehicle.h"
 #include "WeatherMgr.h"
 #include "WorldStatePackets.h"
+#include "AchievementMgr.h"
+#include "Weather.h"
 #include <fmt/printf.h>
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE

@@ -31,7 +31,6 @@
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"

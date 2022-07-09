@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::SetRealmCompleted(AchievementEntry const* achievement)
 {
@@ -56,7 +57,7 @@ bool ScriptMgr::IsRealmCompleted(AchievementGlobalMgr const* globalmgr, Achievem
     return true;
 }
 
-void ScriptMgr::OnBeforeCheckCriteria(AchievementMgr* mgr, AchievementCriteriaEntryList const* achievementCriteriaList)
+void ScriptMgr::OnBeforeCheckCriteria(AchievementMgr* mgr, std::list<AchievementCriteriaEntry const*> const* achievementCriteriaList)
 {
     ExecuteScript<AchievementScript>([&](AchievementScript* script)
     {

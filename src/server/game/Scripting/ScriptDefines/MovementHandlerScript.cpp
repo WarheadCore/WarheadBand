@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::OnPlayerMove(Player* player, MovementInfo* movementInfo, uint32 opcode)
 {

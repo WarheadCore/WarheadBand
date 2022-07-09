@@ -53,6 +53,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "ScriptObject.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;

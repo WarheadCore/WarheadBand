@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ModuleLocale.h"

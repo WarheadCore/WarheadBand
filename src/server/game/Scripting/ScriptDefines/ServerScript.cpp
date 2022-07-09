@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::OnNetworkStart()
 {

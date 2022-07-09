@@ -566,7 +566,7 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 
             iter->second.changed = false;
 
-            sScriptMgr->OnAchievementSave(trans, GetPlayer(), iter->first, iter->second);
+            sScriptMgr->OnAchievementSave(trans, GetPlayer(), iter->first, &iter->second);
         }
     }
 
@@ -595,7 +595,7 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 
             iter->second.changed = false;
 
-            sScriptMgr->OnCriteriaSave(trans, GetPlayer(), iter->first, iter->second);
+            sScriptMgr->OnCriteriaSave(trans, GetPlayer(), iter->first, &iter->second);
         }
     }
 }

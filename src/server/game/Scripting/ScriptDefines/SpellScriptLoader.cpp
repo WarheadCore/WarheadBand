@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector)
 {

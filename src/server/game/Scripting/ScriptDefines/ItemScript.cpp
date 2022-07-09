@@ -19,6 +19,7 @@
 #include "ScriptMgrMacros.h"
 #include "ScriptedGossip.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
 {

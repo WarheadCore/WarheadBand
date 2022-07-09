@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 InstanceScript* ScriptMgr::CreateInstanceScript(InstanceMap* map)
 {

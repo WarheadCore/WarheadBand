@@ -19,8 +19,7 @@
  * Interaction between core and LFGScripts
  */
 
-#include "Common.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "SharedDefines.h"
 
 class Player;

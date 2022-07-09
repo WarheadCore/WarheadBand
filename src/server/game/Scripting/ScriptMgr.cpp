@@ -22,6 +22,7 @@
 #include "SpellMgr.h"
 #include "UnitAI.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 struct TSpellSummary
 {

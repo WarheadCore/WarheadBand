@@ -18,6 +18,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::OnGlobalItemDelFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
@@ -77,11 +78,11 @@ bool ScriptMgr::OnItemRoll(Player const* player, LootStoreItem const* lootStoreI
     return true;
 }
 
-bool ScriptMgr::OnBeforeLootEqualChanced(Player const* player, LootStoreItemList EqualChanced, Loot& loot, LootStore const& store)
+bool ScriptMgr::OnBeforeLootEqualChanced(Player const* player, std::list<LootStoreItem*> const* equalChanced, Loot& loot, LootStore const& store)
 {
     auto ret = IsValidBoolScript<GlobalScript>([&](GlobalScript* script)
     {
-        return !script->OnBeforeLootEqualChanced(player, EqualChanced, loot, store);
+        return !script->OnBeforeLootEqualChanced(player, equalChanced, loot, store);
     });
 
     if (ret && *ret)

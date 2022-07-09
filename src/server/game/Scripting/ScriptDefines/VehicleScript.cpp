@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::OnInstall(Vehicle* veh)
 {

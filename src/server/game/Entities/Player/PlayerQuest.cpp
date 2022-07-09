@@ -32,6 +32,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "WorldSession.h"
+#include "GameEventMgr.h"
 
 /*********************************************************/
 /***                    QUEST SYSTEM                   ***/

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 bool ScriptMgr::OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
 {

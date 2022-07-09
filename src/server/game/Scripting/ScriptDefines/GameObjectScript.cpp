@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
 #include "ScriptedGossip.h"
+#include "ScriptObject.h"
 
 bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
 {

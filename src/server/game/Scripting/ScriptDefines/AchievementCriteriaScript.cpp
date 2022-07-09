@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target, uint32 criteria_id)
 {

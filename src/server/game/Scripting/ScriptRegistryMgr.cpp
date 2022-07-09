@@ -16,6 +16,7 @@
  */
 
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 #include "Containers.h"
 #include "Log.h"
 #include "ScriptMgr.h"
@@ -61,7 +62,6 @@ void ScriptRegistryMgr<T>::AddAfterLoadDBScripts()
             if (id)
             {
                 // Try to find an existing script.
-                ScriptObject const* oldScript = nullptr;
                 for (auto const& [scriptID, script] : _scriptPointerList)
                 {
                     // If the script names match...

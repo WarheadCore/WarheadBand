@@ -18,6 +18,7 @@
 #include "OutdoorPvPMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptRegistryMgr.h"
+#include "ScriptObject.h"
 
 OutdoorPvP* ScriptMgr::CreateOutdoorPvP(OutdoorPvPData const* data)
 {

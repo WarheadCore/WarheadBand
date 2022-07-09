@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptObject.h"
+#include "Weather.h"
 
 void ScriptMgr::OnWeatherChange(Weather* weather, WeatherState state, float grade)
 {

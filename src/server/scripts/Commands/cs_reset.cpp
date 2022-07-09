@@ -30,6 +30,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
+#include "ScriptObject.h"
 #include "ScriptMgr.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
