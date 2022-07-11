@@ -25,7 +25,7 @@
 
 constexpr Microseconds DEFAULT_TICK_TIME = 100ms;
 
-class ProgressBar
+class WH_COMMON_API ProgressBar
 {
 public:
     ProgressBar(std::string_view prefixText, std::size_t totalSize, std::size_t currentSize = 0);
