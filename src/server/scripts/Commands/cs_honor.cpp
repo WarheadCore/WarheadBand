@@ -25,7 +25,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
@@ -33,8 +33,6 @@ using namespace Warhead::ChatCommands;
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
-
-using namespace Warhead::ChatCommands;
 
 class honor_commandscript : public CommandScript
 {

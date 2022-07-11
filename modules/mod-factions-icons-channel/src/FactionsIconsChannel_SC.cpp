@@ -21,7 +21,7 @@
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 class FactionsIconsChannel_Player : public PlayerScript
 {

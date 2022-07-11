@@ -18,7 +18,7 @@
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "WorldSession.h"
 
 constexpr std::array<const char*, MAX_ITEM_SUBCLASS_CONTAINER> bagSpecsToString =
@@ -46,19 +46,6 @@ constexpr std::array<uint32, MAX_ITEM_SUBCLASS_CONTAINER> bagSpecsColors =
     0xfff5a925,     // ORANGE - Leatherworking
     0xff54504f      // DARK GREY - Inscription
 };
-
-//constexpr std::array<const char*, MAX_ITEM_SUBCLASS_CONTAINER> bagSpecsColorToString =
-//{
-//    "normal",
-//    "soul",
-//    "herb",
-//    "enchanting",
-//    "engineering",
-//    "gem",
-//    "mining",
-//    "leatherworking",
-//    "inscription"
-//};
 
 using namespace Warhead::ChatCommands;
 

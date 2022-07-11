@@ -17,7 +17,7 @@
 
 #include "Config.h"
 #include "Log.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ServerAutoShutdown.h"
 #include "TaskScheduler.h"
 

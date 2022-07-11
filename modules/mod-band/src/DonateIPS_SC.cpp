@@ -25,7 +25,7 @@
 #include "Optional.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "StopWatch.h"
 #include "StringConvert.h"
 #include "TaskScheduler.h"

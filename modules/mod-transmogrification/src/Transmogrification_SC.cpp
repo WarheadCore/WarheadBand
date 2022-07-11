@@ -16,7 +16,7 @@
  */
 
 #include "ModulesConfig.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "Transmogrification.h"
 
 class Transmogrification_NPC : public CreatureScript

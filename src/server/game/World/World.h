@@ -92,13 +92,13 @@ struct GlobalPlayerData
     std::map<uint8, uint32> arenaTeamId;
 };
 
-enum ShutdownMask
+enum ShutdownMask : uint8
 {
     SHUTDOWN_MASK_RESTART = 1,
     SHUTDOWN_MASK_IDLE    = 2,
 };
 
-enum ShutdownExitCode
+enum ShutdownExitCode : uint8
 {
     SHUTDOWN_EXIT_CODE = 0,
     ERROR_EXIT_CODE    = 1,

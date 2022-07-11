@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Errors.h"
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::OnCreatureAddWorld(Creature* creature)
 {
@@ -63,8 +65,5 @@ bool ScriptMgr::CanCreatureSendListInventory(Player* player, Creature* creature,
         return !script->CanCreatureSendListInventory(player, creature, vendorEntry);
     });
 
-    if (ret && *ret)
-        return false;
-
-    return true;
+    return ReturnValidBool(ret, true);
 }

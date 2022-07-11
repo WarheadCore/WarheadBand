@@ -18,7 +18,7 @@
 #include "EventMap.h"
 #include "InstanceScript.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 

@@ -21,7 +21,7 @@
 #include "GroupMgr.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 // CFBG custom script
 class CFBG_BG : public BGScript

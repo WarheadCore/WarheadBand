@@ -17,18 +17,18 @@
 
 #include "UnbindInstance.h"
 #include "Chat.h"
+#include "Creature.h"
 #include "GameLocale.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "MapMgr.h"
 #include "ModulesConfig.h"
-#include "ScriptedGossip.h"
-#include "StringFormat.h"
 #include "Player.h"
-#include "Creature.h"
-#include "Tokenize.h"
-#include "StringConvert.h"
+#include "ScriptedGossip.h"
 #include "StopWatch.h"
+#include "StringConvert.h"
+#include "StringFormat.h"
+#include "Tokenize.h"
 
 namespace
 {

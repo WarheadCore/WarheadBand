@@ -19,7 +19,7 @@
 #define _MODULES_PRECOMPILED_H_
 
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 

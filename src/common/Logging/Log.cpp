@@ -22,8 +22,8 @@
 #include "Exception.h"
 #include "FileChannel.h"
 #include "FileUtil.h"
-#include "Logger.h"
 #include "LogMessage.h"
+#include "Logger.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 

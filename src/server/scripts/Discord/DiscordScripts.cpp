@@ -20,7 +20,7 @@
 #include "DiscordSharedDefines.h"
 #include "IoContext.h"
 #include "ModulesConfig.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 class DiscordClient_World : public WorldScript
 {

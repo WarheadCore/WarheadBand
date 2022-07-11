@@ -17,7 +17,7 @@
 
 #include "DatabaseEnv.h"
 #include "MuteMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "World.h"
 #include "WorldSession.h"
 

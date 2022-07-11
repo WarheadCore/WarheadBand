@@ -26,7 +26,7 @@ EndScriptData */
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Language.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

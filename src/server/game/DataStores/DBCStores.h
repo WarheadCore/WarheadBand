@@ -37,7 +37,7 @@ WH_GAME_API WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid,
 
 WH_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 
-enum ContentLevels
+enum ContentLevels : uint8
 {
     CONTENT_1_60 = 0,
     CONTENT_61_70,

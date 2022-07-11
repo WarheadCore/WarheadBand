@@ -15,17 +15,17 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "AccountMgr.h"
 #include "Chat.h"
+#include "GameTime.h"
 #include "Log.h"
+#include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedGossip.h"
 #include "StringConvert.h"
 #include "UnbindInstance.h"
-#include "ModuleLocale.h"
-#include "GameTime.h"
-#include "AccountMgr.h"
 
 using namespace Warhead::ChatCommands;
 

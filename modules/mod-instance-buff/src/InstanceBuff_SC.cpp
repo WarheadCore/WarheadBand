@@ -22,7 +22,7 @@
 #include "Optional.h"
 #include "Pet.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 

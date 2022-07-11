@@ -15,9 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Errors.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptMgrMacros.h"
+#include "ScriptObject.h"
 
 void ScriptMgr::OnGlobalItemDelFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
@@ -69,27 +71,17 @@ bool ScriptMgr::OnItemRoll(Player const* player, LootStoreItem const* lootStoreI
         return !script->OnItemRoll(player, lootStoreItem, chance, loot, store);
     });
 
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
+    return ReturnValidBool(ret);
 }
 
-bool ScriptMgr::OnBeforeLootEqualChanced(Player const* player, LootStoreItemList EqualChanced, Loot& loot, LootStore const& store)
+bool ScriptMgr::OnBeforeLootEqualChanced(Player const* player, std::list<LootStoreItem*> const* equalChanced, Loot& loot, LootStore const& store)
 {
     auto ret = IsValidBoolScript<GlobalScript>([&](GlobalScript* script)
     {
-        return !script->OnBeforeLootEqualChanced(player, EqualChanced, loot, store);
+        return !script->OnBeforeLootEqualChanced(player, equalChanced, loot, store);
     });
 
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
+    return ReturnValidBool(ret);
 }
 
 void ScriptMgr::OnInitializeLockedDungeons(Player* player, uint8& level, uint32& lockData, lfg::LFGDungeonData const* dungeon)
@@ -131,12 +123,7 @@ bool ScriptMgr::OnIsAffectedBySpellModCheck(SpellInfo const* affectSpell, SpellI
         return !script->OnIsAffectedBySpellModCheck(affectSpell, checkSpell, mod);
     });
 
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
+    return ReturnValidBool(ret);
 }
 
 bool ScriptMgr::OnSpellHealingBonusTakenNegativeModifiers(Unit const* target, Unit const* caster, SpellInfo const* spellInfo, float& val)
@@ -146,12 +133,7 @@ bool ScriptMgr::OnSpellHealingBonusTakenNegativeModifiers(Unit const* target, Un
         return script->OnSpellHealingBonusTakenNegativeModifiers(target, caster, spellInfo, val);
     });
 
-    if (ret && *ret)
-    {
-        return true;
-    }
-
-    return false;
+    return ReturnValidBool(ret, true);
 }
 
 void ScriptMgr::OnLoadSpellCustomAttr(SpellInfo* spell)

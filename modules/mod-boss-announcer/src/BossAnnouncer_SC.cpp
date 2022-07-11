@@ -20,7 +20,7 @@
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "StringFormat.h"
 
 class Boss_Announcer_Player : public PlayerScript

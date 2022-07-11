@@ -20,7 +20,7 @@
 #include "Log.h"
 #include "LowLevelArena.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedGossip.h"
 
 using namespace Warhead::ChatCommands;
