@@ -43,13 +43,13 @@ enum class DatabaseFieldTypes : uint8
 
 struct QueryResultFieldMetadata
 {
-    std::string TableName{};
-    std::string TableAlias{};
-    std::string Name{};
-    std::string Alias{};
-    std::string TypeName{};
-    uint32 Index = 0;
-    DatabaseFieldTypes Type = DatabaseFieldTypes::Null;
+    std::string TableName;
+    std::string TableAlias;
+    std::string Name;
+    std::string Alias;
+    std::string TypeName;
+    uint32 Index{ 0 };
+    DatabaseFieldTypes Type{ DatabaseFieldTypes::Null };
 };
 
 /**
@@ -129,7 +129,7 @@ public:
         return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
     }
 
-    bool IsNull() const
+    inline bool IsNull() const
     {
         return data.value == nullptr;
     }

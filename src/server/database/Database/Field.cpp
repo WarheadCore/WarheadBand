@@ -278,17 +278,17 @@ T Field::GetData() const
     return *result;
 }
 
-template bool Field::GetData() const;
-template uint8 Field::GetData() const;
-template uint16 Field::GetData() const;
-template uint32 Field::GetData() const;
-template uint64 Field::GetData() const;
-template int8 Field::GetData() const;
-template int16 Field::GetData() const;
-template int32 Field::GetData() const;
-template int64 Field::GetData() const;
-template float Field::GetData() const;
-template double Field::GetData() const;
+template WH_DATABASE_API bool Field::GetData() const;
+template WH_DATABASE_API uint8 Field::GetData() const;
+template WH_DATABASE_API uint16 Field::GetData() const;
+template WH_DATABASE_API uint32 Field::GetData() const;
+template WH_DATABASE_API uint64 Field::GetData() const;
+template WH_DATABASE_API int8 Field::GetData() const;
+template WH_DATABASE_API int16 Field::GetData() const;
+template WH_DATABASE_API int32 Field::GetData() const;
+template WH_DATABASE_API int64 Field::GetData() const;
+template WH_DATABASE_API float Field::GetData() const;
+template WH_DATABASE_API double Field::GetData() const;
 
 std::string Field::GetDataString() const
 {

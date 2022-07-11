@@ -50,18 +50,18 @@ void PreparedStatementBase::SetValidData(const uint8 index, std::string_view val
     statement_data[index].data.emplace<std::string>(value);
 }
 
-template void PreparedStatementBase::SetValidData(const uint8 index, uint8 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int8 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, uint16 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int16 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, uint32 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int32 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, uint64 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, int64 const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, bool const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, float const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value);
-template void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, uint8 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, int8 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, uint16 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, int16 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, uint32 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, int32 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, uint64 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, int64 const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, bool const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, float const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value);
+template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value);
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
@@ -113,20 +113,20 @@ std::string PreparedStatementData::ToString(std::vector<uint8> /*value*/)
     return "BINARY";
 }
 
-template std::string PreparedStatementData::ToString(uint8);
-template std::string PreparedStatementData::ToString(uint16);
-template std::string PreparedStatementData::ToString(uint32);
-template std::string PreparedStatementData::ToString(uint64);
-template std::string PreparedStatementData::ToString(int8);
-template std::string PreparedStatementData::ToString(int16);
-template std::string PreparedStatementData::ToString(int32);
-template std::string PreparedStatementData::ToString(int64);
-template std::string PreparedStatementData::ToString(std::string);
-template std::string PreparedStatementData::ToString(float);
-template std::string PreparedStatementData::ToString(double);
-template std::string PreparedStatementData::ToString(bool);
-
 std::string PreparedStatementData::ToString(std::nullptr_t /*value*/)
 {
     return "NULL";
 }
+
+template WH_DATABASE_API std::string PreparedStatementData::ToString(uint8);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(uint16);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(uint32);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(uint64);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(int8);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(int16);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(int32);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(int64);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(std::string);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(float);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(double);
+template WH_DATABASE_API std::string PreparedStatementData::ToString(bool);
