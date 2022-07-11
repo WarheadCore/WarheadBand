@@ -17,12 +17,14 @@
 
 #include "Chat.h"
 #include "ScriptMgr.h"
+#include "ScriptObject.h"
+#include "ScriptRegistry.h"
 
 Warhead::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
 {
     Warhead::ChatCommands::ChatCommandTable table;
 
-    for (auto const& [scriptID, script] : ScriptRegistry<CommandScript>::ScriptPointerList)
+    for (auto const& [scriptID, script] : ScriptRegistry<CommandScript>::Instance()->GetScripts())
     {
         Warhead::ChatCommands::ChatCommandTable cmds = script->GetCommands();
         std::move(cmds.begin(), cmds.end(), std::back_inserter(table));

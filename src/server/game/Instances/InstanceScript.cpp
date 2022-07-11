@@ -30,8 +30,22 @@
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "Spell.h"
 #include "WorldSession.h"
+
+InstanceScript::InstanceScript(Map* map) : instance(map)
+{
+#ifdef WARHEAD_API_USE_DYNAMIC_LINKING
+    uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
+    auto const scriptname = sObjectMgr->GetScriptName(scriptId);
+    ASSERT(!scriptname.empty());
+    // Acquire a strong reference from the script module
+    // to keep it loaded until this object is destroyed.
+    module_reference = sScriptMgr->AcquireModuleReferenceOfScriptName(scriptname);
+#endif // #ifndef WARHEAD_API_USE_DYNAMIC_LINKING
+}
 
 BossBoundaryData::~BossBoundaryData()
 {

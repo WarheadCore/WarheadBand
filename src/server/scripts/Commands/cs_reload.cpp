@@ -36,7 +36,7 @@ EndScriptData */
 #include "Language.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartAI.h"

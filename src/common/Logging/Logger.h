@@ -19,8 +19,8 @@
 #define _WARHEAD_LOGGER_H_
 
 #include "LogMessage.h"
-#include <vector>
 #include <mutex>
+#include <vector>
 
 namespace Warhead
 {

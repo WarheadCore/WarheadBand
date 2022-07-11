@@ -16,7 +16,7 @@
  */
 
 #include "InstanceScript.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ruins_of_ahnqiraj.h"
 
 class instance_ruins_of_ahnqiraj : public InstanceMapScript

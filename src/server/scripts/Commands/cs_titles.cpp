@@ -26,7 +26,7 @@ EndScriptData */
 #include "DBCStores.h"
 #include "Language.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "StringConvert.h"
 
 using namespace Warhead::ChatCommands;

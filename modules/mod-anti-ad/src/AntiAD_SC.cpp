@@ -23,7 +23,7 @@
 #include "ModulesConfig.h"
 #include "MuteMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include <Poco/Exception.h>
 #include <Poco/RegularExpression.h>
 #include <vector>

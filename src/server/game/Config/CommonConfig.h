@@ -18,9 +18,9 @@
 #ifndef _COMMON_CONFIG_H_
 #define _COMMON_CONFIG_H_
 
-#include "Types.h"
 #include "Optional.h"
 #include "StringFormat.h"
+#include "Types.h"
 
 namespace Warhead::Config
 {

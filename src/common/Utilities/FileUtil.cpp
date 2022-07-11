@@ -16,6 +16,7 @@
  */
 
 #include "FileUtil.h"
+#include <algorithm>
 #include <filesystem>
 
 namespace fs = std::filesystem;

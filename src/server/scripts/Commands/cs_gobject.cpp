@@ -32,7 +32,7 @@ EndScriptData */
 #include "Opcodes.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "Timer.h"
 #include "Transport.h"
 

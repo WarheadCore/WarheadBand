@@ -18,6 +18,7 @@
 #include "CreatureAI.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
+#include "GameEventMgr.h"
 #include "GameLocale.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"

@@ -18,36 +18,31 @@
 #ifndef _SCRIPT_MGR_MACRO_H_
 #define _SCRIPT_MGR_MACRO_H_
 
-#include "ScriptMgr.h"
+#include "ScriptRegistry.h"
+#include "Optional.h"
 
 template<typename ScriptName>
 inline Optional<bool> IsValidBoolScript(std::function<bool(ScriptName*)> executeHook)
 {
-    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+    if (ScriptRegistry<ScriptName>::Instance()->GetScripts().empty())
         return {};
 
-    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
-    {
-        if (executeHook(script))
+    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::Instance()->GetScripts())
+        if (executeHook(script.get()))
             return true;
-    }
 
     return false;
 }
 
-template<typename ScriptName, class T>
-inline T* GetReturnAIScript(std::function<T*(ScriptName*)> executeHook)
+template<typename ScriptName, class AI>
+inline AI* GetReturnAIScript(std::function<AI*(ScriptName*)> executeHook)
 {
-    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+    if (ScriptRegistry<ScriptName>::Instance()->GetScripts().empty())
         return nullptr;
 
-    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
-    {
-        if (T* scriptAI = executeHook(script))
-        {
+    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::Instance()->GetScripts())
+        if (AI* scriptAI = executeHook(script.get()))
             return scriptAI;
-        }
-    }
 
     return nullptr;
 }
@@ -55,13 +50,11 @@ inline T* GetReturnAIScript(std::function<T*(ScriptName*)> executeHook)
 template<typename ScriptName>
 inline void ExecuteScript(std::function<void(ScriptName*)> executeHook)
 {
-    if (ScriptRegistry<ScriptName>::ScriptPointerList.empty())
+    if (ScriptRegistry<ScriptName>::Instance()->GetScripts().empty())
         return;
 
-    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::ScriptPointerList)
-    {
-        executeHook(script);
-    }
+    for (auto const& [scriptID, script] : ScriptRegistry<ScriptName>::Instance()->GetScripts())
+        executeHook(script.get());
 }
 
 inline bool ReturnValidBool(Optional<bool> ret, bool need = false)

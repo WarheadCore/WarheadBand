@@ -32,7 +32,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "StringFormat.h"
 

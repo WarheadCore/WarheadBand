@@ -28,7 +28,7 @@
 #include "ModulesConfig.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 constexpr uint32 FactionFrostwolfClan  = 729;
 constexpr uint32 FactionStormpikeGuard = 730;

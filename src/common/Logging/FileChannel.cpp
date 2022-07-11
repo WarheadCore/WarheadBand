@@ -16,11 +16,11 @@
  */
 
 #include "FileChannel.h"
-#include "LogMessage.h"
-#include "Util.h"
 #include "Exception.h"
 #include "Log.h"
+#include "LogMessage.h"
 #include "StringConvert.h"
+#include "Util.h"
 #include <filesystem>
 #include <fstream>
 

@@ -19,7 +19,7 @@
 #include "GameConfig.h"
 #include "Group.h"
 #include "Guild.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 enum IPLoggingTypes
 {

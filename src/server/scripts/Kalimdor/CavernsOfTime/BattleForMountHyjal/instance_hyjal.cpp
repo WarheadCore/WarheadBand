@@ -26,7 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "WorldPacket.h"
 #include "hyjal_trash.h"

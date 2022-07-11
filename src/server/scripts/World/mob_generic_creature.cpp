@@ -23,7 +23,7 @@ SDCategory: Creatures
 EndScriptData */
 
 #include "PassiveAI.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellMgr.h"
 

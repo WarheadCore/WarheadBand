@@ -19,9 +19,7 @@
  * Interaction between core and LFGScripts
  */
 
-#include "Common.h"
-#include "ScriptMgr.h"
-#include "SharedDefines.h"
+#include "ScriptObject.h"
 
 class Player;
 class Group;
@@ -53,5 +51,7 @@ namespace lfg
         void OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid) override;
         void OnInviteMember(Group* group, ObjectGuid guid) override;
     };
+
+    /*keep private*/ void AddSC_LFGScripts();
 
 } // namespace lfg

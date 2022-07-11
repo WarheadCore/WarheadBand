@@ -20,7 +20,7 @@
 #include "ModulesConfig.h"
 #include "OnlineReward.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 
 using namespace Warhead::ChatCommands;
 

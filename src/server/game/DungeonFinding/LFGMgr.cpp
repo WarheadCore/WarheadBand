@@ -36,6 +36,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SpellAuras.h"
@@ -45,9 +46,6 @@ namespace lfg
 {
     LFGMgr::LFGMgr(): m_lfgProposalId(1), m_options(CONF_GET_INT("DungeonFinder.OptionsMask")), m_Testing(false)
     {
-        new LFGPlayerScript();
-        new LFGGroupScript();
-
         for (uint8 team = 0; team < 2; ++team)
         {
             m_raidBrowserUpdateTimer[team] = 10000;

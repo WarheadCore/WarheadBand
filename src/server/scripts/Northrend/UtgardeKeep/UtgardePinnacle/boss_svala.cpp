@@ -18,7 +18,7 @@
 #include "GameConfig.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "utgarde_pinnacle.h"

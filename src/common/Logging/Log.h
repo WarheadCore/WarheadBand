@@ -19,9 +19,9 @@
 #define _LOG_H
 
 #include "LogCommon.h"
+#include <fmt/format.h>
 #include <unordered_map>
 #include <vector>
-#include <fmt/format.h>
 
 namespace Warhead
 {

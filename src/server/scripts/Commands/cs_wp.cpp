@@ -26,7 +26,7 @@ EndScriptData */
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "WaypointMgr.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

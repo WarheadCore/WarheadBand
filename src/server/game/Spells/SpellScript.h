@@ -38,6 +38,7 @@ class Player;
 class Item;
 class WorldLocation;
 class WorldObject;
+class ModuleReference;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
@@ -60,12 +61,12 @@ protected:
     virtual bool _Validate(SpellInfo const* entry);
 
 public:
-    _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(nullptr), m_scriptSpellId(0) {}
-    virtual ~_SpellScript() {}
-    virtual void _Register();
-    virtual void _Unload();
-    virtual void _Init(std::string const* scriptname, uint32 spellId);
-    std::string const* _GetScriptName() const;
+    _SpellScript() = default;
+    virtual ~_SpellScript() = default;
+    void _Register();
+    void _Unload();
+    void _Init(std::string_view scriptname, uint32 spellId);
+    std::string_view _GetScriptName() const;
 
 protected:
     class WH_GAME_API EffectHook
@@ -102,9 +103,9 @@ protected:
         uint16 effAurName;
     };
 
-    uint8 m_currentScriptState;
-    std::string const* m_scriptName;
-    uint32 m_scriptSpellId;
+    uint8 m_currentScriptState{ SPELL_SCRIPT_STATE_NONE };
+    std::string m_scriptName;
+    uint32 m_scriptSpellId{ 0 };
 public:
     //
     // SpellScript/AuraScript interface base
@@ -151,6 +152,11 @@ private:
     }
 
     static bool _ValidateSpellInfo(uint32 spellId);
+
+#ifdef WARHEAD_API_USE_DYNAMIC_LINKING
+    // Strong reference to keep the binary code loaded
+    std::shared_ptr<ModuleReference> m_moduleReference;
+#endif // WARHEAD_API_USE_DYNAMIC_LINKING
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls

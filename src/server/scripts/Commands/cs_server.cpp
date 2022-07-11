@@ -32,7 +32,7 @@
 #include "MySQLThreading.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ServerMotd.h"
 #include "StringConvert.h"
 #include "Timer.h"

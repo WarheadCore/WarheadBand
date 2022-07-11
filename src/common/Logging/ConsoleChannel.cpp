@@ -16,10 +16,10 @@
  */
 
 #include "ConsoleChannel.h"
-#include "LogMessage.h"
-#include "Util.h"
 #include "Exception.h"
+#include "LogMessage.h"
 #include "Tokenize.h"
+#include "Util.h"
 #include <iostream>
 
 constexpr auto MAX_OPTIONS = 4;

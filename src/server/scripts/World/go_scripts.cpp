@@ -42,11 +42,12 @@ EndContentData */
 
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Spell.h"
