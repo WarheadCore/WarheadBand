@@ -36,6 +36,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "SharedDefines.h"
 #include "Spell.h"
 #include "SpellMgr.h"
