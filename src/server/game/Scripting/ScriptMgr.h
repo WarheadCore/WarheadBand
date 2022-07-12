@@ -174,14 +174,14 @@ public: /* Initialization */
     /// Set the current script context, which allows the ScriptMgr
     /// to accept new scripts in this context.
     /// Requires a SwapScriptContext() call afterwards to load the new scripts.
-    void SetScriptContext(std::string const& context);
+    void SetScriptContext(std::string_view context);
 
     /// Returns the current script context.
-    std::string const& GetCurrentScriptContext() const { return _currentContext; }
+    std::string_view GetCurrentScriptContext() const { return _currentContext; }
 
     /// Releases all scripts associated with the given script context immediately.
     /// Requires a SwapScriptContext() call afterwards to finish the unloading.
-    void ReleaseScriptContext(std::string const& context);
+    void ReleaseScriptContext(std::string_view context);
 
     /// Executes all changed introduced by SetScriptContext and ReleaseScriptContext.
     /// It is possible to combine multiple SetScriptContext and ReleaseScriptContext
@@ -189,12 +189,12 @@ public: /* Initialization */
     void SwapScriptContext(bool initialize = false);
 
     /// Returns the context name of the static context provided by the worldserver
-    static std::string const& GetNameOfStaticContext();
+    static std::string_view GetNameOfStaticContext();
 
     /// Acquires a strong module reference to the module containing the given script name,
     /// which prevents the shared library which contains the script from unloading.
     /// The shared library is lazy unloaded as soon as all references to it are released.
-    std::shared_ptr<ModuleReference> AcquireModuleReferenceOfScriptName(std::string const& scriptname) const;
+    std::shared_ptr<ModuleReference> AcquireModuleReferenceOfScriptName(std::string_view scriptname) const;
 
 public: /* Unloading */
     void Unload();

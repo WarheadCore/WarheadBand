@@ -150,7 +150,7 @@ public:
 
     /// Removes all scripts associated with the given script context.
     /// Requires ScriptRegistryBase::SwapContext to be called after all transfers have finished.
-    virtual void ReleaseContext(std::string const& context) = 0;
+    virtual void ReleaseContext(std::string_view context) = 0;
 
     /// Injects and updates the changed script objects.
     virtual void SwapContext(bool initialize) = 0;
@@ -201,9 +201,9 @@ class ScriptRegistryCompositum
     };
 
 public:
-    void SetScriptNameInContext(std::string const& scriptName, std::string const& context);
-    std::string const& GetScriptContextOfScriptName(std::string const& scriptname) const;
-    void ReleaseContext(std::string const& context) final override;
+    void SetScriptNameInContext(std::string_view scriptName, std::string_view context);
+    std::string_view GetScriptContextOfScriptName(std::string_view scriptname) const;
+    void ReleaseContext(std::string_view context) final override;
 
     void SwapContext(bool initialize) final override
     {
@@ -294,7 +294,7 @@ public:
     ScriptRegistrySwapHookBase& operator= (ScriptRegistrySwapHookBase&&) = delete;
 
     /// Called before the actual context release happens
-    virtual void BeforeReleaseContext(std::string const& /*context*/) { }
+    virtual void BeforeReleaseContext(std::string_view /*context*/) { }
 
     /// Called before SwapContext
     virtual void BeforeSwapContext(bool /*initialize*/) { }
@@ -315,7 +315,7 @@ class UnsupportedScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
 {
 public:
-    void BeforeReleaseContext(std::string const& context) final override;
+    void BeforeReleaseContext(std::string_view context) final override;
 };
 
 /// This hook is responsible for swapping Creature and GameObject AI's
@@ -380,10 +380,8 @@ class CreatureGameObjectScriptRegistrySwapHooks
     static void InitializeScriptIdsFromSet(std::unordered_set<uint32> const& idsToRemove);
 
 public:
-    void BeforeReleaseContext(std::string const& context) final override;
-
+    void BeforeReleaseContext(std::string_view context) final override;
     void BeforeSwapContext(bool initialize) override;
-
     void BeforeUnload() final override;
 
 private:
@@ -417,7 +415,7 @@ class ScriptRegistrySwapHooks<OutdoorPvPScript, Base>
 public:
     ScriptRegistrySwapHooks() = default;
 
-    void BeforeReleaseContext(std::string const& context) final override;
+    void BeforeReleaseContext(std::string_view context) final override;
     void BeforeSwapContext(bool initialize) override;
     void BeforeUnload() final override;
 
@@ -433,7 +431,7 @@ class ScriptRegistrySwapHooks<InstanceMapScript, Base>
 public:
     ScriptRegistrySwapHooks() = default;
 
-    void BeforeReleaseContext(std::string const& context) final override;
+    void BeforeReleaseContext(std::string_view context) final override;
     void BeforeSwapContext(bool /*initialize*/) override;
     void BeforeUnload() final override;
 
@@ -449,7 +447,7 @@ class ScriptRegistrySwapHooks<SpellScriptLoader, Base>
 public:
     ScriptRegistrySwapHooks() = default;
 
-    void BeforeReleaseContext(std::string const& context) final override;
+    void BeforeReleaseContext(std::string_view context) final override;
     void BeforeSwapContext(bool /*initialize*/) override;
     void BeforeUnload() final override;
 
@@ -478,7 +476,7 @@ public:
     typedef std::unordered_map<uint32 /*script id*/, std::unique_ptr<ScriptType>> ScriptStoreType;
     typedef typename ScriptStoreType::iterator ScriptStoreIteratorType;
 
-    void ReleaseContext(std::string const& context) final override;
+    void ReleaseContext(std::string_view context) final override;
     void SwapContext(bool initialize) final override;
 
     void RemoveUsedScriptsFromContainer(std::unordered_set<std::string>& scripts) final override;
@@ -499,8 +497,7 @@ public:
 
 protected:
     // Returns the script id's which are registered to a certain context
-    std::unordered_set<uint32> GetScriptIDsToRemove(std::string const& context) const;
-
+    std::unordered_set<uint32> GetScriptIDsToRemove(std::string_view context) const;
     std::unordered_set<uint32> const& GetRecentlyAddedScriptIDs() const;
 
 private:
@@ -521,7 +518,7 @@ class ScriptRegistrySwapHooks<CommandScript, Base>
     : public ScriptRegistrySwapHookBase
 {
 public:
-    void BeforeReleaseContext(std::string const& /*context*/) final override;
+    void BeforeReleaseContext(std::string_view /*context*/) final override;
     void BeforeSwapContext(bool /*initialize*/) override;
     void BeforeUnload() final override;
 };
@@ -541,10 +538,10 @@ public:
 
     SpecializedScriptRegistry() = default;
 
-    void ReleaseContext(std::string const& context) final override
+    void ReleaseContext(std::string_view context) final override
     {
         this->BeforeReleaseContext(context);
-        _scripts.erase(context);
+        _scripts.erase(std::string{ context });
     }
 
     void SwapContext(bool initialize) final override

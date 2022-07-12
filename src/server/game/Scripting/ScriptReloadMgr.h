@@ -38,8 +38,10 @@ public:
 
     /// Returns the git revision hash of the referenced script module
     virtual char const* GetScriptModuleRevisionHash() const = 0;
+
     /// Returns the name of the referenced script module
     virtual char const* GetScriptModule() const = 0;
+
     /// Returns the path to the script module
     virtual boost::filesystem::path const& GetModulePath() const = 0;
 };
@@ -69,8 +71,7 @@ public:
     virtual void Unload() { }
 
     /// Returns an owning reference to the current module of the given context
-    static std::shared_ptr<ModuleReference> AcquireModuleReferenceOfContext(
-        std::string const& context);
+    static std::shared_ptr<ModuleReference> AcquireModuleReferenceOfContext(std::string_view context);
 
     /// Returns the unique ScriptReloadMgr singleton instance
     static ScriptReloadMgr* instance();

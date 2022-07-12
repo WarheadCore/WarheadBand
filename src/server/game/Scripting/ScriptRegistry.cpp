@@ -26,22 +26,23 @@
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 
-void ScriptRegistryCompositum::SetScriptNameInContext(std::string const& scriptName, std::string const& context)
+void ScriptRegistryCompositum::SetScriptNameInContext(std::string_view scriptName, std::string_view context)
 {
-    ASSERT(_scriptnames_to_context.find(scriptName) == _scriptnames_to_context.end(),
+    std::string name{ scriptName };
+
+    ASSERT(_scriptnames_to_context.find(name) == _scriptnames_to_context.end(),
         "Scriptname was assigned to this context already!");
-    _scriptnames_to_context.emplace(scriptName, context);
+    _scriptnames_to_context.emplace(name, std::string{ context });
 }
 
-std::string const& ScriptRegistryCompositum::GetScriptContextOfScriptName(std::string const& scriptname) const
+std::string_view ScriptRegistryCompositum::GetScriptContextOfScriptName(std::string_view scriptname) const
 {
-    auto itr = _scriptnames_to_context.find(scriptname);
-    ASSERT(itr != _scriptnames_to_context.end() &&
-        "Given scriptname doesn't exist!");
+    auto itr = _scriptnames_to_context.find(std::string{ scriptname });
+    ASSERT(itr != _scriptnames_to_context.end() && "Given scriptname doesn't exist!");
     return itr->second;
 }
 
-void ScriptRegistryCompositum::ReleaseContext(std::string const& context)
+void ScriptRegistryCompositum::ReleaseContext(std::string_view context)
 {
     for (auto const registry : _registries)
         registry->ReleaseContext(context);
@@ -72,9 +73,9 @@ void ScriptRegistry<ScriptType>::LogDuplicatedScriptPointerError(ScriptType cons
 }
 
 template<typename Base>
-void UnsupportedScriptRegistrySwapHooks<Base>::BeforeReleaseContext(std::string const& context)
+void UnsupportedScriptRegistrySwapHooks<Base>::BeforeReleaseContext(std::string_view context)
 {
-    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(std::string{ context });
     ASSERT(bounds.first == bounds.second);
 }
 
@@ -261,9 +262,9 @@ void CreatureGameObjectScriptRegistrySwapHooks<ObjectType, ScriptType, Base>::In
 }
 
 template<typename ObjectType, typename ScriptType, typename Base>
-void CreatureGameObjectScriptRegistrySwapHooks<ObjectType, ScriptType, Base>::BeforeReleaseContext(std::string const& context)
+void CreatureGameObjectScriptRegistrySwapHooks<ObjectType, ScriptType, Base>::BeforeReleaseContext(std::string_view context)
 {
-    auto idsToRemove = static_cast<Base*>(this)->GetScriptIDsToRemove(context);
+    auto idsToRemove = static_cast<Base*>(this)->GetScriptIDsToRemove(std::string{ context });
     DestroyScriptIdsFromSet(idsToRemove);
 
     // Add the new ids which are removed to the global ids to remove set
@@ -295,9 +296,9 @@ void CreatureGameObjectScriptRegistrySwapHooks<ObjectType, ScriptType, Base>::Be
 }
 
 template<typename Base>
-void ScriptRegistrySwapHooks<OutdoorPvPScript, Base>::BeforeReleaseContext(std::string const& context)
+void ScriptRegistrySwapHooks<OutdoorPvPScript, Base>::BeforeReleaseContext(std::string_view context)
 {
-    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(std::string{ context });
 
     if ((!swapped) && (bounds.first != bounds.second))
     {
@@ -324,9 +325,9 @@ void ScriptRegistrySwapHooks<OutdoorPvPScript, Base>::BeforeUnload()
 }
 
 template<typename Base>
-void ScriptRegistrySwapHooks<InstanceMapScript, Base>::BeforeReleaseContext(std::string const& context)
+void ScriptRegistrySwapHooks<InstanceMapScript, Base>::BeforeReleaseContext(std::string_view context)
 {
-    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(std::string{ context });
     if (bounds.first != bounds.second)
         swapped = true;
 }
@@ -344,9 +345,9 @@ void ScriptRegistrySwapHooks<InstanceMapScript, Base>::BeforeUnload()
 }
 
 template<typename Base>
-void ScriptRegistrySwapHooks<SpellScriptLoader, Base>::BeforeReleaseContext(std::string const& context)
+void ScriptRegistrySwapHooks<SpellScriptLoader, Base>::BeforeReleaseContext(std::string_view context)
 {
-    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
+    auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(std::string{ context });
 
     if (bounds.first != bounds.second)
         swapped = true;
@@ -369,11 +370,11 @@ void ScriptRegistrySwapHooks<SpellScriptLoader, Base>::BeforeUnload()
 }
 
 template<typename ScriptType>
-void SpecializedScriptRegistry<ScriptType, true>::ReleaseContext(std::string const& context)
+void SpecializedScriptRegistry<ScriptType, true>::ReleaseContext(std::string_view context)
 {
     this->BeforeReleaseContext(context);
 
-    auto const bounds = _ids_of_contexts.equal_range(context);
+    auto const bounds = _ids_of_contexts.equal_range(std::string{ context });
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
         _scripts.erase(itr->second);
 }
@@ -382,7 +383,6 @@ template<typename ScriptType>
 void SpecializedScriptRegistry<ScriptType, true>::SwapContext(bool initialize)
 {
     this->BeforeSwapContext(initialize);
-
     _recently_added_ids.clear();
 }
 
@@ -480,12 +480,12 @@ ScriptType* SpecializedScriptRegistry<ScriptType, true>::GetScriptById(uint32 id
 
 // Returns the script id's which are registered to a certain context
 template<typename ScriptType>
-inline std::unordered_set<uint32> SpecializedScriptRegistry<ScriptType, true>::GetScriptIDsToRemove(std::string const& context) const
+inline std::unordered_set<uint32> SpecializedScriptRegistry<ScriptType, true>::GetScriptIDsToRemove(std::string_view context) const
 {
     // Create a set of all ids which are removed
     std::unordered_set<uint32> scripts_to_remove;
 
-    auto const bounds = _ids_of_contexts.equal_range(context);
+    auto const bounds = _ids_of_contexts.equal_range(std::string{ context });
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
         scripts_to_remove.insert(itr->second);
 
@@ -499,7 +499,7 @@ inline std::unordered_set<uint32> const& SpecializedScriptRegistry<ScriptType, t
 }
 
 template<typename Base>
-inline void ScriptRegistrySwapHooks<CommandScript, Base>::BeforeReleaseContext(std::string const&)
+inline void ScriptRegistrySwapHooks<CommandScript, Base>::BeforeReleaseContext(std::string_view)
 {
     Warhead::ChatCommands::InvalidateCommandMap();
 }

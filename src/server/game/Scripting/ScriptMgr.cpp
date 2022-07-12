@@ -126,7 +126,7 @@ void ScriptMgr::LoadDatabase()
     }
 }
 
-void ScriptMgr::SetScriptContext(std::string const& context)
+void ScriptMgr::SetScriptContext(std::string_view context)
 {
     _currentContext = context;
 }
@@ -137,23 +137,22 @@ void ScriptMgr::SwapScriptContext(bool initialize)
     _currentContext.clear();
 }
 
-std::string const& ScriptMgr::GetNameOfStaticContext()
+std::string_view ScriptMgr::GetNameOfStaticContext()
 {
     static std::string const name{ "___static___" };
     return name;
 }
 
-void ScriptMgr::ReleaseScriptContext(std::string const& context)
+void ScriptMgr::ReleaseScriptContext(std::string_view context)
 {
     sScriptRegistryCompositum->ReleaseContext(context);
 }
 
-std::shared_ptr<ModuleReference> ScriptMgr::AcquireModuleReferenceOfScriptName([[maybe_unused]] std::string const& scriptname) const
+std::shared_ptr<ModuleReference> ScriptMgr::AcquireModuleReferenceOfScriptName([[maybe_unused]] std::string_view scriptname) const
 {
 #ifdef WARHEAD_API_USE_DYNAMIC_LINKING
     // Returns the reference to the module of the given scriptname
-    return ScriptReloadMgr::AcquireModuleReferenceOfContext(
-        sScriptRegistryCompositum->GetScriptContextOfScriptName(scriptname));
+    return ScriptReloadMgr::AcquireModuleReferenceOfContext(sScriptRegistryCompositum->GetScriptContextOfScriptName(scriptname));
 #else
     // Something went wrong when this function is used in
     // a static linked context.
