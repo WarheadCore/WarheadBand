@@ -55,9 +55,6 @@ void ScriptMgr::Initialize()
     _script_loader_callback();
     _modules_loader_callback();
 
-    // Loads all scripts from the current context
-    //SwapScriptContext(true);
-
     LOG_INFO("server.loading", ">> Loaded {} C++ scripts in {}", GetScriptCount(), sw);
 }
 
@@ -78,21 +75,6 @@ void ScriptMgr::LoadDatabase()
     sScriptSystemMgr->LoadScriptWaypoints();
 
     // Add all scripts that must be loaded after db/maps
-    /*ScriptRegistry<WorldMapScript>::Instance()->AddALScripts();
-    ScriptRegistry<BattlegroundMapScript>::Instance()->AddALScripts();
-    ScriptRegistry<InstanceMapScript>::Instance()->AddALScripts();
-    ScriptRegistry<SpellScriptLoader>::Instance()->AddALScripts();
-    ScriptRegistry<ItemScript>::Instance()->AddALScripts();
-    ScriptRegistry<CreatureScript>::Instance()->AddALScripts();
-    ScriptRegistry<GameObjectScript>::Instance()->AddALScripts();
-    ScriptRegistry<AreaTriggerScript>::Instance()->AddALScripts();
-    ScriptRegistry<BattlegroundScript>::Instance()->AddALScripts();
-    ScriptRegistry<OutdoorPvPScript>::Instance()->AddALScripts();
-    ScriptRegistry<WeatherScript>::Instance()->AddALScripts();
-    ScriptRegistry<ConditionScript>::Instance()->AddALScripts();
-    ScriptRegistry<TransportScript>::Instance()->AddALScripts();
-    ScriptRegistry<AchievementCriteriaScript>::Instance()->AddALScripts();*/
-
     sScriptRegistryCompositum->LoadDBBoundScripts();
 
     FillSpellSummary();
