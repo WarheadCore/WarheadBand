@@ -27,7 +27,7 @@
 enum DiscordCode : uint16;
 
 /// Manages all sockets connected to peers and network threads
-class ClientSocket : public Socket<ClientSocket>
+class WH_GAME_API ClientSocket : public Socket<ClientSocket>
 {
     using BaseSocket = Socket<ClientSocket>;
 

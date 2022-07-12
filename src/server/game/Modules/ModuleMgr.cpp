@@ -20,7 +20,7 @@
 
 namespace
 {
-    std::string_view _modulesList = {};
+    std::string _modulesList;
 }
 
 void Warhead::Module::SetEnableModulesList(std::string_view modulesList)
@@ -33,9 +33,7 @@ std::vector<std::string_view> Warhead::Module::GetEnableModulesList()
     std::vector<std::string_view> _list;
 
     for (auto const& modName : Warhead::Tokenize(_modulesList, ',', false))
-    {
         _list.emplace_back(modName);
-    }
 
     return _list;
 }

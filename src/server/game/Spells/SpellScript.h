@@ -230,7 +230,7 @@ public:
         SpellEffectFnType pEffectHandlerScript;
     };
 
-    class BeforeHitHandler
+    class WH_GAME_API BeforeHitHandler
     {
     public:
         BeforeHitHandler(SpellBeforeHitFnType pBeforeHitHandlerScript);

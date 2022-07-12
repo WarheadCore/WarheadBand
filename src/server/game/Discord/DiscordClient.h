@@ -18,15 +18,13 @@
 #ifndef _DISCORD_CLIENT_H_
 #define _DISCORD_CLIENT_H_
 
-#include "Define.h"
 #include "DiscordSharedDefines.h"
 #include "Duration.h"
-#include <array>
+#include "TaskScheduler.h"
 #include <memory>
 
 class Channel;
 class Player;
-class TaskScheduler;
 
 enum class DiscordDefaultChannelType : uint8
 {
@@ -57,7 +55,7 @@ constexpr uint8 MAX_CHANNEL_TYPE = static_cast<uint8>(DiscordDefaultChannelType:
 constexpr uint8 MAX_CHANNEL_CHAT_TYPE = static_cast<uint8>(DiscordСhatChannelType::MaxType);
 constexpr uint8 MAX_CHANNEL_LOGIN_TYPE = static_cast<uint8>(DiscordLoginChannelType::MaxType);
 
-class DiscordClient
+class WH_GAME_API DiscordClient
 {
     DiscordClient(DiscordClient const&) = delete;
     DiscordClient(DiscordClient&&) = delete;

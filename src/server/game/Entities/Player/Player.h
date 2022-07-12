@@ -1035,7 +1035,7 @@ struct EntryPointData
     [[nodiscard]] bool HasTaxiPath() const { return !taxiPath.empty(); }
 };
 
-class Player : public Unit, public GridObject<Player>
+class WH_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend class CinematicMgr;

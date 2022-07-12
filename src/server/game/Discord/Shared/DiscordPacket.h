@@ -21,7 +21,7 @@
 #include "ByteBuffer.h"
 #include "DiscordSharedDefines.h"
 
-class DiscordPacket : public ByteBuffer
+class WH_GAME_API DiscordPacket : public ByteBuffer
 {
 public:
     // just container for later use

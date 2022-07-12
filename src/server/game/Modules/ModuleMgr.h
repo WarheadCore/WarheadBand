@@ -24,8 +24,8 @@
 
 namespace Warhead::Module
 {
-    WH_COMMON_API void SetEnableModulesList(std::string_view modulesList);
-    WH_COMMON_API std::vector<std::string_view> GetEnableModulesList();
+    WH_GAME_API void SetEnableModulesList(std::string_view modulesList);
+    WH_GAME_API std::vector<std::string_view> GetEnableModulesList();
 }
 
 #endif

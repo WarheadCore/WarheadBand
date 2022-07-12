@@ -44,7 +44,7 @@ void GameConfig::Load(bool reload)
 
 // Add option
 template<Warhead::Types::ConfigValue T>
-WH_GAME_API void GameConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
+void GameConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -74,7 +74,7 @@ void GameConfig::AddOption(std::initializer_list<std::string> const& optionList)
 
 // Get option
 template<Warhead::Types::ConfigValue T>
-WH_GAME_API T GameConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
+T GameConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -112,7 +112,7 @@ WH_GAME_API T GameConfig::GetOption(std::string_view optionName, Optional<T> def
 
 // Set option
 template<Warhead::Types::ConfigValue T>
-WH_GAME_API void GameConfig::SetOption(std::string_view optionName, T value)
+void GameConfig::SetOption(std::string_view optionName, T value)
 {
     // copy from string_view
     std::string option{ optionName };

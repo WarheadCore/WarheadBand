@@ -79,11 +79,11 @@ struct DoorData
 
 struct BossBoundaryEntry
 {
-    uint32 const bossId;
-    AreaBoundary const* const boundary;
+    uint32 bossId;
+    AreaBoundary const* boundary;
 };
 
-struct BossBoundaryData
+struct WH_GAME_API BossBoundaryData
 {
     typedef std::vector<BossBoundaryEntry> StorageType;
     typedef StorageType::const_iterator const_iterator;

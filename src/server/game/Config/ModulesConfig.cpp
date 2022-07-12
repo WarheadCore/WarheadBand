@@ -29,7 +29,7 @@ ModulesConfig* ModulesConfig::instance()
 
 // Add option
 template<Warhead::Types::ConfigValue T>
-WH_GAME_API void ModulesConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
+void ModulesConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -49,7 +49,7 @@ void ModulesConfig::AddOption(std::string_view optionName, Optional<std::string>
 
 // Get option
 template<Warhead::Types::ConfigValue T>
-WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
+T ModulesConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
     std::string option{ optionName };
@@ -87,7 +87,7 @@ WH_GAME_API T ModulesConfig::GetOption(std::string_view optionName, Optional<T> 
 
 // Set option
 template<Warhead::Types::ConfigValue T>
-WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, T value)
+void ModulesConfig::SetOption(std::string_view optionName, T value)
 {
     // copy from string_view
     std::string option{ optionName };

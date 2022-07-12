@@ -21,20 +21,15 @@
 #include "AsioHacksFwd.h"
 #include "DiscordPacket.h"
 #include "PacketQueue.h"
+#include "DeadlineTimer.h"
 #include <atomic>
 #include <memory>
 #include <mutex>
 
-namespace Warhead::Asio
-{
-    class IoContext;
-    class DeadlineTimer;
-}
-
 class ClientSocket;
 class DiscordPacket;
 
-class ClientSocketMgr
+class WH_GAME_API ClientSocketMgr
 {
 public:
     static ClientSocketMgr* instance();

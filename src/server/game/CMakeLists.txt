@@ -40,7 +40,7 @@ target_link_libraries(game-interface
   INTERFACE
     shared)
 
-add_library(game STATIC
+add_library(game
   ${PRIVATE_SOURCES})
 
 target_include_directories(game

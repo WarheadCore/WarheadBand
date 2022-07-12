@@ -24,7 +24,7 @@
 #include "ObjectGuid.h"
 #include <unordered_map>
 
-struct ExMail
+struct WH_GAME_API ExMail
 {
     uint32 ID;
     ObjectGuid PlayerGuid;
@@ -38,7 +38,7 @@ struct ExMail
     bool AddItems(uint32 itemID, uint32 itemCount);
 };
 
-class ExternalMail
+class WH_GAME_API ExternalMail
 {
 public:
     static ExternalMail* instance();

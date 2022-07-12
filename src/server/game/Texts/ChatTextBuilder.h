@@ -39,18 +39,18 @@ namespace Warhead::Text
     }
 
     // Helper fmt functions
-    void SendWorldTextFmt(WarheadFmtText const& msg);
-    void SendGMTextFmt(WarheadFmtText const& msg);
-    void SendNotificationFmt(WarheadFmtText const& msg, WorldSession* session);
-    void SendAreaTriggerMessageFmt(WarheadFmtText const& msg, WorldSession* session);
-    void SendBattlegroundWarningToAllFmt(Battleground* bg, WarheadFmtText const& msg);
-    void SendBattlegroundMessageToAllFmt(Battleground* bg, ChatMsg type, WarheadFmtText const& msg);
+    WH_GAME_API void SendWorldTextFmt(WarheadFmtText const& msg);
+    WH_GAME_API void SendGMTextFmt(WarheadFmtText const& msg);
+    WH_GAME_API void SendNotificationFmt(WarheadFmtText const& msg, WorldSession* session);
+    WH_GAME_API void SendAreaTriggerMessageFmt(WarheadFmtText const& msg, WorldSession* session);
+    WH_GAME_API void SendBattlegroundWarningToAllFmt(Battleground* bg, WarheadFmtText const& msg);
+    WH_GAME_API void SendBattlegroundMessageToAllFmt(Battleground* bg, ChatMsg type, WarheadFmtText const& msg);
 
     // Helper default functions
-    void SendNotification(WorldSession* session, std::string_view text);
-    void SendNotification(WorldSession* session, uint32 stringID);
-    void SendAreaTriggerMessage(WorldSession* session, std::string_view text);
-    void SendAreaTriggerMessage(WorldSession* session, uint32 stringID);
+    WH_GAME_API void SendNotification(WorldSession* session, std::string_view text);
+    WH_GAME_API void SendNotification(WorldSession* session, uint32 stringID);
+    WH_GAME_API void SendAreaTriggerMessage(WorldSession* session, std::string_view text);
+    WH_GAME_API void SendAreaTriggerMessage(WorldSession* session, uint32 stringID);
 
     // Send a System Message to all players (except self if mentioned)
     template<typename... Args>
@@ -125,7 +125,7 @@ namespace Warhead::Text
 
 namespace Warhead
 {
-    class BroadcastTextBuilder
+    class WH_GAME_API BroadcastTextBuilder
     {
     public:
         BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, uint8 gender, WorldObject const* target = nullptr, uint32 achievementId = 0)
@@ -143,7 +143,7 @@ namespace Warhead
         uint32 _achievementId;
     };
 
-    class CustomChatTextBuilder
+    class WH_GAME_API CustomChatTextBuilder
     {
     public:
         CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string_view text, Language language = LANG_UNIVERSAL, WorldObject const* target = nullptr)

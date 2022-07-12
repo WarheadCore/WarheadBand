@@ -29,6 +29,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "Timer.h"
+#include "Singleton.h"
 #include <atomic>
 #include <list>
 #include <map>
@@ -189,19 +190,12 @@ enum WorldStates
     WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20008                      // Next daily calendar deletions of old events time
 };
 
-// xinef: petitions storage
-struct PetitionData
-{
-};
-
 /// The World
-class WH_GAME_API World
+class WH_GAME_API World : public Warhead::Singleton<World>
 {
 public:
     World();
     ~World();
-
-    static World* instance();
 
     static uint32 m_worldLoopCounter;
 

@@ -24,7 +24,6 @@
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "StringConvert.h"
-#include "TaskScheduler.h"
 #include "Timer.h"
 #include "Tokenize.h"
 #include "World.h"
