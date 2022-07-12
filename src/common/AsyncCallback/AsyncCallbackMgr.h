@@ -20,6 +20,7 @@
 
 #include "AsyncCallbackProcessor.h"
 #include "Duration.h"
+#include "Singleton.h"
 #include <functional>
 #include <future>
 #include <memory>
@@ -45,23 +46,14 @@ namespace Warhead::Async
         AsyncCallback& operator=(AsyncCallback const& right) = delete;
     };
 
-    class AsyncCallbackMgr
+    class WH_COMMON_API AsyncCallbackMgr : public Warhead::Singleton<AsyncCallbackMgr>
     {
     public:
-        AsyncCallbackMgr() = default;
-        ~AsyncCallbackMgr() = default;
-
-        static AsyncCallbackMgr* instance();
-
         void AddAsyncCallback(std::function<void()>&& execute, Microseconds delay = 0us);
-
         void ProcessReadyCallbacks();
 
     private:
         AsyncCallbackProcessor<AsyncCallback> _asyncCallbacks;
-
-        AsyncCallbackMgr(AsyncCallbackMgr const& right) = delete;
-        AsyncCallbackMgr& operator=(AsyncCallbackMgr const& right) = delete;
     };
 }
 

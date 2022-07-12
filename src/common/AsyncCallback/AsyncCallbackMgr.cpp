@@ -26,12 +26,6 @@ bool Warhead::Async::AsyncCallback::InvokeIfReady()
     return false;
 }
 
-/*static*/ Warhead::Async::AsyncCallbackMgr* Warhead::Async::AsyncCallbackMgr::instance()
-{
-    static AsyncCallbackMgr instance;
-    return &instance;
-}
-
 void Warhead::Async::AsyncCallbackMgr::AddAsyncCallback(std::function<void()>&& execute, Microseconds delay /*= 0us*/)
 {
     _asyncCallbacks.AddCallback(AsyncCallback(std::async(std::launch::async, [delay, execute = std::move(execute)]()

@@ -22,7 +22,7 @@
 #include "Duration.h"
 #include <map>
 
-class EventMap
+class WH_COMMON_API EventMap
 {
     /**
     * Internal storage type.

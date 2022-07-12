@@ -64,7 +64,7 @@ class WH_COMMON_API TaskScheduler
     // Success handle type
     typedef std::function<void()> success_t;
 
-    class Task
+    class WH_COMMON_API Task
     {
         friend class TaskContext;
         friend class TaskScheduler;
@@ -129,7 +129,7 @@ class WH_COMMON_API TaskScheduler
         };
     };
 
-    class TaskQueue
+    class WH_COMMON_API TaskQueue
     {
         std::multiset<TaskContainer, Compare> container;
 

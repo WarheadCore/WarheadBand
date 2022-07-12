@@ -23,7 +23,7 @@
 namespace Warhead
 {
     template<class T>
-    class WH_COMMON_API Singleton
+    class Singleton
     {
     public:
         static inline T* instance()
@@ -36,10 +36,10 @@ namespace Warhead
         constexpr Singleton() = default;
         ~Singleton() = default;
 
-        Singleton(Singleton const&) = delete;
-        Singleton(Singleton&&) = delete;
-        Singleton& operator=(Singleton const&) = delete;
-        Singleton& operator=(Singleton&&) = delete;
+        constexpr Singleton(Singleton const&) = delete;
+        constexpr Singleton(Singleton&&) = delete;
+        constexpr Singleton& operator=(Singleton const&) = delete;
+        constexpr Singleton& operator=(Singleton&&) = delete;
     };
 }
 
