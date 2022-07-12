@@ -24,11 +24,9 @@
 #include "Singleton.h"
 #include <string_view>
 
-class AchievementCriteriaEntry;
-class AchievementEntry;
+// Core class
 class AchievementGlobalMgr;
 class AchievementMgr;
-class AreaTrigger;
 class ArenaTeam;
 class AuctionEntry;
 class AuctionHouseMgr;
@@ -42,10 +40,8 @@ class BattlegroundMap;
 class BattlegroundQueue;
 class Channel;
 class ChatHandler;
-class Condition;
 class Creature;
 class CreatureAI;
-class CreatureTemplate;
 class DynamicObject;
 class GameObject;
 class GameObjectAI;
@@ -57,7 +53,6 @@ class InstanceMap;
 class InstanceSave;
 class InstanceScript;
 class Item;
-class ItemTemplate;
 class LootStore;
 class LootTemplate;
 class MailDraft;
@@ -65,7 +60,6 @@ class MailReceiver;
 class MailSender;
 class Map;
 class MapInstanced;
-class MovementInfo;
 class Object;
 class OutdoorPvP;
 class Pet;
@@ -84,8 +78,6 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-class SpellScriptLoader;
-class ModuleReference;
 
 enum ArenaTeamInfoType : uint8;
 enum AuraRemoveMode : uint8;
@@ -102,23 +94,38 @@ enum WeatherState : uint32;
 enum ShutdownExitCode : uint8;
 enum ShutdownMask : uint8;
 
+struct AchievementCriteriaEntry;
+struct AchievementEntry;
+struct AreaTrigger;
 struct CompletedAchievementData;
+struct Condition;
 struct ConditionSourceInfo;
+struct CreatureTemplate;
 struct CriteriaProgress;
 struct DungeonEncounter;
 struct DungeonProgressionRequirements;
 struct GroupQueueInfo;
 struct InstanceTemplate;
 struct ItemSetEffect;
+struct ItemTemplate;
 struct Loot;
 struct LootStoreItem;
 struct MapDifficulty;
 struct MapEntry;
+struct MovementInfo;
 struct PvPDifficultyEntry;
 struct ScalingStatValuesEntry;
 struct SpellModifier;
 struct TargetInfo;
 struct VendorItem;
+
+// Dynamic linking class
+class ModuleReference;
+
+// Script objects
+class SpellScriptLoader;
+
+//
 struct OutdoorPvPData;
 
 namespace lfg
