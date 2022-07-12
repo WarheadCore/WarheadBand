@@ -88,6 +88,8 @@ if (BUILD_APPLICATION_WORLDSERVER OR BUILD_TOOLS_MAPS)
       Detour)
 endif()
 
+add_dependencies(common revision.h)
+
 set_target_properties(common
   PROPERTIES
     FOLDER

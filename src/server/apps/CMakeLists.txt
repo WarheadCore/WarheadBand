@@ -121,8 +121,6 @@ foreach(APPLICATION_NAME ${APPLICATIONS_BUILD_LIST})
   add_executable(${APP_PROJECT_NAME}
     ${APP_PRIVATE_SOURCES})
 
-  add_dependencies(${APP_PROJECT_NAME} revision.h)
-
   target_link_libraries(${APP_PROJECT_NAME}
     PRIVATE
       warhead-core-interface)

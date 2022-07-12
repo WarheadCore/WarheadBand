@@ -43,8 +43,6 @@ target_link_libraries(game-interface
 add_library(game STATIC
   ${PRIVATE_SOURCES})
 
-add_dependencies(game revision.h)
-
 target_include_directories(game
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})

@@ -110,8 +110,6 @@ foreach(TOOL_NAME ${TOOLS_BUILD_LIST})
   add_executable(${TOOL_PROJECT_NAME}
     ${TOOL_PRIVATE_SOURCES})
 
-  add_dependencies(${TOOL_PROJECT_NAME} revision.h)
-
   # Need fix errors in maps tools
   # target_link_libraries(${TOOL_PROJECT_NAME}
   #   PRIVATE
