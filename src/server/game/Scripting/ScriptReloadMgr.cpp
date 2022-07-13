@@ -327,7 +327,7 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
 
     // Use RAII to release the library on failure.
     HandleHolder holder(handle, SharedLibraryUnloader(path, std::move(cache_path)));
-    
+
     std::string fnAddScripts{ "AddScripts" };
     std::string fnGetBuildDirective{ "GetBuildDirective" };
 
