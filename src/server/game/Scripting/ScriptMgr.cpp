@@ -38,12 +38,8 @@ void ScriptMgr::Initialize()
 
     StopWatch sw;
 
-    LOG_WARN("server", "> 1. {}/{}", sScriptMgr->GetNameOfStaticContext(), sScriptMgr->GetCurrentScriptContext());
-
     // Load core scripts
     SetScriptContext(sScriptMgr->GetNameOfStaticContext());
-
-    LOG_WARN("server", "> 2. {}/{}", sScriptMgr->GetNameOfStaticContext(), sScriptMgr->GetCurrentScriptContext());
 
     AddSC_SmartScripts();
 
@@ -130,7 +126,9 @@ void ScriptMgr::LoadDatabase()
 
 void ScriptMgr::SetScriptContext(std::string_view context)
 {
+    LOG_WARN("server", "> 1. Current/Context: {}/{}", _currentContext, context);
     _currentContext = context;
+    LOG_WARN("server", "> 2. Current/Context: {}/{}", _currentContext, context);
 }
 
 void ScriptMgr::SwapScriptContext(bool initialize)
@@ -141,10 +139,8 @@ void ScriptMgr::SwapScriptContext(bool initialize)
 
 std::string_view ScriptMgr::GetNameOfStaticContext()
 {
-    /*static std::string const name{ "___static___" };
-    return name;*/
-
-    return "___static___";
+    static std::string const name{ "___static___" };
+    return name;
 }
 
 void ScriptMgr::ReleaseScriptContext(std::string_view context)
