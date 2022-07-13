@@ -39,7 +39,7 @@ void ScriptMgr::Initialize()
     StopWatch sw;
 
     // Load core scripts
-    SetScriptContext(sScriptMgr->GetNameOfStaticContext());
+    SetScriptContext(GetNameOfStaticContext());
 
     AddSC_SmartScripts();
 

@@ -184,7 +184,7 @@ public: /* Initialization */
     void SetScriptContext(std::string_view context);
 
     /// Returns the current script context.
-    std::string_view GetCurrentScriptContext() const { return _currentContext; }
+    std::string_view GetCurrentScriptContext() { return _currentContext; }
 
     /// Releases all scripts associated with the given script context immediately.
     /// Requires a SwapScriptContext() call afterwards to finish the unloading.
