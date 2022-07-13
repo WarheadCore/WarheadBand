@@ -526,19 +526,14 @@ void World::LoadConfigSettings(bool reload)
 
     if (!reload)
     {
-        auto VMAPBoolToString = [](bool value)
-        {
-            return value ? "Enable" : "Disable";
-        };
-
         LOG_INFO("server.loading", "Loading data configurations...");
         LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
         LOG_INFO("server.loading", "");
         LOG_INFO("server.loading", "Loading VMap configurations...");
-        LOG_INFO("server.loading", "> Line Of Sight:        {}", VMAPBoolToString(enableLOS));
-        LOG_INFO("server.loading", "> Get Height:           {}", VMAPBoolToString(enableHeight));
-        LOG_INFO("server.loading", "> Indoor Check:         {}", VMAPBoolToString(enableIndoor));
-        LOG_INFO("server.loading", "> Pet LOS:              {}", VMAPBoolToString(enablePetLOS));
+        LOG_INFO("server.loading", "> Line Of Sight:        {}", enableLOS);
+        LOG_INFO("server.loading", "> Get Height:           {}", enableHeight);
+        LOG_INFO("server.loading", "> Indoor Check:         {}", enableIndoor);
+        LOG_INFO("server.loading", "> Pet LOS:              {}", enablePetLOS);
     }
 
     if (reload)

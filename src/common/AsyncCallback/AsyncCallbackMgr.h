@@ -54,6 +54,8 @@ namespace Warhead::Async
         void ProcessReadyCallbacks();
 
     private:
+        AsyncCallbackMgr() = default;
+        ~AsyncCallbackMgr() = default;
         AsyncCallbackMgr(AsyncCallbackMgr const&) = delete;
         AsyncCallbackMgr(AsyncCallbackMgr&&) = delete;
         AsyncCallbackMgr& operator=(AsyncCallbackMgr const&) = delete;

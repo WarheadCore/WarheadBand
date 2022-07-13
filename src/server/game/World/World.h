@@ -194,8 +194,7 @@ enum WorldStates
 class WH_GAME_API World
 {
 public:
-    World();
-    ~World();
+    static World* instance();
 
     static uint32 m_worldLoopCounter;
 
@@ -438,6 +437,8 @@ private:
      */
     inline void FinalizePlayerWorldSession(WorldSession* session);
 
+    World();
+    ~World();
     World(World const&) = delete;
     World(World&&) = delete;
     World& operator=(World const&) = delete;
