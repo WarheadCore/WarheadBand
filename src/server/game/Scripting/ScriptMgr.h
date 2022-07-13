@@ -21,7 +21,6 @@
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
-#include "Singleton.h"
 #include <string_view>
 
 // Core class
@@ -147,7 +146,6 @@ namespace Warhead
 }
 
 // Manages registration, loading, and execution of scripts.
-//class WH_GAME_API ScriptMgr : public Warhead::Singleton<ScriptMgr>
 class WH_GAME_API ScriptMgr
 {
 public: /* Initialization */

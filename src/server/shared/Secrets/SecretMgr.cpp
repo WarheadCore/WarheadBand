@@ -49,6 +49,12 @@ static constexpr SecretInfo secret_info[NUM_SECRETS] =
     { "TOTPMasterSecret", "TOTPOldMasterSecret", 128, SERVER_PROCESS_AUTHSERVER, WORLDSERVER_DEFER_LOAD }
 };
 
+/*static*/ SecretMgr* SecretMgr::instance()
+{
+    static SecretMgr instance;
+    return &instance;
+}
+
 static Optional<BigNumber> GetHexFromConfig(char const* configKey, int bits)
 {
     ASSERT(bits > 0);

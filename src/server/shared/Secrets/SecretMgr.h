@@ -21,7 +21,6 @@
 #include "BigNumber.h"
 #include "LogCommon.h"
 #include "Optional.h"
-#include "Singleton.h"
 #include <array>
 #include <mutex>
 #include <string>
@@ -34,7 +33,7 @@ enum Secrets : uint32
     NUM_SECRETS
 };
 
-class WH_SHARED_API SecretMgr : public Warhead::Singleton<SecretMgr>
+class WH_SHARED_API SecretMgr
 {
 public:
     struct Secret
