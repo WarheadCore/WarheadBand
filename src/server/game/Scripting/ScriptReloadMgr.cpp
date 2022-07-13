@@ -92,16 +92,6 @@ namespace std
     };
 }
 
-constexpr bool IsModuleLib(std::string_view name)
-{
-    return name.starts_with(Warhead::StringFormat("{}module_", GetSharedLibraryPrefix()));
-}
-
-constexpr bool IsModuleName(std::string_view name)
-{
-    return name.starts_with("mod-");
-}
-
 // Returns "" on Windows and "lib" on posix.
 static char const* GetSharedLibraryPrefix()
 {
@@ -140,6 +130,16 @@ static bool HasValidModuleName(std::string const& name)
         GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
 
     return std::regex_match(name, regex);
+}
+
+constexpr bool IsModuleLib(std::string_view name)
+{
+    return name.starts_with(Warhead::StringFormat("{}module_", GetSharedLibraryPrefix()));
+}
+
+constexpr bool IsModuleName(std::string_view name)
+{
+    return name.starts_with("mod-");
 }
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
