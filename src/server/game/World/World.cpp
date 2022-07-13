@@ -1538,7 +1538,7 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async callback mgr"));
         sAsyncCallbackMgr->ProcessReadyCallbacks();
-    }    
+    }
 
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update metrics"));
