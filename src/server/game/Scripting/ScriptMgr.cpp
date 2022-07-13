@@ -141,8 +141,10 @@ void ScriptMgr::SwapScriptContext(bool initialize)
 
 std::string_view ScriptMgr::GetNameOfStaticContext()
 {
-    static std::string const name{ "___static___" };
-    return name;
+    /*static std::string const name{ "___static___" };
+    return name;*/
+
+    return "___static___";
 }
 
 void ScriptMgr::ReleaseScriptContext(std::string_view context)
