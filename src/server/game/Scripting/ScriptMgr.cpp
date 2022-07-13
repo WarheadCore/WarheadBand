@@ -143,6 +143,12 @@ std::string_view ScriptMgr::GetNameOfStaticContext()
     return name;
 }
 
+std::string_view ScriptMgr::GetCurrentScriptContext() const
+{
+    LOG_WARN("server", "> GetCurrentScriptContext(): {}", _currentContext);
+    return _currentContext;
+}
+
 void ScriptMgr::ReleaseScriptContext(std::string_view context)
 {
     sScriptRegistryCompositum->ReleaseContext(context);
