@@ -86,6 +86,8 @@ void SecretMgr::Initialize()
         if (!_secrets[i].IsAvailable())
             ABORT(); // load failed
     }
+
+    _test = "Test_____";
 }
 
 SecretMgr::Secret const& SecretMgr::GetSecret(Secrets i)

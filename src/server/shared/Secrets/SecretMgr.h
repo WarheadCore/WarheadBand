@@ -56,11 +56,16 @@ public:
     void Initialize();
     Secret const& GetSecret(Secrets i);
 
+    std::string_view GetTest() { return _test; }
+    void SetTest(std::string_view test) { _test = test; }
+
 private:
     void AttemptLoad(Secrets i, Warhead::LogLevel errorLevel, std::unique_lock<std::mutex> const&);
     [[nodiscard]] Optional<std::string> AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const;
 
     std::array<Secret, NUM_SECRETS> _secrets;
+
+    std::string _test;
 };
 
 #define sSecretMgr SecretMgr::instance()
