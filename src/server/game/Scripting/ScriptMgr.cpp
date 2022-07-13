@@ -140,7 +140,7 @@ void ScriptMgr::SwapScriptContext(bool initialize)
 std::string_view ScriptMgr::GetNameOfStaticContext()
 {
     static std::string const name{ "___static___" };
-    LOG_WARN("server", "> GetNameOfStaticContext: {}/{}", name);
+    LOG_WARN("server", "> GetNameOfStaticContext: {}", name);
     return name;
 }
 
