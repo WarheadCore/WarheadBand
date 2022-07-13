@@ -92,6 +92,11 @@ namespace std
     };
 }
 
+constexpr bool IsModuleLib(std::string_view name)
+{
+    return name.starts_with(Warhead::StringFormat("{}module_", GetSharedLibraryPrefix()));
+}
+
 constexpr bool IsModuleName(std::string_view name)
 {
     return name.starts_with("mod-");
@@ -122,9 +127,8 @@ static char const* GetSharedLibraryExtension()
 static bool HasValidScriptModuleName(std::string const& name)
 {
     // Detects scripts_NAME.dll's / .so's
-    static std::regex const regex(
-        Warhead::StringFormat("^{}[sS]cripts_[a-zA-Z0-9_]+\\.{}$",
-            GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
+    static std::regex const regex(Warhead::StringFormat("^{}[sS]cripts_[a-zA-Z0-9_]+.{}$",
+        GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
 
     return std::regex_match(name, regex);
 }
@@ -132,9 +136,8 @@ static bool HasValidScriptModuleName(std::string const& name)
 static bool HasValidModuleName(std::string const& name)
 {
     // Detects module_NAME.dll's / .so's
-    static std::regex const regex(
-        Warhead::StringFormat("^{}[mM]odule_[a-zA-Z0-9_]+\\.{}$",
-            GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
+    static std::regex const regex(Warhead::StringFormat("^{}[mM]odule_[a-zA-Z0-9_]+.{}$",
+        GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
 
     return std::regex_match(name, regex);
 }
@@ -297,7 +300,7 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
             return path;
     }();
 
-    bool isModule{ HasValidModuleName(load_path.filename().generic_string())};
+    bool isModule{ IsModuleLib(load_path.filename().generic_string())};
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     HandleType handle = LoadLibrary(load_path.generic_string().c_str());
