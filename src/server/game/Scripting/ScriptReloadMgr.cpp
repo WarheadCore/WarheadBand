@@ -132,9 +132,10 @@ static bool HasValidModuleName(std::string const& name)
     return std::regex_match(name, regex);
 }
 
-constexpr bool IsModuleLib(std::string_view name)
+static bool IsModuleLib(std::string_view name)
 {
-    return name.starts_with(Warhead::StringFormat("{}module_", GetSharedLibraryPrefix()));
+    static std::string prefix{ Warhead::StringFormat("{}module_", GetSharedLibraryPrefix()) };
+    return name.starts_with(prefix);
 }
 
 constexpr bool IsModuleName(std::string_view name)
