@@ -297,6 +297,8 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
             return path;
     }();
 
+    bool isModule{ HasValidModuleName(load_path.filename().generic_string())};
+
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     HandleType handle = LoadLibrary(load_path.generic_string().c_str());
 #else // Posix
@@ -322,11 +324,11 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
 
     // Use RAII to release the library on failure.
     HandleHolder holder(handle, SharedLibraryUnloader(path, std::move(cache_path)));
-
+    
     std::string fnAddScripts{ "AddScripts" };
     std::string fnGetBuildDirective{ "GetBuildDirective" };
 
-    if (HasValidModuleName(load_path.filename().generic_string()))
+    if (isModule)
     {
         fnAddScripts = "AddModulesScripts";
         fnGetBuildDirective = "GetModulesBuildDirective";
@@ -337,24 +339,39 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
     GetScriptModuleType getScriptModule;
     GetBuildDirectiveType getBuildDirective;
 
-    if (GetFunctionFromSharedLibrary(handle, "GetScriptModuleRevisionHash", getScriptModuleRevisionHash) &&
-        GetFunctionFromSharedLibrary(handle, fnAddScripts, addScripts) &&
-        GetFunctionFromSharedLibrary(handle, "GetScriptModule", getScriptModule) &&
-        GetFunctionFromSharedLibrary(handle, fnGetBuildDirective, getBuildDirective))
+    if (!GetFunctionFromSharedLibrary(handle, "GetScriptModuleRevisionHash", getScriptModuleRevisionHash))
     {
-        auto module = new ScriptModule(std::move(holder), getScriptModuleRevisionHash,
-            addScripts, getScriptModule, getBuildDirective, path);
-
-        // Unload the module at the next update tick as soon as all references are removed
-        return std::shared_ptr<ScriptModule>(module, ScheduleDelayedDelete);
-    }
-    else
-    {
-        LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"{}\"!",
-            path.generic_string());
-
+        LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library \"{}\". Is module? {}",
+            "GetScriptModuleRevisionHash", path.generic_string(), isModule);
         return {};
     }
+
+    if (!GetFunctionFromSharedLibrary(handle, fnAddScripts, addScripts))
+    {
+        LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library \"{}\". Is module? {}",
+            fnAddScripts, path.generic_string(), isModule);
+        return {};
+    }
+
+    if (!GetFunctionFromSharedLibrary(handle, "GetScriptModule", getScriptModule))
+    {
+        LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library \"{}\". Is module? {}",
+            "GetScriptModule", path.generic_string(), isModule);
+        return {};
+    }
+
+    if (!GetFunctionFromSharedLibrary(handle, fnGetBuildDirective, getBuildDirective))
+    {
+        LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library \"{}\". Is module? {}",
+            fnGetBuildDirective, path.generic_string(), isModule);
+        return {};
+    }
+
+    auto module = new ScriptModule(std::move(holder), getScriptModuleRevisionHash,
+        addScripts, getScriptModule, getBuildDirective, path);
+
+    // Unload the module at the next update tick as soon as all references are removed
+    return std::shared_ptr<ScriptModule>(module, ScheduleDelayedDelete);
 }
 
 /// File watcher responsible for watching shared libraries
