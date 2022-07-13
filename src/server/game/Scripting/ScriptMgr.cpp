@@ -132,9 +132,7 @@ void ScriptMgr::LoadDatabase()
 
 void ScriptMgr::SetScriptContext(std::string_view context)
 {
-    //LOG_WARN("server", "> 1. Current/Context: {}/{}", _currentContext, context);
     _currentContext = context;
-    //LOG_WARN("server", "> 2. Current/Context: {}/{}", _currentContext, context);
 }
 
 void ScriptMgr::SwapScriptContext(bool initialize)
@@ -146,13 +144,11 @@ void ScriptMgr::SwapScriptContext(bool initialize)
 std::string_view ScriptMgr::GetNameOfStaticContext()
 {
     static std::string const name{ "___static___" };
-    //LOG_WARN("server", "> GetNameOfStaticContext: {}", name);
     return name;
 }
 
 std::string_view ScriptMgr::GetCurrentScriptContext() const
 {
-    //LOG_WARN("server", "> GetCurrentScriptContext(): {}", _currentContext);
     return _currentContext;
 }
 
