@@ -341,28 +341,28 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
     if (!GetFunctionFromSharedLibrary(handle, "GetScriptModuleRevisionHash", getScriptModuleRevisionHash))
     {
         LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library: {}. Is module? {}",
-            "GetScriptModuleRevisionHash", path.generic_string(), isModule);
+            "GetScriptModuleRevisionHash", load_path.generic_string(), isModule);
         return {};
     }
 
     if (!GetFunctionFromSharedLibrary(handle, fnAddScripts, addScripts))
     {
         LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library: {}. Is module? {}",
-            fnAddScripts, path.generic_string(), isModule);
+            fnAddScripts, load_path.generic_string(), isModule);
         return {};
     }
 
     if (!GetFunctionFromSharedLibrary(handle, "GetScriptModule", getScriptModule))
     {
         LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library: {}. Is module? {}",
-            "GetScriptModule", path.generic_string(), isModule);
+            "GetScriptModule", load_path.generic_string(), isModule);
         return {};
     }
 
     if (!GetFunctionFromSharedLibrary(handle, fnGetBuildDirective, getBuildDirective))
     {
         LOG_ERROR("scripts.hotswap", "Could not extract '{}' function from library: {}. Is module? {}",
-            fnGetBuildDirective, path.generic_string(), isModule);
+            fnGetBuildDirective, load_path.generic_string(), isModule);
         return {};
     }
 
