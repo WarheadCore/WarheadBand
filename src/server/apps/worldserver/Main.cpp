@@ -303,20 +303,8 @@ int main(int argc, char** argv)
 
     Warhead::Module::SetEnableModulesList(WH_MODULES_LIST);
 
-    LOG_WARN("server", "> 1. Test - {}", sSecretMgr->GetTest());
-
-    sSecretMgr->Initialize();
-
-    LOG_WARN("server", "> 2. Test - {}", sSecretMgr->GetTest());
-
-    sSecretMgr->SetTest("--__--");
-
-    LOG_WARN("server", "> 3. Test - {}", sSecretMgr->GetTest());
-
-    return 0;
-
     ///- Initialize the World
-    //sSecretMgr->Initialize();
+    sSecretMgr->Initialize();
     sWorld->SetInitialWorldSettings();
 
     std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
