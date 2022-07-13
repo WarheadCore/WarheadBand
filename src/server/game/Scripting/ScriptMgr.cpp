@@ -31,6 +31,12 @@ struct TSpellSummary
     uint8 Effects; // set of enum SelectEffect
 }*SpellSummary;
 
+ScriptMgr* ScriptMgr::instance()
+{
+    static ScriptMgr instance;
+    return &instance;
+}
+
 void ScriptMgr::Initialize()
 {
     LOG_INFO("server.loading", "> Loading C++ scripts");

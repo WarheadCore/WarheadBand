@@ -147,9 +147,12 @@ namespace Warhead
 }
 
 // Manages registration, loading, and execution of scripts.
-class WH_GAME_API ScriptMgr : public Warhead::Singleton<ScriptMgr>
+//class WH_GAME_API ScriptMgr : public Warhead::Singleton<ScriptMgr>
+class WH_GAME_API ScriptMgr
 {
 public: /* Initialization */
+    static ScriptMgr* instance();
+
     void Initialize();
     void LoadDatabase();
     void FillSpellSummary();
