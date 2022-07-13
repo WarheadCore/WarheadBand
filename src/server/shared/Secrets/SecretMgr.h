@@ -52,11 +52,10 @@ public:
         friend class SecretMgr;
     };
 
+    static SecretMgr* instance();
+
     void Initialize();
     Secret const& GetSecret(Secrets i);
-
-    std::string_view GetTest() { return _test; }
-    void SetTest(std::string_view test) { _test = test; }
 
 private:
     void AttemptLoad(Secrets i, Warhead::LogLevel errorLevel, std::unique_lock<std::mutex> const&);
@@ -64,7 +63,12 @@ private:
 
     std::array<Secret, NUM_SECRETS> _secrets;
 
-    std::string _test;
+    SecretMgr() = default;
+    ~SecretMgr() = default;
+    SecretMgr(SecretMgr const&) = delete;
+    SecretMgr(SecretMgr&&) = delete;
+    SecretMgr& operator=(SecretMgr const&) = delete;
+    SecretMgr& operator=(SecretMgr&&) = delete;
 };
 
 #define sSecretMgr SecretMgr::instance()
