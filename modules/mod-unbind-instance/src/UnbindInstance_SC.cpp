@@ -27,10 +27,6 @@
 #include "StringConvert.h"
 #include "UnbindInstance.h"
 
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "TaskScheduler.h"
-
 using namespace Warhead::ChatCommands;
 
 class UnbindInstance_CS : public CommandScript
@@ -184,45 +180,6 @@ public:
         sUI->Unbind(player, creature, sender, action, Warhead::StringTo<uint32>(code).value_or(0));
 
         return true;
-    }
-
-    struct UnbindInstance_CreatureAI : public NullCreatureAI
-    {
-        UnbindInstance_CreatureAI(Creature* pCreature) : NullCreatureAI(pCreature)
-        {
-            me->Say("-- UnbindInstance_CreatureAI --", LANG_UNIVERSAL);
-        }
-
-        ~UnbindInstance_CreatureAI()
-        {
-            me->Say("-- ~UnbindInstance_CreatureAI --", LANG_UNIVERSAL);
-        }
-
-        void Reset() override
-        {
-            scheduler.CancelAll();
-
-            me->Say("-- Reset --", LANG_UNIVERSAL);
-
-            scheduler.Schedule(2s, [this](TaskContext context)
-            {
-                me->Say("-- Hi --", LANG_UNIVERSAL);
-                context.Repeat(10s);
-            });
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            scheduler.Update(diff);
-        }
-
-    private:
-        TaskScheduler scheduler;
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const override
-    {
-        return new UnbindInstance_CreatureAI(pCreature);
     }
 };
 
