@@ -24,12 +24,18 @@
 #include <vector>
 #include <string>
 
-// Includes list
+// Add modules defines
 @WARHEAD_SCRIPTS_FORWARD_DECL@
 #ifdef WARHEAD_IS_DYNAMIC_SCRIPTLOADER
 #  include "revision.h"
 #  define WH_MODULES_API WH_API_EXPORT
 extern "C" {
+
+/// Exposed in script modules to return the script module revision hash.
+WH_MODULES_API char const* GetScriptModuleRevisionHash()
+{
+    return _HASH;
+}
 
 /// Exposed in script module to return the name of the script module
 /// contained in this shared library.
@@ -46,7 +52,7 @@ WH_MODULES_API char const* GetScriptModule()
 /// Exposed in script modules to register all scripts to the ScriptMgr.
 WH_MODULES_API void AddModulesScripts()
 {
-    // Modules
+    // Modules define list
 @WARHEAD_SCRIPTS_INVOKE@}
 
 /// Exposed in script modules to get the build directive of the module.

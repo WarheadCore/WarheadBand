@@ -101,6 +101,7 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ScriptReloadMgr.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
@@ -1095,6 +1096,8 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_PINGDB].SetInterval(CONF_GET_INT("MaxPingTime") * MINUTE * IN_MILLISECONDS);  // Mysql ping time in minutes
 
+    m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
+
     // our speed up
     m_timers[WUPDATE_5_SECS].SetInterval(5 * IN_MILLISECONDS);
 
@@ -1361,6 +1364,14 @@ void World::Update(uint32 diff)
         ResetGuildCap();
     }
 
+    /// <li> Handle file changes
+    if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update HotSwap"));
+        sScriptReloadMgr->Update();
+        m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
+    }
+
     // pussywizard:
     // acquire mutex now, this is kind of waiting for listing thread to finish it's work (since it can't process next packet)
     // so we don't have to do it in every packet that modifies auctions
@@ -1527,7 +1538,7 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async callback mgr"));
         sAsyncCallbackMgr->ProcessReadyCallbacks();
-    }
+    }    
 
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update metrics"));

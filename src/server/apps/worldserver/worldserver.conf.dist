@@ -1416,6 +1416,78 @@ Updates.CleanDeadRefMaxCount = 3
 ###################################################################################################
 
 ###################################################################################################
+# HOTSWAP SETTINGS
+#
+#    HotSwap.Enabled (Requires compilation with DYNAMIC_LINKING=1)
+#        Description: Enables dynamic script hotswapping.
+#                     Reloads scripts on changes.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.Enabled = 1
+
+#
+#    HotSwap.ScriptDir
+#        Description: Directory containing the script shared libraries (.dll/.so).
+#        Example:     "/usr/local/scripts"
+#        Default:     "scripts"
+
+HotSwap.ScriptDir = "scripts"
+
+#    HotSwap.EnableReCompiler
+#        Description: Enables the dynamic script recompiler.
+#                     Watches your script source directories and recompiles the
+#                     script modules on changes.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableReCompiler = 1
+
+#    HotSwap.EnableEarlyTermination
+#        Description: Terminate the build of a module when an associated
+#                     source file was changed meanwhile.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableEarlyTermination = 1
+
+#    HotSwap.EnableBuildFileRecreation
+#        Description: Recreate build files when sources to a module
+#                     were added or removed.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableBuildFileRecreation = 1
+
+#
+#    HotSwap.EnableInstall
+#        Description: Enables cmake install after automatic builds have finished
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnableInstall = 1
+
+#
+#    HotSwap.EnablePrefixCorrection
+#        Description: Allows the core to automatic set the CMAKE_INSTALL_PREFIX
+#                     to its current location in the file system.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+HotSwap.EnablePrefixCorrection = 1
+
+#    HotSwap.ReCompilerBuildType
+#        Description: Defines the build type of the builds invoked by the recompiler.
+#        Default:     "" - Built-in build type of the module is used.
+#                     "Release" - Release builds only
+#                     "Debug" - Debug builds only
+
+HotSwap.ReCompilerBuildType = ""
+
+#
+###################################################################################################
+
+###################################################################################################
 # WARDEN SETTINGS
 #
 #    Warden.Enabled
@@ -3840,6 +3912,7 @@ LogChannel.Server = "2","6","[%Y-%m-%d %H:%M:%S] %t","Server.log","true","true",
 LogChannel.GM = "2","6","[%Y-%m-%d %H:%M:%S] %t","GM_{}.log"
 LogChannel.DBErrors = "2","6","[%Y-%m-%d %H:%M:%S] %t","DBErrors.log"
 LogChannel.Modules = "2","6","[%Y-%m-%d %H:%M:%S] %t","Modules.log"
+LogChannel.Hotswap = "2","6","[%Y-%m-%d %H:%M:%S] %t","Hotswap.log"
 
 #
 #  Logger config values: Given a logger "name"
@@ -3869,6 +3942,7 @@ Logger.sql.updates = 5,Console Server
 Logger.mmaps= 5,Server
 Logger.module = 5,Console Modules
 Logger.time.update = 6,Console Server
+Logger.scripts.hotswap=5,Console Hotswap
 
 #Logger.achievement=4,Console Server
 #Logger.addon=4,Console Server

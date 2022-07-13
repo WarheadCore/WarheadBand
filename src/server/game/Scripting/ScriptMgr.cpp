@@ -55,7 +55,16 @@ void ScriptMgr::Initialize()
     _script_loader_callback();
     _modules_loader_callback();
 
+    // Initialize all dynamic scripts
+    // and finishes the context switch to do
+    // bulk loading
+    sScriptReloadMgr->Initialize();
+
+    // Loads all scripts from the current context
+    SwapScriptContext(true);
+
     LOG_INFO("server.loading", ">> Loaded {} C++ scripts in {}", GetScriptCount(), sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ScriptMgr::Unload()
@@ -70,22 +79,25 @@ void ScriptMgr::LoadDatabase()
     ASSERT(sSpellMgr->GetSpellInfo(SPELL_HOTSWAP_VISUAL_SPELL_EFFECT),
         "Reload hotswap spell effect for creatures isn't valid!");
 
-    uint32 oldMSTime = getMSTime();
-
     sScriptSystemMgr->LoadScriptWaypoints();
+
+    LOG_INFO("server.loading", "> Registing database bound scripts...");
+
+    StopWatch sw;
+
+    // Load core scripts
+    SetScriptContext(GetNameOfStaticContext());
 
     // Add all scripts that must be loaded after db/maps
     sScriptRegistryCompositum->LoadDBBoundScripts();
 
     FillSpellSummary();
 
-    // Initialize all dynamic scripts
-    // and finishes the context switch to do
-    // bulk loading
-    sScriptReloadMgr->Initialize();
-
     // Loads all scripts from the current context
     SwapScriptContext(true);
+
+    LOG_INFO("server.loading", ">> Registing database bound scripts is done in {}", sw);
+    LOG_INFO("server.loading", "");
 
     // Print unused script names.
     std::unordered_set<std::string> unusedScriptNames
@@ -97,6 +109,8 @@ void ScriptMgr::LoadDatabase()
     // Remove the used scripts from the given container.
     sScriptRegistryCompositum->RemoveUsedScriptsFromContainer(unusedScriptNames);
 
+    LOG_INFO("server.loading", "> Check unused scripts...");
+
     for (auto const& scriptName : unusedScriptNames)
     {
         // Avoid complaining about empty script names since the
@@ -106,6 +120,8 @@ void ScriptMgr::LoadDatabase()
 
         LOG_ERROR("sql.sql", "Script '{}' is referenced by the database, but does not exist in the core!", scriptName);
     }
+
+    LOG_INFO("server.loading", "");
 }
 
 void ScriptMgr::SetScriptContext(std::string_view context)

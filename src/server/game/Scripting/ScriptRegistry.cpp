@@ -384,6 +384,11 @@ void SpecializedScriptRegistry<ScriptType, true>::SwapContext(bool initialize)
 {
     this->BeforeSwapContext(initialize);
     _recently_added_ids.clear();
+
+    if (initialize)
+        return;
+
+    LoadDBBoundScripts();
 }
 
 template<typename ScriptType>
@@ -406,10 +411,10 @@ void SpecializedScriptRegistry<ScriptType, true>::Unload()
 template<typename ScriptType>
 void SpecializedScriptRegistry<ScriptType, true>::LoadDBBoundScripts()
 {
-    for (auto script : _dbDboundScripts)
+    for (auto [script, context] : _dbDboundScripts)
     {
         ASSERT(script, "Tried to call AddScript with a nullpointer!");
-        ASSERT(!sScriptMgr->GetCurrentScriptContext().empty(), "Tried to register a script without being in a valid script context!");
+        ASSERT(!context.empty(), "Tried to register a script without being in a valid script context!");
 
         std::unique_ptr<ScriptType> script_ptr{ std::move(script) };
 
@@ -437,10 +442,10 @@ void SpecializedScriptRegistry<ScriptType, true>::LoadDBBoundScripts()
 
             // If the script isn't assigned -> assign it!
             _scripts.emplace(id, std::move(script_ptr));
-            _ids_of_contexts.emplace(sScriptMgr->GetCurrentScriptContext(), id);
+            _ids_of_contexts.emplace(context, id);
             _recently_added_ids.emplace(id);
 
-            sScriptRegistryCompositum->SetScriptNameInContext(scriptName, sScriptMgr->GetCurrentScriptContext());
+            sScriptRegistryCompositum->SetScriptNameInContext(scriptName, context);
         }
         else
         {
@@ -463,8 +468,7 @@ void SpecializedScriptRegistry<ScriptType, true>::AddScript(ScriptType* script)
     ASSERT(script, "Tried to call AddScript with a nullpointer!");
     ASSERT(!sScriptMgr->GetCurrentScriptContext().empty(), "Tried to register a script without being in a valid script context!");
 
-    //std::unique_ptr<ScriptType> script_ptr{ script };
-    _dbDboundScripts.emplace_back(script);
+    _dbDboundScripts.emplace_back(script, sScriptMgr->GetCurrentScriptContext());
 }
 
 // Gets a script by its ID (assigned by ObjectMgr).
