@@ -42,8 +42,8 @@
 #include "RealmList.h"
 #include "Resolver.h"
 #include "ScriptLoader.h"
-#include "ScriptReloadMgr.h"
 #include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -60,8 +60,8 @@
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 #include <boost/dll/shared_library.hpp>
-#include <timeapi.h>
 #include <fmt/core.h>
+#include <timeapi.h>
 
 char serviceName[] = "worldserver";
 char serviceLongName[] = "WarheadCore world service";

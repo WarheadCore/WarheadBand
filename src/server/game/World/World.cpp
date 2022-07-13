@@ -77,6 +77,7 @@
 #include "PoolMgr.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "ServerMotd.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
@@ -101,7 +102,6 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ScriptReloadMgr.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 

@@ -20,11 +20,11 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MapMgr.h"
+#include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptObject.h"
 #include "Vehicle.h"
-#include "ObjectMgr.h"
 
 void ScriptRegistryCompositum::SetScriptNameInContext(std::string_view scriptName, std::string_view context)
 {

@@ -28,8 +28,8 @@
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include "Timer.h"
 #include "Singleton.h"
+#include "Timer.h"
 #include <atomic>
 #include <list>
 #include <map>
