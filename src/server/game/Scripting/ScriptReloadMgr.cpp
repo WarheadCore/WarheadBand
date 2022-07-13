@@ -78,9 +78,18 @@ namespace fs = boost::filesystem;
 #undef sScriptReloadMgr
 #define sScriptReloadMgr static_cast<HotSwapScriptReloadMgr*>(ScriptReloadMgr::instance())
 
-constexpr bool IsModuleLibrary(std::string_view name)
+namespace std
 {
-    return name.starts_with("module_");
+    template <>
+    struct hash<fs::path>
+    {
+        hash<string> hasher;
+
+        std::size_t operator()(fs::path const& key) const
+        {
+            return hasher(key.generic_string());
+        }
+    };
 }
 
 constexpr bool IsModuleName(std::string_view name)
@@ -108,6 +117,26 @@ static char const* GetSharedLibraryExtension()
 #else // Posix
     return "so";
 #endif
+}
+
+static bool HasValidScriptModuleName(std::string const& name)
+{
+    // Detects scripts_NAME.dll's / .so's
+    static std::regex const regex(
+        Warhead::StringFormat("^{}[sS]cripts_[a-zA-Z0-9_]+\\.{}$",
+            GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
+
+    return std::regex_match(name, regex);
+}
+
+static bool HasValidModuleName(std::string const& name)
+{
+    // Detects module_NAME.dll's / .so's
+    static std::regex const regex(
+        Warhead::StringFormat("^{}[mM]odule_[a-zA-Z0-9_]+\\.{}$",
+            GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
+
+    return std::regex_match(name, regex);
 }
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
@@ -297,7 +326,7 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
     std::string fnAddScripts{ "AddScripts" };
     std::string fnGetBuildDirective{ "GetBuildDirective" };
 
-    if (IsModuleLibrary(load_path.filename().generic_string()))
+    if (HasValidModuleName(load_path.filename().generic_string()))
     {
         fnAddScripts = "AddModulesScripts";
         fnGetBuildDirective = "GetModulesBuildDirective";
@@ -328,26 +357,6 @@ ScriptModule::CreateFromPath(fs::path const& path, Optional<fs::path> cache_path
     }
 }
 
-static bool HasValidScriptModuleName(std::string const& name)
-{
-    // Detects scripts_NAME.dll's / .so's
-    static std::regex const regex(
-        Warhead::StringFormat("^{}[sS]cripts_[a-zA-Z0-9_]+\\.{}$",
-            GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
-
-    return std::regex_match(name, regex);
-}
-
-static bool HasValidModuleName(std::string const& name)
-{
-    // Detects module_NAME.dll's / .so's
-    static std::regex const regex(
-        Warhead::StringFormat("^{}[mM]odule_[a-zA-Z0-9_]+\\.{}$",
-            GetSharedLibraryPrefix(), GetSharedLibraryExtension()));
-
-    return std::regex_match(name, regex);
-}
-
 /// File watcher responsible for watching shared libraries
 class LibraryUpdateListener : public efsw::FileWatchListener
 {
@@ -376,20 +385,6 @@ public:
     void handleFileAction(efsw::WatchID /*watchid*/, std::string const& dir,
         std::string const& filename, efsw::Action action, std::string oldFilename = "") final override;
 };
-
-namespace std
-{
-    template <>
-    struct hash<fs::path>
-    {
-        hash<string> hasher;
-
-        std::size_t operator()(fs::path const& key) const
-        {
-            return hasher(key.generic_string());
-        }
-    };
-}
 
 /// Invokes a synchronous CMake process with the given arguments
 template<typename... T>
