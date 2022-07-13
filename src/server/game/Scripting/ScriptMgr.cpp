@@ -38,8 +38,12 @@ void ScriptMgr::Initialize()
 
     StopWatch sw;
 
+    LOG_WARN("server", "> 1. {}/{}", GetNameOfStaticContext(), GetCurrentScriptContext());
+
     // Load core scripts
     SetScriptContext(GetNameOfStaticContext());
+
+    LOG_WARN("server", "> 2. {}/{}", GetNameOfStaticContext(), GetCurrentScriptContext());
 
     AddSC_SmartScripts();
 
