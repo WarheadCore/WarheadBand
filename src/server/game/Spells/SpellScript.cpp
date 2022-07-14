@@ -16,6 +16,7 @@
  */
 
 #include "SpellScript.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"

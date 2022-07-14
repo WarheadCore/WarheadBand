@@ -18,8 +18,8 @@
 #ifndef _SCRIPT_MGR_MACRO_H_
 #define _SCRIPT_MGR_MACRO_H_
 
-#include "ScriptRegistry.h"
 #include "Optional.h"
+#include "ScriptRegistry.h"
 
 template<typename ScriptName>
 inline Optional<bool> IsValidBoolScript(std::function<bool(ScriptName*)> executeHook)

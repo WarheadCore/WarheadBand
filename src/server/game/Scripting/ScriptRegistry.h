@@ -509,7 +509,7 @@ private:
     // Script id's which were registered recently
     std::unordered_set<uint32> _recently_added_ids;
 
-    std::vector<ScriptType*> _dbDboundScripts;
+    std::vector<std::pair<ScriptType*, std::string>> _dbDboundScripts;
 };
 
 /// This hook is responsible for swapping CommandScript's

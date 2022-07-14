@@ -43,6 +43,7 @@
 #include "Resolver.h"
 #include "ScriptLoader.h"
 #include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "World.h"
@@ -59,8 +60,8 @@
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 #include <boost/dll/shared_library.hpp>
-#include <timeapi.h>
 #include <fmt/core.h>
+#include <timeapi.h>
 
 char serviceName[] = "worldserver";
 char serviceLongName[] = "WarheadCore world service";
@@ -266,7 +267,7 @@ int main(int argc, char** argv)
     std::shared_ptr<void> sScriptMgrHandle(nullptr, [](void*)
     {
         sScriptMgr->Unload();
-        //sScriptReloadMgr->Unload();
+        sScriptReloadMgr->Unload();
     });
 
     LOG_INFO("server.loading", "Initializing Scripts...");
@@ -402,6 +403,12 @@ int main(int argc, char** argv)
         thr->join();
         delete thr;
     });
+
+    if (sConfigMgr->isDryRun())
+    {
+        LOG_INFO("server.loading", "Dry run completed, terminating.");
+        World::StopNow(SHUTDOWN_EXIT_CODE);
+    }
 
     WorldUpdateLoop();
 

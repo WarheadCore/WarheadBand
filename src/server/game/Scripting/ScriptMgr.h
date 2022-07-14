@@ -21,7 +21,6 @@
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
-#include "Singleton.h"
 #include <string_view>
 
 // Core class
@@ -147,9 +146,11 @@ namespace Warhead
 }
 
 // Manages registration, loading, and execution of scripts.
-class WH_GAME_API ScriptMgr : public Warhead::Singleton<ScriptMgr>
+class WH_GAME_API ScriptMgr
 {
 public: /* Initialization */
+    static ScriptMgr* instance();
+
     void Initialize();
     void LoadDatabase();
     void FillSpellSummary();
@@ -184,7 +185,7 @@ public: /* Initialization */
     void SetScriptContext(std::string_view context);
 
     /// Returns the current script context.
-    std::string_view GetCurrentScriptContext() const { return _currentContext; }
+    std::string_view GetCurrentScriptContext() const;
 
     /// Releases all scripts associated with the given script context immediately.
     /// Requires a SwapScriptContext() call afterwards to finish the unloading.

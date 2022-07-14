@@ -29,7 +29,6 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "Timer.h"
-#include "Singleton.h"
 #include <atomic>
 #include <list>
 #include <map>
@@ -119,6 +118,7 @@ enum WorldTimers
     WUPDATE_PINGDB,
     WUPDATE_5_SECS,
     WUPDATE_WHO_LIST,
+    WUPDATE_CHECK_FILECHANGES,
     WUPDATE_COUNT
 };
 
@@ -191,11 +191,10 @@ enum WorldStates
 };
 
 /// The World
-class WH_GAME_API World : public Warhead::Singleton<World>
+class WH_GAME_API World
 {
 public:
-    World();
-    ~World();
+    static World* instance();
 
     static uint32 m_worldLoopCounter;
 
@@ -437,6 +436,13 @@ private:
      * @param session The World Session that we are finalizing.
      */
     inline void FinalizePlayerWorldSession(WorldSession* session);
+
+    World();
+    ~World();
+    World(World const&) = delete;
+    World(World&&) = delete;
+    World& operator=(World const&) = delete;
+    World& operator=(World&&) = delete;
 };
 
 WH_GAME_API extern Realm realm;

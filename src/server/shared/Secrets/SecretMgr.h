@@ -21,7 +21,6 @@
 #include "BigNumber.h"
 #include "LogCommon.h"
 #include "Optional.h"
-#include "Singleton.h"
 #include <array>
 #include <mutex>
 #include <string>
@@ -34,7 +33,7 @@ enum Secrets : uint32
     NUM_SECRETS
 };
 
-class WH_SHARED_API SecretMgr : public Warhead::Singleton<SecretMgr>
+class WH_SHARED_API SecretMgr
 {
 public:
     struct Secret
@@ -53,6 +52,8 @@ public:
         friend class SecretMgr;
     };
 
+    static SecretMgr* instance();
+
     void Initialize();
     Secret const& GetSecret(Secrets i);
 
@@ -61,6 +62,13 @@ private:
     [[nodiscard]] Optional<std::string> AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const;
 
     std::array<Secret, NUM_SECRETS> _secrets;
+
+    SecretMgr() = default;
+    ~SecretMgr() = default;
+    SecretMgr(SecretMgr const&) = delete;
+    SecretMgr(SecretMgr&&) = delete;
+    SecretMgr& operator=(SecretMgr const&) = delete;
+    SecretMgr& operator=(SecretMgr&&) = delete;
 };
 
 #define sSecretMgr SecretMgr::instance()

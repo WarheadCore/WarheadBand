@@ -19,9 +19,9 @@
 #define _CLIENT_SOCKET_MGR_H_
 
 #include "AsioHacksFwd.h"
+#include "DeadlineTimer.h"
 #include "DiscordPacket.h"
 #include "PacketQueue.h"
-#include "DeadlineTimer.h"
 #include <atomic>
 #include <memory>
 #include <mutex>

@@ -24,7 +24,7 @@
 #include <vector>
 #include <string>
 
-// Add default scripts include
+// Add scripts defines
 @WARHEAD_SCRIPTS_FORWARD_DECL@
 #ifdef WARHEAD_IS_DYNAMIC_SCRIPTLOADER
 #  include "revision.h"
@@ -52,7 +52,7 @@ WH_SCRIPT_API char const* GetScriptModule()
 /// Exposed in script modules to register all scripts to the ScriptMgr.
 WH_SCRIPT_API void AddScripts()
 {
-    // Default scripts
+    // Scripts define list
 @WARHEAD_SCRIPTS_INVOKE@}
 
 /// Exposed in script modules to get the build directive of the module.

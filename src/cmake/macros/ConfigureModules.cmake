@@ -22,7 +22,11 @@ endfunction()
 
 # Stores the project name of the given module in the variable
 function(GetProjectNameOfModuleName module variable)
-  string(TOLOWER "mod_${SOURCE_MODULE}" GENERATED_NAME)
+  string(TOLOWER "module_${SOURCE_MODULE}" GENERATED_NAME)
+
+  # Replace bad words
+  string(REGEX REPLACE - "_" GENERATED_NAME ${GENERATED_NAME})
+
   set(${variable} "${GENERATED_NAME}" PARENT_SCOPE)
 endfunction()
 

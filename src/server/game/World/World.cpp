@@ -77,6 +77,7 @@
 #include "PoolMgr.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
+#include "ScriptReloadMgr.h"
 #include "ServerMotd.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
@@ -168,6 +169,12 @@ World::~World()
     MMAP::MMapFactory::clear();
 
     //TODO free addSessQueue
+}
+
+/*static*/ World* World::instance()
+{
+    static World instance;
+    return &instance;
 }
 
 /// Find a player in a specified zone
@@ -519,19 +526,14 @@ void World::LoadConfigSettings(bool reload)
 
     if (!reload)
     {
-        auto VMAPBoolToString = [](bool value)
-        {
-            return value ? "Enable" : "Disable";
-        };
-
         LOG_INFO("server.loading", "Loading data configurations...");
         LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
         LOG_INFO("server.loading", "");
         LOG_INFO("server.loading", "Loading VMap configurations...");
-        LOG_INFO("server.loading", "> Line Of Sight:        {}", VMAPBoolToString(enableLOS));
-        LOG_INFO("server.loading", "> Get Height:           {}", VMAPBoolToString(enableHeight));
-        LOG_INFO("server.loading", "> Indoor Check:         {}", VMAPBoolToString(enableIndoor));
-        LOG_INFO("server.loading", "> Pet LOS:              {}", VMAPBoolToString(enablePetLOS));
+        LOG_INFO("server.loading", "> Line Of Sight:        {}", enableLOS);
+        LOG_INFO("server.loading", "> Get Height:           {}", enableHeight);
+        LOG_INFO("server.loading", "> Indoor Check:         {}", enableIndoor);
+        LOG_INFO("server.loading", "> Pet LOS:              {}", enablePetLOS);
     }
 
     if (reload)
@@ -1095,6 +1097,8 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_PINGDB].SetInterval(CONF_GET_INT("MaxPingTime") * MINUTE * IN_MILLISECONDS);  // Mysql ping time in minutes
 
+    m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
+
     // our speed up
     m_timers[WUPDATE_5_SECS].SetInterval(5 * IN_MILLISECONDS);
 
@@ -1225,13 +1229,6 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", " ");
 
     METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
-
-    if (sConfigMgr->isDryRun())
-    {
-        sMapMgr->UnloadAll();
-        LOG_INFO("server.loading", "Dry run completed, terminating.");
-        exit(0);
-    }
 }
 
 void World::DetectDBCLang()
@@ -1359,6 +1356,14 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Reset guild cap"));
         ResetGuildCap();
+    }
+
+    /// <li> Handle file changes
+    if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update HotSwap"));
+        sScriptReloadMgr->Update();
+        m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
     // pussywizard:

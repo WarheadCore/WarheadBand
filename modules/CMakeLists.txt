@@ -300,8 +300,9 @@ endif()
 function(GetPathToModuleConfig module variable)
   set(${variable} "${CMAKE_SOURCE_DIR}/modules/${module}/conf" PARENT_SCOPE)
 endfunction()
-message(STATUS "* Modules config list:
-  |")
+
+message(STATUS "* Modules config list:")
+message(STATUS "  |")
 
 foreach(ModuleName ${MODULE_LIST__})
   GetPathToModuleConfig(${ModuleName} MODULE_CONFIG_PATH)
