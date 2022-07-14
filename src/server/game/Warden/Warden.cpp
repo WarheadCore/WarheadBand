@@ -20,6 +20,7 @@
 #include "BanMgr.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "CryptoHash.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
