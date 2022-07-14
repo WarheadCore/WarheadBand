@@ -658,7 +658,7 @@ public:
             if (!fs::exists(library_directory) || !fs::is_directory(library_directory))
             {
                 LOG_ERROR("scripts.hotswap", "Library directory \"{}\" doesn't exist!.",
-                    library_directory.generic_string().c_str());
+                    library_directory.generic_string());
                 return;
             }
         }
@@ -673,7 +673,7 @@ public:
             !fs::create_directories(temporary_cache_path_, code))
         {
             LOG_ERROR("scripts.hotswap", "Couldn't create the cache directory at \"{}\".",
-                temporary_cache_path_.generic_string().c_str());
+                temporary_cache_path_.generic_string());
 
             return;
         }
@@ -1082,8 +1082,8 @@ private:
                 {
                     /*
                     FIXME: Currently crashes the server
-                    LOG_INFO("scripts.hotswap", "Terminating the running build of module \"%s\"...",
-                                _build_job->GetModuleName().c_str());
+                    LOG_INFO("scripts.hotswap", "Terminating the running build of module \"{}\"...",
+                                _build_job->GetModuleName());
 
                     _build_job->GetProcess()->Terminate();
                     _build_job.reset();
@@ -1337,10 +1337,10 @@ private:
             boost::system::error_code error;
                 if (!fs::exists(cmake_cache_path, error))
                 {
-                    LOG_ERROR("scripts.hotswap", ">> CMake cache \"%s\" doesn't exist, "
+                    LOG_ERROR("scripts.hotswap", ">> CMake cache \"{}\" doesn't exist, "
                         "set the \"BuildDirectory\" option in your worldserver.conf to point"
                         "to your build directory!",
-                        cmake_cache_path.generic_string().c_str());
+                        cmake_cache_path.generic_string());
 
                         return false;
                 }
@@ -1532,7 +1532,7 @@ static char const* ActionToString(efsw::Action action)
 void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string const& dir,
     std::string const& filename, efsw::Action action, std::string oldFilename)
 {
-    // LOG_TRACE("scripts.hotswap", "Library listener detected change on possible module \"%s\ (%s)".", filename.c_str(), ActionToString(action));
+    // LOG_TRACE("scripts.hotswap", "Library listener detected change on possible module \"{}\ ({})".", filename, ActionToString(action));
 
     // Split moved actions into a delete and an add action
     if (action == efsw::Action::Moved)
@@ -1611,7 +1611,7 @@ SourceUpdateListener::~SourceUpdateListener()
 void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string const& dir,
     std::string const& filename, efsw::Action action, std::string oldFilename)
 {
-    // LOG_TRACE("scripts.hotswap", "Source listener detected change on possible file \"%s/%s\" (%s).", dir.c_str(), filename.c_str(), ActionToString(action));
+    // LOG_TRACE("scripts.hotswap", "Source listener detected change on possible file \"{}/{}\" ({}).", dir, filename, ActionToString(action));
 
     // Skip the file change notification if the recompiler is disabled
     if (!CONF_GET_BOOL("HotSwap.EnableReCompiler"))

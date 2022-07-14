@@ -5401,7 +5401,7 @@ void ObjectMgr::ValidateSpellScripts()
 
                 if (!spellScript && !auraScript)
                 {
-                    LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped", GetScriptName(itr->second.first).c_str());
+                    LOG_ERROR("scripts", "Functions GetSpellScript() and GetAuraScript() of script `{}` do not return objects - script skipped", GetScriptName(itr->second.first));
 
                     itr->second.second = false;
                     continue;
