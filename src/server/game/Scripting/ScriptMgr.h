@@ -496,6 +496,13 @@ public: /* PlayerScript */
     void OnPlayerEnterCombat(Player* player, Unit* enemy);
     void OnPlayerLeaveCombat(Player* player);
     void OnQuestAbandon(Player* player, uint32 questId);
+    void OnGetDodgeFromAgility(Player* player, float& diminishing, float& nondiminishing);
+    void OnGetArmorFromAgility(Player* player, float& value);
+    void OnGetMeleeCritFromAgility(Player* player, float& value);
+    void OnGetSpellCritFromIntellect(Player* player, float& value);
+    void OnGetManaBonusFromIntellect(Player* player, float& value);
+    void OnGetShieldBlockValue(Player* player, float& value);
+    void OnUpdateAttackPowerAndDamage(Player* player, float& apFromAgility);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);

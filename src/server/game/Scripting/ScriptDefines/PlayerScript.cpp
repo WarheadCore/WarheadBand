@@ -1318,3 +1318,60 @@ bool ScriptMgr::AnticheatCheckMovementInfo(Player* player, MovementInfo const& m
 
     return ReturnValidBool(ret);
 }
+
+// Warhead hooks
+void ScriptMgr::OnGetDodgeFromAgility(Player* player, float& diminishing, float& nondiminishing)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnGetDodgeFromAgility(player, diminishing, nondiminishing);
+    });
+}
+
+void ScriptMgr::OnGetArmorFromAgility(Player* player, float& value)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnGetArmorFromAgility(player, value);
+    });
+}
+
+void ScriptMgr::OnGetMeleeCritFromAgility(Player* player, float& value)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnGetMeleeCritFromAgility(player, value);
+    });
+}
+
+void ScriptMgr::OnGetSpellCritFromIntellect(Player* player, float& value)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnGetSpellCritFromIntellect(player, value);
+    });
+}
+
+void ScriptMgr::OnGetManaBonusFromIntellect(Player* player, float& value)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnGetManaBonusFromIntellect(player, value);
+    });
+}
+
+void ScriptMgr::OnGetShieldBlockValue(Player* player, float& value)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnGetShieldBlockValue(player, value);
+    });
+}
+
+void ScriptMgr::OnUpdateAttackPowerAndDamage(Player* player, float& afFromAgility)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnUpdateAttackPowerAndDamage(player, afFromAgility);
+    });
+}

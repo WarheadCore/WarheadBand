@@ -1432,6 +1432,15 @@ public:
      */
     virtual void OnQuestAbandon(Player* /*player*/, uint32 /*questId*/) { }
 
+    // Warhead hooks
+    virtual void OnGetDodgeFromAgility(Player* /*player*/, float& /*diminishing*/, float& /*nondiminishing*/) { }
+    virtual void OnGetArmorFromAgility(Player* /*player*/, float& /*value*/) { }
+    virtual void OnGetMeleeCritFromAgility(Player* /*player*/, float& /*value*/) { }
+    virtual void OnGetSpellCritFromIntellect(Player* /*player*/, float& /*value*/) { }
+    virtual void OnGetManaBonusFromIntellect(Player* /*player*/, float& /*value*/) { }
+    virtual void OnGetShieldBlockValue(Player* /*player*/, float& /*value*/) { }
+    virtual void OnUpdateAttackPowerAndDamage(Player* /*player*/, float& /*apFromAgility*/) { }
+
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }
     virtual void AnticheatSetCanFlybyServer(Player* /*player*/, bool /*apply*/) { }
