@@ -34,12 +34,14 @@
 #include "Log.h"
 #include "Logo.h"
 #include "MySQLThreading.h"
+#include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "Util.h"
 #include <boost/asio/signal_set.hpp>
+#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <csignal>
@@ -101,11 +103,15 @@ int main(int argc, char** argv)
         []()
         {
             LOG_INFO("server.authserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
-            LOG_INFO("server.authserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            LOG_INFO("server.authserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             LOG_INFO("server.authserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-            LOG_INFO("server.authserver", "> Using logs directory:           '{}'", sLog->GetLogsDir());
+            LOG_INFO("server.authserver", "> Using logs directory:           {}", sLog->GetLogsDir());
         }
     );
+
+    OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename().generic_string());
+
+    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetOption<std::string>("PidFile", "");

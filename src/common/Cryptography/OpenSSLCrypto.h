@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OPENSSL_CRYPTO_H
-#define OPENSSL_CRYPTO_H
+#ifndef _WARHEAD_OPENSSL_CRYPTO_H
+#define _WARHEAD_OPENSSL_CRYPTO_H
 
 #include "Define.h"
-#include <openssl/opensslv.h>
+#include <string_view>
 
 /**
 * A group of functions which setup openssl crypto module to work properly in multithreaded enviroment
@@ -27,17 +27,11 @@
 */
 namespace OpenSSLCrypto
 {
-
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
     /// Needs to be called before threads using openssl are spawned
-    void threadsSetup();
-    /// Needs to be called after threads using openssl are despawned
-    void threadsCleanup();
-#else
-    void threadsSetup() { };
-    void threadsCleanup() { };
-#endif
+    WH_COMMON_API void threadsSetup(std::string_view providerModulePath);
 
+    /// Needs to be called after threads using openssl are despawned
+    WH_COMMON_API void threadsCleanup();
 }
 
 #endif

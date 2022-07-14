@@ -89,6 +89,7 @@ namespace Warhead::Crypto
     {
         using IV = typename Cipher::IV;
         using Tag = typename Cipher::Tag;
+
         // extract trailing IV and tag
         IV iv;
         Tag tag;
