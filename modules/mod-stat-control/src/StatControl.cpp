@@ -45,6 +45,12 @@ namespace
     }
 }
 
+StatControlMgr* StatControlMgr::instance()
+{
+    static StatControlMgr instance;
+    return &instance;
+}
+
 void StatControlMgr::Initialize()
 {
     if (!_isEnable)

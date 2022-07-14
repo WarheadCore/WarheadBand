@@ -18,7 +18,7 @@
 #ifndef _STAT_CONTROL_H_
 #define _STAT_CONTROL_H_
 
-#include "Singleton.h"
+#include "Define.h"
 #include <unordered_map>
 
 enum class StatControlType : uint8
@@ -34,9 +34,11 @@ enum class StatControlType : uint8
     Max
 };
 
-class StatControlMgr : public Warhead::Singleton<StatControlMgr>
+class StatControlMgr
 {
 public:
+    StatControlMgr* instance();
+
     void Initialize();
     void LoadConfig(bool reload);
 
