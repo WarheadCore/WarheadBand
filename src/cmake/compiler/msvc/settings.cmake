@@ -13,8 +13,8 @@
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(MSVC_EXPECTED_VERSION 19.24)
-set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2019 16.4")
+set(MSVC_EXPECTED_VERSION 19.32)
+set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17.2")
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
   message(FATAL_ERROR "MSVC: WarheadCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
@@ -78,7 +78,7 @@ target_compile_options(warhead-compile-option-interface
   INTERFACE
     /MP)
 
-if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0) OR BUILD_SHARED_LIBS)
+if((PLATFORM EQUAL 64) OR BUILD_SHARED_LIBS)
   # Enable extended object support
   target_compile_options(warhead-compile-option-interface
     INTERFACE
@@ -91,13 +91,10 @@ endif()
 # When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
 # that the program will eventually be linked with a conforming operator new implementation,
 # and can omit all of these extra null checks from your program.
-# http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
-if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
-  # makes this flag a requirement to build TC at all
-  target_compile_options(warhead-compile-option-interface
-    INTERFACE
-      /Zc:throwingNew)
-endif()
+# makes this flag a requirement to build WH at all
+target_compile_options(warhead-compile-option-interface
+  INTERFACE
+    /Zc:throwingNew)
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 target_compile_definitions(warhead-compile-option-interface
@@ -175,9 +172,7 @@ target_compile_options(warhead-warning-interface
 # This will make compiler behave like in 2019 - compiling num_cpus * num_projects at the same time
 # it is neccessary because of a bug in current implementation that makes scripts build only a single
 # file at the same time after game project finishes building
-if (NOT MSVC_TOOLSET_VERSION LESS 143)
-  file(COPY "${CMAKE_CURRENT_LIST_DIR}/Directory.Build.props" DESTINATION "${CMAKE_BINARY_DIR}")
-endif()
+file(COPY "${CMAKE_CURRENT_LIST_DIR}/Directory.Build.props" DESTINATION "${CMAKE_BINARY_DIR}")
 
 # Disable incremental linking in debug builds.
 # To prevent linking getting stuck (which might be fixed in a later VS version).
