@@ -16,9 +16,7 @@
  */
 
 #include "StatControl.h"
-#include "ScriptMgr.h"
-#include "Chat.h"
-#include "Player.h"
+#include "ScriptObject.h"
 
 class StatControl_Player : public PlayerScript
 {

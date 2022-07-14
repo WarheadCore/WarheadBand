@@ -37,7 +37,7 @@ enum class StatControlType : uint8
 class StatControlMgr
 {
 public:
-    StatControlMgr* instance();
+    static StatControlMgr* instance();
 
     void Initialize();
     void LoadConfig(bool reload);
