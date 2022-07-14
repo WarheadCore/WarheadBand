@@ -25,7 +25,7 @@
 class WH_COMMON_API AuthCrypt
 {
 public:
-    AuthCrypt();
+    AuthCrypt() = default;
 
     void Init(SessionKey const& K);
     void DecryptRecv(uint8* data, size_t len);
@@ -36,6 +36,6 @@ public:
 private:
     Warhead::Crypto::ARC4 _clientDecrypt;
     Warhead::Crypto::ARC4 _serverEncrypt;
-    bool _initialized;
+    bool _initialized{ false };
 };
 #endif

@@ -20,10 +20,7 @@
 
 #include "AuthDefines.h"
 #include "BigNumber.h"
-#include "Common.h"
 #include "CryptoHash.h"
-#include "Define.h"
-#include <array>
 #include <optional>
 
 namespace Warhead::Crypto
@@ -33,8 +30,10 @@ namespace Warhead::Crypto
     public:
         static constexpr size_t SALT_LENGTH = 32;
         using Salt = std::array<uint8, SALT_LENGTH>;
+
         static constexpr size_t VERIFIER_LENGTH = 32;
         using Verifier = std::array<uint8, VERIFIER_LENGTH>;
+
         static constexpr size_t EPHEMERAL_KEY_LENGTH = 32;
         using EphemeralKey = std::array<uint8, EPHEMERAL_KEY_LENGTH>;
 
@@ -43,6 +42,7 @@ namespace Warhead::Crypto
 
         // username + password must be passed through Utf8ToUpperOnlyLatin FIRST!
         static std::pair<Salt, Verifier> MakeRegistrationData(std::string const& username, std::string const& password);
+
         // username + password must be passed through Utf8ToUpperOnlyLatin FIRST!
         static bool CheckLogin(std::string const& username, std::string const& password, Salt const& salt, Verifier const& verifier)
         {
@@ -67,7 +67,7 @@ namespace Warhead::Crypto
         static BigNumber const _g; // a [g]enerator for the ring of integers mod N, algorithm parameter
         static BigNumber const _N; // the modulus, an algorithm parameter; all operations are mod this
 
-        static EphemeralKey _B(BigNumber const& b, BigNumber const& v) { return ((_g.ModExp(b, _N) + (v * 3)) % N).ToByteArray<EPHEMERAL_KEY_LENGTH>(); }
+        static EphemeralKey _B(BigNumber const& b, BigNumber const& v) { return ((_g.ModExp(b,_N) + (v * 3)) % N).ToByteArray<EPHEMERAL_KEY_LENGTH>(); }
 
         /* per-instantiation parameters, set on construction */
         SHA1::Digest const _I; // H(I) - the username, all uppercase

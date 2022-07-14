@@ -35,7 +35,7 @@ namespace Warhead::Crypto
         using Key = std::array<uint8, KEY_SIZE_BYTES>;
         using Tag = uint8[TAG_SIZE_BYTES];
 
-        explicit AES(bool encrypting);
+        AES(bool encrypting);
         ~AES();
 
         void Init(Key const& key);
