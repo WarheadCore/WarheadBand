@@ -1229,13 +1229,6 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", " ");
 
     METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
-
-    if (sConfigMgr->isDryRun())
-    {
-        sMapMgr->UnloadAll();
-        LOG_INFO("server.loading", "Dry run completed, terminating.");
-        exit(0);
-    }
 }
 
 void World::DetectDBCLang()

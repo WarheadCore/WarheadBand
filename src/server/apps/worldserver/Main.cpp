@@ -404,6 +404,12 @@ int main(int argc, char** argv)
         delete thr;
     });
 
+    if (sConfigMgr->isDryRun())
+    {
+        LOG_INFO("server.loading", "Dry run completed, terminating.");
+        World::StopNow(SHUTDOWN_EXIT_CODE);
+    }
+
     WorldUpdateLoop();
 
     // Shutdown starts here
