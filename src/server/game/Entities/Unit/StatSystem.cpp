@@ -247,9 +247,12 @@ void Player::UpdateArmor()
 {
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
+    float armorFromAgility = GetStat(STAT_AGILITY) * 2.0f;
+    sScriptMgr->OnGetArmorFromAgility(this, armorFromAgility);
+
     float value = GetModifierValue(unitMod, BASE_VALUE);   // base armor (from items)
     value *= GetModifierValue(unitMod, BASE_PCT);           // armor percent from items
-    value += GetStat(STAT_AGILITY) * 2.0f;                  // armor bonus from stats
+    value += armorFromAgility; // armor bonus from stats
     value += GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
@@ -283,8 +286,10 @@ float Player::GetManaBonusFromIntellect()
 
     float baseInt = intellect < 20 ? intellect : 20;
     float moreInt = intellect - baseInt;
+    float totalValue = baseInt + (moreInt * 15.0f);
 
-    return baseInt + (moreInt * 15.0f);
+    sScriptMgr->OnGetManaBonusFromIntellect(this, totalValue);
+    return totalValue;
 }
 
 void Player::UpdateMaxHealth()
@@ -325,8 +330,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
     float val2 = 0.0f;
     float level = float(getLevel());
+    float apFromAgility = GetStat(STAT_AGILITY) - 10.0f;
 
     sScriptMgr->OnBeforeUpdateAttackPowerAndDamage(this, level, val2, ranged);
+    sScriptMgr->OnUpdateAttackPowerAndDamage(this, apFromAgility);
 
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
@@ -343,11 +350,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         switch (getClass())
         {
             case CLASS_HUNTER:
-                val2 = level * 2.0f + GetStat(STAT_AGILITY) - 10.0f;
+                val2 = level * 2.0f + apFromAgility;
                 break;
             case CLASS_ROGUE:
             case CLASS_WARRIOR:
-                val2 = level + GetStat(STAT_AGILITY) - 10.0f;
+                val2 = level + apFromAgility;
                 break;
             case CLASS_DRUID:
                 switch (GetShapeshiftForm())
@@ -358,12 +365,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                         val2 = 0.0f;
                         break;
                     default:
-                        val2 = GetStat(STAT_AGILITY) - 10.0f;
+                        val2 = apFromAgility;
                         break;
                 }
                 break;
             default:
-                val2 = GetStat(STAT_AGILITY) - 10.0f;
+                val2 = apFromAgility;
                 break;
         }
     }
@@ -379,7 +386,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             case CLASS_HUNTER:
             case CLASS_SHAMAN:
             case CLASS_ROGUE:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
+                val2 = level * 2.0f + GetStat(STAT_STRENGTH) - 10.0f + apFromAgility;
                 break;
             case CLASS_DRUID:
                 {
@@ -448,7 +455,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                     switch (GetShapeshiftForm())
                     {
                         case FORM_CAT:
-                            val2 = (getLevel() * mLevelMult) + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + weapon_bonus + m_baseFeralAP;
+                            val2 = (getLevel() * mLevelMult) + GetStat(STAT_STRENGTH) * 2.0f - 10.0f + apFromAgility + weapon_bonus + m_baseFeralAP;
                             break;
                         case FORM_BEAR:
                         case FORM_DIREBEAR:

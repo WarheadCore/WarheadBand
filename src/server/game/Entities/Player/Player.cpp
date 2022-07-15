@@ -4975,7 +4975,10 @@ float Player::GetTotalBaseModValue(BaseModGroup modGroup) const
 
 uint32 Player::GetShieldBlockValue() const
 {
-    float value = (m_auraBaseMod[SHIELD_BLOCK_VALUE][FLAT_MOD] + GetStat(STAT_STRENGTH) * 0.5f - 10) * m_auraBaseMod[SHIELD_BLOCK_VALUE][PCT_MOD];
+    float blockFromStrenght = GetStat(STAT_STRENGTH) * 0.5f;
+    sScriptMgr->OnGetShieldBlockValue(const_cast<Player*>(this), blockFromStrenght);
+
+    float value = (m_auraBaseMod[SHIELD_BLOCK_VALUE][FLAT_MOD] + blockFromStrenght - 10) * m_auraBaseMod[SHIELD_BLOCK_VALUE][PCT_MOD];
 
     value = (value < 0) ? 0 : value;
 
@@ -4995,8 +4998,9 @@ float Player::GetMeleeCritFromAgility()
     if (!critBase || !critRatio)
         return 0.0f;
 
-    float crit = critBase->base + GetStat(STAT_AGILITY) * critRatio->ratio;
-    return crit * 100.0f;
+    float crit = (critBase->base + GetStat(STAT_AGILITY) * critRatio->ratio) * 100.0f;
+    sScriptMgr->OnGetMeleeCritFromAgility(this, crit);
+    return crit;
 }
 
 void Player::GetDodgeFromAgility(float& diminishing, float& nondiminishing)
@@ -5050,6 +5054,8 @@ void Player::GetDodgeFromAgility(float& diminishing, float& nondiminishing)
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
     diminishing = 100.0f * bonus_agility * dodgeRatio->ratio * crit_to_dodge[pclass - 1];
     nondiminishing = 100.0f * (dodge_base[pclass - 1] + base_agility * dodgeRatio->ratio * crit_to_dodge[pclass - 1]);
+
+    sScriptMgr->OnGetDodgeFromAgility(this, diminishing, nondiminishing);
 }
 
 float Player::GetSpellCritFromIntellect()
@@ -5065,8 +5071,9 @@ float Player::GetSpellCritFromIntellect()
     if (!critBase || !critRatio)
         return 0.0f;
 
-    float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
-    return crit * 100.0f;
+    float crit = (critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio) * 100.0f;
+    sScriptMgr->OnGetSpellCritFromIntellect(this, crit);
+    return crit;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
