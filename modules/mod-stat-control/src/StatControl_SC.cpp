@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "StatControl.h"
 #include "ScriptObject.h"
+#include "StatControl.h"
 
 class StatControl_Player : public PlayerScript
 {

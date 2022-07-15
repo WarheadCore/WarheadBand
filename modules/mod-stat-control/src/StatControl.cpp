@@ -16,11 +16,11 @@
  */
 
 #include "StatControl.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "StopWatch.h"
-#include "DatabaseEnv.h"
-#include "Containers.h"
 
 namespace
 {
