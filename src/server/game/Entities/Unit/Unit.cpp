@@ -3618,8 +3618,12 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
             {
                 // generic spells always break channeled not delayed spells
                 if (Spell* s = GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                    if (s->GetSpellInfo()->Id != 69051) // pussywizard: FoS, boss Devourer of Souls, Mirrored Soul, does not have any special attribute
+                {
+                    if (!s->GetSpellInfo()->IsActionAllowedChannel())
+                    {
                         InterruptSpell(CURRENT_CHANNELED_SPELL, false);
+                    }
+                }
 
                 // autorepeat breaking
                 if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
@@ -3654,7 +3658,14 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
                 if (pSpell->m_spellInfo->Id != 75)
                 {
                     // generic autorepeats break generic non-delayed and channeled non-delayed spells
-                    InterruptSpell(CURRENT_GENERIC_SPELL, false);
+                    if (Spell* s = GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                    {
+                        if (!s->GetSpellInfo()->IsActionAllowedChannel())
+                        {
+                            InterruptSpell(CURRENT_CHANNELED_SPELL, false);
+                        }
+                    }
+
                     InterruptSpell(CURRENT_CHANNELED_SPELL, false);
                 }
                 // special action: set first cast flag
@@ -3789,7 +3800,7 @@ bool Unit::IsMovementPreventedByCasting() const
     {
         if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
         {
-            if (spell->GetSpellInfo()->IsMoveAllowedChannel())
+            if (spell->GetSpellInfo()->IsActionAllowedChannel())
             {
                 return false;
             }
@@ -3798,15 +3809,6 @@ bool Unit::IsMovementPreventedByCasting() const
 
     // prohibit movement for all other spell casts
     return true;
-}
-
-bool Unit::CanMoveDuringChannel() const
-{
-    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-        if (spell->getState() != SPELL_STATE_FINISHED)
-            return spell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTION_DURING_CHANNEL) && spell->IsChannelActive();
-
-    return false;
 }
 
 bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
@@ -13182,6 +13184,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, uint32 duration)
 
             if (creature->GetFormation())
                 creature->GetFormation()->MemberEngagingTarget(creature, enemy);
+
+            sScriptMgr->OnUnitEnterCombat(creature, enemy);
         }
 
         creature->RefreshSwimmingFlag();
@@ -16354,6 +16358,8 @@ void Unit::SetDisplayId(uint32 modelId)
     // Set Gender by modelId
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
         SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
+
+    sScriptMgr->OnDisplayIdChange(this, modelId);
 }
 
 void Unit::RestoreDisplayId()
@@ -17493,6 +17499,7 @@ void Unit::Kill(Unit* killer, Unit* victim, bool durabilityLoss, WeaponAttackTyp
         if (CreatureAI* ai = creature->AI())
         {
             ai->JustDied(killer);
+            sScriptMgr->OnUnitDeath(creature, killer);
         }
 
         if (TempSummon* summon = creature->ToTempSummon())

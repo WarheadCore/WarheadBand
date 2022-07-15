@@ -30,8 +30,6 @@ public:
     MovementGeneratorType GetMovementGeneratorType() override { return IDLE_MOTION_TYPE; }
 };
 
-WH_GAME_API extern IdleMovementGenerator si_idleMovement;
-
 class WH_GAME_API RotateMovementGenerator : public MovementGenerator
 {
 public:

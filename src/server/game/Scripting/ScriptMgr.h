@@ -563,6 +563,7 @@ public: /* GlobalScript */
     bool OnIsAffectedBySpellModCheck(SpellInfo const* affectSpell, SpellInfo const* checkSpell, SpellModifier const* mod);
     bool OnSpellHealingBonusTakenNegativeModifiers(Unit const* target, Unit const* caster, SpellInfo const* spellInfo, float& val);
     void OnLoadSpellCustomAttr(SpellInfo* spell);
+    bool OnAllowedForPlayerLootCheck(Player const* player, ObjectGuid source);
 
 public: /* UnitScript */
     void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
@@ -582,6 +583,10 @@ public: /* UnitScript */
     bool IsCustomBuildValuesUpdate(Unit const* unit, uint8 updateType, ByteBuffer* fieldBuffer, Player const* target, uint16 index);
     bool OnBuildValuesUpdate(Unit const* unit, uint8 updateType, ByteBuffer* fieldBuffer, Player* target, uint16 index);
     void OnUnitUpdate(Unit* unit, uint32 diff);
+    void OnDisplayIdChange(Unit* unit, uint32 displayId);
+    void OnUnitEnterEvadeMode(Unit* unit, uint8 why);
+    void OnUnitEnterCombat(Unit* unit, Unit* victim);
+    void OnUnitDeath(Unit* unit, Unit* killer);
 
 public: /* MovementHandlerScript */
     void OnPlayerMove(Player* player, MovementInfo* movementInfo, uint32 opcode);
