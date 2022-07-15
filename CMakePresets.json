@@ -1,0 +1,54 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 2
+  },
+  "configurePresets": [
+    {
+      "name": "windows-dynamic",
+      "displayName": "Windows dynamic all",
+      "description": "Build with dynamic libs, scripts and modules",
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "WITH_DYNAMIC_LINKING": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "MODULES": "dynamic",
+        "SCRIPTS": "dynamic"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-dynamic-winfidonarleyan",
+      "inherits": "windows-dynamic",
+      "displayName": "Windows dynamic all | W",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "PATH",
+          "value": "F:/Core/Kargatum"
+          }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-dynamic",
+      "configurePreset": "windows-dynamic"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "windows-dynamic",
+      "configurePreset": "windows-dynamic",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    }
+  ]
+}
