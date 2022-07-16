@@ -151,10 +151,5 @@ bool ScriptMgr::OnAllowedForPlayerLootCheck(Player const* player, ObjectGuid sou
         return script->OnAllowedForPlayerLootCheck(player, source);
     });
 
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
+    return ReturnValidBool(ret, true);
 }

@@ -18,12 +18,9 @@
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "CreatureAIFactory.h"
-
 #include "MovementGenerator.h"
-
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
-
 #include "ScriptMgr.h"
 
 namespace FactorySelector

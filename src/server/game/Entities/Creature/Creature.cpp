@@ -1036,7 +1036,7 @@ bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
 
     AIM_Destroy();
 
-    i_AI = ai ? ai : FactorySelector::selectAI(this);
+    i_AI = ai ? ai : FactorySelector::SelectAI(this);
     return true;
 }
 

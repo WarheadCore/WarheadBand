@@ -481,6 +481,11 @@ public:
      * @param diff Contains information about the diff time
      */
     virtual void OnUnitUpdate(Unit* /*unit*/, uint32 /*diff*/) { }
+
+    virtual void OnDisplayIdChange(Unit* /*unit*/, uint32 /*displayId*/) { }
+    virtual void OnUnitEnterEvadeMode(Unit* /*unit*/, uint8 /*evadeReason*/) { }
+    virtual void OnUnitEnterCombat(Unit* /*unit*/, Unit* /*victim*/) { }
+    virtual void OnUnitDeath(Unit* /*unit*/, Unit* /*killer*/) { }
 };
 
 class WH_GAME_API MovementHandlerScript : public ScriptObject
@@ -1590,6 +1595,9 @@ public:
 
     // Called after loading spell dbc corrections
     virtual void OnLoadSpellCustomAttr(SpellInfo* /*spell*/) { }
+
+    // Called when checking if a player can see the creature loot
+    virtual bool OnAllowedForPlayerLootCheck(Player const* /*player*/, ObjectGuid /*source*/) { return false; };
 };
 
 class WH_GAME_API BGScript : public ScriptObject

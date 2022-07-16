@@ -362,7 +362,7 @@ class spell_blood_siphon : public SpellScript
         // Max. 20 targets
         if (!targets.empty())
         {
-            Acore::Containers::RandomResize(targets, 20);
+            Warhead::Containers::RandomResize(targets, 20);
         }
     }
 

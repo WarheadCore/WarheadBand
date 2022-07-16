@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Vehicle.h"
 #include "Language.h"
+#include "ScriptMgr.h"
 
 class PhasedRespawn : public BasicEvent
 {
