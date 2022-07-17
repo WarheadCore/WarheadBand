@@ -17,7 +17,6 @@
 
 #include "StringFormat.h"
 #include "Log.h"
-#include <Poco/String.h>
 #include <Warhead/RegularExpression.h>
 #include <Warhead/RegularExpressionException.h>
 #include <locale>
@@ -53,34 +52,15 @@ WH_COMMON_API Str Warhead::String::Trim(const Str& s, const std::locale& loc /*=
     return s;
 }
 
-std::string Warhead::String::TrimLeft(std::string& str)
-{
-    return Poco::trimLeft(str);
-}
-
-std::string Warhead::String::TrimLeftInPlace(std::string& str)
-{
-    return Poco::trimLeftInPlace(str);
-}
-
-std::string Warhead::String::TrimRight(std::string& str)
-{
-    return Poco::trimRight(str);
-}
-
 std::string Warhead::String::TrimRightInPlace(std::string& str)
 {
-    return Poco::trimRightInPlace(str);
-}
+    std::ptrdiff_t pos = static_cast<std::ptrdiff_t>(str.size()) - 1;
 
-std::string Warhead::String::Replace(std::string& str, std::string const& from, std::string const& to)
-{
-    return Poco::replace(str, from, to);
-}
+    while (pos >= 0 && std::isspace(str[pos]))
+        --pos;
 
-std::string Warhead::String::ReplaceInPlace(std::string& str, std::string const& from, std::string const& to)
-{
-    return Poco::replaceInPlace(str, from, to);
+    str.resize(pos + 1);
+    return str;
 }
 
 uint32 Warhead::String::PatternReplace(std::string& subject, std::string_view pattern, std::string_view replacement)

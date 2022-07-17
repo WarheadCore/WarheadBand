@@ -21,7 +21,9 @@
 #include "IpAddress.h"
 #include "Log.h"
 #include "StringConvert.h"
+#include "StopWatch.h"
 #include <fstream>
+
 IpLocationStore::IpLocationStore()
 {
 }
@@ -34,6 +36,8 @@ void IpLocationStore::Load()
 {
     _ipLocationStore.clear();
     LOG_INFO("server.loading", "Loading IP Location Database...");
+
+    StopWatch sw;
 
     std::string databaseFilePath = sConfigMgr->GetOption<std::string>("IPLocationFile", "");
     if (databaseFilePath.empty())
@@ -101,7 +105,7 @@ void IpLocationStore::Load()
 
     databaseFile.close();
 
-    LOG_INFO("server.loading", ">> Loaded {} ip location entries.", static_cast<uint32>(_ipLocationStore.size()));
+    LOG_INFO("server.loading", ">> Loaded {} ip location entries in {}", _ipLocationStore.size(), sw);
     LOG_INFO("server.loading", "");
 }
 
