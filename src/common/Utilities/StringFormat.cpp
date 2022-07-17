@@ -16,7 +16,10 @@
  */
 
 #include "StringFormat.h"
+#include "Log.h"
 #include <Poco/String.h>
+#include <Warhead/RegularExpression.h>
+#include <Warhead/RegularExpressionException.h>
 #include <locale>
 
 template<class Str>
@@ -78,6 +81,21 @@ std::string Warhead::String::Replace(std::string& str, std::string const& from, 
 std::string Warhead::String::ReplaceInPlace(std::string& str, std::string const& from, std::string const& to)
 {
     return Poco::replaceInPlace(str, from, to);
+}
+
+uint32 Warhead::String::PatternReplace(std::string& subject, std::string_view pattern, std::string_view replacement)
+{
+    try
+    {
+        RegularExpression re(pattern, RegularExpression::RE_MULTILINE);
+        return re.subst(subject, replacement, RegularExpression::RE_GLOBAL);
+    }
+    catch (const RegularExpressionException& e)
+    {
+        LOG_FATAL("util", "> Warhead::String::PatternReplace: {}", e.GetErrorMessage());
+    }
+
+    return 0;
 }
 
 // Template Trim

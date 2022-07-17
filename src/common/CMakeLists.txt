@@ -79,7 +79,8 @@ target_link_libraries(common
     stdfs
     fmt
     valgrind
-    indicators::indicators)
+    indicators::indicators
+    WarheadRegex)
 
 if (BUILD_APPLICATION_WORLDSERVER OR BUILD_TOOLS_MAPS)
   target_link_libraries(common

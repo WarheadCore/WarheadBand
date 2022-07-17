@@ -25,6 +25,7 @@ add_subdirectory(stdfs)
 add_subdirectory(threads)
 add_subdirectory(utf8cpp)
 add_subdirectory(valgrind)
+add_subdirectory(WarheadRegex)
 
 if ((APPS_BUILD AND (NOT APPS_BUILD STREQUAL "none")) OR BUILD_TOOLS_DB_IMPORT)
   add_subdirectory(mysql)
