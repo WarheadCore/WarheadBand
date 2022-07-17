@@ -16,7 +16,6 @@
 ########################################
 # AntiAD module configuration
 ########################################
-[worldserver]
 
 ###################################################################################################
 #
@@ -28,18 +27,17 @@
 AntiAD.Enable = 0
 
 #
-#    AntiAD.Send.GMMessage.Enable
+#    AntiAD.MessageSend.GM.Enable
 #        Description: Enable notify all GMs.
 #        Default: 1
 #
-#
-#    AntiAD.Send.SelfMessage.Enable
+#    AntiAD.MessageSend.Self.Enable
 #        Description: Show forbidden word message self.
 #        Default: 1
 #
 
-AntiAD.Send.GMMessage.Enable = 1
-AntiAD.Send.SelfMessage.Enable = 1
+AntiAD.MessageSend.GM.Enable = 1
+AntiAD.MessageSend.Self.Enable = 1
 
 #
 #    AntiAD.Mute.Player.Enable
@@ -50,14 +48,14 @@ AntiAD.Send.SelfMessage.Enable = 1
 #        Description: Enable mute for GMs.
 #        Default: 0
 #
-#    AntiAD.Mute.Time
+#    AntiAD.Mute.Duration
 #        Description: Mute time in minutes.
 #        Default: 1
 #
 
 AntiAD.Mute.Player.Enable = 1
 AntiAD.Mute.GM.Enable = 0
-AntiAD.Mute.Count = 1
+AntiAD.Mute.Duration = 1
 
 #
 #    AntiAD.Check.Channels
