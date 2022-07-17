@@ -75,6 +75,9 @@ public:
 
         LOG_INFO("module.antiad", "Loading anti advertisment...");
 
+        // Init default re
+        _reDefault = std::make_unique<Warhead::RegularExpression>("[wW]\s*[oO]\s*[wW]", Warhead::RegularExpression::RE_MULTILINE);
+
         QueryResult result = WorldDatabase.Query("SELECT Pattern FROM `anti_ad_patterns`");
         if (!result)
         {
@@ -83,7 +86,7 @@ public:
             return;
         }
 
-        _patterns.clear();
+        _reStore.clear();
 
         do
         {
@@ -96,8 +99,8 @@ public:
 
             try
             {
-                Warhead::RegularExpression re(pattern);
-                _patterns.emplace_back(pattern);
+                auto re = std::make_unique<Warhead::RegularExpression>(pattern, Warhead::RegularExpression::RE_MULTILINE);
+                _reStore.emplace_back(std::move(re));
             }
             catch (Warhead::RegularExpressionException const& e)
             {
@@ -105,7 +108,7 @@ public:
             }
         } while (result->NextRow());
 
-        LOG_INFO("module.antiad", ">> Loading {} pattern in {}", _patterns.size(), sw);
+        LOG_INFO("module.antiad", ">> Loading {} pattern in {}", _reStore.size(), sw);
         LOG_INFO("module.antiad", "");
     }
 
@@ -121,8 +124,7 @@ public:
     {
         try
         {
-            Warhead::RegularExpression re("[wW]\s*[oO]\s*[wW]", Warhead::RegularExpression::RE_MULTILINE);
-            if (re.subst(msg, "***", Warhead::RegularExpression::RE_GLOBAL))
+            if (_reDefault->subst(msg, "***", Warhead::RegularExpression::RE_GLOBAL))
             {
                 msg = "$%^&";
                 return true;
@@ -133,17 +135,14 @@ public:
             LOG_FATAL("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
         }
 
-        if (_patterns.empty())
+        if (_reStore.empty())
             return false;
 
         try
         {
-            for (auto const& pattern : _patterns)
-            {
-                Warhead::RegularExpression re(pattern, Warhead::RegularExpression::RE_MULTILINE);
-                if (re.subst(msg, "***", Warhead::RegularExpression::RE_GLOBAL))
+            for (auto const& re : _reStore)
+                if (re->subst(msg, "***", Warhead::RegularExpression::RE_GLOBAL))
                     return true;
-            }
         }
         catch (Warhead::RegularExpressionException const& e)
         {
@@ -194,7 +193,8 @@ private:
     bool _isEnableMuteGM{ false };
     Minutes _muteDuration{ 0min };
     int32 _checkChannelsFlag{ 0 };
-    std::vector<std::string> _patterns;
+    std::vector<std::unique_ptr<Warhead::RegularExpression>> _reStore;
+    std::unique_ptr<Warhead::RegularExpression> _reDefault;
 };
 
 #define sAD AntiAD::instance()
