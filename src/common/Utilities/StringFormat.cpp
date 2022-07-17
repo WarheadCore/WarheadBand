@@ -21,6 +21,8 @@
 #include <Warhead/RegularExpressionException.h>
 #include <locale>
 
+constexpr char CHAR_WHITESPACE = ' ';
+
 template<class Str>
 WH_COMMON_API Str Warhead::String::Trim(const Str& s, const std::locale& loc /*= std::locale()*/)
 {
@@ -52,14 +54,19 @@ WH_COMMON_API Str Warhead::String::Trim(const Str& s, const std::locale& loc /*=
     return s;
 }
 
-std::string Warhead::String::TrimRightInPlace(std::string& str)
+std::string_view Warhead::String::TrimLeft(std::string_view str)
 {
-    std::ptrdiff_t pos = static_cast<std::ptrdiff_t>(str.size()) - 1;
+    while (!str.empty() && (str.front() == CHAR_WHITESPACE))
+        str.remove_prefix(1);
 
-    while (pos >= 0 && std::isspace(str[pos]))
-        --pos;
+    return str;
+}
 
-    str.resize(pos + 1);
+std::string_view Warhead::String::TrimRight(std::string_view str)
+{
+    while (!str.empty() && (str.back() == CHAR_WHITESPACE))
+        str.remove_suffix(1);
+
     return str;
 }
 

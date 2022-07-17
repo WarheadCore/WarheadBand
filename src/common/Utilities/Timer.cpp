@@ -179,7 +179,7 @@ std::string Warhead::Time::ToTimeString(Microseconds durationTime, uint8 outCoun
     if (microsecs)
         AddOut(microsecs, "us ", " Microsecond ", " Microseconds ");
 
-    return Warhead::String::TrimRightInPlace(out);
+    return std::string{ Warhead::String::TrimRight(out) };
 }
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
