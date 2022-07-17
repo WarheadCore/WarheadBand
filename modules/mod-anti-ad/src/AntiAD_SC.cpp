@@ -24,8 +24,9 @@
 #include "MuteMgr.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include <Poco/Exception.h>
-#include <Poco/RegularExpression.h>
+#include "StopWatch.h"
+#include <Warhead/RegularExpressionException.h>
+#include <Warhead/RegularExpression.h>
 #include <vector>
 
 enum AntiADChannelsType : uint8
@@ -46,83 +47,154 @@ public:
         return &instance;
     }
 
-    void Init()
+    inline void LoadConfig()
     {
-        if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))
+        _isEnable = MOD_CONF_GET_BOOL("AntiAD.Enable");
+        if (!_isEnable)
+            return;
+
+        _isEnableGMMessage = MOD_CONF_GET_BOOL("AntiAD.MessageSend.GM.Enable");
+        _isEnableSelfMessage = MOD_CONF_GET_BOOL("AntiAD.MessageSend.Self.Enable");
+        _isEnableMutePlayer = MOD_CONF_GET_BOOL("AntiAD.Mute.Player.Enable");
+        _isEnableMuteGM = MOD_CONF_GET_BOOL("AntiAD.Mute.GM.Enable");
+        _muteDuration = Minutes(MOD_CONF_GET_INT("AntiAD.Mute.Duration"));
+        _checkChannelsFlag = MOD_CONF_GET_INT("AntiAD.Check.Channels");
+    }
+
+    inline void Init()
+    {
+        if (!_isEnable)
             return;
 
         LoadDataFromDB();
     }
 
-    void LoadDataFromDB()
+    inline void LoadDataFromDB()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         LOG_INFO("module.antiad", "Loading anti advertisment...");
+
+        // Init default re
+        _reDefault = std::make_unique<Warhead::RegularExpression>("[wW]\s*[oO]\s*[wW]", Warhead::RegularExpression::RE_MULTILINE);
 
         QueryResult result = WorldDatabase.Query("SELECT Pattern FROM `anti_ad_patterns`");
         if (!result)
         {
-            LOG_INFO("module.antiad", ">> Loading 0 word. DB table `anti_ad_patterns` is empty.");
+            LOG_INFO("module.antiad", ">> Loading 0 patterns. DB table `anti_ad_patterns` is empty.");
             LOG_INFO("module.antiad", "");
             return;
         }
 
-        _pattern = "";
+        _reStore.clear();
 
         do
         {
-            _pattern += "(" + result->Fetch()->Get<std::string>() + ")|";
+            auto const& [pattern] = result->FetchTuple<std::string>();
+            if (pattern.empty())
+            {
+                LOG_ERROR("module.antiad", "Found empty pattern, skip");
+                continue;
+            }
+
+            try
+            {
+                auto re = std::make_unique<Warhead::RegularExpression>(pattern, Warhead::RegularExpression::RE_MULTILINE);
+                _reStore.emplace_back(std::move(re));
+            }
+            catch (Warhead::RegularExpressionException const& e)
+            {
+                LOG_ERROR("module.antiad", ">> Warhead::RegularExpressionException: {}", e.GetErrorMessage());
+            }
         } while (result->NextRow());
 
-        // Delete last (|)
-        if (!_pattern.empty())
-            _pattern.erase(_pattern.end() - 1, _pattern.end());
-
-        try
-        {
-            Poco::RegularExpression re(_pattern);
-            LOG_INFO("module.antiad", ">> Regular expression successfully loaded in {} ms", GetMSTimeDiffToNow(oldMSTime));
-        }
-        catch (const Poco::Exception& e)
-        {
-            LOG_FATAL("module.antiad", ">> {}", e.displayText());
-            LOG_FATAL("module.antiad", ">> Regular expression failed loaded ({})", _pattern);
-
-            // Set disable module
-            sModulesConfig->SetOption("AntiAD.Enable", false);
-        }
-
+        LOG_INFO("module.antiad", ">> Loading {} pattern in {}", _reStore.size(), sw);
         LOG_INFO("module.antiad", "");
     }
 
-    bool IsNeedCheckChannel(uint8 channelType)
+    inline bool IsNeedCheckChannel(uint8 channelType)
     {
+        if (!_isEnable)
+            return false;
+
         return channelType & MOD_CONF_GET_INT("AntiAD.Check.Channels");
     }
 
-    bool IsValidMessage(std::string& msg)
+    inline bool IsValidMessage(std::string& msg)
     {
-        if (_pattern.empty())
+        try
+        {
+            if (_reDefault->subst(msg, "***", Warhead::RegularExpression::RE_GLOBAL))
+            {
+                msg = "$%^&";
+                return true;
+            }
+        }
+        catch (Warhead::RegularExpressionException const& e)
+        {
+            LOG_FATAL("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
+        }
+
+        if (_reStore.empty())
             return false;
 
         try
         {
-            Poco::RegularExpression re(_pattern, Poco::RegularExpression::RE_CASELESS);
-
-            if (re.subst(msg, "***", Poco::RegularExpression::RE_GLOBAL))
-                return true;
+            for (auto const& re : _reStore)
+                if (re->subst(msg, "***", Warhead::RegularExpression::RE_GLOBAL))
+                    return true;
         }
-        catch (const Poco::Exception& e)
+        catch (Warhead::RegularExpressionException const& e)
         {
-            LOG_FATAL("module.antiad", "{}", e.displayText());
+            LOG_FATAL("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
         }
 
         return false;
     }
 
+    inline void MutePlayer(Player* player)
+    {
+        if (!_isEnableMutePlayer)
+            return;
+
+        if (AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) && !_isEnableMuteGM)
+            return;
+
+        sMute->MutePlayer(player->GetName(), _muteDuration, "Console", "Anti ad system");
+
+        if (_isEnableSelfMessage)
+            sModuleLocale->SendPlayerMessage(player, "ANTIAD_LOCALE_SEND_SELF", _muteDuration.count());
+    }
+
+    inline void SendGMTexts(Player* player, std::string_view message)
+    {
+        if (!_isEnableGMMessage)
+            return;
+
+        sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_GM_TEXT", ChatHandler(player->GetSession()).GetNameLink(player), message);
+    }
+
+    inline void CheckMessage(Player* player, std::string& msg)
+    {
+        std::string const message = msg;
+
+        if (IsValidMessage(msg))
+        {
+            SendGMTexts(player, message);
+            MutePlayer(player);
+        }
+    };
+
 private:
-    std::string _pattern;
+    bool _isEnable{ false };
+    bool _isEnableGMMessage{ false };
+    bool _isEnableSelfMessage{ false };
+    bool _isEnableMutePlayer{ false };
+    bool _isEnableMuteGM{ false };
+    Minutes _muteDuration{ 0min };
+    int32 _checkChannelsFlag{ 0 };
+    std::vector<std::unique_ptr<Warhead::RegularExpression>> _reStore;
+    std::unique_ptr<Warhead::RegularExpression> _reDefault;
 };
 
 #define sAD AntiAD::instance()
@@ -137,7 +209,7 @@ public:
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_SAY))
             return;
 
-        CheckMessage(player, msg);
+        sAD->CheckMessage(player, msg);
     }
 
     void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player* /*receiver*/) override
@@ -145,7 +217,7 @@ public:
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_WHISPER))
             return;
 
-        CheckMessage(player, msg);
+        sAD->CheckMessage(player, msg);
     }
 
     void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Group* /*group*/) override
@@ -153,7 +225,7 @@ public:
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_GROUP))
             return;
 
-        CheckMessage(player, msg);
+        sAD->CheckMessage(player, msg);
     }
 
     void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Guild* /*guild*/) override
@@ -161,7 +233,7 @@ public:
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_GUILD))
             return;
 
-        CheckMessage(player, msg);
+        sAD->CheckMessage(player, msg);
     }
 
     void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* /*channel*/) override
@@ -169,47 +241,8 @@ public:
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_CHANNEL))
             return;
 
-        CheckMessage(player, msg);
+        sAD->CheckMessage(player, msg);
     }
-
-private:
-    void Mute(Player* player)
-    {
-        if (!MOD_CONF_GET_BOOL("AntiAD.Mute.Player.Enable"))
-            return;
-
-        if (AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) && !MOD_CONF_GET_BOOL("AntiAD.Mute.GM.Enable"))
-            return;
-
-        uint32 muteTime = MOD_CONF_GET_INT("AntiAD.Mute.Count");
-
-        sMute->MutePlayer(player->GetName(), Seconds(muteTime), "Console", "Advertisment");
-
-        if (MOD_CONF_GET_BOOL("AntiAD.Send.SelfMessage.Enable"))
-            sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_SELF", muteTime);
-    }
-
-    void SendGMTexts(Player* player, std::string const& message)
-    {
-        if (!MOD_CONF_GET_BOOL("AntiAD.Send.GMMessage.Enable"))
-            return;
-
-        sModuleLocale->SendGlobalMessage(true, "ANTIAD_LOCALE_SEND_GM_TEXT", ChatHandler(player->GetSession()).GetNameLink(player).c_str(), message.c_str());
-    }
-
-    void CheckMessage(Player* player, std::string& msg)
-    {
-        if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))
-            return;
-
-        std::string const message = msg;
-
-        if (sAD->IsValidMessage(msg))
-        {
-            SendGMTexts(player, message);
-            Mute(player);
-        }
-    };
 };
 
 class AntiAD_World : public WorldScript
@@ -217,11 +250,13 @@ class AntiAD_World : public WorldScript
 public:
     AntiAD_World() : WorldScript("AntiAD_World") { }
 
+    void OnAfterConfigLoad(bool /*reload*/) override
+    {
+        sAD->LoadConfig();
+    }
+
     void OnStartup() override
     {
-        if (!MOD_CONF_GET_BOOL("AntiAD.Enable"))
-            return;
-
         sAD->Init();
     }
 };
