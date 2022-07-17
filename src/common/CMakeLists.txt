@@ -70,7 +70,6 @@ target_link_libraries(common
     argon2
     boost
     argon2
-    Poco::Foundation
     sfmt
     utf8cpp
     openssl

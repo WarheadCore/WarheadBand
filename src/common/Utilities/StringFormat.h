@@ -55,12 +55,7 @@ namespace Warhead::String
     template<class Str>
     WH_COMMON_API Str Trim(const Str& s, const std::locale& loc = std::locale());
 
-    WH_COMMON_API std::string TrimLeft(std::string& str);
-    WH_COMMON_API std::string TrimLeftInPlace(std::string& str);
-    WH_COMMON_API std::string TrimRight(std::string& str);
     WH_COMMON_API std::string TrimRightInPlace(std::string& str);
-    WH_COMMON_API std::string Replace(std::string& str, std::string const& from, std::string const& to);
-    WH_COMMON_API std::string ReplaceInPlace(std::string& str, std::string const& from, std::string const& to);
 
     // RegularExpression
     WH_COMMON_API uint32 PatternReplace(std::string& subject, std::string_view pattern, std::string_view replacement);
