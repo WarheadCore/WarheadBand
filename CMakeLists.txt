@@ -79,7 +79,6 @@ include(CheckPlatform)
 include(GroupSources)
 include(AutoCollect)
 include(ConfigInstall)
-include(PocoMacros)
 
 find_package(PCHSupport)
 find_package(MySQL REQUIRED)
