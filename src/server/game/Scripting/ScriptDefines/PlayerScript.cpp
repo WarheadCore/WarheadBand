@@ -1383,4 +1383,3 @@ void ScriptMgr::OnCalculateMinMaxDamage(Player* player, float& damageFromAP)
         script->OnCalculateMinMaxDamage(player, damageFromAP);
     });
 }
-
