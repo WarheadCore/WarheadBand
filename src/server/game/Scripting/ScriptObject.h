@@ -1445,6 +1445,7 @@ public:
     virtual void OnGetManaBonusFromIntellect(Player* /*player*/, float& /*value*/) { }
     virtual void OnGetShieldBlockValue(Player* /*player*/, float& /*value*/) { }
     virtual void OnUpdateAttackPowerAndDamage(Player* /*player*/, float& /*apFromAgility*/) { }
+    virtual void OnCalculateMinMaxDamage(Player* /*player*/, float& /*damageFromAP*/) { }
 
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }

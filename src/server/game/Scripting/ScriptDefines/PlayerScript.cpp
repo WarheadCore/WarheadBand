@@ -1375,3 +1375,12 @@ void ScriptMgr::OnUpdateAttackPowerAndDamage(Player* player, float& afFromAgilit
         script->OnUpdateAttackPowerAndDamage(player, afFromAgility);
     });
 }
+
+void ScriptMgr::OnCalculateMinMaxDamage(Player* player, float& damageFromAP)
+{
+    ExecuteScript<PlayerScript>([&](PlayerScript* script)
+    {
+        script->OnCalculateMinMaxDamage(player, damageFromAP);
+    });
+}
+

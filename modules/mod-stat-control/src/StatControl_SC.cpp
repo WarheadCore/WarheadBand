@@ -23,39 +23,44 @@ class StatControl_Player : public PlayerScript
 public:
     StatControl_Player() : PlayerScript("StatControl_Player") { }
 
-    void OnGetDodgeFromAgility(Player* /*player*/, float& diminishing, float& /*nondiminishing*/) override
+    void OnGetDodgeFromAgility(Player* player, float& diminishing, float& /*nondiminishing*/) override
     {
-        sStatControlMgr->CorrectStat(diminishing, StatControlType::DoodgeFromAgility);
+        sStatControlMgr->CorrectStat(player, diminishing, StatControlType::DoodgeFromAgility);
     }
 
-    void OnGetArmorFromAgility(Player* /*player*/, float& value) override
+    void OnGetArmorFromAgility(Player* player, float& value) override
     {
-        sStatControlMgr->CorrectStat(value, StatControlType::ArmorFromAgility);
+        sStatControlMgr->CorrectStat(player, value, StatControlType::ArmorFromAgility);
     }
 
-    void OnGetMeleeCritFromAgility(Player* /*player*/, float& value) override
+    void OnGetMeleeCritFromAgility(Player* player, float& value) override
     {
-        sStatControlMgr->CorrectStat(value, StatControlType::CritFromAgility);
+        sStatControlMgr->CorrectStat(player, value, StatControlType::CritFromAgility);
     }
 
-    void OnGetSpellCritFromIntellect(Player* /*player*/, float& value) override
+    void OnGetSpellCritFromIntellect(Player* player, float& value) override
     {
-        sStatControlMgr->CorrectStat(value, StatControlType::CritFromIntellect);
+        sStatControlMgr->CorrectStat(player, value, StatControlType::CritFromIntellect);
     }
 
-    void OnGetManaBonusFromIntellect(Player* /*player*/, float& value) override
+    void OnGetManaBonusFromIntellect(Player* player, float& value) override
     {
-        sStatControlMgr->CorrectStat(value, StatControlType::ManaFromIntellect);
+        sStatControlMgr->CorrectStat(player, value, StatControlType::ManaFromIntellect);
     }
 
-    void OnGetShieldBlockValue(Player* /*player*/, float& value) override
+    void OnGetShieldBlockValue(Player* player, float& value) override
     {
-        sStatControlMgr->CorrectStat(value, StatControlType::BlockFromStrenght);
+        sStatControlMgr->CorrectStat(player, value, StatControlType::BlockFromStrenght);
     }
 
-    void OnUpdateAttackPowerAndDamage(Player* /*player*/, float& value) override
+    void OnUpdateAttackPowerAndDamage(Player* player, float& value) override
     {
-        sStatControlMgr->CorrectStat(value, StatControlType::AttackPowerFromAgility);
+        sStatControlMgr->CorrectStat(player, value, StatControlType::AttackPowerFromAgility);
+    }
+
+    void OnCalculateMinMaxDamage(Player* player, float& value) override
+    {
+        sStatControlMgr->CorrectStat(player, value, StatControlType::DamageFromAttackPower);
     }
 };
 

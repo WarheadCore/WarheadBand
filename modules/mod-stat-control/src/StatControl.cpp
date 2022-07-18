@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "StopWatch.h"
+#include "Player.h"
 
 namespace
 {
@@ -40,6 +41,8 @@ namespace
             return StatControlType::ManaFromIntellect;
         else if (name == "BlockFromStrenght")
             return StatControlType::BlockFromStrenght;
+        else if (name == "DamageFromAttackPower")
+            return StatControlType::DamageFromAttackPower;
 
         return StatControlType::Max;
     }
@@ -74,7 +77,7 @@ void StatControlMgr::LoadDBData()
     StopWatch sw;
     _store.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT `StatControlType`, `Value` FROM `wh_stats_control`");
+    QueryResult result = WorldDatabase.Query("SELECT `StatControlType`, `ClassMask`, `Value`, `IsEnable` FROM `wh_stats_control`");
     if (!result)
     {
         LOG_FATAL("sql.sql", ">> Loaded 0 stats control. DB table `wh_stats_control` is empty.");
@@ -85,7 +88,10 @@ void StatControlMgr::LoadDBData()
 
     do
     {
-        auto const& [typeString, value] = result->FetchTuple<std::string_view, float>();
+        auto const& [typeString, classMask, value, isEnable] = result->FetchTuple<std::string_view, int32, float, bool>();
+
+        if (!isEnable)
+            continue;
 
         if (value == 0.0f)
         {
@@ -100,27 +106,35 @@ void StatControlMgr::LoadDBData()
             continue;
         }
 
-        _store.emplace(static_cast<uint8>(type), value);
+        _store.emplace_back(StatControl{ type, value, classMask });
 
     } while (result->NextRow());
+
+    if (_store.empty())
+    {
+        LOG_INFO("server.loading", ">> Loaded 0 stats control in {}. Disable module", _store.size(), sw);
+        LOG_INFO("server.loading", "");
+        _isEnable = false;
+        return;
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} stats control in {}", _store.size(), sw);
     LOG_INFO("server.loading", "");
 }
 
-float const* StatControlMgr::GetMultiplier(StatControlType type)
+void StatControlMgr::CorrectStat(Player* player, float& value, StatControlType type)
 {
-    return Warhead::Containers::MapGetValuePtr(_store, static_cast<uint8>(type));
-}
-
-void StatControlMgr::CorrectStat(float& value, StatControlType type)
-{
-    if (!_isEnable)
+    if (!_isEnable || !player)
         return;
 
-    auto multipler = GetMultiplier(type);
-    if (!multipler)
-        return;
+    for (auto const& [scType, scValue, classMask] : _store)
+    {
+        if (scType != type)
+            continue;
 
-    value *= *multipler;
+        if (classMask && !(player->getClassMask() & classMask))
+            continue;
+
+        value *= scValue;
+    }
 }

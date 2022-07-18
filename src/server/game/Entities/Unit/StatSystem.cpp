@@ -551,8 +551,11 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 
     float attackSpeedMod = GetAPMultiplier(attType, normalized);
+    float damageFromAP = GetTotalAttackPowerValue(attType) / 14.0f * attackSpeedMod;
 
-    float baseValue  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType) / 14.0f * attackSpeedMod;
+    sScriptMgr->OnCalculateMinMaxDamage(this, damageFromAP);
+
+    float baseValue  = GetModifierValue(unitMod, BASE_VALUE) + damageFromAP;
     float basePct    = GetModifierValue(unitMod, BASE_PCT);
     float totalValue = GetModifierValue(unitMod, TOTAL_VALUE);
     float totalPct   = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;

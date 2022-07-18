@@ -19,7 +19,7 @@
 #define _STAT_CONTROL_H_
 
 #include "Define.h"
-#include <unordered_map>
+#include <vector>
 
 enum class StatControlType : uint8
 {
@@ -30,9 +30,19 @@ enum class StatControlType : uint8
     CritFromIntellect,
     ManaFromIntellect,
     BlockFromStrenght,
+    DamageFromAttackPower,
 
     Max
 };
+
+struct StatControl
+{
+    StatControlType Type{ StatControlType::Max };
+    float Value{ 1.0f };
+    int32 ClassMask{ 0 };
+};
+
+class Player;
 
 class StatControlMgr
 {
@@ -43,14 +53,13 @@ public:
     void LoadConfig(bool reload);
 
     // Hooks
-    void CorrectStat(float& value, StatControlType type);
+    void CorrectStat(Player* player, float& value, StatControlType type);
 
 private:
     void LoadDBData();
-    float const* GetMultiplier(StatControlType type);
 
     bool _isEnable{ false };
-    std::unordered_map<uint8, float> _store;
+    std::vector<StatControl> _store;
 };
 
 #define sStatControlMgr StatControlMgr::instance()

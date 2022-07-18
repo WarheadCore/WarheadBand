@@ -503,6 +503,7 @@ public: /* PlayerScript */
     void OnGetManaBonusFromIntellect(Player* player, float& value);
     void OnGetShieldBlockValue(Player* player, float& value);
     void OnUpdateAttackPowerAndDamage(Player* player, float& apFromAgility);
+    void OnCalculateMinMaxDamage(Player* player, float& damageFromAP);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);
