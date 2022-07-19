@@ -13,9 +13,7 @@ SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Compact;
 -- ----------------------------
 -- Records of anti_ad_patterns
 -- ----------------------------
-
-INSERT INTO `anti_ad_patterns` (`Pattern`)
-        VALUES ('?:[-a-z0-9@:%_\\+~.#=]{2,256}\\.)?([-a-z0-9@:%_\\+~#=]*)\\.[a-z]{2,6}\\b(?:[-a-z0-9@:%_\\+.~#?&\\/\\/=]*'), ('w\\s*o\\s*w');
+INSERT INTO `anti_ad_patterns` VALUES ('[-a-zA-Z0-9@:%._ \\+~#=]{1,256}\\.[a-zA-Z0-9 ()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)');
 
 -- ----------------------------
 -- Records of string_module
