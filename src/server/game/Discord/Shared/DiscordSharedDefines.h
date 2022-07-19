@@ -19,6 +19,7 @@
 #define __DISCORD_SHARED_DEFINES_H__
 
 #include "Define.h"
+#include <array>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -52,7 +53,10 @@ enum class DiscordAuthResponseCodes : uint8
     BannedIP,
     BannedPermanentlyAccount,
     BannedPermanentlyIP,
-    ServerOffline
+    ServerOffline,
+    BotNotFound,
+    ChannelsNotFound,
+    ChannelsIncorrect,
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -107,5 +111,23 @@ constexpr auto WARHEAD_DISCORD_VERSION = 100000;
 constexpr auto GetVersionMajor() { return WARHEAD_DISCORD_VERSION / 100000; }
 constexpr auto GetVersionMinor() { return WARHEAD_DISCORD_VERSION / 100 % 1000; }
 constexpr auto GetVersionPatch() { return WARHEAD_DISCORD_VERSION % 100; }
+
+enum class DiscordChannelType : std::size_t
+{
+    ServerStatus,
+    Commands,
+
+    ChatSay,
+    ChatChannel,
+
+    LoginPlayer,
+    LoginGM,
+    LoginAdmin,
+
+    MaxType
+};
+
+constexpr auto DEFAULT_CHANNELS_COUNT = static_cast<std::size_t>(DiscordChannelType::MaxType);
+using DiscordChannelsList = std::array<int64, DEFAULT_CHANNELS_COUNT>;
 
 #endif // __DISCORD_SHARED_DEFINES_H__

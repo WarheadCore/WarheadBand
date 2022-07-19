@@ -40,14 +40,6 @@ void DiscordClient::LoadConfig(bool /*reload*/ /*= false*/)
     if (!_isEnable)
         return;
 
-    _serverID = sModulesConfig->GetOption<int64>("Discord.Server.ID");
-    if (!_serverID)
-    {
-        LOG_ERROR("module.discord", "> Incorrect server id. Disable module");
-        _isEnable = false;
-        return;
-    }
-
     _accountName = MOD_CONF_GET_STR("Discord.Server.Account.Name");
     _accountKey = MOD_CONF_GET_STR("Discord.Server.Account.Key");
 
@@ -65,8 +57,8 @@ void DiscordClient::LoadConfig(bool /*reload*/ /*= false*/)
         return;
     }
 
-    // Prepare channels
-    ConfigureChannels();
+    _isGameChatLogsEnable = MOD_CONF_GET_BOOL("Discord.GameChatLogs.Enable");
+    _isLoginLogsEnable = MOD_CONF_GET_BOOL("Discord.GameLoginLogs.Enable");
 }
 
 void DiscordClient::Initialize()
@@ -97,12 +89,12 @@ void DiscordClient::SendServerStartup(Microseconds elapsed)
     if (!_isEnable)
         return;
 
-    auto channelID = GetChannelIDForType(DiscordDefaultChannelType::ServerStatus);
+    auto channelType = DiscordChannelType::ServerStatus;
     auto color = DiscordMessageColor::Blue;
     auto title = "Статус игрового мира";
     auto description = Warhead::StringFormat("Игровой мир `{}` инициализирован за `{}`", sWorld->GetRealmName(), Warhead::Time::ToTimeString(elapsed));
 
-    SendEmbedMessage(channelID, color, title, description);
+    SendEmbedMessage(channelType, color, title, description);
 }
 
 void DiscordClient::SendServerShutdown()
@@ -110,63 +102,63 @@ void DiscordClient::SendServerShutdown()
     if (!_isEnable)
         return;
 
-    auto channelID = GetChannelIDForType(DiscordDefaultChannelType::ServerStatus);
+    auto channelType = DiscordChannelType::ServerStatus;
     auto color = DiscordMessageColor::Orange;
     auto title = "Статус игрового мира";
     auto description = Warhead::StringFormat("Игровой мир `{}` отключен", sWorld->GetRealmName());
 
-    SendEmbedMessage(channelID, color, title, description);
+    SendEmbedMessage(channelType, color, title, description);
 }
 
 void DiscordClient::LogChat(Player* player, uint32 type, std::string_view msg)
 {
-    if (!_isEnable || !MOD_CONF_GET_BOOL("Discord.GameChatLogs.Enable") || !player)
+    if (!_isEnable || !_isGameChatLogsEnable || !player)
         return;
 
     // Check message
     if (type != CHAT_MSG_SAY)
         return;
 
-    auto channelID = GetChannelIDForType(DiscordСhatChannelType::Say);
+    auto channelType = DiscordChannelType::ChatSay;
     auto color = DiscordMessageColor::White;
     auto title = Warhead::StringFormat("Чат игрового мира {}", sWorld->GetRealmName());
     auto description = Warhead::StringFormat("**[{}]**: {}", player->GetName(), msg);
 
-    SendEmbedMessage(channelID, color, title, description);
+    SendEmbedMessage(channelType, color, title, description);
 }
 
 void DiscordClient::LogChat(Player* player, uint32 /*type*/, std::string_view msg, Channel* channel)
 {
-    if (!_isEnable || !MOD_CONF_GET_BOOL("Discord.GameChatLogs.Enable") || !player)
+    if (!_isEnable || !_isGameChatLogsEnable || !player)
         return;
 
     // Check message
     if (!channel || !channel->IsLFG())
         return;
 
-    auto channelID = GetChannelIDForType(DiscordСhatChannelType::Channel);
+    auto channelType = DiscordChannelType::ChatChannel;
     auto color = DiscordMessageColor::Gray;
     auto title = Warhead::StringFormat("Чат игрового мира {}", sWorld->GetRealmName());
     auto description = Warhead::StringFormat("**[{}][{}]**: {}", channel->GetName(), player->GetName(), msg);
 
-    SendEmbedMessage(channelID, color, title, description);
+    SendEmbedMessage(channelType, color, title, description);
 }
 
 void DiscordClient::LogLogin(Player* player)
 {
-    if (!_isEnable || !player)
+    if (!_isEnable || !player || !_isLoginLogsEnable)
         return;
 
-    auto channelID = DiscordLoginChannelType::Default;
+    auto channelType = DiscordChannelType::LoginPlayer;
     auto color = DiscordMessageColor::Orange;
     auto accountID = player->GetSession()->GetAccountId();
     auto security = player->GetSession()->GetSecurity();
     auto title = "Вход в игровой мир";
 
     if (security >= SEC_ADMINISTRATOR)
-        channelID = DiscordLoginChannelType::Admin;
+        channelType = DiscordChannelType::LoginAdmin;
     else if (security > SEC_PLAYER)
-        channelID = DiscordLoginChannelType::GM;
+        channelType = DiscordChannelType::LoginGM;
 
     std::string accountName;
     AccountMgr::GetName(accountID, accountName);
@@ -205,27 +197,27 @@ void DiscordClient::LogLogin(Player* player)
     fields.emplace_back(EmbedField("Персонаж", "`" + player->GetName() + "`", true));
     fields.emplace_back(EmbedField("Реалм", "`" + sWorld->GetRealmName() + "`", true));
 
-    if (channelID != DiscordLoginChannelType::Default)
+    if (channelType != DiscordChannelType::LoginPlayer)
     {
         fields.emplace_back(EmbedField("Аккаунт", "`" + accountName + "`", true));
         fields.emplace_back(EmbedField("Айпи", "`" + player->GetSession()->GetRemoteAddress() + "`", true));
     }
 
-    SendEmbedMessage(GetChannelIDForType(channelID), color, title, {}, &fields);
+    SendEmbedMessage(channelType, color, title, {}, &fields);
 }
 
-void DiscordClient::SendDefaultMessage(int64 channelID, std::string_view message)
+void DiscordClient::SendDefaultMessage(DiscordChannelType channelType, std::string_view message)
 {
     if (!_isEnable)
         return;
 
     DiscordPacket packet(CLIENT_SEND_MESSAGE);
-    packet << int64(channelID);
+    packet << static_cast<uint8>(channelType);
     packet << message;
     sClientSocketMgr->AddPacketToQueue(packet);
 }
 
-void DiscordClient::SendEmbedMessage(int64 channelID, DiscordMessageColor color, std::string_view title, std::string_view description, DiscordEmbedFields const* fields)
+void DiscordClient::SendEmbedMessage(DiscordChannelType channelType, DiscordMessageColor color, std::string_view title, std::string_view description, DiscordEmbedFields const* fields)
 {
     if (!_isEnable)
         return;
@@ -237,7 +229,7 @@ void DiscordClient::SendEmbedMessage(int64 channelID, DiscordMessageColor color,
     }
 
     DiscordPacket packet(CLIENT_SEND_MESSAGE_EMBED);
-    packet << int64(channelID);
+    packet << static_cast<uint8>(channelType);
     packet << static_cast<uint32>(color);
     packet << title;
     packet << description;
@@ -255,80 +247,4 @@ void DiscordClient::SendEmbedMessage(int64 channelID, DiscordMessageColor color,
 
     packet << static_cast<time_t>(GameTime::GetGameTime().count());
     sClientSocketMgr->AddPacketToQueue(packet);
-}
-
-int64 DiscordClient::GetChannelIDForType(DiscordDefaultChannelType channelType)
-{
-    if (!_isEnable)
-        return 0;
-
-    ASSERT(!_channels.empty());
-    return _channels.at(static_cast<uint8>(channelType));
-}
-
-int64 DiscordClient::GetChannelIDForType(DiscordСhatChannelType channelType)
-{
-    if (!_isEnable)
-        return 0;
-
-    ASSERT(!_chatChannels.empty());
-    return _chatChannels.at(static_cast<uint8>(channelType));
-}
-
-int64 DiscordClient::GetChannelIDForType(DiscordLoginChannelType channelType)
-{
-    if (!_isEnable)
-        return 0;
-
-    ASSERT(!_loginChannels.empty());
-    return _loginChannels.at(static_cast<uint8>(channelType));
-}
-
-void DiscordClient::ConfigureChannels()
-{
-    if (!_isEnable)
-        return;
-
-    ConfigureChannels(_channels, "Discord.DefaultChannel.ListID");
-
-    if (MOD_CONF_GET_BOOL("Discord.GameChatLogs.Enable"))
-        ConfigureChannels(_chatChannels, "Discord.GameChatLogs.ChannelsListID");
-
-    if (MOD_CONF_GET_BOOL("Discord.GameLoginLogs.Enable"))
-        ConfigureChannels(_loginChannels, "Discord.GameLoginLogs.ChannelsListID");
-}
-
-template<size_t S>
-void DiscordClient::ConfigureChannels(std::array<int64, S>& store, std::string const& configOption)
-{
-    std::string channelsList = sModulesConfig->GetOption<std::string>(configOption);
-    if (channelsList.empty())
-    {
-        LOG_FATAL("module.discord", "> Empty channel list ids for discord. Option '{}'. Disable system", configOption);
-        _isEnable = false;
-        return;
-    }
-
-    auto const& channelTokens = Warhead::Tokenize(channelsList, ',', false);
-    if (channelTokens.size() != S)
-    {
-        LOG_FATAL("module.discord", "> Incorrect channel list ids for discord. Option '{}'. Disable system", configOption);
-        _isEnable = false;
-        return;
-    }
-
-    for (size_t i = 0; i < channelTokens.size(); i++)
-    {
-        std::string _channel = std::string(channelTokens.at(i));
-        auto channelID = Warhead::StringTo<int64>(Warhead::String::TrimLeft(_channel));
-
-        if (!channelID)
-        {
-            LOG_FATAL("module.discord", "> Incorrect channel id '{}'. Disable system", channelTokens.at(i));
-            _isEnable = false;
-            return;
-        }
-
-        store[i] = *channelID;
-    }
 }

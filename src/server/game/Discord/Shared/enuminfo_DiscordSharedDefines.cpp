@@ -97,12 +97,15 @@ WH_API_EXPORT EnumText EnumUtils<DiscordAuthResponseCodes>::ToString(DiscordAuth
         case DiscordAuthResponseCodes::BannedPermanentlyAccount: return { "BannedPermanentlyAccount", "BannedPermanentlyAccount", "" };
         case DiscordAuthResponseCodes::BannedPermanentlyIP: return { "BannedPermanentlyIP", "BannedPermanentlyIP", "" };
         case DiscordAuthResponseCodes::ServerOffline: return { "ServerOffline", "ServerOffline", "" };
+        case DiscordAuthResponseCodes::BotNotFound: return { "BotNotFound", "BotNotFound", "" };
+        case DiscordAuthResponseCodes::ChannelsNotFound: return { "ChannelsNotFound", "ChannelsNotFound", "" };
+        case DiscordAuthResponseCodes::ChannelsIncorrect: return { "ChannelsIncorrect", "ChannelsIncorrect", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template<>
-WH_API_EXPORT size_t EnumUtils<DiscordAuthResponseCodes>::Count() { return 9; }
+WH_API_EXPORT size_t EnumUtils<DiscordAuthResponseCodes>::Count() { return 12; }
 
 template<>
 WH_API_EXPORT DiscordAuthResponseCodes EnumUtils<DiscordAuthResponseCodes>::FromIndex(size_t index)
@@ -118,6 +121,9 @@ WH_API_EXPORT DiscordAuthResponseCodes EnumUtils<DiscordAuthResponseCodes>::From
         case 6: return DiscordAuthResponseCodes::BannedPermanentlyAccount;
         case 7: return DiscordAuthResponseCodes::BannedPermanentlyIP;
         case 8: return DiscordAuthResponseCodes::ServerOffline;
+        case 9: return DiscordAuthResponseCodes::BotNotFound;
+        case 10: return DiscordAuthResponseCodes::ChannelsNotFound;
+        case 11: return DiscordAuthResponseCodes::ChannelsIncorrect;
         default: throw std::out_of_range("index");
     }
 }
@@ -136,6 +142,9 @@ WH_API_EXPORT size_t EnumUtils<DiscordAuthResponseCodes>::ToIndex(DiscordAuthRes
         case DiscordAuthResponseCodes::BannedPermanentlyAccount: return 6;
         case DiscordAuthResponseCodes::BannedPermanentlyIP: return 7;
         case DiscordAuthResponseCodes::ServerOffline: return 8;
+        case DiscordAuthResponseCodes::BotNotFound: return 9;
+        case DiscordAuthResponseCodes::ChannelsNotFound: return 10;
+        case DiscordAuthResponseCodes::ChannelsIncorrect: return 11;
         default: throw std::out_of_range("value");
     }
 }

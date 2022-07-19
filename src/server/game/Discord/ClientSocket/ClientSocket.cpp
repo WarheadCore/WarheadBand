@@ -309,7 +309,6 @@ void ClientSocket::SendAuthSession()
     packet << GitRevision::GetCompanyNameStr();
     packet << GitRevision::GetFileVersionStr();
     packet << uint32(WARHEAD_DISCORD_VERSION);
-    packet << int64(sDiscord->GetServerID());
     SendPacket(&packet);
 
     _startTime = std::chrono::steady_clock::now();

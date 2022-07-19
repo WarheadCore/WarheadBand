@@ -26,35 +26,6 @@
 class Channel;
 class Player;
 
-enum class DiscordDefaultChannelType : uint8
-{
-    General,
-    ServerStatus,
-
-    MaxType
-};
-
-enum class DiscordСhatChannelType : uint8
-{
-    Say,
-    Channel,
-
-    MaxType
-};
-
-enum class DiscordLoginChannelType : uint8
-{
-    Default,
-    GM,
-    Admin,
-
-    MaxType
-};
-
-constexpr uint8 MAX_CHANNEL_TYPE = static_cast<uint8>(DiscordDefaultChannelType::MaxType);
-constexpr uint8 MAX_CHANNEL_CHAT_TYPE = static_cast<uint8>(DiscordСhatChannelType::MaxType);
-constexpr uint8 MAX_CHANNEL_LOGIN_TYPE = static_cast<uint8>(DiscordLoginChannelType::MaxType);
-
 class WH_GAME_API DiscordClient
 {
     DiscordClient(DiscordClient const&) = delete;
@@ -73,7 +44,6 @@ public:
     void Update(Milliseconds diff);
 
     inline bool IsEnable() { return _isEnable; }
-    inline auto GetServerID() { return _serverID; }
     inline auto GetAccountName() { return _accountName; }
     inline auto GetAccountKey() { return _accountKey; }
 
@@ -92,28 +62,16 @@ public:
     //void AddCode(ObjectGuid guid);
     //ObjectGuid GetGuidWithCode(uint32 code);
 
-    void SendDefaultMessage(int64 channelID, std::string_view message);
-    void SendEmbedMessage(int64 channelID, DiscordMessageColor color, std::string_view title, std::string_view description, DiscordEmbedFields const* fields = nullptr);
+    void SendDefaultMessage(DiscordChannelType channelType, std::string_view message);
+    void SendEmbedMessage(DiscordChannelType channelType, DiscordMessageColor color, std::string_view title, std::string_view description, DiscordEmbedFields const* fields = nullptr);
 
 private:
-    int64 GetChannelIDForType(DiscordDefaultChannelType channelType);
-    int64 GetChannelIDForType(DiscordСhatChannelType channelType);
-    int64 GetChannelIDForType(DiscordLoginChannelType channelType);
-
-    void ConfigureChannels();
-
-    template<size_t S>
-    void ConfigureChannels(std::array<int64, S>& store, std::string const& configOption);
-
     /*int64 GetUserID(uint32 accountID);
     bool AddUser(uint32 accountID, int64 userID);*/
 
-    std::array<int64, MAX_CHANNEL_TYPE> _channels = {};
-    std::array<int64, MAX_CHANNEL_CHAT_TYPE> _chatChannels = {};
-    std::array<int64, MAX_CHANNEL_LOGIN_TYPE> _loginChannels = {};
-
-    int64 _serverID{ 0 };
     bool _isEnable{ false };
+    bool _isGameChatLogsEnable{ false };
+    bool _isLoginLogsEnable{ false };
     std::string _accountName;
     std::string _accountKey;
     std::unique_ptr<TaskScheduler> _scheduler;

@@ -309,7 +309,7 @@ private:
         DiscordEmbedFields fields;
         fields.emplace_back(EmbedField("Предмет", embedItemName, true));
         fields.emplace_back(EmbedField("Количество", embedItemItemCount, true));
-        sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
+        //sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
     }
 
     inline void SendNotification(std::string_view playerName, std::string_view desc)
@@ -323,7 +323,7 @@ private:
 
         DiscordEmbedFields fields;
         fields.emplace_back(EmbedField("Услуга", std::string(desc), true));
-        sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
+        //sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
     }
 
 private:
