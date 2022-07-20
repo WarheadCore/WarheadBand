@@ -1383,3 +1383,13 @@ void ScriptMgr::OnCalculateMinMaxDamage(Player* player, float& damageFromAP)
         script->OnCalculateMinMaxDamage(player, damageFromAP);
     });
 }
+
+bool ScriptMgr::CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* questStatusData)
+{
+    auto ret = IsValidBoolScript<PlayerScript>([player, questInfo, questStatusData](PlayerScript* script)
+    {
+        return !script->CanCompleteQuest(player, questInfo, questStatusData);
+    });
+
+    return ReturnValidBool(ret);
+}

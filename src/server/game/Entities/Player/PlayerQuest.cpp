@@ -315,6 +315,9 @@ bool Player::CanCompleteQuest(uint32 quest_id, const QuestStatusData* q_savedSta
             q_status = itr->second;
         }
 
+        if (!sScriptMgr->CanCompleteQuest(this, qInfo, &q_status))
+            return false;
+
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))
