@@ -1393,3 +1393,11 @@ bool ScriptMgr::CanCompleteQuest(Player* player, Quest const* questInfo, QuestSt
 
     return ReturnValidBool(ret);
 }
+
+void ScriptMgr::OnAddQuest(Player* player, Quest const* quest, Object* questGiver)
+{
+    ExecuteScript<PlayerScript>([player, quest, questGiver](PlayerScript* script)
+    {
+        script->OnAddQuest(player, quest, questGiver);
+    });
+}

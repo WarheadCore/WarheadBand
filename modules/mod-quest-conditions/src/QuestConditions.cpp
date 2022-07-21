@@ -27,6 +27,14 @@
 #include "BattlegroundMgr.h"
 #include "AchievementMgr.h"
 
+namespace
+{
+    constexpr uint64 MAKE_PAIR64(uint32 l, uint32 h)
+    {
+        return uint64(l | (uint64(h) << 32));
+    }
+}
+
 QuestConditionsMgr* QuestConditionsMgr::instance()
 {
     static QuestConditionsMgr instance;
@@ -38,8 +46,8 @@ void QuestConditionsMgr::Initialize()
     if (!_isEnable)
         return;
 
+    LoadQuestConditionsKilledMonsterCredit();
     LoadQuestConditions();
-    LoadPlayerQuestConditions();
 }
 
 void QuestConditionsMgr::LoadConfig(bool /*reload*/)
@@ -50,8 +58,60 @@ void QuestConditionsMgr::LoadConfig(bool /*reload*/)
         return;*/
 }
 
+void QuestConditionsMgr::LoadQuestConditionsKilledMonsterCredit()
+{
+    LOG_INFO("server.loading", "Loading warhead quest conditions KMC...");
+
+    StopWatch sw;
+    _kmc.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT `NpcEntry`, `QuestConditionType`, `Value` FROM `wh_quest_conditions_kmc`");
+    if (!result)
+    {
+        LOG_INFO("module", ">> Loaded 0 warhead quest conditions KMC. DB table `wh_quest_conditions_kmc` is empty.");
+        LOG_WARN("module", "> Disable this module");
+        LOG_INFO("module", "");
+        _isEnable = false;
+        return;
+    }
+
+    do
+    {
+        auto const& [npcEntry, questConditionType, value] = result->FetchTuple<uint32, uint8, uint32>();
+
+        if (!sObjectMgr->GetCreatureTemplate(npcEntry))
+        {
+            LOG_ERROR("module", "> QuestConditions: Not found creature with id: {}. Skip", npcEntry);
+            continue;
+        }
+
+        if (questConditionType >= MAX_QUEST_CONDITION_TYPE)
+        {
+            LOG_ERROR("module", "> QuestConditions: Incorrect quest condition type: {}. Skip", questConditionType);
+            continue;
+        }
+
+        _kmc.emplace(MAKE_PAIR64(value, questConditionType), npcEntry);
+
+    } while (result->NextRow());
+
+    if (_kmc.empty())
+    {
+        LOG_INFO("server.loading", ">> Loaded 0 warhead quest conditions KMC in {}. Disable module", sw);
+        LOG_INFO("server.loading", "");
+        _isEnable = false;
+        return;
+    }
+
+    LOG_INFO("server.loading", ">> Loaded {} warhead quest conditions KMC in {}", _kmc.size(), sw);
+    LOG_INFO("server.loading", "");
+}
+
 void QuestConditionsMgr::LoadQuestConditions()
 {
+    if (!_isEnable)
+        return;
+
     LOG_INFO("server.loading", "Loading warhead quest conditions...");
 
     StopWatch sw;
@@ -125,54 +185,6 @@ void QuestConditionsMgr::LoadQuestConditions()
     LOG_INFO("server.loading", "");
 }
 
-void QuestConditionsMgr::LoadPlayerQuestConditions()
-{
-    LOG_INFO("server.loading", "Loading warhead player quest conditions...");
-
-    StopWatch sw;
-    _playerConditions.clear();
-
-    QueryResult result = CharacterDatabase.Query("SELECT `PlayerGuid`, `QuestID`, `UseSpellCount`, `WinBGCount`, `WinArenaCount`, "
-        "`CompleteAchievementID`, `CompleteQuestID`, `EquipItemID` FROM `wh_characters_quest_conditions`");
-    if (!result)
-    {
-        LOG_INFO("module", ">> Loaded 0 warhead player quest conditions. DB table `wh_characters_quest_conditions` is empty.");
-        LOG_INFO("module", "");
-        return;
-    }
-
-    do
-    {
-        auto const& [playerGuid, questID, useSpellCount, winBGCount, winArenaCount, completeAchievementID, completeQuestID, equipItemID] =
-            result->FetchTuple<uint64, uint32, uint32, uint32, uint32, uint32, uint32, uint32>();
-
-        ObjectGuid guid{ playerGuid };
-
-        QuestConditions qc;
-        qc.emplace(questID, QuestCondition{ questID, 0, useSpellCount, 0, winBGCount, 0, winArenaCount, completeAchievementID, completeQuestID, equipItemID });
-
-        auto const& playerQuestConditionsStore = GetPlayerConditions(guid);
-        if (playerQuestConditionsStore)
-        {
-            playerQuestConditionsStore->emplace(questID, QuestCondition{ questID, 0, useSpellCount, 0, winBGCount, 0, winArenaCount, completeAchievementID, completeQuestID, equipItemID });
-            continue;
-        }
-
-        _playerConditions.emplace(guid, std::move(qc));
-    } while (result->NextRow());
-
-    if (_playerConditions.empty())
-    {
-        LOG_INFO("server.loading", ">> Loaded 0 warhead player quest conditions in {}. Disable module", sw);
-        LOG_INFO("server.loading", "");
-        _isEnable = false;
-        return;
-    }
-
-    LOG_INFO("server.loading", ">> Loaded {} warhead player quest conditions in {}", _playerConditions.size(), sw);
-    LOG_INFO("server.loading", "");
-}
-
 // Hooks
 bool QuestConditionsMgr::CanCompleteQuest(Player* player, Quest const* questInfo)
 {
@@ -193,22 +205,22 @@ bool QuestConditionsMgr::CanCompleteQuest(Player* player, Quest const* questInfo
 
     auto const& playerQuestCondition = itr->second;
 
-    if (questCondtion->UseSpellCount != playerQuestCondition.UseSpellCount)
+    if (questCondtion->UseSpellCount && (questCondtion->UseSpellCount != playerQuestCondition.UseSpellCount))
         return false;
 
-    if (questCondtion->WinBGCount != playerQuestCondition.WinBGCount)
+    if (questCondtion->WinBGCount && (questCondtion->WinBGCount != playerQuestCondition.WinBGCount))
         return false;
 
-    if (questCondtion->WinArenaCount != playerQuestCondition.WinArenaCount)
+    if (questCondtion->WinArenaCount && (questCondtion->WinArenaCount != playerQuestCondition.WinArenaCount))
         return false;
 
-    if (questCondtion->CompleteAchievementID != playerQuestCondition.CompleteAchievementID)
+    if (questCondtion->CompleteAchievementID && (questCondtion->CompleteAchievementID != playerQuestCondition.CompleteAchievementID))
         return false;
 
-    if (questCondtion->CompleteQuestID != playerQuestCondition.CompleteQuestID)
+    if (questCondtion->CompleteQuestID && (questCondtion->CompleteQuestID != playerQuestCondition.CompleteQuestID))
         return false;
 
-    if (questCondtion->EquipItemID != playerQuestCondition.EquipItemID)
+    if (questCondtion->EquipItemID && (questCondtion->EquipItemID != playerQuestCondition.EquipItemID))
         return false;
 
     return true;
@@ -222,17 +234,41 @@ void QuestConditionsMgr::OnPlayerCompleteQuest(Player* player, Quest const* ques
     for (auto const& [questID_, condition] : _conditions)
     {
         if (condition.CompleteQuestID == quest->GetQuestId())
-        {
-            auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), condition.QuestID);
-            ASSERT(playerQuestCondition);
+            UpdateQuestConditionForPlayer(player, condition.QuestID, quest->GetQuestId());
+    }
 
-            if (playerQuestCondition->CompleteQuestID)
-                continue;
+    auto const& questCondtion = GetQuestCondition(quest->GetQuestId());
+    if (!questCondtion)
+        return;
 
-            playerQuestCondition->CompleteQuestID = quest->GetQuestId();
-            SavePlayerConditionToDB(player->GetGUID(), condition.QuestID);
-        }
-    }   
+    // Delete non need data
+    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", player->GetGUID().GetRawValue(), quest->GetQuestId());
+}
+
+void QuestConditionsMgr::OnPlayerAddQuest(Player* player, Quest const* quest)
+{
+    if (!_isEnable || !player || !quest)
+        return;
+
+    auto const& questCondtion = GetQuestCondition(quest->GetQuestId());
+    if (!questCondtion)
+        return;
+
+    if (!questCondtion->CompleteQuestID)
+        return;
+
+    if (player->GetQuestStatus(questCondtion->CompleteQuestID) != QUEST_STATUS_REWARDED)
+        return;
+
+    auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), quest->GetQuestId());
+    ASSERT(playerQuestCondition);
+
+    if (!playerQuestCondition->CompleteQuestID)
+        return;
+
+    auto kmc = GetKilledMonsterCredit(questCondtion->CompleteQuestID, QuestConditionType::CompleteQuest);
+    ASSERT(kmc);
+    player->KilledMonsterCredit(*kmc);
 }
 
 QuestCondition const* QuestConditionsMgr::GetQuestCondition(uint32 questID)
@@ -289,4 +325,82 @@ void QuestConditionsMgr::SavePlayerConditionToDB(ObjectGuid playerGuid, uint32 q
         playerQuestCondition.CompleteAchievementID, playerQuestCondition.CompleteQuestID, playerQuestCondition.EquipItemID);
 
     CharacterDatabase.CommitTransaction(trans);
+}
+
+uint32 const* QuestConditionsMgr::GetKilledMonsterCredit(uint32 value, QuestConditionType type)
+{
+    auto staticType = static_cast<uint32>(type);
+
+    if (type >= QuestConditionType::Max)
+    {
+        LOG_ERROR("module", "> QuestConditionsMgr: Incorrect type for get KMC. Value: {}. Type: {}", value, staticType);
+        return nullptr;
+    }
+
+    return Warhead::Containers::MapGetValuePtr(_kmc, MAKE_PAIR64(value, staticType));
+}
+
+void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, uint32 questID, uint32 completedQuestID)
+{
+    auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), questID);
+    ASSERT(playerQuestCondition);
+
+    if (playerQuestCondition->CompleteQuestID)
+        return;
+
+    playerQuestCondition->CompleteQuestID = completedQuestID;
+    SavePlayerConditionToDB(player->GetGUID(), questID);
+
+    if (player->GetQuestStatus(questID) != QUEST_STATUS_INCOMPLETE)
+        return;
+
+    auto kmc = GetKilledMonsterCredit(completedQuestID, QuestConditionType::CompleteQuest);
+    ASSERT(kmc);
+    player->KilledMonsterCredit(*kmc);
+}
+
+void QuestConditionsMgr::OnPlayerLogin(Player* player)
+{
+    if (!_isEnable)
+        return;
+
+    auto const& itr = _playerConditions.find(player->GetGUID());
+    ASSERT(itr == _playerConditions.end(), "Found conditions for player {}", player->GetGUID().ToString());
+
+    player->GetSession()->GetQueryProcessor().AddCallback(
+        CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `QuestID`, `UseSpellCount`, `WinBGCount`, `WinArenaCount`, "
+            "`CompleteAchievementID`, `CompleteQuestID`, `EquipItemID` FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {}", player->GetGUID().GetRawValue())).
+        WithCallback([this, playerGuid = player->GetGUID()](QueryResult result)
+        {
+            if (!result)
+                return;
+
+            do
+            {
+                auto const& [questID, useSpellCount, winBGCount, winArenaCount, completeAchievementID, completeQuestID, equipItemID] =
+                    result->FetchTuple<uint32, uint32, uint32, uint32, uint32, uint32, uint32>();
+
+                QuestConditions qc;
+                qc.emplace(questID, QuestCondition{ questID, 0, useSpellCount, 0, winBGCount, 0, winArenaCount, completeAchievementID, completeQuestID, equipItemID });
+
+                auto const& playerQuestConditionsStore = GetPlayerConditions(playerGuid);
+                if (playerQuestConditionsStore)
+                {
+                    playerQuestConditionsStore->emplace(questID, QuestCondition{ questID, 0, useSpellCount, 0, winBGCount, 0, winArenaCount, completeAchievementID, completeQuestID, equipItemID });
+                    continue;
+                }
+
+                _playerConditions.emplace(playerGuid, std::move(qc));
+            } while (result->NextRow());
+
+            LOG_TRACE("module", "> QuestConditionsMgr: Added conditions for: {}", playerGuid.ToString());
+        }));
+}
+
+void QuestConditionsMgr::OnPlayerLogout(Player* player)
+{
+    if (!_isEnable)
+        return;
+
+    _playerConditions.erase(player->GetGUID());
 }

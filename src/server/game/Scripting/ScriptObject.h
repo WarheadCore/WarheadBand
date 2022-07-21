@@ -1448,6 +1448,7 @@ public:
     virtual void OnUpdateAttackPowerAndDamage(Player* /*player*/, float& /*apFromAgility*/) { }
     virtual void OnCalculateMinMaxDamage(Player* /*player*/, float& /*damageFromAP*/) { }
     [[nodiscard]] virtual bool CanCompleteQuest(Player* /*player*/, Quest const* /*questInfo*/, QuestStatusData const* /*questStatusData*/) { return true; }
+    virtual void OnAddQuest(Player* /*player*/, Quest const* /*quest*/, Object* /*questGiver*/) { }
 
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }

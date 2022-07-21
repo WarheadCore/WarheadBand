@@ -506,6 +506,7 @@ public: /* PlayerScript */
     void OnUpdateAttackPowerAndDamage(Player* player, float& apFromAgility);
     void OnCalculateMinMaxDamage(Player* player, float& damageFromAP);
     bool CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* questStatusData);
+    void OnAddQuest(Player* player, Quest const* quest, Object* questGiver);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);

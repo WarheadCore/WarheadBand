@@ -597,6 +597,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     // Xinef: area auras may change on quest accept!
     UpdateZoneDependentAuras(GetZoneId());
     UpdateAreaDependentAuras(GetAreaId());
+
+    sScriptMgr->OnAddQuest(this, quest, questGiver);
 }
 
 void Player::CompleteQuest(uint32 quest_id)

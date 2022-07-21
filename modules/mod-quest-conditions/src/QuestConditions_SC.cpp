@@ -23,6 +23,16 @@ class QuestConditions_Player : public PlayerScript
 public:
     QuestConditions_Player() : PlayerScript("QuestConditions_Player") { }
 
+    void OnLogin(Player* player) override
+    {
+        sQuestConditionsMgr->OnPlayerLogin(player);
+    }
+
+    void OnLogout(Player* player) override
+    {
+        sQuestConditionsMgr->OnPlayerLogout(player);
+    }
+
     bool CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* /*questStatusData*/) override
     {
         return sQuestConditionsMgr->CanCompleteQuest(player, questInfo);
@@ -31,6 +41,11 @@ public:
     void OnPlayerCompleteQuest(Player* player, Quest const* quest) override
     {
         sQuestConditionsMgr->OnPlayerCompleteQuest(player, quest);
+    }
+
+    void OnAddQuest(Player* player, Quest const* quest, Object* /*questGiver*/) override
+    {
+        sQuestConditionsMgr->OnPlayerAddQuest(player, quest);
     }
 };
 

@@ -19,12 +19,25 @@
 #define _QUEST_CONDITIONS_H_
 
 #include "ObjectGuid.h"
-#include <unordered_map> 
-#include <tuple>
+#include <unordered_map>
 
 class Player;
 class Quest;
 struct QuestStatusData;
+
+enum class QuestConditionType : uint8
+{
+    UseSpell,
+    WinBG,
+    WinArena,
+    CompleteAchievement,
+    CompleteQuest,
+    EquipItem,
+
+    Max
+};
+
+constexpr uint8 MAX_QUEST_CONDITION_TYPE = static_cast<uint8>(QuestConditionType::Max);
 
 struct QuestCondition
 {
@@ -53,19 +66,29 @@ public:
     // Hooks
     bool CanCompleteQuest(Player* player, Quest const* questInfo);
     void OnPlayerCompleteQuest(Player* player, Quest const* quest);
+    void OnPlayerAddQuest(Player* player, Quest const* quest);
+
+    // Add/Delete QC data
+    void OnPlayerLogin(Player* player);
+    void OnPlayerLogout(Player* player);
 
 private:
+    void LoadQuestConditionsKilledMonsterCredit();
     void LoadQuestConditions();
-    void LoadPlayerQuestConditions();
 
     QuestCondition const* GetQuestCondition(uint32 questID);
     QuestConditions* GetPlayerConditions(ObjectGuid playerGuid);
     QuestCondition* MakeQuestConditionForPlayer(ObjectGuid playerGuid, uint32 questID);
     void SavePlayerConditionToDB(ObjectGuid playerGuid, uint32 questID);
 
+    uint32 const* GetKilledMonsterCredit(uint32 value, QuestConditionType type);
+
+    void UpdateQuestConditionForPlayer(Player* player, uint32 questID, uint32 completedQuestID);
+
     bool _isEnable{ false };
     QuestConditions _conditions;
     std::unordered_map<ObjectGuid, QuestConditions> _playerConditions;
+    std::unordered_map<uint64, uint32> _kmc;
 };
 
 #define sQuestConditionsMgr QuestConditionsMgr::instance()
