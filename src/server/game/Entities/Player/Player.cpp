@@ -157,7 +157,6 @@ Player::Player(WorldSession* session): Unit(true), m_mover(this)
 #pragma warning(default:4355)
 #endif
 
-    m_speakTime = 0;
     m_speakCount = 0;
 
     m_objectType |= TYPEMASK_PLAYER;

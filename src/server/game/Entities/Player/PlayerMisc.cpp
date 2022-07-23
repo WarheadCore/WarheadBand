@@ -34,8 +34,8 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
         return;
 
-    time_t current = GameTime::GetGameTime().count();
-    if (m_speakTime > current)
+    auto currentTime = GameTime::GetGameTime();
+    if (_speakTime > currentTime)
     {
         uint32 max_count = specialMessageLimit ? specialMessageLimit : CONF_GET_INT("ChatFlood.MessageCount");
         if (!max_count)
@@ -45,15 +45,14 @@ void Player::UpdateSpeakTime(uint32 specialMessageLimit)
         if (m_speakCount >= max_count)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
-            sMute->CheckSpeakTime(GetSession()->GetAccountId(), current + CONF_GET_INT("ChatFlood.MuteTime"));
-
+            sMute->CheckSpeakTime(GetSession()->GetAccountId(), currentTime + Seconds(CONF_GET_INT("ChatFlood.MuteTime")));
             m_speakCount = 0;
         }
     }
     else
         m_speakCount = 1;
 
-    m_speakTime = current + CONF_GET_INT("ChatFlood.MessageDelay");
+    _speakTime = currentTime + Seconds(CONF_GET_INT("ChatFlood.MessageDelay"));
 }
 
 /*********************************************************/

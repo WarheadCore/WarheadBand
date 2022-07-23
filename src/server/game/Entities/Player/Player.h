@@ -2679,7 +2679,7 @@ public:
     uint16 m_additionalSaveTimer; // pussywizard
     uint8 m_additionalSaveMask; // pussywizard
     uint16 m_hostileReferenceCheckTimer; // pussywizard
-    time_t m_speakTime;
+    Seconds _speakTime{ 0s };
     uint32 m_speakCount;
     Difficulty m_dungeonDifficulty;
     Difficulty m_raidDifficulty;
