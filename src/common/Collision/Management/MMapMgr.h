@@ -22,6 +22,7 @@
 #include "DetourAlloc.h"
 #include "DetourExtended.h"
 #include "DetourNavMesh.h"
+#include <vector>
 #include <unordered_map>
 
 //  memory management
