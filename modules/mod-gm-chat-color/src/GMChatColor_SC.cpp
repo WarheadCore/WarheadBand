@@ -53,12 +53,12 @@ public:
     }
 
 private:
-    void SetColorMessage(Player* player, std::string& Message)
+    void SetColorMessage(Player* player, std::string& message)
     {
         if (!MOD_CONF_GET_BOOL("GMChatColor.Enable"))
             return;
 
-        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || !player->isGMChat() || Message.empty())
+        if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || !player->isGMChat() || message.empty())
             return;
 
         uint8 gmLevel = player->GetSession()->GetSecurity();
@@ -66,7 +66,7 @@ private:
         if (gmLevel > SEC_ADMINISTRATOR)
             return;
 
-        Message = MOD_CONF_GET_STR("GMChatColor.Level." + std::to_string(gmLevel)) + Message;
+        message = MOD_CONF_GET_STR("GMChatColor.Level." + std::to_string(gmLevel)) + message;
     };
 };
 

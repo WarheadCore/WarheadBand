@@ -47,6 +47,10 @@ AnticheatMgr::~AnticheatMgr()
 void AnticheatMgr::LoadConfig(bool /*reload*/)
 {
     _enable = MOD_CONF_GET_BOOL("Anticheat.Enable");
+
+    if (!_enable)
+        return;
+
     _enableGM = MOD_CONF_GET_BOOL("Anticheat.GM.Enable");
 
     _detectFly = MOD_CONF_GET_BOOL("Anticheat.Detect.FlyHack");

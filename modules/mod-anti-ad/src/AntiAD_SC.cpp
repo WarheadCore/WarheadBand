@@ -176,6 +176,9 @@ public:
 
     inline void CheckMessage(Player* player, std::string& msg)
     {
+        if (!_isEnable)
+            return;
+
         std::string const message = msg;
 
         if (IsValidMessage(msg))

@@ -24,7 +24,6 @@
 #include "Duration.h"
 #include "ObjectGuid.h"
 #include "TaskScheduler.h"
-#include <tuple>
 #include <unordered_map>
 #include <vector>
 

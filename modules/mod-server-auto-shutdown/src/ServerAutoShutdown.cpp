@@ -14,19 +14,17 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "ServerAutoShutdown.h"
 #include "Duration.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "ObjectMgr.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "TaskScheduler.h"
 #include "Timer.h"
 #include "Tokenize.h"
-#include "Util.h"
 #include "World.h"
 
 namespace

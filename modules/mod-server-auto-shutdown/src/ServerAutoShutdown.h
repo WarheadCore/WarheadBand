@@ -18,7 +18,7 @@
 #ifndef _SERVER_AUTO_SHUTDOWN_H_
 #define _SERVER_AUTO_SHUTDOWN_H_
 
-#include "Common.h"
+#include "Define.h"
 
 class ServerAutoShutdown
 {

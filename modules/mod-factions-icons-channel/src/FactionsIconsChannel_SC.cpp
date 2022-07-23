@@ -18,10 +18,13 @@
 #include "AccountMgr.h"
 #include "Channel.h"
 #include "Chat.h"
-#include "Log.h"
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
+#include "StringFormat.h"
+
+constexpr auto ICON_HORDE = "|TInterface\\PVPFrame\\PVP-Currency-Horde:18:18:-3:-3|t";
+constexpr auto ICON_ALLIANCE = "|TInterface\\PVPFrame\\PVP-Currency-Alliance:18:18:-3:-3|t";
 
 class FactionsIconsChannel_Player : public PlayerScript
 {
@@ -42,12 +45,7 @@ public:
         if (!MOD_CONF_GET_BOOL("ChannelIconFaction.GM") && !AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
             return;
 
-        std::string iconHorge = "|TInterface\\PVPFrame\\PVP-Currency-Horde:18:18:-3:-3|t";
-        std::string iconAlliance = "|TInterface\\PVPFrame\\PVP-Currency-Alliance:18:18:-3:-3|t";
-
-        std::stringstream ssMsg;
-        ssMsg << ((player->GetTeamId() == TEAM_HORDE) ? iconHorge : iconAlliance) << msg;
-        msg = ssMsg.str();
+        msg = Warhead::StringFormat("{}", player->GetTeamId() == TEAM_HORDE ? ICON_HORDE : ICON_ALLIANCE);
     }
 };
 
