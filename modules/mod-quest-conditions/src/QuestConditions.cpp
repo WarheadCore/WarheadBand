@@ -612,22 +612,6 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
         ASSERT(kmc);
         player->KilledMonsterCredit(*kmc);
     }
-
-    /*auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), questID);
-    ASSERT(playerQuestCondition);
-
-    if (playerQuestCondition->CompleteQuestID)
-        return;
-
-    playerQuestCondition->CompleteQuestID = completedQuestID;
-    SavePlayerConditionToDB(player->GetGUID(), questID);
-
-    if (player->GetQuestStatus(questID) != QUEST_STATUS_INCOMPLETE)
-        return;
-
-    auto kmc = GetKilledMonsterCredit(completedQuestID, QuestConditionType::CompleteQuest);
-    ASSERT(kmc);
-    player->KilledMonsterCredit(*kmc);*/
 }
 
 void QuestConditionsMgr::OnPlayerLogin(Player* player)
