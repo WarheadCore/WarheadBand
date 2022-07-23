@@ -25,8 +25,8 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StopWatch.h"
-#include <Warhead/RegularExpressionException.h>
 #include <Warhead/RegularExpression.h>
+#include <Warhead/RegularExpressionException.h>
 #include <vector>
 
 enum AntiADChannelsType : uint8

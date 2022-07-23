@@ -17,9 +17,9 @@
 
 #include "Chat.h"
 #include "LowLevelArena.h"
-#include "ScriptObject.h"
-#include "Player.h"
 #include "ModulesConfig.h"
+#include "Player.h"
+#include "ScriptObject.h"
 
 using namespace Warhead::ChatCommands;
 
