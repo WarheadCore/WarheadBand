@@ -2544,6 +2544,8 @@ public:
 
     std::string GetPlayerName();
 
+    [[nodiscard]] AchievementMgr* GetAchievementMgr() const { return m_achievementMgr; }
+
  protected:
     // Gamemaster whisper whitelist
     WhisperListContainer WhisperList;
@@ -2819,8 +2821,6 @@ public:
     uint8 m_grantableLevels;
 
     bool m_needZoneUpdate;
-
-    [[nodiscard]] AchievementMgr* GetAchievementMgr() const { return m_achievementMgr; }
 
 private:
     // internal common parts for CanStore/StoreItem functions

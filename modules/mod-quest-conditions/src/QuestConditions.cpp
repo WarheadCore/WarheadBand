@@ -26,6 +26,7 @@
 #include "SpellMgr.h"
 #include "BattlegroundMgr.h"
 #include "AchievementMgr.h"
+#include "Spell.h"
 
 namespace
 {
@@ -33,6 +34,48 @@ namespace
     {
         return uint64(l | (uint64(h) << 32));
     }
+}
+
+bool QuestCondition::IsFoundConditionForType(QuestConditionType type) const
+{
+    switch (type)
+    {
+        case QuestConditionType::UseSpell: return UseSpellID > 0;
+        case QuestConditionType::WinBG: return WinBGType > 0;
+        case QuestConditionType::WinArena: return WinArenaType > 0;
+        case QuestConditionType::CompleteAchievement: return CompleteAchievementID > 0;
+        case QuestConditionType::CompleteQuest: return CompleteQuestID > 0;
+        case QuestConditionType::EquipItem: return EquipItemID > 0;
+        default:
+            ABORT("> Incorrect QuestConditionType: {}", static_cast<uint8>(type));
+            break;
+    }
+
+    return false;
+}
+
+bool QuestCondition::IsValidConditionForType(QuestConditionType type, uint32 value) const
+{
+    switch (type)
+    {
+        case QuestConditionType::UseSpell:
+            return UseSpellID == value;
+        case QuestConditionType::WinBG:
+            return WinBGType == value;
+        case QuestConditionType::WinArena:
+            return WinArenaType == value;
+        case QuestConditionType::CompleteAchievement:
+            return CompleteAchievementID == value;
+        case QuestConditionType::CompleteQuest:
+            return CompleteQuestID == value;
+        case QuestConditionType::EquipItem:
+            return EquipItemID == value;
+        default:
+            ABORT("> Incorrect QuestConditionType: {}", static_cast<uint8>(type));
+            break;
+    }
+
+    return false;
 }
 
 QuestConditionsMgr* QuestConditionsMgr::instance()
@@ -133,40 +176,119 @@ void QuestConditionsMgr::LoadQuestConditions()
         auto const& [questID, useSpellID, useSpellCount, winBGType, winBGCount, winArenaType, winArenaCount, completeAchievementID, completeQuestID, equipItemID] =
             result->FetchTuple<uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32>();
 
-        if (!sObjectMgr->GetQuestTemplate(questID))
+        auto const& quest = sObjectMgr->GetQuestTemplate(questID);
+        if (!quest)
         {
             LOG_ERROR("module", "> QuestConditions: Not found quest with id: {}. Skip", questID);
             continue;
         }
 
-        if (useSpellID && !sSpellMgr->GetSpellInfo(useSpellID))
+        if (useSpellID)
         {
-            LOG_ERROR("module", "> QuestConditions: Not found spell with id: {}. Skip", useSpellID);
-            continue;
+            if (!sSpellMgr->GetSpellInfo(useSpellID))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found spell with id: {}. Skip", useSpellID);
+                continue;
+            }
+
+            if (!GetKilledMonsterCredit(useSpellID, QuestConditionType::UseSpell))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found KMC for spell with id: {}. Skip", useSpellID);
+                continue;
+            }
         }
 
-        if (winBGType && !sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundTypeId>(winBGType)))
+        if (winBGType)
         {
-            LOG_ERROR("module", "> QuestConditions: Not found bg with type: {}. Skip", winBGType);
-            continue;
+            if (!sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundTypeId>(winBGType)))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found bg with type: {}. Skip", winBGType);
+                continue;
+            }
+
+            if (!GetKilledMonsterCredit(winBGType, QuestConditionType::WinBG))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found KMC for bg with type: {}. Skip", winBGType);
+                continue;
+            }
+
+            if (!quest->IsPVPQuest())
+            {
+                LOG_ERROR("module", "> QuestConditions: For quest {} need type QUEST_TYPE_PVP. Skip", questID);
+                continue;
+            }
+
+            if (winBGCount <= 0)
+            {
+                LOG_ERROR("module", "> QuestConditions: Incorrect win bg count ({}) for quest with id: {}. Skip", winBGCount, questID);
+                continue;
+            }
         }
 
-        if (completeAchievementID && !sAchievementMgr->GetAchievement(completeAchievementID))
+        if (winArenaType)
         {
-            LOG_ERROR("module", "> QuestConditions: Not found achievement with id: {}. Skip", completeAchievementID);
-            continue;
+            if (!GetKilledMonsterCredit(winArenaType, QuestConditionType::WinArena))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found KMC for bg arena type: {}. Skip", winArenaType);
+                continue;
+            }
+
+            if (!quest->IsPVPQuest())
+            {
+                LOG_ERROR("module", "> QuestConditions: For quest {} need type QUEST_TYPE_PVP. Skip", questID);
+                continue;
+            }
+
+            if (winArenaCount <= 0)
+            {
+                LOG_ERROR("module", "> QuestConditions: Incorrect win arena count ({}) for quest with id: {}. Skip", winArenaCount, questID);
+                continue;
+            }
         }
 
-        if (completeQuestID && !sObjectMgr->GetQuestTemplate(completeQuestID))
+        if (completeAchievementID)
         {
-            LOG_ERROR("module", "> QuestConditions: Not found quest complete with id: {}. Skip", completeQuestID);
-            continue;
+            if (!sAchievementMgr->GetAchievement(completeAchievementID))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found achievement with id: {}. Skip", completeAchievementID);
+                continue;
+            }
+
+            if (!GetKilledMonsterCredit(completeAchievementID, QuestConditionType::CompleteAchievement))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found KMC for achievement with id: {}. Skip", completeAchievementID);
+                continue;
+            }
         }
 
-        if (equipItemID && !sObjectMgr->GetItemTemplate(equipItemID))
+        if (completeQuestID)
         {
-            LOG_ERROR("module", "> QuestConditions: Not found item with id: {}. Skip", equipItemID);
-            continue;
+            if (!sObjectMgr->GetQuestTemplate(completeQuestID))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found quest complete with id: {}. Skip", completeQuestID);
+                continue;
+            }
+
+            if (!GetKilledMonsterCredit(completeQuestID, QuestConditionType::CompleteQuest))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found KMC for quest with id: {}. Skip", completeQuestID);
+                continue;
+            }
+        }
+
+        if (equipItemID)
+        {
+            if (!sObjectMgr->GetItemTemplate(equipItemID))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found item with id: {}. Skip", equipItemID);
+                continue;
+            }
+
+            if (!GetKilledMonsterCredit(equipItemID, QuestConditionType::EquipItem))
+            {
+                LOG_ERROR("module", "> QuestConditions: Not found KMC for item with id: {}. Skip", equipItemID);
+                continue;
+            }
         }
 
         _conditions.emplace(questID, QuestCondition{ questID, useSpellID, useSpellCount, winBGType, winBGCount, winArenaType, winArenaCount, completeAchievementID, completeQuestID, equipItemID });
@@ -186,7 +308,7 @@ void QuestConditionsMgr::LoadQuestConditions()
 }
 
 // Hooks
-bool QuestConditionsMgr::CanCompleteQuest(Player* player, Quest const* questInfo)
+bool QuestConditionsMgr::CanPlayerCompleteQuest(Player* player, Quest const* questInfo)
 {
     if (!_isEnable || !player || !questInfo)
         return true;
@@ -231,14 +353,9 @@ void QuestConditionsMgr::OnPlayerCompleteQuest(Player* player, Quest const* ques
     if (!_isEnable || !player || !quest)
         return;
 
-    for (auto const& [questID_, condition] : _conditions)
-    {
-        if (condition.CompleteQuestID == quest->GetQuestId())
-            UpdateQuestConditionForPlayer(player, condition.QuestID, quest->GetQuestId());
-    }
+    UpdateQuestConditionForPlayer(player, QuestConditionType::CompleteQuest, quest->GetQuestId());
 
-    auto const& questCondtion = GetQuestCondition(quest->GetQuestId());
-    if (!questCondtion)
+    if (!HasQuestCondition(quest->GetQuestId()))
         return;
 
     // Delete non need data
@@ -254,21 +371,101 @@ void QuestConditionsMgr::OnPlayerAddQuest(Player* player, Quest const* quest)
     if (!questCondtion)
         return;
 
-    if (!questCondtion->CompleteQuestID)
-        return;
-
-    if (player->GetQuestStatus(questCondtion->CompleteQuestID) != QUEST_STATUS_REWARDED)
+    if (!questCondtion->CompleteQuestID && !questCondtion->CompleteAchievementID)
         return;
 
     auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), quest->GetQuestId());
     ASSERT(playerQuestCondition);
 
-    if (!playerQuestCondition->CompleteQuestID)
+    if (questCondtion->CompleteQuestID && player->GetQuestStatus(questCondtion->CompleteQuestID) == QUEST_STATUS_REWARDED)
+    {
+        if (playerQuestCondition->CompleteQuestID)
+            return;
+
+        auto kmc = GetKilledMonsterCredit(questCondtion->CompleteQuestID, QuestConditionType::CompleteQuest);
+        ASSERT(kmc);
+        player->KilledMonsterCredit(*kmc);
+    }
+    else if (questCondtion->CompleteAchievementID && player->GetAchievementMgr()->HasAchieved(questCondtion->CompleteAchievementID))
+    {
+        if (playerQuestCondition->CompleteAchievementID)
+            return;
+
+        auto kmc = GetKilledMonsterCredit(questCondtion->CompleteAchievementID, QuestConditionType::CompleteAchievement);
+        ASSERT(kmc);
+        player->KilledMonsterCredit(*kmc);
+    }
+}
+
+void QuestConditionsMgr::OnPlayerQuestAbandon(Player* player, uint32 questID)
+{
+    if (!HasQuestCondition(questID))
         return;
 
-    auto kmc = GetKilledMonsterCredit(questCondtion->CompleteQuestID, QuestConditionType::CompleteQuest);
-    ASSERT(kmc);
-    player->KilledMonsterCredit(*kmc);
+    // Delete non need data
+    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", player->GetGUID().GetRawValue(), questID);
+}
+
+void QuestConditionsMgr::OnPlayerSpellCast(Player* player, Spell* spell)
+{
+    if (!_isEnable || !player || !spell)
+        return;
+
+    UpdateQuestConditionForPlayer(player, QuestConditionType::UseSpell, spell->GetSpellInfo()->Id);
+}
+
+void QuestConditionsMgr::OnPlayerItemEquip(Player* player, Item* item)
+{
+    if (!_isEnable || !player || !item)
+        return;
+
+    UpdateQuestConditionForPlayer(player, QuestConditionType::EquipItem, item->GetEntry());
+}
+
+void QuestConditionsMgr::OnPlayerAchievementComplete(Player* player, AchievementEntry const* achievement)
+{
+    if (!_isEnable || !player || !achievement)
+        return;
+
+    UpdateQuestConditionForPlayer(player, QuestConditionType::CompleteAchievement, achievement->ID);
+}
+
+void QuestConditionsMgr::OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam)
+{
+    if (!_isEnable || !bg)
+        return;
+
+    auto const& bgPlayers = bg->GetPlayers();
+    if (bgPlayers.empty())
+        return;
+
+    auto realBGTypeID{ static_cast<uint32>(bg->GetBgTypeID()) };
+    auto BGTypeID{ static_cast<uint32>(bg->GetBgTypeID(bg->IsRandom())) };
+    auto isArena{ bg->isArena() };
+    auto arenaType{ bg->GetArenaType() };
+
+    LOG_WARN("server", "End bg. Types: {}/{}. winnerTeam: {}. ArenaType {}", realBGTypeID, BGTypeID, winnerTeam, bg->GetArenaType());
+
+    for (auto const& [playerGuid, player] : bgPlayers)
+    {
+        if (player->GetBgTeamId() != winnerTeam)
+            continue;
+
+        if (isArena)
+            UpdateQuestConditionForPlayer(player, QuestConditionType::WinArena, arenaType);
+        else
+        {
+            UpdateQuestConditionForPlayer(player, QuestConditionType::WinBG, realBGTypeID);
+
+            if (bg->IsRandom())
+                UpdateQuestConditionForPlayer(player, QuestConditionType::WinBG, BGTypeID);
+        }
+    }
+}
+
+bool QuestConditionsMgr::HasQuestCondition(uint32 questID)
+{
+    return _conditions.find(questID) != _conditions.end();
 }
 
 QuestCondition const* QuestConditionsMgr::GetQuestCondition(uint32 questID)
@@ -329,7 +526,7 @@ void QuestConditionsMgr::SavePlayerConditionToDB(ObjectGuid playerGuid, uint32 q
 
 uint32 const* QuestConditionsMgr::GetKilledMonsterCredit(uint32 value, QuestConditionType type)
 {
-    auto staticType = static_cast<uint32>(type);
+    auto staticType = static_cast<uint8>(type);
 
     if (type >= QuestConditionType::Max)
     {
@@ -340,9 +537,83 @@ uint32 const* QuestConditionsMgr::GetKilledMonsterCredit(uint32 value, QuestCond
     return Warhead::Containers::MapGetValuePtr(_kmc, MAKE_PAIR64(value, staticType));
 }
 
-void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, uint32 questID, uint32 completedQuestID)
+void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestConditionType type, uint32 value)
 {
-    auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), questID);
+    for (auto const& [questID_, condition] : _conditions)
+    {
+        // Skip check if quest not found
+        if (player->GetQuestStatus(questID_) != QUEST_STATUS_INCOMPLETE)
+            continue;
+
+        if (!condition.IsFoundConditionForType(type) || !condition.IsValidConditionForType(type, value))
+            continue;
+
+        auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), questID_);
+        ASSERT(playerQuestCondition);
+
+        switch (type)
+        {
+            case QuestConditionType::UseSpell:
+            {
+                if (playerQuestCondition->UseSpellCount)
+                    continue;
+
+                playerQuestCondition->UseSpellCount = std::min(condition.UseSpellCount, playerQuestCondition->UseSpellCount + 1);
+                break;
+            }
+            case QuestConditionType::WinBG:
+            {
+                if (playerQuestCondition->WinBGCount >= condition.WinBGCount)
+                    continue;
+
+                playerQuestCondition->WinBGCount = std::min(condition.WinBGCount, playerQuestCondition->WinBGCount + 1);
+                break;
+            }
+            case QuestConditionType::WinArena:
+            {
+                if (playerQuestCondition->WinArenaCount)
+                    continue;
+
+                playerQuestCondition->WinArenaCount = std::min(condition.WinArenaCount, playerQuestCondition->WinArenaCount + 1);
+                break;
+            }
+            case QuestConditionType::CompleteAchievement:
+            {
+                if (playerQuestCondition->CompleteAchievementID)
+                    continue;
+
+                playerQuestCondition->CompleteAchievementID = value;
+                break;
+            }
+            case QuestConditionType::CompleteQuest:
+            {
+                if (playerQuestCondition->CompleteQuestID)
+                    continue;
+
+                playerQuestCondition->CompleteQuestID = value;
+                break;
+            }
+            case QuestConditionType::EquipItem:
+            {
+                if (playerQuestCondition->EquipItemID)
+                    continue;
+
+                playerQuestCondition->EquipItemID = value;
+                break;
+            }
+            default:
+                ABORT("> Incorrect QuestConditionType: {}", static_cast<uint8>(type));
+                break;
+        }
+
+        SavePlayerConditionToDB(player->GetGUID(), questID_);
+
+        auto kmc = GetKilledMonsterCredit(value, type);
+        ASSERT(kmc);
+        player->KilledMonsterCredit(*kmc);
+    }
+
+    /*auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), questID);
     ASSERT(playerQuestCondition);
 
     if (playerQuestCondition->CompleteQuestID)
@@ -356,7 +627,7 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, uint32 qu
 
     auto kmc = GetKilledMonsterCredit(completedQuestID, QuestConditionType::CompleteQuest);
     ASSERT(kmc);
-    player->KilledMonsterCredit(*kmc);
+    player->KilledMonsterCredit(*kmc);*/
 }
 
 void QuestConditionsMgr::OnPlayerLogin(Player* player)

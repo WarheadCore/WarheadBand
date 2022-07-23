@@ -19,11 +19,17 @@
 #define _QUEST_CONDITIONS_H_
 
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include <unordered_map>
 
+class Battleground;
 class Player;
+class Item;
+class Spell;
 class Quest;
+
 struct QuestStatusData;
+struct AchievementEntry;
 
 enum class QuestConditionType : uint8
 {
@@ -51,6 +57,9 @@ struct QuestCondition
     uint32 CompleteAchievementID{ 0 };
     uint32 CompleteQuestID{ 0 };
     uint32 EquipItemID{ 0 };
+
+    bool IsFoundConditionForType(QuestConditionType type) const;
+    bool IsValidConditionForType(QuestConditionType type, uint32 value) const;
 };
 
 using QuestConditions = std::unordered_map<uint32, QuestCondition>;
@@ -64,9 +73,14 @@ public:
     void LoadConfig(bool reload);
 
     // Hooks
-    bool CanCompleteQuest(Player* player, Quest const* questInfo);
+    bool CanPlayerCompleteQuest(Player* player, Quest const* questInfo);
     void OnPlayerCompleteQuest(Player* player, Quest const* quest);
     void OnPlayerAddQuest(Player* player, Quest const* quest);
+    void OnPlayerQuestAbandon(Player* player, uint32 questID);
+    void OnPlayerSpellCast(Player* player, Spell* spell);
+    void OnPlayerItemEquip(Player* player, Item* item);
+    void OnPlayerAchievementComplete(Player* player, AchievementEntry const* achievement);
+    void OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam);
 
     // Add/Delete QC data
     void OnPlayerLogin(Player* player);
@@ -76,6 +90,7 @@ private:
     void LoadQuestConditionsKilledMonsterCredit();
     void LoadQuestConditions();
 
+    bool HasQuestCondition(uint32 questID);
     QuestCondition const* GetQuestCondition(uint32 questID);
     QuestConditions* GetPlayerConditions(ObjectGuid playerGuid);
     QuestCondition* MakeQuestConditionForPlayer(ObjectGuid playerGuid, uint32 questID);
@@ -83,7 +98,7 @@ private:
 
     uint32 const* GetKilledMonsterCredit(uint32 value, QuestConditionType type);
 
-    void UpdateQuestConditionForPlayer(Player* player, uint32 questID, uint32 completedQuestID);
+    void UpdateQuestConditionForPlayer(Player* player, QuestConditionType type, uint32 value);
 
     bool _isEnable{ false };
     QuestConditions _conditions;

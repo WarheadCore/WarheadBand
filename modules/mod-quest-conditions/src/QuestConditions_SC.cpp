@@ -18,6 +18,17 @@
 #include "ScriptObject.h"
 #include "QuestConditions.h"
 
+class QuestConditions_BG : public BGScript
+{
+public:
+    QuestConditions_BG() : BGScript("QuestConditions_BG") { }
+
+    void OnBattlegroundEnd(Battleground* bg, TeamId winnerTeam) override
+    {
+        sQuestConditionsMgr->OnBattlegoundEnd(bg, winnerTeam);
+    }
+};
+
 class QuestConditions_Player : public PlayerScript
 {
 public:
@@ -35,7 +46,7 @@ public:
 
     bool CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* /*questStatusData*/) override
     {
-        return sQuestConditionsMgr->CanCompleteQuest(player, questInfo);
+        return sQuestConditionsMgr->CanPlayerCompleteQuest(player, questInfo);
     }
 
     void OnPlayerCompleteQuest(Player* player, Quest const* quest) override
@@ -46,6 +57,26 @@ public:
     void OnAddQuest(Player* player, Quest const* quest, Object* /*questGiver*/) override
     {
         sQuestConditionsMgr->OnPlayerAddQuest(player, quest);
+    }
+
+    void OnQuestAbandon(Player* player, uint32 questId) override
+    {
+        sQuestConditionsMgr->OnPlayerQuestAbandon(player, questId);
+    }
+
+    void OnSpellCast(Player* player, Spell* spell, bool /*skipCheck*/) override
+    {
+        sQuestConditionsMgr->OnPlayerSpellCast(player, spell);
+    }
+
+    void OnEquip(Player* player, Item* item, uint8 /*bag*/, uint8 /*slot*/, bool /*update*/) override
+    {
+        sQuestConditionsMgr->OnPlayerItemEquip(player, item);
+    }
+
+    void OnAchiComplete(Player* player, AchievementEntry const* achievement) override
+    {
+        sQuestConditionsMgr->OnPlayerAchievementComplete(player, achievement);
     }
 };
 
@@ -68,6 +99,7 @@ public:
 // Group all custom scripts
 void AddSC_QuestConditions()
 {
+    new QuestConditions_BG();
     new QuestConditions_Player();
     new QuestConditions_World();
 }
