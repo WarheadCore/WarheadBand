@@ -22,9 +22,8 @@
 #include "ModelInstance.h"
 #include "VMapDefinitions.h"
 #include "VMapMgr2.h"
+#include <iomanip>
 #include <sstream>
-//#include <string>
-//#include <limits>
 
 using G3D::Vector3;
 
