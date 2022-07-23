@@ -23,6 +23,7 @@
 #include <array>
 #include <openssl/evp.h>
 #include <string>
+#include <utility>
 #include <string_view>
 
 class BigNumber;
