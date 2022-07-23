@@ -18,9 +18,15 @@
 #ifndef _MAPTREE_H
 #define _MAPTREE_H
 
-#include "BoundingIntervalHierarchy.h"
 #include "Define.h"
+#include "BoundingIntervalHierarchy.h"
+#include <limits>
 #include <unordered_map>
+
+namespace G3D
+{
+    class Vector3;
+}
 
 namespace VMAP
 {
@@ -32,10 +38,10 @@ namespace VMAP
 
     struct LocationInfo
     {
-        LocationInfo():  ground_Z(-G3D::inf()) { }
+        LocationInfo() = default;
         const ModelInstance* hitInstance{nullptr};
         const GroupModel* hitModel{nullptr};
-        float ground_Z;
+        float ground_Z{ -std::numeric_limits<float>::infinity() };
         int32 rootId = -1;
     };
 
@@ -43,6 +49,7 @@ namespace VMAP
     {
         typedef std::unordered_map<uint32, bool> loadedTileMap;
         typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
+
     private:
         uint32 iMapID;
         bool iIsTiled;

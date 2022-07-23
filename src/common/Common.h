@@ -41,14 +41,6 @@
 #include <unistd.h>
 #endif
 
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
-#define atoll _atoi64
-#define llabs _abs64
-#else
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-#endif
-
 #define STRINGIZE(a) #a
 
 // TimeConstants
@@ -93,7 +85,5 @@ WH_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
 WH_COMMON_API LocaleConstant GetLocaleByName(const std::string& name);
 WH_COMMON_API void CleanStringForMysqlQuery(std::string& str);
-
-#define MAX_QUERY_LEN 32*1024
 
 #endif

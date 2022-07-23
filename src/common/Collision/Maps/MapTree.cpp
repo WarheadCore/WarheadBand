@@ -22,10 +22,9 @@
 #include "ModelInstance.h"
 #include "VMapDefinitions.h"
 #include "VMapMgr2.h"
-#include <iomanip>
-#include <limits>
-#include <sstream>
-#include <string>
+//#include <string>
+//#include <sstream>
+//#include <limits>
 
 using G3D::Vector3;
 

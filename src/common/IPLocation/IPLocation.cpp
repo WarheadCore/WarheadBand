@@ -24,14 +24,6 @@
 #include "StopWatch.h"
 #include <fstream>
 
-IpLocationStore::IpLocationStore()
-{
-}
-
-IpLocationStore::~IpLocationStore()
-{
-}
-
 void IpLocationStore::Load()
 {
     _ipLocationStore.clear();

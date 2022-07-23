@@ -22,8 +22,13 @@
 #include "Define.h"
 #include <G3D/AABox.h>
 #include <G3D/HashTrait.h>
-#include <G3D/Ray.h>
+//#include <G3D/Ray.h>
 #include <G3D/Vector3.h>
+
+namespace G3D
+{
+    class Ray;
+}
 
 namespace VMAP
 {
@@ -115,7 +120,7 @@ namespace VMAP
         bool writeFile(const std::string& filename);
         bool readFile(const std::string& filename);
         void GetGroupModels(std::vector<GroupModel>& outGroupModels);
-        uint32 Flags;
+        uint32 Flags{ 0 };
     protected:
         uint32 RootWMOID{0};
         std::vector<GroupModel> groupModels;

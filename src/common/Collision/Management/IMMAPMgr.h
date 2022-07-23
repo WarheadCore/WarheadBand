@@ -19,7 +19,6 @@
 #define _IMMAPMANAGER_H
 
 #include "Define.h"
-#include <string>
 
 // Interface for IMMapMgr
 namespace MMAP
@@ -33,16 +32,16 @@ namespace MMAP
 
     class WH_COMMON_API IMMapMgr
     {
-    private:
-        bool iEnablePathFinding;
-
     public:
-        IMMapMgr() : iEnablePathFinding(true) {}
-        virtual ~IMMapMgr(void) {}
+        IMMapMgr() = default;
+        virtual ~IMMapMgr() = default;
 
         //Enabled/Disabled Pathfinding
         void setEnablePathFinding(bool value) { iEnablePathFinding = value; }
         bool isEnablePathFinding() const { return (iEnablePathFinding); }
+
+    private:
+        bool iEnablePathFinding{ true };
     };
 }
 

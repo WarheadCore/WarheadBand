@@ -27,9 +27,6 @@
 #include "Geometry.h"
 #include <cmath>
 #include <cstdlib>
-#include <iostream>
-
-using namespace std;
 
 [[nodiscard]] inline float getWeight(float height, float width, float specificWeight)
 {

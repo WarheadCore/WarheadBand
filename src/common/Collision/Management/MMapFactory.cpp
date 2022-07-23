@@ -16,8 +16,10 @@
  */
 
 #include "MMapFactory.h"
-#include <cstring>
-#include <set>
+// #include "DetourAlloc.h"
+// #include "DetourExtended.h"
+// #include "DetourNavMesh.h"
+#include "MMapMgr.h"
 
 namespace MMAP
 {

@@ -16,7 +16,6 @@
  */
 
 #include "DBCFileLoader.h"
-#include "Errors.h"
 #include <stdio.h>
 #include <string.h>
 

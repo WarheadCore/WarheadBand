@@ -29,10 +29,8 @@ namespace MMAP
     // ######################## MMapMgr ########################
     MMapMgr::~MMapMgr()
     {
-        for (MMapDataSet::iterator i = loadedMMaps.begin(); i != loadedMMaps.end(); ++i)
-        {
-            delete i->second;
-        }
+        for (auto& map : loadedMMaps)
+            delete map.second;
 
         // by now we should not have maps loaded
         // if we had, tiles in MMapData->mmapLoadedTiles, their actual data is lost!
@@ -42,9 +40,7 @@ namespace MMAP
     {
         // the caller must pass the list of all mapIds that will be used in the VMapMgr2 lifetime
         for (const uint32& mapId : mapIds)
-        {
             loadedMMaps.emplace(mapId, nullptr);
-        }
 
         thread_safe_environment = false;
     }
@@ -54,9 +50,7 @@ namespace MMAP
         // return the iterator if found or end() if not found/NULL
         MMapDataSet::const_iterator itr = loadedMMaps.find(mapId);
         if (itr != loadedMMaps.cend() && !itr->second)
-        {
             itr = loadedMMaps.cend();
-        }
 
         return itr;
     }
@@ -68,9 +62,7 @@ namespace MMAP
         if (itr != loadedMMaps.end())
         {
             if (itr->second)
-            {
                 return true;
-            }
         }
         else
         {

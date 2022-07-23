@@ -578,7 +578,7 @@ inline std::string GenerateWhereStr(std::string const& field, SetType<T, Rest...
         whereStr << *itr;
         ++itr;
 
-        if (whereStr.str().size() > MAX_QUERY_LEN - 50)      // near to max query
+        if (whereStr.str().size() > 32 * 1024 - 50)      // near to max query
             break;
 
         if (itr != guidSet.end())

@@ -18,7 +18,6 @@
 #ifndef _WARHEAD_STRINGCONVERT_H_
 #define _WARHEAD_STRINGCONVERT_H_
 
-#include "Define.h"
 #include "Errors.h"
 #include "Optional.h"
 #include "Types.h"

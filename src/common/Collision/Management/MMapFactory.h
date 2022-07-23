@@ -18,14 +18,12 @@
 #ifndef _MMAP_FACTORY_H
 #define _MMAP_FACTORY_H
 
-#include "DetourAlloc.h"
-#include "DetourExtended.h"
-#include "DetourNavMesh.h"
-#include "MMapMgr.h"
-#include <unordered_map>
+#include "Define.h"
 
 namespace MMAP
 {
+    class MMapMgr;
+
     enum MMAP_LOAD_RESULT
     {
         MMAP_LOAD_RESULT_ERROR,

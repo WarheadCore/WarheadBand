@@ -18,12 +18,11 @@
 #ifndef _REGULAR_GRID_H
 #define _REGULAR_GRID_H
 
+#include "Errors.h"
 #include <G3D/BoundsTrait.h>
 #include <G3D/PositionTrait.h>
 #include <G3D/Ray.h>
 #include <G3D/Table.h>
-
-#include "Errors.h"
 
 template <class Node>
 class WH_COMMON_API NodeArray

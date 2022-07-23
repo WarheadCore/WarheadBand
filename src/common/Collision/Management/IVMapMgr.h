@@ -18,16 +18,12 @@
 #ifndef _IVMAPMANAGER_H
 #define _IVMAPMANAGER_H
 
-#include "Define.h"
 #include "ModelIgnoreFlags.h"
 #include "Optional.h"
 #include <string>
 
-//===========================================================
-
-/**
-This is the minimum interface to the VMapMamager.
-*/
+constexpr auto VMAP_INVALID_HEIGHT       = -100000.0f;  // for check
+constexpr auto VMAP_INVALID_HEIGHT_VALUE = -200000.0f;  // real assigned value in unknown height case
 
 namespace VMAP
 {
@@ -44,9 +40,6 @@ namespace VMAP
         FileNotFound,
         VersionMismatch
     };
-
-#define VMAP_INVALID_HEIGHT       -100000.0f            // for check
-#define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
 
     struct AreaAndLiquidData
     {
