@@ -19,14 +19,12 @@
 #define _UTIL_H
 
 #include "Containers.h"
-#include "Define.h"
 #include "Errors.h"
 #include "Optional.h"
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <list>
-#include <map>
 #include <string>
 #include <vector>
 

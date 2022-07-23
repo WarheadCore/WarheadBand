@@ -19,9 +19,7 @@
 #define WARHEAD_ARGON2_H
 
 #include "BigNumber.h"
-#include "Define.h"
 #include "Optional.h"
-#include <string>
 
 namespace Warhead::Crypto
 {

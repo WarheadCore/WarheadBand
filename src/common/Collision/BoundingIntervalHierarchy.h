@@ -18,16 +18,14 @@
 #ifndef _BIH_H
 #define _BIH_H
 
-#include "G3D/AABox.h"
-#include "G3D/Ray.h"
-#include "G3D/Vector3.h"
-
 #include "Define.h"
-
-#include <algorithm>
-#include <cmath>
+#include <G3D/AABox.h>
+#include <G3D/Ray.h>
+#include <G3D/Vector3.h>
+//#include <algorithm>
+//#include <cmath>
 #include <cstring>
-#include <limits>
+//#include <limits>
 #include <stdexcept>
 #include <vector>
 

@@ -20,7 +20,6 @@
 
 #include "ARC4.h"
 #include "AuthDefines.h"
-#include <array>
 
 class WH_COMMON_API AuthCrypt
 {

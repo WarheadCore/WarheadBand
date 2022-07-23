@@ -20,7 +20,6 @@
 
 #include "CryptoConstants.h"
 #include "CryptoHash.h"
-#include "Define.h"
 #include "Errors.h"
 #include <array>
 #include <string>

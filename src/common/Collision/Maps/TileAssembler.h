@@ -18,13 +18,12 @@
 #ifndef _TILEASSEMBLER_H_
 #define _TILEASSEMBLER_H_
 
+#include "ModelInstance.h"
+#include "WorldModel.h"
 #include <G3D/Matrix3.h>
 #include <G3D/Vector3.h>
 #include <map>
 #include <set>
-
-#include "ModelInstance.h"
-#include "WorldModel.h"
 
 namespace VMAP
 {
@@ -65,20 +64,19 @@ namespace VMAP
 
     struct GroupModel_Raw
     {
-        uint32 mogpflags{0};
-        uint32 GroupWMOID{0};
-
-        G3D::AABox bounds;
-        uint32 liquidflags{0};
-        std::vector<MeshTriangle> triangles;
-        std::vector<G3D::Vector3> vertexArray;
-        class WmoLiquid* liquid;
-
-        GroupModel_Raw() : liquid(nullptr) { }
-
+        GroupModel_Raw() = default;
         ~GroupModel_Raw();
 
         bool Read(FILE* f);
+
+        uint32 mogpflags{ 0 };
+        uint32 GroupWMOID{ 0 };
+
+        G3D::AABox bounds;
+        uint32 liquidflags{ 0 };
+        std::vector<MeshTriangle> triangles;
+        std::vector<G3D::Vector3> vertexArray;
+        WmoLiquid* liquid{ nullptr };
     };
 
     struct WorldModel_Raw
@@ -110,5 +108,5 @@ namespace VMAP
         bool convertRawFile(const std::string& pModelFilename);
     };
 
-}                                                           // VMAP
-#endif                                                      /*_TILEASSEMBLER_H_*/
+} // VMAP
+#endif /*_TILEASSEMBLER_H_*/

@@ -19,17 +19,25 @@
 #include "BoundingIntervalHierarchyWrapper.h"
 #include "GameObjectModel.h"
 #include "MapTree.h"
-#include "ModelIgnoreFlags.h"
-#include "ModelInstance.h"
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "WorldModel.h"
 
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
-#include <G3D/Vector3.h>
+//#include "BoundingIntervalHierarchyWrapper.h"
+//#include "GameObjectModel.h"
+//#include "MapTree.h"
+//#include "ModelIgnoreFlags.h"
+//#include "ModelInstance.h"
+//#include "RegularGrid.h"
+//#include "Timer.h"
+//#include "VMapFactory.h"
+//#include "VMapMgr2.h"
+//#include "WorldModel.h"
+//#include <G3D/AABox.h>
+//#include <G3D/Ray.h>
+//#include <G3D/Vector3.h>
 
 using VMAP::ModelInstance;
 

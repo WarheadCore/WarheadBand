@@ -19,9 +19,9 @@
 #define _BIH_WRAP
 
 #include "BoundingIntervalHierarchy.h"
-#include "G3D/Array.h"
-#include "G3D/Set.h"
-#include "G3D/Table.h"
+#include <G3D/Array.h>
+#include <G3D/Set.h>
+#include <G3D/Table.h>
 
 template<class T, class BoundsFunc = BoundsTrait<T>>
 class WH_COMMON_API BIHWrap
@@ -69,10 +69,10 @@ class WH_COMMON_API BIHWrap
     ObjArray m_objects;
     G3D::Table<const T*, uint32> m_obj2Idx;
     G3D::Set<const T*> m_objects_to_push;
-    int unbalanced_times;
+    int unbalanced_times{ 0 };
 
 public:
-    BIHWrap() : unbalanced_times(0) { }
+    BIHWrap() = default;
 
     void insert(const T& obj)
     {

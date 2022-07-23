@@ -20,7 +20,7 @@
 
 #include "Define.h"
 #include <G3D/AABox.h>
-#include <G3D/CollisionDetection.h>
+//#include <G3D/CollisionDetection.h>
 
 /**
 The Class is mainly taken from G3D/AABSPTree.h but modified to be able to use our internal data structure.
@@ -59,7 +59,7 @@ namespace VMAP
             bool&                   Inside)
         {
             // Integer representation of a floating-point value.
-#define IR(x)   (reinterpret_cast<G3D::uint32 const&>(x))
+#define IR(x)   (reinterpret_cast<uint32 const&>(x))
 
             Inside = true;
             const G3D::Vector3& MinB = box.low();

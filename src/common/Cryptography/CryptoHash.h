@@ -19,7 +19,6 @@
 #define AZEROTHCORE_CRYPTOHASH_H
 
 #include "CryptoConstants.h"
-#include "Define.h"
 #include "Errors.h"
 #include <array>
 #include <openssl/evp.h>

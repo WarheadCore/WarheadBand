@@ -22,9 +22,8 @@
 #include "DetourAlloc.h"
 #include "DetourExtended.h"
 #include "DetourNavMesh.h"
-#include <shared_mutex>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 
 //  memory management
 inline void* dtCustomAlloc(size_t size, dtAllocHint /*hint*/)
@@ -34,7 +33,7 @@ inline void* dtCustomAlloc(size_t size, dtAllocHint /*hint*/)
 
 inline void dtCustomFree(void* ptr)
 {
-    delete [] (unsigned char*)ptr;
+    delete[] (unsigned char*)ptr;
 }
 
 //  move map related classes
@@ -74,7 +73,7 @@ namespace MMAP
     class WH_COMMON_API MMapMgr
     {
     public:
-        MMapMgr()  = default;
+        MMapMgr() = default;
         ~MMapMgr();
 
         void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);

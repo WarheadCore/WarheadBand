@@ -18,17 +18,15 @@
 #ifndef _VMAPMANAGER2_H
 #define _VMAPMANAGER2_H
 
-#include "Common.h"
+#include "Define.h"
 #include "IVMapMgr.h"
 #include <mutex>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
-//===========================================================
-
-#define MAP_FILENAME_EXTENSION2 ".vmtree"
-
-#define FILENAMEBUFFER_SIZE 500
+constexpr auto MAP_FILENAME_EXTENSION2 = ".vmtree";
+constexpr auto FILENAMEBUFFER_SIZE = 500;
 
 /**
 This is the main Class to manage loading and unloading of maps, line of sight, height calculation and so on.

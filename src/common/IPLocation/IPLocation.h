@@ -21,28 +21,29 @@
 
 struct IpLocationRecord
 {
-    IpLocationRecord() : IpFrom(0), IpTo(0) { }
+    IpLocationRecord() = default;
     IpLocationRecord(uint32 ipFrom, uint32 ipTo, std::string countryCode, std::string countryName)
         : IpFrom(ipFrom), IpTo(ipTo), CountryCode(std::move(countryCode)), CountryName(std::move(countryName)) { }
 
-    uint32 IpFrom;
-    uint32 IpTo;
+    uint32 IpFrom{ 0 };
+    uint32 IpTo{ 0 };
     std::string CountryCode;
     std::string CountryName;
 };
 
 class WH_COMMON_API IpLocationStore
 {
-    public:
-        IpLocationStore();
-        ~IpLocationStore();
-        static IpLocationStore* Instance();
+public:
+    IpLocationStore() = default;
+    ~IpLocationStore() = default;
 
-        void Load();
-        IpLocationRecord const* GetLocationRecord(std::string const& ipAddress) const;
+    static IpLocationStore* Instance();
 
-    private:
-        std::vector<IpLocationRecord> _ipLocationStore;
+    void Load();
+    IpLocationRecord const* GetLocationRecord(std::string const& ipAddress) const;
+
+private:
+    std::vector<IpLocationRecord> _ipLocationStore;
 };
 
 #define sIPLocation IpLocationStore::Instance()
