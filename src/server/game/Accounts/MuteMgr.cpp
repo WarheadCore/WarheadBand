@@ -50,7 +50,7 @@ void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::s
     uint64 muteDate = CONF_GET_BOOL("Mute.AddAfterLogin.Enable") && !targetSession ? 0 : GameTime::GetGameTime().count();
 
     if (targetSession)
-        SetMuteTime(accountId, muteTime);
+        AddMuteTime(accountId, muteTime);
 
     stmt->SetData(1, muteDate);
     stmt->SetData(2, muteTime);
@@ -82,6 +82,8 @@ void MuteMgr::UnMutePlayer(std::string const& targetName)
 
 void MuteMgr::SetMuteTime(uint32 accountID, Seconds muteDate)
 {
+    std::lock_guard<std::mutex> guard(_mutex);
+
     // Check empty
     auto itr = _listSessions.find(accountID);
     if (itr != _listSessions.end())
@@ -92,7 +94,7 @@ void MuteMgr::SetMuteTime(uint32 accountID, Seconds muteDate)
     _listSessions.emplace(accountID, muteDate);
 }
 
-void MuteMgr::SetMuteTime(uint32 accountID, Seconds muteTime)
+void MuteMgr::AddMuteTime(uint32 accountID, Seconds muteTime)
 {
     SetMuteTime(accountID, GameTime::GetGameTime() + muteTime);
 }
@@ -153,11 +155,6 @@ void MuteMgr::LoginAccount(uint32 accountID)
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
     stmt->SetData(0, accountID);
     LoginDatabase.Execute(stmt);
-
-    // Get info about mute time after update active
-    // SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? AND `active` = 1 ORDER BY `mutedate` + `mutetime` DESC LIMIT 1
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE);
-    stmt->SetData(0, accountID);
 
     sAsyncCallbackMgr->AddAsyncCallback([this, accountID]()
     {

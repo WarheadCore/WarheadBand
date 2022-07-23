@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "Duration.h"
 #include "Optional.h"
+#include <mutex>
 #include <tuple>
 #include <unordered_map>
 
@@ -35,7 +36,7 @@ public:
     void UnMutePlayer(std::string const& targetName);
     void UpdateMuteAccount(uint32 accountID, Seconds muteDate);
     void SetMuteTime(uint32 accountID, Seconds muteDate);
-    void SetMuteTime(uint32 accountID, Seconds muteTime);
+    void AddMuteTime(uint32 accountID, Seconds muteTime);
     Seconds GetMuteDate(uint32 accountID);
     std::string const GetMuteTimeString(uint32 accountID);
     void DeleteMuteTime(uint32 accountID, bool delFromDB = true);
@@ -47,6 +48,7 @@ public:
 
 private:
     std::unordered_map<uint32, Seconds> _listSessions;
+    std::mutex _mutex;
 };
 
 #define sMute MuteMgr::instance()
