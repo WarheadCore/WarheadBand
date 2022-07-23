@@ -117,6 +117,7 @@ struct ScalingStatValuesEntry;
 struct SpellModifier;
 struct TargetInfo;
 struct VendorItem;
+struct QuestStatusData;
 
 // Dynamic linking class
 class ModuleReference;
@@ -504,6 +505,8 @@ public: /* PlayerScript */
     void OnGetShieldBlockValue(Player* player, float& value);
     void OnUpdateAttackPowerAndDamage(Player* player, float& apFromAgility);
     void OnCalculateMinMaxDamage(Player* player, float& damageFromAP);
+    bool CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* questStatusData);
+    void OnAddQuest(Player* player, Quest const* quest, Object* questGiver);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);
