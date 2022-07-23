@@ -18,11 +18,13 @@
 #include "ArenaReward.h"
 #include "ArenaTeamMgr.h"
 #include "BanMgr.h"
+#include "Battleground.h"
 #include "Chat.h"
 #include "GameLocale.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
@@ -34,41 +36,6 @@ namespace
 {
     constexpr uint32 SPELL_PARALYSE = 41083;
     constexpr uint32 SPELL_EXILE = 35182;
-
-    std::unordered_map<uint32, uint32> _paralysePlayer;
-
-    void ParalysePlayer(Player* player)
-    {
-        if (MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Teleport.Enable"))
-        {
-            std::string const& locationInfo = MOD_CONF_GET_STR("ArenaReward.AntiFarm.Teleport.Location");
-
-            std::vector<std::string_view> tokens = Warhead::Tokenize(locationInfo, ' ', false);
-
-            // If invalid - skip
-            if (tokens.size() != 5)
-                return;
-
-            uint32 mapID = *Warhead::StringTo<uint32>(tokens[0]);
-            float posX = *Warhead::StringTo<float>(tokens[1]);
-            float posY = *Warhead::StringTo<float>(tokens[2]);
-            float posZ = *Warhead::StringTo<float>(tokens[3]);
-            float orientation = *Warhead::StringTo<float>(tokens[4]);
-
-            player->TeleportTo(WorldLocation(mapID, posX, posY, posZ, orientation), 0, nullptr);
-
-            if (MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.SpellApply.Enable"))
-            {
-                player->AddAura(SPELL_PARALYSE, player);
-                player->AddAura(SPELL_EXILE, player);
-
-                LOG_DEBUG("module.ar", "> Player ({}) paralyse!", player->GetName());
-            }
-        }
-
-        if (MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Ban.Enable"))
-            sBan->BanCharacter(player->GetName(), MOD_CONF_GET_STR("ArenaReward.AntiFarm.Ban.Duration"), "Arena farming", "Winfidonarleyan");
-    }
 }
 
 /*static*/ ArenaReward* ArenaReward::instance()
@@ -77,8 +44,60 @@ namespace
     return &instance;
 }
 
+void ArenaReward::LoadConfig(bool /*reload*/)
+{
+    _isEnable = MOD_CONF_GET_BOOL("ArenaReward.Enable");
+    if (!_isEnable)
+        return;
+
+    // Rating
+    _isRewardRatingEnable = MOD_CONF_GET_BOOL("ArenaReward.Reward.Rating.Enable");
+    _rewardRatingItemID = MOD_CONF_GET_UINT("ArenaReward.Reward.Rating.ItemID");
+    _rewardRatingItemCountWinner = MOD_CONF_GET_UINT("ArenaReward.Reward.Rating.ItemCount.WinnerTeam");
+    _rewardRatingItemCountLoser = MOD_CONF_GET_UINT("ArenaReward.Reward.Rating.ItemCount.LoserTeam");
+
+    // Skirmish
+    _isRewardSkirmishEnable = MOD_CONF_GET_BOOL("ArenaReward.Reward.Skirmish.Enable");
+    _rewardSkirmishItemID = MOD_CONF_GET_UINT("ArenaReward.Reward.Skirmish.ItemID");
+    _rewardSkirmishItemCountWinner = MOD_CONF_GET_UINT("ArenaReward.Reward.Skirmish.ItemCount.WinnerTeam");
+    _rewardSkirmishItemCountLoser = MOD_CONF_GET_UINT("ArenaReward.Reward.Skirmish.ItemCount.LoserTeam");
+
+    // AntiFarm
+    _isAntiFarmEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Enable");
+    _isAntiFarmCheckIpEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Check.IP.Enable");
+    _isAntiFarmCheckEquipmentEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Check.Equipment.Enable");
+    _isAntiFarmCheckHealthEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Check.Health.Enable");
+    _isAntiFarmTeleportEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Teleport.Enable");
+    _isAntiFarmSpellApplyEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.SpellApply.Enable");
+    _isAntiFarmBanEnable = MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Ban.Enable");
+    _antiFarmBanDuration = MOD_CONF_GET_STR("ArenaReward.AntiFarm.Ban.Duration");
+}
+
+void ArenaReward::Init()
+{
+    if (!_isEnable || !_isAntiFarmTeleportEnable)
+        return;
+
+    std::string const& locationInfo = MOD_CONF_GET_STR("ArenaReward.AntiFarm.Teleport.Location");
+
+    std::vector<std::string_view> tokens = Warhead::Tokenize(locationInfo, ' ', false);
+    ASSERT(tokens.size() == 5);
+
+    uint32 mapID = *Warhead::StringTo<uint32>(tokens[0]);
+    float posX = *Warhead::StringTo<float>(tokens[1]);
+    float posY = *Warhead::StringTo<float>(tokens[2]);
+    float posZ = *Warhead::StringTo<float>(tokens[3]);
+    float orientation = *Warhead::StringTo<float>(tokens[4]);
+
+    _antiFarmTeleportLocation = std::make_unique<WorldLocation>(mapID, posX, posY, posZ, orientation);
+}
+
 void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
 {
+    // Not reward on end bg
+    if (bg->isBattleground())
+        return;
+
     uint32 rewardItemID = 0;
     uint32 rewardItemCountWinner = 0;
     uint32 rewardItemCountLoser = 0;
@@ -86,7 +105,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
 
     auto SendItems = [&](uint32 itemID, uint32 itemCountWinner, uint32 itemCountLoser)
     {
-        if (isRated && MOD_CONF_GET_BOOL("ArenaReward.Reward.Rating.Enable"))
+        if (isRated && _isRewardRatingEnable)
         {
             auto winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(winnerTeamId == TEAM_NEUTRAL ? TEAM_HORDE : winnerTeamId));
             auto loserArenaTeam = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(winnerTeamId == TEAM_NEUTRAL ? TEAM_ALLIANCE : bg->GetOtherTeamId(winnerTeamId)));
@@ -114,7 +133,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
                 ChatHandler(player->GetSession()).PSendSysMessage("|cFFFF0000#|r |cff6C8CD5Вы проиграли матч и получили|r {} x{}", sGameLocale->GetItemLink(itemID), itemCountLoser);
             }
         }
-        else if (MOD_CONF_GET_BOOL("ArenaReward.Reward.Skirmish.Enable")) // !isRated
+        else if (_isRewardSkirmishEnable) // !isRated
         {
             for (auto const& playerMap : bg->GetPlayers())
             {
@@ -136,15 +155,15 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
 
     if (isRated)
     {
-        rewardItemID = MOD_CONF_GET_INT("ArenaReward.Reward.Rating.ItemID");
-        rewardItemCountWinner = MOD_CONF_GET_INT("ArenaReward.Reward.Rating.ItemCount.WinnerTeam");
-        rewardItemCountLoser = MOD_CONF_GET_INT("ArenaReward.Reward.Rating.ItemCount.LoserTeam");
+        rewardItemID = _rewardRatingItemID;
+        rewardItemCountWinner = _rewardRatingItemCountWinner;
+        rewardItemCountLoser = _rewardRatingItemCountLoser;
     }
     else // !isRated
     {
-        rewardItemID = MOD_CONF_GET_INT("ArenaReward.Reward.Skirmish.ItemID");
-        rewardItemCountWinner = MOD_CONF_GET_INT("ArenaReward.Reward.Skirmish.ItemCount.WinnerTeam");
-        rewardItemCountLoser = MOD_CONF_GET_INT("ArenaReward.Reward.Skirmish.ItemCount.LoserTeam");
+        rewardItemID = _rewardSkirmishItemID;
+        rewardItemCountWinner = _rewardSkirmishItemCountWinner;
+        rewardItemCountLoser = _rewardSkirmishItemCountLoser;
     }
 
     if (!IsPossibleFarm(bg, winnerTeamId))
@@ -153,7 +172,7 @@ void ArenaReward::SendRewardArena(Battleground* bg, TeamId winnerTeamId)
 
 bool ArenaReward::IsPossibleFarm(Battleground* bg, TeamId winnerTeamId)
 {
-    if (!MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Enable"))
+    if (!_isAntiFarmEnable)
         return false;
 
     bool isFarmer = false;
@@ -183,7 +202,7 @@ bool ArenaReward::IsPossibleFarm(Battleground* bg, TeamId winnerTeamId)
             if (!player)
                 continue;
 
-            ::ParalysePlayer(player);
+            ParalysePlayer(player);
         }
 
         for (auto const& member : loserArenaTeam->GetMembers())
@@ -192,18 +211,17 @@ bool ArenaReward::IsPossibleFarm(Battleground* bg, TeamId winnerTeamId)
             if (!player)
                 continue;
 
-            ::ParalysePlayer(player);
+            ParalysePlayer(player);
         }
     }
     else // !isRated
     {
-        for (auto const& playerMap : bg->GetPlayers())
+        for (auto const& [playerGuid, player] : bg->GetPlayers())
         {
-            Player* player = playerMap.second;
             if (!player)
                 continue;
 
-            ::ParalysePlayer(player);
+            ParalysePlayer(player);
         }
     }
 
@@ -212,7 +230,7 @@ bool ArenaReward::IsPossibleFarm(Battleground* bg, TeamId winnerTeamId)
 
 bool ArenaReward::CheckIP(Battleground* bg, TeamId winnerTeamId)
 {
-    if (!MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Check.IP.Enable"))
+    if (!_isAntiFarmCheckIpEnable)
         return false;
 
     bool isRated = bg->isRated();
@@ -318,7 +336,7 @@ bool ArenaReward::CheckIP(Battleground* bg, TeamId winnerTeamId)
 
 bool ArenaReward::CheckEqipment(Battleground* bg, TeamId winnerTeamId)
 {
-    if (!MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Check.Equipment.Enable"))
+    if (!_isAntiFarmCheckEquipmentEnable)
         return false;
 
     bool isRated = bg->isRated();
@@ -386,7 +404,7 @@ bool ArenaReward::CheckEqipment(Battleground* bg, TeamId winnerTeamId)
 
 bool ArenaReward::CheckHealth(Battleground* bg, TeamId winnerTeamId)
 {
-    if (!MOD_CONF_GET_BOOL("ArenaReward.AntiFarm.Check.Health.Enable"))
+    if (!_isAntiFarmCheckHealthEnable)
         return false;
 
     bool isRated = bg->isRated();
@@ -444,4 +462,21 @@ bool ArenaReward::CheckHealth(Battleground* bg, TeamId winnerTeamId)
     }
 
     return false;
+}
+
+void ArenaReward::ParalysePlayer(Player* player)
+{
+    if (_isAntiFarmTeleportEnable && _antiFarmTeleportLocation)
+        player->TeleportTo(*_antiFarmTeleportLocation);
+
+    if (_isAntiFarmSpellApplyEnable)
+    {
+        player->AddAura(SPELL_PARALYSE, player);
+        player->AddAura(SPELL_EXILE, player);
+
+        LOG_DEBUG("module.ar", "> Player ({}) paralyse!", player->GetName());
+    }
+
+    if (_isAntiFarmBanEnable)
+        sBan->BanCharacter(player->GetName(), _antiFarmBanDuration, "Arena farming", "Winfidonarleyan");
 }

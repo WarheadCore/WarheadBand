@@ -16,7 +16,6 @@
  */
 
 #include "Chat.h"
-#include "Log.h"
 #include "ModulesConfig.h"
 #include "OnlineReward.h"
 #include "Player.h"

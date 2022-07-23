@@ -18,14 +18,22 @@
 #ifndef _ARENA_REWARD_H_
 #define _ARENA_REWARD_H_
 
-#include "Battleground.h"
-#include "Common.h"
-#include "Player.h"
+#include "SharedDefines.h"
+#include <memory>
+#include <string>
+
+class Battleground;
+class Player;
+
+struct WorldLocation;
 
 class ArenaReward
 {
 public:
     static ArenaReward* instance();
+
+    void LoadConfig(bool reload);
+    void Init();
 
     void SendRewardArena(Battleground* bg, TeamId winnerTeamId);
 
@@ -34,6 +42,33 @@ private:
     bool CheckIP(Battleground* bg, TeamId winnerTeamId);
     bool CheckEqipment(Battleground* bg, TeamId winnerTeamId);
     bool CheckHealth(Battleground* bg, TeamId winnerTeamId);
+
+    void ParalysePlayer(Player* player);
+
+    bool _isEnable{ false };
+
+    // Rating
+    bool _isRewardRatingEnable{ false };
+    uint32 _rewardRatingItemID{ 0 };
+    uint32 _rewardRatingItemCountWinner{ 0 };
+    uint32 _rewardRatingItemCountLoser{ 0 };
+
+    // Skirmish
+    bool _isRewardSkirmishEnable{ false };
+    uint32 _rewardSkirmishItemID{ 0 };
+    uint32 _rewardSkirmishItemCountWinner{ 0 };
+    uint32 _rewardSkirmishItemCountLoser{ 0 };
+
+    // AntiFarm
+    bool _isAntiFarmEnable{ false };
+    bool _isAntiFarmCheckIpEnable{ false };
+    bool _isAntiFarmCheckEquipmentEnable{ false };
+    bool _isAntiFarmCheckHealthEnable{ false };
+    bool _isAntiFarmTeleportEnable{ false };
+    std::unique_ptr<WorldLocation> _antiFarmTeleportLocation;
+    bool _isAntiFarmSpellApplyEnable{ false };
+    bool _isAntiFarmBanEnable{ false };
+    std::string _antiFarmBanDuration;
 };
 
 #define sAR ArenaReward::instance()

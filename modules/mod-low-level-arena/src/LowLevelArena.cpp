@@ -18,17 +18,12 @@
 #include "LowLevelArena.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
-#include "Config.h"
 #include "DisableMgr.h"
 #include "GroupMgr.h"
 #include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptObject.h"
-#include "StringConvert.h"
-#include "StringFormat.h"
-#include "Tokenize.h"
-#include <unordered_set>
 //#include <tuple>
 //#include <unordered_map>
 
@@ -47,9 +42,7 @@ LLA* LLA::instance()
 void LLA::AddQueue(Player* leader)
 {
     if (!leader)
-    {
         return;
-    }
 
     // Default 5v5
     uint8 arenaSlot = 2;

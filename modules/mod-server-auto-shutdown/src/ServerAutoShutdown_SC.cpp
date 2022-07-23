@@ -15,11 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Config.h"
-#include "Log.h"
 #include "ScriptObject.h"
 #include "ServerAutoShutdown.h"
-#include "TaskScheduler.h"
 
 class ServerAutoShutdown_World : public WorldScript
 {

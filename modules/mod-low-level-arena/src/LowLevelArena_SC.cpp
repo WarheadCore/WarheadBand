@@ -16,12 +16,10 @@
  */
 
 #include "Chat.h"
-#include "Config.h"
-#include "Log.h"
 #include "LowLevelArena.h"
+#include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "ScriptedGossip.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -69,7 +67,7 @@ public:
     {
         ChatHandler handler(player->GetSession());
 
-        if (!sConfigMgr->GetOption<bool>("LLA.Enable", false))
+        if (!MOD_CONF_GET_BOOL("LLA.Enable"))
         {
             handler.PSendSysMessage("> Module disable!");
             return true;

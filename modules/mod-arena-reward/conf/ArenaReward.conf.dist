@@ -18,8 +18,6 @@
 ########################################
 # ArenaReward module configuration
 ########################################
-[worldserver]
-
 #
 #    ArenaReward.Enable
 #        Description: Enable system arena reward.
@@ -29,7 +27,7 @@
 ArenaReward.Enable = 0
 
 #
-#    ArenaReward.Reward.Rating.ItemID
+#    ArenaReward.Reward.Rating.Enable
 #        Description: Enable add item after win/lose arena
 #        Default: 1
 #

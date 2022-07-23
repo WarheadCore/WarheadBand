@@ -18,10 +18,9 @@
 #ifndef _LOW_LEVEL_ARENA_H_
 #define _LOW_LEVEL_ARENA_H_
 
-#include "Common.h"
-#include "SharedDefines.h"
+#include "Define.h"
 
-class Battleground;
+//class Battleground;
 class Player;
 
 class LLA

@@ -16,12 +16,7 @@
  */
 
 #include "ArenaReward.h"
-#include "Chat.h"
-#include "Log.h"
-#include "ModulesConfig.h"
-#include "Player.h"
 #include "ScriptObject.h"
-#include "ScriptedGossip.h"
 
 class ArenaReward_BG : public BGScript
 {
@@ -30,14 +25,23 @@ public:
 
     void OnBattlegroundEnd(Battleground* bg, TeamId winnerTeamId) override
     {
-        if (!MOD_CONF_GET_BOOL("ArenaReward.Enable"))
-            return;
-
-        // Not reward on end bg
-        if (bg->isBattleground())
-            return;
-
         sAR->SendRewardArena(bg, winnerTeamId);
+    }
+};
+
+class ArenaReward_World : public WorldScript
+{
+public:
+    ArenaReward_World() : WorldScript("ArenaReward_World") { }
+
+    void OnAfterConfigLoad(bool reload) override
+    {
+        sAR->LoadConfig(reload);
+    }
+
+    void OnStartup() override
+    {
+        sAR->Init();
     }
 };
 
@@ -45,4 +49,5 @@ public:
 void AddSC_ArenaReward()
 {
     new ArenaReward_BG();
+    new ArenaReward_World();
 }

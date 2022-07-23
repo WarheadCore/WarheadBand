@@ -18,7 +18,6 @@
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "GameTime.h"
-#include "Log.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
