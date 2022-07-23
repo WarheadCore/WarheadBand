@@ -42,7 +42,7 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
         unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
-    if (id == EVENT_CHARGE)
+    if (id == EVENT_CHARGE || id == EVENT_CHARGE_PREPATH)
     {
         unit->AddUnitState(UNIT_STATE_CHARGING);
     }
@@ -159,7 +159,7 @@ template<class T>
 void PointMovementGenerator<T>::DoFinalize(T* unit)
 {
     unit->ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
-    if (id == EVENT_CHARGE)
+    if (id == EVENT_CHARGE || id == EVENT_CHARGE_PREPATH)
     {
         unit->ClearUnitState(UNIT_STATE_CHARGING);
 
@@ -183,7 +183,7 @@ void PointMovementGenerator<T>::DoReset(T* unit)
         unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
-    if (id == EVENT_CHARGE)
+    if (id == EVENT_CHARGE || id == EVENT_CHARGE_PREPATH)
     {
         unit->AddUnitState(UNIT_STATE_CHARGING);
     }
