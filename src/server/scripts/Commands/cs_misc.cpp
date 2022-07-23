@@ -2048,7 +2048,7 @@ public:
 
             muteTime = _muteTime;
 
-            if (_muteDate)
+            if (_muteDate > 0s)
                 muteLeft = Warhead::Time::ToTimeString(_muteDate + muteTime - GameTime::GetGameTime());
             else
                 muteLeft = Warhead::Time::ToTimeString(muteTime);
