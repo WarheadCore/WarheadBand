@@ -468,7 +468,7 @@ void QuestConditionsMgr::OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam)
 
 bool QuestConditionsMgr::HasQuestCondition(uint32 questID)
 {
-    return _conditions.find(questID) != _conditions.end();
+    return _conditions.contains(questID);
 }
 
 QuestCondition const* QuestConditionsMgr::GetQuestCondition(uint32 questID)
