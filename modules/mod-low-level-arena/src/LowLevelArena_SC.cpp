@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "Chat.h"
 #include "LowLevelArena.h"
 #include "ModulesConfig.h"
@@ -65,10 +68,9 @@ public:
 
     static bool AddQueue(Player* player)
     {
-        ChatHandler handler(player->GetSession());
-
         if (!MOD_CONF_GET_BOOL("LLA.Enable"))
         {
+            ChatHandler handler(player->GetSession());
             handler.PSendSysMessage("> Module disable!");
             return true;
         }

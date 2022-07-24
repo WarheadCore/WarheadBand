@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "AsyncCallbackProcessor.h"
 #include "CharacterCache.h"
 #include "DiscordClient.h"
@@ -300,16 +303,16 @@ private:
         if (!sDiscord->IsEnable() || !_discordShannelID)
             return;
 
-        auto color = DiscordMessageColor::Indigo;
-        auto title = "Покупка в игровом магазине";
-        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
-        auto embedItemName = Warhead::StringFormat("`{}`", itemName);
-        auto embedItemItemCount = Warhead::StringFormat("`{}`", Warhead::ToString(itemCount));
+        //auto color = DiscordMessageColor::Indigo;
+        //auto title = "Покупка в игровом магазине";
+        //auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
+        //auto embedItemName = Warhead::StringFormat("`{}`", itemName);
+        //auto embedItemItemCount = Warhead::StringFormat("`{}`", Warhead::ToString(itemCount));
 
-        DiscordEmbedFields fields;
-        fields.emplace_back(EmbedField("Предмет", embedItemName, true));
-        fields.emplace_back(EmbedField("Количество", embedItemItemCount, true));
-        //sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
+        //DiscordEmbedFields fields;
+        //fields.emplace_back(EmbedField("Предмет", embedItemName, true));
+        //fields.emplace_back(EmbedField("Количество", embedItemItemCount, true));
+        ////sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
     }
 
     inline void SendNotification(std::string_view playerName, std::string_view desc)
@@ -317,13 +320,13 @@ private:
         if (!sDiscord->IsEnable() || !_discordShannelID)
             return;
 
-        auto color = DiscordMessageColor::Indigo;
-        auto title = "Покупка в игровом магазине";
-        auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
+        //auto color = DiscordMessageColor::Indigo;
+        //auto title = "Покупка в игровом магазине";
+        //auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
 
-        DiscordEmbedFields fields;
-        fields.emplace_back(EmbedField("Услуга", std::string(desc), true));
-        //sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
+        //DiscordEmbedFields fields;
+        //fields.emplace_back(EmbedField("Услуга", std::string(desc), true));
+        ////sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
     }
 
 private:

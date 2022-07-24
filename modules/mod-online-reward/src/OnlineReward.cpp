@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "OnlineReward.h"
 #include "AsyncCallbackMgr.h"
 #include "Chat.h"
@@ -395,8 +398,8 @@ void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 rewardID)
 
     auto SendItemsViaMail = [player, onlineReward, playedTimeSecStr, &localeIndex]()
     {
-        auto const& mailSubject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
-        auto const& MailText = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
+        auto const mailSubject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
+        auto const MailText = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
 
         // Send External mail
         for (auto const& [itemID, itemCount] : onlineReward->Items)

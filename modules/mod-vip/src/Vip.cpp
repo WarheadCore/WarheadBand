@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "Vip.h"
 #include "Chat.h"
 #include "GameTime.h"
@@ -362,10 +365,8 @@ float Vip::GetRate<VipRate::Reputation>(Player* player)
 
 std::string Vip::GetDuration(Player* player)
 {
-    std::string duration = "<неизвестно>";
-
     if (!player)
-        return duration;
+        return "<неизвестно>";
 
     return GetDuration(player->GetSession()->GetAccountId());
 }
@@ -769,7 +770,7 @@ bool Vip::CanUsingVendor(Player* player, Creature* creature)
     if (!isVipVendor)
         return true;
 
-    if (isVipVendor && !IsVip(player))
+    if (!IsVip(player))
         return false;
 
     return GetLevel(player) >= GetVendorVipLevel(creatureEntry);

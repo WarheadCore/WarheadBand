@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "Transmogrification.h"
 #include "ChatTextBuilder.h"
 #include "GameEventMgr.h"
@@ -70,7 +73,6 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
     do
     {
         uint8 PresetID = (*result)[0].Get<uint8>();
-        std::string SetName = (*result)[1].Get<std::string>();
         std::istringstream SetData((*result)[2].Get<std::string>());
 
         while (SetData.good())
@@ -93,7 +95,7 @@ void Transmogrification::LoadPlayerSets(ObjectGuid pGUID)
         }
 
         if (!_presetById[pGUID][PresetID].empty())
-            _presetByName[pGUID][PresetID] = SetName;
+            _presetByName[pGUID][PresetID] = (*result)[1].Get<std::string>();
         else // should be deleted on startup, so  this never runs (shouldnt..)
         {
             _presetById[pGUID].erase(PresetID);

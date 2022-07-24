@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "GameLocale.h"
 #include "Log.h"
 #include "ModuleLocale.h"
@@ -22,6 +25,7 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StringFormat.h"
+#include "GameLocale.h"
 
 class Boss_Announcer_Player : public PlayerScript
 {
@@ -39,10 +43,12 @@ public:
         if (!creature->isWorldBoss())
             return;
 
+        auto creatureName = sGameLocale->GetCreatureNamelocale(creature->GetEntry(), player->GetSession()->GetSessionDbcLocale());
+
         if (IsKilledRaidBoss(player))
-            sModuleLocale->SendGlobalMessage(false, "BOSS_AN_LOCALE_SEND_TEXT_RAID", player->GetName().c_str(), GetCreatureName(player, creature).c_str(), GetDiffString(player).c_str());
+            sModuleLocale->SendGlobalMessage(false, "BOSS_AN_LOCALE_SEND_TEXT_RAID", player->GetName(), creatureName, GetDiffString(player));
         else
-            sModuleLocale->SendGlobalMessage(false, "BOSS_AN_LOCALE_SEND_TEXT_WORLD", player->GetName().c_str(), GetCreatureName(player, creature).c_str());
+            sModuleLocale->SendGlobalMessage(false, "BOSS_AN_LOCALE_SEND_TEXT_WORLD", player->GetName(), creatureName);
     };
 
 private:
@@ -70,24 +76,6 @@ private:
             default:
                 return "";
         }
-    }
-
-    std::string const GetCreatureName(Player* player, Creature* creature)
-    {
-        auto creatureTemplate = sObjectMgr->GetCreatureTemplate(creature->GetEntry());
-        auto cretureLocale = sGameLocale->GetCreatureLocale(creature->GetEntry());
-        std::string name;
-
-        if (cretureLocale)
-            name = cretureLocale->Name[player->GetSession()->GetSessionDbcLocale()].c_str();
-
-        if (name.empty() && creatureTemplate)
-            name = creatureTemplate->Name.c_str();
-
-        if (name.empty())
-            name = "Unknown creature";
-
-        return name;
     }
 
     bool IsKilledRaidBoss(Player* player)

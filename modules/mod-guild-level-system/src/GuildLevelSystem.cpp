@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "GuildLevelSystem.h"
 #include "Chat.h"
 #include "ExternalMail.h"
@@ -485,7 +488,7 @@ void GuildLevelSystem::LoadBaseCriteria()
         if (_stages == _guildStages.end())
         {
             std::vector<uint32> __vector = { criteriaID };
-            _guildStages.insert(std::make_pair(stageID, __vector));
+            _guildStages.emplace(stageID, std::move(__vector));
         }
         else
             _stages->second.push_back(criteriaID);
