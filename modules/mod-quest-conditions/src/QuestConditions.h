@@ -61,8 +61,8 @@ struct QuestCondition
     uint32 CompleteQuestID{ 0 };
     uint32 EquipItemID{ 0 };
 
-    bool IsFoundConditionForType(QuestConditionType type) const;
-    bool IsValidConditionForType(QuestConditionType type, uint32 value) const;
+    [[nodiscard]] bool IsFoundConditionForType(QuestConditionType type) const;
+    [[nodiscard]] bool IsValidConditionForType(QuestConditionType type, uint32 value) const;
 };
 
 using QuestConditions = std::unordered_map<uint32, QuestCondition>;
