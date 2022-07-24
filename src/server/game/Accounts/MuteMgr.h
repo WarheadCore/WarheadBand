@@ -21,10 +21,11 @@
 #include "Common.h"
 #include "Duration.h"
 #include "Optional.h"
+#include <mutex>
 #include <tuple>
 #include <unordered_map>
 
-using MuteInfo = std::tuple<uint64, Seconds, std::string, std::string>;
+using MuteInfo = std::tuple<Seconds, Seconds, std::string, std::string>;
 
 class WH_GAME_API MuteMgr
 {
@@ -33,20 +34,21 @@ public:
 
     void MutePlayer(std::string const& targetName, Seconds muteTime, std::string const& muteBy, std::string const& muteReason);
     void UnMutePlayer(std::string const& targetName);
-    void UpdateMuteAccount(uint32 accountID, uint64 muteDate);
-    void SetMuteTime(uint32 accountID, uint64 muteDate);
-    void SetMuteTime(uint32 accountID, Seconds muteTime);
-    uint64 GetMuteDate(uint32 accountID);
+    void UpdateMuteAccount(uint32 accountID, Seconds muteDate);
+    void SetMuteTime(uint32 accountID, Seconds muteDate);
+    void AddMuteTime(uint32 accountID, Seconds muteTime);
+    Seconds GetMuteDate(uint32 accountID);
     std::string const GetMuteTimeString(uint32 accountID);
     void DeleteMuteTime(uint32 accountID, bool delFromDB = true);
     void CheckMuteExpired(uint32 accountID);
     bool CanSpeak(uint32 accountID);
-    void CheckSpeakTime(uint32 accountID, time_t muteDate);
+    void CheckSpeakTime(uint32 accountID, Seconds muteDate);
     void LoginAccount(uint32 accountID);
     Optional<MuteInfo> GetMuteInfo(uint32 accountID);
 
 private:
-    std::unordered_map<uint32, uint64> _listSessions;
+    std::unordered_map<uint32, Seconds> _listSessions;
+    std::mutex _mutex;
 };
 
 #define sMute MuteMgr::instance()
