@@ -23,10 +23,11 @@
 
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include <unordered_map>
 #include <mutex>
+#include <unordered_map>
 
 class Battleground;
+class ChatHandler;
 class Player;
 class Item;
 class Spell;
@@ -76,6 +77,8 @@ public:
     void Initialize();
     void LoadConfig(bool reload);
 
+    inline bool IsEnable() { return _isEnable; }
+
     // Hooks
     bool CanPlayerCompleteQuest(Player* player, Quest const* questInfo);
     void OnPlayerCompleteQuest(Player* player, Quest const* quest);
@@ -85,6 +88,9 @@ public:
     void OnPlayerItemEquip(Player* player, Item* item);
     void OnPlayerAchievementComplete(Player* player, AchievementEntry const* achievement);
     void OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam);
+
+    // Chat commands
+    void SendQuestConditionInfo(ChatHandler* handler, uint32 questID);
 
     // Add/Delete QC data
     void OnPlayerLogin(Player* player);

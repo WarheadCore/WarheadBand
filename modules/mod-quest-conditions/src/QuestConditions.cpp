@@ -30,6 +30,8 @@
 #include "BattlegroundMgr.h"
 #include "AchievementMgr.h"
 #include "Spell.h"
+#include "Chat.h"
+#include "GameLocale.h"
 
 namespace
 {
@@ -625,6 +627,79 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
         ASSERT(kmc);
         player->KilledMonsterCredit(*kmc);
     }
+}
+
+void QuestConditionsMgr::SendQuestConditionInfo(ChatHandler* handler, uint32 questID)
+{
+    auto const& questCondtion = GetQuestCondition(questID);
+    if (!questCondtion)
+    {
+        handler->PSendSysMessage("> Дополнительных условий для квеста {} не найдено", questID);
+        return;
+    }
+
+    auto const& quest = sObjectMgr->GetQuestTemplate(questID);
+    if (!quest)
+    {
+        handler->PSendSysMessage("> Квест {} не найден", questID);
+        return;
+    }
+
+    std::string questTitle{ quest->GetTitle() };
+
+    int localeConstant = handler->GetSessionDbLocaleIndex();
+
+    if (QuestLocale const* locale = sGameLocale->GetQuestLocale(questID))
+    {
+        std::string_view name = GameLocale::GetLocaleString(locale->Title, localeConstant);
+        if (!name.empty())
+            questTitle = name;
+    }
+
+    handler->PSendSysMessage("###############");
+    handler->PSendSysMessage("> Квест {} ({})", questTitle, questID);
+    handler->PSendSysMessage("###############");
+
+    if (questCondtion->UseSpellID)
+    {
+        std::string spellName = sGameLocale->GetSpellLink(questCondtion->UseSpellID, localeConstant);
+        handler->PSendSysMessage("> Использовать заклинение: {}. {} раз", spellName, questCondtion->UseSpellCount);
+    }
+
+    if (questCondtion->WinBGType)
+    {
+        auto bg = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundTypeId>(questCondtion->WinBGType));
+        handler->PSendSysMessage("> Выйграть бг: {}. {} раз", bg->GetName(), questCondtion->WinBGCount);
+    }
+
+    if (questCondtion->WinArenaType)
+        handler->PSendSysMessage("> Выйграть арену: {}vs{}. {} раз", questCondtion->WinArenaType, questCondtion->WinArenaType, questCondtion->WinArenaCount);
+
+    if (questCondtion->CompleteAchievementID)
+    {
+        auto achievement = sAchievementMgr->GetAchievement(questCondtion->CompleteAchievementID);
+        handler->PSendSysMessage("> Получить достижение: {}", achievement->name[localeConstant]);
+    }
+
+    if (questCondtion->CompleteQuestID)
+    {
+        auto const& completeQuest = sObjectMgr->GetQuestTemplate(questCondtion->CompleteQuestID);
+        std::string completeQuestTitle{ completeQuest->GetTitle() };
+
+        if (QuestLocale const* locale = sGameLocale->GetQuestLocale(questCondtion->CompleteQuestID))
+        {
+            std::string_view name = GameLocale::GetLocaleString(locale->Title, localeConstant);
+            if (!name.empty())
+                completeQuestTitle = name;
+        }
+
+        handler->PSendSysMessage("> Завершить квест: {} - |cffffffff|Hquest:{}:{}|h[{}]|h|r", completeQuest->GetQuestId(), completeQuest->GetQuestLevel(), questTitle);
+    }
+
+    if (questCondtion->EquipItemID)
+        handler->PSendSysMessage("> Одеть предмет: {}", sGameLocale->GetItemLink(questCondtion->EquipItemID, localeConstant));
+
+    handler->PSendSysMessage("###############");
 }
 
 void QuestConditionsMgr::OnPlayerLogin(Player* player)
