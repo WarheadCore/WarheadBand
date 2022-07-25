@@ -24,6 +24,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <unordered_map>
+#include <mutex>
 
 class Battleground;
 class Player;
@@ -107,6 +108,7 @@ private:
     QuestConditions _conditions;
     std::unordered_map<ObjectGuid, QuestConditions> _playerConditions;
     std::unordered_map<uint64, uint32> _kmc;
+    std::mutex _playerConditionsMutex;
 };
 
 #define sQuestConditionsMgr QuestConditionsMgr::instance()

@@ -558,7 +558,7 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
         {
             case QuestConditionType::UseSpell:
             {
-                if (playerQuestCondition->UseSpellCount)
+                if (playerQuestCondition->UseSpellCount >= condition.UseSpellCount)
                     continue;
 
                 playerQuestCondition->UseSpellCount = std::min(condition.UseSpellCount, playerQuestCondition->UseSpellCount + 1);
@@ -574,7 +574,7 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
             }
             case QuestConditionType::WinArena:
             {
-                if (playerQuestCondition->WinArenaCount)
+                if (playerQuestCondition->WinArenaCount >= condition.WinArenaCount)
                     continue;
 
                 playerQuestCondition->WinArenaCount = std::min(condition.WinArenaCount, playerQuestCondition->WinArenaCount + 1);
@@ -622,9 +622,6 @@ void QuestConditionsMgr::OnPlayerLogin(Player* player)
     if (!_isEnable)
         return;
 
-    auto const& itr = _playerConditions.find(player->GetGUID());
-    ASSERT(itr == _playerConditions.end(), "Found conditions for player {}", player->GetGUID().ToString());
-
     player->GetSession()->GetQueryProcessor().AddCallback(
         CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `QuestID`, `UseSpellCount`, `WinBGCount`, `WinArenaCount`, "
             "`CompleteAchievementID`, `CompleteQuestID`, `EquipItemID` FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {}", player->GetGUID().GetRawValue())).
@@ -632,6 +629,9 @@ void QuestConditionsMgr::OnPlayerLogin(Player* player)
         {
             if (!result)
                 return;
+
+            std::lock_guard<std::mutex> guard(_playerConditionsMutex);
+            _playerConditions.erase(playerGuid);
 
             do
             {
@@ -660,5 +660,6 @@ void QuestConditionsMgr::OnPlayerLogout(Player* player)
     if (!_isEnable)
         return;
 
+    std::lock_guard<std::mutex> guard(_playerConditionsMutex);
     _playerConditions.erase(player->GetGUID());
 }
