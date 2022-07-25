@@ -770,7 +770,7 @@ void Creature::Update(uint32 diff)
                         SetNoCallAssistance(false);
                         CallAssistance();
                     }
-                    m_assistanceTimer = sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_PERIOD);
+                    m_assistanceTimer = CONF_GET_UINT("CreatureFamilyAssistancePeriod");
                 }
                 else
                 {
@@ -803,7 +803,7 @@ void Creature::Update(uint32 diff)
                     {
                         // regenerate health if cannot reach the target and the setting is set to do so.
                         // this allows to disable the health regen of raid bosses if pathfinding has issues for whatever reason
-                        if (sWorld->getBoolConfig(CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID) || !GetMap()->IsRaid())
+                        if (CONF_GET_BOOL("NpcRegenHPIfTargetIsUnreachable") || !GetMap()->IsRaid())
                         {
                             RegenerateHealth();
                             LOG_DEBUG("entities.unit", "RegenerateHealth() enabled because Creature cannot reach the target. Detail: {}", GetDebugInfo());
@@ -824,7 +824,7 @@ void Creature::Update(uint32 diff)
             if (CanNotReachTarget() && !IsInEvadeMode())
             {
                 m_cannotReachTimer += diff;
-                if (m_cannotReachTimer >= (sWorld->getIntConfig(CONFIG_NPC_EVADE_IF_NOT_REACHABLE) * IN_MILLISECONDS))
+                if (m_cannotReachTimer >= (CONF_GET_UINT("NpcEvadeIfTargetIsUnreachable") * IN_MILLISECONDS))
                 {
                     Player* cannotReachPlayer = ObjectAccessor::GetPlayer(*this, m_cannotReachTarget);
                     if (cannotReachPlayer && IsEngagedBy(cannotReachPlayer) && IsAIEnabled && AI()->OnTeleportUnreacheablePlayer(cannotReachPlayer))
@@ -3541,7 +3541,7 @@ bool Creature::IsNotReachableAndNeedRegen() const
 {
     if (CanNotReachTarget())
     {
-        return m_cannotReachTimer >= (sWorld->getIntConfig(CONFIG_NPC_REGEN_TIME_IF_NOT_REACHABLE_IN_RAID) * IN_MILLISECONDS);
+        return m_cannotReachTimer >= CONF_GET_UINT("NpcRegenHPTimeIfTargetIsUnreachable") * IN_MILLISECONDS;
     }
 
     return false;
@@ -3623,16 +3623,6 @@ uint32 Creature::GetRandomId(uint32 id1, uint32 id2, uint32 id3)
         }
     }
     return id;
-}
-
-bool Creature::IsNotReachable() const
-{
-    return (m_cannotReachTimer >= (CONF_GET_UINT("NpcEvadeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
-}
-
-bool Creature::IsNotReachableAndNeedRegen() const
-{
-    return (m_cannotReachTimer >= (CONF_GET_UINT("NpcRegenHPTimeIfTargetIsUnreachable") * IN_MILLISECONDS)) && m_cannotReachTarget;
 }
 
 void Creature::SetPickPocketLootTime()
