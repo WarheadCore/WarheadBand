@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 // TODO: Implement proper support for vehicle+player teleportation
 // TODO: Use spell victory/defeat in wg instead of RewardMarkOfHonor() && RewardHonor
 // TODO: Add proper implement of achievement

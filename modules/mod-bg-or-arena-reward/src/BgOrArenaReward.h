@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #ifndef _BG_OR_ARENA_REWARD_H_
 #define _BG_OR_ARENA_REWARD_H_
 

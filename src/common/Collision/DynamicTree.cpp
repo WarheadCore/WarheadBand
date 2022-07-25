@@ -15,6 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "DynamicTree.h"
 #include "BoundingIntervalHierarchyWrapper.h"
 #include "GameObjectModel.h"
@@ -24,20 +27,6 @@
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "WorldModel.h"
-
-//#include "BoundingIntervalHierarchyWrapper.h"
-//#include "GameObjectModel.h"
-//#include "MapTree.h"
-//#include "ModelIgnoreFlags.h"
-//#include "ModelInstance.h"
-//#include "RegularGrid.h"
-//#include "Timer.h"
-//#include "VMapFactory.h"
-//#include "VMapMgr2.h"
-//#include "WorldModel.h"
-//#include <G3D/AABox.h>
-//#include <G3D/Ray.h>
-//#include <G3D/Vector3.h>
 
 using VMAP::ModelInstance;
 
