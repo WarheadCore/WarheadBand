@@ -19,19 +19,19 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "QuestConditions.h"
+#include "AchievementMgr.h"
+#include "BattlegroundMgr.h"
+#include "Chat.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "GameLocale.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "StopWatch.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "BattlegroundMgr.h"
-#include "AchievementMgr.h"
+#include "Player.h"
 #include "Spell.h"
-#include "Chat.h"
-#include "GameLocale.h"
+#include "SpellMgr.h"
+#include "StopWatch.h"
 
 namespace
 {
