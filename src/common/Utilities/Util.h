@@ -42,7 +42,7 @@ WH_COMMON_API Optional<int32> MoneyStringToMoney(std::string_view moneyString);
 
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
-    if (val == -100.0f)     // prevent set var to zero
+    if (val <= -100.0f)     // prevent set var to zero
     {
         val = -99.99f;
     }

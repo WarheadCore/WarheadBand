@@ -29,7 +29,7 @@ std::vector<std::string_view> Warhead::Tokenize(std::string_view str, char sep, 
     {
         if (keepEmpty || (start < end))
         {
-            tokens.push_back(str.substr(start, end - start));
+            tokens.emplace_back(str.substr(start, end - start));
         }
 
         start = end + 1;
@@ -37,7 +37,7 @@ std::vector<std::string_view> Warhead::Tokenize(std::string_view str, char sep, 
 
     if (keepEmpty || (start < str.length()))
     {
-        tokens.push_back(str.substr(start));
+        tokens.emplace_back(str.substr(start));
     }
 
     return tokens;

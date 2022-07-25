@@ -131,8 +131,6 @@ void Warhead::Log::CreateLoggerFromConfig(std::string_view configLoggerName)
         return;
     }
 
-    LogLevel level = LogLevel::Fatal;
-
     std::string const& options = sConfigMgr->GetOption<std::string>(std::string{ configLoggerName }, "");
     auto loggerName = configLoggerName.substr(PREFIX_LOGGER_LENGTH);
 
@@ -156,7 +154,7 @@ void Warhead::Log::CreateLoggerFromConfig(std::string_view configLoggerName)
         return;
     }
 
-    level = static_cast<LogLevel>(*loggerLevel);
+    LogLevel level = static_cast<LogLevel>(*loggerLevel);
 
     if (level > highestLogLevel)
         highestLogLevel = level;
@@ -195,8 +193,6 @@ void Warhead::Log::CreateChannelsFromConfig(std::string_view logChannelName)
         return;
     }
 
-    LogLevel level = LogLevel::Fatal;
-
     std::string const& options = sConfigMgr->GetOption<std::string>(std::string{ logChannelName }, "");
     auto channelName = logChannelName.substr(PREFIX_CHANNEL_LENGTH);
 
@@ -230,7 +226,7 @@ void Warhead::Log::CreateChannelsFromConfig(std::string_view logChannelName)
         return;
     }
 
-    level = static_cast<LogLevel>(*loggerLevel);
+    LogLevel level = static_cast<LogLevel>(*loggerLevel);
 
     auto const& pattern = tokens[2];
     if (pattern.empty())

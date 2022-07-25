@@ -90,10 +90,12 @@ public:
     void insert(const T& value)
     {
         G3D::Vector3 pos[9];
-        pos[0] = value.GetBounds().corner(0);
-        pos[1] = value.GetBounds().corner(1);
-        pos[2] = value.GetBounds().corner(2);
-        pos[3] = value.GetBounds().corner(3);
+        auto const& bounds = value.GetBounds();
+
+        pos[0] = bounds.corner(0);
+        pos[1] = bounds.corner(1);
+        pos[2] = bounds.corner(2);
+        pos[3] = bounds.corner(3);
         pos[4] = (pos[0] + pos[1]) / 2.0f;
         pos[5] = (pos[1] + pos[2]) / 2.0f;
         pos[6] = (pos[2] + pos[3]) / 2.0f;
@@ -162,7 +164,8 @@ public:
     struct Cell
     {
         int x, y;
-        bool operator == (const Cell& c2) const { return x == c2.x && y == c2.y;}
+
+        bool operator == (Cell c2) const { return x == c2.x && y == c2.y;}
 
         static Cell ComputeCell(float fx, float fy)
         {
@@ -198,7 +201,9 @@ public:
     template<typename RayCallback>
     void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist, const G3D::Vector3& end, bool stopAtFirstHit)
     {
-        Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
+        auto const& rayOrigin = ray.origin();
+
+        Cell cell = Cell::ComputeCell(rayOrigin.x, rayOrigin.y);
         if (!cell.isValid())
         {
             return;

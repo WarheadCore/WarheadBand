@@ -310,15 +310,19 @@ bool DynamicMapTree::GetAreaInfo(float x, float y, float& z, uint32 phasemask, u
     G3D::Vector3 v(x, y, z + 0.5f);
     DynamicTreeAreaInfoCallback intersectionCallBack(phasemask);
     impl->intersectPoint(v, intersectionCallBack);
-    if (intersectionCallBack.GetAreaInfo().result)
+
+    auto const& areaInfo = intersectionCallBack.GetAreaInfo();
+
+    if (areaInfo.result)
     {
-        flags = intersectionCallBack.GetAreaInfo().flags;
-        adtId = intersectionCallBack.GetAreaInfo().adtId;
-        rootId = intersectionCallBack.GetAreaInfo().rootId;
-        groupId = intersectionCallBack.GetAreaInfo().groupId;
-        z = intersectionCallBack.GetAreaInfo().ground_Z;
+        flags = areaInfo.flags;
+        adtId = areaInfo.adtId;
+        rootId = areaInfo.rootId;
+        groupId = areaInfo.groupId;
+        z = areaInfo.ground_Z;
         return true;
     }
+
     return false;
 }
 
@@ -327,18 +331,18 @@ void DynamicMapTree::GetAreaAndLiquidData(float x, float y, float z, uint32 phas
     G3D::Vector3 v(x, y, z + 0.5f);
     DynamicTreeLocationInfoCallback intersectionCallBack(phasemask);
     impl->intersectPoint(v, intersectionCallBack);
-    if (intersectionCallBack.GetLocationInfo().hitModel)
+
+    auto& locationInfo = intersectionCallBack.GetLocationInfo();
+
+    if (locationInfo.hitModel)
     {
-        data.floorZ = intersectionCallBack.GetLocationInfo().ground_Z;
-        uint32 liquidType = intersectionCallBack.GetLocationInfo().hitModel->GetLiquidType();
+        data.floorZ = locationInfo.ground_Z;
+        uint32 liquidType = locationInfo.hitModel->GetLiquidType();
         float liquidLevel;
         if (!reqLiquidType || (dynamic_cast<VMAP::VMapMgr2*>(VMAP::VMapFactory::createOrGetVMapMgr())->GetLiquidFlagsPtr(liquidType) & reqLiquidType))
-            if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, intersectionCallBack.GetLocationInfo(), liquidLevel))
+            if (intersectionCallBack.GetHitModel()->GetLiquidLevel(v, locationInfo, liquidLevel))
                 data.liquidInfo.emplace(liquidType, liquidLevel);
 
-        data.areaInfo.emplace(0,
-            intersectionCallBack.GetLocationInfo().rootId,
-            intersectionCallBack.GetLocationInfo().hitModel->GetWmoID(),
-            intersectionCallBack.GetLocationInfo().hitModel->GetMogpFlags());
+        data.areaInfo.emplace(0, locationInfo.rootId, locationInfo.hitModel->GetWmoID(), locationInfo.hitModel->GetMogpFlags());
     }
 }

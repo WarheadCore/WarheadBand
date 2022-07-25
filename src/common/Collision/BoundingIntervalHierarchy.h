@@ -106,7 +106,7 @@ public:
             objects[i] = dat.indices[i];
         }
         //nObjects = dat.numPrims;
-        tree = tempTree;
+        tree = std::move(tempTree);
         delete[] dat.primBound;
         delete[] dat.indices;
     }
@@ -400,14 +400,11 @@ protected:
         int sumDepth{0};
         int minDepth{0x0FFFFFFF};
         int maxDepth{-1}; // 0xFFFFFFFF
-        int numLeavesN[6];
+        int numLeavesN[6]{};
         int numBVH2{0};
 
     public:
-        BuildStats()
-        {
-            for (int& i : numLeavesN) { i = 0; }
-        }
+        BuildStats() = default;
 
         void updateInner() { numNodes++; }
         void updateBVH2() { numBVH2++; }

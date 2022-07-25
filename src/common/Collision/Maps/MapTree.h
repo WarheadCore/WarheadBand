@@ -51,11 +51,11 @@ namespace VMAP
         typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
 
     private:
-        uint32 iMapID;
-        bool iIsTiled;
+        uint32 iMapID{ 0 };
+        bool iIsTiled{ false };
         BIH iTree;
-        ModelInstance* iTreeValues; // the tree entries
-        uint32 iNTreeValues;
+        ModelInstance* iTreeValues{ nullptr }; // the tree entries
+        uint32 iNTreeValues{ 0 };
 
         // Store all the map tile idents that are loaded for that map
         // some maps are not splitted into tiles and we have to make sure, not removing the map before all tiles are removed

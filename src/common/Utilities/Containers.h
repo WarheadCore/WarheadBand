@@ -87,7 +87,8 @@ namespace Warhead::Containers
             return;
         }
 
-        auto keepIt = std::begin(container), curIt = std::begin(container);
+        auto keepIt{ std::begin(container) };
+        auto curIt{ keepIt };
         uint32 elementsToKeep = requestedSize, elementsToProcess = std::size(container);
 
         while (elementsToProcess)

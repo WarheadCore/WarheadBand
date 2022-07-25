@@ -98,7 +98,8 @@ void LoadGameObjectModelList(std::string const& dataPath)
         model_list.emplace(std::piecewise_construct, std::forward_as_tuple(displayId), std::forward_as_tuple(&buff[0], name_length, v1, v2, isWmo != 0));
     }
 
-    fclose(model_list_file);
+    if (model_list_file)
+        fclose(model_list_file);
 
     LOG_INFO("server.loading", ">> Loaded {} GameObject models in {} ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
@@ -114,29 +115,29 @@ GameObjectModel::~GameObjectModel()
 
 bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
 {
-    ModelList::const_iterator it = model_list.find(modelOwner->GetDisplayId());
+    auto const& it = model_list.find(modelOwner->GetDisplayId());
     if (it == model_list.end())
-    {
         return false;
-    }
 
-    G3D::AABox mdl_box(it->second.bound);
+    auto const& gameobjectModelData = it->second;
+
+    G3D::AABox mdl_box(gameobjectModelData.bound);
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        LOG_ERROR("maps", "GameObject model {} has zero bounds, loading skipped", it->second.name);
+        LOG_ERROR("maps", "GameObject model {} has zero bounds, loading skipped", gameobjectModelData.name);
         return false;
     }
 
-    iModel = VMAP::VMapFactory::createOrGetVMapMgr()->acquireModelInstance(dataPath + "vmaps/", it->second.name,
-        it->second.isWmo ? VMAP::ModelFlags::MOD_WORLDSPAWN : VMAP::ModelFlags::MOD_M2);
+    iModel = VMAP::VMapFactory::createOrGetVMapMgr()->acquireModelInstance(dataPath + "vmaps/", gameobjectModelData.name,
+        gameobjectModelData.isWmo ? VMAP::ModelFlags::MOD_WORLDSPAWN : VMAP::ModelFlags::MOD_M2);
 
     if (!iModel)
     {
         return false;
     }
 
-    name = it->second.name;
+    name = gameobjectModelData.name;
     iPos = modelOwner->GetPosition();
     phasemask = modelOwner->GetPhaseMask();
     iScale = modelOwner->GetScale();
@@ -164,7 +165,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
 #endif
 
     owner = std::move(modelOwner);
-    isWmo = it->second.isWmo;
+    isWmo = gameobjectModelData.isWmo;
     return true;
 }
 
