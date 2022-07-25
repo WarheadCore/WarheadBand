@@ -848,23 +848,33 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
         {
-            if (!unit)
-                break;
-
-            // If invoker was pet or charm
-            Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-            if (player && GetBaseObject())
+            for (WorldObject* target : targets)
             {
-                player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
-                LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player {}, group credit for quest {}",
-                          unit->GetGUID().ToString(), e.action.quest.quest);
-            }
+                if (!IsUnit(target))
+                    continue;
 
-            // Special handling for vehicles
-            if (Vehicle* vehicle = unit->GetVehicleKit())
-                for (auto & Seat : vehicle->Seats)
-                    if (Player* player = ObjectAccessor::GetPlayer(*unit, Seat.second.Passenger.Guid))
-                        player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
+                Unit* unitTarget = target->ToUnit();
+                // If invoker was pet or charm
+                Player* player = unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
+                if (player && GetBaseObject())
+                {
+                    player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
+                    LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player {}, group credit for quest {}",
+                        unit->GetGUID().ToString(), e.action.quest.quest);
+                }
+
+                // Special handling for vehicles
+                if (Vehicle* vehicle = unitTarget->GetVehicleKit())
+                {
+                    for (auto& Seat : vehicle->Seats)
+                    {
+                        if (Player* player = ObjectAccessor::GetPlayer(*unitTarget, Seat.second.Passenger.Guid))
+                        {
+                            player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
+                        }
+                    }
+                }
+            }
             break;
         }
         case SMART_ACTION_REMOVEAURASFROMSPELL:
@@ -2925,6 +2935,17 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             break;
         case SMART_TARGET_CREATURE_RANGE:
         {
+            WorldObject* ref = baseObject;
+            if (!ref)
+                ref = scriptTrigger;
+
+            if (!ref)
+            {
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_CREATURE_RANGE: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                break;
+            }
+
             ObjectVector units;
             GetWorldObjectsInDist(units, static_cast<float>(e.target.unitRange.maxDist));
 
@@ -2945,7 +2966,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                         continue;
                 }
 
-                if (((e.target.unitRange.creature && unit->ToCreature()->GetEntry() == e.target.unitRange.creature) || !e.target.unitRange.creature) && baseObject->IsInRange(unit, (float)e.target.unitRange.minDist, (float)e.target.unitRange.maxDist))
+                if (((e.target.unitRange.creature && unit->ToCreature()->GetEntry() == e.target.unitRange.creature) || !e.target.unitRange.creature) && ref->IsInRange(unit, (float)e.target.unitRange.minDist, (float)e.target.unitRange.maxDist))
                     targets.push_back(unit);
             }
 
@@ -3000,6 +3021,18 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_GAMEOBJECT_RANGE:
         {
+
+            WorldObject* ref = baseObject;
+            if (!ref)
+                ref = scriptTrigger;
+
+            if (!ref)
+            {
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_GAMEOBJECT_RANGE: Entry: {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                break;
+            }
+
             ObjectVector units;
             GetWorldObjectsInDist(units, static_cast<float>(e.target.goRange.maxDist));
 
@@ -3011,7 +3044,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 if (go && go->GetGUID() == unit->GetGUID())
                     continue;
 
-                if (((e.target.goRange.entry && IsGameObject(unit) && unit->ToGameObject()->GetEntry() == e.target.goRange.entry) || !e.target.goRange.entry) && baseObject->IsInRange((unit), (float)e.target.goRange.minDist, (float)e.target.goRange.maxDist))
+                if (((e.target.goRange.entry && IsGameObject(unit) && unit->ToGameObject()->GetEntry() == e.target.goRange.entry) || !e.target.goRange.entry) && ref->IsInRange((unit), (float)e.target.goRange.minDist, (float)e.target.goRange.maxDist))
                     targets.push_back(unit);
             }
 
@@ -3021,7 +3054,8 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         {
             if (!scriptTrigger && !baseObject)
             {
-                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_CREATURE_GUID can not be used without invoker");
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_CREATURE_GUID: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
                 break;
             }
 
@@ -3034,7 +3068,8 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         {
             if (!scriptTrigger && !GetBaseObject())
             {
-                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_GAMEOBJECT_GUID can not be used without invoker");
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_GAMEOBJECT_GUID: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
                 break;
             }
 
@@ -3066,37 +3101,75 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_STORED:
         {
-            WorldObject* ref = GetBaseObject();
+            WorldObject* ref = baseObject;
             if (!ref)
                 ref = scriptTrigger;
 
-            if (ref)
-                if (ObjectVector const* stored = GetStoredTargetVector(e.target.stored.id, *ref))
-                    targets.assign(stored->begin(), stored->end());
+            if (!ref)
+            {
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_STORED: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                break;
+            }
+
+            if (ObjectVector const* stored = GetStoredTargetVector(e.target.stored.id, *ref))
+                targets.assign(stored->begin(), stored->end());
             break;
         }
         case SMART_TARGET_CLOSEST_CREATURE:
         {
-            Creature* target = GetClosestCreatureWithEntry(GetBaseObject(), e.target.unitClosest.entry, (float)(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), !e.target.unitClosest.dead);
+            WorldObject* ref = baseObject;
+
+            if (!ref)
+                ref = scriptTrigger;
+
+            if (!ref)
+            {
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_CLOSEST_CREATURE: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                break;
+            }
+
+            Creature* target = GetClosestCreatureWithEntry(ref, e.target.unitClosest.entry, (float)(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), !e.target.unitClosest.dead);
             if (target)
                 targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         {
-            GameObject* target = GetClosestGameObjectWithEntry(GetBaseObject(), e.target.goClosest.entry, (float)(e.target.goClosest.dist ? e.target.goClosest.dist : 100), e.target.goClosest.onlySpawned);
+            WorldObject* ref = baseObject;
+
+            if (!ref)
+                ref = scriptTrigger;
+
+            if (!ref)
+            {
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_CLOSEST_GAMEOBJECT: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                break;
+            }
+
+            GameObject* target = GetClosestGameObjectWithEntry(ref, e.target.goClosest.entry, (float)(e.target.goClosest.dist ? e.target.goClosest.dist : 100), e.target.goClosest.onlySpawned);
             if (target)
                 targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_PLAYER:
         {
-            if (WorldObject* obj = GetBaseObject())
+            WorldObject* ref = baseObject;
+
+            if (!ref)
+                ref = scriptTrigger;
+
+            if (!ref)
             {
-                Player* target = obj->SelectNearestPlayer((float)e.target.playerDistance.dist);
-                if (target)
-                    targets.push_back(target);
+                LOG_ERROR("scripts.ai.sai", "SMART_TARGET_CLOSEST_PLAYER: Entry {} SourceType {} Event {} Action {} Target {} is missing base object or invoker.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.GetTargetType());
+                break;
             }
+
+            if (Player* target = ref->SelectNearestPlayer((float)e.target.playerDistance.dist))
+                targets.push_back(target);
             break;
         }
         case SMART_TARGET_OWNER_OR_SUMMONER:
@@ -3880,7 +3953,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
 
             if (!units.empty())
             {
-                if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 if (units.size() >= e.event.nearPlayer.minCount)
@@ -3896,7 +3969,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
 
             if (!units.empty())
             {
-                if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (!unit || unit->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 if (units.size() < e.event.nearPlayerNegation.minCount)

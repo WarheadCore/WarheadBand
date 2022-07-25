@@ -309,9 +309,8 @@ public:
             return m_charmInfo->GetCharmSpell(pos)->GetAction();
     }
 
-    void SetCannotReachTarget(bool cannotReach);
-    [[nodiscard]] bool CanNotReachTarget() const { return m_cannotReachTarget; }
-    [[nodiscard]] bool IsNotReachable() const;
+    void SetCannotReachTarget(ObjectGuid const& target = ObjectGuid::Empty);
+    [[nodiscard]] bool CanNotReachTarget() const;
     [[nodiscard]] bool IsNotReachableAndNeedRegen() const;
 
     void SetPosition(float x, float y, float z, float o);
@@ -456,7 +455,7 @@ private:
 
     mutable std::shared_ptr<time_t> _lastDamagedTime; // Part of Evade mechanics
 
-    bool m_cannotReachTarget;
+    ObjectGuid m_cannotReachTarget;
     uint32 m_cannotReachTimer;
 
     Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
