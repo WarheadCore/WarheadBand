@@ -99,6 +99,7 @@ private:
     QuestConditions* GetPlayerConditions(ObjectGuid playerGuid);
     QuestCondition* MakeQuestConditionForPlayer(ObjectGuid playerGuid, uint32 questID);
     void SavePlayerConditionToDB(ObjectGuid playerGuid, uint32 questID);
+    void DeleteQuestConditionsHistory(ObjectGuid playerGuid, uint32 questID);
 
     uint32 const* GetKilledMonsterCredit(uint32 value, QuestConditionType type);
 

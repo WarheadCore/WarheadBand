@@ -361,8 +361,7 @@ void QuestConditionsMgr::OnPlayerCompleteQuest(Player* player, Quest const* ques
     if (!HasQuestCondition(quest->GetQuestId()))
         return;
 
-    // Delete non need data
-    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", player->GetGUID().GetRawValue(), quest->GetQuestId());
+    DeleteQuestConditionsHistory(player->GetGUID(), quest->GetQuestId());
 }
 
 void QuestConditionsMgr::OnPlayerAddQuest(Player* player, Quest const* quest)
@@ -405,8 +404,7 @@ void QuestConditionsMgr::OnPlayerQuestAbandon(Player* player, uint32 questID)
     if (!HasQuestCondition(questID))
         return;
 
-    // Delete non need data
-    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", player->GetGUID().GetRawValue(), questID);
+    DeleteQuestConditionsHistory(player->GetGUID(), questID);
 }
 
 void QuestConditionsMgr::OnPlayerSpellCast(Player* player, Spell* spell)
@@ -525,6 +523,18 @@ void QuestConditionsMgr::SavePlayerConditionToDB(ObjectGuid playerGuid, uint32 q
         playerQuestCondition.CompleteAchievementID, playerQuestCondition.CompleteQuestID, playerQuestCondition.EquipItemID);
 
     CharacterDatabase.CommitTransaction(trans);
+}
+
+void QuestConditionsMgr::DeleteQuestConditionsHistory(ObjectGuid playerGuid, uint32 questID)
+{
+    auto const& playerQuestConditionsStore = GetPlayerConditions(playerGuid);
+    if (!playerQuestConditionsStore)
+        return;
+
+    playerQuestConditionsStore->erase(questID);
+
+    // Delete from DB
+    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", playerGuid.GetRawValue(), questID);
 }
 
 uint32 const* QuestConditionsMgr::GetKilledMonsterCredit(uint32 value, QuestConditionType type)
