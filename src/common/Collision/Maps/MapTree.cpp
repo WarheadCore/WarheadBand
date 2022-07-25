@@ -124,7 +124,7 @@ namespace VMAP
     }
 
     StaticMapTree::StaticMapTree(uint32 mapID, const std::string& basePath)
-        : iMapID(mapID), iIsTiled(false), iTreeValues(0), iBasePath(basePath)
+        : iMapID(mapID), iBasePath(basePath)
     {
         if (iBasePath.length() > 0 && iBasePath[iBasePath.length() - 1] != '/' && iBasePath[iBasePath.length() - 1] != '\\')
         {

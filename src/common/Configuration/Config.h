@@ -34,7 +34,7 @@ public:
     bool LoadAppConfigs(bool isReload = false);
     bool LoadModulesConfigs(bool isReload = false);
     void ShowModulesConfigs();
-    void Configure(std::string const& initFileName, std::vector<std::string> args, std::string_view modulesConfigList = {});
+    void Configure(std::string_view initFileName, std::vector<std::string> args, std::string_view modulesConfigList = {});
 
     static ConfigMgr* instance();
 
@@ -53,8 +53,8 @@ public:
 
 private:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
-    bool LoadInitial(std::string const& file, bool isReload = false);
-    bool LoadAdditionalFile(std::string file, bool isOptional = false, bool isReload = false);
+    bool LoadInitial(std::string_view file, bool isReload = false);
+    bool LoadAdditionalFile(std::string_view file, bool isOptional = false, bool isReload = false);
 
     template<class T>
     T GetValueDefault(std::string const& name, T const& def, bool showLogs = true) const;

@@ -98,9 +98,9 @@ namespace
         _configOptions.emplace(optionName, optionKey);
     }
 
-    bool ParseFile(std::string const& file, bool isOptional, bool isReload)
+    bool ParseFile(std::string_view file, bool isOptional, bool isReload)
     {
-        std::ifstream in(file);
+        std::ifstream in(file.data());
 
         if (in.fail())
         {
@@ -110,7 +110,7 @@ namespace
                 return false;
             }
 
-            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open {}file '{}'", isOptional ? "optional " : "", file));
+            throw ConfigException(Warhead::StringFormat("Config::LoadFile: Failed open file '{}'", file));
         }
 
         uint32 count = 0;
@@ -206,7 +206,7 @@ namespace
         return true;
     }
 
-    bool LoadFile(std::string const& file, bool isOptional, bool isReload)
+    bool LoadFile(std::string_view file, bool isOptional, bool isReload)
     {
         try
         {
@@ -221,14 +221,14 @@ namespace
     }
 }
 
-bool ConfigMgr::LoadInitial(std::string const& file, bool isReload /*= false*/)
+bool ConfigMgr::LoadInitial(std::string_view file, bool isReload /*= false*/)
 {
     std::lock_guard<std::mutex> lock(_configLock);
     _configOptions.clear();
     return LoadFile(file, false, isReload);
 }
 
-bool ConfigMgr::LoadAdditionalFile(std::string file, bool isOptional /*= false*/, bool isReload /*= false*/)
+bool ConfigMgr::LoadAdditionalFile(std::string_view file, bool isOptional /*= false*/, bool isReload /*= false*/)
 {
     std::lock_guard<std::mutex> lock(_configLock);
     return LoadFile(file, isOptional, isReload);
@@ -358,7 +358,7 @@ std::string const ConfigMgr::GetConfigPath()
 #endif
 }
 
-void ConfigMgr::Configure(std::string const& initFileName, std::vector<std::string> args, std::string_view modulesConfigList /*= {}*/)
+void ConfigMgr::Configure(std::string_view initFileName, std::vector<std::string> args, std::string_view modulesConfigList /*= {}*/)
 {
     _filename = initFileName;
     _args = std::move(args);

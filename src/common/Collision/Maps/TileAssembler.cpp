@@ -119,7 +119,7 @@ namespace VMAP
             std::map<uint32, uint32> modelNodeIdx;
             for (uint32 i = 0; i < mapSpawns.size(); ++i)
             {
-                modelNodeIdx.insert(pair<uint32, uint32>(mapSpawns[i]->ID, i));
+                modelNodeIdx.emplace(mapSpawns[i]->ID, i);
             }
 
             // write map tree file
@@ -251,7 +251,7 @@ namespace VMAP
             MapData::iterator map_iter = mapData.find(mapID);
             if (map_iter == mapData.end())
             {
-                printf("spawning Map %d\n", mapID);
+                printf("spawning Map %u\n", mapID);
                 mapData[mapID] = current = new MapSpawns();
             }
             else
@@ -260,7 +260,7 @@ namespace VMAP
             }
 
             current->UniqueEntries.emplace(spawn.ID, spawn);
-            current->TileEntries.insert(pair<uint32, uint32>(StaticMapTree::packTileID(tileX, tileY), spawn.ID));
+            current->TileEntries.emplace(StaticMapTree::packTileID(tileX, tileY), spawn.ID);
         }
         bool success = (ferror(dirf) == 0);
         fclose(dirf);
@@ -336,7 +336,6 @@ namespace VMAP
     //=================================================================
     bool TileAssembler::convertRawFile(const std::string& pModelFilename)
     {
-        bool success = true;
         std::string filename = iSrcDir;
         if (filename.length() > 0)
         {
@@ -361,7 +360,7 @@ namespace VMAP
             for (uint32 g = 0; g < groups; ++g)
             {
                 GroupModel_Raw& raw_group = raw_model.groupsArray[g];
-                groupsArray.push_back(GroupModel(raw_group.mogpflags, raw_group.GroupWMOID, raw_group.bounds ));
+                groupsArray.emplace_back(raw_group.mogpflags, raw_group.GroupWMOID, raw_group.bounds);
                 groupsArray.back().setMeshData(raw_group.vertexArray, raw_group.triangles);
                 groupsArray.back().setLiquidData(raw_group.liquid);
             }
@@ -369,9 +368,7 @@ namespace VMAP
             model.setGroupModels(groupsArray);
         }
 
-        success = model.writeFile(iDestDir + "/" + pModelFilename + ".vmo");
-        //std::cout << "readRawFile2: '" << pModelFilename << "' tris: " << nElements << " nodes: " << nNodes << std::endl;
-        return success;
+        return model.writeFile(iDestDir + "/" + pModelFilename + ".vmo");
     }
 
     void TileAssembler::exportGameobjectModels()
@@ -511,7 +508,7 @@ namespace VMAP
             triangles.reserve(nindexes / 3);
             for (uint32 i = 0; i < nindexes; i += 3)
             {
-                triangles.push_back(MeshTriangle(indexarray[i], indexarray[i + 1], indexarray[i + 2]));
+                triangles.emplace_back(indexarray[i], indexarray[i + 1], indexarray[i + 2]);
             }
 
             delete[] indexarray;
@@ -530,7 +527,7 @@ namespace VMAP
             READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors * sizeof(float) * 3);
             for (uint32 i = 0; i < nvectors; ++i)
             {
-                vertexArray.push_back( Vector3(vectorarray + 3 * i) );
+                vertexArray.emplace_back(vectorarray + 3 * i);
             }
 
             delete[] vectorarray;

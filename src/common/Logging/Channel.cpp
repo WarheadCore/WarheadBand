@@ -78,7 +78,7 @@ void Warhead::Channel::ParsePattern()
                 if (it == end)
                     --it;
 
-                act.property = prop;
+                act.property = std::move(prop);
             }
             else
             {
@@ -178,12 +178,14 @@ void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
             case 'E': text.append(fmt::format("{}", epochTime.count())); break;
             case 'v':
             {
-                if (pa.length > msg.GetSource().length())    //append spaces
-                    text.append(msg.GetSource()).append(pa.length - msg.GetSource().length(), ' ');
-                else if (pa.length && pa.length < msg.GetSource().length()) // crop
-                    text.append(msg.GetSource(), msg.GetSource().length() - pa.length, pa.length);
+                auto source = msg.GetSource();
+
+                if (pa.length > source.length())    //append spaces
+                    text.append(source).append(pa.length - source.length(), ' ');
+                else if (pa.length && pa.length < source.length()) // crop
+                    text.append(source, source.length() - pa.length, pa.length);
                 else
-                    text.append(msg.GetSource());
+                    text.append(source);
                 break;
             }
         }
