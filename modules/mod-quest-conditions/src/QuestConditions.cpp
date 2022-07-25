@@ -447,8 +447,6 @@ void QuestConditionsMgr::OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam)
     auto isArena{ bg->isArena() };
     auto arenaType{ bg->GetArenaType() };
 
-    LOG_WARN("server", "End bg. Types: {}/{}. winnerTeam: {}. ArenaType {}", realBGTypeID, BGTypeID, winnerTeam, bg->GetArenaType());
-
     for (auto const& [playerGuid, player] : bgPlayers)
     {
         if (player->GetBgTeamId() != winnerTeam)
