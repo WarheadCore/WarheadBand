@@ -19,17 +19,19 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "QuestConditions.h"
+#include "AchievementMgr.h"
+#include "BattlegroundMgr.h"
+#include "Chat.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "GameLocale.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "StopWatch.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "BattlegroundMgr.h"
-#include "AchievementMgr.h"
+#include "Player.h"
 #include "Spell.h"
+#include "SpellMgr.h"
+#include "StopWatch.h"
 
 namespace
 {
@@ -361,8 +363,7 @@ void QuestConditionsMgr::OnPlayerCompleteQuest(Player* player, Quest const* ques
     if (!HasQuestCondition(quest->GetQuestId()))
         return;
 
-    // Delete non need data
-    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", player->GetGUID().GetRawValue(), quest->GetQuestId());
+    DeleteQuestConditionsHistory(player->GetGUID(), quest->GetQuestId());
 }
 
 void QuestConditionsMgr::OnPlayerAddQuest(Player* player, Quest const* quest)
@@ -405,8 +406,7 @@ void QuestConditionsMgr::OnPlayerQuestAbandon(Player* player, uint32 questID)
     if (!HasQuestCondition(questID))
         return;
 
-    // Delete non need data
-    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", player->GetGUID().GetRawValue(), questID);
+    DeleteQuestConditionsHistory(player->GetGUID(), questID);
 }
 
 void QuestConditionsMgr::OnPlayerSpellCast(Player* player, Spell* spell)
@@ -447,8 +447,6 @@ void QuestConditionsMgr::OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam)
     auto isArena{ bg->isArena() };
     auto arenaType{ bg->GetArenaType() };
 
-    LOG_WARN("server", "End bg. Types: {}/{}. winnerTeam: {}. ArenaType {}", realBGTypeID, BGTypeID, winnerTeam, bg->GetArenaType());
-
     for (auto const& [playerGuid, player] : bgPlayers)
     {
         if (player->GetBgTeamId() != winnerTeam)
@@ -468,7 +466,7 @@ void QuestConditionsMgr::OnBattlegoundEnd(Battleground* bg, TeamId winnerTeam)
 
 bool QuestConditionsMgr::HasQuestCondition(uint32 questID)
 {
-    return _conditions.find(questID) != _conditions.end();
+    return _conditions.contains(questID);
 }
 
 QuestCondition const* QuestConditionsMgr::GetQuestCondition(uint32 questID)
@@ -527,6 +525,18 @@ void QuestConditionsMgr::SavePlayerConditionToDB(ObjectGuid playerGuid, uint32 q
     CharacterDatabase.CommitTransaction(trans);
 }
 
+void QuestConditionsMgr::DeleteQuestConditionsHistory(ObjectGuid playerGuid, uint32 questID)
+{
+    auto const& playerQuestConditionsStore = GetPlayerConditions(playerGuid);
+    if (!playerQuestConditionsStore)
+        return;
+
+    playerQuestConditionsStore->erase(questID);
+
+    // Delete from DB
+    CharacterDatabase.Execute("DELETE FROM `wh_characters_quest_conditions` WHERE `PlayerGuid` = {} AND `QuestID` = {}", playerGuid.GetRawValue(), questID);
+}
+
 uint32 const* QuestConditionsMgr::GetKilledMonsterCredit(uint32 value, QuestConditionType type)
 {
     auto staticType = static_cast<uint8>(type);
@@ -558,7 +568,7 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
         {
             case QuestConditionType::UseSpell:
             {
-                if (playerQuestCondition->UseSpellCount)
+                if (playerQuestCondition->UseSpellCount >= condition.UseSpellCount)
                     continue;
 
                 playerQuestCondition->UseSpellCount = std::min(condition.UseSpellCount, playerQuestCondition->UseSpellCount + 1);
@@ -574,7 +584,7 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
             }
             case QuestConditionType::WinArena:
             {
-                if (playerQuestCondition->WinArenaCount)
+                if (playerQuestCondition->WinArenaCount >= condition.WinArenaCount)
                     continue;
 
                 playerQuestCondition->WinArenaCount = std::min(condition.WinArenaCount, playerQuestCondition->WinArenaCount + 1);
@@ -617,13 +627,83 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
     }
 }
 
+void QuestConditionsMgr::SendQuestConditionInfo(ChatHandler* handler, uint32 questID)
+{
+    auto const& questCondtion = GetQuestCondition(questID);
+    if (!questCondtion)
+    {
+        handler->PSendSysMessage("> Дополнительных условий для квеста {} не найдено", questID);
+        return;
+    }
+
+    auto const& quest = sObjectMgr->GetQuestTemplate(questID);
+    if (!quest)
+    {
+        handler->PSendSysMessage("> Квест {} не найден", questID);
+        return;
+    }
+
+    std::string questTitle{ quest->GetTitle() };
+
+    int localeConstant = handler->GetSessionDbLocaleIndex();
+
+    if (QuestLocale const* locale = sGameLocale->GetQuestLocale(questID))
+    {
+        std::string_view name = GameLocale::GetLocaleString(locale->Title, localeConstant);
+        if (!name.empty())
+            questTitle = name;
+    }
+
+    handler->PSendSysMessage("###############");
+    handler->PSendSysMessage("> Квест {} ({})", questTitle, questID);
+    handler->PSendSysMessage("###############");
+
+    if (questCondtion->UseSpellID)
+    {
+        std::string spellName = sGameLocale->GetSpellLink(questCondtion->UseSpellID, localeConstant);
+        handler->PSendSysMessage("> Использовать заклинение: {}. {} раз", spellName, questCondtion->UseSpellCount);
+    }
+
+    if (questCondtion->WinBGType)
+    {
+        auto bg = sBattlegroundMgr->GetBattlegroundTemplate(static_cast<BattlegroundTypeId>(questCondtion->WinBGType));
+        handler->PSendSysMessage("> Выйграть бг: {}. {} раз", bg->GetName(), questCondtion->WinBGCount);
+    }
+
+    if (questCondtion->WinArenaType)
+        handler->PSendSysMessage("> Выйграть арену: {}vs{}. {} раз", questCondtion->WinArenaType, questCondtion->WinArenaType, questCondtion->WinArenaCount);
+
+    if (questCondtion->CompleteAchievementID)
+    {
+        auto achievement = sAchievementMgr->GetAchievement(questCondtion->CompleteAchievementID);
+        handler->PSendSysMessage("> Получить достижение: {}", achievement->name[localeConstant]);
+    }
+
+    if (questCondtion->CompleteQuestID)
+    {
+        auto const& completeQuest = sObjectMgr->GetQuestTemplate(questCondtion->CompleteQuestID);
+        std::string completeQuestTitle{ completeQuest->GetTitle() };
+
+        if (QuestLocale const* locale = sGameLocale->GetQuestLocale(questCondtion->CompleteQuestID))
+        {
+            std::string_view name = GameLocale::GetLocaleString(locale->Title, localeConstant);
+            if (!name.empty())
+                completeQuestTitle = name;
+        }
+
+        handler->PSendSysMessage("> Завершить квест: {} - |cffffffff|Hquest:{}:{}|h[{}]|h|r", completeQuest->GetQuestId(), completeQuest->GetQuestLevel(), questTitle);
+    }
+
+    if (questCondtion->EquipItemID)
+        handler->PSendSysMessage("> Одеть предмет: {}", sGameLocale->GetItemLink(questCondtion->EquipItemID, localeConstant));
+
+    handler->PSendSysMessage("###############");
+}
+
 void QuestConditionsMgr::OnPlayerLogin(Player* player)
 {
     if (!_isEnable)
         return;
-
-    auto const& itr = _playerConditions.find(player->GetGUID());
-    ASSERT(itr == _playerConditions.end(), "Found conditions for player {}", player->GetGUID().ToString());
 
     player->GetSession()->GetQueryProcessor().AddCallback(
         CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `QuestID`, `UseSpellCount`, `WinBGCount`, `WinArenaCount`, "
@@ -632,6 +712,9 @@ void QuestConditionsMgr::OnPlayerLogin(Player* player)
         {
             if (!result)
                 return;
+
+            std::lock_guard<std::mutex> guard(_playerConditionsMutex);
+            _playerConditions.erase(playerGuid);
 
             do
             {
@@ -660,5 +743,6 @@ void QuestConditionsMgr::OnPlayerLogout(Player* player)
     if (!_isEnable)
         return;
 
+    std::lock_guard<std::mutex> guard(_playerConditionsMutex);
     _playerConditions.erase(player->GetGUID());
 }
