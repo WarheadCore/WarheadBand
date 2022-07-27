@@ -154,9 +154,9 @@ class OnlineReward_World : public WorldScript
 public:
     OnlineReward_World() : WorldScript("OnlineReward_World") { }
 
-    void OnAfterConfigLoad(bool /*reload*/) override
+    void OnAfterConfigLoad(bool reload) override
     {
-        sOLMgr->LoadConfig();
+        sOLMgr->LoadConfig(reload);
     }
 
     void OnStartup() override
