@@ -37,8 +37,20 @@
 #        Description: Send items via mail. If disable - send via `player->AddItem` if not bags slot, sends via mail
 #        Default: 0
 #
+#    OR.CoorectHistory.Enable
+#        Description: Enable fill db table `wh_online_rewards_history` for new reward
+#        Default: 1
+#
 
 OR.Enable = 0
 OR.PerOnline.Enable = 1
 OR.PerTime.Enable = 1
 OR.ForceSendMail.Enable = 0
+OR.CoorectHistory.Enable = 1
+
+###################################################################################################
+#
+#   LOGGING
+#
+
+Logger.module.or = 5,Console Modules

@@ -28,6 +28,7 @@
 #include "ObjectGuid.h"
 #include "TaskScheduler.h"
 #include <unordered_map>
+#include <mutex>
 #include <vector>
 
 class Player;
@@ -71,7 +72,7 @@ public:
     static OnlineRewardMgr* instance();
 
     void InitSystem();
-    void LoadConfig();
+    void LoadConfig(bool reload);
     inline bool IsEnable() { return _isEnable; };
 
     void RewardNow();
@@ -105,8 +106,6 @@ private:
 
     void AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryResult result);
 
-    bool IsRewarded(ObjectGuid::LowType lowGuid, uint32 id, Seconds rewardTime);
-
     void CheckPlayerForReward(ObjectGuid::LowType lowGuid, Seconds playedTime, OnlineReward const* onlineReward);
     void SendRewards();
 
@@ -117,6 +116,7 @@ private:
     bool _isPerOnlineEnable{ false };
     bool _isPerTimeEnable{ false };
     bool _isForceMailReward{ true };
+    bool _isEnableCorrectHistory{ true };
 
     // New version
     void CorrectDBData();
@@ -128,6 +128,7 @@ private:
     TaskScheduler scheduler;
 
     QueryCallbackProcessor _queryProcessor;
+    std::mutex _playerLoadingLock;
 };
 
 #define sOLMgr OnlineRewardMgr::instance()
