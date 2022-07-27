@@ -68,5 +68,5 @@ bool ScriptMgr::CanCreatureSendListInventory(Player* player, Creature* creature,
         return !script->CanCreatureSendListInventory(player, creature, vendorEntry);
     });
 
-    return ReturnValidBool(ret, true);
+    return ReturnValidBool(ret);
 }
