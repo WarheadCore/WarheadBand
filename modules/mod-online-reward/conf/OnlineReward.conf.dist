@@ -48,7 +48,6 @@ OR.PerTime.Enable = 1
 OR.ForceSendMail.Enable = 0
 OR.CoorectHistory.Enable = 1
 
-
 ###################################################################################################
 #
 #   LOGGING

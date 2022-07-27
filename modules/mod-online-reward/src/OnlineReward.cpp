@@ -544,7 +544,7 @@ void OnlineRewardMgr::CheckPlayerForReward(ObjectGuid::LowType lowGuid, Seconds 
             AddToStore(lowGuid);
             AddHistory(lowGuid, onlineReward->ID, playedTime);
         }
-        
+
         return;
     }
 
