@@ -34,97 +34,51 @@
 #include <tuple>
 #include <unordered_map>
 
-namespace
-{
-    constexpr auto MAX_VIP_LEVEL = 3;
-
-    using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint8/*level*/>;
-    using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
-
-    std::unordered_map<uint32/*acc id*/, WarheadVip> store;
-    std::unordered_map<uint8/*level*/, WarheadVipRates> storeRates;
-    std::unordered_map<uint64/*guid*/, Seconds/*unbindtime*/> storeUnbind;
-    std::unordered_map<uint32/*creature entry*/, uint8/*vip level*/> storeVendors;
-    std::vector<uint32> vipSpellsStore;
-    TaskScheduler scheduler;
-
-    Optional<WarheadVip> GetVipInfo(uint32 accountID)
-    {
-        auto const& itr = store.find(accountID);
-
-        if (itr == store.end())
-            return std::nullopt;
-
-        return itr->second;
-    }
-
-    Optional<WarheadVipRates> GetVipRateInfo(uint8 vipLevel)
-    {
-        auto const& itr = storeRates.find(vipLevel);
-
-        if (itr == storeRates.end())
-            return std::nullopt;
-
-        return itr->second;
-    }
-
-    Optional<Seconds> GetUndindTime(uint64 guid)
-    {
-        auto const& itr = storeUnbind.find(guid);
-
-        if (itr == storeUnbind.end())
-            return std::nullopt;
-
-        return itr->second;
-    }
-
-    Player* GetPlayerFromAccount(uint32 accountID)
-    {
-        auto session = sWorld->FindSession(accountID);
-        if (!session)
-            return nullptr;
-
-        auto player = session->GetPlayer();
-        if (!player)
-            return nullptr;
-
-        return player;
-    }
-
-    std::string GetDuration(Optional<WarheadVip> vipInfo)
-    {
-        std::string duration = "<неизвестно>";
-
-        if (!vipInfo)
-            return duration;
-
-        auto const& [startTime, endTime, level] = *vipInfo;
-
-        duration = Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
-
-        return duration;
-    }
-}
-
 Vip* Vip::Instance()
 {
     static Vip instance;
     return &instance;
 }
 
-void Vip::InitSystem(bool reload)
+void Vip::LoadConfig()
 {
-    Seconds delay = Seconds(MOD_CONF_GET_UINT("VIP.Update.Delay"));
+    _isEnable = MOD_CONF_GET_BOOL("VIP.Enable");
+    if (!_isEnable)
+        return;
 
-    if (delay < 10s)
+    _updateDelay = Seconds(MOD_CONF_GET_UINT("VIP.Update.Delay"));
+    if (_updateDelay < 10s)
     {
         LOG_ERROR("modules.vip", "> Vip: Delay < 10 seconds. Set to 10 seconds");
-        delay = 10s;
+        _updateDelay = 10s;
     }
 
-    scheduler.CancelAll();
+    _mountVipLevel = sModulesConfig->GetOption<uint8>("VIP.Mount.MinLevel");
+    _mountVipSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
 
-    scheduler.Schedule(3s, [this, delay](TaskContext context)
+    std::string configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
+    for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
+    {
+        auto spellID = Warhead::StringTo<uint32>(spellString);
+        if (!spellID)
+        {
+            LOG_ERROR("modules.vip", "> Incorrect spell '{}' in vip spell list. Skip", spellString);
+            continue;
+        }
+
+        _spellList.emplace_back(*spellID);
+    }
+
+    _unbindDuration = Seconds(MOD_CONF_GET_UINT("VIP.Unbind.Duration"));
+}
+
+void Vip::InitSystem()
+{
+    if (!_isEnable)
+        return;
+
+    scheduler.CancelAll();
+    scheduler.Schedule(3s, [this](TaskContext context)
     {
         for (auto const& [accountID, vipInfo] : store)
         {
@@ -134,39 +88,28 @@ void Vip::InitSystem(bool reload)
                 UnSet(accountID);
         }
 
-        context.Repeat(delay);
+        context.Repeat(_updateDelay);
     });
 
-    if (!reload)
-    {
-        LoadAccounts();
-        LoadUnbinds();
-        LoadRates();
-        LoadVipVendors();
-    }
-
-    std::string configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
-    for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
-    {
-        auto spellID = Warhead::StringTo<uint32>(spellString);
-
-        if (!spellID)
-        {
-            LOG_ERROR("modules.vip", "> Incorrect spell '{}' in vip spell list. Skip", spellString);
-            continue;
-        }
-
-        vipSpellsStore.emplace_back(*spellID);
-    }
+    LoadAccounts();
+    LoadUnbinds();
+    LoadRates();
+    LoadVipVendors();
 }
 
 void Vip::Update(uint32 diff)
 {
+    if (!_isEnable)
+        return;
+
     scheduler.Update(diff);
 }
 
 bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= false*/)
 {
+    if (!_isEnable)
+        return false;
+
     auto const& vipInfo = GetVipInfo(accountID);
 
     if (vipInfo)
@@ -200,6 +143,9 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
 
 bool Vip::Delete(uint32 accountID)
 {
+    if (!_isEnable)
+        return false;
+
     auto const& vipInfo = GetVipInfo(accountID);
     if (!vipInfo)
     {
@@ -223,6 +169,9 @@ bool Vip::Delete(uint32 accountID)
 
 void Vip::OnLoginPlayer(Player* player)
 {
+    if (!_isEnable)
+        return;
+
     if (!IsVip(player))
         UnLearnSpells(player);
     else
@@ -241,11 +190,17 @@ void Vip::OnLoginPlayer(Player* player)
 
 void Vip::OnLogoutPlayer(Player* player)
 {
+    if (!_isEnable)
+        return;
+
     UnLearnSpells(player, false);
 }
 
 void Vip::UnSet(uint32 accountID)
 {
+    if (!_isEnable)
+        return;
+
     auto targetSession = sWorld->FindSession(accountID);
 
     if (targetSession)
@@ -373,7 +328,7 @@ std::string Vip::GetDuration(Player* player)
 
 std::string Vip::GetDuration(uint32 accountID)
 {
-    return ::GetDuration(::GetVipInfo(accountID));
+    return GetDuration(GetVipInfo(accountID));
 }
 
 void Vip::RemoveColldown(Player* player, uint32 spellID)
@@ -387,7 +342,7 @@ void Vip::RemoveColldown(Player* player, uint32 spellID)
 
 void Vip::UnBindInstances(Player* player)
 {
-    if (!player)
+    if (!player || !_isEnable)
         return;
 
     ChatHandler handler(player->GetSession());
@@ -405,17 +360,14 @@ void Vip::UnBindInstances(Player* player)
     }
 
     auto guid = player->GetGUID().GetRawValue();
-    auto confDuration = Seconds(MOD_CONF_GET_UINT("VIP.Unbind.Duration"));
 
     if (auto unbindInfo = GetUndindTime(guid))
     {
         auto duration = GameTime::GetGameTime() - *unbindInfo;
 
-        if (duration < confDuration)
+        if (duration < _unbindDuration)
         {
-            auto diff = confDuration - duration;
-
-            handler.PSendSysMessage("> Это можно сделать через: {}", Warhead::Time::ToTimeString(diff));
+            handler.PSendSysMessage("> Это можно сделать через: {}", Warhead::Time::ToTimeString(_unbindDuration - duration));
             return;
         }
     }
@@ -481,18 +433,18 @@ void Vip::UnBindInstances(Player* player)
         }
     }
 
-    if (count)
-        storeUnbind.emplace(guid, GameTime::GetGameTime());
-    else
+    if (!count)
     {
         handler.PSendSysMessage("> Нечего сбрасывать");
         return;
     }
+
+    storeUnbind.emplace(guid, GameTime::GetGameTime());
 }
 
 void Vip::LoadRates()
 {
-    StopWatch sw(2);
+    StopWatch sw;
 
     storeRates.clear(); // for reload case
 
@@ -545,7 +497,7 @@ void Vip::LoadRates()
 
 void Vip::LoadAccounts()
 {
-    StopWatch sw(2);
+    StopWatch sw;
 
     store.clear(); // for reload case
 
@@ -579,7 +531,7 @@ void Vip::LoadAccounts()
 
 void Vip::LoadUnbinds()
 {
-    StopWatch sw(2);
+    StopWatch sw;
 
     storeUnbind.clear(); // for reload case
 
@@ -610,7 +562,7 @@ void Vip::LoadUnbinds()
 
 void Vip::LoadVipVendors()
 {
-    StopWatch sw(2);
+    StopWatch sw;
 
     storeVendors.clear(); // for reload case
 
@@ -660,6 +612,9 @@ void Vip::LoadVipVendors()
 
 void Vip::LearnSpells(Player* player, uint8 vipLevel)
 {
+    if (!_isEnable)
+        return;
+
     if (!player)
     {
         LOG_ERROR("modules.vip", "> Vip::LearnSpells: Not found player");
@@ -672,17 +627,15 @@ void Vip::LearnSpells(Player* player, uint8 vipLevel)
         return;
     }
 
-    auto mountSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
-
     // Learn mount
-    if (!player->HasSpell(mountSpellID) && vipLevel >= MOD_CONF_GET_UINT("VIP.Mount.MinLevel"))
-        player->learnSpell(mountSpellID);
+    if (!player->HasSpell(_mountVipSpellID) && vipLevel >= _mountVipLevel)
+        player->learnSpell(_mountVipSpellID);
 
     // Learn vip spells for 3+ level
-    if (vipLevel < 3)
+    if (vipLevel < MAX_VIP_LEVEL)
         return;
 
-    for (auto const& spellID : vipSpellsStore)
+    for (auto const& spellID : _spellList)
     {
         if (!player->HasSpell(spellID))
             player->learnSpell(spellID);
@@ -691,20 +644,21 @@ void Vip::LearnSpells(Player* player, uint8 vipLevel)
 
 void Vip::UnLearnSpells(Player* player, bool unlearnMount /*= true*/)
 {
+    if (!_isEnable)
+        return;
+
     if (!player)
     {
         LOG_ERROR("modules.vip", "> Vip::UnLearnSpells: Not found player");
         return;
     }
 
-    auto mountSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
-
     // Mount spells
-    if (player->HasSpell(mountSpellID) && unlearnMount)
-        player->removeSpell(mountSpellID, SPEC_MASK_ALL, false);
+    if (player->HasSpell(_mountVipSpellID) && unlearnMount)
+        player->removeSpell(_mountVipSpellID, SPEC_MASK_ALL, false);
 
     // Vip spells
-    for (auto const& spellID : vipSpellsStore)
+    for (auto const& spellID : _spellList)
     {
         if (player->HasSpell(spellID))
             player->removeSpell(spellID, SPEC_MASK_ALL, false);
@@ -728,7 +682,7 @@ void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
     {
         handler->PSendSysMessage("# Игрок: {}", data->Name);
         handler->PSendSysMessage("# Уровень премиум аккаунта: {}", std::get<2>(*vipInfo));
-        handler->PSendSysMessage("# Оставшееся время: {}", ::GetDuration(vipInfo));
+        handler->PSendSysMessage("# Оставшееся время: {}", GetDuration(vipInfo));
 
         if (auto const& vipRateInfo = GetVipRateInfo(std::get<2>(*vipInfo)))
         {
@@ -764,6 +718,9 @@ void Vip::SendVipListRates(ChatHandler* handler)
 
 bool Vip::CanUsingVendor(Player* player, Creature* creature)
 {
+    if (!_isEnable)
+        return true;
+
     auto const& creatureEntry = creature->GetEntry();
     bool isVipVendor = IsVipVendor(creatureEntry);
 
@@ -807,6 +764,9 @@ void Vip::AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel)
 
 void Vip::DeleteVendorVipLevel(uint32 entry)
 {
+    if (!_isEnable)
+        return;
+
     if (!IsVipVendor(entry))
         return;
 
@@ -816,14 +776,70 @@ void Vip::DeleteVendorVipLevel(uint32 entry)
     WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
 }
 
+Optional<Vip::WarheadVip> Vip::GetVipInfo(uint32 accountID)
+{
+    auto const& itr = store.find(accountID);
+
+    if (itr == store.end())
+        return std::nullopt;
+
+    return itr->second;
+}
+
+Optional<Vip::WarheadVipRates> Vip::GetVipRateInfo(uint8 vipLevel)
+{
+    auto const& itr = storeRates.find(vipLevel);
+
+    if (itr == storeRates.end())
+        return std::nullopt;
+
+    return itr->second;
+}
+
+Optional<Seconds> Vip::GetUndindTime(uint64 guid)
+{
+    auto const& itr = storeUnbind.find(guid);
+
+    if (itr == storeUnbind.end())
+        return std::nullopt;
+
+    return itr->second;
+}
+
+Player* Vip::GetPlayerFromAccount(uint32 accountID)
+{
+    auto session = sWorld->FindSession(accountID);
+    if (!session)
+        return nullptr;
+
+    auto player = session->GetPlayer();
+    if (!player)
+        return nullptr;
+
+    return player;
+}
+
+std::string Vip::GetDuration(Optional<WarheadVip> vipInfo)
+{
+    std::string duration = "<неизвестно>";
+
+    if (!vipInfo)
+        return duration;
+
+    auto const& [startTime, endTime, level] = *vipInfo;
+
+    duration = Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
+    return duration;
+}
+
 namespace fmt
 {
     template<>
-    struct formatter<WarheadVip> : formatter<string_view>
+    struct formatter<Vip::WarheadVip> : formatter<string_view>
     {
         // parse is inherited from formatter<string_view>.
         template <typename FormatContext>
-        auto format(Optional<WarheadVip> vipInfo, FormatContext& ctx)
+        auto format(Optional<Vip::WarheadVip> vipInfo, FormatContext& ctx)
         {
             string_view info = "<unknown>";
 
