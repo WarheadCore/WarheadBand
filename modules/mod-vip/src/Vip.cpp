@@ -108,7 +108,7 @@ void Vip::Update(uint32 diff)
 bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= false*/)
 {
     if (!_isEnable)
-        return true;
+        return false;
 
     auto const& vipInfo = GetVipInfo(accountID);
 
@@ -144,7 +144,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
 bool Vip::Delete(uint32 accountID)
 {
     if (!_isEnable)
-        return true;
+        return false;
 
     auto const& vipInfo = GetVipInfo(accountID);
     if (!vipInfo)
