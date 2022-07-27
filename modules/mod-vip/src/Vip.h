@@ -18,9 +18,12 @@
 #ifndef _VIP_H_
 #define _VIP_H_
 
-#include "Define.h"
 #include "Duration.h"
+#include "TaskScheduler.h"
 #include <string>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 
 class Player;
 class ChatHandler;
@@ -35,6 +38,8 @@ enum class VipRate
     Reputation
 };
 
+constexpr auto MAX_VIP_LEVEL = 3;
+
 class Vip
 {
     Vip() = default;
@@ -46,9 +51,15 @@ class Vip
     Vip& operator= (Vip&&) = delete;
 
 public:
+    using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint8/*level*/>;
+    using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
+
     static Vip* Instance();
 
-    void InitSystem(bool reload);
+    void LoadConfig();
+    void InitSystem();
+
+    inline bool IsEnable() { return _isEnable; }
 
     void Update(uint32 diff);
     bool Add(uint32 accountID, Seconds endTime, uint8 level, bool force = false);
@@ -86,6 +97,26 @@ private:
 
     void LearnSpells(Player* player, uint8 vipLevel);
     void UnLearnSpells(Player* player, bool unlearnMount = true);
+
+    Optional<WarheadVip> GetVipInfo(uint32 accountID);
+    Optional<WarheadVipRates> GetVipRateInfo(uint8 vipLevel);
+    Optional<Seconds> GetUndindTime(uint64 guid);
+    Player* GetPlayerFromAccount(uint32 accountID);
+    std::string GetDuration(Optional<WarheadVip> vipInfo);
+
+    bool _isEnable{ false };
+    Seconds _updateDelay{ 0s };
+    uint8 _mountVipLevel{ 3 };
+    uint32 _mountVipSpellID{ 0 };
+    std::vector<uint32> _spellList;
+    Seconds _unbindDuration{ 1_days };
+
+    std::unordered_map<uint32/*acc id*/, WarheadVip> store;
+    std::unordered_map<uint8/*level*/, WarheadVipRates> storeRates;
+    std::unordered_map<uint64/*guid*/, Seconds/*unbindtime*/> storeUnbind;
+    std::unordered_map<uint32/*creature entry*/, uint8/*vip level*/> storeVendors;
+
+    TaskScheduler scheduler;
 };
 
 #define sVip Vip::Instance()

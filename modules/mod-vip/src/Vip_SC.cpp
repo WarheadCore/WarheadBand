@@ -76,6 +76,12 @@ public:
 
     static bool HandleVipAddCommand(ChatHandler* handler, Optional<PlayerIdentifier> target, uint32 duration, uint8 level)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         if (!target)
         {
             handler->PSendSysMessage("> Не указано имя игрока, имя будет выбрано из цели");
@@ -112,12 +118,24 @@ public:
 
     static bool HandleVipUnbindCommand(ChatHandler* handler)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         sVip->UnBindInstances(handler->GetPlayer());
         return true;
     }
 
     static bool HandleVipDeleteCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         if (!target)
         {
             handler->PSendSysMessage("> Не указано имя игрока, имя будет выбрано из цели");
@@ -154,6 +172,12 @@ public:
 
     static bool HandleVipInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> target)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         if (!target)
         {
             handler->PSendSysMessage("> Не указано имя игрока, имя будет выбрано из цели");
@@ -173,12 +197,24 @@ public:
 
     static bool HandleVipListRatesCommand(ChatHandler* handler)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         sVip->SendVipListRates(handler);
         return true;
     }
 
     static bool HandleVipVendorInfoCommand(ChatHandler* handler)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor)
         {
@@ -207,6 +243,12 @@ public:
 
     static bool HandleVipVendorAddCommand(ChatHandler* handler, uint8 vendorVipLevel)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor)
         {
@@ -236,6 +278,12 @@ public:
 
     static bool HandleVipVendorDeleteCommand(ChatHandler* handler)
     {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor)
         {
@@ -271,7 +319,7 @@ public:
 
     void OnGiveXP(Player* player, uint32& amount, Unit* /*victim*/) override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
+        if (!sVip->IsEnable())
             return;
 
         if (!sVip->IsVip(player))
@@ -282,7 +330,7 @@ public:
 
     void OnGiveHonorPoints(Player* player, float& points, Unit* /*victim*/) override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
+        if (!sVip->IsEnable())
             return;
 
         if (!sVip->IsVip(player))
@@ -293,7 +341,7 @@ public:
 
     bool OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
+        if (!sVip->IsEnable())
             return true;
 
         if (!sVip->IsVip(player))
@@ -305,23 +353,17 @@ public:
 
     void OnLogin(Player* player) override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
-            return;
-
         sVip->OnLoginPlayer(player);
     }
 
     void OnLogout(Player* player) override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
-            return;
-
         sVip->OnLogoutPlayer(player);
     }
 
     void OnAfterResurrect(Player* player, float /* restore_percent */, bool applySickness) override
     {
-        if (!sVip->IsVip(player) || !applySickness)
+        if (!sVip->IsEnable() || !sVip->IsVip(player) || !applySickness)
             return;
 
         if (player->HasAura(SPELL_RESSURECTION_SICKESS))
@@ -330,7 +372,7 @@ public:
 
     void OnSpellCast(Player* player, Spell* spell, bool /*skipCheck*/) override
     {
-        if (!player)
+        if (!sVip->IsEnable() || !player)
             return;
 
         if (spell->GetSpellInfo()->Id == SPELL_HEARTHSTONE)
@@ -350,25 +392,18 @@ class Vip_World : public WorldScript
 public:
     Vip_World() : WorldScript("Vip_World") { }
 
-    void OnAfterConfigLoad(bool reload) override
+    void OnAfterConfigLoad(bool /*reload*/) override
     {
-        if (reload)
-            sVip->InitSystem(true);
+        sVip->LoadConfig();
     }
 
     void OnStartup() override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
-            return;
-
-        sVip->InitSystem(false);
+        sVip->InitSystem();
     }
 
     void OnUpdate(uint32 diff) override
     {
-        if (!MOD_CONF_GET_BOOL("VIP.Enable"))
-            return;
-
         sVip->Update(diff);
     }
 };
