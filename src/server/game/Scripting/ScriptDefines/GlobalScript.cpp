@@ -151,8 +151,8 @@ bool ScriptMgr::OnAllowedForPlayerLootCheck(Player const* player, ObjectGuid sou
 {
     auto ret = IsValidBoolScript<GlobalScript>([&](GlobalScript* script)
     {
-        return script->OnAllowedForPlayerLootCheck(player, source);
+        return !script->OnAllowedForPlayerLootCheck(player, source);
     });
 
-    return ReturnValidBool(ret, true);
+    return ReturnValidBool(ret);
 }

@@ -1601,7 +1601,7 @@ public:
     virtual void OnLoadSpellCustomAttr(SpellInfo* /*spell*/) { }
 
     // Called when checking if a player can see the creature loot
-    virtual bool OnAllowedForPlayerLootCheck(Player const* /*player*/, ObjectGuid /*source*/) { return false; };
+    virtual bool OnAllowedForPlayerLootCheck(Player const* /*player*/, ObjectGuid /*source*/) { return true; }
 };
 
 class WH_GAME_API BGScript : public ScriptObject
