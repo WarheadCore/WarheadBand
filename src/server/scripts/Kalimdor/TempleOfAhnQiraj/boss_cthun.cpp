@@ -382,6 +382,7 @@ public:
 
                     me->InterruptNonMeleeSpells(true);
                     me->RemoveAllAuras();
+                    _scheduler.CancelAll();
                     break;
 
                 case PHASE_CTHUN_DONE:
@@ -834,13 +835,11 @@ public:
             }
         }
 
-        void DoAction(int32 param) override
+        void SummonedCreatureDies(Creature* creature, Unit* /*killer*/) override
         {
-            switch (param)
+            if (creature->GetEntry() == NPC_FLESH_TENTACLE)
             {
-                case ACTION_FLESH_TENTACLE_KILLED:
-                    ++FleshTentaclesKilled;
-                    break;
+                ++FleshTentaclesKilled;
             }
         }
     };
@@ -1193,33 +1192,6 @@ public:
     };
 };
 
-class npc_giant_flesh_tentacle : public CreatureScript
-{
-public:
-    npc_giant_flesh_tentacle() : CreatureScript("npc_giant_flesh_tentacle") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new flesh_tentacleAI(creature);
-    }
-
-    struct flesh_tentacleAI : public ScriptedAI
-    {
-        flesh_tentacleAI(Creature* creature) : ScriptedAI(creature)
-        {
-            SetCombatMovement(false);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (TempSummon* summon = me->ToTempSummon())
-                if (Unit* summoner = summon->GetSummonerUnit())
-                    if (summoner->IsAIEnabled)
-                        summoner->GetAI()->DoAction(ACTION_FLESH_TENTACLE_KILLED);
-        }
-    };
-};
-
 //GetAIs
 
 void AddSC_boss_cthun()
@@ -1230,5 +1202,4 @@ void AddSC_boss_cthun()
     new npc_claw_tentacle();
     new npc_giant_claw_tentacle();
     new npc_giant_eye_tentacle();
-    new npc_giant_flesh_tentacle();
 }
