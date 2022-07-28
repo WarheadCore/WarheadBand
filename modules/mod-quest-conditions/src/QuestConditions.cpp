@@ -375,29 +375,47 @@ void QuestConditionsMgr::OnPlayerAddQuest(Player* player, Quest const* quest)
     if (!questCondtion)
         return;
 
-    if (!questCondtion->CompleteQuestID && !questCondtion->CompleteAchievementID)
+    if (!questCondtion->CompleteQuestID && !questCondtion->CompleteAchievementID && !questCondtion->EquipItemID)
         return;
 
     auto playerQuestCondition = MakeQuestConditionForPlayer(player->GetGUID(), quest->GetQuestId());
     ASSERT(playerQuestCondition);
 
-    if (questCondtion->CompleteQuestID && player->GetQuestStatus(questCondtion->CompleteQuestID) == QUEST_STATUS_REWARDED)
+    if (questCondtion->CompleteQuestID && !playerQuestCondition->CompleteQuestID)
     {
-        if (playerQuestCondition->CompleteQuestID)
+        if (!IsQuestComplete(player, questCondtion->CompleteQuestID))
             return;
 
         auto kmc = GetKilledMonsterCredit(questCondtion->CompleteQuestID, QuestConditionType::CompleteQuest);
         ASSERT(kmc);
         player->KilledMonsterCredit(*kmc);
     }
-    else if (questCondtion->CompleteAchievementID && player->GetAchievementMgr()->HasAchieved(questCondtion->CompleteAchievementID))
+
+    if (questCondtion->CompleteAchievementID && !playerQuestCondition->CompleteAchievementID)
     {
-        if (playerQuestCondition->CompleteAchievementID)
+        if (!player->GetAchievementMgr()->HasAchieved(questCondtion->CompleteAchievementID))
             return;
 
         auto kmc = GetKilledMonsterCredit(questCondtion->CompleteAchievementID, QuestConditionType::CompleteAchievement);
         ASSERT(kmc);
         player->KilledMonsterCredit(*kmc);
+    }
+
+    if (questCondtion->EquipItemID && !playerQuestCondition->EquipItemID)
+    {
+        for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+        {
+            Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            if (!item)
+                continue;
+
+            if (item->GetEntry() != questCondtion->EquipItemID)
+                continue;
+
+            auto kmc = GetKilledMonsterCredit(questCondtion->EquipItemID, QuestConditionType::EquipItem);
+            ASSERT(kmc);
+            player->KilledMonsterCredit(*kmc);
+        }
     }
 }
 
@@ -625,6 +643,30 @@ void QuestConditionsMgr::UpdateQuestConditionForPlayer(Player* player, QuestCond
         ASSERT(kmc);
         player->KilledMonsterCredit(*kmc);
     }
+}
+
+bool QuestConditionsMgr::IsQuestComplete(Player* player, uint32 questID)
+{
+    if (!player)
+        return false;
+
+    auto const& quest = sObjectMgr->GetQuestTemplate(questID);
+    if (!quest)
+        return false;
+
+    if (!quest->IsRepeatable())
+        return player->GetQuestStatus(questID) == QUEST_STATUS_REWARDED;
+
+    if (quest->IsDaily())
+        return player->IsDailyQuestDone(questID);
+
+    if (quest->IsWeekly())
+        return player->IsWeeklyQuestDone(questID);
+
+    if (quest->IsMonthly())
+        return player->IsMonthlyQuestDone(questID);
+
+    return false;
 }
 
 void QuestConditionsMgr::SendQuestConditionInfo(ChatHandler* handler, uint32 questID)

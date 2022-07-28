@@ -11826,6 +11826,16 @@ bool Player::IsDailyQuestDone(uint32 quest_id)
     return false;
 }
 
+bool Player::IsWeeklyQuestDone(uint32 quest_id)
+{
+    return m_weeklyquests.contains(quest_id);
+}
+
+bool Player::IsMonthlyQuestDone(uint32 quest_id)
+{
+    return m_monthlyquests.contains(quest_id);
+}
+
 void Player::SetWeeklyQuestStatus(uint32 quest_id)
 {
     m_weeklyquests.insert(quest_id);
