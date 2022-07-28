@@ -67,6 +67,7 @@ class OutdoorPvP;
 class Pet;
 class Player;
 class Quest;
+class Roll;
 class Spell;
 class SpellCastTargets;
 class SpellInfo;
@@ -91,10 +92,11 @@ enum EncounterCreditType : uint8;
 enum InventoryResult : uint8;
 enum MailCheckMask : uint8;
 enum PetType : uint8;
-enum WeaponAttackType : uint8;
-enum WeatherState : uint32;
+enum RollVote : uint8;
 enum ShutdownExitCode : uint8;
 enum ShutdownMask : uint8;
+enum WeaponAttackType : uint8;
+enum WeatherState : uint32;
 
 struct AchievementCriteriaEntry;
 struct AchievementEntry;
@@ -116,11 +118,11 @@ struct MapDifficulty;
 struct MapEntry;
 struct MovementInfo;
 struct PvPDifficultyEntry;
+struct QuestStatusData;
 struct ScalingStatValuesEntry;
 struct SpellModifier;
 struct TargetInfo;
 struct VendorItem;
-struct QuestStatusData;
 
 namespace lfg
 {
@@ -1196,6 +1198,9 @@ public:
 
     // After receiving item as a quest reward
     virtual void OnQuestRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
+
+    // After receiving item as a group roll reward
+    virtual void OnGroupRollRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, RollVote /*voteType*/, Roll* /*roll*/) { }
 
     // After completed a quest
     [[nodiscard]] virtual bool OnBeforeQuestComplete(Player* /*player*/, uint32 /*quest_id*/) { return true; }

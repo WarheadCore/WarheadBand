@@ -153,7 +153,7 @@ class spell_moam_mana_drain_filter : public SpellScript
 
         if (!targets.empty())
         {
-            Acore::Containers::RandomResize(targets, 6);
+            Warhead::Containers::RandomResize(targets, 6);
         }
     }
 

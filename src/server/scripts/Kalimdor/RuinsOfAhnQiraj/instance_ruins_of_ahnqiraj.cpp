@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "InstanceScript.h"
+#include "CreatureGroups.h"
 #include "ScriptObject.h"
 #include "TaskScheduler.h"
 #include "ruins_of_ahnqiraj.h"
