@@ -108,8 +108,8 @@ private:
     void DeleteQuestConditionsHistory(ObjectGuid playerGuid, uint32 questID);
 
     uint32 const* GetKilledMonsterCredit(uint32 value, QuestConditionType type);
-
     void UpdateQuestConditionForPlayer(Player* player, QuestConditionType type, uint32 value);
+    bool IsQuestComplete(Player* player, uint32 questID);
 
     bool _isEnable{ false };
     QuestConditions _conditions;
