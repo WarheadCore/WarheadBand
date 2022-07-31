@@ -25,7 +25,6 @@
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
 #include "Language.h"
-#include "Language.h"
 #include "Log.h"
 #include "MapReference.h"
 #include "Player.h"
