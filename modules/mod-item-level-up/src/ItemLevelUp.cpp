@@ -19,14 +19,14 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ItemLevelUp.h"
-#include "Log.h"
 #include "GameConfig.h"
+#include "Log.h"
+#include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
+#include "Position.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
-#include "ModuleLocale.h"
-#include "Position.h"
 
 ItemLevelUpMgr* ItemLevelUpMgr::instance()
 {

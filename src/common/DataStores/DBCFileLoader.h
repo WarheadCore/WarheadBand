@@ -18,8 +18,8 @@
 #ifndef DBC_FILE_LOADER_H
 #define DBC_FILE_LOADER_H
 
-#include "Errors.h"
 #include "ByteConverter.h"
+#include "Errors.h"
 
 enum DbcFieldFormat
 {

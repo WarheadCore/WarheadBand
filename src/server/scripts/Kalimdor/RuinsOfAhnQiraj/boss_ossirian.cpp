@@ -24,8 +24,8 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "ruins_of_ahnqiraj.h"
 #include "TaskScheduler.h"
+#include "ruins_of_ahnqiraj.h"
 
 enum Texts
 {

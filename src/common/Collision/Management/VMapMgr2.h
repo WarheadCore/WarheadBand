@@ -21,9 +21,9 @@
 #include "Define.h"
 #include "IVMapMgr.h"
 #include <mutex>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
 
 constexpr auto MAP_FILENAME_EXTENSION2 = ".vmtree";
 constexpr auto FILENAMEBUFFER_SIZE = 500;

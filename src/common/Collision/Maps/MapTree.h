@@ -18,8 +18,8 @@
 #ifndef _MAPTREE_H
 #define _MAPTREE_H
 
-#include "Define.h"
 #include "BoundingIntervalHierarchy.h"
+#include "Define.h"
 #include <limits>
 #include <unordered_map>
 

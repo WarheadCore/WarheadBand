@@ -19,13 +19,13 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "GameLocale.h"
+#include "GameLocale.h"
 #include "Log.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StringFormat.h"
-#include "GameLocale.h"
 
 class Boss_Announcer_Player : public PlayerScript
 {

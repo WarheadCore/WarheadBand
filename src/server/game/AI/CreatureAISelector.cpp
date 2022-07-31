@@ -18,12 +18,12 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "Creature.h"
 #include "CreatureAISelector.h"
+#include "Creature.h"
 #include "CreatureAIFactory.h"
-#include "MovementGenerator.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
+#include "MovementGenerator.h"
 #include "ScriptMgr.h"
 
 namespace FactorySelector
