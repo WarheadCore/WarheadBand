@@ -181,4 +181,3 @@ void ItemLevelUpMgr::SetMaxWeaponSkills(Player* player)
     player->SaveToDB(false, false);
     player->UpdateSkillsToMaxSkillsForLevel();
 }
-
