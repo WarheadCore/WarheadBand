@@ -105,6 +105,8 @@ public:
                     }
                     break;
             }
+
+            summons.Summon(who);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -257,6 +259,14 @@ public:
                         DoCast(target, SPELL_FEED);
                     }
                 }
+            }
+        }
+
+        void JustSummoned(Creature* summon) override
+        {
+            if (Creature* ayamiss = _instance->GetCreature(DATA_AYAMISS))
+            {
+                ayamiss->AI()->JustSummoned(summon);
             }
         }
 
