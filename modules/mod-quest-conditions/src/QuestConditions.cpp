@@ -383,22 +383,22 @@ void QuestConditionsMgr::OnPlayerAddQuest(Player* player, Quest const* quest)
 
     if (questCondtion->CompleteQuestID && !playerQuestCondition->CompleteQuestID)
     {
-        if (!IsQuestComplete(player, questCondtion->CompleteQuestID))
-            return;
-
-        auto kmc = GetKilledMonsterCredit(questCondtion->CompleteQuestID, QuestConditionType::CompleteQuest);
-        ASSERT(kmc);
-        player->KilledMonsterCredit(*kmc);
+        if (IsQuestComplete(player, questCondtion->CompleteQuestID))
+        {
+            auto kmc = GetKilledMonsterCredit(questCondtion->CompleteQuestID, QuestConditionType::CompleteQuest);
+            ASSERT(kmc);
+            player->KilledMonsterCredit(*kmc);
+        }
     }
 
     if (questCondtion->CompleteAchievementID && !playerQuestCondition->CompleteAchievementID)
     {
-        if (!player->GetAchievementMgr()->HasAchieved(questCondtion->CompleteAchievementID))
-            return;
-
-        auto kmc = GetKilledMonsterCredit(questCondtion->CompleteAchievementID, QuestConditionType::CompleteAchievement);
-        ASSERT(kmc);
-        player->KilledMonsterCredit(*kmc);
+        if (player->GetAchievementMgr()->HasAchieved(questCondtion->CompleteAchievementID))
+        {
+            auto kmc = GetKilledMonsterCredit(questCondtion->CompleteAchievementID, QuestConditionType::CompleteAchievement);
+            ASSERT(kmc);
+            player->KilledMonsterCredit(*kmc);
+        }
     }
 
     if (questCondtion->EquipItemID && !playerQuestCondition->EquipItemID)
