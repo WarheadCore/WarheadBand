@@ -62,6 +62,7 @@ cmake-build-debug/*
 cmake-build-debug-coverage/*
 cmake-build-debug-event-trace/*
 coverage-report/
+*.clang-tidy*
 
 #
 # Eclipse
