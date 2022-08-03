@@ -19,7 +19,7 @@
 #define ACORE_GAMEOBJECTAIFACTORY_H
 
 #include "FactoryHolder.h"
-#include "ObjectRegistry.h"
+#include "GameObjectAI.h"
 
 typedef FactoryHolder<GameObjectAI, GameObject> GameObjectAICreator;
 

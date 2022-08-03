@@ -20,13 +20,14 @@
 
 #include "DBCStructure.h"
 #include <vector>
+#include <deque>
 
 class ByteBuffer;
 
 class WH_GAME_API PlayerTaxi
 {
 public:
-    PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
+    PlayerTaxi() = default;
     ~PlayerTaxi() = default;
 
     // Nodes
@@ -78,9 +79,9 @@ public:
     friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
 
 private:
-    TaxiMask m_taximask;
+    TaxiMask m_taximask{};
     std::deque<uint32> m_TaxiDestinations;
-    uint32 m_flightMasterFactionId;
+    uint32 m_flightMasterFactionId{ 0 };
 };
 
 std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);

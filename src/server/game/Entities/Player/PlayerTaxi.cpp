@@ -135,11 +135,11 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, TeamI
 {
     ClearTaxiDestinations();
 
-    std::vector<std::string_view> tokens = Acore::Tokenize(values, ' ', false);
+    std::vector<std::string_view> tokens = Warhead::Tokenize(values, ' ', false);
     auto itr = tokens.begin();
     if (itr != tokens.end())
     {
-        if (Optional<uint32> faction = Acore::StringTo<uint32>(*itr))
+        if (Optional<uint32> faction = Warhead::StringTo<uint32>(*itr))
         {
             m_flightMasterFactionId = *faction;
         }
@@ -153,7 +153,7 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, TeamI
 
     while ((++itr) != tokens.end())
     {
-        if (Optional<uint32> node = Acore::StringTo<uint32>(*itr))
+        if (Optional<uint32> node = Warhead::StringTo<uint32>(*itr))
         {
             AddTaxiDestination(*node);
         }
