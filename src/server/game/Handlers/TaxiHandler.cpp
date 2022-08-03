@@ -18,6 +18,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
+#include "GameTime.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -39,25 +40,24 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
 
 void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
-    // cheating checks
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-    if (!unit)
+    Player* const player = GetPlayer();
+    Creature* unit = ObjectAccessor::GetCreature(*player, guid);
+    if (!unit || unit->IsHostileTo(player) || !unit->HasNpcFlag(UNIT_NPC_FLAG_FLIGHTMASTER))
     {
         LOG_DEBUG("network", "WorldSession::SendTaxiStatus - Unit ({}) not found.", guid.ToString());
         return;
     }
 
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeamId());
-
-    // not found nearest
-    if (curloc == 0)
+    // find taxi node
+    uint32 nearest = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), player->GetTeamId());
+    if (!nearest)
+    {
         return;
-
-    LOG_DEBUG("network", "WORLD: current location {} ", curloc);
+    }
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
     data << guid;
-    data << uint8(GetPlayer()->m_taxi.IsTaximaskNodeKnown(curloc) ? 1 : 0);
+    data << uint8(player->m_taxi.IsTaximaskNodeKnown(nearest) ? 1 : 0);
     SendPacket(&data);
     LOG_DEBUG("network", "WORLD: Sent SMSG_TAXINODE_STATUS");
 }
@@ -169,7 +169,7 @@ void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
     }
 }
 
-void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
+void WorldSession::HandleActivateTaxiExpressOpcode(WorldPacket& recvData)
 {
     LOG_DEBUG("network", "WORLD: Received CMSG_ACTIVATETAXIEXPRESS");
 
@@ -182,6 +182,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
     if (!npc)
     {
         LOG_DEBUG("network", "WORLD: HandleActivateTaxiExpressOpcode - Unit ({}) not found or you can't interact with it.", guid.ToString());
+        SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
     std::vector<uint32> nodes;
@@ -221,6 +222,46 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
     ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                          // spline id
+
+    // in taxi flight packet received in 2 case:
+    // 1) end taxi path in far (multi-node) flight
+    // 2) switch from one map to other in case multim-map taxi path
+    // we need process only (1)
+
+    uint32 curDest = GetPlayer()->m_taxi.GetTaxiDestination();
+    if (curDest)
+    {
+        TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
+
+        // far teleport case
+        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+        {
+            if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->top()))
+            {
+                // short preparations to continue flight
+                flight->SetCurrentNodeAfterTeleport();
+                TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
+                flight->SkipCurrentNode();
+
+                GetPlayer()->TeleportTo(curDestNode->map_id, node->x, node->y, node->z, GetPlayer()->GetOrientation(), TELE_TO_NOT_LEAVE_TAXI);
+            }
+        }
+
+        return;
+    }
+
+    // at this point only 1 node is expected (final destination)
+    if (GetPlayer()->m_taxi.GetPath().size() != 1)
+    {
+        return;
+    }
+
+    GetPlayer()->CleanupAfterTaxiFlight();
+    GetPlayer()->SetFallInformation(GameTime::GetGameTime().count(), GetPlayer()->GetPositionZ());
+    if (GetPlayer()->pvpInfo.IsHostile)
+    {
+        GetPlayer()->CastSpell(GetPlayer(), 2479, true);
+    }
 }
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
@@ -237,6 +278,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
     if (!npc)
     {
         LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - Unit ({}) not found or you can't interact with it.", guid.ToString());
+        SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
 

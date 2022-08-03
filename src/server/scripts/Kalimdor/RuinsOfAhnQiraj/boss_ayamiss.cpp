@@ -144,7 +144,7 @@ public:
             me->GetMotionMaster()->MovePoint(POINT_AIR, AyamissAirPos);
         }
 
-        void DamageTaken(Unit*, uint32& /*damage*/, DamageEffectType, SpellSchoolMask) override
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType, SpellSchoolMask) override
         {
             if (_phase == PHASE_AIR && me->GetHealthPct() < 70.0f)
             {
@@ -153,8 +153,11 @@ public:
                 me->ClearUnitState(UNIT_STATE_ROOT);
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                Position VictimPos = me->GetVictim()->GetPosition();
-                me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
+                if (Unit* victim = me->GetVictim())
+                {
+                    Position victimPos = victim->GetPosition();
+                    me->GetMotionMaster()->MovePoint(POINT_GROUND, victimPos);
+                }
                 events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
                 events.CancelEvent(EVENT_POISON_STINGER);
                 DoResetThreat();
