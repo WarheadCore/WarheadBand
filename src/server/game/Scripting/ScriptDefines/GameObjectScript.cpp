@@ -60,11 +60,11 @@ bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, ui
     return tempScript ? tempScript->OnGossipSelect(player, go, sender, action) : false;
 }
 
-bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code)
+bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, std::string_view code)
 {
     ASSERT(player);
     ASSERT(go);
-    ASSERT(code);
+    ASSERT(!code.empty());
 
     auto ret = IsValidBoolScript<AllGameObjectScript>([&](AllGameObjectScript* script)
     {

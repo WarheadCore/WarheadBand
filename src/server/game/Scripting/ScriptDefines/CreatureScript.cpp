@@ -60,13 +60,13 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
     return tempScript ? tempScript->OnGossipSelect(player, creature, sender, action) : false;
 }
 
-bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
+bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, std::string_view code)
 {
     ASSERT(player);
     ASSERT(creature);
-    ASSERT(code);
+    ASSERT(!code.empty());
 
-    auto ret = IsValidBoolScript<AllCreatureScript>([&](AllCreatureScript* script)
+    auto ret = IsValidBoolScript<AllCreatureScript>([player, creature, sender, action, code](AllCreatureScript* script)
     {
         return script->CanCreatureGossipSelectCode(player, creature, sender, action, code);
     });

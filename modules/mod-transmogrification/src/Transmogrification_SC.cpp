@@ -39,7 +39,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code) override
+    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, std::string_view code) override
     {
         sTransmog->OnGossipSelectCode(player, creature, action, sender, code);
         return true;
