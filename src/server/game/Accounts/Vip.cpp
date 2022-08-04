@@ -160,9 +160,7 @@ bool Vip::Delete(uint32 accountID)
     store.erase(accountID);
 
     if (auto player = GetPlayerFromAccount(accountID))
-    {
         UnLearnSpells(player);
-    }
 
     return true;
 }
@@ -214,7 +212,7 @@ bool Vip::IsVip(Player* player)
     if (!player)
         return false;
 
-    return GetVipInfo(player->GetSession()->GetAccountId()) != std::nullopt;
+    return GetVipInfo(player->GetSession()->GetAccountId()) != nullptr;
 }
 
 bool Vip::IsVip(uint32 accountID)
@@ -222,7 +220,7 @@ bool Vip::IsVip(uint32 accountID)
     if (!accountID)
         return false;
 
-    return GetVipInfo(accountID) != std::nullopt;
+    return GetVipInfo(accountID) != nullptr;
 }
 
 uint8 Vip::GetLevel(Player* player)
@@ -242,8 +240,7 @@ uint8 Vip::GetLevel(Player* player)
     return std::get<2>(*vipInfo);
 }
 
-template<>
-WH_GAME_API float Vip::GetRate<VipRate::XP>(Player* player)
+float Vip::GetRateForPlayer(Player* player, VipRate rate)
 {
     if (!IsVip(player))
         return 1.0f;
@@ -258,64 +255,22 @@ WH_GAME_API float Vip::GetRate<VipRate::XP>(Player* player)
         return 1.0f;
     }
 
-    return std::get<0>(*vipRateInfo);
-}
+    auto const& [rateXP, rateHonor, rateAP, rateRep] = *vipRateInfo;
 
-template<>
-WH_GAME_API float Vip::GetRate<VipRate::Honor>(Player* player)
-{
-    if (!IsVip(player))
-        return 1.0f;
-
-    auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(level);
-
-    if (!vipRateInfo)
+    switch (rate)
     {
-        auto accountID = player->GetSession()->GetAccountId();
-        LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
+    case VipRate::XP:
+        return rateXP;
+    case VipRate::Honor:
+        return rateHonor;
+    case VipRate::ArenaPoint:
+        return rateAP;
+    case VipRate::Reputation:
+        return rateRep;
+    default:
+        ABORT();
         return 1.0f;
     }
-
-    return std::get<1>(*vipRateInfo);
-}
-
-template<>
-WH_GAME_API float Vip::GetRate<VipRate::ArenaPoint>(Player* player)
-{
-    if (!IsVip(player))
-        return 1.0f;
-
-    auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(level);
-
-    if (!vipRateInfo)
-    {
-        auto accountID = player->GetSession()->GetAccountId();
-        LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
-        return 1.0f;
-    }
-
-    return std::get<2>(*vipRateInfo);
-}
-
-template<>
-WH_GAME_API float Vip::GetRate<VipRate::Reputation>(Player* player)
-{
-    if (!IsVip(player))
-        return 1.0f;
-
-    auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(level);
-
-    if (!vipRateInfo)
-    {
-        auto accountID = player->GetSession()->GetAccountId();
-        LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
-        return 1.0f;
-    }
-
-    return std::get<3>(*vipRateInfo);
 }
 
 std::string Vip::GetDuration(Player* player)
@@ -735,7 +690,7 @@ bool Vip::CanUsingVendor(Player* player, Creature* creature)
 
 bool Vip::IsVipVendor(uint32 entry)
 {
-    return storeVendors.find(entry) != storeVendors.end();
+    return storeVendors.contains(entry);
 }
 
 uint8 Vip::GetVendorVipLevel(uint32 entry)
@@ -776,34 +731,31 @@ void Vip::DeleteVendorVipLevel(uint32 entry)
     WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
 }
 
-Optional<Vip::WarheadVip> Vip::GetVipInfo(uint32 accountID)
+Vip::WarheadVip* Vip::GetVipInfo(uint32 accountID)
 {
     auto const& itr = store.find(accountID);
-
     if (itr == store.end())
-        return std::nullopt;
+        return nullptr;
 
-    return itr->second;
+    return &itr->second;
 }
 
-Optional<Vip::WarheadVipRates> Vip::GetVipRateInfo(uint8 vipLevel)
+Vip::WarheadVipRates* Vip::GetVipRateInfo(uint8 vipLevel)
 {
     auto const& itr = storeRates.find(vipLevel);
-
     if (itr == storeRates.end())
-        return std::nullopt;
+        return nullptr;
 
-    return itr->second;
+    return &itr->second;
 }
 
-Optional<Seconds> Vip::GetUndindTime(uint64 guid)
+Seconds* Vip::GetUndindTime(uint64 guid)
 {
     auto const& itr = storeUnbind.find(guid);
-
     if (itr == storeUnbind.end())
-        return std::nullopt;
+        return nullptr;
 
-    return itr->second;
+    return &itr->second;
 }
 
 Player* Vip::GetPlayerFromAccount(uint32 accountID)
@@ -812,24 +764,16 @@ Player* Vip::GetPlayerFromAccount(uint32 accountID)
     if (!session)
         return nullptr;
 
-    auto player = session->GetPlayer();
-    if (!player)
-        return nullptr;
-
-    return player;
+    return session->GetPlayer();
 }
 
-std::string Vip::GetDuration(Optional<WarheadVip> vipInfo)
+std::string Vip::GetDuration(WarheadVip* vipInfo)
 {
-    std::string duration = "<неизвестно>";
-
     if (!vipInfo)
-        return duration;
+        return "<неизвестно>";
 
     auto const& [startTime, endTime, level] = *vipInfo;
-
-    duration = Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
-    return duration;
+    return Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
 }
 
 namespace fmt

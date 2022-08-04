@@ -18,22 +18,11 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "AccountMgr.h"
 #include "CharacterCache.h"
-#include "Chat.h"
-#include "GameLocale.h"
-#include "GameTime.h"
-#include "Log.h"
-#include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "ScriptedGossip.h"
 #include "Spell.h"
-#include "StringConvert.h"
-#include "Timer.h"
-#include "Tokenize.h"
 #include "Vip.h"
-#include "WorldSession.h"
 
 class Vip_Player : public PlayerScript
 {
@@ -42,35 +31,26 @@ public:
 
     void OnGiveXP(Player* player, uint32& amount, Unit* /*victim*/) override
     {
-        if (!sVip->IsEnable())
+        if (!sVip->IsEnable() || !sVip->IsVip(player))
             return;
 
-        if (!sVip->IsVip(player))
-            return;
-
-        amount *= sVip->GetRate<VipRate::XP>(player);
+        amount *= sVip->GetRateForPlayer(player, VipRate::XP);
     }
 
     void OnGiveHonorPoints(Player* player, float& points, Unit* /*victim*/) override
     {
-        if (!sVip->IsEnable())
+        if (!sVip->IsEnable() || !sVip->IsVip(player))
             return;
 
-        if (!sVip->IsVip(player))
-            return;
-
-        points *= sVip->GetRate<VipRate::Honor>(player);
+        points *= sVip->GetRateForPlayer(player, VipRate::Honor);
     }
 
-    bool OnReputationChange(Player* player, uint32 /* factionID */, int32& standing, bool /* incremental */) override
+    bool OnReputationChange(Player* player, uint32 /*factionID*/, int32& standing, bool /*incremental*/) override
     {
-        if (!sVip->IsEnable())
+        if (!sVip->IsEnable() || !sVip->IsVip(player))
             return true;
 
-        if (!sVip->IsVip(player))
-            return true;
-
-        standing *= sVip->GetRate<VipRate::Reputation>(player);
+        standing *= sVip->GetRateForPlayer(player, VipRate::Reputation);
         return true;
     }
 

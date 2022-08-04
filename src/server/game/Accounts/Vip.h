@@ -86,8 +86,7 @@ public:
     void AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel);
     void DeleteVendorVipLevel(uint32 entry);
 
-    template<VipRate>
-    float GetRate(Player* player);
+    float GetRateForPlayer(Player* player, VipRate rate);
 
 private:
     void LoadRates();
@@ -98,11 +97,11 @@ private:
     void LearnSpells(Player* player, uint8 vipLevel);
     void UnLearnSpells(Player* player, bool unlearnMount = true);
 
-    Optional<WarheadVip> GetVipInfo(uint32 accountID);
-    Optional<WarheadVipRates> GetVipRateInfo(uint8 vipLevel);
-    Optional<Seconds> GetUndindTime(uint64 guid);
+    WarheadVip* GetVipInfo(uint32 accountID);
+    WarheadVipRates* GetVipRateInfo(uint8 vipLevel);
+    Seconds* GetUndindTime(uint64 guid);
     Player* GetPlayerFromAccount(uint32 accountID);
-    std::string GetDuration(Optional<WarheadVip> vipInfo);
+    std::string GetDuration(WarheadVip* vipInfo);
 
     bool _isEnable{ false };
     Seconds _updateDelay{ 0s };
