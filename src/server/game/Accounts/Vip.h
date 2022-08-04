@@ -40,7 +40,7 @@ enum class VipRate
 
 constexpr auto MAX_VIP_LEVEL = 3;
 
-class Vip
+class WH_GAME_API Vip
 {
     Vip() = default;
     ~Vip() = default;
