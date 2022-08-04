@@ -35,6 +35,7 @@
 #    DEBUG
 #    METRIC SETTINGS
 #    EXTERNAL MAIL SETTINGS
+#    VIP SETTINGS
 #    DISCORD SETTINGS
 #
 ###################################################################################################
@@ -4153,6 +4154,55 @@ Metric.OverallStatusInterval = 1
 
 ExternalMail.Enable = 1
 ###################################################################################################
+
+########################################
+# Vip module configuration
+########################################
+#
+#   VIP.Enable
+#       Description: Enable module
+#       Default: 1
+#
+
+VIP.Enable = 0
+
+#
+#   VIP.Update.Delay
+#       Description: Time to delay for update system
+#       Default: 10
+#
+
+VIP.Update.Delay = 10
+
+#
+#   VIP.Mount.MinLevel
+#       Description: Min level for learning mount at login
+#       Default: 3
+#
+#   VIP.Mount.SpellID
+#       Description: Spell id for mount
+#       Default: 3
+#
+
+VIP.Mount.MinLevel = 3
+VIP.Mount.SpellID = 72286
+
+#
+#   VIP.Spells.List
+#        Description: Spell list for learn at login
+#        Default:
+#
+
+VIP.Spells.List = "26662,62555"
+
+#
+#   VIP.Unbind.Duration
+#       Description: Delay needed to use the .vip unbind command in seconds
+#       Default: 86400 (1 day)
+#
+
+VIP.Unbind.Duration = 86400
+########################################
 
 ########################################
 # DiscordClient module configuration
