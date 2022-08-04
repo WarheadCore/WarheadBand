@@ -27,7 +27,7 @@ void ScriptMgr::OnCreatureAddWorld(Creature* creature)
 {
     ASSERT(creature);
 
-    ExecuteScript<AllCreatureScript>([&](AllCreatureScript* script)
+    ExecuteScript<AllCreatureScript>([creature](AllCreatureScript* script)
     {
         script->OnCreatureAddWorld(creature);
     });
@@ -37,7 +37,7 @@ void ScriptMgr::OnCreatureRemoveWorld(Creature* creature)
 {
     ASSERT(creature);
 
-    ExecuteScript<AllCreatureScript>([&](AllCreatureScript* script)
+    ExecuteScript<AllCreatureScript>([creature](AllCreatureScript* script)
     {
         script->OnCreatureRemoveWorld(creature);
     });
@@ -47,7 +47,7 @@ void ScriptMgr::OnCreatureSaveToDB(Creature* creature)
 {
     ASSERT(creature);
 
-    ExecuteScript<AllCreatureScript>([&](AllCreatureScript* script)
+    ExecuteScript<AllCreatureScript>([creature](AllCreatureScript* script)
     {
         script->OnCreatureSaveToDB(creature);
     });
@@ -55,7 +55,7 @@ void ScriptMgr::OnCreatureSaveToDB(Creature* creature)
 
 void ScriptMgr::Creature_SelectLevel(const CreatureTemplate* cinfo, Creature* creature)
 {
-    ExecuteScript<AllCreatureScript>([&](AllCreatureScript* script)
+    ExecuteScript<AllCreatureScript>([cinfo, creature](AllCreatureScript* script)
     {
         script->Creature_SelectLevel(cinfo, creature);
     });
@@ -63,10 +63,20 @@ void ScriptMgr::Creature_SelectLevel(const CreatureTemplate* cinfo, Creature* cr
 
 bool ScriptMgr::CanCreatureSendListInventory(Player* player, Creature* creature, uint32 vendorEntry)
 {
-    auto ret = IsValidBoolScript<AllCreatureScript>([&](AllCreatureScript* script)
+    auto ret = IsValidBoolScript<AllCreatureScript>([player, creature, vendorEntry](AllCreatureScript* script)
     {
         return !script->CanCreatureSendListInventory(player, creature, vendorEntry);
     });
 
     return ReturnValidBool(ret);
+}
+
+void ScriptMgr::OnCreatureRespawn(Creature* creature)
+{
+    ASSERT(creature);
+
+    ExecuteScript<AllCreatureScript>([creature](AllCreatureScript* script)
+    {
+        script->OnCreatureRespawn(creature);
+    });
 }

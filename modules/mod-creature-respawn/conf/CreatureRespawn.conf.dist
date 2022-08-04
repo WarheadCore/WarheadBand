@@ -1,0 +1,51 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+########################################
+# CreatureRespawn module configuration
+########################################
+#
+#    CreatureRespawn.Enable
+#        Description: Enable this module
+#        Default: 0
+#
+
+CreatureRespawn.Enable = 0
+
+#
+#    CreatureRespawn.VipDiscount.Level1
+#        Description: Discount for vip account level 1 in %
+#        Default: 10
+#
+
+CreatureRespawn.VipDiscount.Level1 = 10
+
+#
+#    CreatureRespawn.VipDiscount.Level2
+#        Description: Discount for vip account level 2 in %
+#        Default: 20
+#
+
+CreatureRespawn.VipDiscount.Level2 = 20
+
+#
+#    CreatureRespawn.VipDiscount.Level3
+#        Description: Discount for vip account level 3 in %
+#        Default: 50
+#
+
+CreatureRespawn.VipDiscount.Level3 = 50
