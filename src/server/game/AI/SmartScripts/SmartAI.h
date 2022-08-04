@@ -182,7 +182,7 @@ public:
 
     void sGossipHello(Player* player) override;
     void sGossipSelect(Player* player, uint32 sender, uint32 action) override;
-    void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override;
+    void sGossipSelectCode(Player* player, uint32 sender, uint32 action, std::string_view code) override;
     void sQuestAccept(Player* player, Quest const* quest) override;
     //void sQuestSelect(Player* player, Quest const* quest);
     //void sQuestComplete(Player* player, Quest const* quest);
@@ -263,7 +263,7 @@ public:
 
     bool GossipHello(Player* player, bool reportUse) override;
     bool GossipSelect(Player* player, uint32 sender, uint32 action) override;
-    bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) override;
+    bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, std::string_view /*code*/) override;
     bool QuestAccept(Player* player, Quest const* quest) override;
     bool QuestReward(Player* player, Quest const* quest, uint32 opt) override;
     void Destroyed(Player* player, uint32 eventId) override;

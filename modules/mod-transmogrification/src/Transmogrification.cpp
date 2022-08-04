@@ -1268,7 +1268,7 @@ void Transmogrification::OnGossipSelect(Player* player, Creature* creature, uint
     }
 }
 
-void Transmogrification::OnGossipSelectCode(Player* player, Creature* creature, uint32 const& action, uint32 const& sender, const char* code)
+void Transmogrification::OnGossipSelectCode(Player* player, Creature* creature, uint32 const& action, uint32 const& sender, std::string_view code)
 {
     ClearGossipMenuFor(player);
 
@@ -1281,7 +1281,7 @@ void Transmogrification::OnGossipSelectCode(Player* player, Creature* creature, 
         return;
     }
 
-    SavePreset(player, creature, std::string(code));
+    SavePreset(player, creature, std::string{ code });
 
     CloseGossipMenuFor(player); // Wait for SetMoney to get fixed, issue #10053
 }

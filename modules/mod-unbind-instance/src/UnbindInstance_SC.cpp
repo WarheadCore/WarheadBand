@@ -176,7 +176,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, char const* code) override
+    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, std::string_view code) override
     {
         ClearGossipMenuFor(player);
         sUI->Unbind(player, creature, sender, action, Warhead::StringTo<uint32>(code).value_or(0));

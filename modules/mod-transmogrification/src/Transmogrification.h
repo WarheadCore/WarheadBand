@@ -48,7 +48,7 @@ public:
     // Gossip
     void OnGossipHello(Player* player, Creature* creature);
     void OnGossipSelect(Player* player, Creature* creature, uint32 const& action, uint32 const& sender);
-    void OnGossipSelectCode(Player* player, Creature* creature, uint32 const& action, uint32 const& sender, const char* code);
+    void OnGossipSelectCode(Player* player, Creature* creature, uint32 const& action, uint32 const& sender, std::string_view code);
 
 private:
     typedef std::unordered_map<ObjectGuid, ObjectGuid> TransmogrificationDataContainer;

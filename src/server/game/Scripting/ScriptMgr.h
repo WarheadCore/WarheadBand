@@ -269,12 +269,12 @@ public: /* ItemScript */
     bool OnItemRemove(Player* player, Item* item);
     bool OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item);
     void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action);
-    void OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code);
+    void OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, std::string_view code);
 
 public: /* CreatureScript */
     bool OnGossipHello(Player* player, Creature* creature);
     bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action);
-    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code);
+    bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, std::string_view code);
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest);
     bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
     bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest);
@@ -288,7 +288,7 @@ public: /* CreatureScript */
 public: /* GameObjectScript */
     bool OnGossipHello(Player* player, GameObject* go);
     bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action);
-    bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code);
+    bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, std::string_view code);
     bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest);
     bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt);
     uint32 GetDialogStatus(Player* player, GameObject* go);
@@ -407,7 +407,7 @@ public: /* PlayerScript */
     void OnAchievementSave(CharacterDatabaseTransaction trans, Player* player, uint16 achiId, CompletedAchievementData const* achiData);
     void OnCriteriaSave(CharacterDatabaseTransaction trans, Player* player, uint16 critId, CriteriaProgress const* criteriaData);
     void OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action);
-    void OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code);
+    void OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, std::string_view code);
     void OnPlayerBeingCharmed(Player* player, Unit* charmer, uint32 oldFactionId, uint32 newFactionId);
     void OnAfterPlayerSetVisibleItemSlot(Player* player, uint8 slot, Item* item);
     void OnAfterPlayerMoveItemFromInventory(Player* player, Item* it, uint8 bag, uint8 slot, bool update);

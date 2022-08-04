@@ -122,7 +122,7 @@ void ScriptMgr::OnGossipSelect(Player* player, Item* item, uint32 sender, uint32
     }
 }
 
-void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code)
+void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, std::string_view code)
 {
     ASSERT(player);
     ASSERT(item);
@@ -133,7 +133,5 @@ void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, ui
     });
 
     if (auto tempScript = ScriptRegistry<ItemScript>::Instance()->GetScriptById(item->GetScriptId()))
-    {
         tempScript->OnGossipSelectCode(player, item, sender, action, code);
-    }
 }
