@@ -243,7 +243,7 @@ uint8 Vip::GetLevel(Player* player)
 }
 
 template<>
-float Vip::GetRate<VipRate::XP>(Player* player)
+WH_GAME_API float Vip::GetRate<VipRate::XP>(Player* player)
 {
     if (!IsVip(player))
         return 1.0f;
@@ -262,7 +262,7 @@ float Vip::GetRate<VipRate::XP>(Player* player)
 }
 
 template<>
-float Vip::GetRate<VipRate::Honor>(Player* player)
+WH_GAME_API float Vip::GetRate<VipRate::Honor>(Player* player)
 {
     if (!IsVip(player))
         return 1.0f;
@@ -281,7 +281,7 @@ float Vip::GetRate<VipRate::Honor>(Player* player)
 }
 
 template<>
-float Vip::GetRate<VipRate::ArenaPoint>(Player* player)
+WH_GAME_API float Vip::GetRate<VipRate::ArenaPoint>(Player* player)
 {
     if (!IsVip(player))
         return 1.0f;
@@ -300,7 +300,7 @@ float Vip::GetRate<VipRate::ArenaPoint>(Player* player)
 }
 
 template<>
-float Vip::GetRate<VipRate::Reputation>(Player* player)
+WH_GAME_API float Vip::GetRate<VipRate::Reputation>(Player* player)
 {
     if (!IsVip(player))
         return 1.0f;
