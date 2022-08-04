@@ -26,6 +26,7 @@ void AddSC_bag_commandscript();
 void AddSC_ban_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_bg_commandscript();
+void AddSC_cache_commandscript();
 void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
@@ -42,6 +43,7 @@ void AddSC_guild_commandscript();
 void AddSC_honor_commandscript();
 void AddSC_instance_commandscript();
 void AddSC_inventory_commandscript();
+void AddSC_item_commandscript();
 void AddSC_learn_commandscript();
 void AddSC_lfg_commandscript();
 void AddSC_list_commandscript();
@@ -62,9 +64,8 @@ void AddSC_spectator_commandscript();
 void AddSC_tele_commandscript();
 void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
+void AddSC_vip_commandscript();
 void AddSC_wp_commandscript();
-void AddSC_cache_commandscript();
-void AddSC_item_commandscript();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -77,6 +78,7 @@ void AddCommandsScripts()
     AddSC_ban_commandscript();
     AddSC_bf_commandscript();
     AddSC_bg_commandscript();
+    AddSC_cache_commandscript();
     AddSC_cast_commandscript();
     AddSC_character_commandscript();
     AddSC_cheat_commandscript();
@@ -93,6 +95,7 @@ void AddCommandsScripts()
     AddSC_honor_commandscript();
     AddSC_instance_commandscript();
     AddSC_inventory_commandscript();
+    AddSC_item_commandscript();
     AddSC_learn_commandscript();
     AddSC_lfg_commandscript();
     AddSC_list_commandscript();
@@ -113,7 +116,6 @@ void AddCommandsScripts()
     AddSC_tele_commandscript();
     AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
+    AddSC_vip_commandscript();
     AddSC_wp_commandscript();
-    AddSC_cache_commandscript();
-    AddSC_item_commandscript();
 }

@@ -18,11 +18,12 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-// From SC
+// This is where scripts' loading functions should be declared:
 void AddSC_Vip();
 
-// Add all
-void Addmod_vipScripts()
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
+void AddVipScripts()
 {
     AddSC_Vip();
 }

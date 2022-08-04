@@ -40,15 +40,15 @@ enum class VipRate
 
 constexpr auto MAX_VIP_LEVEL = 3;
 
-class Vip
+class WH_GAME_API Vip
 {
     Vip() = default;
     ~Vip() = default;
 
     Vip(Vip const&) = delete;
     Vip(Vip&&) = delete;
-    Vip& operator= (Vip const&) = delete;
-    Vip& operator= (Vip&&) = delete;
+    Vip& operator=(Vip const&) = delete;
+    Vip& operator=(Vip&&) = delete;
 
 public:
     using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint8/*level*/>;
