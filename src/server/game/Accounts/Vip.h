@@ -47,8 +47,8 @@ class WH_GAME_API Vip
 
     Vip(Vip const&) = delete;
     Vip(Vip&&) = delete;
-    Vip& operator= (Vip const&) = delete;
-    Vip& operator= (Vip&&) = delete;
+    Vip& operator=(Vip const&) = delete;
+    Vip& operator=(Vip&&) = delete;
 
 public:
     using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint8/*level*/>;
