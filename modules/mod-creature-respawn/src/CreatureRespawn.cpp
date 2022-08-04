@@ -19,19 +19,19 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CreatureRespawn.h"
+#include "GameLocale.h"
+#include "GameTime.h"
 #include "Log.h"
+#include "MapMgr.h"
+#include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "ObjectMgr.h"
-#include "MapMgr.h"
-#include "StopWatch.h"
-#include "ScriptedGossip.h"
-#include "GameLocale.h"
 #include "Player.h"
-#include "WorldSession.h"
-#include "GameTime.h"
-#include "ModuleLocale.h"
+#include "ScriptedGossip.h"
+#include "StopWatch.h"
 #include "StringConvert.h"
 #include "Vip.h"
+#include "WorldSession.h"
 #include <ranges>
 
 CreatureRespawnMgr* CreatureRespawnMgr::instance()

@@ -22,8 +22,8 @@
 #include "Duration.h"
 #include <array>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 class Creature;
 class Player;
