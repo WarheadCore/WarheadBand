@@ -31,9 +31,8 @@
 #include "GameTime.h"
 #include "ModuleLocale.h"
 #include "StringConvert.h"
+#include "Vip.h"
 #include <ranges>
-
-#include "mod-vip/src/Vip.h"
 
 CreatureRespawnMgr* CreatureRespawnMgr::instance()
 {
@@ -360,14 +359,30 @@ void CreatureRespawnMgr::OnGossipSelectCode(Player* player, Creature* creature, 
         return;
     }
 
-    if (toReapawnCreature->IsAlive())
+    auto currentTime = GameTime::GetGameTime();
+    auto curRespawnDelay = Seconds(toReapawnCreature->GetRespawnTimeEx()) - currentTime;
+
+    if (toReapawnCreature->IsAlive() || curRespawnDelay == 0s)
     {
         sModuleLocale->SendPlayerMessage(player, "CR_LOCALE_NPC_IS_ALIVE", creatureName);
         return;
     }
 
+    auto totalDescreaseSeconds{ seconds * enterCount };
+
+    if (totalDescreaseSeconds > curRespawnDelay && enterCount > 1)
+    {
+        auto decreaseSecondsPrew{ seconds * (enterCount - 1) };
+        if (decreaseSecondsPrew > curRespawnDelay)
+        {
+            sModuleLocale->SendPlayerMessage(player, "CR_LOCALE_MORE_TIME", Warhead::Time::ToTimeString(totalDescreaseSeconds), Warhead::Time::ToTimeString(curRespawnDelay));
+            return;
+        }
+    }
+
     player->DestroyItemCount(itemID, totalCount, true);
-    DecreaseRespawnTimeForCreature(toReapawnCreature, seconds);
+    DecreaseRespawnTimeForCreature(toReapawnCreature, totalDescreaseSeconds);
+    sModuleLocale->SendPlayerMessage(player, "CR_LOCALE_YOU_DECREASED_TIME", creatureName, Warhead::Time::ToTimeString(totalDescreaseSeconds));
 }
 
 void CreatureRespawnMgr::OnCreatureRespawn(Creature* creature)
