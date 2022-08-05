@@ -167,7 +167,7 @@ void CreatureRespawnMgr::LoadCreatureItemsFromDB()
             GetDiscont(itemCount, _vipDiscountLevel3)
         };
 
-        info->Items.emplace_back(itemID, std::move(itemCounts), seconds);
+        info->Items.emplace_back(CreatureRespawnInfoItems{ itemID, std::move(itemCounts), seconds });
         count++;
     } while (result->NextRow());
 
