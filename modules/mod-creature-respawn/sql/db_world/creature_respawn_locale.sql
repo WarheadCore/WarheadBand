@@ -1,6 +1,6 @@
--------------------------
+-- -------------------------
 -- Records of string_module
--- ----------------------------
+-- -------------------------
 
 DELETE FROM `string_module`
 WHERE `Entry` IN ('CR_LOCALE_NPC_RESPAWN',
