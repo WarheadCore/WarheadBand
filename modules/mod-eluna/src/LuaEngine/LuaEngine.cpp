@@ -103,7 +103,8 @@ void Eluna::LoadScriptPaths()
     if (!lua_requirepath.empty())
         lua_requirepath.erase(lua_requirepath.end() - 1);
 
-    ELUNA_LOG_DEBUG("[Eluna]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), ElunaUtil::GetTimeDiff(oldMSTime));
+    ELUNA_LOG_INFO("[Eluna]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), ElunaUtil::GetTimeDiff(oldMSTime));
+    ELUNA_LOG_INFO("");
 }
 
 void Eluna::_ReloadEluna()
