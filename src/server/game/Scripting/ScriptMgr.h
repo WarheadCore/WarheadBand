@@ -604,6 +604,7 @@ public: /* AllCreatureScript */
     void Creature_SelectLevel(const CreatureTemplate* cinfo, Creature* creature);
     void OnCreatureSaveToDB(Creature* creature);
     bool CanCreatureSendListInventory(Player* player, Creature* creature, uint32 vendorEntry);
+    void OnCreatureRespawn(Creature* creature);
 
 public: /* AllGameobjectScript */
     void OnGameObjectSaveToDB(GameObject* go);

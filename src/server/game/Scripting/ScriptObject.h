@@ -644,6 +644,9 @@ public:
 
     // Called when a player selects a quest reward.
     [[nodiscard]] virtual bool CanCreatureSendListInventory(Player* /*player*/, Creature* /*creature*/, uint32 /*vendorEntry*/) { return true; }
+
+    //
+    virtual void OnCreatureRespawn(Creature* /*creature*/) { }
 };
 
 class WH_GAME_API AllItemScript : public ScriptObject
