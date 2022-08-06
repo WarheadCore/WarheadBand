@@ -36,16 +36,34 @@ endif()
 set(MOD_ELUNA_FOUND 0)
 set(MOD_ELUNA_PATH "")
 
-function(ConfigureElunaModule moduleName)
-  set(MOD_ELUNA_FOUND 1 PARENT_SCOPE)
-  GetPathToModuleSource(${SOURCE_MODULE} MODULE_SOURCE_PATH)
-  set(MOD_ELUNA_PATH ${MODULE_SOURCE_PATH} PARENT_SCOPE)
+function(ConfigureModEluna projectName projectPath)
+  if (APPLE)
+    target_compile_definitions(${projectName}
+      PUBLIC
+        LUA_USE_MACOSX)
+  elseif (UNIX)
+    target_compile_definitions(${projectName}
+      PUBLIC
+        LUA_USE_LINUX)
+  endif()
 
   # Define eluna compile options
-  target_compile_options(game-interface
-    INTERFACE
-      -DAZEROTHCORE
+  target_compile_options(${projectName}
+    PUBLIC
+      -DWARHEADCORE
       -DWOTLK)
+
+  if (WIN32)
+    if (MSVC)
+      set(MSVC_CONFIGURATION_NAME $(ConfigurationName)/)
+    endif()
+
+    add_custom_command(TARGET ${projectName} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/bin/${MSVC_CONFIGURATION_NAME}lua_scripts/extensions/"
+      COMMAND ${CMAKE_COMMAND} -E copy_directory "${projectPath}/LuaEngine/extensions" "${CMAKE_BINARY_DIR}/bin/${MSVC_CONFIGURATION_NAME}lua_scripts/extensions/")
+  endif()
+
+  install(DIRECTORY "${projectPath}/LuaEngine/extensions" DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/lua_scripts/")
 endfunction()
 
 # Set the MODULES_${SOURCE_MODULE} variables from the
@@ -55,16 +73,6 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
 
   if(${MODULE_MODULE_VARIABLE} STREQUAL "default")
     set(${MODULE_MODULE_VARIABLE} ${MODULES_DEFAULT_LINKAGE})
-  endif()
-
-  # Use only static for deprecated api loaders
-  if (WH_SCRIPTS_INCLUDES MATCHES "${SOURCE_MODULE}")
-    set(${MODULE_MODULE_VARIABLE} "static")
-  endif()
-
-  # Use only static for mod-eluna
-  if (SOURCE_MODULE MATCHES "mod-eluna")
-    ConfigureElunaModule(${SOURCE_MODULE})
   endif()
 
   # Build the Graph values
@@ -89,8 +97,8 @@ list(SORT MODULE_GRAPH_KEYS)
 list(REMOVE_DUPLICATES MODULE_GRAPH_KEYS)
 
 # Display the module graph
-message("* Modules configuration (${MODULES}):
-  |")
+message("* Modules configuration (${MODULES}):")
+message("  |")
 
 foreach(MODULE_GRAPH_KEY ${MODULE_GRAPH_KEYS})
 if(NOT MODULE_GRAPH_KEY STREQUAL "disabled")
@@ -180,10 +188,12 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
       CollectSourceFiles(${MODULE_SOURCE_PATH} PRIVATE_SOURCES_MODULES)
       CollectIncludeDirectories(${MODULE_SOURCE_PATH} PUBLIC_INCLUDES)
 
-      # Skip deprecated api loaders
-      if (WH_SCRIPTS_INCLUDES MATCHES "${SOURCE_MODULE}")
-        message("> Module (${SOURCE_MODULE}) using deprecated loader api")
-        continue()
+      # Disable build specific files for mod eluna
+      if (${SOURCE_MODULE} STREQUAL "mod-eluna")
+        list(REMOVE_ITEM PRIVATE_SOURCES_MODULES ${MODULE_SOURCE_PATH}/lualib/lua.c)
+        list(REMOVE_ITEM PRIVATE_SOURCES_MODULES ${MODULE_SOURCE_PATH}/lualib/luac.c)
+        set(MOD_ELUNA_FOUND 1)
+        set(MOD_ELUNA_PATH ${MODULE_SOURCE_PATH})
       endif()
 
       # Add the module name to STATIC_SCRIPT_MODULES
@@ -197,6 +207,12 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
     unset(MODULE_SOURCE_PRIVATE_SOURCES)
     CollectSourceFiles(${MODULE_SOURCE_PATH} MODULE_SOURCE_PRIVATE_SOURCES)
     CollectIncludeDirectories(${MODULE_SOURCE_PATH} PUBLIC_INCLUDES)
+
+    # Disable build specific files for mod eluna
+    if (${SOURCE_MODULE} STREQUAL "mod-eluna")
+      list(REMOVE_ITEM MODULE_SOURCE_PRIVATE_SOURCES ${MODULE_SOURCE_PATH}/lualib/lua.c)
+      list(REMOVE_ITEM MODULE_SOURCE_PRIVATE_SOURCES ${MODULE_SOURCE_PATH}/lualib/luac.c)
+    endif()
 
     # Configure the scriptloader
     ConfigureScriptLoader(${SOURCE_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER ON ${SOURCE_MODULE})
@@ -241,6 +257,11 @@ foreach(SOURCE_MODULE ${MODULES_MODULE_LIST})
           RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/bin/MinSizeRel/scripts)
       endif()
     endif()
+
+    # Disable build specific files for mod eluna
+    if (${SOURCE_MODULE} STREQUAL "mod-eluna")
+      ConfigureModEluna(${MODULE_SOURCE_PROJECT_NAME} ${MODULE_SOURCE_PATH})
+    endif()
   else()
     message(FATAL_ERROR "Unknown value \"${${MODULE_MODULE_VARIABLE}}\" for module (${SOURCE_MODULE})!")
   endif()
@@ -253,15 +274,10 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 
 list(REMOVE_DUPLICATES SCRIPT_MODULE_PRIVATE_SCRIPTLOADER)
 
-if (MOD_ELUNA_FOUND)
-  list(REMOVE_ITEM PRIVATE_SOURCES_MODULES ${MOD_ELUNA_PATH}/lualib/lua.c)
-  list(REMOVE_ITEM PRIVATE_SOURCES_MODULES ${MOD_ELUNA_PATH}/lualib/luac.c)
-endif()
-
 add_library(modules STATIC
-    ModulesScriptLoader.h
-    ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-    ${PRIVATE_SOURCES_MODULES})
+  ModulesScriptLoader.h
+  ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
+  ${PRIVATE_SOURCES_MODULES})
 
 target_link_libraries(modules
   PRIVATE
@@ -335,28 +351,7 @@ target_compile_options(modules
     -DCONFIG_FILE_LIST=$<1:"${CONFIG_LIST}">)
 
 if (MOD_ELUNA_FOUND)
-  if (APPLE)
-    target_compile_definitions(modules
-      PUBLIC
-        LUA_USE_MACOSX)
-  elseif (UNIX)
-    target_compile_definitions(modules
-      PUBLIC
-        LUA_USE_LINUX)
-  endif()
-
-  if (WIN32)
-    if (MSVC)
-      set(MSVC_CONFIGURATION_NAME $(ConfigurationName)/)
-    endif()
-
-    add_custom_command(TARGET modules
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/bin/${MSVC_CONFIGURATION_NAME}lua_scripts/extensions/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${MOD_ELUNA_PATH}/LuaEngine/extensions" "${CMAKE_BINARY_DIR}/bin/${MSVC_CONFIGURATION_NAME}lua_scripts/extensions/")
-  endif()
-
-  install(DIRECTORY "${MOD_ELUNA_PATH}/LuaEngine/extensions" DESTINATION "${CMAKE_INSTALL_PREFIX}/bin/lua_scripts/")
+  ConfigureModEluna(modules ${MOD_ELUNA_PATH})
 endif()
 
 message("")
