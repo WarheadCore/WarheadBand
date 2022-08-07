@@ -32,7 +32,7 @@
 #include "StringConvert.h"
 #include "Vip.h"
 #include "WorldSession.h"
-#include <ranges>
+#include <range/v3/action/sort.hpp>
 
 CreatureRespawnMgr* CreatureRespawnMgr::instance()
 {
@@ -175,7 +175,7 @@ void CreatureRespawnMgr::LoadCreatureItemsFromDB()
     LOG_INFO("module", "");
 
     for (auto& [spawnId, info] : _creatureList)
-        std::ranges::sort(info.Items, {}, &CreatureRespawnInfoItems::DecreaseSeconds);
+        ranges::sort(info.Items, {}, &CreatureRespawnInfoItems::DecreaseSeconds);
 }
 
 Creature* CreatureRespawnMgr::FindCreature(uint32 spawnGuid)
