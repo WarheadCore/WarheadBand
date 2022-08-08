@@ -18,13 +18,10 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "BattlegroundMgr.h"
 #include "CFBG.h"
-#include "Chat.h"
-#include "GroupMgr.h"
-#include "Opcodes.h"
-#include "ReputationMgr.h"
 #include "ScriptObject.h"
+#include "ReputationMgr.h"
+#include "Group.h"
 
 // CFBG custom script
 class CFBG_BG : public BGScript
@@ -34,21 +31,11 @@ public:
 
     void OnBattlegroundBeforeAddPlayer(Battleground* bg, Player* player) override
     {
-        if (!sCFBG->IsEnableSystem() || !bg || bg->isArena() || !player)
-        {
-            return;
-        }
-
         sCFBG->ValidatePlayerForBG(bg, player, player->GetBgTeamId());
     }
 
     void OnBattlegroundAddPlayer(Battleground* bg, Player* player) override
     {
-        if (!sCFBG->IsEnableSystem() || bg->isArena())
-        {
-            return;
-        }
-
         sCFBG->FitPlayerInTeam(player, true, bg);
 
         if (sCFBG->IsEnableResetCooldowns())
@@ -89,9 +76,7 @@ public:
         uint8 /* arenaType */, bool /* isRated */, bool /* isPremade */, uint32 /* arenaRating */, uint32 /* matchmakerRating */, uint32 /* arenaTeamId */, uint32 /* opponentsArenaTeamId */) override
     {
         if (!queue)
-        {
             return;
-        }
 
         if (sCFBG->IsEnableSystem() && !ginfo->ArenaType && !ginfo->IsRated)
         {

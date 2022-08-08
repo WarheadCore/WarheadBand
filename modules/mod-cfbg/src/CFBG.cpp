@@ -21,21 +21,62 @@
 #include "CFBG.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
-#include "ChatTextBuilder.h"
+#include "ModulesConfig.h"
 #include "Containers.h"
-#include "GameConfig.h"
-#include "GameTime.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "Log.h"
-#include "ModulesConfig.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
-#include "ScriptObject.h"
+#include "ScriptMgr.h"
+#include "GameTime.h"
+#include "ChatTextBuilder.h"
+#include <range/v3/action/sort.hpp>
 
-constexpr uint32 FactionFrostwolfClan  = 729;
-constexpr uint32 FactionStormpikeGuard = 730;
 constexpr uint32 MapAlteracValley = 30;
+
+struct RaceData
+{
+    uint8 charClass;
+    std::vector<uint8> availableRacesA;
+    std::vector<uint8> availableRacesH;
+};
+
+std::array<RaceData, 12> const raceData =
+{
+    RaceData{ CLASS_NONE,           { 0 }, { 0 } },
+    RaceData{ CLASS_WARRIOR,        { RACE_HUMAN, RACE_DWARF, RACE_GNOME, RACE_DRAENEI  }, { RACE_ORC, RACE_TAUREN, RACE_TROLL } },
+    RaceData{ CLASS_PALADIN,        { RACE_HUMAN, RACE_DWARF, RACE_DRAENEI }, { RACE_BLOODELF } },
+    RaceData{ CLASS_HUNTER,         { RACE_DWARF, RACE_DRAENEI }, { RACE_ORC, RACE_TAUREN, RACE_TROLL, RACE_BLOODELF } },
+    RaceData{ CLASS_ROGUE,          { RACE_HUMAN, RACE_DWARF, RACE_GNOME }, { RACE_ORC, RACE_TROLL, RACE_BLOODELF } },
+    RaceData{ CLASS_PRIEST,         { RACE_HUMAN, RACE_DWARF, RACE_DRAENEI  }, { RACE_TROLL, RACE_BLOODELF } },
+    RaceData{ CLASS_DEATH_KNIGHT,   { RACE_HUMAN, RACE_DWARF, RACE_GNOME, RACE_DRAENEI }, { RACE_ORC, RACE_TAUREN, RACE_TROLL, RACE_BLOODELF } },
+    RaceData{ CLASS_SHAMAN,         { RACE_DRAENEI }, { RACE_ORC, RACE_TAUREN, RACE_TROLL  } },
+    RaceData{ CLASS_MAGE,           { RACE_HUMAN, RACE_GNOME }, { RACE_BLOODELF, RACE_TROLL } },
+    RaceData{ CLASS_WARLOCK,        { RACE_HUMAN, RACE_GNOME }, { RACE_ORC, RACE_BLOODELF } },
+    RaceData{ CLASS_NONE,           { 0 }, { 0 } },
+    RaceData{ CLASS_DRUID,          { RACE_HUMAN }, { RACE_TAUREN } },
+};
+
+struct CFBGRaceInfo
+{
+    uint8 RaceId;
+    std::string RaceName;
+    uint8 TeamId;
+};
+
+std::array<CFBGRaceInfo, 9> raceInfo
+{
+    CFBGRaceInfo{ RACE_HUMAN,    "human",    TEAM_HORDE    },
+    CFBGRaceInfo{ RACE_NIGHTELF, "nightelf", TEAM_HORDE    },
+    CFBGRaceInfo{ RACE_DWARF,    "dwarf",    TEAM_HORDE    },
+    CFBGRaceInfo{ RACE_GNOME,    "gnome",    TEAM_HORDE    },
+    CFBGRaceInfo{ RACE_DRAENEI,  "draenei",  TEAM_HORDE    },
+    CFBGRaceInfo{ RACE_ORC,      "orc",      TEAM_ALLIANCE },
+    CFBGRaceInfo{ RACE_BLOODELF, "bloodelf", TEAM_ALLIANCE },
+    CFBGRaceInfo{ RACE_TROLL,    "troll",    TEAM_ALLIANCE },
+    CFBGRaceInfo{ RACE_TAUREN,   "tauren",   TEAM_ALLIANCE }
+};
 
 CrossFactionGroupInfo::CrossFactionGroupInfo(GroupQueueInfo* groupInfo)
 {
@@ -73,6 +114,10 @@ CFBG* CFBG::instance()
 void CFBG::LoadConfig()
 {
     _IsEnableSystem = sModulesConfig->GetOption<bool>("CFBG.Enable", false);
+
+    if (!_IsEnableSystem)
+        return;
+
     _IsEnableAvgIlvl = sModulesConfig->GetOption<bool>("CFBG.Include.Avg.Ilvl.Enable", false);
     _IsEnableBalancedTeams = sModulesConfig->GetOption<bool>("CFBG.BalancedTeams", false);
     _IsEnableEvenTeams = sModulesConfig->GetOption<bool>("CFBG.EvenTeams.Enabled", false);
@@ -84,14 +129,13 @@ void CFBG::LoadConfig()
     _balanceClassMinLevel = sModulesConfig->GetOption<uint8>("CFBG.BalancedTeams.Class.MinLevel", 10);
     _balanceClassMaxLevel = sModulesConfig->GetOption<uint8>("CFBG.BalancedTeams.Class.MaxLevel", 19);
     _balanceClassLevelDiff = sModulesConfig->GetOption<uint8>("CFBG.BalancedTeams.Class.LevelDiff", 2);
+    _randomizeRaces = sModulesConfig->GetOption<bool>("CFBG.RandomRaceSelection", true);
 }
 
 uint32 CFBG::GetBGTeamAverageItemLevel(Battleground* bg, TeamId team)
 {
     if (!bg)
-    {
         return 0;
-    }
 
     uint32 sum = 0;
     uint32 count = 0;
@@ -106,9 +150,7 @@ uint32 CFBG::GetBGTeamAverageItemLevel(Battleground* bg, TeamId team)
     }
 
     if (!count || !sum)
-    {
         return 0;
-    }
 
     return sum / count;
 }
@@ -116,9 +158,7 @@ uint32 CFBG::GetBGTeamAverageItemLevel(Battleground* bg, TeamId team)
 uint32 CFBG::GetBGTeamSumPlayerLevel(Battleground* bg, TeamId team)
 {
     if (!bg)
-    {
         return 0;
-    }
 
     uint32 sum = 0;
 
@@ -140,19 +180,13 @@ TeamId CFBG::GetLowerTeamIdInBG(Battleground* bg, GroupQueueInfo* groupInfo)
     uint32 diff = std::abs(plCountA - plCountH);
 
     if (IsEnableBalancedTeams())
-    {
         return SelectBgTeam(bg, groupInfo);
-    }
 
     if (diff)
-    {
         return plCountA < plCountH ? TEAM_ALLIANCE : TEAM_HORDE;
-    }
 
     if (IsEnableAvgIlvl() && !IsAvgIlvlTeamsInBgEqual(bg))
-    {
         return GetLowerAvgIlvlTeamInBg(bg);
-    }
 
     return urand(0, 1) ? TEAM_ALLIANCE : TEAM_HORDE;
 }
@@ -205,6 +239,8 @@ TeamId CFBG::SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo)
         team = GetLowerAvgIlvlTeamInBg(bg);
     }
 
+    LOG_WARN("module", "> Select {} team", team);
+
     return team;
 }
 
@@ -223,13 +259,9 @@ TeamId CFBG::getTeamWithLowerClass(Battleground *bg, Classes c)
         if (player && player->getClass() == c)
         {
             if (player->GetTeamId() == TEAM_ALLIANCE)
-            {
                 allianceClassQty++;
-            }
             else
-            {
                 hordeClassQty++;
-            }
         }
     }
 
@@ -248,7 +280,7 @@ bool CFBG::IsAvgIlvlTeamsInBgEqual(Battleground* bg)
 
 void CFBG::ValidatePlayerForBG(Battleground* bg, Player* player, TeamId teamId)
 {
-    if (player->GetTeamId(true) == teamId)
+    if (!_IsEnableSystem || !bg || bg->isArena() || !player || player->GetTeamId(true) == teamId)
         return;
 
     BGData& bgdata = player->GetBGData();
@@ -262,13 +294,13 @@ void CFBG::ValidatePlayerForBG(Battleground* bg, Player* player, TeamId teamId)
     {
         if (teamId == TEAM_HORDE)
         {
-            player->GetReputationMgr().ApplyForceReaction(FactionFrostwolfClan, REP_FRIENDLY, true);
-            player->GetReputationMgr().ApplyForceReaction(FactionStormpikeGuard, REP_HOSTILE, true);
+            player->GetReputationMgr().ApplyForceReaction(FACTION_FROSTWOLF_CLAN, REP_FRIENDLY, true);
+            player->GetReputationMgr().ApplyForceReaction(FACTION_STORMPIKE_GUARD, REP_HOSTILE, true);
         }
         else
         {
-            player->GetReputationMgr().ApplyForceReaction(FactionFrostwolfClan, REP_HOSTILE, true);
-            player->GetReputationMgr().ApplyForceReaction(FactionStormpikeGuard, REP_FRIENDLY, true);
+            player->GetReputationMgr().ApplyForceReaction(FACTION_FROSTWOLF_CLAN, REP_HOSTILE, true);
+            player->GetReputationMgr().ApplyForceReaction(FACTION_STORMPIKE_GUARD, REP_FRIENDLY, true);
         }
 
         player->GetReputationMgr().SendForceReactions();
@@ -280,292 +312,66 @@ uint32 CFBG::GetAllPlayersCountInBG(Battleground* bg)
     return bg->GetPlayersSize();
 }
 
-uint8 CFBG::GetRandomRace(std::initializer_list<uint32> races)
-{
-    return Warhead::Containers::SelectRandomContainerElement(races);
-}
-
 uint32 CFBG::GetMorphFromRace(uint8 race, uint8 gender)
 {
-    if (gender == GENDER_MALE)
+    switch (race)
     {
-        switch (race)
-        {
-            case RACE_ORC:
-                return FAKE_M_FEL_ORC;
-            case RACE_DWARF:
-                return FAKE_M_DWARF;
-            case RACE_NIGHTELF:
-                return FAKE_M_NIGHT_ELF;
-            case RACE_DRAENEI:
-                return FAKE_M_BROKEN_DRAENEI;
-            case RACE_TROLL:
-                return FAKE_M_TROLL;
-            case RACE_HUMAN:
-                return FAKE_M_HUMAN;
-            case RACE_BLOODELF:
-                return FAKE_M_BLOOD_ELF;
-            case RACE_GNOME:
-                return FAKE_M_GNOME;
-            case RACE_TAUREN:
-                return FAKE_M_TAUREN;
-            default:
-                return FAKE_M_BLOOD_ELF; // this should never happen, it's to fix a warning about return value
-        }
-    }
-    else
-    {
-        switch (race)
-        {
-            case RACE_ORC:
-                return FAKE_F_ORC;
-            case RACE_DRAENEI:
-                return FAKE_F_DRAENEI;
-            case RACE_HUMAN:
-                return FAKE_F_HUMAN;
-            case RACE_BLOODELF:
-                return FAKE_F_BLOOD_ELF;
-            case RACE_GNOME:
-                return FAKE_F_GNOME;
-            case RACE_TAUREN:
-                return FAKE_F_TAUREN;
-            default:
-                return FAKE_F_BLOOD_ELF; // this should never happen, it's to fix a warning about return value
-        }
+        case RACE_BLOODELF:
+            return gender == GENDER_MALE ? FAKE_M_BLOOD_ELF : FAKE_F_BLOOD_ELF;
+        case RACE_ORC:
+            return gender == GENDER_MALE ? FAKE_M_FEL_ORC : FAKE_F_ORC;
+        case RACE_TROLL:
+            return gender == GENDER_MALE ? FAKE_M_TROLL : FAKE_F_BLOOD_ELF;
+        case RACE_TAUREN:
+            return gender == GENDER_MALE ? FAKE_M_TAUREN : FAKE_F_TAUREN;
+        case RACE_DRAENEI:
+            return gender == GENDER_MALE ? FAKE_M_BROKEN_DRAENEI : FAKE_F_DRAENEI;
+        case RACE_DWARF:
+            return gender == GENDER_MALE ? FAKE_M_DWARF : FAKE_F_HUMAN;
+        case RACE_GNOME:
+            return gender == GENDER_MALE ? FAKE_M_GNOME : FAKE_F_GNOME;
+        case RACE_NIGHTELF: // female is missing and male causes client crashes...
+        case RACE_HUMAN:
+            return gender == GENDER_MALE ? FAKE_M_HUMAN : FAKE_F_HUMAN;
+        default:
+            // Default: Blood elf.
+            return gender == GENDER_MALE ? FAKE_M_BLOOD_ELF : FAKE_F_BLOOD_ELF;
     }
 }
 
-void CFBG::RandomRaceMorph(uint8* race, uint32* morph, TeamId team, uint8 _class, uint8 gender)
+RandomSkinInfo CFBG::GetRandomRaceMorph(TeamId team, uint8 playerClass, uint8 gender)
 {
-    // if alliance find a horde race
-    if (team == TEAM_ALLIANCE)
-    {
-        // default race because UNDEAD morph is missing
-        *race = RACE_BLOODELF;
+    uint8 playerRace = Warhead::Containers::SelectRandomContainerElement(team == TEAM_ALLIANCE ? raceData[playerClass].availableRacesH : raceData[playerClass].availableRacesA);
+    uint32 playerMorph = GetMorphFromRace(playerRace, gender);
 
-        /*
-        * TROLL FEMALE morph is missing
-        * therefore MALE and FEMALE are handled in a different way
-        *
-        * UNDEAD is missing too but for both gender
-        */
-        if (gender == GENDER_MALE)
-        {
-            *morph = FAKE_M_BLOOD_ELF;
-
-            switch (_class)
-            {
-                case CLASS_DRUID:
-                    *race = RACE_TAUREN;
-                    *morph = FAKE_M_TAUREN;
-                    break;
-                case CLASS_SHAMAN:
-                case CLASS_WARRIOR:
-                    // UNDEAD missing (only for WARRIOR)
-                    *race = GetRandomRace({ RACE_ORC, RACE_TAUREN, RACE_TROLL });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_PALADIN:
-                    // BLOOD ELF, so default race
-                    break;
-                case CLASS_HUNTER:
-                case CLASS_DEATH_KNIGHT:
-                    // UNDEAD missing (only for DEATH_KNIGHT)
-                    *race = GetRandomRace({ RACE_ORC, RACE_TAUREN, RACE_TROLL, RACE_BLOODELF });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_ROGUE:
-                    // UNDEAD missing
-                    *race = GetRandomRace({ RACE_ORC, RACE_TROLL, RACE_BLOODELF });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_MAGE:
-                case CLASS_PRIEST:
-                    // UNDEAD missing
-                    *race = GetRandomRace({ RACE_TROLL, RACE_BLOODELF });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_WARLOCK:
-                    // UNDEAD missing
-                    *race = GetRandomRace({ RACE_ORC, RACE_BLOODELF });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-            }
-        }
-        else
-        {
-            *morph = FAKE_F_BLOOD_ELF;
-
-            switch (_class)
-            {
-                case CLASS_DRUID:
-                    *race = RACE_TAUREN;
-                    *morph = FAKE_F_TAUREN;
-                    break;
-                case CLASS_SHAMAN:
-                case CLASS_WARRIOR:
-                    // UNDEAD missing (only for WARRIOR)
-                    // TROLL FEMALE missing
-                    *race = GetRandomRace({ RACE_ORC, RACE_TAUREN });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_HUNTER:
-                case CLASS_DEATH_KNIGHT:
-                    // TROLL FEMALE is missing
-                    // UNDEAD is missing (only for DEATH_KNIGHT)
-                    *race = GetRandomRace({ RACE_ORC, RACE_TAUREN, RACE_BLOODELF });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_ROGUE:
-                case CLASS_WARLOCK:
-                    // UNDEAD is missing
-                    // TROLL FEMALE is missing (only for Rogue)
-                    *race = GetRandomRace({ RACE_ORC, RACE_BLOODELF });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_PALADIN:
-                    // BLOOD ELF, so default race
-                case CLASS_MAGE:
-                case CLASS_PRIEST:
-                    // UNDEAD and TROLL FEMALE morph are missing so use BLOOD ELF (default race)
-                    break;
-            }
-        }
-
-    }
-    else // otherwise find an alliance race
-    {
-        // default race
-        *race = RACE_HUMAN;
-
-        /*
-        * FEMALE morphs DWARF and NIGHT ELF are missing
-        * therefore MALE and FEMALE are handled in a different way
-        *
-        * removed RACE NIGHT_ELF to prevent client crash
-        */
-        if (gender == GENDER_MALE)
-        {
-            *morph = FAKE_M_HUMAN;
-
-            switch (_class)
-            {
-                case CLASS_DRUID:
-                    *race = RACE_HUMAN; /* RACE_NIGHTELF; */
-                    *morph = FAKE_M_NIGHT_ELF;
-                    break;
-                case CLASS_SHAMAN:
-                    *race = RACE_DRAENEI;
-                    *morph = FAKE_M_BROKEN_DRAENEI;
-                    break;
-                case CLASS_WARRIOR:
-                case CLASS_DEATH_KNIGHT:
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_DWARF, RACE_GNOME, /* RACE_NIGHTELF, */ RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_PALADIN:
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_DWARF, RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_HUNTER:
-                    *race = GetRandomRace({ RACE_DWARF, /* RACE_NIGHTELF, */ RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_ROGUE:
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_DWARF, RACE_GNOME/* , RACE_NIGHTELF */ });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_PRIEST:
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_DWARF, /* RACE_NIGHTELF,*/ RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_MAGE:
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_GNOME, RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_WARLOCK:
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_GNOME });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-            }
-        }
-        else
-        {
-            *morph = FAKE_F_HUMAN;
-
-            switch (_class)
-            {
-                case CLASS_DRUID:
-                    // FEMALE NIGHT ELF is missing
-                    break;
-                case CLASS_SHAMAN:
-                case CLASS_HUNTER:
-                    // FEMALE DWARF and NIGHT ELF are missing (only for HUNTER)
-                    *race = RACE_DRAENEI;
-                    *morph = FAKE_F_DRAENEI;
-                    break;
-                case CLASS_WARRIOR:
-                case CLASS_DEATH_KNIGHT:
-                case CLASS_MAGE:
-                    // DWARF and NIGHT ELF are missing (only for WARRIOR and DEATH_KNIGHT)
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_GNOME, RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_PALADIN:
-                case CLASS_PRIEST:
-                    // DWARF is missing
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_DRAENEI });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-                case CLASS_ROGUE:
-                case CLASS_WARLOCK:
-                    // DWARF and NIGHT ELF are missing (only for ROGUE)
-                    *race = GetRandomRace({ RACE_HUMAN, RACE_GNOME });
-                    *morph = GetMorphFromRace(*race, gender);
-                    break;
-            }
-        }
-    }
+    return { playerRace, playerMorph };
 }
 
 void CFBG::SetFakeRaceAndMorph(Player* player)
 {
-    if (!player->InBattleground())
-    {
+    if (!player->InBattleground() || player->GetTeamId(true) == player->GetBgTeamId() || IsPlayerFake(player))
         return;
-    }
-
-    if (player->GetTeamId(true) == player->GetBgTeamId())
-    {
-        return;
-    }
-
-    if (IsPlayerFake(player))
-    {
-        return;
-    }
-
-    uint8 FakeRace;
-    uint32 FakeMorph;
 
     // generate random race and morph
-    RandomRaceMorph(&FakeRace, &FakeMorph, player->GetTeamId(true), player->getClass(), player->getGender());
+    auto skinInfo = GetRandomRaceMorph(player->GetTeamId(true), player->getClass(), player->getGender());
 
-    FakePlayer fakePlayer;
-    fakePlayer.FakeMorph        = FakeMorph;
-    fakePlayer.FakeRace         = FakeRace;
-    fakePlayer.FakeTeamID       = player->TeamIdForRace(FakeRace);
-    fakePlayer.RealMorph        = player->GetDisplayId();
-    fakePlayer.RealNativeMorph  = player->GetNativeDisplayId();
-    fakePlayer.RealRace         = player->getRace(true);
-    fakePlayer.RealTeamID       = player->GetTeamId(true);
+    FakePlayer fakePlayerInfo
+    {
+        skinInfo.first,
+        skinInfo.second,
+        player->TeamIdForRace(skinInfo.first),
+        player->getRace(true),
+        player->GetDisplayId(),
+        player->GetNativeDisplayId(),
+        player->GetTeamId(true)
+    };
 
-    _fakePlayerStore[player] = fakePlayer;
+    player->setRace(fakePlayerInfo.FakeRace);
+    SetFactionForRace(player, fakePlayerInfo.FakeRace);
+    player->SetDisplayId(fakePlayerInfo.FakeMorph);
+    player->SetNativeDisplayId(fakePlayerInfo.FakeMorph);
 
-    player->setRace(FakeRace);
-    SetFactionForRace(player, FakeRace);
-    player->SetDisplayId(FakeMorph);
-    player->SetNativeDisplayId(FakeMorph);
+    _fakePlayerStore.emplace(player, std::move(fakePlayerInfo));
 }
 
 void CFBG::SetFactionForRace(Player* player, uint8 Race)
@@ -578,37 +384,43 @@ void CFBG::SetFactionForRace(Player* player, uint8 Race)
 
 void CFBG::ClearFakePlayer(Player* player)
 {
-    if (!IsPlayerFake(player))
+    auto fakePlayerInfo = GetFakePlayer(player);
+    if (!fakePlayerInfo)
         return;
 
-    player->setRace(_fakePlayerStore[player].RealRace);
-    player->SetDisplayId(_fakePlayerStore[player].RealMorph);
-    player->SetNativeDisplayId(_fakePlayerStore[player].RealNativeMorph);
-    SetFactionForRace(player, _fakePlayerStore[player].RealRace);
+    player->setRace(fakePlayerInfo->RealRace);
+    player->SetDisplayId(fakePlayerInfo->RealMorph);
+    player->SetNativeDisplayId(fakePlayerInfo->RealNativeMorph);
+    SetFactionForRace(player, fakePlayerInfo->RealRace);
 
     // Clear forced faction reactions. Rank doesn't matter here, not used when they are removed.
-    player->GetReputationMgr().ApplyForceReaction(FactionFrostwolfClan, REP_FRIENDLY, false);
-    player->GetReputationMgr().ApplyForceReaction(FactionStormpikeGuard, REP_FRIENDLY, false);
+    player->GetReputationMgr().ApplyForceReaction(FACTION_FROSTWOLF_CLAN, REP_FRIENDLY, false);
+    player->GetReputationMgr().ApplyForceReaction(FACTION_STORMPIKE_GUARD, REP_FRIENDLY, false);
 
     _fakePlayerStore.erase(player);
 }
 
 bool CFBG::IsPlayerFake(Player* player)
 {
-    return _fakePlayerStore.find(player) != _fakePlayerStore.end();
+    return _fakePlayerStore.contains(player);
+}
+
+FakePlayer const* CFBG::GetFakePlayer(Player* player) const
+{
+    return Warhead::Containers::MapGetValuePtr(_fakePlayerStore, player);
 }
 
 void CFBG::DoForgetPlayersInList(Player* player)
 {
     // m_FakePlayers is filled from a vector within the battleground
     // they were in previously so all players that have been in that BG will be invalidated.
-    for (auto const& itr : _fakeNamePlayersStore)
+    for (auto const& [_player, playerGuid] : _fakeNamePlayersStore)
     {
         WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-        data << itr.second;
+        data << playerGuid;
         player->GetSession()->SendPacket(&data);
 
-        if (Player* _player = ObjectAccessor::FindPlayer(itr.second))
+        if (Player* _player = ObjectAccessor::FindPlayer(playerGuid))
             player->GetSession()->SendNameQueryOpcode(_player->GetGUID());
     }
 
@@ -617,6 +429,9 @@ void CFBG::DoForgetPlayersInList(Player* player)
 
 void CFBG::FitPlayerInTeam(Player* player, bool action, Battleground* bg)
 {
+    if (!_IsEnableSystem)
+        return;
+
     if (!bg)
         bg = player->GetBattleground();
 
@@ -677,14 +492,14 @@ bool CFBG::SendRealNameQuery(Player* player)
         return false;
 
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8 + 1 + 1 + 1 + 1 + 1 + 10));
-    data << player->GetGUID().WriteAsPacked();                  // player guid
-    data << uint8(0);                                           // added in 3.1; if > 1, then end of packet
-    data << player->GetName();                                  // played name
-    data << uint8(0);                                           // realm name for cross realm BG usage
+    data << player->GetGUID();                  // player guid
+    data << uint8(0);                           // added in 3.1; if > 1, then end of packet
+    data << player->GetName();                  // played name
+    data << uint8(0);                           // realm name for cross realm BG usage
     data << uint8(player->getRace(true));
     data << uint8(player->getGender());
     data << uint8(player->getClass());
-    data << uint8(0);                                           // is not declined
+    data << uint8(0);                           // is not declined
     player->GetSession()->SendPacket(&data);
 
     return true;
@@ -713,11 +528,11 @@ bool CFBG::CheckCrossFactionMatch(BattlegroundQueue* queue, BattlegroundBracketI
         if (gInfo->IsInvitedToBGInstanceGUID)
             continue;
 
-        bool AddAsAlly = freeA == freeH ? gInfo->RealTeamID == TEAM_ALLIANCE : freeA > freeH; // true ? true : false
+        bool AddAsAlly = freeA == freeH ? gInfo->RealTeamID == TEAM_ALLIANCE : freeA > freeH;
 
         gInfo->teamId = AddAsAlly ? TEAM_ALLIANCE : TEAM_HORDE;
 
-        if (queue->m_SelectionPools[AddAsAlly ? TEAM_ALLIANCE : TEAM_HORDE].AddGroup(gInfo, AddAsAlly ? maxPlayers : maxPlayers))
+        if (queue->m_SelectionPools[AddAsAlly ? TEAM_ALLIANCE : TEAM_HORDE].AddGroup(gInfo, maxPlayers))
             AddAsAlly ? freeA -= gInfo->Players.size() : freeH -= gInfo->Players.size();
         else
             break;
@@ -754,7 +569,10 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
     uint32 maxH = freeH;
 
     std::list<GroupQueueInfo*> groups = bgqueue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG];
-    groups.sort([](GroupQueueInfo* a, GroupQueueInfo* b) { return a->JoinTime < b->JoinTime; });
+
+    //ranges::sort(groups, {}, &GroupQueueInfo::JoinTime);
+
+    groups.sort([](GroupQueueInfo const* a, GroupQueueInfo const* b) { return a->JoinTime < b->JoinTime; });
 
     for (auto const& gInfo : groups)
     {
@@ -778,9 +596,7 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
 bool CFBG::isClassJoining(uint8 _class, Player* player, uint32 minLevel)
 {
     if (!player)
-    {
         return false;
-    }
 
     return player->getClass() == _class && (player->getLevel() >= minLevel);
 }
@@ -814,16 +630,18 @@ void CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
     uint32 MinPlayers = bg->GetMinPlayersPerTeam() * 2;
     uint32 qTotal = bgQueue->GetPlayersCountInGroupsQueue(bracketId, (BattlegroundQueueGroupTypes)BG_QUEUE_CFBG);
 
-    if (CONF_GET_BOOL("Battleground.QueueAnnouncer.PlayerOnly"))
+    if (MOD_CONF_GET_BOOL("Battleground.QueueAnnouncer.PlayerOnly"))
     {
-        ChatHandler(leader->GetSession()).PSendSysMessage("CFBG %s (Levels: %u - %u). Registered: %u/%u", bgName.c_str(), q_min_level, q_max_level, qTotal, MinPlayers);
+        ChatHandler(leader->GetSession()).PSendSysMessage("CFBG {} (Levels: {} - {}). Registered: {}/{}", bgName, q_min_level, q_max_level, qTotal, MinPlayers);
     }
     else
     {
-        if (CONF_GET_BOOL("Battleground.QueueAnnouncer.Timed"))
+        if (MOD_CONF_GET_BOOL("Battleground.QueueAnnouncer.Timed"))
         {
             if (bgQueue->GetQueueAnnouncementTimer(bracketEntry->bracketId) < 0)
-                bgQueue->SetQueueAnnouncementTimer(bracketEntry->bracketId, CONF_GET_INT("Battleground.QueueAnnouncer.Timer"));
+            {
+                bgQueue->SetQueueAnnouncementTimer(bracketEntry->bracketId, MOD_CONF_GET_INT("Battleground.QueueAnnouncer.Timer"));
+            }
         }
         else
         {
@@ -833,19 +651,19 @@ void CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
                 BGSpamProtectionCFBG[leader->GetGUID()] = 0s;
 
             // Skip if spam time < 30 secs (default)
-            if (GameTime::GetGameTime() - BGSpamProtectionCFBG[leader->GetGUID()] < Seconds(CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay")))
+            if (GameTime::GetGameTime() - BGSpamProtectionCFBG[leader->GetGUID()] < Seconds(MOD_CONF_GET_UINT("Battleground.QueueAnnouncer.SpamProtection.Delay")))
             {
                 return;
             }
 
             // When limited, it announces only if there are at least CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_LIMIT_MIN_PLAYERS in queue
-            auto limitQueueMinLevel = CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinLevel");
+            auto limitQueueMinLevel = MOD_CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinLevel");
             if (limitQueueMinLevel != 0 && q_min_level >= limitQueueMinLevel)
             {
                 // limit only RBG for 80, WSG for lower levels
                 auto bgTypeToLimit = q_min_level == 80 ? BATTLEGROUND_RB : BATTLEGROUND_WS;
 
-                if (bg->GetBgTypeID() == bgTypeToLimit && qTotal < CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinPlayers"))
+                if (bg->GetBgTypeID() == bgTypeToLimit && qTotal < MOD_CONF_GET_UINT("Battleground.QueueAnnouncer.Limit.MinPlayers"))
                 {
                     return;
                 }
@@ -870,7 +688,20 @@ void CFBG::SendMessageQueue(BattlegroundQueue* bgQueue, Battleground* bg, PvPDif
                 }
             }
             else
+            {
                 Warhead::Text::SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, q_min_level, q_max_level, qTotal, MinPlayers);
+            }
         }
     }
+}
+
+bool CFBG::IsRaceValidForFaction(uint8 teamId, uint8 race)
+{
+    for (auto const& raceVariable : raceInfo)
+    {
+        if (race == raceVariable.RaceId && teamId == raceVariable.TeamId)
+            return true;
+    }
+
+    return false;
 }

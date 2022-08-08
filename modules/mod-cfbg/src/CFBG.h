@@ -26,27 +26,13 @@
 
 enum FakeMorphs
 {
-    // FAKE_M_GOBLIN = 20582,
-    // FAKE_F_GOBLIN = 20583,
-
-    // FAKE_M_UNDEAD missing
-    // FAKE_F_UNDEAD missing
-
     FAKE_M_FEL_ORC        = 21267,
     FAKE_F_ORC            = 20316,
-
     FAKE_M_DWARF          = 20317,
-    // FAKE_F_DWARF missing
-
     FAKE_M_NIGHT_ELF      = 20318,
-    // FAKE_F_NIGHT_ELF missing
-
     FAKE_F_DRAENEI        = 20323,
     FAKE_M_BROKEN_DRAENEI = 21105,
-
     FAKE_M_TROLL          = 20321,
-    // FAKE_F_TROLL missing
-
     FAKE_M_HUMAN          = 19723,
     FAKE_F_HUMAN          = 19724,
     FAKE_M_BLOOD_ELF      = 20578,
@@ -55,8 +41,12 @@ enum FakeMorphs
     FAKE_M_GNOME          = 20580,
     FAKE_F_TAUREN         = 20584,
     FAKE_M_TAUREN         = 20585
-
 };
+
+constexpr auto FACTION_FROSTWOLF_CLAN = 729;
+constexpr auto FACTION_STORMPIKE_GUARD = 730;
+
+using RandomSkinInfo = std::pair<uint8/*race*/, uint32/*morph*/>;
 
 struct FakePlayer
 {
@@ -83,12 +73,6 @@ struct CrossFactionGroupInfo
 
     CrossFactionGroupInfo() = delete;
     CrossFactionGroupInfo(CrossFactionGroupInfo&&) = delete;
-};
-
-enum Factions
-{
-    FACTION_FROSTWOLF_CLAN = 729,
-    FACTION_STORMPIKE_GUARD = 730
 };
 
 class CFBG
@@ -138,6 +122,11 @@ public:
         return _MaxPlayersCountInGroup;
     }
 
+    inline bool RandomizeRaces() const
+    {
+        return _randomizeRaces;
+    }
+
     uint32 GetBGTeamAverageItemLevel(Battleground* bg, TeamId team);
     uint32 GetBGTeamSumPlayerLevel(Battleground* bg, TeamId team);
     uint32 GetAllPlayersCountInBG(Battleground* bg);
@@ -168,16 +157,23 @@ public:
     bool FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, BattlegroundBracketId bracket_id);
     bool CheckCrossFactionMatch(BattlegroundQueue* bgqueue, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
 
-private:
-    typedef std::unordered_map<Player*, FakePlayer> FakePlayersContainer;
-    typedef std::unordered_map<Player*, ObjectGuid> FakeNamePlayersContainer;
-    typedef std::unordered_map<Player*, bool> ForgetBGPlayersContainer;
-    typedef std::unordered_map<Player*, bool> ForgetInListPlayersContainer;
+    bool IsRaceValidForFaction(uint8 teamId, uint8 race);
 
-    FakePlayersContainer _fakePlayerStore;
-    FakeNamePlayersContainer _fakeNamePlayersStore;
-    ForgetBGPlayersContainer _forgetBGPlayersStore;
-    ForgetInListPlayersContainer _forgetInListPlayersStore;
+private:
+    bool isClassJoining(uint8 _class, Player* player, uint32 minLevel);
+
+    RandomSkinInfo GetRandomRaceMorph(TeamId team, uint8 playerClass, uint8 gender);
+
+    uint32 GetMorphFromRace(uint8 race, uint8 gender);
+    TeamId getTeamWithLowerClass(Battleground* bg, Classes c);
+    uint8 getBalanceClassMinLevel(const Battleground* bg) const;
+
+    FakePlayer const* GetFakePlayer(Player* player) const;
+
+    std::unordered_map<Player*, FakePlayer> _fakePlayerStore;
+    std::unordered_map<Player*, ObjectGuid> _fakeNamePlayersStore;
+    std::unordered_map<Player*, bool> _forgetBGPlayersStore;
+    std::unordered_map<Player*, bool> _forgetInListPlayersStore;
     std::unordered_map<GroupQueueInfo*, CrossFactionGroupInfo> _groupsInfo;
 
     // For config
@@ -188,22 +184,14 @@ private:
     bool _IsEnableEvenTeams;
     bool _IsEnableResetCooldowns;
     bool _showPlayerName;
+    bool _randomizeRaces;
     uint32 _EvenTeamsMaxPlayersThreshold;
     uint32 _MaxPlayersCountInGroup;
     uint8 _balanceClassMinLevel;
     uint8 _balanceClassMaxLevel;
     uint8 _balanceClassLevelDiff;
-
-    bool isClassJoining(uint8 _class, Player* player, uint32 minLevel);
-
-    void RandomRaceMorph(uint8* race, uint32* morph, TeamId team, uint8 _class, uint8 gender);
-
-    uint8 GetRandomRace(std::initializer_list<uint32> races);
-    uint32 GetMorphFromRace(uint8 race, uint8 gender);
-    TeamId getTeamWithLowerClass(Battleground *bg, Classes c);
-    uint8 getBalanceClassMinLevel(const Battleground *bg) const;
 };
 
 #define sCFBG CFBG::instance()
 
-#endif
+#endif // _KARGATUM_CFBG_H_
