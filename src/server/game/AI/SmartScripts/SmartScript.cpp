@@ -3185,6 +3185,10 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 {
                     targets.push_back(owner);
                 }
+                else if (me->IsSummon() && me->ToTempSummon()->GetSummonerUnit())
+                {
+                    targets.push_back(me->ToTempSummon()->GetSummonerUnit());
+                }
             }
             else if (go)
             {

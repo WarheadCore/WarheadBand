@@ -1031,11 +1031,11 @@ struct EntryPointData
     }
 
     uint32 mountSpell{0};
-    std::vector<uint32> taxiPath;
+    std::array<uint32, 2> taxiPath;
     WorldLocation joinPos;
 
-    void ClearTaxiPath()     { taxiPath.clear(); }
-    [[nodiscard]] bool HasTaxiPath() const { return !taxiPath.empty(); }
+    void ClearTaxiPath() { taxiPath.fill(0); }
+    [[nodiscard]] bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
 class WH_GAME_API Player : public Unit, public GridObject<Player>
