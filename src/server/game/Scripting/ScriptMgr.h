@@ -730,6 +730,9 @@ public: /* LootScript */
 
     void OnLootMoney(Player* player, uint32 gold);
 
+public: // AIOScript
+    void OnAddonMessage(Player* sender, std::string_view message);
+
 private:
     uint32 _scriptCount{ 0 };
 

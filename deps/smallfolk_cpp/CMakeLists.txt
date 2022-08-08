@@ -17,59 +17,24 @@
 
 CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
-
-if (USE_COREPCH)
-  set(PRIVATE_PCH_HEADER PrecompiledHeaders/gamePCH.h)
-endif ()
+  PRIVATE_SOURCES)
 
 # Group sources
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DWARHEAD_API_EXPORT_GAME)
-
-add_library(game-interface INTERFACE)
+add_library(smallfolk_cpp STATIC
+  ${PRIVATE_SOURCES})
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-  # Exclude
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
+  PUBLIC_INCLUDES)
 
-target_include_directories(game-interface
-  INTERFACE
-    ${PUBLIC_INCLUDES})
-
-target_link_libraries(game-interface
-  INTERFACE
-    shared)
-
-add_library(game
-  ${PRIVATE_SOURCES})
-
-target_include_directories(game
+target_include_directories(smallfolk_cpp
+  PUBLIC
+    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(game
+target_link_libraries(smallfolk_cpp
   PRIVATE
-    warhead-core-interface
-    efsw
-    smallfolk_cpp
-  PUBLIC
-    game-interface)
-
-set_target_properties(game
-  PROPERTIES
-    FOLDER
-      "server")
-
-# Install dynamic lib
-InstallDynamicLibrary(game)
-
-# Generate precompiled header
-if (USE_COREPCH)
-  add_cxx_pch(game ${PRIVATE_PCH_HEADER})
-endif()
+    warhead-dependency-interface)
