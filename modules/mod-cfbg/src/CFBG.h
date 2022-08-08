@@ -20,7 +20,6 @@
 
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
-#include "Common.h"
 #include "Player.h"
 #include <unordered_map>
 
@@ -75,6 +74,24 @@ struct CrossFactionGroupInfo
     CrossFactionGroupInfo(CrossFactionGroupInfo&&) = delete;
 };
 
+struct CrossFactionQueueInfo
+{
+    explicit CrossFactionQueueInfo(BattlegroundQueue* bgQueue);
+
+    TeamId GetLowerTeamIdInBG(GroupQueueInfo* groupInfo);
+
+    std::array<uint32, 2> PlayersCount{};
+    std::array<uint32, 2> SumAverageItemLevel{};
+    std::array<uint32, 2> SumPlayerLevel{};
+
+private:
+    TeamId SelectBgTeam(GroupQueueInfo* groupInfo);
+    TeamId GetLowerAverageItemLevelTeam();
+
+    CrossFactionQueueInfo() = delete;
+    CrossFactionQueueInfo(CrossFactionQueueInfo&&) = delete;
+};
+
 class CFBG
 {
 public:
@@ -82,50 +99,18 @@ public:
 
     void LoadConfig();
 
-    inline bool IsEnableSystem() const
-    {
-        return _IsEnableSystem;
-    }
-
-    inline bool IsEnableAvgIlvl() const
-    {
-        return _IsEnableAvgIlvl;
-    }
-
-    inline bool IsEnableBalancedTeams() const
-    {
-        return _IsEnableBalancedTeams;
-    }
-
-    inline bool IsEnableBalanceClassLowLevel() const
-    {
-        return _IsEnableBalanceClassLowLevel;
-    }
-
-    inline bool IsEnableEvenTeams() const
-    {
-        return _IsEnableEvenTeams;
-    }
-
-    inline bool IsEnableResetCooldowns() const
-    {
-        return _IsEnableResetCooldowns;
-    }
-
-    inline uint32 EvenTeamsMaxPlayersThreshold() const
-    {
-        return _EvenTeamsMaxPlayersThreshold;
-    }
-
-    inline uint32 GetMaxPlayersCountInGroup() const
-    {
-        return _MaxPlayersCountInGroup;
-    }
-
-    inline bool RandomizeRaces() const
-    {
-        return _randomizeRaces;
-    }
+    inline bool IsEnableSystem() const { return _IsEnableSystem; }
+    inline bool IsEnableAvgIlvl() const { return _IsEnableAvgIlvl; }
+    inline bool IsEnableBalancedTeams() const { return _IsEnableBalancedTeams; }
+    inline bool IsEnableBalanceClassLowLevel() const { return _IsEnableBalanceClassLowLevel; }
+    inline bool IsEnableEvenTeams() const { return _IsEnableEvenTeams; }
+    inline bool IsEnableResetCooldowns() const { return _IsEnableResetCooldowns; }
+    inline uint32 EvenTeamsMaxPlayersThreshold() const { return _EvenTeamsMaxPlayersThreshold; }
+    inline uint32 GetMaxPlayersCountInGroup() const { return _MaxPlayersCountInGroup; }
+    inline uint8 GetBalanceClassMinLevel() const { return _balanceClassMinLevel; }
+    inline uint8 GetBalanceClassMaxLevel() const { return _balanceClassMaxLevel; }
+    inline uint8 GetBalanceClassLevelDiff() const { return _balanceClassLevelDiff; }
+    inline bool RandomizeRaces() const { return _randomizeRaces; }
 
     uint32 GetBGTeamAverageItemLevel(Battleground* bg, TeamId team);
     uint32 GetBGTeamSumPlayerLevel(Battleground* bg, TeamId team);
@@ -158,6 +143,8 @@ public:
     bool CheckCrossFactionMatch(BattlegroundQueue* bgqueue, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
 
     bool IsRaceValidForFaction(uint8 teamId, uint8 race);
+    TeamId getTeamWithLowerClass(Battleground* bg, Classes c);
+    uint8 getBalanceClassMinLevel(const Battleground* bg) const;
 
 private:
     bool isClassJoining(uint8 _class, Player* player, uint32 minLevel);
@@ -165,9 +152,6 @@ private:
     RandomSkinInfo GetRandomRaceMorph(TeamId team, uint8 playerClass, uint8 gender);
 
     uint32 GetMorphFromRace(uint8 race, uint8 gender);
-    TeamId getTeamWithLowerClass(Battleground* bg, Classes c);
-    uint8 getBalanceClassMinLevel(const Battleground* bg) const;
-
     FakePlayer const* GetFakePlayer(Player* player) const;
 
     std::unordered_map<Player*, FakePlayer> _fakePlayerStore;

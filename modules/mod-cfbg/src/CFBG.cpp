@@ -93,8 +93,8 @@ CrossFactionGroupInfo::CrossFactionGroupInfo(GroupQueueInfo* groupInfo)
         if (player->getClass() == CLASS_HUNTER && !IsHunterJoining)
             IsHunterJoining = true;
 
-        sumLevels += player->GetAverageItemLevel();
-        sumAverageItemLevels += player->getLevel();
+        sumLevels += player->getLevel();
+        sumAverageItemLevels += player->GetAverageItemLevel();
         playersCount++;
     }
 
@@ -103,6 +103,90 @@ CrossFactionGroupInfo::CrossFactionGroupInfo(GroupQueueInfo* groupInfo)
 
     AveragePlayersLevel = sumLevels / playersCount;
     AveragePlayersItemLevel = sumAverageItemLevels / playersCount;
+}
+
+CrossFactionQueueInfo::CrossFactionQueueInfo(BattlegroundQueue* bgQueue)
+{
+    auto FillStats = [this, bgQueue](TeamId team)
+    {
+        for (auto const& groupInfo : bgQueue->m_SelectionPools[team].SelectedGroups)
+        {
+            for (auto const& playerGuid : groupInfo->Players)
+            {
+                auto player = ObjectAccessor::FindConnectedPlayer(playerGuid);
+                if (!player)
+                    continue;
+
+                SumAverageItemLevel[team] += player->GetAverageItemLevel();
+                SumPlayerLevel[team] += player->getLevel();
+                PlayersCount[team]++;
+            }            
+        }
+    };
+
+    FillStats(TEAM_ALLIANCE);
+    FillStats(TEAM_HORDE);
+}
+
+TeamId CrossFactionQueueInfo::GetLowerTeamIdInBG(GroupQueueInfo* groupInfo)
+{
+    int32 plCountA = PlayersCount.at(TEAM_ALLIANCE);
+    int32 plCountH = PlayersCount.at(TEAM_HORDE);
+    uint32 diff = std::abs(plCountA - plCountH);
+
+    if (sCFBG->IsEnableBalancedTeams())
+        return SelectBgTeam(groupInfo);
+
+    if (diff)
+        return plCountA < plCountH ? TEAM_ALLIANCE : TEAM_HORDE;
+
+    if (sCFBG->IsEnableAvgIlvl() && SumAverageItemLevel.at(TEAM_ALLIANCE) != SumAverageItemLevel.at(TEAM_HORDE))
+        return GetLowerAverageItemLevelTeam();
+
+    return groupInfo->teamId;
+}
+
+TeamId CrossFactionQueueInfo::SelectBgTeam(GroupQueueInfo* groupInfo)
+{
+    uint32 allianceLevels = SumPlayerLevel.at(TeamId::TEAM_ALLIANCE);
+    uint32 hordeLevels = SumPlayerLevel.at(TeamId::TEAM_HORDE);
+
+    // First select team - where the sum of the levels is less
+    TeamId team = allianceLevels < hordeLevels ? TEAM_ALLIANCE : TEAM_HORDE;
+
+    // Config option `CFBG.EvenTeams.Enabled = 1`
+    // if players in queue is equal to an even number
+    if (sCFBG->IsEnableEvenTeams() && groupInfo->Players.size() % 2 == 0)
+    {
+        auto cfGroupInfo = CrossFactionGroupInfo(groupInfo);
+        auto playerLevel = cfGroupInfo.AveragePlayersLevel;
+
+        auto playerCountH = PlayersCount.at(TEAM_HORDE);
+        auto playerCountA = PlayersCount.at(TEAM_ALLIANCE);
+
+        // We need to have a diff of 0.5f
+        // Range of calculation: [minBgLevel, maxBgLevel], i.e: [10,20)
+        float avgLvlAlliance = SumPlayerLevel.at(TEAM_ALLIANCE) / (float)playerCountA;
+        float avgLvlHorde = SumPlayerLevel.at(TEAM_HORDE) / (float)playerCountH;
+
+        if (std::abs(avgLvlAlliance - avgLvlHorde) >= 0.5f)
+        {
+            team = avgLvlAlliance < avgLvlHorde ? TEAM_ALLIANCE : TEAM_HORDE;
+        }
+        else // it's balanced, so we should only check the ilvl
+            team = GetLowerAverageItemLevelTeam();
+    }
+    else if (allianceLevels == hordeLevels)
+    {
+        team = GetLowerAverageItemLevelTeam();
+    }
+
+    return team;
+}
+
+TeamId CrossFactionQueueInfo::GetLowerAverageItemLevelTeam()
+{
+    return SumAverageItemLevel.at(TEAM_ALLIANCE) < SumAverageItemLevel.at(TEAM_HORDE) ? TEAM_ALLIANCE : TEAM_HORDE;
 }
 
 CFBG* CFBG::instance()
@@ -188,7 +272,7 @@ TeamId CFBG::GetLowerTeamIdInBG(Battleground* bg, GroupQueueInfo* groupInfo)
     if (IsEnableAvgIlvl() && !IsAvgIlvlTeamsInBgEqual(bg))
         return GetLowerAvgIlvlTeamInBg(bg);
 
-    return urand(0, 1) ? TEAM_ALLIANCE : TEAM_HORDE;
+    return groupInfo->teamId;
 }
 
 TeamId CFBG::SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo)
@@ -238,8 +322,6 @@ TeamId CFBG::SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo)
     {
         team = GetLowerAvgIlvlTeamInBg(bg);
     }
-
-    LOG_WARN("module", "> Select {} team", team);
 
     return team;
 }
@@ -528,12 +610,13 @@ bool CFBG::CheckCrossFactionMatch(BattlegroundQueue* queue, BattlegroundBracketI
         if (gInfo->IsInvitedToBGInstanceGUID)
             continue;
 
-        bool AddAsAlly = freeA == freeH ? gInfo->RealTeamID == TEAM_ALLIANCE : freeA > freeH;
+        auto queueInfo = CrossFactionQueueInfo{ queue };
 
-        gInfo->teamId = AddAsAlly ? TEAM_ALLIANCE : TEAM_HORDE;
+        TeamId targetTeam = queueInfo.GetLowerTeamIdInBG(gInfo);
+        gInfo->teamId = targetTeam;
 
-        if (queue->m_SelectionPools[AddAsAlly ? TEAM_ALLIANCE : TEAM_HORDE].AddGroup(gInfo, maxPlayers))
-            AddAsAlly ? freeA -= gInfo->Players.size() : freeH -= gInfo->Players.size();
+        if (queue->m_SelectionPools[targetTeam].AddGroup(gInfo, maxPlayers))
+            targetTeam == TEAM_ALLIANCE ? freeA -= gInfo->Players.size() : freeH -= gInfo->Players.size();
         else
             break;
 
