@@ -31,7 +31,7 @@
 #include "ScriptMgr.h"
 #include "GameTime.h"
 #include "ChatTextBuilder.h"
-#include <range/v3/action/sort.hpp>
+#include <algorithm>
 
 constexpr uint32 MapAlteracValley = 30;
 
@@ -96,6 +96,9 @@ CrossFactionGroupInfo::CrossFactionGroupInfo(GroupQueueInfo* groupInfo)
         sumLevels += player->getLevel();
         sumAverageItemLevels += player->GetAverageItemLevel();
         playersCount++;
+
+        SumAverageItemLevel += player->GetAverageItemLevel();
+        SumPlayerLevel += player->getLevel();
     }
 
     if (!playersCount)
@@ -120,7 +123,7 @@ CrossFactionQueueInfo::CrossFactionQueueInfo(BattlegroundQueue* bgQueue)
                 SumAverageItemLevel[team] += player->GetAverageItemLevel();
                 SumPlayerLevel[team] += player->getLevel();
                 PlayersCount[team]++;
-            }            
+            }
         }
     };
 
@@ -134,11 +137,11 @@ TeamId CrossFactionQueueInfo::GetLowerTeamIdInBG(GroupQueueInfo* groupInfo)
     int32 plCountH = PlayersCount.at(TEAM_HORDE);
     uint32 diff = std::abs(plCountA - plCountH);
 
-    if (sCFBG->IsEnableBalancedTeams())
-        return SelectBgTeam(groupInfo);
-
     if (diff)
         return plCountA < plCountH ? TEAM_ALLIANCE : TEAM_HORDE;
+
+    if (sCFBG->IsEnableBalancedTeams())
+        return SelectBgTeam(groupInfo);
 
     if (sCFBG->IsEnableAvgIlvl() && SumAverageItemLevel.at(TEAM_ALLIANCE) != SumAverageItemLevel.at(TEAM_HORDE))
         return GetLowerAverageItemLevelTeam();
@@ -150,36 +153,37 @@ TeamId CrossFactionQueueInfo::SelectBgTeam(GroupQueueInfo* groupInfo)
 {
     uint32 allianceLevels = SumPlayerLevel.at(TeamId::TEAM_ALLIANCE);
     uint32 hordeLevels = SumPlayerLevel.at(TeamId::TEAM_HORDE);
+    TeamId team = groupInfo->teamId;
 
     // First select team - where the sum of the levels is less
-    TeamId team = allianceLevels < hordeLevels ? TEAM_ALLIANCE : TEAM_HORDE;
+    if (allianceLevels != hordeLevels)
+        team = allianceLevels < hordeLevels ? TEAM_ALLIANCE : TEAM_HORDE;
 
     // Config option `CFBG.EvenTeams.Enabled = 1`
     // if players in queue is equal to an even number
-    if (sCFBG->IsEnableEvenTeams() && groupInfo->Players.size() % 2 == 0)
-    {
-        auto cfGroupInfo = CrossFactionGroupInfo(groupInfo);
-        auto playerLevel = cfGroupInfo.AveragePlayersLevel;
+    //if (sCFBG->IsEnableEvenTeams() && groupInfo->Players.size() % 2 == 0)
+    //{
+    //    auto cfGroupInfo = CrossFactionGroupInfo(groupInfo);
+    //    auto playerLevel = cfGroupInfo.AveragePlayersLevel;
 
-        auto playerCountH = PlayersCount.at(TEAM_HORDE);
-        auto playerCountA = PlayersCount.at(TEAM_ALLIANCE);
+    //    auto playerCountH = PlayersCount.at(TEAM_HORDE);
+    //    auto playerCountA = PlayersCount.at(TEAM_ALLIANCE);
 
-        // We need to have a diff of 0.5f
-        // Range of calculation: [minBgLevel, maxBgLevel], i.e: [10,20)
-        float avgLvlAlliance = SumPlayerLevel.at(TEAM_ALLIANCE) / (float)playerCountA;
-        float avgLvlHorde = SumPlayerLevel.at(TEAM_HORDE) / (float)playerCountH;
+    //    // We need to have a diff of 0.5f
+    //    // Range of calculation: [minBgLevel, maxBgLevel], i.e: [10,20)
+    //    float avgLvlAlliance = SumPlayerLevel.at(TEAM_ALLIANCE) / (float)playerCountA;
+    //    float avgLvlHorde = SumPlayerLevel.at(TEAM_HORDE) / (float)playerCountH;
 
-        if (std::abs(avgLvlAlliance - avgLvlHorde) >= 0.5f)
-        {
-            team = avgLvlAlliance < avgLvlHorde ? TEAM_ALLIANCE : TEAM_HORDE;
-        }
-        else // it's balanced, so we should only check the ilvl
-            team = GetLowerAverageItemLevelTeam();
-    }
-    else if (allianceLevels == hordeLevels)
-    {
+    //    if (std::abs(avgLvlAlliance - avgLvlHorde) >= 0.5f)
+    //    {
+    //        team = avgLvlAlliance < avgLvlHorde ? TEAM_ALLIANCE : TEAM_HORDE;
+    //    }
+    //    else // it's balanced, so we should only check the ilvl
+    //        team = GetLowerAverageItemLevelTeam();
+    //}
+    //else if (allianceLevels == hordeLevels)
+    if (allianceLevels == hordeLevels && SumAverageItemLevel.at(TEAM_ALLIANCE) != SumAverageItemLevel.at(TEAM_HORDE))
         team = GetLowerAverageItemLevelTeam();
-    }
 
     return team;
 }
@@ -257,17 +261,18 @@ uint32 CFBG::GetBGTeamSumPlayerLevel(Battleground* bg, TeamId team)
     return sum;
 }
 
-TeamId CFBG::GetLowerTeamIdInBG(Battleground* bg, GroupQueueInfo* groupInfo)
+TeamId CFBG::GetLowerTeamIdInBG(Battleground* bg, BattlegroundQueue* bgQueue, GroupQueueInfo* groupInfo)
 {
-    int32 plCountA = bg->GetPlayersCountByTeam(TEAM_ALLIANCE);
-    int32 plCountH = bg->GetPlayersCountByTeam(TEAM_HORDE);
-    uint32 diff = std::abs(plCountA - plCountH);
+    auto queueInfo = CrossFactionQueueInfo{ bgQueue };
+
+    int32 plCountA = bg->GetPlayersCountByTeam(TEAM_ALLIANCE) + queueInfo.PlayersCount.at(TEAM_ALLIANCE);
+    int32 plCountH = bg->GetPlayersCountByTeam(TEAM_HORDE) + queueInfo.PlayersCount.at(TEAM_HORDE);
+
+    if (uint32 diff = std::abs(plCountA - plCountH))
+        return plCountA < plCountH ? TEAM_ALLIANCE : TEAM_HORDE;
 
     if (IsEnableBalancedTeams())
-        return SelectBgTeam(bg, groupInfo);
-
-    if (diff)
-        return plCountA < plCountH ? TEAM_ALLIANCE : TEAM_HORDE;
+        return SelectBgTeam(bg, groupInfo, &queueInfo);
 
     if (IsEnableAvgIlvl() && !IsAvgIlvlTeamsInBgEqual(bg))
         return GetLowerAvgIlvlTeamInBg(bg);
@@ -275,21 +280,28 @@ TeamId CFBG::GetLowerTeamIdInBG(Battleground* bg, GroupQueueInfo* groupInfo)
     return groupInfo->teamId;
 }
 
-TeamId CFBG::SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo)
+TeamId CFBG::SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo, CrossFactionQueueInfo* cfQueueInfo)
 {
-    uint32 allianceLevels = GetBGTeamSumPlayerLevel(bg, TeamId::TEAM_ALLIANCE);
-    uint32 hordeLevels = GetBGTeamSumPlayerLevel(bg, TeamId::TEAM_HORDE);
+    auto cfGroupInfo = CrossFactionGroupInfo(groupInfo);
+
+    uint32 allianceLevels = GetBGTeamSumPlayerLevel(bg, TEAM_ALLIANCE) + cfQueueInfo->SumPlayerLevel.at(TEAM_ALLIANCE);
+    uint32 hordeLevels = GetBGTeamSumPlayerLevel(bg, TEAM_HORDE) + cfQueueInfo->SumPlayerLevel.at(TEAM_HORDE);
+
+    if (groupInfo->teamId == TeamId::TEAM_ALLIANCE)
+        allianceLevels += cfGroupInfo.SumPlayerLevel;
+    else
+        hordeLevels += cfGroupInfo.SumPlayerLevel;
+
+    TeamId team = groupInfo->teamId;
 
     // First select team - where the sum of the levels is less
-    TeamId team = (allianceLevels < hordeLevels) ? TEAM_ALLIANCE : TEAM_HORDE;
-
-    ASSERT(groupInfo);
+    if (allianceLevels != hordeLevels)
+        team = (allianceLevels < hordeLevels) ? TEAM_ALLIANCE : TEAM_HORDE;
 
     // Config option `CFBG.EvenTeams.Enabled = 1`
     // if players in queue is equal to an even number
-    if (IsEnableEvenTeams() && groupInfo->Players.size() % 2 == 0)
+    if (IsEnableEvenTeams())
     {
-        auto cfGroupInfo = CrossFactionGroupInfo(groupInfo);
         auto playerLevel = cfGroupInfo.AveragePlayersLevel;
 
         // if CFBG.BalancedTeams.LowLevelClass is enabled, check the quantity of hunter per team if the player is an hunter
@@ -302,8 +314,8 @@ TeamId CFBG::SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo)
         }
         else
         {
-            auto playerCountH = bg->GetPlayersCountByTeam(TEAM_HORDE);
-            auto playerCountA = bg->GetPlayersCountByTeam(TEAM_ALLIANCE);
+            auto playerCountH = bg->GetPlayersCountByTeam(TEAM_HORDE) + cfQueueInfo->PlayersCount.at(TEAM_HORDE);
+            auto playerCountA = bg->GetPlayersCountByTeam(TEAM_ALLIANCE) + cfQueueInfo->PlayersCount.at(TEAM_ALLIANCE);
 
             // We need to have a diff of 0.5f
             // Range of calculation: [minBgLevel, maxBgLevel], i.e: [10,20)
@@ -594,16 +606,11 @@ bool CFBG::IsPlayingNative(Player* player)
 
 bool CFBG::CheckCrossFactionMatch(BattlegroundQueue* queue, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers)
 {
-    uint32 freeA = maxPlayers;
-    uint32 freeH = maxPlayers;
-
     queue->m_SelectionPools[TEAM_ALLIANCE].Init();
     queue->m_SelectionPools[TEAM_HORDE].Init();
 
     std::list<GroupQueueInfo*> groups = queue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG];
-    groups.sort([](GroupQueueInfo* a, GroupQueueInfo* b) { return a->JoinTime < b->JoinTime; });
-
-    bool startable = false;
+    groups.sort([](GroupQueueInfo const* a, GroupQueueInfo const* b) { return a->JoinTime < b->JoinTime; });
 
     for (auto const& gInfo : groups)
     {
@@ -615,19 +622,14 @@ bool CFBG::CheckCrossFactionMatch(BattlegroundQueue* queue, BattlegroundBracketI
         TeamId targetTeam = queueInfo.GetLowerTeamIdInBG(gInfo);
         gInfo->teamId = targetTeam;
 
-        if (queue->m_SelectionPools[targetTeam].AddGroup(gInfo, maxPlayers))
-            targetTeam == TEAM_ALLIANCE ? freeA -= gInfo->Players.size() : freeH -= gInfo->Players.size();
-        else
+        if (!queue->m_SelectionPools[targetTeam].AddGroup(gInfo, maxPlayers))
             break;
 
         // Return when we're ready to start a BG, if we're in startup process
         if (queue->m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers &&
             queue->m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
-            startable = true;
+            return true;
     }
-
-    if (startable)
-        return true;
 
     // If we're in BG testing one player is enough
     if (sBattlegroundMgr->isTesting() && queue->m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + queue->m_SelectionPools[TEAM_HORDE].GetPlayerCount() > 0)
@@ -645,29 +647,251 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
     if (!IsEnableSystem() || bg->isArena() || bg->isRated())
         return false;
 
-    uint32 freeA = bg->GetFreeSlotsForTeam(TEAM_ALLIANCE);
-    uint32 freeH = bg->GetFreeSlotsForTeam(TEAM_HORDE);
+    LOG_INFO("module", "-- Start fill players to bg...");
 
-    uint32 maxA = freeA;
-    uint32 maxH = freeH;
+    uint32 maxAli{ bg->GetFreeSlotsForTeam(TEAM_ALLIANCE) };
+    uint32 maxHorde{ bg->GetFreeSlotsForTeam(TEAM_HORDE) };
 
-    std::list<GroupQueueInfo*> groups = bgqueue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG];
+    std::vector<GroupQueueInfo*> groups{ bgqueue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG].begin(), bgqueue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG].end() };
+    std::sort(groups.begin(), groups.end(), [](GroupQueueInfo const* a, GroupQueueInfo const* b) { return a->Players.size() < b->Players.size(); });
 
-    //ranges::sort(groups, {}, &GroupQueueInfo::JoinTime);
+    std::array<std::size_t, 2> playersInvitedToBGCount{};
+    std::size_t playerCountInQueue{ 0 };
+    std::vector<std::pair<GroupQueueInfo*, GroupQueueInfo*>> sameGroups;    
 
-    groups.sort([](GroupQueueInfo const* a, GroupQueueInfo const* b) { return a->JoinTime < b->JoinTime; });
+    // Check same groups
+    for (auto itr = groups.begin(); itr != groups.end();)
+    {
+        if ((*itr)->IsInvitedToBGInstanceGUID)
+        {
+            itr++;
+            continue;
+        }
 
+        auto nextItr{ itr + 1 };
+        if (nextItr != groups.end() && *itr == *nextItr)
+        {
+            if ((*nextItr)->IsInvitedToBGInstanceGUID)
+            {
+                itr++;
+                continue;
+            }
+
+            sameGroups.emplace_back(*itr, *nextItr);
+            itr = itr + 2;
+            continue;
+        }
+
+        itr++;
+    }
+
+    if (!sameGroups.empty())
+    {
+        LOG_WARN("modules", "> Found same groups");
+
+        auto InviteGroupToBG = [this, bg, bgqueue, &playersInvitedToBGCount, maxAli, maxHorde](GroupQueueInfo* gInfo)
+        {
+            TeamId targetTeam = GetLowerTeamIdInBG(bg, bgqueue, gInfo);
+            gInfo->teamId = targetTeam;
+
+            if (bgqueue->m_SelectionPools[targetTeam].AddGroup(gInfo, targetTeam == TEAM_ALLIANCE ? maxAli : maxHorde))
+                return targetTeam;
+
+            return TEAM_NEUTRAL;
+        };
+
+        for (auto& [group1, group2] : sameGroups)
+        {
+            auto team1{ InviteGroupToBG(group1) };
+            auto team2{ InviteGroupToBG(group2) };
+
+            if (team1 != TEAM_NEUTRAL && team2 != TEAM_NEUTRAL)
+            {
+                std::erase(groups, group1);
+                std::erase(groups, group2);
+                playersInvitedToBGCount.at(team1) += group1->Players.size();
+                playersInvitedToBGCount.at(team2) += group2->Players.size();
+                LOG_INFO("module", "> Added same groups: Teams: {}/{}. {}", team1, team2, group1->Players.size());
+            }
+        }
+    }
+
+    // Check invited players to bg
     for (auto const& gInfo : groups)
     {
         if (gInfo->IsInvitedToBGInstanceGUID)
-            continue;
-
-        TeamId targetTeam = GetLowerTeamIdInBG(bg, gInfo);
-        gInfo->teamId = targetTeam;
-
-        if (bgqueue->m_SelectionPools[targetTeam].AddGroup(gInfo, targetTeam == TEAM_ALLIANCE ? maxA : maxH))
-            targetTeam == TEAM_ALLIANCE ? freeA -= gInfo->Players.size() : freeH -= gInfo->Players.size();
+            playersInvitedToBGCount.at(gInfo->teamId) += gInfo->Players.size();
+        else
+            playerCountInQueue += gInfo->Players.size();
     }
+
+    auto minPlayersPerTeam{ static_cast<std::size_t>(bg->GetMinPlayersPerTeam()) };
+    auto playersInBGAli{ bg->GetPlayersCountByTeam(TEAM_ALLIANCE) + playersInvitedToBGCount.at(TEAM_ALLIANCE) };
+    auto playersInBGHorde{ bg->GetPlayersCountByTeam(TEAM_HORDE) + playersInvitedToBGCount.at(TEAM_HORDE) };
+    auto playersInBG{ static_cast<std::size_t>(playersInBGAli + playersInBGHorde) };
+    bool IsBGHaveMinPlayers{ playersInBGAli + playersInvitedToBGCount.at(TEAM_ALLIANCE) >= minPlayersPerTeam &&
+        playersInBGHorde + playersInvitedToBGCount.at(TEAM_HORDE) >= minPlayersPerTeam };
+
+    // Check if players leave from bg after start prepare
+    if (!IsBGHaveMinPlayers)
+    {
+        auto aliNeed{ playersInBGAli < minPlayersPerTeam ? minPlayersPerTeam - playersInBGAli : 0 };
+        auto hordeNeed{ playersInBGHorde < minPlayersPerTeam ? minPlayersPerTeam - playersInBGHorde : 0 };
+
+        LOG_WARN("module", "> Not found min player for bg. Ali/Horde need: {}/{}", aliNeed, hordeNeed);
+
+        ASSERT(aliNeed > 0 || hordeNeed > 0);
+
+        auto TryAddPlayers = [this, bg, bgqueue, &groups, &aliNeed, &hordeNeed, &playerCountInQueue](bool findGroups, uint32 maxAli, uint32 maxHorde)
+        {
+            for (auto const& gInfo : groups)
+            {
+                if (gInfo->IsInvitedToBGInstanceGUID)
+                    continue;
+
+                if (findGroups && gInfo->Players.size() == 1)
+                    continue;
+                else if (!findGroups && gInfo->Players.size() != 1)
+                    continue;
+
+                TeamId targetTeam = TEAM_ALLIANCE;
+
+                if (aliNeed > 0 && hordeNeed > 0)
+                    targetTeam = GetLowerTeamIdInBG(bg, bgqueue, gInfo);
+                else if (hordeNeed > 0)
+                    targetTeam = TEAM_HORDE;
+
+                gInfo->teamId = targetTeam;
+
+                if (bgqueue->m_SelectionPools[targetTeam].AddGroup(gInfo, targetTeam == TEAM_ALLIANCE ? aliNeed : hordeNeed))
+                {
+                    auto groupPlayerSize{ gInfo->Players.size() };
+
+                    if (targetTeam == TEAM_ALLIANCE)
+                    {
+                        if (aliNeed < groupPlayerSize)
+                            aliNeed = 0;
+                        else
+                            aliNeed -= groupPlayerSize;
+                    }
+                    else
+                    {
+                        if (hordeNeed < groupPlayerSize)
+                            hordeNeed = 0;
+                        else
+                            hordeNeed -= groupPlayerSize;
+                    }
+
+                    std::erase(groups, gInfo);
+                    playerCountInQueue -= groupPlayerSize;
+                    LOG_WARN("module", "> Selected team: {}. Ali/Horde need: {}/{}", targetTeam, aliNeed, hordeNeed);
+                }
+
+                // Stop invited if found min players for this bg
+                if (!aliNeed && !hordeNeed)
+                    break;
+            }
+        };
+
+        // #1. Try add single players
+        TryAddPlayers(false, aliNeed, hordeNeed);
+
+        // #2. Try added group if players are still needed
+        if (aliNeed > 0 || hordeNeed > 0)
+            TryAddPlayers(true, maxAli, maxHorde);
+
+        /*if (!aliNeed && !hordeNeed)
+            IsBGHaveMinPlayers = true;*/
+    }
+
+    LOG_WARN("module", "> groups.size(): {}", groups.size());
+
+    if (groups.empty())
+        return true; // we invited all players, done
+
+    auto DefaultInvitePlayersToBG = [this, bg, bgqueue, &groups, maxAli, maxHorde]()
+    {
+        std::vector<GroupQueueInfo*> invitedGroups;
+
+        for (auto const& gInfo : groups)
+        {
+            if (gInfo->IsInvitedToBGInstanceGUID)
+                continue;
+
+            TeamId targetTeam = GetLowerTeamIdInBG(bg, bgqueue, gInfo);
+            gInfo->teamId = targetTeam;
+
+            if (bgqueue->m_SelectionPools[targetTeam].AddGroup(gInfo, targetTeam == TEAM_ALLIANCE ? maxAli : maxHorde))
+            {
+                invitedGroups.emplace_back(gInfo);
+                LOG_INFO("module", "> Added default group. Team: {}. Count: {}", targetTeam, gInfo->Players.size());
+            }
+        }
+
+        for (auto const& itr : invitedGroups)
+            std::erase(groups, itr);
+    };
+
+    auto evenTeamsCount{ EvenTeamsMaxPlayersThreshold() };
+    auto invitedCount{ playersInvitedToBGCount.at(TEAM_ALLIANCE) + playersInvitedToBGCount.at(TEAM_HORDE) };
+
+    if (IsEnableEvenTeams() && evenTeamsCount && bg->GetPlayersSize() + invitedCount < evenTeamsCount * 2)
+    {
+        int32 aliNeed = evenTeamsCount - playersInBGAli;
+        int32 hordeNeed = evenTeamsCount - playersInBGHorde;
+
+        if (aliNeed < 0)
+            aliNeed = 0;
+
+        if (hordeNeed < 0)
+            hordeNeed = 0;
+
+        LOG_WARN("module", "> Even teams. Ali/Horde need: {}/{}. PlayersCount: {}", aliNeed, hordeNeed, playerCountInQueue);
+
+        // #1. Try fill players to even team
+        for (auto const& gInfo : groups)
+        {
+            if (gInfo->IsInvitedToBGInstanceGUID)
+                continue;
+
+            TeamId targetTeam = GetLowerTeamIdInBG(bg, bgqueue, gInfo);
+            gInfo->teamId = targetTeam;
+
+            if (bgqueue->m_SelectionPools[targetTeam].AddGroup(gInfo, targetTeam == TEAM_ALLIANCE ? aliNeed : hordeNeed))
+            {
+                auto groupPlayerSize{ gInfo->Players.size() };
+
+                if (targetTeam == TEAM_ALLIANCE)
+                {
+                    if (aliNeed < groupPlayerSize)
+                        aliNeed = 0;
+                    else
+                        aliNeed -= groupPlayerSize;
+                }
+                else
+                {
+                    if (hordeNeed < groupPlayerSize)
+                        hordeNeed = 0;
+                    else
+                        hordeNeed -= groupPlayerSize;
+                }
+
+                std::erase(groups, gInfo);
+                playerCountInQueue -= groupPlayerSize;
+                LOG_WARN("module", "> Even teams. Selected team: {}", targetTeam);
+            }
+
+            // Stop invited if found players for even teams
+            if (!aliNeed && !hordeNeed)
+                break;
+        }
+
+        // #2 if all teams even and `MaxPlayersThreshold` complete
+        if (!aliNeed && !hordeNeed)
+            DefaultInvitePlayersToBG();
+    }
+    else
+        DefaultInvitePlayersToBG();
 
     // If we're in BG testing one player is enough
     if (sBattlegroundMgr->isTesting() && bgqueue->m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + bgqueue->m_SelectionPools[TEAM_HORDE].GetPlayerCount() > 0)

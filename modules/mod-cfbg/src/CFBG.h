@@ -67,8 +67,9 @@ struct CrossFactionGroupInfo
 
     uint32 AveragePlayersLevel{ 0 };
     uint32 AveragePlayersItemLevel{ 0 };
-    //uint32 JoiningPlayers{ 0 };
     bool IsHunterJoining{ false };
+    uint32 SumAverageItemLevel{ 0 };
+    uint32 SumPlayerLevel{ 0 };
 
     CrossFactionGroupInfo() = delete;
     CrossFactionGroupInfo(CrossFactionGroupInfo&&) = delete;
@@ -116,9 +117,9 @@ public:
     uint32 GetBGTeamSumPlayerLevel(Battleground* bg, TeamId team);
     uint32 GetAllPlayersCountInBG(Battleground* bg);
 
-    TeamId GetLowerTeamIdInBG(Battleground* bg, GroupQueueInfo* groupInfo);
+    TeamId GetLowerTeamIdInBG(Battleground* bg, BattlegroundQueue* bgQueue, GroupQueueInfo* groupInfo);
     TeamId GetLowerAvgIlvlTeamInBg(Battleground* bg);
-    TeamId SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo);
+    TeamId SelectBgTeam(Battleground* bg, GroupQueueInfo* groupInfo, CrossFactionQueueInfo* cfQueueInfo);
 
     bool IsAvgIlvlTeamsInBgEqual(Battleground* bg);
     bool SendRealNameQuery(Player* player);
