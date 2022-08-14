@@ -110,8 +110,6 @@ bool BattlegroundQueue::SelectionPool::KickGroup(const uint32 size)
     PlayerCount -= playersCountInGroup;
     std::erase(SelectedGroups, groupToKick);
 
-    LOG_WARN("module", "> BG: Kick {} playres. Total: {}", playersCountInGroup, PlayerCount);
-
     if (foundProper)
         return false;
 
