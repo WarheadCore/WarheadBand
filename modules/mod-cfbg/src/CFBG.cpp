@@ -669,9 +669,9 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
         }
 
         auto nextItr{ itr + 1 };
-        if (nextItr != groups.end() && *itr == *nextItr)
+        if (nextItr != groups.end())
         {
-            if ((*nextItr)->IsInvitedToBGInstanceGUID)
+            if ((*nextItr)->IsInvitedToBGInstanceGUID || (*itr)->Players.size() != (*nextItr)->Players.size())
             {
                 itr++;
                 continue;
@@ -746,7 +746,7 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
         {
             for (auto const& gInfo : groups)
             {
-                if (gInfo->IsInvitedToBGInstanceGUID)
+                if (gInfo->IsInvitedToBGInstanceGUID /*|| gInfo->Players.size() != 1*/)
                     continue;
 
                 if (findGroups && gInfo->Players.size() == 1)
@@ -851,7 +851,8 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
         // #1. Try fill players to even team
         for (auto const& gInfo : groups)
         {
-            if (gInfo->IsInvitedToBGInstanceGUID)
+            // We can add only single players
+            if (gInfo->IsInvitedToBGInstanceGUID || gInfo->Players.size() != 1)
                 continue;
 
             TeamId targetTeam = GetLowerTeamIdInBG(bg, bgqueue, gInfo);
