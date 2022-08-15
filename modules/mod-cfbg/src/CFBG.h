@@ -22,6 +22,7 @@
 #include "BattlegroundQueue.h"
 #include "Player.h"
 #include <unordered_map>
+#include <vector>
 
 enum FakeMorphs
 {
@@ -44,8 +45,6 @@ enum FakeMorphs
 
 constexpr auto FACTION_FROSTWOLF_CLAN = 729;
 constexpr auto FACTION_STORMPIKE_GUARD = 730;
-
-using RandomSkinInfo = std::pair<uint8/*race*/, uint32/*morph*/>;
 
 struct FakePlayer
 {
@@ -96,6 +95,9 @@ private:
 class CFBG
 {
 public:
+    using RandomSkinInfo = std::pair<uint8/*race*/, uint32/*morph*/>;
+    using GroupsList = std::vector<GroupQueueInfo*>;
+
     static CFBG* instance();
 
     void LoadConfig();
