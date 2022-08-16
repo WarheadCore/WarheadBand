@@ -13932,20 +13932,27 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
 bool Player::CanResummonPet(uint32 spellid)
 {
-    if (getClass() == CLASS_DEATH_KNIGHT)
+    switch (getClass())
     {
-        if (CanSeeDKPet())
+        case CLASS_DEATH_KNIGHT:
+            if (CanSeeDKPet())
+                return true;
+            else if (spellid == 52150)  //Raise Dead
+                return false;
+            break;
+        case CLASS_MAGE:
+            if (HasSpell(31687) && HasAura(70937))  //Has [Summon Water Elemental] spell and [Glyph of Eternal Water].
+                return true;
+            break;
+        case CLASS_HUNTER:
+        case CLASS_WARLOCK:
             return true;
-        else if (spellid == 52150)
-            return false;
+            break;
+        default:
+            break;
     }
-    else if (getClass() == CLASS_HUNTER || getClass() == CLASS_MAGE || getClass() == CLASS_WARLOCK)
-        return true;
 
-    if (!HasSpell(spellid))
-        return false;
-
-    return true;
+    return HasSpell(spellid);
 }
 
 bool Player::CanSeeSpellClickOn(Creature const* c) const
@@ -16001,4 +16008,11 @@ void Player::SetSummonPoint(uint32 mapid, float x, float y, float z, uint32 dela
 bool Player::IsSummonAsSpectator() const
 {
     return m_summon_asSpectator && m_summon_expire >= GameTime::GetGameTime().count();
+}
+
+std::string Player::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << Unit::GetDebugInfo();
+    return sstr.str();
 }

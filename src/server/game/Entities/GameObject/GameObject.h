@@ -1054,6 +1054,7 @@ public:
     void UpdateSaveToDb(bool enable);
 
     void SavingStateOnDB();
+    std::string GetDebugInfo() const override;
 
     void AIM_Destroy();
     bool AIM_Initialize();

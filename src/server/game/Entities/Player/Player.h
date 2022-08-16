@@ -2555,6 +2555,8 @@ public:
 
     [[nodiscard]] AchievementMgr* GetAchievementMgr() const { return m_achievementMgr; }
 
+    std::string GetDebugInfo() const override;
+
  protected:
     // Gamemaster whisper whitelist
     WhisperListContainer WhisperList;

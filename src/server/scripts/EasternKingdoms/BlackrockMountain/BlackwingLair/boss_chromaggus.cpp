@@ -88,7 +88,7 @@ public:
             Warhead::Containers::RandomResize(_breathSpells, 2);
 
             // Hack fix: This is here to prevent him from being pulled from the floor underneath, remove it once maps are fixed.
-            creature->SetReactState(REACT_PASSIVE);
+            creature->SetImmuneToAll(true);
         }
 
         void Initialize()
@@ -125,7 +125,7 @@ public:
             {
                 _playerGUID = guid;
                 // Hack fix: This is here to prevent him from being pulled from the floor underneath, remove it once maps are fixed.
-                me->SetReactState(REACT_AGGRESSIVE);
+                me->SetImmuneToAll(false);
             }
         }
 

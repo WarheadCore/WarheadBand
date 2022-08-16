@@ -236,6 +236,8 @@ public:
 
     std::vector<AuraScript*> m_loadedScripts;
 
+    virtual std::string GetDebugInfo() const;
+
     void SetTriggeredByAuraSpellInfo(SpellInfo const* triggeredByAuraSpellInfo);
     SpellInfo const* GetTriggeredByAuraSpellInfo() const;
 
