@@ -344,7 +344,7 @@ class spell_ayamiss_swarmer_teleport_trigger : public SpellScript
             { SPELL_HIVEZARA_SWARMER_TELEPORT_5, (NPC_HIVEZARA_SWARMER + 4) * 10 }
         };
 
-        WaspTeleportData data = Acore::Containers::SelectRandomContainerElement(telData);
+        WaspTeleportData data = Warhead::Containers::SelectRandomContainerElement(telData);
         caster->CastSpell((Unit*)nullptr, data.spellId, true);
 
         uint32 pathId = data.pathId;
@@ -397,7 +397,7 @@ class spell_ayamiss_swarmer_start_loop : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         uint32 loopSpells[3] = { SPELL_HIVEZARA_SWARMER_LOOP_1, SPELL_HIVEZARA_SWARMER_LOOP_2, SPELL_HIVEZARA_SWARMER_LOOP_3 };
-        GetCaster()->CastSpell((Unit*)nullptr, Acore::Containers::SelectRandomContainerElement(loopSpells));
+        GetCaster()->CastSpell((Unit*)nullptr, Warhead::Containers::SelectRandomContainerElement(loopSpells));
     }
 
     void Register() override

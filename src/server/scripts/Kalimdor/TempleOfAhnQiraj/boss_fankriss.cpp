@@ -64,7 +64,7 @@ struct boss_fankriss : public BossAI
     void SummonWorms()
     {
         uint32 amount = urand(1, 3);
-        Acore::Containers::RandomResize(summonWormSpells, amount);
+        Warhead::Containers::RandomResize(summonWormSpells, amount);
         for (uint32 summonSpell : summonWormSpells)
             DoCastAOE(summonSpell, true);
         summonWormSpells = { SPELL_SUMMON_WORM_1, SPELL_SUMMON_WORM_2, SPELL_SUMMON_WORM_3 };
@@ -102,7 +102,7 @@ struct boss_fankriss : public BossAI
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                 {
-                    uint32 spellId = Acore::Containers::SelectRandomContainerElement(entangleSpells);
+                    uint32 spellId = Warhead::Containers::SelectRandomContainerElement(entangleSpells);
                     DoCast(target, spellId);
                 }
 

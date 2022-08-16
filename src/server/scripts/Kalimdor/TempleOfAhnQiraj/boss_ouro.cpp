@@ -150,7 +150,7 @@ struct boss_ouro : public BossAI
         me->GetCreatureListWithEntryInGrid(ouroMounds, NPC_DIRT_MOUND, 200.f);
         if (!ouroMounds.empty()) // This can't be possible, but just to be sure.
         {
-            if (Creature* mound = Acore::Containers::SelectRandomContainerElement(ouroMounds))
+            if (Creature* mound = Warhead::Containers::SelectRandomContainerElement(ouroMounds))
             {
                 mound->AddAura(SPELL_SUMMON_OURO_AURA, mound);
                 mound->AI()->SetData(DATA_OURO_HEALTH, me->GetHealth());
@@ -163,8 +163,8 @@ struct boss_ouro : public BossAI
     void CastGroundRupture()
     {
         std::list<WorldObject*> targets;
-        Acore::AllWorldObjectsInRange checker(me, 10.0f);
-        Acore::WorldObjectListSearcher<Acore::AllWorldObjectsInRange> searcher(me, targets, checker);
+        Warhead::AllWorldObjectsInRange checker(me, 10.0f);
+        Warhead::WorldObjectListSearcher<Warhead::AllWorldObjectsInRange> searcher(me, targets, checker);
         Cell::VisitAllObjects(me, searcher, 10.0f);
 
         for (WorldObject* target : targets)
