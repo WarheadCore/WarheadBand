@@ -691,7 +691,7 @@ bool CFBG::FillPlayersToCFBG(BattlegroundQueue* bgqueue, Battleground* bg, Battl
 
     if (!sameGroups.empty())
     {
-        auto InviteGroupToBG = [this, bg, bgqueue, &playersInvitedToBGCount, maxAli, maxHorde](GroupQueueInfo* gInfo)
+        auto InviteGroupToBG = [this, bg, bgqueue, maxAli, maxHorde](GroupQueueInfo* gInfo)
         {
             TeamId targetTeam = GetLowerTeamIdInBG(bg, bgqueue, gInfo);
             gInfo->teamId = targetTeam;
