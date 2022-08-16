@@ -97,6 +97,7 @@ class CFBG
 public:
     using RandomSkinInfo = std::pair<uint8/*race*/, uint32/*morph*/>;
     using GroupsList = std::vector<GroupQueueInfo*>;
+    using SameCountGroupsList = std::vector<std::pair<GroupQueueInfo*, GroupsList>>;
 
     static CFBG* instance();
 
@@ -156,6 +157,10 @@ private:
 
     uint32 GetMorphFromRace(uint8 race, uint8 gender);
     FakePlayer const* GetFakePlayer(Player* player) const;
+
+    void FillSameCountGroups(SameCountGroupsList& container, GroupsList& groups, BattlegroundQueue* bgQueue);
+    void InviteSameCountGroups(SameCountGroupsList& sameCountGroups, GroupsList& groups, BattlegroundQueue* bgQueue, uint32 maxAli, uint32 maxHorde, Battleground* bg = nullptr);
+    TeamId InviteGroupToBG(GroupQueueInfo* gInfo, BattlegroundQueue* bgQueue, uint32 maxAli, uint32 maxHorde, Battleground* bg = nullptr);
 
     std::unordered_map<Player*, FakePlayer> _fakePlayerStore;
     std::unordered_map<Player*, ObjectGuid> _fakeNamePlayersStore;
