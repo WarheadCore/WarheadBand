@@ -45,8 +45,8 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
-#include "DBCStores.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "DisableMgr.h"
 #include "DynamicVisibility.h"
 #include "ExternalMail.h"
@@ -59,18 +59,19 @@
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
-#include "IPLocation.h"
 #include "InstanceSaveMgr.h"
+#include "IPLocation.h"
 #include "ItemEnchantmentMgr.h"
-#include "LFGMgr.h"
 #include "Language.h"
+#include "LFGMgr.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
-#include "MMapFactory.h"
 #include "MapMgr.h"
 #include "Metric.h"
+#include "MMapFactory.h"
+#include "ModulesConfig.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -95,9 +96,9 @@
 #include "TransportMgr.h"
 #include "UpdateTime.h"
 #include "Util.h"
+#include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
-#include "Vehicle.h"
 #include "Warden.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
@@ -446,6 +447,7 @@ void World::LoadConfigSettings(bool reload)
     sScriptMgr->OnBeforeConfigLoad(reload);
 
     sGameConfig->Load(reload);
+    sModulesConfig->ClearCache();
 
     // load update time related configs
     sWorldUpdateTime.LoadFromConfig();

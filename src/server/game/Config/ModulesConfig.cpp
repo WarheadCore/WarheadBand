@@ -114,6 +114,12 @@ void ModulesConfig::SetOption(std::string_view optionName, T value)
     _configOptions.emplace(option, valueStr);
 }
 
+void ModulesConfig::ClearCache()
+{
+    LOG_INFO("server.loading", "> Clear cache for modules configs");
+    _configOptions.clear();
+}
+
 #define TEMPLATE_GAME_CONFIG_OPTION(__typename) \
     template WH_GAME_API __typename ModulesConfig::GetOption(std::string_view optionName, Optional<__typename> def /*= std::nullopt*/); \
     template WH_GAME_API void ModulesConfig::SetOption(std::string_view optionName, __typename value);

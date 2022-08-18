@@ -58,6 +58,8 @@ public:
     template<Warhead::Types::ConfigValue T>
     void SetOption(std::string_view optionName, T value);
 
+    void ClearCache();
+
 private:
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
 };
