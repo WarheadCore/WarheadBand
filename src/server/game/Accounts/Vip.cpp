@@ -461,7 +461,7 @@ void Vip::LoadAccounts()
     QueryResult result = LoginDatabase.Query("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
+        LOG_INFO("sql.sql", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
         LOG_INFO("server.loading", "");
         return;
     }
