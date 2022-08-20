@@ -325,18 +325,19 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
             WORD suiteMask = osvi.wSuiteMask;
             BYTE productType = osvi.wProductType;
 #endif                                          // WINVER < 0x0500
+            auto buildNumber{ osvi.dwBuildNumber };
 
             // Test for the specific product family.
             if (osvi.dwMajorVersion == 10)
             {
-                if (productType == VER_NT_WORKSTATION)
-                {
-                    _tcsncat(szVersion, _T("Windows 10 "), cntMax);
-                }
+                if (buildNumber >= 22000)
+                    _tcsncat(szVersion, _T("Windows 11 "), cntMax);
+                else if (buildNumber >= 20348 && productType != VER_NT_WORKSTATION)
+                    _tcsncat(szVersion, _T("Windows Server 2022 "), cntMax);
+                else if (buildNumber >= 17763 && productType != VER_NT_WORKSTATION)
+                    _tcsncat(szVersion, _T("Windows Server 2019 "), cntMax);
                 else
-                {
-                    _tcsncat(szVersion, _T("Windows Server 2016 "), cntMax);
-                }
+                    _tcsncat(szVersion, productType == VER_NT_WORKSTATION ? _T("Windows 10 ") : _T("Windows Server 2016 "), cntMax);
             }
             else if (osvi.dwMajorVersion == 6)
             {
@@ -539,7 +540,7 @@ void WheatyExceptionReport::PrintSystemInfo()
     MemoryStatus.dwLength = sizeof (MEMORYSTATUS);
     ::GlobalMemoryStatus(&MemoryStatus);
     TCHAR sString[1024];
-    Log(_T("//=====================================================\r\n"));
+    Log(_T("\r\n//=====================================================\r\n"));
     if (_GetProcessorName(sString, countof(sString)))
         Log(_T("*** Hardware ***\r\nProcessor: %s\r\nNumber Of Processors: %d\r\nPhysical Memory: %d KB (Available: %d KB)\r\nCommit Charge Limit: %d KB\r\n"),
             sString, SystemInfo.dwNumberOfProcessors, MemoryStatus.dwTotalPhys / 0x400, MemoryStatus.dwAvailPhys / 0x400, MemoryStatus.dwTotalPageFile / 0x400);
@@ -555,6 +556,8 @@ void WheatyExceptionReport::PrintSystemInfo()
     {
         Log(_T("\r\n*** Operation System:\r\n<unknown>\r\n"));
     }
+
+    Log(_T("//=====================================================\r\n"));
 }
 
 //===========================================================================
@@ -627,14 +630,13 @@ void WheatyExceptionReport::GenerateExceptionReport(
 
         PrintSystemInfo();
         // First print information about the type of fault
-        Log(_T("\r\n//=====================================================\r\n"));
-        Log(_T("Exception code: %08X %s\r\n"),
+        Log(_T("\r\nException code: %08X %s\r\n"),
             pExceptionRecord->ExceptionCode,
             GetExceptionString(pExceptionRecord->ExceptionCode));
         if (pExceptionRecord->ExceptionCode == EXCEPTION_ASSERTION_FAILURE && pExceptionRecord->NumberParameters >= 2)
         {
             pExceptionRecord->ExceptionAddress = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
-            Log(_T("Assertion message: %s\r\n"), pExceptionRecord->ExceptionInformation[0]);
+            Log(_T("Assertion message:\r\n%s\r\n"), pExceptionRecord->ExceptionInformation[0]);
         }
 
         // Now print information about where the fault occured
@@ -705,7 +707,7 @@ void WheatyExceptionReport::GenerateExceptionReport(
 
         //    #ifdef _M_IX86                                          // X86 Only!
 
-        Log(_T("========================\r\n"));
+        Log(_T("\r\n========================\r\n"));
         Log(_T("Local Variables And Parameters\r\n"));
 
         trashableContext = *pCtx;
