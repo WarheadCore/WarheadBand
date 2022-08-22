@@ -2264,12 +2264,11 @@ public:
             MAX
         };
 
-        time_t Time = 0;
-        uint32 Count = 0;
+        Seconds Time{};
+        uint32 Count{};
     };
 
     void UpdateSpeakTime(ChatFloodThrottle::Index index);
-    [[nodiscard]] bool CanSpeak() const;
 
     /*********************************************************/
     /***                 VARIOUS SYSTEMS                   ***/

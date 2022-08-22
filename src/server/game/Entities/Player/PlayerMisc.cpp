@@ -37,30 +37,36 @@ void Player::UpdateSpeakTime(ChatFloodThrottle::Index index)
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
         return;
 
-    uint32 limit, delay;
+    uint32 limit{};
+    Seconds delay{};
+
     switch (index)
     {
          case ChatFloodThrottle::ADDON:
-             limit = sWorld->getIntConfig(CONFIG_CHATFLOOD_ADDON_MESSAGE_COUNT);
-             delay = sWorld->getIntConfig(CONFIG_CHATFLOOD_ADDON_MESSAGE_DELAY);
+             limit = CONF_GET_UINT("ChatFlood.AddonMessageCount");
+             delay = Seconds(CONF_GET_UINT("ChatFlood.AddonMessageDelay"));
              break;
          case ChatFloodThrottle::REGULAR:
-             limit = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
-             delay = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+             limit = CONF_GET_UINT("ChatFlood.MessageCount");
+             delay = Seconds(CONF_GET_UINT("ChatFlood.MessageDelay"));
              [[fallthrough]];
          default:
              return;
     }
-    time_t current = GameTime::GetGameTime().count();
-    if (m_chatFloodData[index].Time > current)
+
+    auto currentTime = GameTime::GetGameTime();
+
+    if (m_chatFloodData[index].Time > currentTime)
     {
         ++m_chatFloodData[index].Count;
         if (m_chatFloodData[index].Count >= limit)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
-            time_t new_mute = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MUTE_TIME);
-            if (GetSession()->m_muteTime < new_mute)
-                GetSession()->m_muteTime = new_mute;
+            auto new_mute{ currentTime + Seconds(CONF_GET_UINT("ChatFlood.MuteTime")) };
+            auto muteDate{ sMute->GetMuteDate(GetSession()->GetAccountId()) };
+
+            if (muteDate < new_mute)
+                sMute->MutePlayer(GetName(), Seconds(CONF_GET_UINT("ChatFlood.MuteTime")), "System", "Chat flood");
 
             m_chatFloodData[index].Count = 0;
         }
@@ -68,7 +74,7 @@ void Player::UpdateSpeakTime(ChatFloodThrottle::Index index)
     else
         m_chatFloodData[index].Count = 1;
 
-    m_chatFloodData[index].Time = current + delay;
+    m_chatFloodData[index].Time = currentTime + delay;
 }
 
 /*********************************************************/
