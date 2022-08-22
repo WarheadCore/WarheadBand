@@ -72,39 +72,20 @@ public:
         }
     }
 
-    void OnAddGroup(BattlegroundQueue* queue, GroupQueueInfo* ginfo, uint32& index, Player* /*leader*/, Group* /*group*/, BattlegroundTypeId /* bgTypeId */, PvPDifficultyEntry const* /* bracketEntry */,
-        uint8 /* arenaType */, bool /* isRated */, bool /* isPremade */, uint32 /* arenaRating */, uint32 /* matchmakerRating */, uint32 /* arenaTeamId */, uint32 /* opponentsArenaTeamId */) override
+    void OnAddGroup(BattlegroundQueue* /*queue*/, GroupQueueInfo* ginfo, Group* group, bool /*isPremade*/) override
     {
-        if (!queue)
-            return;
-
-        if (sCFBG->IsEnableSystem() && !ginfo->ArenaType && !ginfo->IsRated)
-        {
-            index = BG_QUEUE_CFBG;
-        }
+        sCFBG->OnAddGroupToBGQueue(ginfo, group);
     }
 
     bool CanFillPlayersToBG(BattlegroundQueue* queue, Battleground* bg, BattlegroundBracketId bracket_id) override
     {
-        if (!sCFBG->IsEnableSystem() || bg->isArena())
-        {
-            return true;
-        }
-
-        if (sCFBG->FillPlayersToCFBG(queue, bg, bracket_id))
-        {
-            return false;
-        }
-
-        return true;
+        return !sCFBG->FillPlayersToCFBG(queue, bg, bracket_id);
     }
 
     bool IsCheckNormalMatch(BattlegroundQueue* queue, Battleground* bg, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers) override
     {
-        if (!sCFBG->IsEnableSystem() || bg->isArena())
-        {
+        if (bg->isArena())
             return false;
-        }
 
         return sCFBG->CheckCrossFactionMatch(queue, bracket_id, minPlayers, maxPlayers);
     }
@@ -152,7 +133,7 @@ public:
             if (!group)
                 return true;
 
-            if (group->isRaidGroup() || group->GetMembersCount() > sCFBG->GetMaxPlayersCountInGroup())
+            if (group->GetMembersCount() > sCFBG->GetMaxPlayersCountInGroup())
                 err = ERR_BATTLEGROUND_JOIN_FAILED;
 
             return false;

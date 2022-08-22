@@ -142,12 +142,13 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* group, Battle
 
     // create new ginfo
     auto* ginfo                         = new GroupQueueInfo;
+    ginfo->LeaderGuid                   = leader->GetGUID();
     ginfo->BgTypeId                     = bgTypeId;
     ginfo->ArenaType                    = arenaType;
     ginfo->ArenaTeamId                  = arenaTeamId;
     ginfo->IsRated                      = isRated;
     ginfo->IsInvitedToBGInstanceGUID    = 0;
-    ginfo->JoinTime                     = GameTime::GetGameTimeMS().count();
+    ginfo->JoinTime                     = GameTime::GetGameTimeMS();
     ginfo->RemoveInviteTime             = 0;
     ginfo->teamId                       = leader->GetTeamId();
     ginfo->RealTeamID                   = leader->GetTeamId(true);
@@ -156,8 +157,9 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* group, Battle
     ginfo->PreviousOpponentsTeamId      = opponentsArenaTeamId;
     ginfo->OpponentsTeamRating          = 0;
     ginfo->OpponentsMatchmakerRating    = 0;
+    ginfo->BracketId                    = bracketId;
 
-    ginfo->Players.clear();
+    //ginfo->Players.clear();
 
     //compute index (if group is premade or joined a rated match) to queues
     uint32 index = 0;
@@ -168,34 +170,31 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* group, Battle
     if (ginfo->teamId == TEAM_HORDE)
         index++;
 
-    sScriptMgr->OnAddGroup(this, ginfo, index, leader, group, bgTypeId, bracketEntry,
-        arenaType, isRated, isPremade, arenaRating, matchmakerRating, arenaTeamId, opponentsArenaTeamId);
+    ginfo->GroupType = index;
+
+    sScriptMgr->OnAddGroup(this, ginfo, group, isPremade);
 
     LOG_DEBUG("bg.battleground", "Adding Group to BattlegroundQueue bgTypeId: {}, bracket_id: {}, index: {}", bgTypeId, bracketId, index);
-
-    // pussywizard: store indices at which GroupQueueInfo is in m_QueuedGroups
-    ginfo->BracketId = bracketId;
-    ginfo->GroupType = index;
 
     //add players from group to ginfo
     if (group)
     {
         group->DoForAllMembers([this, ginfo](Player* member)
         {
-            ASSERT(m_QueuedPlayers.count(member->GetGUID()) == 0);
+            ASSERT(!m_QueuedPlayers.contains(member->GetGUID()));
             m_QueuedPlayers[member->GetGUID()] = ginfo;
-            ginfo->Players.emplace(member->GetGUID());
+            ginfo->Players.emplace_back(member->GetGUID());
         });
     }
     else
     {
-        ASSERT(m_QueuedPlayers.count(leader->GetGUID()) == 0);
+        ASSERT(!m_QueuedPlayers.contains(leader->GetGUID()));
         m_QueuedPlayers[leader->GetGUID()] = ginfo;
-        ginfo->Players.emplace(leader->GetGUID());
+        ginfo->Players.emplace_back(leader->GetGUID());
     }
 
     //add GroupInfo to m_QueuedGroups
-    m_QueuedGroups[bracketId][index].push_back(ginfo);
+    m_QueuedGroups[bracketId][ginfo->GroupType].emplace_back(ginfo);
 
     // announce world (this doesn't need mutex)
     SendJoinMessageArenaQueue(leader, ginfo, bracketEntry, isRated);
@@ -212,7 +211,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* group, Battle
 
 void BattlegroundQueue::PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo)
 {
-    uint32 timeInQueue = std::max<uint32>(1, getMSTimeDiff(ginfo->JoinTime, GameTime::GetGameTimeMS().count()));
+    Milliseconds timeInQueue{ std::max(1ms, GetMSTimeDiff(ginfo->JoinTime, GameTime::GetGameTimeMS())) };
 
     // team_index: bg alliance - TEAM_ALLIANCE, bg horde - TEAM_HORDE, arena skirmish - TEAM_ALLIANCE, arena rated - TEAM_HORDE
     uint8 team_index;
@@ -229,7 +228,7 @@ void BattlegroundQueue::PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* g
     uint32* lastIndex = &m_WaitTimeLastIndex[team_index][ginfo->BracketId];
 
     // set time at index to new value
-    m_WaitTimes[team_index][ginfo->BracketId][*lastIndex] = timeInQueue;
+    m_WaitTimes[team_index][ginfo->BracketId][*lastIndex] = static_cast<uint32>(timeInQueue.count());
 
     // set last index to next one
     (*lastIndex)++;
@@ -307,10 +306,7 @@ void BattlegroundQueue::RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount)
     LOG_DEBUG("bg.battleground", "BattlegroundQueue: Removing {}, from bracket_id {}", guid.ToString(), _bracketId);
 
     // remove player from group queue info
-    auto const& pitr = groupInfo->Players.find(guid);
-    ASSERT(pitr != groupInfo->Players.end());
-    if (pitr != groupInfo->Players.end())
-        groupInfo->Players.erase(pitr);
+    std::erase(groupInfo->Players, guid);
 
     // if invited to bg, and should decrease invited count, then do it
     if (decreaseInvitedCount && groupInfo->IsInvitedToBGInstanceGUID)
@@ -555,7 +551,7 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
     // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
     // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
     // and when they click or after 80 seconds the queue info is removed from queue
-    uint32 time_before = GameTime::GetGameTimeMS().count() - CONF_GET_UINT("Battleground.PremadeGroupWaitForMatch");
+    Milliseconds time_before{ GameTime::GetGameTimeMS() - Milliseconds{ CONF_GET_UINT("Battleground.PremadeGroupWaitForMatch") } };
 
     for (uint32 i = 0; i < PVP_TEAMS_COUNT; i++)
     {
@@ -864,10 +860,10 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId 
         // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
         // else leave the discard time on 0, this way all ratings will be discarded
         // this has to be signed value - when the server starts, this value would be negative and thus overflow
-        int32 discardTime = GameTime::GetGameTimeMS().count() - sBattlegroundMgr->GetRatingDiscardTimer();
+        Milliseconds discardTime{ GameTime::GetGameTimeMS() - Milliseconds{ sBattlegroundMgr->GetRatingDiscardTimer() } };
 
         // timer for previous opponents
-        int32 discardOpponentsTime = GameTime::GetGameTimeMS().count() - CONF_GET_UINT("Arena.PreviousOpponentsDiscardTimer");
+        Milliseconds discardOpponentsTime{ GameTime::GetGameTimeMS() - Milliseconds{ CONF_GET_UINT("Arena.PreviousOpponentsDiscardTimer") } };
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[PVP_TEAMS_COUNT];
@@ -883,7 +879,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId 
                 // if group match conditions, then add it to pool
                 if (!(*itr2)->IsInvitedToBGInstanceGUID
                     && (((*itr2)->ArenaMatchmakerRating >= arenaMinRating && (*itr2)->ArenaMatchmakerRating <= arenaMaxRating)
-                        || (int32)(*itr2)->JoinTime < discardTime))
+                        || (*itr2)->JoinTime < discardTime))
                 {
                     itr_teams[found++] = itr2;
                     team = i;
@@ -900,8 +896,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId 
             for (GroupsQueueType::iterator itr3 = itr_teams[0]; itr3 != m_QueuedGroups[bracket_id][team].end(); ++itr3)
             {
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
-                    && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating) || (int32)(*itr3)->JoinTime < discardTime)
-                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->PreviousOpponentsTeamId || ((int32)(*itr3)->JoinTime < discardOpponentsTime))
+                    && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating) || (*itr3)->JoinTime < discardTime)
+                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->PreviousOpponentsTeamId || ((*itr3)->JoinTime < discardOpponentsTime))
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {
                     itr_teams[found++] = itr3;
