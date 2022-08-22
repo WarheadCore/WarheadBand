@@ -384,6 +384,7 @@ public:
                                 break;
                             case EVENT_STARTED:
                                 me->SetImmuneToAll(false);
+                                me->SetInCombatWithZone();
                                 break;
                             default:
                                 break;
@@ -516,7 +517,7 @@ public:
 enum OhganSpells
 {
     SPELL_SUNDERARMOR         = 24317,
-    SPELL_THRASH              = 3417 // Triggers 3391
+    SPELL_THRASH              = 3391
 };
 
 class npc_ohgan : public CreatureScript
@@ -530,7 +531,6 @@ public:
 
         void Reset() override
         {
-            me->AddAura(SPELL_THRASH, me);
             _scheduler.CancelAll();
             _scheduler.SetValidator([this]
             {
@@ -549,6 +549,11 @@ public:
             {
                 DoCastVictim(SPELL_SUNDERARMOR);
                 context.Repeat(6s, 12s);
+            });
+            _scheduler.Schedule(12s, 18s, [this](TaskContext context)
+            {
+                DoCastSelf(SPELL_THRASH);
+                context.Repeat(12s, 18s);
             });
         }
 

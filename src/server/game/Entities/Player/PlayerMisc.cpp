@@ -31,31 +31,44 @@
 /***               FLOOD FILTER SYSTEM                 ***/
 /*********************************************************/
 
-void Player::UpdateSpeakTime(uint32 specialMessageLimit)
+void Player::UpdateSpeakTime(ChatFloodThrottle::Index index)
 {
     // ignore chat spam protection for GMs in any mode
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
         return;
 
-    auto currentTime = GameTime::GetGameTime();
-    if (_speakTime > currentTime)
+    uint32 limit, delay;
+    switch (index)
     {
-        uint32 max_count = specialMessageLimit ? specialMessageLimit : CONF_GET_INT("ChatFlood.MessageCount");
-        if (!max_count)
-            return;
-
-        ++m_speakCount;
-        if (m_speakCount >= max_count)
+         case ChatFloodThrottle::ADDON:
+             limit = sWorld->getIntConfig(CONFIG_CHATFLOOD_ADDON_MESSAGE_COUNT);
+             delay = sWorld->getIntConfig(CONFIG_CHATFLOOD_ADDON_MESSAGE_DELAY);
+             break;
+         case ChatFloodThrottle::REGULAR:
+             limit = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
+             delay = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
+             [[fallthrough]];
+         default:
+             return;
+    }
+    time_t current = GameTime::GetGameTime().count();
+    if (m_chatFloodData[index].Time > current)
+    {
+        ++m_chatFloodData[index].Count;
+        if (m_chatFloodData[index].Count >= limit)
         {
             // prevent overwrite mute time, if message send just before mutes set, for example.
-            sMute->CheckSpeakTime(GetSession()->GetAccountId(), currentTime + Seconds(CONF_GET_INT("ChatFlood.MuteTime")));
-            m_speakCount = 0;
+            time_t new_mute = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MUTE_TIME);
+            if (GetSession()->m_muteTime < new_mute)
+                GetSession()->m_muteTime = new_mute;
+
+            m_chatFloodData[index].Count = 0;
         }
     }
     else
-        m_speakCount = 1;
+        m_chatFloodData[index].Count = 1;
 
-    _speakTime = currentTime + Seconds(CONF_GET_INT("ChatFlood.MessageDelay"));
+    m_chatFloodData[index].Time = current + delay;
 }
 
 /*********************************************************/

@@ -18,13 +18,6 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-/* ScriptData
-SDName: Instance_Temple_of_Ahnqiraj
-SD%Complete: 80
-SDComment:
-SDCategory: Temple of Ahn'Qiraj
-EndScriptData */
-
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptObject.h"
@@ -52,12 +45,12 @@ public:
         instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             LoadObjectData(creatureData, nullptr);
+            SetBossNumber(MAX_BOSS_NUMBER);
         }
 
         //If Vem is dead...
         bool IsBossDied[3];
 
-        //Storing Skeram, Vem and Kri.
         ObjectGuid SkeramGUID;
         ObjectGuid VemGUID;
         ObjectGuid KriGUID;
@@ -65,9 +58,7 @@ public:
         ObjectGuid VeklorGUID;
         ObjectGuid VeknilashGUID;
         ObjectGuid ViscidusGUID;
-
         uint32 BugTrioDeathCount;
-
         uint32 CthunPhase;
 
         void Initialize() override
@@ -75,9 +66,7 @@ public:
             IsBossDied[0] = false;
             IsBossDied[1] = false;
             IsBossDied[2] = false;
-
             BugTrioDeathCount = 0;
-
             CthunPhase = 0;
         }
 
@@ -157,7 +146,6 @@ public:
                 case DATA_VISCIDUS:
                     return ViscidusGUID;
             }
-
             return ObjectGuid::Empty;
         }
 
@@ -171,15 +159,12 @@ public:
                     else
                         BugTrioDeathCount = 0;
                     break;
-
                 case DATA_VEKLOR_DEATH:
                     IsBossDied[1] = true;
                     break;
-
                 case DATA_VEKNILASH_DEATH:
                     IsBossDied[2] = true;
                     break;
-
                 case DATA_CTHUN_PHASE:
                     CthunPhase = data;
                     break;
@@ -196,7 +181,7 @@ public:
                 case DATA_OURO:
                     if (state == FAIL)
                     {
-                        if (Creature* ouroSpawner = GetCreature(DATA_OURO))
+                        if (Creature* ouroSpawner = GetCreature(DATA_OURO_SPAWNER))
                             ouroSpawner->Respawn();
                     }
                     break;
@@ -227,7 +212,6 @@ public:
                 }
             }
         }
-
         return true;
     }
 };
