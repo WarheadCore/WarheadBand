@@ -2073,7 +2073,6 @@ namespace LuaPlayer
         return 0;
     }
 
-
 #if defined(TRINITY) || defined(WARHEADCORE)
     /**
      * Adds the specified achievement to the [Player]s
@@ -2919,7 +2918,6 @@ namespace LuaPlayer
             }
 #endif
         }
-
 
         // If the quest requires reputation to complete
         if (uint32 repFaction = quest->GetRepObjectiveFaction())

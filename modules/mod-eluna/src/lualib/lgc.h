@@ -7,7 +7,6 @@
 #ifndef lgc_h
 #define lgc_h
 
-
 #include "lobject.h"
 #include "lstate.h"
 
@@ -24,14 +23,11 @@
 ** is not being enforced (e.g., sweep phase).
 */
 
-
-
 /* how much to allocate before next GC step */
 #if !defined(GCSTEPSIZE)
 /* ~100 small strings */
 #define GCSTEPSIZE	(cast_int(100 * sizeof(TString)))
 #endif
-
 
 /*
 ** Possible states of the Garbage Collector
@@ -42,7 +38,6 @@
 #define GCSsweepudata	3
 #define GCSsweep	4
 #define GCSpause	5
-
 
 #define issweepphase(g)  \
 	(GCSsweepstring <= (g)->gcstate && (g)->gcstate <= GCSsweep)
@@ -60,7 +55,6 @@
 
 #define keepinvariant(g)	(isgenerational(g) || g->gcstate <= GCSatomic)
 
-
 /*
 ** Outside the collector, the state in generational mode is kept in
 ** 'propagate', so 'keepinvariant' is always true.
@@ -68,7 +62,6 @@
 #define keepinvariantout(g)  \
   check_exp(g->gcstate == GCSpropagate || !isgenerational(g),  \
             g->gcstate <= GCSatomic)
-
 
 /*
 ** some useful bit tricks
@@ -82,7 +75,6 @@
 #define resetbit(x,b)		resetbits(x, bitmask(b))
 #define testbit(x,b)		testbits(x, bitmask(b))
 
-
 /* Layout for bit use in `marked' field: */
 #define WHITE0BIT	0  /* object is white (type 0) */
 #define WHITE1BIT	1  /* object is white (type 1) */
@@ -94,7 +86,6 @@
 /* bit 7 is currently used by tests (luaL_checkmemory) */
 
 #define WHITEBITS	bit2mask(WHITE0BIT, WHITE1BIT)
-
 
 #define iswhite(x)      testbits((x)->gch.marked, WHITEBITS)
 #define isblack(x)      testbit((x)->gch.marked, BLACKBIT)
@@ -118,11 +109,9 @@
 
 #define luaC_white(g)	cast(lu_byte, (g)->currentwhite & WHITEBITS)
 
-
 #define luaC_condGC(L,c) \
 	{if (G(L)->GCdebt > 0) {c;}; condchangemem(L);}
 #define luaC_checkGC(L)		luaC_condGC(L, luaC_step(L);)
-
 
 #define luaC_barrier(L,p,v) { if (valiswhite(v) && isblack(obj2gco(p)))  \
 	luaC_barrier_(L,obj2gco(p),gcvalue(v)); }

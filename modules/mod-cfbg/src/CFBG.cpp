@@ -607,7 +607,7 @@ bool CFBG::IsPlayingNative(Player* player)
 bool CFBG::CheckCrossFactionMatch(BattlegroundQueue* queue, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers)
 {
     queue->m_SelectionPools[TEAM_ALLIANCE].Init();
-    queue->m_SelectionPools[TEAM_HORDE].Init();    
+    queue->m_SelectionPools[TEAM_HORDE].Init();
 
     GroupsList groups{ queue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG].begin(), queue->m_QueuedGroups[bracket_id][BG_QUEUE_CFBG].end() };
 

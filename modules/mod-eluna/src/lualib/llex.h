@@ -10,10 +10,7 @@
 #include "lobject.h"
 #include "lzio.h"
 
-
 #define FIRST_RESERVED	257
-
-
 
 /*
 * WARNING: if you change the order of this enumeration,
@@ -33,18 +30,15 @@ enum RESERVED {
 /* number of reserved words */
 #define NUM_RESERVED	(cast(int, TK_WHILE-FIRST_RESERVED+1))
 
-
 typedef union {
   lua_Number r;
   TString *ts;
 } SemInfo;  /* semantics information */
 
-
 typedef struct Token {
   int token;
   SemInfo seminfo;
 } Token;
-
 
 /* state of the lexer plus state of the parser when shared by all
    functions */
@@ -64,7 +58,6 @@ typedef struct LexState {
   char decpoint;  /* locale decimal point */
 } LexState;
 
-
 LUAI_FUNC void luaX_init (lua_State *L);
 LUAI_FUNC void luaX_setinput (lua_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
@@ -73,6 +66,5 @@ LUAI_FUNC void luaX_next (LexState *ls);
 LUAI_FUNC int luaX_lookahead (LexState *ls);
 LUAI_FUNC l_noret luaX_syntaxerror (LexState *ls, const char *s);
 LUAI_FUNC const char *luaX_token2str (LexState *ls, int token);
-
 
 #endif

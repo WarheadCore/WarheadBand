@@ -7,9 +7,7 @@
 #ifndef ltm_h
 #define ltm_h
 
-
 #include "lobject.h"
-
 
 /*
 * WARNING: if you change the order of this enumeration,
@@ -36,8 +34,6 @@ typedef enum {
   TM_N		/* number of elements in the enum */
 } TMS;
 
-
-
 #define gfasttm(g,et,e) ((et) == NULL ? NULL : \
   ((et)->flags & (1u<<(e))) ? NULL : luaT_gettm(et, e, (g)->tmname[e]))
 
@@ -47,7 +43,6 @@ typedef enum {
 #define objtypename(x)	ttypename(ttypenv(x))
 
 LUAI_DDEC const char *const luaT_typenames_[LUA_TOTALTAGS];
-
 
 LUAI_FUNC const TValue *luaT_gettm (Table *events, TMS event, TString *ename);
 LUAI_FUNC const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o,

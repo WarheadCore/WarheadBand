@@ -9,7 +9,6 @@
 
 #include "llimits.h"
 
-
 /*===========================================================================
   We assume that instructions are unsigned numbers.
   All instructions have an opcode in the first 6 bits.
@@ -28,9 +27,7 @@
   unsigned argument.
 ===========================================================================*/
 
-
 enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
-
 
 /*
 ** size and position of opcode arguments.
@@ -49,7 +46,6 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 #define POS_B		(POS_C + SIZE_C)
 #define POS_Bx		POS_C
 #define POS_Ax		POS_A
-
 
 /*
 ** limits for opcode arguments.
@@ -70,11 +66,9 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 #define MAXARG_Ax	MAX_INT
 #endif
 
-
 #define MAXARG_A        ((1<<SIZE_A)-1)
 #define MAXARG_B        ((1<<SIZE_B)-1)
 #define MAXARG_C        ((1<<SIZE_C)-1)
-
 
 /* creates a mask with `n' 1 bits at position `p' */
 #define MASK1(n,p)	((~((~(Instruction)0)<<(n)))<<(p))
@@ -112,7 +106,6 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 #define GETARG_sBx(i)	(GETARG_Bx(i)-MAXARG_sBx)
 #define SETARG_sBx(i,b)	SETARG_Bx((i),cast(unsigned int, (b)+MAXARG_sBx))
 
-
 #define CREATE_ABC(o,a,b,c)	((cast(Instruction, o)<<POS_OP) \
 			| (cast(Instruction, a)<<POS_A) \
 			| (cast(Instruction, b)<<POS_B) \
@@ -124,7 +117,6 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 
 #define CREATE_Ax(o,a)		((cast(Instruction, o)<<POS_OP) \
 			| (cast(Instruction, a)<<POS_Ax))
-
 
 /*
 ** Macros to operate RK indices
@@ -144,19 +136,16 @@ enum OpMode {iABC, iABx, iAsBx, iAx};  /* basic instruction format */
 /* code a constant index as a RK value */
 #define RKASK(x)	((x) | BITRK)
 
-
 /*
 ** invalid register that fits in 8 bits
 */
 #define NO_REG		MAXARG_A
-
 
 /*
 ** R(x) - register
 ** Kst(x) - constant (in constant table)
 ** RK(x) == if ISK(x) then Kst(INDEXK(x)) else R(x)
 */
-
 
 /*
 ** grep "ORDER OP" if you change these enums
@@ -224,10 +213,7 @@ OP_VARARG,/*	A B	R(A), R(A+1), ..., R(A+B-2) = vararg		*/
 OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 } OpCode;
 
-
 #define NUM_OPCODES	(cast(int, OP_EXTRAARG) + 1)
-
-
 
 /*===========================================================================
   Notes:
@@ -251,7 +237,6 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
   (*) All `skips' (pc++) assume that next instruction is a jump.
 
 ===========================================================================*/
-
 
 /*
 ** masks for instruction properties. The format is:
@@ -277,12 +262,9 @@ LUAI_DDEC const lu_byte luaP_opmodes[NUM_OPCODES];
 #define testAMode(m)	(luaP_opmodes[m] & (1 << 6))
 #define testTMode(m)	(luaP_opmodes[m] & (1 << 7))
 
-
 LUAI_DDEC const char *const luaP_opnames[NUM_OPCODES+1];  /* opcode names */
-
 
 /* number of list items to accumulate before a SETLIST instruction */
 #define LFIELDS_PER_FLUSH	50
-
 
 #endif

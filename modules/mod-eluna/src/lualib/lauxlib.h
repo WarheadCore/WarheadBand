@@ -4,27 +4,21 @@
 ** See Copyright Notice in lua.h
 */
 
-
 #ifndef lauxlib_h
 #define lauxlib_h
-
 
 #include <stddef.h>
 #include <stdio.h>
 
 #include "lua.h"
 
-
-
 /* extra error code for `luaL_load' */
 #define LUA_ERRFILE     (LUA_ERRERR+1)
-
 
 typedef struct luaL_Reg {
   const char *name;
   lua_CFunction func;
 } luaL_Reg;
-
 
 LUALIB_API void (luaL_checkversion_) (lua_State *L, lua_Number ver);
 #define luaL_checkversion(L)	luaL_checkversion_(L, LUA_VERSION_NUM)
@@ -104,7 +98,6 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 ** ===============================================================
 */
 
-
 #define luaL_newlibtable(L,l)	\
   lua_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
 
@@ -133,7 +126,6 @@ LUALIB_API void (luaL_requiref) (lua_State *L, const char *modname,
 
 #define luaL_loadbuffer(L,s,sz,n)	luaL_loadbufferx(L,s,sz,n,NULL)
 
-
 /*
 ** {======================================================
 ** Generic Buffer manipulation
@@ -147,7 +139,6 @@ typedef struct luaL_Buffer {
   lua_State *L;
   char initb[LUAL_BUFFERSIZE];  /* initial buffer */
 } luaL_Buffer;
-
 
 #define luaL_addchar(B,c) \
   ((void)((B)->n < (B)->size || luaL_prepbuffsize((B), 1)), \
@@ -168,8 +159,6 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 
 /* }====================================================== */
 
-
-
 /*
 ** {======================================================
 ** File handles for IO library
@@ -184,15 +173,12 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 
 #define LUA_FILEHANDLE          "FILE*"
 
-
 typedef struct luaL_Stream {
   FILE *f;  /* stream (NULL for incompletely created streams) */
   lua_CFunction closef;  /* to close stream (NULL for closed streams) */
 } luaL_Stream;
 
 /* }====================================================== */
-
-
 
 /* compatibility with old module system */
 #if defined(LUA_COMPAT_MODULE)
@@ -206,7 +192,4 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 
 #endif
 
-
 #endif
-
-

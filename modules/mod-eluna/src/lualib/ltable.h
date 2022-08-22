@@ -9,7 +9,6 @@
 
 #include "lobject.h"
 
-
 #define gnode(t,i)	(&(t)->node[i])
 #define gkey(n)		(&(n)->i_key.tvk)
 #define gval(n)		(&(n)->i_val)
@@ -20,7 +19,6 @@
 /* returns the key, given the value of a table entry */
 #define keyfromval(v) \
   (gkey(cast(Node *, cast(char *, (v)) - offsetof(Node, i_val))))
-
 
 LUAI_FUNC const TValue *luaH_getint (Table *t, int key);
 LUAI_FUNC void luaH_setint (lua_State *L, Table *t, int key, TValue *value);
@@ -35,11 +33,9 @@ LUAI_FUNC void luaH_free (lua_State *L, Table *t);
 LUAI_FUNC int luaH_next (lua_State *L, Table *t, StkId key);
 LUAI_FUNC int luaH_getn (Table *t);
 
-
 #if defined(LUA_DEBUG)
 LUAI_FUNC Node *luaH_mainposition (const Table *t, const TValue *key);
 LUAI_FUNC int luaH_isdummy (Node *n);
 #endif
-
 
 #endif

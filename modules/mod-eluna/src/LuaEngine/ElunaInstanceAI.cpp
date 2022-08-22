@@ -8,7 +8,6 @@
 #include "ElunaUtility.h"
 #include "lmarshal.h"
 
-
 #ifndef TRINITY
 void ElunaInstanceAI::Initialize()
 {

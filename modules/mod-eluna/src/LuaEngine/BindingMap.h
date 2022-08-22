@@ -18,7 +18,6 @@ extern "C"
 #include "lauxlib.h"
 };
 
-
 /*
  * A set of bindings from keys of type `K` to Lua references.
  */
@@ -212,7 +211,6 @@ public:
     }
 };
 
-
 /*
  * A `BindingMap` key type for simple event ID bindings
  *   (ServerEvents, GuildEvents, etc.).
@@ -279,7 +277,7 @@ public:
     {
         return std::hash<typename std::underlying_type<T>::type>()(t);
     }
-    
+
     template <typename T, typename std::enable_if<!std::is_enum<T>::value>::type* = nullptr>
     static inline result_type hash(T const & t)
     {

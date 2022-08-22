@@ -7,9 +7,7 @@
 #ifndef ldebug_h
 #define ldebug_h
 
-
 #include "lstate.h"
-
 
 #define pcRel(pc, p)	(cast(int, (pc) - (p)->code) - 1)
 
@@ -19,7 +17,6 @@
 
 /* Active Lua function (given call info) */
 #define ci_func(ci)		(clLvalue((ci)->func))
-
 
 LUAI_FUNC l_noret luaG_typeerror (lua_State *L, const TValue *o,
                                                 const char *opname);
