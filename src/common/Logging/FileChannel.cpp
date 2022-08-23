@@ -45,7 +45,7 @@ namespace
             return 0s;
 
 #define PARSE_NUMBER_N(var, n) \
-	    { int i = 0; while (i++ < n && it != end && std::isdigit(*it)) var = var*10 + ((*it++) - '0'); }
+        { int i = 0; while (i++ < n && it != end && std::isdigit(*it)) var = var*10 + ((*it++) - '0'); }
 
         int year = 0;
         int month = 0;
