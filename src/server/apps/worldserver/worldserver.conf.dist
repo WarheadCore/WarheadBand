@@ -3931,6 +3931,12 @@ ChangeFaction.MaxMoney = 0
 #                           true: Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
 #                           false: Just using filename (default)
 #
+#                     Optional5 - Max files count (is type File). Need option 4
+#                           Default: 20
+#
+#                     Optional6 - Purge age in days (is type File). Need option 4
+#                           Default: 10
+#
 
 LogChannel.Console = "1","6","[%H:%M:%S] %t","lightRed lightRed red brown cyan lightMagenta green"
 LogChannel.Server = "2","6","[%Y-%m-%d %H:%M:%S] %t","Server.log","true","true","true"
