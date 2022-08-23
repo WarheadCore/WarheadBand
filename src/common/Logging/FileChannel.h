@@ -36,6 +36,7 @@ namespace Warhead
     private:
         bool OpenFile();
         void CloseFile();
+        void ClearOldFiles();
 
         std::string _logsDir;
         std::string _fileName;
@@ -44,6 +45,8 @@ namespace Warhead
         bool _isFlush{ true };
         bool _isOpenModeAppend{ true };
         bool _isAddTimestamp{ false };
+        uint32 _maxCount{3};
+        uint32 _purgeAge{10};
         std::mutex _mutex;
     };
 

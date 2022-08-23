@@ -23,11 +23,101 @@
 #include "Log.h"
 #include "LogMessage.h"
 #include "StringConvert.h"
+#include "Timer.h"
 #include "Util.h"
 #include <filesystem>
 #include <fstream>
+#include <regex>
+#include <range/v3/action/sort.hpp>
 
 constexpr auto MIN_OPTIONS = 4;
+constexpr auto LOG_TIMESTAMP_FMT = "%Y_%m_%d_%H_%M_%S";
+
+namespace fs = std::filesystem;
+
+using LogFileInfo = std::pair<fs::path, Seconds>;
+
+namespace
+{
+    Seconds GetFileCreationDate(std::string_view fmt, std::string_view str)
+    {
+        if (fmt.empty() || str.empty())
+            return 0s;
+
+#define PARSE_NUMBER_N(var, n) \
+	    { int i = 0; while (i++ < n && it != end && std::isdigit(*it)) var = var*10 + ((*it++) - '0'); }
+
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        int hour = 0;
+        int minute = 0;
+        int second = 0;
+
+        auto it = str.begin();
+        auto end = str.end();
+        auto itf = fmt.begin();
+        auto endf = fmt.end();
+
+        while (itf != endf && it != end)
+        {
+            if (*itf == '%')
+            {
+                if (++itf != endf)
+                {
+                    switch (*itf)
+                    {
+                    case 'Y':
+                        while (it != end && !std::isdigit(*it)) ++it;
+                        PARSE_NUMBER_N(year, 4);
+                        break;
+                    case 'm':
+                        while (it != end && !std::isdigit(*it)) ++it;
+                        PARSE_NUMBER_N(month, 2);
+                        break;
+                    case 'd':
+                        while (it != end && !std::isdigit(*it)) ++it;
+                        PARSE_NUMBER_N(day, 2);
+                        break;
+                    case 'H':
+                        while (it != end && !std::isdigit(*it)) ++it;
+                        PARSE_NUMBER_N(hour, 2);
+                        break;
+                    case 'M':
+                        while (it != end && !std::isdigit(*it)) ++it;
+                        PARSE_NUMBER_N(minute, 2);
+                        break;
+                    case 'S':
+                        while (it != end && !std::isdigit(*it)) ++it;
+                        PARSE_NUMBER_N(second, 2);
+                        break;
+                    }
+                    ++itf;
+                }
+            }
+            else
+                ++itf;
+        }
+
+        if (month == 0)
+            month = 1;
+
+        if (day == 0)
+            day = 1;
+
+#undef PARSE_NUMBER_N
+
+        struct tm t{ 0 };
+        t.tm_year = year - 1900;
+        t.tm_mon = month - 1;
+        t.tm_mday = day;
+        t.tm_hour = hour;
+        t.tm_min = minute;
+        t.tm_sec = second;
+
+        return Seconds(mktime(&t));
+    }
+}
 
 Warhead::FileChannel::FileChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options) :
     Channel(ThisChannelType, name, level, pattern),
@@ -64,6 +154,29 @@ Warhead::FileChannel::FileChannel(std::string_view name, LogLevel level, std::st
             throw Exception("Incorrect option for add timestamp '{}'", options[6]);
 
         _isAddTimestamp = *isAddTimestamp;
+
+        if (options.size() >= 8)
+        {
+            auto maxCount = Warhead::StringTo<uint32>(options[7]);
+            if (!maxCount)
+                throw Exception("Incorrect option for max count files '{}'", options[7]);
+
+            _maxCount = *maxCount;
+
+            if (!_maxCount)
+                throw Exception("Incorrect option for max count files '{}'. Min 1", options[7]);
+        }
+
+        if (options.size() >= 9)
+        {
+            auto purgeAge = Warhead::StringTo<uint32>(options[8]);
+            if (!purgeAge)
+                throw Exception("Incorrect option for purge age '{}'", options[8]);
+
+            _purgeAge = *purgeAge;
+        }
+
+        ClearOldFiles();
     }
 }
 
@@ -118,7 +231,7 @@ bool Warhead::FileChannel::OpenFile()
 
     if (_isAddTimestamp)
     {
-        auto timeStamp = "_" + Warhead::Time::TimeToTimestampStr(GetEpochTime(), "%Y-%m-%d_%H_%M_%S");
+        auto timeStamp = "_" + Warhead::Time::TimeToTimestampStr(GetEpochTime(), LOG_TIMESTAMP_FMT);
 
         size_t dot_pos = _fileName.find_last_of('.');
         dot_pos != std::string::npos ? _fileName.insert(dot_pos, timeStamp) : _fileName += timeStamp;
@@ -135,4 +248,46 @@ void Warhead::FileChannel::CloseFile()
 
     _logFile->close();
     _logFile.reset();
+}
+
+void Warhead::FileChannel::ClearOldFiles()
+{
+    auto deleteBeforeTime{ GetEpochTime() - Days(_purgeAge) };
+
+    std::string fileNameFmt{ _fileName };
+    std::string timestampRe{ "_[0-9-]+[0-9_]+" };
+
+    size_t dot_pos = fileNameFmt.find_last_of('.');
+    dot_pos != std::string::npos ? fileNameFmt.insert(dot_pos, timestampRe) : fileNameFmt += timestampRe;
+
+    std::regex const regex(Warhead::StringFormat("^{}$", fileNameFmt));
+
+    std::vector<LogFileInfo> logFiles;
+
+    for (auto const& dirEntry : fs::directory_iterator{ fs::path{ _logsDir } })
+    {
+        auto const& filePath = dirEntry.path();
+        auto const& fileName = filePath.filename().generic_string();
+
+        if (std::regex_match(fileName, regex))
+            logFiles.emplace_back(filePath, GetFileCreationDate(LOG_TIMESTAMP_FMT, fileName));
+    }
+
+    ranges::sort(logFiles, [](LogFileInfo const& itr1, LogFileInfo const& itr2)
+    {
+        return itr1.second < itr2.second;
+    });
+
+    std::size_t filesCount{ logFiles.size() };
+
+    for (auto const& [filePath, createDate] : logFiles)
+    {
+        if (filesCount > _maxCount)
+        {
+            fs::remove(filePath);
+            filesCount--;
+        }
+        else if (createDate < deleteBeforeTime)
+            fs::remove(filePath);
+    }
 }
