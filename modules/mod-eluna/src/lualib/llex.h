@@ -10,7 +10,7 @@
 #include "lobject.h"
 #include "lzio.h"
 
-#define FIRST_RESERVED	257
+#define FIRST_RESERVED    257
 
 /*
 * WARNING: if you change the order of this enumeration,
@@ -28,7 +28,7 @@ enum RESERVED {
 };
 
 /* number of reserved words */
-#define NUM_RESERVED	(cast(int, TK_WHILE-FIRST_RESERVED+1))
+#define NUM_RESERVED    (cast(int, TK_WHILE-FIRST_RESERVED+1))
 
 typedef union {
   lua_Number r;

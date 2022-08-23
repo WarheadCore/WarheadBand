@@ -45,9 +45,9 @@ struct lua_longjmp;  /* defined in ldo.c */
 #define BASIC_STACK_SIZE        (2*LUA_MINSTACK)
 
 /* kinds of Garbage Collection */
-#define KGC_NORMAL	0
-#define KGC_EMERGENCY	1	/* gc was forced by an allocation failure */
-#define KGC_GEN		2	/* generational collection */
+#define KGC_NORMAL    0
+#define KGC_EMERGENCY    1    /* gc was forced by an allocation failure */
+#define KGC_GEN        2    /* generational collection */
 
 typedef struct stringtable {
   GCObject **hash;
@@ -60,7 +60,7 @@ typedef struct stringtable {
 */
 typedef struct CallInfo {
   StkId func;  /* function index in the stack */
-  StkId	top;  /* top for this function */
+  StkId    top;  /* top for this function */
   struct CallInfo *previous, *next;  /* dynamic call link */
   short nresults;  /* expected number of results from this function */
   lu_byte callstatus;
@@ -83,17 +83,17 @@ typedef struct CallInfo {
 /*
 ** Bits in CallInfo status
 */
-#define CIST_LUA	(1<<0)	/* call is running a Lua function */
-#define CIST_HOOKED	(1<<1)	/* call is running a debug hook */
-#define CIST_REENTRY	(1<<2)	/* call is running on same invocation of
+#define CIST_LUA    (1<<0)    /* call is running a Lua function */
+#define CIST_HOOKED    (1<<1)    /* call is running a debug hook */
+#define CIST_REENTRY    (1<<2)    /* call is running on same invocation of
                                    luaV_execute of previous call */
-#define CIST_YIELDED	(1<<3)	/* call reentered after suspension */
-#define CIST_YPCALL	(1<<4)	/* call is a yieldable protected call */
-#define CIST_STAT	(1<<5)	/* call has an error status (pcall) */
-#define CIST_TAIL	(1<<6)	/* call was tail called */
-#define CIST_HOOKYIELD	(1<<7)	/* last hook called yielded */
+#define CIST_YIELDED    (1<<3)    /* call reentered after suspension */
+#define CIST_YPCALL    (1<<4)    /* call is a yieldable protected call */
+#define CIST_STAT    (1<<5)    /* call has an error status (pcall) */
+#define CIST_TAIL    (1<<6)    /* call was tail called */
+#define CIST_HOOKYIELD    (1<<7)    /* last hook called yielded */
 
-#define isLua(ci)	((ci)->callstatus & CIST_LUA)
+#define isLua(ci)    ((ci)->callstatus & CIST_LUA)
 
 /*
 ** `global state', shared by all threads of this state
@@ -163,7 +163,7 @@ struct lua_State {
   CallInfo base_ci;  /* CallInfo for first level (C calling Lua) */
 };
 
-#define G(L)	(L->l_G)
+#define G(L)    (L->l_G)
 
 /*
 ** Union of all collectable objects
@@ -179,28 +179,28 @@ union GCObject {
   struct lua_State th;  /* thread */
 };
 
-#define gch(o)		(&(o)->gch)
+#define gch(o)        (&(o)->gch)
 
 /* macros to convert a GCObject into a specific value */
 #define rawgco2ts(o)  \
-	check_exp(novariant((o)->gch.tt) == LUA_TSTRING, &((o)->ts))
-#define gco2ts(o)	(&rawgco2ts(o)->tsv)
-#define rawgco2u(o)	check_exp((o)->gch.tt == LUA_TUSERDATA, &((o)->u))
-#define gco2u(o)	(&rawgco2u(o)->uv)
-#define gco2lcl(o)	check_exp((o)->gch.tt == LUA_TLCL, &((o)->cl.l))
-#define gco2ccl(o)	check_exp((o)->gch.tt == LUA_TCCL, &((o)->cl.c))
+    check_exp(novariant((o)->gch.tt) == LUA_TSTRING, &((o)->ts))
+#define gco2ts(o)    (&rawgco2ts(o)->tsv)
+#define rawgco2u(o)    check_exp((o)->gch.tt == LUA_TUSERDATA, &((o)->u))
+#define gco2u(o)    (&rawgco2u(o)->uv)
+#define gco2lcl(o)    check_exp((o)->gch.tt == LUA_TLCL, &((o)->cl.l))
+#define gco2ccl(o)    check_exp((o)->gch.tt == LUA_TCCL, &((o)->cl.c))
 #define gco2cl(o)  \
-	check_exp(novariant((o)->gch.tt) == LUA_TFUNCTION, &((o)->cl))
-#define gco2t(o)	check_exp((o)->gch.tt == LUA_TTABLE, &((o)->h))
-#define gco2p(o)	check_exp((o)->gch.tt == LUA_TPROTO, &((o)->p))
-#define gco2uv(o)	check_exp((o)->gch.tt == LUA_TUPVAL, &((o)->uv))
-#define gco2th(o)	check_exp((o)->gch.tt == LUA_TTHREAD, &((o)->th))
+    check_exp(novariant((o)->gch.tt) == LUA_TFUNCTION, &((o)->cl))
+#define gco2t(o)    check_exp((o)->gch.tt == LUA_TTABLE, &((o)->h))
+#define gco2p(o)    check_exp((o)->gch.tt == LUA_TPROTO, &((o)->p))
+#define gco2uv(o)    check_exp((o)->gch.tt == LUA_TUPVAL, &((o)->uv))
+#define gco2th(o)    check_exp((o)->gch.tt == LUA_TTHREAD, &((o)->th))
 
 /* macro to convert any Lua object into a GCObject */
-#define obj2gco(v)	(cast(GCObject *, (v)))
+#define obj2gco(v)    (cast(GCObject *, (v)))
 
 /* actual number of total bytes allocated */
-#define gettotalbytes(g)	((g)->totalbytes + (g)->GCdebt)
+#define gettotalbytes(g)    ((g)->totalbytes + (g)->GCdebt)
 
 LUAI_FUNC void luaE_setdebt (global_State *g, l_mem debt);
 LUAI_FUNC void luaE_freethread (lua_State *L, lua_State *L1);
