@@ -150,6 +150,8 @@ public:
     TeamId getTeamWithLowerClass(Battleground* bg, Classes c);
     uint8 getBalanceClassMinLevel(const Battleground* bg) const;
 
+    void OnAddGroupToBGQueue(GroupQueueInfo* ginfo, Group* group);
+
 private:
     bool isClassJoining(uint8 _class, Player* player, uint32 minLevel);
 
@@ -158,8 +160,7 @@ private:
     uint32 GetMorphFromRace(uint8 race, uint8 gender);
     FakePlayer const* GetFakePlayer(Player* player) const;
 
-    void FillSameCountGroups(SameCountGroupsList& container, GroupsList& groups, BattlegroundQueue* bgQueue);
-    void InviteSameCountGroups(SameCountGroupsList& sameCountGroups, GroupsList& groups, BattlegroundQueue* bgQueue, uint32 maxAli, uint32 maxHorde, Battleground* bg = nullptr);
+    void InviteSameCountGroups(GroupsList& groups, BattlegroundQueue* bgQueue, uint32 maxAli, uint32 maxHorde, Battleground* bg = nullptr);
     TeamId InviteGroupToBG(GroupQueueInfo* gInfo, BattlegroundQueue* bgQueue, uint32 maxAli, uint32 maxHorde, Battleground* bg = nullptr);
 
     std::unordered_map<Player*, FakePlayer> _fakePlayerStore;
