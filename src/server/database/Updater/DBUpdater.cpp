@@ -464,12 +464,12 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
     if (CanUseExtraFile())
     {
-        args.reserve(7 - 4);
+        args.reserve(9 - 4);
         args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
     }
     else
     {
-        args.reserve(7);
+        args.reserve(9);
 
         // CLI Client connection info
         args.emplace_back("-h" + host);
@@ -517,14 +517,14 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
     // Execute sql file
     args.emplace_back("-e");
-    args.emplace_back(Acore::StringFormat("BEGIN; SOURCE %s; COMMIT;", path.generic_string().c_str()));
+    args.emplace_back(Warhead::StringFormat("BEGIN; SOURCE {}; COMMIT;", path.generic_string()));
 
     // Database
     if (!database.empty())
         args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
-    int const ret = Acore::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
+    int const ret = Warhead::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
         "sql.updates", "", true);
 
     if (ret != EXIT_SUCCESS)
