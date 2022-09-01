@@ -58,9 +58,7 @@ nbproject/
 .browse.VC*
 .vscode
 .idea
-cmake-build-debug/*
-cmake-build-debug-coverage/*
-cmake-build-debug-event-trace/*
+cmake-build-*/*
 coverage-report/
 *.clang-tidy*
 
