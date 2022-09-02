@@ -252,6 +252,10 @@ void Warhead::FileChannel::CloseFile()
 
 void Warhead::FileChannel::ClearOldFiles()
 {
+    // Avoid crash
+    if (_logsDir.empty())
+        return;
+
     auto deleteBeforeTime{ GetEpochTime() - Days(_purgeAge) };
 
     std::string fileNameFmt{ _fileName };
