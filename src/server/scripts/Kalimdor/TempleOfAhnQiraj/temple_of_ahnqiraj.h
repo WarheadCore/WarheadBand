@@ -42,17 +42,16 @@ enum DataTypes
     DATA_BUG_TRIO_DEATH     = 13,
     DATA_OURO_SPAWNER       = 14,
     DATA_VEKLOR             = 15,
-    DATA_VEKLORISDEAD       = 16,
-    DATA_VEKLOR_DEATH       = 17,
-    DATA_VEKNILASH          = 18,
-    DATA_VEKNILASHISDEAD    = 19,
-    DATA_VEKNILASH_DEATH    = 20,
-    DATA_CTHUN_PHASE        = 21,
-    DATA_EYE_OF_CTHUN       = 22
+    DATA_VEKNILASH          = 16,
+    DATA_CTHUN_PHASE        = 17,
+    DATA_EYE_OF_CTHUN       = 18,
+    DATA_MASTERS_EYE        = 19
 };
 
 enum Creatures
 {
+    NPC_MASTERS_EYE         = 15963,
+    NPC_CTHUN               = 15727,
     NPC_EYE_OF_CTHUN        = 15589,
     NPC_CTHUN_PORTAL        = 15896,
     NPC_CLAW_TENTACLE       = 15725,
@@ -77,6 +76,30 @@ enum Creatures
     NPC_OURO                = 15517,
     NPC_OURO_SPAWNER        = 15957,
     NPC_SARTURA             = 15516
+};
+
+enum ObjectsAQ40
+{
+    AQ40_DOOR_1             = 180634,
+    AQ40_DOOR_2             = 180635,
+    AQ40_DOOR_3             = 180636,
+    GO_CTHUN_GRASP          = 180745
+};
+
+enum CThunPhases
+{
+    PHASE_NOT_STARTED       = 0,
+
+    // Main Phase 1 - EYE
+    PHASE_EYE_GREEN_BEAM    = 1,
+    PHASE_EYE_RED_BEAM      = 2,
+
+    // Main Phase 2 - CTHUN
+    PHASE_CTHUN_TRANSITION  = 3,
+    PHASE_CTHUN_STOMACH     = 4,
+    PHASE_CTHUN_WEAK        = 5,
+
+    PHASE_CTHUN_DONE        = 6
 };
 
 template <class AI, class T>

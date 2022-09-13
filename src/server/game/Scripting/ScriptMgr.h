@@ -421,6 +421,7 @@ public: /* PlayerScript */
     void OnCreateItem(Player* player, Item* item, uint32 count);
     void OnQuestRewardItem(Player* player, Item* item, uint32 count);
     void OnGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVote voteType, Roll* roll);
+    bool OnBeforeOpenItem(Player* player, Item* item);
     bool OnBeforePlayerQuestComplete(Player* player, uint32 quest_id);
     void OnQuestComputeXP(Player* player, Quest const* quest, uint32& xpValue);
     void OnBeforePlayerDurabilityRepair(Player* player, ObjectGuid npcGUID, ObjectGuid itemGUID, float& discountMod, uint8 guildBank);
@@ -491,6 +492,7 @@ public: /* PlayerScript */
     void OnGiveHonorPoints(Player* player, float& honor, Unit* victim);
     void OnAfterResurrect(Player* player, float restore_percent, bool applySickness);
     void OnPlayerResurrect(Player* player, float restore_percent, bool applySickness);
+    void OnBeforeChooseGraveyard(Player* player, TeamId teamId, bool nearCorpse, uint32& graveyardOverride);
     bool CanPlayerUseChat(Player* player, uint32 type, uint32 language, std::string& msg);
     bool CanPlayerUseChat(Player* player, uint32 type, uint32 language, std::string& msg, Player* receiver);
     bool CanPlayerUseChat(Player* player, uint32 type, uint32 language, std::string& msg, Group* group);

@@ -3680,6 +3680,32 @@ class spell_item_mirrens_drinking_hat : public SpellScript
     }
 };
 
+class spell_item_snowman : public SpellScript
+{
+    PrepareSpellScript(spell_item_snowman);
+
+    SpellCastResult CheckCast()
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+        {
+            if (Battleground* bg = caster->GetBattleground())
+            {
+                if (bg->GetStatus() == STATUS_WAIT_JOIN)
+                {
+                    return SPELL_FAILED_NOT_READY;
+                }
+            }
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_item_snowman::CheckCast);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     RegisterSpellScript(spell_item_massive_seaforium_charge);
@@ -3793,4 +3819,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_recall);
     RegisterSpellScript(spell_item_wraith_scythe_drain_life);
     RegisterSpellScript(spell_item_mirrens_drinking_hat);
+    RegisterSpellScript(spell_item_snowman);
 }
