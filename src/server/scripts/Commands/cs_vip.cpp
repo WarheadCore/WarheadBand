@@ -34,8 +34,14 @@ class vip_commandscript : public CommandScript
 public:
     vip_commandscript() : CommandScript("vip_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    [[nodiscard]] ChatCommandTable GetCommands() const override
     {
+        static ChatCommandTable vipReloadCommandTable =
+        {
+            { "rates",      HandleVipReloadRatesCommand,    SEC_ADMINISTRATOR,  Console::Yes },
+            { "vendors",    HandleVipReloadVendorsCommand,  SEC_ADMINISTRATOR,  Console::Yes }
+        };
+
         static ChatCommandTable vipListCommandTable =
         {
             { "rates",      HandleVipListRatesCommand,   SEC_ADMINISTRATOR,  Console::Yes }
@@ -56,6 +62,7 @@ public:
             { "info",       HandleVipInfoCommand,       SEC_PLAYER,         Console::Yes },
             { "list",       vipListCommandTable },
             { "vendor",     vipVendorCommandTable },
+            { "reload",     vipReloadCommandTable },
         };
 
         static ChatCommandTable commandTable =
@@ -195,6 +202,32 @@ public:
         }
 
         sVip->SendVipListRates(handler);
+        return true;
+    }
+
+    static bool HandleVipReloadRatesCommand(ChatHandler* handler)
+    {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        sVip->LoadRates();
+        handler->PSendSysMessage("> Вип рейты перезагружены");
+        return true;
+    }
+
+    static bool HandleVipReloadVendorsCommand(ChatHandler* handler)
+    {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        sVip->LoadVipVendors();
+        handler->PSendSysMessage("> Вип вендоры перезагружены");
         return true;
     }
 

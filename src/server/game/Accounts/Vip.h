@@ -88,11 +88,13 @@ public:
 
     float GetRateForPlayer(Player* player, VipRate rate);
 
-private:
+    // Load system
     void LoadRates();
+    void LoadVipVendors();
+
+private:
     void LoadAccounts();
     void LoadUnbinds();
-    void LoadVipVendors();
 
     void LearnSpells(Player* player, uint8 vipLevel);
     void UnLearnSpells(Player* player, bool unlearnMount = true);
@@ -100,8 +102,8 @@ private:
     WarheadVip* GetVipInfo(uint32 accountID);
     WarheadVipRates* GetVipRateInfo(uint8 vipLevel);
     Seconds* GetUndindTime(uint64 guid);
-    Player* GetPlayerFromAccount(uint32 accountID);
-    std::string GetDuration(WarheadVip* vipInfo);
+    static Player* GetPlayerFromAccount(uint32 accountID);
+    static std::string GetDuration(WarheadVip* vipInfo);
 
     bool _isEnable{ false };
     Seconds _updateDelay{ 0s };

@@ -49,20 +49,20 @@ void Vip::LoadConfig()
     _updateDelay = Seconds(MOD_CONF_GET_UINT("VIP.Update.Delay"));
     if (_updateDelay < 10s)
     {
-        LOG_ERROR("modules.vip", "> Vip: Delay < 10 seconds. Set to 10 seconds");
+        LOG_ERROR("module.vip", "> Vip: Delay < 10 seconds. Set to 10 seconds");
         _updateDelay = 10s;
     }
 
     _mountVipLevel = sModulesConfig->GetOption<uint8>("VIP.Mount.MinLevel");
     _mountVipSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
 
-    std::string configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
+    auto configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
     for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
     {
         auto spellID = Warhead::StringTo<uint32>(spellString);
         if (!spellID)
         {
-            LOG_ERROR("modules.vip", "> Incorrect spell '{}' in vip spell list. Skip", spellString);
+            LOG_ERROR("module.vip", "> Incorrect spell '{}' in vip spell list. Skip", spellString);
             continue;
         }
 
@@ -119,7 +119,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
             Delete(accountID);
         else // Add error
         {
-            LOG_ERROR("modules.vip", "> Vip: Account {} is premium. {}", accountID, *vipInfo);
+            LOG_ERROR("module.vip", "> Vip: Account {} is premium. {}", accountID, *vipInfo);
             return false;
         }
     }
@@ -149,7 +149,7 @@ bool Vip::Delete(uint32 accountID)
     auto const& vipInfo = GetVipInfo(accountID);
     if (!vipInfo)
     {
-        LOG_ERROR("modules.vip", "> Vip: Account {} is not premium", accountID);
+        LOG_ERROR("module.vip", "> Vip: Account {} is not premium", accountID);
         return false;
     }
 
@@ -199,9 +199,7 @@ void Vip::UnSet(uint32 accountID)
     if (!_isEnable)
         return;
 
-    auto targetSession = sWorld->FindSession(accountID);
-
-    if (targetSession)
+    if (auto targetSession = sWorld->FindSession(accountID))
         ChatHandler(targetSession).PSendSysMessage("> Вы лишены статуса премиум аккаунта");
 
     Delete(accountID);
@@ -233,7 +231,7 @@ uint8 Vip::GetLevel(Player* player)
     auto const& vipInfo = GetVipInfo(accountID);
     if (!vipInfo)
     {
-        LOG_ERROR("modules.vip", "> Vip::GetLevel: Account {} is not premium", accountID);
+        LOG_ERROR("module.vip", "> Vip::GetLevel: Account {} is not premium", accountID);
         return 0;
     }
 
@@ -251,7 +249,7 @@ float Vip::GetRateForPlayer(Player* player, VipRate rate)
     if (!vipRateInfo)
     {
         auto accountID = player->GetSession()->GetAccountId();
-        LOG_ERROR("modules.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
+        LOG_ERROR("module.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
 
@@ -403,13 +401,13 @@ void Vip::LoadRates()
 
     storeRates.clear(); // for reload case
 
-    LOG_INFO("server.loading", "Loading vip rates...");
+    LOG_INFO("module.vip", "Loading vip rates...");
 
     QueryResult result = CharacterDatabase.Query("SELECT VipLevel, RateXp, RateHonor, RateArenaPoint, RateReputation FROM vip_rates");
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 Vip rates. DB table `vip_rates` is empty.");
-        LOG_INFO("server.loading", "");
+        LOG_WARN("module.vip", ">> Loaded 0 Vip rates. DB table `vip_rates` is empty.");
+        LOG_INFO("module.vip", "");
         return;
     }
 
@@ -419,7 +417,7 @@ void Vip::LoadRates()
         {
             if (rate <= 1.0f)
             {
-                LOG_ERROR("sql.sql", "> Vip: Invalid rate value ({}) for level ({})", rate, level);
+                LOG_ERROR("module.vip", "> Vip: Invalid rate value ({}) for level ({})", rate, level);
                 return false;
             }
         }
@@ -435,19 +433,19 @@ void Vip::LoadRates()
         auto rateXP         = fields[1].Get<float>();
         auto rateHonor      = fields[2].Get<float>();
         auto rateArenaPoint = fields[3].Get<float>();
-        auto rateReputaion  = fields[4].Get<float>();
+        auto rateReputation  = fields[4].Get<float>();
 
-        if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputaion }))
+        if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputation }))
             continue;
 
-        auto rates = std::make_tuple(rateXP, rateHonor, rateArenaPoint, rateReputaion);
+        auto rates = std::make_tuple(rateXP, rateHonor, rateArenaPoint, rateReputation);
 
         storeRates.emplace(level, rates);
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip rates in {}", storeRates.size(), sw);
-    LOG_INFO("server.loading", "");
+    LOG_INFO("module.vip", ">> Loaded {} vip rates in {}", storeRates.size(), sw);
+    LOG_INFO("module.vip", "");
 }
 
 void Vip::LoadAccounts()
@@ -456,13 +454,13 @@ void Vip::LoadAccounts()
 
     store.clear(); // for reload case
 
-    LOG_INFO("server.loading", "Load vip accounts...");
+    LOG_INFO("module.vip", "Load vip accounts...");
 
     QueryResult result = LoginDatabase.Query("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
     if (!result)
     {
-        LOG_INFO("sql.sql", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
-        LOG_INFO("server.loading", "");
+        LOG_INFO("module.vip", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
+        LOG_INFO("module.vip", "");
         return;
     }
 
@@ -472,7 +470,7 @@ void Vip::LoadAccounts()
 
         if (level > MAX_VIP_LEVEL)
         {
-            LOG_ERROR("sql.sql", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, MAX_VIP_LEVEL);
+            LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, MAX_VIP_LEVEL);
             continue;
         }
 
@@ -480,8 +478,8 @@ void Vip::LoadAccounts()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip accounts in {}", store.size(), sw);
-    LOG_INFO("server.loading", "");
+    LOG_INFO("module.vip", ">> Loaded {} vip accounts in {}", store.size(), sw);
+    LOG_INFO("module.vip", "");
 }
 
 void Vip::LoadUnbinds()
@@ -490,13 +488,13 @@ void Vip::LoadUnbinds()
 
     storeUnbind.clear(); // for reload case
 
-    LOG_INFO("server.loading", "Load vip unbinds...");
+    LOG_INFO("module.vip", "Load vip unbinds...");
 
     QueryResult result = CharacterDatabase.Query("SELECT PlayerGuid, UNIX_TIMESTAMP(UnbindTime) FROM vip_unbind");
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 vip unbinds. DB table `vip_unbind` is empty.");
-        LOG_INFO("server.loading", "");
+        LOG_WARN("module.vip", ">> Loaded 0 vip unbinds. DB table `vip_unbind` is empty.");
+        LOG_INFO("module.vip", "");
         return;
     }
 
@@ -511,8 +509,8 @@ void Vip::LoadUnbinds()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), sw);
-    LOG_INFO("server.loading", "");
+    LOG_INFO("module.vip", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), sw);
+    LOG_INFO("module.vip", "");
 }
 
 void Vip::LoadVipVendors()
@@ -521,13 +519,13 @@ void Vip::LoadVipVendors()
 
     storeVendors.clear(); // for reload case
 
-    LOG_INFO("server.loading", "Load vip vendors...");
+    LOG_INFO("module.vip", "Load vip vendors...");
 
     QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, VipLevel FROM vip_vendors");
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 vip vendors. DB table `vip_unbind` is empty.");
-        LOG_INFO("server.loading", "");
+        LOG_WARN("module.vip", ">> Loaded 0 vip vendors. DB table `vip_unbind` is empty.");
+        LOG_INFO("module.vip", "");
         return;
     }
 
@@ -541,19 +539,19 @@ void Vip::LoadVipVendors()
         CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(creatureEntry);
         if (!creatureTemplate)
         {
-            LOG_ERROR("sql.sql", "> Vip: Non existing creature entry {}. Skip", creatureEntry);
+            LOG_ERROR("module.vip", "> Vip: Non existing creature entry {}. Skip", creatureEntry);
             continue;
         }
 
         if (!(creatureTemplate->npcflag & UNIT_NPC_FLAG_VENDOR))
         {
-            LOG_ERROR("sql.sql", "> Vip: Creature entry {} is not vendor. Skip", creatureEntry);
+            LOG_ERROR("module.vip", "> Vip: Creature entry {} is not vendor. Skip", creatureEntry);
             continue;
         }
 
         if (!vipLevel || vipLevel > MAX_VIP_LEVEL)
         {
-            LOG_ERROR("sql.sql", "> Vip: Creature entry {} have {} vip level. Skip", creatureEntry);
+            LOG_ERROR("module.vip", "> Vip: Creature entry {} have {} vip level. Skip", creatureEntry);
             continue;
         }
 
@@ -561,8 +559,8 @@ void Vip::LoadVipVendors()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} vip vendors in {}", storeVendors.size(), sw);
-    LOG_INFO("server.loading", "");
+    LOG_INFO("module.vip", ">> Loaded {} vip vendors in {}", storeVendors.size(), sw);
+    LOG_INFO("module.vip", "");
 }
 
 void Vip::LearnSpells(Player* player, uint8 vipLevel)
@@ -572,13 +570,13 @@ void Vip::LearnSpells(Player* player, uint8 vipLevel)
 
     if (!player)
     {
-        LOG_ERROR("modules.vip", "> Vip::LearnSpells: Not found player");
+        LOG_ERROR("module.vip", "> Vip::LearnSpells: Not found player");
         return;
     }
 
     if (!IsVip(player))
     {
-        LOG_ERROR("modules.vip", "> Vip::LearnSpells: Player {} is no vip", player->GetGUID().ToString());
+        LOG_ERROR("module.vip", "> Vip::LearnSpells: Player {} is no vip", player->GetGUID().ToString());
         return;
     }
 
@@ -604,7 +602,7 @@ void Vip::UnLearnSpells(Player* player, bool unlearnMount /*= true*/)
 
     if (!player)
     {
-        LOG_ERROR("modules.vip", "> Vip::UnLearnSpells: Not found player");
+        LOG_ERROR("module.vip", "> Vip::UnLearnSpells: Not found player");
         return;
     }
 
