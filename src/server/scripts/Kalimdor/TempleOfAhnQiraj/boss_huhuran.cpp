@@ -161,7 +161,7 @@ class spell_huhuran_poison_bolt : public SpellScript
         uint32 const maxTargets = GetSpellInfo()->MaxAffectedTargets;
         if (targets.size() > maxTargets)
         {
-            targets.sort(Acore::ObjectDistanceOrderPred(GetCaster()));
+            targets.sort(Warhead::ObjectDistanceOrderPred(GetCaster()));
             targets.resize(maxTargets);
         }
     }

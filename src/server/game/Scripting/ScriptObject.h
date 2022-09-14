@@ -1205,6 +1205,9 @@ public:
     // After receiving item as a group roll reward
     virtual void OnGroupRollRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, RollVote /*voteType*/, Roll* /*roll*/) { }
 
+    //Before opening an item
+    [[nodiscard]] virtual bool OnBeforeOpenItem(Player* /*player*/, Item* /*item*/) { return true; }
+
     // After completed a quest
     [[nodiscard]] virtual bool OnBeforeQuestComplete(Player* /*player*/, uint32 /*quest_id*/) { return true; }
 
@@ -1348,6 +1351,9 @@ public:
     virtual void OnAfterResurrect(Player* /*player*/, float /*restore_percent*/, bool /*applySickness*/) { }
 
     virtual void OnPlayerResurrect(Player* /*player*/, float /*restore_percent*/, bool /*applySickness*/) { }
+
+    // Called before selecting the graveyard when releasing spirit
+    virtual void OnBeforeChooseGraveyard(Player* /*player*/, TeamId /*teamId*/, bool /*nearCorpse*/, uint32& /*graveyardOverride*/) { }
 
     /**
      * @brief This hook called before player sending message in default chat

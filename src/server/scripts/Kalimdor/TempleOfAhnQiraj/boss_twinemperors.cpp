@@ -442,17 +442,17 @@ class spell_mutate_explode_bug : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if([&](WorldObject const* target) -> bool
-            {
-                if (target->GetEntry() != NPC_QIRAJI_SCARAB && target->GetEntry() != NPC_QIRAJI_SCORPION)
+        {
+            if (target->GetEntry() != NPC_QIRAJI_SCARAB && target->GetEntry() != NPC_QIRAJI_SCORPION)
+                return true;
+            if (Creature const* creature = target->ToCreature())
+                if (creature->HasAura(SPELL_EXPLODE_BUG) || creature->HasAura(SPELL_MUTATE_BUG))
                     return true;
-                if (Creature const* creature = target->ToCreature())
-                    if (creature->HasAura(SPELL_EXPLODE_BUG) || creature->HasAura(SPELL_MUTATE_BUG))
-                        return true;
 
-                return false;
-            });
+            return false;
+        });
 
-        Acore::Containers::RandomResize(targets, 1);
+        Warhead::Containers::RandomResize(targets, 1);
     }
 
     void HandleOnHit()

@@ -411,7 +411,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
 
     if (_player->GetCharmGUID() || _player->IsInCombat())
     {
-        _player->GetSession()->SendNotification(LANG_YOU_IN_COMBAT);
+        Warhead::Text::SendNotification(this, LANG_YOU_IN_COMBAT);
         return;
     }
 
