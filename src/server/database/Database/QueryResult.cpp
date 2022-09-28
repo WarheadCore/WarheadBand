@@ -70,7 +70,7 @@ namespace
                 MYSQL_TYPE_SET:
                 */
             default:
-                LOG_WARN("sql.sql", "SQL::SizeForType(): invalid field type {}", uint32(field->type));
+                LOG_WARN("db.query", "SQL::SizeForType(): invalid field type {}", uint32(field->type));
                 return 0;
         }
     }
@@ -112,7 +112,7 @@ namespace
             case MYSQL_TYPE_VAR_STRING:
                 return DatabaseFieldTypes::Binary;
             default:
-                LOG_WARN("sql.sql", "MysqlTypeToFieldType(): invalid field type {}", uint32(type));
+                LOG_WARN("db.query", "MysqlTypeToFieldType(): invalid field type {}", uint32(type));
                 break;
         }
 

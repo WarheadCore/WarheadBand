@@ -166,7 +166,7 @@ std::pair<uint32, MySQLConnection*> DatabaseWorkerPool::OpenConnection(InternalI
         }
         else if (_asyncConnection->GetServerVersion() < MIN_DB_SERVER_VERSION)
         {
-            LOG_ERROR("sql.driver", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
+            LOG_ERROR("db.pool", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
             return { 1, nullptr };
         }
 
@@ -182,7 +182,7 @@ std::pair<uint32, MySQLConnection*> DatabaseWorkerPool::OpenConnection(InternalI
         }
         else if (_asyncConnection->GetServerVersion() < MIN_DB_SERVER_VERSION)
         {
-            LOG_ERROR("sql.driver", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
+            LOG_ERROR("db.pool", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
             return { 1, nullptr };
         }
 

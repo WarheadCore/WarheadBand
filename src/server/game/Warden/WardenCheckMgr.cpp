@@ -80,7 +80,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
         if (checkType == LUA_EVAL_CHECK && id > 9999)
         {
-            LOG_ERROR("warden", "sql.sql: Warden Lua check with id {} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.", id);
+            LOG_ERROR("warden", "db.query: Warden Lua check with id {} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.", id);
             continue;
         }
 
@@ -139,7 +139,7 @@ void WardenCheckMgr::LoadWardenChecks()
             {
                 if (wardenCheck.Length > WARDEN_MAX_LUA_CHECK_LENGTH)
                 {
-                    LOG_ERROR("warden", "sql.sql: Found over-long Lua check for Warden check with id {} in `warden_checks`. Max length is {}. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
+                    LOG_ERROR("warden", "db.query: Found over-long Lua check for Warden check with id {} in `warden_checks`. Max length is {}. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
                     continue;
                 }
 

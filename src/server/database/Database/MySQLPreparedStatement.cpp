@@ -84,7 +84,7 @@ void MySQLPreparedStatement::BindParameters(PreparedStatement stmt)
 
 #ifdef _DEBUG
     if (pos < m_paramCount)
-        LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement {} did not bind all allocated parameters", stmt->GetIndex());
+        LOG_WARN("db.query", "BindParameters() for statement {} did not bind all allocated parameters", stmt->GetIndex());
 #endif
 }
 

@@ -634,18 +634,18 @@ void PoolMgr::LoadFromDB()
                 CreatureData const* data = sObjectMgr->GetCreatureData(guid);
                 if (!data)
                 {
-                    LOG_ERROR("sql.sql", "`pool_creature` has a non existing creature spawn (GUID: {}) defined for pool id ({}), skipped.", guid, pool_id);
+                    LOG_ERROR("db.query", "`pool_creature` has a non existing creature spawn (GUID: {}) defined for pool id ({}), skipped.", guid, pool_id);
                     continue;
                 }
                 auto it = mPoolTemplate.find(pool_id);
                 if (it == mPoolTemplate.end())
                 {
-                    LOG_ERROR("sql.sql", "`pool_creature` pool id ({}) is not in `pool_template`, skipped.", pool_id);
+                    LOG_ERROR("db.query", "`pool_creature` pool id ({}) is not in `pool_template`, skipped.", pool_id);
                     continue;
                 }
                 if (chance < 0 || chance > 100)
                 {
-                    LOG_ERROR("sql.sql", "`pool_creature` has an invalid chance ({}) for creature guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
+                    LOG_ERROR("db.query", "`pool_creature` has an invalid chance ({}) for creature guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
                     continue;
                 }
                 PoolTemplateData* pPoolTemplate = &mPoolTemplate[pool_id];
@@ -692,7 +692,7 @@ void PoolMgr::LoadFromDB()
                 GameObjectData const* data = sObjectMgr->GetGOData(guid);
                 if (!data)
                 {
-                    LOG_ERROR("sql.sql", "`pool_gameobject` has a non existing gameobject spawn (GUID: {}) defined for pool id ({}), skipped.", guid, pool_id);
+                    LOG_ERROR("db.query", "`pool_gameobject` has a non existing gameobject spawn (GUID: {}) defined for pool id ({}), skipped.", guid, pool_id);
                     continue;
                 }
 
@@ -701,20 +701,20 @@ void PoolMgr::LoadFromDB()
                         goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
                         goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
                 {
-                    LOG_ERROR("sql.sql", "`pool_gameobject` has a not lootable gameobject spawn (GUID: {}, type: {}) defined for pool id ({}), skipped.", guid, goinfo->type, pool_id);
+                    LOG_ERROR("db.query", "`pool_gameobject` has a not lootable gameobject spawn (GUID: {}, type: {}) defined for pool id ({}), skipped.", guid, goinfo->type, pool_id);
                     continue;
                 }
 
                 auto it = mPoolTemplate.find(pool_id);
                 if (it == mPoolTemplate.end())
                 {
-                    LOG_ERROR("sql.sql", "`pool_gameobject` pool id ({}) is not in `pool_template`, skipped.", pool_id);
+                    LOG_ERROR("db.query", "`pool_gameobject` pool id ({}) is not in `pool_template`, skipped.", pool_id);
                     continue;
                 }
 
                 if (chance < 0 || chance > 100)
                 {
-                    LOG_ERROR("sql.sql", "`pool_gameobject` has an invalid chance ({}) for gameobject guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
+                    LOG_ERROR("db.query", "`pool_gameobject` has an invalid chance ({}) for gameobject guid ({}) in pool id ({}), skipped.", chance, guid, pool_id);
                     continue;
                 }
 
@@ -763,7 +763,7 @@ void PoolMgr::LoadFromDB()
                     auto it = mPoolTemplate.find(mother_pool_id);
                     if (it == mPoolTemplate.end())
                     {
-                        LOG_ERROR("sql.sql", "`pool_pool` mother_pool id ({}) is not in `pool_template`, skipped.", mother_pool_id);
+                        LOG_ERROR("db.query", "`pool_pool` mother_pool id ({}) is not in `pool_template`, skipped.", mother_pool_id);
                         continue;
                     }
                 }
@@ -771,18 +771,18 @@ void PoolMgr::LoadFromDB()
                     auto it = mPoolTemplate.find(child_pool_id);
                     if (it == mPoolTemplate.end())
                     {
-                        LOG_ERROR("sql.sql", "`pool_pool` included pool_id ({}) is not in `pool_template`, skipped.", child_pool_id);
+                        LOG_ERROR("db.query", "`pool_pool` included pool_id ({}) is not in `pool_template`, skipped.", child_pool_id);
                         continue;
                     }
                 }
                 if (mother_pool_id == child_pool_id)
                 {
-                    LOG_ERROR("sql.sql", "`pool_pool` pool_id ({}) includes itself, dead-lock detected, skipped.", child_pool_id);
+                    LOG_ERROR("db.query", "`pool_pool` pool_id ({}) includes itself, dead-lock detected, skipped.", child_pool_id);
                     continue;
                 }
                 if (chance < 0 || chance > 100)
                 {
-                    LOG_ERROR("sql.sql", "`pool_pool` has an invalid chance ({}) for pool id ({}) in mother pool id ({}), skipped.", chance, child_pool_id, mother_pool_id);
+                    LOG_ERROR("db.query", "`pool_pool` has an invalid chance ({}) for pool id ({}) in mother pool id ({}), skipped.", chance, child_pool_id, mother_pool_id);
                     continue;
                 }
                 PoolTemplateData* pPoolTemplateMother = &mPoolTemplate[mother_pool_id];
@@ -812,7 +812,7 @@ void PoolMgr::LoadFromDB()
                             ss << *itr << ' ';
                         ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
                            << poolItr->first << " and child pool " << poolItr->second;
-                        LOG_ERROR("sql.sql", "{}", ss.str());
+                        LOG_ERROR("db.query", "{}", ss.str());
                         mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
                         mPoolSearchMap.erase(poolItr);
                         --count;
@@ -862,20 +862,20 @@ void PoolMgr::LoadFromDB()
                 Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
                 if (!quest)
                 {
-                    LOG_ERROR("sql.sql", "`pool_quest` has a non existing quest template (Entry: {}) defined for pool id ({}), skipped.", entry, pool_id);
+                    LOG_ERROR("db.query", "`pool_quest` has a non existing quest template (Entry: {}) defined for pool id ({}), skipped.", entry, pool_id);
                     continue;
                 }
 
                 auto it = mPoolTemplate.find(pool_id);
                 if (it == mPoolTemplate.end())
                 {
-                    LOG_ERROR("sql.sql", "`pool_quest` pool id ({}) is not in `pool_template`, skipped.", pool_id);
+                    LOG_ERROR("db.query", "`pool_quest` pool id ({}) is not in `pool_template`, skipped.", pool_id);
                     continue;
                 }
 
                 if (!quest->IsDailyOrWeekly())
                 {
-                    LOG_ERROR("sql.sql", "`pool_quest` has an quest ({}) which is not daily or weekly in pool id ({}), use ExclusiveGroup instead, skipped.", entry, pool_id);
+                    LOG_ERROR("db.query", "`pool_quest` has an quest ({}) which is not daily or weekly in pool id ({}), use ExclusiveGroup instead, skipped.", entry, pool_id);
                     continue;
                 }
 
@@ -886,7 +886,7 @@ void PoolMgr::LoadFromDB()
 
                 if (poolTypeMap[pool_id] != currType)
                 {
-                    LOG_ERROR("sql.sql", "`pool_quest` quest {} is {} but pool ({}) is specified for {}, mixing not allowed, skipped.",
+                    LOG_ERROR("db.query", "`pool_quest` quest {} is {} but pool ({}) is specified for {}, mixing not allowed, skipped.",
                                      entry, currType == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY", pool_id, poolTypeMap[pool_id] == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY");
                     continue;
                 }
@@ -896,7 +896,7 @@ void PoolMgr::LoadFromDB()
 
                 if (creBounds.first == creBounds.second && goBounds.first == goBounds.second)
                 {
-                    LOG_ERROR("sql.sql", "`pool_quest` lists entry ({}) as member of pool ({}) but is not started anywhere, skipped.", entry, pool_id);
+                    LOG_ERROR("db.query", "`pool_quest` lists entry ({}) as member of pool ({}) but is not started anywhere, skipped.", entry, pool_id);
                     continue;
                 }
 
@@ -944,9 +944,9 @@ void PoolMgr::LoadFromDB()
                     if (pool_pool_id)
                         // The pool is a child pool in pool_pool table. Ideally we should remove it from the pool handler to ensure it never gets spawned,
                         // however that could recursively invalidate entire chain of mother pools. It can be done in the future but for now we'll do nothing.
-                        LOG_ERROR("sql.sql", "Pool Id {} has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id {} and cannot be safely removed.", pool_entry, fields[2].Get<uint32>());
+                        LOG_ERROR("db.query", "Pool Id {} has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id {} and cannot be safely removed.", pool_entry, fields[2].Get<uint32>());
                     else
-                        LOG_ERROR("sql.sql", "Pool Id {} has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
+                        LOG_ERROR("db.query", "Pool Id {} has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
                     continue;
                 }
 

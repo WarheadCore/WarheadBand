@@ -107,7 +107,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
                 }
                 else
                 {
-                    LOG_ERROR("sql.sql", "Table `command` contains data for non-existant command '{}'. Skipped.", name);
+                    LOG_ERROR("db.query", "Table `command` contains data for non-existant command '{}'. Skipped.", name);
                     cmd = nullptr;
                     break;
                 }
@@ -118,7 +118,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
 
             if (cmd->_invoker && (cmd->_permission.RequiredLevel != secLevel))
             {
-                LOG_WARN("sql.sql", "Table `command` has permission {} for '{}' which does not match the core ({}). Overriding.",
+                LOG_WARN("db.query", "Table `command` has permission {} for '{}' which does not match the core ({}). Overriding.",
                     secLevel, name, cmd->_permission.RequiredLevel);
 
                 cmd->_permission.RequiredLevel = secLevel;
@@ -126,7 +126,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
 
             if (!cmd->_help.empty())
             {
-                LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '{}'. Skipped.", name);
+                LOG_ERROR("db.query", "Table `command` contains duplicate data for command '{}'. Skipped.", name);
             }
             else
             {
@@ -142,7 +142,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
 void Warhead::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
 {
     if (_invoker && _help.empty())
-        LOG_WARN("sql.sql", "Table `command` is missing help text for command '{}'.", name);
+        LOG_WARN("db.query", "Table `command` is missing help text for command '{}'.", name);
 
     _name = name;
 

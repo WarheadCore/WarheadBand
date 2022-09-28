@@ -114,11 +114,11 @@ void TransactionTask::ExecuteQuery()
                 if (!TryExecute())
                     return;
 
-                LOG_WARN("sql.sql", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration.count(), threadId);
+                LOG_WARN("db.query", "Deadlocked SQL Transaction, retrying. Loop timer: {} ms, Thread Id: {}", loopDuration.count(), threadId);
             }
         }
 
-        LOG_ERROR("sql.sql", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: {}", threadId);
+        LOG_ERROR("db.query", "Fatal deadlocked SQL Transaction, it will not be retried anymore. Thread Id: {}", threadId);
     }
 
     // Clean up now.

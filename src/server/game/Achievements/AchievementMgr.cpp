@@ -54,7 +54,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
     if (dataType >= MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE)
     {
-        LOG_ERROR("sql.sql", "Table `achievement_criteria_data` for criteria (Entry: {}) has wrong data type ({}), ignored.", criteria->ID, dataType);
+        LOG_ERROR("db.query", "Table `achievement_criteria_data` for criteria (Entry: {}) has wrong data type ({}), ignored.", criteria->ID, dataType);
         return false;
     }
 
@@ -91,7 +91,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         default:
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has data for non-supported criteria type (Entry: {} Type: {}), ignored.", criteria->ID, criteria->requiredType);
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` has data for non-supported criteria type (Entry: {} Type: {}), ignored.", criteria->ID, criteria->requiredType);
                 return false;
             }
             break;
@@ -106,7 +106,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
             if (!creature.id || !sObjectMgr->GetCreatureTemplate(creature.id))
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE ({}) has non-existing creature id in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_CREATURE ({}) has non-existing creature id in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, creature.id);
                 return false;
             }
@@ -114,13 +114,13 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE:
             if (classRace.class_id && ((1 << (classRace.class_id - 1)) & CLASSMASK_ALL_PLAYABLE) == 0)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({}) has non-existing class in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({}) has non-existing class in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, classRace.class_id);
                 return false;
             }
             if (classRace.race_id && ((1 << (classRace.race_id - 1)) & RACEMASK_ALL_PLAYABLE) == 0)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({}) has non-existing race in value2 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({}) has non-existing race in value2 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, classRace.race_id);
                 return false;
             }
@@ -128,7 +128,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH:
             if (health.percent < 1 || health.percent > 100)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH ({}) has wrong percent value in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_PLAYER_LESS_HEALTH ({}) has wrong percent value in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, health.percent);
                 return false;
             }
@@ -136,7 +136,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
             if (player_dead.own_team_flag > 1)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD ({}) has wrong boolean value1 ({}).",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD ({}) has wrong boolean value1 ({}).",
                                  criteria->ID, criteria->requiredType, dataType, player_dead.own_team_flag);
                 return false;
             }
@@ -147,19 +147,19 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(aura.spell_id);
                 if (!spellEntry)
                 {
-                    LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type {} ({}) has wrong spell id in value1 ({}), ignored.",
+                    LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type {} ({}) has wrong spell id in value1 ({}), ignored.",
                                      criteria->ID, criteria->requiredType, (dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA ? "ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA" : "ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA"), dataType, aura.spell_id);
                     return false;
                 }
                 if (aura.effect_idx >= 3)
                 {
-                    LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type {} ({}) has wrong spell effect index in value2 ({}), ignored.",
+                    LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type {} ({}) has wrong spell effect index in value2 ({}), ignored.",
                                      criteria->ID, criteria->requiredType, (dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA ? "ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA" : "ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA"), dataType, aura.effect_idx);
                     return false;
                 }
                 if (!spellEntry->Effects[aura.effect_idx].ApplyAuraName)
                 {
-                    LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type {} ({}) has non-aura spell effect (ID: {} Effect: {}), ignores.",
+                    LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type {} ({}) has non-aura spell effect (ID: {} Effect: {}), ignores.",
                                      criteria->ID, criteria->requiredType, (dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA ? "ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA" : "ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA"), dataType, aura.spell_id, aura.effect_idx);
                     return false;
                 }
@@ -168,7 +168,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA:
             if (!sAreaTableStore.LookupEntry(area.id))
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA ({}) has wrong area id in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA ({}) has wrong area id in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, area.id);
                 return false;
             }
@@ -176,7 +176,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
             if (value.compType >= COMP_TYPE_MAX)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE ({}) has wrong ComparisionType in value2 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE ({}) has wrong ComparisionType in value2 ({}), ignored.",
                                  value.compType, criteria->requiredType, dataType, value.value);
                 return false;
             }
@@ -184,7 +184,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
             if (level.minlevel > STRONG_MAX_LEVEL)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL ({}) has wrong minlevel in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL ({}) has wrong minlevel in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, level.minlevel);
                 return false;
             }
@@ -192,7 +192,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER:
             if (gender.gender > GENDER_NONE)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER ({}) has wrong gender in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER ({}) has wrong gender in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, gender.gender);
                 return false;
             }
@@ -200,7 +200,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
             if (!ScriptId)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT ({}) does not have ScriptName set, ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT ({}) does not have ScriptName set, ignored.",
                                  criteria->ID, criteria->requiredType, dataType);
                 return false;
             }
@@ -208,7 +208,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             if (difficulty.difficulty >= MAX_DIFFICULTY)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY ({}) has wrong difficulty in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY ({}) has wrong difficulty in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, difficulty.difficulty);
                 return false;
             }
@@ -216,7 +216,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
             if (map_players.maxcount <= 0)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT ({}) has wrong max players count in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT ({}) has wrong max players count in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, map_players.maxcount);
                 return false;
             }
@@ -224,7 +224,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM:
             if (team.team != ALLIANCE && team.team != HORDE)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM ({}) has unknown team in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM ({}) has unknown team in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, team.team);
                 return false;
             }
@@ -232,7 +232,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK:
             if (drunk.state >= MAX_DRUNKEN)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK ({}) has unknown drunken state in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK ({}) has unknown drunken state in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, drunk.state);
                 return false;
             }
@@ -240,7 +240,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY:
             if (!sHolidaysStore.LookupEntry(holiday.id))
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY ({}) has unknown holiday in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY ({}) has unknown holiday in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, holiday.id);
                 return false;
             }
@@ -252,7 +252,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
             if (equipped_item.item_quality >= MAX_ITEM_QUALITY)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: {} Type: {}) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_S_EQUIPED_ITEM ({}) has unknown quality state in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_requirement` (Entry: {} Type: {}) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_S_EQUIPED_ITEM ({}) has unknown quality state in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, equipped_item.item_quality);
                 return false;
             }
@@ -260,7 +260,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             if (!sMapStore.LookupEntry(map_id.mapId))
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: {} Type: {}) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID ({}) has unknown map id in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_requirement` (Entry: {} Type: {}) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID ({}) has unknown map id in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, map_id.mapId);
                 return false;
             }
@@ -268,19 +268,19 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE:
             if (!classRace.class_id && !classRace.race_id)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({}) must not have 0 in either value field, ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({}) must not have 0 in either value field, ignored.",
                                  criteria->ID, criteria->requiredType, dataType);
                 return false;
             }
             if (classRace.class_id && ((1 << (classRace.class_id - 1)) & CLASSMASK_ALL_PLAYABLE) == 0)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({}) has non-existing class in value1 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({}) has non-existing class in value1 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, classRace.class_id);
                 return false;
             }
             if (classRace.race_id && ((1 << (classRace.race_id - 1)) & RACEMASK_ALL_PLAYABLE) == 0)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({}) has non-existing race in value2 ({}), ignored.",
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({}) has non-existing race in value2 ({}), ignored.",
                                  criteria->ID, criteria->requiredType, dataType, classRace.race_id);
                 return false;
             }
@@ -289,14 +289,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             {
                 if (!sCharTitlesStore.LookupEntry(known_title.title_id))
                 {
-                    LOG_ERROR("sql.sql", "Table `achievement_criteria_requirement` (Entry: {} Type: {}) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE ({}) have unknown title_id in value1 ({}), ignore.",
+                    LOG_ERROR("db.query", "Table `achievement_criteria_requirement` (Entry: {} Type: {}) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE ({}) have unknown title_id in value1 ({}), ignore.",
                                      criteria->ID, criteria->requiredType, dataType, known_title.title_id);
                     return false;
                 }
                 return true;
             }
         default:
-            LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: {} Type: {}) has data for non-supported data type ({}), ignored.", criteria->ID, criteria->requiredType, dataType);
+            LOG_ERROR("db.query", "Table `achievement_criteria_data` (Entry: {} Type: {}) has data for non-supported data type ({}), ignored.", criteria->ID, criteria->requiredType, dataType);
             return false;
     }
 }
@@ -402,14 +402,14 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             Map* map = source->GetMap();
             if (!map->IsDungeon())
             {
-                LOG_ERROR("sql.sql", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT ({}) for achievement criteria {} for non-dungeon/non-raid map {}",
+                LOG_ERROR("db.query", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT ({}) for achievement criteria {} for non-dungeon/non-raid map {}",
                                     ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT, criteria_id, map->GetId());
                 return false;
             }
             InstanceScript* instance = map->ToInstanceMap()->GetInstanceScript();
             if (!instance)
             {
-                LOG_ERROR("sql.sql", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT ({}) for achievement criteria {} for map {} but map does not have a instance script",
+                LOG_ERROR("db.query", "Achievement system call ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT ({}) for achievement criteria {} for map {} but map does not have a instance script",
                                     ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT, criteria_id, map->GetId());
                 return false;
             }
@@ -2659,7 +2659,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         if (!criteria)
         {
-            LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has data for non-existing criteria (Entry: {}), ignore.", criteria_id);
+            LOG_ERROR("db.query", "Table `achievement_criteria_data` has data for non-existing criteria (Entry: {}), ignore.", criteria_id);
             continue;
         }
 
@@ -2669,7 +2669,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         if (scriptName.length()) // not empty
         {
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
-                LOG_ERROR("sql.sql", "Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: {}, type {}), useless data.", criteria_id, dataType);
+                LOG_ERROR("db.query", "Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: {}, type {}), useless data.", criteria_id, dataType);
             else
                 scriptId = sObjectMgr->GetScriptId(scriptName);
         }
@@ -2761,7 +2761,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         }
 
         if (!GetCriteriaDataSet(criteria) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, entryId, nullptr))
-            LOG_ERROR("sql.sql", "Table `achievement_criteria_data` does not have expected data for criteria (Entry: {} Type: {}) for achievement {}.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
+            LOG_ERROR("db.query", "Table `achievement_criteria_data` does not have expected data for criteria (Entry: {} Type: {}) for achievement {}.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
     LOG_INFO("server.loading", ">> Loaded {} additional achievement criteria data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -2837,7 +2837,7 @@ void AchievementGlobalMgr::LoadRewards()
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(entry);
         if (!achievement)
         {
-            LOG_ERROR("sql.sql", "Table `achievement_reward` has wrong achievement (Entry: {}). Ignoring.", entry);
+            LOG_ERROR("db.query", "Table `achievement_reward` has wrong achievement (Entry: {}). Ignoring.", entry);
             continue;
         }
 
@@ -2853,7 +2853,7 @@ void AchievementGlobalMgr::LoadRewards()
         // Must reward a title or send a mail else, skip it.
         if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)
         {
-            LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) does not have any title or item reward data. Ignoring.", entry);
+            LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) does not have any title or item reward data. Ignoring.", entry);
             continue;
         }
 
@@ -2865,7 +2865,7 @@ void AchievementGlobalMgr::LoadRewards()
             CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[0]);
             if (!titleEntry)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has invalid title id ({}) in `title_A`. Setting it to 0.", entry, reward.titleId[0]);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has invalid title id ({}) in `title_A`. Setting it to 0.", entry, reward.titleId[0]);
                 reward.titleId[0] = 0;
             }
         }
@@ -2875,7 +2875,7 @@ void AchievementGlobalMgr::LoadRewards()
             CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[1]);
             if (!titleEntry)
             {
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has invalid title id ({}) in `title_H`. Setting it to 0.", entry, reward.titleId[1]);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has invalid title id ({}) in `title_H`. Setting it to 0.", entry, reward.titleId[1]);
                 reward.titleId[1] = 0;
             }
         }
@@ -2885,34 +2885,34 @@ void AchievementGlobalMgr::LoadRewards()
         {
             if (!sObjectMgr->GetCreatureTemplate(reward.sender))
             {
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has invalid creature_template entry {} as Sender. Will not send the mail reward.", entry, reward.sender);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has invalid creature_template entry {} as Sender. Will not send the mail reward.", entry, reward.sender);
                 reward.sender = 0;
             }
         }
         else
         {
             if (reward.itemId)
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has itemId reward set but does not have Sender data set. Item will not be sent.", entry);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has itemId reward set but does not have Sender data set. Item will not be sent.", entry);
 
             if (!reward.subject.empty())
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has mail Subject but does not have Sender data set.", entry); // Maybe add "Mail will not be sent." ?
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has mail Subject but does not have Sender data set.", entry); // Maybe add "Mail will not be sent." ?
 
             if (!reward.text.empty())
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has mail text (Body) set but does not have Sender data set.", entry); // Maybe add "Mail will not be sent." ?
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has mail text (Body) set but does not have Sender data set.", entry); // Maybe add "Mail will not be sent." ?
 
             if (reward.mailTemplate)
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has mailTemplate set does not have Sender data set.", entry); // Maybe add "Mail will not be sent." ?
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has mailTemplate set does not have Sender data set.", entry); // Maybe add "Mail will not be sent." ?
         }
 
         if (reward.mailTemplate)
         {
             if (!sMailTemplateStore.LookupEntry(reward.mailTemplate))
             {
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has invalid mailTemplate ({}) (check the DBC).", entry, reward.mailTemplate);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has invalid mailTemplate ({}) (check the DBC).", entry, reward.mailTemplate);
                 reward.mailTemplate = 0;
             }
             else if (!reward.subject.empty() || !reward.text.empty())
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has mailTemplate ({}) and mail Subject/Body. To use the column mailTemplate, Subject and Body must be empty.", entry, reward.mailTemplate);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has mailTemplate ({}) and mail Subject/Body. To use the column mailTemplate, Subject and Body must be empty.", entry, reward.mailTemplate);
         }
 
         if (reward.itemId)
@@ -2920,7 +2920,7 @@ void AchievementGlobalMgr::LoadRewards()
             if (!sObjectMgr->GetItemTemplate(reward.itemId))
             {
                 // Not sure it's an error, it's probably an outDebug instead, because we can simply send a mail with no reward, right?
-                LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: {}) has invalid item_template id {}. Reward mail will not contain any item.", entry, reward.itemId);
+                LOG_ERROR("db.query", "Table `achievement_reward` (Entry: {}) has invalid item_template id {}. Reward mail will not contain any item.", entry, reward.itemId);
                 reward.itemId = 0;
             }
         }

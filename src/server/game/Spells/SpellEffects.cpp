@@ -4339,7 +4339,7 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
                 artKitValue = templateAddon->artKits[artKitIndex];
 
             if (artKitValue == 0)
-                LOG_ERROR("sql.sql", "GameObject {} hit by spell {} needs `artkit{}` in `gameobject_template_addon`", gameObjTarget->GetEntry(), m_spellInfo->Id, artKitIndex);
+                LOG_ERROR("db.query", "GameObject {} hit by spell {} needs `artkit{}` in `gameobject_template_addon`", gameObjTarget->GetEntry(), m_spellInfo->Id, artKitIndex);
             else
                 gameObjTarget->SetGoArtKit(artKitValue);
 
@@ -5408,7 +5408,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     if (!goinfo)
     {
-        LOG_ERROR("sql.sql", "Gameobject (Entry: {}) not exist and not created at spell (ID: {}) cast", name_id, m_spellInfo->Id);
+        LOG_ERROR("db.query", "Gameobject (Entry: {}) not exist and not created at spell (ID: {}) cast", name_id, m_spellInfo->Id);
         return;
     }
 

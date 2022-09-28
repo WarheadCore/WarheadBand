@@ -84,8 +84,8 @@ bool GameLocale::LoadWarheadStrings()
     QueryResult result = WorldDatabase.Query("SELECT entry, content_default, locale_koKR, locale_frFR, locale_deDE, locale_zhCN, locale_zhTW, locale_esES, locale_esMX, locale_ruRU FROM acore_string");
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 warhead strings. DB table `warhead_strings` is empty.");
-        LOG_WARN("sql.sql", "");
+        LOG_WARN("db.query", ">> Loaded 0 warhead strings. DB table `warhead_strings` is empty.");
+        LOG_WARN("db.query", "");
         return false;
     }
 
@@ -119,7 +119,7 @@ std::string GameLocale::GetWarheadString(uint32 entry, LocaleConstant locale) co
         return as->Content[DEFAULT_LOCALE];
     }
 
-    LOG_ERROR("sql.sql", "Warhead string entry {} not found in DB.", entry);
+    LOG_ERROR("db.query", "Warhead string entry {} not found in DB.", entry);
 
     return "<error>";
 }
@@ -144,8 +144,8 @@ void GameLocale::LoadAchievementRewardLocales()
 
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 achievement reward locale strings. DB table `achievement_reward_locale` is empty");
-        LOG_WARN("sql.sql", "");
+        LOG_WARN("db.query", ">> Loaded 0 achievement reward locale strings. DB table `achievement_reward_locale` is empty");
+        LOG_WARN("db.query", "");
         return;
     }
 
@@ -181,8 +181,8 @@ void GameLocale::LoadBroadcastTexts()
     QueryResult result = WorldDatabase.Query("SELECT ID, LanguageID, Text, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, SoundEntriesID, EmotesID, Flags FROM broadcast_text");
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
-        LOG_WARN("sql.sql", "");
+        LOG_WARN("db.query", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
+        LOG_WARN("db.query", "");
         return;
     }
 
@@ -253,8 +253,8 @@ void GameLocale::LoadBroadcastTextLocales()
 
     if (!result)
     {
-        LOG_WARN("sql.sql", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");
-        LOG_WARN("sql.sql", "");
+        LOG_WARN("db.query", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");
+        LOG_WARN("db.query", "");
         return;
     }
 
@@ -266,7 +266,7 @@ void GameLocale::LoadBroadcastTextLocales()
         auto const& bct = _broadcastTextStore.find(id);
         if (bct == _broadcastTextStore.end())
         {
-            LOG_ERROR("sql.sql", "BroadcastText (Id: {}) in table `broadcast_text_locale` does not exist. Skipped!", id);
+            LOG_ERROR("db.query", "BroadcastText (Id: {}) in table `broadcast_text_locale` does not exist. Skipped!", id);
             continue;
         }
 
@@ -855,7 +855,7 @@ Optional<std::string> GameLocale::GetChatCommandStringHelpLocale(std::string con
     auto const& itr = _chatCommandStringStore.find(commandName);
     if (itr == _chatCommandStringStore.end())
     {
-        //LOG_ERROR("sql.sql", "> Missing help text localisation for commnd '{}'", commandName);
+        //LOG_ERROR("db.query", "> Missing help text localisation for commnd '{}'", commandName);
         return std::nullopt;
     }
 
@@ -877,7 +877,7 @@ void GameLocale::LoadRaceStrings()
     QueryResult result = WorldDatabase.Query("SELECT ID, Locale, NameMale, NameFemale FROM `string_race`");
     if (!result)
     {
-        LOG_WARN("sql.sql", "> DB table `string_race` is empty");
+        LOG_WARN("db.query", "> DB table `string_race` is empty");
         return;
     }
 
@@ -910,7 +910,7 @@ void GameLocale::LoadClassStrings()
     QueryResult result = WorldDatabase.Query("SELECT ID, Locale, NameMale, NameFemale FROM `string_class`");
     if (!result)
     {
-        LOG_WARN("sql.sql", "> DB table `string_class` is empty");
+        LOG_WARN("db.query", "> DB table `string_class` is empty");
         return;
     }
 
