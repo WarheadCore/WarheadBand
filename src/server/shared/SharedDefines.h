@@ -3730,7 +3730,7 @@ enum ServerProcessTypes
     NUM_SERVER_PROCESS_TYPES
 };
 
-// Login Failure Reasons
+// Auth Failure Reasons
 enum class LoginFailureReason : uint8
 {
     Failed             = 0,

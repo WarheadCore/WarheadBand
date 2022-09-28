@@ -150,7 +150,7 @@ public:
                 break;
         }
 
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
         stmt->SetData(0, entry);
         stmt->SetData(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -237,7 +237,7 @@ public:
                 break;
         }
 
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_DISABLES);
         stmt->SetData(0, entry);
         stmt->SetData(1, disableType);
         PreparedQueryResult result = WorldDatabase.Query(stmt);

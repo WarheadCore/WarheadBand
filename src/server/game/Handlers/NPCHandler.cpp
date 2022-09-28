@@ -608,7 +608,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
                 return;
             }
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
             stmt->SetData(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot));
             stmt->SetData(1, _player->GetGUID().GetCounter());
             stmt->SetData(2, petStable->UnslottedPets[0].PetNumber);
@@ -694,7 +694,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
             return;
         }
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->SetData(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + std::distance(petStable->StabledPets.begin(), stabledPet)));
         stmt->SetData(1, _player->GetGUID().GetCounter());
         stmt->SetData(2, petStable->UnslottedPets[0].PetNumber);
@@ -719,7 +719,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
         petStable->CurrentPet.reset();
 
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->SetData(0, PET_SAVE_NOT_IN_SLOT);
         stmt->SetData(1, _player->GetGUID().GetCounter());
         stmt->SetData(2, petnumber);
@@ -730,7 +730,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     else
     {
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->SetData(0, PET_SAVE_AS_CURRENT);
         stmt->SetData(1, _player->GetGUID().GetCounter());
         stmt->SetData(2, petnumber);
@@ -846,7 +846,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
             return;
         }
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->SetData(0, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + std::distance(petStable->StabledPets.begin(), stabledPet)));
         stmt->SetData(1, _player->GetGUID().GetCounter());
         stmt->SetData(2, petStable->UnslottedPets[0].PetNumber);
@@ -873,7 +873,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
         petStable->CurrentPet.reset();
 
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->SetData(0, PET_SAVE_NOT_IN_SLOT);
         stmt->SetData(1, _player->GetGUID().GetCounter());
         stmt->SetData(2, petId);
@@ -882,7 +882,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
     else
     {
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->SetData(0, PET_SAVE_AS_CURRENT);
         stmt->SetData(1, _player->GetGUID().GetCounter());
         stmt->SetData(2, petId);

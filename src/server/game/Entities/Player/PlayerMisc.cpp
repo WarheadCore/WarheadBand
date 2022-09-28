@@ -89,7 +89,7 @@ void Player::SendAttackSwingNotInRange()
 
 void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, ObjectGuid guid)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
 
     stmt->SetData(0, x);
     stmt->SetData(1, y);
@@ -104,7 +104,7 @@ void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, 
 
 void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
 
     stmt->SetData(0, loc.GetPositionX());
     stmt->SetData(1, loc.GetPositionY());
@@ -119,7 +119,7 @@ void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGui
 
 void Player::Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction trans)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GENDER_AND_APPEARANCE);
 
     stmt->SetData(0, customizeInfo->Gender);
     stmt->SetData(1, customizeInfo->Skin);

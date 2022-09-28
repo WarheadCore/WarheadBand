@@ -62,7 +62,7 @@ void SmartWaypointMgr::LoadFromDB()
 
     waypoint_map.clear();
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -79,7 +79,7 @@ void SmartWaypointMgr::LoadFromDB()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 entry = fields[0].Get<uint32>();
         uint32 id = fields[1].Get<uint32>();
         float x = fields[2].Get<float>();
@@ -135,7 +135,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
         mEventMap[i].clear();  //Drop Existing SmartAI List
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -149,7 +149,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         SmartScriptHolder temp;
 

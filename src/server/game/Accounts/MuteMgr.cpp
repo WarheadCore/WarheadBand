@@ -43,7 +43,7 @@ void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::s
     auto targetSession = sWorld->FindSession(accountId);
 
     // INSERT INTO `account_muted` (`accountid`, `mutedate`, `mutetime`, `mutedby`, `mutereason`, `active`) VALUES (?, ?, ?, ?, ?, 1)
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
     stmt->SetData(0, accountId);
 
     /*
@@ -59,7 +59,7 @@ void MuteMgr::MutePlayer(std::string const& targetName, Seconds muteTime, std::s
     stmt->SetData(2, muteTime);
     stmt->SetData(3, muteBy);
     stmt->SetData(4, muteReason);
-    LoginDatabase.Execute(stmt);
+    AuthDatabase.Execute(stmt);
 
     auto GetPlayerLink = [targetName]()
     {
@@ -117,9 +117,9 @@ void MuteMgr::DeleteMuteTime(uint32 accountID, bool delFromDB /*= true*/)
     if (delFromDB)
     {
         // UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `accountid` = ?
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTE);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_MUTE);
         stmt->SetData(0, accountID);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
     }
 
     // Check exist account muted
@@ -155,25 +155,25 @@ void MuteMgr::LoginAccount(uint32 accountID)
 {
     // Set inactive if expired
     // UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `mutetime` > 0 AND mutedate > 0 AND `accountid` = ? AND UNIX_TIMESTAMP() >= `mutedate` + `mutetime`
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
     stmt->SetData(0, accountID);
-    LoginDatabase.Execute(stmt);
+    AuthDatabase.Execute(stmt);
 
     sAsyncCallbackMgr->AddAsyncCallback([this, accountID]()
     {
         // Get info about mute time after update active
         // SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? AND `active` = 1 ORDER BY `mutedate` + `mutetime` DESC LIMIT 1
-        auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE);
+        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE);
         stmt->SetData(0, accountID);
 
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
         if (!result)
         {
             // If no info - no mute time :)
             return;
         }
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         Seconds mutedate = fields[0].Get<Seconds>(false);
         Seconds mutetime = fields[1].Get<Seconds>();
 
@@ -191,23 +191,23 @@ void MuteMgr::LoginAccount(uint32 accountID)
 void MuteMgr::UpdateMuteAccount(uint32 accountID, Seconds muteDate)
 {
     // UPDATE `account_muted` SET `mutedate` = ? WHERE `accountid` = ? AND `active` = 1 LIMIT 1
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_DATE);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_DATE);
     stmt->SetData(0, muteDate);
     stmt->SetData(1, accountID);
-    LoginDatabase.Execute(stmt);
+    AuthDatabase.Execute(stmt);
 }
 
 Optional<MuteInfo> MuteMgr::GetMuteInfo(uint32 accountID)
 {
     // SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? AND `active` = 1 ORDER BY `mutedate` + `mutetime` DESC LIMIT 1
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_MUTE);
     stmt->SetData(0, accountID);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
     if (!result)
         return std::nullopt;
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     return std::make_tuple(fields[0].Get<Seconds>(false), fields[1].Get<Seconds>(), fields[2].Get<std::string>(), fields[3].Get<std::string>());
 }
 

@@ -118,7 +118,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 Guild* guild = new Guild();
 
                 if (!guild->LoadFromDB(fields))
@@ -158,7 +158,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
@@ -200,7 +200,7 @@ void GuildMgr::LoadGuilds()
 
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
@@ -235,7 +235,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
@@ -269,7 +269,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
@@ -304,7 +304,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
@@ -339,7 +339,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[0].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))
@@ -376,7 +376,7 @@ void GuildMgr::LoadGuilds()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 guildId = fields[11].Get<uint32>();
 
                 if (Guild* guild = GetGuildById(guildId))

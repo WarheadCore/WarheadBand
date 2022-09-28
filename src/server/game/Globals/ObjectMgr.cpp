@@ -411,7 +411,7 @@ void ObjectMgr::LoadCreatureTemplates()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         LoadCreatureTemplate(fields);
         ++count;
     } while (result->NextRow());
@@ -576,7 +576,7 @@ void ObjectMgr::LoadCreatureTemplateResistances()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 creatureID = fields[0].Get<uint32>();
         uint8 school = fields[1].Get<uint8>();
@@ -621,7 +621,7 @@ void ObjectMgr::LoadCreatureTemplateSpells()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 creatureID = fields[0].Get<uint32>();
         uint8 index = fields[1].Get<uint8>();
@@ -665,7 +665,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -1151,7 +1151,7 @@ void ObjectMgr::LoadCreatureAddons()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ObjectGuid::LowType guid = fields[0].Get<uint32>();
 
@@ -1252,7 +1252,7 @@ void ObjectMgr::LoadGameObjectAddons()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ObjectGuid::LowType guid = fields[0].Get<uint32>();
 
@@ -1362,7 +1362,7 @@ void ObjectMgr::LoadEquipmentTemplates()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -1449,7 +1449,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
 
     do
     {
-        Field*              fields  = result->Fetch();
+        auto              fields  = result->Fetch();
         ObjectGuid::LowType spawnId = fields[0].Get<uint32>();
         if (!GetCreatureData(spawnId))
         {
@@ -1578,7 +1578,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 modelId = fields[0].Get<uint32>();
 
@@ -1633,7 +1633,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ObjectGuid::LowType guidLow = fields[0].Get<uint32>();
         ObjectGuid::LowType linkedGuidLow = fields[1].Get<uint32>();
@@ -1812,7 +1812,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
     if (!linkedGuidLow) // we're removing the linking
     {
         _linkedRespawnStore.erase(guid);
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
         stmt->SetData(0, guidLow);
         WorldDatabase.Execute(stmt);
         return true;
@@ -1841,7 +1841,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
     ObjectGuid linkedGuid = ObjectGuid::Create<HighGuid::Unit>(slave->id1, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
     stmt->SetData(0, guidLow);
     stmt->SetData(1, linkedGuidLow);
     WorldDatabase.Execute(stmt);
@@ -1864,7 +1864,7 @@ void ObjectMgr::LoadTempSummons()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 summonerId               = fields[0].Get<uint32>();
         SummonerType summonerType       = SummonerType(fields[1].Get<uint8>());
@@ -1967,7 +1967,7 @@ void ObjectMgr::LoadCreatures()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ObjectGuid::LowType spawnId     = fields[0].Get<uint32>();
         uint32 id1                      = fields[1].Get<uint32>();
@@ -2109,7 +2109,7 @@ void ObjectMgr::LoadCreatures()
             uint32 zoneId = sMapMgr->GetZoneId(data.phaseMask, data.mapid, data.posX, data.posY, data.posZ);
             uint32 areaId = sMapMgr->GetAreaId(data.phaseMask, data.mapid, data.posX, data.posY, data.posZ);
 
-            WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA);
+            WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA);
 
             stmt->SetData(0, zoneId);
             stmt->SetData(1, areaId);
@@ -2296,7 +2296,7 @@ void ObjectMgr::LoadGameobjects()
     _gameObjectDataStore.rehash(result->GetRowCount());
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ObjectGuid::LowType guid    = fields[0].Get<uint32>();
         uint32 entry                = fields[1].Get<uint32>();
@@ -2417,7 +2417,7 @@ void ObjectMgr::LoadGameobjects()
             uint32 zoneId = sMapMgr->GetZoneId(data.phaseMask, data.mapid, data.posX, data.posY, data.posZ);
             uint32 areaId = sMapMgr->GetAreaId(data.phaseMask, data.mapid, data.posX, data.posY, data.posZ);
 
-            WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA);
+            WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA);
 
             stmt->SetData(0, zoneId);
             stmt->SetData(1, areaId);
@@ -2512,7 +2512,7 @@ void ObjectMgr::LoadItemTemplates()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -3129,7 +3129,7 @@ void ObjectMgr::LoadItemSetNames()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
         if (itemSetItems.find(entry) == itemSetItems.end())
@@ -3198,7 +3198,7 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 uiEntry      = fields[0].Get<uint32>();
         uint32 uiAccessory  = fields[1].Get<uint32>();
@@ -3254,7 +3254,7 @@ void ObjectMgr::LoadVehicleAccessories()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 uiGUID       = fields[0].Get<uint32>();
         uint32 uiAccessory  = fields[1].Get<uint32>();
@@ -3296,7 +3296,7 @@ void ObjectMgr::LoadPetLevelInfo()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 creature_id = fields[0].Get<uint32>();
         if (!sObjectMgr->GetCreatureTemplate(creature_id))
@@ -3437,7 +3437,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 current_race  = fields[0].Get<uint8>();
                 uint32 current_class = fields[1].Get<uint8>();
@@ -3523,7 +3523,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 current_race = fields[0].Get<uint8>();
                 if (current_race >= MAX_RACES)
@@ -3593,7 +3593,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 raceMask = fields[0].Get<uint32>();
                 uint32 classMask = fields[1].Get<uint32>();
                 PlayerCreateInfoSkill skill;
@@ -3667,7 +3667,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 raceMask = fields[0].Get<uint32>();
                 uint32 classMask = fields[1].Get<uint32>();
                 uint32 spellId = fields[2].Get<uint32>();
@@ -3725,7 +3725,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             do
             {
-                Field* fields    = result->Fetch();
+                auto fields    = result->Fetch();
                 uint32 raceMask  = fields[0].Get<uint32>();
                 uint32 classMask = fields[1].Get<uint32>();
                 uint32 spellId   = fields[2].Get<uint32>();
@@ -3784,7 +3784,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 current_race = fields[0].Get<uint8>();
                 if (current_race >= MAX_RACES)
@@ -3829,7 +3829,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             uint32 current_class = fields[0].Get<uint8>();
             if (current_class >= MAX_CLASSES)
@@ -3912,7 +3912,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             uint32 current_race = fields[0].Get<uint8>();
             if (current_race >= MAX_RACES)
@@ -4025,7 +4025,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             uint32 current_level = fields[0].Get<uint8>();
             uint32 current_xp    = fields[1].Get<uint32>();
@@ -4216,7 +4216,7 @@ void ObjectMgr::LoadQuests()
     // for example set of race quests can lead to single not race specific quest
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         Quest* newQuest = new Quest(fields);
         _questTemplates[newQuest->GetQuestId()] = newQuest;
@@ -4254,7 +4254,7 @@ void ObjectMgr::LoadQuests()
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
@@ -4277,7 +4277,7 @@ void ObjectMgr::LoadQuests()
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
@@ -4300,7 +4300,7 @@ void ObjectMgr::LoadQuests()
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
@@ -4325,7 +4325,7 @@ void ObjectMgr::LoadQuests()
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             uint32 questId = fields[0].Get<uint32>();
 
             auto itr = _questTemplates.find(questId);
@@ -4948,7 +4948,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         ScriptInfo tmp;
         tmp.type      = type;
         tmp.id           = fields[0].Get<uint32>();
@@ -5309,14 +5309,14 @@ void ObjectMgr::LoadWaypointScripts()
     for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
         actionSet.insert(itr->first);
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ACTION);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ACTION);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             uint32 action = fields[0].Get<uint32>();
 
             actionSet.erase(action);
@@ -5346,7 +5346,7 @@ void ObjectMgr::LoadSpellScriptNames()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         int32 spellId          = fields[0].Get<int32>();
         std::string scriptName = fields[1].Get<std::string>();
@@ -5488,7 +5488,7 @@ void ObjectMgr::LoadPageTexts()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         PageText& pageText = _pageTextStore[fields[0].Get<uint32>()];
 
@@ -5538,7 +5538,7 @@ void ObjectMgr::LoadInstanceTemplate()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint16 mapID = fields[0].Get<uint16>();
 
@@ -5589,7 +5589,7 @@ void ObjectMgr::LoadInstanceEncounters()
     std::map<uint32, DungeonEncounterEntry const*> dungeonLastBosses;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 entry = fields[0].Get<uint32>();
         uint8 creditType = fields[1].Get<uint8>();
         uint32 creditEntry = fields[2].Get<uint32>();
@@ -5696,7 +5696,7 @@ void ObjectMgr::LoadGossipText()
     {
         cic = 0;
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id = fields[cic++].Get<uint32>();
         if (!id)
@@ -5754,7 +5754,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
     time_t curTime = GameTime::GetGameTime().count();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
     stmt->SetData(0, uint32(curTime));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
@@ -5768,7 +5768,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         MailItemInfo item;
         do
         {
-            Field* fields = items->Fetch();
+            auto fields = items->Fetch();
             item.item_guid = fields[0].Get<uint32>();
             item.item_template = fields[1].Get<uint32>();
             uint32 mailId = fields[2].Get<uint32>();
@@ -5780,7 +5780,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     uint32 returnedCount = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         Mail* m = new Mail;
         m->messageID      = fields[0].Get<uint32>();
         m->messageType    = fields[1].Get<uint8>();
@@ -5892,7 +5892,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
     {
         ++count;
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 trigger_ID = fields[0].Get<uint32>();
         uint32 quest_ID   = fields[1].Get<uint32>();
@@ -5961,7 +5961,7 @@ void ObjectMgr::LoadQuestGreetings()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id = fields[0].Get<uint32>();
         uint8 type = fields[1].Get<uint8>();
@@ -6019,7 +6019,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
     {
         ++count;
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 Trigger_ID      = fields[0].Get<uint32>();
 
@@ -6057,7 +6057,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
     {
         ++count;
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 Trigger_ID      = fields[0].Get<uint32>();
         std::string scriptName = fields[1].Get<std::string>();
@@ -6196,7 +6196,7 @@ void ObjectMgr::LoadAreaTriggers()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ++count;
 
@@ -6247,7 +6247,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ++count;
 
@@ -6334,7 +6334,7 @@ void ObjectMgr::LoadAccessRequirements()
 
     do
     {
-        Field* fields = access_template_result->Fetch();
+        auto fields = access_template_result->Fetch();
 
         //Get the common variables for the access requirements
         uint8 dungeon_access_id = fields[0].Get<uint8>();
@@ -6353,7 +6353,7 @@ void ObjectMgr::LoadAccessRequirements()
         {
             do
             {
-                Field* progression_requirement_row = progression_requirements_results->Fetch();
+                auto progression_requirement_row = progression_requirements_results->Fetch();
 
                 const uint8 requirement_type             = progression_requirement_row[0].Get<uint8>();
                 const uint32 requirement_id              = progression_requirement_row[1].Get<uint32>();
@@ -6690,7 +6690,7 @@ void ObjectMgr::LoadGameObjectTemplate()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -6873,7 +6873,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -6950,7 +6950,7 @@ void ObjectMgr::LoadExplorationBaseXP()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint8 level  = fields[0].Get<uint8>();
         uint32 basexp = fields[1].Get<int32>();
         _baseXPTable[level] = basexp;
@@ -6990,7 +6990,7 @@ void ObjectMgr::LoadPetNames()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         std::string word = fields[0].Get<std::string>();
         uint32 entry     = fields[1].Get<uint32>();
         bool   half      = fields[2].Get<bool>();
@@ -7012,7 +7012,7 @@ void ObjectMgr::LoadPetNumber()
     QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
     if (result)
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         _hiPetNumber = fields[0].Get<uint32>() + 1;
     }
 
@@ -7060,7 +7060,7 @@ void ObjectMgr::LoadReputationRewardRate()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 factionId            = fields[0].Get<uint32>();
 
@@ -7156,7 +7156,7 @@ void ObjectMgr::LoadReputationOnKill()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 creature_id = fields[0].Get<uint32>();
 
@@ -7224,7 +7224,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 factionId                = fields[0].Get<uint16>();
 
@@ -7337,7 +7337,7 @@ void ObjectMgr::LoadPointsOfInterest()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 point_id = fields[0].Get<uint32>();
 
@@ -7391,7 +7391,7 @@ void ObjectMgr::LoadQuestPOI()
     if (points)
     {
         // The first result should have the highest questId
-        Field* fields = points->Fetch();
+        auto fields = points->Fetch();
         uint32 questIdMax = fields[0].Get<uint32>();
         POIs.resize(questIdMax + 1);
 
@@ -7414,7 +7414,7 @@ void ObjectMgr::LoadQuestPOI()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 questId            = fields[0].Get<uint32>();
         uint32 id                 = fields[1].Get<uint32>();
@@ -7460,7 +7460,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 npc_entry = fields[0].Get<uint32>();
         CreatureTemplate const* cInfo = GetCreatureTemplate(npc_entry);
@@ -7646,10 +7646,8 @@ void ObjectMgr::LoadReservedPlayersNames()
 
     uint32 count = 0;
 
-    Field* fields;
-    do
+    for (auto const& fields : *result)
     {
-        fields = result->Fetch();
         std::string name = fields[0].Get<std::string>();
 
         std::wstring wstr;
@@ -7663,7 +7661,7 @@ void ObjectMgr::LoadReservedPlayersNames()
 
         _reservedNamesStore.insert(wstr);
         ++count;
-    } while (result->NextRow());
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} reserved player names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
@@ -7698,7 +7696,7 @@ void ObjectMgr::AddReservedPlayerName(std::string const& name)
 
         _reservedNamesStore.insert(wstr);
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_RESERVED_PLAYER_NAME);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_RESERVED_PLAYER_NAME);
         stmt->SetData(0, name);
         CharacterDatabase.Execute(stmt);
     }
@@ -7946,7 +7944,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 entry  = fields[0].Get<uint32>();
         int32 skill   = fields[1].Get<int16>();
 
@@ -8087,7 +8085,7 @@ void ObjectMgr::LoadGameTele()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id         = fields[0].Get<uint32>();
 
@@ -8164,7 +8162,7 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     _gameTeleStore[new_id] = tele;
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAME_TELE);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAME_TELE);
 
     stmt->SetData(0, new_id);
     stmt->SetData(1, tele.position_x);
@@ -8193,7 +8191,7 @@ bool ObjectMgr::DeleteGameTele(std::string_view name)
     {
         if (itr->second.wnameLow == wname)
         {
-            WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_TELE);
+            WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_TELE);
 
             stmt->SetData(0, itr->second.name);
 
@@ -8227,7 +8225,7 @@ void ObjectMgr::LoadMailLevelRewards()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint8 level           = fields[0].Get<uint8>();
         uint32 raceMask       = fields[1].Get<uint32>();
@@ -8374,7 +8372,7 @@ void ObjectMgr::LoadTrainerSpell()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry         = fields[0].Get<uint32>();
         uint32 spell         = fields[1].Get<uint32>();
@@ -8396,7 +8394,7 @@ void ObjectMgr::LoadTrainerSpell()
 int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* skip_vendors)
 {
     // find all items from the reference vendor
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_NPC_VENDOR_REF);
     stmt->SetData(0, uint32(item));
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -8406,7 +8404,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* s
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         int32 item_id = fields[0].Get<int32>();
 
@@ -8455,7 +8453,7 @@ void ObjectMgr::LoadVendors()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry        = fields[0].Get<uint32>();
         int32 item_id      = fields[1].Get<int32>();
@@ -8500,7 +8498,7 @@ void ObjectMgr::LoadGossipMenu()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         GossipMenus gMenu;
 
@@ -8540,7 +8538,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         GossipMenuItems gMenuItem;
 
@@ -8599,7 +8597,7 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
 
     if (persist)
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENDOR);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENDOR);
 
         stmt->SetData(0, entry);
         stmt->SetData(1, item);
@@ -8622,7 +8620,7 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool persist /*= tru
 
     if (persist)
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_NPC_VENDOR);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_NPC_VENDOR);
 
         stmt->SetData(0, entry);
         stmt->SetData(1, item);
@@ -8838,7 +8836,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint8 Level = fields[0].Get<uint8>();
         uint8 Class = fields[1].Get<uint8>();
@@ -8922,7 +8920,7 @@ void ObjectMgr::LoadFactionChangeAchievements()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 alliance = fields[0].Get<uint32>();
         uint32 horde = fields[1].Get<uint32>();
@@ -8958,7 +8956,7 @@ void ObjectMgr::LoadFactionChangeItems()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 alliance = fields[0].Get<uint32>();
         uint32 horde = fields[1].Get<uint32>();
@@ -8994,7 +8992,7 @@ void ObjectMgr::LoadFactionChangeQuests()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 alliance = fields[0].Get<uint32>();
         uint32 horde = fields[1].Get<uint32>();
@@ -9030,7 +9028,7 @@ void ObjectMgr::LoadFactionChangeReputations()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 alliance = fields[0].Get<uint32>();
         uint32 horde = fields[1].Get<uint32>();
@@ -9066,7 +9064,7 @@ void ObjectMgr::LoadFactionChangeSpells()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 alliance = fields[0].Get<uint32>();
         uint32 horde = fields[1].Get<uint32>();
@@ -9101,7 +9099,7 @@ void ObjectMgr::LoadFactionChangeTitles()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 alliance = fields[0].Get<uint32>();
         uint32 horde = fields[1].Get<uint32>();
@@ -9194,7 +9192,7 @@ void ObjectMgr::LoadGameObjectQuestItems()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
         uint32 item = fields[1].Get<uint32>();
@@ -9224,7 +9222,7 @@ void ObjectMgr::LoadCreatureQuestItems()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
         uint32 item = fields[1].Get<uint32>();
@@ -9255,7 +9253,7 @@ void ObjectMgr::LoadQuestMoneyRewards()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 Level = fields[0].Get<uint32>();
 
         QuestMoneyRewardArray& questMoneyReward = _questMoneyRewards[Level];
@@ -9289,7 +9287,7 @@ void ObjectMgr::LoadInstanceSavedGameobjectStateData()
 {
     uint32 oldMSTime = getMSTime();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SELECT_INSTANCE_SAVED_DATA);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SELECT_INSTANCE_SAVED_DATA);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -9299,16 +9297,10 @@ void ObjectMgr::LoadInstanceSavedGameobjectStateData()
         return;
     }
 
-    Field* fields;
-    uint32 count = 0;
-    do
-    {
-        fields = result->Fetch();
-        GameobjectInstanceSavedStateList.push_back({ fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<unsigned short>() });
-        count++;
-    } while (result->NextRow());
+    for (auto const& fields : *result)
+        GameobjectInstanceSavedStateList.push_back({ fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<uint16>() });
 
-    LOG_INFO("server.loading", ">> Loaded {} instance saved gameobject state data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} instance saved gameobject state data in {} ms", GameobjectInstanceSavedStateList.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -9376,7 +9368,7 @@ void ObjectMgr::SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint3
         draft.SendMailTo(trans, MailReceiver(player), sender);
         CharacterDatabase.CommitTransaction(trans);
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_MAIL_SERVER_CHARACTER);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_MAIL_SERVER_CHARACTER);
         stmt->SetData(0, player->GetGUID().GetCounter());
         stmt->SetData(1, id);
         CharacterDatabase.Execute(stmt);
@@ -9404,7 +9396,7 @@ void ObjectMgr::LoadMailServerTemplates()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id = fields[0].Get<uint32>();
 

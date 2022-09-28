@@ -317,7 +317,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
         sScriptMgr->OnBeforeAuctionHouseMgrSendAuctionWonMail(this, auction, bidder, bidder_accId, sendNotification, updateAchievementCriteria, sendMail);
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
         stmt->SetData(0, auction->bidder.GetCounter());
         stmt->SetData(1, pItem->GetGUID().GetCounter());
         trans->Append(stmt);
@@ -494,7 +494,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     }
 
     // data needs to be at first place for Item::LoadFromDB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_ITEMS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTION_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -508,7 +508,7 @@ void AuctionHouseMgr::LoadAuctionItems()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         ObjectGuid::LowType item_guid = fields[11].Get<uint32>();
         uint32 item_template = fields[12].Get<uint32>();
@@ -539,7 +539,7 @@ void AuctionHouseMgr::LoadAuctions()
 {
     uint32 oldMSTime = getMSTime();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -554,7 +554,7 @@ void AuctionHouseMgr::LoadAuctions()
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         AuctionEntry* aItem = new AuctionEntry();
         if (!aItem->LoadFromDB(fields))
@@ -985,14 +985,14 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 
 void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AUCTION);
     stmt->SetData(0, Id);
     trans->Append(stmt);
 }
 
 void AuctionEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
     stmt->SetData(0, Id);
     stmt->SetData(1, houseId);
     stmt->SetData(2, item_guid.GetCounter());

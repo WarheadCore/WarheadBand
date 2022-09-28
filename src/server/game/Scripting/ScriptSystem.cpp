@@ -61,7 +61,7 @@ void SystemMgr::LoadScriptWaypoints()
 
     do
     {
-        Field* pFields = result->Fetch();
+        auto pFields = result->Fetch();
         ScriptPointMove temp;
 
         temp.uiCreatureEntry   = pFields[0].Get<uint32>();

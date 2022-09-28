@@ -159,7 +159,7 @@ uint32 LootStore::LoadLootTable()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry               = fields[0].Get<uint32>();
         uint32 item                = fields[1].Get<uint32>();

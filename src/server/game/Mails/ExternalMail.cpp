@@ -127,7 +127,7 @@ void ExternalMail::SendMailsAsync(QueryResult result)
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 ID = fields[0].Get<uint32>();
         std::string PlayerName = fields[1].Get<std::string>();

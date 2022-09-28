@@ -41,10 +41,10 @@ void AutobroadcastMgr::Load()
     _autobroadcasts.clear();
     _autobroadcastsWeights.clear();
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
     stmt->SetData(0, realm.Id.Realm);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
@@ -53,7 +53,7 @@ void AutobroadcastMgr::Load()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint8 id = fields[0].Get<uint8>();
 
         _autobroadcasts[id] = fields[2].Get<std::string>();

@@ -109,10 +109,10 @@ void SecretMgr::AttemptLoad(Secrets i, Warhead::LogLevel errorLevel, std::unique
 
     Optional<std::string> oldDigest;
     {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SECRET_DIGEST);
+        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_SECRET_DIGEST);
         stmt->SetArguments(i);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
-        if (result)
+
+        if (auto result = AuthDatabase.Query(stmt))
             oldDigest = result->Fetch()->Get<std::string>();
     }
 
@@ -169,49 +169,49 @@ void SecretMgr::AttemptLoad(Secrets i, Warhead::LogLevel errorLevel, std::unique
 
 Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const
 {
-    LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+    AuthDatabaseTransaction trans = AuthDatabase.BeginTransaction();
 
     switch (i)
     {
         case SECRET_TOTP_MASTER_KEY:
         {
-            QueryResult result = LoginDatabase.Query("SELECT id, totp_secret FROM account");
-            if (result) do
+            auto result = AuthDatabase.Query("SELECT id, totp_secret FROM account");
+            if (result)
             {
-                Field* fields = result->Fetch();
-                if (fields[1].IsNull())
-                    continue;
-
-                uint32 id = fields[0].Get<uint32>();
-                std::vector<uint8> totpSecret = fields[1].Get<Binary>();
-
-                if (hadOldSecret)
+                for (auto& row : *result)
                 {
-                    if (!oldSecret)
-                        return Warhead::StringFormat("Cannot decrypt old TOTP tokens - add config key '{}' to authserver.conf!", secret_info[i].oldKey);
+                    if (row[0].IsNull())
+                        continue;
 
-                    bool success = Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(totpSecret, oldSecret->ToByteArray<Warhead::Crypto::AES::KEY_SIZE_BYTES>());
-                    if (!success)
-                        return Warhead::StringFormat("Cannot decrypt old TOTP tokens - value of '{}' is incorrect for some users!", secret_info[i].oldKey);
+                    auto id = row[0].Get<uint32>();
+                    auto totpSecret = row[1].Get<Binary>();
+
+                    if (hadOldSecret)
+                    {
+                        if (!oldSecret)
+                            return Warhead::StringFormat("Cannot decrypt old TOTP tokens - add config key '{}' to authserver.conf!", secret_info[i].oldKey);
+
+                        if (!Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(totpSecret, oldSecret->ToByteArray<Warhead::Crypto::AES::KEY_SIZE_BYTES>()))
+                            return Warhead::StringFormat("Cannot decrypt old TOTP tokens - value of '{}' is incorrect for some users!", secret_info[i].oldKey);
+                    }
+
+                    if (newSecret)
+                        Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(totpSecret, newSecret->ToByteArray<Warhead::Crypto::AES::KEY_SIZE_BYTES>());
+
+                    auto updateStmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                    updateStmt->SetArguments(totpSecret, id);
+                    trans->Append(updateStmt);
                 }
-
-                if (newSecret)
-                    Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(totpSecret, newSecret->ToByteArray<Warhead::Crypto::AES::KEY_SIZE_BYTES>());
-
-                LoginDatabasePreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                updateStmt->SetArguments(totpSecret, id);
-                trans->Append(updateStmt);
-            } while (result->NextRow());
-
+            }
             break;
         }
         default:
-            return std::string("Unknown secret index - huh?");
+            return std::string{"Unknown secret index - huh?"};
     }
 
     if (hadOldSecret)
     {
-        LoginDatabasePreparedStatement* deleteStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_SECRET_DIGEST);
+        auto deleteStmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_SECRET_DIGEST);
         deleteStmt->SetArguments(i);
         trans->Append(deleteStmt);
     }
@@ -220,15 +220,15 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
     {
         BigNumber salt;
         salt.SetRand(128);
-        Optional<std::string> hash = Warhead::Crypto::Argon2::Hash(newSecret->AsHexStr(), salt);
+        auto hash = Warhead::Crypto::Argon2::Hash(newSecret->AsHexStr(), salt);
         if (!hash)
             return std::string("Failed to hash new secret");
 
-        LoginDatabasePreparedStatement* insertStmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_SECRET_DIGEST);
+        auto insertStmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_SECRET_DIGEST);
         insertStmt->SetArguments(i, *hash);
         trans->Append(insertStmt);
     }
 
-    LoginDatabase.CommitTransaction(trans);
+    AuthDatabase.CommitTransaction(trans);
     return {};
 }

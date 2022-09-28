@@ -1059,10 +1059,8 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     uint32 count = 0;
 
-    do
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
-
         Condition* cond                     = new Condition();
         int32      iSourceTypeOrReferenceId = fields[0].Get<int32>();
         cond->SourceGroup                   = fields[1].Get<uint32>();
@@ -1093,24 +1091,32 @@ void ConditionMgr::LoadConditions(bool isReload)
                 delete cond;
                 continue;
             }
+
             cond->ReferenceId = uint32(std::abs(iConditionTypeOrReference));
 
             const char* rowType = "reference template";
             if (iSourceTypeOrReferenceId >= 0)
                 rowType = "reference";
+
             // check for useless data
             if (cond->ConditionTarget)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in ConditionTarget ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionTarget);
+
             if (cond->ConditionValue1)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in value1 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
+
             if (cond->ConditionValue2)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in value2 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
+
             if (cond->ConditionValue3)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in value3 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
+
             if (cond->NegativeCondition)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in NegativeCondition ({})!", rowType, iSourceTypeOrReferenceId, cond->NegativeCondition);
+
             if (cond->SourceGroup && iSourceTypeOrReferenceId < 0)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in SourceGroup ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceGroup);
+
             if (cond->SourceEntry && iSourceTypeOrReferenceId < 0)
                 LOG_ERROR("sql.sql", "Condition {} {} has useless data in SourceEntry ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceEntry);
         }
@@ -1172,88 +1178,88 @@ void ConditionMgr::LoadConditions(bool isReload)
             // handle grouped conditions
             switch (cond->SourceType)
             {
-            case CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Creature.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Disenchant.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Fishing.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Gameobject.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Item.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Mail.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Milling.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Pickpocketing.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Prospecting.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Reference.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Skinning.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE:
-                valid = addToLootTemplate(cond, LootTemplates_Spell.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
-                valid = addToGossipMenus(cond);
-                break;
-            case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
-                valid = addToGossipMenuItems(cond);
-                break;
-            case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
-            {
-                SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
-                valid = true;
-                ++count;
-                continue; // do not add to m_AllocatedMemory to avoid double deleting
-            }
-            case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
-                valid = addToSpellImplicitTargetConditions(cond);
-                break;
-            case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
-            {
-                VehicleSpellConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
-                valid = true;
-                ++count;
-                continue; // do not add to m_AllocatedMemory to avoid double deleting
-            }
-            case CONDITION_SOURCE_TYPE_SMART_EVENT:
-            {
-                //! TODO: PAIR_32 ?
-                std::pair<int32, uint32> key = std::make_pair(cond->SourceEntry, cond->SourceId);
-                SmartEventConditionStore[key][cond->SourceGroup].push_back(cond);
-                valid = true;
-                ++count;
-                continue;
-            }
-            case CONDITION_SOURCE_TYPE_NPC_VENDOR:
-            {
-                NpcVendorConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
-                valid = true;
-                ++count;
-                continue;
-            }
-            case CONDITION_SOURCE_TYPE_PLAYER_LOOT_TEMPLATE:
-            {
-                valid = addToLootTemplate(cond, LootTemplates_Player.GetLootForConditionFill(cond->SourceGroup));
-                break;
-            }
-            default:
-                break;
+                case CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Creature.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Disenchant.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Fishing.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Gameobject.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Item.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Mail.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Milling.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Pickpocketing.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Prospecting.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Reference.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Skinning.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE:
+                    valid = addToLootTemplate(cond, LootTemplates_Spell.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
+                    valid = addToGossipMenus(cond);
+                    break;
+                case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
+                    valid = addToGossipMenuItems(cond);
+                    break;
+                case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
+                {
+                    SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue; // do not add to m_AllocatedMemory to avoid double deleting
+                }
+                case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
+                    valid = addToSpellImplicitTargetConditions(cond);
+                    break;
+                case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
+                {
+                    VehicleSpellConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue; // do not add to m_AllocatedMemory to avoid double deleting
+                }
+                case CONDITION_SOURCE_TYPE_SMART_EVENT:
+                {
+                    //! TODO: PAIR_32 ?
+                    std::pair<int32, uint32> key = std::make_pair(cond->SourceEntry, cond->SourceId);
+                    SmartEventConditionStore[key][cond->SourceGroup].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_NPC_VENDOR:
+                {
+                    NpcVendorConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_PLAYER_LOOT_TEMPLATE:
+                {
+                    valid = addToLootTemplate(cond, LootTemplates_Player.GetLootForConditionFill(cond->SourceGroup));
+                    break;
+                }
+                default:
+                    break;
             }
 
             if (!valid)
@@ -1287,7 +1293,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         // add new Condition to storage based on Type/Entry
         ConditionStore[cond->SourceType][cond->SourceEntry].push_back(cond);
         ++count;
-    } while (result->NextRow());
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} conditions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");

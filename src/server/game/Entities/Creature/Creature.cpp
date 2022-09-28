@@ -1460,7 +1460,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     // update in DB
     WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->SetData(0, m_spawnId);
     trans->Append(stmt);
 
@@ -1846,7 +1846,7 @@ void Creature::DeleteFromDB()
 
     WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->SetData(0, m_spawnId);
     trans->Append(stmt);
 

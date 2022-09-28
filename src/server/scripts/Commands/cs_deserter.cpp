@@ -188,7 +188,7 @@ public:
             int32 remainTime = 0;
             if (QueryResult result = CharacterDatabase.Query("SELECT remainTime FROM character_aura WHERE guid = {} AND spell = {}", guid.GetCounter(), deserterSpell))
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 remainTime = fields[0].Get<int32>();
 
                 if (remainTime < 0 || remainTime >= duration.count() * IN_MILLISECONDS)
@@ -200,7 +200,7 @@ public:
             }
 
             uint8 index = 0;
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
             stmt->SetData(index++, guid.GetCounter());
             stmt->SetData(index++, guid.GetCounter());
             stmt->SetData(index++, 0);
@@ -276,7 +276,7 @@ public:
         {
             if (QueryResult result = CharacterDatabase.Query("SELECT remainTime FROM character_aura WHERE guid = {} AND spell = {}", player->GetGUID().GetCounter(), deserterSpell))
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 duration = fields[0].Get<int32>();
                 CharacterDatabase.Execute("DELETE FROM character_aura WHERE guid = {} AND spell = {}", player->GetGUID().GetCounter(), deserterSpell);
             }

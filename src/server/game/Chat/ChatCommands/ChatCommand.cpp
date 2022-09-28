@@ -89,7 +89,7 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             std::string_view const name = fields[0].Get<std::string_view>();
             std::string_view const help = fields[2].Get<std::string_view>();
             uint32 const secLevel = fields[1].Get<uint8>();

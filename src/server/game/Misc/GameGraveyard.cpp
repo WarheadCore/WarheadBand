@@ -49,7 +49,7 @@ void Graveyard::LoadGraveyardFromDB()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 ID = fields[0].Get<uint32>();
 
         GraveyardStruct Graveyard;
@@ -300,7 +300,7 @@ bool Graveyard::AddGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, bool p
     // add link to DB
     if (persist)
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
 
         stmt->SetData(0, id);
         stmt->SetData(1, zoneId);
@@ -351,7 +351,7 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
     // remove link from DB
     if (persist)
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
 
         stmt->SetData(0, id);
         stmt->SetData(1, zoneId);
@@ -384,7 +384,7 @@ void Graveyard::LoadGraveyardZones()
     {
         ++count;
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 safeLocId = fields[0].Get<uint32>();
         uint32 zoneId = fields[1].Get<uint32>();

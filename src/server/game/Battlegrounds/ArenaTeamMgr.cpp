@@ -223,7 +223,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
             player->ModifyArenaPoints(playerItr->second, trans);
         else    // Update database
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ARENA_POINTS);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ARENA_POINTS);
             stmt->SetData(0, playerItr->second);
             stmt->SetData(1, playerItr->first.GetCounter());
             trans->Append(stmt);

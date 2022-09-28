@@ -754,12 +754,12 @@ void Battleground::EndBattleground(PvPTeamId winnerTeamId)
     uint64 battlegroundId = 1;
     if (isBattleground() && CONF_GET_BOOL("Battleground.StoreStatistics.Enable"))
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             battlegroundId = fields[0].Get<uint64>() + 1;
         }
 
@@ -835,7 +835,7 @@ void Battleground::EndBattleground(PvPTeamId winnerTeamId)
 
         if (isBattleground() && CONF_GET_BOOL("Battleground.StoreStatistics.Enable"))
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
             auto const& score = PlayerScores.find(player->GetGUID().GetCounter());
 
             stmt->SetData(0, battlegroundId);

@@ -106,7 +106,7 @@ namespace WeatherMgr
 
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             uint32 zone_id = fields[0].Get<uint32>();
 

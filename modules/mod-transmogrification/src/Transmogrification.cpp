@@ -783,13 +783,11 @@ void Transmogrification::LoadPlayerAtLogin(Player* player)
 
     _mapStore.erase(playerGUID);
 
-    QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter());
-    if (result)
+    if (QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE Owner = {}", player->GetGUID().GetCounter()))
     {
-        do
+        for (auto const& fields : *result)
         {
-            Field* field = result->Fetch();
-            ObjectGuid itemGUID(HighGuid::Item, 0, field[0].Get<uint32>());
+            ObjectGuid itemGUID(HighGuid::Item, 0, fields[0].Get<uint32>());
             uint32 fakeEntry = (*result)[1].Get<uint32>();
 
             if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
@@ -797,8 +795,7 @@ void Transmogrification::LoadPlayerAtLogin(Player* player)
                 _dataMapStore[itemGUID] = playerGUID;
                 _mapStore[playerGUID][itemGUID] = fakeEntry;
             }
-
-        } while (result->NextRow());
+        }
 
         for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
         {

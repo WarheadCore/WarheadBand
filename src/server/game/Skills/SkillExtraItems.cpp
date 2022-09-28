@@ -72,7 +72,7 @@ void LoadSkillPerfectItemTable()
 
     do /* fetch data and run sanity checks */
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 spellId = fields[0].Get<uint32>();
 
@@ -158,7 +158,7 @@ void LoadSkillExtraItemTable()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 spellId = fields[0].Get<uint32>();
 

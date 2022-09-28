@@ -546,7 +546,7 @@ void AchievementMgr::DeleteFromDB(ObjectGuid::LowType lowguid)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
     stmt->SetData(0, lowguid);
     trans->Append(stmt);
 
@@ -566,7 +566,7 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
             if (!iter->second.changed)
                 continue;
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
             stmt->SetData(0, iter->first);
             stmt->SetData(1, GetPlayer()->GetGUID().GetCounter());
             trans->Append(stmt);
@@ -590,7 +590,7 @@ void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
             if (!iter->second.changed)
                 continue;
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
             stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
             stmt->SetData(1, iter->first);
             trans->Append(stmt);
@@ -617,10 +617,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
 {
     if (achievementResult)
     {
-        do
+        for (auto const& row : *achievementResult)
         {
-            Field* fields = achievementResult->Fetch();
-            uint32 achievementid = fields[0].Get<uint16>();
+            uint32 achievementid = row[0].Get<uint16>();
 
             // must not happen: cleanup at server startup in sAchievementMgr->LoadCompletedAchievements()
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementid);
@@ -628,7 +627,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
-            ca.date = time_t(fields[1].Get<uint32>());
+            ca.date = time_t(row[1].Get<uint32>());
             ca.changed = false;
 
             // title achievement rewards are retroactive
@@ -637,17 +636,16 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
                         if (!GetPlayer()->HasTitle(titleEntry))
                             GetPlayer()->SetTitle(titleEntry);
-        } while (achievementResult->NextRow());
+        }
     }
 
     if (criteriaResult)
     {
-        do
+        for (auto const& row : *criteriaResult)
         {
-            Field* fields = criteriaResult->Fetch();
-            uint32 id      = fields[0].Get<uint16>();
-            uint32 counter = fields[1].Get<uint32>();
-            time_t date    = time_t(fields[2].Get<uint32>());
+            uint32 id      = row[0].Get<uint16>();
+            uint32 counter = row[1].Get<uint32>();
+            time_t date    = time_t(row[2].Get<uint32>());
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
             if (!criteria)
@@ -655,12 +653,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
                 // we will remove not existed criteria for all characters
                 LOG_ERROR("achievement", "Non-existing achievement criteria {} data removed from table `character_achievement_progress`.", id);
 
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
-
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
                 stmt->SetData(0, uint16(id));
-
                 CharacterDatabase.Execute(stmt);
-
                 continue;
             }
 
@@ -671,7 +666,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             progress.counter = counter;
             progress.date    = date;
             progress.changed = false;
-        } while (criteriaResult->NextRow());
+        }
     }
 }
 
@@ -1016,7 +1011,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     Seconds nextDailyResetTime = sWorld->GetNextDailyQuestsResetTime();
                     CriteriaProgress* progress = GetCriteriaProgress(achievementCriteria);
 
-                    if (!miscValue1) // Login case.
+                    if (!miscValue1) // Auth case.
                     {
                         // reset if player missed one day.
                         if (progress && Seconds(progress->date) < (nextDailyResetTime - 2_days))
@@ -2656,10 +2651,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     uint32 count = 0;
 
-    do
+    for (auto const& row : *result)
     {
-        Field* fields = result->Fetch();
-        uint32 criteria_id = fields[0].Get<uint32>();
+        uint32 criteria_id = row[0].Get<uint32>();
 
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(criteria_id);
 
@@ -2669,8 +2663,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             continue;
         }
 
-        uint32 dataType = fields[1].Get<uint8>();
-        std::string scriptName = fields[4].Get<std::string>();
+        uint32 dataType = row[1].Get<uint8>();
+        std::string scriptName = row[4].Get<std::string>();
         uint32 scriptId = 0;
         if (scriptName.length()) // not empty
         {
@@ -2680,7 +2674,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 scriptId = sObjectMgr->GetScriptId(scriptName);
         }
 
-        AchievementCriteriaData data(dataType, fields[2].Get<uint32>(), fields[3].Get<uint32>(), scriptId);
+        AchievementCriteriaData data(dataType, row[2].Get<uint32>(), row[3].Get<uint32>(), scriptId);
 
         if (!data.IsValid(criteria))
             continue;
@@ -2695,7 +2689,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         // counting data by and data types
         ++count;
-    } while (result->NextRow());
+    }
 
     // post loading checks
     for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
@@ -2795,10 +2789,8 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         return;
     }
 
-    do
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
-
         uint16 achievementId = fields[0].Get<uint16>();
         const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
@@ -2806,7 +2798,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             // Remove non existent achievements from all characters
             LOG_ERROR("achievement", "Non-existing achievement {} data removed from table `character_achievement`.", achievementId);
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
 
             stmt->SetData(0, uint16(achievementId));
             CharacterDatabase.Execute(stmt);
@@ -2814,10 +2806,10 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             continue;
         }
         else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            m_allCompletedAchievements[achievementId] =  SystemTimePoint::max();
-    } while (result->NextRow());
+            m_allCompletedAchievements[achievementId] = SystemTimePoint::max();
+    }
 
-    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {} ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {} ms", m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -2839,9 +2831,8 @@ void AchievementGlobalMgr::LoadRewards()
 
     uint32 count = 0;
 
-    do
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
         uint32 entry = fields[0].Get<uint32>();
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(entry);
         if (!achievement)
@@ -2936,7 +2927,7 @@ void AchievementGlobalMgr::LoadRewards()
 
         m_achievementRewards[entry] = reward;
         ++count;
-    } while (result->NextRow());
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} achievement rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");

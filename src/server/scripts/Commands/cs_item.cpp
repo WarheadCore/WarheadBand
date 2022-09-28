@@ -76,7 +76,7 @@ public:
         }
 
         // Check existence of item in recovery table
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RECOVERY_ITEM);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RECOVERY_ITEM);
         stmt->SetData(0, restoreId);
         PreparedQueryResult fields = CharacterDatabase.Query(stmt);
 
@@ -115,7 +115,7 @@ public:
         }
 
         // Remove from recovery table
-        CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RECOVERY_ITEM_BY_RECOVERY_ID);
+        CharacterDatabasePreparedStatement delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RECOVERY_ITEM_BY_RECOVERY_ID);
         delStmt->SetData(0, (*fields)[0].Get<uint32>());
         CharacterDatabase.Execute(delStmt);
 
@@ -133,7 +133,7 @@ public:
             return false;
         }
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RECOVERY_ITEM_LIST);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RECOVERY_ITEM_LIST);
         stmt->SetData(0, player.GetGUID().GetCounter());
         PreparedQueryResult disposedItems = CharacterDatabase.Query(stmt);
 
@@ -146,12 +146,12 @@ public:
 
         do
         {
-            Field* fields    = disposedItems->Fetch();
+            auto fields      = disposedItems->Fetch();
             uint32 id        = fields[0].Get<uint32>();
             uint32 itemId    = fields[1].Get<uint32>();
             uint32 count     = fields[2].Get<uint32>();
 
-            std::string itemName = "";
+            std::string itemName;
             if (ItemTemplate const* item = sObjectMgr->GetItemTemplate(itemId))
             {
                 itemName = item->Name1;
@@ -264,7 +264,7 @@ public:
         else
         {
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-            CharacterDatabasePreparedStatement* stmt;
+            CharacterDatabasePreparedStatement stmt;
 
             ObjectGuid::LowType guid = player.GetGUID().GetCounter();
 
@@ -285,7 +285,7 @@ public:
 
                     if (queryResult)
                     {
-                        Field* fields = queryResult->Fetch();
+                        auto fields = queryResult->Fetch();
                         if ((fields[0].Get<uint32>() + iece->reqhonorpoints) > CONF_GET_UINT("MaxHonorPoints"))
                         {
                             handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_HONOR, item->Name1, item->ItemId, CONF_GET_UINT("MaxHonorPoints"), fields[0].Get<uint32>(), iece->reqhonorpoints);
@@ -310,7 +310,7 @@ public:
 
                     if (queryResult)
                     {
-                        Field* fields = queryResult->Fetch();
+                        auto fields = queryResult->Fetch();
                         if ((fields[0].Get<uint32>() + iece->reqhonorpoints) > CONF_GET_UINT("MaxArenaPoints"))
                         {
                             handler->PSendSysMessage(LANG_CMD_ITEM_REFUND_MAX_AP, item->Name1, item->ItemId, CONF_GET_UINT("MaxArenaPoints"), fields[0].Get<uint32>(), iece->reqarenapoints);
@@ -359,7 +359,7 @@ public:
                     draft.SendMailTo(trans, MailReceiver(nullptr, guid), sender);
                 }
 
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
                 stmt->SetData(0, fields[0].Get<uint32>());

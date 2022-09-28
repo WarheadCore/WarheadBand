@@ -27,7 +27,7 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "DatabaseLoader.h"
+#include "DatabaseMgr.h"
 #include "DeadlineTimer.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
@@ -37,7 +37,6 @@
 #include "Metric.h"
 #include "ModuleMgr.h"
 #include "ModulesScriptLoader.h"
-#include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
 #include "OutdoorPvPMgr.h"
 #include "ProcessPriority.h"
@@ -203,9 +202,11 @@ int main(int argc, char** argv)
         []()
         {
             LOG_INFO("server.worldserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server.worldserver", "> Using logs directory:           {}", sLog->GetLogsDir());
             LOG_INFO("server.worldserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             LOG_INFO("server.worldserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-            LOG_INFO("server.worldserver", "> Using logs directory:           {}", sLog->GetLogsDir());
+            LOG_INFO("server.worldserver", "> Using DB client version:        {}", sDatabaseMgr->GetClientInfo());
+            LOG_INFO("server.worldserver", "> Using DB server version:        {}", sDatabaseMgr->GetServerVersion());
         }
     );
 
@@ -285,14 +286,14 @@ int main(int argc, char** argv)
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // set server offline (not connectable)
-    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
     LoadRealmInfo(*ioContext);
 
     sMetric->Initialize(realm.Name, *ioContext, []()
     {
         METRIC_VALUE("online_players", sWorld->GetPlayerCount());
-        METRIC_VALUE("db_queue_login", uint64(LoginDatabase.QueueSize()));
+        METRIC_VALUE("db_queue_login", uint64(AuthDatabase.QueueSize()));
         METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.QueueSize()));
         METRIC_VALUE("db_queue_world", uint64(WorldDatabase.QueueSize()));
     });
@@ -371,7 +372,7 @@ int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_VERSION_MISMATCH));
 
@@ -422,7 +423,7 @@ int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LOG_INFO("server.worldserver", "Halting process...");
 
@@ -436,16 +437,15 @@ int main(int argc, char** argv)
 /// Initialize connection to the databases
 bool StartDB()
 {
-    MySQL::Library_Init();
+    sDatabaseMgr->SetModuleList(WH_MODULES_LIST);
 
     // Load databases
-    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE, WH_MODULES_LIST);
-    loader
-        .AddDatabase(LoginDatabase, "Login")
-        .AddDatabase(CharacterDatabase, "Character")
-        .AddDatabase(WorldDatabase, "World");
+    sDatabaseMgr->AddDatabase(AuthDatabase, "Auth");
+    sDatabaseMgr->AddDatabase(CharacterDatabase, "Characters");
+    sDatabaseMgr->AddDatabase(WorldDatabase, "World");
+    sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc", false);
 
-    if (!loader.Load())
+    if (!sDatabaseMgr->Load())
         return false;
 
     ///- Get the realm Id from the configuration file
@@ -480,18 +480,13 @@ bool StartDB()
     LOG_INFO("server.loading", "> Version DB world:     {}", sWorld->GetDBVersion());
     LOG_INFO("server.loading", "");
 
-    sScriptMgr->OnAfterDatabasesLoaded(loader.GetUpdateFlags());
-
+    sScriptMgr->OnAfterDatabasesLoaded(sDatabaseMgr->GetUpdateFlags());
     return true;
 }
 
 void StopDB()
 {
-    CharacterDatabase.Close();
-    WorldDatabase.Close();
-    LoginDatabase.Close();
-
-    MySQL::Library_End();
+    sDatabaseMgr->CloseAllConnections();
 }
 
 /// Clear 'online' status for all accounts with characters in this realm
@@ -499,7 +494,7 @@ void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
     // pussywizard: tc query would set online=0 even if logged in on another realm >_>
-    LoginDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -571,7 +566,7 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
-    LoginDatabase.WarnAboutSyncQueries(true);
+    AuthDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
 
@@ -601,7 +596,7 @@ void WorldUpdateLoop()
 #endif
     }
 
-    LoginDatabase.WarnAboutSyncQueries(false);
+    AuthDatabase.WarnAboutSyncQueries(false);
     CharacterDatabase.WarnAboutSyncQueries(false);
     WorldDatabase.WarnAboutSyncQueries(false);
 }
@@ -658,13 +653,13 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
 
 bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
 {
-    QueryResult result = LoginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
+    QueryResult result = AuthDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
     Warhead::Asio::Resolver resolver(ioContext);
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     realm.Name = fields[1].Get<std::string>();
     sWorld->SetRealmName(realm.Name);
 

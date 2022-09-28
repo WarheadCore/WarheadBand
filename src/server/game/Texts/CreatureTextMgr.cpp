@@ -91,7 +91,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     mTextMap.clear(); // for reload case
     mTextRepeatMap.clear(); //reset all currently used temp texts
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -105,7 +105,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         CreatureTextEntry temp;
 
         temp.entry           = fields[0].Get<uint32>();
@@ -184,7 +184,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 CreatureId           = fields[0].Get<uint32>();
         uint32 GroupId              = fields[1].Get<uint8>();

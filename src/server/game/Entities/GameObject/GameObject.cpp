@@ -1066,7 +1066,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask, bool 
 
     uint8 index = 0;
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
     stmt->SetData(0, m_spawnId);
     trans->Append(stmt);
 
@@ -1171,7 +1171,7 @@ void GameObject::DeleteFromDB()
     GetMap()->RemoveGORespawnTime(m_spawnId);
     sObjectMgr->DeleteGOData(m_spawnId);
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
     stmt->SetData(0, m_spawnId);
     WorldDatabase.Execute(stmt);
 
@@ -2576,7 +2576,7 @@ void GameObject::SaveInstanceData(uint8 state)
     uint32 id       = GetInstanceId();
     uint32 guid     = GetSpawnId();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INSERT_INSTANCE_SAVED_DATA);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INSERT_INSTANCE_SAVED_DATA);
     stmt->SetData(0, id);
     stmt->SetData(1, guid);
     stmt->SetData(2, state);
@@ -2590,7 +2590,7 @@ void GameObject::UpdateInstanceData(uint8 state)
     uint32 id       = GetInstanceId();
     uint32 guid     = GetSpawnId();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_INSTANCE_SAVED_DATA);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_INSTANCE_SAVED_DATA);
     stmt->SetData(0, state);
     stmt->SetData(1, guid);
     stmt->SetData(2, id);

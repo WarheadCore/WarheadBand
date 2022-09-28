@@ -455,7 +455,7 @@ void DeleteSpellFromAllPlayers(uint32 spellId)
     CharacterDatabaseStatements stmts[2] = {CHAR_DEL_INVALID_SPELL_SPELLS, CHAR_DEL_INVALID_SPELL_TALENTS};
     for (uint8 i = 0; i < 2; i++)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(stmts[i]);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(stmts[i]);
         stmt->SetData(0, spellId);
         CharacterDatabase.Execute(stmt);
     }
@@ -1322,7 +1322,7 @@ void SpellMgr::LoadSpellRanks()
         // fill one chain
         while (currentSpell == lastSpell && !finished)
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             currentSpell = fields[0].Get<uint32>();
             if (lastSpell == -1)
@@ -1423,7 +1423,7 @@ void SpellMgr::LoadSpellRequired()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 spellId = fields[0].Get<uint32>();
         uint32 spellReq = fields[1].Get<uint32>();
@@ -1540,7 +1540,7 @@ void SpellMgr::LoadSpellTargetPositions()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 Spell_ID = fields[0].Get<uint32>();
 
@@ -1644,7 +1644,7 @@ void SpellMgr::LoadSpellGroups()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 group_id = fields[0].Get<uint32>();
         int32 spell_id = fields[1].Get<uint32>();
@@ -1704,7 +1704,7 @@ void SpellMgr::LoadSpellGroupStackRules()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 group_id = fields[0].Get<uint32>();
         uint8 stack_rule = fields[1].Get<int8>();
@@ -1755,7 +1755,7 @@ void SpellMgr::LoadSpellProcEvents()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         int32 spellId = fields[0].Get<int32>();
 
@@ -1849,7 +1849,7 @@ void SpellMgr::LoadSpellProcs()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         int32 spellId = fields[0].Get<int32>();
 
@@ -1987,7 +1987,7 @@ void SpellMgr::LoadSpellBonusess()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 entry = fields[0].Get<uint32>();
 
         SpellInfo const* spell = GetSpellInfo(entry);
@@ -2028,7 +2028,7 @@ void SpellMgr::LoadSpellThreats()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -2069,7 +2069,7 @@ void SpellMgr::LoadSpellMixology()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -2127,7 +2127,7 @@ void SpellMgr::LoadSpellPetAuras()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 spell = fields[0].Get<uint32>();
         uint8 eff = fields[1].Get<uint8>();
@@ -2231,7 +2231,7 @@ void SpellMgr::LoadSpellEnchantProcData()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 enchantId = fields[0].Get<uint32>();
 
@@ -2275,7 +2275,7 @@ void SpellMgr::LoadSpellLinked()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         int32 trigger = fields[0].Get<int32>();
         int32 effect = fields[1].Get<int32>();
@@ -2517,7 +2517,7 @@ void SpellMgr::LoadSpellAreas()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 spell = fields[0].Get<uint32>();
         SpellArea spellArea;

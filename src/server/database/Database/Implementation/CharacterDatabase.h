@@ -18,7 +18,7 @@
 #ifndef _CHARACTERDATABASE_H
 #define _CHARACTERDATABASE_H
 
-#include "MySQLConnection.h"
+#include "DatabaseWorkerPool.h"
 
 enum CharacterDatabaseStatements : uint32
 {
@@ -517,21 +517,20 @@ enum CharacterDatabaseStatements : uint32
     CHAR_DELETE_INSTANCE_SAVED_DATA,
     CHAR_SANITIZE_INSTANCE_SAVED_DATA,
 
-    MAX_CHARACTERDATABASE_STATEMENTS
+    MAX_CHARACTER_DATABASE_STATEMENTS
 };
 
-class WH_DATABASE_API CharacterDatabaseConnection : public MySQLConnection
+class WH_DATABASE_API CharacterDatabasePool : public DatabaseWorkerPool
 {
 public:
-    typedef CharacterDatabaseStatements Statements;
-
-    //- Constructors for sync and async connections
-    CharacterDatabaseConnection(MySQLConnectionInfo& connInfo);
-    CharacterDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
-    ~CharacterDatabaseConnection() override;
+    CharacterDatabasePool() { SetType(DatabaseType::Character); }
+    ~CharacterDatabasePool() = default;
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
+
+/// Accessor to the character database
+WH_DATABASE_API extern CharacterDatabasePool CharacterDatabase;
 
 #endif

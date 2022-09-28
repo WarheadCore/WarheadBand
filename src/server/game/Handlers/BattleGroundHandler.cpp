@@ -569,7 +569,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
         {
             if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
             {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                 stmt->SetData(0, _player->GetGUID().GetCounter());
                 stmt->SetData(1, BG_DESERTION_TYPE_LEAVE_QUEUE);
                 CharacterDatabase.Execute(stmt);

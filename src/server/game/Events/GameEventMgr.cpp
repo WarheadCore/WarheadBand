@@ -226,7 +226,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
                 itr->second.done = 0;
 
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE);
             stmt->SetData(0, uint8(event_id));
             trans->Append(stmt);
 
@@ -257,10 +257,9 @@ void GameEventMgr::LoadFromDB()
         }
 
         uint32 count = 0;
-        do
-        {
-            Field* fields = result->Fetch();
 
+        for (auto const& fields : *result)
+        {
             uint8 event_id = fields[0].Get<uint8>();
             if (event_id == 0)
             {
@@ -304,7 +303,7 @@ void GameEventMgr::LoadFromDB()
 
                 SetHolidayEventTime(pGameEvent);
             }
-        } while (result->NextRow());
+        }
 
         LOG_INFO("server.loading", ">> Loaded {} game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
         LOG_INFO("server.loading", " ");
@@ -325,10 +324,9 @@ void GameEventMgr::LoadFromDB()
         else
         {
             uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
 
+            for (auto const& fields : *result)
+            {
                 uint8 event_id = fields[0].Get<uint8>();
 
                 if (event_id >= mGameEvent.size())
@@ -349,7 +347,7 @@ void GameEventMgr::LoadFromDB()
                 }
 
                 ++count;
-            } while (result->NextRow());
+            }
 
             LOG_INFO("server.loading", ">> Loaded {} game event saves in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
             LOG_INFO("server.loading", " ");
@@ -372,7 +370,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id = fields[0].Get<uint8>();
 
@@ -423,7 +421,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 int16 event_id = fields[1].Get<int8>();
@@ -471,7 +469,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 int16 event_id = fields[1].Get<int8>();
@@ -520,7 +518,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 entry = fields[1].Get<uint32>();
@@ -579,7 +577,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 id       = fields[0].Get<uint32>();
                 uint32 quest    = fields[1].Get<uint32>();
@@ -619,7 +617,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 id       = fields[0].Get<uint32>();
                 uint32 quest    = fields[1].Get<uint32>();
@@ -659,7 +657,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 quest     = fields[0].Get<uint32>();
                 uint16 event_id  = fields[1].Get<uint8>();
@@ -701,7 +699,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id  = fields[0].Get<uint8>();
                 uint32 condition = fields[1].Get<uint32>();
@@ -742,7 +740,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id  = fields[0].Get<uint8>();
                 uint32 condition = fields[1].Get<uint32>();
@@ -789,7 +787,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint16 event_id = fields[1].Get<uint8>();
@@ -828,7 +826,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 questId  = fields[0].Get<uint32>();
                 uint32 eventEntry = fields[1].Get<uint32>(); // TODO: Change to uint8
@@ -874,7 +872,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint8 event_id  = fields[0].Get<uint8>();
 
@@ -939,7 +937,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id = fields[0].Get<uint8>();
 
@@ -977,7 +975,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 entry   = fields[0].Get<uint32>();
                 int16 event_id = fields[1].Get<int8>();
@@ -1024,7 +1022,7 @@ void GameEventMgr::LoadHolidayDates()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 holidayId = fields[0].Get<uint32>();
         HolidaysEntry* entry = const_cast<HolidaysEntry*>(sHolidaysStore.LookupEntry(holidayId));
@@ -1077,7 +1075,7 @@ void GameEventMgr::Initialize()
     QueryResult result = WorldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
     if (result)
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 maxEventId = fields[0].Get<uint8>();
 
@@ -1116,7 +1114,7 @@ void GameEventMgr::StartArenaSeason()
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     uint16 eventId = fields[0].Get<uint8>();
 
     if (eventId >= mGameEvent.size())
@@ -1696,7 +1694,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
                 // save the change to db
                 CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_CONDITION_SAVE);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_CONDITION_SAVE);
                 stmt->SetData(0, uint8(event_id));
                 stmt->SetData(1, condition);
                 trans->Append(stmt);
@@ -1741,7 +1739,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
     stmt->SetData(0, uint8(event_id));
     trans->Append(stmt);
 

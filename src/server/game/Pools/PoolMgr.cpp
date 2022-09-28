@@ -464,7 +464,7 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     // load state from db
     if (!triggerFrom)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_POOL_QUEST_SAVE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_POOL_QUEST_SAVE);
 
         stmt->SetData(0, poolId);
 
@@ -592,7 +592,7 @@ void PoolMgr::LoadFromDB()
         uint32 count = 0;
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             uint32 pool_id = fields[0].Get<uint32>();
 
@@ -625,7 +625,7 @@ void PoolMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 pool_id = fields[1].Get<uint32>();
@@ -683,7 +683,7 @@ void PoolMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 pool_id = fields[1].Get<uint32>();
@@ -753,7 +753,7 @@ void PoolMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 child_pool_id  = fields[0].Get<uint32>();
                 uint32 mother_pool_id = fields[1].Get<uint32>();
@@ -830,7 +830,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_QUEST_POOLS);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_QUEST_POOLS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (!result)
@@ -854,7 +854,7 @@ void PoolMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 entry   = fields[0].Get<uint32>();
                 uint32 pool_id = fields[1].Get<uint32>();
@@ -935,7 +935,7 @@ void PoolMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 pool_entry = fields[0].Get<uint32>();
                 uint32 pool_pool_id = fields[1].Get<uint32>();
 
@@ -987,7 +987,7 @@ void PoolMgr::SaveQuestsToDB(bool daily, bool weekly, bool other)
             if (!other && !quest->IsDaily() && !quest->IsWeekly())
                 continue;
         }
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_POOL_SAVE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_POOL_SAVE);
         stmt->SetData(0, itr->second.GetPoolId());
         trans->Append(stmt);
         deletedPools.insert(itr->second.GetPoolId());
@@ -997,7 +997,7 @@ void PoolMgr::SaveQuestsToDB(bool daily, bool weekly, bool other)
         if (deletedPools.find(itr->second) != deletedPools.end())
             if (IsSpawnedObject<Quest>(itr->first))
             {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_POOL_SAVE);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_POOL_SAVE);
                 stmt->SetData(0, itr->second);
                 stmt->SetData(1, itr->first);
                 trans->Append(stmt);

@@ -102,7 +102,7 @@ namespace lfg
         if (!guid.IsGroup())
             return;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_LFG_DATA);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_LFG_DATA);
         stmt->SetData(0, guid.GetCounter());
         stmt->SetData(1, GetDungeon(guid));
         stmt->SetData(2, GetState(guid));
@@ -129,10 +129,8 @@ namespace lfg
 
         uint32 count = 0;
 
-        Field* fields = nullptr;
-        do
+        for (auto const& fields : *result)
         {
-            fields = result->Fetch();
             uint32 dungeonId = fields[0].Get<uint32>();
             uint32 maxLevel = fields[1].Get<uint8>();
             uint32 firstQuestId = fields[2].Get<uint32>();
@@ -164,7 +162,7 @@ namespace lfg
 
             RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId)));
             ++count;
-        } while (result->NextRow());
+        }
 
         LOG_INFO("server.loading", ">> Loaded {} lfg dungeon rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
         LOG_INFO("server.loading", " ");
@@ -216,9 +214,8 @@ namespace lfg
 
         uint32 count = 0;
 
-        do
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
             uint32 dungeonId = fields[0].Get<uint32>();
             LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
             if (dungeonItr == LfgDungeonStore.end())
@@ -234,7 +231,7 @@ namespace lfg
             data.o = fields[4].Get<float>();
 
             ++count;
-        } while (result->NextRow());
+        }
 
         LOG_INFO("server.loading", ">> Loaded {} lfg entrance positions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
         LOG_INFO("server.loading", " ");

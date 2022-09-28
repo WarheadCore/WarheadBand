@@ -132,7 +132,7 @@ void GroupMgr::LoadGroups()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 Group* group = new Group;
                 if (!group->LoadGroupFromDB(fields))
                 {
@@ -172,7 +172,7 @@ void GroupMgr::LoadGroups()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 Group* group = GetGroupByGUID(fields[0].Get<uint32>());
 
                 if (group)

@@ -53,36 +53,35 @@ void RealmList::Close()
 void RealmList::LoadBuildInfo()
 {
     //                                                              0             1              2              3      4                5                6
-    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, winChecksumSeed, macChecksumSeed FROM build_info ORDER BY build ASC"))
+    if (auto result = AuthDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, winChecksumSeed, macChecksumSeed FROM build_info ORDER BY build ASC"))
     {
-        do
+        for (auto& row : *result)
         {
-            Field* fields = result->Fetch();
-            RealmBuildInfo& build = _builds.emplace_back();
-            build.MajorVersion = fields[0].Get<uint32>();
-            build.MinorVersion = fields[1].Get<uint32>();
-            build.BugfixVersion = fields[2].Get<uint32>();
-            std::string hotfixVersion = fields[3].Get<std::string>();
-            if (hotfixVersion.length() < build.HotfixVersion.size())
-                std::copy(hotfixVersion.begin(), hotfixVersion.end(), build.HotfixVersion.begin());
+            auto [majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, windowsHash, macHash] =
+                row.FetchTuple<uint32, uint32, uint32, std::string, uint32, std::string, std::string>();
+
+            RealmBuildInfo& realmBuildInfo = _builds.emplace_back();
+            realmBuildInfo.MajorVersion = majorVersion;
+            realmBuildInfo.MinorVersion = minorVersion;
+            realmBuildInfo.BugfixVersion = bugfixVersion;
+            realmBuildInfo.Build = build;
+
+            if (hotfixVersion.length() < realmBuildInfo.HotfixVersion.size())
+                std::copy(hotfixVersion.begin(), hotfixVersion.end(), realmBuildInfo.HotfixVersion.begin());
             else
                 std::fill(hotfixVersion.begin(), hotfixVersion.end(), '\0');
 
-            build.Build = fields[4].Get<uint32>();
-            std::string windowsHash = fields[5].Get<std::string>();
-            if (windowsHash.length() == build.WindowsHash.size() * 2)
-                HexStrToByteArray(windowsHash, build.WindowsHash);
+            if (windowsHash.length() == realmBuildInfo.WindowsHash.size() * 2)
+                HexStrToByteArray(windowsHash, realmBuildInfo.WindowsHash);
 
-            std::string macHash = fields[6].Get<std::string>();
-            if (macHash.length() == build.MacHash.size() * 2)
-                HexStrToByteArray(macHash, build.MacHash);
-
-        } while (result->NextRow());
+            if (macHash.length() == realmBuildInfo.MacHash.size() * 2)
+                HexStrToByteArray(macHash, realmBuildInfo.MacHash);
+        }
     }
 }
 
 void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, std::string const& name,
-    boost::asio::ip::address && address, boost::asio::ip::address && localAddr, boost::asio::ip::address && localSubmask,
+    boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
     uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population)
 {
     // Create new if not exist or update existed
@@ -116,8 +115,8 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
     LOG_DEBUG("server.authserver", "Updating Realm List...");
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
+    auto result = AuthDatabase.Query(stmt);
 
     std::map<RealmHandle, std::string> existingRealms;
     for (auto const& p : _realms)
@@ -128,16 +127,15 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     // Circle through results and add them to the realm map
     if (result)
     {
-        do
+        for (auto& row : *result)
         {
             try
             {
-                Field* fields = result->Fetch();
-                uint32 realmId = fields[0].Get<uint32>();
-                std::string name = fields[1].Get<std::string>();
-                std::string externalAddressString = fields[2].Get<std::string>();
-                std::string localAddressString = fields[3].Get<std::string>();
-                std::string localSubmaskString = fields[4].Get<std::string>();
+                uint32 realmId = row[0].Get<uint32>();
+                std::string name = row[1].Get<std::string>();
+                std::string externalAddressString = row[2].Get<std::string>();
+                std::string localAddressString = row[3].Get<std::string>();
+                std::string localSubmaskString = row[4].Get<std::string>();
 
                 Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
                 if (!externalAddress)
@@ -160,8 +158,8 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                     continue;
                 }
 
-                uint16 port = fields[5].Get<uint16>();
-                uint8 icon = fields[6].Get<uint8>();
+                uint16 port = row[5].Get<uint16>();
+                uint8 icon = row[6].Get<uint8>();
 
                 if (icon == REALM_TYPE_FFA_PVP)
                     icon = REALM_TYPE_PVP;
@@ -169,16 +167,16 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 if (icon >= MAX_CLIENT_REALM_TYPE)
                     icon = REALM_TYPE_NORMAL;
 
-                RealmFlags flag = RealmFlags(fields[7].Get<uint8>());
-                uint8 timezone = fields[8].Get<uint8>();
-                uint8 allowedSecurityLevel = fields[9].Get<uint8>();
-                float pop = fields[10].Get<float>();
-                uint32 build = fields[11].Get<uint32>();
+                RealmFlags flag = RealmFlags(row[7].Get<uint8>());
+                uint8 timezone = row[8].Get<uint8>();
+                uint8 allowedSecurityLevel = row[9].Get<uint8>();
+                float pop = row[10].Get<float>();
+                uint32 build = row[11].Get<uint32>();
 
                 RealmHandle id{ realmId };
 
                 UpdateRealm(id, build, name, externalAddress->address(), localAddress->address(), localSubmask->address(), port, icon, flag,
-                    timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
+                            timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop);
 
                 if (!existingRealms.count(id))
                     LOG_INFO("server.authserver", "Added realm \"{}\" at {}:{}.", name, externalAddressString, port);
@@ -192,7 +190,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 LOG_ERROR("server.authserver", "Realmlist::UpdateRealms has thrown an exception: {}", ex.what());
                 ABORT();
             }
-        } while (result->NextRow());
+        }
     }
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
@@ -201,7 +199,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     if (_updateInterval)
     {
         _updateTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
-        _updateTimer->async_wait(std::bind(&RealmList::UpdateRealms, this, std::placeholders::_1));
+        _updateTimer->async_wait([this](const boost::system::error_code& errorCode) { UpdateRealms(errorCode); });
     }
 }
 

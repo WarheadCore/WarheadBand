@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include "DBCDatabase.h"
 
-#include "DatabaseEnv.h"
+DBCDatabasePool DBCDatabase;
 
-DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabase;
-DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabase;
-DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabase;
+void DBCDatabasePool::DoPrepareStatements()
+{
+//    PrepareStatement(DBC_SEL_TABLE, "SELECT * FROM `?` ORDER BY `ID` DESC", ConnectionFlags::Sync);
+}

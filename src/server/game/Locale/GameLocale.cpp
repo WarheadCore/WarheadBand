@@ -91,7 +91,7 @@ bool GameLocale::LoadWarheadStrings()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
 
@@ -151,7 +151,7 @@ void GameLocale::LoadAchievementRewardLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 ID = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -190,7 +190,7 @@ void GameLocale::LoadBroadcastTexts()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         BroadcastText bct;
 
@@ -260,7 +260,7 @@ void GameLocale::LoadBroadcastTextLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         auto const& bct = _broadcastTextStore.find(id);
@@ -297,7 +297,7 @@ void GameLocale::LoadCreatureLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -330,7 +330,7 @@ void GameLocale::LoadGossipMenuItemsLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint16 menuId = fields[0].Get<uint16>();
         uint16 optionId = fields[1].Get<uint16>();
 
@@ -363,7 +363,7 @@ void GameLocale::LoadGameObjectLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -394,7 +394,7 @@ void GameLocale::LoadItemLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -426,7 +426,7 @@ void GameLocale::LoadItemSetNameLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -460,7 +460,7 @@ void GameLocale::LoadNpcTextLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -496,7 +496,7 @@ void GameLocale::LoadPageTextLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -528,7 +528,7 @@ void GameLocale::LoadPointOfInterestLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -559,7 +559,7 @@ void GameLocale::LoadQuestLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -597,7 +597,7 @@ void GameLocale::LoadQuestOfferRewardLocale()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -628,7 +628,7 @@ void GameLocale::LoadQuestRequestItemsLocale()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -661,7 +661,7 @@ void GameLocale::LoadChatCommandsLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         std::string commandName = fields[0].Get<std::string>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -686,7 +686,7 @@ void GameLocale::LoadAutoBroadCastLocales()
     _autobroadLocaleStore.clear(); // need for reload case
 
     //                                                 0          1       2
-    QueryResult result = LoginDatabase.Query("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm);
+    QueryResult result = AuthDatabase.Query("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm);
     if (!result)
     {
         return;
@@ -694,7 +694,7 @@ void GameLocale::LoadAutoBroadCastLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -728,7 +728,7 @@ void GameLocale::LoadQuestGreetingLocales()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 id = fields[0].Get<uint32>();
         uint8 type = fields[1].Get<uint8>();
 
@@ -883,7 +883,7 @@ void GameLocale::LoadRaceStrings()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 ID = fields[0].Get<uint32>();
 
         LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
@@ -916,7 +916,7 @@ void GameLocale::LoadClassStrings()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 ID = fields[0].Get<uint32>();
 

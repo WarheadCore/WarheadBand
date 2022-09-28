@@ -900,7 +900,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         {
             if (CONF_GET_BOOL("ItemDelete.Vendor"))
             {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RECOVERY_ITEM);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RECOVERY_ITEM);
                 stmt->SetData(0, _player->GetGUID().GetCounter());
                 stmt->SetData(1, pItem->GetEntry());
                 stmt->SetData(2, pItem->GetCount());
@@ -1321,7 +1321,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
     stmt->SetData(0, item->GetOwnerGUID().GetCounter());
     stmt->SetData(1, item->GetGUID().GetCounter());
     stmt->SetData(2, item->GetEntry());
@@ -1657,7 +1657,7 @@ bool WorldSession::recoveryItem(Item* pItem)
         && pItem->GetTemplate()->Quality >= CONF_GET_UINT("ItemDelete.Quality")
         && pItem->GetTemplate()->ItemLevel >= CONF_GET_UINT("ItemDelete.ItemLevel"))
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_RECOVERY_ITEM);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_RECOVERY_ITEM);
 
         stmt->SetData(0, pItem->GetOwnerGUID().GetCounter());
         stmt->SetData(1, pItem->GetTemplate()->ItemId);

@@ -64,7 +64,7 @@ void WaypointMgr::Load()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         WaypointData* wp = new WaypointData();
 
         uint32 pathId = fields[0].Get<uint32>();
@@ -117,7 +117,7 @@ void WaypointMgr::ReloadPath(uint32 id)
         _waypointStore.erase(itr);
     }
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
 
     stmt->SetData(0, id);
 
@@ -130,7 +130,7 @@ void WaypointMgr::ReloadPath(uint32 id)
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         WaypointData* wp = new WaypointData();
 
         float x = fields[1].Get<float>();

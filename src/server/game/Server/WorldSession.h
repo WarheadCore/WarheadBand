@@ -1076,8 +1076,8 @@ private:
     void ProcessQueryCallbacks();
 
     QueryCallbackProcessor _queryProcessor;
-    AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks;
-    AsyncCallbackProcessor<SQLQueryHolderCallback> _queryHolderProcessor;
+    TransactionCallbackProcessor _transactionCallbacks;
+    QueryHolderCallbackProcessor _queryHolderProcessor;
 
     friend class World;
 protected:
@@ -1085,7 +1085,7 @@ protected:
     {
         friend class World;
     public:
-        DosProtection(WorldSession* s);
+        explicit DosProtection(WorldSession* s);
         bool EvaluateOpcode(WorldPacket& p, time_t time) const;
     protected:
         enum Policy

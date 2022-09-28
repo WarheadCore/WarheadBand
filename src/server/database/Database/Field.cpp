@@ -21,17 +21,8 @@
 #include "Field.h"
 #include "Errors.h"
 #include "Log.h"
-#include "MySQLHacks.h"
 #include "StringConvert.h"
 #include "Types.h"
-
-Field::Field()
-{
-    data.value = nullptr;
-    data.length = 0;
-    data.raw = false;
-    meta = nullptr;
-}
 
 namespace
 {
@@ -88,7 +79,7 @@ namespace
                 return true;
         }
 
-        // dobule
+        // double
         if constexpr (std::is_same_v<T, double>)
         {
             if (type == DatabaseFieldTypes::Double || type == DatabaseFieldTypes::Decimal)
@@ -105,7 +96,7 @@ namespace
         return false;
     }
 
-    inline Optional<std::string_view> GetCleanAliasName(std::string_view alias)
+    inline std::optional<std::string_view> GetCleanAliasName(std::string_view alias)
     {
         if (alias.empty())
             return {};
@@ -147,6 +138,14 @@ namespace
     }
 }
 
+Field::Field()
+{
+    data.value = nullptr;
+    data.length = 0;
+    data.raw = false;
+    meta = nullptr;
+}
+
 void Field::GetBinarySizeChecked(uint8* buf, size_t length) const
 {
     ASSERT(data.value && (data.length == length), "Expected {}-byte binary blob, got {}data ({} bytes) instead", length, data.value ? "" : "no ", data.length);
@@ -186,7 +185,7 @@ bool Field::IsNumeric() const
 
 void Field::LogWrongType(std::string_view getter, std::string_view typeName) const
 {
-    LOG_WARN("sql.sql", "Warning: {}<{}> on {} field {}.{} ({}.{}) at index {}.",
+    LOG_WARN("db.query", "Warning: {}<{}> on {} field {}.{} ({}.{}) at index {}.",
         getter, typeName, meta->TypeName, meta->TableAlias, meta->Alias, meta->TableName, meta->Name, meta->Index);
 }
 
@@ -211,7 +210,7 @@ T Field::GetData() const
     }
 #endif
 
-    Optional<T> result = {};
+    std::optional<T> result = {};
 
     if (data.raw)
         result = *reinterpret_cast<T const*>(data.value);
@@ -238,8 +237,8 @@ T Field::GetData() const
 
             if (signedResult && !result && tableName.substr(tableName.length() - 4) == "_dbc")
             {
-                LOG_DEBUG("sql.sql", "> Found incorrect value '{}' for type '{}' in _dbc table.", data.value, typeid(T).name());
-                LOG_DEBUG("sql.sql", "> Table name '{}'. Field name '{}'. Try return int32 value", meta->TableName, meta->Name);
+                LOG_DEBUG("db.query", "> Found incorrect value '{}' for type '{}' in _dbc table.", data.value, typeid(T).name());
+                LOG_DEBUG("db.query", "> Table name '{}'. Field name '{}'. Try return int32 value", meta->TableName, meta->Name);
                 return GetData<int32>();
             }
         }
@@ -256,7 +255,7 @@ T Field::GetData() const
         if ((StringEqualI(*alias, "sum") || StringEqualI(*alias, "avg")) && !IsCorrectAlias<T>(meta->Type, *alias))
         {
             LogWrongType(__FUNCTION__, typeid(T).name());
-            LOG_WARN("sql.sql", "> Please use GetData<double>()");
+            LOG_WARN("db.query", "> Please use GetData<double>()");
             return GetData<double>();
             //ABORT();
         }
@@ -264,7 +263,7 @@ T Field::GetData() const
         if (StringEqualI(*alias, "count") && !IsCorrectAlias<T>(meta->Type, *alias))
         {
             LogWrongType(__FUNCTION__, typeid(T).name());
-            LOG_WARN("sql.sql", "> Please use GetData<uint64>()");
+            LOG_WARN("db.query", "> Please use GetData<uint64>()");
             return GetData<uint64>();
             //ABORT();
         }
@@ -272,8 +271,8 @@ T Field::GetData() const
 
     if (!result)
     {
-        LOG_FATAL("sql.sql", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, typeid(T).name(), data.raw);
-        LOG_FATAL("sql.sql", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
+        LOG_FATAL("db.query", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, typeid(T).name(), data.raw);
+        LOG_FATAL("db.query", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
         //ABORT();
         return GetDefaultValue<T>();
     }

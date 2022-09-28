@@ -61,7 +61,7 @@ void WardenCheckMgr::LoadWardenChecks()
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
 
     uint16 maxCheckId = fields[0].Get<uint16>();
 
@@ -191,7 +191,7 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint16 checkId = fields[0].Get<uint16>();
         uint8  action  = fields[1].Get<uint8>();

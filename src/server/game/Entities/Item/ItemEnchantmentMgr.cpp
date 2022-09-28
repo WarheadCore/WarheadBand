@@ -52,33 +52,29 @@ void LoadRandomEnchantmentsTable()
 
     //                                                 0      1      2
     QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
-
-    if (result)
-    {
-        uint32 count = 0;
-
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 entry = fields[0].Get<uint32>();
-            uint32 ench = fields[1].Get<uint32>();
-            float chance = fields[2].Get<float>();
-
-            if (chance > 0.000001f && chance <= 100.0f)
-                RandomItemEnch[entry].push_back(EnchStoreItem(ench, chance));
-
-            ++count;
-        } while (result->NextRow());
-
-        LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
-    }
-    else
+    if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
         LOG_INFO("server.loading", " ");
+        return;
     }
+
+    uint32 count = 0;
+
+    for (auto const& fields : *result)
+    {
+        uint32 entry = fields[0].Get<uint32>();
+        uint32 ench = fields[1].Get<uint32>();
+        float chance = fields[2].Get<float>();
+
+        if (chance > 0.000001f && chance <= 100.0f)
+            RandomItemEnch[entry].push_back(EnchStoreItem(ench, chance));
+
+        ++count;
+    }
+
+    LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
 }
 
 uint32 GetItemEnchantMod(int32 entry)

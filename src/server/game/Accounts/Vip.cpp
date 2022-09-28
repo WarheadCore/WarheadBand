@@ -129,7 +129,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
     store.emplace(accountID, std::make_tuple(timeNow, endTime, level));
 
     // Add DB
-    LoginDatabase.Execute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
+    AuthDatabase.Execute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
         accountID, timeNow.count(), endTime.count(), level);
 
     if (auto player = GetPlayerFromAccount(accountID))
@@ -154,7 +154,7 @@ bool Vip::Delete(uint32 accountID)
     }
 
     // Set inactive in DB
-    LoginDatabase.Execute("UPDATE `account_premium` SET `IsActive` = 0 WHERE `AccountID` = {} AND `IsActive` = 1",
+    AuthDatabase.Execute("UPDATE `account_premium` SET `IsActive` = 0 WHERE `AccountID` = {} AND `IsActive` = 1",
         accountID);
 
     store.erase(accountID);
@@ -425,15 +425,10 @@ void Vip::LoadRates()
         return true;
     };
 
-    do
+    for (auto& row : *result)
     {
-        Field* fields = result->Fetch();
-
-        auto level          = fields[0].Get<uint8>();
-        auto rateXP         = fields[1].Get<float>();
-        auto rateHonor      = fields[2].Get<float>();
-        auto rateArenaPoint = fields[3].Get<float>();
-        auto rateReputation  = fields[4].Get<float>();
+        auto const& [level, rateXP, rateHonor, rateArenaPoint, rateReputation] =
+                row.FetchTuple<uint8, float, float, float, float>();
 
         if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputation }))
             continue;
@@ -441,8 +436,7 @@ void Vip::LoadRates()
         auto rates = std::make_tuple(rateXP, rateHonor, rateArenaPoint, rateReputation);
 
         storeRates.emplace(level, rates);
-
-    } while (result->NextRow());
+    }
 
     LOG_INFO("module.vip", ">> Loaded {} vip rates in {}", storeRates.size(), sw);
     LOG_INFO("module.vip", "");
@@ -456,7 +450,7 @@ void Vip::LoadAccounts()
 
     LOG_INFO("module.vip", "Load vip accounts...");
 
-    QueryResult result = LoginDatabase.Query("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
+    QueryResult result = AuthDatabase.Query("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
     if (!result)
     {
         LOG_INFO("module.vip", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
@@ -498,16 +492,11 @@ void Vip::LoadUnbinds()
         return;
     }
 
-    do
+    for (auto& row : *result)
     {
-        Field* fields = result->Fetch();
-
-        auto guid = fields[0].Get<uint64>();
-        auto unbindTime = fields[1].Get<uint64>();
-
+        auto const& [guid, unbindTime] = row.FetchTuple<uint64, uint64>();
         storeUnbind.emplace(guid, unbindTime);
-
-    } while (result->NextRow());
+    }
 
     LOG_INFO("module.vip", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), sw);
     LOG_INFO("module.vip", "");
@@ -529,12 +518,9 @@ void Vip::LoadVipVendors()
         return;
     }
 
-    do
+    for (auto& row : *result)
     {
-        Field* fields = result->Fetch();
-
-        auto creatureEntry = fields[0].Get<uint32>();
-        auto vipLevel = fields[1].Get<uint8>();
+        auto const& [creatureEntry, vipLevel] = row.FetchTuple<uint32, uint8>();
 
         CreatureTemplate const* creatureTemplate = sObjectMgr->GetCreatureTemplate(creatureEntry);
         if (!creatureTemplate)
@@ -556,8 +542,7 @@ void Vip::LoadVipVendors()
         }
 
         storeVendors.emplace(creatureEntry, vipLevel);
-
-    } while (result->NextRow());
+    }
 
     LOG_INFO("module.vip", ">> Loaded {} vip vendors in {}", storeVendors.size(), sw);
     LOG_INFO("module.vip", "");

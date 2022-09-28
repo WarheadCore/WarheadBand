@@ -15,27 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DATABASEENV_H
-#define DATABASEENV_H
+#ifndef DATABASE_ENV_H
+#define DATABASE_ENV_H
 
 #include "DatabaseWorkerPool.h"
-#include "Define.h"
-
-#include "Implementation/CharacterDatabase.h"
-#include "Implementation/LoginDatabase.h"
-#include "Implementation/WorldDatabase.h"
-
 #include "Field.h"
 #include "PreparedStatement.h"
 #include "QueryCallback.h"
 #include "QueryResult.h"
 #include "Transaction.h"
 
-/// Accessor to the world database
-WH_DATABASE_API extern DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabase;
-/// Accessor to the character database
-WH_DATABASE_API extern DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabase;
-/// Accessor to the realm/login database
-WH_DATABASE_API extern DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabase;
+// Impl include
+#include "AuthDatabase.h"
+#include "CharacterDatabase.h"
+#include "DBCDatabase.h"
+#include "WorldDatabase.h"
 
 #endif

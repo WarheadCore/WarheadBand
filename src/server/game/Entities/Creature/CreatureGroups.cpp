@@ -95,19 +95,18 @@ void FormationMgr::LoadCreatureFormations()
     }
 
     uint32 count = 0;
-    do
-    {
-        Field const* fields = result->Fetch();
 
+    for (auto const& fields : *result)
+    {
         //Load group member data
         FormationInfo group_member;
-        group_member.leaderGUID            = fields[0].Get<uint32>();
+        group_member.leaderGUID              = fields[0].Get<uint32>();
         ObjectGuid::LowType const memberGUID = fields[1].Get<uint32>();
-        float const follow_dist             = fields[2].Get<float>();
-        float const follow_angle            = fields[3].Get<float>() * (static_cast<float>(M_PI) / 180);
-        group_member.groupAI               = fields[4].Get<uint16>();
-        group_member.point_1               = fields[5].Get<uint16>();
-        group_member.point_2               = fields[6].Get<uint16>();
+        float const follow_dist              = fields[2].Get<float>();
+        float const follow_angle             = fields[3].Get<float>() * (static_cast<float>(M_PI) / 180);
+        group_member.groupAI                 = fields[4].Get<uint16>();
+        group_member.point_1                 = fields[5].Get<uint16>();
+        group_member.point_2                 = fields[6].Get<uint16>();
 
         //If creature is group leader we may skip loading of dist/angle
         if (group_member.leaderGUID != memberGUID)
@@ -161,7 +160,7 @@ void FormationMgr::LoadCreatureFormations()
 
         CreatureGroupMap[memberGUID] = group_member;
         ++count;
-    } while (result->NextRow());
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} creatures in formations in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");

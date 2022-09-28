@@ -84,7 +84,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     std::ostringstream ss;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id = fields[0].Get<uint32>();
 

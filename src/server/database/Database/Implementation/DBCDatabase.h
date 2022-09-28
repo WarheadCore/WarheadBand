@@ -15,27 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ADHOCSTATEMENT_H
-#define _ADHOCSTATEMENT_H
+#ifndef _DBC_DATABASE_H_
+#define _DBC_DATABASE_H_
 
-#include "DatabaseEnvFwd.h"
-#include "Define.h"
-#include "SQLOperation.h"
+#include "DatabaseWorkerPool.h"
 
-/*! Raw, ad-hoc query. */
-class WH_DATABASE_API BasicStatementTask : public SQLOperation
+enum DBCDatabaseStatements : uint32
 {
-public:
-    BasicStatementTask(std::string_view sql, bool async = false);
-    ~BasicStatementTask();
+    /*  Naming standard for defines:
+        {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
+        When updating more than one field, consider looking at the calling function
+        name for a suiting suffix.
+    */
 
-    bool Execute() override;
-    QueryResultFuture GetFuture() const { return m_result->get_future(); }
+//    DBC_SEL_TABLE,
 
-private:
-    std::string m_sql; //- Raw query to be executed
-    bool m_has_result;
-    QueryResultPromise* m_result;
+    MAX_DBC_DATABASE_STATEMENTS
 };
 
-#endif
+class WH_DATABASE_API DBCDatabasePool : public DatabaseWorkerPool
+{
+public:
+    DBCDatabasePool() { SetType(DatabaseType::Dbc); }
+    ~DBCDatabasePool() = default;
+
+    //- Loads database type specific prepared statements
+    void DoPrepareStatements() override;
+};
+
+/// Accessor to the dbc database
+WH_DATABASE_API extern DBCDatabasePool DBCDatabase;
+
+#endif // _DBC_DATABASE_H_

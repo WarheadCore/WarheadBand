@@ -152,7 +152,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     {
         m_Address = sock->GetRemoteIpAddress().to_string();
         ResetTimeOutTime(false);
-        LoginDatabase.Execute("UPDATE account SET online = 1 WHERE id = {};", GetAccountId()); // One-time query
+        AuthDatabase.Execute("UPDATE account SET online = 1 WHERE id = {};", GetAccountId()); // One-time query
     }
 }
 
@@ -161,7 +161,7 @@ WorldSession::~WorldSession()
 {
     sScriptMgr->OnAccountLogout(GetAccountId());
 
-    LoginDatabase.Execute("UPDATE account SET totaltime = {} WHERE id = {}", GetTotalTime(), GetAccountId());
+    AuthDatabase.Execute("UPDATE account SET totaltime = {} WHERE id = {}", GetTotalTime(), GetAccountId());
 
     ///- unload player if not unloaded
     if (_player)
@@ -180,7 +180,7 @@ WorldSession::~WorldSession()
         delete packet;
 
     if (GetShouldSetOfflineInDB())
-        LoginDatabase.Execute("UPDATE account SET online = 0 WHERE id = {};", GetAccountId());     // One-time query
+        AuthDatabase.Execute("UPDATE account SET online = 0 WHERE id = {};", GetAccountId());     // One-time query
 }
 
 std::string const& WorldSession::GetPlayerName() const
@@ -608,7 +608,7 @@ void WorldSession::LogoutPlayer(bool save)
                 {
                     if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
                     {
-                        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                         stmt->SetData(0, _player->GetGUID().GetCounter());
                         stmt->SetData(1, BG_DESERTION_TYPE_INVITE_LOGOUT);
                         CharacterDatabase.Execute(stmt);
@@ -713,7 +713,7 @@ void WorldSession::LogoutPlayer(bool save)
         LOG_DEBUG("network", "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
 
         //! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
         stmt->SetData(0, GetAccountId());
         CharacterDatabase.Execute(stmt);
     }
@@ -820,7 +820,7 @@ void WorldSession::SendAuthWaitQueue(uint32 position)
 
 void WorldSession::LoadGlobalAccountData()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
     stmt->SetData(0, GetAccountId());
     LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
 }
@@ -836,7 +836,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 type = fields[0].Get<uint8>();
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
@@ -874,7 +874,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
         index = CHAR_REP_PLAYER_ACCOUNT_DATA;
     }
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(index);
     stmt->SetData(0, id);
     stmt->SetData(1, type);
     stmt->SetData(2, uint32(tm));
@@ -901,7 +901,7 @@ void WorldSession::LoadTutorialsData()
 {
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
     stmt->SetData(0, GetAccountId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
@@ -923,7 +923,7 @@ void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
     if (!m_TutorialsChanged)
         return;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
     stmt->SetData(0, GetAccountId());
     bool hasTutorials = bool(CharacterDatabase.Query(stmt));
 
