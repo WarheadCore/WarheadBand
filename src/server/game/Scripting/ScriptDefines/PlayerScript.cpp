@@ -590,7 +590,7 @@ bool ScriptMgr::OnBeforeOpenItem(Player* player, Item* item)
         return !script->OnBeforeOpenItem(player, item);
     });
 
-    ReturnValidBool(ret);
+    return ReturnValidBool(ret);
 }
 
 void ScriptMgr::OnFirstLogin(Player* player)

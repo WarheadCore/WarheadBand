@@ -25,10 +25,10 @@ SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
-#include "Item.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Player.h"
 #include "TaskScheduler.h"
 #include "temple_of_ahnqiraj.h"
 
