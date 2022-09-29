@@ -42,7 +42,7 @@ struct SQLElementData
 class WH_DATABASE_API Transaction
 {
 public:
-    Transaction()  = default;
+    Transaction() = default;
     virtual ~Transaction() { Cleanup(); }
 
     void Append(std::string_view sql);
@@ -68,8 +68,8 @@ private:
 class WH_DATABASE_API TransactionTask : public AsyncOperation
 {
 public:
-    TransactionTask(MySQLConnection* connection, SQLTransaction trans) :
-        AsyncOperation(connection), _trans(std::move(trans)) { }
+    explicit TransactionTask(SQLTransaction trans) :
+        AsyncOperation(), _trans(std::move(trans)) { }
 
     ~TransactionTask() override = default;
 
@@ -85,7 +85,7 @@ protected:
 class WH_DATABASE_API TransactionWithResultTask : public TransactionTask
 {
 public:
-    TransactionWithResultTask(MySQLConnection* connection, SQLTransaction trans) : TransactionTask(connection, trans) { }
+    explicit TransactionWithResultTask(SQLTransaction trans) : TransactionTask(trans) { }
 
     TransactionFuture GetFuture() { return _result.get_future(); }
 

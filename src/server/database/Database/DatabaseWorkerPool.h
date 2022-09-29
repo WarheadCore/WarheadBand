@@ -18,9 +18,10 @@
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
-#include "DatabaseAsyncOperation.h"
+#include "DatabaseEnvFwd.h"
 #include "StringFormat.h"
 #include "Duration.h"
+#include <array>
 #include <vector>
 #include <mutex>
 #include <unordered_map>
@@ -28,6 +29,9 @@
 
 template <typename T>
 class ProducerConsumerQueue;
+
+class AsyncOperation;
+class TaskScheduler;
 
 struct StringPreparedStatement
 {
@@ -213,13 +217,16 @@ public:
     DatabaseType GetType() const { return _poolType; }
     void SetType(DatabaseType type) { _poolType = type; }
 
-private:
-    void ExecuteQueue();
+    void Update(Milliseconds diff);
+    std::size_t GetQueueSize();
 
+private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
     void InitPrepareStatement(MySQLConnection* connection);
     void Enqueue(AsyncOperation* operation);
     unsigned long EscapeString(char* to, char const* from, unsigned long length);
+    void StopAsyncJob();
+    void AddTasks();
 
     //! Gets a free connection in the synchronous connection pool.
     //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
@@ -229,19 +236,17 @@ private:
     [[nodiscard]] std::string_view GetDatabaseName() const;
 
     std::unordered_map<uint32, StringPreparedStatement> _stringPreparedStatement;
-    std::vector<std::unique_ptr<MySQLConnection>> _connections;
-    std::unique_ptr<MySQLConnection> _asyncConnection;
+    std::array<std::vector<std::unique_ptr<MySQLConnection>>, IDX_SIZE> _connections;
     std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
     std::vector<uint8> _preparedStatementSize;
     std::mutex _openConnectMutex;
     std::mutex _cleanupMutex;
     std::string _poolName;
     DatabaseType _poolType{ DatabaseType::None };
+    std::unique_ptr<TaskScheduler> _scheduler{};
 
     // Async
     std::unique_ptr<ProducerConsumerQueue<AsyncOperation*>> _queue;
-    std::unique_ptr<std::thread> _thread;
-    std::atomic<bool> _stopped;
 
 #ifdef WARHEAD_DEBUG
     static inline thread_local bool _warnSyncQueries = false;

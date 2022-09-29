@@ -20,7 +20,6 @@
 
 #include "DatabaseMgr.h"
 #include "DatabaseWorkerPool.h"
-#include "TaskScheduler.h"
 #include "Timer.h"
 #include "Log.h"
 #include "Config.h"
@@ -35,42 +34,10 @@ DatabaseMgr::DatabaseMgr()
 
     _autoSetup = sConfigMgr->GetOption<bool>("Updates.AutoSetup", true);
     _updateFlags = sConfigMgr->GetOption<uint32>("Updates.EnableDatabases", 0);
-
-    if (!sConfigMgr->isDryRun())
-    {
-        _pingInterval = Minutes{ sConfigMgr->GetOption<uint32>("MaxPingTime", 30) };
-
-        _scheduler = std::make_unique<TaskScheduler>();
-
-        // Add task for ping db
-        _scheduler->Schedule(_pingInterval, [this](TaskContext context)
-        {
-            LOG_DEBUG("db.connection", "Ping DB to keep connection alive");
-
-            for (auto const& execute : _ping)
-                execute();
-
-            context.Repeat();
-        });
-
-        // Add task for cleanup dynamic connections
-        _scheduler->Schedule(1min, [this](TaskContext context)
-        {
-            LOG_DEBUG("db.connection", "Cleanup dynamic connections...");
-
-            for (auto const& execute : _cleanup)
-                execute();
-
-            context.Repeat();
-        });
-    }
 }
 
 DatabaseMgr::~DatabaseMgr()
 {
-    if (_scheduler)
-        _scheduler->CancelAll();
-
     mysql_library_end();
 }
 
@@ -80,16 +47,7 @@ DatabaseMgr::~DatabaseMgr()
     return &instance;
 }
 
-void DatabaseMgr::DisableUpdate()
-{
-    if (_scheduler)
-    {
-        _scheduler->CancelAll();
-        _scheduler.reset();
-    }
-}
-
-void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name, bool isDefaultDB /*= true*/)
+void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
 {
     // #1. Set name for pool
     pool.SetPoolName(name);
@@ -194,11 +152,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name, b
         return true;
     });
 
-    if (isDefaultDB)
-    {
-        _ping.emplace_back([&pool](){ pool.KeepAlive(); });
-        _cleanup.emplace_back([&pool](){ pool.CleanupConnections(); });
-    }
+    _poolList.emplace_back(&pool);
 }
 
 bool DatabaseMgr::Load()
@@ -277,8 +231,9 @@ void DatabaseMgr::CloseAllConnections()
 
 void DatabaseMgr::Update(Milliseconds diff)
 {
-    if (_scheduler)
-        _scheduler->Update(diff);
+    for (auto const& pool : _poolList)
+        if (pool)
+            pool->Update(diff);
 }
 
 uint32 DatabaseMgr::GetDatabaseLibraryVersion()

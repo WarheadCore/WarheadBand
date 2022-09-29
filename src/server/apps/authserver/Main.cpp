@@ -63,7 +63,7 @@ namespace fs = std::filesystem;
 bool StartDB();
 void StopDB();
 void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int signalNumber);
-void KeepDatabaseAliveHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error);
+void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
 
@@ -183,10 +183,9 @@ int main(int argc, char** argv)
     SetProcessPriority("server.authserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
 
     // Enabled a timed callback for handling the database keep alive ping
-    int32 dbPingInterval = sConfigMgr->GetOption<int32>("MaxPingTime", 30);
-    std::shared_ptr<Warhead::Asio::DeadlineTimer> dbPingTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
-    dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
-    dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(dbPingTimer), dbPingInterval, std::placeholders::_1));
+    std::shared_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
+    dbUpdateTimer->expires_from_now(boost::posix_time::milliseconds(1));
+    dbUpdateTimer->async_wait(std::bind(&DatabaseUpdateHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(dbUpdateTimer), std::placeholders::_1));
 
     int32 banExpiryCheckInterval = sConfigMgr->GetOption<int32>("BanExpiryCheckInterval", 60);
     std::shared_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
@@ -197,7 +196,7 @@ int main(int argc, char** argv)
     ioContext->run();
 
     banExpiryCheckTimer->cancel();
-    dbPingTimer->cancel();
+    dbUpdateTimer->cancel();
 
     LOG_INFO("server.authserver", "Halting process...");
 
@@ -213,9 +212,6 @@ bool StartDB()
 
     if (!sDatabaseMgr->Load())
         return false;
-
-    // Disable update db (we have KeepDatabaseAliveHandler)
-    sDatabaseMgr->DisableUpdate();
 
     LOG_INFO("server.authserver", "Started auth database connection pool.");
     return true;
@@ -234,17 +230,16 @@ void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::
             ioContext->stop();
 }
 
-void KeepDatabaseAliveHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error)
+void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimerRef, boost::system::error_code const& error)
 {
     if (!error)
     {
-        if (std::shared_ptr<Warhead::Asio::DeadlineTimer> dbPingTimer = dbPingTimerRef.lock())
+        if (std::shared_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimer = dbUpdateTimerRef.lock())
         {
-            LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
-            AuthDatabase.KeepAlive();
+            sDatabaseMgr->Update(0ms);
 
-            dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
-            dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, dbPingTimerRef, dbPingInterval, std::placeholders::_1));
+            dbUpdateTimer->expires_from_now(boost::posix_time::milliseconds(1));
+            dbUpdateTimer->async_wait(std::bind(&DatabaseUpdateHandler, dbUpdateTimerRef, std::placeholders::_1));
         }
     }
 }

@@ -27,7 +27,6 @@
 #include <vector>
 
 class DatabaseWorkerPool;
-class TaskScheduler;
 
 class WH_DATABASE_API DatabaseMgr
 {
@@ -37,7 +36,7 @@ public:
 
     static DatabaseMgr* instance();
 
-    void AddDatabase(DatabaseWorkerPool& pool, std::string_view name, bool isDefaultDB = true);
+    void AddDatabase(DatabaseWorkerPool& pool, std::string_view name);
     void Update(Milliseconds diff);
     bool Load();
     void CloseAllConnections();
@@ -49,7 +48,6 @@ public:
     static std::string_view GetServerVersion();
 
     void SetModuleList(std::string_view modulesList) { _modulesList = modulesList; }
-    void DisableUpdate();
 
 private:
     using Predicate = std::function<bool()>;
@@ -67,13 +65,10 @@ private:
     std::string _modulesList;
     bool _autoSetup{};
     uint32 _updateFlags{};
-    Minutes _pingInterval{};
 
     std::queue<Predicate> _open, _populate, _update, _prepare;
-    std::vector<Closer> _ping, _cleanup;
     std::stack<Closer> _close;
-
-    std::unique_ptr<TaskScheduler> _scheduler;
+    std::vector<DatabaseWorkerPool*> _poolList;
 
     DatabaseMgr(DatabaseMgr const&) = delete;
     DatabaseMgr(DatabaseMgr&&) = delete;

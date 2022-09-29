@@ -16,6 +16,8 @@
  */
 
 #include "MySQLConnection.h"
+#include "DatabaseAsyncOperation.h"
+#include "PCQueue.h"
 #include "QueryResult.h"
 #include "MySQLHacks.h"
 #include "Tokenize.h"
@@ -34,7 +36,7 @@
 namespace
 {
     constexpr auto DB_DEFAULT_CHARSET = "utf8mb4";
-    constexpr auto DYNAMIC_CONNECTION_TIMEOUT = 5min;
+    constexpr auto DYNAMIC_CONNECTION_TIMEOUT = 1min;
 
     std::string GetConnectionFlagString(ConnectionFlags flag)
     {
@@ -65,17 +67,26 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string_view infoString)
         SSL.assign(tokens.at(5));
 }
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isAsync /*= false*/) :
-    _connectionInfo(connInfo)
+MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isDynamic /*= false*/, ProducerConsumerQueue<AsyncOperation*>* queue /*= nullptr*/) :
+    _connectionInfo(connInfo), _isDynamic(isDynamic)
 {
-    if (isAsync)
+    if (queue)
+    {
         _connectionFlags = ConnectionFlags::Async;
+        _queue = queue;
+
+        if (!isDynamic)
+            RegisterThread();
+    }
 
     UpdateLastUseTime();
 }
 
 MySQLConnection::~MySQLConnection()
 {
+    if (_thread)
+        _thread->join();
+
     Close();
     LOG_DEBUG("db.connection", "> Close {} connection to '{}' db", GetConnectionFlagString(_connectionFlags), _connectionInfo.Database);
 }
@@ -611,4 +622,30 @@ bool MySQLConnection::CanRemoveConnection()
 
     Milliseconds diff = std::chrono::duration_cast<Milliseconds>(std::chrono::system_clock::now() - _lastUseTime);
     return diff >= DYNAMIC_CONNECTION_TIMEOUT;
+}
+
+void MySQLConnection::RegisterThread()
+{
+    if (_connectionFlags == ConnectionFlags::Async && _queue)
+        _thread = std::make_unique<std::thread>([this](){ ExecuteQueue(); });
+}
+
+void MySQLConnection::ExecuteQueue()
+{
+    if (!_queue)
+        return;
+
+    for (;;)
+    {
+        AsyncOperation* task = nullptr;
+
+        _queue->WaitAndPop(task);
+
+        if (_stopped || !task)
+            break;
+
+        task->SetConnection(this);
+        task->ExecuteQuery();
+        delete task;
+    }
 }

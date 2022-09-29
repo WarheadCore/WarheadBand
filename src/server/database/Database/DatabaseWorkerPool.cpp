@@ -30,24 +30,11 @@
 #include "PCQueue.h"
 #include "Transaction.h"
 #include "QueryHolder.h"
+#include "TaskScheduler.h"
+#include "Config.h"
 #include <limits>
 #include <utility>
 #include <mysqld_error.h>
-
-constexpr auto MAX_SYNC_CONNECTIONS = 32;
-
-class PingOperation : public AsyncOperation
-{
-public:
-    explicit PingOperation(MySQLConnection* connection) :
-        AsyncOperation(connection) { }
-
-    //! Operation for idle delay threads
-    void ExecuteQuery() override
-    {
-        _connection->Ping();
-    }
-};
 
 #ifdef WARHEAD_DEBUG
 #include <boost/stacktrace.hpp>
@@ -61,6 +48,21 @@ public:
 #define MIN_DB_SERVER_VERSION 50700u
 #define MIN_DB_CLIENT_VERSION 50700u
 #endif
+
+constexpr auto MAX_SYNC_CONNECTIONS = 32;
+
+class PingOperation : public AsyncOperation
+{
+public:
+    explicit PingOperation() :
+        AsyncOperation() { }
+
+    //! Operation for idle delay threads
+    void ExecuteQuery() override
+    {
+        _connection->Ping();
+    }
+};
 
 DatabaseWorkerPool::DatabaseWorkerPool() :
     _queue(std::make_unique<ProducerConsumerQueue<AsyncOperation*>>())
@@ -79,16 +81,21 @@ DatabaseWorkerPool::DatabaseWorkerPool() :
     ASSERT(isSameClientDB, "Used DB library version ({} id {}) does not match the version id used to compile WarheadCore (id {}).\nSearch the wiki for ACE00046 in Common Errors (https://www.azerothcore.org/wiki/common-errors).",
         mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
 
-    _thread = std::make_unique<std::thread>([this](){ ExecuteQueue(); });
+    _scheduler = std::make_unique<TaskScheduler>();
+    AddTasks();
 }
 
 DatabaseWorkerPool::~DatabaseWorkerPool()
 {
-    _stopped = true;
-    _queue->Cancel();
+    if (_scheduler)
+        _scheduler->CancelAll();
 
-    if (_thread)
-        _thread->join();
+    StopAsyncJob();
+}
+
+void DatabaseWorkerPool::StopAsyncJob()
+{
+    _queue->Cancel();
 }
 
 void DatabaseWorkerPool::SetConnectionInfo(std::string_view infoString)
@@ -122,19 +129,21 @@ uint32 DatabaseWorkerPool::Open()
 
 void DatabaseWorkerPool::Close()
 {
-    if (!_asyncConnection && _connections.empty())
+    if (_connections[IDX_ASYNC].empty() && _connections[IDX_SYNCH].empty())
         return;
 
     LOG_INFO("db.pool", "Closing down DatabasePool '{}' ...", GetDatabaseName());
 
+    StopAsyncJob();
+
     //! Closes the actually DB connection.
-    _asyncConnection.reset();
+    _connections[IDX_ASYNC].clear();
 
     //! Shut down the synchronous connections
     //! There's no need for locking the connection, because DatabaseWorkerPool<>::Close
     //! should only be called after any other thread tasks in the core have exited,
     //! meaning there can be no concurrent access at this point.
-    _connections.clear();
+    _connections[IDX_SYNCH].clear();
 
     LOG_INFO("db.pool", "All connections on DatabasePool '{}' closed.", GetDatabaseName());
 }
@@ -156,48 +165,22 @@ QueryResult DatabaseWorkerPool::Query(std::string_view sql)
 
 std::pair<uint32, MySQLConnection*> DatabaseWorkerPool::OpenConnection(InternalIndex type, bool isDynamic /*= false*/)
 {
-    if (type == IDX_ASYNC)
+    auto connection = std::make_unique<MySQLConnection>(*_connectionInfo, isDynamic, type == IDX_ASYNC ? _queue.get() : nullptr);
+    if (uint32 error = connection->Open())
     {
-        _asyncConnection = std::make_unique<MySQLConnection>(*_connectionInfo, true);
-        if (uint32 error = _asyncConnection->Open())
-        {
-            // Failed to open a connection or invalid version
-            return { error, nullptr };
-        }
-        else if (_asyncConnection->GetServerVersion() < MIN_DB_SERVER_VERSION)
-        {
-            LOG_ERROR("db.pool", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
-            return { 1, nullptr };
-        }
-
-        return { 0, _asyncConnection.get() };
+        // Failed to open a connection or invalid version
+        return { error, nullptr };
     }
-    else if (type == IDX_SYNCH)
+    else if (connection->GetServerVersion() < MIN_DB_SERVER_VERSION)
     {
-        auto connection = std::make_unique<MySQLConnection>(*_connectionInfo);
-        if (uint32 error = connection->Open())
-        {
-            // Failed to open a connection or invalid version
-            return { error, nullptr };
-        }
-        else if (_asyncConnection->GetServerVersion() < MIN_DB_SERVER_VERSION)
-        {
-            LOG_ERROR("db.pool", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
-            return { 1, nullptr };
-        }
-
-        if (isDynamic)
-            connection->SetDynamic();
-
-        auto& itrConnection = _connections.emplace_back(std::move(connection));
-
-        // Everything is fine
-        return { 0, itrConnection.get() };
+        LOG_ERROR("db.pool", "WarheadCore does not support MySQL versions below 5.7 or MariaDB versions below 10.3");
+        return { 1, nullptr };
     }
-    else
-        ABORT("> Unknown connection type: {}", type);
 
-    return { 0, nullptr };
+    auto& itrConnection = _connections[type].emplace_back(std::move(connection));
+
+    // Everything is fine
+    return { 0, itrConnection.get() };
 }
 
 MySQLConnection* DatabaseWorkerPool::GetFreeConnection()
@@ -214,7 +197,7 @@ MySQLConnection* DatabaseWorkerPool::GetFreeConnection()
     std::lock_guard<std::mutex> guard(_cleanupMutex);
 
     // Check default connections
-    for (auto& connection : _connections)
+    for (auto& connection : _connections[IDX_SYNCH])
         if (connection->LockIfReady())
             return connection.get();
 
@@ -222,9 +205,9 @@ MySQLConnection* DatabaseWorkerPool::GetFreeConnection()
     {
         std::lock_guard<std::mutex> guard(_openConnectMutex);
 
-        LOG_WARN("db.pool", "> Not found free sync connection. Count: {}", _connections.size());
+        LOG_WARN("db.pool", "> Not found free sync connection. Count: {}", _connections[IDX_SYNCH].size());
 
-        if (_connections.size() < MAX_SYNC_CONNECTIONS)
+        if (_connections[IDX_SYNCH].size() < MAX_SYNC_CONNECTIONS)
         {
             auto [error, connection] = OpenConnection(IDX_SYNCH, true);
             if (!error)
@@ -240,13 +223,13 @@ MySQLConnection* DatabaseWorkerPool::GetFreeConnection()
     MySQLConnection* freeConnection{ nullptr };
 
     uint8 i{};
-    auto const num_cons{ _connections.size()};
+    auto const num_cons{ _connections[IDX_SYNCH].size()};
 
     //! Block forever until a connection is free
     for (;;)
     {
         auto index = ++i % num_cons;
-        freeConnection = _connections[index].get();
+        freeConnection = _connections[IDX_SYNCH][index].get();
 
         //! Must be matched with t->Unlock() or you will get deadlocks
         if (freeConnection->LockIfReady())
@@ -266,7 +249,7 @@ void DatabaseWorkerPool::Execute(std::string_view sql)
     if (sql.empty())
         return;
 
-    _queue->Push(new BasicStatementTask(_asyncConnection.get(), sql));
+    _queue->Push(new BasicStatementTask(sql));
 }
 
 void DatabaseWorkerPool::Execute(PreparedStatement stmt)
@@ -274,17 +257,22 @@ void DatabaseWorkerPool::Execute(PreparedStatement stmt)
     if (!stmt)
         return;
 
-    _queue->Push(new PreparedStatementTask(_asyncConnection.get(), std::move(stmt)));
+    _queue->Push(new PreparedStatementTask(std::move(stmt)));
 }
 
 void DatabaseWorkerPool::CleanupConnections()
 {
     std::lock_guard<std::mutex> guard(_cleanupMutex);
 
-    _connections.erase(std::remove_if(_connections.begin(), _connections.end(), [](std::unique_ptr<MySQLConnection>& connection)
+    _connections[IDX_SYNCH].erase(std::remove_if(_connections[IDX_SYNCH].begin(), _connections[IDX_SYNCH].end(), [](std::unique_ptr<MySQLConnection>& connection)
     {
         return connection->CanRemoveConnection();
-    }), _connections.end());
+    }), _connections[IDX_SYNCH].end());
+
+    _connections[IDX_ASYNC].erase(std::remove_if(_connections[IDX_ASYNC].begin(), _connections[IDX_ASYNC].end(), [](std::unique_ptr<MySQLConnection>& connection)
+    {
+        return connection->CanRemoveConnection();
+    }), _connections[IDX_ASYNC].end());
 }
 
 bool DatabaseWorkerPool::PrepareStatements()
@@ -293,12 +281,9 @@ bool DatabaseWorkerPool::PrepareStatements()
     DoPrepareStatements();
 
     for (auto const& [index, stmt] : _stringPreparedStatement)
-    {
-        for (auto& connection : _connections)
-            connection->PrepareStatement(index, stmt.Query, stmt.ConnectionType);
-
-        _asyncConnection->PrepareStatement(index, stmt.Query, stmt.ConnectionType);
-    }
+        for (auto const& connections : _connections)
+            for (auto const& connection : connections)
+                connection->PrepareStatement(index, stmt.Query, stmt.ConnectionType);
 
     auto IsValidPrepareStatements = [this](MySQLConnection* connection)
     {
@@ -346,12 +331,10 @@ bool DatabaseWorkerPool::PrepareStatements()
         return true;
     };
 
-    for (auto const& syncConnection : _connections)
-        if (!IsValidPrepareStatements(syncConnection.get()))
-            return false;
-
-    if (!IsValidPrepareStatements(_asyncConnection.get()))
-        return false;
+    for (auto const& connections : _connections)
+        for (auto const& connection : connections)
+            if (!IsValidPrepareStatements(connection.get()))
+                return false;
 
     return true;
 }
@@ -396,7 +379,7 @@ void DatabaseWorkerPool::InitPrepareStatement(MySQLConnection* connection)
 
 QueryCallback DatabaseWorkerPool::AsyncQuery(std::string_view sql)
 {
-    auto task = new BasicStatementTask(_asyncConnection.get(), sql, true);
+    auto task = new BasicStatementTask(sql, true);
     auto result = task->GetFuture();
     _queue->Push(task);
     return QueryCallback(std::move(result));
@@ -404,29 +387,10 @@ QueryCallback DatabaseWorkerPool::AsyncQuery(std::string_view sql)
 
 QueryCallback DatabaseWorkerPool::AsyncQuery(PreparedStatement stmt)
 {
-    auto task = new PreparedStatementTask(_asyncConnection.get(), std::move(stmt), true);
+    auto task = new PreparedStatementTask(std::move(stmt), true);
     auto result = task->GetFuture();
     _queue->Push(task);
     return QueryCallback(std::move(result));
-}
-
-void DatabaseWorkerPool::ExecuteQueue()
-{
-    if (!_queue)
-        return;
-
-    for (;;)
-    {
-        AsyncOperation* task = nullptr;
-
-        _queue->WaitAndPop(task);
-
-        if (_stopped || !task)
-            return;
-
-        task->ExecuteOperation();
-        delete task;
-    }
 }
 
 SQLTransaction DatabaseWorkerPool::BeginTransaction()
@@ -453,7 +417,7 @@ void DatabaseWorkerPool::CommitTransaction(SQLTransaction transaction)
     }
 #endif // WARHEAD_DEBUG
 
-    Enqueue(new TransactionTask(_asyncConnection.get(), std::move(transaction)));
+    Enqueue(new TransactionTask(std::move(transaction)));
 }
 
 TransactionCallback DatabaseWorkerPool::AsyncCommitTransaction(SQLTransaction transaction)
@@ -475,7 +439,7 @@ TransactionCallback DatabaseWorkerPool::AsyncCommitTransaction(SQLTransaction tr
     }
 #endif // WARHEAD_DEBUG
 
-    auto task = new TransactionWithResultTask(_asyncConnection.get(), std::move(transaction));
+    auto task = new TransactionWithResultTask(std::move(transaction));
     TransactionFuture result = task->GetFuture();
     Enqueue(task);
     return TransactionCallback{ std::move(result) };
@@ -563,7 +527,7 @@ void DatabaseWorkerPool::EscapeString(std::string& str)
 void DatabaseWorkerPool::KeepAlive()
 {
     //! Ping synchronous connections
-    for (auto& connection : _connections)
+    for (auto& connection : _connections[IDX_SYNCH])
     {
         if (connection->LockIfReady())
         {
@@ -575,7 +539,10 @@ void DatabaseWorkerPool::KeepAlive()
     //! Assuming all worker threads are free, every worker thread will receive 1 ping operation request
     //! If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter
     //! as the sole purpose is to prevent connections from idling.
-    Enqueue(new PingOperation(_asyncConnection.get()));
+    auto const count = _connections[IDX_ASYNC].size();
+
+    for (uint8 i = 0; i < count; ++i)
+        Enqueue(new PingOperation);
 }
 
 std::size_t DatabaseWorkerPool::QueueSize() const
@@ -588,13 +555,80 @@ unsigned long DatabaseWorkerPool::EscapeString(char* to, char const* from, unsig
     if (!to || !from || !length)
         return 0;
 
-    return _connections.front()->EscapeString(to, from, length);
+    return _connections[IDX_SYNCH].front()->EscapeString(to, from, length);
 }
 
 SQLQueryHolderCallback DatabaseWorkerPool::DelayQueryHolder(SQLQueryHolder holder)
 {
-    auto task = new SQLQueryHolderTask(_asyncConnection.get(), holder);
+    auto task = new SQLQueryHolderTask(holder);
     QueryResultHolderFuture result = task->GetFuture();
     Enqueue(task);
     return { std::move(holder), std::move(result) };
+}
+
+std::size_t DatabaseWorkerPool::GetQueueSize()
+{
+    return _queue->Size();
+}
+
+void DatabaseWorkerPool::Update(Milliseconds diff)
+{
+    if (_scheduler)
+    {
+        if (diff > 0ms)
+            _scheduler->Update(diff);
+        else
+            _scheduler->Update();
+    }
+}
+
+void DatabaseWorkerPool::AddTasks()
+{
+    if (sConfigMgr->isDryRun())
+        return;
+
+    // DB ping
+    _scheduler->Schedule(Minutes{ sConfigMgr->GetOption<uint32>("MaxPingTime", 30) }, [this](TaskContext context)
+    {
+        LOG_DEBUG("db.connection", "Ping DB to keep connection alive. Pool name: {}", _poolName);
+        KeepAlive();
+        context.Repeat();
+    });
+
+    // Cleanup dynamic connections
+    _scheduler->Schedule(5min, [this](TaskContext context)
+    {
+        LOG_DEBUG("db.connection", "Cleanup dynamic connections...");
+        CleanupConnections();
+        context.Repeat();
+    });
+
+    // Dynamic async connections
+    _scheduler->Schedule(100ms, [this](TaskContext context)
+    {
+        static auto maxConnections = std::thread::hardware_concurrency() / 2;
+        auto queueSize{ GetQueueSize() };
+
+        if (queueSize > 100)
+        {
+            auto connectionsSize{ _connections[IDX_ASYNC].size() };
+
+            LOG_WARN("db.pool", "Queue size: {}. Pool name: {}. Connection size: {}", queueSize, _poolName, connectionsSize);
+
+            if (connectionsSize < maxConnections)
+            {
+                LOG_INFO("db.pool", "Add new dynamic async connection...");
+
+                auto [error, connection] = OpenConnection(IDX_ASYNC, true);
+                if (!error)
+                {
+                    InitPrepareStatement(connection);
+                    ASSERT(connection->PrepareStatements(), "Can't register prepare statements for dynamic async connection");
+                    connection->RegisterThread();
+                }
+            }
+        }
+
+        context.Repeat();
+    });
 }

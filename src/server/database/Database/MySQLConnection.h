@@ -24,6 +24,12 @@
 #include <string_view>
 #include <mutex>
 #include <unordered_map>
+#include <thread>
+
+template <typename T>
+class ProducerConsumerQueue;
+
+class AsyncOperation;
 
 using PreparedStatementList = std::unordered_map<uint32, std::unique_ptr<MySQLPreparedStatement>>;
 
@@ -42,7 +48,7 @@ struct WH_DATABASE_API MySQLConnectionInfo
 class WH_DATABASE_API MySQLConnection
 {
 public:
-    explicit MySQLConnection(MySQLConnectionInfo& connInfo, bool isAsync = false);
+    explicit MySQLConnection(MySQLConnectionInfo& connInfo, bool isDynamic = false, ProducerConsumerQueue<AsyncOperation*>* queue = nullptr);
     virtual ~MySQLConnection();
 
     virtual uint32 Open();
@@ -85,12 +91,14 @@ public:
     inline void SetDynamic() { _isDynamic = true; }
 
     bool CanRemoveConnection();
+    void RegisterThread();
 
 private:
     bool Query(std::string_view sql, MySQLResult** result, MySQLField** fields, uint64* rowCount, uint32* fieldCount);
     bool Query(PreparedStatement stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
     bool HandleMySQLError(uint32 errNo, uint8 attempts = 5);
     inline void UpdateLastUseTime() { _lastUseTime = std::chrono::system_clock::now(); }
+    void ExecuteQueue();
 
     MySQLHandle* _mysqlHandle{ nullptr };
     MySQLConnectionInfo& _connectionInfo;
@@ -100,6 +108,11 @@ private:
     bool _isDynamic{};
     bool _prepareError{};  //! Was there any error while preparing statements?
     SystemTimePoint _lastUseTime;
+
+    // Async
+    ProducerConsumerQueue<AsyncOperation*>* _queue{ nullptr };
+    std::unique_ptr<std::thread> _thread;
+    std::atomic<bool> _stopped;
 
     MySQLConnection(MySQLConnection const& right) = delete;
     MySQLConnection& operator=(MySQLConnection const& right) = delete;

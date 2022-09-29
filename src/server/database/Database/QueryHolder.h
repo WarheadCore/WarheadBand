@@ -41,8 +41,8 @@ private:
 class WH_DATABASE_API SQLQueryHolderTask : public AsyncOperation
 {
 public:
-    explicit SQLQueryHolderTask(MySQLConnection* connection, SQLQueryHolder holder) :
-        AsyncOperation(connection), _holder(std::move(holder)) { }
+    explicit SQLQueryHolderTask(SQLQueryHolder holder) :
+        AsyncOperation(), _holder(std::move(holder)) { }
 
     ~SQLQueryHolderTask() override = default;
 

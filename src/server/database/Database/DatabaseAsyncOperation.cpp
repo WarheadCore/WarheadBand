@@ -20,8 +20,8 @@
 #include "QueryResult.h"
 #include <utility>
 
-BasicStatementTask::BasicStatementTask(MySQLConnection* connection, std::string_view sql, bool isAsync /*= false*/) :
-    AsyncOperation(connection, isAsync), _sql(sql)
+BasicStatementTask::BasicStatementTask(std::string_view sql, bool isAsync /*= false*/) :
+    AsyncOperation(isAsync), _sql(sql)
 {
     if (_hasResult)
         _result = std::make_unique<QueryResultPromise>();
@@ -45,8 +45,8 @@ void BasicStatementTask::ExecuteQuery()
     _connection->Execute(_sql);
 }
 
-PreparedStatementTask::PreparedStatementTask(MySQLConnection* connection, PreparedStatement stmt, bool isAsync /*= false*/) :
-    AsyncOperation(connection, isAsync), _stmt(std::move(stmt))
+PreparedStatementTask::PreparedStatementTask(PreparedStatement stmt, bool isAsync /*= false*/) :
+    AsyncOperation(isAsync), _stmt(std::move(stmt))
 {
     if (_hasResult)
         _result = std::make_unique<PreparedQueryResultPromise>();

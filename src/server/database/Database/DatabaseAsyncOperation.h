@@ -23,13 +23,13 @@
 class WH_DATABASE_API AsyncOperation
 {
 public:
-    explicit AsyncOperation(MySQLConnection* connection, bool isAsync = false) :
-        _connection(connection), _hasResult(isAsync) { }
+    explicit AsyncOperation(bool isAsync = false) :
+        _hasResult(isAsync) { }
 
     virtual ~AsyncOperation() = default;
 
-    virtual void ExecuteOperation() { ExecuteQuery(); }
     virtual void ExecuteQuery() = 0;
+    inline void SetConnection(MySQLConnection* connection) { _connection = connection; }
 
 protected:
     MySQLConnection* _connection{ nullptr };
@@ -43,7 +43,7 @@ private:
 class WH_DATABASE_API BasicStatementTask : public AsyncOperation
 {
 public:
-    explicit BasicStatementTask(MySQLConnection* connection, std::string_view sql, bool isAsync = false);
+    explicit BasicStatementTask(std::string_view sql, bool isAsync = false);
     ~BasicStatementTask() override = default;
 
     void ExecuteQuery() override;
@@ -57,7 +57,7 @@ private:
 class WH_DATABASE_API PreparedStatementTask : public AsyncOperation
 {
 public:
-    explicit PreparedStatementTask(MySQLConnection* connection, PreparedStatement stmt, bool isAsync = false);
+    explicit PreparedStatementTask(PreparedStatement stmt, bool isAsync = false);
     ~PreparedStatementTask() override = default;
 
     void ExecuteQuery() override;
