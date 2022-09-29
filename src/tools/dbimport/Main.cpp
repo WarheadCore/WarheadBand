@@ -97,7 +97,7 @@ bool StartDB()
     sDatabaseMgr->AddDatabase(AuthDatabase, "Auth");
     sDatabaseMgr->AddDatabase(CharacterDatabase, "Characters");
     sDatabaseMgr->AddDatabase(WorldDatabase, "World");
-    sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc", false);
+    sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc");
 
     if (!sDatabaseMgr->Load())
         return false;
