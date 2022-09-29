@@ -82,7 +82,6 @@ DatabaseWorkerPool::DatabaseWorkerPool() :
         mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
 
     _scheduler = std::make_unique<TaskScheduler>();
-    AddTasks();
 }
 
 DatabaseWorkerPool::~DatabaseWorkerPool()
@@ -124,6 +123,7 @@ uint32 DatabaseWorkerPool::Open()
     LOG_INFO("db.pool", "DatabasePool '{}' opened successfully", GetDatabaseName());
     LOG_INFO("db.pool", "DB server ver: {}", connection->GetServerInfo());
     LOG_INFO("db.pool", "");
+    AddTasks();
     return error;
 }
 

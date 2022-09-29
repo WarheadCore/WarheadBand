@@ -75,7 +75,7 @@ MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isDynamic /
         _connectionFlags = ConnectionFlags::Async;
         _queue = queue;
 
-        if (!isDynamic)
+        if (_isDynamic)
             RegisterThread();
     }
 
@@ -84,8 +84,13 @@ MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isDynamic /
 
 MySQLConnection::~MySQLConnection()
 {
+//    _queue->Cancel();
+
     if (_thread)
-        _thread->join();
+    {
+        _thread.reset();
+//        _thread->join();
+    }
 
     Close();
     LOG_DEBUG("db.connection", "> Close {} connection to '{}' db", GetConnectionFlagString(_connectionFlags), _connectionInfo.Database);
@@ -147,6 +152,9 @@ uint32 MySQLConnection::Open()
 
     if (_mysqlHandle)
     {
+//        if (!_isDynamic)
+//            RegisterThread();
+
         LOG_INFO("db.connection", "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
         mysql_autocommit(_mysqlHandle, 1);
 

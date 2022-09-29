@@ -89,7 +89,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
            }
 
            // Database does not exist
-           if ((error == ER_BAD_DB_ERROR) && updatesEnabledForThis && _autoSetup)
+           if (error == ER_BAD_DB_ERROR && updatesEnabledForThis && _autoSetup)
            {
                // Try to create the database and connect again if auto setup is enabled
                if (DBUpdater::Create(pool) && !pool.Open())
@@ -149,10 +149,10 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
             return false;
         }
 
+        _poolList.emplace_back(&pool);
+
         return true;
     });
-
-    _poolList.emplace_back(&pool);
 }
 
 bool DatabaseMgr::Load()
@@ -231,6 +231,9 @@ void DatabaseMgr::CloseAllConnections()
 
 void DatabaseMgr::Update(Milliseconds diff)
 {
+    if (_poolList.empty())
+        return;
+
     for (auto const& pool : _poolList)
         if (pool)
             pool->Update(diff);
