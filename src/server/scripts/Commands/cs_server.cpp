@@ -27,6 +27,7 @@
 
 #include "Chat.h"
 #include "Config.h"
+#include "DatabaseMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "GitRevision.h"
@@ -41,7 +42,6 @@
 #include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
-#include "DatabaseMgr.h"
 #include <boost/version.hpp>
 #include <filesystem>
 #include <numeric>

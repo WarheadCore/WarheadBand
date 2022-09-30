@@ -19,22 +19,22 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DatabaseWorkerPool.h"
+#include "Config.h"
 #include "Errors.h"
 #include "Log.h"
-#include "MySQLWorkaround.h"
-#include "QueryResult.h"
 #include "MySQLConnection.h"
 #include "MySQLPreparedStatement.h"
+#include "MySQLWorkaround.h"
+#include "PCQueue.h"
 #include "PreparedStatement.h"
 #include "QueryCallback.h"
-#include "PCQueue.h"
-#include "Transaction.h"
 #include "QueryHolder.h"
+#include "QueryResult.h"
 #include "TaskScheduler.h"
-#include "Config.h"
+#include "Transaction.h"
 #include <limits>
-#include <utility>
 #include <mysqld_error.h>
+#include <utility>
 
 #ifdef WARHEAD_DEBUG
 #include <boost/stacktrace.hpp>

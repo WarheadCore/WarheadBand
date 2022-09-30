@@ -24,10 +24,10 @@
 #include "DatabaseEnv.h"
 #include "GitRevision.h"
 #include "Log.h"
+#include "MySQLConnection.h"
 #include "ProgressBar.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
-#include "MySQLConnection.h"
 #include <fstream>
 #include <iostream>
 

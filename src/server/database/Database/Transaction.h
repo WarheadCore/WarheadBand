@@ -22,8 +22,8 @@
 #include "StringFormat.h"
 #include <functional>
 #include <mutex>
-#include <vector>
 #include <variant>
+#include <vector>
 
 //- Type specifier of our element data
 enum SQLElementDataType

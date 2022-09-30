@@ -20,11 +20,11 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
+#include <mutex>
 #include <string>
 #include <string_view>
-#include <mutex>
-#include <unordered_map>
 #include <thread>
+#include <unordered_map>
 
 template <typename T>
 class ProducerConsumerQueue;

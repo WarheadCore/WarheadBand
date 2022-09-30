@@ -19,13 +19,13 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DatabaseMgr.h"
-#include "DatabaseWorkerPool.h"
-#include "Timer.h"
-#include "Log.h"
 #include "Config.h"
 #include "DBUpdater.h"
-#include <mysql.h>
+#include "DatabaseWorkerPool.h"
+#include "Log.h"
+#include "Timer.h"
 #include <errmsg.h>
+#include <mysql.h>
 #include <mysqld_error.h>
 
 DatabaseMgr::DatabaseMgr()

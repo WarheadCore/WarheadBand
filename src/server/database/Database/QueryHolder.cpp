@@ -21,9 +21,9 @@
 #include "QueryHolder.h"
 #include "Errors.h"
 #include "Log.h"
+#include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "QueryResult.h"
-#include "MySQLConnection.h"
 #include <utility>
 
 bool SQLQueryHolderBase::SetPreparedQuery(std::size_t index, PreparedStatement stmt)

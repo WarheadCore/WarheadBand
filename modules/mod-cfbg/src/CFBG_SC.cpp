@@ -19,9 +19,9 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CFBG.h"
-#include "ScriptObject.h"
-#include "ReputationMgr.h"
 #include "Group.h"
+#include "ReputationMgr.h"
+#include "ScriptObject.h"
 
 // CFBG custom script
 class CFBG_BG : public BGScript

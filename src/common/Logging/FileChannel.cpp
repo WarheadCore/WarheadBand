@@ -27,8 +27,8 @@
 #include "Util.h"
 #include <filesystem>
 #include <fstream>
-#include <regex>
 #include <range/v3/action/sort.hpp>
+#include <regex>
 
 constexpr auto MIN_OPTIONS = 4;
 constexpr auto LOG_TIMESTAMP_FMT = "%Y_%m_%d_%H_%M_%S";

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DatabaseAsyncOperation.h"
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include "Errors.h"
@@ -25,7 +26,6 @@
 #include "MySQLWorkaround.h"
 #include "PreparedStatement.h"
 #include "QueryResult.h"
-#include "DatabaseAsyncOperation.h"
 #include "Transaction.h"
 #include <string>
 #include <vector>

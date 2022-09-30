@@ -24,6 +24,7 @@
 #include "CreatureAISelector.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameObjectAI.h"
 #include "GameObjectModel.h"
@@ -39,7 +40,6 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
-#include "GameConfig.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>

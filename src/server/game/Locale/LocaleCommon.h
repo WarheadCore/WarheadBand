@@ -19,8 +19,8 @@
 #define _LOCALE_COMMON_H_
 
 #include "Common.h"
-#include <vector>
 #include <string_view>
+#include <vector>
 
 namespace Warhead::Locale
 {

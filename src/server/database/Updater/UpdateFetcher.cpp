@@ -25,9 +25,9 @@
 #include "Field.h"
 #include "Log.h"
 #include "ProgressBar.h"
+#include "StopWatch.h"
 #include "Tokenize.h"
 #include "Util.h"
-#include "StopWatch.h"
 #include <filesystem>
 #include <fstream>
 #include <sstream>

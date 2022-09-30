@@ -19,10 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ScriptObject.h"
-#include "SmartAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SmartAI.h"
 #include "SpellScript.h"
 #include "ruins_of_ahnqiraj.h"
 

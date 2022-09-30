@@ -21,17 +21,17 @@
 #include "CFBG.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
-#include "ModulesConfig.h"
+#include "ChatTextBuilder.h"
 #include "Containers.h"
+#include "GameConfig.h"
+#include "GameTime.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "ModulesConfig.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "GameConfig.h"
-#include "GameTime.h"
-#include "ChatTextBuilder.h"
 #include <algorithm>
 
 constexpr uint32 MapAlteracValley = 30;

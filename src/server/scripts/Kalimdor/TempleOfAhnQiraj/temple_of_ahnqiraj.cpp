@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// #include "MapReference.h"
-// #include "Player.h"
+#include "temple_of_ahnqiraj.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "temple_of_ahnqiraj.h"
 #include "TaskScheduler.h"
+// #include "MapReference.h"
+// #include "Player.h"
 
 enum Spells
 {

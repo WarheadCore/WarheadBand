@@ -17,19 +17,19 @@
 
 #include "MySQLConnection.h"
 #include "DatabaseAsyncOperation.h"
-#include "PCQueue.h"
-#include "QueryResult.h"
-#include "MySQLHacks.h"
-#include "Tokenize.h"
-#include "Log.h"
-#include "StringConvert.h"
-#include "StopWatch.h"
 #include "Errors.h"
+#include "Log.h"
+#include "MySQLHacks.h"
 #include "MySQLPreparedStatement.h"
+#include "PCQueue.h"
 #include "PreparedStatement.h"
+#include "QueryResult.h"
+#include "StopWatch.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
 #include "Transaction.h"
-#include <mysql.h>
 #include <errmsg.h>
+#include <mysql.h>
 #include <mysqld_error.h>
 #include <utility>
 

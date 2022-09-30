@@ -20,11 +20,11 @@
 
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "DatabaseMgr.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Logo.h"
 #include "Util.h"
-#include "DatabaseMgr.h"
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <csignal>

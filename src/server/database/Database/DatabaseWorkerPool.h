@@ -19,13 +19,13 @@
 #define _DATABASEWORKERPOOL_H
 
 #include "DatabaseEnvFwd.h"
-#include "StringFormat.h"
 #include "Duration.h"
+#include "StringFormat.h"
 #include <array>
-#include <vector>
 #include <mutex>
-#include <unordered_map>
 #include <thread>
+#include <unordered_map>
+#include <vector>
 
 template <typename T>
 class ProducerConsumerQueue;

@@ -19,8 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "WorldDatabase.h"
-#include "DatabaseEnvFwd.h"
 #include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 
 WorldDatabasePool WorldDatabase;
 

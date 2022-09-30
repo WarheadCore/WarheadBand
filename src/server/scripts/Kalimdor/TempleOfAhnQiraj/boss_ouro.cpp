@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptObject.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "TaskScheduler.h"
 #include "temple_of_ahnqiraj.h"
