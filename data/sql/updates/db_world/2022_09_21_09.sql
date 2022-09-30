@@ -39,4 +39,4 @@ DELETE FROM `creature_template_movement` WHERE `CreatureId` = 15925;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
 (15925, 0, 0, 0, 1, 0, 0, 0);
 
-UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectBasePoints_1` = 1, `EffectDieSides_1` = 0, `EffectMiscValueB_1` = 64 WHERE `ID` = 26577;
+-- UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectBasePoints_1` = 1, `EffectDieSides_1` = 0, `EffectMiscValueB_1` = 64 WHERE `ID` = 26577;
