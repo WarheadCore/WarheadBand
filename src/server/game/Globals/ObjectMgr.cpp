@@ -4211,6 +4211,8 @@ void ObjectMgr::LoadQuests()
         return;
     }
 
+    _questTemplates.rehash(result->GetRowCount());
+
     // create multimap previous quest for each existed quest
     // some quests can have many previous maps set by NextQuestId in previous quest
     // for example set of race quests can lead to single not race specific quest
