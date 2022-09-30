@@ -103,36 +103,6 @@ DbcDatabaseInfo        = "127.0.0.1;3306;warhead;warhead;warhead_dbc"
 
 Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
-
-#
-#    AuthDatabase.WorkerThreads
-#    WorldDatabase.WorkerThreads
-#    CharacterDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
-#                     MySQL server and their own thread on the MySQL server.
-#        Default:     1 - (AuthDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     1 - (CharacterDatabase.WorkerThreads)
-#
-
-AuthDatabase.WorkerThreads     = 1
-WorldDatabase.WorkerThreads     = 1
-CharacterDatabase.WorkerThreads = 1
-
-#
-#    AuthDatabase.SynchThreads
-#    WorldDatabase.SynchThreads
-#    CharacterDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (AuthDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     1 - (CharacterDatabase.WorkerThreads)
-#
-
-AuthDatabase.SynchThreads     = 1
-WorldDatabase.SynchThreads     = 1
-CharacterDatabase.SynchThreads = 1
 ###################################################################################################
 
 ###################################################################################################

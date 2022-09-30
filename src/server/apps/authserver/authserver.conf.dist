@@ -43,13 +43,6 @@
 LogsDir = ""
 
 #
-#    MaxPingTime
-#        Description: Time (in minutes) between database pings.
-#        Default:     30
-
-MaxPingTime = 30
-
-#
 #    RealmServerPort
 #        Description: TCP port to reach the auth server.
 #        Default:     3724
@@ -228,22 +221,12 @@ Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
 
 #
-#    AuthDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
-#        Default:     1
-
-AuthDatabase.WorkerThreads = 1
-
-#
-#    AuthDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (AuthDatabase.WorkerThreads)
+#    MaxPingTime
+#        Description: Time (in minutes) between database pings.
+#        Default:     30
 #
 
-AuthDatabase.SynchThreads = 1
-
-#
+MaxPingTime = 30
 ###################################################################################################
 
 ###################################################################################################
