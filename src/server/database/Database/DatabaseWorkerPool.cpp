@@ -607,23 +607,6 @@ void DatabaseWorkerPool::AddTasks()
         CleanupConnections();
         context.Repeat();
     });
-
-    if (_isEnableDynamicConnections)
-    {
-        // Dynamic async connections
-//        _scheduler->Schedule(500ms, [this](TaskContext context)
-//        {
-//            auto queueSize{ GetQueueSize() };
-//
-//            if (queueSize > MAX_QUEUE_SIZE)
-//            {
-//                LOG_WARN("db.pool", "Async queue overload. Queue size: {}. Pool name: {}. Connection size: {}", queueSize, _poolName, _connections[IDX_ASYNC].size());
-//                OpenDynamicAsyncConnect();
-//            }
-//
-//            context.Repeat();
-//        });
-    }
 }
 
 void DatabaseWorkerPool::OpenDynamicAsyncConnect()
