@@ -293,9 +293,9 @@ int main(int argc, char** argv)
     sMetric->Initialize(realm.Name, *ioContext, []()
     {
         METRIC_VALUE("online_players", sWorld->GetPlayerCount());
-        METRIC_VALUE("db_queue_login", uint64(AuthDatabase.QueueSize()));
-        METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.QueueSize()));
-        METRIC_VALUE("db_queue_world", uint64(WorldDatabase.QueueSize()));
+        METRIC_VALUE("db_queue_login", uint64(AuthDatabase.GetQueueSize()));
+        METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.GetQueueSize()));
+        METRIC_VALUE("db_queue_world", uint64(WorldDatabase.GetQueueSize()));
     });
 
     METRIC_EVENT("events", "Worldserver started", "");
@@ -444,6 +444,10 @@ bool StartDB()
     sDatabaseMgr->AddDatabase(CharacterDatabase, "Characters");
     sDatabaseMgr->AddDatabase(WorldDatabase, "World");
     sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc");
+
+    // Enable dynamic connections
+    CharacterDatabase.EnableDynamicConnections();
+    WorldDatabase.EnableDynamicConnections();
 
     if (!sDatabaseMgr->Load())
         return false;

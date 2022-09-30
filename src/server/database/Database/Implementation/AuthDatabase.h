@@ -123,7 +123,7 @@ enum AuthDatabaseStatements : uint32
 class WH_DATABASE_API AuthDatabasePool : public DatabaseWorkerPool
 {
 public:
-    AuthDatabasePool() { SetType(DatabaseType::Auth); }
+    AuthDatabasePool() : DatabaseWorkerPool(DatabaseType::Auth) { }
     ~AuthDatabasePool() = default;
 
     //- Loads database type specific prepared statements

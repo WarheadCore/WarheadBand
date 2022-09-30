@@ -36,7 +36,7 @@
 namespace
 {
     constexpr auto DB_DEFAULT_CHARSET = "utf8mb4";
-    constexpr auto DYNAMIC_CONNECTION_TIMEOUT = 1min;
+    constexpr auto DYNAMIC_CONNECTION_TIMEOUT = 1s;
 
     std::string GetConnectionFlagString(ConnectionFlags flag)
     {
@@ -67,30 +67,24 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string_view infoString)
         SSL.assign(tokens.at(5));
 }
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isDynamic /*= false*/, ProducerConsumerQueue<AsyncOperation*>* queue /*= nullptr*/) :
-    _connectionInfo(connInfo), _isDynamic(isDynamic)
+MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isAsync/* = false*/, bool isDynamic /*= false*/) :
+    _connectionInfo(connInfo),
+    _isDynamic(isDynamic),
+    _connectionFlags(isAsync ? ConnectionFlags::Async : ConnectionFlags::Sync),
+    _queue(std::make_unique<ProducerConsumerQueue<AsyncOperation*>>())
 {
-    if (queue)
-    {
-        _connectionFlags = ConnectionFlags::Async;
-        _queue = queue;
-
-        if (_isDynamic)
-            RegisterThread();
-    }
+    if (!_isDynamic)
+        RegisterThread();
 
     UpdateLastUseTime();
 }
 
 MySQLConnection::~MySQLConnection()
 {
-//    _queue->Cancel();
+    _queue->Cancel();
 
     if (_thread)
-    {
-        _thread.reset();
-//        _thread->join();
-    }
+        _thread->join();
 
     Close();
     LOG_DEBUG("db.connection", "> Close {} connection to '{}' db", GetConnectionFlagString(_connectionFlags), _connectionInfo.Database);
@@ -649,11 +643,21 @@ void MySQLConnection::ExecuteQueue()
 
         _queue->WaitAndPop(task);
 
-        if (_stopped || !task)
+        if (!task)
             break;
 
         task->SetConnection(this);
         task->ExecuteQuery();
         delete task;
     }
+}
+
+void MySQLConnection::Enqueue(AsyncOperation* operation) const
+{
+    _queue->Push(operation);
+}
+
+std::size_t MySQLConnection::GetQueueSize() const
+{
+    return _queue->Size();
 }

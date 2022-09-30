@@ -18,7 +18,6 @@
 #ifndef DATABASE_ENV_H
 #define DATABASE_ENV_H
 
-#include "DatabaseWorkerPool.h"
 #include "Field.h"
 #include "PreparedStatement.h"
 #include "QueryCallback.h"

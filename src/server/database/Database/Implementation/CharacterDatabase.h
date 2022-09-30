@@ -523,7 +523,7 @@ enum CharacterDatabaseStatements : uint32
 class WH_DATABASE_API CharacterDatabasePool : public DatabaseWorkerPool
 {
 public:
-    CharacterDatabasePool() { SetType(DatabaseType::Character); }
+    CharacterDatabasePool() : DatabaseWorkerPool(DatabaseType::Character) { }
     ~CharacterDatabasePool() = default;
 
     //- Loads database type specific prepared statements

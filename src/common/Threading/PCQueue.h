@@ -40,14 +40,12 @@ public:
     {
         std::lock_guard<std::mutex> lock(_queueLock);
         _queue.push(std::move(value));
-
         _condition.notify_one();
     }
 
     bool Empty()
     {
         std::lock_guard<std::mutex> lock(_queueLock);
-
         return _queue.empty();
     }
 
@@ -66,9 +64,7 @@ public:
         }
 
         value = _queue.front();
-
         _queue.pop();
-
         return true;
     }
 
@@ -79,17 +75,12 @@ public:
         // we could be using .wait(lock, predicate) overload here but it is broken
         // https://connect.microsoft.com/VisualStudio/feedback/details/1098841
         while (_queue.empty() && !_shutdown)
-        {
             _condition.wait(lock);
-        }
 
         if (_queue.empty() || _shutdown)
-        {
             return;
-        }
 
         value = _queue.front();
-
         _queue.pop();
     }
 
@@ -100,14 +91,11 @@ public:
         while (!_queue.empty())
         {
             T& value = _queue.front();
-
             DeleteQueuedObject(value);
-
             _queue.pop();
         }
 
         _shutdown = true;
-
         _condition.notify_all();
     }
 

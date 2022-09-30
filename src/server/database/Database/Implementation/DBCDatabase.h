@@ -36,7 +36,7 @@ enum DBCDatabaseStatements : uint32
 class WH_DATABASE_API DBCDatabasePool : public DatabaseWorkerPool
 {
 public:
-    DBCDatabasePool() { SetType(DatabaseType::Dbc); }
+    DBCDatabasePool() : DatabaseWorkerPool(DatabaseType::Dbc) { }
     ~DBCDatabasePool() = default;
 
     //- Loads database type specific prepared statements

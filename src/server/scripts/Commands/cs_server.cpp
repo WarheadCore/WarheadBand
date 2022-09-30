@@ -97,6 +97,7 @@ public:
             { "idleshutdown", serverIdleShutdownCommandTable },
             { "info",         HandleServerInfoCommand,           SEC_PLAYER,        Console::Yes },
             { "motd",         HandleServerMotdCommand,           SEC_PLAYER,        Console::Yes },
+            { "async",        HandleServerAsyncCommand,          SEC_ADMINISTRATOR,        Console::Yes },
             { "restart",      serverRestartCommandTable },
             { "shutdown",     serverShutdownCommandTable },
             { "set",          serverSetCommandTable }
@@ -108,6 +109,14 @@ public:
         };
 
         return commandTable;
+    }
+
+    static bool HandleServerAsyncCommand(ChatHandler* /*handler*/, uint8 size)
+    {
+        for (uint8 i{}; i < size; i++)
+            CharacterDatabase.OpenDynamicAsyncConnect();
+
+        return true;
     }
 
     // Triggering corpses expire check in world
@@ -218,9 +227,9 @@ public:
 
         handler->PSendSysMessage("Using World DB: {}", sWorld->GetDBVersion());
 
-        handler->PSendSysMessage("AuthDatabase queue size: {}", AuthDatabase.QueueSize());
-        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
-        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
+        handler->PSendSysMessage("AuthDatabase queue size: {}", AuthDatabase.GetQueueSize());
+        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.GetQueueSize());
+        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.GetQueueSize());
 
         if (Warhead::Module::GetEnableModulesList().empty())
             handler->SendSysMessage("No modules enabled");

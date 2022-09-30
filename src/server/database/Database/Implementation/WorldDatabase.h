@@ -107,7 +107,7 @@ enum WorldDatabaseStatements : uint32
 class WH_DATABASE_API WorldDatabasePool : public DatabaseWorkerPool
 {
 public:
-    WorldDatabasePool() { SetType(DatabaseType::World); }
+    WorldDatabasePool() : DatabaseWorkerPool(DatabaseType::World) { }
     ~WorldDatabasePool() = default;
 
     //- Loads database type specific prepared statements

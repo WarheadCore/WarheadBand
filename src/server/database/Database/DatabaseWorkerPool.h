@@ -54,7 +54,7 @@ private:
     };
 
 public:
-    DatabaseWorkerPool();
+    DatabaseWorkerPool(DatabaseType type);
     ~DatabaseWorkerPool();
 
     void SetConnectionInfo(std::string_view infoString);
@@ -209,8 +209,6 @@ public:
 #endif
     }
 
-    [[nodiscard]] std::size_t QueueSize() const;
-
     std::string_view GetPoolName() const { return _poolName; }
     void SetPoolName(std::string_view name) { _poolName = name; }
 
@@ -218,14 +216,19 @@ public:
     void SetType(DatabaseType type) { _poolType = type; }
 
     void Update(Milliseconds diff);
-    std::size_t GetQueueSize();
+    [[nodiscard]] std::size_t GetQueueSize() const;
+
+    inline void EnableDynamicConnections() { _isEnableDynamicConnections = true; }
+    inline void DisableDynamicConnections() { _isEnableDynamicConnections = false; }
+
+    void OpenDynamicAsyncConnect();
+    void OpenDynamicSyncConnect();
 
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
     void InitPrepareStatement(MySQLConnection* connection);
     void Enqueue(AsyncOperation* operation);
     unsigned long EscapeString(char* to, char const* from, unsigned long length);
-    void StopAsyncJob();
     void AddTasks();
 
     //! Gets a free connection in the synchronous connection pool.
@@ -239,14 +242,13 @@ private:
     std::array<std::vector<std::unique_ptr<MySQLConnection>>, IDX_SIZE> _connections;
     std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
     std::vector<uint8> _preparedStatementSize;
-    std::mutex _openConnectMutex;
+    std::mutex _openSyncConnectMutex;
+    std::mutex _openAsyncConnectMutex;
     std::mutex _cleanupMutex;
     std::string _poolName;
     DatabaseType _poolType{ DatabaseType::None };
     std::unique_ptr<TaskScheduler> _scheduler{};
-
-    // Async
-    std::unique_ptr<ProducerConsumerQueue<AsyncOperation*>> _queue;
+    bool _isEnableDynamicConnections{};
 
 #ifdef WARHEAD_DEBUG
     static inline thread_local bool _warnSyncQueries = false;
