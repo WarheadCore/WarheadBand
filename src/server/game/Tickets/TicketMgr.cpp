@@ -85,7 +85,7 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
     //  0    1       2         3          4          5        6     7     8     9           10           11          12        13        14        15         16        17         18          19
     // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->SetData(  index, _id);
     stmt->SetData (++index, uint8(_type));
     stmt->SetData(++index, _playerGuid.GetCounter());
@@ -112,7 +112,7 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
 
 void GmTicket::DeleteFromDB()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
     stmt->SetData(0, _id);
     CharacterDatabase.Execute(stmt);
 }
@@ -307,7 +307,7 @@ void TicketMgr::ResetTickets()
 
     _lastTicketId = 0;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
 
     CharacterDatabase.Execute(stmt);
 }
@@ -323,7 +323,7 @@ void TicketMgr::LoadTickets()
     _lastTicketId = 0;
     _openTicketCount = 0;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
@@ -335,7 +335,7 @@ void TicketMgr::LoadTickets()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         GmTicket* ticket = new GmTicket();
         if (!ticket->LoadFromDB(fields))
         {

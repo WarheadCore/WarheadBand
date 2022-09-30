@@ -68,8 +68,8 @@ struct QueryCallback::QueryCallbackData
 public:
     friend class QueryCallback;
 
-    QueryCallbackData(std::function<void(QueryCallback&, QueryResult)>&& callback) : _string(std::move(callback)), _isPrepared(false) { }
-    QueryCallbackData(std::function<void(QueryCallback&, PreparedQueryResult)>&& callback) : _prepared(std::move(callback)), _isPrepared(true) { }
+    explicit QueryCallbackData(std::function<void(QueryCallback&, QueryResult)>&& callback) : _string(std::move(callback)), _isPrepared(false) { }
+    explicit QueryCallbackData(std::function<void(QueryCallback&, PreparedQueryResult)>&& callback) : _prepared(std::move(callback)), _isPrepared(true) { }
 
     QueryCallbackData(QueryCallbackData&& right) noexcept
     {
@@ -110,6 +110,7 @@ private:
         std::function<void(QueryCallback&, QueryResult)> _string;
         std::function<void(QueryCallback&, PreparedQueryResult)> _prepared;
     };
+
     bool _isPrepared;
 };
 
@@ -130,8 +131,8 @@ QueryCallback::QueryCallback(QueryCallback&& right) noexcept
 {
     _isPrepared = right._isPrepared;
     ConstructActiveMember(this);
-    MoveFrom(this, std::move(right));
     _callbacks = std::move(right._callbacks);
+    MoveFrom(this, std::move(right));
 }
 
 QueryCallback& QueryCallback::operator=(QueryCallback&& right) noexcept
@@ -145,8 +146,8 @@ QueryCallback& QueryCallback::operator=(QueryCallback&& right) noexcept
             ConstructActiveMember(this);
         }
 
-        MoveFrom(this, std::move(right));
         _callbacks = std::move(right._callbacks);
+        MoveFrom(this, std::move(right));
     }
 
     return *this;

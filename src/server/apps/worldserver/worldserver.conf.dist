@@ -1,7 +1,6 @@
 ################################################
 # WarheadCore World Server configuration file #
 ################################################
-[worldserver]
 
 ###################################################################################################
 # SECTION INDEX
@@ -85,9 +84,10 @@ DataDir = "."
 LogsDir = ""
 
 #
-#    LoginDatabaseInfo
+#    AuthDatabaseInfo
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
+#    DbcDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -95,17 +95,28 @@ LogsDir = ""
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database;ssl" - (use Unix sockets on
 #                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;warhead;warhead;warhead_auth"       - (LoginDatabaseInfo)
+#        Default:     "127.0.0.1;3306;warhead;warhead;warhead_auth"       - (AuthDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_characters" - (CharacterDatabaseInfo)
+#                     "127.0.0.1;3306;warhead;warhead;warhead_dbc"        - (DbcDatabaseInfo)
 #
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
 #
 
-LoginDatabaseInfo     = "127.0.0.1;3306;warhead;warhead;warhead_auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;warhead;warhead;warhead_world"
-CharacterDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
+AuthDatabaseInfo       = "127.0.0.1;3306;warhead;warhead;warhead_auth"
+WorldDatabaseInfo      = "127.0.0.1;3306;warhead;warhead;warhead_world"
+CharactersDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
+DbcDatabaseInfo        = "127.0.0.1;3306;warhead;warhead;warhead_dbc"
+
+#
+#    MaxQueueSize
+#        Description: Max size queue before open new async dynamic connect for db
+#        Supported DB: Characters and World
+#        Default:     50
+#
+
+MaxQueueSize = 50
 
 #
 #    Database.Reconnect.Seconds
@@ -118,34 +129,6 @@ CharacterDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
 
 Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
-
-#
-#    LoginDatabase.WorkerThreads
-#    WorldDatabase.WorkerThreads
-#    CharacterDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
-#                     MySQL server and their own thread on the MySQL server.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     1 - (CharacterDatabase.WorkerThreads)
-
-LoginDatabase.WorkerThreads     = 1
-WorldDatabase.WorkerThreads     = 1
-CharacterDatabase.WorkerThreads = 1
-
-#
-#    LoginDatabase.SynchThreads
-#    WorldDatabase.SynchThreads
-#    CharacterDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     2 - (CharacterDatabase.WorkerThreads)
-
-LoginDatabase.SynchThreads     = 1
-WorldDatabase.SynchThreads     = 1
-CharacterDatabase.SynchThreads = 2
 
 #
 #    MaxPingTime
@@ -1360,12 +1343,13 @@ TOTPMasterSecret =
 #           DATABASE_LOGIN     = 1, // Auth database
 #           DATABASE_CHARACTER = 2, // Character database
 #           DATABASE_WORLD     = 4, // World database
+#           DATABASE_DBC       = 8, // Dbc database
 #
-#        Default:     7  - (All enabled)
+#        Default:     15 - (All enabled)
 #                     4  - (Enable world only)
 #                     0  - (All disabled)
 
-Updates.EnableDatabases = 7
+Updates.EnableDatabases = 15
 
 #
 #    Updates.AutoSetup
@@ -1412,8 +1396,6 @@ Updates.AllowRehash = 1
 #                    -1 - (Enabled - unlimited)
 
 Updates.CleanDeadRefMaxCount = 3
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -3968,8 +3950,9 @@ LogChannel.Hotswap = "2","6","[%Y-%m-%d %H:%M:%S] %t","Hotswap.log"
 Logger.root = 4,Console Server
 Logger.server = 5,Console Server
 Logger.commands.gm = 5,GM
-Logger.sql = 4,Console DBErrors
-Logger.sql.updates = 5,Console Server
+Logger.db = 5,Console Server
+Logger.db.update = 5,Console Server
+Logger.db.query = 3,Console DBErrors
 Logger.mmaps= 5,Server
 Logger.module = 5,Console Modules
 Logger.time.update = 6,Console Server
@@ -4046,8 +4029,6 @@ Logger.scripts.hotswap=5,Console Hotswap
 #Logger.spells.effect=4,Console Server
 #Logger.spells.scripts=4,Console Server
 #Logger.spells=4,Console Server
-#Logger.sql.dev=4,Console Server
-#Logger.sql.driver=4,Console Server
 #Logger.vehicles=4,Console Server
 #Logger.warden=4,Console Server
 #Logger.weather=4,Console Server

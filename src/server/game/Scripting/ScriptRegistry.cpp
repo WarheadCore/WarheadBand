@@ -453,7 +453,7 @@ void SpecializedScriptRegistry<ScriptType, true>::LoadDBBoundScripts()
         else
         {
             // The script uses a script name from database, but isn't assigned to anything.
-            LOG_ERROR("sql.sql", "Script '{}' exists in the core, but the database does not assign it to any creature.", script->GetName());
+            LOG_ERROR("db.query", "Script '{}' exists in the core, but the database does not assign it to any creature.", script->GetName());
 
             // Avoid calling "delete script;" because we are currently in the script constructor
             // In a valid scenario this will not happen because every script has a name assigned in the database

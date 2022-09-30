@@ -301,11 +301,11 @@ public:
     [[nodiscard]] AutobroadcastLocale const* GetAutoBroadCastLocale(uint32 id) const;
 
     //
-    std::string const GetItemNameLocale(uint32 itemID, int8 index_loc = DEFAULT_LOCALE);
+    std::string const GetItemNameLocale(uint32 itemID, int8 index_loc = DEFAULT_LOCALE) const;
     std::string const GetItemLink(uint32 itemID, int8 index_loc = DEFAULT_LOCALE);
-    std::string const GetSpellLink(uint32 spellID, int8 index_loc = DEFAULT_LOCALE);
+    static std::string const GetSpellLink(uint32 spellID, int8 index_loc = DEFAULT_LOCALE);
     std::string const GetSpellNamelocale(uint32 spellID, int8 index_loc = DEFAULT_LOCALE);
-    std::string const GetCreatureNamelocale(uint32 creatureEntry, int8 index_loc = DEFAULT_LOCALE);
+    std::string const GetCreatureNamelocale(uint32 creatureEntry, int8 index_loc = DEFAULT_LOCALE) const;
 
     // New strings and locales
     void LoadRaceStrings();

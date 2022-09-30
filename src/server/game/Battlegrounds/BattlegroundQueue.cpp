@@ -1315,7 +1315,7 @@ bool BGQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
             {
                 if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
                 {
-                    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                     stmt->SetData(0, player->GetGUID().GetCounter());
                     stmt->SetData(1, BG_DESERTION_TYPE_NO_ENTER_BUTTON);
                     CharacterDatabase.Execute(stmt);

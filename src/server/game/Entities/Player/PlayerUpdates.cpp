@@ -422,7 +422,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     // Update the next delivery time and unread mails
     time_t cTime = GameTime::GetGameTime().count();
     // Get the next delivery time
-    CharacterDatabasePreparedStatement* stmtNextDeliveryTime =
+    CharacterDatabasePreparedStatement stmtNextDeliveryTime =
         CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
     stmtNextDeliveryTime->SetData(0, GetGUID().GetCounter());
     stmtNextDeliveryTime->SetData(1, uint32(cTime));
@@ -430,12 +430,12 @@ void Player::UpdateNextMailTimeAndUnreads()
         CharacterDatabase.Query(stmtNextDeliveryTime);
     if (resultNextDeliveryTime)
     {
-        Field* fields          = resultNextDeliveryTime->Fetch();
+        auto fields          = resultNextDeliveryTime->Fetch();
         m_nextMailDelivereTime = time_t(fields[0].Get<uint32>());
     }
 
     // Get unread mails count
-    CharacterDatabasePreparedStatement* stmtUnreadAmount =
+    CharacterDatabasePreparedStatement stmtUnreadAmount =
         CharacterDatabase.GetPreparedStatement(
             CHAR_SEL_CHARACTER_MAILCOUNT_UNREAD_SYNCH);
     stmtUnreadAmount->SetData(0, GetGUID().GetCounter());
@@ -444,7 +444,7 @@ void Player::UpdateNextMailTimeAndUnreads()
         CharacterDatabase.Query(stmtUnreadAmount);
     if (resultUnreadAmount)
     {
-        Field* fields = resultUnreadAmount->Fetch();
+        auto fields = resultUnreadAmount->Fetch();
         unReadMails   = uint8(fields[0].Get<uint64>());
     }
 }
@@ -1951,7 +1951,7 @@ void Player::UpdateSpecCount(uint8 count)
         ActivateSpec(0);
 
     CharacterDatabaseTransaction        trans = CharacterDatabase.BeginTransaction();
-    CharacterDatabasePreparedStatement* stmt  = nullptr;
+    CharacterDatabasePreparedStatement stmt  = nullptr;
 
     // Copy spec data
     if (count > curCount)

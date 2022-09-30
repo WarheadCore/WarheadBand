@@ -65,7 +65,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         typeId = fields[0].Get<uint8>();
 
@@ -74,7 +74,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)
         {
-            LOG_ERROR("sql.sql", "Invalid OutdoorPvPTypes value {} in outdoorpvp_template; skipped.", typeId);
+            LOG_ERROR("db.query", "Invalid OutdoorPvPTypes value {} in outdoorpvp_template; skipped.", typeId);
             continue;
         }
 
@@ -93,7 +93,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
         if (iter == m_OutdoorPvPDatas.end())
         {
-            LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID {}; no entry in database.", uint32(i));
+            LOG_ERROR("db.query", "Could not initialize OutdoorPvP object for type ID {}; no entry in database.", uint32(i));
             continue;
         }
 

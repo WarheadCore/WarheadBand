@@ -20,10 +20,11 @@
 
 #include "Common.h"
 #include <vector>
+#include <string_view>
 
 namespace Warhead::Locale
 {
-    void WH_GAME_API AddLocaleString(std::string&& str, LocaleConstant locale, std::vector<std::string>& data);
+    void WH_GAME_API AddLocaleString(std::string_view str, LocaleConstant locale, std::vector<std::string>& data);
 }
 
 #endif // _LOCALE_COMMON_H_

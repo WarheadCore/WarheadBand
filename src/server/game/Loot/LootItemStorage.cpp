@@ -21,7 +21,6 @@
 #include "LootItemStorage.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
-#include "PreparedStatement.h"
 
 LootItemStorage::LootItemStorage()
 {
@@ -42,7 +41,7 @@ void LootItemStorage::LoadStorageFromDB()
     uint32 oldMSTime = getMSTime();
     lootItemStore.clear();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
@@ -54,7 +53,7 @@ void LootItemStorage::LoadStorageFromDB()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         StoredLootItemList& itemList = lootItemStore[ObjectGuid::Create<HighGuid::Item>(fields[0].Get<uint32>())];
         itemList.push_back(StoredLootItem(fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[3].Get<uint32>(), fields[4].Get<int32>(), fields[5].Get<uint32>(), fields[6].Get<bool>(),
@@ -71,7 +70,7 @@ void LootItemStorage::RemoveEntryFromDB(ObjectGuid containerGUID, uint32 itemid,
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_SINGLE_ITEM);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_SINGLE_ITEM);
     stmt->SetData(0, containerGUID.GetCounter());
     stmt->SetData(1, itemid);
     stmt->SetData(2, count);
@@ -90,7 +89,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* /*player*/)
     }
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    CharacterDatabasePreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement stmt = nullptr;
 
     StoredLootItemList& itemList = lootItemStore[loot->containerGUID];
 
@@ -281,7 +280,7 @@ void LootItemStorage::RemoveStoredLoot(ObjectGuid containerGUID)
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_CONTAINER);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_CONTAINER);
     stmt->SetData(0, containerGUID.GetCounter());
     trans->Append(stmt);
 

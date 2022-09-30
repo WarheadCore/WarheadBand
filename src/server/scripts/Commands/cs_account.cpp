@@ -132,9 +132,9 @@ public:
         uint32 const accountId = handler->GetSession()->GetAccountId();
 
         { // check if 2FA already enabled
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
             stmt->SetData(0, accountId);
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
+            PreparedQueryResult result = AuthDatabase.Query(stmt);
 
             if (!result)
             {
@@ -166,10 +166,10 @@ public:
                 if (masterKey)
                     Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(pair.first->second, *masterKey);
 
-                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 stmt->SetData(0, pair.first->second);
                 stmt->SetData(1, accountId);
-                LoginDatabase.Execute(stmt);
+                AuthDatabase.Execute(stmt);
 
                 suggestions.erase(pair.first);
                 handler->SendSysMessage(LANG_2FA_SETUP_COMPLETE);
@@ -206,10 +206,11 @@ public:
 
         uint32 const accountId = handler->GetSession()->GetAccountId();
         Warhead::Crypto::TOTP::Secret secret;
-        { // get current TOTP secret
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+        {
+            // get current TOTP secret
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
             stmt->SetData(0, accountId);
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
+            PreparedQueryResult result = AuthDatabase.Query(stmt);
 
             if (!result)
             {
@@ -219,9 +220,10 @@ public:
                 return false;
             }
 
-            Field* field = result->Fetch();
+            auto field = result->Fetch();
             if (field->IsNull())
-            { // 2FA not enabled
+            {
+                // 2FA not enabled
                 handler->SendSysMessage(LANG_2FA_NOT_SETUP);
                 handler->SetSentErrorMessage(true);
                 return false;
@@ -246,10 +248,10 @@ public:
 
             if (Warhead::Crypto::TOTP::ValidateToken(secret, *token))
             {
-                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 stmt->SetData(0);
                 stmt->SetData(1, accountId);
-                LoginDatabase.Execute(stmt);
+                AuthDatabase.Execute(stmt);
                 handler->SendSysMessage(LANG_2FA_REMOVE_COMPLETE);
                 return true;
             }
@@ -283,12 +285,12 @@ public:
             return false;
         }
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
         stmt->SetData(0, *expansion);
         stmt->SetData(1, accountId);
 
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_ACCOUNT_ADDON, *expansion);
         return true;
@@ -404,7 +406,7 @@ public:
     static bool HandleAccountOnlineListCommand(ChatHandler* handler, char const* /*args*/)
     {
         ///- Get the list of accounts ID logged to the realm
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE);
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
@@ -421,20 +423,20 @@ public:
         ///- Cycle through accounts
         do
         {
-            Field* fieldsDB = result->Fetch();
+            auto fieldsDB = result->Fetch();
             std::string name = fieldsDB[0].Get<std::string>();
             uint32 account = fieldsDB[1].Get<uint32>();
 
             ///- Get the username, last IP and GM level of each account
             // No SQL injection. account is uint32.
-            LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
+            AuthDatabasePreparedStatement loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
             stmt->SetData(0, account);
 
-            PreparedQueryResult resultLogin = LoginDatabase.Query(loginStmt);
+            PreparedQueryResult resultLogin = AuthDatabase.Query(loginStmt);
 
             if (resultLogin)
             {
-                Field* fieldsLogin = resultLogin->Fetch();
+                auto fieldsLogin = resultLogin->Fetch();
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
                                          fieldsLogin[0].Get<std::string_view>(), name, fieldsLogin[1].Get<std::string_view>(),
                                          fieldsDB[2].Get<uint16>(), fieldsDB[3].Get<uint16>(), fieldsLogin[3].Get<uint8>(),
@@ -478,10 +480,10 @@ public:
             return false;
         }
 
-        auto* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
         stmt->SetData(0, "00");
         stmt->SetData(1, accountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
         handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
 
         return true;
@@ -504,10 +506,10 @@ public:
             {
                 if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
                 {
-                    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+                    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
                     stmt->SetData(0, location->CountryCode);
                     stmt->SetData(1, handler->GetSession()->GetAccountId());
-                    LoginDatabase.Execute(stmt);
+                    AuthDatabase.Execute(stmt);
                     handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
                 }
                 else
@@ -519,10 +521,10 @@ public:
             }
             else if (param == "off")
             {
-                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+                AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
                 stmt->SetData(0, "00");
                 stmt->SetData(1, handler->GetSession()->GetAccountId());
-                LoginDatabase.Execute(stmt);
+                AuthDatabase.Execute(stmt);
                 handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
             }
             return true;
@@ -546,7 +548,7 @@ public:
 
         if (!param.empty())
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
 
             if (param == "on")
             {
@@ -561,7 +563,7 @@ public:
 
             stmt->SetData(1, handler->GetSession()->GetAccountId());
 
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
             return true;
         }
 
@@ -669,10 +671,10 @@ public:
 
         if (secret == "off")
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
             stmt->SetData(0);
             stmt->SetData(1, targetAccountId);
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
             handler->PSendSysMessage(LANG_2FA_REMOVE_COMPLETE);
             return true;
         }
@@ -703,10 +705,10 @@ public:
         if (masterKey)
             Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(*decoded, *masterKey);
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
         stmt->SetData(0, *decoded);
         stmt->SetData(1, targetAccountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_2FA_SECRET_SET_COMPLETE, accountName);
         return true;
@@ -772,12 +774,12 @@ public:
         if (!expansion || *expansion > CONF_GET_INT("Expansion"))
             return false;
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
         stmt->SetData(0, *expansion);
         stmt->SetData(1, accountId);
 
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName, accountId, *expansion);
         return true;
@@ -851,12 +853,12 @@ public:
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
         if (gmRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
 
             stmt->SetData(0, targetAccountId);
             stmt->SetData(1, uint8(gm));
 
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
+            PreparedQueryResult result = AuthDatabase.Query(stmt);
 
             if (result)
             {
@@ -875,31 +877,31 @@ public:
         }
 
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realm.Id.Realm
-        LoginDatabasePreparedStatement* stmt;
+        AuthDatabasePreparedStatement stmt;
 
         if (gmRealmID == -1)
         {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+            stmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
             stmt->SetData(0, targetAccountId);
         }
         else
         {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+            stmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
             stmt->SetData(0, targetAccountId);
             stmt->SetData(1, realm.Id.Realm);
         }
 
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         if (gm != 0)
         {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+            stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
 
             stmt->SetData(0, targetAccountId);
             stmt->SetData(1, uint8(gm));
             stmt->SetData(2, gmRealmID);
 
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
         }
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName, gm);

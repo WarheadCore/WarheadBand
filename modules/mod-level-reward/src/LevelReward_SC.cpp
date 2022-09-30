@@ -59,10 +59,8 @@ public:
             return;
         }
 
-        do
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
-
             LevelRewardStruct _levelReward;
 
             uint32 Level = fields[0].Get<uint32>();
@@ -95,8 +93,7 @@ public:
             }
 
             rewards.emplace(Level, _levelReward);
-
-        } while (result->NextRow());
+        }
 
         LOG_INFO("module", ">> Loaded {} reward for level in {} ms", rewards.size(), GetMSTimeDiffToNow(msTime));
         LOG_INFO("module", "");

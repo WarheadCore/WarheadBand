@@ -484,7 +484,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         auction->bid = price;
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->SetData(0, auction->bidder.GetCounter());
         stmt->SetData(1, auction->bid);
         stmt->SetData(2, auction->Id);

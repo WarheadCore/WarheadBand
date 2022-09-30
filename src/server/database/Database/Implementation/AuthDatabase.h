@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LOGINDATABASE_H
-#define _LOGINDATABASE_H
+#ifndef _AUTH_DATABASE_H_
+#define _AUTH_DATABASE_H_
 
-#include "MySQLConnection.h"
+#include "DatabaseWorkerPool.h"
 
-enum LoginDatabaseStatements : uint32
+enum AuthDatabaseStatements : uint32
 {
     /*  Naming standard for defines:
         {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
@@ -117,21 +117,20 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_ACCOUNT_TOTP_SECRET,
     LOGIN_UPD_ACCOUNT_TOTP_SECRET,
 
-    MAX_LOGINDATABASE_STATEMENTS
+    MAX_LOGIN_DATABASE_STATEMENTS
 };
 
-class WH_DATABASE_API LoginDatabaseConnection : public MySQLConnection
+class WH_DATABASE_API AuthDatabasePool : public DatabaseWorkerPool
 {
 public:
-    typedef LoginDatabaseStatements Statements;
-
-    //- Constructors for sync and async connections
-    LoginDatabaseConnection(MySQLConnectionInfo& connInfo);
-    LoginDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
-    ~LoginDatabaseConnection() override;
+    AuthDatabasePool() : DatabaseWorkerPool(DatabaseType::Auth) { }
+    ~AuthDatabasePool() = default;
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
 
-#endif
+/// Accessor to the realm/login database
+WH_DATABASE_API extern AuthDatabasePool AuthDatabase;
+
+#endif // _AUTH_DATABASE_H_

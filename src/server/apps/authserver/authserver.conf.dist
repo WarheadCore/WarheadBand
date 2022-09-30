@@ -43,13 +43,6 @@
 LogsDir = ""
 
 #
-#    MaxPingTime
-#        Description: Time (in minutes) between database pings.
-#        Default:     30
-
-MaxPingTime = 30
-
-#
 #    RealmServerPort
 #        Description: TCP port to reach the auth server.
 #        Default:     3724
@@ -199,7 +192,7 @@ AllowLoggingIPAddressesInDatabase = 1
 ###################################################################################################
 # MYSQL SETTINGS
 #
-#    LoginDatabaseInfo
+#    AuthDatabaseInfo
 #        Description: Database connection settings for the realm server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -213,7 +206,7 @@ AllowLoggingIPAddressesInDatabase = 1
 #    any value other than 'ssl' is set, TLS will not be used.
 #
 
-LoginDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_auth"
+AuthDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_auth"
 
 #
 #    Database.Reconnect.Seconds
@@ -228,22 +221,12 @@ Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
 
 #
-#    LoginDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
-#        Default:     1
-
-LoginDatabase.WorkerThreads = 1
-
-#
-#    LoginDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
+#    MaxPingTime
+#        Description: Time (in minutes) between database pings.
+#        Default:     30
 #
 
-LoginDatabase.SynchThreads = 1
-
-#
+MaxPingTime = 30
 ###################################################################################################
 
 ###################################################################################################
@@ -280,10 +263,11 @@ TOTPMasterSecret =
 #        Description: A mask that describes which databases shall be updated.
 #
 #        Following flags are available
-#           DATABASE_LOGIN     = 1, // Auth database
+#           DATABASE_LOGIN  = 1, // Auth database
 #
 #        Default:     0  - (All Disabled)
 #                     1  - (All Enabled)
+#
 
 Updates.EnableDatabases = 1
 

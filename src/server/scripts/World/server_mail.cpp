@@ -34,7 +34,7 @@ public:
     {
         for (auto const& servMail : sObjectMgr->GetAllServerMailStore())
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_SERVER_CHARACTER);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_SERVER_CHARACTER);
             stmt->SetData(0, player->GetGUID().GetCounter());
             stmt->SetData(1, servMail.second.id);
 

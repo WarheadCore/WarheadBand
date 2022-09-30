@@ -106,6 +106,7 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "DatabaseMgr.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
@@ -620,7 +621,7 @@ void World::SetInitialWorldSettings()
 
     uint32 realm_zone = CONF_GET_INT("RealmZone");
 
-    LoginDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+    AuthDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     ///- Custom Hook for loading DB items
     sScriptMgr->OnLoadCustomDatabaseTable();
@@ -1086,11 +1087,11 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", " ");
     GameTime::UpdateGameTimers();
 
-    LoginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
+    AuthDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
         realm.Id.Realm, uint32(GameTime::GetStartTime().count()), GitRevision::GetFullVersion()); // One-time query
 
     // Delete old uptimes (1 week)
-    LoginDatabase.Execute("DELETE FROM `uptime` WHERE `realmid` = {} AND `starttime` < UNIX_TIMESTAMP(NOW()) - 604800", realm.Id.Realm);
+    AuthDatabase.Execute("DELETE FROM `uptime` WHERE `realmid` = {} AND `starttime` < UNIX_TIMESTAMP(NOW()) - 604800", realm.Id.Realm);
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
@@ -1102,8 +1103,6 @@ void World::SetInitialWorldSettings()
 
     // clean logs table every 14 days by default
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(CONF_GET_INT("AutoBroadcast.Timer"));
-
-    m_timers[WUPDATE_PINGDB].SetInterval(CONF_GET_INT("MaxPingTime") * MINUTE * IN_MILLISECONDS);  // Mysql ping time in minutes
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
@@ -1163,7 +1162,7 @@ void World::SetInitialWorldSettings()
     sWardenCheckMgr->LoadWardenOverrides();
 
     LOG_INFO("server.loading", "Deleting expired bans...");
-    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
+    AuthDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
 
     LOG_INFO("server.loading", "Calculate next daily quest reset time...");
     InitDailyQuestResetTime();
@@ -1311,7 +1310,7 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_5_SECS].Reset();
 
         // moved here from HandleCharEnumOpcode
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -1466,12 +1465,12 @@ void World::Update(uint32 diff)
 
         m_timers[WUPDATE_UPTIME].Reset();
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
         stmt->SetData(0, uint32(GameTime::GetUptime().count()));
         stmt->SetData(1, uint16(GetMaxPlayerCount()));
         stmt->SetData(2, realm.Id.Realm);
         stmt->SetData(3, uint32(GameTime::GetStartTime().count()));
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
     }
 
     ///- Erase corpses once every 20 minutes
@@ -1494,17 +1493,6 @@ void World::Update(uint32 diff)
         uint32 nextGameEvent = sGameEventMgr->Update();
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
         m_timers[WUPDATE_EVENTS].Reset();
-    }
-
-    ///- Ping to keep MySQL connections alive
-    if (m_timers[WUPDATE_PINGDB].Passed())
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Ping MySQL"));
-        m_timers[WUPDATE_PINGDB].Reset();
-        LOG_DEBUG("sql.driver", "Ping MySQL to keep connection alive");
-        CharacterDatabase.KeepAlive();
-        LoginDatabase.KeepAlive();
-        WorldDatabase.KeepAlive();
     }
 
     {
@@ -1537,6 +1525,11 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async callback mgr"));
         sAsyncCallbackMgr->ProcessReadyCallbacks();
+    }
+
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update db mgr"));
+        sDatabaseMgr->Update(Milliseconds{ diff });
     }
 
     {
@@ -1909,7 +1902,7 @@ void World::ProcessCliCommands()
 
 void World::UpdateRealmCharCount(uint32 accountId)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->SetData(0, accountId);
     _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&World::_UpdateRealmCharCount, this, std::placeholders::_1)));
 }
@@ -1918,19 +1911,19 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 {
     if (resultCharCount)
     {
-        Field* fields = resultCharCount->Fetch();
+        auto fields = resultCharCount->Fetch();
         uint32 accountId = fields[0].Get<uint32>();
         uint8 charCount = uint8(fields[1].Get<uint64>());
 
-        LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+        AuthDatabaseTransaction trans = AuthDatabase.BeginTransaction();
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
         stmt->SetData(0, charCount);
         stmt->SetData(1, accountId);
         stmt->SetData(2, realm.Id.Realm);
         trans->Append(stmt);
 
-        LoginDatabase.CommitTransaction(trans);
+        AuthDatabase.CommitTransaction(trans);
     }
 }
 
@@ -2013,7 +2006,7 @@ void World::InitGuildResetTime()
 
 void World::ResetDailyQuests()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2029,9 +2022,9 @@ void World::ResetDailyQuests()
 
 void World::LoadDBAllowedSecurityLevel()
 {
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
     stmt->SetData(0, int32(realm.Id.Realm));
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
 
     if (result)
         SetPlayerSecurityLimit(AccountTypes(result->Fetch()->Get<uint8>()));
@@ -2048,7 +2041,7 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
 
 void World::ResetWeeklyQuests()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2066,7 +2059,7 @@ void World::ResetMonthlyQuests()
 {
     LOG_INFO("server.worldserver", "Monthly quests reset for all characters.");
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2079,7 +2072,7 @@ void World::ResetMonthlyQuests()
 
 void World::ResetEventSeasonalQuests(uint16 event_id)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL);
     stmt->SetData(0, event_id);
     CharacterDatabase.Execute(stmt);
 
@@ -2092,7 +2085,7 @@ void World::ResetRandomBG()
 {
     LOG_DEBUG("server.worldserver", "Random BG status reset for all characters.");
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2133,7 +2126,7 @@ void World::LoadDBVersion()
     QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
     if (result)
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         m_DBVersion = fields[0].Get<std::string>();
 
@@ -2171,7 +2164,7 @@ void World::LoadWorldStates()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         m_worldstates[fields[0].Get<uint32>()] = fields[1].Get<uint32>();
     } while (result->NextRow());
 
@@ -2185,14 +2178,14 @@ void World::setWorldState(uint32 index, uint64 timeValue)
     auto const& it = m_worldstates.find(index);
     if (it != m_worldstates.end())
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
         stmt->SetData(0, uint32(timeValue));
         stmt->SetData(1, index);
         CharacterDatabase.Execute(stmt);
     }
     else
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
         stmt->SetData(0, index);
         stmt->SetData(1, uint32(timeValue));
         CharacterDatabase.Execute(stmt);

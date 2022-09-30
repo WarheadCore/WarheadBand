@@ -78,7 +78,7 @@ void ModuleLocale::LoadModuleString()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         auto& data = _modulesStringStore[fields[0].Get<std::string>()];
 

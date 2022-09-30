@@ -754,12 +754,12 @@ void Battleground::EndBattleground(PvPTeamId winnerTeamId)
     uint64 battlegroundId = 1;
     if (isBattleground() && CONF_GET_BOOL("Battleground.StoreStatistics.Enable"))
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (result)
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             battlegroundId = fields[0].Get<uint64>() + 1;
         }
 
@@ -835,7 +835,7 @@ void Battleground::EndBattleground(PvPTeamId winnerTeamId)
 
         if (isBattleground() && CONF_GET_BOOL("Battleground.StoreStatistics.Enable"))
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
             auto const& score = PlayerScores.find(player->GetGUID().GetCounter());
 
             stmt->SetData(0, battlegroundId);
@@ -1330,7 +1330,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), entry, GetBgMap(),
                     PHASEMASK_NORMAL, x, y, z, o, G3D::Quat(rotation0, rotation1, rotation2, rotation3), 100, goState))
     {
-        LOG_ERROR("sql.sql", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
+        LOG_ERROR("db.query", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
                          entry, m_MapId, m_InstanceID);
         LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: {}) for BG (map: {}, instance id: {})!",
                        entry, m_MapId, m_InstanceID);

@@ -18,7 +18,7 @@
 #include "DBCDatabaseLoader.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
-#include "StringFormat.h"
+#include "Field.h"
 
 DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbcFormatString, std::vector<char*>& stringPool)
     : _sqlTableName(tableName),
@@ -36,10 +36,8 @@ DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbcForma
 
 char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 {
-    std::string query = Warhead::StringFormat("SELECT * FROM `{}` ORDER BY `ID` DESC", _sqlTableName);
-
     // no error if empty set
-    QueryResult result = WorldDatabase.Query(query.c_str());
+    auto result = DBCDatabase.Query("SELECT * FROM `{}` ORDER BY `ID` DESC", _sqlTableName);
     if (!result)
         return nullptr;
 
@@ -55,7 +53,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     uint32 indexTableSize = std::max(records, (*result)[_sqlIndexPos].Get<uint32>() + 1);
     if (indexTableSize > records)
     {
-        char** tmpIdxTable = new char* [indexTableSize];
+        char** tmpIdxTable = new char*[indexTableSize];
         memset(tmpIdxTable, 0, indexTableSize * sizeof(char*));
         memcpy(tmpIdxTable, indexTable, records * sizeof(char*));
         delete[] indexTable;
@@ -67,18 +65,17 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     uint32 newRecords = 0;
 
     // Insert sql data into the data array
-    do
+    for (auto& row : *result)
     {
-        Field* fields = result->Fetch();
-        uint32 indexValue = fields[_sqlIndexPos].Get<uint32>();
+        uint32 indexValue = row[_sqlIndexPos].Get<uint32>();
         char* dataValue = indexTable[indexValue];
 
         // If exist in DBC file override from DB
         newIndexes[newRecords] = indexValue;
         dataValue = &dataTable[newRecords++ * _recordSize];
 
-        uint32 dataOffset = 0;
-        uint32 sqlColumnNumber = 0;
+        uint32 dataOffset{};
+        uint32 sqlColumnNumber{};
         char const* dbcFormat = _dbcFormat;
 
         for (; (*dbcFormat); ++dbcFormat)
@@ -86,20 +83,20 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
             switch (*dbcFormat)
             {
                 case FT_FLOAT:
-                    *reinterpret_cast<float*>(&dataValue[dataOffset]) = fields[sqlColumnNumber].Get<float>();
+                    *reinterpret_cast<float*>(&dataValue[dataOffset]) = row[sqlColumnNumber].Get<float>();
                     dataOffset += sizeof(float);
                     break;
                 case FT_IND:
                 case FT_INT:
-                    *reinterpret_cast<uint32*>(&dataValue[dataOffset]) = fields[sqlColumnNumber].Get<uint32>();
+                    *reinterpret_cast<uint32*>(&dataValue[dataOffset]) = row[sqlColumnNumber].Get<uint32>();
                     dataOffset += sizeof(uint32);
                     break;
                 case FT_BYTE:
-                    *reinterpret_cast<uint8*>(&dataValue[dataOffset]) = fields[sqlColumnNumber].Get<uint8>();
+                    *reinterpret_cast<uint8*>(&dataValue[dataOffset]) = row[sqlColumnNumber].Get<uint8>();
                     dataOffset += sizeof(uint8);
                     break;
                 case FT_STRING:
-                    *reinterpret_cast<char**>(&dataValue[dataOffset]) = CloneStringToPool(fields[sqlColumnNumber].Get<std::string>());
+                    *reinterpret_cast<char**>(&dataValue[dataOffset]) = CloneStringToPool(row[sqlColumnNumber].Get<std::string>());
                     dataOffset += sizeof(char*);
                     break;
                 case FT_SORT:
@@ -115,7 +112,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 
         ASSERT(sqlColumnNumber == result->GetFieldCount(), "SQL format string does not match database for table: '{}'", _sqlTableName);
         ASSERT(dataOffset == _recordSize);
-    } while (result->NextRow());
+    }
 
     ASSERT(newRecords == result->GetRowCount());
 
@@ -124,7 +121,6 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
         indexTable[newIndexes[i]] = &dataTable[i * _recordSize];
 
     records = indexTableSize;
-
     return dataTable.release();
 }
 

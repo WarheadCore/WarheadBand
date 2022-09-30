@@ -69,19 +69,18 @@ void CalendarMgr::LoadFromDB()
 
     //                                                       0   1        2      3            4     5        6          7      8
     if (QueryResult result = CharacterDatabase.Query("SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events"))
-        do
+    {
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
-
-            uint64 eventId          = fields[0].Get<uint64>();
-            ObjectGuid creatorGUID  = ObjectGuid::Create<HighGuid::Player>(fields[1].Get<uint32>());
-            std::string title       = fields[2].Get<std::string>();
+            uint64 eventId = fields[0].Get<uint64>();
+            ObjectGuid creatorGUID = ObjectGuid::Create<HighGuid::Player>(fields[1].Get<uint32>());
+            std::string title = fields[2].Get<std::string>();
             std::string description = fields[3].Get<std::string>();
-            CalendarEventType type  = CalendarEventType(fields[4].Get<uint8>());
-            int32 dungeonId         = fields[5].Get<int32>();
-            uint32 eventTime        = fields[6].Get<uint32>();
-            uint32 flags            = fields[7].Get<uint32>();
-            uint32 timezoneTime     = fields[8].Get<uint32>();
+            CalendarEventType type = CalendarEventType(fields[4].Get<uint8>());
+            int32 dungeonId = fields[5].Get<int32>();
+            uint32 eventTime = fields[6].Get<uint32>();
+            uint32 flags = fields[7].Get<uint32>();
+            uint32 timezoneTime = fields[8].Get<uint32>();
             uint32 guildId = 0;
 
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
@@ -89,23 +88,23 @@ void CalendarMgr::LoadFromDB()
                 guildId = sCharacterCache->GetCharacterGuildIdByGuid(creatorGUID);
             }
 
-            CalendarEvent* calendarEvent = new CalendarEvent(eventId, creatorGUID, guildId, type, dungeonId, time_t(eventTime), flags, time_t(timezoneTime), title, description);
+            CalendarEvent*calendarEvent = new CalendarEvent(eventId, creatorGUID, guildId, type, dungeonId, time_t(eventTime), flags, time_t(timezoneTime), title, description);
             _events.insert(calendarEvent);
 
             _maxEventId = std::max(_maxEventId, eventId);
 
             ++count;
-        } while (result->NextRow());
+        }
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} calendar events", count);
     count = 0;
 
     //                                                       0   1      2        3       4       5            6      7
     if (QueryResult result = CharacterDatabase.Query("SELECT id, event, invitee, sender, status, statustime, `rank`, text FROM calendar_invites"))
-        do
+    {
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
-
             uint64 inviteId             = fields[0].Get<uint64>();
             uint64 eventId              = fields[1].Get<uint64>();
             ObjectGuid invitee          = ObjectGuid::Create<HighGuid::Player>(fields[2].Get<uint32>());
@@ -121,7 +120,8 @@ void CalendarMgr::LoadFromDB()
             _maxInviteId = std::max(_maxInviteId, inviteId);
 
             ++count;
-        } while (result->NextRow());
+        }
+    }
 
     LOG_INFO("server.loading", ">> Loaded {} calendar invites", count);
     LOG_INFO("server.loading", " ");
@@ -181,7 +181,7 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
     SendCalendarEventRemovedAlert(*calendarEvent);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    CharacterDatabasePreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement stmt = nullptr;
     MailDraft mail(calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody());
 
     CalendarInviteStore& eventInvites = _invites[calendarEvent->GetEventId()];
@@ -228,7 +228,7 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, ObjectGuid /*rem
         return;
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
     stmt->SetData(0, (*itr)->GetInviteId());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
@@ -249,7 +249,7 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, ObjectGuid /*rem
 
 void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_EVENT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_EVENT);
     stmt->SetData(0, calendarEvent->GetEventId());
     stmt->SetData(1, calendarEvent->GetCreatorGUID().GetCounter());
     stmt->SetData(2, calendarEvent->GetTitle());
@@ -264,7 +264,7 @@ void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
 
 void CalendarMgr::UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransaction trans)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_INVITE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_INVITE);
     stmt->SetData(0, invite->GetInviteId());
     stmt->SetData(1, invite->GetEventId());
     stmt->SetData(2, invite->GetInviteeGUID().GetCounter());

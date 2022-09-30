@@ -619,7 +619,7 @@ void WorldSession::HandleCharacterAuraFrozen(PreparedQueryResult result)
     // Output of the results
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         std::string player = fields[0].Get<std::string>();
         handler.PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player);
     } while (result->NextRow());
@@ -642,7 +642,7 @@ void WorldSession::HandleBugOpcode(WorldPacket& recv_data)
     LOG_DEBUG("network", "{}", type);
     LOG_DEBUG("network", "{}", content);
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
 
     stmt->SetData(0, type);
     stmt->SetData(1, content);
@@ -1124,11 +1124,11 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     uint32 accid = player->GetSession()->GetAccountId();
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_WHOIS);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_WHOIS);
 
     stmt->SetData(0, accid);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
 
     if (!result)
     {
@@ -1136,7 +1136,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     std::string acc = fields[0].Get<std::string>();
     if (acc.empty())
         acc = "Unknown";

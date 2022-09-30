@@ -127,7 +127,7 @@ void ScriptMgr::LoadDatabase()
         if (scriptName.empty())
             continue;
 
-        LOG_ERROR("sql.sql", "Script '{}' is referenced by the database, but does not exist in the core!", scriptName);
+        LOG_ERROR("db.query", "Script '{}' is referenced by the database, but does not exist in the core!", scriptName);
     }
 
     LOG_INFO("server.loading", "");

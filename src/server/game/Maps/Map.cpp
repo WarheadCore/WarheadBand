@@ -3344,7 +3344,7 @@ void Map::SaveCreatureRespawnTime(ObjectGuid::LowType spawnId, time_t& respawnTi
 
     _creatureRespawnTimes[spawnId] = respawnTime;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
     stmt->SetData(0, spawnId);
     stmt->SetData(1, uint32(respawnTime));
     stmt->SetData(2, GetId());
@@ -3356,7 +3356,7 @@ void Map::RemoveCreatureRespawnTime(ObjectGuid::LowType spawnId)
 {
     _creatureRespawnTimes.erase(spawnId);
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
     stmt->SetData(0, spawnId);
     stmt->SetData(1, GetId());
     stmt->SetData(2, GetInstanceId());
@@ -3378,7 +3378,7 @@ void Map::SaveGORespawnTime(ObjectGuid::LowType spawnId, time_t& respawnTime)
 
     _goRespawnTimes[spawnId] = respawnTime;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
     stmt->SetData(0, spawnId);
     stmt->SetData(1, uint32(respawnTime));
     stmt->SetData(2, GetId());
@@ -3390,7 +3390,7 @@ void Map::RemoveGORespawnTime(ObjectGuid::LowType spawnId)
 {
     _goRespawnTimes.erase(spawnId);
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
     stmt->SetData(0, spawnId);
     stmt->SetData(1, GetId());
     stmt->SetData(2, GetInstanceId());
@@ -3399,14 +3399,14 @@ void Map::RemoveGORespawnTime(ObjectGuid::LowType spawnId)
 
 void Map::LoadRespawnTimes()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS);
     stmt->SetData(0, GetId());
     stmt->SetData(1, GetInstanceId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             ObjectGuid::LowType lowguid = fields[0].Get<uint32>();
             uint32 respawnTime = fields[1].Get<uint32>();
 
@@ -3421,7 +3421,7 @@ void Map::LoadRespawnTimes()
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
             ObjectGuid::LowType lowguid = fields[0].Get<uint32>();
             uint32 respawnTime = fields[1].Get<uint32>();
 
@@ -3440,7 +3440,7 @@ void Map::DeleteRespawnTimes()
 
 void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
     stmt->SetData(0, mapId);
     stmt->SetData(1, instanceId);
     CharacterDatabase.Execute(stmt);
@@ -3986,7 +3986,7 @@ bool Map::CheckCollisionAndGetValidCoords(WorldObject const* source, float start
 
 void Map::LoadCorpseData()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
     stmt->SetData(0, GetId());
     stmt->SetData(1, GetInstanceId());
 
@@ -3998,7 +3998,7 @@ void Map::LoadCorpseData()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         CorpseType type = CorpseType(fields[13].Get<uint8>());
         uint32 guid = fields[16].Get<uint32>();
         if (type >= MAX_CORPSE_TYPE || type == CORPSE_BONES)
@@ -4024,7 +4024,7 @@ void Map::LoadCorpseData()
 void Map::DeleteCorpseData()
 {
     // DELETE FROM corpse WHERE mapId = ? AND instanceId = ?
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSES_FROM_MAP);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSES_FROM_MAP);
     stmt->SetData(0, GetId());
     stmt->SetData(1, GetInstanceId());
     CharacterDatabase.Execute(stmt);

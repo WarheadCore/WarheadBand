@@ -32,7 +32,6 @@
 #include "GitRevision.h"
 #include "Language.h"
 #include "ModuleMgr.h"
-#include "MySQLThreading.h"
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptObject.h"
@@ -42,6 +41,7 @@
 #include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
+#include "DatabaseMgr.h"
 #include <boost/version.hpp>
 #include <filesystem>
 #include <numeric>
@@ -97,6 +97,7 @@ public:
             { "idleshutdown", serverIdleShutdownCommandTable },
             { "info",         HandleServerInfoCommand,           SEC_PLAYER,        Console::Yes },
             { "motd",         HandleServerMotdCommand,           SEC_PLAYER,        Console::Yes },
+            { "async",        HandleServerAsyncCommand,          SEC_ADMINISTRATOR,        Console::Yes },
             { "restart",      serverRestartCommandTable },
             { "shutdown",     serverShutdownCommandTable },
             { "set",          serverSetCommandTable }
@@ -108,6 +109,14 @@ public:
         };
 
         return commandTable;
+    }
+
+    static bool HandleServerAsyncCommand(ChatHandler* /*handler*/, uint8 size)
+    {
+        for (uint8 i{}; i < size; i++)
+            CharacterDatabase.OpenDynamicAsyncConnect();
+
+        return true;
     }
 
     // Triggering corpses expire check in world
@@ -124,7 +133,7 @@ public:
 
         {
             uint16 dbPort = 0;
-            if (QueryResult res = LoginDatabase.Query("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
+            if (QueryResult res = AuthDatabase.Query("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
                 dbPort = (*res)[0].Get<uint16>();
 
             if (dbPort)
@@ -136,7 +145,7 @@ public:
         handler->PSendSysMessage("{}", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
         handler->PSendSysMessage("Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-        handler->PSendSysMessage("Using MySQL version: {}", MySQL::GetLibraryVersion());
+        handler->PSendSysMessage("Using MySQL version: {}", sDatabaseMgr->GetDatabaseLibraryVersion());
         handler->PSendSysMessage("Using CMake version: {}", GitRevision::GetCMakeVersion());
 
         handler->PSendSysMessage("Compiled on: {}", GitRevision::GetHostOSVersion());
@@ -218,9 +227,9 @@ public:
 
         handler->PSendSysMessage("Using World DB: {}", sWorld->GetDBVersion());
 
-        handler->PSendSysMessage("LoginDatabase queue size: {}", LoginDatabase.QueueSize());
-        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
-        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
+        handler->PSendSysMessage("AuthDatabase queue size: {}", AuthDatabase.GetQueueSize());
+        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.GetQueueSize());
+        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.GetQueueSize());
 
         if (Warhead::Module::GetEnableModulesList().empty())
             handler->SendSysMessage("No modules enabled");

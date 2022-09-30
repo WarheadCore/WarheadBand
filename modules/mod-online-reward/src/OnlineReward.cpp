@@ -625,14 +625,12 @@ void OnlineRewardMgr::CorrectDBData()
         return;
     }
 
-    do
+    for (auto const& fields : *result)
     {
-        auto const& fileds = result->Fetch();
-
-        if (!fileds[1].IsNull())
+        if (!fields[1].IsNull())
             continue;
 
-        auto const rewardID = fileds[0].Get<uint32>();
+        auto const rewardID = fields[0].Get<uint32>();
 
         auto testRewardQuery = CharacterDatabase.Query("SELECT `ch`.`guid` FROM `characters` AS `ch`, `wh_online_rewards` AS `or` WHERE `ch`.`totaltime` >= `or`.`Seconds` AND `or`.`ID` = {}", rewardID);
         if (!testRewardQuery)
@@ -641,11 +639,10 @@ void OnlineRewardMgr::CorrectDBData()
         LOG_INFO("module.or", "> OR: Fill rewards history for reward with id: {}", rewardID);
 
         CharacterDatabase.Execute("INSERT INTO `wh_online_rewards_history` (`PlayerGuid`, `RewardID`, `RewardedSeconds`) "
-            "(SELECT `ch`.`guid`, `or`.`ID`, `ch`.`totaltime` FROM `characters` AS `ch`, `wh_online_rewards` AS `or` WHERE `ch`.`totaltime` >= `or`.`Seconds` AND `or`.`ID` = {})", rewardID);
+                                  "(SELECT `ch`.`guid`, `or`.`ID`, `ch`.`totaltime` FROM `characters` AS `ch`, `wh_online_rewards` AS `or` WHERE `ch`.`totaltime` >= `or`.`Seconds` AND `or`.`ID` = {})", rewardID);
 
         count++;
-
-    } while (result->NextRow());
+    }
 
     if (!count)
     {

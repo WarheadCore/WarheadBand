@@ -76,7 +76,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     QueryResult result = CharacterDatabase.Query("SELECT DISTINCT {} FROM {}", column, table);
     if (!result)
     {
-        LOG_INFO("sql.sql", "Table {} is empty.", table);
+        LOG_INFO("db.query", "Table {} is empty.", table);
         return;
     }
 
@@ -84,7 +84,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     std::ostringstream ss;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id = fields[0].Get<uint32>();
 

@@ -144,25 +144,25 @@ public:
         {
             // As we can assume most account actions are NOT failed login, so this is the more accurate check.
             // For those, we need last_ip...
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
 
             stmt->SetData(0, playerGuid);
             stmt->SetData(1, characterGuid);
             stmt->SetData(2, aType);
             stmt->SetData(3, playerGuid);
             stmt->SetData(4, systemNote.c_str());
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
         }
         else // ... but for failed login, we query last_attempt_ip from account table. Which we do with an unique query
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FACL_IP_LOGGING);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_FACL_IP_LOGGING);
 
             stmt->SetData(0, playerGuid);
             stmt->SetData(1, characterGuid);
             stmt->SetData(2, aType);
             stmt->SetData(3, playerGuid);
             stmt->SetData(4, systemNote.c_str());
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
         }
         return;
     }
@@ -240,7 +240,7 @@ public:
         }
 
         // Once we have done everything, we can insert the new log.
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_CHAR_IP_LOGGING);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_CHAR_IP_LOGGING);
 
         stmt->SetData(0, playerGuid);
         stmt->SetData(1, characterGuid);
@@ -250,7 +250,7 @@ public:
         // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
         // Rather, we let it be added with the SQL query.
 
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
         return;
     }
 };
@@ -303,7 +303,7 @@ public:
         }
 
         // Once we have done everything, we can insert the new log.
-        LoginDatabasePreparedStatement* stmt2 = LoginDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
+        AuthDatabasePreparedStatement stmt2 = AuthDatabase.GetPreparedStatement(LOGIN_INS_ALDL_IP_LOGGING);
         stmt2->SetData(0, playerGuid);
         stmt2->SetData(1, characterGuid);
         stmt2->SetData(2, aType);
@@ -312,7 +312,7 @@ public:
         // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
         // Rather, we let it be added with the SQL query.
 
-        LoginDatabase.Execute(stmt2);
+        AuthDatabase.Execute(stmt2);
         return;
     }
 };

@@ -105,7 +105,7 @@ public:
 
         _shopStore.clear();
 
-        QueryResult result = LoginDatabase.Query("SELECT `ID`, `Type`, `Value` FROM `ips_shop_define` ORDER BY `ID`");
+        QueryResult result = AuthDatabase.Query("SELECT `ID`, `Type`, `Value` FROM `ips_shop_define` ORDER BY `ID`");
         if (!result)
         {
             LOG_WARN("server.loading", "> No data for ips shop define");
@@ -144,7 +144,7 @@ public:
 
     inline void SendDonate()
     {
-        _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(Warhead::StringFormat("SELECT `ID`, `Nickname`, `ItemID`, `ItemQuantity` FROM `ips_shop_link` WHERE `flag` = 0 AND `RealmName` = '{}'", realm.Name)).WithCallback([this](QueryResult result)
+        _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(Warhead::StringFormat("SELECT `ID`, `Nickname`, `ItemID`, `ItemQuantity` FROM `ips_shop_link` WHERE `flag` = 0 AND `RealmName` = '{}'", realm.Name)).WithCallback([this](QueryResult result)
         {
             _ipsShopLinkStore.clear();
 
@@ -232,7 +232,7 @@ private:
             return;
         }
 
-        LoginDatabase.Execute("UPDATE `ips_shop_link` SET `Flag` = 1 WHERE `ID` = {}", ipsShopLink->ID);
+        AuthDatabase.Execute("UPDATE `ips_shop_link` SET `Flag` = 1 WHERE `ID` = {}", ipsShopLink->ID);
     }
 
     inline void SendRewardItem(std::string_view charName, uint32 itemID, uint32 itemCount)

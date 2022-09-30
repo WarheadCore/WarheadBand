@@ -185,7 +185,7 @@ void Arena::EndBattleground(TeamId winnerTeamId)
             uint32 currOnline = sWorld->GetActiveSessionCount();
 
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-            CharacterDatabasePreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_LOG_FIGHT);
+            CharacterDatabasePreparedStatement stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_LOG_FIGHT);
             stmt2->SetData(0, fightId);
             stmt2->SetData(1, GetArenaType());
             stmt2->SetData(2, ((GetStartTime() <= startDelay ? 0 : GetStartTime() - startDelay) / 1000));

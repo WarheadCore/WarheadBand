@@ -464,7 +464,7 @@ public:
         {
             uint32 entry = Warhead::StringTo<uint32>(entryStr).value_or(0);
 
-            WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
+            WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->SetData(0, entry);
 
             PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -483,7 +483,7 @@ public:
 
             LOG_INFO("server.loading", "Reloading creature template entry {}", entry);
 
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             sObjectMgr->LoadCreatureTemplate(fields);
             sObjectMgr->CheckCreatureTemplate(cInfo);

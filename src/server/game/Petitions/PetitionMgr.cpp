@@ -56,7 +56,7 @@ void PetitionMgr::LoadPetitions()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         AddPetition(ObjectGuid::Create<HighGuid::Item>(fields[1].Get<uint32>()), ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>()), fields[2].Get<std::string>(), fields[3].Get<uint8>());
         ++count;
     } while (result->NextRow());
@@ -81,7 +81,7 @@ void PetitionMgr::LoadSignatures()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         AddSignature(ObjectGuid::Create<HighGuid::Item>(fields[0].Get<uint32>()), fields[2].Get<uint32>(), ObjectGuid::Create<HighGuid::Player>(fields[1].Get<uint32>()));
         ++count;
     } while (result->NextRow());

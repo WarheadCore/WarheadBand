@@ -128,17 +128,17 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     Utf8ToUpperOnlyLatin(safeUser);
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
     stmt->SetData(0, safeUser);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
     if (!result)
     {
         LOG_INFO("commands.ra", "User {} does not exist in database", user);
         return false;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
 
     if (fields[1].Get<uint8>() < sConfigMgr->GetOption<int32>("Ra.MinLevel", 3))
     {
@@ -164,10 +164,10 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
     Utf8ToUpperOnlyLatin(safe_pass);
     std::transform(safe_pass.begin(), safe_pass.end(), safe_pass.begin(), ::toupper);
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
     stmt->SetData(0, safe_user);
 
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+    if (PreparedQueryResult result = AuthDatabase.Query(stmt))
     {
         Warhead::Crypto::SRP6::Salt salt = (*result)[0].Get<Binary, Warhead::Crypto::SRP6::SALT_LENGTH>();
         Warhead::Crypto::SRP6::Verifier verifier = (*result)[1].Get<Binary, Warhead::Crypto::SRP6::VERIFIER_LENGTH>();

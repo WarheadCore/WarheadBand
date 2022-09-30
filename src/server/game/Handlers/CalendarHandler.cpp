@@ -576,7 +576,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     // xinef: sync query
     if (QueryResult result = CharacterDatabase.Query("SELECT flags FROM character_social WHERE guid = {} AND friend = {}", inviteeGuid.GetCounter(), playerGuid.GetCounter()))
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         if (fields[0].Get<uint8>() & SOCIAL_FLAG_IGNORED)
         {
             sCalendarMgr->SendCalendarCommandResult(playerGuid, CALENDAR_ERROR_IGNORING_YOU_S, name.c_str());
@@ -810,7 +810,7 @@ void WorldSession::HandleSetSavedInstanceExtend(WorldPacket& recvData)
     instanceBind->extended = (bool)toggleExtendOn;
 
     // update in db
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE_EXTENDED);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE_EXTENDED);
     stmt->SetData(0, toggleExtendOn ? 1 : 0);
     stmt->SetData(1, GetPlayer()->GetGUID().GetCounter());
     stmt->SetData(2, instanceBind->save->GetInstanceId());

@@ -30,13 +30,12 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "DatabaseLoader.h"
+#include "DatabaseMgr.h"
 #include "DeadlineTimer.h"
 #include "IPLocation.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Logo.h"
-#include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
@@ -64,16 +63,9 @@ namespace fs = std::filesystem;
 bool StartDB();
 void StopDB();
 void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int signalNumber);
-void KeepDatabaseAliveHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error);
+void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
-
-/// Print out the usage string for this program on the console.
-void usage(const char* prog)
-{
-    LOG_INFO("server.authserver", "Usage: \n {} [<options>]\n"
-        "    -c config_file           use config_file as configuration file\n\r", prog);
-}
 
 /// Launch the auth server
 int main(int argc, char** argv)
@@ -106,9 +98,11 @@ int main(int argc, char** argv)
         []()
         {
             LOG_INFO("server.authserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server.authserver", "> Using logs directory:           {}", sLog->GetLogsDir());
             LOG_INFO("server.authserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             LOG_INFO("server.authserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-            LOG_INFO("server.authserver", "> Using logs directory:           {}", sLog->GetLogsDir());
+            LOG_INFO("server.authserver", "> Using DB client version:        {}", sDatabaseMgr->GetClientInfo());
+            LOG_INFO("server.authserver", "> Using DB server version:        {}", sDatabaseMgr->GetServerVersion());
         }
     );
 
@@ -117,7 +111,7 @@ int main(int argc, char** argv)
     std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 
     // authserver PID file creation
-    std::string pidFile = sConfigMgr->GetOption<std::string>("PidFile", "");
+    auto pidFile = sConfigMgr->GetOption<std::string>("PidFile", "");
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
@@ -161,14 +155,14 @@ int main(int argc, char** argv)
     }
 
     // Start the listening port (acceptor) for auth connections
-    int32 port = sConfigMgr->GetOption<int32>("RealmServerPort", 3724);
+    auto port = sConfigMgr->GetOption<int32>("RealmServerPort", 3724);
     if (port < 0 || port > 0xFFFF)
     {
         LOG_ERROR("server.authserver", "Specified port out of allowed range (1-65535)");
         return 1;
     }
 
-    std::string bindIp = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
+    auto bindIp = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
 
     if (!sAuthSocketMgr.StartNetwork(*ioContext, bindIp, port))
     {
@@ -189,10 +183,9 @@ int main(int argc, char** argv)
     SetProcessPriority("server.authserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
 
     // Enabled a timed callback for handling the database keep alive ping
-    int32 dbPingInterval = sConfigMgr->GetOption<int32>("MaxPingTime", 30);
-    std::shared_ptr<Warhead::Asio::DeadlineTimer> dbPingTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
-    dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
-    dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(dbPingTimer), dbPingInterval, std::placeholders::_1));
+    std::shared_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
+    dbUpdateTimer->expires_from_now(boost::posix_time::milliseconds(1));
+    dbUpdateTimer->async_wait(std::bind(&DatabaseUpdateHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(dbUpdateTimer), std::placeholders::_1));
 
     int32 banExpiryCheckInterval = sConfigMgr->GetOption<int32>("BanExpiryCheckInterval", 60);
     std::shared_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
@@ -203,7 +196,7 @@ int main(int argc, char** argv)
     ioContext->run();
 
     banExpiryCheckTimer->cancel();
-    dbPingTimer->cancel();
+    dbUpdateTimer->cancel();
 
     LOG_INFO("server.authserver", "Halting process...");
 
@@ -215,16 +208,9 @@ int main(int argc, char** argv)
 /// Initialize connection to the database
 bool StartDB()
 {
-    MySQL::Library_Init();
+    sDatabaseMgr->AddDatabase(AuthDatabase, "Auth");
 
-    // Load databases
-    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1.
-    // Increasing it is just silly since only 1 will be used ever.
-    DatabaseLoader loader("server.authserver", DatabaseLoader::DATABASE_NONE);
-    loader
-        .AddDatabase(LoginDatabase, "Login");
-
-    if (!loader.Load())
+    if (!sDatabaseMgr->Load())
         return false;
 
     LOG_INFO("server.authserver", "Started auth database connection pool.");
@@ -234,8 +220,7 @@ bool StartDB()
 /// Close the connection to the database
 void StopDB()
 {
-    LoginDatabase.Close();
-    MySQL::Library_End();
+    sDatabaseMgr->CloseAllConnections();
 }
 
 void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int /*signalNumber*/)
@@ -245,17 +230,16 @@ void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::
             ioContext->stop();
 }
 
-void KeepDatabaseAliveHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error)
+void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimerRef, boost::system::error_code const& error)
 {
     if (!error)
     {
-        if (std::shared_ptr<Warhead::Asio::DeadlineTimer> dbPingTimer = dbPingTimerRef.lock())
+        if (std::shared_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimer = dbUpdateTimerRef.lock())
         {
-            LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
-            LoginDatabase.KeepAlive();
+            sDatabaseMgr->Update(0ms);
 
-            dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
-            dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, dbPingTimerRef, dbPingInterval, std::placeholders::_1));
+            dbUpdateTimer->expires_from_now(boost::posix_time::milliseconds(1));
+            dbUpdateTimer->async_wait(std::bind(&DatabaseUpdateHandler, dbUpdateTimerRef, std::placeholders::_1));
         }
     }
 }
@@ -266,8 +250,8 @@ void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheck
     {
         if (std::shared_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimer = banExpiryCheckTimerRef.lock())
         {
-            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
+            AuthDatabase.Execute(AuthDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
+            AuthDatabase.Execute(AuthDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 
             banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
             banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, banExpiryCheckTimerRef, banExpiryCheckInterval, std::placeholders::_1));

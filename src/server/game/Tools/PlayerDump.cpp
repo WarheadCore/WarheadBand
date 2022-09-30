@@ -538,7 +538,7 @@ inline void AppendTableDump(StringTransaction& trans, TableStruct const& tableSt
         ss << ") VALUES (";
 
         uint32 const fieldSize = uint32(tableStruct.TableFields.size());
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         for (uint32 i = 0; i < fieldSize;)
         {
@@ -776,7 +776,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     bool incHighest = true;
     if (guid && guid < sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed())
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
         stmt->SetData(0, guid);
 
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
@@ -793,7 +793,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
 
     if (ObjectMgr::CheckPlayerName(name, true) == CHAR_NAME_SUCCESS)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
         stmt->SetData(0, name);
 
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))

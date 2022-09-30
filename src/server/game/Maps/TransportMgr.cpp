@@ -67,7 +67,7 @@ void TransportMgr::LoadTransportTemplates()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 entry = fields[0].Get<uint32>();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (!goInfo)
@@ -438,7 +438,7 @@ void TransportMgr::SpawnContinentTransports()
         {
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 entry = fields[1].Get<uint32>();
 
@@ -462,7 +462,7 @@ void TransportMgr::SpawnContinentTransports()
         {
             do
             {
-                Field* fields = result2->Fetch();
+                auto fields = result2->Fetch();
                 uint16 mapId = fields[0].Get<uint16>();
                 float x = fields[1].Get<float>();
                 float y = fields[2].Get<float>();

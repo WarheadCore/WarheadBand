@@ -19,7 +19,6 @@
 #define _FIELD_H
 
 #include "DatabaseEnvFwd.h"
-#include "Define.h"
 #include "Duration.h"
 #include <array>
 #include <string_view>
@@ -84,8 +83,8 @@ struct QueryResultFieldMetadata
 */
 class WH_DATABASE_API Field
 {
-friend class ResultSet;
-friend class PreparedResultSet;
+    friend class ResultSet;
+    friend class PreparedResultSet;
 
 public:
     Field();
@@ -129,7 +128,7 @@ public:
         return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
     }
 
-    inline bool IsNull() const
+    [[nodiscard]] inline bool IsNull() const
     {
         return data.value == nullptr;
     }
@@ -147,16 +146,16 @@ protected:
     void SetByteValue(char const* newValue, uint32 length);
     void SetStructuredValue(char const* newValue, uint32 length);
 
-    bool IsType(DatabaseFieldTypes type) const;
-    bool IsNumeric() const;
+    [[nodiscard]] bool IsType(DatabaseFieldTypes type) const;
+    [[nodiscard]] bool IsNumeric() const;
 
 private:
     template<typename T>
-    T GetData() const;
+    [[nodiscard]] T GetData() const;
 
-    std::string GetDataString() const;
-    std::string_view GetDataStringView() const;
-    Binary GetDataBinary() const;
+    [[nodiscard]] std::string GetDataString() const;
+    [[nodiscard]] std::string_view GetDataStringView() const;
+    [[nodiscard]] Binary GetDataBinary() const;
 
     QueryResultFieldMetadata const* meta;
     void LogWrongType(std::string_view getter, std::string_view typeName) const;
