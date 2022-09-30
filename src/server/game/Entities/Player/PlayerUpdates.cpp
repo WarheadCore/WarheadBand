@@ -908,7 +908,7 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
         return;
     }
 
-    uint8 greylevel = Acore::XP::GetGrayLevel(playerLevel);
+    uint8 greylevel = Warhead::XP::GetGrayLevel(playerLevel);
     uint8 moblevel = defence ? victim->getLevelForTarget(this) : victim->getLevel(); // if defense than victim == attacker
     /*if (moblevel < greylevel)
         return;*/
@@ -933,7 +933,7 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
 
     chance = chance < 1.0f ? 1.0f : chance; // minimum chance to increase skill is 1%
 
-    LOG_DEBUG("entities.player", "Player::UpdateCombatSkills(defence:{}, playerLevel:{}, moblevel:{}) -> ({}/{}) chance to increase skill is {}\%", defence, playerLevel, moblevel, currentSkillValue, currentSkillMax, chance);
+    LOG_DEBUG("entities.player", "Player::UpdateCombatSkills(defence:{}, playerLevel:{}, moblevel:{}) -> ({}/{}) chance to increase skill is {}", defence, playerLevel, moblevel, currentSkillValue, currentSkillMax, chance);
 
     if (roll_chance_f(chance))
     {

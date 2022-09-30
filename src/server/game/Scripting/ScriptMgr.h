@@ -78,7 +78,6 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
-class CharacterCreateInfo;
 
 enum ArenaTeamInfoType : uint8;
 enum AuraRemoveMode : uint8;

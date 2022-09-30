@@ -68,7 +68,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
         case TYPEID_GAMEOBJECT:
             {
                 LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for GameObject {}", guid.ToString());
-                if (sWorld->getBoolConfig(CONFIG_OBJECT_QUEST_MARKERS))
+                if (CONF_GET_BOOL("Visibility.ObjectQuestMarkers"))
                 {
                     questStatus = _player->GetQuestDialogStatus(questGiver);
                 }

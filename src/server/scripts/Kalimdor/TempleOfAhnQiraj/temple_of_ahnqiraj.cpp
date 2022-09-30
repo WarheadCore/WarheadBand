@@ -263,7 +263,7 @@ struct npc_obsidian_eradicator : public ScriptedAI
                     }
                 }
 
-                Acore::Containers::RandomResize(_targets, 10);
+                Warhead::Containers::RandomResize(_targets, 10);
             }
 
             for (Unit* target : _targets)
@@ -396,7 +396,7 @@ struct npc_obsidian_nullifier : public ScriptedAI
                     }
                 }
 
-                Acore::Containers::RandomResize(_targets, 11);
+                Warhead::Containers::RandomResize(_targets, 11);
             }
 
             for (Unit* target : _targets)

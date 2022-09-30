@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "temple_of_ahnqiraj.h"
+#include "TaskScheduler.h"
 
 ObjectData const creatureData[] =
 {

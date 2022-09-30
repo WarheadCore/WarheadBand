@@ -170,9 +170,9 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 void ScriptMgr::OnFfaPvpStateUpdate(Creature* creature, bool InPvp)
 {
     ExecuteScript<AllCreatureScript>([&](AllCreatureScript* script)
-        {
-            script->OnFfaPvpStateUpdate(creature, InPvp);
-        });
+    {
+        script->OnFfaPvpStateUpdate(creature, InPvp);
+    });
 }
 
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)

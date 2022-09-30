@@ -39,6 +39,7 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
+#include "GameConfig.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
@@ -2810,7 +2811,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         if (ActivateToQuest(target))
                         {
                             dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
-                            if (sWorld->getBoolConfig(CONFIG_OBJECT_SPARKLES))
+                            if (CONF_GET_BOOL("Visibility.ObjectSparkles"))
                                 dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         }
                         else if (targetIsGM)
@@ -2818,7 +2819,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         break;
                     case GAMEOBJECT_TYPE_SPELL_FOCUS:
                     case GAMEOBJECT_TYPE_GENERIC:
-                        if (ActivateToQuest(target) && sWorld->getBoolConfig(CONFIG_OBJECT_SPARKLES))
+                        if (ActivateToQuest(target) && CONF_GET_BOOL("Visibility.ObjectSparkles"))
                             dynFlags |= GO_DYNFLAG_LO_SPARKLE;
                         break;
                     case GAMEOBJECT_TYPE_TRANSPORT:

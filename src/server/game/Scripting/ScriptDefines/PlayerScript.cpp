@@ -868,12 +868,7 @@ bool ScriptMgr::OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_ski
         return !script->OnUpdateFishingSkill(player, skill, zone_skill, chance, roll);
     });
 
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
+    return ReturnValidBool(ret);
 }
 
 bool ScriptMgr::CanAreaExploreAndOutdoor(Player* player)
@@ -1120,9 +1115,9 @@ void ScriptMgr::OnIsFFAPvP(Player* player, bool& result)
 void ScriptMgr::OnFfaPvpStateUpdate(Player* player, bool result)
 {
     ExecuteScript<PlayerScript>([&](PlayerScript* script)
-        {
-            script->OnFfaPvpStateUpdate(player, result);
-        });
+    {
+        script->OnFfaPvpStateUpdate(player, result);
+    });
 }
 
 void ScriptMgr::OnIsPvP(Player* player, bool& result)

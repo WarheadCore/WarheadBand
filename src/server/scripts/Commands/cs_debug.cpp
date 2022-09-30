@@ -822,11 +822,11 @@ public:
             Unit* unit = (*itr)->getTarget();
             if (!unit)
             {
-                handler->PSendSysMessage("   {}.   No Unit  - threat {}", ++count, (*itr)->getThreat());
+                handler->PSendSysMessage("   {}.   No Unit  - threat {}", ++count, (*itr)->GetThreat());
                 continue;
             }
 
-            handler->PSendSysMessage("   {}.   {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->getThreat());
+            handler->PSendSysMessage("   {}.   {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->GetThreat());
         }
 
         auto const& threatList2 = target->GetThreatMgr().GetOfflineThreatList();
@@ -835,11 +835,11 @@ public:
             Unit* unit = (*itr)->getTarget();
             if (!unit)
             {
-                handler->PSendSysMessage("   {}.   [offline] No Unit  - threat {}", ++count, (*itr)->getThreat());
+                handler->PSendSysMessage("   {}.   [offline] No Unit  - threat {}", ++count, (*itr)->GetThreat());
                 continue;
             }
 
-            handler->PSendSysMessage("   {}.   [offline] {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->getThreat());
+            handler->PSendSysMessage("   {}.   [offline] {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->GetThreat());
         }
 
         handler->SendSysMessage("End of threat list.");
@@ -862,12 +862,12 @@ public:
         {
             if (Unit* unit = ref->GetSource()->GetOwner())
             {
-                handler->PSendSysMessage("   {}.   {} {}   ({})  - threat {}", ++count, (ref->isOnline() ? "" : "[offline]"),
-                    unit->GetName(), unit->GetGUID().ToString(), ref->getThreat());
+                handler->PSendSysMessage("   {}.   {} {}   ({})  - threat {}", ++count, (ref->IsOnline() ? "" : "[offline]"),
+                    unit->GetName(), unit->GetGUID().ToString(), ref->GetThreat());
             }
             else
             {
-                handler->PSendSysMessage("   {}.   No Owner  - threat {}", ++count, ref->getThreat());
+                handler->PSendSysMessage("   {}.   No Owner  - threat {}", ++count, ref->GetThreat());
             }
 
             ref = ref->next();

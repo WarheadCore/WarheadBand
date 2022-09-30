@@ -562,12 +562,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
 
     // set starting level
     uint32 start_level = getClass() != CLASS_DEATH_KNIGHT
-                         ? CONF_GET_INT("StartPlayerLevel")
-                         : CONF_GET_INT("StartHeroicPlayerLevel");
+                         ? CONF_GET_UINT("StartPlayerLevel")
+                         : CONF_GET_UINT("StartHeroicPlayerLevel");
 
     if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
     {
-        uint32 gm_level = CONF_GET_INT("GM.StartLevel");
+        uint32 gm_level = CONF_GET_UINT("GM.StartLevel");
         if (gm_level > start_level)
             start_level = gm_level;
     }
@@ -577,8 +577,9 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     InitRunes();
 
     SetUInt32Value(PLAYER_FIELD_COINAGE, getClass() != CLASS_DEATH_KNIGHT
-                                         ? CONF_GET_INT("StartPlayerMoney")
-                                         : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_MONEY));
+                                         ? CONF_GET_UINT("StartPlayerMoney")
+                                         : CONF_GET_UINT("StartHeroicPlayerMoney"));
+
     SetHonorPoints(CONF_GET_INT("StartHonorPoints"));
     SetArenaPoints(CONF_GET_INT("StartArenaPoints"));
 
