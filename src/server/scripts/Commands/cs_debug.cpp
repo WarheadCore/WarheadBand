@@ -811,7 +811,7 @@ public:
         if (!target || target->IsTotem() || target->IsPet())
             return false;
 
-        auto const& threatList = target->GetThreatMgr().getThreatList();
+        auto const& threatList = target->GetThreatMgr().GetThreatList();
         ThreatContainer::StorageType::const_iterator itr;
         uint32 count = 0;
 
@@ -829,7 +829,7 @@ public:
             handler->PSendSysMessage("   {}.   {}   ({})  - threat {}", ++count, unit->GetName(), unit->GetGUID().ToString(), (*itr)->getThreat());
         }
 
-        auto const& threatList2 = target->GetThreatMgr().getOfflineThreatList();
+        auto const& threatList2 = target->GetThreatMgr().GetOfflineThreatList();
         for (itr = threatList2.begin(); itr != threatList2.end(); ++itr)
         {
             Unit* unit = (*itr)->getTarget();

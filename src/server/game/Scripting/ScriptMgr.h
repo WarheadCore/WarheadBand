@@ -78,6 +78,7 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
+class CharacterCreateInfo;
 
 enum ArenaTeamInfoType : uint8;
 enum AuraRemoveMode : uint8;
@@ -284,6 +285,7 @@ public: /* CreatureScript */
     void OnCreatureUpdate(Creature* creature, uint32 diff);
     void OnCreatureAddWorld(Creature* creature);
     void OnCreatureRemoveWorld(Creature* creature);
+    void OnFfaPvpStateUpdate(Creature* creature, bool InPvp);
 
 public: /* GameObjectScript */
     bool OnGossipHello(Player* player, GameObject* go);
@@ -368,6 +370,7 @@ public: /* PlayerScript */
     void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
     void OnPlayerTalentsReset(Player* player, bool noCost);
     void OnPlayerMoneyChanged(Player* player, int32& amount);
+    void OnBeforeLootMoney(Player* player, Loot* loot);
     void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
     bool OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);
     void OnPlayerReputationRankChange(Player* player, uint32 factionID, ReputationRank newRank, ReputationRank oldRank, bool increased);
@@ -455,6 +458,7 @@ public: /* PlayerScript */
     void OnDeleteFromDB(CharacterDatabaseTransaction trans, uint32 guid);
     bool CanRepopAtGraveyard(Player* player);
     void OnGetMaxSkillValue(Player* player, uint32 skill, int32& result, bool IsPure);
+    bool OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_skill, int32 chance, int32 roll);
     bool CanAreaExploreAndOutdoor(Player* player);
     void OnVictimRewardBefore(Player* player, Player* victim, uint32& killer_title, uint32& victim_title);
     void OnVictimRewardAfter(Player* player, Player* victim, uint32& killer_title, uint32& victim_rank, float& honor_f);
@@ -479,6 +483,7 @@ public: /* PlayerScript */
     bool NotAvoidSatisfy(Player* player, DungeonProgressionRequirements const* ar, uint32 target_map, bool report);
     bool NotVisibleGloballyFor(Player* player, Player const* u);
     void OnGetArenaPersonalRating(Player* player, uint8 slot, uint32& result);
+    void OnFfaPvpStateUpdate(Player* player, bool result);
     void OnGetArenaTeamId(Player* player, uint8 slot, uint32& result);
     void OnIsFFAPvP(Player* player, bool& result);
     void OnIsPvP(Player* player, bool& result);
@@ -532,6 +537,7 @@ public: /* AccountScript */
     void OnFailedEmailChange(uint32 accountId);
     void OnPasswordChange(uint32 accountId);
     void OnFailedPasswordChange(uint32 accountId);
+    bool CanAccountCreateCharacter(uint32 accountId, uint8 charRace, uint8 charClass);
 
 public: /* GuildScript */
     void OnGuildAddMember(Guild* guild, Player* player, uint8& plRank);

@@ -65,7 +65,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
     uint32 newRecords = 0;
 
     // Insert sql data into the data array
-    for (auto& row : *result)
+    for (auto const& row : *result)
     {
         uint32 indexValue = row[_sqlIndexPos].Get<uint32>();
         char* dataValue = indexTable[indexValue];
@@ -101,6 +101,7 @@ char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
                     break;
                 case FT_SORT:
                 case FT_NA:
+                case FT_NA_BYTE:
                     break;
                 default:
                     ABORT("Unsupported data type '{}' in table '{}'", *dbcFormat, _sqlTableName);

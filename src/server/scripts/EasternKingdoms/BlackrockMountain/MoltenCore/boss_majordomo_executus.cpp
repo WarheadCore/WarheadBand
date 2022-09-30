@@ -216,6 +216,8 @@ public:
                         majordomoSummonsData[spawn->GetGUID().GetCounter()] = MajordomoAddData(spawn->GetGUID(), spawn->GetEntry(), spawn->GetPosition());
                     }
                 }
+
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
             else
             {

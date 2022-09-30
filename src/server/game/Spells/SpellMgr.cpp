@@ -1969,7 +1969,7 @@ void SpellMgr::LoadSpellProcs()
     LOG_INFO("server.loading", " ");
 }
 
-void SpellMgr::LoadSpellBonusess()
+void SpellMgr::LoadSpellBonuses()
 {
     uint32 oldMSTime = getMSTime();
 
