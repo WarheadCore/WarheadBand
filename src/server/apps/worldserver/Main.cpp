@@ -446,8 +446,11 @@ bool StartDB()
     sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc");
 
     // Enable dynamic connections
-    CharacterDatabase.EnableDynamicConnections();
-    WorldDatabase.EnableDynamicConnections();
+    if (!sConfigMgr->isDryRun())
+    {
+        CharacterDatabase.EnableDynamicConnections();
+        WorldDatabase.EnableDynamicConnections();
+    }
 
     if (!sDatabaseMgr->Load())
         return false;

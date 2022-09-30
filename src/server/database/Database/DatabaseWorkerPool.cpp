@@ -51,7 +51,6 @@
 
 constexpr auto MAX_SYNC_CONNECTIONS = 32;
 constexpr auto MAX_ASYNC_CONNECTIONS = 32;
-constexpr auto MAX_QUEUE_SIZE = 50;
 
 class PingOperation : public AsyncOperation
 {
@@ -439,7 +438,7 @@ void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
     std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
 
     auto allQueueSize{ GetQueueSize() };
-    if (allQueueSize > MAX_QUEUE_SIZE)
+    if (allQueueSize > _maxQueueSize)
     {
         LOG_WARN("db.pool", "Async queue overload. Queue size: {}. Pool name: {}. Connection size: {}", allQueueSize, _poolName, _connections[IDX_ASYNC].size());
         OpenDynamicAsyncConnect();
@@ -591,6 +590,9 @@ void DatabaseWorkerPool::AddTasks()
 {
     if (sConfigMgr->isDryRun())
         return;
+
+    if (_isEnableDynamicConnections)
+        _maxQueueSize = sConfigMgr->GetOption<uint32>("MaxQueueSize", 50);
 
     // DB ping
     _scheduler->Schedule(Minutes{ sConfigMgr->GetOption<uint32>("MaxPingTime", 30) }, [this](TaskContext context)

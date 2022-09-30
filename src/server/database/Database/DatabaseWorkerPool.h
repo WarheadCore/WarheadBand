@@ -224,6 +224,8 @@ public:
     void OpenDynamicAsyncConnect();
     void OpenDynamicSyncConnect();
 
+    inline void SetMaxQueueSize(uint32 size) { _maxQueueSize = size; }
+
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
     void InitPrepareStatement(MySQLConnection* connection);
@@ -249,6 +251,7 @@ private:
     DatabaseType _poolType{ DatabaseType::None };
     std::unique_ptr<TaskScheduler> _scheduler{};
     bool _isEnableDynamicConnections{};
+    uint32 _maxQueueSize{ 50 };
 
 #ifdef WARHEAD_DEBUG
     static inline thread_local bool _warnSyncQueries = false;
