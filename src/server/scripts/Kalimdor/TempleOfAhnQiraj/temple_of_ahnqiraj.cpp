@@ -20,8 +20,8 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
-// #include "MapReference.h"
-// #include "Player.h"
+#include "MapReference.h"
+#include "Player.h"
 
 enum Spells
 {
