@@ -645,3 +645,14 @@ void DatabaseWorkerPool::OpenDynamicSyncConnect()
         ASSERT(connection->PrepareStatements());
     }
 }
+
+void DatabaseWorkerPool::GetPoolInfo(std::function<void(std::string_view)> const& info)
+{
+    info(Warhead::StringFormat("Pool name: {}. Connections count (sync/async): {}/{}", GetPoolName(), _connections[IDX_SYNCH].size(), _connections[IDX_ASYNC].size()));
+    info("Queue info:");
+
+    uint8 queueIndex{};
+    auto allSize{ GetQueueSize() };
+    for (auto const& connection : _connections[IDX_ASYNC])
+        info(Warhead::StringFormat("Index: {}. Size: {}/{}", ++queueIndex, connection->GetQueueSize(), allSize));
+}

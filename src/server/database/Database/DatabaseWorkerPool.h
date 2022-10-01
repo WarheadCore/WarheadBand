@@ -22,6 +22,7 @@
 #include "Duration.h"
 #include "StringFormat.h"
 #include <array>
+#include <functional>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -225,6 +226,8 @@ public:
     void OpenDynamicSyncConnect();
 
     inline void SetMaxQueueSize(uint32 size) { _maxQueueSize = size; }
+
+    void GetPoolInfo(std::function<void(std::string_view)> const& info);
 
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);

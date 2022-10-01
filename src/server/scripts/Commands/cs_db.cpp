@@ -34,7 +34,7 @@ public:
     {
         static ChatCommandTable dbCommandTable =
         {
-            { "queue",                  HandleDBQueueCommand,               SEC_ADMINISTRATOR, Console::Yes },
+            { "info",                   HandleDBInfoCommand,               SEC_ADMINISTRATOR, Console::Yes },
             { "add dynamic connects",   HandleDBAddDynamicConnectsCommand,  SEC_ADMINISTRATOR, Console::Yes },
         };
 
@@ -46,11 +46,28 @@ public:
         return commandTable;
     }
 
-    static bool HandleDBQueueCommand(ChatHandler* handler)
+    static bool HandleDBInfoCommand(ChatHandler* handler)
     {
-        handler->PSendSysMessage("AuthDatabase queue size: {}", AuthDatabase.GetQueueSize());
-        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.GetQueueSize());
-        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.GetQueueSize());
+        AuthDatabase.GetPoolInfo([handler](std::string_view info)
+        {
+            handler->PSendSysMessage("# {}", info);
+        });
+
+        handler->PSendSysMessage("# --");
+
+        CharacterDatabase.GetPoolInfo([handler](std::string_view info)
+        {
+            handler->PSendSysMessage("# {}", info);
+        });
+
+        handler->PSendSysMessage("# --");
+
+        WorldDatabase.GetPoolInfo([handler](std::string_view info)
+        {
+            handler->PSendSysMessage("# {}", info);
+        });
+
+        handler->PSendSysMessage("# --");
         return true;
     }
 
@@ -72,7 +89,7 @@ public:
                 break;
             default:
                 handler->PSendSysMessage("Incorrect db type: {}", dbType);
-                return true;
+                break;
         }
 
         return true;
