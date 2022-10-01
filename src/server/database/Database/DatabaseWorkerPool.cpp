@@ -126,6 +126,9 @@ void DatabaseWorkerPool::Close()
     if (_connections[IDX_ASYNC].empty() && _connections[IDX_SYNCH].empty())
         return;
 
+    // Stop all tasks
+    _scheduler->CancelAll();
+
     LOG_INFO("db.pool", "Closing down DatabasePool '{}' ...", GetDatabaseName());
 
     //! Closes the actually DB connection.
