@@ -96,6 +96,7 @@ void GameLocale::LoadAllLocales()
     // Load new strings
     LoadRaceStrings();
     LoadClassStrings();
+    LoadCommonStrings();
 
     // Load modules strings
     sModuleLocale->Init();
@@ -948,7 +949,7 @@ void GameLocale::LoadCommonStrings()
     QueryResult result = WorldDatabase.Query("SELECT `Entry`, `Locale`, `Content` FROM `string_warhead`");
     if (!result)
     {
-        LOG_WARN("db.query", "> DB table `string_class` is empty");
+        LOG_WARN("db.query", "> DB table `string_warhead` is empty");
         return;
     }
 
@@ -967,7 +968,7 @@ void GameLocale::LoadCommonStrings()
         Warhead::Locale::AddLocaleString(fields[2].Get<std::string_view>(), locale, data.Context);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} common strings in {}", _classStringStore.size(), sw);
+    LOG_INFO("server.loading", ">> Loaded {} common strings in {}", _commonStringStore.size(), sw);
 }
 
 RaceString const* GameLocale::GetRaseString(uint32 id) const
