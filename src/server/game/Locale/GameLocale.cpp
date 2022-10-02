@@ -1087,7 +1087,7 @@ std::string GameLocale::ToTimeString(Microseconds durationTime, int8 indexLoc /*
         AddOut(days, "д ", GetruRUTimeEnding(days, " Дней ", " День ", " Дня "));
 
     if (hours)
-        AddOut(days, "ч ", GetruRUTimeEnding(hours, " Часов ", " Час ", " Часа "));
+        AddOut(hours, "ч ", GetruRUTimeEnding(hours, " Часов ", " Час ", " Часа "));
 
     if (minutes)
         AddOut(minutes, "м ", GetruRUTimeEnding(minutes, " Минут ", " Минуту ", " Минуты "));
@@ -1099,7 +1099,7 @@ std::string GameLocale::ToTimeString(Microseconds durationTime, int8 indexLoc /*
         AddOut(millisecs, "мс ", GetruRUTimeEnding(millisecs, " Милисекунд ", " Милисекунду ", " Милисекунды "));
 
     if (microsecs)
-        AddOut(microsecs, "мкс ", GetruRUTimeEnding(millisecs, " Микросекунд ", " Микросекунду ", " Микросекунды "));
+        AddOut(microsecs, "мкс ", GetruRUTimeEnding(microsecs, " Микросекунд ", " Микросекунду ", " Микросекунды "));
 
     return std::string{ Warhead::String::TrimRight(out) };
 }
