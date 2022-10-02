@@ -432,7 +432,7 @@ void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
     auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
     auto queueSize{ mostFreeConnection->GetQueueSize() };
 
-    if (!queueSize || _connections[IDX_ASYNC].size() == 1)
+    if (!queueSize)
     {
         mostFreeConnection->Enqueue(operation);
         return;
@@ -595,7 +595,10 @@ void DatabaseWorkerPool::AddTasks()
         return;
 
     if (_isEnableDynamicConnections)
+    {
         _maxQueueSize = sConfigMgr->GetOption<uint32>("MaxQueueSize", 50);
+        ASSERT(_maxQueueSize > 0, "Can not be equal to 0");
+    }
 
     // DB ping
     _scheduler->Schedule(Minutes{ sConfigMgr->GetOption<uint32>("MaxPingTime", 30) }, [this](TaskContext context)
