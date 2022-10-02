@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Chat.h"
+#include "GameLocale.h"
 #include "GameTime.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
@@ -35,7 +36,8 @@ public:
         if (!MOD_CONF_GET_BOOL("PlayerInfoAtLogin.Enable"))
             return;
 
-        uint8 accountLevel = static_cast<uint8>(player->GetSession()->GetSecurity());
+        auto accountLevel = static_cast<uint8>(player->GetSession()->GetSecurity());
+        auto localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
 
         // #1. Prefix
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_PREFIX");
@@ -54,7 +56,7 @@ public:
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_ONLINE", sWorld->GetPlayerCount(), sWorld->GetMaxActiveSessionCount());
 
         // #6. World uptime
-        sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_UPTIME", Warhead::Time::ToTimeString(GameTime::GetUptime()));
+        sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_UPTIME", GameLocale::ToTimeString(GameTime::GetUptime(), localeIndex, false));
 
         // #7. Prefix again
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_PREFIX");

@@ -34,6 +34,34 @@
 #include "StopWatch.h"
 #include "World.h"
 
+namespace TimeDiff // in us
+{
+    constexpr uint64 MILLISECONDS = 1000;
+    constexpr uint64 SECONDS = 1000 * MILLISECONDS;
+    constexpr uint64 MINUTES = 60 * SECONDS;
+    constexpr uint64 HOURS = 60 * MINUTES;
+    constexpr uint64 DAYS = 24 * HOURS;
+}
+
+constexpr std::string_view GetruRUTimeEnding(uint64 number, std::string_view ending0, std::string_view ending1, std::string_view ending2)
+{
+    uint16 num100 = number % 100;
+    uint16 num10 = number % 10;
+
+    if (num100 >= 5 && num100 <= 20)
+        return ending0; // дней
+    else if (num10 == 0)
+        return ending0; // дней
+    else if (num10 == 1)
+        return ending1; // день
+    else if (num10 >= 2 && num10 <= 4)
+        return ending2; // дня
+    else if (num10 >= 5 && num10 <= 9)
+        return ending0; // дней
+
+    return ending2; // дня
+}
+
 GameLocale* GameLocale::instance()
 {
     static GameLocale instance;
@@ -912,6 +940,36 @@ void GameLocale::LoadClassStrings()
     LOG_INFO("server.loading", ">> Loaded {} Class strings in {}", _classStringStore.size(), sw);
 }
 
+void GameLocale::LoadCommonStrings()
+{
+    StopWatch sw;
+    _commonStringStore.clear();                              // need for reload case
+
+    QueryResult result = WorldDatabase.Query("SELECT `Entry`, `Locale`, `Content` FROM `string_warhead`");
+    if (!result)
+    {
+        LOG_WARN("db.query", "> DB table `string_class` is empty");
+        return;
+    }
+
+    _commonStringStore.rehash(result->GetRowCount());
+
+    for (auto const& fields : *result)
+    {
+        auto entry = fields[0].Get<std::string>();
+
+        LocaleConstant locale = GetLocaleByName(fields[1].Get<std::string>());
+
+        /*if (CONF_GET_BOOL("Language.SupportOnlyDefault") && locale != GetDBCLocaleIndex())
+            continue;*/
+
+        auto& data = _commonStringStore[entry];
+        Warhead::Locale::AddLocaleString(fields[2].Get<std::string_view>(), locale, data.Context);
+    }
+
+    LOG_INFO("server.loading", ">> Loaded {} common strings in {}", _classStringStore.size(), sw);
+}
+
 RaceString const* GameLocale::GetRaseString(uint32 id) const
 {
     auto const& itr = _raceStringStore.find(id);
@@ -922,6 +980,12 @@ ClassString const* GameLocale::GetClassString(uint32 id) const
 {
     auto const& itr = _classStringStore.find(id);
     return itr != _classStringStore.end() ? &itr->second : nullptr;
+}
+
+CommonString const* GameLocale::GetCommonStringLocale(std::string_view entry) const
+{
+    auto const& itr = _commonStringStore.find(std::string{ entry });
+    return itr != _commonStringStore.end() ? &itr->second : nullptr;
 }
 
 std::string const GameLocale::GetItemNameLocale(uint32 itemID, int8 index_loc /*= DEFAULT_LOCALE*/) const
@@ -985,4 +1049,56 @@ std::string const GameLocale::GetCreatureNamelocale(uint32 creatureEntry, int8 i
         name = "Unknown creature";
 
     return name;
+}
+
+std::string GameLocale::ToTimeString(Microseconds durationTime, int8 indexLoc /*= DEFAULT_LOCALE*/, bool isShortFormat /*= true*/)
+{
+    if (indexLoc != LOCALE_ruRU)
+        return Warhead::Time::ToTimeString(durationTime, 3, isShortFormat ? TimeFormat::ShortText : TimeFormat::FullText);
+
+    uint64 microsecs = durationTime.count() % 1000;
+    uint64 millisecs = (durationTime.count() / TimeDiff::MILLISECONDS) % 1000;
+    uint64 secs = (durationTime.count() / TimeDiff::SECONDS) % 60;
+    uint64 minutes = (durationTime.count() / TimeDiff::MINUTES) % 60;
+    uint64 hours = (durationTime.count() / TimeDiff::HOURS) % 24;
+    uint64 days = durationTime.count() / TimeDiff::DAYS;
+
+    std::string out;
+    uint8 count = 0;
+    bool isFirst = false;
+
+    auto AddOut = [&out, &count, isShortFormat](uint32 timeCount, std::string_view shortText, std::string_view fullText)
+    {
+        if (count >= 3)
+            return;
+
+        out.append(Warhead::ToString(timeCount));
+
+        if (isShortFormat)
+            out.append(shortText);
+        else
+            out.append(fullText);
+
+        count++;
+    };
+
+    if (days)
+        AddOut(days, "д ", GetruRUTimeEnding(days, " Дней ", " День ", " Дня "));
+
+    if (hours)
+        AddOut(days, "ч ", GetruRUTimeEnding(hours, " Часов ", " Час ", " Часа "));
+
+    if (minutes)
+        AddOut(minutes, "м ", GetruRUTimeEnding(minutes, " Минут ", " Минуту ", " Минуты "));
+
+    if (secs)
+        AddOut(secs, "с ", GetruRUTimeEnding(secs, " Секунд ", " Секунду ", " Секунды "));
+
+    if (millisecs)
+        AddOut(millisecs, "мс ", GetruRUTimeEnding(millisecs, " Милисекунд ", " Милисекунду ", " Милисекунды "));
+
+    if (microsecs)
+        AddOut(microsecs, "мкс ", GetruRUTimeEnding(millisecs, " Микросекунд ", " Микросекунду ", " Микросекунды "));
+
+    return std::string{ Warhead::String::TrimRight(out) };
 }
