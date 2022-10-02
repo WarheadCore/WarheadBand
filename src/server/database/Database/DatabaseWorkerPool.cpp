@@ -433,40 +433,34 @@ void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
     auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
     auto queueSize{ mostFreeConnection->GetQueueSize() };
 
-    if (!queueSize || !_isEnableDynamicConnections)
+    if (!_isEnableDynamicConnections || queueSize <= _maxQueueSize)
     {
         mostFreeConnection->Enqueue(operation);
         return;
     }
 
-    sAsyncCallbackMgr->AddAsyncCallback([this, operation]()
+    std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
+
+    auto allQueueSize{ GetQueueSize() };
+    if (allQueueSize > _maxQueueSize)
     {
-        std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
+        LOG_WARN("db.pool", "Async queue overload. Queue size: {}. Pool name: {}. Connection size: {}", allQueueSize, _poolName, _connections[IDX_ASYNC].size());
+        OpenDynamicAsyncConnect();
+    }
 
-        auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
-        auto queueSize{ mostFreeConnection->GetQueueSize() };
+    std::lock_guard<std::mutex> guardOpenConnect(_openAsyncConnectMutex);
 
-        auto allQueueSize{ GetQueueSize() };
-        if (allQueueSize > _maxQueueSize)
-        {
-            LOG_WARN("db.pool", "Async queue overload. Queue size: {}. Pool name: {}. Connection size: {}", allQueueSize, _poolName, _connections[IDX_ASYNC].size());
-            OpenDynamicAsyncConnect();
-        }
+    for (auto const& connection : _connections[IDX_ASYNC])
+    {
+        auto qSize{ connection->GetQueueSize() };
+        if (qSize >= queueSize)
+            continue;
 
-        std::lock_guard<std::mutex> guardOpenConnect(_openAsyncConnectMutex);
+        mostFreeConnection = connection.get();
+        queueSize = qSize;
+    }
 
-        for (auto const& connection : _connections[IDX_ASYNC])
-        {
-            auto qSize{ connection->GetQueueSize() };
-            if (qSize >= queueSize)
-                continue;
-
-            mostFreeConnection = connection.get();
-            queueSize = qSize;
-        }
-
-        mostFreeConnection->Enqueue(operation);
-    });
+    mostFreeConnection->Enqueue(operation);
 }
 
 void DatabaseWorkerPool::DirectCommitTransaction(SQLTransaction transaction)
