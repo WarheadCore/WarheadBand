@@ -100,6 +100,24 @@ if(TSAN)
     message(STATUS "Clang: Enabled Thread Sanitizer TSan")
 endif()
 
+if (ASAN)
+  target_compile_options(warhead-compile-option-interface
+    INTERFACE
+    -fno-omit-frame-pointer
+    -fsanitize=address
+    -fsanitize-recover=address
+    -fsanitize-address-use-after-scope)
+
+  target_link_options(warhead-compile-option-interface
+    INTERFACE
+    -fno-omit-frame-pointer
+    -fsanitize=address
+    -fsanitize-recover=address
+    -fsanitize-address-use-after-scope)
+
+  message(STATUS "Clang: Enabled Address Sanitizer")
+endif()
+
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress gsoap warnings on Unix systems.
 target_compile_options(warhead-compile-option-interface
