@@ -231,11 +231,11 @@ T Field::GetData() const
     {
         std::string_view tableName{ meta->TableName };
 
-        if (!tableName.empty() && tableName.size() > 4)
+        if (!tableName.empty() && tableName.size() > 4 && tableName.substr(tableName.length() - 4) == "_dbc")
         {
             auto signedResult = Warhead::StringTo<int32>(data.value);
 
-            if (signedResult && !result && tableName.substr(tableName.length() - 4) == "_dbc")
+            if (signedResult && !result)
             {
                 LOG_DEBUG("db.query", "> Found incorrect value '{}' for type '{}' in _dbc table.", data.value, typeid(T).name());
                 LOG_DEBUG("db.query", "> Table name '{}'. Field name '{}'. Try return int32 value", meta->TableName, meta->Name);

@@ -36,9 +36,6 @@ public:
         if (!MOD_CONF_GET_BOOL("PlayerInfoAtLogin.Enable"))
             return;
 
-        auto accountLevel = static_cast<uint8>(player->GetSession()->GetSecurity());
-        auto localeIndex = static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex());
-
         // #1. Prefix
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_PREFIX");
 
@@ -46,7 +43,7 @@ public:
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_HI", player->GetName());
 
         // #3. Account level if > 0
-        if (accountLevel)
+        if (auto accountLevel = static_cast<uint8>(player->GetSession()->GetSecurity()))
             sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_GM_LEVEL", accountLevel);
 
         // #4. IP address
@@ -56,7 +53,7 @@ public:
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_ONLINE", sWorld->GetPlayerCount(), sWorld->GetMaxActiveSessionCount());
 
         // #6. World uptime
-        sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_UPTIME", GameLocale::ToTimeString(GameTime::GetUptime(), localeIndex, false));
+        sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_UPTIME", GameLocale::ToTimeString(GameTime::GetUptime(), player->GetSession()->GetSessionDbLocaleIndex(), false));
 
         // #7. Prefix again
         sModuleLocale->SendPlayerMessage(player, "PIAL_LOCALE_MSG_PREFIX");

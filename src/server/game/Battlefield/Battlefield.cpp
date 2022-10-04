@@ -805,7 +805,9 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
         return nullptr;
     }
 
-    creature->SetFaction(BattlefieldFactions[teamId]);
+    if (teamId != TEAM_NEUTRAL)
+        creature->SetFaction(BattlefieldFactions[teamId]);
+
     creature->SetHomePosition(x, y, z, o);
 
     // force using DB speeds -- do we really need this?

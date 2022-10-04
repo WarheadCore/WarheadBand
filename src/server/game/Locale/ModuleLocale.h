@@ -75,8 +75,8 @@ public:
         return Warhead::StringFormat(*GetModuleString(entry, localeIndex), std::forward<Args>(args)...);
     }
 
-    void SendPlayerMessageFmt(Player* player, std::function<std::string_view(uint8)> const& msg);
-    void SendGlobalMessageFmt(bool gmOnly, std::function<std::string_view(uint8)> const& msg);
+    void SendPlayerMessageFmt(Player* player, std::function<std::string(uint8)> const& msg);
+    void SendGlobalMessageFmt(bool gmOnly, std::function<std::string(uint8)> const& msg);
 
     // Send localized message to player
     template<typename... Args>
