@@ -598,7 +598,7 @@ void WorldSocket::LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex
 
 void WorldSocket::SendPacketAndLogOpcode(WorldPacket const& packet)
 {
-    if (sLog->ShouldLog("network.opcode", LogLevel::LOG_LEVEL_TRACE))
+    if (sLog->ShouldLog("network.opcode", Warhead::LogLevel::Trace))
     {
         if (_nodeInfo->Type == NodeType::Realm)
             LOG_TRACE("network.opcode", "Realm->Player: {} {}", GetRemoteIpAddress().to_string(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())));
@@ -808,11 +808,11 @@ void WorldSocket::HandleAuthSessionFromNode(WorldPacket& recvPacket)
     recvPacket >> accountName;
 
     // Get the account information from the auth database
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->SetData(0, int32(realm.Id.Realm));
     stmt->SetData(1, accountName);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionFromNodeCallback, this, accountName, std::placeholders::_1)));
+    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionFromNodeCallback, this, accountName, std::placeholders::_1)));
 }
 
 void WorldSocket::HandleAuthSessionFromNodeCallback(std::string accountName, PreparedQueryResult result)
@@ -868,7 +868,7 @@ void WorldSocket::HandleAuthSessionFromNodeCallback(std::string accountName, Pre
     _authed = true;
 
     _worldSession = new WorldSession(account.Id, std::move(accountName), shared_from_this(), account.Security,
-        account.Expansion, account.Locale, account.Recruiter, account.IsRectuiter, account.Security ? true : false, account.TotalTime);
+        account.Expansion, account.Locale, account.Recruiter, account.IsRectuiter, account.Security != 0, account.TotalTime);
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)

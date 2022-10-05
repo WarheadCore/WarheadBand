@@ -20,7 +20,7 @@
 
 #include "AsyncCallbackProcessor.h"
 #include "CharacterCache.h"
-#include "DiscordClient.h"
+//#include "DiscordClient.h"
 #include "ExternalMail.h"
 #include "GameLocale.h"
 #include "Log.h"
@@ -300,8 +300,8 @@ private:
 
     inline void SendNotificationItem(std::string_view playerName, std::string_view itemName, uint32 itemCount)
     {
-        if (!sDiscord->IsEnable() || !_discordShannelID)
-            return;
+//        if (!sDiscord->IsEnable() || !_discordShannelID)
+//            return;
 
         //auto color = DiscordMessageColor::Indigo;
         //auto title = "Покупка в игровом магазине";
@@ -317,8 +317,8 @@ private:
 
     inline void SendNotification(std::string_view playerName, std::string_view desc)
     {
-        if (!sDiscord->IsEnable() || !_discordShannelID)
-            return;
+//        if (!sDiscord->IsEnable() || !_discordShannelID)
+//            return;
 
         //auto color = DiscordMessageColor::Indigo;
         //auto title = "Покупка в игровом магазине";

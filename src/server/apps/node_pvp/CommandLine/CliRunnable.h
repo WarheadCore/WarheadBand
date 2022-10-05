@@ -15,13 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#ifndef __CLIRUNNABLE_H
+#define __CLIRUNNABLE_H
 
-void AddSC_DiscordClient();
-
-// Add all
-void AddDiscordScripts()
-{
-    AddSC_DiscordClient();
-}
+/// Command Line Interface handling thread
+void CliThread();
+#endif

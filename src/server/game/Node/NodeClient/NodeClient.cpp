@@ -192,7 +192,7 @@ NodeClient::ReadDataHandlerResult NodeClient::ReadDataHandler()
                 return ReadDataHandlerResult::Error;
             }
 
-            LOG_ERROR("node", "{}", __FUNCTION__);
+            LOG_INFO("node", "{}", __FUNCTION__);
             return ReadDataHandlerResult::Ok;
         }
     }

@@ -65,6 +65,13 @@
 RealmID = 1
 
 #
+#    Node.ID
+#        Description: Node id
+#        Default: 3
+
+Node.ID = 3
+
+#
 #    DataDir
 #        Description: Data directory setting.
 #        Important:   DataDir needs to be quoted, as the string might contain space characters.
@@ -88,6 +95,7 @@ LogsDir = ""
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
 #    DbcDatabaseInfo
+#    NodeDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -99,6 +107,7 @@ LogsDir = ""
 #                     "127.0.0.1;3306;warhead;warhead;warhead_world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_characters" - (CharacterDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_dbc"        - (DbcDatabaseInfo)
+#                     "127.0.0.1;3306;warhead;warhead;warhead_node"        - (NodeDatabaseInfo)
 #
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
@@ -108,6 +117,7 @@ AuthDatabaseInfo       = "127.0.0.1;3306;warhead;warhead;warhead_auth"
 WorldDatabaseInfo      = "127.0.0.1;3306;warhead;warhead;warhead_world"
 CharactersDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
 DbcDatabaseInfo        = "127.0.0.1;3306;warhead;warhead;warhead_dbc"
+NodeDatabaseInfo       = "127.0.0.1;3306;warhead;warhead;warhead_node"
 
 #
 #    MaxQueueSize

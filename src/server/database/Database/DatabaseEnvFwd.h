@@ -40,7 +40,8 @@ enum class DatabaseType : uint8
     Character   = 2,
     World       = 4,
     Dbc         = 8,
-    All   = Auth | Character | World | Dbc
+    Node         = 16,
+    All   = Auth | Character | World | Dbc | Node
 };
 
 class Field;

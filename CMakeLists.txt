@@ -49,7 +49,6 @@ include(ConfigureModules)
 include(ConfigureApplications)
 include(ConfigureTools)
 include(DynamicLibInstall)
-include(GenerateNodeApplication)
 
 # some utils for cmake
 include(deps/acore/cmake-utils/utils.cmake)

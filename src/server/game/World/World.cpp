@@ -566,6 +566,8 @@ void World::SetInitialWorldSettings()
     ///- Server startup begin
     StopWatch sw;
 
+    auto const nodeType = sNodeMgr->GetThisNodeType();
+
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime().count());
 
@@ -618,16 +620,19 @@ void World::SetInitialWorldSettings()
     ///- Update the realm entry in the database with the realm type from the config file
     //No SQL injection as values are treated as integers
 
-    // not send custom type REALM_FFA_PVP to realm list
-    uint32 server_type;
-    if (IsFFAPvPRealm())
-        server_type = REALM_TYPE_PVP;
-    else
-        server_type = CONF_GET_INT("GameType");
+    if (nodeType == NodeType::Realm)
+    {
+        // not send custom type REALM_FFA_PVP to realm list
+        uint32 server_type;
+        if (IsFFAPvPRealm())
+            server_type = REALM_TYPE_PVP;
+        else
+            server_type = CONF_GET_INT("GameType");
 
-    uint32 realm_zone = CONF_GET_INT("RealmZone");
+        uint32 realm_zone = CONF_GET_INT("RealmZone");
 
-    AuthDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+        AuthDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+    }
 
     ///- Custom Hook for loading DB items
     sScriptMgr->OnLoadCustomDatabaseTable();
@@ -1243,11 +1248,13 @@ void World::SetInitialWorldSettings()
 
     std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
+    auto const& nodeInfo = sNodeMgr->GetThisNodeInfo();
+
     LOG_INFO("server.loading", " ");
-    LOG_INFO("server.loading", "World initialized in {}", startupDuration);
+    LOG_INFO("server.loading", "Node {} initialized in {}", nodeInfo->Name, startupDuration);
     LOG_INFO("server.loading", " ");
 
-    METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
+    METRIC_EVENT("events", "Node initialized", "World initialized in " + startupDuration);
 }
 
 void World::DetectDBCLang()

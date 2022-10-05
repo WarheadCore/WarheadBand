@@ -15,12 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NodeDatabase.h"
-
-NodeDatabasePool NodeDatabase;
-
-void NodeDatabasePool::DoPrepareStatements()
-{
-    PrepareStatement(NODE_SEL_NODE_INFO, "SELECT `ID`, `Type`, `IP`, `WorldPort`, `NodePort`, `Name` FROM `node_info`", ConnectionFlags::Sync);
-}
-
+#include "Common.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldSocket.h"

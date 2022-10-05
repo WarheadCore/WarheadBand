@@ -60,6 +60,10 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
+#include "NodeMgr.h"
+#include "NodeSocketMgr.h"
+#include "NodeSocket.h"
+
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 #include <boost/dll/shared_library.hpp>
@@ -79,7 +83,7 @@ int m_ServiceStatus = -1;
 #endif
 
 #ifndef _WARHEAD_CORE_CONFIG
-#define _WARHEAD_CORE_CONFIG "worldserver.conf"
+#define _WARHEAD_CORE_CONFIG "node_pvp.conf"
 #endif
 
 class FreezeDetector
@@ -121,7 +125,6 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [
 /// Launch the Warhead server
 int main(int argc, char** argv)
 {
-    Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Warhead::AbortHandler);
 
     // Command line parsing
@@ -194,7 +197,7 @@ int main(int argc, char** argv)
     // Init all logs
     sLog->Initialize();
 
-    Warhead::Logo::Show("worldserver",
+    Warhead::Logo::Show(
         [](std::string_view text)
         {
             LOG_INFO("server.worldserver", text);
@@ -285,6 +288,9 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
+    // Init node info
+    sNodeMgr->Initialize();
+
     // set server offline (not connectable)
     AuthDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
@@ -344,18 +350,27 @@ int main(int argc, char** argv)
     uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
     std::string worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
 
+    // Launch the node_pvp listener socket
     int networkThreads = sConfigMgr->GetOption<int32>("Network.Threads", 1);
-
     if (networkThreads <= 0)
     {
-        LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        LOG_ERROR("server", "Network.Threads must be greater than 0");
         World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
+    auto const& nodeInfo = sNodeMgr->GetThisNodeInfo();
+
+    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, nodeInfo->IP, nodeInfo->WorldPort, networkThreads))
     {
-        LOG_ERROR("server.worldserver", "Failed to initialize network");
+        LOG_ERROR("server", "Failed to initialize world network");
+        World::StopNow(ERROR_EXIT_CODE);
+        return 1;
+    }
+
+    if (!sNodeSocketMgr.StartWorldNetwork(*ioContext, nodeInfo->IP, nodeInfo->NodePort, networkThreads))
+    {
+        LOG_ERROR("server", "Failed to initialize node network");
         World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
@@ -366,6 +381,7 @@ int main(int argc, char** argv)
         sWorld->UpdateSessions(1);      // real players unload required UpdateSessions call
 
         sWorldSocketMgr.StopNetwork();
+        sNodeSocketMgr.StopNetwork();
 
         ///- Clean database before leaving
         ClearOnlineAccounts();
@@ -444,6 +460,7 @@ bool StartDB()
     sDatabaseMgr->AddDatabase(CharacterDatabase, "Characters");
     sDatabaseMgr->AddDatabase(WorldDatabase, "World");
     sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc");
+    sDatabaseMgr->AddDatabase(NodeDatabase, "Node");
 
     // Enable dynamic connections
     if (!sConfigMgr->isDryRun())

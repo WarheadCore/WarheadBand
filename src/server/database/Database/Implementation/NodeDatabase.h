@@ -18,7 +18,7 @@
 #ifndef _NODE_DATABASE_H
 #define _NODE_DATABASE_H
 
-#include "MySQLConnection.h"
+#include "DatabaseWorkerPool.h"
 
 enum NodeDatabaseStatements : uint32
 {
@@ -33,18 +33,17 @@ enum NodeDatabaseStatements : uint32
     MAX_NODE_DATABASE_STATEMENTS
 };
 
-class WH_DATABASE_API NodeDatabaseConnection : public MySQLConnection
+class WH_DATABASE_API NodeDatabasePool : public DatabaseWorkerPool
 {
 public:
-    using Statements = NodeDatabaseStatements;
-
-    //- Constructors for sync and async connections
-    NodeDatabaseConnection(MySQLConnectionInfo& connInfo);
-    NodeDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo);
-    ~NodeDatabaseConnection() override;
+    NodeDatabasePool() : DatabaseWorkerPool(DatabaseType::Node) { }
+    ~NodeDatabasePool() = default;
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;
 };
+
+/// Accessor to the dbc database
+WH_DATABASE_API extern NodeDatabasePool NodeDatabase;
 
 #endif

@@ -66,7 +66,7 @@ void NodeSession::QueuePacket(WorldPacket const& packet)
 /// Logging helper for unexpected opcodes
 void NodeSession::LogUnprocessedTail(WorldPacket* packet)
 {
-    if (!sLog->ShouldLog("node", LogLevel::LOG_LEVEL_TRACE) || packet->rpos() >= packet->wpos())
+    if (!sLog->ShouldLog("node", Warhead::LogLevel::Trace) || packet->rpos() >= packet->wpos())
         return;
 
     LOG_TRACE("node", "Unprocessed tail data (read stop at {} from {}) NodeCode {} from {}",
@@ -95,7 +95,7 @@ bool NodeSession::Update()
         catch (ByteBufferException const&)
         {
             LOG_ERROR("network", "NodeSession::Update ByteBufferException occured while parsing a packet (nodeCode: {}) from client {}, id={}. Skipped packet.", packet->GetOpcode(), GetRemoteAddress(), GetNodeId());
-            if (sLog->ShouldLog("network", LogLevel::LOG_LEVEL_DEBUG))
+            if (sLog->ShouldLog("network", Warhead::LogLevel::Debug))
             {
                 LOG_DEBUG("network", "Dumping error causing packet:");
                 packet->hexlike();

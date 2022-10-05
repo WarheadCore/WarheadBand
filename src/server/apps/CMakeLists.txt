@@ -112,7 +112,7 @@ foreach(APPLICATION_NAME ${APPLICATIONS_BUILD_LIST})
   if (WIN32)
     list(APPEND APP_PRIVATE_SOURCES ${winDebugging})
 
-    if (${APPLICATION_NAME} MATCHES "worldserver")
+    if (${APPLICATION_NAME} MATCHES "node_")
       list(APPEND APP_PRIVATE_SOURCES ${winService})
     endif()
 
@@ -135,7 +135,7 @@ foreach(APPLICATION_NAME ${APPLICATIONS_BUILD_LIST})
     target_link_libraries(${APP_PROJECT_NAME}
       PUBLIC
         shared)
-  elseif(${APP_PROJECT_NAME} MATCHES "worldserver")
+  elseif(${APP_PROJECT_NAME} MATCHES "node_")
     target_link_libraries(${APP_PROJECT_NAME}
       PUBLIC
         modules

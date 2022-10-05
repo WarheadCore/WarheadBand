@@ -15,12 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NodeDatabase.h"
+#ifndef __CLIRUNNABLE_H
+#define __CLIRUNNABLE_H
 
-NodeDatabasePool NodeDatabase;
-
-void NodeDatabasePool::DoPrepareStatements()
-{
-    PrepareStatement(NODE_SEL_NODE_INFO, "SELECT `ID`, `Type`, `IP`, `WorldPort`, `NodePort`, `Name` FROM `node_info`", ConnectionFlags::Sync);
-}
-
+/// Command Line Interface handling thread
+void CliThread();
+#endif

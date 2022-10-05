@@ -29,5 +29,6 @@
 #include "CharacterDatabase.h"
 #include "DBCDatabase.h"
 #include "WorldDatabase.h"
+#include "NodeDatabase.h"
 
 #endif
