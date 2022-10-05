@@ -110,6 +110,10 @@
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
+#include "NodeMgr.h"
+#include "ClientSocketMgr.h"
+#include "NodeCodes.h"
+
 namespace
 {
     TaskScheduler playersSaveScheduler;
@@ -327,9 +331,11 @@ void World::AddSession_(WorldSession* s)
         return;
     }
 
-    s->SendAuthResponse(AUTH_OK, true);
-
-    FinalizePlayerWorldSession(s);
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+    {
+        s->SendAuthResponse(AUTH_OK, true);
+        FinalizePlayerWorldSession(s);
+    }
 
     UpdateMaxSessionCounters();
 }
@@ -1131,6 +1137,15 @@ void World::SetInitialWorldSettings()
 
     LOG_INFO("server.loading", "Initializing Opcodes...");
     opcodeTable.Initialize();
+
+    LOG_INFO("server.loading", "Initializing Node codes...");
+    opcodeTable.InitializeNode();
+
+    if (nodeType == NodeType::Realm)
+    {
+        //LOG_INFO("server.loading", "Initializing Node codes...");
+        nodeCodeTable.Initialize();
+    }
 
     LOG_INFO("server.loading", "Starting Arena Season...");
     LOG_INFO("server.loading", " ");

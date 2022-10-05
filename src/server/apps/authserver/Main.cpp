@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     // Init logging
     sLog->Initialize();
 
-    Warhead::Logo::Show("authserver",
+    Warhead::Logo::Show(
         [](std::string_view text)
         {
             LOG_INFO("server.authserver", text);

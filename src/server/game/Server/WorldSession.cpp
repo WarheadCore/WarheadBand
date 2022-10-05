@@ -58,6 +58,10 @@
 #include "WorldSocket.h"
 #include <zlib.h>
 
+#include "ClientSocketMgr.h"
+#include "NodePktHeader.h"
+#include "NodeMgr.h"
+
 namespace
 {
     std::string const DefaultPlayerName = "<none>";
@@ -106,7 +110,6 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
     return !player->IsInWorld();
 }
 
-/// WorldSession constructor
 WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, LocaleConstant locale, uint32 recruiter, bool isARecruiter, bool skipQueue, uint32 TotalTime) :
     m_timeOutTime(0),
     _lastAuctionListItemsMSTime(0),
@@ -114,7 +117,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     AntiDOS(this),
     m_GUIDLow(0),
     _player(nullptr),
-    m_Socket(sock),
+    _socket(sock),
     _security(sec),
     _skipQueue(skipQueue),
     _accountId(id),
@@ -154,6 +157,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
         ResetTimeOutTime(false);
         AuthDatabase.Execute("UPDATE account SET online = 1 WHERE id = {};", GetAccountId()); // One-time query
     }
+
+    _nodeInfo = std::make_unique<NodeInfo>(sNodeMgr->GetThisNodeInfo());
 }
 
 /// WorldSession destructor
@@ -168,11 +173,14 @@ WorldSession::~WorldSession()
         LogoutPlayer(true);
 
     /// - If have unclosed socket, close it
-    if (m_Socket)
+    if (_socket)
     {
-        m_Socket->CloseSocket();
-        m_Socket = nullptr;
+        _socket->CloseSocket();
+        _socket = nullptr;
     }
+
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm)
+        sClientSocketMgr->DisconnectAccount(GetAccountId());
 
     ///- empty incoming packet queue
     WorldPacket* packet = nullptr;
@@ -181,6 +189,8 @@ WorldSession::~WorldSession()
 
     if (GetShouldSetOfflineInDB())
         AuthDatabase.Execute("UPDATE account SET online = 0 WHERE id = {};", GetAccountId());     // One-time query
+
+    LOG_WARN("node", "{}", __FUNCTION__);
 }
 
 std::string const& WorldSession::GetPlayerName() const
@@ -219,10 +229,10 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         return;
     }
 
-    if (!m_Socket)
+    if (!_socket)
         return;
 
-#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS) && defined(WARHEAD_DEBUG)
+#ifdef WARHEAD_DEBUG
     // Code for network use statistic
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
@@ -256,15 +266,32 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketCount = 1;
         sendLastPacketBytes = packet->wpos();               // wpos is real written size
     }
-#endif                                                      // !WARHEAD_DEBUG
+#endif // !WARHEAD_DEBUG
 
     if (!sScriptMgr->CanPacketSend(this, *packet))
     {
         return;
     }
 
-    LOG_TRACE("network.opcode", "S->C: {} {}", GetPlayerInfo(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())));
-    m_Socket->SendPacket(*packet);
+    if (packet->GetOpcode() == NUM_MSG_TYPES)
+    {
+        LOG_ERROR("network.opcode", "{} send incorrect opcode NUM_MSG_TYPES", GetPlayerInfo());
+        return;
+    }
+
+    if (packet->GetOpcode() == NUM_NODE_MSG_TYPES)
+    {
+        LOG_ERROR("network.opcode", "{} send incorrect node code NUM_NODE_MSG_TYPES", GetPlayerInfo());
+        return;
+    }
+
+    if (sNodeMgr->GetThisNodeType() == NodeType::Realm && _nodeInfo->Type != NodeType::Realm)
+        SendPacketToNode(*packet);
+    else
+    {
+        LOG_DEBUG("network.opcode", "{}->{}: {} {}", sNodeMgr->GetThisNodeInfo()->Name, _nodeInfo->Name, GetPlayerInfo(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())));
+        _socket->SendPacket(*packet);
+    }
 }
 
 /// Add an incoming packet to the queue
@@ -298,8 +325,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     ///- Before we process anything:
     /// If necessary, kick the player because the client didn't send anything for too long
     /// (or they've been idling in character select)
-    if (CONF_GET_BOOL("CloseIdleConnections") && IsConnectionIdle() && m_Socket)
-        m_Socket->CloseSocket();
+    if (CONF_GET_BOOL("CloseIdleConnections") && IsConnectionIdle() && _socket)
+        _socket->CloseSocket();
 
     if (updater.ProcessUnsafe())
         UpdateTimeOutTime(diff);
@@ -318,7 +345,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     constexpr uint32 MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE = 150;
 
-    while (m_Socket && _recvQueue.next(packet, updater))
+    while (_socket && _recvQueue.next(packet, updater))
     {
         OpcodeClient opcode = static_cast<OpcodeClient>(packet->GetOpcode());
         ClientOpcodeHandler const* opHandle = opcodeTable[opcode];
@@ -478,7 +505,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessUnsafe())
     {
-        if (m_Socket && m_Socket->IsOpen() && _warden)
+        if (_socket && _socket->IsOpen() && _warden)
         {
             _warden->Update(diff);
         }
@@ -488,15 +515,15 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             LogoutPlayer(true);
         }
 
-        if (m_Socket && !m_Socket->IsOpen())
+        if (_socket && !_socket->IsOpen())
         {
             if (GetPlayer() && _warden)
                 _warden->Update(diff);
 
-            m_Socket = nullptr;
+            _socket = nullptr;
         }
 
-        if (!m_Socket)
+        if (!_socket)
         {
             return false;
         }
@@ -507,9 +534,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
 bool WorldSession::HandleSocketClosed()
 {
-    if (m_Socket && !m_Socket->IsOpen() && !IsKicked() && GetPlayer() && !PlayerLogout() && GetPlayer()->m_taxi.empty() && GetPlayer()->IsInWorld() && !World::IsStopped())
+    if (_socket && !_socket->IsOpen() && !IsKicked() && GetPlayer() && !PlayerLogout() && GetPlayer()->m_taxi.empty() && GetPlayer()->IsInWorld() && !World::IsStopped())
     {
-        m_Socket = nullptr;
+        _socket = nullptr;
         GetPlayer()->TradeCancel(false);
         return true;
     }
@@ -519,13 +546,13 @@ bool WorldSession::HandleSocketClosed()
 
 bool WorldSession::IsSocketClosed() const
 {
-    return !m_Socket || !m_Socket->IsOpen();
+    return !_socket || !_socket->IsOpen();
 }
 
 void WorldSession::HandleTeleportTimeout(bool updateInSessions)
 {
     // pussywizard: handle teleport ack timeout
-    if (m_Socket && m_Socket->IsOpen() && GetPlayer() && GetPlayer()->IsBeingTeleported())
+    if (_socket && _socket->IsOpen() && GetPlayer() && GetPlayer()->IsBeingTeleported())
     {
         time_t currTime = GameTime::GetGameTime().count();
         if (updateInSessions) // session update from World::UpdateSessions
@@ -638,7 +665,7 @@ void WorldSession::LogoutPlayer(bool save)
 
         // remove player from the group if he is:
         // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected) d) LeaveGroupOnLogout is enabled
-        if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && !_player->GetGroup()->isLFGGroup() && m_Socket && CONF_GET_BOOL("LeaveGroupOnLogout.Enabled"))
+        if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && !_player->GetGroup()->isLFGGroup() && _socket && CONF_GET_BOOL("LeaveGroupOnLogout.Enabled"))
             _player->RemoveFromGroup();
 
         // pussywizard: checked second time after being removed from a group
@@ -726,12 +753,12 @@ void WorldSession::LogoutPlayer(bool save)
 /// Kick a player out of the World
 void WorldSession::KickPlayer(std::string const& reason, bool setKicked)
 {
-    if (m_Socket)
+    if (_socket)
     {
         LOG_INFO("network.kick", "Account: {} Character: '{}' {} kicked with reason: {}", GetAccountId(), _player ? _player->GetName() : "<none>",
             _player ? _player->GetGUID().ToString() : "", reason);
 
-        m_Socket->CloseSocket();
+        _socket->CloseSocket();
     }
 
     if (setKicked)
@@ -1276,6 +1303,73 @@ void WorldSession::InitWarden(SessionKey const& k, std::string const& os)
         // _warden = new WardenMac();
         // _warden->Init(this, k);
     }
+}
+
+void WorldSession::SetNodeInfo(NodeInfo const* info)
+{
+    _nodeInfo = std::make_unique<NodeInfo>(info);
+
+    LOG_WARN("node", "> Set new node for {}. ID {}. Name {}", GetPlayerInfo(), _nodeInfo->ID, _nodeInfo->Name);
+}
+
+void WorldSession::ConnectToNode(uint32 id, std::function<void(bool)>&& execute)
+{
+    ASSERT(sNodeMgr->GetThisNodeType() == NodeType::Realm);
+    sClientSocketMgr->ConnectToWorldSocket(id, _accountId, std::move(execute));
+}
+
+void WorldSession::ConnectToNode(NodeType type, std::function<void(bool)>&& execute)
+{
+    ConnectToNode(sNodeMgr->GetNodeInfo(type)->ID, std::move(execute));
+}
+
+void WorldSession::SendPacketToNode(WorldPacket const& packet)
+{
+    ASSERT(sNodeMgr->GetThisNodeType() == NodeType::Realm);
+    sClientSocketMgr->AddPacketToQueue(_accountId, packet);
+}
+
+void WorldSession::LoginFromNode(uint32 nodeID, ObjectGuid playerGuid)
+{
+    if (_player)
+        _player->SaveToDB(false, false);
+
+    WorldPacket data(CMSG_PLAYER_LOGIN, 1);
+    data << playerGuid;
+    SendPacketToNode(data);
+}
+
+void WorldSession::LoginFromNode(NodeType type, ObjectGuid playerGuid)
+{
+    LoginFromNode(sNodeMgr->GetNodeInfo(type)->ID, playerGuid);
+}
+
+void WorldSession::ChangeNode(uint32 nodeID, bool sendPacket /*= true*/)
+{
+    if (_player)
+        _player->SaveToDB(false, true);
+
+    WorldPacket data(NODE_CHANGE_NODE, 1);
+    data << uint32(nodeID);
+
+    if (_nodeInfo->Type == NodeType::Realm)
+    {
+        sClientSocketMgr->AddPacketToQueue(_accountId, data);
+    }
+    else
+    {
+        SendPacket(&data);
+    }
+
+    auto nodeInfoTarget = sNodeMgr->GetNodeInfo(nodeID);
+    ASSERT(nodeInfoTarget);
+
+    _socket->SetNodeInfo(nodeInfoTarget);
+}
+
+void WorldSession::ChangeNode(NodeType type, bool sendPacket /*= true*/)
+{
+    ChangeNode(sNodeMgr->GetNodeInfo(type)->ID, sendPacket);
 }
 
 bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) const

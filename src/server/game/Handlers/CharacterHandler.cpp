@@ -64,6 +64,9 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+#include "ClientSocketMgr.h"
+#include "NodeMgr.h"
+
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
 private:
@@ -665,42 +668,67 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 {
-    m_playerLoading = true;
     ObjectGuid playerGuid;
     recvData >> playerGuid;
 
-    if (PlayerLoading() || GetPlayer() != nullptr || !playerGuid.IsPlayer())
-    {
-        // limit player interaction with the world
-        if (!CONF_GET_BOOL("World.RealmAvailability"))
-        {
-            WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED, 1);
-            // see LoginFailureReason enum for more reasons
-            data << uint8(LoginFailureReason::NoWorld);
-            SendPacket(&data);
-            return;
-        }
-    }
-
-    if (!playerGuid.IsPlayer() || !IsLegitCharacterForAccount(playerGuid))
+    if (!playerGuid.IsPlayer())
     {
         LOG_ERROR("network", "Account ({}) can't login with that character ({}).", GetAccountId(), playerGuid.ToString());
         KickPlayer("Account can't login with this character");
         return;
     }
 
-    auto SendCharLogin = [&](ResponseCodes result)
+    if (_nodeInfo->Type == NodeType::Realm)
+    {
+        if (!IsLegitCharacterForAccount(playerGuid))
+        {
+            LOG_ERROR("network", "Account ({}) can't login with that character ({}).", GetAccountId(), playerGuid.ToString());
+            KickPlayer("Account can't login with this character");
+            return;
+        }
+    }
+
+    auto SendCharLogin = [&](LoginFailureReason result)
     {
         WorldPacket data(SMSG_CHARACTER_LOGIN_FAILED, 1);
         data << uint8(result);
         SendPacket(&data);
     };
 
+    if (_nodeInfo->Type == NodeType::Realm)
+    {
+        ConnectToNode(NodeType::Master, [this, playerGuid, SendCharLogin](bool isComplete)
+        {
+            if (!isComplete)
+            {
+                SendCharLogin(LoginFailureReason::NoWorld); // NoInstances
+                return;
+            }
+
+            LoginFromNode(NodeType::Master, playerGuid);
+            ChangeNode(NodeType::Master);
+        });
+        
+        return;
+    }
+
+    m_playerLoading = true;
+
+    if (PlayerLoading() || GetPlayer() != nullptr || !playerGuid.IsPlayer())
+    {
+        // limit player interaction with the world
+        if (!CONF_GET_BOOL("World.RealmAvailability"))
+        {
+            SendCharLogin(LoginFailureReason::NoWorld);
+            return;
+        }
+    }
+
     // pussywizard:
     if (WorldSession* sess = sWorld->FindOfflineSessionForCharacterGUID(playerGuid.GetCounter()))
         if (sess->GetAccountId() != GetAccountId())
         {
-            SendCharLogin(CHAR_LOGIN_DUPLICATE_CHARACTER);
+            SendCharLogin(LoginFailureReason::DuplicateCharacter);
             return;
         }
     // pussywizard:
@@ -709,7 +737,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         Player* p = sess->GetPlayer();
         if (!p || sess->IsKicked())
         {
-            SendCharLogin(CHAR_LOGIN_DUPLICATE_CHARACTER);
+            SendCharLogin(LoginFailureReason::DuplicateCharacter);
             return;
         }
 
@@ -720,7 +748,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
             // pussywizard: players stay ingame no matter what (prevent abuse), but allow to turn it off to stop crashing
             if (!CONF_GET_BOOL("EnableLoginAfterDC"))
             {
-                SendCharLogin(CHAR_LOGIN_DUPLICATE_CHARACTER);
+                SendCharLogin(LoginFailureReason::DuplicateCharacter);
                 return;
             }
 
@@ -762,7 +790,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
             }
             if (!p->FindMap() || !p->IsInWorld() || sess->IsKicked())
             {
-                SendCharLogin(CHAR_LOGIN_DUPLICATE_CHARACTER);
+                SendCharLogin(LoginFailureReason::DuplicateCharacter);
                 return;
             }
 
@@ -791,6 +819,16 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
 {
+    LOG_WARN("node", ">");
+    LOG_WARN("node", "> Char login {}", holder.GetGuid().ToString());
+    LOG_WARN("node", ">");
+
+    if (auto player = GetPlayer())
+    {
+        LOG_WARN("node", "> Is exist player {}!", player->GetName());
+        return;
+    }
+
     ObjectGuid playerGuid = holder.GetGuid();
 
     auto pCurrChar = new Player(this);
@@ -1118,6 +1156,10 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
     }
 
     METRIC_EVENT("player_events", "Auth", pCurrChar->GetName());
+
+    auto const& nodeInfo = sNodeMgr->GetThisNodeInfo();
+    chH.PSendSysMessage("|cFFFF0000[Cluster]:|r |cff7bbef7Connected to |cFFFF0000'{}'|r |cff7bbef7node|r", nodeInfo->Name);
+    chH.PSendSysMessage("# [Cluster]: Connected to '{}' node", nodeInfo->Name);
 }
 
 void WorldSession::HandlePlayerLoginToCharInWorld(Player* pCurrChar)
