@@ -21,6 +21,10 @@
 #include "OpenSSLCrypto.h"
 #include <openssl/crypto.h>
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L && WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+#include <boost/dll/runtime_symbol_info.hpp>
+#endif
+
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
 #include <vector>
 #include <thread>
@@ -47,7 +51,7 @@ OSSL_PROVIDER* LegacyProvider;
 OSSL_PROVIDER* DefaultProvider;
 #endif
 
-void OpenSSLCrypto::threadsSetup([[maybe_unused]] std::string_view providerModulePath)
+void OpenSSLCrypto::threadsSetup()
 {
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
     cryptoLocks.resize(CRYPTO_num_locks());
@@ -63,7 +67,7 @@ void OpenSSLCrypto::threadsSetup([[maybe_unused]] std::string_view providerModul
     CRYPTO_set_locking_callback(lockingCallback);
 #elif OPENSSL_VERSION_NUMBER >= 0x30000000L
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    OSSL_PROVIDER_set_default_search_path(nullptr, std::string{ providerModulePath }.c_str());
+    OSSL_PROVIDER_set_default_search_path(nullptr, boost::dll::program_location().remove_filename().string().c_str());
 #endif
     LegacyProvider = OSSL_PROVIDER_load(nullptr, "legacy");
     DefaultProvider = OSSL_PROVIDER_load(nullptr, "default");

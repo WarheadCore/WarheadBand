@@ -27,7 +27,6 @@
 */
 
 #include "AuthSocketMgr.h"
-#include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
@@ -43,7 +42,6 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include <boost/asio/signal_set.hpp>
-#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <csignal>
@@ -106,7 +104,7 @@ int main(int argc, char** argv)
         }
     );
 
-    OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename().generic_string());
+    OpenSSLCrypto::threadsSetup();
 
     std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 

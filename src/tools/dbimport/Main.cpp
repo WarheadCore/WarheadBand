@@ -24,6 +24,7 @@
 #include "IoContext.h"
 #include "Log.h"
 #include "Logo.h"
+#include "OpenSSLCrypto.h"
 #include "Util.h"
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
@@ -83,6 +84,9 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    OpenSSLCrypto::threadsSetup();
+
+    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     LOG_INFO("dbimport", "Halting process...");
