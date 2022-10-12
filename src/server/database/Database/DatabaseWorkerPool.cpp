@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DatabaseWorkerPool.h"
-#include "AsyncCallbackMgr.h"
 #include "Config.h"
 #include "Errors.h"
 #include "Log.h"
@@ -33,6 +32,7 @@
 #include "QueryResult.h"
 #include "TaskScheduler.h"
 #include "Transaction.h"
+#include "IoContextMgr.h"
 #include <limits>
 #include <mysqld_error.h>
 #include <utility>
@@ -430,37 +430,40 @@ TransactionCallback DatabaseWorkerPool::AsyncCommitTransaction(SQLTransaction tr
 
 void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
 {
-    auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
-    auto queueSize{ mostFreeConnection->GetQueueSize() };
-
-    if (_poolType == DatabaseType::Auth || !_isEnableDynamicConnections || queueSize <= _maxQueueSize)
+    if (!_isEnableDynamicConnections)
     {
-        mostFreeConnection->Enqueue(operation);
+        _connections[IDX_ASYNC].front()->Enqueue(operation);
         return;
     }
 
-    std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
-
-    auto allQueueSize{ GetQueueSize() };
-    if (allQueueSize > _maxQueueSize)
+    sIoContextMgr->Post([this, operation]()
     {
-        LOG_WARN("db.pool", "Async queue overload. Queue size: {}. Pool name: {}. Connection size: {}", allQueueSize, _poolName, _connections[IDX_ASYNC].size());
-        OpenDynamicAsyncConnect();
-    }
+        std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
 
-    std::lock_guard<std::mutex> guardOpenConnect(_openAsyncConnectMutex);
+        auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
+        auto queueSize{ mostFreeConnection->GetQueueSize() };
+        std::size_t allQueueSize{};
 
-    for (auto const& connection : _connections[IDX_ASYNC])
-    {
-        auto qSize{ connection->GetQueueSize() };
-        if (qSize >= queueSize)
-            continue;
+        for (auto const& connection : _connections[IDX_ASYNC])
+        {
+            auto qSize{ connection->GetQueueSize() };
+            allQueueSize += qSize;
 
-        mostFreeConnection = connection.get();
-        queueSize = qSize;
-    }
+            if (qSize >= queueSize)
+                continue;
 
-    mostFreeConnection->Enqueue(operation);
+            mostFreeConnection = connection.get();
+            queueSize = qSize;
+        }
+
+        mostFreeConnection->Enqueue(operation);
+
+        if (queueSize > _maxQueueSize)
+        {
+            LOG_WARN("db.pool", "Queue overload. Size (current/max/total): {}/{}/{}. Pool name: {}. Connections size: {}", queueSize, _maxQueueSize, allQueueSize, _poolName, _connections[IDX_ASYNC].size());
+            OpenDynamicAsyncConnect();
+        }
+    });
 }
 
 void DatabaseWorkerPool::DirectCommitTransaction(SQLTransaction transaction)
