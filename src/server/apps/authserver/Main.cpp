@@ -42,10 +42,9 @@
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "Util.h"
-#include <boost/asio/signal_set.hpp>
+#include "SignalHandlerMgr.h"
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
-#include <csignal>
 #include <filesystem>
 #include <iostream>
 #include <openssl/crypto.h>
@@ -61,7 +60,6 @@ namespace fs = std::filesystem;
 
 bool StartDB();
 void StopDB();
-void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
@@ -70,7 +68,9 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
 int main(int argc, char** argv)
 {
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
-    signal(SIGABRT, &Warhead::AbortHandler);
+
+    // Set signal handlers
+    sSignalMgr->Initialize();
 
     // Command line parsing
     auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_REALM_CONFIG));
@@ -169,13 +169,6 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> sAuthSocketMgrHandle(nullptr, [](void*) { sAuthSocketMgr.StopNetwork(); });
 
-    // Set signal handlers
-    boost::asio::signal_set signals(sIoContextMgr->GetIoContext(), SIGINT, SIGTERM);
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    signals.add(SIGBREAK);
-#endif
-    signals.async_wait(std::bind(&SignalHandler, std::placeholders::_1, std::placeholders::_2));
-
     // Set process priority according to configuration settings
     SetProcessPriority("server.authserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
 
@@ -196,9 +189,6 @@ int main(int argc, char** argv)
     dbUpdateTimer->cancel();
 
     LOG_INFO("server.authserver", "Halting process...");
-
-    signals.cancel();
-
     return 0;
 }
 
@@ -218,13 +208,6 @@ bool StartDB()
 void StopDB()
 {
     sDatabaseMgr->CloseAllConnections();
-}
-
-void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
-{
-    if (!error)
-        if (auto ioContext = sIoContextMgr->GetIoContextPtr())
-            ioContext->stop();
 }
 
 void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimerRef, boost::system::error_code const& error)

@@ -53,9 +53,8 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include <boost/asio/signal_set.hpp>
+#include "SignalHandlerMgr.h"
 #include <boost/program_options.hpp>
-#include <csignal>
 #include <filesystem>
 #include <iostream>
 #include <openssl/crypto.h>
@@ -107,7 +106,6 @@ private:
 using namespace boost::program_options;
 namespace fs = std::filesystem;
 
-void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void ClearOnlineAccounts();
 bool StartDB();
 void StopDB();
@@ -122,7 +120,12 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [
 int main(int argc, char** argv)
 {
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
-    signal(SIGABRT, &Warhead::AbortHandler);
+
+    // Set signal handlers
+    sSignalMgr->Initialize([]()
+    {
+        World::StopNow(SHUTDOWN_EXIT_CODE);
+    });
 
     // Command line parsing
     auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG));
@@ -229,13 +232,6 @@ int main(int argc, char** argv)
             return 1;
         }
     }
-
-    // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
-    boost::asio::signal_set signals(sIoContextMgr->GetIoContext(), SIGINT, SIGTERM);
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    signals.add(SIGBREAK);
-#endif
-    signals.async_wait(SignalHandler);
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetOption<int32>("ThreadPool", 1);
@@ -590,12 +586,6 @@ void WorldUpdateLoop()
     AuthDatabase.WarnAboutSyncQueries(false);
     CharacterDatabase.WarnAboutSyncQueries(false);
     WorldDatabase.WarnAboutSyncQueries(false);
-}
-
-void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
-{
-    if (!error)
-        World::StopNow(SHUTDOWN_EXIT_CODE);
 }
 
 void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error)
