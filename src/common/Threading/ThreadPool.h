@@ -15,33 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _THREAD_POOL_MGR_H_
-#define _THREAD_POOL_MGR_H_
+#ifndef _WARHEAD_THREAD_POOL_H_
+#define _WARHEAD_THREAD_POOL_H_
 
-#include "Define.h"
-#include "AsioHacksFwd.h"
-#include <memory>
-#include <functional>
+#include <boost/asio/post.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <thread>
 
 namespace Warhead
 {
-    class WH_COMMON_API ThreadPoolMgr
+    class ThreadPool
     {
     public:
-        ThreadPoolMgr() = default;
-        ~ThreadPoolMgr() = default;
+        explicit ThreadPool(std::size_t numThreads = std::thread::hardware_concurrency()) : _impl(numThreads) { }
 
-        static ThreadPoolMgr* instance();
+        template<typename T>
+        decltype(auto) PostWork(T&& work)
+        {
+            return boost::asio::post(_impl, std::forward<T>(work));
+        }
 
-        void Initialize(std::size_t numThreads = 1);
-        void AddWork(std::function<void()>&& work);
-        void Wait();
+        void Wait()
+        {
+            _impl.join();
+        }
 
     private:
-        std::unique_ptr<boost::asio::thread_pool> _threadPool;
+        boost::asio::thread_pool _impl;
     };
 }
-
-#define sThreadPoolMgr Warhead::ThreadPoolMgr::instance()
 
 #endif

@@ -52,7 +52,7 @@
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "IoContextMgr.h"
-#include "ThreadPoolMgr.h"
+#include "ThreadPool.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
@@ -115,7 +115,6 @@ bool LoadRealmInfo();
 AsyncAcceptor* StartRaSocketAcceptor();
 void ShutdownCLIThread(std::thread* cliThread);
 void AuctionListingRunnable();
-void ShutdownAuctionListingThread(std::thread* thread);
 void WorldUpdateLoop();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& cfg_service);
 
@@ -243,7 +242,10 @@ int main(int argc, char** argv)
     if (numThreads < 1)
         numThreads = 1;
 
-    sThreadPoolMgr->Initialize(numThreads);
+    auto threadPool = std::make_unique<Warhead::ThreadPool>(numThreads);
+
+    for (int i = 0; i < numThreads; ++i)
+        threadPool->PostWork([]() { sIoContextMgr->Run(); });
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
@@ -737,15 +739,6 @@ void AuctionListingRunnable()
     }
 
     LOG_INFO("server", "Auction House Listing thread exiting without problems.");
-}
-
-void ShutdownAuctionListingThread(std::thread* thread)
-{
-    if (thread)
-    {
-        thread->join();
-        delete thread;
-    }
 }
 
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& configService)
