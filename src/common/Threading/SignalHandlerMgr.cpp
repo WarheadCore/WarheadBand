@@ -29,7 +29,11 @@ static void SignalHandler(boost::system::error_code const& error, int signalNumb
         if (auto ioContext = sIoContextMgr->GetIoContextPtr())
             ioContext->stop();
 
-        LOG_FATAL("server", "Caught signal {}: {}\n", signalNumber, strsignal(signalNumber));
+#if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
+        LOG_FATAL("server", "Caught signal {}: {}", signalNumber, strsignal(signalNumber));
+#else
+        LOG_FATAL("server", "Caught signal {}", signalNumber);
+#endif
     }
 }
 

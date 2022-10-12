@@ -84,7 +84,7 @@ namespace
 
     /**
     * @name MakeAbortMessage
-    * @brief Make message for display erros
+    * @brief Make message for display errors
     * @param file Path to file
     * @param line Line number in file
     * @param function Function name
@@ -121,7 +121,7 @@ void Warhead::Abort(std::string_view file, int line, std::string_view function, 
 void Warhead::AbortHandler(int sigval)
 {
     // nothing useful to log here, no way to pass args
-    std::string formattedMessage = StringFormat("Caught signal {}: {}\n", sigval, strsignal(sigval));
+    std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
     fmt::print("{}", formattedMessage);
     Crash(formattedMessage.c_str());
 }
