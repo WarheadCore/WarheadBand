@@ -222,7 +222,6 @@ public: /* ServerScript */
     void OnSocketClose(std::shared_ptr<WorldSocket> socket);
     bool CanPacketReceive(WorldSession* session, WorldPacket const& packet);
     bool CanPacketSend(WorldSession* session, WorldPacket const& packet);
-    void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext);
 
 public: /* WorldScript */
     void OnLoadCustomDatabaseTable();
