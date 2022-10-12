@@ -19,9 +19,9 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "mpq_libmpq04.h"
+#include <algorithm>
 #include <cstdio>
 #include <deque>
-#include <algorithm>
 
 ArchiveSet gOpenArchives;
 

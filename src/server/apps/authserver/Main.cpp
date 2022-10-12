@@ -33,6 +33,7 @@
 #include "DeadlineTimer.h"
 #include "IPLocation.h"
 #include "IoContext.h"
+#include "IoContextMgr.h"
 #include "Log.h"
 #include "Logo.h"
 #include "OpenSSLCrypto.h"
@@ -41,7 +42,6 @@
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "Util.h"
-#include "IoContextMgr.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>

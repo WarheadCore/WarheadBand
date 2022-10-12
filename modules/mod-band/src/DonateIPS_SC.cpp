@@ -21,7 +21,6 @@
 #include "AsyncCallbackProcessor.h"
 #include "CharacterCache.h"
 #include "ExternalMail.h"
-//#include "GameLocale.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "Optional.h"
@@ -33,6 +32,7 @@
 #include "TaskScheduler.h"
 #include <unordered_map>
 #include <vector>
+//#include "GameLocale.h"
 
 enum class IPSShopType : uint8
 {

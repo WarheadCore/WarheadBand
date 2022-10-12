@@ -18,10 +18,10 @@
 #ifndef _IO_CONTEXT_MGR_H_
 #define _IO_CONTEXT_MGR_H_
 
-#include "Define.h"
 #include "AsioHacksFwd.h"
-#include <memory>
+#include "Define.h"
 #include <functional>
+#include <memory>
 
 namespace Warhead
 {

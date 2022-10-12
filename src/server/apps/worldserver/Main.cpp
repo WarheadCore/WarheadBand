@@ -32,6 +32,7 @@
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
+#include "IoContextMgr.h"
 #include "Logo.h"
 #include "MapMgr.h"
 #include "Metric.h"
@@ -48,11 +49,10 @@
 #include "ScriptReloadMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
+#include "ThreadPool.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "IoContextMgr.h"
-#include "ThreadPool.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>

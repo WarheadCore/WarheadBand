@@ -21,6 +21,7 @@
 #include "DatabaseWorkerPool.h"
 #include "Config.h"
 #include "Errors.h"
+#include "IoContextMgr.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "MySQLPreparedStatement.h"
@@ -32,7 +33,6 @@
 #include "QueryResult.h"
 #include "TaskScheduler.h"
 #include "Transaction.h"
-#include "IoContextMgr.h"
 #include <limits>
 #include <mysqld_error.h>
 #include <utility>

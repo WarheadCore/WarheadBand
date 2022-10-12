@@ -21,10 +21,10 @@
 #include "Metric.h"
 #include "Config.h"
 #include "DeadlineTimer.h"
+#include "IoContextMgr.h"
 #include "Log.h"
 #include "Strand.h"
 #include "Tokenize.h"
-#include "IoContextMgr.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <utility>

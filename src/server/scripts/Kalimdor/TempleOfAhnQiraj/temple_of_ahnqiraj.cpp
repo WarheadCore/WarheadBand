@@ -16,12 +16,12 @@
  */
 
 #include "temple_of_ahnqiraj.h"
+#include "MapReference.h"
+#include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
-#include "MapReference.h"
-#include "Player.h"
 
 enum Spells
 {

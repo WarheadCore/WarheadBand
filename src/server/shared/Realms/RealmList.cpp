@@ -19,10 +19,10 @@
 #include "DatabaseEnv.h"
 #include "DeadlineTimer.h"
 #include "IoContext.h"
+#include "IoContextMgr.h"
 #include "Log.h"
 #include "Resolver.h"
 #include "Util.h"
-#include "IoContextMgr.h"
 #include <boost/asio/ip/tcp.hpp>
 
 RealmList* RealmList::Instance()

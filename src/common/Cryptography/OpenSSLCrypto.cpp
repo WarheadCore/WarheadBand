@@ -26,9 +26,9 @@
 #endif
 
 #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
-#include <vector>
-#include <thread>
 #include <mutex>
+#include <thread>
+#include <vector>
 
 std::vector<std::mutex*> cryptoLocks;
 
