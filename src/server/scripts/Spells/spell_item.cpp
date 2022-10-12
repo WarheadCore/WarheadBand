@@ -35,6 +35,11 @@
 #include "SpellScript.h"
 #include "WorldSession.h"
 
+enum MassiveSeaforiumCharge
+{
+    ITEM_MASSIVE_SEAFORIUM_CHARGE = 39213,
+};
+
 class spell_item_massive_seaforium_charge : public SpellScript
 {
     PrepareSpellScript(spell_item_massive_seaforium_charge);
@@ -45,7 +50,7 @@ class spell_item_massive_seaforium_charge : public SpellScript
             return;
 
         Player* target = GetHitUnit()->ToPlayer();
-        target->DestroyItemCount(39213, 1, true);
+        target->DestroyItemCount(ITEM_MASSIVE_SEAFORIUM_CHARGE, 1, true);
     }
 
     void Register() override
@@ -140,6 +145,11 @@ class spell_item_mind_amplify_dish : public SpellScript
     }
 };
 
+enum RunescrollOfFortitude
+{
+    SPELL_FORTITUDE = 72590,
+};
+
 class spell_item_runescroll_of_fortitude : public SpellScript
 {
     PrepareSpellScript(spell_item_runescroll_of_fortitude)
@@ -153,7 +163,7 @@ class spell_item_runescroll_of_fortitude : public SpellScript
             if (target->getLevel() < 70)
                 return;
 
-            target->CastSpell(target, 72590, true); // Stamina spell (Fortitude)
+            target->CastSpell(target, SPELL_FORTITUDE, true);
         }
     }
 
@@ -161,6 +171,12 @@ class spell_item_runescroll_of_fortitude : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_item_runescroll_of_fortitude::OnScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
+};
+
+enum BrannsCommunicator
+{
+    NPC_BRANN_BRONZEBEARD = 29579,
+    SPELL_CONTACT_BRANN   = 55038,
 };
 
 class spell_item_branns_communicator : public SpellScript
@@ -173,8 +189,8 @@ class spell_item_branns_communicator : public SpellScript
 
         if (Player* target = GetHitPlayer())
         {
-            target->KilledMonsterCredit(29579); // Brann's entry
-            target->CastSpell(target, 55038, true); // Brann summoning spell
+            target->KilledMonsterCredit(NPC_BRANN_BRONZEBEARD); // Brann's entry
+            target->CastSpell(target, SPELL_CONTACT_BRANN, true); // Brann summoning spell
         }
     }
 
@@ -2305,6 +2321,7 @@ enum Shadowmourne
     SPELL_SHADOWMOURNE_VISUAL_LOW           = 72521,
     SPELL_SHADOWMOURNE_VISUAL_HIGH          = 72523,
     SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF      = 73422,
+    SPELL_BLOOD_PLAGUE                      = 55078,
 };
 
 // 71903 - Item - Shadowmourne Legendary
@@ -2340,7 +2357,7 @@ class spell_item_shadowmourne : public AuraScript
             }
             else if (procSpell->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
             {
-                if (procSpell->Id != 55078 /*Blood Plague*/)
+                if (procSpell->Id != SPELL_BLOOD_PLAGUE)
                     return false;
             }
         }

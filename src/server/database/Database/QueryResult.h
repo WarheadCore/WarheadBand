@@ -73,8 +73,8 @@ public:
         return theTuple;
     }
 
-    auto begin() { return ResultIterator<ResultSet>(this); }
-    static auto end()   { return ResultIterator<ResultSet>(nullptr); }
+    auto begin()      { return ResultIterator<ResultSet>(this); }
+    static auto end() { return ResultIterator<ResultSet>(nullptr); }
 
 protected:
     std::vector<QueryResultFieldMetadata> _fieldMetadata;

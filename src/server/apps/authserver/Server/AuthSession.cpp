@@ -193,7 +193,7 @@ bool AuthSession::Update()
 
 void AuthSession::CheckIpCallback(PreparedQueryResult result)
 {
-    if (!result)
+	if (!result)
     {
         AsyncRead();
         return;

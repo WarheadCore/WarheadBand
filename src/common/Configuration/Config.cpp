@@ -15,16 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "Config.h"
 #include "Log.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
 #include "Util.h"
-#include <fmt/core.h>
 #include <fstream>
 #include <mutex>
 #include <unordered_map>
