@@ -1449,7 +1449,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
 
     do
     {
-        auto              fields  = result->Fetch();
+        auto fields  = result->Fetch();
         ObjectGuid::LowType spawnId = fields[0].Get<uint32>();
         if (!GetCreatureData(spawnId))
         {
