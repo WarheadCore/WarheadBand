@@ -3502,7 +3502,6 @@ void ObjectMgr::LoadPlayerInfo()
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} Player Create Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
         }
     }
 
@@ -3516,7 +3515,6 @@ void ObjectMgr::LoadPlayerInfo()
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Custom Player Create Items. DB Table `playercreateinfo_item` Is Empty.");
-            LOG_INFO("server.loading", " ");
         }
         else
         {
@@ -3573,7 +3571,6 @@ void ObjectMgr::LoadPlayerInfo()
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} Custom Player Create Items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
         }
     }
 
@@ -5996,13 +5993,9 @@ void ObjectMgr::LoadQuestGreetings()
         _questGreetingStore[type].emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(greetEmoteType, greetEmoteDelay, std::move(greeting)));
 
         ++count;
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} quest_greeting in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
-}
-
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
@@ -6231,7 +6224,6 @@ void ObjectMgr::LoadAreaTriggers()
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Area Trigger Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadAreaTriggerTeleports()

@@ -21,6 +21,7 @@
 #include "StringFormat.h"
 #include "Tokenize.h"
 #include "Util.h"
+#include <fmt/core.h>
 #include <fstream>
 #include <mutex>
 #include <unordered_map>
