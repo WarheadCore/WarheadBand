@@ -51,6 +51,8 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+#include "IoContextMgr.h"
+#include "ThreadPoolMgr.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <csignal>
@@ -109,8 +111,8 @@ void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void ClearOnlineAccounts();
 bool StartDB();
 void StopDB();
-bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext);
-AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext);
+bool LoadRealmInfo();
+AsyncAcceptor* StartRaSocketAcceptor();
 void ShutdownCLIThread(std::thread* cliThread);
 void AuctionListingRunnable();
 void ShutdownAuctionListingThread(std::thread* thread);
@@ -188,8 +190,6 @@ int main(int argc, char** argv)
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
 
-    std::shared_ptr<Warhead::Asio::IoContext> ioContext = std::make_shared<Warhead::Asio::IoContext>();
-
     // Init all logs
     sLog->Initialize();
 
@@ -232,7 +232,7 @@ int main(int argc, char** argv)
     }
 
     // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
-    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
+    boost::asio::signal_set signals(sIoContextMgr->GetIoContext(), SIGINT, SIGTERM);
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
@@ -240,25 +240,10 @@ int main(int argc, char** argv)
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetOption<int32>("ThreadPool", 1);
-    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
-    {
-        ioContext->stop();
-        for (std::thread& thr : *del)
-            thr.join();
-
-        delete del;
-    });
-
     if (numThreads < 1)
         numThreads = 1;
 
-    for (int i = 0; i < numThreads; ++i)
-    {
-        threadPool->push_back(std::thread([ioContext]()
-        {
-            ioContext->run();
-        }));
-    }
+    sThreadPoolMgr->Initialize(numThreads);
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
@@ -276,7 +261,6 @@ int main(int argc, char** argv)
 
     LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();
-    sScriptMgr->OnIoContext(ioContext);
 
     // Start the databases
     if (!StartDB())
@@ -287,9 +271,9 @@ int main(int argc, char** argv)
     // set server offline (not connectable)
     AuthDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
-    LoadRealmInfo(*ioContext);
+    LoadRealmInfo();
 
-    sMetric->Initialize(realm.Name, *ioContext, []()
+    sMetric->Initialize(realm.Name, []()
     {
         METRIC_VALUE("online_players", sWorld->GetPlayerCount());
         METRIC_VALUE("db_queue_login", uint64(AuthDatabase.GetQueueSize()));
@@ -325,7 +309,7 @@ int main(int argc, char** argv)
     // Start the Remote Access port (acceptor) if enabled
     std::unique_ptr<AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetOption<bool>("Ra.Enable", false))
-        raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
+        raAcceptor.reset(StartRaSocketAcceptor());
 
     // Start soap serving thread if enabled
     std::shared_ptr<std::thread> soapThread;
@@ -340,11 +324,10 @@ int main(int argc, char** argv)
     }
 
     // Launch the worldserver listener socket
-    uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
-    std::string worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
+    auto worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
+    auto worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetOption<int32>("Network.Threads", 1);
-
     if (networkThreads <= 0)
     {
         LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
@@ -352,7 +335,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
+    if (!sWorldSocketMgr.StartWorldNetwork(sIoContextMgr->GetIoContext(), worldListener, worldPort, networkThreads))
     {
         LOG_ERROR("server.worldserver", "Failed to initialize network");
         World::StopNow(ERROR_EXIT_CODE);
@@ -379,7 +362,7 @@ int main(int argc, char** argv)
     std::shared_ptr<FreezeDetector> freezeDetector;
     if (int32 coreStuckTime = sConfigMgr->GetOption<int32>("MaxCoreStuckTime", 60))
     {
-        freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
+        freezeDetector = std::make_shared<FreezeDetector>(sIoContextMgr->GetIoContext(), coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
         LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
@@ -417,7 +400,7 @@ int main(int argc, char** argv)
     WorldUpdateLoop();
 
     // Shutdown starts here
-    threadPool.reset();
+    sIoContextMgr->Stop();
 
     sScriptMgr->OnShutdown();
 
@@ -640,12 +623,12 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
+AsyncAcceptor* StartRaSocketAcceptor()
 {
-    uint16 raPort = uint16(sConfigMgr->GetOption<int32>("Ra.Port", 3443));
-    std::string raListener = sConfigMgr->GetOption<std::string>("Ra.IP", "0.0.0.0");
+    auto raPort = uint16(sConfigMgr->GetOption<int32>("Ra.Port", 3443));
+    auto raListener = sConfigMgr->GetOption<std::string>("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
+    AsyncAcceptor* acceptor = new AsyncAcceptor(sIoContextMgr->GetIoContext(), raListener, raPort);
     if (!acceptor->Bind())
     {
         LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
@@ -657,13 +640,13 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
     return acceptor;
 }
 
-bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
+bool LoadRealmInfo()
 {
     QueryResult result = AuthDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
-    Warhead::Asio::Resolver resolver(ioContext);
+    Warhead::Asio::Resolver resolver(sIoContextMgr->GetIoContext());
 
     auto fields = result->Fetch();
     realm.Name = fields[1].Get<std::string>();

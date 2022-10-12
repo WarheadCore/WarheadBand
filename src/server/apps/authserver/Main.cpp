@@ -41,6 +41,7 @@
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "Util.h"
+#include "IoContextMgr.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
@@ -60,7 +61,7 @@ namespace fs = std::filesystem;
 
 bool StartDB();
 void StopDB();
-void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int signalNumber);
+void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
@@ -132,10 +133,8 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
-    std::shared_ptr<Warhead::Asio::IoContext> ioContext = std::make_shared<Warhead::Asio::IoContext>();
-
     // Get the list of realms for the server
-    sRealmList->Initialize(*ioContext, sConfigMgr->GetOption<int32>("RealmsStateUpdateDelay", 20));
+    sRealmList->Initialize(sConfigMgr->GetOption<int32>("RealmsStateUpdateDelay", 20));
 
     std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
 
@@ -162,7 +161,7 @@ int main(int argc, char** argv)
 
     auto bindIp = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
 
-    if (!sAuthSocketMgr.StartNetwork(*ioContext, bindIp, port))
+    if (!sAuthSocketMgr.StartNetwork(sIoContextMgr->GetIoContext(), bindIp, port))
     {
         LOG_ERROR("server.authserver", "Failed to initialize network");
         return 1;
@@ -171,27 +170,27 @@ int main(int argc, char** argv)
     std::shared_ptr<void> sAuthSocketMgrHandle(nullptr, [](void*) { sAuthSocketMgr.StopNetwork(); });
 
     // Set signal handlers
-    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
+    boost::asio::signal_set signals(sIoContextMgr->GetIoContext(), SIGINT, SIGTERM);
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
-    signals.async_wait(std::bind(&SignalHandler, std::weak_ptr<Warhead::Asio::IoContext>(ioContext), std::placeholders::_1, std::placeholders::_2));
+    signals.async_wait(std::bind(&SignalHandler, std::placeholders::_1, std::placeholders::_2));
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.authserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
 
     // Enabled a timed callback for handling the database keep alive ping
-    std::shared_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
+    std::shared_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(sIoContextMgr->GetIoContext());
     dbUpdateTimer->expires_from_now(boost::posix_time::milliseconds(1));
     dbUpdateTimer->async_wait(std::bind(&DatabaseUpdateHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(dbUpdateTimer), std::placeholders::_1));
 
     int32 banExpiryCheckInterval = sConfigMgr->GetOption<int32>("BanExpiryCheckInterval", 60);
-    std::shared_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(*ioContext);
+    std::shared_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimer = std::make_shared<Warhead::Asio::DeadlineTimer>(sIoContextMgr->GetIoContext());
     banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
     banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, std::weak_ptr<Warhead::Asio::DeadlineTimer>(banExpiryCheckTimer), banExpiryCheckInterval, std::placeholders::_1));
 
     // Start the io service worker loop
-    ioContext->run();
+    sIoContextMgr->Run();
 
     banExpiryCheckTimer->cancel();
     dbUpdateTimer->cancel();
@@ -221,10 +220,10 @@ void StopDB()
     sDatabaseMgr->CloseAllConnections();
 }
 
-void SignalHandler(std::weak_ptr<Warhead::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int /*signalNumber*/)
+void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
 {
     if (!error)
-        if (std::shared_ptr<Warhead::Asio::IoContext> ioContext = ioContextRef.lock())
+        if (auto ioContext = sIoContextMgr->GetIoContextPtr())
             ioContext->stop();
 }
 

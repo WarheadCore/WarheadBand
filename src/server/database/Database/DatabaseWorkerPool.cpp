@@ -433,7 +433,7 @@ void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
     auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
     auto queueSize{ mostFreeConnection->GetQueueSize() };
 
-    if (!_isEnableDynamicConnections || queueSize <= _maxQueueSize)
+    if (_poolType == DatabaseType::Auth || !_isEnableDynamicConnections || queueSize <= _maxQueueSize)
     {
         mostFreeConnection->Enqueue(operation);
         return;

@@ -15,13 +15,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#ifndef _THREAD_POOL_MGR_H_
+#define _THREAD_POOL_MGR_H_
 
-void AddSC_DiscordClient();
+#include "Define.h"
+#include "AsioHacksFwd.h"
+#include <memory>
+#include <functional>
 
-// Add all
-void AddDiscordScripts()
+namespace Warhead
 {
-    AddSC_DiscordClient();
+    class WH_COMMON_API ThreadPoolMgr
+    {
+    public:
+        ThreadPoolMgr() = default;
+        ~ThreadPoolMgr() = default;
+
+        static ThreadPoolMgr* instance();
+
+        void Initialize(std::size_t numThreads = 1);
+        void AddWork(std::function<void()>&& work);
+        void Wait();
+
+    private:
+        std::unique_ptr<boost::asio::thread_pool> _threadPool;
+    };
 }
+
+#define sThreadPoolMgr Warhead::ThreadPoolMgr::instance()
+
+#endif

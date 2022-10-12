@@ -22,9 +22,8 @@
 #include "Log.h"
 #include "Resolver.h"
 #include "Util.h"
+#include "IoContextMgr.h"
 #include <boost/asio/ip/tcp.hpp>
-
-RealmList::RealmList() : _updateInterval(0) { }
 
 RealmList* RealmList::Instance()
 {
@@ -33,11 +32,11 @@ RealmList* RealmList::Instance()
 }
 
 // Load the realm list from the database
-void RealmList::Initialize(Warhead::Asio::IoContext & ioContext, uint32 updateInterval)
+void RealmList::Initialize(uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(ioContext);
-    _resolver = std::make_unique<Warhead::Asio::Resolver>(ioContext);
+    _updateTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(sIoContextMgr->GetIoContext());
+    _resolver = std::make_unique<Warhead::Asio::Resolver>(sIoContextMgr->GetIoContext());
 
     LoadBuildInfo();
 

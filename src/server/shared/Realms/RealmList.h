@@ -22,7 +22,6 @@
 #include "Realm.h"
 #include <array>
 #include <map>
-#include <unordered_set>
 #include <vector>
 
 struct RealmBuildInfo
@@ -49,16 +48,15 @@ public:
 
     static RealmList* Instance();
 
-    void Initialize(Warhead::Asio::IoContext& ioContext, uint32 updateInterval);
+    void Initialize(uint32 updateInterval);
     void Close();
 
     [[nodiscard]] RealmMap const& GetRealms() const { return _realms; }
     [[nodiscard]] Realm const* GetRealm(RealmHandle const& id) const;
-
     [[nodiscard]] RealmBuildInfo const* GetBuildInfo(uint32 build) const;
 
 private:
-    RealmList();
+    RealmList() = default;
     ~RealmList() = default;
 
     void LoadBuildInfo();
@@ -69,7 +67,7 @@ private:
 
     std::vector<RealmBuildInfo> _builds;
     RealmMap _realms;
-    uint32 _updateInterval{0};
+    uint32 _updateInterval{};
     std::unique_ptr<Warhead::Asio::DeadlineTimer> _updateTimer;
     std::unique_ptr<Warhead::Asio::Resolver> _resolver;
 };

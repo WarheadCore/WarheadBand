@@ -15,42 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AsioHacksFwd_h__
-#define AsioHacksFwd_h__
+#include "IoContextMgr.h"
+#include "IoContext.h"
 
-/**
-  Collection of forward declarations to improve compile time
- */
-namespace boost::posix_time
+Warhead::IoContextMgr::IoContextMgr() :
+    _ioContext(std::make_shared<Asio::IoContext>()) { }
+
+/*static*/ Warhead::IoContextMgr* Warhead::IoContextMgr::instance()
 {
-    class ptime;
+    static IoContextMgr instance;
+    return &instance;
 }
 
-namespace boost::asio
+void Warhead::IoContextMgr::Run()
 {
-    template <typename Time>
-    struct time_traits;
-
-    class thread_pool;
+    _ioContext->run();
 }
 
-namespace boost::asio::ip
+void Warhead::IoContextMgr::Stop()
 {
-    class address;
-    class tcp;
-
-    template <typename InternetProtocol>
-    class basic_endpoint;
-
-    typedef basic_endpoint<tcp> tcp_endpoint;
+    _ioContext->stop();
 }
 
-namespace Warhead::Asio
+Warhead::Asio::IoContext& Warhead::IoContextMgr::GetIoContext()
 {
-    class DeadlineTimer;
-    class IoContext;
-    class Resolver;
-    class Strand;
+    return *_ioContext;
 }
 
-#endif // AsioHacksFwd_h__
+void Warhead::IoContextMgr::Post(std::function<void()>&& work)
+{
+    Warhead::Asio::post(*_ioContext, std::move(work));
+}

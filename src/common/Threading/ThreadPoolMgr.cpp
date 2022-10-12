@@ -15,42 +15,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AsioHacksFwd_h__
-#define AsioHacksFwd_h__
+#include "ThreadPoolMgr.h"
+#include "Config.h"
+#include "Errors.h"
+#include "IoContext.h"
+#include "IoContextMgr.h"
+#include <boost/asio/thread_pool.hpp>
 
-/**
-  Collection of forward declarations to improve compile time
- */
-namespace boost::posix_time
+/*static*/ Warhead::ThreadPoolMgr* Warhead::ThreadPoolMgr::instance()
 {
-    class ptime;
+    static ThreadPoolMgr instance;
+    return &instance;
 }
 
-namespace boost::asio
+void Warhead::ThreadPoolMgr::AddWork(std::function<void()>&& work)
 {
-    template <typename Time>
-    struct time_traits;
-
-    class thread_pool;
+    boost::asio::post(*_threadPool, std::move(work));
 }
 
-namespace boost::asio::ip
+void Warhead::ThreadPoolMgr::Initialize(std::size_t numThreads /*= 1*/)
 {
-    class address;
-    class tcp;
+    ASSERT(!_threadPool, "Thread poll is initialized!");
 
-    template <typename InternetProtocol>
-    class basic_endpoint;
+    _threadPool = std::make_unique<boost::asio::thread_pool>(numThreads);
 
-    typedef basic_endpoint<tcp> tcp_endpoint;
+    for (int i = 0; i < numThreads; ++i)
+        AddWork([]() { sIoContextMgr->GetIoContextPtr()->run(); });
 }
 
-namespace Warhead::Asio
+void Warhead::ThreadPoolMgr::Wait()
 {
-    class DeadlineTimer;
-    class IoContext;
-    class Resolver;
-    class Strand;
+    _threadPool->join();
 }
-
-#endif // AsioHacksFwd_h__
