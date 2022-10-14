@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CombatAI.h"
+#include "Errors.h"
 #include "GridNotifiers.h"
 #include "Opcodes.h"
 #include "PassiveAI.h"
@@ -26,13 +27,13 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "ulduar.h"
+#include "CellImpl.h"
 
 enum LeviathanSpells
 {
@@ -202,7 +203,7 @@ public:
         boss_flame_leviathanAI(Creature* pCreature) : ScriptedAI(pCreature), vehicle(me->GetVehicleKit()), summons(me)
         {
             m_pInstance = pCreature->GetInstanceScript();
-            assert(vehicle);
+            ASSERT(vehicle);
         }
 
         InstanceScript* m_pInstance;

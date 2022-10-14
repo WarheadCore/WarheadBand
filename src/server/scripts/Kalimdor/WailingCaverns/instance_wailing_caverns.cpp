@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "wailing_caverns.h"
+#include <sstream>
 
 class instance_wailing_caverns : public InstanceMapScript
 {

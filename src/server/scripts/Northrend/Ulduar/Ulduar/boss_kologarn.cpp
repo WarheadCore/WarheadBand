@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "PassiveAI.h"
+#include "Errors.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
@@ -157,7 +158,7 @@ public:
         {
             m_pInstance = me->GetInstanceScript();
             eyebeamTarget = nullptr;
-            assert(vehicle);
+            ASSERT(vehicle);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
         }
 

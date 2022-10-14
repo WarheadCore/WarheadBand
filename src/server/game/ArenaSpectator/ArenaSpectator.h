@@ -19,8 +19,7 @@
 #define WH_ARENASPECTATOR_H
 
 #include "Chat.h"
-#include "Common.h"
-#include "ObjectDefines.h"
+#include "Define.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "StringFormat.h"

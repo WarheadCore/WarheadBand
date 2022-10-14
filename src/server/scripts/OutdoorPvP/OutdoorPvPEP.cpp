@@ -25,7 +25,6 @@
 #include "Language.h"
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "ScriptObject.h"

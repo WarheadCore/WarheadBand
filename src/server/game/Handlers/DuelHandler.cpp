@@ -25,6 +25,7 @@
 #include "UpdateData.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "UpdateFields.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {

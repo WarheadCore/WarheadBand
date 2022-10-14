@@ -22,6 +22,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
+#include <sstream>
 
 #define CLEANUP_CHECK_INTERVAL  5000
 #define SPAWN_TIME              20000

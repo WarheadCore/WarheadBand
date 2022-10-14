@@ -18,7 +18,7 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCStructure.h"
 #include "DatabaseEnv.h"
 #include "EventProcessor.h"

@@ -31,6 +31,7 @@
 #include "TransportMgr.h"
 #include "World.h"
 #include <map>
+#include <sstream>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;

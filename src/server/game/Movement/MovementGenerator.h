@@ -18,11 +18,9 @@
 #ifndef WARHEAD_MOVEMENTGENERATOR_H
 #define WARHEAD_MOVEMENTGENERATOR_H
 
-#include "Common.h"
 #include "Define.h"
 #include "FactoryHolder.h"
 #include "MotionMaster.h"
-#include "ObjectRegistry.h"
 
 class Unit;
 

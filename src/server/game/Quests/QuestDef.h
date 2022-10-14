@@ -20,7 +20,6 @@
 
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
-#include "Define.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <string>

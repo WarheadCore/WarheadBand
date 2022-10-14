@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "UpdateData.h"
+#include <sstream>
 
 Bag::Bag(): Item()
 {

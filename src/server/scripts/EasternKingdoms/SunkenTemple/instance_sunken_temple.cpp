@@ -26,6 +26,7 @@
 #include "SpellScript.h"
 #include "Unit.h"
 #include "sunken_temple.h"
+#include <sstream>
 
 class instance_sunken_temple : public InstanceMapScript
 {

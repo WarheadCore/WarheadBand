@@ -20,20 +20,18 @@
 
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
-#include "ChatTextBuilder.h"
 #include "GameConfig.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "PetitionMgr.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {

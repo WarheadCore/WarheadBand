@@ -25,20 +25,16 @@
 #include "DatabaseEnv.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
-#include "GossipDef.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Mail.h"
 #include "Map.h"
 #include "NPCHandler.h"
 #include "Object.h"
-#include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "QuestDef.h"
 #include "TemporarySummon.h"
 #include "VehicleDefines.h"
-#include <functional>
-#include <limits>
 #include <map>
 #include <string>
 

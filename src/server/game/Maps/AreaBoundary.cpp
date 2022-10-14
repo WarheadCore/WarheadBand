@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AreaBoundary.h"
-#include "TemporarySummon.h"
 #include "Unit.h"
 
 // ---== RECTANGLE ==---

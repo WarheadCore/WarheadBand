@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "hellfire_ramparts.h"
+#include <sstream>
 
 class instance_hellfire_ramparts : public InstanceMapScript
 {

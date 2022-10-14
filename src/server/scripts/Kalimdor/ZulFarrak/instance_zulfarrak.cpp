@@ -24,6 +24,7 @@
 #include "ScriptObject.h"
 #include "TemporarySummon.h"
 #include "zulfarrak.h"
+#include <sstream>
 
 enum Misc
 {

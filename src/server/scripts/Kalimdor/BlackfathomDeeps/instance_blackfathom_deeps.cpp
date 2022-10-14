@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "blackfathom_deeps.h"
+#include <sstream>
 
 class instance_blackfathom_deeps : public InstanceMapScript
 {

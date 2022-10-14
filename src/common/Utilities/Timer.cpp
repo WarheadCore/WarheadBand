@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Timer.h"
+#include "Common.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include <iomanip>

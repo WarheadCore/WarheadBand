@@ -23,10 +23,10 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "UpdateMask.h"
 #include "WaypointMovementGenerator.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
 {

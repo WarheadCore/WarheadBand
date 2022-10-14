@@ -18,9 +18,11 @@
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
 
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
+#include "SharedDefines.h"
 #include <string_view>
 
 // Core class

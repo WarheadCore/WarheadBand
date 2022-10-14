@@ -22,15 +22,13 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "blackwing_lair.h"
-
+#include <sstream>
 #include <array>
 
 DoorData const doorData[] =

@@ -23,7 +23,6 @@
 #include "GameConfig.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
 
 Quest::Quest(Field* questRecord)
 {

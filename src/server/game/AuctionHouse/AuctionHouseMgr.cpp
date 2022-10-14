@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AuctionHouseMgr.h"
-#include "AccountMgr.h"
 #include "AsyncAuctionListing.h"
 #include "Common.h"
 #include "DBCStores.h"
@@ -28,7 +27,6 @@
 #include "GameLocale.h"
 #include "GameTime.h"
 #include "Item.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -36,6 +34,8 @@
 #include "UpdateTime.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "ObjectAccessor.h"
+#include <sstream>
 #include <vector>
 
 constexpr auto AH_MINIMUM_DEPOSIT = 100;

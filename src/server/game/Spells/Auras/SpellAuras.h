@@ -40,6 +40,7 @@ class WH_GAME_API AuraApplication
     friend void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex);
     friend void Unit::RemoveAura(AuraApplication* aurApp, AuraRemoveMode mode);
     friend AuraApplication* Unit::_CreateAuraApplication(Aura* aura, uint8 effMask);
+
 private:
     Unit* const _target;
     Aura* const _base;

@@ -26,8 +26,8 @@
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
-#include "Types.h"
 #include "World.h"
+#include "ObjectAccessor.h"
 
 namespace ArenaSpectator
 {

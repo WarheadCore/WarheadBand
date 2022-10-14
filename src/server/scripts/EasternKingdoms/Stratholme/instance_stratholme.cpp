@@ -23,6 +23,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
+#include <sstream>
 
 const Position BlackGuardPos[10] =
 {

@@ -38,8 +38,7 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "StringFormat.h"
-
-using namespace Warhead::ChatCommands;
+#include <sstream>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

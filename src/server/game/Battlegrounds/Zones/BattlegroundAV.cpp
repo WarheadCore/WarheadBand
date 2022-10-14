@@ -21,7 +21,6 @@
 #include "BattlegroundAV.h"
 #include "ChatTextBuilder.h"
 #include "CreatureTextMgr.h"
-#include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
@@ -30,7 +29,6 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void BattlegroundAVScore::BuildObjectivesBlock(WorldPacket& data)
 {

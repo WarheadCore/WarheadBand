@@ -19,7 +19,6 @@
 #define MPSCQueue_h__
 
 #include <atomic>
-#include <memory>
 #include <utility>
 
 namespace Warhead

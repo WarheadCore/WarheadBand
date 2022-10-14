@@ -38,6 +38,8 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "Timer.h"
 #include "Transport.h"
+#include "ObjectAccessor.h"
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 

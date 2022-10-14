@@ -24,7 +24,6 @@
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"

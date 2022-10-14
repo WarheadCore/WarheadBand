@@ -27,7 +27,6 @@
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "LocaleCommon.h"
 #include "MiscPackets.h"
 

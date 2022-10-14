@@ -30,11 +30,8 @@
 #include "Spell.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include "WorldSession.h"
-#include <iostream>
 
 class Player;
-//class Map;
 
 namespace Warhead
 {

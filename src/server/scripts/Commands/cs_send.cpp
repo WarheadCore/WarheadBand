@@ -29,7 +29,6 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "Tokenize.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 

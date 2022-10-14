@@ -40,9 +40,11 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
+#include "ObjectAccessor.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
+#include <sstream>
 
 GameObject::GameObject() : WorldObject(false), MovableMapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)

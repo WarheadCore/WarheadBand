@@ -20,7 +20,7 @@
 
 #include "BattlefieldMgr.h"
 #include "Player.h"
-#include "Zones/BattlefieldWG.h"
+#include "BattlefieldWG.h"
 
 BattlefieldMgr::BattlefieldMgr()
 {

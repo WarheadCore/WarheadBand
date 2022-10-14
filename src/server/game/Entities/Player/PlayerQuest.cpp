@@ -35,7 +35,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 /*********************************************************/
 /***                    QUEST SYSTEM                   ***/

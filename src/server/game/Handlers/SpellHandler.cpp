@@ -35,6 +35,7 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {

@@ -75,7 +75,8 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include <math.h>
+#include <cmath>
+#include <sstream>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {

@@ -20,8 +20,8 @@
 
 #include "InstanceScript.h"
 #include "ScriptObject.h"
-#include "ScriptedCreature.h"
 #include "dire_maul.h"
+#include <sstream>
 
 class instance_dire_maul : public InstanceMapScript
 {

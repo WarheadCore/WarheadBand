@@ -23,7 +23,6 @@
 #include "Define.h"
 #include "Errors.h"
 #include "Language.h"
-#include "ObjectGuid.h"
 #include "Optional.h"
 #include "StringFormat.h"
 #include "Util.h"
@@ -32,7 +31,6 @@
 #include <map>
 #include <tuple>
 #include <type_traits>
-#include <utility>
 #include <variant>
 #include <vector>
 

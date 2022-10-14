@@ -32,7 +32,6 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 

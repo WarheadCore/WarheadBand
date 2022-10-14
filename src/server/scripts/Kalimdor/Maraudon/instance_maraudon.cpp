@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "maraudon.h"
+#include <sstream>
 
 class instance_maraudon : public InstanceMapScript
 {

@@ -31,7 +31,7 @@ public:
 
     typedef std::map<uint32, Group*> GroupContainer;
 
-    Group* GetGroupByGUID(ObjectGuid::LowType guid) const;
+    [[nodiscard]] Group* GetGroupByGUID(ObjectGuid::LowType guid) const;
 
     void InitGroupIds();
     void RegisterGroupId(ObjectGuid::LowType groupId);

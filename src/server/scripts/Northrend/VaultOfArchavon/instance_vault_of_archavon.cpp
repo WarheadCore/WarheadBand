@@ -26,6 +26,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
+#include <sstream>
 
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event

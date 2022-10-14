@@ -24,7 +24,6 @@
 #include "MMapMgr.h"
 #include "MapDefines.h"
 #include "MoveSplineInitArgs.h"
-#include "SharedDefines.h"
 #include <G3D/Vector3.h>
 
 class Unit;

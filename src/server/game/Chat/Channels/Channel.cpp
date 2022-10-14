@@ -28,8 +28,10 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "Timer.h"
+#include "ObjectAccessor.h"
 #include "World.h"
+
+constexpr auto CHANNEL_BAN_DURATION = DAY * 60;
 
 Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, TeamId teamId, bool announce, bool ownership):
     _announce(announce),
@@ -140,6 +142,36 @@ void Channel::RemoveChannelBanFromDB(ObjectGuid guid) const
     stmt->SetData(0, _channelDBId);
     stmt->SetData(1, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
+}
+
+void Channel::SetModerator(ObjectGuid guid, bool set)
+{
+    PlayerInfo& pinfo = playersStore[guid];
+    if (pinfo.IsModerator() != set)
+    {
+        uint8 oldFlag = pinfo.flags;
+        pinfo.SetModerator(set);
+
+        WorldPacket data;
+        MakeModeChange(&data, guid, oldFlag);
+        SendToAll(&data);
+
+        FlagsNotify(pinfo.plrPtr);
+    }
+}
+
+void Channel::SetMute(ObjectGuid guid, bool set)
+{
+    PlayerInfo& pinfo = playersStore[guid];
+    if (pinfo.IsMuted() != set)
+    {
+        uint8 oldFlag = pinfo.flags;
+        pinfo.SetMuted(set);
+
+        WorldPacket data;
+        MakeModeChange(&data, guid, oldFlag);
+        SendToAll(&data);
+    }
 }
 
 void Channel::CleanOldChannelsInDB()

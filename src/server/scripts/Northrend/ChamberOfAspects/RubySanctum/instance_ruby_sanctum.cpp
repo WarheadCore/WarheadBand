@@ -24,6 +24,7 @@
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
 #include "ruby_sanctum.h"
+#include <sstream>
 
 BossBoundaryData const boundaries =
 {

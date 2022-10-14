@@ -29,6 +29,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "blackrock_spire.h"
+#include <sstream>
 
 uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
 

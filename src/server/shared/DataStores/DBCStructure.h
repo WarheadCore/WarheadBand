@@ -19,8 +19,6 @@
 #define WARHEAD_DBCSTRUCTURE_H
 
 #include "DBCEnums.h"
-#include "Define.h"
-#include "SharedDefines.h"
 #include "Util.h"
 #include <array>
 #include <map>

@@ -31,8 +31,7 @@
 #include "ScriptObject.h"
 #include "SpellAuras.h"
 #include "Timer.h"
-
-using namespace Warhead::ChatCommands;
+#include "ObjectAccessor.h"
 
 enum Spells
 {
@@ -43,6 +42,8 @@ enum Spells
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+using namespace Warhead::ChatCommands;
 
 class deserter_commandscript : public CommandScript
 {

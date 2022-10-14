@@ -18,7 +18,6 @@
 #ifndef ACORE_M2STORES_H
 #define ACORE_M2STORES_H
 
-#include "Define.h"
 #include "Position.h"
 #include <vector>
 
@@ -29,7 +28,6 @@ struct FlyByCamera
 };
 
 WH_GAME_API void LoadM2Cameras(std::string const& dataPath);
-
 WH_GAME_API std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId);
 
 #endif

@@ -20,7 +20,6 @@
 
 #include "TileAssembler.h"
 #include "BoundingIntervalHierarchy.h"
-#include "MapDefines.h"
 #include "MapTree.h"
 #include "VMapDefinitions.h"
 #include <boost/filesystem.hpp>

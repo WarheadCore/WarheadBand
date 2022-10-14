@@ -33,6 +33,8 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
+#include <sstream>
 
 inline float GetAge(uint64 t) { return float(GameTime::GetGameTime().count() - t) / DAY; }
 
@@ -271,6 +273,16 @@ void GmTicket::SetMessage(std::string const& message)
 {
     _message = message;
     _lastModifiedTime = uint64(GameTime::GetGameTime().count());
+}
+
+Player* GmTicket::GetPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_playerGuid);
+}
+
+Player* GmTicket::GetAssignedPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_assignedTo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

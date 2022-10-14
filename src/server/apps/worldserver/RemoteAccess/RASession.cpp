@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "RASession.h"
-#include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Duration.h"
@@ -203,7 +202,6 @@ bool RASession::ProcessCommand(std::string& command)
 
     // Wait for the command to finish
     _commandExecuting->get_future().wait();
-
     return false;
 }
 

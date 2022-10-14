@@ -25,7 +25,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "WorldSession.h"
 
 enum IronhandData
 {

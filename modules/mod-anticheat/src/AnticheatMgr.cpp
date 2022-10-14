@@ -19,8 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AnticheatMgr.h"
+#include "AccountMgr.h"
 #include "Chat.h"
-#include "ChatTextBuilder.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "MapMgr.h"
@@ -28,6 +28,7 @@
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "SpellAuras.h"
+#include "BanMgr.h"
 
 constexpr float CLIMB_ANGLE = 1.87f;
 

@@ -18,8 +18,6 @@
 #ifndef WARHEAD_GRIDNOTIFIERSIMPL_H
 #define WARHEAD_GRIDNOTIFIERSIMPL_H
 
-#include "Corpse.h"
-#include "CreatureAI.h"
 #include "GridNotifiers.h"
 #include "Object.h"
 #include "Opcodes.h"
@@ -27,7 +25,6 @@
 #include "SpellAuras.h"
 #include "UpdateData.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 template<class T>
 inline void Warhead::VisibleNotifier::Visit(GridRefMgr<T>& m)

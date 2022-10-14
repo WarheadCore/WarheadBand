@@ -25,6 +25,7 @@
 #include "Mail.h"
 #include "ObjectMgr.h"
 #include "TaskScheduler.h"
+#include "ObjectAccessor.h"
 
 namespace
 {

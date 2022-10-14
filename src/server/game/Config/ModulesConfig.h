@@ -18,7 +18,7 @@
 #ifndef _MODULES_CONFIG_H_
 #define _MODULES_CONFIG_H_
 
-#include "Common.h"
+#include "Define.h"
 #include "Optional.h"
 #include "Types.h"
 #include <unordered_map>

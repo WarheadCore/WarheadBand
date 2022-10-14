@@ -19,14 +19,15 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CalendarMgr.h"
+#include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GuildMgr.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "QueryResult.h"
 #include <unordered_map>
+#include <sstream>
 
 CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _statusTime(GameTime::GetGameTime().count()),
 _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }

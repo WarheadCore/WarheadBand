@@ -18,8 +18,9 @@
 #ifndef WARHEAD_TIMER_H
 #define WARHEAD_TIMER_H
 
-#include "Common.h"
+#include "Define.h"
 #include "Duration.h"
+#include <string_view>
 
 enum class TimeFormat : uint8
 {

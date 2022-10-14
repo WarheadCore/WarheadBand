@@ -34,6 +34,8 @@
 #include "RandomMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
+#include "PetDefines.h"
+#include "Player.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {

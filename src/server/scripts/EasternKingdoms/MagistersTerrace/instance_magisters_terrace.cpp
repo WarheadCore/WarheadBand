@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "magisters_terrace.h"
+#include <sstream>
 
 class instance_magisters_terrace : public InstanceMapScript
 {

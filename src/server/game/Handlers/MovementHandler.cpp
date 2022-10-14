@@ -41,8 +41,7 @@
 #include "WaypointMovementGenerator.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-
-#define MOVEMENT_PACKET_TIME_DELAY 0
+#include "ObjectAccessor.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvData*/)
 {

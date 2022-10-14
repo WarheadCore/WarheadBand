@@ -21,6 +21,7 @@
 #include "MapMgr.h"
 #include "Transport.h"
 #include "halls_of_reflection.h"
+#include <sstream>
 
 class UtherBatteredHiltEvent : public BasicEvent
 {

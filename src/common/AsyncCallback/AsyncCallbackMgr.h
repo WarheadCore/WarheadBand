@@ -19,10 +19,10 @@
 #define ASYNC_CALLBACK_MGR_H_
 
 #include "AsyncCallbackProcessor.h"
+#include "Define.h"
 #include "Duration.h"
 #include <functional>
 #include <future>
-#include <memory>
 
 namespace Warhead::Async
 {
@@ -67,4 +67,4 @@ namespace Warhead::Async
 
 #define sAsyncCallbackMgr Warhead::Async::AsyncCallbackMgr::instance()
 
-#endif // ASYNC_CALLBACK_H_
+#endif // ASYNC_CALLBACK_MGR_H_

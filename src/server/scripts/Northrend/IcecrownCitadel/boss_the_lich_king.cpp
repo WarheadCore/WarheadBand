@@ -23,7 +23,6 @@
 #include "CreatureTextMgr.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
@@ -34,6 +33,7 @@
 #include "Vehicle.h"
 #include "Weather.h"
 #include "icecrown_citadel.h"
+#include "PassiveAI.h"
 
 enum Texts
 {

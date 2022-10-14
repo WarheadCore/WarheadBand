@@ -27,6 +27,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
+#include "PassiveAI.h"
 
 enum Texts
 {

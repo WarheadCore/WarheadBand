@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include <sstream>
 
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
 {

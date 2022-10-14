@@ -24,6 +24,7 @@
 #include "MapMgr.h"
 #include "MoveSpline.h"
 #include "Transport.h"
+#include "ObjectAccessor.h"
 
 TransportTemplate::~TransportTemplate()
 {

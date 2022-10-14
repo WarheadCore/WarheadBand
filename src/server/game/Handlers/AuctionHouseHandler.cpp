@@ -30,10 +30,11 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "UpdateMask.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "UpdateFields.h"
+#include "ObjectAccessor.h"
 
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)

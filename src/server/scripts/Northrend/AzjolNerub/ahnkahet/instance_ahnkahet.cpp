@@ -24,6 +24,7 @@
 #include "SpellScript.h"
 #include "ahnkahet.h"
 #include <array>
+#include <sstream>
 
 class instance_ahnkahet : public InstanceMapScript
 {

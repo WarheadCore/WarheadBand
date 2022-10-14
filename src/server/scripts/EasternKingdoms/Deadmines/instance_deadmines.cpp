@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "deadmines.h"
+#include <sstream>
 
 class instance_deadmines : public InstanceMapScript
 {

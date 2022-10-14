@@ -18,17 +18,13 @@
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
 
-#include "Common.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include <list>
-#include <map>
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include <string>
 #include <utility>
 
 class Player;
-
-#define CHANNEL_BAN_DURATION            DAY*60
+class WorldPacket;
 
 // EnumUtils: DESCRIBE THIS
 enum ChatNotify : uint8
@@ -174,6 +170,7 @@ class WH_GAME_API Channel
             if (state) flags |= MEMBER_FLAG_MUTED;
             else flags &= ~MEMBER_FLAG_MUTED;
         }
+
     private:
         bool _gmStatus = false;
     };
@@ -284,35 +281,8 @@ private:
         return itr != playersStore.end() ? itr->second.flags : 0;
     }
 
-    void SetModerator(ObjectGuid guid, bool set)
-    {
-        PlayerInfo& pinfo = playersStore[guid];
-        if (pinfo.IsModerator() != set)
-        {
-            uint8 oldFlag = pinfo.flags;
-            pinfo.SetModerator(set);
-
-            WorldPacket data;
-            MakeModeChange(&data, guid, oldFlag);
-            SendToAll(&data);
-
-            FlagsNotify(pinfo.plrPtr);
-        }
-    }
-
-    void SetMute(ObjectGuid guid, bool set)
-    {
-        PlayerInfo& pinfo = playersStore[guid];
-        if (pinfo.IsMuted() != set)
-        {
-            uint8 oldFlag = pinfo.flags;
-            pinfo.SetMuted(set);
-
-            WorldPacket data;
-            MakeModeChange(&data, guid, oldFlag);
-            SendToAll(&data);
-        }
-    }
+    void SetModerator(ObjectGuid guid, bool set);
+    void SetMute(ObjectGuid guid, bool set);
 
     typedef std::unordered_map<ObjectGuid, PlayerInfo> PlayerContainer;
     typedef std::unordered_map<ObjectGuid, uint32> BannedContainer;
@@ -335,4 +305,5 @@ private:
     BannedContainer bannedStore;
     PlayersWatchingContainer playersWatchingStore;
 };
+
 #endif

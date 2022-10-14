@@ -24,6 +24,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "oculus.h"
+#include <sstream>
 
 class instance_oculus : public InstanceMapScript
 {

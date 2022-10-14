@@ -32,8 +32,8 @@
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "WorldModel.h"
+#include <sstream>
 
 MotionTransport::MotionTransport() : Transport(), _transportInfo(nullptr), _isMoving(true), _pendingStop(false), _triggeredArrivalEvent(false), _triggeredDepartureEvent(false), _passengersLoaded(false), _delayedTeleport(false)
 {

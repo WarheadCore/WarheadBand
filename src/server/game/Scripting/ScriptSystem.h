@@ -18,7 +18,9 @@
 #ifndef SC_SYSTEM_H
 #define SC_SYSTEM_H
 
-#include "ScriptMgr.h"
+#include "Define.h"
+#include <unordered_map>
+#include <vector>
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 

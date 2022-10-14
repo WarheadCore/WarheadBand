@@ -51,7 +51,6 @@
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Spell.h"
-#include "Tokenize.h"
 #include "UpdateData.h"
 #include "Vehicle.h"
 #include "WhoListCacheMgr.h"

@@ -21,6 +21,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include <string>
+#include <sstream>
 
 bool _SpellScript::_Validate(SpellInfo const* entry)
 {

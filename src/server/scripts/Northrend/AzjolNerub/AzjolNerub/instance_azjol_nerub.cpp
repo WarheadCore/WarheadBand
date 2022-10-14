@@ -22,6 +22,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "azjol_nerub.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

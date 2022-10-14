@@ -18,7 +18,6 @@
 #include "DBCDatabaseLoader.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
-#include "Field.h"
 
 DBCDatabaseLoader::DBCDatabaseLoader(char const* tableName, char const* dbcFormatString, std::vector<char*>& stringPool)
     : _sqlTableName(tableName),

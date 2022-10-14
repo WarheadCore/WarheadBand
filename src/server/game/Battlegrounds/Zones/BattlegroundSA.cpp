@@ -27,7 +27,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 constexpr Milliseconds BG_SA_BOAT_START    = 1min;
 constexpr Milliseconds BG_SA_WARMUPLENGTH  = 2min;

@@ -22,6 +22,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "utgarde_keep.h"
+#include <sstream>
 
 class instance_utgarde_keep : public InstanceMapScript
 {

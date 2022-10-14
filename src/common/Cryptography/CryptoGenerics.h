@@ -22,7 +22,6 @@
 #include "CryptoRandom.h"
 #include "Define.h"
 #include "Errors.h"
-#include <iterator>
 #include <vector>
 
 namespace Warhead::Impl

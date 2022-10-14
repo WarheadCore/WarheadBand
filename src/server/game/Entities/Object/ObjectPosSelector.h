@@ -18,10 +18,8 @@
 #ifndef _OBJECT_POS_SELECTOR_H
 #define _OBJECT_POS_SELECTOR_H
 
-#include "Define.h"
 #include <cmath>
 #include <map>
-#include <math.h>
 
 enum UsedPosType { USED_POS_PLUS, USED_POS_MINUS };
 
@@ -152,4 +150,5 @@ struct ObjectPosSelector
     bool  m_smallStepOk[2];
     UsedPosList::value_type const* m_smallStepNextUsedPos[2];
 };
+
 #endif

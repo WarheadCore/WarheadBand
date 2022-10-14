@@ -20,6 +20,7 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "Errors.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"

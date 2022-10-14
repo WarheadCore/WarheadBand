@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 /*********************************************************/
 /***               FLOOD FILTER SYSTEM                 ***/

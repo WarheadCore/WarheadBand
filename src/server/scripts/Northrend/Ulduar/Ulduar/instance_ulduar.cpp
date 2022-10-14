@@ -27,6 +27,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ulduar.h"
+#include <sstream>
 
 class instance_ulduar : public InstanceMapScript
 {

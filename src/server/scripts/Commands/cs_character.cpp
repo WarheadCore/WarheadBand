@@ -30,7 +30,6 @@ EndScriptData */
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
-#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -40,6 +39,7 @@ EndScriptData */
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 

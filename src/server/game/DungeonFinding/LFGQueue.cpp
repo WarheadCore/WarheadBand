@@ -27,9 +27,8 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "ObjectDefines.h"
-#include "ObjectMgr.h"
 #include "Player.h"
-#include "World.h"
+#include "ObjectAccessor.h"
 
 namespace lfg
 {

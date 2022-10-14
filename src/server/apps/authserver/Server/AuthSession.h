@@ -19,10 +19,8 @@
 #define __AUTHSESSION_H__
 
 #include "AsyncCallbackProcessor.h"
-#include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
-#include "CryptoHash.h"
 #include "Optional.h"
 #include "QueryResult.h"
 #include "SRP6.h"

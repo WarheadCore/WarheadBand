@@ -20,7 +20,6 @@
 
 #include "LFGGroupData.h"
 #include "GameConfig.h"
-#include "LFG.h"
 
 namespace lfg
 {

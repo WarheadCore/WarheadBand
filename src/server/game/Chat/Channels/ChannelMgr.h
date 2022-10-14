@@ -14,16 +14,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __WARHEAD_CHANNELMGR_H
 #define __WARHEAD_CHANNELMGR_H
 
 #include "Channel.h"
-#include "Common.h"
-#include "World.h"
 #include <map>
 #include <string>
 
 #define MAX_CHANNEL_PASS_STR 31
+
+class Channel;
+class WorldPacket;
 
 class WH_GAME_API ChannelMgr
 {

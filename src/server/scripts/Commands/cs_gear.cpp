@@ -21,10 +21,8 @@
 #include "Chat.h"
 #include "GameConfig.h"
 #include "Language.h"
-#include "Log.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 

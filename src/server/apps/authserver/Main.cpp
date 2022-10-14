@@ -60,7 +60,7 @@ namespace fs = std::filesystem;
 
 bool StartDB();
 void StopDB();
-void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, boost::system::error_code const& error);
+void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimerRef, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
 

@@ -34,7 +34,6 @@
 #include "ChatTextBuilder.h"
 #include "Common.h"
 #include "ConditionMgr.h"
-#include "Config.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
@@ -81,6 +80,7 @@
 #include "Weather.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include <sstream>
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue

@@ -36,17 +36,16 @@ public:
     void ApplyAllImmunities();
     void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);   //! May be called from scripts
 
-    Unit* GetBase() const { return _me; }
-    VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
-    uint32 GetCreatureEntry() const { return _creatureEntry; }
+    [[nodiscard]] Unit* GetBase() const { return _me; }
+    [[nodiscard]] VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
+    [[nodiscard]] uint32 GetCreatureEntry() const { return _creatureEntry; }
 
-    bool HasEmptySeat(int8 seatId) const;
-    Unit* GetPassenger(int8 seatId) const;
-    int8 GetNextEmptySeat(int8 seatId, bool next) const;
-    uint8 GetAvailableSeatCount() const;
+    [[nodiscard]] bool HasEmptySeat(int8 seatId) const;
+    [[nodiscard]] Unit* GetPassenger(int8 seatId) const;
+    [[nodiscard]] int8 GetNextEmptySeat(int8 seatId, bool next) const;
+    [[nodiscard]] uint8 GetAvailableSeatCount() const;
 
     bool AddPassenger(Unit* passenger, int8 seatId = -1);
-    void EjectPassenger(Unit* passenger, Unit* controller);
     void RemovePassenger(Unit* passenger);
     void RelocatePassengers();
     void RemoveAllPassengers();

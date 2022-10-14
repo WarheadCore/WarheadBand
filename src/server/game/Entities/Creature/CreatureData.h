@@ -18,7 +18,6 @@
 #ifndef AZEROTHCORE_CREATUREDATA_H
 #define AZEROTHCORE_CREATUREDATA_H
 
-#include "Cell.h"
 #include "Common.h"
 #include "DBCEnums.h"
 #include "DatabaseEnv.h"
@@ -26,7 +25,6 @@
 #include "LootMgr.h"
 #include "Unit.h"
 #include "UpdateMask.h"
-#include "World.h"
 #include <list>
 
 #define MAX_AGGRO_RESET_TIME 10 // in seconds

@@ -25,6 +25,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "icecrown_citadel.h"
+#include "PassiveAI.h"
 
 enum Texts
 {

@@ -18,19 +18,16 @@
 #ifndef WARHEAD_MAPMANAGER_H
 #define WARHEAD_MAPMANAGER_H
 
-#include "Common.h"
 #include "Define.h"
 #include "Map.h"
 #include "MapInstanced.h"
 #include "MapUpdater.h"
 #include "Object.h"
-
 #include <mutex>
 
 class Transport;
 class StaticTransport;
 class MotionTransport;
-struct TransportCreatureProto;
 
 class WH_GAME_API MapMgr
 {

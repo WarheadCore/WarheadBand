@@ -20,7 +20,6 @@
 
 #include "CreatureTextMgr.h"
 #include "GameTime.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ScriptObject.h"
 #include "SpellScript.h"
@@ -28,6 +27,7 @@
 #include "TransportMgr.h"
 #include "Vehicle.h"
 #include "icecrown_citadel.h"
+#include "PassiveAI.h"
 
 enum Texts
 {

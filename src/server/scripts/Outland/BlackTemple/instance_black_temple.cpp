@@ -20,7 +20,9 @@
 
 #include "InstanceScript.h"
 #include "ScriptObject.h"
+#include "ObjectAccessor.h"
 #include "black_temple.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

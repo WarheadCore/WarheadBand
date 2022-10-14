@@ -57,13 +57,10 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "WorldPacket.h"
-
-#ifdef ELUNA
-#include "ElunaUtility.h"
-#include "LuaEngine.h"
-#endif
+#include "IVMapMgr.h"
+#include "VMapMgr2.h"
+#include <sstream>
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 

@@ -23,11 +23,9 @@
 #include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "GameGraveyard.h"
-#include "Language.h"
 #include "Player.h"
 #include "Util.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void BattlegroundABScore::BuildObjectivesBlock(WorldPacket& data)
 {

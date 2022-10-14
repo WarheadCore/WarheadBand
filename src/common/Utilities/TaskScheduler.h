@@ -19,7 +19,6 @@
 #define _TASK_SCHEDULER_H_
 
 #include "Util.h"
-#include <algorithm>
 #include <chrono>
 #include <functional>
 #include <memory>

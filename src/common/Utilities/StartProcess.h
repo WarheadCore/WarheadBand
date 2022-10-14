@@ -26,7 +26,6 @@
 
 namespace Warhead
 {
-
     /// Starts a process with the given arguments and parameters and will block
     /// until the process is finished.
     /// When an input path is given, the file will be routed to the processes stdin.

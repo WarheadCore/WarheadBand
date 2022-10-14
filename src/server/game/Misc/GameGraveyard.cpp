@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "MapMgr.h"
 #include "ScriptMgr.h"
+#include "Player.h"
 
 Graveyard* Graveyard::instance()
 {

@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "arcatraz.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

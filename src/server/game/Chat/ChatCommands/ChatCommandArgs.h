@@ -33,7 +33,6 @@ struct GameTele;
 
 namespace Warhead::Impl::ChatCommands
 {
-
     /************************** ARGUMENT HANDLERS *******************************************\
     |* Define how to extract contents of a certain requested type from a string             *|
     |* Must implement the following:                                                        *|

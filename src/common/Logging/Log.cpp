@@ -281,7 +281,7 @@ Warhead::Logger* Warhead::Log::GetLoggerByType(std::string_view type)
         return nullptr;
 
     std::string_view parentLogger{ LOGGER_ROOT };
-    size_t found = type.find_last_of('.');
+    auto found = type.find_last_of('.');
     if (found != std::string_view::npos)
         parentLogger = type.substr(0, found);
 

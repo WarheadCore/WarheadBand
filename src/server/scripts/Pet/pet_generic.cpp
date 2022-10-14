@@ -24,7 +24,6 @@
  */
 
 #include "CreatureTextMgr.h"
-#include "Group.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptObject.h"

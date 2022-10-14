@@ -28,6 +28,7 @@
 #include "SpellAuraDefines.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "ObjectAccessor.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {

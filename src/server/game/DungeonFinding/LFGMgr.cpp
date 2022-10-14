@@ -44,6 +44,7 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 namespace lfg
 {
@@ -785,14 +786,6 @@ namespace lfg
             SetRoles(guid, roles);
             debugNames.append(player->GetName());
         }
-
-        /*if (sLog->ShouldLog(LOG_FILTER_LFG, LOG_LEVEL_DEBUG))
-        {
-            std::ostringstream o;
-            o << "LFGMgr::Join: [" << guid << "] joined (" << (grp ? "group" : "player") << ") Members: " << debugNames.c_str()
-              << ". Dungeons (" << uint32(dungeons.size()) << "): " << ConcatenateDungeons(dungeons);
-            LOG_DEBUG("lfg", "{}", o.str());
-        }*/
     }
 
     void LFGMgr::ToggleTesting()

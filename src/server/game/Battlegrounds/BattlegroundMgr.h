@@ -20,7 +20,6 @@
 
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
-#include "Common.h"
 #include "CreatureAIImpl.h"
 #include "DBCEnums.h"
 #include <functional>

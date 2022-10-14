@@ -30,6 +30,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "ObjectAccessor.h"
 
 enum RogueSpells
 {

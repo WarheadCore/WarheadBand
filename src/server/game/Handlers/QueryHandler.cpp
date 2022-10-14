@@ -31,6 +31,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {

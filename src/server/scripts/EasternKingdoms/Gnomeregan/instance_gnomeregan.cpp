@@ -24,6 +24,8 @@
 #include "ScriptObject.h"
 #include "SpellScript.h"
 #include "gnomeregan.h"
+#include "ObjectAccessor.h"
+#include <sstream>
 
 class instance_gnomeregan : public InstanceMapScript
 {

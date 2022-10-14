@@ -21,7 +21,8 @@
 #include "AddonHandler.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "zlib.h"
+#include "WorldPacket.h"
+#include <zlib.h>
 
 AddonHandler::AddonHandler()
 {

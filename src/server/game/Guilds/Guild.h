@@ -19,25 +19,20 @@
 #define AZEROTHCORE_GUILD_H
 
 #include "Item.h"
-#include "ObjectMgr.h"
 #include "Optional.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <set>
 #include <unordered_map>
-#include <unordered_set>
 
 class Item;
 
-namespace WorldPackets
+namespace WorldPackets::Guild
 {
-    namespace Guild
-    {
-        class GuildBankLogQueryResults;
-        class GuildEventLogQueryResults;
-        class SaveGuildEmblem;
-    }
+    class GuildBankLogQueryResults;
+    class GuildEventLogQueryResults;
+    class SaveGuildEmblem;
 }
 
 enum GuildMisc
@@ -351,7 +346,7 @@ public: // pussywizard: public class Member
         int32 GetBankWithdrawValue(uint8 tabId) const;
         void ResetValues();
 
-        inline Player* FindPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
+        [[nodiscard]] Player* FindPlayer() const;
 
     private:
         uint32 m_guildId;

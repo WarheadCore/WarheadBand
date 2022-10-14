@@ -26,7 +26,7 @@
 #include "Player.h"
 #include "Util.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
+#include "ObjectAccessor.h"
 
 PlayerSocial::PlayerSocial(): m_playerGUID() { }
 

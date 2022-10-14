@@ -27,7 +27,6 @@
 #include "World.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 
 typedef std::vector<FlyByCamera> FlyByCameraCollection;

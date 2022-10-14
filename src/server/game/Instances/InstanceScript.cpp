@@ -21,7 +21,6 @@
 #include "InstanceScript.h"
 #include "ChatTextBuilder.h"
 #include "Creature.h"
-#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameObject.h"
@@ -34,9 +33,9 @@
 #include "Pet.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptReloadMgr.h"
 #include "Spell.h"
 #include "WorldSession.h"
+#include <sstream>
 
 InstanceScript::InstanceScript(Map* map) : instance(map)
 {

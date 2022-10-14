@@ -33,6 +33,7 @@
 #include "SpellScript.h"
 #include "Totem.h"
 #include "UnitAI.h"
+#include "ObjectAccessor.h"
 
 enum DeathKnightSpells
 {

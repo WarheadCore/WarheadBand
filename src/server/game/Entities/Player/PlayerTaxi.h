@@ -19,8 +19,8 @@
 #define __PLAYER_TAXI_H__
 
 #include "DBCStructure.h"
+#include "SharedDefines.h"
 #include <deque>
-#include <vector>
 
 class ByteBuffer;
 

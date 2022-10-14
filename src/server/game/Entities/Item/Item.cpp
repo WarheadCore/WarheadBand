@@ -32,7 +32,8 @@
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
+#include "ObjectAccessor.h"
+#include <sstream>
 
 void AddItemsSetItem(Player* player, Item* item)
 {

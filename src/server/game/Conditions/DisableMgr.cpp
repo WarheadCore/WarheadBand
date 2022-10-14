@@ -30,6 +30,7 @@
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "World.h"
+#include "VMapMgr2.h"
 
 namespace DisableMgr
 {
@@ -43,11 +44,11 @@ namespace DisableMgr
 
         // single disables here with optional data
         typedef std::map<uint32, DisableData> DisableTypeMap;
+
         // global disable map by source
         typedef std::map<DisableType, DisableTypeMap> DisableMap;
 
         DisableMap m_DisableMap;
-
         uint8 MAX_DISABLE_TYPES = 10;
     }
 

@@ -4558,3 +4558,112 @@ bool SmartScript::IsInPhase(uint32 p) const
 
     return ((1 << (mEventPhase - 1)) & p) != 0;
 }
+
+void SmartScript::ResetBaseObject()
+{
+    WorldObject* lookupRoot = me;
+    if (!lookupRoot)
+        lookupRoot = go;
+
+    if (lookupRoot)
+    {
+        if (meOrigGUID)
+        {
+            if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
+            {
+                me = m;
+                go = nullptr;
+            }
+        }
+
+        if (goOrigGUID)
+        {
+            if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
+            {
+                me = nullptr;
+                go = o;
+            }
+        }
+    }
+
+    goOrigGUID.Clear();
+    meOrigGUID.Clear();
+}
+
+Creature *SmartScript::FindCreatureNear(WorldObject *searchObject, ObjectGuid::LowType guid) const
+{
+    auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
+    if (bounds.first == bounds.second)
+        return nullptr;
+
+    auto creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair)
+    {
+        return pair.second->IsAlive();
+    });
+
+    return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
+}
+
+GameObject *SmartScript::FindGameObjectNear(WorldObject *searchObject, ObjectGuid::LowType guid) const
+{
+    auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
+    if (bounds.first == bounds.second)
+        return nullptr;
+
+    return bounds.first->second;
+}
+
+void SmartScript::StoreCounter(uint32 id, uint32 value, uint32 reset, uint32 subtract)
+{
+    CounterMap::iterator itr = mCounterList.find(id);
+    if (itr != mCounterList.end())
+    {
+        if (!reset && !subtract)
+        {
+            itr->second += value;
+        }
+        else if (subtract)
+        {
+            itr->second -= value;
+        }
+        else
+        {
+            itr->second = value;
+        }
+    }
+    else
+    {
+        mCounterList.insert(std::make_pair(id, value));
+    }
+
+    ProcessEventsFor(SMART_EVENT_COUNTER_SET, nullptr, id);
+}
+
+bool SmartScript::IsSmartGO(GameObject* g)
+{
+    bool smart = true;
+    if (g && g->GetAIName() != "SmartGameObjectAI")
+        smart = false;
+
+    if (!go || go->GetAIName() != "SmartGameObjectAI")
+        smart = false;
+    if (!smart)
+        LOG_ERROR("db.query", "SmartScript: Action target GameObject(entry: {}) is not using SmartGameObjectAI, action skipped to prevent crash.", g ? g->GetEntry() : (go ? go->GetEntry() : 0));
+
+    return smart;
+}
+
+bool SmartScript::IsSmart(Creature* c)
+{
+    bool smart = true;
+    if (c && c->GetAIName() != "SmartAI")
+        smart = false;
+
+    if (!me || me->GetAIName() != "SmartAI")
+        smart = false;
+
+    if (!smart)
+        LOG_ERROR("db.query", "SmartScript: Action target Creature(entry: {}) is not using SmartAI, action skipped to prevent crash.", c ? c->GetEntry() : (me ? me->GetEntry() : 0));
+
+    return smart;
+}

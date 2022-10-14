@@ -20,7 +20,6 @@
 
 #include "ByteBuffer.h"
 #include "Errors.h"
-#include "UpdateFields.h"
 
 class WH_GAME_API UpdateMask
 {

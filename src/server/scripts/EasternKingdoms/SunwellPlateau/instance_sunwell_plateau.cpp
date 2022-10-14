@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "sunwell_plateau.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

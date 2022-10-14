@@ -22,7 +22,6 @@
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "ObjectGuid.h"
-#include <chrono>
 #include <map>
 #include <string>
 

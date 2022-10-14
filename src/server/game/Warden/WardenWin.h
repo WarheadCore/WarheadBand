@@ -19,7 +19,6 @@
 #define _WARDEN_WIN_H
 
 #include "ARC4.h"
-#include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Warden.h"
 #include <list>
@@ -67,7 +66,6 @@ struct WardenInitModuleRequest
 #endif
 
 class WorldSession;
-class Warden;
 
 class WH_GAME_API WardenWin : public Warden
 {

@@ -38,7 +38,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldStatePackets.h"
-#include <time.h>
+#include <ctime>
 
 GameEventMgr* GameEventMgr::instance()
 {
