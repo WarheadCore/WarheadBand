@@ -26,6 +26,7 @@
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -36,7 +37,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
 #include <sstream>
 
 Player* ChatHandler::GetPlayer() const

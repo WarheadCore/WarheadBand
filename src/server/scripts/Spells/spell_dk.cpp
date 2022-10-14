@@ -24,6 +24,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
+#include "ObjectAccessor.h"
 #include "PetDefines.h"
 #include "Player.h"
 #include "ScriptObject.h"
@@ -33,7 +34,6 @@
 #include "SpellScript.h"
 #include "Totem.h"
 #include "UnitAI.h"
-#include "ObjectAccessor.h"
 
 enum DeathKnightSpells
 {

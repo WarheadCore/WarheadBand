@@ -23,8 +23,8 @@
 #include "InstanceScript.h"
 #include "MapMgr.h"
 #include "MoveSpline.h"
-#include "Transport.h"
 #include "ObjectAccessor.h"
+#include "Transport.h"
 
 TransportTemplate::~TransportTemplate()
 {

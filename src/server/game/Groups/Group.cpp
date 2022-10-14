@@ -31,6 +31,7 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -44,7 +45,6 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),

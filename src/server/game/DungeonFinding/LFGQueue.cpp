@@ -26,9 +26,9 @@
 #include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "Player.h"
-#include "ObjectAccessor.h"
 
 namespace lfg
 {

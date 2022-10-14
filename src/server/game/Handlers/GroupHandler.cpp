@@ -27,6 +27,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
@@ -38,7 +39,6 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
 
 class Aura;
 

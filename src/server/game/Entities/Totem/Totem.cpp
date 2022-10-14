@@ -20,12 +20,12 @@
 
 #include "Totem.h"
 #include "Group.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "TotemPackets.h"
-#include "ObjectAccessor.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, ObjectGuid owner) : Minion(properties, owner, false)
 {

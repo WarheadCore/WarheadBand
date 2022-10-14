@@ -31,6 +31,7 @@ EndScriptData */
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
@@ -38,7 +39,6 @@ EndScriptData */
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "Timer.h"
 #include "Transport.h"
-#include "ObjectAccessor.h"
 #include <string>
 
 using namespace Warhead::ChatCommands;

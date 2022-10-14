@@ -19,8 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "BattlefieldMgr.h"
-#include "Player.h"
 #include "BattlefieldWG.h"
+#include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
 {

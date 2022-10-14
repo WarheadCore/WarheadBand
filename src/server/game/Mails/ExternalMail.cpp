@@ -23,9 +23,9 @@
 #include "GameConfig.h"
 #include "Log.h"
 #include "Mail.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "TaskScheduler.h"
-#include "ObjectAccessor.h"
 
 namespace
 {

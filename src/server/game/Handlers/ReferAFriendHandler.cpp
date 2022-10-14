@@ -19,11 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "GameConfig.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
 
 void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {

@@ -23,6 +23,7 @@
 #include "GameConfig.h"
 #include "Group.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -31,7 +32,6 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
-#include "ObjectAccessor.h"
 
 static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {

@@ -28,8 +28,8 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "blackwing_lair.h"
-#include <sstream>
 #include <array>
+#include <sstream>
 
 DoorData const doorData[] =
 {

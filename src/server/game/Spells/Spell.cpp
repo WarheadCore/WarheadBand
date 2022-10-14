@@ -34,6 +34,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "IVMapMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -56,10 +57,9 @@
 #include "UpdateMask.h"
 #include "Util.h"
 #include "VMapFactory.h"
+#include "VMapMgr2.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
-#include "IVMapMgr.h"
-#include "VMapMgr2.h"
 #include <sstream>
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];

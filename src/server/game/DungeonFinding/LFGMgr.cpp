@@ -36,6 +36,7 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -44,7 +45,6 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
 
 namespace lfg
 {

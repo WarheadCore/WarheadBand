@@ -46,8 +46,8 @@
 #include "Transport.h"
 #include "Warden.h"
 #include <fstream>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 

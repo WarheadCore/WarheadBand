@@ -29,13 +29,13 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "ObjectAccessor.h"
 
 /*********************************************************/
 /***                    QUEST SYSTEM                   ***/

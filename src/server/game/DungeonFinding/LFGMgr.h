@@ -19,13 +19,13 @@
 #define _LFGMGR_H
 
 #include "Common.h"
-#include "SharedDefines.h"
 #include "DBCStructure.h"
 #include "DatabaseEnvFwd.h"
 #include "LFG.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 #include "LFGQueue.h"
+#include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <utility>
 

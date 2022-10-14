@@ -23,12 +23,12 @@
 #include "GameTime.h"
 #include "Language.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "ObjectAccessor.h"
 
 OutdoorPvPTF::OutdoorPvPTF()
 {

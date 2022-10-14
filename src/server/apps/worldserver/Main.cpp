@@ -49,11 +49,11 @@
 #include "ScriptReloadMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
+#include "SignalHandlerMgr.h"
 #include "ThreadPool.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "SignalHandlerMgr.h"
 #include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>

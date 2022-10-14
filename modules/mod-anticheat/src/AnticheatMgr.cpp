@@ -20,6 +20,7 @@
 
 #include "AnticheatMgr.h"
 #include "AccountMgr.h"
+#include "BanMgr.h"
 #include "Chat.h"
 #include "GameTime.h"
 #include "Log.h"
@@ -28,7 +29,6 @@
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "SpellAuras.h"
-#include "BanMgr.h"
 
 constexpr float CLIMB_ANGLE = 1.87f;
 

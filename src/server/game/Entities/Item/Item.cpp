@@ -24,6 +24,7 @@
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "ItemEnchantmentMgr.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -32,7 +33,6 @@
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "WorldPacket.h"
-#include "ObjectAccessor.h"
 #include <sstream>
 
 void AddItemsSetItem(Player* player, Item* item)

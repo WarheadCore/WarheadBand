@@ -41,6 +41,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
@@ -57,7 +58,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
-#include "ObjectAccessor.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;

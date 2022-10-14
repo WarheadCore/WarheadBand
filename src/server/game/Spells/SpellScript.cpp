@@ -20,8 +20,8 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include <string>
 #include <sstream>
+#include <string>
 
 bool _SpellScript::_Validate(SpellInfo const* entry)
 {

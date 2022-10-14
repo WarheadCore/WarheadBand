@@ -19,12 +19,12 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "SpellScript.h"
 #include "gnomeregan.h"
-#include "ObjectAccessor.h"
 #include <sstream>
 
 class instance_gnomeregan : public InstanceMapScript

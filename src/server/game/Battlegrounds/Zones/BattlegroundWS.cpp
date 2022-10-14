@@ -23,11 +23,11 @@
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "ObjectAccessor.h"
 
 void BattlegroundWGScore::BuildObjectivesBlock(WorldPacket& data)
 {

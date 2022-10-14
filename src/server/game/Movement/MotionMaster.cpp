@@ -30,12 +30,12 @@
 #include "Log.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "PetDefines.h"
+#include "Player.h"
 #include "PointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
-#include "PetDefines.h"
-#include "Player.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {

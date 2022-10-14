@@ -22,12 +22,12 @@
 #include "BattlegroundMgr.h"
 #include "LFGMgr.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "World.h"
-#include "ObjectAccessor.h"
 
 namespace ArenaSpectator
 {

@@ -18,6 +18,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
+#include "CellImpl.h"
 #include "CombatAI.h"
 #include "Errors.h"
 #include "GridNotifiers.h"
@@ -33,7 +34,6 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "ulduar.h"
-#include "CellImpl.h"
 
 enum LeviathanSpells
 {

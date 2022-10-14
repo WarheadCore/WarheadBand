@@ -24,6 +24,7 @@
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "ObjectMgr.h"
+#include "PassiveAI.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
@@ -33,7 +34,6 @@
 #include "Vehicle.h"
 #include "Weather.h"
 #include "icecrown_citadel.h"
-#include "PassiveAI.h"
 
 enum Texts
 {

@@ -18,9 +18,9 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "Define.h"
 #include "DBCStructure.h"
 #include "DatabaseEnv.h"
+#include "Define.h"
 #include "EventProcessor.h"
 #include "ObjectGuid.h"
 #include "WorldPacket.h"
