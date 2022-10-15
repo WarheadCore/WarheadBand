@@ -21,7 +21,7 @@
 #include "DBCEnums.h"
 #include "GroupRefMgr.h"
 #include "LootMgr.h"
-#include "QueryResult.h"
+#include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
 #include <functional>
 

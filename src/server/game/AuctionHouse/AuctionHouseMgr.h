@@ -19,7 +19,7 @@
 #define _AUCTION_HOUSE_MGR_H
 
 #include "DBCStructure.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include "EventProcessor.h"
 #include "ObjectGuid.h"

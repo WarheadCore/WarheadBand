@@ -31,6 +31,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptObject.h"
 #include "WaypointMgr.h"
+#include "DatabaseEnv.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

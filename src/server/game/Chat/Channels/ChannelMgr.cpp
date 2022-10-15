@@ -25,6 +25,7 @@
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "World.h"
+#include "DatabaseEnv.h"
 
 ChannelMgr::~ChannelMgr()
 {

@@ -20,7 +20,7 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "Unit.h"

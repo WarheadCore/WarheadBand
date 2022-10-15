@@ -30,6 +30,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "DatabaseEnv.h"
 #include <zlib.h>
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)

@@ -51,6 +51,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
+#include "DatabaseEnv.h"
 
 Battleground::Battleground()
 {

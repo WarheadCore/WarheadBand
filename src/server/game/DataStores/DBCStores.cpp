@@ -30,6 +30,7 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "World.h"
+#include "DatabaseEnv.h"
 #include <map>
 #include <sstream>
 

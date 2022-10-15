@@ -36,6 +36,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "DatabaseEnv.h"
 
 /*********************************************************/
 /***                    QUEST SYSTEM                   ***/

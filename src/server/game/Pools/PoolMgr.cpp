@@ -24,6 +24,7 @@
 #include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Transport.h"
+#include "DatabaseEnv.h"
 #include <sstream>
 
 ////////////////////////////////////////////////////////////

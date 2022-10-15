@@ -20,7 +20,7 @@
 
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "QueryResult.h"
+#include "DatabaseEnv.h"
 #include "ScriptObject.h"
 
 class ServerMailReward : public PlayerScript
@@ -40,10 +40,10 @@ public:
             WorldSession* mySess = player->GetSession();
             mySess->GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(stmt)
                 .WithPreparedCallback([mySess, servMail](PreparedQueryResult result)
-                    {
-                        if (!result)
-                            sObjectMgr->SendServerMail(mySess->GetPlayer(), servMail.second.id, servMail.second.reqLevel, servMail.second.reqPlayTime, servMail.second.moneyA, servMail.second.moneyH, servMail.second.itemA, servMail.second.itemCountA, servMail.second.itemH, servMail.second.itemCountH, servMail.second.subject, servMail.second.body, servMail.second.active);
-                    }));
+                {
+                    if (!result)
+                        sObjectMgr->SendServerMail(mySess->GetPlayer(), servMail.second.id, servMail.second.reqLevel, servMail.second.reqPlayTime, servMail.second.moneyA, servMail.second.moneyH, servMail.second.itemA, servMail.second.itemCountA, servMail.second.itemH, servMail.second.itemCountH, servMail.second.subject, servMail.second.body, servMail.second.active);
+                }));
         }
     }
 };

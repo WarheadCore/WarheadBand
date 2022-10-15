@@ -23,6 +23,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "ScriptObject.h"
+#include "DatabaseEnv.h"
 
 enum IPLoggingTypes
 {

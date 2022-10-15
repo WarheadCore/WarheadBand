@@ -34,6 +34,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "DatabaseEnv.h"
 #include <unordered_map>
 
 /*********************************************************/

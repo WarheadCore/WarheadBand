@@ -38,6 +38,7 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "StringFormat.h"
+#include "DatabaseEnv.h"
 #include <sstream>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

@@ -32,6 +32,7 @@
 #include "SpellMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "DatabaseEnv.h"
 
 void WorldSession::SendTradeStatus(TradeStatus status)
 {

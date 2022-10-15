@@ -32,6 +32,7 @@ EndScriptData */
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptObject.h"
+#include "DatabaseEnv.h"
 
 using namespace Warhead::ChatCommands;
 

@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StopWatch.h"
+#include "DatabaseEnv.h"
 #include <Warhead/RegularExpression.h>
 #include <Warhead/RegularExpressionException.h>
 #include <vector>

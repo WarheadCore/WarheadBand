@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "StopWatch.h"
+#include "DatabaseEnv.h"
 
 BOARMgr* BOARMgr::instance()
 {

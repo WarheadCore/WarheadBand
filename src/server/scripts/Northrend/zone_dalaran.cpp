@@ -32,6 +32,7 @@ Script Data End */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "World.h"
+#include "DatabaseEnv.h"
 
 // Ours
 class npc_steam_powered_auctioneer : public CreatureScript

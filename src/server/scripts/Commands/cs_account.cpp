@@ -40,6 +40,7 @@ EndScriptData */
 #include "SecretMgr.h"
 #include "StringConvert.h"
 #include "TOTP.h"
+#include "DatabaseEnv.h"
 #include <unordered_map>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

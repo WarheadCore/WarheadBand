@@ -28,6 +28,7 @@
 #include "ScriptObject.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "DatabaseEnv.h"
 
 enum class InstanceDiff : uint8
 {

@@ -52,6 +52,7 @@
 #include "Timer.h"
 #include "Tokenize.h"
 #include "WeatherMgr.h"
+#include "DatabaseEnv.h"
 
 constexpr auto SPELL_STUCK = 7355;
 constexpr auto SPELL_FREEZE = 9454;

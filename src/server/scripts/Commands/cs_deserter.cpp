@@ -32,6 +32,7 @@
 #include "ScriptObject.h"
 #include "SpellAuras.h"
 #include "Timer.h"
+#include "DatabaseEnv.h"
 
 enum Spells
 {

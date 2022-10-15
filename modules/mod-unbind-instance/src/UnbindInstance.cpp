@@ -32,6 +32,7 @@
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include "Tokenize.h"
+#include "DatabaseEnv.h"
 
 namespace
 {

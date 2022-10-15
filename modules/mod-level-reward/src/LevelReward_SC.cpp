@@ -25,7 +25,7 @@
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "StringFormat.h"
+#include "DatabaseEnv.h"
 
 struct LevelRewardStruct
 {

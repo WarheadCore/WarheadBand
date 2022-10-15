@@ -19,7 +19,7 @@
 #define AZEROTHCORE_ARENATEAM_H
 
 #include "Map.h"
-#include "QueryResult.h"
+#include "DatabaseEnvFwd.h"
 #include <list>
 #include <map>
 

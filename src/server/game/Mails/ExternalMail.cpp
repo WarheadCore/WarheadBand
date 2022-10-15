@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "TaskScheduler.h"
+#include "DatabaseEnv.h"
 
 namespace
 {

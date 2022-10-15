@@ -25,6 +25,7 @@
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "ScriptedGossip.h"
+#include "DatabaseEnv.h"
 
 Transmogrification* Transmogrification::instance()
 {

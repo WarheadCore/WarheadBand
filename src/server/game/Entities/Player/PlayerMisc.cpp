@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WorldSession.h"
+#include "DatabaseEnv.h"
 
 /*********************************************************/
 /***               FLOOD FILTER SYSTEM                 ***/

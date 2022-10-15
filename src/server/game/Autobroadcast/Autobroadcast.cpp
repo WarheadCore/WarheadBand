@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Realm.h"
 #include "Tokenize.h"
+#include "DatabaseEnv.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()
 {

@@ -32,6 +32,7 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
+#include "DatabaseEnv.h"
 
 static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {

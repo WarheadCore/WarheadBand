@@ -25,6 +25,7 @@
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "Transport.h"
+#include "DatabaseEnv.h"
 
 TransportTemplate::~TransportTemplate()
 {

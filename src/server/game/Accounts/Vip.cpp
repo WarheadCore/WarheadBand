@@ -31,6 +31,7 @@
 #include "TaskScheduler.h"
 #include "Timer.h"
 #include "Tokenize.h"
+#include "DatabaseEnv.h"
 #include <tuple>
 #include <unordered_map>
 

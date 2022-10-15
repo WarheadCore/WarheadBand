@@ -23,6 +23,7 @@
 #include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
+#include "DatabaseEnv.h"
 
 using namespace Warhead::ChatCommands;
 

@@ -32,6 +32,7 @@
 #include "SocialMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "DatabaseEnv.h"
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {

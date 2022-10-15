@@ -2910,3 +2910,10 @@ void Guild::ResetTimes()
 
     _BroadcastEvent(GE_BANK_TAB_AND_MONEY_UPDATED, ObjectGuid::Empty);
 }
+
+void Guild::_DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
+{
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
+    stmt->SetData(0, lowguid);
+    CharacterDatabase.Execute(stmt);
+}

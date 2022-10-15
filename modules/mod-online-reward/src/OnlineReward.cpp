@@ -31,6 +31,7 @@
 #include "StopWatch.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "DatabaseEnv.h"
 
 OnlineRewardMgr* OnlineRewardMgr::instance()
 {

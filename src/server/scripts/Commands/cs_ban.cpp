@@ -38,6 +38,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptObject.h"
 #include "Timer.h"
+#include "DatabaseEnv.h"
 
 /// Ban function modes
 enum BanMode

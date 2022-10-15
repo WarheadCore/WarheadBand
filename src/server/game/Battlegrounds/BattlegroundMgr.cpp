@@ -51,6 +51,7 @@
 #include "SharedDefines.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "DatabaseEnv.h"
 #include <unordered_map>
 
 bool BattlegroundTemplate::IsArena() const

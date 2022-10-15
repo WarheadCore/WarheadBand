@@ -18,7 +18,6 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "AsyncCallbackProcessor.h"
 #include "CharacterCache.h"
 #include "ExternalMail.h"
 #include "Log.h"
@@ -30,6 +29,7 @@
 #include "StopWatch.h"
 #include "StringConvert.h"
 #include "TaskScheduler.h"
+#include "DatabaseEnv.h"
 #include <unordered_map>
 #include <vector>
 

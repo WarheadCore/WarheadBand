@@ -39,6 +39,7 @@ EndScriptData */
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "Timer.h"
 #include "Transport.h"
+#include "DatabaseEnv.h"
 #include <string>
 
 using namespace Warhead::ChatCommands;

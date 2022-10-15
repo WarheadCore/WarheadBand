@@ -45,6 +45,7 @@
 #include "VMapMgr2.h"
 #include "Vehicle.h"
 #include "Weather.h"
+#include "DatabaseEnv.h"
 #include <sstream>
 
 union u_map_magic

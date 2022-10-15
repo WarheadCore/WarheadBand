@@ -37,6 +37,7 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "World.h"
+#include "DatabaseEnv.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
