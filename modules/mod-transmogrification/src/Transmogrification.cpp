@@ -26,6 +26,7 @@
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "ScriptedGossip.h"
+#include <sstream>
 
 Transmogrification* Transmogrification::instance()
 {
