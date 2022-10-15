@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AccountMgr.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "MapMgr.h"
@@ -27,7 +28,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 /*********************************************************/
 /***               FLOOD FILTER SYSTEM                 ***/

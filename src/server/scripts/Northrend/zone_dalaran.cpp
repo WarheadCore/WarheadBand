@@ -26,13 +26,13 @@ SDComment: For what is 63990+63991? Same function but don't work correct...
 SDCategory: Dalaran
 Script Data End */
 
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 // Ours
 class npc_steam_powered_auctioneer : public CreatureScript

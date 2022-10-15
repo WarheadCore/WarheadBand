@@ -21,8 +21,8 @@
 #include "AsyncCallbackProcessor.h"
 #include "ByteBuffer.h"
 #include "Common.h"
-#include "Optional.h"
 #include "DatabaseEnvFwd.h"
+#include "Optional.h"
 #include "SRP6.h"
 #include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>

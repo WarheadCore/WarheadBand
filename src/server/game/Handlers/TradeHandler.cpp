@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Item.h"
 #include "Language.h"
@@ -32,7 +33,6 @@
 #include "SpellMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 void WorldSession::SendTradeStatus(TradeStatus status)
 {

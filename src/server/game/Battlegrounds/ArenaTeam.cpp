@@ -22,6 +22,7 @@
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
 #include "CharacterCache.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Group.h"
 #include "ObjectAccessor.h"
@@ -31,7 +32,6 @@
 #include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),

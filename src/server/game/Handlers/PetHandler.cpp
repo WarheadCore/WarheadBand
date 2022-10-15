@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "CreatureAI.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
@@ -39,7 +40,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packet)
 {

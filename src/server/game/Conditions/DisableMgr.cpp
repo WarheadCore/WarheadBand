@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DisableMgr.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "MMapFactory.h"
@@ -31,7 +32,6 @@
 #include "Tokenize.h"
 #include "VMapMgr2.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 namespace DisableMgr
 {

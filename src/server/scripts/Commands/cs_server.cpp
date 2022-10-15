@@ -26,6 +26,7 @@
  EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
@@ -41,7 +42,6 @@
 #include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
-#include "DatabaseEnv.h"
 #include <boost/version.hpp>
 #include <filesystem>
 #include <numeric>

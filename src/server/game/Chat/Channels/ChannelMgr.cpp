@@ -19,13 +19,13 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ChannelMgr.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Player.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 ChannelMgr::~ChannelMgr()
 {

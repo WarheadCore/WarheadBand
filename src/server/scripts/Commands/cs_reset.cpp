@@ -28,6 +28,7 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Language.h"
 #include "ObjectAccessor.h"

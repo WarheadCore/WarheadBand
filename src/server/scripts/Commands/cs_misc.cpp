@@ -25,6 +25,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
@@ -52,7 +53,6 @@
 #include "Timer.h"
 #include "Tokenize.h"
 #include "WeatherMgr.h"
-#include "DatabaseEnv.h"
 
 constexpr auto SPELL_STUCK = 7355;
 constexpr auto SPELL_FREEZE = 9454;

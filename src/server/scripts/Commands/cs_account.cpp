@@ -30,6 +30,7 @@ EndScriptData */
 #include "Base32.h"
 #include "Chat.h"
 #include "CryptoGenerics.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "IPLocation.h"
 #include "Language.h"
@@ -40,7 +41,6 @@ EndScriptData */
 #include "SecretMgr.h"
 #include "StringConvert.h"
 #include "TOTP.h"
-#include "DatabaseEnv.h"
 #include <unordered_map>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

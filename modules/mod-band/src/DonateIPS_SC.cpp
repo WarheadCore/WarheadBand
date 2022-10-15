@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CharacterCache.h"
+#include "DatabaseEnv.h"
 #include "ExternalMail.h"
 #include "Log.h"
 #include "ModulesConfig.h"
@@ -29,7 +30,6 @@
 #include "StopWatch.h"
 #include "StringConvert.h"
 #include "TaskScheduler.h"
-#include "DatabaseEnv.h"
 #include <unordered_map>
 #include <vector>
 

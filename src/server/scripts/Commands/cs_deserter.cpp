@@ -26,13 +26,13 @@
 */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "SpellAuras.h"
 #include "Timer.h"
-#include "DatabaseEnv.h"
 
 enum Spells
 {

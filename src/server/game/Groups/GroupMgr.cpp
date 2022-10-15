@@ -21,10 +21,10 @@
 #include "GroupMgr.h"
 #include "Common.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 GroupMgr::GroupMgr()
 {

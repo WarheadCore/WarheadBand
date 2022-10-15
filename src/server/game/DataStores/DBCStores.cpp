@@ -22,6 +22,7 @@
 #include "BattlegroundMgr.h"
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
+#include "DatabaseEnv.h"
 #include "Errors.h"
 #include "GameConfig.h"
 #include "LFGMgr.h"
@@ -30,7 +31,6 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 #include <map>
 #include <sstream>
 

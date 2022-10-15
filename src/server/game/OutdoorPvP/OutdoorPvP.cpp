@@ -20,6 +20,7 @@
 
 #include "OutdoorPvP.h"
 #include "CellImpl.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -29,7 +30,6 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "WorldPacket.h"
-#include "DatabaseEnv.h"
 
 OPvPCapturePoint::OPvPCapturePoint(OutdoorPvP* pvp):
     m_capturePointSpawnId(0), m_capturePoint(nullptr), m_maxValue(0.0f), m_minValue(0.0f), m_maxSpeed(0),

@@ -26,6 +26,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameTime.h"
@@ -39,7 +40,6 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "Timer.h"
 #include "Transport.h"
-#include "DatabaseEnv.h"
 #include <sstream>
 
 using namespace Warhead::ChatCommands;

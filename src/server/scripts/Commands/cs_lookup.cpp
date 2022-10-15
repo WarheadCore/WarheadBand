@@ -28,6 +28,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
@@ -38,7 +39,6 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "StringFormat.h"
-#include "DatabaseEnv.h"
 #include <sstream>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

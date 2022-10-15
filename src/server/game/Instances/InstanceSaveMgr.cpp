@@ -20,6 +20,7 @@
 
 #include "InstanceSaveMgr.h"
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -36,7 +37,6 @@
 #include "Timer.h"
 #include "Transport.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 uint16 InstanceSaveMgr::ResetTimeDelay[] = {3600, 900, 300, 60, 0};
 PlayerBindStorage InstanceSaveMgr::playerBindStorage;

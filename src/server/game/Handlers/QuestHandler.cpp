@@ -21,6 +21,7 @@
 #include "Battleground.h"
 #include "BattlegroundAV.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameObjectAI.h"
 #include "Group.h"
@@ -34,7 +35,6 @@
 #include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 {

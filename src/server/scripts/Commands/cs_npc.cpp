@@ -28,6 +28,7 @@ EndScriptData */
 #include "Chat.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -39,7 +40,6 @@ EndScriptData */
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "Timer.h"
 #include "Transport.h"
-#include "DatabaseEnv.h"
 #include <string>
 
 using namespace Warhead::ChatCommands;

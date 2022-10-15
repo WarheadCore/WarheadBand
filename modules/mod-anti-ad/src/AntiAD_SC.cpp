@@ -20,6 +20,7 @@
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ModuleLocale.h"
@@ -28,7 +29,6 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StopWatch.h"
-#include "DatabaseEnv.h"
 #include <Warhead/RegularExpression.h>
 #include <Warhead/RegularExpressionException.h>
 #include <vector>

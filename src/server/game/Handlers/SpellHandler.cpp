@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "GameObjectAI.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -36,7 +37,6 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {

@@ -27,6 +27,7 @@ EndScriptData */
 
 #include "AchievementMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Language.h"
 #include "ObjectMgr.h"

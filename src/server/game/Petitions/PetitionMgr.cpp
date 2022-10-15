@@ -20,10 +20,10 @@
 
 #include "PetitionMgr.h"
 #include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "DatabaseEnvFwd.h"
 #include "Timer.h"
 
 PetitionMgr::PetitionMgr()

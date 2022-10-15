@@ -18,9 +18,9 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
+#include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DatabaseEnv.h"
 #include "ScriptObject.h"
 
 class ServerMailReward : public PlayerScript

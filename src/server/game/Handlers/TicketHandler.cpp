@@ -20,6 +20,7 @@
 
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -30,7 +31,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 #include <zlib.h>
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)

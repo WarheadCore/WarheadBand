@@ -22,6 +22,7 @@
 #include "BattlegroundAV.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
 #include "GameConfig.h"
@@ -41,7 +42,6 @@
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>

@@ -20,6 +20,7 @@
 
 #include "Vip.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"
@@ -31,7 +32,6 @@
 #include "TaskScheduler.h"
 #include "Timer.h"
 #include "Tokenize.h"
-#include "DatabaseEnv.h"
 #include <tuple>
 #include <unordered_map>
 

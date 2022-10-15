@@ -31,6 +31,7 @@
 #include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"
@@ -51,7 +52,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
-#include "DatabaseEnv.h"
 
 Battleground::Battleground()
 {

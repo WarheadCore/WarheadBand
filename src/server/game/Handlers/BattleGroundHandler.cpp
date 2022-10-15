@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
@@ -36,7 +37,6 @@
 #include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {

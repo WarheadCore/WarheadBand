@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "InstanceScript.h"
@@ -37,7 +38,6 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {

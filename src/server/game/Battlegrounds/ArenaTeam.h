@@ -18,8 +18,8 @@
 #ifndef AZEROTHCORE_ARENATEAM_H
 #define AZEROTHCORE_ARENATEAM_H
 
-#include "Map.h"
 #include "DatabaseEnvFwd.h"
+#include "Map.h"
 #include <list>
 #include <map>
 

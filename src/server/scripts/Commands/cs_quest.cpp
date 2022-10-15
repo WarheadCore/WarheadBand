@@ -26,13 +26,13 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptObject.h"
-#include "DatabaseEnv.h"
 
 using namespace Warhead::ChatCommands;
 

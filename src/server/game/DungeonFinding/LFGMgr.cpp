@@ -24,6 +24,7 @@
 #include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
@@ -45,7 +46,6 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
 namespace lfg
 {

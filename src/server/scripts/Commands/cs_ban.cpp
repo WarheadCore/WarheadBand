@@ -29,6 +29,7 @@ EndScriptData */
 #include "BanMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -38,7 +39,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptObject.h"
 #include "Timer.h"
-#include "DatabaseEnv.h"
 
 /// Ban function modes
 enum BanMode

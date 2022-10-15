@@ -20,6 +20,7 @@
 
 #include "LootMgr.h"
 #include "Containers.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Group.h"
 #include "Log.h"
@@ -32,7 +33,6 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
-#include "DatabaseEnv.h"
 
 static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {

@@ -20,13 +20,13 @@
 
 #include "ExternalMail.h"
 #include "CharacterCache.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Mail.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "TaskScheduler.h"
-#include "DatabaseEnv.h"
 
 namespace
 {

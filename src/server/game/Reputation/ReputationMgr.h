@@ -19,8 +19,8 @@
 #define __WARHEAD_REPUTATION_MGR_H
 
 #include "DBCStructure.h"
-#include "Language.h"
 #include "DatabaseEnvFwd.h"
+#include "Language.h"
 #include "SharedDefines.h"
 #include <map>
 

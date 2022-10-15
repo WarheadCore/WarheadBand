@@ -20,7 +20,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
 #include <map>
 #include <string>
