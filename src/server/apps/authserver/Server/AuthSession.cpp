@@ -253,7 +253,16 @@ void AuthSession::ReadHandler()
         {
             // well we dont handle this, lets just ignore it
             packet.Reset();
-            break;
+
+            // Ban this ip for malformed packet
+            {
+                auto ipAddress{ GetRemoteIpAddress().to_string() };
+                LOG_WARN("session", "IP: {}. Try send malformed packet!", ipAddress);
+                sIPInfoCacheMgr->AddBanForIP(ipAddress, 5min, "Auth: Malformed packet");
+            }
+
+            CloseSocket();
+            return;
         }
 
         if (_status != itr->second.status)
