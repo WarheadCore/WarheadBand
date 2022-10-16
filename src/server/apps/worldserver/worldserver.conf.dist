@@ -34,6 +34,7 @@
 #    DEBUG
 #    METRIC SETTINGS
 #    EXTERNAL MAIL SETTINGS
+#    IP CACHE SETTINGS
 #    VIP SETTINGS
 #    DISCORD SETTINGS
 #
@@ -4179,6 +4180,41 @@ Metric.OverallStatusInterval = 1
 #
 
 ExternalMail.Enable = 1
+###################################################################################################
+
+###################################################################################################
+#   IP CACHE SETTINGS
+#
+#    IPCache.Check.Delay
+#        Description: Delay in seconds for check ip from db and update cache
+#        Default:     60
+#
+
+IPCache.Check.Delay = 60
+
+#
+#    IPCache.Check.MaxCount
+#        Description: Max check count in period IPCache.Check.Delay
+#        Default:     10
+#
+
+IPCache.Check.MaxCount = 10
+
+#
+#    IPCache.Ban.Enable
+#        Description: Enable ban for login flood
+#        Default:     1
+#
+
+IPCache.Ban.Enable = 1
+
+#
+#    IPCache.Ban.Enable
+#        Description: Ban duration in seconds
+#        Default:     300 (5 min)
+#
+
+IPCache.Ban.Duration = 300
 ###################################################################################################
 
 ########################################

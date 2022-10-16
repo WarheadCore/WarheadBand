@@ -9,6 +9,7 @@
 #    EXAMPLE CONFIG
 #    AUTH SERVER SETTINGS
 #    MYSQL SETTINGS
+#    IP CACHE SETTINGS
 #    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    LOGGING SYSTEM SETTINGS
@@ -185,8 +186,6 @@ IPLocationFile = ""
 #
 
 AllowLoggingIPAddressesInDatabase = 1
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -230,8 +229,42 @@ MaxPingTime = 30
 ###################################################################################################
 
 ###################################################################################################
-# CRYPTOGRAPHY
+#   IP CACHE SETTINGS
+#
+#    IPCache.Check.Delay
+#        Description: Delay in seconds for check ip from db and update cache
+#        Default:     60
+#
 
+IPCache.Check.Delay = 60
+
+#
+#    IPCache.Check.MaxCount
+#        Description: Max check count in period IPCache.Check.Delay
+#        Default:     10
+#
+
+IPCache.Check.MaxCount = 10
+
+#
+#    IPCache.Ban.Enable
+#        Description: Enable ban for login flood
+#        Default:     1
+#
+
+IPCache.Ban.Enable = 1
+
+#
+#    IPCache.Ban.Enable
+#        Description: Ban duration in seconds
+#        Default:     300 (5 min)
+#
+
+IPCache.Ban.Duration = 300
+###################################################################################################
+
+###################################################################################################
+#   CRYPTOGRAPHY
 #
 #    EnableTOTP
 #        Description: Check if a TOTP token is needed on account login

@@ -33,6 +33,7 @@
 #include "TOTP.h"
 #include "Timer.h"
 #include "Util.h"
+#include "IpInfoCache.h"
 #include <boost/lexical_cast.hpp>
 
 using boost::asio::ip::tcp;
@@ -170,13 +171,29 @@ AuthSession::AuthSession(tcp::socket&& socket) :
 
 void AuthSession::Start()
 {
-    std::string ip_address = GetRemoteIpAddress().to_string();
-    LOG_TRACE("session", "Accepted connection from {}", ip_address);
+    std::string ipAddress = GetRemoteIpAddress().to_string();
+    LOG_TRACE("session", "Accepted connection from {}", ipAddress);
 
-    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->SetArguments(ip_address);
+    if (sIPInfoCacheMgr->CanCheckIpFromDB(ipAddress))
+    {
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+        stmt->SetArguments(ipAddress);
+        _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
+        return;
+    }
 
-    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
+    if (sIPInfoCacheMgr->IsIPBanned(ipAddress))
+    {
+        ByteBuffer pkt;
+        pkt << uint8(AUTH_LOGON_CHALLENGE);
+        pkt << uint8(0x00);
+        pkt << uint8(WOW_FAIL_BANNED);
+        SendPacket(pkt);
+        LOG_DEBUG("session", "[AuthSession::Start] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
+        return;
+    }
+
+    AsyncRead();
 }
 
 bool AuthSession::Update()
@@ -190,8 +207,13 @@ bool AuthSession::Update()
 
 void AuthSession::CheckIpCallback(PreparedQueryResult result)
 {
+    std::string ipAddress = GetRemoteIpAddress().to_string();
+
     if (!result)
     {
+        // Update cache
+        sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
+
         AsyncRead();
         return;
     }
@@ -200,6 +222,9 @@ void AuthSession::CheckIpCallback(PreparedQueryResult result)
     {
         if (row[0].Get<uint64>())
         {
+            // Update cache
+            sIPInfoCacheMgr->UpdateIPInfo(ipAddress, true);
+
             ByteBuffer pkt;
             pkt << uint8(AUTH_LOGON_CHALLENGE);
             pkt << uint8(0x00);
@@ -209,6 +234,9 @@ void AuthSession::CheckIpCallback(PreparedQueryResult result)
             return;
         }
     }
+
+    // Update cache
+    sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
 
     AsyncRead();
 }

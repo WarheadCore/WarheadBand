@@ -33,6 +33,7 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "IpInfoCache.h"
 #include <memory>
 
 using boost::asio::ip::tcp;
@@ -48,34 +49,59 @@ WorldSocket::~WorldSocket() = default;
 
 void WorldSocket::Start()
 {
-    std::string ip_address = GetRemoteIpAddress().to_string();
-    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->SetData(0, ip_address);
+    std::string ipAddress = GetRemoteIpAddress().to_string();
 
-    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+    if (sIPInfoCacheMgr->CanCheckIpFromDB(ipAddress))
+    {
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+        stmt->SetArguments(ipAddress);
+        _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+        return;
+    }
+
+    if (sIPInfoCacheMgr->IsIPBanned(ipAddress))
+    {
+        SendAuthResponseError(AUTH_REJECT);
+        LOG_ERROR("network", "WorldSocket::Start: Sent Auth Response (IP {} banned).", ipAddress);
+        DelayedCloseSocket();
+        return;
+    }
+
+    AsyncRead();
+    HandleSendAuthSession();
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 {
-    if (result)
+    std::string ipAddress = GetRemoteIpAddress().to_string();
+
+    // Not found ban info for this ip
+    if (!result)
     {
-        bool banned = false;
-        do
-        {
-            auto fields = result->Fetch();
-            if (fields[0].Get<uint64>() != 0)
-                banned = true;
+        // Update cache
+        sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
 
-        } while (result->NextRow());
+        AsyncRead();
+        HandleSendAuthSession();
+        return;
+    }
 
-        if (banned)
+    for (auto const& row : *result)
+    {
+        if (row[0].Get<uint64>())
         {
+            // Update cache
+            sIPInfoCacheMgr->UpdateIPInfo(ipAddress, true);
+
             SendAuthResponseError(AUTH_REJECT);
             LOG_ERROR("network", "WorldSocket::CheckIpCallback: Sent Auth Response (IP {} banned).", GetRemoteIpAddress().to_string());
             DelayedCloseSocket();
             return;
         }
     }
+
+    // Update cache
+    sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
 
     AsyncRead();
     HandleSendAuthSession();
@@ -123,7 +149,6 @@ bool WorldSocket::Update()
         return false;
 
     _queryProcessor.ProcessReadyCallbacks();
-
     return true;
 }
 
