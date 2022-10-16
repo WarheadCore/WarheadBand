@@ -18,13 +18,10 @@
 #ifndef _MMAP_COMMON_H
 #define _MMAP_COMMON_H
 
-#include "Common.h"
 #include <string>
 #include <vector>
 
 #ifndef _WIN32
-#include <cstddef>
-#include <cstring>
 #include <dirent.h>
 #else
 #include <Windows.h>

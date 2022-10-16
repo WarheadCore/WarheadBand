@@ -29,7 +29,6 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 

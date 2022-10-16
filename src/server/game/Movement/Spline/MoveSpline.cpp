@@ -25,7 +25,6 @@
 
 namespace Movement
 {
-
     Location MoveSpline::ComputePosition() const
     {
         ASSERT(Initialized());

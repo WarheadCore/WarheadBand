@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "shattered_halls.h"
+#include <sstream>
 
 class instance_shattered_halls : public InstanceMapScript
 {

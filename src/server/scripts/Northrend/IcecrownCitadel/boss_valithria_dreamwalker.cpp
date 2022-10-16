@@ -23,6 +23,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "ObjectMgr.h"
+#include "PassiveAI.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"

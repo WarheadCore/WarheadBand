@@ -24,6 +24,7 @@
 
 #include "WorldSession.h"
 #include "AccountMgr.h"
+#include "BanMgr.h"
 #include "BattlegroundMgr.h"
 #include "CharacterPackets.h"
 #include "Common.h"
@@ -40,7 +41,6 @@
 #include "Metric.h"
 #include "MuteMgr.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
 #include "PacketUtilities.h"
@@ -56,6 +56,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
+#include <sstream>
 #include <zlib.h>
 
 namespace

@@ -22,7 +22,6 @@
 #include "CryptoHash.h"
 #include "Errors.h"
 #include <array>
-#include <string>
 #include <string_view>
 
 class BigNumber;

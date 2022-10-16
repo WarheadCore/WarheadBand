@@ -28,6 +28,7 @@
 #include "Util.h"
 #include "World.h"
 #include <map>
+#include <sstream>
 
 struct SkillDiscoveryEntry
 {

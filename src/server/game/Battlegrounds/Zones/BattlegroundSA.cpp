@@ -24,10 +24,10 @@
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 constexpr Milliseconds BG_SA_BOAT_START    = 1min;
 constexpr Milliseconds BG_SA_WARMUPLENGTH  = 2min;

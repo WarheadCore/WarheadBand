@@ -20,6 +20,7 @@
 
 #include "Vip.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"

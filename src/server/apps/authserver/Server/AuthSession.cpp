@@ -23,8 +23,6 @@
 #include "AuthCodes.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
-#include "CryptoHash.h"
-#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
@@ -36,7 +34,6 @@
 #include "Timer.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
-#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 

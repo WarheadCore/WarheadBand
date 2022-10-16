@@ -21,10 +21,8 @@
 #include "ObjectGuid.h"
 #include "StringConvert.h"
 #include <array>
-#include <string>
 #include <string_view>
 #include <type_traits>
-#include <utility>
 
 struct AchievementEntry;
 struct GlyphPropertiesEntry;
@@ -40,13 +38,13 @@ namespace Warhead::Hyperlinks
 {
     struct AchievementLinkData
     {
-        AchievementEntry const* Achievement;
+        AchievementEntry const* Achievement{};
         ObjectGuid CharacterId;
-        bool IsFinished;
-        uint8 Year;
-        uint8 Month;
-        uint8 Day;
-        std::array<uint32, 4> Criteria;
+        bool IsFinished{};
+        uint8 Year{};
+        uint8 Month{};
+        uint8 Day{};
+        std::array<uint32, 4> Criteria{};
     };
 
     struct GlyphLinkData

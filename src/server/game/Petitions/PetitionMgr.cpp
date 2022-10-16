@@ -23,7 +23,6 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "QueryResult.h"
 #include "Timer.h"
 
 PetitionMgr::PetitionMgr()

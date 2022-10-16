@@ -19,7 +19,7 @@
 #define __NPCHANDLER_H
 
 #include "Define.h"
-#include <vector>
+#include <string>
 
 struct QEmote
 {

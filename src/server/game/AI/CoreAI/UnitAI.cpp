@@ -21,12 +21,13 @@
 #include "UnitAI.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include <sstream>
 
 void UnitAI::AttackStart(Unit* victim)
 {

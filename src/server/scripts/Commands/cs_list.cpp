@@ -38,7 +38,7 @@ EndScriptData */
 #include "Random.h"
 #include "ScriptObject.h"
 #include "SpellAuraEffects.h"
-#include "WorldSession.h"
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 

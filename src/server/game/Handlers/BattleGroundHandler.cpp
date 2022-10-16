@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"

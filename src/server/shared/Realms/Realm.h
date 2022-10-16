@@ -20,6 +20,7 @@
 
 #include "AsioHacksFwd.h"
 #include "Common.h"
+#include <memory>
 
 enum RealmFlags
 {
@@ -39,7 +40,7 @@ struct WH_SHARED_API RealmHandle
     RealmHandle()  = default;
     RealmHandle(uint32 index) : Realm(index) { }
 
-    uint32 Realm{0};   // primary key in `realmlist` table
+    uint32 Realm{};   // primary key in `realmlist` table
 
     bool operator<(RealmHandle const& r) const
     {

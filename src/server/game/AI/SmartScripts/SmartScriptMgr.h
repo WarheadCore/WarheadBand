@@ -1813,15 +1813,9 @@ private:
     mutable ObjectVector _objectVector;
 
     //sanitize vector using _guidVector
-    void UpdateObjects(WorldObject const& ref) const
-    {
-        _objectVector.clear();
-
-        for (ObjectGuid const& guid : _guidVector)
-            if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
-                _objectVector.emplace_back(obj);
-    }
+    void UpdateObjects(WorldObject const& ref) const;
 };
+
 typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
 
 class WH_GAME_API SmartWaypointMgr

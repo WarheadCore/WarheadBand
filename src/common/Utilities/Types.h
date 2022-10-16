@@ -19,6 +19,7 @@
 #define _TYPES_H_
 
 #include "advstd.h"
+#include <string>
 
 namespace Warhead
 {

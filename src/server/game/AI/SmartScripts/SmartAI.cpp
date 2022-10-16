@@ -22,7 +22,6 @@
 #include "CellImpl.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"

@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "blood_furnace.h"
+#include <sstream>
 
 class instance_blood_furnace : public InstanceMapScript
 {

@@ -18,7 +18,6 @@
 #ifndef CinematicMgr_h__
 #define CinematicMgr_h__
 
-#include "Define.h"
 #include "Object.h"
 
 constexpr auto CINEMATIC_UPDATEDIFF = 500;

@@ -20,7 +20,6 @@
 
 #include "AccountMgr.h"
 #include "CreatureTextMgr.h"
-#include "Group.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -31,6 +30,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "icecrown_citadel.h"
+#include <sstream>
 
 enum EventIds
 {

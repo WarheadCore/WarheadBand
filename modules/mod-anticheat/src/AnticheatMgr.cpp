@@ -19,8 +19,9 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AnticheatMgr.h"
+#include "AccountMgr.h"
+#include "BanMgr.h"
 #include "Chat.h"
-#include "ChatTextBuilder.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "MapMgr.h"

@@ -25,6 +25,7 @@
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "culling_of_stratholme.h"
+#include <sstream>
 
 class instance_culling_of_stratholme : public InstanceMapScript
 {

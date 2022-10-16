@@ -18,7 +18,6 @@
 #ifndef WARHEAD_GRIDDEFINES_H
 #define WARHEAD_GRIDDEFINES_H
 
-#include "Common.h"
 #include "MapDefines.h"
 #include "NGrid.h"
 #include <cmath>

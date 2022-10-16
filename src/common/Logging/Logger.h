@@ -19,6 +19,7 @@
 #define _WARHEAD_LOGGER_H_
 
 #include "LogMessage.h"
+#include <memory>
 #include <mutex>
 #include <vector>
 

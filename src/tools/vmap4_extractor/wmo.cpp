@@ -59,7 +59,7 @@ bool WMORoot::open()
         flipcc(fourcc);
         fourcc[4] = 0;
 
-        size_t nextpos = f.getPos() + size;
+        std::size_t nextpos = f.getPos() + size;
 
         if (!strcmp(fourcc, "MOHD")) // header
         {
@@ -188,7 +188,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
             size = 68;
         }
         fourcc[4] = 0;
-        size_t nextpos = f.getPos() + size;
+        std::size_t nextpos = f.getPos() + size;
         LiquEx_size = 0;
         liquflags = 0;
 

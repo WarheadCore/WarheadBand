@@ -30,6 +30,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"

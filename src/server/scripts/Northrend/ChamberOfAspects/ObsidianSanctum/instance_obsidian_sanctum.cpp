@@ -24,6 +24,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "obsidian_sanctum.h"
+#include <sstream>
 
 BossBoundaryData const boundaries =
 {

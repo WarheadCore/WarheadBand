@@ -20,7 +20,7 @@
 
 #include "LogCommon.h"
 #include "Timer.h"
-#include <memory>
+#include <string>
 
 namespace Warhead
 {

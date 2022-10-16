@@ -24,6 +24,7 @@
 #include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
@@ -36,6 +37,7 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -785,14 +787,6 @@ namespace lfg
             SetRoles(guid, roles);
             debugNames.append(player->GetName());
         }
-
-        /*if (sLog->ShouldLog(LOG_FILTER_LFG, LOG_LEVEL_DEBUG))
-        {
-            std::ostringstream o;
-            o << "LFGMgr::Join: [" << guid << "] joined (" << (grp ? "group" : "player") << ") Members: " << debugNames.c_str()
-              << ". Dungeons (" << uint32(dungeons.size()) << "): " << ConcatenateDungeons(dungeons);
-            LOG_DEBUG("lfg", "{}", o.str());
-        }*/
     }
 
     void LFGMgr::ToggleTesting()

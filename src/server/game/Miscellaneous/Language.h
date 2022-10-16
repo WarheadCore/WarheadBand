@@ -1329,4 +1329,5 @@ enum WarheadStrings
     LANG_DEBUG_LFG_ON                             = 30096,
     LANG_DEBUG_LFG_OFF                            = 30097
 };
+
 #endif

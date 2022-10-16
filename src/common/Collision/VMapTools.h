@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include <G3D/AABox.h>
-//#include <G3D/CollisionDetection.h>
 
 /**
 The Class is mainly taken from G3D/AABSPTree.h but modified to be able to use our internal data structure.

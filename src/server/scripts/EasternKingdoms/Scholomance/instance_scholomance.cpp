@@ -26,6 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "scholomance.h"
+#include <sstream>
 
 Position KirtonosSpawn = Position(315.028, 70.5385, 102.15, 0.385971);
 

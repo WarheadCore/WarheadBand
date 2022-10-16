@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Item.h"
 #include "Language.h"
@@ -30,7 +31,6 @@
 #include "SocialMgr.h"
 #include "Spell.h"
 #include "SpellMgr.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 

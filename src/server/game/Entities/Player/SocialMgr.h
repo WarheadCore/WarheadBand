@@ -19,9 +19,10 @@
 #define __WARHEAD_SOCIALMGR_H
 
 #include "Common.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
 #include <map>
+#include <utility>
 
 class Player;
 class WorldPacket;
@@ -57,7 +58,7 @@ struct FriendInfo
     FriendInfo() : Status(FRIEND_STATUS_OFFLINE), Flags(0), Area(0), Level(0), Class(0), Note()
     { }
 
-    FriendInfo(uint8 flags, std::string const& note) : Status(FRIEND_STATUS_OFFLINE), Flags(flags), Area(0), Level(0), Class(0), Note(note)
+    FriendInfo(uint8 flags, std::string note) : Status(FRIEND_STATUS_OFFLINE), Flags(flags), Area(0), Level(0), Class(0), Note(std::move(note))
     { }
 };
 

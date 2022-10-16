@@ -26,7 +26,6 @@
 #include "Creature.h"
 #include "DynamicVisibility.h"
 #include "GameConfig.h"
-#include "GameLocale.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -55,8 +54,8 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "WorldPacket.h"
+#include <sstream>
 
 // TODO: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue

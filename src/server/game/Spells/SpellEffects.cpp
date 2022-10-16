@@ -40,7 +40,6 @@
 #include "InstanceScript.h"
 #include "Language.h"
 #include "Log.h"
-#include "MMapFactory.h"
 #include "MMapMgr.h"
 #include "MapMgr.h"
 #include "MiscPackets.h"
@@ -66,9 +65,7 @@
 #include "UpdateData.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "VMapFactory.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "WorldPacket.h"
 
  // TODO: this import is not necessary for compilation and marked as unused by the IDE

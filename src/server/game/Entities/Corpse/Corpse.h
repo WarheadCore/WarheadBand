@@ -18,7 +18,7 @@
 #ifndef AZEROTHCORE_CORPSE_H
 #define AZEROTHCORE_CORPSE_H
 
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "GridDefines.h"
 #include "LootMgr.h"
 #include "Object.h"
@@ -29,6 +29,7 @@ enum CorpseType
     CORPSE_RESURRECTABLE_PVE = 1,
     CORPSE_RESURRECTABLE_PVP = 2
 };
+
 #define MAX_CORPSE_TYPE        3
 
 // Value equal client resurrection dialog show radius.
@@ -84,4 +85,5 @@ private:
     time_t m_time;
     CellCoord _cellCoord;
 };
+
 #endif

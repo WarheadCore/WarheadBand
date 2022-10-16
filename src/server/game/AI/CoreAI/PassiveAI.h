@@ -19,7 +19,6 @@
 #define WARHEAD_PASSIVEAI_H
 
 #include "CreatureAI.h"
-//#include "CreatureAIImpl.h"
 
 class WH_GAME_API PassiveAI : public CreatureAI
 {

@@ -21,6 +21,7 @@
 #include "CreatureGroups.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"

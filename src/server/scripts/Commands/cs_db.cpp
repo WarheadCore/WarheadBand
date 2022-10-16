@@ -20,7 +20,6 @@
 
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "DatabaseEnvFwd.h"
 #include "ScriptObject.h"
 
 using namespace Warhead::ChatCommands;

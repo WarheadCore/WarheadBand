@@ -25,6 +25,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
+#include <sstream>
 
 const float HeiganPos[2] = {2796, -3707};
 const float HeiganEruptionSlope[3] =

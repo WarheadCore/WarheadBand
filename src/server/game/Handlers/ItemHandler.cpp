@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "Item.h"

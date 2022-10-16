@@ -26,6 +26,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"

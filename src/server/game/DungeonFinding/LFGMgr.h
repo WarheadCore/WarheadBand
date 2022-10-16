@@ -18,17 +18,19 @@
 #ifndef _LFGMGR_H
 #define _LFGMGR_H
 
-#include <utility>
-
+#include "Common.h"
 #include "DBCStructure.h"
-#include "Field.h"
+#include "DatabaseEnvFwd.h"
 #include "LFG.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
 #include "LFGQueue.h"
-#include "Map.h"
+#include "SharedDefines.h"
+#include "WorldPacket.h"
+#include <utility>
 
 class Group;
+class Map;
 class Player;
 class Quest;
 class WorldLocation;
@@ -391,8 +393,7 @@ namespace lfg
 
     struct LFGDungeonData
     {
-        LFGDungeonData():  name("")
-        { }
+        LFGDungeonData() = default;
         LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name[0]), map(dbc->map),
             type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
             minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
@@ -582,7 +583,6 @@ namespace lfg
     private:
         TeamId GetTeam(ObjectGuid guid);
         void RestoreState(ObjectGuid guid, char const* debugMsg);
-        void ClearState(ObjectGuid guid, char const* debugMsg);
         void SetSelectedDungeons(ObjectGuid guid, LfgDungeonSet const& dungeons);
         void SetLockedDungeons(ObjectGuid guid, LfgLockMap const& lock);
         void DecreaseKicksLeft(ObjectGuid guid);

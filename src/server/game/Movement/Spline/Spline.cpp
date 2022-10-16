@@ -24,7 +24,6 @@
 
 namespace Movement
 {
-
     SplineBase::EvaluationMethtod SplineBase::evaluators[SplineBase::ModesEnd] =
     {
         &SplineBase::EvaluateLinear,

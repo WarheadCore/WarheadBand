@@ -21,7 +21,6 @@
 #include "Define.h"
 #include <future>
 #include <memory>
-#include <vector>
 
 template<typename T>
 class AsyncCallbackProcessor;

@@ -20,6 +20,7 @@
 
 #include "BgOrArenaReward.h"
 #include "Battleground.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "ObjectMgr.h"

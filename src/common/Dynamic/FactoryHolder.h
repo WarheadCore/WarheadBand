@@ -18,9 +18,7 @@
 #ifndef WARHEAD_FACTORY_HOLDER
 #define WARHEAD_FACTORY_HOLDER
 
-#include "Define.h"
 #include "ObjectRegistry.h"
-#include "TypeList.h"
 
 /** FactoryHolder holds a factory object of a specific type
  */

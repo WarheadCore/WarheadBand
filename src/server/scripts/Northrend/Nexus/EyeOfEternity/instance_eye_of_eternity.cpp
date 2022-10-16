@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "Vehicle.h"
 #include "eye_of_eternity.h"
+#include <sstream>
 
 bool EoEDrakeEnterVehicleEvent::Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
 {

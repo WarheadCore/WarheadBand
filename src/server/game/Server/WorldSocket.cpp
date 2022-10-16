@@ -29,7 +29,6 @@
 #include "IPLocation.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
-#include "Random.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"

@@ -22,13 +22,12 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
-#include "DynamicTree.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Geometry.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
@@ -47,6 +46,7 @@
 #include "VMapMgr2.h"
 #include "Vehicle.h"
 #include "Weather.h"
+#include <sstream>
 
 union u_map_magic
 {

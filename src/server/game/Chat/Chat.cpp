@@ -26,18 +26,18 @@
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
-#include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
 #include "SpellMgr.h"
 #include "Tokenize.h"
 #include "UpdateMask.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include <sstream>
 
 Player* ChatHandler::GetPlayer() const
 {
@@ -52,7 +52,7 @@ std::string ChatHandler::GetWarheadString(uint32 entry) const
 bool ChatHandler::IsAvailable(uint32 securityLevel) const
 {
     // check security level only for simple  command (without child commands)
-    return IsConsole() ? true : m_session->GetSecurity() >= AccountTypes(securityLevel);
+    return IsConsole() || m_session->GetSecurity() >= AccountTypes(securityLevel);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)

@@ -26,7 +26,7 @@
  EndScriptData */
 
 #include "Chat.h"
-#include "Config.h"
+#include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"

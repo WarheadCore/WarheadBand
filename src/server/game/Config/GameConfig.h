@@ -18,7 +18,7 @@
 #ifndef __GAME_CONFIG
 #define __GAME_CONFIG
 
-#include "Common.h"
+#include "Define.h"
 #include "Optional.h"
 #include "Types.h"
 #include <unordered_map>

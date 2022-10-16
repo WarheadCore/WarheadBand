@@ -19,7 +19,7 @@
 #define ACore_game_Position_h__
 
 #include "Common.h"
-#include "G3D/Vector3.h"
+#include <G3D/Vector3.h>
 #include <cmath>
 
 class ByteBuffer;
@@ -30,7 +30,7 @@ struct WH_GAME_API Position
             : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
     Position(Position const& loc) { Relocate(loc); }
-    /* requried as of C++ 11 */
+
     Position(Position&&) = default;
     Position& operator=(const Position&) = default;
     Position& operator=(Position&&) = default;

@@ -18,12 +18,9 @@
 #ifndef WARHEAD_CHATCOMMANDHELPERS_H
 #define WARHEAD_CHATCOMMANDHELPERS_H
 
-#include "Define.h"
 #include "Language.h"
 #include "StringFormat.h"
 #include <optional>
-#include <string>
-#include <string_view>
 #include <type_traits>
 #include <variant>
 

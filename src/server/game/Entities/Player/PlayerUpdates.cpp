@@ -23,6 +23,7 @@
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
 #include "GameLocale.h"

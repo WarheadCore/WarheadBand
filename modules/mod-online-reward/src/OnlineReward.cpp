@@ -21,6 +21,7 @@
 #include "OnlineReward.h"
 #include "AsyncCallbackMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "ExternalMail.h"
 #include "Log.h"
 #include "ModuleLocale.h"

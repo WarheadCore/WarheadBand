@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CreatureAI.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
@@ -29,13 +30,13 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "WorldSession.h"
 
 /*********************************************************/
 /***                    QUEST SYSTEM                   ***/

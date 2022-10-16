@@ -24,7 +24,6 @@
 
 #include "Weather.h"
 #include "GameConfig.h"
-#include "GameTime.h"
 #include "MiscPackets.h"
 #include "Player.h"
 #include "ScriptMgr.h"

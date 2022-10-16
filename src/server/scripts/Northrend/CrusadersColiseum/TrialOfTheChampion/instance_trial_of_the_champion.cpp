@@ -24,6 +24,7 @@
 #include "ScriptedCreature.h"
 #include "Vehicle.h"
 #include "trial_of_the_champion.h"
+#include <sstream>
 
 const Position SpawnPosition = {746.67f, 684.08f, 412.5f, 4.65f};
 #define CLEANUP_CHECK_INTERVAL  5000

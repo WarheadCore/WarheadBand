@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
 #include "razorfen_downs.h"
+#include <sstream>
 
 class instance_razorfen_downs : public InstanceMapScript
 {

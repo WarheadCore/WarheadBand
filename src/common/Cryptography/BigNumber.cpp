@@ -22,7 +22,6 @@
 #include "Errors.h"
 #include <algorithm>
 #include <cstring>
-#include <memory>
 #include <openssl/bn.h>
 
 BigNumber::BigNumber()

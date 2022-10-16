@@ -18,7 +18,6 @@
 #ifndef _WARHEAD_ADV_STD_H_
 #define _WARHEAD_ADV_STD_H_
 
-#include <cstddef>
 #include <type_traits>
 
 // this namespace holds implementations of upcoming stdlib features that our c++ version doesn't have yet

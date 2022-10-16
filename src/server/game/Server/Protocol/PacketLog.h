@@ -50,4 +50,5 @@ class WH_GAME_API PacketLog
 };
 
 #define sPacketLog PacketLog::instance()
+
 #endif

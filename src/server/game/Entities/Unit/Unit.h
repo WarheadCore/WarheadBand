@@ -373,7 +373,7 @@ enum UnitState
     UNIT_STATE_ALL_STATE            = 0xffffffff                      //(UNIT_STATE_STOPPED | UNIT_STATE_MOVING | UNIT_STATE_IN_COMBAT | UNIT_STATE_IN_FLIGHT)
 };
 
-enum UnitMoveType
+enum UnitMoveType : uint8
 {
     MOVE_WALK           = 0,
     MOVE_RUN            = 1,

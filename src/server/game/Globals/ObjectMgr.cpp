@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ObjectMgr.h"
-#include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "CharacterCache.h"
@@ -42,13 +41,13 @@
 #include "Language.h"
 #include "Log.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "PoolMgr.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptObject.h"
 #include "Spell.h"
-#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "StringConvert.h"

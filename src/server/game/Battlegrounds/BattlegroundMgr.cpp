@@ -36,6 +36,7 @@
 #include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
 #include "GameConfig.h"

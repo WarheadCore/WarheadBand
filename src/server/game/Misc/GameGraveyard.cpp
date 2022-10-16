@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapMgr.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 
 Graveyard* Graveyard::instance()

@@ -18,7 +18,6 @@
 #ifndef WARHEAD_MOTIONMASTER_H
 #define WARHEAD_MOTIONMASTER_H
 
-#include "Common.h"
 #include "Object.h"
 #include "SharedDefines.h"
 #include "Spline/MoveSpline.h"

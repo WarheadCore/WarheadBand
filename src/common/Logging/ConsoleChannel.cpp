@@ -176,7 +176,7 @@ constexpr auto CSI = "\033[";
 Warhead::UnixConsoleChannel::UnixConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options) :
     Channel(ThisChannelType, name, level, pattern)
 {
-    if (options.size() > 4)
+    if (options.size() > MAX_OPTIONS)
         throw Exception("Incorrect options count ({})", options.size());
 
     InitDefaultColors();

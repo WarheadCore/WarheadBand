@@ -31,6 +31,7 @@ EndScriptData */
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"

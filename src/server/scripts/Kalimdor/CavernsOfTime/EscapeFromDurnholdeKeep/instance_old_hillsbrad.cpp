@@ -24,6 +24,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
+#include <sstream>
 
 const Position instancePositions[INSTANCE_POSITIONS_COUNT] =
 {

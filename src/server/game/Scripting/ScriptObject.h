@@ -18,6 +18,7 @@
 #ifndef _SCRIPT_OBJECT_H_
 #define _SCRIPT_OBJECT_H_
 
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"

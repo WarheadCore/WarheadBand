@@ -19,11 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "QuestDef.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
 
 Quest::Quest(Field* questRecord)
 {

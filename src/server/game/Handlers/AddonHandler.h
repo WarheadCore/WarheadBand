@@ -18,9 +18,9 @@
 #ifndef __ADDONHANDLER_H
 #define __ADDONHANDLER_H
 
-#include "Common.h"
-#include "Config.h"
-#include "WorldPacket.h"
+#include "Define.h"
+
+class WorldPacket;
 
 class WH_GAME_API AddonHandler
 {

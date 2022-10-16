@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "InstanceScript.h"

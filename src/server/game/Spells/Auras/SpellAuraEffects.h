@@ -18,13 +18,13 @@
 #ifndef WARHEAD_SPELLAURAEFFECTS_H
 #define WARHEAD_SPELLAURAEFFECTS_H
 
+#include "Spell.h"
+#include "SpellAuras.h"
+
 class Unit;
 class AuraEffect;
 class Aura;
 class SpellInfo;
-
-#include "Spell.h"
-#include "SpellAuras.h"
 
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
@@ -40,9 +40,11 @@ class WH_GAME_API AuraEffect
     friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32* baseAmount);
     friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, bool noPeriodicReset);
     friend Aura::~Aura();
+
 private:
     ~AuraEffect();
     explicit AuraEffect(Aura* base, uint8 effIndex, int32* baseAmount, Unit* caster);
+
 public:
     Unit* GetCaster() const { return GetBase()->GetCaster(); }
     ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }

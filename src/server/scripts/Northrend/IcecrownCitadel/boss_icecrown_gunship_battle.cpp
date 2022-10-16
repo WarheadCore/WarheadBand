@@ -20,8 +20,8 @@
 
 #include "CreatureTextMgr.h"
 #include "GameTime.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "PassiveAI.h"
 #include "ScriptObject.h"
 #include "SpellScript.h"
 #include "Transport.h"

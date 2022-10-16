@@ -20,17 +20,14 @@
 
 #include "BattlegroundEY.h"
 #include "BattlegroundMgr.h"
-#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "GameGraveyard.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void BattlegroundEYScore::BuildObjectivesBlock(WorldPacket& data)
 {

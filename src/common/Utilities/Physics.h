@@ -25,8 +25,6 @@
 #define _WARHEAD_PHYSICS_H
 
 #include "Geometry.h"
-#include <cmath>
-#include <cstdlib>
 
 [[nodiscard]] inline float getWeight(float height, float width, float specificWeight)
 {

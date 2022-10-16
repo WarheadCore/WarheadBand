@@ -63,6 +63,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include <sstream>
 
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {

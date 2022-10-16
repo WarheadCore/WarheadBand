@@ -18,14 +18,11 @@
 #ifndef _LFG_H
 #define _LFG_H
 
-#include "Common.h"
-#include "ObjectDefines.h"
+#include "Define.h"
 #include "ObjectGuid.h"
-#include "SharedDefines.h"
-#include "WorldPacket.h"
 #include <array>
 #include <map>
-#include <sstream>
+#include <string>
 
 namespace lfg
 {

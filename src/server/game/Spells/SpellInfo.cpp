@@ -22,6 +22,7 @@
 #include "Chat.h"
 #include "ConditionMgr.h"
 #include "DBCStores.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"

@@ -20,8 +20,10 @@
 
 #include "GameTime.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptObject.h"
 #include "the_botanica.h"
+#include <sstream>
 
 class instance_the_botanica : public InstanceMapScript
 {
@@ -30,7 +32,7 @@ public:
 
     struct instance_the_botanica_InstanceMapScript : public InstanceScript
     {
-        instance_the_botanica_InstanceMapScript(Map* map) : InstanceScript(map)
+        explicit instance_the_botanica_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_ENCOUNTER);
         }

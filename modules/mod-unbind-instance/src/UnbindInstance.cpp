@@ -21,6 +21,7 @@
 #include "UnbindInstance.h"
 #include "Chat.h"
 #include "Creature.h"
+#include "DatabaseEnv.h"
 #include "GameLocale.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"

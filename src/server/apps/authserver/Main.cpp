@@ -41,8 +41,8 @@
 #include "RealmList.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
-#include "Util.h"
 #include "SignalHandlerMgr.h"
+#include "Util.h"
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <filesystem>
@@ -60,7 +60,7 @@ namespace fs = std::filesystem;
 
 bool StartDB();
 void StopDB();
-void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbPingTimerRef, boost::system::error_code const& error);
+void DatabaseUpdateHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> dbUpdateTimerRef, boost::system::error_code const& error);
 void BanExpiryHandler(std::weak_ptr<Warhead::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
 

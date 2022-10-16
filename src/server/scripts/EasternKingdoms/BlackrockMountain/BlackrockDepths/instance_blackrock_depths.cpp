@@ -24,6 +24,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "blackrock_depths.h"
+#include <sstream>
 
 constexpr auto MAX_ENCOUNTER = 6;
 

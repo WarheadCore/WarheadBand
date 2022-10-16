@@ -23,6 +23,7 @@
 #include "ScriptObject.h"
 #include "SpellScript.h"
 #include "uldaman.h"
+#include <sstream>
 
 enum Spells
 {

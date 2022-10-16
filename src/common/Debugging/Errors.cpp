@@ -19,8 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Errors.h"
-#include <fmt/core.h>
 #include <cstdlib>
+#include <fmt/core.h>
 
 /**
     @file Errors.cpp
@@ -108,14 +108,14 @@ void Warhead::Assert(std::string_view file, int line, std::string_view function,
 {
     std::string formattedMessage = MakeMessage("ASSERTION FAILED", file, line, function, message, fmtMessage, debugInfo);
     fmt::print("{}", formattedMessage);
-    Crash(formattedMessage.c_str());
+    Crash(formattedMessage.c_str())
 }
 
 void Warhead::Abort(std::string_view file, int line, std::string_view function, std::string_view fmtMessage /*= {}*/)
 {
     std::string formattedMessage = MakeAbortMessage(file, line, function, fmtMessage);
     fmt::print("{}", formattedMessage);
-    Crash(formattedMessage.c_str());
+    Crash(formattedMessage.c_str())
 }
 
 void Warhead::AbortHandler(int sigval)
@@ -123,7 +123,7 @@ void Warhead::AbortHandler(int sigval)
     // nothing useful to log here, no way to pass args
     std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
     fmt::print("{}", formattedMessage);
-    Crash(formattedMessage.c_str());
+    Crash(formattedMessage.c_str())
 }
 
 std::string GetDebugInfo()

@@ -18,14 +18,13 @@
 #ifndef WARHEAD_OBJECTREGISTRY_H
 #define WARHEAD_OBJECTREGISTRY_H
 
-#include "Define.h"
 #include <map>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
-/** ObjectRegistry holds all registry item of the same type
+/**
+ * ObjectRegistry holds all registry item of the same type
  */
 template<class T, class Key = std::string>
 class ObjectRegistry final

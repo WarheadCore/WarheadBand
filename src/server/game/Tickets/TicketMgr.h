@@ -91,20 +91,20 @@ public:
     GmTicket(Player* player);
     ~GmTicket();
 
-    bool IsClosed() const { return  _type != TICKET_TYPE_OPEN; }
-    bool IsCompleted() const { return _completed; }
-    bool IsFromPlayer(ObjectGuid guid) const { return guid == _playerGuid; }
-    bool IsAssigned() const { return _assignedTo; }
-    bool IsAssignedTo(ObjectGuid guid) const { return guid == _assignedTo; }
-    bool IsAssignedNotTo(ObjectGuid guid) const { return IsAssigned() && !IsAssignedTo(guid); }
+    [[nodiscard]] bool IsClosed() const { return  _type != TICKET_TYPE_OPEN; }
+    [[nodiscard]] bool IsCompleted() const { return _completed; }
+    [[nodiscard]] bool IsFromPlayer(ObjectGuid guid) const { return guid == _playerGuid; }
+    [[nodiscard]] bool IsAssigned() const { return _assignedTo; }
+    [[nodiscard]] bool IsAssignedTo(ObjectGuid guid) const { return guid == _assignedTo; }
+    [[nodiscard]] bool IsAssignedNotTo(ObjectGuid guid) const { return IsAssigned() && !IsAssignedTo(guid); }
 
-    uint32 GetId() const { return _id; }
-    Player* GetPlayer() const { return ObjectAccessor::FindConnectedPlayer(_playerGuid); }
-    std::string const& GetPlayerName() const { return _playerName; }
-    std::string const& GetMessage() const { return _message; }
-    Player* GetAssignedPlayer() const { return ObjectAccessor::FindConnectedPlayer(_assignedTo); }
-    ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
-    std::string GetAssignedToName() const
+    [[nodiscard]] uint32 GetId() const { return _id; }
+    [[nodiscard]] Player* GetPlayer() const;
+    [[nodiscard]] std::string const& GetPlayerName() const { return _playerName; }
+    [[nodiscard]] std::string const& GetMessage() const { return _message; }
+    [[nodiscard]] Player* GetAssignedPlayer() const;
+    [[nodiscard]] ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
+    [[nodiscard]] std::string GetAssignedToName() const
     {
         std::string name;
         // save queries if ticket is not assigned

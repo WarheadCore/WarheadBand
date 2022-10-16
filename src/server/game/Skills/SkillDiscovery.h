@@ -18,7 +18,7 @@
 #ifndef WARHEAD_SKILLDISCOVERY_H
 #define WARHEAD_SKILLDISCOVERY_H
 
-#include "Common.h"
+#include "Define.h"
 
 class Player;
 

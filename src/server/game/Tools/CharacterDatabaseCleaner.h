@@ -18,7 +18,7 @@
 #ifndef CHARACTERDATABASECLEANER_H
 #define CHARACTERDATABASECLEANER_H
 
-#include "Common.h"
+#include "Define.h"
 
 namespace CharacterDatabaseCleaner
 {

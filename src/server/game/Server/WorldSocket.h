@@ -23,7 +23,6 @@
 #include "MPSCQueue.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
-#include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <boost/asio/ip/tcp.hpp>

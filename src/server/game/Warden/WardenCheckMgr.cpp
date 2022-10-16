@@ -25,8 +25,6 @@
 #include "Log.h"
 #include "Util.h"
 #include "Warden.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 
 WardenCheckMgr::WardenCheckMgr()
 {

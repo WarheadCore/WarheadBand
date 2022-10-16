@@ -22,6 +22,7 @@
 #include "BattlegroundMgr.h"
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
+#include "DatabaseEnv.h"
 #include "Errors.h"
 #include "GameConfig.h"
 #include "LFGMgr.h"
@@ -31,6 +32,7 @@
 #include "TransportMgr.h"
 #include "World.h"
 #include <map>
+#include <sstream>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;

@@ -27,7 +27,6 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"

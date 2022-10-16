@@ -18,7 +18,7 @@
 #ifndef _ITEM_ENCHANTMENT_MGR_H
 #define _ITEM_ENCHANTMENT_MGR_H
 
-#include "Common.h"
+#include "Define.h"
 
 WH_GAME_API void LoadRandomEnchantmentsTable();
 WH_GAME_API uint32 GetItemEnchantMod(int32 entry);

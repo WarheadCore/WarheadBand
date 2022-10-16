@@ -22,7 +22,6 @@
 #include "Item.h"
 #include "LootMgr.h"
 #include <list>
-#include <map>
 
 struct StoredLootItem
 {

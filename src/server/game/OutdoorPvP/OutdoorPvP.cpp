@@ -20,6 +20,7 @@
 
 #include "OutdoorPvP.h"
 #include "CellImpl.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"

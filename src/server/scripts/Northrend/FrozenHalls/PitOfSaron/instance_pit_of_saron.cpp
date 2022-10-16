@@ -22,6 +22,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "pit_of_saron.h"
+#include <sstream>
 
 class instance_pit_of_saron : public InstanceMapScript
 {

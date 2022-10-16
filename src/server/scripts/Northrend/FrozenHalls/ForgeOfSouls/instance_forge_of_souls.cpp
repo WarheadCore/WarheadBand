@@ -22,6 +22,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "forge_of_souls.h"
+#include <sstream>
 
 BossBoundaryData const boundaries =
 {

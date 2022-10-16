@@ -21,6 +21,7 @@
 #include "Autobroadcast.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "Language.h"

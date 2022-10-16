@@ -24,6 +24,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_mage_".
  */
 
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ScriptObject.h"

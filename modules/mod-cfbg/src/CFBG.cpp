@@ -29,6 +29,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "ModulesConfig.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"

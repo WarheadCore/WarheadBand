@@ -18,7 +18,7 @@
 #ifndef _WARDENCHECKMGR_H
 #define _WARDENCHECKMGR_H
 
-#include "Cryptography/BigNumber.h"
+#include "BigNumber.h"
 #include <map>
 
 // EnumUtils: DESCRIBE THIS

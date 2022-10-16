@@ -20,8 +20,6 @@
 
 #include "CompilerDefs.h"
 #include <cinttypes>
-#include <climits>
-#include <cstddef>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
@@ -54,20 +52,8 @@
 #endif
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-#  define WARHEAD_PATH_MAX MAX_PATH
-#  define _USE_MATH_DEFINES
-#else //WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
-#  define WARHEAD_PATH_MAX PATH_MAX
-#endif //WARHEAD_PLATFORM
-
-#if !defined(COREDEBUG)
-#  define WARHEAD_INLINE inline
-#else //COREDEBUG
-#  if !defined(WARHEAD_DEBUG)
-#    define WARHEAD_DEBUG
-#  endif //WARHEAD_DEBUG
-#  define WARHEAD_INLINE
-#endif //!COREDEBUG
+#define _USE_MATH_DEFINES
+#endif // WARHEAD_PLATFORM
 
 #ifdef WARHEAD_API_USE_DYNAMIC_LINKING
 #  if WARHEAD_COMPILER == WARHEAD_COMPILER_MICROSOFT
@@ -109,15 +95,14 @@
 #endif
 
 #define UI64LIT(N) UINT64_C(N)
-#define SI64LIT(N) INT64_C(N)
 
-typedef std::int64_t int64;
-typedef std::int32_t int32;
-typedef std::int16_t int16;
-typedef std::int8_t int8;
-typedef std::uint64_t uint64;
-typedef std::uint32_t uint32;
-typedef std::uint16_t uint16;
-typedef std::uint8_t uint8;
+using int64 = std::int64_t;
+using int32 = std::int32_t;
+using int16 = std::int16_t;
+using int8 = std::int8_t;
+using uint64 = std::uint64_t;
+using uint32 = std::uint32_t;
+using uint16 = std::uint16_t;
+using uint8 = std::uint8_t;
 
 #endif //WARHEAD_DEFINE_H

@@ -58,7 +58,7 @@ static constexpr SecretInfo secret_info[NUM_SECRETS] =
 static Optional<BigNumber> GetHexFromConfig(char const* configKey, int bits)
 {
     ASSERT(bits > 0);
-    std::string str = sConfigMgr->GetOption<std::string>(configKey, "");
+    auto str = sConfigMgr->GetOption<std::string>(configKey, "");
     if (str.empty())
         return {};
 

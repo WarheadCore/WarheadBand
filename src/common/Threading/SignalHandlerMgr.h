@@ -19,9 +19,9 @@
 #define _WARHEAD_SIGNAL_HANDLER_H_
 
 #include "Define.h"
+#include <boost/asio/signal_set.hpp>
 #include <functional>
 #include <memory>
-#include <boost/asio/signal_set.hpp>
 
 namespace Warhead
 {

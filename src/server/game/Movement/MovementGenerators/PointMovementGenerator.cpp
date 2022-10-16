@@ -23,7 +23,6 @@
 #include "CreatureAI.h"
 #include "Errors.h"
 #include "GameConfig.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

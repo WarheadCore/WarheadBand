@@ -24,8 +24,6 @@
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GridDefines.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
@@ -1957,4 +1955,13 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id)
     }
 
     return true;
+}
+
+void ObjectGuidVector::UpdateObjects(const WorldObject &ref) const
+{
+    _objectVector.clear();
+
+    for (ObjectGuid const& guid : _guidVector)
+        if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
+            _objectVector.emplace_back(obj);
 }

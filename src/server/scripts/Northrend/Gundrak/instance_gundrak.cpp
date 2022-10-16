@@ -21,6 +21,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "gundrak.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

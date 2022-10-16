@@ -24,6 +24,7 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "molten_core.h"
+#include <sstream>
 
 MinionData const minionData[] =
 {

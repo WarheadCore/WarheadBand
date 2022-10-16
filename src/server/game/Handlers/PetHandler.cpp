@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "CreatureAI.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"

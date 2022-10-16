@@ -20,11 +20,13 @@
 
 #include "Transmogrification.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "ScriptedGossip.h"
+#include <sstream>
 
 Transmogrification* Transmogrification::instance()
 {

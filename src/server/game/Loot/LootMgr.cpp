@@ -20,9 +20,11 @@
 
 #include "LootMgr.h"
 #include "Containers.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Group.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"

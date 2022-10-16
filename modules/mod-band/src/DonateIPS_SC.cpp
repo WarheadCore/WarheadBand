@@ -18,8 +18,8 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "AsyncCallbackProcessor.h"
 #include "CharacterCache.h"
+#include "DatabaseEnv.h"
 #include "ExternalMail.h"
 #include "Log.h"
 #include "ModulesConfig.h"
@@ -32,7 +32,6 @@
 #include "TaskScheduler.h"
 #include <unordered_map>
 #include <vector>
-//#include "GameLocale.h"
 
 enum class IPSShopType : uint8
 {

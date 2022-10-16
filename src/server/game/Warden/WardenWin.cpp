@@ -32,10 +32,10 @@
 #include "Util.h"
 #include "WardenCheckMgr.h"
 #include "WardenModuleWin.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <openssl/md5.h>
+#include <sstream>
 
 // GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
 static constexpr char _luaEvalPrefix[] = "local S,T,R=SendAddonMessage,function()";

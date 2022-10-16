@@ -30,6 +30,7 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "TemporarySummon.h"
 #include "zulaman.h"
+#include <sstream>
 
 enum Misc
 {

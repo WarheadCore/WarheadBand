@@ -22,7 +22,6 @@
 #include "AuthDefines.h"
 #include "ByteBuffer.h"
 #include "WardenCheckMgr.h"
-#include <array>
 
 enum WardenOpcodes
 {

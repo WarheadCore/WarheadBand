@@ -19,7 +19,6 @@
 #define __BATTLEGROUND_H
 
 #include "ArenaScore.h"
-#include "Common.h"
 #include "DBCEnums.h"
 #include "GameObject.h"
 #include "SharedDefines.h"

@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ChatTextBuilder.h"
+#include "AccountMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
 #include "Player.h"

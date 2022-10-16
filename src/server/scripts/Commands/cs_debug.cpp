@@ -45,9 +45,9 @@
 #include "SpellMgr.h"
 #include "Transport.h"
 #include "Warden.h"
-#include "World.h"
 #include <fstream>
 #include <set>
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 

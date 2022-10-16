@@ -19,12 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Language.h"
-#include "Log.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 

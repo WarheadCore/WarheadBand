@@ -38,7 +38,6 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
-#include "WorldSession.h"
 
 // Ours
 

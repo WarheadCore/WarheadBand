@@ -22,17 +22,14 @@
 #ifndef __WORLDSESSION_H
 #define __WORLDSESSION_H
 
-#include "AccountMgr.h"
 #include "AddonMgr.h"
 #include "AuthDefines.h"
-#include "BanMgr.h"
 #include "CircularBuffer.h"
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "GossipDef.h"
 #include "Packet.h"
 #include "SharedDefines.h"
-#include "StringFormat.h"
 #include "World.h"
 #include <map>
 #include <utility>
@@ -42,7 +39,6 @@ class GameObject;
 class InstanceSave;
 class Item;
 class LoginQueryHolder;
-class LoadPetFromDBQueryHolder;
 class Object;
 class Pet;
 class Player;
@@ -52,7 +48,6 @@ class Unit;
 class Warden;
 class WorldPacket;
 class WorldSocket;
-class AsynchPetSummon;
 
 struct AreaTableEntry;
 struct AuctionEntry;

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARHEAD_CHHANEL_H_
-#define _WARHEAD_CHHANEL_H_
+#ifndef _WARHEAD_CHANNEL_H_
+#define _WARHEAD_CHANNEL_H_
 
 #include "Define.h"
 #include "LogCommon.h"
@@ -70,4 +70,4 @@ namespace Warhead
 
 } // namespace Warhead
 
-#endif //
+#endif //_WARHEAD_CHANNEL_H_

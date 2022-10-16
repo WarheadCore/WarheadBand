@@ -24,7 +24,6 @@
 #include "GameConfig.h"
 #include "Map.h"
 #include "MapMgr.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Spell.h"

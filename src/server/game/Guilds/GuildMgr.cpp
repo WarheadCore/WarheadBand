@@ -20,6 +20,7 @@
 
 #include "GuildMgr.h"
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 
 GuildMgr::GuildMgr() : NextGuildId(1)

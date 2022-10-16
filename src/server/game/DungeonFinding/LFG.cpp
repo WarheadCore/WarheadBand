@@ -21,8 +21,8 @@
 #include "LFG.h"
 #include "GameLocale.h"
 #include "Language.h"
-#include "ObjectMgr.h"
 #include "StringFormat.h"
+#include <sstream>
 
 namespace lfg
 {

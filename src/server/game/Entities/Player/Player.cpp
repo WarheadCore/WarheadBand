@@ -33,12 +33,10 @@
 #include "CellImpl.h"
 #include "Channel.h"
 #include "CharacterCache.h"
-#include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
 #include "CombatLogPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
-#include "Config.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
@@ -64,7 +62,6 @@
 #include "LootItemStorage.h"
 #include "MapMgr.h"
 #include "MiscPackets.h"
-#include "MuteMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -95,12 +92,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-
-// TODO: this import is not necessary for compilation and marked as unused by the IDE
-//  however, for some reasons removing it would cause a damn linking issue
-//  there is probably some underlying problem with imports which should properly addressed
-//  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
-#include "GridNotifiersImpl.h"
+#include <sstream>
 
 enum CharacterFlags
 {

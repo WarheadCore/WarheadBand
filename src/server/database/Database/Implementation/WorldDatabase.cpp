@@ -20,7 +20,6 @@
 
 #include "WorldDatabase.h"
 #include "DatabaseEnv.h"
-#include "DatabaseEnvFwd.h"
 
 WorldDatabasePool WorldDatabase;
 

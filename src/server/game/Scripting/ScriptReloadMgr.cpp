@@ -20,7 +20,6 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
-#include "Optional.h"
 
 #ifndef WARHEAD_API_USE_DYNAMIC_LINKING
 
@@ -52,6 +51,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Util.h"
 #include "World.h"
 #include "GameConfig.h"
+#include "Optional.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/system_error.hpp>

@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DisableMgr.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "MMapFactory.h"
@@ -29,6 +30,7 @@
 #include "SpellMgr.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "VMapMgr2.h"
 #include "World.h"
 
 namespace DisableMgr
@@ -43,11 +45,11 @@ namespace DisableMgr
 
         // single disables here with optional data
         typedef std::map<uint32, DisableData> DisableTypeMap;
+
         // global disable map by source
         typedef std::map<DisableType, DisableTypeMap> DisableMap;
 
         DisableMap m_DisableMap;
-
         uint8 MAX_DISABLE_TYPES = 10;
     }
 

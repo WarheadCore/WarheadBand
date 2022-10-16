@@ -39,7 +39,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "World.h"
 #include "WorldSession.h"
 #include <boost/iterator/counting_iterator.hpp>
 
@@ -684,6 +683,8 @@ int32 Guild::Member::GetBankWithdrawValue(uint8 tabId) const
 
     return m_bankWithdraw[tabId];
 }
+
+Player* Guild::Member::FindPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
 
 // EmblemInfo
 void EmblemInfo::ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet)
@@ -2908,4 +2909,11 @@ void Guild::ResetTimes()
         member.ResetValues();
 
     _BroadcastEvent(GE_BANK_TAB_AND_MONEY_UPDATED, ObjectGuid::Empty);
+}
+
+void Guild::_DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
+{
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
+    stmt->SetData(0, lowguid);
+    CharacterDatabase.Execute(stmt);
 }

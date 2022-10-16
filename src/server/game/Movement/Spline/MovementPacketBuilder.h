@@ -21,6 +21,7 @@
 #include "Define.h"
 
 class ByteBuffer;
+
 namespace G3D
 {
     class Vector3;
