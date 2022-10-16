@@ -47,6 +47,7 @@ public:
     bool CanCheckIpFromDB(std::string_view ip);
     bool IsIPBanned(std::string_view ip);
     void UpdateIPInfo(std::string_view ip, bool isBanned = false);
+    void AddBanForIP(std::string_view ip, Milliseconds duration, std::string_view reason);
 
 private:
     std::unordered_map<std::string, IPInfo> _cache;

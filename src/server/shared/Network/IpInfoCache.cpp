@@ -56,28 +56,12 @@ bool IPInfoCacheMgr::CanCheckIpFromDB(std::string_view ip)
         return true;
 
     // Increase check count;
-    if (ipInfo->CheckCount++ >= _maxCheckCount)
+    if (++ipInfo->CheckCount >= _maxCheckCount)
     {
         LOG_WARN("ipcache", "Found login flood from ip: {}", ip);
 
         if (_banEnable && !ipInfo->IsBanned)
-        {
-            // Add ban in cache
-            ipInfo->IsBanned = true;
-
-            // Add ban in DB
-            {
-                AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
-                stmt->SetArguments(ip);
-
-                PreparedQueryResult resultAccounts = AuthDatabase.Query(stmt);
-                stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_IP_BANNED);
-                stmt->SetArguments(ip, _banDuration, "System", "Login flood");
-                AuthDatabase.Execute(stmt);
-            }
-
-            LOG_WARN("ipcache", "Add ban for IP: {}. Duration: {}", ip, Warhead::Time::ToTimeString(_banDuration));
-        }
+            AddBanForIP(ip, _banDuration, "Login flood");
     }
 
     return false;
@@ -112,4 +96,25 @@ void IPInfoCacheMgr::UpdateIPInfo(std::string_view ip, bool isBanned /*= false*/
     ipInfo->CheckCount = 0;
 }
 
+void IPInfoCacheMgr::AddBanForIP(std::string_view ip, Milliseconds duration, std::string_view reason)
+{
+    // Add ban in DB
+    {
+        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_IP_BANNED);
+        stmt->SetArguments(ip, duration, "System", reason);
+        AuthDatabase.Execute(stmt);
+    }
 
+    LOG_WARN("ipcache", "Add ban for IP: {}. Duration: {}. Reason: {}", ip, Warhead::Time::ToTimeString(duration), reason);
+
+    auto ipInfo = GetIpInfo(ip);
+    if (!ipInfo)
+    {
+        _cache.emplace(ip, IPInfo(ip, true));
+        return;
+    }
+
+    ipInfo->LastCheck = GetTimeMS();
+    ipInfo->IsBanned = true;
+    ipInfo->CheckCount = 0;
+}
