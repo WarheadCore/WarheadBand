@@ -21,7 +21,6 @@
 #include "DatabaseWorkerPool.h"
 #include "Config.h"
 #include "Errors.h"
-#include "IoContextMgr.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "MySQLPreparedStatement.h"
@@ -430,40 +429,37 @@ TransactionCallback DatabaseWorkerPool::AsyncCommitTransaction(SQLTransaction tr
 
 void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
 {
-    if (!_isEnableDynamicConnections)
+    auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
+    auto queueSize{ mostFreeConnection->GetQueueSize() };
+
+    if (!_isEnableDynamicConnections || queueSize < _maxQueueSize)
     {
-        _connections[IDX_ASYNC].front()->Enqueue(operation);
+        mostFreeConnection->Enqueue(operation);
         return;
     }
 
-    sIoContextMgr->Post([this, operation]()
+    std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
+    std::size_t allQueueSize{};
+
+    for (auto const& connection : _connections[IDX_ASYNC])
     {
-        std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
+        auto qSize{ connection->GetQueueSize() };
+        allQueueSize += qSize;
 
-        auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
-        auto queueSize{ mostFreeConnection->GetQueueSize() };
-        std::size_t allQueueSize{};
+        if (qSize >= queueSize)
+            continue;
 
-        for (auto const& connection : _connections[IDX_ASYNC])
-        {
-            auto qSize{ connection->GetQueueSize() };
-            allQueueSize += qSize;
+        mostFreeConnection = connection.get();
+        queueSize = qSize;
+    }
 
-            if (qSize >= queueSize)
-                continue;
+    mostFreeConnection->Enqueue(operation);
 
-            mostFreeConnection = connection.get();
-            queueSize = qSize;
-        }
-
-        mostFreeConnection->Enqueue(operation);
-
-        if (queueSize > _maxQueueSize)
-        {
-            LOG_WARN("db.pool", "Queue overload. Size (current/max/total): {}/{}/{}. Pool name: {}. Connections size: {}", queueSize, _maxQueueSize, allQueueSize, _poolName, _connections[IDX_ASYNC].size());
-            OpenDynamicAsyncConnect();
-        }
-    });
+    if (queueSize > _maxQueueSize)
+    {
+        LOG_WARN("db.pool", "Queue overload. Size (current/max/total): {}/{}/{}. Pool name: {}. Connections size: {}", queueSize, _maxQueueSize, allQueueSize, _poolName, _connections[IDX_ASYNC].size());
+        OpenDynamicAsyncConnect();
+    }
 }
 
 void DatabaseWorkerPool::DirectCommitTransaction(SQLTransaction transaction)
