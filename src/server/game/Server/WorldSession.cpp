@@ -61,6 +61,7 @@
 
 namespace
 {
+    constexpr uint32 MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE = 150;
     std::string const DefaultPlayerName = "<none>";
 }
 
@@ -316,8 +317,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     std::vector<WorldPacket*> requeuePackets;
     uint32 processedPackets = 0;
     time_t currentTime = GameTime::GetGameTime().count();
+    auto queueSize{ _recvQueue.size() };
 
-    constexpr uint32 MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE = 150;
+    if (queueSize >= MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
+        LOG_WARN("server", "Found potential packet flood from: {}. Queue size: {}", GetPlayerInfo(), queueSize);
 
     while (m_Socket && _recvQueue.next(packet, updater))
     {
@@ -443,11 +446,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         deletePacket = true;
 
-        processedPackets++;
-
         //process only a max amout of packets in 1 Update() call.
         //Any leftover will be processed in next update
-        if (processedPackets > MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
+        if (++processedPackets > MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
             break;
     }
 
