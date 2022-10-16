@@ -34,6 +34,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "IpInfoCache.h"
+#include "BanMgr.h"
 #include <memory>
 
 using boost::asio::ip::tcp;
@@ -239,15 +240,19 @@ bool WorldSocket::ReadHeaderHandler()
     if (_authCrypt.IsInitialized())
         _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
 
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+    auto header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     EndianConvertReverse(header->size);
     EndianConvert(header->cmd);
 
     if (!header->IsValidSize() || !header->IsValidOpcode())
     {
-        LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
-            GetRemoteIpAddress().to_string(), header->size, header->cmd);
+        auto ipAddress{ GetRemoteIpAddress().to_string() };
 
+        LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
+            ipAddress, header->size, header->cmd);
+
+        sBan->BanIP(ipAddress, "5min", "World: Malformed packet", "System");
+        sIPInfoCacheMgr->UpdateIPInfo(ipAddress, true);
         return false;
     }
 
