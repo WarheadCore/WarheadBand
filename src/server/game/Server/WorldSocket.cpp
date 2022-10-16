@@ -20,6 +20,7 @@
 
 #include "WorldSocket.h"
 #include "AccountMgr.h"
+#include "BanMgr.h"
 #include "Config.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
@@ -27,14 +28,13 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "IPLocation.h"
+#include "IpInfoCache.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "IpInfoCache.h"
-#include "BanMgr.h"
 #include <memory>
 
 using boost::asio::ip::tcp;

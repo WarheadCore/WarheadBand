@@ -16,11 +16,11 @@
  */
 
 #include "IpInfoCache.h"
-#include "Containers.h"
-#include "Timer.h"
-#include "Log.h"
-#include "DatabaseEnv.h"
 #include "Config.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Timer.h"
 
 IPInfo::IPInfo(std::string_view ip, bool isBanned) :
     IP(ip), IsBanned(isBanned), LastCheck(GetTimeMS()) { }

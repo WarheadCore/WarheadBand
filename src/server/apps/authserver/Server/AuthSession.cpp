@@ -26,6 +26,7 @@
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
+#include "IpInfoCache.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
@@ -33,7 +34,6 @@
 #include "TOTP.h"
 #include "Timer.h"
 #include "Util.h"
-#include "IpInfoCache.h"
 #include <boost/lexical_cast.hpp>
 
 using boost::asio::ip::tcp;
