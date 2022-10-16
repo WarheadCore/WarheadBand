@@ -320,7 +320,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     auto queueSize{ _recvQueue.size() };
 
     if (queueSize >= MAX_PROCESSED_PACKETS_IN_SAME_WORLDSESSION_UPDATE)
-        LOG_WARN("server", "Found potential packet flood from: {}. Queue size: {}", GetPlayerInfo(), queueSize);
+        LOG_WARN("network", "Found potential packet flood from: {}. Queue size: {}", GetPlayerInfo(), queueSize);
 
     while (m_Socket && _recvQueue.next(packet, updater))
     {
