@@ -150,5 +150,12 @@ public:
         std::lock_guard<std::mutex> lock(_lock);
         return _queue.empty();
     }
+
+    std::size_t size()
+    {
+        std::lock_guard<std::mutex> lock(_lock);
+        return _queue.size();
+    }
 };
+
 #endif
