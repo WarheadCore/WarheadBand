@@ -50,6 +50,8 @@
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
+#include <dpp/cluster.h>
+
 #ifndef _WARHEAD_REALM_CONFIG
 #define _WARHEAD_REALM_CONFIG "authserver.conf"
 #endif
@@ -68,6 +70,8 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile);
 int main(int argc, char** argv)
 {
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
+
+    dpp::cluster cluster();
 
     // Set signal handlers
     sSignalMgr->Initialize();
