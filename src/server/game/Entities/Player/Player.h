@@ -2317,6 +2317,7 @@ public:
     float m_homebindX;
     float m_homebindY;
     float m_homebindZ;
+    float m_homebindO;
 
     [[nodiscard]] WorldLocation GetStartPosition() const;
 

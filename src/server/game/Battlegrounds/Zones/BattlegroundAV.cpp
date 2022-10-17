@@ -730,8 +730,8 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
     {
         m_Mine_Reclaim_Timer[mine] = AV_MINE_RECLAIM_TIMER;
 
-        std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH),
-            (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+        std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString(LANG_BG_AV_MINE_TAKEN), (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE),
+                GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH));
 
         Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
         if (creature)

@@ -4418,6 +4418,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_NOT_ABOVEWATER;
     });
 
+    // Summon Worm
+    ApplySpellFix({ 518, 25831, 25832 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MiscValueB = 64;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];

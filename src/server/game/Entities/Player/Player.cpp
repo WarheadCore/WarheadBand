@@ -348,6 +348,7 @@ Player::Player(WorldSession* session): Unit(true), m_mover(this)
     m_homebindX = 0;
     m_homebindY = 0;
     m_homebindZ = 0;
+    m_homebindO = 0;
 
     m_contestedPvPTimer = 0;
 
@@ -1586,7 +1587,7 @@ bool Player::TeleportToEntryPoint()
 
     if (loc.m_mapId == MAPID_INVALID)
     {
-        return TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+        return TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, m_homebindO);
     }
 
     return TeleportTo(loc);
@@ -4862,7 +4863,7 @@ void Player::RepopAtGraveyard()
         }
     }
     else if (GetPositionZ() < GetMap()->GetMinHeight(GetPositionX(), GetPositionY()))
-        TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+        TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, m_homebindO);
 
     RemovePlayerFlag(PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
 }
@@ -11077,7 +11078,7 @@ void Player::SetEntryPoint()
     }
 
     if (m_entryPointData.joinPos.m_mapId == MAPID_INVALID)
-        m_entryPointData.joinPos = WorldLocation(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, 0.0f);
+        m_entryPointData.joinPos = WorldLocation(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, m_homebindO);
 }
 
 void Player::LeaveBattleground(Battleground* bg)
@@ -11316,7 +11317,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     // Homebind
     WorldPacket data(SMSG_BINDPOINTUPDATE, 5 * 4);
-    data << m_homebindX << m_homebindY << m_homebindZ;
+    data << m_homebindX << m_homebindY << m_homebindZ << m_homebindO;
     data << (uint32) m_homebindMapId;
     data << (uint32) m_homebindAreaId;
     GetSession()->SendPacket(&data);
