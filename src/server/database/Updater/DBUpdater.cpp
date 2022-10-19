@@ -360,7 +360,6 @@ void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, std::string_view host, std::
                                              std::string_view port_or_socket, std::string_view database, std::string_view ssl, Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(9);
 
     auto CanUseExtraFile = []()
     {

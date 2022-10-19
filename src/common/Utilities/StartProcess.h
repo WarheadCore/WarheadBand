@@ -23,7 +23,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/process/environment.hpp>
 
 namespace Warhead
 {
@@ -34,14 +33,14 @@ namespace Warhead
     /// Note that most executables expect it's name as the first argument.
     WH_COMMON_API int StartProcess(std::string const& executable, std::vector<std::string> const& args,
                                    std::string const& logger, std::string input_file = "",
-                                   bool secure = false, boost::process::environment env = boost::this_process::environment());
+                                   bool secure = false);
 
     /// Platform and library independent representation
     /// of asynchronous process results
     class AsyncProcessResult
     {
     public:
-        virtual ~AsyncProcessResult() { }
+        virtual ~AsyncProcessResult() = default;
 
         /// Returns the future which contains the result of the process
         /// as soon it is finished.
@@ -58,12 +57,11 @@ namespace Warhead
     /// Note that most executables expect it's name as the first argument.
     WH_COMMON_API std::shared_ptr<AsyncProcessResult> StartAsyncProcess(std::string executable, std::vector<std::string> args,
             std::string logger, std::string input_file = "",
-            bool secure = false, boost::process::environment env = boost::this_process::environment());
+            bool secure = false);
 
     /// Searches for the given executable in the PATH variable
     /// and returns a non-empty string when it was found.
     WH_COMMON_API std::string SearchExecutableInPath(std::string const& filename);
-
 } // namespace Warhead
 
 #endif // __PROCESS_H__

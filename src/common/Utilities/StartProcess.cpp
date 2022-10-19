@@ -33,6 +33,7 @@
 #include <boost/process/pipe.hpp>
 #include <boost/process/search_path.hpp>
 #include <filesystem>
+#include <utility>
 
 using namespace boost::process;
 using namespace boost::iostreams;
@@ -40,7 +41,7 @@ using namespace boost::iostreams;
 namespace Warhead
 {
     template<typename T>
-    class TCLogSink
+    class WHLogSink
     {
         T callback_;
 
@@ -49,7 +50,7 @@ namespace Warhead
         typedef sink_tag  category;
 
         // Requires a callback type which has a void(std::string) signature
-        TCLogSink(T callback)
+        WHLogSink(T callback)
             : callback_(std::move(callback)) { }
 
         std::streamsize write(char const* str, std::streamsize size)
@@ -63,8 +64,8 @@ namespace Warhead
     };
 
     template<typename T>
-    auto MakeTCLogSink(T&& callback)
-        -> TCLogSink<typename std::decay<T>::type>
+    auto MakeWHLogSink(T&& callback)
+        -> WHLogSink<typename std::decay<T>::type>
     {
         return { std::forward<T>(callback) };
     }
@@ -73,7 +74,7 @@ namespace Warhead
     static int CreateChildProcess(T waiter, std::string const& executable,
         std::vector<std::string> const& argsVector,
         std::string const& logger, std::string const& input,
-        bool secure, boost::process::environment envVariables = boost::this_process::environment())
+        bool secure)
     {
         ipstream outStream;
         ipstream errStream;
@@ -100,7 +101,7 @@ namespace Warhead
                 return child{
                     exe = std::filesystem::absolute(executable).string(),
                     args = argsVector,
-                    env = environment(envVariables),
+                    env = environment(boost::this_process::environment()),
                     std_in = inputFile.get(),
                     std_out = outStream,
                     std_err = errStream
@@ -112,7 +113,7 @@ namespace Warhead
                 return child{
                     exe = std::filesystem::absolute(executable).string(),
                     args = argsVector,
-                    env = environment(envVariables),
+                    env = environment(boost::this_process::environment()),
                     std_in = boost::process::close,
                     std_out = outStream,
                     std_err = errStream
@@ -120,12 +121,12 @@ namespace Warhead
             }
         }();
 
-        auto outInfo = MakeTCLogSink([&](std::string const& msg)
+        auto outInfo = MakeWHLogSink([&](std::string const& msg)
         {
             LOG_INFO(logger, "{}", msg);
         });
 
-        auto outError = MakeTCLogSink([&](std::string const& msg)
+        auto outError = MakeWHLogSink([&](std::string const& msg)
         {
             LOG_ERROR(logger, "{}", msg);
         });
@@ -147,7 +148,7 @@ namespace Warhead
     }
 
     int StartProcess(std::string const& executable, std::vector<std::string> const& args,
-        std::string const& logger, std::string input_file, bool secure, boost::process::environment env)
+        std::string const& logger, std::string input_file, bool secure)
     {
         return CreateChildProcess([](child& c) -> int
         {
@@ -160,7 +161,7 @@ namespace Warhead
             {
                 return EXIT_FAILURE;
             }
-        }, executable, args, logger, input_file, secure, env);
+        }, executable, args, logger, input_file, secure);
     }
 
     class AsyncProcessResultImplementation
@@ -180,11 +181,13 @@ namespace Warhead
 
     public:
         explicit AsyncProcessResultImplementation(std::string executable_, std::vector<std::string> args_,
-            std::string logger_, std::string input_file_,
-            bool secure, boost::process::environment env)
-            : executable(std::move(executable_)), args(std::move(args_)),
-            logger(std::move(logger_)), input_file(input_file_),
-            is_secure(secure), envVariables(env), was_terminated(false) { }
+            std::string logger_, std::string input_file_, bool secure) :
+            executable(std::move(executable_)),
+            args(std::move(args_)),
+            logger(std::move(logger_)),
+            input_file(std::move(input_file_)),
+            is_secure(secure),
+            was_terminated(false) { }
 
         AsyncProcessResultImplementation(AsyncProcessResultImplementation const&) = delete;
         AsyncProcessResultImplementation& operator= (AsyncProcessResultImplementation const&) = delete;
@@ -213,7 +216,7 @@ namespace Warhead
                 my_child.reset();
                 return was_terminated ? EXIT_FAILURE : exitCode;
 
-            }, executable, args, logger, input_file, is_secure, envVariables);
+            }, executable, args, logger, input_file, is_secure);
         }
 
         void SetFuture(std::future<int> result_)
@@ -247,12 +250,11 @@ namespace Warhead
         }
     };
 
-    std::shared_ptr<AsyncProcessResult>
-        StartAsyncProcess(std::string executable, std::vector<std::string> args,
-            std::string logger, std::string input_file, bool secure, boost::process::native_environment env)
+    std::shared_ptr<AsyncProcessResult> StartAsyncProcess(std::string executable, std::vector<std::string> args,
+            std::string logger, std::string input_file, bool secure)
     {
         auto handle = std::make_shared<AsyncProcessResultImplementation>(
-            std::move(executable), std::move(args), std::move(logger), std::move(input_file), secure, env);
+            std::move(executable), std::move(args), std::move(logger), std::move(input_file), secure);
 
         handle->SetFuture(std::async(std::launch::async, [handle] { return handle->StartProcess(); }));
         return handle;
