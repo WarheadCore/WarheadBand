@@ -5117,9 +5117,9 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
 
     auto RelocateToHomebind = [this, &mapId, &instanceId]()
     {
-    	mapId = m_homebindMapId;
-    	instanceId = 0;
-    	Relocate(m_homebindX, m_homebindY, m_homebindZ, m_homebindO);
+        mapId = m_homebindMapId;
+        instanceId = 0;
+        Relocate(m_homebindX, m_homebindY, m_homebindZ, m_homebindO);
     };
 
     _LoadGroup();
