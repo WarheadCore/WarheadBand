@@ -2484,6 +2484,7 @@ public:
     [[nodiscard]] bool HasTitle(uint32 bitIndex) const;
     bool HasTitle(CharTitlesEntry const* title) const { return HasTitle(title->bit_index); }
     void SetTitle(CharTitlesEntry const* title, bool lost = false);
+    inline uint32 GetTitle() { return GetUInt32Value(PLAYER_CHOSEN_TITLE); }
     void SetCurrentTitle(CharTitlesEntry const* title, bool clear = false) { SetUInt32Value(PLAYER_CHOSEN_TITLE, clear ? 0 : title->bit_index); };
 
     //bool isActiveObject() const { return true; }

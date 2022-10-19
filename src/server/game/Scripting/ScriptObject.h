@@ -1471,6 +1471,7 @@ public:
     virtual void OnCalculateMinMaxDamage(Player* /*player*/, float& /*damageFromAP*/) { }
     [[nodiscard]] virtual bool CanCompleteQuest(Player* /*player*/, Quest const* /*questInfo*/, QuestStatusData const* /*questStatusData*/) { return true; }
     virtual void OnAddQuest(Player* /*player*/, Quest const* /*quest*/, Object* /*questGiver*/) { }
+    virtual void OnChangeTitle(Player* /*player*/, int32 /*title*/) { }
 
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }

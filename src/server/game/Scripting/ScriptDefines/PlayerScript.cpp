@@ -1457,3 +1457,11 @@ void ScriptMgr::OnAddQuest(Player* player, Quest const* quest, Object* questGive
         script->OnAddQuest(player, quest, questGiver);
     });
 }
+
+void ScriptMgr::OnChangeTitle(Player *player, int32 title)
+{
+    ExecuteScript<PlayerScript>([player, title](PlayerScript* script)
+    {
+        script->OnChangeTitle(player, title);
+    });
+}

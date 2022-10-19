@@ -1286,7 +1286,8 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recv_data)
     else
         title = 0;
 
-    GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, title);
+    sScriptMgr->OnChangeTitle(_player, title);
+    _player->SetUInt32Value(PLAYER_CHOSEN_TITLE, title);
 }
 
 void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*recv_data*/)
