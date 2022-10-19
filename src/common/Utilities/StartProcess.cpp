@@ -73,7 +73,7 @@ namespace Warhead
     static int CreateChildProcess(T waiter, std::string const& executable,
         std::vector<std::string> const& argsVector,
         std::string const& logger, std::string const& input,
-        bool secure)
+        bool secure, boost::process::environment envVariables = boost::this_process::environment())
     {
         ipstream outStream;
         ipstream errStream;
@@ -100,7 +100,7 @@ namespace Warhead
                 return child{
                     exe = std::filesystem::absolute(executable).string(),
                     args = argsVector,
-                    env = environment(boost::this_process::environment()),
+                    env = environment(envVariables),
                     std_in = inputFile.get(),
                     std_out = outStream,
                     std_err = errStream
@@ -112,7 +112,7 @@ namespace Warhead
                 return child{
                     exe = std::filesystem::absolute(executable).string(),
                     args = argsVector,
-                    env = environment(boost::this_process::environment()),
+                    env = environment(envVariables),
                     std_in = boost::process::close,
                     std_out = outStream,
                     std_err = errStream
@@ -147,7 +147,7 @@ namespace Warhead
     }
 
     int StartProcess(std::string const& executable, std::vector<std::string> const& args,
-        std::string const& logger, std::string input_file, bool secure)
+        std::string const& logger, std::string input_file, bool secure, boost::process::environment env)
     {
         return CreateChildProcess([](child& c) -> int
         {
@@ -160,7 +160,7 @@ namespace Warhead
             {
                 return EXIT_FAILURE;
             }
-        }, executable, args, logger, input_file, secure);
+        }, executable, args, logger, input_file, secure, env);
     }
 
     class AsyncProcessResultImplementation
@@ -171,6 +171,7 @@ namespace Warhead
         std::string const logger;
         std::string const input_file;
         bool const is_secure;
+        boost::process::environment envVariables;
 
         std::atomic<bool> was_terminated;
 
@@ -180,10 +181,10 @@ namespace Warhead
     public:
         explicit AsyncProcessResultImplementation(std::string executable_, std::vector<std::string> args_,
             std::string logger_, std::string input_file_,
-            bool secure)
+            bool secure, boost::process::environment env)
             : executable(std::move(executable_)), args(std::move(args_)),
             logger(std::move(logger_)), input_file(input_file_),
-            is_secure(secure), was_terminated(false) { }
+            is_secure(secure), envVariables(env), was_terminated(false) { }
 
         AsyncProcessResultImplementation(AsyncProcessResultImplementation const&) = delete;
         AsyncProcessResultImplementation& operator= (AsyncProcessResultImplementation const&) = delete;
@@ -212,7 +213,7 @@ namespace Warhead
                 my_child.reset();
                 return was_terminated ? EXIT_FAILURE : exitCode;
 
-            }, executable, args, logger, input_file, is_secure);
+            }, executable, args, logger, input_file, is_secure, envVariables);
         }
 
         void SetFuture(std::future<int> result_)
@@ -248,10 +249,10 @@ namespace Warhead
 
     std::shared_ptr<AsyncProcessResult>
         StartAsyncProcess(std::string executable, std::vector<std::string> args,
-            std::string logger, std::string input_file, bool secure)
+            std::string logger, std::string input_file, bool secure, boost::process::native_environment env)
     {
         auto handle = std::make_shared<AsyncProcessResultImplementation>(
-            std::move(executable), std::move(args), std::move(logger), std::move(input_file), secure);
+            std::move(executable), std::move(args), std::move(logger), std::move(input_file), secure, env);
 
         handle->SetFuture(std::async(std::launch::async, [handle] { return handle->StartProcess(); }));
         return handle;
