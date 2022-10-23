@@ -8,8 +8,9 @@ echo "AuthDatabaseInfo     = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_
 # worldserver or dbimport
 if [[ $APP_NAME != "authserver" ]]; then
     {
-        echo "WorldDatabaseInfo     = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_world\""
-        echo "CharactersDatabaseInfo = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_characters\""
+        echo "WorldDatabaseInfo         = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_world\""
+        echo "CharactersDatabaseInfo    = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_characters\""
+        echo "DbcDatabaseInfo           = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_dbc\""
     } >> ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
 fi
 
