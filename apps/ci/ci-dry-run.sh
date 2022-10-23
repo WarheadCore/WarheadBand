@@ -2,26 +2,12 @@
 
 set -e
 
+CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # Start mysql
 sudo systemctl start mysql
 
-APP_NAME=$1
-
-echo "AuthDatabaseInfo     = \"localhost;3306;root;root;warhead_auth\"" >> ./env/dist/etc/$APP_NAME.conf
-
-if [[ $APP_NAME != "authserver" ]]; then
-    {
-        echo "WorldDatabaseInfo      = \"localhost;3306;root;root;warhead_world\""
-        echo "CharactersDatabaseInfo = \"localhost;3306;root;root;warhead_characters\""
-        echo "DbcDatabaseInfo        = \"localhost;3306;root;root;warhead_dbc\""
-    } >> ./env/dist/etc/$APP_NAME.conf
-fi
-
-if [[ $APP_NAME == "worldserver" ]]; then
-    echo "DataDir = \"../data/\"" >> ./env/dist/etc/$APP_NAME.conf
-
-    git clone --depth=1 --branch=master --single-branch https://github.com/ac-data/ac-data.git ./env/dist/data
-fi
+source "$CURRENT_PATH/ci-gen-server-conf-files.sh" $1 "etc" "bin" "root"
 
 (cd ./env/dist/bin/ && timeout 5m ./$APP_NAME -dry-run)
 

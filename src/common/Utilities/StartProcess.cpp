@@ -172,7 +172,6 @@ namespace Warhead
         std::string const logger;
         std::string const input_file;
         bool const is_secure;
-        boost::process::environment envVariables;
 
         std::atomic<bool> was_terminated;
 

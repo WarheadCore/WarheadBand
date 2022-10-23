@@ -2313,11 +2313,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         break;
     case CONDITION_WORLD_STATE:
     {
-        if (!sWorld->getWorldState(cond->ConditionValue1))
-        {
-            LOG_ERROR("db.query", "World state condition has non existing world state in value1 ({}), skipped", cond->ConditionValue1);
-            return false;
-        }
         if (cond->ConditionValue3)
             LOG_ERROR("db.query", "World state condition has useless data in value3 ({})!", cond->ConditionValue3);
         break;
