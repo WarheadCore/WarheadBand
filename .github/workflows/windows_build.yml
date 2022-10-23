@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     name: ${{ matrix.compiler }}
     env:
-      BOOST_ROOT: C:\local\boost_1_79_0
+      BOOST_ROOT: C:\local\boost_1_80_0
     steps:
       - uses: actions/checkout@v2
       - name: Configure OS
@@ -31,7 +31,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          export CTOOLS_BUILD=all
+          export CTOOLS_BUILD=maps-only
           ./acore.sh compiler build
       - name: Dry run authserver
         shell: bash

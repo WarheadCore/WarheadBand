@@ -3,14 +3,13 @@ CONFIG_FOLDER=${2:-"etc"}
 BIN_FOLDER=${3-"bin"}
 MYSQL_ROOT_PASSWORD=${4:-""}
 
-
-echo "LoginDatabaseInfo     = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;acore_auth\"" >> ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
+echo "LoginDatabaseInfo     = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_auth\"" >> ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
 
 # worldserver or dbimport
 if [[ $APP_NAME != "authserver" ]]; then
     {
-        echo "WorldDatabaseInfo     = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;acore_world\""
-        echo "CharacterDatabaseInfo = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;acore_characters\""
+        echo "WorldDatabaseInfo     = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_world\""
+        echo "CharacterDatabaseInfo = \"localhost;3306;root;$MYSQL_ROOT_PASSWORD;warhead_characters\""
     } >> ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
 fi
 
