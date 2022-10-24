@@ -75,17 +75,25 @@ namespace Warhead::Impl::Readline
 }
 #endif
 
+void utf8print(std::string_view str)
+{
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+    WriteWinConsole(str);
+#else
+    fmt::print(str);
+#endif
+}
+
 void commandFinished(bool /*success*/)
 {
     PrintCliPrefix();
-    fflush(stdout);
 }
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
 // Non-blocking keypress detector, when return pressed, return 1, else always return 0
 int kb_hit_return()
 {
-    struct timeval tv;
+    struct timeval tv{};
     fd_set fds;
     tv.tv_sec = 0;
     tv.tv_usec = 0;
@@ -136,15 +144,8 @@ void CliThread()
         std::string command;
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-        wchar_t commandbuf[256];
-        if (fgetws(commandbuf, sizeof(commandbuf), stdin))
-        {
-            if (!WStrToUtf8(commandbuf, wcslen(commandbuf), command))
-            {
-                PrintCliPrefix();
-                continue;
-            }
-        }
+        if (!ReadWinConsole(command))
+            continue;
 #else
         char* command_str = readline(CLI_PREFIX);
         ::rl_bind_key('\t', ::rl_complete);
@@ -154,28 +155,22 @@ void CliThread()
             free(command_str);
         }
 #endif
-
         if (!command.empty())
         {
-            std::size_t nextLineIndex = command.find_first_of("\r\n");
-            if (nextLineIndex != std::string::npos)
+            Optional<std::size_t> nextLineIndex = RemoveCRLF(command);
+            if (nextLineIndex && *nextLineIndex == 0)
             {
-                if (nextLineIndex == 0)
-                {
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-                    PrintCliPrefix();
+                PrintCliPrefix();
 #endif
-                    continue;
-                }
-
-                command.erase(nextLineIndex);
+                continue;
             }
 
             fflush(stdout);
 
             sCliCommandMgr->AddCommand(command, [](std::string_view command)
             {
-                fmt::print(command);
+                utf8print(command);
             },
             [](bool success)
             {

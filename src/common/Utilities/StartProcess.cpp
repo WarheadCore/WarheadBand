@@ -55,11 +55,19 @@ namespace Warhead
 
         std::streamsize write(char const* str, std::streamsize size)
         {
-            std::string consoleStr(str, size);
-            std::string utf8;
-            if (consoleToUtf8(consoleStr, utf8))
-                callback_(utf8);
-            return size;
+            std::string_view consoleStr(str, size);
+            size_t lineEnd = consoleStr.find_first_of("\r\n");
+            std::streamsize processedCharacters = size;
+            if (lineEnd != std::string_view::npos)
+            {
+                consoleStr = consoleStr.substr(0, lineEnd);
+                processedCharacters = lineEnd + 1;
+            }
+
+            if (!consoleStr.empty())
+                callback_(consoleStr);
+
+            return processedCharacters;
         }
     };
 
@@ -121,12 +129,12 @@ namespace Warhead
             }
         }();
 
-        auto outInfo = MakeWHLogSink([&](std::string const& msg)
+        auto outInfo = MakeWHLogSink([&](std::string_view msg)
         {
             LOG_INFO(logger, "{}", msg);
         });
 
-        auto outError = MakeWHLogSink([&](std::string const& msg)
+        auto outError = MakeWHLogSink([&](std::string_view msg)
         {
             LOG_ERROR(logger, "{}", msg);
         });

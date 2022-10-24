@@ -351,6 +351,13 @@ WH_COMMON_API bool consoleToUtf8(std::string_view conStr, std::string& utf8str);
 WH_COMMON_API bool Utf8FitTo(std::string_view str, std::wstring_view search);
 WH_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+WH_COMMON_API bool ReadWinConsole(std::string& str, size_t size = 256);
+WH_COMMON_API bool WriteWinConsole(std::string_view str, bool error = false);
+#endif
+
+WH_COMMON_API Optional<std::size_t> RemoveCRLF(std::string& str);
+
 WH_COMMON_API bool IsIPAddress(char const* ipaddress);
 
 WH_COMMON_API uint32 CreatePIDFile(const std::string& filename);
