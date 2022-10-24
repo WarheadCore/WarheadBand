@@ -51,7 +51,7 @@ void CliCommandMgr::ProcessCliCommands()
 
     while (_queue.Dequeue(command))
     {
-        LOG_INFO("server.worldserver", "CLI command under processing...");
+        LOG_DEBUG("server.worldserver", "CLI command under processing...");
 
         command->ExecuteCommand();
         delete command;
