@@ -229,12 +229,15 @@ public:
 
     void GetPoolInfo(std::function<void(std::string_view)> const& info);
 
+    inline std::string_view GetPathToExtraFile() { return _pathToExtraFile; }
+
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
     void InitPrepareStatement(MySQLConnection* connection);
     void Enqueue(AsyncOperation* operation);
     unsigned long EscapeString(char* to, char const* from, unsigned long length);
     void AddTasks();
+    void MakeExtraFile();
 
     //! Gets a free connection in the synchronous connection pool.
     //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
@@ -251,6 +254,7 @@ private:
     std::mutex _openAsyncConnectMutex;
     std::mutex _cleanupMutex;
     std::string _poolName;
+    std::string _pathToExtraFile;
     DatabaseType _poolType{ DatabaseType::None };
     std::unique_ptr<TaskScheduler> _scheduler{};
     bool _isEnableDynamicConnections{};

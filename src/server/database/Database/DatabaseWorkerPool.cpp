@@ -32,9 +32,12 @@
 #include "QueryResult.h"
 #include "TaskScheduler.h"
 #include "Transaction.h"
+#include "FileUtil.h"
 #include <limits>
 #include <mysqld_error.h>
 #include <utility>
+#include <filesystem>
+#include <fstream>
 
 #ifdef WARHEAD_DEBUG
 #include <boost/stacktrace.hpp>
@@ -94,6 +97,43 @@ DatabaseWorkerPool::~DatabaseWorkerPool()
 void DatabaseWorkerPool::SetConnectionInfo(std::string_view infoString)
 {
     _connectionInfo = std::make_unique<MySQLConnectionInfo>(infoString);
+    MakeExtraFile();
+}
+
+void DatabaseWorkerPool::MakeExtraFile()
+{
+    namespace fs = std::filesystem;
+
+    fs::path extraFile(sConfigMgr->GetConfigPath());
+    extraFile /= "DB";
+
+    // Make dir if need
+    ASSERT(Warhead::File::CreateDirIfNeed(extraFile.generic_string()));
+
+    extraFile /= Warhead::StringFormat("{}Config.cnf", GetPoolName());
+
+    _pathToExtraFile = extraFile.generic_string();
+
+    try
+    {
+        if (fs::exists(extraFile))
+            return;
+    }
+    catch (const std::error_code& error)
+    {
+        LOG_FATAL("db.pool", "> Error at check '{}'. {}", extraFile.generic_string(), error.message());
+        ABORT();
+    }
+
+    std::ofstream outfile(extraFile.generic_string());
+    if (!outfile.is_open())
+    {
+        LOG_FATAL("db.pool", "Failed to create extra file '{}'", extraFile.generic_string());
+        ABORT();
+    }
+
+    outfile << "[client]\npassword = \"" << _connectionInfo->Password << '"' << std::endl;
+    outfile.close();
 }
 
 uint32 DatabaseWorkerPool::Open()
