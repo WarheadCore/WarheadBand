@@ -22,6 +22,7 @@
 #include "AccountMgr.h"
 #include "CliCommandMgr.h"
 #include "Log.h"
+#include "World.h"
 #include "soapStub.h"
 #include <memory>
 
