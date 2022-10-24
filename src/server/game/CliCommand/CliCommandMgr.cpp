@@ -17,6 +17,7 @@
 
 #include "CliCommandMgr.h"
 #include "Chat.h"
+#include "Log.h"
 #include <utility>
 
 CliCommand::CliCommand(std::string_view command, Print&& print, CommandFinished&& commandFinished) :
