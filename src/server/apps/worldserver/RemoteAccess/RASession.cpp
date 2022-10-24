@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "RASession.h"
+#include "CliCommandMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Duration.h"
@@ -26,7 +27,6 @@
 #include "SRP6.h"
 #include "ServerMotd.h"
 #include "Util.h"
-#include "World.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
 #include <thread>
@@ -197,25 +197,29 @@ bool RASession::ProcessCommand(std::string& command)
     delete _commandExecuting;
     _commandExecuting = new std::promise<void>();
 
-    CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASession::CommandPrint, &RASession::CommandFinished);
-    sWorld->QueueCliCommand(cmd);
+    sCliCommandMgr->AddCommand(command, [this](std::string_view command)
+    {
+        CommandPrint(command);
+    },
+    [this](bool success)
+    {
+        CommandFinished(success);
+    });
 
     // Wait for the command to finish
     _commandExecuting->get_future().wait();
     return false;
 }
 
-void RASession::CommandPrint(void* callbackArg, std::string_view text)
+void RASession::CommandPrint(std::string_view text)
 {
     if (text.empty())
         return;
 
-    RASession* session = static_cast<RASession*>(callbackArg);
-    session->Send(text);
+    Send(text);
 }
 
-void RASession::CommandFinished(void* callbackArg, bool /*success*/)
+void RASession::CommandFinished(bool /*success*/)
 {
-    RASession* session = static_cast<RASession*>(callbackArg);
-    session->_commandExecuting->set_value();
+    _commandExecuting->set_value();
 }

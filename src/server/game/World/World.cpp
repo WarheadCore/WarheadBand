@@ -104,6 +104,7 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "CliCommandMgr.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
@@ -162,10 +163,6 @@ World::~World()
         delete m_offlineSessions.begin()->second;
         m_offlineSessions.erase(m_offlineSessions.begin());
     }
-
-    CliCommandHolder* command = nullptr;
-    while (cliCmdQueue.next(command))
-        delete command;
 
     VMAP::VMapFactory::clear();
     MMAP::MMapFactory::clear();
@@ -1501,7 +1498,7 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Process cli commands"));
         // And last, but not least handle the issued cli commands
-        ProcessCliCommands();
+        sCliCommandMgr->ProcessCliCommands();
     }
 
     {
@@ -1871,29 +1868,6 @@ void World::UpdateSessions(uint32 diff)
                 pSession->SetShouldSetOfflineInDB(false); // pussywizard: don't set offline in db because new session for that acc is already created
             delete pSession;
         }
-    }
-}
-
-// This handles the issued and queued CLI commands
-void World::ProcessCliCommands()
-{
-    CliCommandHolder::Print zprint = nullptr;
-    void* callbackArg = nullptr;
-    CliCommandHolder* command = nullptr;
-
-    while (cliCmdQueue.next(command))
-    {
-        LOG_INFO("server.worldserver", "CLI command under processing...");
-
-        zprint = command->m_print;
-        callbackArg = command->m_callbackArg;
-        CliHandler handler(callbackArg, zprint);
-        handler.ParseCommands(command->m_command);
-
-        if (command->m_commandFinished)
-            command->m_commandFinished(callbackArg, !handler.HasSentErrorMessage());
-
-        delete command;
     }
 }
 
@@ -2293,14 +2267,4 @@ void World::DoForAllGM(Worker&& worker)
 
         worker(player);
     }
-}
-
-CliCommandHolder::CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished)
-    : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
-{
-}
-
-CliCommandHolder::~CliCommandHolder()
-{
-    free(m_command);
 }

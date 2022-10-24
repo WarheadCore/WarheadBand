@@ -43,8 +43,8 @@ private:
     bool CheckPassword(const std::string& user, const std::string& pass);
     bool ProcessCommand(std::string& command);
 
-    static void CommandPrint(void* callbackArg, std::string_view text);
-    static void CommandFinished(void* callbackArg, bool);
+    void CommandPrint(std::string_view text);
+    void CommandFinished(bool);
 
     tcp::socket _socket;
     boost::asio::streambuf _readBuffer;

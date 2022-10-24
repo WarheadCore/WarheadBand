@@ -806,8 +806,11 @@ std::string CliHandler::GetWarheadString(uint32 entry) const
 
 void CliHandler::SendSysMessage(std::string_view str, bool /*escapeCharacters*/)
 {
-    m_print(m_callbackArg, str);
-    m_print(m_callbackArg, "\r\n");
+    if (!_print)
+        return;
+
+    (*_print)(str);
+    (*_print)("\r\n");
 }
 
 bool CliHandler::ParseCommands(std::string_view str)

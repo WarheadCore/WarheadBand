@@ -23,10 +23,10 @@
 /// \file
 
 #include "CliRunnable.h"
+#include "CliCommandMgr.h"
 #include "Config.h"
 #include "Errors.h"
 #include "ObjectMgr.h"
-#include "World.h"
 #include <fmt/core.h>
 
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
@@ -62,7 +62,7 @@ namespace Warhead::Impl::Readline
     char** cli_completion(char const* text, int /*start*/, int /*end*/)
     {
         ::rl_attempted_completion_over = 1;
-        vec = Warhead::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr,nullptr), text);
+        vec = Warhead::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr), text);
         return ::rl_completion_matches(text, &cli_unpack_vector);
     }
 
@@ -75,25 +75,13 @@ namespace Warhead::Impl::Readline
 }
 #endif
 
-void utf8print(void* /*arg*/, std::string_view str)
-{
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    fmt::print(str);
-#else
-{
-    fmt::print(str);
-    fflush(stdout);
-}
-#endif
-}
-
-void commandFinished(void*, bool /*success*/)
+void commandFinished(bool /*success*/)
 {
     PrintCliPrefix();
     fflush(stdout);
 }
 
-#ifdef linux
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
 // Non-blocking keypress detector, when return pressed, return 1, else always return 0
 int kb_hit_return()
 {
@@ -184,7 +172,16 @@ void CliThread()
             }
 
             fflush(stdout);
-            sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &utf8print, &commandFinished));
+
+            sCliCommandMgr->AddCommand(command, [](std::string_view command)
+            {
+                fmt::print(command);
+            },
+            [](bool success)
+            {
+                commandFinished(success);
+            });
+
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
             add_history(command.c_str());
 #endif

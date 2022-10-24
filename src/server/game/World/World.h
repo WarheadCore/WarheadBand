@@ -44,25 +44,6 @@ class Player;
 
 struct Realm;
 
-/// Storage class for commands issued for delayed execution
-struct WH_GAME_API CliCommandHolder
-{
-    using Print = void(*)(void*, std::string_view);
-    using CommandFinished = void(*)(void*, bool success);
-
-    void* m_callbackArg;
-    char* m_command;
-    Print m_print;
-    CommandFinished m_commandFinished;
-
-    CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished);
-    ~CliCommandHolder();
-
-private:
-    CliCommandHolder(CliCommandHolder const& right) = delete;
-    CliCommandHolder& operator=(CliCommandHolder const& right) = delete;
-};
-
 typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
 // ServerMessages.dbc
@@ -312,9 +293,6 @@ public:
     // our: needed for arena spectator subscriptions
     uint32 GetNextWhoListUpdateDelaySecs();
 
-    void ProcessCliCommands();
-    void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
-
     void ForceGameEventUpdate();
 
     void UpdateRealmCharCount(uint32 accid);
@@ -347,6 +325,7 @@ public:
 
 protected:
     void _UpdateGameTime();
+
     // callback for UpdateRealmCharacters
     void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
 
@@ -362,6 +341,7 @@ protected:
     void ResetRandomBG();
     void CalendarDeleteOldEvents();
     void ResetGuildCap();
+
 private:
     static std::atomic_long m_stopEvent;
     static uint8 m_ExitCode;
@@ -402,9 +382,6 @@ private:
     static float m_MaxVisibleDistanceInBGArenas;
 
     std::string _realmName;
-
-    // CLI command holder to be thread safe
-    LockedQueue<CliCommandHolder*> cliCmdQueue;
 
     // next daily quests and random bg reset time
     Seconds m_NextDailyQuestReset;
