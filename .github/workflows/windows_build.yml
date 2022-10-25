@@ -32,6 +32,7 @@ jobs:
         shell: bash
         run: |
           export CTOOLS_BUILD=maps-only
+          export CCONTINUOUS_INTEGRATION=ON
           ./acore.sh compiler build
       - name: Dry run authserver
         shell: bash

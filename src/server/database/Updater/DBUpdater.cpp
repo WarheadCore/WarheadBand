@@ -353,73 +353,41 @@ void DBUpdater::Apply(DatabaseWorkerPool& pool, std::string_view query)
 void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, Path const& path)
 {
     DBUpdater::ApplyFile(pool, pool.GetConnectionInfo()->Host, pool.GetConnectionInfo()->User, pool.GetConnectionInfo()->Password,
-                            pool.GetConnectionInfo()->PortOrSocket, pool.GetConnectionInfo()->Database, pool.GetConnectionInfo()->SSL, path);
+        pool.GetConnectionInfo()->PortOrSocket, pool.GetConnectionInfo()->Database, pool.GetConnectionInfo()->SSL, path);
 }
 
 void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, std::string_view host, std::string_view user, std::string_view password,
-                                             std::string_view port_or_socket, std::string_view database, std::string_view ssl, Path const& path)
+    std::string_view port_or_socket, std::string_view database, std::string_view ssl, Path const& path)
 {
     std::vector<std::string> args;
+    args.reserve(9);
 
-    auto CanUseExtraFile = []()
-    {
-#ifdef MARIADB_VERSION_ID
-        return false;
-#endif
+    // Add password from extra file
+    args.emplace_back(Warhead::StringFormat("--defaults-extra-file={}", pool.GetPathToExtraFile()));
 
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
+    // CLI Client connection info
+    args.emplace_back("-h" + std::string{ host });
+    args.emplace_back("-u" + std::string{ user });
 
-        // For Ubuntu/Debian only
-        try
-        {
-            return std::filesystem::is_regular_file("/etc/mysql/debian.cnf");
-        }
-        catch (const std::error_code& error)
-        {
-            LOG_FATAL("db.update", "> Error at check '/etc/mysql/debian.cnf'. {}", error.message());
-            return false;
-        }
-#endif
-
-        return false;
-    };
-
-    if (CanUseExtraFile())
-    {
-        args.reserve(9 - 4);
-        args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
-    }
-    else
-    {
-        args.reserve(9);
-
-        // CLI Client connection info
-        args.emplace_back("-h" + std::string{ host });
-        args.emplace_back("-u" + std::string{ user });
-
-        if (!password.empty())
-            args.emplace_back("-p" + std::string{ password });
-
-        // Check if we want to connect through ip or socket (Unix only)
+    // Check if we want to connect through ip or socket (Unix only)
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-        if (host == ".")
-            args.emplace_back("--protocol=PIPE");
-        else
-            args.emplace_back("-P" + std::string{ port_or_socket });
+    if (host == ".")
+        args.emplace_back("--protocol=PIPE");
+    else
+        args.emplace_back("-P" + std::string{ port_or_socket });
 #else
 
-        if (!std::isdigit(port_or_socket[0]))
-        {
-            // We can't check if host == "." here, because it is named localhost if socket option is enabled
-            args.emplace_back("-P0");
-            args.emplace_back("--protocol=SOCKET");
-            args.emplace_back("-S" + std::string{ port_or_socket });
-        }
-        else
-            // generic case
-            args.emplace_back("-P" + std::string{ port_or_socket });
-#endif
+    if (!std::isdigit(port_or_socket[0]))
+    {
+        // We can't check if host == "." here, because it is named localhost if socket option is enabled
+        args.emplace_back("-P0");
+        args.emplace_back("--protocol=SOCKET");
+        args.emplace_back("-S" + std::string{ port_or_socket });
     }
+    else
+        // generic case
+        args.emplace_back("-P" + std::string{ port_or_socket });
+#endif
 
     // Set the default charset to utf8
     args.emplace_back("--default-character-set=utf8mb4");

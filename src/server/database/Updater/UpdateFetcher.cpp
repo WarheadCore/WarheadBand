@@ -331,6 +331,8 @@ UpdateResult UpdateFetcher::Update() const
                     return;
                 }
             }
+            else
+                progress.UpdatePostfixText(filePath.filename().string());
         }
         // Rehash the update entry if it exists in our database with an empty hash.
         else if (allowRehash && iter->second.hash.empty())
@@ -387,7 +389,6 @@ UpdateResult UpdateFetcher::Update() const
         if (state == RELEASED || state == ARCHIVED)
         {
             ApplyUpdateFile(path, state, progress);
-            progress.UpdatePostfixText(path.filename().generic_string());
             progress.Update();
         }
     }
@@ -398,7 +399,6 @@ UpdateResult UpdateFetcher::Update() const
         if (state == CUSTOM)
         {
             ApplyUpdateFile(path, state, progress);
-            progress.UpdatePostfixText(path.filename().generic_string());
             progress.Update();
         }
     }
@@ -409,7 +409,6 @@ UpdateResult UpdateFetcher::Update() const
         if (state == MODULE)
         {
             ApplyUpdateFile(path, state, progress);
-            progress.UpdatePostfixText(path.filename().generic_string());
             progress.Update();
         }
     }
