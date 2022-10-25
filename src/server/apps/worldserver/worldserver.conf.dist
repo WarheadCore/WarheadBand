@@ -4266,48 +4266,31 @@ VIP.Spells.List = "26662,62555"
 VIP.Unbind.Duration = 86400
 ########################################
 
-########################################
-# DiscordClient module configuration
-########################################
+###################################################################################################
+#   DISCORD SETTINGS
 #
-#    Discord.Enable
-#        Description: Enable module
-#        Default: 0
+#    Discord.Bot.Enable
+#        Description: Enable discord bot
+#        Default:     0 - (Disabled)
 #
 
-Discord.Enable = 0
+Discord.Bot.Enable = 0
 
 #
-#    Discord.Server.Port
-#        Description: Host name for server
+#    Discord.Bot.Token
+#        Description: Discord bot token
 #        Default:     ""
 #
 
-Discord.Server.Host = ""
+Discord.Bot.Token = ""
 
 #
-#    Discord.Server.Port
-#        Description: TCP port for connect server.
-#        Default:     1000
+#    Discord.Guild.ID
+#        Description: Discord server id
+#        Default:     0
 #
 
-Discord.Server.Port = 1000
-
-#
-#    Discord.Server.Account.Name
-#        Description: Account name for server
-#        Default:     ""
-#
-
-Discord.Server.Account.Name = ""
-
-#
-#    Discord.Server.Account.Key
-#        Description: Account key for server
-#        Default:     ""
-#
-
-Discord.Server.Account.Key = ""
+Discord.Guild.ID = 0
 
 #
 #    Discord.GameChatLogs.Enable
@@ -4319,7 +4302,7 @@ Discord.GameChatLogs.Enable = 0
 
 #
 #    Discord.GameLoginLogs.Enable
-#        Description: Enable login logs
+#        Description: Enable world login logs
 #        Default:     0
 #
 
