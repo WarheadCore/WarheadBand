@@ -31,7 +31,8 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          export CTOOLS_BUILD=maps-only
+          export CTOOLS_BUILD=none
+          export CCONTINUOUS_INTEGRATION=ON
           export CAPPS_BUILD=auth-only
           ./acore.sh compiler build
       - name: Dry run authserver

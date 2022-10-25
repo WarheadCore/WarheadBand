@@ -19,6 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ProgressBar.h"
+
+#ifdef WH_DISABLE_PROGRESS_BAR
+#include "Log.h"
+#else
 #include "Errors.h"
 #include <indicators/cursor_control.hpp>
 #include <indicators/cursor_movement.hpp>
@@ -28,14 +32,18 @@
 constexpr std::size_t ADDITIONAL_INFO_SIZE = 15;
 constexpr std::size_t DEFAULT_POST_INFO_SIZE = 50;
 constexpr std::size_t DEFAULT_POST_BAR_SIZE = ADDITIONAL_INFO_SIZE + DEFAULT_POST_INFO_SIZE;
+#endif
 
 ProgressBar::ProgressBar(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/)
 {
+#ifndef WH_DISABLE_PROGRESS_BAR
     _bar = std::make_unique<indicators::ProgressBar>();
     _size = size;
     Init(prefixText, size, current);
+#endif
 }
 
+#ifndef WH_DISABLE_PROGRESS_BAR
 void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_t current /*= 0*/) const
 {
     std::cout << "\n";
@@ -46,7 +54,7 @@ void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_
     std::size_t terminalWidth{ GetTerninalWidth() };
 
     // CI
-    if (!terminalWidth)
+    if (!terminalWidth || terminalWidth > 120)
         terminalWidth = 120;
 
     ASSERT(terminalWidth > DEFAULT_POST_BAR_SIZE, "For using ProgressBar need terminal width > {} chars. You {}.", DEFAULT_POST_BAR_SIZE, terminalWidth);
@@ -68,9 +76,11 @@ void ProgressBar::Init(std::string_view prefixText, std::size_t size, std::size_
 
     indicators::show_console_cursor(false);
 }
+#endif
 
 void ProgressBar::Stop(bool hide /*= false*/) const
 {
+#ifndef WH_DISABLE_PROGRESS_BAR
     if (hide)
         ClearLine();
 
@@ -83,10 +93,14 @@ void ProgressBar::Stop(bool hide /*= false*/) const
     // Reset color and print new line
     std::cout << termcolor::reset;
     std::cout << "\n";
+#else
+    LOG_INFO("server", "");
+#endif
 }
 
 void ProgressBar::Update(std::size_t progress /*= 0*/)
 {
+#ifndef WH_DISABLE_PROGRESS_BAR
     if (IsCompleted())
         return;
 
@@ -101,8 +115,10 @@ void ProgressBar::Update(std::size_t progress /*= 0*/)
         _bar->tick();
 
     ClearUnprintProgress();
+#endif
 }
 
+#ifndef WH_DISABLE_PROGRESS_BAR
 bool ProgressBar::IsCompleted() const
 {
     return _bar->is_completed();
@@ -112,27 +128,39 @@ std::size_t ProgressBar::GetProgress() const
 {
     return _bar->current();
 }
+#endif
 
 void ProgressBar::ClearLine() const
 {
+#ifndef WH_DISABLE_PROGRESS_BAR
     indicators::move_up(1);
     indicators::erase_line();
     std::cout << std::flush;
+#endif
 }
 
 void ProgressBar::UpdatePrefixText(std::string_view text) const
 {
+#ifndef WH_DISABLE_PROGRESS_BAR
     _bar->set_option(indicators::option::PrefixText{ std::string(text) + " " });
+#else
+    LOG_INFO("server", "{}", text);
+#endif
 }
 
 void ProgressBar::UpdatePostfixText(std::string_view text) const
 {
+#ifndef WH_DISABLE_PROGRESS_BAR
     if (text.length() > DEFAULT_POST_INFO_SIZE - 3)
         text = text.substr(0, DEFAULT_POST_INFO_SIZE - 3);
 
     _bar->set_option(indicators::option::PostfixText{ std::string(text) });
+#else
+    UpdatePrefixText(text);
+#endif
 }
 
+#ifndef WH_DISABLE_PROGRESS_BAR
 std::size_t ProgressBar::GetTerninalWidth() const
 {
     return indicators::terminal_width();
@@ -168,3 +196,4 @@ void ProgressBar::SetTickTime(Microseconds tickTime)
 {
     _tickTime = tickTime;
 }
+#endif

@@ -313,7 +313,7 @@ bool DBUpdater::Populate(DatabaseWorkerPool& pool)
         return false;
     }
 
-//    ProgressBar progress("", filesCount);
+    ProgressBar progress("", filesCount);
 
     for (auto const& dirEntry : std::filesystem::directory_iterator(dirPath))
     {
@@ -323,18 +323,18 @@ bool DBUpdater::Populate(DatabaseWorkerPool& pool)
 
         try
         {
-//            progress.UpdatePostfixText(path.filename().generic_string());
-//            progress.Update();
+            progress.UpdatePostfixText(path.filename().generic_string());
+            progress.Update();
             ApplyFile(pool, path);
         }
         catch (UpdateException&)
         {
-//            progress.Stop();
+            progress.Stop();
             return false;
         }
     }
 
-//    progress.Stop();
+    progress.Stop();
     LOG_INFO("db.update", ">> Done!");
     LOG_INFO("db.update", "");
     return true;

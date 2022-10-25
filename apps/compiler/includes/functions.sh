@@ -51,6 +51,7 @@ function comp_configure() {
   echo "DEBUG info: $CDEBUG"
   echo "Compilation type: $CTYPE"
   echo "CCache: $AC_CCACHE"
+  echo "CONTINUOUS_INTEGRATION: $CCONTINUOUS_INTEGRATION"
   # -DCMAKE_BUILD_TYPE=$CCTYPE disable optimization "slow and huge amount of ram"
   # -DWITH_COREDEBUG=$CDEBUG compiled with debug information
 
@@ -67,16 +68,15 @@ function comp_configure() {
 
   OSOPTIONS=""
 
-
-    echo "Platform: $OSTYPE"
-    case "$OSTYPE" in
-      darwin*)
-        OSOPTIONS=" -DMYSQL_ADD_INCLUDE_PATH=/usr/local/include -DMYSQL_LIBRARY=/usr/local/lib/libmysqlclient.dylib -DREADLINE_INCLUDE_DIR=/usr/local/opt/readline/include -DREADLINE_LIBRARY=/usr/local/opt/readline/lib/libreadline.dylib -DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl@1.1/include -DOPENSSL_SSL_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libssl.dylib -DOPENSSL_CRYPTO_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libcrypto.dylib "
-        ;;
-      msys*)
-        OSOPTIONS=" -DMYSQL_INCLUDE_DIR=C:\tools\mysql\current\include -DMYSQL_LIBRARY=C:\tools\mysql\current\lib\mysqlclient.lib "
-        ;;
-    esac
+  echo "Platform: $OSTYPE"
+  case "$OSTYPE" in
+    darwin*)
+      OSOPTIONS=" -DMYSQL_ADD_INCLUDE_PATH=/usr/local/include -DMYSQL_LIBRARY=/usr/local/lib/libmysqlclient.dylib -DREADLINE_INCLUDE_DIR=/usr/local/opt/readline/include -DREADLINE_LIBRARY=/usr/local/opt/readline/lib/libreadline.dylib -DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl@1.1/include -DOPENSSL_SSL_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libssl.dylib -DOPENSSL_CRYPTO_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libcrypto.dylib "
+      ;;
+    msys*)
+      OSOPTIONS=" -DMYSQL_INCLUDE_DIR=C:\tools\mysql\current\include -DMYSQL_LIBRARY=C:\tools\mysql\current\lib\mysqlclient.lib "
+      ;;
+  esac
 
   cmake $SRCPATH -DCMAKE_INSTALL_PREFIX=$BINPATH $DCONF \
   -DAPPS_BUILD=$CAPPS_BUILD \
@@ -90,6 +90,7 @@ function comp_configure() {
   -DWITH_WARNINGS=$CWARNINGS \
   -DCMAKE_C_COMPILER=$CCOMPILERC \
   -DCMAKE_CXX_COMPILER=$CCOMPILERCXX \
+  -DWARHEAD_CI=$CCONTINUOUS_INTEGRATION \
   $CBUILD_APPS_LIST $CBUILD_TOOLS_LIST $OSOPTIONS $CCUSTOMOPTIONS
 
   cd $CWD

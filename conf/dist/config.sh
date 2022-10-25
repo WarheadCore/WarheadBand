@@ -94,6 +94,9 @@ CBUILD_APPS_LIST=${CBUILD_APPS_LIST:-''}
 # build tools list
 CBUILD_TOOLS_LIST=${CBUILD_TOOLS_LIST:-''}
 
+# github ci define
+CCONTINUOUS_INTEGRATION=${CCONTINUOUS_INTEGRATION:-OFF}
+
 # you can add your custom definitions here ( -D )
 # example:  CCUSTOMOPTIONS=" -DWITH_PERFTOOLS=ON
 #
@@ -145,5 +148,3 @@ export CPUPROFILESIGNAL=${CPUPROFILESIGNAL:-12}
 
 # Other values for HEAPCHECK: minimal, normal (equivalent to "1"), strict, draconian
 #export HEAPCHECK=${HEAPCHECK:-normal}
-
-

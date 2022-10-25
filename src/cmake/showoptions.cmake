@@ -232,4 +232,11 @@ if(HELGRIND)
   add_definitions(-DHELGRIND)
 endif()
 
+if (WARHEAD_CI)
+  message("")
+  message(" *** Enable CI option")
+  message(" *** Progress bar will be turned off")
+  add_definitions(-DWH_DISABLE_PROGRESS_BAR)
+endif()
+
 message("")
