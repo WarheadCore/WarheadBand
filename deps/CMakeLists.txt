@@ -42,6 +42,7 @@ if (BUILD_APPLICATION_WORLDSERVER)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
   add_subdirectory(gperftools)
+  add_subdirectory(dpp)
 endif()
 
 if (BUILD_TOOLS_MAPS)
