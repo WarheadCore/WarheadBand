@@ -22,4 +22,3 @@
 #include <dpp/nlohmann/json.hpp>
 #include <dpp/snowflake.h>
 #include <dpp/stringops.h>
-#include <fmt/format.h>

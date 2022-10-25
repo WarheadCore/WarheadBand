@@ -57,6 +57,7 @@ target_link_libraries(game
   PRIVATE
     warhead-core-interface
     efsw
+    libdpp
   PUBLIC
     game-interface)
 

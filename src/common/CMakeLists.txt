@@ -85,8 +85,7 @@ target_link_libraries(common
     valgrind
     indicators::indicators
     WarheadRegex
-    range-v3
-    libdpp)
+    range-v3)
 
 if (BUILD_APPLICATION_WORLDSERVER OR BUILD_TOOLS_MAPS)
   target_link_libraries(common

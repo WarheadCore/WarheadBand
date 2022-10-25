@@ -32,7 +32,7 @@ target_compile_definitions(libdpp
 if (WIN32 AND NOT MINGW)
   target_compile_definitions(libdpp
     PUBLIC
-#          -DWIN32_LEAN_AND_MEAN
+#     -DWIN32_LEAN_AND_MEAN
       -D_WINSOCK_DEPRECATED_NO_WARNINGS
       -D_CRT_NONSTDC_NO_DEPRECATE)
 endif()
@@ -53,7 +53,6 @@ target_link_libraries(libdpp
   PRIVATE
     warhead-dependency-interface
     zlib
-    fmt
     openssl
     threads)
 
