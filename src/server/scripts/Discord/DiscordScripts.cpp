@@ -15,36 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _DISCORD_EMBED_MSG_H_
-#define _DISCORD_EMBED_MSG_H_
+#include "ScriptObject.h"
+#include "DiscordMgr.h"
 
-#include "DisccordCommon.h"
-#include <memory>
-#include <string_view>
-
-namespace dpp
-{
-    struct embed;
-}
-
-class WH_GAME_API DiscordEmbedMsg
+class Discord_Player : public PlayerScript
 {
 public:
-    DiscordEmbedMsg();
-    ~DiscordEmbedMsg() = default;
+    Discord_Player() : PlayerScript("Discord_Player") { }
 
-    inline dpp::embed const* GetMessage() const { return _message.get(); }
+    void OnLogin(Player* player) override
+    {
+        sDiscordMgr->LogLogin(player);
+    }
 
-    void SetColor(DiscordMessageColor color);
-    void SetTitle(std::string_view title);
-    void SetDescription(std::string_view description);
-    void AddDescription(std::string_view description);
-    void AddEmbedField(std::string_view name, std::string_view value, bool isInline = false);
-    void SetFooterText(std::string_view text);
-
-private:
-    std::unique_ptr<dpp::embed> _message;
-    std::size_t _fieldsCount{};
+    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) override
+    {
+        sDiscordMgr->LogChat(player, msg, channel);
+    }
 };
 
-#endif
+// Group all
+void AddSC_Discord()
+{
+    new Discord_Player();
+}

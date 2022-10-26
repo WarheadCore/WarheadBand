@@ -47,11 +47,17 @@ public:
     void SendServerStartup(std::string_view duration);
     void SendServerShutdown();
 
+    // Chat
+    void LogChat(Player* player, std::string_view msg, Channel* channel);
+
+    // Character login/logout
+    void LogLogin(Player* player);
+
 private:
     void ConfigureLogs();
     void ConfigureCommands();
     void CheckGuild();
-    void CleanupMessages();
+    void CleanupMessages(DiscordChannelType channelType);
     uint64 GetChannelID(DiscordChannelType channelType);
 
     std::unique_ptr<dpp::cluster> _bot;
@@ -60,6 +66,8 @@ private:
     bool _isEnable{};
     std::string _botToken;
     std::size_t _guildID{};
+    bool _isEnableChatLogs{};
+    bool _isEnableLoginLogs{};
 
     // Channels
     DiscordChannelsList _channels{};

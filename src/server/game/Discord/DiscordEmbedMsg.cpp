@@ -49,6 +49,11 @@ void DiscordEmbedMsg::SetDescription(std::string_view description)
     _message->set_description(std::string{ description });
 }
 
+void DiscordEmbedMsg::AddDescription(std::string_view description)
+{
+    _message->description.append(description);
+}
+
 void DiscordEmbedMsg::AddEmbedField(std::string_view name, std::string_view value, bool isInline /*= false*/)
 {
     if (++_fieldsCount > WARHEAED_DISCORD_MAX_EMBED_FIELDS)

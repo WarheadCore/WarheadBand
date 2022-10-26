@@ -16,6 +16,8 @@
  */
 
 #include "DiscordMgr.h"
+#include "AccountMgr.h"
+#include "CliCommandMgr.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "StopWatch.h"
@@ -23,6 +25,9 @@
 #include "GameTime.h"
 #include "GameLocale.h"
 #include "UpdateTime.h"
+#include "World.h"
+#include "Player.h"
+#include "Channel.h"
 #include <dpp/cluster.h>
 #include <dpp/message.h>
 
@@ -106,6 +111,7 @@ namespace
     {
         switch (type)
         {
+            case DiscordChannelType::Commands:
             case DiscordChannelType::LoginAdmin:
             case DiscordChannelType::LoginGM:
                 return true;
@@ -162,6 +168,9 @@ void DiscordMgr::LoadConfig(bool reload)
             _isEnable = false;
             return;
         }
+
+        _isEnableChatLogs = CONF_GET_BOOL("Discord.GameChatLogs.Enable");
+        _isEnableLoginLogs = CONF_GET_BOOL("Discord.GameLoginLogs.Enable");
     }
 
     // Start bot if after reload config option set to enable
@@ -183,13 +192,13 @@ void DiscordMgr::Start()
     // Prepare logs
     ConfigureLogs();
 
-    // Prepare commands
-    ConfigureCommands();
-
     _bot->start(dpp::st_return);
 
     // Check bot in guild, category and text channels
     CheckGuild();
+
+    // Prepare commands
+    ConfigureCommands();
 
     LOG_INFO("server.loading", ">> Discord bot is initialized in {}", sw);
     LOG_INFO("server.loading", "");
@@ -234,6 +243,51 @@ void DiscordMgr::SendServerStartup(std::string_view duration)
     embedMsg.SetDescription(Warhead::StringFormat("Игровой мир `{}` инициализирован за `{}`", sWorld->GetRealmName(), duration));
 
     SendEmbedMessage(embedMsg, DiscordChannelType::ServerStatus);
+}
+
+void DiscordMgr::LogChat(Player* player, std::string_view msg, Channel* channel /*= nullptr*/)
+{
+    if (!_isEnable || !_isEnableChatLogs || !player || !channel || !channel->IsLFG())
+        return;
+
+    DiscordEmbedMsg embedMsg;
+    embedMsg.SetTitle(Warhead::StringFormat("Чат игрового мира: `{}`", sWorld->GetRealmName()));
+    embedMsg.SetDescription(Warhead::StringFormat("**[{}]**: {}", player->GetName(), msg));
+    embedMsg.SetColor(DiscordMessageColor::Gray);
+
+    SendEmbedMessage(embedMsg, DiscordChannelType::ChatChannel);
+}
+
+void DiscordMgr::LogLogin(Player* player)
+{
+    if (!_isEnable || !_isEnableLoginLogs || !player)
+        return;
+
+    auto session{ player->GetSession() };
+    auto accountID = session->GetAccountId();
+    auto channelType{ DiscordChannelType::LoginPlayer };
+    auto security = session->GetSecurity();
+
+    if (security >= SEC_ADMINISTRATOR)
+        channelType = DiscordChannelType::LoginAdmin;
+    else if (security > SEC_PLAYER)
+        channelType = DiscordChannelType::LoginGM;
+
+    std::string accountName;
+    AccountMgr::GetName(accountID, accountName);
+
+    DiscordEmbedMsg embedMsg;
+    embedMsg.SetTitle(Warhead::StringFormat("Вход в игровой мир: `{}`", sWorld->GetRealmName()));
+    embedMsg.SetColor(DiscordMessageColor::Orange);
+    embedMsg.AddEmbedField("Персонаж", "`" + player->GetName() + "`", true);
+
+    if (channelType != DiscordChannelType::LoginPlayer)
+    {
+        embedMsg.AddEmbedField("Аккаунт", "`" + accountName + "`", true);
+        embedMsg.AddEmbedField("IP", "`" + session->GetRemoteAddress() + "`", true);
+    }
+
+    SendEmbedMessage(embedMsg, channelType);
 }
 
 void DiscordMgr::SendServerShutdown()
@@ -291,11 +345,116 @@ void DiscordMgr::ConfigureLogs()
 
 void DiscordMgr::ConfigureCommands()
 {
+    // Server commands
+    _bot->on_message_create([this](dpp::message_create_t const& event)
+    {
+        // Commands allowed only from specific channel
+        if (event.msg.channel_id != GetChannelID(DiscordChannelType::Commands))
+            return;
 
+        // Skip check bot messages
+        if (event.msg.author.id == _bot->me.id)
+            return;
+
+        std::string_view command{ event.msg.content};
+        auto embedMsg = std::make_shared<DiscordEmbedMsg>();
+        embedMsg->SetTitle(Warhead::StringFormat("Команда: `{}`", command));
+
+        if (!command.starts_with('.'))
+        {
+            embedMsg->SetColor(DiscordMessageColor::Red);
+            embedMsg->SetDescription("Ошибка: Все команды начинаются с `.`");
+
+            event.reply(dpp::message(event.msg.channel_id, *embedMsg->GetMessage()).set_flags(dpp::m_ephemeral));
+            _bot->message_delete(event.msg.id, event.msg.channel_id);
+            return;
+        }
+
+        auto commandExecuting = std::make_shared<std::promise<void>>();
+
+        sCliCommandMgr->AddCommand(command, [this, embedMsg](std::string_view command)
+        {
+            embedMsg->AddDescription(command);
+        }, [this, commandExecuting, embedMsg](bool success)
+        {
+            embedMsg->SetColor(success ? DiscordMessageColor::Teal : DiscordMessageColor::Red);
+            commandExecuting->set_value();
+        });
+
+        // Wait execute command
+        commandExecuting->get_future().wait();
+
+        dpp::message replyMessage{ event.msg.channel_id, *embedMsg->GetMessage() };
+        replyMessage.set_flags(dpp::m_ephemeral);
+
+        event.reply(replyMessage);
+    });
+
+    // Message clean commands
+    dpp::slashcommand messageClean{ "clean-messages", "Удалить сообщения в текущем канале", _bot->me.id };
+    dpp::command_option countOption{ dpp::co_integer, "count", "Количество последних сообщений", true };
+    countOption.set_min_value(1);
+    countOption.set_max_value(100);
+    messageClean.add_option(countOption);
+    messageClean.set_default_permissions(0);
+
+    _bot->guild_command_create(messageClean, _guildID, [](const dpp::confirmation_callback_t& callback)
+    {
+        if (callback.is_error())
+            std::cout << callback.http_info.body << "\n";
+    });
+
+    _bot->on_slashcommand([this](dpp::slashcommand_t const& event)
+    {
+        if (event.command.get_command_name() != "clean-messages")
+            return;
+
+        auto channelID{ event.command.channel_id };
+
+        // Get count parameters
+        auto count = std::get<int64>(event.get_parameter("count"));
+
+        // Start make message
+        auto embedMsg = std::make_shared<DiscordEmbedMsg>();
+        embedMsg->SetTitle("Удаление сообщений");
+
+        auto const& messages = _bot->messages_get_sync(channelID, 0, 0, 0, count);
+        if (messages.empty())
+        {
+            embedMsg->SetColor(DiscordMessageColor::Red);
+            embedMsg->SetDescription("В этом канале нет сообщений");
+
+            dpp::message replyMessage{ channelID, *embedMsg->GetMessage() };
+            replyMessage.set_flags(dpp::m_ephemeral);
+
+            event.reply(replyMessage);
+            return;
+        }
+
+        std::vector<dpp::snowflake> messagesToDelete;
+
+        for (auto const& [messageID, message] : messages)
+            messagesToDelete.emplace_back(messageID);
+
+        if (messagesToDelete.size() > 1)
+            _bot->message_delete_bulk(messagesToDelete, channelID);
+        else
+            _bot->message_delete(messagesToDelete.front(), channelID);
+
+        embedMsg->SetColor(DiscordMessageColor::Orange);
+        embedMsg->SetDescription(Warhead::StringFormat("Удалено `{}` сообщений", messagesToDelete.size()));
+
+        dpp::message replyMessage{ channelID, *embedMsg->GetMessage() };
+        replyMessage.set_flags(dpp::m_ephemeral);
+
+        event.reply(replyMessage);
+    });
 }
 
 void DiscordMgr::CheckGuild()
 {
+    StopWatch sw;
+
     auto const& guilds = _bot->current_user_get_guilds_sync();
     if (guilds.empty())
     {
@@ -405,7 +564,7 @@ void DiscordMgr::CheckGuild()
 
                     auto createdChannel = _bot->channel_create_sync(channelToCreate);
                     channelID = createdChannel.id;
-                    LOG_INFO("discord", "> Created channel {}. ID {}. Is hiddden: {}", channelName, createdChannel.id, IsHiddenChannel(channelType));
+                    LOG_INFO("discord", "> Created channel {}. ID {}. Is hidden: {}", channelName, createdChannel.id, IsHiddenChannel(channelType));
                 }
                 catch (dpp::rest_exception const& error)
                 {
@@ -459,20 +618,28 @@ void DiscordMgr::CheckGuild()
         return;
     }
 
-    LOG_DEBUG("discord", "> End check text channels in guild");
+    LOG_DEBUG("discord", "> End check text channels guild. Elapsed: {}", sw);
 
-    CleanupMessages();
+    CleanupMessages(DiscordChannelType::ServerStatus);
+    CleanupMessages(DiscordChannelType::Commands);
 }
 
-void DiscordMgr::CleanupMessages()
+void DiscordMgr::CleanupMessages(DiscordChannelType channelType)
 {
-    LOG_DEBUG("discord", "> Start cleanup messages");
-
     StopWatch sw;
+    auto channelID{ GetChannelID(channelType) };
+
+    LOG_DEBUG("discord", "> Start cleanup messages for channel: {} ({})", GetChannelName(channelType), channelID);
 
     auto timeAllow{ GameTime::GetGameTime() - 1_days };
-    auto channelID{ GetChannelID(DiscordChannelType::ServerStatus) };
     std::vector<dpp::snowflake> messagesToDelete;
+
+    auto const& messages = _bot->messages_get_sync(channelID, 0, 0, 0, 100);
+    if (messages.empty())
+    {
+        LOG_DEBUG("discord", "> Not found messages for channel: {} ({})", GetChannelName(channelType), channelID);
+        return;
+    }
 
     auto GetUTCTimeFromLocal = [](time_t seconds)
     {
@@ -482,8 +649,6 @@ void DiscordMgr::CleanupMessages()
         return seconds - timezone;
 #endif
     };
-
-    auto const& messages = _bot->messages_get_sync(channelID, 0, 0, 0, 100);
 
     for (auto const& [messageID, message] : messages)
     {
@@ -495,7 +660,10 @@ void DiscordMgr::CleanupMessages()
     }
 
     if (messagesToDelete.empty())
+    {
+        LOG_DEBUG("discord", "> Not found old messages for channel: {} ({})", GetChannelName(channelType), channelID);
         return;
+    }
 
     if (messagesToDelete.size() > 1)
         _bot->message_delete_bulk(messagesToDelete, channelID);
