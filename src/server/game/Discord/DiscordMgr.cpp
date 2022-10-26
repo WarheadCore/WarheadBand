@@ -49,6 +49,9 @@ namespace
     constexpr auto CHANNEL_NAME_LOGIN_GM = "login-gm";
     constexpr auto CHANNEL_NAME_LOGIN_ADMIN = "login-admin";
 
+    // Ban list
+    constexpr auto CHANNEL_NAME_BAN_LIST = "ban-list";
+
     // Owner
     constexpr auto OWNER_ID = 365169287926906883; // Winfidonarleyan | <@365169287926906883>
     constexpr auto OWNER_MENTION = "<@365169287926906883>";
@@ -76,6 +79,9 @@ namespace
         if (channelName == CHANNEL_NAME_LOGIN_ADMIN)
             return DiscordChannelType::LoginAdmin;
 
+        if (channelName == CHANNEL_NAME_BAN_LIST)
+            return DiscordChannelType::BanList;
+
         return DiscordChannelType::MaxType;
     }
 
@@ -97,6 +103,8 @@ namespace
                 return CHANNEL_NAME_LOGIN_GM;
             case DiscordChannelType::LoginAdmin:
                 return CHANNEL_NAME_LOGIN_ADMIN;
+            case DiscordChannelType::BanList:
+                return CHANNEL_NAME_BAN_LIST;
             default:
                 return "";
         }
@@ -109,6 +117,7 @@ namespace
             case DiscordChannelType::Commands:
             case DiscordChannelType::LoginAdmin:
             case DiscordChannelType::LoginGM:
+            case DiscordChannelType::BanList:
                 return true;
             default:
                 return false;
@@ -178,6 +187,7 @@ void DiscordMgr::LoadConfig(bool reload)
 
         _isEnableChatLogs = CONF_GET_BOOL("Discord.GameChatLogs.Enable");
         _isEnableLoginLogs = CONF_GET_BOOL("Discord.GameLoginLogs.Enable");
+        _isEnableBanLogs = CONF_GET_BOOL("Discord.BanLogs.Enable");
     }
 
     // Start bot if after reload config option set to enable
@@ -298,6 +308,18 @@ void DiscordMgr::LogLogin(Player* player)
     }
 
     SendEmbedMessage(embedMsg, channelType);
+}
+
+void DiscordMgr::LogBan(std::string_view type, std::string_view banned, std::string_view time, std::string_view author, std::string_view reason)
+{
+    DiscordEmbedMsg embedMsg;
+    embedMsg.SetTitle(Warhead::StringFormat("Ban {}: `{}`", type, banned));
+    embedMsg.SetColor(DiscordMessageColor::Orange);
+    embedMsg.AddEmbedField("Time", Warhead::StringFormat("`{}`", time.empty() ? "Permanent" : time), true);
+    embedMsg.AddEmbedField("Author", Warhead::StringFormat("`{}`", author), true);
+    embedMsg.AddEmbedField("Reason", Warhead::StringFormat("`{}`", reason), true);
+
+    SendEmbedMessage(embedMsg, DiscordChannelType::BanList);
 }
 
 void DiscordMgr::SendServerShutdown()

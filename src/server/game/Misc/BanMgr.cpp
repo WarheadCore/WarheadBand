@@ -31,6 +31,7 @@
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "DiscordMgr.h"
 
 BanMgr* BanMgr::instance()
 {
@@ -93,6 +94,9 @@ BanReturn BanMgr::BanAccount(std::string const& accountName, std::string_view du
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
     }
 
+    sDiscordMgr->LogBan("Account", accountName, durationSecs > 0s ? Warhead::Time::ToTimeString(durationSecs) : "",
+        author, reason);
+
     return BAN_SUCCESS;
 }
 
@@ -142,18 +146,20 @@ BanReturn BanMgr::BanAccountByPlayerName(std::string const& characterName, std::
 
     AuthDatabase.CommitTransaction(trans);
 
+    std::string accountName;
+    AccountMgr::GetName(AccountID, accountName);
+
     if (CONF_GET_BOOL("ShowBanInWorld"))
     {
-        std::string accountName;
-
-        AccountMgr::GetName(AccountID, accountName);
-
         if (durationSecs > 0s)
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD,
                 author, accountName, Warhead::Time::ToTimeString(durationSecs), reason);
         else
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author, accountName, reason);
     }
+
+    sDiscordMgr->LogBan("Account", accountName, durationSecs > 0s ? Warhead::Time::ToTimeString(durationSecs) : "",
+        author, reason);
 
     return BAN_SUCCESS;
 }
@@ -185,6 +191,9 @@ BanReturn BanMgr::BanIP(std::string const& IP, std::string_view duration, std::s
         else
             Warhead::Text::SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, LANG_BAN_IP_YOUPERMBANNEDMESSAGE_WORLD, author, IP, reason);
     }
+
+    sDiscordMgr->LogBan("IP", IP, durationSecs > 0s ? Warhead::Time::ToTimeString(durationSecs) : "",
+        author, reason);
 
     if (!resultAccounts)
         return BAN_SUCCESS;
@@ -251,6 +260,9 @@ BanReturn BanMgr::BanCharacter(std::string const& characterName, std::string_vie
         else
             Warhead::Text::SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author, characterName, reason);
     }
+
+    sDiscordMgr->LogBan("Character", characterName, durationSecs > 0s ? Warhead::Time::ToTimeString(durationSecs) : "",
+        author, reason);
 
     return BAN_SUCCESS;
 }

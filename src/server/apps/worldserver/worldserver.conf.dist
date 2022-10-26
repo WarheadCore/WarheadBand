@@ -4307,4 +4307,12 @@ Discord.GameChatLogs.Enable = 0
 #
 
 Discord.GameLoginLogs.Enable = 0
+
+#
+#    Discord.BanLogs.Enable
+#        Description: Enable ban logs
+#        Default:     0
+#
+
+Discord.BanLogs.Enable = 0
 ###################################################################################################

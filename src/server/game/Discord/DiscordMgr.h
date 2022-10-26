@@ -53,6 +53,9 @@ public:
     // Character login/logout
     void LogLogin(Player* player);
 
+    // Ban
+    void LogBan(std::string_view type, std::string_view banned, std::string_view time, std::string_view author, std::string_view reason);
+
 private:
     void ConfigureLogs();
     void ConfigureCommands();
@@ -68,6 +71,7 @@ private:
     std::size_t _guildID{};
     bool _isEnableChatLogs{};
     bool _isEnableLoginLogs{};
+    bool _isEnableBanLogs{};
 
     // Channels
     DiscordChannelsList _channels{};
