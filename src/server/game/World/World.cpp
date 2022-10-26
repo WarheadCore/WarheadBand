@@ -105,6 +105,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "CliCommandMgr.h"
+#include "DiscordMgr.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 
@@ -443,6 +444,7 @@ void World::LoadConfigSettings(bool reload)
 
     sGameConfig->Load(reload);
     sModulesConfig->ClearCache();
+    sDiscordMgr->LoadConfig(reload);
 
     // load update time related configs
     sWorldUpdateTime.LoadFromConfig();
@@ -1222,11 +1224,13 @@ void World::SetInitialWorldSettings()
 
     std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
-    LOG_INFO("server.loading", " ");
     LOG_INFO("server.loading", "World initialized in {}", startupDuration);
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", "");
 
     METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
+
+    sDiscordMgr->Start();
+    sDiscordMgr->SendServerStartup(startupDuration);
 }
 
 void World::DetectDBCLang()

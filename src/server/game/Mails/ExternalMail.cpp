@@ -102,6 +102,7 @@ void ExternalMail::LoadSystem()
     });
 
     LOG_INFO("server.loading", ">> External mail loaded");
+    LOG_INFO("server.loading", "");
 }
 
 void ExternalMail::AddMail(std::string_view charName, std::string_view thanksSubject, std::string_view thanksText, uint32 itemID, uint32 itemCount, uint32 creatureEntry)
