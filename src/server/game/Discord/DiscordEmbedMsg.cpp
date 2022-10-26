@@ -19,6 +19,7 @@
 #include "Util.h"
 #include "Log.h"
 #include "GameTime.h"
+#include <dpp/channel.h>
 #include <dpp/message.h>
 
 namespace

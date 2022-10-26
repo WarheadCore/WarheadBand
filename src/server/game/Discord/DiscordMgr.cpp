@@ -29,7 +29,6 @@
 #include "Player.h"
 #include "Channel.h"
 #include <dpp/cluster.h>
-#include <dpp/channel.h>
 #include <dpp/message.h>
 #include <Warhead/RegularExpression.h>
 
