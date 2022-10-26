@@ -30,6 +30,7 @@
 #include "Channel.h"
 #include <dpp/cluster.h>
 #include <dpp/message.h>
+#include <Warhead/RegularExpression.h>
 
 namespace
 {
@@ -41,7 +42,6 @@ namespace
     constexpr auto CHANNEL_NAME_COMMANDS = "commands";
 
     // Chat logs
-    constexpr auto CHANNEL_NAME_CHAT_SAY = "chat-say";
     constexpr auto CHANNEL_NAME_CHAT_CHANNEL = "chat-channel";
 
     // Login
@@ -63,9 +63,6 @@ namespace
 
         if (channelName == CHANNEL_NAME_COMMANDS)
             return DiscordChannelType::Commands;
-
-        if (channelName == CHANNEL_NAME_CHAT_SAY)
-            return DiscordChannelType::ChatSay;
 
         if (channelName == CHANNEL_NAME_CHAT_CHANNEL)
             return DiscordChannelType::ChatChannel;
@@ -92,8 +89,6 @@ namespace
                 return CHANNEL_NAME_SERVER_STATUS;
             case DiscordChannelType::Commands:
                 return CHANNEL_NAME_COMMANDS;
-            case DiscordChannelType::ChatSay:
-                return CHANNEL_NAME_CHAT_SAY;
             case DiscordChannelType::ChatChannel:
                 return CHANNEL_NAME_CHAT_CHANNEL;
             case DiscordChannelType::LoginPlayer:
@@ -118,6 +113,18 @@ namespace
             default:
                 return false;
         }
+    }
+
+    static void ReplaceLinks(std::string_view text, std::string& normalText)
+    {
+        static std::string pattern{ R"(\|cff[a-zA-Z0-9_]{6}\|Hitem:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}:[a-zA-Z0-9_]{1,8}\|h)" };
+        static Warhead::RegularExpression reBefore(pattern, Warhead::RegularExpression::RE_MULTILINE);
+        static Warhead::RegularExpression reAfter(R"(\|h\|r)", Warhead::RegularExpression::RE_MULTILINE);
+
+        normalText = text;
+
+        reBefore.subst(normalText, "", Warhead::RegularExpression::RE_GLOBAL);
+        reAfter.subst(normalText, "", Warhead::RegularExpression::RE_GLOBAL);
     }
 }
 
@@ -250,9 +257,12 @@ void DiscordMgr::LogChat(Player* player, std::string_view msg, Channel* channel 
     if (!_isEnable || !_isEnableChatLogs || !player || !channel || !channel->IsLFG())
         return;
 
+    std::string replacedText;
+    ReplaceLinks(msg, replacedText);
+
     DiscordEmbedMsg embedMsg;
     embedMsg.SetTitle(Warhead::StringFormat("Чат игрового мира: `{}`", sWorld->GetRealmName()));
-    embedMsg.SetDescription(Warhead::StringFormat("**[{}]**: {}", player->GetName(), msg));
+    embedMsg.SetDescription(Warhead::StringFormat("**[{}]**: {}", player->GetName(), replacedText));
     embedMsg.SetColor(DiscordMessageColor::Gray);
 
     SendEmbedMessage(embedMsg, DiscordChannelType::ChatChannel);

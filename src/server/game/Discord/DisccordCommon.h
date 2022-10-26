@@ -41,7 +41,6 @@ enum class DiscordChannelType : std::size_t
     ServerStatus,
     Commands,
 
-    ChatSay,
     ChatChannel,
 
     LoginPlayer,
