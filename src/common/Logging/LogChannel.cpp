@@ -18,7 +18,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "Channel.h"
+#include "LogChannel.h"
 #include "Exception.h"
 #include "LogMessage.h"
 #include "StringConvert.h"
@@ -26,13 +26,13 @@
 #include <filesystem>
 #include <fmt/chrono.h>
 
-Warhead::Channel::Channel(ChannelType type, std::string_view name, LogLevel level, std::string_view pattern /*= {}*/) :
+Warhead::LogChannel::LogChannel(ChannelType type, std::string_view name, LogLevel level, std::string_view pattern /*= {}*/) :
     _type(type), _name(name), _level(level), _pattern(pattern)
 {
     ParsePattern();
 }
 
-void Warhead::Channel::SetPattern(std::string_view pattern)
+void Warhead::LogChannel::SetPattern(std::string_view pattern)
 {
     if (pattern.empty())
         throw Exception("Pattern is empty");
@@ -41,7 +41,7 @@ void Warhead::Channel::SetPattern(std::string_view pattern)
     ParsePattern();
 }
 
-void Warhead::Channel::ParsePattern()
+void Warhead::LogChannel::ParsePattern()
 {
     if (_pattern.empty())
         throw Exception("Pattern is empty");
@@ -116,7 +116,7 @@ void Warhead::Channel::ParsePattern()
         throw Exception("ParsePattern: Error at parse pattern '{}'", _pattern);
 }
 
-void Warhead::Channel::Format(LogMessage const& msg, std::string& text)
+void Warhead::LogChannel::Format(LogMessage const& msg, std::string& text)
 {
     if (_patternActions.empty())
         return;

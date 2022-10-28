@@ -50,7 +50,7 @@ namespace
     constexpr auto CHANNEL_NAME_LOGIN_ADMIN = "login-admin";
 
     // Ban list
-    constexpr auto CHANNEL_NAME_BAN_LIST = "ban-list";
+    constexpr auto CHANNEL_NAME_CORE_LOGS = "core-logs";
 
     // Owner
     constexpr auto OWNER_ID = 365169287926906883; // Winfidonarleyan | <@365169287926906883>
@@ -79,8 +79,8 @@ namespace
         if (channelName == CHANNEL_NAME_LOGIN_ADMIN)
             return DiscordChannelType::LoginAdmin;
 
-        if (channelName == CHANNEL_NAME_BAN_LIST)
-            return DiscordChannelType::BanList;
+        if (channelName == CHANNEL_NAME_CORE_LOGS)
+            return DiscordChannelType::CoreLogs;
 
         return DiscordChannelType::MaxType;
     }
@@ -103,8 +103,8 @@ namespace
                 return CHANNEL_NAME_LOGIN_GM;
             case DiscordChannelType::LoginAdmin:
                 return CHANNEL_NAME_LOGIN_ADMIN;
-            case DiscordChannelType::BanList:
-                return CHANNEL_NAME_BAN_LIST;
+            case DiscordChannelType::CoreLogs:
+                return CHANNEL_NAME_CORE_LOGS;
             default:
                 return "";
         }
@@ -117,7 +117,7 @@ namespace
             case DiscordChannelType::Commands:
             case DiscordChannelType::LoginAdmin:
             case DiscordChannelType::LoginGM:
-            case DiscordChannelType::BanList:
+            case DiscordChannelType::CoreLogs:
                 return true;
             default:
                 return false;
@@ -218,6 +218,9 @@ void DiscordMgr::Start()
     // Prepare commands
     ConfigureCommands();
 
+    // Send prepared messages before bot init
+    SendBeforeStartMessages();
+
     LOG_INFO("server.loading", ">> Discord bot is initialized in {}", sw);
     LOG_INFO("server.loading", "");
 }
@@ -232,7 +235,7 @@ void DiscordMgr::Stop()
 
 void DiscordMgr::SendDefaultMessage(std::string_view message, DiscordChannelType channelType /*= DiscordChannelType::MaxType*/)
 {
-    if (!_isEnable)
+    if (!_isEnable || !_bot)
         return;
 
     dpp::message discordMessage;
@@ -244,10 +247,24 @@ void DiscordMgr::SendDefaultMessage(std::string_view message, DiscordChannelType
 
 void DiscordMgr::SendEmbedMessage(DiscordEmbedMsg const& embed, DiscordChannelType channelType /*= DiscordChannelType::MaxType*/)
 {
-    if (!_isEnable)
+    if (!_isEnable || !_bot)
         return;
 
     _bot->message_create(dpp::message(GetChannelID(channelType == DiscordChannelType::MaxType ? DiscordChannelType::General : channelType), *embed.GetMessage()));
+}
+
+void DiscordMgr::SendLogMessage(std::unique_ptr<DiscordEmbedMsg>&& embed, DiscordChannelType channelType)
+{
+    if (!_isEnable)
+        return;
+
+    if (!_bot)
+    {
+        _queue.Enqueue(new DiscordQueueMessage(std::move(embed), channelType));
+        return;
+    }
+
+    _bot->message_create(dpp::message(GetChannelID(channelType == DiscordChannelType::MaxType ? DiscordChannelType::General : channelType), *embed->GetMessage()));
 }
 
 void DiscordMgr::SendServerStartup(std::string_view duration)
@@ -320,7 +337,7 @@ void DiscordMgr::LogBan(std::string_view type, std::string_view banned, std::str
     embedMsg.AddEmbedField("Author", Warhead::StringFormat("`{}`", author), true);
     embedMsg.AddEmbedField("Reason", Warhead::StringFormat("`{}`", reason), true);
 
-    SendEmbedMessage(embedMsg, DiscordChannelType::BanList);
+    SendEmbedMessage(embedMsg, DiscordChannelType::CoreLogs);
 }
 
 void DiscordMgr::SendServerShutdown()
@@ -440,6 +457,9 @@ void DiscordMgr::ConfigureCommands()
     _bot->on_slashcommand([this](dpp::slashcommand_t const& event)
     {
         if (event.command.get_command_name() != "clean-messages")
+            return;
+
+        if (event.command.msg.guild_id != _guildID)
             return;
 
         auto channelID{ event.command.channel_id };
@@ -718,4 +738,15 @@ uint64 DiscordMgr::GetChannelID(DiscordChannelType channelType)
         LOG_ERROR("discord", "> Empty channel id for type {}", AsUnderlyingType(channelType));
 
     return channelID;
+}
+
+void DiscordMgr::SendBeforeStartMessages()
+{
+    DiscordQueueMessage* msg{ nullptr };
+
+    while (_queue.Dequeue(msg))
+    {
+        _bot->message_create(dpp::message(GetChannelID(msg->GetChannelType()), *msg->GetMessage()->GetMessage()));
+        delete msg;
+    }
 }

@@ -35,6 +35,8 @@ DiscordEmbedMsg::DiscordEmbedMsg()
     _message->set_timestamp(GameTime::GetGameTime().count());
 }
 
+DiscordEmbedMsg::~DiscordEmbedMsg() = default;
+
 void DiscordEmbedMsg::SetColor(DiscordMessageColor color)
 {
     _message->set_color(AsUnderlyingType(color));

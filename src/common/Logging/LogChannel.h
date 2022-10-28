@@ -15,10 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARHEAD_CHANNEL_H_
-#define _WARHEAD_CHANNEL_H_
+#ifndef _WARHEAD_LOG_CHANNEL_H_
+#define _WARHEAD_LOG_CHANNEL_H_
 
-#include "Define.h"
 #include "LogCommon.h"
 #include <memory>
 #include <vector>
@@ -27,11 +26,11 @@ namespace Warhead
 {
     class LogMessage;
 
-    class WH_COMMON_API Channel
+    class WH_COMMON_API LogChannel
     {
     public:
-        Channel(ChannelType type, std::string_view name, LogLevel level, std::string_view pattern);
-        virtual ~Channel() = default;
+        LogChannel(ChannelType type, std::string_view name, LogLevel level, std::string_view pattern);
+        virtual ~LogChannel() = default;
 
         inline std::string_view GetName() { return _name; }
         inline LogLevel GetLevel() { return _level; }
@@ -64,10 +63,10 @@ namespace Warhead
         std::string _pattern;
         std::vector<PatternAction> _patternActions;
 
-        Channel(const Channel&) = delete;
-        Channel& operator= (const Channel&) = delete;
+        LogChannel(const LogChannel&) = delete;
+        LogChannel& operator= (const LogChannel&) = delete;
     };
 
 } // namespace Warhead
 
-#endif //_WARHEAD_CHANNEL_H_
+#endif //_WARHEAD_LOG_CHANNEL_H_

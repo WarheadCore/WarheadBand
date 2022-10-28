@@ -26,13 +26,13 @@
 namespace Warhead
 {
     class Logger;
-    class Channel;
+    class LogChannel;
     class LogMessage;
 
-    typedef std::shared_ptr<Channel>(*ChannelCreateFn)(std::string_view, LogLevel, std::string_view, std::vector<std::string_view> const&);
+    typedef std::shared_ptr<LogChannel>(*ChannelCreateFn)(std::string_view, LogLevel, std::string_view, std::vector<std::string_view> const&);
 
     template <class ChannelImpl>
-    inline std::shared_ptr<Channel> CreateChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options)
+    inline std::shared_ptr<LogChannel> CreateChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options)
     {
         return std::make_shared<ChannelImpl>(name, level, pattern, options);
     }
@@ -100,13 +100,13 @@ namespace Warhead
 
         Logger* GetLoggerByType(std::string_view type);
         Logger* HasLogger(std::string_view type);
-        std::shared_ptr<Channel> HasChannel(std::string_view name);
+        std::shared_ptr<LogChannel> HasChannel(std::string_view name);
 
         std::unordered_map<std::string, std::unique_ptr<Logger>> _loggers;
-        std::unordered_map<std::string, std::shared_ptr<Channel>> _channels;
+        std::unordered_map<std::string, std::shared_ptr<LogChannel>> _channels;
         std::unordered_map<int8, ChannelCreateFn> _channelsCreateFunction;
 
-        LogLevel highestLogLevel;
+        LogLevel highestLogLevel{ LogLevel::Disabled };
         std::string _logsDir;
 
         //

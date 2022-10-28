@@ -19,7 +19,7 @@
 #define _WARHEAD_MESSAGE_H_
 
 #include "LogCommon.h"
-#include "Timer.h"
+#include "Duration.h"
 #include <string>
 
 namespace Warhead
@@ -62,7 +62,7 @@ namespace Warhead
         SystemTimePoint _time{ std::chrono::system_clock::now() };
 
         std::string _file;
-        std::size_t _line{ 0 };
+        std::size_t _line{};
         std::string _function;
         std::string _option;
     };

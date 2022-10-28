@@ -18,7 +18,7 @@
 #ifndef _WARHEAD_CONSOLE_CHANNEL_H_
 #define _WARHEAD_CONSOLE_CHANNEL_H_
 
-#include "Channel.h"
+#include "LogChannel.h"
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <windows.h>
@@ -29,14 +29,14 @@
 namespace Warhead
 {
 #if WARHEAD_PLATFORM == WH_PLATFORM_WINDOWS
-    class WH_COMMON_API WindowsConsoleChannel : public Channel
+    class WH_COMMON_API WindowsConsoleChannel : public LogChannel
     {
     public:
         static constexpr auto ThisChannelType{ ChannelType::Console };
 
         WindowsConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options);
         WindowsConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::string_view colors);
-        virtual ~WindowsConsoleChannel() = default;
+        ~WindowsConsoleChannel() override = default;
 
         void Write(LogMessage const& msg) override;
 
@@ -73,14 +73,14 @@ namespace Warhead
         WORD   _colors[MAX_LOG_LEVEL];
     };
 #else
-    class WH_COMMON_API UnixConsoleChannel : public Channel
+    class WH_COMMON_API UnixConsoleChannel : public LogChannel
     {
     public:
         static constexpr auto ThisChannelType{ ChannelType::Console };
 
         UnixConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options);
         UnixConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::string_view colors);
-        virtual ~UnixConsoleChannel() = default;
+        ~UnixConsoleChannel() override = default;
 
         void Write(LogMessage const& msg) override;
 

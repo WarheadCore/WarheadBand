@@ -29,7 +29,7 @@ constexpr auto MAX_OPTIONS = 4;
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 Warhead::WindowsConsoleChannel::WindowsConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options) :
-    Channel(ThisChannelType, name, level, pattern),
+    LogChannel(ThisChannelType, name, level, pattern),
     _hConsole(INVALID_HANDLE_VALUE)
 {
     if (options.size() > 4)
@@ -47,7 +47,7 @@ Warhead::WindowsConsoleChannel::WindowsConsoleChannel(std::string_view name, Log
 }
 
 Warhead::WindowsConsoleChannel::WindowsConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::string_view colors) :
-    Channel(ThisChannelType, name, level, pattern),
+    LogChannel(ThisChannelType, name, level, pattern),
     _hConsole(INVALID_HANDLE_VALUE)
 {
     _hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -174,7 +174,7 @@ void Warhead::WindowsConsoleChannel::InitDefaultColors()
 constexpr auto CSI = "\033[";
 
 Warhead::UnixConsoleChannel::UnixConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options) :
-    Channel(ThisChannelType, name, level, pattern)
+    LogChannel(ThisChannelType, name, level, pattern)
 {
     if (options.size() > MAX_OPTIONS)
         throw Exception("Incorrect options count ({})", options.size());
@@ -186,7 +186,7 @@ Warhead::UnixConsoleChannel::UnixConsoleChannel(std::string_view name, LogLevel 
 }
 
 Warhead::UnixConsoleChannel::UnixConsoleChannel(std::string_view name, LogLevel level, std::string_view pattern, std::string_view colors) :
-    Channel(ThisChannelType, name, level, pattern)
+    LogChannel(ThisChannelType, name, level, pattern)
 {
     InitDefaultColors();
 

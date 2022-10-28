@@ -82,7 +82,7 @@ void IPInfoCacheMgr::UpdateIPInfo(std::string_view ip, bool isBanned /*= false*/
 {
     std::lock_guard<std::mutex> guard(_mutex);
 
-    LOG_DEBUG("ipcache", "> Update ip info cache. IP: {}. Is banned: {}", ip, isBanned);
+    LOG_TRACE("ipcache", "> Update ip info cache. IP: {}. Is banned: {}", ip, isBanned);
 
     auto ipInfo = GetIpInfo(ip);
     if (!ipInfo)
