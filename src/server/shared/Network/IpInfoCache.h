@@ -32,7 +32,10 @@ struct IPInfo
     std::string IP;
     bool IsBanned{};
     Milliseconds LastCheck{};
-    std::size_t CheckCount{};
+    std::size_t DefaultCheckCount{};
+    std::size_t DDOSCheckCount{};
+
+    void ResetChecks();
 };
 
 class WH_SHARED_API IPInfoCacheMgr
@@ -47,17 +50,21 @@ public:
     bool CanCheckIpFromDB(std::string_view ip);
     bool IsIPBanned(std::string_view ip);
     void UpdateIPInfo(std::string_view ip, bool isBanned = false);
-    void AddBanForIP(std::string_view ip, Milliseconds duration, std::string_view reason);
+    void AddBanForIP(std::string_view ip, Seconds duration, std::string_view reason);
 
 private:
+    void AddDDOSBan(std::string_view ip, Seconds duration, std::string_view reason);
+
     std::unordered_map<std::string, IPInfo> _cache;
     std::mutex _mutex;
 
     // Config
     Milliseconds _updateDelay{ 1min };
-    std::size_t _maxCheckCount{ 10 };
+    std::size_t _maxDefaultCheckCount{ 10 };
+    std::size_t _maxDDOSCheckCount{ 50 };
     bool _banEnable{ true };
-    Seconds _banDuration{ 5min };
+    Seconds _defaultBanDuration{ 5min };
+    Seconds _ddosBanDuration{ 7_days };
 };
 
 #define sIPInfoCacheMgr IPInfoCacheMgr::instance()
