@@ -54,6 +54,7 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+#include "DiscordChannel.h"
 #include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
@@ -193,6 +194,7 @@ int main(int argc, char** argv)
         return 1;
 
     // Init all logs
+    sLog->RegisterChannel<Warhead::DiscordChannel>();
     sLog->Initialize();
 
     Warhead::Logo::Show("worldserver",

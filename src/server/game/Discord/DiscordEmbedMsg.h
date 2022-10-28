@@ -31,7 +31,7 @@ class WH_GAME_API DiscordEmbedMsg
 {
 public:
     DiscordEmbedMsg();
-    ~DiscordEmbedMsg() = default;
+    ~DiscordEmbedMsg();
 
     inline dpp::embed const* GetMessage() const { return _message.get(); }
 

@@ -47,7 +47,7 @@ enum class DiscordChannelType : std::size_t
     LoginGM,
     LoginAdmin,
 
-    BanList,
+    CoreLogs,
 
     MaxType
 };

@@ -120,7 +120,7 @@ namespace
 }
 
 Warhead::FileChannel::FileChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options) :
-    Channel(ThisChannelType, name, level, pattern),
+    LogChannel(ThisChannelType, name, level, pattern),
     _logsDir(sLog->GetLogsDir())
 {
     if (options.size() < MIN_OPTIONS)

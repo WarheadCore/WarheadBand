@@ -3859,6 +3859,8 @@ ChangeFaction.MaxMoney = 0
 #                     Type
 #                       1 - (Console)
 #                       2 - (File)
+#                       3 - (DB)
+#                       4 - (Discord)
 #
 #                     LogLevel
 #                         0 - (Disabled)
@@ -3876,10 +3878,6 @@ ChangeFaction.MaxMoney = 0
 #                         * %l - message priority level (1 .. 7)
 #                         * %p - message priority (Fatal, Critical, Error, Warning, Information, Debug, Trace)
 #                         * %q - abbreviated message priority (F, C, E, W, I, D, T)
-#                         - * %P - message process identifier
-#                         - * %T - message thread name
-#                         - * %I - message thread identifier (numeric)
-#                         - * %N - node or host name
 #                         * %U - message source file path (empty string if not set)
 #                         * %O - message source file filename (empty string if not set)
 #                         * %u - message source line number (0 if not set)
@@ -3903,6 +3901,8 @@ ChangeFaction.MaxMoney = 0
 #                           Example for file "%Y-%m-%d %H:%M:%S %t"
 #                           Example for console "%H:%M:%S %t"
 #
+#   CONSOLE OPTIONS
+#
 #                    Optional1 - Colors (is type Console)
 #                       Format: "fatal critical error warning info debug trace"
 #                       black
@@ -3923,25 +3923,27 @@ ChangeFaction.MaxMoney = 0
 #                       white
 #                         Example: "lightRed lightRed red brown cyan lightMagenta green"
 #
-#                     Optional1 - File name (is type file)
+#   FILE OPTIONS
+#
+#                     Optional1 - File name
 #                       Example: "Auth.log"
 #
-#                     Optional2 - Mode to open the file (is type file)
+#                     Optional2 - Mode to open the file
 #                          true - Append (default)
 #                          false - Overwrite
 #
-#                     Optional3 - Flush (is type File)
+#                     Optional3 - Flush
 #                       true: Every essages is immediately flushed to the log file (default).
 #                       false: Messages are not immediately flushed to the log file.
 #
-#                     Optional4 - Add timestamp (is type File).
+#                     Optional4 - Add timestamp
 #                           true: Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
 #                           false: Just using filename (default)
 #
-#                     Optional5 - Max files count (is type File). Need option 4
+#                     Optional5 - Max files count. Need option 4
 #                           Default: 20
 #
-#                     Optional6 - Purge age in days (is type File). Need option 4
+#                     Optional6 - Purge age in days. Need option 4
 #                           Default: 10
 #
 
@@ -3951,6 +3953,7 @@ LogChannel.GM = "2","6","[%Y-%m-%d %H:%M:%S] %t","GM_{}.log"
 LogChannel.DBErrors = "2","6","[%Y-%m-%d %H:%M:%S] %t","DBErrors.log"
 LogChannel.Modules = "2","6","[%Y-%m-%d %H:%M:%S] %t","Modules.log"
 LogChannel.Hotswap = "2","6","[%Y-%m-%d %H:%M:%S] %t","Hotswap.log"
+LogChannel.Discord = "4","6","%t"
 
 #
 #  Logger config values: Given a logger "name"

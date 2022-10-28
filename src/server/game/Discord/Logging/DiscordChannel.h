@@ -15,41 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARHEAD_FILE_CHANNEL_H_
-#define _WARHEAD_FILE_CHANNEL_H_
+#ifndef _WARHEAD_DISCORD_CHANNEL_H_
+#define _WARHEAD_DISCORD_CHANNEL_H_
 
 #include "LogChannel.h"
 #include <mutex>
 
 namespace Warhead
 {
-    class WH_COMMON_API FileChannel : public LogChannel
+    class WH_COMMON_API DiscordChannel : public LogChannel
     {
     public:
-        static constexpr auto ThisChannelType{ ChannelType::File };
+        static constexpr auto ThisChannelType{ ChannelType::Discord };
 
-        FileChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options);
-        ~FileChannel() override;
+        DiscordChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options);
+        ~DiscordChannel() override = default;
 
         void Write(LogMessage const& msg) override;
 
     private:
-        bool OpenFile();
-        void CloseFile();
-        void ClearOldFiles();
-
-        std::string _logsDir;
-        std::string _fileName;
-        std::unique_ptr<std::ofstream> _logFile;
-        bool _isDynamicFileName{ false };
-        bool _isFlush{ true };
-        bool _isOpenModeAppend{ true };
-        bool _isAddTimestamp{ false };
-        uint32 _maxCount{ 20 };
-        uint32 _purgeAge{ 10 };
         std::mutex _mutex;
     };
 
 } // namespace Warhead
 
-#endif // _WARHEAD_FILE_CHANNEL_H_
+#endif //

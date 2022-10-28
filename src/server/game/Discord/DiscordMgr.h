@@ -18,7 +18,10 @@
 #ifndef _DISCORD_MGR_H_
 #define _DISCORD_MGR_H_
 
+#include <utility>
+
 #include "DiscordEmbedMsg.h"
+#include "MPSCQueue.h"
 
 namespace dpp
 {
@@ -29,6 +32,27 @@ class Channel;
 class Player;
 class ObjectGuid;
 
+struct WH_GAME_API DiscordQueueMessage
+{
+public:
+    DiscordQueueMessage(std::unique_ptr<DiscordEmbedMsg>&& message, DiscordChannelType channelType) :
+        _message(std::move(message)), _channelType(channelType) { }
+
+    ~DiscordQueueMessage() = default;
+
+    std::atomic<DiscordQueueMessage*> QueueLink;
+
+    inline DiscordEmbedMsg const* GetMessage() const { return _message.get(); }
+    inline DiscordChannelType GetChannelType() const { return _channelType; }
+
+private:
+    std::unique_ptr<DiscordEmbedMsg> _message{};
+    DiscordChannelType _channelType{ DiscordChannelType::CoreLogs };
+
+    DiscordQueueMessage(DiscordQueueMessage const& right) = delete;
+    DiscordQueueMessage& operator=(DiscordQueueMessage const& right) = delete;
+};
+
 class WH_GAME_API DiscordMgr
 {
 public:
@@ -37,12 +61,15 @@ public:
 
     static DiscordMgr* instance();
 
+    inline bool IsEnable() { return _isEnable; }
+
     void LoadConfig(bool reload);
     void Start();
     void Stop();
 
     void SendDefaultMessage(std::string_view message, DiscordChannelType channelType = DiscordChannelType::MaxType);
     void SendEmbedMessage(DiscordEmbedMsg const& embed, DiscordChannelType channelType = DiscordChannelType::MaxType);
+    void SendLogMessage(std::unique_ptr<DiscordEmbedMsg>&& embed, DiscordChannelType channelType);
 
     void SendServerStartup(std::string_view duration);
     void SendServerShutdown();
@@ -62,6 +89,7 @@ private:
     void CheckGuild();
     void CleanupMessages(DiscordChannelType channelType);
     uint64 GetChannelID(DiscordChannelType channelType);
+    void SendBeforeStartMessages();
 
     std::unique_ptr<dpp::cluster> _bot;
 
@@ -75,6 +103,9 @@ private:
 
     // Channels
     DiscordChannelsList _channels{};
+
+    // Before start up queue
+    MPSCQueue<DiscordQueueMessage, &DiscordQueueMessage::QueueLink> _queue;
 
     DiscordMgr(DiscordMgr const&) = delete;
     DiscordMgr(DiscordMgr&&) = delete;

@@ -25,7 +25,7 @@
 
 namespace Warhead
 {
-    class Channel;
+    class LogChannel;
 
     class WH_COMMON_API Logger
     {
@@ -37,7 +37,7 @@ namespace Warhead
 
         inline const std::string_view GetName() const { return _name; }
 
-        void AddChannel(std::shared_ptr<Channel> channel);
+        void AddChannel(std::shared_ptr<LogChannel> channel);
 
         inline void SetLevel(LogLevel level) { _level = level; }
         inline LogLevel GetLevel() const { return _level; }
@@ -52,7 +52,7 @@ namespace Warhead
         Logger& operator=(const Logger&) = delete;
 
         std::string _name;
-        std::vector<std::shared_ptr<Channel>> _channels;
+        std::vector<std::shared_ptr<LogChannel>> _channels;
         LogLevel _level{ LogLevel::Disabled };
 
         std::mutex _mutex;
