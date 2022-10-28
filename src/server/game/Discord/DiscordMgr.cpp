@@ -204,7 +204,8 @@ void DiscordMgr::Start()
 
     StopWatch sw;
 
-    _bot = std::make_unique<dpp::cluster>(_botToken, dpp::i_all_intents);
+    _bot = std::make_unique<dpp::cluster>(_botToken, dpp::i_unverified_default_intents, 0, 0, 1, true,
+        dpp::cache_policy_t{ dpp::cp_aggressive, dpp::cp_aggressive, dpp::cp_aggressive }, 3);
 
     // Prepare logs
     ConfigureLogs();
@@ -684,8 +685,7 @@ void DiscordMgr::CleanupMessages(DiscordChannelType channelType)
 
     for (auto const& [messageID, message] : messages)
     {
-        auto sentTime{ Seconds{ GetUTCTimeFromLocal(message.sent) } };
-        if (_bot->me.id != message.author.id || sentTime >= timeAllow)
+         if (Seconds{ GetUTCTimeFromLocal(message.sent) } >= timeAllow)
             continue;
 
         messagesToDelete.emplace_back(messageID);
