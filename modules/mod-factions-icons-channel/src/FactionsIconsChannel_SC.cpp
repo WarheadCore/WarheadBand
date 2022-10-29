@@ -48,7 +48,7 @@ public:
         if (!MOD_CONF_GET_BOOL("ChannelIconFaction.GM") && !AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()))
             return;
 
-        msg = Warhead::StringFormat("{}", player->GetTeamId() == TEAM_HORDE ? ICON_HORDE : ICON_ALLIANCE);
+        msg = Warhead::StringFormat("{}{}", player->GetTeamId() == TEAM_HORDE ? ICON_HORDE : ICON_ALLIANCE, msg);
     }
 };
 
