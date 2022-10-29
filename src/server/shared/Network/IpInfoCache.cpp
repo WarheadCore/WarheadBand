@@ -38,7 +38,7 @@ IPInfoCacheMgr::IPInfoCacheMgr()
     _maxDefaultCheckCount = sConfigMgr->GetOption<uint32>("IPCache.Check.MaxCount", 10);
     _banEnable = sConfigMgr->GetOption<bool>("IPCache.Ban.Enable", true);
     _defaultBanDuration = Seconds{ sConfigMgr->GetOption<uint32>("IPCache.Ban.Duration", 300) };
-    _ddosBanDuration = Seconds{ sConfigMgr->GetOption<uint32>("IPCache.DDOSBan.Duration ", 604800) };
+    _ddosBanDuration = Seconds{ sConfigMgr->GetOption<uint32>("IPCache.DDOSBan.Duration", 604800) };
 }
 
 IPInfoCacheMgr* IPInfoCacheMgr::instance()
@@ -75,9 +75,7 @@ bool IPInfoCacheMgr::CanCheckIpFromDB(std::string_view ip)
     if (++ipInfo->DDOSCheckCount >= _maxDDOSCheckCount)
     {
         LOG_WARN("ipcache", "Found potential DDOS attack via login flood from ip: {}", ip);
-
-        if (_banEnable && !ipInfo->IsBanned)
-            AddDDOSBan(ip, _ddosBanDuration, "DDOS Login flood");
+        AddDDOSBan(ip, _ddosBanDuration, "DDOS Login flood");
     }
 
     return false;
@@ -135,10 +133,10 @@ void IPInfoCacheMgr::AddBanForIP(std::string_view ip, Seconds duration, std::str
 
 void IPInfoCacheMgr::AddDDOSBan(std::string_view ip, Seconds duration, std::string_view reason)
 {
-    // Add ban in DB
+    // Add DDOS ban in DB
     {
         // INSERT INTO `ddos_protection` (`IP`, `BanDate`, `UnBanDate`, `Reason`) VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + ?, ?)
-        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_DDOS_PROTECTION);
+        auto stmt{ AuthDatabase.GetPreparedStatement(LOGIN_INS_DDOS_PROTECTION) };
         stmt->SetArguments(ip, duration, reason);
         AuthDatabase.Execute(stmt);
     }

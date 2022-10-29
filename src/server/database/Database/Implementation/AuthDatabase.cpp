@@ -140,8 +140,5 @@ void AuthDatabasePool::DoPrepareStatements()
     PrepareStatement(LOGIN_DEL_ACCOUNT_MUTE, "UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `accountid` = ?", ConnectionFlags::Async);
 
     // DDOS protection
-    PrepareStatement(LOGIN_INS_DDOS_PROTECTION, "INSERT INTO `ddos_protection` (`IP`, `BanDate`, `UnBanDate`, `Reason`) VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + ?, ?)", ConnectionFlags::Async);
-    PrepareStatement(LOGIN_SEL_DDOS_PROTECTION, "SELECT `IP`, `BanDate`, `UnBanDate`, `Reason` FROM `ddos_protection` WHERE `IsActive` = 1", ConnectionFlags::Sync);
-    PrepareStatement(LOGIN_UPD_DDOS_PROTECTION, "UPDATE `ddos_protection` SET `IsActive` = ? WHERE `IP` = ?", ConnectionFlags::Async);
-    PrepareStatement(LOGIN_SEL_DDOS_PROTECTION_ADDED, "SELECT `IP`, `BanDate`, `UnBanDate`, `Reason` FROM `ddos_protection` WHERE `IsActive` = 1", ConnectionFlags::Sync);
+    PrepareStatement(LOGIN_INS_DDOS_PROTECTION, "INSERT IGNORE INTO `ddos_protection` (`IP`, `BanDate`, `UnBanDate`, `Reason`) VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + ?, ?)", ConnectionFlags::Async);
 }

@@ -9,5 +9,5 @@ CREATE TABLE `ddos_protection` (
   `UnBanDate` int(11) NOT NULL DEFAULT 0,
   `Reason` varchar(255) DEFAULT 'No reason',
   `IsActive` tinyint(4) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`IP`,`BanDate`)
+  PRIMARY KEY (`IP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
