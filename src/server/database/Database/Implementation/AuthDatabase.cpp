@@ -138,4 +138,7 @@ void AuthDatabasePool::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_ACCOUNT_MUTE, "SELECT `mutedate`, `mutetime`, `mutereason`, `mutedby` FROM `account_muted` WHERE `accountid` = ? AND `active` = 1 ORDER BY `mutedate` + `mutetime` DESC LIMIT 1", ConnectionFlags::Sync);
     PrepareStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED, "UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `mutetime` > 0 AND mutedate > 0 AND `accountid` = ? AND UNIX_TIMESTAMP() >= `mutedate` + `mutetime`", ConnectionFlags::Async);
     PrepareStatement(LOGIN_DEL_ACCOUNT_MUTE, "UPDATE `account_muted` SET `active` = 0 WHERE `active` = 1 AND `accountid` = ?", ConnectionFlags::Async);
+
+    // DDOS protection
+    PrepareStatement(LOGIN_INS_DDOS_PROTECTION, "INSERT IGNORE INTO `ddos_protection` (`IP`, `BanDate`, `UnBanDate`, `Reason`) VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + ?, ?)", ConnectionFlags::Async);
 }

@@ -271,6 +271,16 @@ IPCache.Ban.Enable = 1
 #
 
 IPCache.Ban.Duration = 300
+
+#
+#    IPCache.Ban.Enable
+#        Description: DDOS ban duration in seconds (need WarheadDDOSGuard app for this ban)
+#        Default:     604800  (7 days)
+#                     2592000 (30 days)
+#                     0       (permanent)
+#
+
+IPCache.DDOSBan.Duration = 604800
 ###################################################################################################
 
 ###################################################################################################
