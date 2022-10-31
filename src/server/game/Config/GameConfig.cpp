@@ -50,16 +50,22 @@ template<Warhead::Types::ConfigValue T>
 void GameConfig::AddOption(std::string_view optionName, Optional<T> def /*= std::nullopt*/)
 {
     // copy from string_view
-    std::string option{ optionName };
+    std::string option{optionName};
 
     // Check exist option
-    auto const& itr = _configOptions.find(option);
-    if (itr != _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig::AddOption: option ({}) is already exists", optionName);
-        return;
+        std::shared_lock cacheLock(_mutex);
+
+        auto const &itr = _configOptions.find(option);
+        if (itr != _configOptions.end())
+        {
+            LOG_ERROR("server.loading", "> GameConfig::AddOption: option ({}) is already exists", optionName);
+            return;
+        }
     }
 
+    // Emplace option if no exist
+    std::unique_lock cacheLock(_mutex);
     _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, Warhead::Config::GetDefaultValueString<T>(def)));
 }
 
@@ -85,12 +91,14 @@ T GameConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nu
     // Check exist option part 1
     auto itr = _configOptions.find(option);
     if (itr == _configOptions.end())
+    {
         AddOption(optionName, def);
+        itr = _configOptions.find(option);
+    }
 
     std::string defStr = Warhead::Config::GetDefaultValueString(def);
 
     // Check exist option part 2
-    itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
         LOG_FATAL("server.loading", "> GameConfig::GetOption: option ({}) is not exists. Returned ({})", optionName, defStr);
@@ -121,13 +129,18 @@ void GameConfig::SetOption(std::string_view optionName, T value)
     std::string option{ optionName };
 
     // Check exist option
-    auto const& itr = _configOptions.find(option);
-    if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> GameConfig::SetOption: option ({}) is not exists", optionName);
-        return;
+        std::shared_lock cacheLock(_mutex);
+
+        auto const &itr = _configOptions.find(option);
+        if (itr == _configOptions.end())
+        {
+            LOG_ERROR("server.loading", "> GameConfig::SetOption: option ({}) is not exists", optionName);
+            return;
+        }
     }
 
+    std::unique_lock cacheLock(_mutex);
     std::string valueStr;
 
     if constexpr (std::is_same_v<T, std::string>)

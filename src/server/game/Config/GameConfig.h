@@ -22,6 +22,7 @@
 #include "Optional.h"
 #include "Types.h"
 #include <unordered_map>
+#include <shared_mutex>
 
 class WH_GAME_API GameConfig
 {
@@ -61,6 +62,7 @@ private:
     void LoadConfigs(bool reload = false);
 
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
+    std::shared_mutex _mutex;
 };
 
 #define sGameConfig GameConfig::instance()

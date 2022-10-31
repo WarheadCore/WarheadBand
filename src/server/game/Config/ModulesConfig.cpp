@@ -23,6 +23,7 @@
 #include "Config.h"
 #include "Log.h"
 #include "StringConvert.h"
+#include <utility>
 
 ModulesConfig* ModulesConfig::instance()
 {
@@ -38,16 +39,21 @@ void ModulesConfig::AddOption(std::string_view optionName, Optional<T> def /*= s
     std::string option{ optionName };
 
     // Check exist option
-    if (_configOptions.find(option) != _configOptions.end())
-        _configOptions.erase(option);
+    {
+        std::shared_lock cacheLock(_mutex);
 
+        if (_configOptions.find(option) != _configOptions.end())
+            _configOptions.erase(option);
+    }
+
+    std::unique_lock cacheLock(_mutex);
     _configOptions.emplace(option, sConfigMgr->GetOption<std::string>(option, Warhead::Config::GetDefaultValueString<T>(def)));
 }
 
 // Add option without template
 void ModulesConfig::AddOption(std::string_view optionName, Optional<std::string> def /*= std::nullopt*/)
 {
-    AddOption<std::string>(optionName, def);
+    AddOption<std::string>(optionName, std::move(def));
 }
 
 // Get option
@@ -60,12 +66,14 @@ T ModulesConfig::GetOption(std::string_view optionName, Optional<T> def /*= std:
     // Check exist option part 1
     auto itr = _configOptions.find(option);
     if (itr == _configOptions.end())
+    {
         AddOption(optionName, def);
+        itr = _configOptions.find(option);
+    }
 
     std::string defStr = Warhead::Config::GetDefaultValueString(def);
 
     // Check exist option part 2
-    itr = _configOptions.find(option);
     if (itr == _configOptions.end())
     {
         LOG_FATAL("server.loading", "> ModulesConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
@@ -96,13 +104,18 @@ void ModulesConfig::SetOption(std::string_view optionName, T value)
     std::string option{ optionName };
 
     // Check exist option
-    auto const& itr = _configOptions.find(option);
-    if (itr == _configOptions.end())
     {
-        LOG_ERROR("server.loading", "> ModulesConfig: option ({}) is not exists", optionName);
-        return;
+        std::shared_lock cacheLock(_mutex);
+
+        auto const &itr = _configOptions.find(option);
+        if (itr == _configOptions.end())
+        {
+            LOG_ERROR("server.loading", "> ModulesConfig: option ({}) is not exists", optionName);
+            return;
+        }
     }
 
+    std::unique_lock cacheLock(_mutex);
     std::string valueStr;
 
     if constexpr (std::is_same_v<T, std::string>)

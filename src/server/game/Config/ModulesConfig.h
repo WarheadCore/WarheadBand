@@ -22,6 +22,7 @@
 #include "Optional.h"
 #include "Types.h"
 #include <unordered_map>
+#include <shared_mutex>
 
 class WH_GAME_API ModulesConfig
 {
@@ -62,6 +63,7 @@ public:
 
 private:
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
+    std::shared_mutex _mutex;
 };
 
 #define sModulesConfig ModulesConfig::instance()
