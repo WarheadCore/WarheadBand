@@ -23,7 +23,7 @@
 
 namespace Warhead
 {
-    class WH_COMMON_API DiscordChannel : public LogChannel
+    class WH_GAME_API DiscordChannel : public LogChannel
     {
     public:
         static constexpr auto ThisChannelType{ ChannelType::Discord };
