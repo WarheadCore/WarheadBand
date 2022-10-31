@@ -47,6 +47,11 @@ public:
     {
         sAnticheatMgr->LoadConfig(reload);
     }
+
+    void OnUpdate(uint32 diff) override
+    {
+        sAnticheatMgr->Update(diff);
+    }
 };
 
 class AnticheatMovementHandlerScript : public MovementHandlerScript

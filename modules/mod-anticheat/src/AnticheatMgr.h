@@ -21,12 +21,16 @@
 #include "Common.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
+#include "TaskScheduler.h"
 #include <array>
 #include <unordered_map>
 
 class Player;
 struct MovementInfo;
 struct Position;
+
+// Time between server sends acknowledgement, and client is actually acknowledged
+constexpr Seconds ALLOWED_ACK_LAG = 2s;
 
 enum class AnticheatDetectionType : uint8
 {
@@ -39,6 +43,11 @@ enum class AnticheatDetectionType : uint8
     TeleportHack,
     IngnoreControl,
     ZaxisHack,
+    AntiswimHack,
+    GravityHack,
+    AntiKnockBackHack,
+    NoFallDamageHack,
+    OpAckHack,
 
     Max
 };
@@ -47,9 +56,26 @@ constexpr uint8 MAX_ANTICHEAT_DETECT_TYPE = static_cast<uint8>(AnticheatDetectio
 
 enum class SpellMisc : uint32
 {
-    Shackles = 38505,
-    LfgDeserter = 71041,
-    BgDeserter = 26013
+    Shackles                = 38505,
+    LfgDeserter             = 71041,
+    BgDeserter              = 26013,
+    Silenced                = 23207,
+    ResurrectionSickness    = 15007
+};
+
+class ServerOrderData
+{
+public:
+    ServerOrderData(uint32 serv, uint32 resp) : serverOpcode1(serv), clientResp(resp) { }
+    ServerOrderData(uint32 serv1, uint32 serv2, uint32 resp) : serverOpcode1(serv1), serverOpcode2(serv2), clientResp(resp) {}
+
+    uint32 serverOpcode1{};
+    uint32 serverOpcode2{};
+    uint32 clientResp{};
+
+    uint32 lastSent{};
+    uint32 lastRcvd{};
+    int32 counter{};
 };
 
 struct AnticheatData
@@ -114,14 +140,14 @@ class AnticheatMgr
     AnticheatMgr& operator=(AnticheatMgr&&) = delete;
 
     AnticheatMgr() = default;
-    ~AnticheatMgr();
+    ~AnticheatMgr() = default;
 
 public:
     static AnticheatMgr* instance();
 
-    inline bool IsEnable() { return _enable; }
-
+    inline bool IsEnable() const { return _enable; }
     void LoadConfig(bool reload);
+    void Update(uint32 diff);
 
     void StartHackDetection(Player* player, MovementInfo* movementInfo, uint32 opcode);
 
@@ -133,19 +159,26 @@ public:
     uint32 GetTypeReports(ObjectGuid guid, AnticheatDetectionType type);
 
     void AnticheatDeleteCommand(ObjectGuid guid);
+
 private:
     void SpeedHackDetection(Player* player, MovementInfo* movementInfo);
     void FlyHackDetection(Player* player, MovementInfo* movementInfo);
-    void WalkOnWaterHackDetection(Player* player, MovementInfo* movementInfo);
     void JumpHackDetection(Player* player, MovementInfo* movementInfo, uint32 opcode);
-    void TeleportPlaneHackDetection(Player* player, MovementInfo* movementInfo);
+    void TeleportPlaneHackDetection(Player* player, MovementInfo* movementInfo, uint32 opcode);
     void ClimbHackDetection(Player* player,MovementInfo* movementInfo,uint32 opcode);
     void TeleportHackDetection(Player* player, MovementInfo* movementInfo);
-    void IgnoreControlHackDetection(Player* player, MovementInfo* movementInfo);
+    void IgnoreControlHackDetection(Player* player, MovementInfo* movementInfo, uint32 opcode);
+    void GravityHackDetection(Player* player, MovementInfo* movementInfo);
+    void WalkOnWaterHackDetection(Player* player, MovementInfo* movementInfo);
     void ZAxisHackDetection(Player* player, MovementInfo* movementInfo);
+    void AntiSwimHackDetection(Player* player, MovementInfo* movementInfo, uint32 opcode);
+    void AntiKnockBackHackDetection(Player* player, MovementInfo* movementInfo);
+    void NoFallDamageDetection(Player* player, MovementInfo* movementInfo);
+    void BGreport(Player* player);
+    void BGStartExploit(Player* player, MovementInfo* movementInfo);
     void BuildReport(Player* player, AnticheatDetectionType type);
 
-    bool MustCheckTempReports(AnticheatDetectionType type);
+    static bool MustCheckTempReports(AnticheatDetectionType type);
 
     uint16 GetLastOpcode(ObjectGuid guid) const;
     void SetLastOpcode(ObjectGuid guid, uint16 opcode);
@@ -154,20 +187,33 @@ private:
     uint32 GetTotalReports(ObjectGuid guid) const;
     AnticheatData* GetAnticheatData(ObjectGuid guid);
 
-    // Values
-    bool _enable{ false };
-    bool _enableGM{ false };
+    // Config
+    bool _enable{};
+    bool _enableGM{};
 
-    bool _detectFly{ false };
-    bool _detectJump{ false };
-    bool _detectWaterWalk{ false };
-    bool _detectTelePlain{ false };
-    bool _detectSpeed{ false };
-    bool _detectClimb{ false };
-    bool _detectTeleport{ false };
-    bool _detectZaxis{ false };
+    bool _detectFly{};
+    bool _detectJump{};
+    bool _detectWaterWalk{};
+    bool _detectTelePlain{};
+    bool _detectSpeed{};
+    bool _detectClimb{};
+    bool _detectTeleport{};
+    bool _detectZaxis{};
+    bool _ignoreControlHack{};
+    bool _antiSwimHack{};
+    bool _detectGravityHack{};
+    bool _antiKnockBackHack{};
+    bool _noFallDamageHack{};
+    bool _detectBgStartHack{};
+    bool _opAckOrderHack{};
+
+    bool _stricterFlyHack{};
+    bool _stricterJumpHack{};
+
+    float _configFallDamage{};
 
     std::unordered_map<ObjectGuid, AnticheatData> _players;
+    TaskScheduler _scheduler;
 };
 
 #define sAnticheatMgr AnticheatMgr::instance()

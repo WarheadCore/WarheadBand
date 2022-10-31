@@ -50,6 +50,12 @@ Anticheat.Detect.ClimbHack      = 1
 Anticheat.Detect.TelePortHack   = 1
 Anticheat.Detect.ZaxisHack      = 1
 Anticheat.IgnoreControlHack     = 1
+Anticheat.AntiSwimHack          = 1
+Anticheat.DetectGravityHack     = 1
+Anticheat.AntiKnockBack         = 1
+Anticheat.NoFallDamage          = 1
+Anticheat.DetectBGStartHack     = 1
+Anticheat.OpAckOrderHack        = 0
 
 #
 #     Anticheat.StricterFlyHackCheck
@@ -59,6 +65,14 @@ Anticheat.IgnoreControlHack     = 1
 #
 
 Anticheat.StricterFlyHackCheck = 0
+
+#
+#     Anticheat.StricterDetectJumpHack
+#       Description: Checks Stricter moveflag jumping (may give false positives)
+#       Default:    0 - (Disabled)
+#                   1 - (Enabled)
+
+Anticheat.StricterDetectJumpHack = 0
 
 #
 #     Automatic Moderation Features
