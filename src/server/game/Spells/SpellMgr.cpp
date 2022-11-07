@@ -1148,7 +1148,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 if (!player)
                     return false;
 
-                if (!CONF_GET_BOOL("Wintergrasp.Enable"))
+                if (CONF_GET_UINT("Wintergrasp.Enable") != 1)
                     return false;
 
                 Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);

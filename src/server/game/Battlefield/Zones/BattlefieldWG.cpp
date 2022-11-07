@@ -55,7 +55,7 @@ bool BattlefieldWG::SetupBattlefield()
     InitStalker(BATTLEFIELD_WG_NPC_STALKER, WintergraspStalkerPos[0], WintergraspStalkerPos[1], WintergraspStalkerPos[2], WintergraspStalkerPos[3]);
 
     m_MaxPlayer = CONF_GET_INT("Wintergrasp.PlayerMax");
-    m_IsEnabled = CONF_GET_BOOL("Wintergrasp.Enable");
+    m_IsEnabled = CONF_GET_UINT("Wintergrasp.Enable") == 1;
     m_MinPlayer = CONF_GET_INT("Wintergrasp.PlayerMin");
     m_MinLevel = CONF_GET_INT("Wintergrasp.PlayerMinLvl");
     m_BattleTime = CONF_GET_INT("Wintergrasp.BattleTimer") * MINUTE * IN_MILLISECONDS;

@@ -6003,7 +6003,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
 
     _tavernAreaTriggerStore.clear();                          // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id FROM areatrigger_tavern");
+    QueryResult result = WorldDatabase.Query("SELECT id, faction FROM areatrigger_tavern");
 
     if (!result)
     {
@@ -6029,7 +6029,9 @@ void ObjectMgr::LoadTavernAreaTriggers()
             continue;
         }
 
-        _tavernAreaTriggerStore.insert(Trigger_ID);
+        uint32 faction         = fields[1].Get<uint32>();
+
+        _tavernAreaTriggerStore.emplace(Trigger_ID, faction);
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Tavern Triggers in {} ms", count, GetMSTimeDiffToNow(oldMSTime));

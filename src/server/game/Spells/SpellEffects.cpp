@@ -324,7 +324,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
         Unit::DealDamageMods(unitTarget, envDamage, &absorb);
         damage = envDamage;
 
-        m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo, damage, m_spellInfo->GetSchoolMask(), absorb, resist, false, 0, false);
+        m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo, damage, m_spellInfo->GetSchoolMask(), absorb, resist, false, 0);
     }
 }
 
@@ -5534,6 +5534,11 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         linkedTrap->SetOwnerGUID(m_caster->GetGUID());
 
         ExecuteLogEffectSummonObject(effIndex, linkedTrap);
+    }
+
+    if (Player* player = m_caster->ToPlayer())
+    {
+        player->SetCanTeleport(true);
     }
 }
 

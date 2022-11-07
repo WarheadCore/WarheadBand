@@ -135,6 +135,16 @@ Quest::Quest(Field* questRecord)
     }
 
     _eventIdForQuest = 0;
+
+    if (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT))
+    {
+        Flags &= ~QUEST_FLAGS_AUTO_ACCEPT;
+    }
+
+    if (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE))
+    {
+        Flags &= ~QUEST_FLAGS_AUTOCOMPLETE;
+    }
 }
 
 void Quest::LoadQuestDetails(Field* fields)
@@ -184,8 +194,10 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     RewardMailSenderEntry = fields[16].Get<uint32>();
     SpecialFlags = fields[17].Get<uint8>();
 
-    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
+    if ((SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT) && !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT))
+    {
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
+    }
 }
 
 uint32 Quest::XPValue(uint8 playerLevel) const
@@ -257,12 +269,12 @@ uint32 Quest::GetRewMoneyMaxLevel() const
 
 bool Quest::IsAutoAccept() const
 {
-    return CONF_GET_BOOL("Quests.IgnoreAutoAccept") ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);
+    return HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
 bool Quest::IsAutoComplete() const
 {
-    return CONF_GET_BOOL("Quests.IgnoreAutoComplete") ? false : HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
+    return HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const

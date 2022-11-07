@@ -199,8 +199,11 @@ public:
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo))
                 continue;
 
-            player->LearnTalent(talentInfo->TalentID, rankId);
+            player->LearnTalent(talentInfo->TalentID, rankId, true);
         }
+
+        player->SetFreeTalentPoints(0);
+        player->SendTalentsInfoData(false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
         return true;

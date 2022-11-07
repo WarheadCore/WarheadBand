@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "MapUpdater.h"
+#include "DatabaseEnv.h"
 #include "LFGMgr.h"
 #include "Map.h"
 #include "Metric.h"
@@ -143,6 +144,10 @@ void MapUpdater::update_finished()
 
 void MapUpdater::WorkerThread()
 {
+    LoginDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
+
     while (1)
     {
         UpdateRequest* request = nullptr;
