@@ -43,6 +43,7 @@
 #include "SharedDefines.h"
 #include "SignalHandlerMgr.h"
 #include "Util.h"
+#include "IpCache.h"
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <filesystem>
@@ -126,12 +127,15 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
+    // Load ip cache
+    sIPCacheMgr->Initialize(Warhead::ApplicationType::AuthServer);
+
     sSecretMgr->Initialize();
 
     // Load IP Location Database
     sIPLocation->Load();
-
-    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // Get the list of realms for the server
     sRealmList->Initialize(sConfigMgr->GetOption<int32>("RealmsStateUpdateDelay", 20));
@@ -201,6 +205,7 @@ bool StartDB()
         return false;
 
     LOG_INFO("server.authserver", "Started auth database connection pool.");
+    LOG_INFO("server.authserver", "");
     return true;
 }
 

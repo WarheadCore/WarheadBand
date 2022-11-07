@@ -28,7 +28,7 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "IPLocation.h"
-#include "IpInfoCache.h"
+#include "IpCache.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
 #include "Realm.h"
@@ -52,7 +52,9 @@ void WorldSocket::Start()
 {
     std::string ipAddress = GetRemoteIpAddress().to_string();
 
-    if (sIPInfoCacheMgr->CanCheckIpFromDB(ipAddress))
+    sIPCacheMgr->CheckIp(ipAddress);
+
+    if (sIPCacheMgr->CanCheckIpFromDB(ipAddress))
     {
         AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
         stmt->SetArguments(ipAddress);
@@ -60,10 +62,10 @@ void WorldSocket::Start()
         return;
     }
 
-    if (sIPInfoCacheMgr->IsIPBanned(ipAddress))
+    if (sIPCacheMgr->IsBanned(ipAddress))
     {
         SendAuthResponseError(AUTH_REJECT);
-        LOG_ERROR("network", "WorldSocket::Start: Sent Auth Response (IP {} banned).", ipAddress);
+        LOG_ERROR("network", "WorldSocket::Start: Client try login with ban ignore authserver. IP: {}", ipAddress);
         DelayedCloseSocket();
         return;
     }
@@ -79,9 +81,6 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
     // Not found ban info for this ip
     if (!result)
     {
-        // Update cache
-        sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
-
         AsyncRead();
         HandleSendAuthSession();
         return;
@@ -91,8 +90,8 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
     {
         if (row[0].Get<uint64>())
         {
-            // Update cache
-            sIPInfoCacheMgr->UpdateIPInfo(ipAddress, true);
+            // Set ban in cache
+            sIPCacheMgr->SetBannedForIP(ipAddress, Warhead::CheckIpType::LoginFlood);
 
             SendAuthResponseError(AUTH_REJECT);
             LOG_ERROR("network", "WorldSocket::CheckIpCallback: Sent Auth Response (IP {} banned).", GetRemoteIpAddress().to_string());
@@ -100,9 +99,6 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
             return;
         }
     }
-
-    // Update cache
-    sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
 
     AsyncRead();
     HandleSendAuthSession();
@@ -251,8 +247,7 @@ bool WorldSocket::ReadHeaderHandler()
         LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
             ipAddress, header->size, header->cmd);
 
-        sBan->BanIP(ipAddress, "5min", "World: Malformed packet", "System");
-        sIPInfoCacheMgr->UpdateIPInfo(ipAddress, true);
+        sIPCacheMgr->CheckIp(ipAddress, Warhead::CheckIpType::Malformed);
         return false;
     }
 
