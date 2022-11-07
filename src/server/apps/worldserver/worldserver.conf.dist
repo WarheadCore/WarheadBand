@@ -4188,6 +4188,14 @@ ExternalMail.Enable = 1
 ###################################################################################################
 #   IP CACHE SETTINGS
 #
+#    IPCache.Enable
+#        Description: Enable ip cache
+#        Default:     1
+#
+
+IPCache.Enable = 1
+
+#
 #    IPCache.Check.Delay
 #        Description: Delay in seconds for check ip from db and update cache
 #        Default:     60
@@ -4197,37 +4205,27 @@ IPCache.Check.Delay = 60
 
 #
 #    IPCache.Check.MaxCount
-#        Description: Max check count in period IPCache.Check.Delay
-#        Default:     10
+#        Description: Max check count for add ban (LoginFlood Malformed DDOS)
+#        Default:     "10 3 50"
 #
 
-IPCache.Check.MaxCount = 10
-
-#
-#    IPCache.Ban.Enable
-#        Description: Enable ban for login flood
-#        Default:     1
-#
-
-IPCache.Ban.Enable = 1
+IPCache.Check.MaxCount = "10 3 50"
 
 #
 #    IPCache.Ban.Enable
-#        Description: Ban duration in seconds
-#        Default:     300 (5 min)
+#        Description: Enable ban (LoginFlood Malformed DDOS)
+#        Default:     "1 1 1"
 #
 
-IPCache.Ban.Duration = 300
+IPCache.Ban.Enable = "1 1 1"
 
 #
 #    IPCache.Ban.Enable
-#        Description: DDOS ban duration in seconds (need WarheadDDOSGuard app for this ban)
-#        Default:     604800  (7 days)
-#                     2592000 (30 days)
-#                     0       (permanent)
+#        Description: Ban duration in seconds (LoginFlood Malformed DDOS)
+#        Default:     "300 300 604800"
 #
 
-IPCache.DDOSBan.Duration = 604800
+IPCache.Ban.Duration = "300 300 604800"
 ###################################################################################################
 
 ########################################

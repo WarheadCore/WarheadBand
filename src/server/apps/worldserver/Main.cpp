@@ -55,6 +55,7 @@
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include "DiscordChannel.h"
+#include "IpCache.h"
 #include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
@@ -267,6 +268,9 @@ int main(int argc, char** argv)
         return 1;
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
+    // Load ip cache
+    sIPCacheMgr->Initialize(Warhead::ApplicationType::WorldServer);
 
     // set server offline (not connectable)
     AuthDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);

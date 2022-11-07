@@ -1235,7 +1235,7 @@ void WorldSession::SendAddonsInfo()
         data.append(itr->NameMD5, sizeof(itr->NameMD5));
         data.append(itr->VersionMD5, sizeof(itr->VersionMD5));
         data << uint32(itr->Timestamp);
-        data << uint32(1);  // IsBanned
+        data << uint32(1);  // IsDefaultBanned
     }
 
     SendPacket(&data);

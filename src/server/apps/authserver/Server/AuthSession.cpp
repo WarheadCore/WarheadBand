@@ -25,8 +25,8 @@
 #include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
+#include "IpCache.h"
 #include "IPLocation.h"
-#include "IpInfoCache.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
@@ -174,7 +174,9 @@ void AuthSession::Start()
     std::string ipAddress = GetRemoteIpAddress().to_string();
     LOG_TRACE("session", "Accepted connection from {}", ipAddress);
 
-    if (sIPInfoCacheMgr->CanCheckIpFromDB(ipAddress))
+    sIPCacheMgr->CheckIp(ipAddress);
+
+    if (sIPCacheMgr->CanCheckIpFromDB(ipAddress))
     {
         AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
         stmt->SetArguments(ipAddress);
@@ -182,14 +184,14 @@ void AuthSession::Start()
         return;
     }
 
-    if (sIPInfoCacheMgr->IsIPBanned(ipAddress))
+    if (sIPCacheMgr->IsBanned(ipAddress))
     {
         ByteBuffer pkt;
         pkt << uint8(AUTH_LOGON_CHALLENGE);
         pkt << uint8(0x00);
         pkt << uint8(WOW_FAIL_BANNED);
         SendPacket(pkt);
-        LOG_DEBUG("session", "[AuthSession::Start] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
+        LOG_DEBUG("ipcache", "[AuthSession::Start] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
         return;
     }
 
@@ -211,9 +213,6 @@ void AuthSession::CheckIpCallback(PreparedQueryResult result)
 
     if (!result)
     {
-        // Update cache
-        sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
-
         AsyncRead();
         return;
     }
@@ -222,21 +221,18 @@ void AuthSession::CheckIpCallback(PreparedQueryResult result)
     {
         if (row[0].Get<uint64>())
         {
-            // Update cache
-            sIPInfoCacheMgr->UpdateIPInfo(ipAddress, true);
+            // Set ban in cache
+            sIPCacheMgr->SetBannedForIP(ipAddress, Warhead::CheckIpType::LoginFlood);
 
             ByteBuffer pkt;
             pkt << uint8(AUTH_LOGON_CHALLENGE);
             pkt << uint8(0x00);
             pkt << uint8(WOW_FAIL_BANNED);
             SendPacket(pkt);
-            LOG_DEBUG("session", "[AuthSession::CheckIpCallback] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
+            LOG_INFO("session", "[AuthSession::CheckIpCallback] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
             return;
         }
     }
-
-    // Update cache
-    sIPInfoCacheMgr->UpdateIPInfo(ipAddress);
 
     AsyncRead();
 }
@@ -257,8 +253,8 @@ void AuthSession::ReadHandler()
             // Ban this ip for malformed packet
             {
                 auto ipAddress{ GetRemoteIpAddress().to_string() };
-                LOG_WARN("session", "IP: {}. Try send malformed packet!", ipAddress);
-                sIPInfoCacheMgr->AddBanForIP(ipAddress, 5min, "Auth: Malformed packet");
+                LOG_WARN("session", "IP: {} sent malformed packet!", ipAddress);
+                sIPCacheMgr->CheckIp(ipAddress, Warhead::CheckIpType::Malformed);
             }
 
             CloseSocket();
@@ -614,7 +610,7 @@ bool AuthSession::HandleLogonProof()
             if (++_accountInfo.FailedLogins >= MaxWrongPassCount)
             {
                 uint32 WrongPassBanTime = sConfigMgr->GetOption<int32>("WrongPass.BanTime", 600);
-                bool WrongPassBanType = sConfigMgr->GetOption<bool>("WrongPass.BanType", false);
+                bool WrongPassBanType = sConfigMgr->GetOption<bool>("WrongPass.CheckIpType", false);
 
                 if (WrongPassBanType)
                 {
