@@ -298,7 +298,7 @@ void ObjectAccessor::RemoveObject(Player* player)
     PlayerNameMapHolder::Remove(player);
 }
 
-void ObjectAccessor::UpdatePlayerNameMapReference(std::string oldname, Player* player)
+void ObjectAccessor::UpdatePlayerNameMapReference(std::string const& oldname, Player* player)
 {
     PlayerNameMapHolder::RemoveByName(oldname);
     PlayerNameMapHolder::Insert(player);
