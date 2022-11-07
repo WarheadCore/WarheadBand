@@ -2379,12 +2379,6 @@ public:
         }
 
         sMute->UnMutePlayer(target->GetName());
-
-        if (playerTarget)
-        {
-            ChatHandler(playerTarget->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
-        }
-
         handler->PSendSysMessage(LANG_YOU_ENABLE_CHAT, handler->playerLink(target->GetName()));
 
         return true;
