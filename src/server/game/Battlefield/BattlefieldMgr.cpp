@@ -20,6 +20,7 @@
 
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
+#include "GameConfig.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
@@ -43,7 +44,7 @@ BattlefieldMgr* BattlefieldMgr::instance()
 
 void BattlefieldMgr::InitBattlefield()
 {
-    if (sWorld->getIntConfig(CONFIG_WINTERGRASP_ENABLE) == 2)
+    if (CONF_GET_UINT("Wintergrasp.Enable") == 2)
     {
         LOG_INFO("server.loading", "Battlefield: Wintergrasp is disabled.");
         LOG_INFO("server.loading", " ");

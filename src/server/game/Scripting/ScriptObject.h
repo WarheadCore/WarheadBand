@@ -444,16 +444,18 @@ public:
     virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
     // Called when Spell Damage is being Dealt
-    virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+    virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 
-    // Called when Heal is Recieved
-    virtual void ModifyHealRecieved(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+    // Called when Heal is Received
+    virtual void ModifyHealReceived(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 
     //Called when Damage is Dealt
     virtual uint32 DealDamage(Unit* /*AttackerUnit*/, Unit* /*pVictim*/, uint32 damage, DamageEffectType /*damagetype*/) { return damage; }
 
     virtual void OnBeforeRollMeleeOutcomeAgainst(Unit const* /*attacker*/, Unit const* /*victim*/, WeaponAttackType /*attType*/, int32& /*attackerMaxSkillValueForLevel*/,
         int32& /*victimMaxSkillValueForLevel*/, int32& /*attackerWeaponSkill*/, int32& /*victimDefenseSkill*/, int32& /*crit_chance*/, int32& /*miss_chance*/, int32& /*dodge_chance*/, int32& /*parry_chance*/, int32& /*block_chance*/) { };
+
+    virtual void OnAuraApply(Unit* /*unit*/, Aura* /*aura*/) { }
 
     virtual void OnAuraRemove(Unit* /*unit*/, AuraApplication* /*aurApp*/, AuraRemoveMode /*mode*/) { }
 
@@ -1198,6 +1200,9 @@ public:
 
     //After looting item
     virtual void OnLootItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, ObjectGuid /*lootguid*/) { }
+
+    //After looting item (includes master loot).
+    virtual void OnStoreNewItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
 
     //After creating item (eg profession item creation)
     virtual void OnCreateItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }

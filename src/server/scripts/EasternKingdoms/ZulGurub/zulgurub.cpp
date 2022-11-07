@@ -30,8 +30,8 @@ class spell_axe_flurry : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Acore::UnitAuraCheck(true, SPELL_AXE_FLURRY_STUN));
-        Acore::Containers::RandomResize(targets, 1);
+        targets.remove_if(Warhead::UnitAuraCheck(true, SPELL_AXE_FLURRY_STUN));
+        Warhead::Containers::RandomResize(targets, 1);
     }
 
     void HandleEffect(SpellEffIndex /*effIndex*/)

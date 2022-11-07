@@ -144,7 +144,7 @@ void MapUpdater::update_finished()
 
 void MapUpdater::WorkerThread()
 {
-    LoginDatabase.WarnAboutSyncQueries(true);
+    AuthDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
 
