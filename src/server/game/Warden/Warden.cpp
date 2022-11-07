@@ -22,7 +22,6 @@
 #include "AccountMgr.h"
 #include "BanMgr.h"
 #include "ByteBuffer.h"
-#include "Common.h"
 #include "CryptoHash.h"
 #include "GameConfig.h"
 #include "Log.h"
@@ -80,11 +79,11 @@ void Warden::RequestModule()
     LOG_DEBUG("warden", "Request module");
 
     // Create packet structure
-    WardenModuleUse request;
+    WardenModuleUse request{};
     request.Command = WARDEN_SMSG_MODULE_USE;
 
-    memcpy(request.ModuleId, _module->Id, 16);
-    memcpy(request.ModuleKey, _module->Key, 16);
+    memcpy(request.ModuleId, _module->Id.data(), _module->Id.size());
+    memcpy(request.ModuleKey, _module->Key.data(), _module->Key.size());
     request.Size = _module->CompressedSize;
 
     EndianConvert(request.Size);
@@ -166,9 +165,10 @@ union keyData
 
 uint32 Warden::BuildChecksum(const uint8* data, uint32 length)
 {
-    keyData hash;
+    keyData hash{};
     hash.bytes = Warhead::Crypto::SHA1::GetDigestOf(data, size_t(length));
     uint32 checkSum = 0;
+
     for (uint8 i = 0; i < 5; ++i)
     {
         checkSum = checkSum ^ hash.ints[i];
