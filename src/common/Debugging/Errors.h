@@ -23,7 +23,7 @@
 namespace Warhead
 {
     // Default function
-    [[noreturn]] WH_COMMON_API void Assert(std::string_view file, int line, std::string_view function, std::string_view debugInfo, std::string_view message, std::string_view fmtMessage = {});
+    [[noreturn]] WH_COMMON_API void Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, std::string_view fmtMessage = {});
     [[noreturn]] WH_COMMON_API void Abort(std::string_view file, int line, std::string_view function, std::string_view fmtMessage = {});
 
     template<typename... Args>

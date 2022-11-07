@@ -63,7 +63,7 @@ namespace
     * @param function Functionn name
     * @param message Condition to string format
     * @param fmtMessage [optional] Display format message after condition
-    * @param fmtMessage [optional] Display debug info
+    * @param debugInfo [optional] Display debug info
     */
     std::string MakeMessage(std::string_view messageType, std::string_view file, int line, std::string_view function,
         std::string_view message, std::string_view fmtMessage = {}, std::string_view debugInfo = {})
@@ -95,7 +95,7 @@ namespace
         std::string msg = Warhead::StringFormat("\n>> ABORTED\n\n# Location: {}:{}\n# Function: {}\n", file, line, function);
 
         if (!fmtMessage.empty())
-            msg.append(Warhead::StringFormat("# Message '{}'\n", fmtMessage));
+            msg.append(Warhead::StringFormat("# Message: {}\n", fmtMessage));
 
         return Warhead::StringFormat(
             "#{0:-^{2}}#\n"
@@ -104,17 +104,17 @@ namespace
     }
 }
 
-void Warhead::Assert(std::string_view file, int line, std::string_view function, std::string_view debugInfo, std::string_view message, std::string_view fmtMessage /*= {}*/)
+void Warhead::Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, std::string_view fmtMessage /*= {}*/)
 {
     std::string formattedMessage = MakeMessage("ASSERTION FAILED", file, line, function, message, fmtMessage, debugInfo);
-    fmt::print("{}", formattedMessage);
+    fmt::print(stderr, "{}", formattedMessage);
     Crash(formattedMessage.c_str())
 }
 
 void Warhead::Abort(std::string_view file, int line, std::string_view function, std::string_view fmtMessage /*= {}*/)
 {
     std::string formattedMessage = MakeAbortMessage(file, line, function, fmtMessage);
-    fmt::print("{}", formattedMessage);
+    fmt::print(stderr, "{}", formattedMessage);
     Crash(formattedMessage.c_str())
 }
 
@@ -122,7 +122,8 @@ void Warhead::AbortHandler(int sigval)
 {
     // nothing useful to log here, no way to pass args
     std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
-    fmt::print("{}", formattedMessage);
+    fmt::print(stderr, "{}", formattedMessage);
+    fflush(stderr);
     Crash(formattedMessage.c_str())
 }
 
