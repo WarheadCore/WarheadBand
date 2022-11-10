@@ -23,6 +23,7 @@
 */
 
 #include "World.h"
+#include "AsyncDBLoadMgr.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
@@ -555,6 +556,9 @@ void World::SetInitialWorldSettings()
 {
     ///- Server startup begin
     StopWatch sw;
+
+    // Init async db query
+    sAsyncDBLoadMgr->Initialize();
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime().count());

@@ -69,6 +69,8 @@ public:
 
     [[nodiscard]] inline MySQLConnectionInfo const* GetConnectionInfo() const { return _connectionInfo.get(); }
 
+    void Enqueue(AsyncOperation* operation);
+
     /**
         Delayed one-way statement methods.
     */
@@ -234,7 +236,7 @@ public:
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
     void InitPrepareStatement(MySQLConnection* connection);
-    void Enqueue(AsyncOperation* operation);
+
     unsigned long EscapeString(char* to, char const* from, unsigned long length);
     void AddTasks();
     void MakeExtraFile();

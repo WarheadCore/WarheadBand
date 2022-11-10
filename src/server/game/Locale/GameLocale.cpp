@@ -33,6 +33,7 @@
 #include "SpellMgr.h"
 #include "StopWatch.h"
 #include "World.h"
+#include "AsyncDBLoadMgr.h"
 
 namespace TimeDiff // in us
 {
@@ -111,7 +112,7 @@ bool GameLocale::LoadWarheadStrings()
 
     _warheadStringStore.clear(); // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, content_default, locale_koKR, locale_frFR, locale_deDE, locale_zhCN, locale_zhTW, locale_esES, locale_esMX, locale_ruRU FROM acore_string");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::WarheadStrings);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 warhead strings. DB table `warhead_strings` is empty.");
@@ -167,9 +168,7 @@ void GameLocale::LoadAchievementRewardLocales()
 
     _achievementRewardLocales.clear();                       // need for reload case
 
-    //                                               0   1       2        3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Text FROM achievement_reward_locale");
-
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::AchievementRewardLocales);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 achievement reward locale strings. DB table `achievement_reward_locale` is empty");
@@ -205,8 +204,7 @@ void GameLocale::LoadBroadcastTexts()
 
     _broadcastTextStore.clear(); // for reload case
 
-    //                                               0   1           2     3      4         5         6         7            8            9            10              11        12
-    QueryResult result = WorldDatabase.Query("SELECT ID, LanguageID, Text, Text1, EmoteID1, EmoteID2, EmoteID3, EmoteDelay1, EmoteDelay2, EmoteDelay3, SoundEntriesID, EmotesID, Flags FROM broadcast_text");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::BroadcastTexts);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
@@ -274,9 +272,7 @@ void GameLocale::LoadBroadcastTextLocales()
 {
     StopWatch sw;
 
-    //                                               0   1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text, Text1 FROM broadcast_text_locale");
-
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::BroadcastTextLocales);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");
@@ -315,8 +311,7 @@ void GameLocale::LoadCreatureLocales()
 
     _creatureLocaleStore.clear();                              // need for reload case
 
-    //                                               0      1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT entry, locale, Name, Title FROM creature_template_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::CreatureLocales);
     if (!result)
         return;
 
@@ -347,9 +342,7 @@ void GameLocale::LoadGossipMenuItemsLocales()
     StopWatch sw;
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
-    //                                               0       1            2       3           4
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
-
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::GossipMenuItemsLocales);
     if (!result)
         return;
 
@@ -381,8 +374,7 @@ void GameLocale::LoadGameObjectLocales()
     StopWatch sw;
     _gameObjectLocaleStore.clear(); // need for reload case
 
-    //                                               0      1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT entry, locale, name, castBarCaption FROM gameobject_template_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::GameObjectLocales);
     if (!result)
         return;
 
@@ -413,7 +405,7 @@ void GameLocale::LoadItemLocales()
     StopWatch sw;
     _itemLocaleStore.clear();                                 // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ItemLocales);
     if (!result)
         return;
 
@@ -444,7 +436,7 @@ void GameLocale::LoadItemSetNameLocales()
     StopWatch sw;
     _itemSetNameLocaleStore.clear();                                 // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM item_set_names_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ItemSetNameLocales);
     if (!result)
         return;
 
@@ -474,10 +466,7 @@ void GameLocale::LoadNpcTextLocales()
     StopWatch sw;
     _npcTextLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, "
-                         //   2        3        4        5        6        7        8        9        10       11       12       13       14       15       16       17
-                         "Text0_0, Text0_1, Text1_0, Text1_1, Text2_0, Text2_1, Text3_0, Text3_1, Text4_0, Text4_1, Text5_0, Text5_1, Text6_0, Text6_1, Text7_0, Text7_1 "
-                         "FROM npc_text_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::NpcTextLocales);
     if (!result)
         return;
 
@@ -511,8 +500,7 @@ void GameLocale::LoadPageTextLocales()
     StopWatch sw;
     _pageTextLocaleStore.clear();                             // need for reload case
 
-    //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text FROM page_text_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::PageTextLocales);
     if (!result)
         return;
 
@@ -541,8 +529,7 @@ void GameLocale::LoadPointOfInterestLocales()
     StopWatch sw;
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
-    //                                               0   1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::PointOfInterestLocales);
     if (!result)
         return;
 
@@ -571,8 +558,7 @@ void GameLocale::LoadQuestLocales()
     StopWatch sw;
     _questLocaleStore.clear();                                // need for reload case
 
-    //                                               0   1       2      3        4           5        6              7               8               9               10
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, EndText, CompletedText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4 FROM quest_template_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestLocales);
     if (!result)
         return;
 
@@ -608,8 +594,7 @@ void GameLocale::LoadQuestOfferRewardLocale()
     StopWatch sw;
     _questOfferRewardLocaleStore.clear(); // need for reload case
 
-    //                                               0     1          2
-    QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestOfferRewardLocale);
     if (!result)
         return;
 
@@ -638,8 +623,7 @@ void GameLocale::LoadQuestRequestItemsLocale()
     StopWatch sw;
     _questRequestItemsLocaleStore.clear(); // need for reload case
 
-    //                                               0     1          2
-    QueryResult result = WorldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestRequestItemsLocale);
     if (!result)
         return;
 
@@ -668,8 +652,7 @@ void GameLocale::LoadChatCommandsLocales()
     StopWatch sw;
     _chatCommandStringStore.clear(); // need for reload case
 
-    //                                                     0       1        2
-    QueryResult result = WorldDatabase.Query("SELECT `Command`, `Locale`, `Content` FROM commands_help_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ChatCommandsLocales);
     if (!result)
         return;
 
@@ -698,8 +681,7 @@ void GameLocale::LoadAutoBroadCastLocales()
     StopWatch sw;
     _autobroadLocaleStore.clear(); // need for reload case
 
-    //                                                 0          1       2
-    QueryResult result = AuthDatabase.Query("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm);
+    auto result{ AuthDatabase.Query("SELECT `ID`, `Locale`, `Text` FROM `autobroadcast_locale` WHERE `RealmID` = -1 OR RealmID = '{}'", realm.Id.Realm) };
     if (!result)
         return;
 
@@ -728,8 +710,7 @@ void GameLocale::LoadQuestGreetingLocales()
     StopWatch sw;
     _questGreetingLocaleStore.clear();                              // need for reload case
 
-    //                                               0     1      2       3
-    QueryResult result = WorldDatabase.Query("SELECT ID, Type, Locale, Greeting FROM quest_greeting_locale");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestGreetingLocales);
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 quest_greeting locales. DB table `quest_greeting_locale` is empty.");
@@ -884,7 +865,7 @@ void GameLocale::LoadRaceStrings()
 
     _raceStringStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, NameMale, NameFemale FROM `string_race`");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::RaceStrings);
     if (!result)
     {
         LOG_WARN("db.query", "> DB table `string_race` is empty");
@@ -915,7 +896,7 @@ void GameLocale::LoadClassStrings()
     StopWatch sw;
     _classStringStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, NameMale, NameFemale FROM `string_class`");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ClassStrings);
     if (!result)
     {
         LOG_WARN("db.query", "> DB table `string_class` is empty");
@@ -946,7 +927,7 @@ void GameLocale::LoadCommonStrings()
     StopWatch sw;
     _commonStringStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT `Entry`, `Locale`, `Content` FROM `string_warhead`");
+    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::CommonStrings);
     if (!result)
     {
         LOG_WARN("db.query", "> DB table `string_warhead` is empty");
