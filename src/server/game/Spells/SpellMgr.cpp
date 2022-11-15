@@ -38,6 +38,7 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "World.h"
+#include "DBCacheMgr.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1300,9 +1301,7 @@ void SpellMgr::LoadSpellRanks()
 
     uint32 oldMSTime = getMSTime();
 
-    //                                               0               1          2
-    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, `rank` from spell_ranks ORDER BY first_spell_id, `rank`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellRank) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
@@ -1316,7 +1315,7 @@ void SpellMgr::LoadSpellRanks()
     do
     {
         // spellid, rank
-        std::list < std::pair < int32, int32 > > rankChain;
+        std::list<std::pair<int32, int32>> rankChain;
         int32 currentSpell = -1;
         int32 lastSpell = -1;
 
@@ -1411,9 +1410,7 @@ void SpellMgr::LoadSpellRequired()
     mSpellsReqSpell.clear();                                   // need for reload case
     mSpellReq.clear();                                         // need for reload case
 
-    //                                                   0        1
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, req_spell from spell_required");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellRequired) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell required records. DB table `spell_required` is empty.");
@@ -1633,8 +1630,7 @@ void SpellMgr::LoadSpellGroups()
 
     mSpellGroupMap.clear();                                  // need for reload case
 
-    //                                                0     1            2
-    QueryResult result = WorldDatabase.Query("SELECT id, spell_id, special_flag FROM spell_group");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellGroup) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell group definitions. DB table `spell_group` is empty.");
@@ -1693,8 +1689,7 @@ void SpellMgr::LoadSpellGroupStackRules()
 
     mSpellGroupStackMap.clear();                                  // need for reload case
 
-    //                                                       0         1
-    QueryResult result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellGroupStackRules) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
@@ -1744,8 +1739,7 @@ void SpellMgr::LoadSpellProcEvents()
 
     mSpellProcEventMap.clear();                             // need for reload case
 
-    //                                                0      1           2                3                 4                 5                 6          7       8          9             10       11
-    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, procPhase, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProcEvent) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
@@ -1838,8 +1832,7 @@ void SpellMgr::LoadSpellProcs()
 
     mSpellProcMap.clear();                             // need for reload case
 
-    //                                                 0        1           2                3                 4                 5                 6          7              8              9         10              11             12      13        14
-    QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProc) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Spell Proc Conditions And Data. DB table `spell_proc` Is Empty.");
@@ -1986,8 +1979,7 @@ void SpellMgr::LoadSpellBonuses()
 
     mSpellBonusMap.clear();                             // need for reload case
 
-    //                                                0      1             2          3         4
-    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellBonusData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell bonus data. DB table `spell_bonus_data` is empty.");
@@ -2027,8 +2019,7 @@ void SpellMgr::LoadSpellThreats()
 
     mSpellThreatMap.clear();                                // need for reload case
 
-    //                                                0      1        2       3
-    QueryResult result = WorldDatabase.Query("SELECT entry, flatMod, pctMod, apPctMod FROM spell_threat");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellThreat) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
@@ -2068,8 +2059,7 @@ void SpellMgr::LoadSpellMixology()
 
     mSpellMixologyMap.clear();                                // need for reload case
 
-    //                                                0      1
-    QueryResult result = WorldDatabase.Query("SELECT entry, pctMod FROM spell_mixology");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellMixology) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 mixology bonuses. DB table `spell_mixology` is empty.");
@@ -2230,8 +2220,7 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
-    //                                                  0         1           2         3
-    QueryResult result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellEnchantProcData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
@@ -2253,7 +2242,7 @@ void SpellMgr::LoadSpellEnchantProcData()
             continue;
         }
 
-        SpellEnchantProcEntry spe;
+        SpellEnchantProcEntry spe{};
 
         spe.customChance = fields[1].Get<uint32>();
         spe.PPMChance = fields[2].Get<float>();
@@ -2787,8 +2776,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
     uint32 const customAttrTime = getMSTime();
     uint32 count;
 
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, attributes FROM spell_custom_attr");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellCustomAttr) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Spell Custom Attributes From DB. DB table `spell_custom_attr` Is Empty.");

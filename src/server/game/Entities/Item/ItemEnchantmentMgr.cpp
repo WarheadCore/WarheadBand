@@ -24,7 +24,8 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Util.h"
-#include <functional>
+#include "DBCacheMgr.h"
+//#include <functional>
 #include <vector>
 
 struct EnchStoreItem
@@ -50,8 +51,7 @@ void LoadRandomEnchantmentsTable()
 
     RandomItemEnch.clear();                                 // for reload case
 
-    //                                                 0      1      2
-    QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ItemEnchantmentTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");

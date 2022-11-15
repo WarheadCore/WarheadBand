@@ -39,6 +39,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldStatePackets.h"
+#include "DBCacheMgr.h"
 #include <ctime>
 
 GameEventMgr* GameEventMgr::instance()
@@ -1073,7 +1074,7 @@ uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 
 void GameEventMgr::Initialize()
 {
-    QueryResult result = WorldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventMaxEvent) };
     if (result)
     {
         auto fields = result->Fetch();

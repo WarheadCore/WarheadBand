@@ -29,6 +29,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Weather.h"
+#include "DBCacheMgr.h"
 #include <memory>
 
 namespace WeatherMgr
@@ -86,21 +87,15 @@ namespace WeatherMgr
     {
         uint32 oldMSTime = getMSTime();
 
-        uint32 count = 0;
-
-        QueryResult result = WorldDatabase.Query("SELECT "
-                             "zone, spring_rain_chance, spring_snow_chance, spring_storm_chance,"
-                             "summer_rain_chance, summer_snow_chance, summer_storm_chance,"
-                             "fall_rain_chance, fall_snow_chance, fall_storm_chance,"
-                             "winter_rain_chance, winter_snow_chance, winter_storm_chance,"
-                             "ScriptName FROM game_weather");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameWeather) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", "");
             return;
         }
+
+        uint32 count = 0;
 
         do
         {

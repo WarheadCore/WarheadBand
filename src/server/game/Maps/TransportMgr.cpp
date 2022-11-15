@@ -26,6 +26,7 @@
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "Transport.h"
+#include "DBCacheMgr.h"
 
 TransportTemplate::~TransportTemplate()
 {
@@ -57,8 +58,7 @@ void TransportMgr::LoadTransportTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::TransportTemplates) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 transport templates. DB table `gameobject_template` has no transports!");

@@ -33,7 +33,7 @@
 #include "SpellMgr.h"
 #include "StopWatch.h"
 #include "World.h"
-#include "AsyncDBLoadMgr.h"
+#include "DBCacheMgr.h"
 
 namespace TimeDiff // in us
 {
@@ -112,7 +112,7 @@ bool GameLocale::LoadWarheadStrings()
 
     _warheadStringStore.clear(); // for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::WarheadStrings);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::WarheadStrings);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 warhead strings. DB table `warhead_strings` is empty.");
@@ -168,7 +168,7 @@ void GameLocale::LoadAchievementRewardLocales()
 
     _achievementRewardLocales.clear();                       // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::AchievementRewardLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::AchievementRewardLocales);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 achievement reward locale strings. DB table `achievement_reward_locale` is empty");
@@ -204,7 +204,7 @@ void GameLocale::LoadBroadcastTexts()
 
     _broadcastTextStore.clear(); // for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::BroadcastTexts);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::BroadcastTexts);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 broadcast texts. DB table `broadcast_text` is empty.");
@@ -272,7 +272,7 @@ void GameLocale::LoadBroadcastTextLocales()
 {
     StopWatch sw;
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::BroadcastTextLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::BroadcastTextLocales);
     if (!result)
     {
         LOG_WARN("db.query", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");
@@ -311,7 +311,7 @@ void GameLocale::LoadCreatureLocales()
 
     _creatureLocaleStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::CreatureLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::CreatureLocales);
     if (!result)
         return;
 
@@ -342,7 +342,7 @@ void GameLocale::LoadGossipMenuItemsLocales()
     StopWatch sw;
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::GossipMenuItemsLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::GossipMenuItemsLocales);
     if (!result)
         return;
 
@@ -374,7 +374,7 @@ void GameLocale::LoadGameObjectLocales()
     StopWatch sw;
     _gameObjectLocaleStore.clear(); // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::GameObjectLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::GameObjectLocales);
     if (!result)
         return;
 
@@ -405,7 +405,7 @@ void GameLocale::LoadItemLocales()
     StopWatch sw;
     _itemLocaleStore.clear();                                 // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ItemLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::ItemLocales);
     if (!result)
         return;
 
@@ -436,7 +436,7 @@ void GameLocale::LoadItemSetNameLocales()
     StopWatch sw;
     _itemSetNameLocaleStore.clear();                                 // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ItemSetNameLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::ItemSetNameLocales);
     if (!result)
         return;
 
@@ -466,7 +466,7 @@ void GameLocale::LoadNpcTextLocales()
     StopWatch sw;
     _npcTextLocaleStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::NpcTextLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::NpcTextLocales);
     if (!result)
         return;
 
@@ -500,7 +500,7 @@ void GameLocale::LoadPageTextLocales()
     StopWatch sw;
     _pageTextLocaleStore.clear();                             // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::PageTextLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::PageTextLocales);
     if (!result)
         return;
 
@@ -529,7 +529,7 @@ void GameLocale::LoadPointOfInterestLocales()
     StopWatch sw;
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::PointOfInterestLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::PointOfInterestLocales);
     if (!result)
         return;
 
@@ -558,7 +558,7 @@ void GameLocale::LoadQuestLocales()
     StopWatch sw;
     _questLocaleStore.clear();                                // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::QuestLocales);
     if (!result)
         return;
 
@@ -594,7 +594,7 @@ void GameLocale::LoadQuestOfferRewardLocale()
     StopWatch sw;
     _questOfferRewardLocaleStore.clear(); // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestOfferRewardLocale);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::QuestOfferRewardLocale);
     if (!result)
         return;
 
@@ -623,7 +623,7 @@ void GameLocale::LoadQuestRequestItemsLocale()
     StopWatch sw;
     _questRequestItemsLocaleStore.clear(); // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestRequestItemsLocale);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::QuestRequestItemsLocale);
     if (!result)
         return;
 
@@ -652,7 +652,7 @@ void GameLocale::LoadChatCommandsLocales()
     StopWatch sw;
     _chatCommandStringStore.clear(); // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ChatCommandsLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::ChatCommandsLocales);
     if (!result)
         return;
 
@@ -710,7 +710,7 @@ void GameLocale::LoadQuestGreetingLocales()
     StopWatch sw;
     _questGreetingLocaleStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::QuestGreetingLocales);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::QuestGreetingLocales);
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 quest_greeting locales. DB table `quest_greeting_locale` is empty.");
@@ -865,7 +865,7 @@ void GameLocale::LoadRaceStrings()
 
     _raceStringStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::RaceStrings);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::RaceStrings);
     if (!result)
     {
         LOG_WARN("db.query", "> DB table `string_race` is empty");
@@ -896,7 +896,7 @@ void GameLocale::LoadClassStrings()
     StopWatch sw;
     _classStringStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::ClassStrings);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::ClassStrings);
     if (!result)
     {
         LOG_WARN("db.query", "> DB table `string_class` is empty");
@@ -927,7 +927,7 @@ void GameLocale::LoadCommonStrings()
     StopWatch sw;
     _commonStringStore.clear();                              // need for reload case
 
-    auto result = sAsyncDBLoadMgr->GetResult(AsyncDBTable::CommonStrings);
+    auto result = sDBCacheMgr->GetResult(DBCacheTable::CommonStrings);
     if (!result)
     {
         LOG_WARN("db.query", "> DB table `string_warhead` is empty");

@@ -25,6 +25,7 @@
 #include "MapMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "DBCacheMgr.h"
 
 Graveyard* Graveyard::instance()
 {
@@ -38,7 +39,7 @@ void Graveyard::LoadGraveyardFromDB()
 
     _graveyardStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Map, x, y, z, Comment FROM game_graveyard");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameGraveyard) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 graveyard. Table `game_graveyard` is empty!");

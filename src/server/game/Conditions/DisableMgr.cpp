@@ -32,6 +32,7 @@
 #include "Tokenize.h"
 #include "VMapMgr2.h"
 #include "World.h"
+#include "DBCacheMgr.h"
 
 namespace DisableMgr
 {
@@ -58,21 +59,20 @@ namespace DisableMgr
         uint32 oldMSTime = getMSTime();
 
         // reload case
-        for (DisableMap::iterator itr = m_DisableMap.begin(); itr != m_DisableMap.end(); ++itr)
-            itr->second.clear();
+        for (auto& itr : m_DisableMap)
+            itr.second.clear();
 
         m_DisableMap.clear();
 
-        QueryResult result = WorldDatabase.Query("SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
-
-        uint32 total_count = 0;
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::Disables) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 disables. DB table `disables` is empty!");
             LOG_INFO("server.loading", " ");
             return;
         }
+
+        uint32 total_count = 0;
 
         for (auto const& fields : *result)
         {

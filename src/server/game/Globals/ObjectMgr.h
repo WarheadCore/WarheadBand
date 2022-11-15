@@ -26,7 +26,6 @@
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "ItemTemplate.h"
-#include "Log.h"
 #include "Mail.h"
 #include "Map.h"
 #include "NPCHandler.h"
@@ -876,17 +875,7 @@ public:
 
     void LoadQuests();
     void LoadQuestMoneyRewards();
-    void LoadQuestStartersAndEnders()
-    {
-        LOG_INFO("server.loading", "Loading GO Start Quest Data...");
-        LoadGameobjectQuestStarters();
-        LOG_INFO("server.loading", "Loading GO End Quest Data...");
-        LoadGameobjectQuestEnders();
-        LOG_INFO("server.loading", "Loading Creature Start Quest Data...");
-        LoadCreatureQuestStarters();
-        LOG_INFO("server.loading", "Loading Creature End Quest Data...");
-        LoadCreatureQuestEnders();
-    }
+    void LoadQuestStartersAndEnders();
     void LoadGameobjectQuestStarters();
     void LoadGameobjectQuestEnders();
     void LoadCreatureQuestStarters();

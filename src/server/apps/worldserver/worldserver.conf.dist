@@ -3846,6 +3846,12 @@ LeaveGroupOnLogout.Enabled = 1
 ChangeFaction.MaxMoney = 0
 
 #
+#     DBCache.WaitAtAdd.Enable
+#        Description: Enable wait query at add in store
+#        Default:     0 - Disabled
+#
+
+DBCache.WaitAtAdd.Enable = 0
 ###################################################################################################
 
 ###################################################################################################

@@ -15,35 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WARHEAD_ASYNC_DB_LOAD_STRINGS_H_
-#define WARHEAD_ASYNC_DB_LOAD_STRINGS_H_
+#include "DBCacheMgr.h"
 
-#include "Define.h"
-
-enum class AsyncDBTable : std::size_t
+void DBCacheMgr::InitGameGraveyardStrings()
 {
-    WarheadStrings,
-    BroadcastTexts,
-    BroadcastTextLocales,
-    AchievementRewardLocales,
-    CreatureLocales,
-    GameObjectLocales,
-    ItemLocales,
-    ItemSetNameLocales,
-    NpcTextLocales,
-    PageTextLocales,
-    GossipMenuItemsLocales,
-    PointOfInterestLocales,
-    QuestLocales,
-    QuestOfferRewardLocale,
-    QuestRequestItemsLocale,
-    QuestGreetingLocales,
-    ChatCommandsLocales,
-    RaceStrings,
-    ClassStrings,
-    CommonStrings,
-
-    Max
-};
-
-#endif
+    _queryStrings.emplace(DBCacheTable::GameGraveyard, "SELECT ID, Map, x, y, z, Comment FROM game_graveyard");
+}

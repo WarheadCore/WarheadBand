@@ -23,7 +23,6 @@
 */
 
 #include "World.h"
-#include "AsyncDBLoadMgr.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
@@ -46,6 +45,7 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
+#include "DBCacheMgr.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
@@ -557,8 +557,8 @@ void World::SetInitialWorldSettings()
     ///- Server startup begin
     StopWatch sw;
 
-    // Init async db query
-    sAsyncDBLoadMgr->Initialize();
+    // Init db cache
+    sDBCacheMgr->Initialize();
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime().count());
