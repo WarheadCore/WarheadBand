@@ -46,6 +46,7 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
+#include "DBCacheMgr.h"
 
 namespace lfg
 {
@@ -118,11 +119,11 @@ namespace lfg
 
         for (LfgRewardContainer::iterator itr = RewardMapStore.begin(); itr != RewardMapStore.end(); ++itr)
             delete itr->second;
+
         RewardMapStore.clear();
 
         // ORDER BY is very important for GetRandomDungeonReward!
-        QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::LfgDungeonRewards) };
         if (!result)
         {
             LOG_ERROR("lfg", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
@@ -204,9 +205,7 @@ namespace lfg
         }
 
         // Fill teleport locations from DB
-        //                                                   0          1           2           3            4
-        QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation FROM lfg_dungeon_template");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::LfgDungeonTemplate) };
         if (!result)
         {
             LOG_ERROR("lfg", ">> Loaded 0 LFG Entrance Positions. DB Table `lfg_dungeon_template` Is Empty!");

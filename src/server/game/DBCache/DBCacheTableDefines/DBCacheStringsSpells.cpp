@@ -30,4 +30,8 @@ void DBCacheMgr::InitSpellsStrings()
     _queryStrings.emplace(DBCacheTable::SpellMixology, "SELECT entry, pctMod FROM spell_mixology");
     _queryStrings.emplace(DBCacheTable::SpellGroupStackRules, "SELECT group_id, stack_rule FROM spell_group_stack_rules");
     _queryStrings.emplace(DBCacheTable::SpellEnchantProcData, "SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    _queryStrings.emplace(DBCacheTable::SpellArea, "SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
+    _queryStrings.emplace(DBCacheTable::SpellPetAuras, "SELECT spell, effectId, pet, aura FROM spell_pet_auras");
+    _queryStrings.emplace(DBCacheTable::SpellTargetPosition, "SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
+    _queryStrings.emplace(DBCacheTable::SpellLinkedSpell, "SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
 }

@@ -35,7 +35,9 @@ public:
     void Initialize();
 
     void AddQuery(DBCacheTable index);
+    void AddQuery(PreparedStatement stmt);
     QueryResult GetResult(DBCacheTable index);
+    PreparedQueryResult GetPreparedResult(uint32 index);
 
 private:
     void InitializeDefines();
@@ -44,7 +46,6 @@ private:
     //
     void InitGameLocaleStrings();
     void InitGameEventStrings();
-    void InitGameGraveyardStrings();
     void InitSpellsStrings();
     void InitScriptStrings();
     void InitInstancesStrings();
@@ -55,6 +56,7 @@ private:
     void InitDisableStrings();
     void InitMiscStrings();
     void InitQuestStrings();
+    void InitPoolStrings();
 
     std::string_view GetStringQuery(DBCacheTable index);
 

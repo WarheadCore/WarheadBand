@@ -46,4 +46,6 @@ void DBCacheMgr::InitScriptStrings()
                                                      "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
                                                      "UNION "
                                                      "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
+
+    _queryStrings.emplace(DBCacheTable::AreatriggerScripts, "SELECT entry, ScriptName FROM areatrigger_scripts");
 }

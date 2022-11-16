@@ -1521,13 +1521,9 @@ void SpellMgr::LoadSpellLearnSkills()
 
 void SpellMgr::LoadSpellTargetPositions()
 {
-    uint32 oldMSTime = getMSTime();
-
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2        3         4           5            6
-    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellTargetPosition) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1535,16 +1531,16 @@ void SpellMgr::LoadSpellTargetPositions()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
-
         uint32 Spell_ID = fields[0].Get<uint32>();
+        auto effIndex = SpellEffIndex(fields[1].Get<uint8>());
 
-        SpellEffIndex effIndex = SpellEffIndex(fields[1].Get<uint8>());
-
-        SpellTargetPosition st;
+        SpellTargetPosition st{};
 
         st.target_mapId       = fields[2].Get<uint16>();
         st.target_X           = fields[3].Get<float>();
@@ -2112,12 +2108,9 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
 void SpellMgr::LoadSpellPetAuras()
 {
-    uint32 oldMSTime = getMSTime();
-
     mSpellPetAuraMap.clear();                                  // need for reload case
 
-    //                                                  0       1       2    3
-    QueryResult result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellPetAuras) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
@@ -2125,7 +2118,9 @@ void SpellMgr::LoadSpellPetAuras()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -2259,12 +2254,9 @@ void SpellMgr::LoadSpellEnchantProcData()
 
 void SpellMgr::LoadSpellLinked()
 {
-    uint32 oldMSTime = getMSTime();
-
     mSpellLinkedMap.clear();    // need for reload case
 
-    //                                                0              1             2
-    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellLinkedSpell) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
@@ -2272,7 +2264,9 @@ void SpellMgr::LoadSpellLinked()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -2287,6 +2281,7 @@ void SpellMgr::LoadSpellLinked()
             LOG_ERROR("db.query", "Spell {} listed in `spell_linked_spell` does not exist", std::abs(trigger));
             continue;
         }
+
         spellInfo = GetSpellInfo(std::abs(effect));
         if (!spellInfo)
         {
@@ -2301,8 +2296,8 @@ void SpellMgr::LoadSpellLinked()
             else
                 trigger -= SPELL_LINKED_MAX_SPELLS * type;
         }
-        mSpellLinkedMap[trigger].push_back(effect);
 
+        mSpellLinkedMap[trigger].push_back(effect);
         ++count;
     } while (result->NextRow());
 
@@ -2497,16 +2492,12 @@ void SpellMgr::LoadPetDefaultSpells()
 
 void SpellMgr::LoadSpellAreas()
 {
-    uint32 oldMSTime = getMSTime();
-
     mSpellAreaMap.clear();                                  // need for reload case
     mSpellAreaForQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
 
-    //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellArea) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
@@ -2514,13 +2505,15 @@ void SpellMgr::LoadSpellAreas()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
-
         uint32 spell = fields[0].Get<uint32>();
-        SpellArea spellArea;
+
+        SpellArea spellArea{};
         spellArea.spellId             = spell;
         spellArea.areaId              = fields[1].Get<uint32>();
         spellArea.questStart          = fields[2].Get<uint32>();

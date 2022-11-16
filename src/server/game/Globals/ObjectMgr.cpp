@@ -3095,21 +3095,18 @@ void ObjectMgr::LoadItemSetNames()
 
 void ObjectMgr::LoadVehicleTemplateAccessories()
 {
-    uint32 oldMSTime = getMSTime();
-
     _vehicleTemplateAccessoryStore.clear();                           // needed for reload case
 
-    uint32 count = 0;
-
-    //                                                  0             1              2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleTemplateAccessory) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 oldMSTime = getMSTime();
+    uint32 count = 0;
 
     do
     {
@@ -3151,21 +3148,19 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
 void ObjectMgr::LoadVehicleAccessories()
 {
-    uint32 oldMSTime = getMSTime();
-
     _vehicleAccessoryStore.clear();                           // needed for reload case
 
-    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
 
-    //                                                  0             1             2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleAccessory) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Vehicle Accessories in {} ms", GetMSTimeDiffToNow(oldMSTime));
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     do
     {
@@ -3195,11 +3190,7 @@ void ObjectMgr::LoadVehicleAccessories()
 
 void ObjectMgr::LoadPetLevelInfo()
 {
-    uint32 oldMSTime = getMSTime();
-
-    //                                                 0               1      2   3     4    5    6    7     8    9      10       11
-    QueryResult result = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PetLevelstats) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
@@ -3207,6 +3198,7 @@ void ObjectMgr::LoadPetLevelInfo()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -3336,10 +3328,7 @@ void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
     {
-        uint32 oldMSTime = getMSTime();
-        //                                                0     1      2    3        4          5           6
-        QueryResult result = WorldDatabase.Query("SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfo) };
         if (!result)
         {
             LOG_INFO("server.loading", " ");
@@ -3348,6 +3337,7 @@ void ObjectMgr::LoadPlayerInfo()
         }
         else
         {
+            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -5746,12 +5736,9 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
 void ObjectMgr::LoadQuestAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
-
     _questAreaTriggerStore.clear();                           // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id, quest FROM areatrigger_involvedrelation");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerInvolvedrelation) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 quest trigger points. DB table `areatrigger_involvedrelation` is empty.");
@@ -5759,6 +5746,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -5778,7 +5766,6 @@ void ObjectMgr::LoadQuestAreaTriggers()
         }
 
         Quest const* quest = GetQuestTemplate(quest_ID);
-
         if (!quest)
         {
             LOG_ERROR("db.query", "Table `areatrigger_involvedrelation` has record (id: {}) for not existing quest {}", trigger_ID, quest_ID);
@@ -5872,12 +5859,9 @@ void ObjectMgr::LoadQuestGreetings()
 
 void ObjectMgr::LoadTavernAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
-
     _tavernAreaTriggerStore.clear();                          // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id, faction FROM areatrigger_tavern");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerTavern) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 tavern triggers. DB table `areatrigger_tavern` is empty.");
@@ -5885,6 +5869,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -5913,11 +5898,9 @@ void ObjectMgr::LoadTavernAreaTriggers()
 
 void ObjectMgr::LoadAreaTriggerScripts()
 {
-    uint32 oldMSTime = getMSTime();
-
     _areaTriggerScriptStore.clear();                            // need for reload case
-    QueryResult result = WorldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
 
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerScripts) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Areatrigger Scripts. DB Table `areatrigger_scripts` Is Empty.");
@@ -5925,6 +5908,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -6053,12 +6037,9 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, TeamId teamId, bool allowed_a
 
 void ObjectMgr::LoadAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
-
     _areaTriggerStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, map, x, y, z, radius, length, width, height, orientation FROM areatrigger");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::Areatrigger) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 area trigger definitions. DB table `areatrigger` is empty.");
@@ -6066,6 +6047,7 @@ void ObjectMgr::LoadAreaTriggers()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -6102,13 +6084,9 @@ void ObjectMgr::LoadAreaTriggers()
 
 void ObjectMgr::LoadAreaTriggerTeleports()
 {
-    uint32 oldMSTime = getMSTime();
-
     _areaTriggerTeleportStore.clear();                                  // need for reload case
 
-    //                                               0        1              2                  3                  4                   5
-    QueryResult result = WorldDatabase.Query("SELECT ID,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerTeleport) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
@@ -6116,23 +6094,13 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
     {
         auto fields = result->Fetch();
-
-        ++count;
-
         uint32 Trigger_ID = fields[0].Get<uint32>();
-
-        AreaTriggerTeleport at;
-
-        at.target_mapId             = fields[1].Get<uint16>();
-        at.target_X                 = fields[2].Get<float>();
-        at.target_Y                 = fields[3].Get<float>();
-        at.target_Z                 = fields[4].Get<float>();
-        at.target_Orientation       = fields[5].Get<float>();
 
         AreaTrigger const* atEntry = GetAreaTrigger(Trigger_ID);
         if (!atEntry)
@@ -6140,6 +6108,13 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             LOG_ERROR("db.query", "Area trigger (ID:{}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
             continue;
         }
+
+        AreaTriggerTeleport at{};
+        at.target_mapId             = fields[1].Get<uint16>();
+        at.target_X                 = fields[2].Get<float>();
+        at.target_Y                 = fields[3].Get<float>();
+        at.target_Z                 = fields[4].Get<float>();
+        at.target_Orientation       = fields[5].Get<float>();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
         if (!mapEntry)
@@ -6155,6 +6130,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         }
 
         _areaTriggerTeleportStore[Trigger_ID] = at;
+        count++;
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Area Trigger Teleport Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -6309,7 +6285,7 @@ void ObjectMgr::LoadAccessRequirements()
         }
 
         //Sort all arrays for priority
-        auto sortFunction = [](const ProgressionRequirement* const a, const ProgressionRequirement* const b) {return a->priority > b->priority; };
+        auto sortFunction = [](const ProgressionRequirement* const a, const ProgressionRequirement* const b) { return a->priority > b->priority; };
         std::sort(ar->achievements.begin(), ar->achievements.end(), sortFunction);
         std::sort(ar->quests.begin(), ar->quests.end(), sortFunction);
         std::sort(ar->items.begin(), ar->items.end(), sortFunction);
@@ -6322,7 +6298,7 @@ void ObjectMgr::LoadAccessRequirements()
         _accessRequirementStore[mapid][difficulty] = ar;
     } while (access_template_result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Rows From dungeon_access_template And {} Rows From dungeon_access_requirements in {} ms", count, countProgressionRequirements, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} rows From dungeon_access_template And {} Rows From dungeon_access_requirements in {} ms", count, countProgressionRequirements, GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
 
@@ -6800,10 +6776,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 
 void ObjectMgr::LoadExplorationBaseXP()
 {
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ExplorationBasexp) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
@@ -6811,6 +6784,7 @@ void ObjectMgr::LoadExplorationBaseXP()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -6840,10 +6814,7 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 
 void ObjectMgr::LoadPetNames()
 {
-    uint32 oldMSTime = getMSTime();
-    //                                                0     1      2
-    QueryResult result = WorldDatabase.Query("SELECT word, entry, half FROM pet_name_generation");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PetNameGeneration) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 pet name parts. DB table `pet_name_generation` is empty!");
@@ -6851,6 +6822,7 @@ void ObjectMgr::LoadPetNames()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -6874,7 +6846,7 @@ void ObjectMgr::LoadPetNumber()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CharacterPetMaxId) };
     if (result)
     {
         auto fields = result->Fetch();
@@ -7300,12 +7272,9 @@ void ObjectMgr::LoadQuestPOI()
 
 void ObjectMgr::LoadNPCSpellClickSpells()
 {
-    uint32 oldMSTime = getMSTime();
-
     _spellClickInfoStore.clear();
-    //                                                0          1         2            3
-    QueryResult result = WorldDatabase.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
 
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcSpellClickSpells) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
@@ -7313,6 +7282,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8064,13 +8034,9 @@ bool ObjectMgr::DeleteGameTele(std::string_view name)
 
 void ObjectMgr::LoadMailLevelRewards()
 {
-    uint32 oldMSTime = getMSTime();
-
     _mailLevelRewardStore.clear();                           // for reload case
 
-    //                                                 0        1             2            3
-    QueryResult result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::MailLevelReward) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
@@ -8078,6 +8044,7 @@ void ObjectMgr::LoadMailLevelRewards()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -9220,12 +9187,9 @@ void ObjectMgr::SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint3
 
 void ObjectMgr::LoadMailServerTemplates()
 {
-    uint32 oldMSTime = getMSTime();
-
     _serverMailStore.clear(); // for reload case
 
-    //                                                    0     1           2              3         4         5        6             7       8             9          10      11
-    QueryResult result = CharacterDatabase.Query("SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::MailServerTemplate) };
     if (!result)
     {
         LOG_INFO("db.query", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");
@@ -9233,6 +9197,7 @@ void ObjectMgr::LoadMailServerTemplates()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     _serverMailStore.rehash(result->GetRowCount());
 
     do

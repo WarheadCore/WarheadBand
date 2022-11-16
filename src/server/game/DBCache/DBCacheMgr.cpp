@@ -112,7 +112,6 @@ void DBCacheMgr::InitializeDefines()
 
     InitGameLocaleStrings();
     InitGameEventStrings();
-    InitGameGraveyardStrings();
     InitSpellsStrings();
     InitScriptStrings();
     InitInstancesStrings();
@@ -123,4 +122,5 @@ void DBCacheMgr::InitializeDefines()
     InitDisableStrings();
     InitMiscStrings();
     InitQuestStrings();
+    InitPoolStrings();
 }

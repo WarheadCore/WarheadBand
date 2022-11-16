@@ -25,6 +25,7 @@
 #include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Transport.h"
+#include "DBCacheMgr.h"
 #include <sstream>
 
 ////////////////////////////////////////////////////////////
@@ -582,7 +583,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolTemplate) };
         if (!result)
         {
             mPoolTemplate.clear();
@@ -614,9 +615,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 1       2         3
-        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolCreature) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
@@ -672,9 +671,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 1        2         3
-        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_gameobject");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolGameobject) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
@@ -742,9 +739,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                  1        2            3
-        QueryResult result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolPool) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 pools in pools");
@@ -923,10 +918,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
-                             " LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry"
-                             " LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolObjects) };
         if (!result)
         {
             LOG_INFO("server.loading", ">> Pool handling system initialized, 0 pools spawned.");

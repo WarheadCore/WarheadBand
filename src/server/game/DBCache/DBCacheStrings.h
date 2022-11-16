@@ -45,10 +45,24 @@ enum class DBCacheTable : std::size_t
     CommonStrings,
 
     // Game event
+    GameEvent,
     GameEventMaxEvent,
-
-    // Game graveyard
-    GameGraveyard,
+    GameEventSave,
+    GameEventPrerequisite,
+    GameEventCreature,
+    GameEventGameobject,
+    GameEventModelEquip,
+    GameEventCreatureQuest,
+    GameEventGameobjectQuest,
+    GameEventQuestCondition,
+    GameEventCondition,
+    GameEventConditionSave,
+    GameEventNpcFlag,
+    GameEventSeasonalQuestrelation,
+    GameEventNpcVendor,
+    GameEventBattlegroundHoliday,
+    GameEventPool,
+    HolidayDates,
 
     // Spells
     SpellRank,
@@ -62,9 +76,14 @@ enum class DBCacheTable : std::size_t
     SpellMixology,
     SpellGroupStackRules,
     SpellEnchantProcData,
+    SpellArea,
+    SpellPetAuras,
+    SpellTargetPosition,
+    SpellLinkedSpell,
 
     // Scripts
     ScriptNames,
+    AreatriggerScripts,
 
     // Instances
     InstanceTemplate,
@@ -94,6 +113,7 @@ enum class DBCacheTable : std::size_t
     CreatureAddon,
     CreatureMovementOverride,
     CreatureQuestItem,
+    NpcSpellClickSpells,
 
     // GameObject
     Gameobject,
@@ -103,18 +123,42 @@ enum class DBCacheTable : std::size_t
     GameObjectQuestItem,
     TransportTemplates,
 
+    // Quest
+    QuestTemplate,
+    QuestPOI,
+    QuestGreeting,
+    QuestMoneyReward,
+
+    // Pool
+    PoolTemplate,
+    PoolCreature,
+    PoolGameobject,
+    PoolPool,
+    PoolObjects,
+
     // Misc
     ReputationRewardRate,
     ReputationSpilloverTemplate,
     PointsOfInterest,
     LinkedRespawn,
     GameWeather,
-
-    // Quest
-    QuestTemplate,
-    QuestPOI,
-    QuestGreeting,
-    QuestMoneyReward,
+    VehicleAccessory,
+    VehicleTemplateAccessory,
+    Areatrigger,
+    AreatriggerTeleport,
+    AreatriggerInvolvedrelation,
+    AreatriggerTavern,
+    LfgDungeonTemplate,
+    LfgDungeonRewards,
+    GraveyardZone,
+    GameGraveyard,
+    PlayerCreateInfo,
+    ExplorationBasexp,
+    PetNameGeneration,
+    CharacterPetMaxId,
+    PetLevelstats,
+    MailLevelReward,
+    MailServerTemplate,
 
     Max
 };

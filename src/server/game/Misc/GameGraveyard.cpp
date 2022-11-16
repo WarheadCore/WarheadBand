@@ -370,9 +370,7 @@ void Graveyard::LoadGraveyardZones()
 
     GraveyardStore.clear(); // need for reload case
 
-    //                                                0       1         2
-    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone, Faction FROM graveyard_zone");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GraveyardZone) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Graveyard-Zone Links. DB Table `graveyard_zone` Is Empty.");
