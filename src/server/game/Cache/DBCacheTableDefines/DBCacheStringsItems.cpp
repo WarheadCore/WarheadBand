@@ -36,6 +36,5 @@ void DBCacheMgr::InitItemStrings()
                                                       "TotemCategory, socketColor_1, socketContent_1, socketColor_2, socketContent_2, socketColor_3, socketContent_3, socketBonus, "
                                                       "GemProperties, RequiredDisenchantSkill, ArmorDamageModifier, duration, ItemLimitCategory, HolidayId, ScriptName, DisenchantID, "
                                                       "FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom FROM item_template");
-
     _queryStrings.emplace(DBCacheTable::ItemSetNames, "SELECT `entry`, `name`, `InventoryType` FROM `item_set_names`");
 }

@@ -19,7 +19,7 @@
 
 void DBCacheMgr::InitSpellsStrings()
 {
-    _queryStrings.emplace(DBCacheTable::SpellRank, "SELECT first_spell_id, spell_id, `rank` from spell_ranks ORDER BY first_spell_id, `rank`");
+    _queryStrings.emplace(DBCacheTable::SpellRanks, "SELECT first_spell_id, spell_id, `rank` from spell_ranks ORDER BY first_spell_id, `rank`");
     _queryStrings.emplace(DBCacheTable::SpellCustomAttr, "SELECT spell_id, attributes FROM spell_custom_attr");
     _queryStrings.emplace(DBCacheTable::SpellRequired, "SELECT spell_id, req_spell from spell_required");
     _queryStrings.emplace(DBCacheTable::SpellGroup, "SELECT id, spell_id, special_flag FROM spell_group");

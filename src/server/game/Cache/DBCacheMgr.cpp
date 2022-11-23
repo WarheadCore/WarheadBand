@@ -114,12 +114,10 @@ void DBCacheMgr::InitializeDefines()
     InitGameEventStrings();
     InitSpellsStrings();
     InitScriptStrings();
-    InitInstancesStrings();
     InitGossipStrings();
     InitGameObjectStrings();
     InitItemStrings();
     InitCreatureStrings();
-    InitDisableStrings();
     InitMiscStrings();
     InitQuestStrings();
     InitPoolStrings();

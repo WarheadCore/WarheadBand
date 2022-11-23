@@ -66,7 +66,7 @@ enum class DBCacheTable : std::size_t
     HolidayDates,
 
     // Spells
-    SpellRank,
+    SpellRanks,
     SpellCustomAttr,
     SpellRequired,
     SpellGroup,
@@ -85,11 +85,7 @@ enum class DBCacheTable : std::size_t
     // Scripts
     ScriptNames,
     AreatriggerScripts,
-    SpellScriptnames,
-
-    // Instances
-    InstanceTemplate,
-    InstanceEncounters,
+    SpellScriptNames,
 
     // Gossip
     NpcText,
@@ -97,15 +93,12 @@ enum class DBCacheTable : std::size_t
     GossipMenu,
     GossipMenuOption,
     NpcVendor,
-    TrainerSpell,
+    NpcTrainer,
 
     // Items
     ItemTemplate,
     ItemEnchantmentTemplate,
     ItemSetNames,
-
-    // Disables
-    Disables,
 
     // Creature
     Creature,
@@ -162,7 +155,6 @@ enum class DBCacheTable : std::size_t
     PlayerCreateInfo,
     ExplorationBasexp,
     PetNameGeneration,
-    CharacterPetMaxId,
     PetLevelstats,
     MailLevelReward,
     MailServerTemplate,
@@ -185,6 +177,9 @@ enum class DBCacheTable : std::size_t
     CalendarEvents,
     BattlegroundTemplate,
     OutdoorpvpTemplate,
+    Disables,
+    InstanceTemplate,
+    InstanceEncounters,
 
     Max
 };

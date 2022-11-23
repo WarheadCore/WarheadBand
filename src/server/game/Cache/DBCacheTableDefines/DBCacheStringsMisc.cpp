@@ -41,7 +41,6 @@ void DBCacheMgr::InitMiscStrings()
     _queryStrings.emplace(DBCacheTable::PlayerCreateInfo, "SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
     _queryStrings.emplace(DBCacheTable::ExplorationBasexp, "SELECT level, basexp FROM exploration_basexp");
     _queryStrings.emplace(DBCacheTable::PetNameGeneration, "SELECT word, entry, half FROM pet_name_generation");
-    _queryStrings.emplace(DBCacheTable::CharacterPetMaxId, "SELECT MAX(id) FROM character_pet");
     _queryStrings.emplace(DBCacheTable::PetLevelstats, "SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");
     _queryStrings.emplace(DBCacheTable::MailLevelReward, "SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
     _queryStrings.emplace(DBCacheTable::MailServerTemplate, "SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`");
@@ -65,5 +64,7 @@ void DBCacheMgr::InitMiscStrings()
     _queryStrings.emplace(DBCacheTable::CalendarEvents, "SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events");
     _queryStrings.emplace(DBCacheTable::BattlegroundTemplate, "SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
     _queryStrings.emplace(DBCacheTable::OutdoorpvpTemplate, "SELECT TypeId, ScriptName FROM outdoorpvp_template");
-
+    _queryStrings.emplace(DBCacheTable::Disables, "SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
+    _queryStrings.emplace(DBCacheTable::InstanceTemplate, "SELECT map, parent, script, allowMount FROM instance_template");
+    _queryStrings.emplace(DBCacheTable::InstanceEncounters, "SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
 }

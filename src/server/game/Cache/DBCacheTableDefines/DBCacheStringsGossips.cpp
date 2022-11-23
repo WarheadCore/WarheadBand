@@ -29,13 +29,12 @@ void DBCacheMgr::InitGossipStrings()
                                                  "text6_0, text6_1, BroadcastTextID6, lang6, Probability6, EmoteDelay6_0, Emote6_0, EmoteDelay6_1, Emote6_1, EmoteDelay6_2, Emote6_2, "
                                                  "text7_0, text7_1, BroadcastTextID7, lang7, Probability7, EmoteDelay7_0, Emote7_0, EmoteDelay7_1, Emote7_1, EmoteDelay7_2, Emote7_2 "
                                                  "FROM npc_text");
-
     _queryStrings.emplace(DBCacheTable::PageText, "SELECT ID, Text, NextPageID FROM page_text");
     _queryStrings.emplace(DBCacheTable::GossipMenu, "SELECT MenuID, TextID FROM gossip_menu");
     _queryStrings.emplace(DBCacheTable::GossipMenuOption, "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
                                                     "FROM gossip_menu_option ORDER BY MenuID, OptionID");
     _queryStrings.emplace(DBCacheTable::NpcVendor, "SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC, item, ExtendedCost");
-    _queryStrings.emplace(DBCacheTable::TrainerSpell, "SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.ReqLevel, a.ReqSpell FROM npc_trainer AS a "
+    _queryStrings.emplace(DBCacheTable::NpcTrainer, "SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.ReqLevel, a.ReqSpell FROM npc_trainer AS a "
                                                       "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
                                                       "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
 }

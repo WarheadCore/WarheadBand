@@ -6846,7 +6846,7 @@ void ObjectMgr::LoadPetNumber()
 {
     uint32 oldMSTime = getMSTime();
 
-    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CharacterPetMaxId) };
+    auto result{ CharacterDatabase.Query("SELECT MAX(id) FROM character_pet") };
     if (result)
     {
         auto fields = result->Fetch();
@@ -8174,7 +8174,7 @@ void ObjectMgr::LoadTrainerSpell()
     // For reload case
     _cacheTrainerSpellStore.clear();
 
-    auto result{ sDBCacheMgr->GetResult(DBCacheTable::TrainerSpell) };
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcTrainer) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Trainers. DB table `npc_trainer` is empty!");

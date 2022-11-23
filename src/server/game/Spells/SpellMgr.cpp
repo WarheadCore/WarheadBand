@@ -1301,7 +1301,7 @@ void SpellMgr::LoadSpellRanks()
 
     uint32 oldMSTime = getMSTime();
 
-    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellRank) };
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellRanks) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");

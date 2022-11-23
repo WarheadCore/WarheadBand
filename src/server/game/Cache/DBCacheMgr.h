@@ -48,12 +48,10 @@ private:
     void InitGameEventStrings();
     void InitSpellsStrings();
     void InitScriptStrings();
-    void InitInstancesStrings();
     void InitGossipStrings();
     void InitGameObjectStrings();
     void InitItemStrings();
     void InitCreatureStrings();
-    void InitDisableStrings();
     void InitMiscStrings();
     void InitQuestStrings();
     void InitPoolStrings();
