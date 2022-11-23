@@ -92,6 +92,12 @@ DatabaseWorkerPool::~DatabaseWorkerPool()
 {
     if (_scheduler)
         _scheduler->CancelAll();
+
+    if (_queue)
+        _queue->Cancel();
+
+    if (_thread)
+        _thread->join();
 }
 
 void DatabaseWorkerPool::SetConnectionInfo(std::string_view infoString)
@@ -469,37 +475,14 @@ TransactionCallback DatabaseWorkerPool::AsyncCommitTransaction(SQLTransaction tr
 
 void DatabaseWorkerPool::Enqueue(AsyncOperation* operation)
 {
-    auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
-    auto queueSize{ mostFreeConnection->GetQueueSize() };
-
-    if (!_isEnableDynamicConnections || queueSize < _maxQueueSize)
+    auto staticConnection{ _connections[IDX_ASYNC].front().get() };
+    if (!_isEnableDynamicConnections || staticConnection->GetQueueSize() < _maxQueueSize)
     {
-        mostFreeConnection->Enqueue(operation);
+        staticConnection->Enqueue(operation);
         return;
     }
 
-    std::lock_guard<std::mutex> guardCleanup(_cleanupMutex);
-    std::size_t allQueueSize{};
-
-    for (auto const& connection : _connections[IDX_ASYNC])
-    {
-        auto qSize{ connection->GetQueueSize() };
-        allQueueSize += qSize;
-
-        if (qSize >= queueSize)
-            continue;
-
-        mostFreeConnection = connection.get();
-        queueSize = qSize;
-    }
-
-    mostFreeConnection->Enqueue(operation);
-
-    if (queueSize > _maxQueueSize)
-    {
-        LOG_WARN("db.pool", "Queue overload. Size (current/max/total): {}/{}/{}. Pool name: {}. Connections size: {}", queueSize, _maxQueueSize, allQueueSize, _poolName, _connections[IDX_ASYNC].size());
-        OpenDynamicAsyncConnect();
-    }
+    _queue->Push(new AsyncEnqueue(operation));
 }
 
 void DatabaseWorkerPool::DirectCommitTransaction(SQLTransaction transaction)
@@ -651,7 +634,6 @@ void DatabaseWorkerPool::AddTasks()
     // Cleanup dynamic connections
     _scheduler->Schedule(10s, [this](TaskContext context)
     {
-//        LOG_DEBUG("db.connection", "Cleanup dynamic connections...");
         CleanupConnections();
         context.Repeat();
     });
@@ -701,4 +683,58 @@ void DatabaseWorkerPool::GetPoolInfo(std::function<void(std::string_view)> const
     auto allSize{ GetQueueSize() };
     for (auto const& connection : _connections[IDX_ASYNC])
         info(Warhead::StringFormat("Index: {}. Size: {}/{}", ++queueIndex, connection->GetQueueSize(), allSize));
+}
+
+void DatabaseWorkerPool::InitDynamicConnections()
+{
+    EnableDynamicConnections();
+    _queue = std::make_unique<ProducerConsumerQueue<AsyncEnqueue*>>();
+    _thread = std::make_unique<std::thread>([this](){ ExecuteAsyncQueue(); });
+}
+
+void DatabaseWorkerPool::ExecuteAsyncQueue()
+{
+    if (!_queue)
+        return;
+
+    for (;;)
+    {
+        AsyncEnqueue* task = nullptr;
+        _queue->WaitAndPop(task);
+
+        if (!task)
+            break;
+
+        std::lock_guard<std::mutex> guard(_cleanupMutex);
+        std::size_t allQueueSize{};
+
+        auto mostFreeConnection{ _connections[IDX_ASYNC].front().get() };
+        auto queueSize{ mostFreeConnection->GetQueueSize() };
+
+        for (auto const& connection : _connections[IDX_ASYNC])
+        {
+            auto qSize{ connection->GetQueueSize() };
+            allQueueSize += qSize;
+
+            if (qSize >= queueSize)
+                continue;
+
+            mostFreeConnection = connection.get();
+            queueSize = qSize;
+
+            // If found empty queue just use this connection
+            if (!qSize)
+                break;
+        }
+
+        mostFreeConnection->Enqueue(task->GetOperation());
+
+        if (queueSize > _maxQueueSize)
+        {
+            LOG_WARN("db.pool", "Queue overload. Size (current/max/total): {}/{}/{}. Pool name: {}. Connections size: {}", queueSize, _maxQueueSize, allQueueSize, _poolName, _connections[IDX_ASYNC].size());
+            OpenDynamicAsyncConnect();
+        }
+
+        delete task;
+    }
 }

@@ -19,6 +19,7 @@
 #define _DATABASE_ASYNC_OPERATION_H_
 
 #include "DatabaseEnvFwd.h"
+#include <functional>
 
 class WH_DATABASE_API AsyncOperation
 {
@@ -67,5 +68,21 @@ private:
     PreparedStatement _stmt;
     std::unique_ptr<PreparedQueryResultPromise> _result;
 };
+
+class WH_DATABASE_API AsyncEnqueue
+{
+public:
+    explicit AsyncEnqueue(AsyncOperation* operation) :
+        _operation(operation) { }
+
+    inline AsyncOperation* GetOperation() { return _operation; }
+
+private:
+    AsyncOperation* _operation;
+
+    AsyncEnqueue(AsyncEnqueue const& right) = delete;
+    AsyncEnqueue& operator=(AsyncEnqueue const& right) = delete;
+};
+
 
 #endif // _DATABASE_ASYNC_OPERATION_H_

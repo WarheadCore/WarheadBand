@@ -35,9 +35,7 @@ public:
     void Initialize();
 
     void AddQuery(DBCacheTable index);
-    void AddQuery(PreparedStatement stmt);
     QueryResult GetResult(DBCacheTable index);
-    PreparedQueryResult GetPreparedResult(uint32 index);
 
 private:
     void InitializeDefines();
@@ -60,6 +58,7 @@ private:
 
     std::unordered_map<DBCacheTable, QueryResultFuture> _queryList;
     std::unordered_map<DBCacheTable, std::string> _queryStrings;
+    bool _isEnableAsyncLoad{};
     bool _isEnableWaitAtAdd{};
 
     DBCacheMgr(DBCacheMgr const&) = delete;

@@ -1055,6 +1055,10 @@ uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 
 void GameEventMgr::Initialize()
 {
+    StopWatch sw;
+
+    LOG_INFO("server.loading", "Loading max event id...");
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventMaxEvent) };
     if (result)
     {
@@ -1076,6 +1080,9 @@ void GameEventMgr::Initialize()
         mGameEventNPCFlags.resize(maxEventId);
         mGameEventModelEquip.resize(maxEventId);
     }
+
+    LOG_INFO("server.loading", ">> Max event id loaded in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GameEventMgr::StartSystem()                           // return the next event delay in ms

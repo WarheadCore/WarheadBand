@@ -3847,6 +3847,14 @@ ChangeFaction.MaxMoney = 0
 
 #
 #     DBCache.WaitAtAdd.Enable
+#        Description: Enable async load database cache
+#        Default:     1 - Enabled
+#
+
+DBCache.AsyncLoad.Enable = 1
+
+#
+#     DBCache.WaitAtAdd.Enable
 #        Description: Enable wait query at add in store
 #        Default:     0 - Disabled
 #

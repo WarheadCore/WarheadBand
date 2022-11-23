@@ -33,6 +33,7 @@ void DBCacheMgr::Initialize()
 
     LOG_INFO("server.loading", "Initialize async db query list");
 
+    _isEnableAsyncLoad = CONF_GET_BOOL("DBCache.AsyncLoad.Enable");
     _isEnableWaitAtAdd = CONF_GET_BOOL("DBCache.WaitAtAdd.Enable");
 
     InitializeDefines();
@@ -44,9 +45,12 @@ void DBCacheMgr::Initialize()
 
 void DBCacheMgr::AddQuery(DBCacheTable index)
 {
+    if (!_isEnableAsyncLoad)
+        return;
+
     if (_queryList.contains(index))
     {
-        LOG_ERROR("db.async", "Query with index {} exist!");
+        LOG_ERROR("db.async", "Query with index {} exist!", AsUnderlyingType(index));
         return;
     }
 
@@ -69,6 +73,18 @@ void DBCacheMgr::AddQuery(DBCacheTable index)
 
 QueryResult DBCacheMgr::GetResult(DBCacheTable index)
 {
+    if (!_isEnableAsyncLoad)
+    {
+        auto sql{ GetStringQuery(index) };
+        if (sql.empty())
+        {
+            LOG_ERROR("db.async", "Empty string for index {}", AsUnderlyingType(index));
+            return nullptr;
+        }
+
+        return WorldDatabase.Query(sql);
+    }
+
     auto const& itr = _queryList.find(index);
     if (itr == _queryList.end())
     {
@@ -101,8 +117,148 @@ std::string_view DBCacheMgr::GetStringQuery(DBCacheTable index)
 
 void DBCacheMgr::InitializeQuery()
 {
-    for (std::size_t i{}; i < AsUnderlyingType(DBCacheTable::Max); i++)
-        AddQuery(static_cast<DBCacheTable>(i));
+    AddQuery(DBCacheTable::GameEventMaxEvent);
+    AddQuery(DBCacheTable::WarheadStrings);
+    AddQuery(DBCacheTable::GameGraveyard);
+    AddQuery(DBCacheTable::SpellRanks);
+    AddQuery(DBCacheTable::SpellCustomAttr);
+    AddQuery(DBCacheTable::ScriptNames);
+    AddQuery(DBCacheTable::InstanceTemplate);
+    AddQuery(DBCacheTable::BroadcastTexts);
+    AddQuery(DBCacheTable::BroadcastTextLocales);
+    AddQuery(DBCacheTable::AchievementRewardLocales);
+    AddQuery(DBCacheTable::CreatureLocales);
+    AddQuery(DBCacheTable::GameObjectLocales);
+    AddQuery(DBCacheTable::ItemLocales);
+    AddQuery(DBCacheTable::ItemSetNameLocales);
+    AddQuery(DBCacheTable::NpcTextLocales);
+    AddQuery(DBCacheTable::PageTextLocales);
+    AddQuery(DBCacheTable::GossipMenuItemsLocales);
+    AddQuery(DBCacheTable::PointOfInterestLocales);
+    AddQuery(DBCacheTable::QuestLocales);
+    AddQuery(DBCacheTable::QuestOfferRewardLocale);
+    AddQuery(DBCacheTable::QuestRequestItemsLocale);
+    AddQuery(DBCacheTable::QuestGreetingLocales);
+    AddQuery(DBCacheTable::ChatCommandsLocales);
+    AddQuery(DBCacheTable::RaceStrings);
+    AddQuery(DBCacheTable::ClassStrings);
+    AddQuery(DBCacheTable::CommonStrings);
+    AddQuery(DBCacheTable::PageText);
+    AddQuery(DBCacheTable::GameobjectTemplate);
+    AddQuery(DBCacheTable::GameobjectTemplateAddon);
+    AddQuery(DBCacheTable::TransportTemplates);
+    AddQuery(DBCacheTable::SpellRequired);
+    AddQuery(DBCacheTable::SpellGroup);
+    AddQuery(DBCacheTable::SpellProcEvent);
+    AddQuery(DBCacheTable::SpellProc);
+    AddQuery(DBCacheTable::SpellBonusData);
+    AddQuery(DBCacheTable::SpellThreat);
+    AddQuery(DBCacheTable::SpellMixology);
+    AddQuery(DBCacheTable::SpellGroupStackRules);
+    AddQuery(DBCacheTable::NpcText);
+    AddQuery(DBCacheTable::SpellEnchantProcData);
+    AddQuery(DBCacheTable::ItemEnchantmentTemplate);
+    AddQuery(DBCacheTable::Disables);
+    AddQuery(DBCacheTable::ItemTemplate);
+    AddQuery(DBCacheTable::ItemSetNames);
+    AddQuery(DBCacheTable::CreatureModelInfo);
+    AddQuery(DBCacheTable::CreatureTemplate);
+    AddQuery(DBCacheTable::CreatureEquipTemplate);
+    AddQuery(DBCacheTable::CreatureTemplateAddon);
+    AddQuery(DBCacheTable::ReputationRewardRate);
+    AddQuery(DBCacheTable::CreatureOnkillReputation);
+    AddQuery(DBCacheTable::ReputationSpilloverTemplate);
+    AddQuery(DBCacheTable::PointsOfInterest);
+    AddQuery(DBCacheTable::CreatureClassLevelStats);
+    AddQuery(DBCacheTable::Creature);
+    AddQuery(DBCacheTable::CreatureSummonGroups);
+    AddQuery(DBCacheTable::CreatureAddon);
+    AddQuery(DBCacheTable::CreatureMovementOverride);
+    AddQuery(DBCacheTable::Gameobject);
+    AddQuery(DBCacheTable::GameobjectAddon);
+    AddQuery(DBCacheTable::GameObjectQuestItem);
+    AddQuery(DBCacheTable::CreatureQuestItem);
+    AddQuery(DBCacheTable::LinkedRespawn);
+    AddQuery(DBCacheTable::GameWeather);
+    AddQuery(DBCacheTable::QuestTemplate);
+    AddQuery(DBCacheTable::QuestPOI);
+    AddQuery(DBCacheTable::QuestPOIPoints);
+    AddQuery(DBCacheTable::QuestGreeting);
+    AddQuery(DBCacheTable::QuestMoneyReward);
+    AddQuery(DBCacheTable::PoolTemplate);
+    AddQuery(DBCacheTable::PoolCreature);
+    AddQuery(DBCacheTable::PoolGameobject);
+    AddQuery(DBCacheTable::PoolPool);
+    AddQuery(DBCacheTable::PoolObjects);
+    AddQuery(DBCacheTable::HolidayDates);
+    AddQuery(DBCacheTable::GameEvent);
+    AddQuery(DBCacheTable::GameEventPrerequisite);
+    AddQuery(DBCacheTable::GameEventCreature);
+    AddQuery(DBCacheTable::GameEventGameobject);
+    AddQuery(DBCacheTable::GameEventModelEquip);
+    AddQuery(DBCacheTable::GameEventCreatureQuest);
+    AddQuery(DBCacheTable::GameEventGameobjectQuest);
+    AddQuery(DBCacheTable::GameEventQuestCondition);
+    AddQuery(DBCacheTable::GameEventCondition);
+    AddQuery(DBCacheTable::GameEventNpcFlag);
+    AddQuery(DBCacheTable::GameEventSeasonalQuestrelation);
+    AddQuery(DBCacheTable::GameEventNpcVendor);
+    AddQuery(DBCacheTable::GameEventBattlegroundHoliday);
+    AddQuery(DBCacheTable::GameEventPool);
+    AddQuery(DBCacheTable::NpcSpellClickSpells);
+    AddQuery(DBCacheTable::VehicleTemplateAccessory);
+    AddQuery(DBCacheTable::VehicleAccessory);
+    AddQuery(DBCacheTable::SpellArea);
+    AddQuery(DBCacheTable::Areatrigger);
+    AddQuery(DBCacheTable::AreatriggerTeleport);
+    AddQuery(DBCacheTable::AreatriggerInvolvedrelation);
+    AddQuery(DBCacheTable::AreatriggerTavern);
+    AddQuery(DBCacheTable::AreatriggerScripts);
+    AddQuery(DBCacheTable::LfgDungeonTemplate);
+    AddQuery(DBCacheTable::InstanceEncounters);
+    AddQuery(DBCacheTable::LfgDungeonRewards);
+    AddQuery(DBCacheTable::GraveyardZone);
+    AddQuery(DBCacheTable::SpellPetAuras);
+    AddQuery(DBCacheTable::SpellTargetPosition);
+    AddQuery(DBCacheTable::SpellLinkedSpell);
+    AddQuery(DBCacheTable::PlayerCreateInfo);
+    AddQuery(DBCacheTable::PlayerCreateInfoItem);
+    AddQuery(DBCacheTable::PlayerCreateInfoSkills);
+    AddQuery(DBCacheTable::PlayerCreateInfoSpellCustom);
+    AddQuery(DBCacheTable::PlayerCreateInfoCastSpell);
+    AddQuery(DBCacheTable::PlayerCreateInfoAction);
+    AddQuery(DBCacheTable::PlayerClassLevelStats);
+    AddQuery(DBCacheTable::PlayerLevelStats);
+    AddQuery(DBCacheTable::PlayerXpForLevel);
+    AddQuery(DBCacheTable::ExplorationBasexp);
+    AddQuery(DBCacheTable::PetNameGeneration);
+    AddQuery(DBCacheTable::PetLevelstats);
+    AddQuery(DBCacheTable::MailLevelReward);
+    AddQuery(DBCacheTable::SkillDiscoveryTemplate);
+    AddQuery(DBCacheTable::SkillExtraItemTemplate);
+    AddQuery(DBCacheTable::SkillPerfectItemTemplate);
+    AddQuery(DBCacheTable::SkillFishingBaseLevel);
+    AddQuery(DBCacheTable::AchievementCriteriaData);
+    AddQuery(DBCacheTable::AchievementReward);
+    AddQuery(DBCacheTable::BattlemasterEntry);
+    AddQuery(DBCacheTable::GameTele);
+    AddQuery(DBCacheTable::GossipMenu);
+    AddQuery(DBCacheTable::GossipMenuOption);
+    AddQuery(DBCacheTable::NpcVendor);
+    AddQuery(DBCacheTable::NpcTrainer);
+    AddQuery(DBCacheTable::WaypointData);
+    AddQuery(DBCacheTable::CreatureFormations);
+    AddQuery(DBCacheTable::Conditions);
+    AddQuery(DBCacheTable::PlayerFactionchangeAchievement);
+    AddQuery(DBCacheTable::PlayerFactionchangeSpells);
+    AddQuery(DBCacheTable::PlayerFactionchangeItems);
+    AddQuery(DBCacheTable::PlayerFactionchangeReputations);
+    AddQuery(DBCacheTable::PlayerFactionchangeTitles);
+    AddQuery(DBCacheTable::PlayerFactionchangeQuest);
+    AddQuery(DBCacheTable::SpellScriptNames);
+    AddQuery(DBCacheTable::CreatureTextLocale);
+    AddQuery(DBCacheTable::BattlegroundTemplate);
+    AddQuery(DBCacheTable::OutdoorpvpTemplate);
 }
 
 void DBCacheMgr::InitializeDefines()

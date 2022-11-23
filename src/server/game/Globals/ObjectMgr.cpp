@@ -6347,6 +6347,11 @@ AreaTriggerTeleport const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 
 void ObjectMgr::SetHighestGuids()
 {
+    StopWatch sw;
+
+    LOG_INFO("server.loading", "");
+    LOG_INFO("server.loading", "Set highest guids...");
+
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
         GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].Get<uint32>() + 1);
@@ -6396,6 +6401,9 @@ void ObjectMgr::SetHighestGuids()
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
         _gameObjectSpawnId = (*result)[0].Get<uint32>() + 1;
+
+    LOG_INFO("server.loading", "Highest guids loaded in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6405,6 +6413,7 @@ uint32 ObjectMgr::GenerateAuctionID()
         LOG_ERROR("server.worldserver", "Auctions ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
+
     return _auctionId++;
 }
 

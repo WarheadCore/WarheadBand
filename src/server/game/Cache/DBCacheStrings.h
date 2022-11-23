@@ -22,6 +22,24 @@
 
 enum class DBCacheTable : std::size_t
 {
+    // Game event
+    GameEvent,
+    GameEventMaxEvent,
+    GameEventPrerequisite,
+    GameEventCreature,
+    GameEventGameobject,
+    GameEventModelEquip,
+    GameEventCreatureQuest,
+    GameEventGameobjectQuest,
+    GameEventQuestCondition,
+    GameEventCondition,
+    GameEventNpcFlag,
+    GameEventSeasonalQuestrelation,
+    GameEventNpcVendor,
+    GameEventBattlegroundHoliday,
+    GameEventPool,
+    HolidayDates,
+
     // Game locale
     WarheadStrings,
     BroadcastTexts,
@@ -44,24 +62,6 @@ enum class DBCacheTable : std::size_t
     ClassStrings,
     CommonStrings,
     CreatureTextLocale,
-
-    // Game event
-    GameEvent,
-    GameEventMaxEvent,
-    GameEventPrerequisite,
-    GameEventCreature,
-    GameEventGameobject,
-    GameEventModelEquip,
-    GameEventCreatureQuest,
-    GameEventGameobjectQuest,
-    GameEventQuestCondition,
-    GameEventCondition,
-    GameEventNpcFlag,
-    GameEventSeasonalQuestrelation,
-    GameEventNpcVendor,
-    GameEventBattlegroundHoliday,
-    GameEventPool,
-    HolidayDates,
 
     // Spells
     SpellRanks,

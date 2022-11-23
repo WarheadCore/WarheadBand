@@ -529,6 +529,7 @@ void World::LoadConfigSettings(bool reload)
 
     if (!reload)
     {
+        LOG_INFO("server.loading", "");
         LOG_INFO("server.loading", "Loading data configurations...");
         LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
         LOG_INFO("server.loading", "");
@@ -537,6 +538,7 @@ void World::LoadConfigSettings(bool reload)
         LOG_INFO("server.loading", "> Get Height:           {}", enableHeight);
         LOG_INFO("server.loading", "> Indoor Check:         {}", enableIndoor);
         LOG_INFO("server.loading", "> Pet LOS:              {}", enablePetLOS);
+        LOG_INFO("server.loading", "");
     }
 
     if (reload)
@@ -604,7 +606,6 @@ void World::SetInitialWorldSettings()
     sGameEventMgr->Initialize();
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
-    LOG_INFO("server", " ");
     LOG_INFO("server", "Loading Warhead strings...");
     if (!sGameLocale->LoadWarheadStrings())
         exit(1);                                            // Error message displayed in function already

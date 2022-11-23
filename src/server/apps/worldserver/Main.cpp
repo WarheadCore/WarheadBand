@@ -431,15 +431,15 @@ bool StartDB()
     sDatabaseMgr->AddDatabase(WorldDatabase, "World");
     sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc");
 
+    if (!sDatabaseMgr->Load())
+        return false;
+
     // Enable dynamic connections
     if (!sConfigMgr->isDryRun())
     {
-        CharacterDatabase.EnableDynamicConnections();
-        WorldDatabase.EnableDynamicConnections();
+        CharacterDatabase.InitDynamicConnections();
+        WorldDatabase.InitDynamicConnections();
     }
-
-    if (!sDatabaseMgr->Load())
-        return false;
 
     ///- Get the realm Id from the configuration file
     realm.Id.Realm = sConfigMgr->GetOption<uint32>("RealmID", 0);
