@@ -40,10 +40,6 @@ enum Spells
     BG_SPELL_DESERTER = 26013
 };
 
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 using namespace Warhead::ChatCommands;
 
 class deserter_commandscript : public CommandScript
@@ -329,7 +325,7 @@ public:
     static bool HandleDeserterRemoveAll(ChatHandler* handler, bool isInstance, Optional<std::string_view> maxTime)
     {
         uint32 deserterSpell = isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER;
-        Seconds remainTime = isInstance ? 1800s : 900s;
+        Seconds remainTime = 30min;
         uint64 deserterCount = 0;
         bool countOnline = true;
 

@@ -28,7 +28,12 @@
 #include "WardenModuleMac.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include <openssl/md5.h>
+
+WardenMac::WardenMac() : Warden()
+{
+}
+
+WardenMac::~WardenMac() = default;
 
 void WardenMac::Init(WorldSession* pClient, SessionKey const& K)
 {

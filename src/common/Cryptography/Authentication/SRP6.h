@@ -67,7 +67,7 @@ namespace Warhead::Crypto
         static BigNumber const _g; // a [g]enerator for the ring of integers mod N, algorithm parameter
         static BigNumber const _N; // the modulus, an algorithm parameter; all operations are mod this
 
-        static EphemeralKey _B(BigNumber const& b, BigNumber const& v) { return ((_g.ModExp(b,_N) + (v * 3)) % N).ToByteArray<EPHEMERAL_KEY_LENGTH>(); }
+        static EphemeralKey _B(BigNumber const& b, BigNumber const& v) { return ((_g.ModExp(b, _N) + (v * 3)) % N).ToByteArray<EPHEMERAL_KEY_LENGTH>(); }
 
         /* per-instantiation parameters, set on construction */
         SHA1::Digest const _I; // H(I) - the username, all uppercase

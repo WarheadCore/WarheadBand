@@ -96,8 +96,7 @@ public:
             { "idlerestart",  serverIdleRestartCommandTable },
             { "idleshutdown", serverIdleShutdownCommandTable },
             { "info",         HandleServerInfoCommand,           SEC_PLAYER,        Console::Yes },
-            { "motd",         HandleServerMotdCommand,           SEC_PLAYER,        Console::Yes },
-            { "async",        HandleServerAsyncCommand,          SEC_ADMINISTRATOR,        Console::Yes },
+            { "motd",         HandleServerMotdCommand,           SEC_PLAYER,        Console::Yes },            
             { "restart",      serverRestartCommandTable },
             { "shutdown",     serverShutdownCommandTable },
             { "set",          serverSetCommandTable }
@@ -109,14 +108,6 @@ public:
         };
 
         return commandTable;
-    }
-
-    static bool HandleServerAsyncCommand(ChatHandler* /*handler*/, uint8 size)
-    {
-        for (uint8 i{}; i < size; i++)
-            CharacterDatabase.OpenDynamicAsyncConnect();
-
-        return true;
     }
 
     // Triggering corpses expire check in world
@@ -150,7 +141,7 @@ public:
 
         handler->PSendSysMessage("Compiled on: {}", GitRevision::GetHostOSVersion());
 
-        handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, worldPort);
+        handler->PSendSysMessage("Worldserver listening connections on port {}" PRIu16, worldPort);
         handler->PSendSysMessage("{}", dbPortOutput);
 
         bool vmapIndoorCheck = CONF_GET_BOOL("vmap.enableIndoorCheck");

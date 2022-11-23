@@ -53,8 +53,8 @@ using SRP6 = Warhead::Crypto::SRP6;
 /*static*/ SessionKey SRP6::SHA1Interleave(SRP6::EphemeralKey const& S)
 {
     // split S into two buffers
-    std::array<uint8, EPHEMERAL_KEY_LENGTH/2> buf0, buf1;
-    for (size_t i = 0; i < EPHEMERAL_KEY_LENGTH/2; ++i)
+    std::array<uint8, EPHEMERAL_KEY_LENGTH / 2> buf0{}, buf1{};
+    for (size_t i = 0; i < EPHEMERAL_KEY_LENGTH / 2; ++i)
     {
         buf0[i] = S[2 * i + 0];
         buf1[i] = S[2 * i + 1];

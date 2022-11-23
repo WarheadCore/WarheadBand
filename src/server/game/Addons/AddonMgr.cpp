@@ -20,10 +20,10 @@
 
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
+#include "CryptoHash.h"
 #include "Log.h"
 #include "StopWatch.h"
 #include <list>
-#include <openssl/md5.h>
 
 namespace AddonMgr
 {
@@ -75,16 +75,12 @@ namespace AddonMgr
             for (auto const& row : *result)
             {
                 BannedAddon addon{};
-                addon.Id = row[0].Get<uint32>() + offset;
-                addon.Timestamp = uint32(row[3].Get<uint64>());
+                addon.Id = fields[0].Get<uint32>() + offset;
+                addon.Timestamp = uint32(fields[3].Get<uint64>());
+                addon.NameMD5 = Warhead::Crypto::MD5::GetDigestOf(fields[1].Get<std::string>());
+                addon.VersionMD5 = Warhead::Crypto::MD5::GetDigestOf(fields[2].Get<std::string>());
 
-                std::string name = row[1].Get<std::string>();
-                std::string version = row[2].Get<std::string>();
-
-                MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
-                MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
-
-                m_bannedAddons.push_back(addon);
+                m_bannedAddons.emplace_back(addon);
 
                 ++count2;
             } while (result->NextRow());

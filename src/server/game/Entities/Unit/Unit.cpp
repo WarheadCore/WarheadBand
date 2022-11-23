@@ -16682,11 +16682,29 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, std::list<AuraAppli
 Player* Unit::GetSpellModOwner() const
 {
     if (Player* player = const_cast<Unit*>(this)->ToPlayer())
+    {
         return player;
+    }
 
     if (Unit* owner = GetOwner())
+    {
         if (Player* player = owner->ToPlayer())
+        {
             return player;
+        }
+    }
+
+    // Special handling for Eye of Kilrogg
+    if (GetEntry() == NPC_EYE_OF_KILROGG)
+    {
+        if (TempSummon const* tempSummon = ToTempSummon())
+        {
+            if (Unit* summoner = tempSummon->GetSummonerUnit())
+            {
+                return summoner->ToPlayer();
+            }
+        }
+    }
 
     return nullptr;
 }
@@ -18132,6 +18150,15 @@ void Unit::SetControlled(bool apply, UnitState state)
                 SetStunned(false);
                 break;
             case UNIT_STATE_ROOT:
+                // Prevent creature_template_movement rooted flag from being removed on aura expiration.
+                if (GetTypeId() == TYPEID_UNIT)
+                {
+                    if (ToCreature()->GetCreatureTemplate()->Movement.Rooted)
+                    {
+                        return;
+                    }
+                }
+
                 if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
                     return;
                 ClearUnitState(state);
@@ -18172,6 +18199,11 @@ void Unit::SetControlled(bool apply, UnitState state)
 
 void Unit::SetStunned(bool apply)
 {
+    if (HasUnitState(UNIT_STATE_IN_FLIGHT))
+    {
+        return;
+    }
+
     if (apply)
     {
         SetTarget();
@@ -19955,7 +19987,8 @@ void Unit::BuildMovementPacket(ByteBuffer* data) const
 
 bool Unit::IsFalling() const
 {
-    return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
+    return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) ||
+        (!movespline->Finalized() && movespline->Initialized() && movespline->isFalling());
 }
 
 /**

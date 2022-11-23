@@ -31,7 +31,7 @@ void AuthCrypt::Init(SessionKey const& K)
     _clientDecrypt.Init(Warhead::Crypto::HMAC_SHA1::GetDigestOf(ServerDecryptionKey, K));
 
     // Drop first 1024 bytes, as WoW uses ARC4-drop1024.
-    std::array<uint8, 1024> syncBuf;
+    std::array<uint8, 1024> syncBuf{};
     _serverEncrypt.UpdateData(syncBuf);
     _clientDecrypt.UpdateData(syncBuf);
 

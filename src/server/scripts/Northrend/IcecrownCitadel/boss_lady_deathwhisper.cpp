@@ -308,7 +308,7 @@ public:
                     Unit* unit = ObjectAccessor::GetUnit((*me), (*itr)->getUnitGuid());
 
                     if (unit && DoGetThreat(unit))
-                        DoModifyThreatPercent(unit, -100);
+                        DoModifyThreatByPercent(unit, -100);
                 }
 
                 Talk(SAY_PHASE_2);

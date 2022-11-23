@@ -182,7 +182,7 @@ public:
                                 {
                                     if (!target->IsWithinMeleeRange(me))
                                     {
-                                        _thousandBladesTargets.push_back(target);
+                                        _thousandBladesTargets.push_back(target->GetGUID());
                                     }
                                 }
 
@@ -193,7 +193,7 @@ public:
                                     {
                                         if (target->IsWithinMeleeRange(me))
                                         {
-                                            _thousandBladesTargets.push_back(target);
+                                            _thousandBladesTargets.push_back(target->GetGUID());
                                         }
                                     }
                                 }
@@ -207,12 +207,12 @@ public:
 
                         if (!_thousandBladesTargets.empty())
                         {
-                            std::vector<Unit*>::iterator itr = _thousandBladesTargets.begin();
+                            GuidVector::iterator itr = _thousandBladesTargets.begin();
                             std::advance(itr, urand(0, _thousandBladesTargets.size() - 1));
 
-                            if (Unit* target = *itr)
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, *itr))
                             {
-                                DoCast(target, SPELL_THOUSAND_BLADES, false);
+                                DoCast(target, SPELL_THOUSAND_BLADES);
                             }
 
                             if (_thousandBladesTargets.erase(itr) != _thousandBladesTargets.end())
@@ -245,7 +245,7 @@ public:
         bool _enraged;
         uint32 _dynamicFlags;
         uint8 _thousandBladesCount;
-        std::vector<Unit*> _thousandBladesTargets;
+        GuidVector _thousandBladesTargets;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

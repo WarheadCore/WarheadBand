@@ -135,8 +135,8 @@ namespace Warhead::Impl
             Digest const& GetDigest() const { return _digest; }
 
         private:
-            EVP_MD_CTX* _ctx;
-            Digest _digest = { };
+            EVP_MD_CTX* _ctx{};
+            Digest _digest{};
     };
 }
 

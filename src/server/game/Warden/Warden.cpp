@@ -30,7 +30,6 @@
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include <sstream>
 
 Warden::Warden() : _session(nullptr), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
     _dataSent(false), _module(nullptr), _initialized(false)
@@ -166,7 +165,7 @@ union keyData
 uint32 Warden::BuildChecksum(const uint8* data, uint32 length)
 {
     keyData hash{};
-    hash.bytes = Warhead::Crypto::SHA1::GetDigestOf(data, size_t(length));
+    hash.bytes = Warhead::Crypto::SHA1::GetDigestOf(data, std::size_t(length));
     uint32 checkSum = 0;
 
     for (uint8 i = 0; i < 5; ++i)

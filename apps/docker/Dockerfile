@@ -279,11 +279,14 @@ RUN addgroup --gid $GROUP_ID acore && \
     passwd -d acore && \
     echo 'acore ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
 
+# ENV DATAPATH=/azerothcore/env/dist/data-temp
 ENV DATAPATH=/azerothcore/env/dist/data
 ENV DATAPATH_ZIP=/tmp/data.zip
 
 RUN mkdir -p "$DATAPATH"
-RUN --mount=type=bind,target=/azerothcore-temp,readwrite --mount=type=cache,target=/azerothcore/env/dist/data /azerothcore-temp/acore.sh client-data && chown -R $DOCKER_USER:$DOCKER_USER /azerothcore
+ARG CACHEBUST=1
+# RUN --mount=type=bind,target=/azerothcore-temp,readwrite --mount=type=cache,target=/azerothcore/env/dist/data-temp /azerothcore-temp/acore.sh client-data && cp -rT /azerothcore/env/dist/data-temp/ /azerothcore/env/dist/data && chown -R $DOCKER_USER:$DOCKER_USER /azerothcore
+RUN --mount=type=bind,target=/azerothcore-temp,readwrite /azerothcore-temp/acore.sh client-data && chown -R $DOCKER_USER:$DOCKER_USER /azerothcore
 
 USER $DOCKER_USER
 

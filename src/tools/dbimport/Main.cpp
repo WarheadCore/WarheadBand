@@ -80,6 +80,10 @@ int main(int argc, char** argv)
         }
     );
 
+    OpenSSLCrypto::threadsSetup();
+
+    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
+
     // Initialize the database connection
     if (!StartDB())
         return 1;
