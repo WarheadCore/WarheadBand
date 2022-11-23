@@ -9146,7 +9146,7 @@ void ObjectMgr::LoadMailServerTemplates()
     StopWatch sw;
     _serverMailStore.clear(); // for reload case
 
-    auto result{ sDBCacheMgr->GetResult(DBCacheTable::MailServerTemplate) };
+    auto result{ CharacterDatabase.Query("SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`") };
     if (!result)
     {
         LOG_INFO("db.query", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");

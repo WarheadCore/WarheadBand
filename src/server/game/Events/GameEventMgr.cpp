@@ -316,7 +316,7 @@ void GameEventMgr::LoadFromDB()
     {
         StopWatch sw;
 
-        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventSave) };
+        auto result{ CharacterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save") };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Game Event Saves In Game Events. DB Table `game_event_save` Is Empty.");
@@ -721,7 +721,7 @@ void GameEventMgr::LoadFromDB()
     {
         StopWatch sw;
 
-        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventConditionSave) };
+        auto result{ CharacterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save") };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Condition Saves In Game Events. DB Table `game_event_condition_save` Is Empty.");

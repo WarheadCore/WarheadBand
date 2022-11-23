@@ -51,7 +51,6 @@ void DBCacheMgr::InitMiscStrings()
     _queryStrings.emplace(DBCacheTable::PetNameGeneration, "SELECT word, entry, half FROM pet_name_generation");
     _queryStrings.emplace(DBCacheTable::PetLevelstats, "SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");
     _queryStrings.emplace(DBCacheTable::MailLevelReward, "SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
-    _queryStrings.emplace(DBCacheTable::MailServerTemplate, "SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`");
     _queryStrings.emplace(DBCacheTable::SkillDiscoveryTemplate, "SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
     _queryStrings.emplace(DBCacheTable::SkillExtraItemTemplate, "SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
     _queryStrings.emplace(DBCacheTable::SkillPerfectItemTemplate, "SELECT spellId, requiredSpecialization, perfectCreateChance, perfectItemType FROM skill_perfect_item_template");
@@ -69,7 +68,6 @@ void DBCacheMgr::InitMiscStrings()
     _queryStrings.emplace(DBCacheTable::PlayerFactionchangeReputations, "SELECT alliance_id, horde_id FROM player_factionchange_reputations");
     _queryStrings.emplace(DBCacheTable::PlayerFactionchangeTitles, "SELECT alliance_id, horde_id FROM player_factionchange_titles");
     _queryStrings.emplace(DBCacheTable::PlayerFactionchangeQuest, "SELECT alliance_id, horde_id FROM player_factionchange_quests");
-    _queryStrings.emplace(DBCacheTable::CalendarEvents, "SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events");
     _queryStrings.emplace(DBCacheTable::BattlegroundTemplate, "SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
     _queryStrings.emplace(DBCacheTable::OutdoorpvpTemplate, "SELECT TypeId, ScriptName FROM outdoorpvp_template");
     _queryStrings.emplace(DBCacheTable::Disables, "SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
