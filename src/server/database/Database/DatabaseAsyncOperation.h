@@ -84,5 +84,4 @@ private:
     AsyncEnqueue& operator=(AsyncEnqueue const& right) = delete;
 };
 
-
 #endif // _DATABASE_ASYNC_OPERATION_H_
