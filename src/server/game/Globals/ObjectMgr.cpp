@@ -27,6 +27,7 @@
 #include "Config.h"
 #include "Containers.h"
 #include "CreatureAIFactory.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
@@ -50,6 +51,7 @@
 #include "Spell.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "StopWatch.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "Transport.h"
@@ -58,8 +60,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
-#include "DBCacheMgr.h"
-#include "StopWatch.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;

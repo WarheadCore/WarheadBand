@@ -19,10 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "InstanceScript.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
 #include "TemporarySummon.h"
-#include "Log.h"
 #include "molten_core.h"
 #include <sstream>
 

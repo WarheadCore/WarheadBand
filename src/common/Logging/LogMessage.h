@@ -18,8 +18,8 @@
 #ifndef _WARHEAD_MESSAGE_H_
 #define _WARHEAD_MESSAGE_H_
 
-#include "LogCommon.h"
 #include "Duration.h"
+#include "LogCommon.h"
 #include <string>
 
 namespace Warhead

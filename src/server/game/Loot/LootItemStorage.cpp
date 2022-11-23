@@ -20,9 +20,9 @@
 
 #include "LootItemStorage.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "StopWatch.h"
-#include "Log.h"
 
 LootItemStorage::LootItemStorage()
 {

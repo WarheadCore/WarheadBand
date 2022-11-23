@@ -19,16 +19,16 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "SkillDiscovery.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "Util.h"
 #include "World.h"
-#include "DBCacheMgr.h"
-#include "StopWatch.h"
 #include <map>
 #include <sstream>
 

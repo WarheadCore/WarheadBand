@@ -27,9 +27,9 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "StringConvert.h"
 #include "World.h"
-#include "StopWatch.h"
 #include <fstream>
 #include <sstream>
 

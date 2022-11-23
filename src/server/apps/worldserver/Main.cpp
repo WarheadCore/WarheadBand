@@ -29,10 +29,12 @@
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
 #include "DeadlineTimer.h"
+#include "DiscordChannel.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
 #include "IoContextMgr.h"
+#include "IpCache.h"
 #include "Logo.h"
 #include "MapMgr.h"
 #include "Metric.h"
@@ -54,8 +56,6 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "DiscordChannel.h"
-#include "IpCache.h"
 #include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>

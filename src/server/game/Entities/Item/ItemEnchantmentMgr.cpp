@@ -20,12 +20,12 @@
 
 #include "ItemEnchantmentMgr.h"
 #include "DBCStores.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Util.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
+#include "Util.h"
 #include <vector>
 
 struct EnchStoreItem

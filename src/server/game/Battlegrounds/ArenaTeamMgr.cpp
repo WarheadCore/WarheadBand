@@ -27,8 +27,8 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "World.h"
 #include "StopWatch.h"
+#include "World.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {

@@ -24,8 +24,8 @@
 #include "DatabaseEnv.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
-#include "World.h"
 #include "StopWatch.h"
+#include "World.h"
 
 GroupMgr::GroupMgr()
 {

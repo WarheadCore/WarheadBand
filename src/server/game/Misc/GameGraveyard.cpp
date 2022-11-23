@@ -20,12 +20,12 @@
 
 #include "GameGraveyard.h"
 #include "DBCStores.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
 
 Graveyard* Graveyard::instance()

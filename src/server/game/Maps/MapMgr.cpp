@@ -36,10 +36,10 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "StopWatch.h"
 #include "Transport.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "StopWatch.h"
 
 MapMgr::MapMgr()
     : _nextInstanceId(0), _scheduledScripts(0)

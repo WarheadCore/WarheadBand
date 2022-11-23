@@ -19,16 +19,16 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "TransportMgr.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapMgr.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
-#include "Transport.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
-#include "Log.h"
+#include "Transport.h"
 
 TransportTemplate::~TransportTemplate()
 {

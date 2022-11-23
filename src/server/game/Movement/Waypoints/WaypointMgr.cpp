@@ -19,10 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "WaypointMgr.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
 #include "Log.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
 
 WaypointMgr::WaypointMgr() = default;

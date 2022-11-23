@@ -23,14 +23,14 @@
 */
 
 #include "WeatherMgr.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Weather.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
+#include "Weather.h"
 #include <memory>
 
 namespace WeatherMgr

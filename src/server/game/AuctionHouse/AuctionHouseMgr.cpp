@@ -32,9 +32,9 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "StopWatch.h"
 #include "UpdateTime.h"
 #include "WorldPacket.h"
-#include "StopWatch.h"
 #include <sstream>
 #include <vector>
 

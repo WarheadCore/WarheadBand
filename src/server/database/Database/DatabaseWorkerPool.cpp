@@ -21,6 +21,7 @@
 #include "DatabaseWorkerPool.h"
 #include "Config.h"
 #include "Errors.h"
+#include "FileUtil.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "MySQLPreparedStatement.h"
@@ -32,12 +33,11 @@
 #include "QueryResult.h"
 #include "TaskScheduler.h"
 #include "Transaction.h"
-#include "FileUtil.h"
+#include <filesystem>
+#include <fstream>
 #include <limits>
 #include <mysqld_error.h>
 #include <utility>
-#include <filesystem>
-#include <fstream>
 
 #ifdef WARHEAD_DEBUG
 #include <boost/stacktrace.hpp>

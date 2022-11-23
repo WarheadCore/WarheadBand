@@ -20,13 +20,13 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
-#include "Transport.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
+#include "Transport.h"
 #include <sstream>
 
 ////////////////////////////////////////////////////////////

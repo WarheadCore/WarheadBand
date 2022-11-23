@@ -34,6 +34,7 @@
 #include "IPLocation.h"
 #include "IoContext.h"
 #include "IoContextMgr.h"
+#include "IpCache.h"
 #include "Log.h"
 #include "Logo.h"
 #include "OpenSSLCrypto.h"
@@ -43,7 +44,6 @@
 #include "SharedDefines.h"
 #include "SignalHandlerMgr.h"
 #include "Util.h"
-#include "IpCache.h"
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
 #include <filesystem>

@@ -22,6 +22,7 @@
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "DBCStores.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "LocaleCommon.h"
@@ -33,7 +34,6 @@
 #include "SpellMgr.h"
 #include "StopWatch.h"
 #include "World.h"
-#include "DBCacheMgr.h"
 
 namespace TimeDiff // in us
 {

@@ -79,6 +79,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "StringConvert.h"
 #include "TicketMgr.h"
 #include "Tokenize.h"
@@ -92,7 +93,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "StopWatch.h"
 #include <sstream>
 
 enum CharacterFlags

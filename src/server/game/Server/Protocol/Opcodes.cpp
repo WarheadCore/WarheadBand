@@ -21,8 +21,8 @@
 #include "Opcodes.h"
 #include "Log.h"
 #include "Packets/AllPackets.h"
-#include "WorldSession.h"
 #include "StopWatch.h"
+#include "WorldSession.h"
 #include <iomanip>
 #include <sstream>
 

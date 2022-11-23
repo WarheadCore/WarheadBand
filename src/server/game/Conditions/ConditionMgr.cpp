@@ -20,6 +20,7 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "GameEventMgr.h"
@@ -33,7 +34,6 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
 
 // Checks if object meets the condition

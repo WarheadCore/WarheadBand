@@ -27,9 +27,9 @@
 #include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "StopWatch.h"
 #include "Tokenize.h"
 #include "WorldSession.h"
-#include "StopWatch.h"
 
 using ChatSubCommandMap = std::map<std::string_view, Warhead::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
 static ChatSubCommandMap COMMAND_MAP;

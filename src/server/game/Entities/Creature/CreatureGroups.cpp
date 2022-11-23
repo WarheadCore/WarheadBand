@@ -21,11 +21,11 @@
 #include "CreatureGroups.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
 
 FormationMgr::~FormationMgr() = default;

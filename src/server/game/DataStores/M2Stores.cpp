@@ -24,8 +24,8 @@
 #include "DBCStores.h"
 #include "Log.h"
 #include "M2Structure.h"
-#include "World.h"
 #include "StopWatch.h"
+#include "World.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <iostream>

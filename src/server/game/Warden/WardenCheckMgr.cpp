@@ -23,9 +23,9 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
+#include "StopWatch.h"
 #include "Util.h"
 #include "Warden.h"
-#include "StopWatch.h"
 
 WardenCheckMgr::WardenCheckMgr()
 {

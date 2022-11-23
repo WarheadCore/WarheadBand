@@ -20,9 +20,9 @@
 
 #include "DBCacheStrings.h"
 #include "DatabaseEnvFwd.h"
-#include <unordered_map>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 
 class WH_GAME_API DBCacheMgr
 {

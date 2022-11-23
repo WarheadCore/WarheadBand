@@ -30,11 +30,11 @@
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "Timer.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "StopWatch.h"
 #include <sstream>
 
 inline float GetAge(uint64 t) { return float(GameTime::GetGameTime().count() - t) / DAY; }

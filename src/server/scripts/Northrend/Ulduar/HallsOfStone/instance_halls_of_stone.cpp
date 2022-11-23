@@ -18,10 +18,10 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
+#include "Log.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "halls_of_stone.h"
-#include "Log.h"
 #include <sstream>
 
 class instance_halls_of_stone : public InstanceMapScript

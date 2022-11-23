@@ -23,13 +23,13 @@
 #include "CellImpl.h"
 #include "Chat.h"
 #include "Common.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GridNotifiers.h"
 #include "LocaleCommon.h"
 #include "MiscPackets.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
 
 class CreatureTextBuilder

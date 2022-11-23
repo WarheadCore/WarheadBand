@@ -17,20 +17,20 @@
 
 #include "DiscordMgr.h"
 #include "AccountMgr.h"
+#include "Channel.h"
 #include "CliCommandMgr.h"
 #include "GameConfig.h"
-#include "Log.h"
-#include "StopWatch.h"
-#include "Util.h"
-#include "GameTime.h"
 #include "GameLocale.h"
-#include "UpdateTime.h"
-#include "World.h"
+#include "GameTime.h"
+#include "Log.h"
 #include "Player.h"
-#include "Channel.h"
+#include "StopWatch.h"
+#include "UpdateTime.h"
+#include "Util.h"
+#include "World.h"
+#include <Warhead/RegularExpression.h>
 #include <dpp/cluster.h>
 #include <dpp/message.h>
-#include <Warhead/RegularExpression.h>
 
 namespace
 {

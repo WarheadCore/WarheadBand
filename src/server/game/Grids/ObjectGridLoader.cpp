@@ -25,10 +25,10 @@
 #include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "Log.h"
 
 // for loading world object at grid loading (Corpses)
 //TODO: to implement npc on transport, also need to load npcs at grid loading

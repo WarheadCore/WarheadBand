@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptObject.h"
 #include "DiscordMgr.h"
+#include "ScriptObject.h"
 
 class Discord_Player : public PlayerScript
 {

@@ -31,9 +31,9 @@
 #include "SharedDefines.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "Util.h"
 #include "World.h"
-#include "StopWatch.h"
 
 static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {

@@ -21,10 +21,10 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "StopWatch.h"
-#include "Tokenize.h"
-#include "Util.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
+#include "Tokenize.h"
+#include "Util.h"
 
 namespace
 {

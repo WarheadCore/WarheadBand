@@ -22,6 +22,7 @@
 #include "AccountMgr.h"
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
+#include "DiscordMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -31,7 +32,6 @@
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "DiscordMgr.h"
 
 BanMgr* BanMgr::instance()
 {

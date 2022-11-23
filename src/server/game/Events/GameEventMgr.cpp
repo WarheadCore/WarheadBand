@@ -21,6 +21,7 @@
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
 #include "ChatTextBuilder.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
@@ -34,13 +35,12 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
+#include "StopWatch.h"
 #include "Transport.h"
 #include "UnitAI.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldStatePackets.h"
-#include "DBCacheMgr.h"
-#include "StopWatch.h"
 #include <ctime>
 
 GameEventMgr* GameEventMgr::instance()

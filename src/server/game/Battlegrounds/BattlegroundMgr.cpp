@@ -36,6 +36,7 @@
 #include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "Common.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
@@ -50,10 +51,9 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
+#include "StopWatch.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "DBCacheMgr.h"
-#include "StopWatch.h"
 #include <unordered_map>
 
 bool BattlegroundTemplate::IsArena() const

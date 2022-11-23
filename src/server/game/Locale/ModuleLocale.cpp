@@ -27,9 +27,9 @@
 #include "Log.h"
 #include "Optional.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "Tokenize.h"
 #include "World.h"
-#include "StopWatch.h"
 
 ModuleLocale* ModuleLocale::instance()
 {

@@ -29,9 +29,9 @@
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "TransportMgr.h"
 #include "World.h"
-#include "StopWatch.h"
 #include <map>
 #include <sstream>
 

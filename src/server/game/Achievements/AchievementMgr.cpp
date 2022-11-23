@@ -29,6 +29,7 @@
 #include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCEnums.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
@@ -47,10 +48,9 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "DBCacheMgr.h"
-#include "StopWatch.h"
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {

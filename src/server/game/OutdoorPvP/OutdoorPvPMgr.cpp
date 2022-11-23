@@ -19,12 +19,12 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "OutdoorPvPMgr.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "DBCacheMgr.h"
 #include "StopWatch.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()

@@ -22,11 +22,11 @@
 #include "Log.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include "StopWatch.h"
 #include "VMapDefinitions.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "WorldModel.h"
-#include "StopWatch.h"
 
 using G3D::Vector3;
 using G3D::Ray;

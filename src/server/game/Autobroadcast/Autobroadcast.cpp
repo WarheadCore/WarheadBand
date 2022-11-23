@@ -27,8 +27,8 @@
 #include "Language.h"
 #include "Player.h"
 #include "Realm.h"
-#include "Tokenize.h"
 #include "StopWatch.h"
+#include "Tokenize.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()
 {

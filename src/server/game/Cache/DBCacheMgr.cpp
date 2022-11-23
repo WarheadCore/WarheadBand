@@ -17,10 +17,10 @@
 
 #include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
-#include "Util.h"
-#include "StopWatch.h"
 #include "GameConfig.h"
 #include "Log.h"
+#include "StopWatch.h"
+#include "Util.h"
 
 /*static*/ DBCacheMgr* DBCacheMgr::instance()
 {
