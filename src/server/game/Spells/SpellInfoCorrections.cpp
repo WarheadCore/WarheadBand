@@ -23,6 +23,7 @@
 #include "GameGraveyard.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 
 inline void ApplySpellFix(std::initializer_list<uint32> spellIds, void(*fix)(SpellInfo*))
 {
@@ -41,7 +42,7 @@ inline void ApplySpellFix(std::initializer_list<uint32> spellIds, void(*fix)(Spe
 
 void SpellMgr::LoadSpellInfoCorrections()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     ApplySpellFix({
         467,    // Thorns (Rank 1)
@@ -4605,6 +4606,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     LockEntry* key = const_cast<LockEntry*>(sLockStore.LookupEntry(36)); // 3366 Opening, allows to open without proper key
     key->Type[2] = LOCK_KEY_NONE;
 
-    LOG_INFO("server.loading", ">> Loading spell dbc data corrections  in {} ms", GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loading spell dbc data corrections in {}", sw);
+    LOG_INFO("server.loading", "");
 }

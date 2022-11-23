@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "Log.h"
 
 // for loading world object at grid loading (Corpses)
 //TODO: to implement npc on transport, also need to load npcs at grid loading
@@ -196,6 +197,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
+
     LOG_DEBUG("maps", "{} GameObjects, {} Creatures, and {} Corpses/Bones loaded for grid {} on map {}", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 

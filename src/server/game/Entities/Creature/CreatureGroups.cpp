@@ -25,10 +25,10 @@
 #include "Log.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
-FormationMgr::~FormationMgr()
-{
-}
+FormationMgr::~FormationMgr() = default;
 
 FormationMgr* FormationMgr::instance()
 {
@@ -83,11 +83,10 @@ void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* membe
 
 void FormationMgr::LoadCreatureFormations()
 {
-    uint32 const oldMSTime = getMSTime();
+    StopWatch sw;
     CreatureGroupMap.clear();
 
-    //Get group data
-    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureFormations) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
@@ -163,7 +162,7 @@ void FormationMgr::LoadCreatureFormations()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Creatures In Formations in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creatures In Formations in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

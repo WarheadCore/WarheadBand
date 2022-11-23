@@ -29,12 +29,12 @@
 
 void IpLocationStore::Load()
 {
+    StopWatch sw;
     _ipLocationStore.clear();
+
     LOG_INFO("server.loading", "Loading IP Location Database...");
 
-    StopWatch sw;
-
-    std::string databaseFilePath = sConfigMgr->GetOption<std::string>("IPLocationFile", "");
+    auto databaseFilePath = sConfigMgr->GetOption<std::string>("IPLocationFile", "");
     if (databaseFilePath.empty())
     {
         LOG_INFO("server.loading", "");

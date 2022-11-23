@@ -285,6 +285,7 @@ int main(int argc, char** argv)
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
     StopWatch sw;
+
     if (file)
         builder.buildMeshFromFile(file);
     else if (tileX > -1 && tileY > -1 && mapnum >= 0)

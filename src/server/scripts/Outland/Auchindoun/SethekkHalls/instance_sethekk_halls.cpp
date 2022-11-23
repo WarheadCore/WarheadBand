@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "sethekk_halls.h"
+#include "Log.h"
 #include <sstream>
 
 class instance_sethekk_halls : public InstanceMapScript

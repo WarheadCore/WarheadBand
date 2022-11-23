@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Timer.h"
+#include "StopWatch.h"
 #include <list>
 #include <openssl/md5.h>
 
@@ -40,7 +41,7 @@ namespace AddonMgr
 
     void LoadFromDB()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         QueryResult result = CharacterDatabase.Query("SELECT name, crc FROM addons");
         if (!result)
@@ -61,10 +62,10 @@ namespace AddonMgr
             ++count;
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} known addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} known addons in {}", count, sw);
+        LOG_INFO("server.loading", "");
 
-        oldMSTime = getMSTime();
+        sw.Reset();
         result = CharacterDatabase.Query("SELECT id, name, version, UNIX_TIMESTAMP(timestamp) FROM banned_addons");
 
         if (result)
@@ -89,8 +90,8 @@ namespace AddonMgr
                 ++count2;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} banned addons in {} ms", count2, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} banned addons in {}", count2, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 

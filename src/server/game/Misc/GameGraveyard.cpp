@@ -25,6 +25,8 @@
 #include "MapMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 Graveyard* Graveyard::instance()
 {
@@ -34,11 +36,10 @@ Graveyard* Graveyard::instance()
 
 void Graveyard::LoadGraveyardFromDB()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _graveyardStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Map, x, y, z, Comment FROM game_graveyard");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameGraveyard) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 graveyard. Table `game_graveyard` is empty!");
@@ -74,7 +75,7 @@ void Graveyard::LoadGraveyardFromDB()
         ++Count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Graveyard in {} ms", Count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Graveyard in {}", Count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -365,13 +366,10 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
 
 void Graveyard::LoadGraveyardZones()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     GraveyardStore.clear(); // need for reload case
 
-    //                                                0       1         2
-    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone, Faction FROM graveyard_zone");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GraveyardZone) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Graveyard-Zone Links. DB Table `graveyard_zone` Is Empty.");
@@ -416,7 +414,7 @@ void Graveyard::LoadGraveyardZones()
             LOG_ERROR("db.query", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {}) and Zone (ID: {}), skipped.", safeLocId, zoneId);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Graveyard-Zone Links in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Graveyard-Zone Links in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

@@ -24,14 +24,13 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Timer.h"
+#include "StopWatch.h"
 
 PetitionMgr::PetitionMgr()
 {
 }
 
-PetitionMgr::~PetitionMgr()
-{
-}
+PetitionMgr::~PetitionMgr() = default;
 
 PetitionMgr* PetitionMgr::instance()
 {
@@ -41,13 +40,13 @@ PetitionMgr* PetitionMgr::instance()
 
 void PetitionMgr::LoadPetitions()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     PetitionStore.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT ownerguid, petitionguid, name, type FROM petition");
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Petitions!");
+        LOG_INFO("server.loading", ">> Loaded 0 Petitions!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -60,19 +59,19 @@ void PetitionMgr::LoadPetitions()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Petitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Petitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void PetitionMgr::LoadSignatures()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     SignatureStore.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT petitionguid, playerguid, player_account FROM petition_sign");
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Petition signs!");
+        LOG_INFO("server.loading", ">> Loaded 0 Petition signs!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -85,7 +84,7 @@ void PetitionMgr::LoadSignatures()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Petition signs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Petition signs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

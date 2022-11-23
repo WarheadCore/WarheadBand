@@ -24,6 +24,8 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
@@ -49,11 +51,9 @@ void OutdoorPvPMgr::Die()
 
 void OutdoorPvPMgr::InitOutdoorPvP()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                 0       1
-    QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::OutdoorpvpTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
@@ -67,7 +67,6 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     do
     {
         auto fields = result->Fetch();
-
         typeId = fields[0].Get<uint8>();
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, nullptr))
@@ -115,8 +114,8 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         m_OutdoorPvPSet.push_back(pvp);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} outdoor PvP definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} outdoor PvP definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)

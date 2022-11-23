@@ -38,6 +38,8 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "World.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1298,11 +1300,9 @@ void SpellMgr::LoadSpellRanks()
     // cleanup data and load spell ranks for talents from dbc
     LoadSpellTalentRanks();
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                               0               1          2
-    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, `rank` from spell_ranks ORDER BY first_spell_id, `rank`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellRanks) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
@@ -1316,7 +1316,7 @@ void SpellMgr::LoadSpellRanks()
     do
     {
         // spellid, rank
-        std::list < std::pair < int32, int32 > > rankChain;
+        std::list<std::pair<int32, int32>> rankChain;
         int32 currentSpell = -1;
         int32 lastSpell = -1;
 
@@ -1400,20 +1400,17 @@ void SpellMgr::LoadSpellRanks()
         } while (true);
     } while (!finished);
 
-    LOG_INFO("server.loading", ">> Loaded {} spell rank records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell rank records in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellRequired()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellsReqSpell.clear();                                   // need for reload case
     mSpellReq.clear();                                         // need for reload case
 
-    //                                                   0        1
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, req_spell from spell_required");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellRequired) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell required records. DB table `spell_required` is empty.");
@@ -1465,14 +1462,13 @@ void SpellMgr::LoadSpellRequired()
             mTalentSpellAdditionalSet.insert(spellId);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Required Records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Required Records in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellLearnSkills()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellLearnSkills.clear();                              // need for reload case
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
@@ -1518,19 +1514,16 @@ void SpellMgr::LoadSpellLearnSkills()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Learn Skills From DBC in {} ms", dbc_count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Learn Skills From DBC in {}", dbc_count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellTargetPositions()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2        3         4           5            6
-    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellTargetPosition) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1539,15 +1532,14 @@ void SpellMgr::LoadSpellTargetPositions()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
-
         uint32 Spell_ID = fields[0].Get<uint32>();
+        auto effIndex = SpellEffIndex(fields[1].Get<uint8>());
 
-        SpellEffIndex effIndex = SpellEffIndex(fields[1].Get<uint8>());
-
-        SpellTargetPosition st;
+        SpellTargetPosition st{};
 
         st.target_mapId       = fields[2].Get<uint16>();
         st.target_X           = fields[3].Get<float>();
@@ -1623,18 +1615,16 @@ void SpellMgr::LoadSpellTargetPositions()
         }
     }*/
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Teleport Coordinates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Teleport Coordinates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellGroups()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellGroupMap.clear();                                  // need for reload case
 
-    //                                                0     1            2
-    QueryResult result = WorldDatabase.Query("SELECT id, spell_id, special_flag FROM spell_group");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellGroup) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell group definitions. DB table `spell_group` is empty.");
@@ -1683,18 +1673,16 @@ void SpellMgr::LoadSpellGroups()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Group Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Group Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellGroupStackRules()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellGroupStackMap.clear();                                  // need for reload case
 
-    //                                                       0         1
-    QueryResult result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellGroupStackRules) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
@@ -1734,18 +1722,16 @@ void SpellMgr::LoadSpellGroupStackRules()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Group Stack Rules in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Group Stack Rules in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellProcEvents()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellProcEventMap.clear();                             // need for reload case
 
-    //                                                0      1           2                3                 4                 5                 6          7       8          9             10       11
-    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, procPhase, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProcEvent) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
@@ -1828,26 +1814,25 @@ void SpellMgr::LoadSpellProcEvents()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Extra Spell Proc Event Conditions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Extra Spell Proc Event Conditions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellProcs()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellProcMap.clear();                             // need for reload case
 
-    //                                                 0        1           2                3                 4                 5                 6          7              8              9         10              11             12      13        14
-    QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProc) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Spell Proc Conditions And Data. DB table `spell_proc` Is Empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 Spell Proc Conditions And Data. DB table `spell_proc` Is Empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -1976,18 +1961,16 @@ void SpellMgr::LoadSpellProcs()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} spell proc conditions and data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell proc conditions and data in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellBonuses()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellBonusMap.clear();                             // need for reload case
 
-    //                                                0      1             2          3         4
-    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellBonusData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell bonus data. DB table `spell_bonus_data` is empty.");
@@ -2017,18 +2000,16 @@ void SpellMgr::LoadSpellBonuses()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Extra Spell Bonus Data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Extra Spell Bonus Data in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellThreats()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellThreatMap.clear();                                // need for reload case
 
-    //                                                0      1        2       3
-    QueryResult result = WorldDatabase.Query("SELECT entry, flatMod, pctMod, apPctMod FROM spell_threat");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellThreat) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
@@ -2058,18 +2039,16 @@ void SpellMgr::LoadSpellThreats()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} SpellThreatEntries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} SpellThreatEntries in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellMixology()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellMixologyMap.clear();                                // need for reload case
 
-    //                                                0      1
-    QueryResult result = WorldDatabase.Query("SELECT entry, pctMod FROM spell_mixology");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellMixology) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 mixology bonuses. DB table `spell_mixology` is empty.");
@@ -2094,16 +2073,14 @@ void SpellMgr::LoadSpellMixology()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Mixology Bonuses in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Mixology Bonuses in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSkillLineAbilityMap()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSkillLineAbilityMap.clear();
-
     uint32 count = 0;
 
     for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
@@ -2116,18 +2093,16 @@ void SpellMgr::LoadSkillLineAbilityMap()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} SkillLineAbility MultiMap Data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} SkillLineAbility MultiMap Data in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellPetAuras()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellPetAuraMap.clear();                                  // need for reload case
 
-    //                                                  0       1       2    3
-    QueryResult result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellPetAuras) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
@@ -2136,6 +2111,7 @@ void SpellMgr::LoadSpellPetAuras()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -2178,14 +2154,14 @@ void SpellMgr::LoadSpellPetAuras()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Pet Auras in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Pet Auras in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 // Fill custom data about enchancments
 void SpellMgr::LoadEnchantCustomAttr()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     uint32 size = sSpellItemEnchantmentStore.GetNumRows();
     mEnchantCustomAttr.resize(size);
@@ -2220,18 +2196,16 @@ void SpellMgr::LoadEnchantCustomAttr()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Custom Enchant Attributes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Custom Enchant Attributes in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellEnchantProcData()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
-    //                                                  0         1           2         3
-    QueryResult result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellEnchantProcData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
@@ -2253,7 +2227,7 @@ void SpellMgr::LoadSpellEnchantProcData()
             continue;
         }
 
-        SpellEnchantProcEntry spe;
+        SpellEnchantProcEntry spe{};
 
         spe.customChance = fields[1].Get<uint32>();
         spe.PPMChance = fields[2].Get<float>();
@@ -2264,18 +2238,16 @@ void SpellMgr::LoadSpellEnchantProcData()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Enchant Proc Data Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Enchant Proc Data Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellLinked()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellLinkedMap.clear();    // need for reload case
 
-    //                                                0              1             2
-    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellLinkedSpell) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
@@ -2284,6 +2256,7 @@ void SpellMgr::LoadSpellLinked()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -2298,6 +2271,7 @@ void SpellMgr::LoadSpellLinked()
             LOG_ERROR("db.query", "Spell {} listed in `spell_linked_spell` does not exist", std::abs(trigger));
             continue;
         }
+
         spellInfo = GetSpellInfo(std::abs(effect));
         if (!spellInfo)
         {
@@ -2312,19 +2286,18 @@ void SpellMgr::LoadSpellLinked()
             else
                 trigger -= SPELL_LINKED_MAX_SPELLS * type;
         }
-        mSpellLinkedMap[trigger].push_back(effect);
 
+        mSpellLinkedMap[trigger].push_back(effect);
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Linked Spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Linked Spells in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadPetLevelupSpellMap()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mPetLevelupSpellMap.clear();                                   // need for reload case
 
     uint32 count = 0;
@@ -2374,7 +2347,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Pet Levelup And Default Spells For {} Families in {} ms", count, family_count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Pet Levelup And Default Spells For {} Families in {}", count, family_count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -2428,8 +2401,7 @@ bool LoadPetDefaultSpells_helper(CreatureTemplate const* cInfo, PetDefaultSpells
 
 void SpellMgr::LoadPetDefaultSpells()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mPetDefaultSpellsMap.clear();
 
     uint32 countCreature = 0;
@@ -2458,11 +2430,11 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded Addition Spells For {} Pet Spell Data Entries in {} ms", countData, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Addition Spells For {} Pet Spell Data Entries in {}", countData, sw);
     LOG_INFO("server.loading", " ");
 
     LOG_INFO("server.loading", "Loading Summonable Creature Templates...");
-    oldMSTime = getMSTime();
+    sw.Reset();
 
     // different summon spells
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
@@ -2502,22 +2474,19 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Summonable Creature emplates in {} ms", countCreature, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Summonable Creature emplates in {}", countCreature, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellAreas()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mSpellAreaMap.clear();                                  // need for reload case
     mSpellAreaForQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
 
-    //                                                  0     1         2              3               4                 5          6          7       8         9
-    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellArea) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
@@ -2526,12 +2495,13 @@ void SpellMgr::LoadSpellAreas()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
-
         uint32 spell = fields[0].Get<uint32>();
-        SpellArea spellArea;
+
+        SpellArea spellArea{};
         spellArea.spellId             = spell;
         spellArea.areaId              = fields[1].Get<uint32>();
         spellArea.questStart          = fields[2].Get<uint32>();
@@ -2713,13 +2683,13 @@ void SpellMgr::LoadSpellAreas()
     else
         LOG_INFO("server.loading", ">> ICC Buff Alliance: disabled");
 
-    LOG_INFO("server.loading", ">> Loaded {} Spell Area Requirements in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spell Area Requirements in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellInfoStore()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), nullptr);
@@ -2742,7 +2712,7 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded Spell Custom Attributes in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Spell Custom Attributes in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -2765,7 +2735,7 @@ void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 
 void SpellMgr::LoadSpellSpecificAndAuraState()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     SpellInfo* spellInfo = nullptr;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
@@ -2777,18 +2747,16 @@ void SpellMgr::LoadSpellSpecificAndAuraState()
         spellInfo->_auraState = spellInfo->LoadAuraState();
     }
 
-    LOG_INFO("server.loading", ">> Loaded Spell Specific And Aura State in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Spell Specific And Aura State in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 
 void SpellMgr::LoadSpellInfoCustomAttributes()
 {
-    uint32 const oldMSTime = getMSTime();
-    uint32 const customAttrTime = getMSTime();
+    StopWatch sw;
     uint32 count;
 
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, attributes FROM spell_custom_attr");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellCustomAttr) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Spell Custom Attributes From DB. DB table `spell_custom_attr` Is Empty.");
@@ -2856,8 +2824,11 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
             spellInfo->AttributesCu |= attributes;
         }
-        LOG_INFO("server.loading", ">> Loaded {} spell custom attributes from DB in {} ms", count, GetMSTimeDiffToNow(customAttrTime));
+
+        LOG_INFO("server.loading", ">> Loaded {} spell custom attributes from DB in {}", count, sw);
     }
+
+    sw.Reset();
 
     // xinef: create talent spells set
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
@@ -3433,9 +3404,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 }
             }
         }
-       spellInfo->_InitializeExplicitTargetMask();
 
-       sScriptMgr->OnLoadSpellCustomAttr(spellInfo);
+        spellInfo->_InitializeExplicitTargetMask();
+
+        sScriptMgr->OnLoadSpellCustomAttr(spellInfo);
     }
 
     // Xinef: addition for binary spells, ommit spells triggering other spells
@@ -3473,6 +3445,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
     }
 
-    LOG_INFO("server.loading", ">> Loaded SpellInfo Custom Attributes in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded SpellInfo Custom Attributes in {}", sw);
     LOG_INFO("server.loading", " ");
 }

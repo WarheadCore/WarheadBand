@@ -49,6 +49,8 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -2460,7 +2462,7 @@ void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
@@ -2603,13 +2605,13 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         ++loaded;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} achievement criteria in {} ms", loaded, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} achievement criteria in {}", loaded, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadAchievementReferenceList()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (sAchievementStore.GetNumRows() == 0)
     {
@@ -2630,18 +2632,16 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} achievement references in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} achievement references in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     m_criteriaDataMap.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementCriteriaData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
@@ -2764,13 +2764,13 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             LOG_ERROR("db.query", "Table `achievement_criteria_data` does not have expected data for criteria (Entry: {} Type: {}) for achievement {}.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} additional achievement criteria data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} additional achievement criteria data in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     QueryResult result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
@@ -2784,7 +2784,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2809,22 +2809,19 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             m_allCompletedAchievements[achievementId] = SystemTimePoint::max();
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {} ms", m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {}", m_allCompletedAchievements.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadRewards()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     m_achievementRewards.clear();                           // need for reload case
 
-    //                                               0      1        2        3     4       5        6     7
-    QueryResult result = WorldDatabase.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementReward) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2929,7 +2926,7 @@ void AchievementGlobalMgr::LoadRewards()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} achievement rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} achievement rewards in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

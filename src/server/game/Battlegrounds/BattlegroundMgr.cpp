@@ -52,6 +52,8 @@
 #include "SharedDefines.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <unordered_map>
 
 bool BattlegroundTemplate::IsArena() const
@@ -452,14 +454,11 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
 
 void BattlegroundMgr::LoadBattlegroundTemplates()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _battlegroundMapTemplates.clear();
     _battlegroundTemplates.clear();
 
-    //                                               0   1                  2                  3       4       5                 6               7              8            9             10      11
-    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::BattlegroundTemplate) };
     if (!result)
     {
         LOG_ERROR("bg.battleground", ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
@@ -542,7 +541,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->mapid[0]] = &_battlegroundTemplates[bgTypeId];
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} battlegrounds in {} ms", _battlegroundTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} battlegrounds in {}", _battlegroundTemplates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -789,12 +788,10 @@ uint32 BattlegroundMgr::GetPrematureFinishTime() const
 
 void BattlegroundMgr::LoadBattleMastersEntry()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mBattleMastersMap.clear();                                  // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, bg_template FROM battlemaster_entry");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::BattlemasterEntry) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
@@ -832,7 +829,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 
     CheckBattleMasters();
 
-    LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

@@ -28,6 +28,7 @@
 #include "ScriptMgr.h"
 #include "ScriptObject.h"
 #include "Vehicle.h"
+#include "Log.h"
 
 void ScriptRegistryCompositum::SetScriptNameInContext(std::string_view scriptName, std::string_view context)
 {

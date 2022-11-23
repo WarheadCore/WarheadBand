@@ -39,6 +39,7 @@
 #include "Transport.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "StopWatch.h"
 
 MapMgr::MapMgr()
     : _nextInstanceId(0), _scheduledScripts(0)
@@ -59,11 +60,16 @@ MapMgr* MapMgr::instance()
 
 void MapMgr::Initialize()
 {
+    StopWatch sw;
+
     int num_threads(CONF_GET_INT("MapUpdate.Threads"));
 
     // Start mtmaps if needed
     if (num_threads > 0)
         m_updater.activate(num_threads);
+
+    LOG_INFO("server.loading", ">> Added {} threads for map update in {}", num_threads, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void MapMgr::InitializeVisibilityDistanceInfo()

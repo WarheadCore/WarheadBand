@@ -25,6 +25,8 @@
 #include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Transport.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <sstream>
 
 ////////////////////////////////////////////////////////////
@@ -580,9 +582,9 @@ void PoolMgr::LoadFromDB()
 {
     // Pool templates
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolTemplate) };
         if (!result)
         {
             mPoolTemplate.clear();
@@ -604,7 +606,7 @@ void PoolMgr::LoadFromDB()
             ++count;
         } while (result->NextRow());
 
-        LOG_INFO("server.loading", ">> Loaded {} Objects Pools In {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Objects Pools in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 
@@ -612,11 +614,9 @@ void PoolMgr::LoadFromDB()
 
     LOG_INFO("server.loading", "Loading Creatures Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                 1       2         3
-        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolCreature) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
@@ -661,7 +661,7 @@ void PoolMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Creatures In Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Creatures In Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -670,11 +670,9 @@ void PoolMgr::LoadFromDB()
 
     LOG_INFO("server.loading", "Loading Gameobjects Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                 1        2         3
-        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_gameobject");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolGameobject) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
@@ -731,7 +729,7 @@ void PoolMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -740,11 +738,9 @@ void PoolMgr::LoadFromDB()
 
     LOG_INFO("server.loading", "Loading Mother Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                  1        2            3
-        QueryResult result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolPool) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 pools in pools");
@@ -823,14 +819,14 @@ void PoolMgr::LoadFromDB()
                 }
             }
 
-            LOG_INFO("server.loading", ">> Loaded {} Pools In Mother Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Pools In Mother Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Quest Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_QUEST_POOLS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -913,7 +909,7 @@ void PoolMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Quests In Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests In Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -921,12 +917,9 @@ void PoolMgr::LoadFromDB()
     // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
     LOG_INFO("server.loading", "Starting Objects Pooling System...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
-                             " LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry"
-                             " LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolObjects) };
         if (!result)
         {
             LOG_INFO("server.loading", ">> Pool handling system initialized, 0 pools spawned.");
@@ -960,8 +953,8 @@ void PoolMgr::LoadFromDB()
                 }
             } while (result->NextRow());
 
-            LOG_INFO("pool", "Pool handling system initialized, {} pools spawned in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Pool handling system initialized. {} pools spawned in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 }

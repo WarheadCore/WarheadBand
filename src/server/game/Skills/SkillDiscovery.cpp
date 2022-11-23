@@ -27,6 +27,8 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <map>
 #include <sstream>
 
@@ -50,13 +52,10 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 
 void LoadSkillDiscoveryTable()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     SkillDiscoveryStore.clear();                            // need for reload
 
-    //                                                0        1         2              3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillDiscoveryTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
@@ -156,8 +155,8 @@ void LoadSkillDiscoveryTable()
             LOG_ERROR("db.query", "Spell (ID: {}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)

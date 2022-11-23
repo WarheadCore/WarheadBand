@@ -24,7 +24,8 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Util.h"
-#include <functional>
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <vector>
 
 struct EnchStoreItem
@@ -46,12 +47,10 @@ static EnchantmentStore RandomItemEnch;
 
 void LoadRandomEnchantmentsTable()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     RandomItemEnch.clear();                                 // for reload case
 
-    //                                                 0      1      2
-    QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ItemEnchantmentTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
@@ -73,7 +72,7 @@ void LoadRandomEnchantmentsTable()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

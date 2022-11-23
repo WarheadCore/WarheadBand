@@ -24,6 +24,8 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <map>
 
 // some type definitions
@@ -34,16 +36,17 @@
 struct SkillPerfectItemEntry
 {
     // the spell id of the spell required - it's named "specialization" to conform with SkillExtraItemEntry
-    uint32 requiredSpecialization;
-    // perfection proc chance
-    float perfectCreateChance;
-    // itemid of the resulting perfect item
-    uint32 perfectItemType;
+    uint32 requiredSpecialization{};
 
-    SkillPerfectItemEntry()
-        : requiredSpecialization(0), perfectCreateChance(0.0f), perfectItemType(0) { }
-    SkillPerfectItemEntry(uint32 rS, float pCC, uint32 pIT)
-        : requiredSpecialization(rS), perfectCreateChance(pCC), perfectItemType(pIT) { }
+    // perfection proc chance
+    float perfectCreateChance{};
+
+    // itemid of the resulting perfect item
+    uint32 perfectItemType{};
+
+    SkillPerfectItemEntry() = default;
+    SkillPerfectItemEntry(uint32 rS, float pCC, uint32 pIT) :
+        requiredSpecialization(rS), perfectCreateChance(pCC), perfectItemType(pIT) { }
 };
 
 // map to store perfection info. key = spellId of the creation spell, value is the perfectitementry as specified above
@@ -54,13 +57,10 @@ SkillPerfectItemMap SkillPerfectItemStore;
 // loads the perfection proc info from DB
 void LoadSkillPerfectItemTable()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     SkillPerfectItemStore.clear(); // reload capability
 
-    //                                                  0               1                      2                  3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, perfectCreateChance, perfectItemType FROM skill_perfect_item_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillPerfectItemTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell perfection definitions. DB table `skill_perfect_item_template` is empty.");
@@ -112,7 +112,7 @@ void LoadSkillPerfectItemTable()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} spell perfection definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell perfection definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -140,13 +140,10 @@ SkillExtraItemMap SkillExtraItemStore;
 // loads the extra item creation info from DB
 void LoadSkillExtraItemTable()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     SkillExtraItemStore.clear();                            // need for reload
 
-    //                                                  0               1                       2                    3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillExtraItemTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
@@ -159,7 +156,6 @@ void LoadSkillExtraItemTable()
     do
     {
         auto fields = result->Fetch();
-
         uint32 spellId = fields[0].Get<uint32>();
 
         if (!sSpellMgr->GetSpellInfo(spellId))
@@ -198,7 +194,7 @@ void LoadSkillExtraItemTable()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} spell specialization definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell specialization definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

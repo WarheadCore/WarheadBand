@@ -22,10 +22,10 @@
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
 #include "Log.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
-WaypointMgr::WaypointMgr()
-{
-}
+WaypointMgr::WaypointMgr() = default;
 
 WaypointMgr::~WaypointMgr()
 {
@@ -48,11 +48,9 @@ WaypointMgr* WaypointMgr::instance()
 
 void WaypointMgr::Load()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                0    1         2           3          4            5           6        7      8           9
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::WaypointData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
@@ -102,7 +100,7 @@ void WaypointMgr::Load()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} waypoints in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} waypoints in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

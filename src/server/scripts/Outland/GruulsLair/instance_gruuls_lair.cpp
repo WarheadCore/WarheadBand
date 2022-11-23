@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "gruuls_lair.h"
+#include "Log.h"
 #include <sstream>
 
 DoorData const doorData[] =

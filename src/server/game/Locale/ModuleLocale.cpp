@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "Tokenize.h"
 #include "World.h"
+#include "StopWatch.h"
 
 ModuleLocale* ModuleLocale::instance()
 {
@@ -64,8 +65,7 @@ Optional<std::string> ModuleLocale::GetModuleString(std::string const& entry, ui
 
 void ModuleLocale::LoadModuleString()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _modulesStringStore.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT `Entry`, `Locale`, `Text` FROM `string_module`");
@@ -86,7 +86,7 @@ void ModuleLocale::LoadModuleString()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} module strings in {} ms", _modulesStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} module strings in {}", _modulesStringStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 

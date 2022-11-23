@@ -26,7 +26,7 @@
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include <sstream>
+#include "StopWatch.h"
 #include <unordered_map>
 
 CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _statusTime(GameTime::GetGameTime().count()),
@@ -64,12 +64,12 @@ CalendarMgr* CalendarMgr::instance()
 
 void CalendarMgr::LoadFromDB()
 {
+    StopWatch sw;
     uint32 count = 0;
     _maxEventId = 0;
     _maxInviteId = 0;
 
-    //                                                       0   1        2      3            4     5        6          7      8
-    if (QueryResult result = CharacterDatabase.Query("SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events"))
+    if (auto result{ CharacterDatabase.Query("SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events") })
     {
         for (auto const& fields : *result)
         {
@@ -124,9 +124,6 @@ void CalendarMgr::LoadFromDB()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} calendar invites", count);
-    LOG_INFO("server.loading", " ");
-
     for (uint64 i = 1; i < _maxEventId; ++i)
         if (!GetEvent(i))
             _freeEventIds.push_back(i);
@@ -134,6 +131,9 @@ void CalendarMgr::LoadFromDB()
     for (uint64 i = 1; i < _maxInviteId; ++i)
         if (!GetInvite(i))
             _freeInviteIds.push_back(i);
+
+    LOG_INFO("server.loading", ">> Loaded {} calendar invites in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void CalendarMgr::AddEvent(CalendarEvent* calendarEvent, CalendarSendEventType sendType)
@@ -469,13 +469,11 @@ std::string CalendarEvent::BuildCalendarMailBody() const
 {
     WorldPacket data;
     uint32 time;
-    std::ostringstream strm;
 
     // we are supposed to send PackedTime so i used WorldPacket to pack it
     data.AppendPackedTime(_eventTime);
     data >> time;
-    strm << time;
-    return strm.str();
+    return Warhead::StringFormat("{}", time);
 }
 
 void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)

@@ -58,6 +58,8 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -381,24 +383,9 @@ ObjectMgr* ObjectMgr::instance()
 
 void ObjectMgr::LoadCreatureTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-//                                                   0      1                   2                   3                   4            5            6         7         8
-    QueryResult result = WorldDatabase.Query("SELECT entry, difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
-//                        9         10    11       12        13              14        15        16   17       18       19          20         21          22
-                         "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, faction, npcflag, speed_walk, speed_run, speed_swim, speed_flight, "
-//                        23               24     25      26         27              28              29               30            31             32          33          34
-                         "detection_range, scale, `rank`, dmgschool, DamageModifier, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, unit_class, unit_flags, unit_flags2, "
-//                        35            36      37            38             39             40            41
-                         "dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
-//                        42          43      44              45        46              47         48       49       50      51
-                         "type_flags, lootid, pickpocketloot, skinloot, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-//                        52          53        54          55          56         57          58                         59           60              61            62             63
-                         "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, HoverHeight, HealthModifier, ManaModifier, ArmorModifier, ExperienceModifier, "
-//                        64            65          66           67                    68                        69           70
-                         "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, spell_school_immune_mask, flags_extra, ScriptName "
-                         "FROM creature_template ct LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId;");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature template definitions. DB table `creature_template` is empty.");
@@ -440,7 +427,8 @@ void ObjectMgr::LoadCreatureTemplates()
         itr->second.InitializeQueryData();
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} creature definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} creature definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadCreatureTemplate(Field* fields)
@@ -559,7 +547,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
 
 void ObjectMgr::LoadCreatureTemplateResistances()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     //                                               0           1       2
     QueryResult result = WorldDatabase.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
@@ -599,12 +587,12 @@ void ObjectMgr::LoadCreatureTemplateResistances()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} creature template resistances in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} creature template resistances in {}", count, sw);
 }
 
 void ObjectMgr::LoadCreatureTemplateSpells()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     //                                               0           1       2
     QueryResult result = WorldDatabase.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
@@ -644,16 +632,14 @@ void ObjectMgr::LoadCreatureTemplateSpells()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} creature template spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} creature template spells in {}", count, sw);
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                0       1       2      3       4       5              6               7
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_template_addon");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureTemplateAddon) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
@@ -736,7 +722,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Template Addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Template Addons in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -1135,11 +1121,9 @@ void ObjectMgr::CheckCreatureMovement(char const* table, uint64 id, CreatureMove
 
 void ObjectMgr::LoadCreatureAddons()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                0       1       2      3       4       5             6                7
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_addon");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureAddon) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
@@ -1230,17 +1214,15 @@ void ObjectMgr::LoadCreatureAddons()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Addons in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadGameObjectAddons()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                               0     1                 2
-    QueryResult result = WorldDatabase.Query("SELECT guid, invisibilityType, invisibilityValue FROM gameobject_addon");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameobjectAddon) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gameobject addon definitions. DB table `gameobject_addon` is empty.");
@@ -1282,7 +1264,7 @@ void ObjectMgr::LoadGameObjectAddons()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Gameobject Addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Gameobject Addons in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -1346,11 +1328,9 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
 
 void ObjectMgr::LoadEquipmentTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                 0         1       2       3       4
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureEquipTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature equipment templates. DB table `creature_equip_template` is empty!");
@@ -1418,31 +1398,21 @@ void ObjectMgr::LoadEquipmentTemplates()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Equipment Templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Equipment Templates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadCreatureMovementOverrides()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _creatureMovementOverrides.clear();
 
     // Load the data from creature_movement_override and if NULL fallback to creature_template_movement
-    QueryResult result = WorldDatabase.Query("SELECT cmo.SpawnId,"
-                                             "COALESCE(cmo.Ground, ctm.Ground),"
-                                             "COALESCE(cmo.Swim, ctm.Swim),"
-                                             "COALESCE(cmo.Flight, ctm.Flight),"
-                                             "COALESCE(cmo.Rooted, ctm.Rooted),"
-                                             "COALESCE(cmo.Chase, ctm.Chase),"
-                                             "COALESCE(cmo.Random, ctm.Random),"
-                                             "COALESCE(cmo.InteractionPauseTimer, ctm.InteractionPauseTimer) "
-                                             "FROM creature_movement_override AS cmo "
-                                             "LEFT JOIN creature AS c ON c.guid = cmo.SpawnId "
-                                             "LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id1");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureMovementOverride) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature movement overrides. DB table `creature_movement_override` is empty!");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -1495,7 +1465,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Movement Overrides in {} ms", _creatureMovementOverrides.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Movement Overrides in {}", _creatureMovementOverrides.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -1561,11 +1531,9 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* display
 
 void ObjectMgr::LoadCreatureModelInfo()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                   0             1             2          3               4
-    QueryResult result = WorldDatabase.Query("SELECT DisplayID, BoundingRadius, CombatReach, Gender, DisplayID_Other_Gender FROM creature_model_info");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureModelInfo) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature model definitions. DB table `creature_model_info` is empty.");
@@ -1612,18 +1580,16 @@ void ObjectMgr::LoadCreatureModelInfo()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Model Based Info in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Model Based Info in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadLinkedRespawn()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _linkedRespawnStore.clear();
-    //                                                 0        1          2
-    QueryResult result = WorldDatabase.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
 
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::LinkedRespawn) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
@@ -1641,6 +1607,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
         ObjectGuid guid, linkedGuid;
         bool error = false;
+
         switch (linkType)
         {
             case CREATURE_TO_CREATURE:
@@ -1797,7 +1764,7 @@ void ObjectMgr::LoadLinkedRespawn()
             _linkedRespawnStore[guid] = linkedGuid;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Linked Respawns In {} ms", uint64(_linkedRespawnStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Linked Respawns in {}", uint64(_linkedRespawnStore.size()), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -1850,14 +1817,13 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
 
 void ObjectMgr::LoadTempSummons()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                    0           1             2        3      4           5           6           7            8           9
-    QueryResult result = WorldDatabase.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureSummonGroups) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 temp summons. DB table `creature_summon_groups` is empty.");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -1930,24 +1896,15 @@ void ObjectMgr::LoadTempSummons()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Temporary Summons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Temporary Summons in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadCreatures()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                     0         1    2    3    4        5            6           7           8            9              10            11
-    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id1, id2, id3, map, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, wander_distance, "
-                         //      12            13       14          15           16         17         18          19             20                 21                    22
-                         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, "
-                         //       23
-                         "creature.ScriptName "
-                         "FROM creature "
-                         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
-                         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::Creature) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creatures. DB table `creature` is empty.");
@@ -2125,7 +2082,7 @@ void ObjectMgr::LoadCreatures()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creatures in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creatures in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -2265,19 +2222,10 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, float y, float
 
 void ObjectMgr::LoadGameobjects()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     uint32 count = 0;
 
-    //                                                0                1   2    3           4           5           6
-    QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
-                         //   7          8          9          10         11             12            13     14         15         16          17
-                         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry, "
-                         //   18
-                         "ScriptName "
-                         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
-                         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::Gameobject) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
@@ -2287,13 +2235,13 @@ void ObjectMgr::LoadGameobjects()
 
     // build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
-        if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
-                if (GetMapDifficultyData(i, Difficulty(k)))
-                    spawnMasks[i] |= (1 << k);
+    for (auto const& map : sMapStore)
+        for (int k = 0; k < MAX_DIFFICULTY; ++k)
+            if (GetMapDifficultyData(map->MapID, Difficulty(k)))
+                spawnMasks[map->MapID] |= (1 << k);
 
     _gameObjectDataStore.rehash(result->GetRowCount());
+
     do
     {
         auto fields = result->Fetch();
@@ -2431,7 +2379,7 @@ void ObjectMgr::LoadGameobjects()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Gameobjects in {} ms", (unsigned long)_gameObjectDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Gameobjects in {}", (unsigned long)_gameObjectDataStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -2465,41 +2413,9 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
 
 void ObjectMgr::LoadItemTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                 0      1       2               3              4        5        6       7          8         9        10        11           12
-    QueryResult result = WorldDatabase.Query("SELECT entry, class, subclass, SoundOverrideSubclass, name, displayid, Quality, Flags, FlagsExtra, BuyCount, BuyPrice, SellPrice, InventoryType, "
-                         //                                              13              14           15          16             17               18                19              20
-                         "AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, requiredspell, requiredhonorrank, "
-                         //                                              21                      22                       23               24        25          26             27           28
-                         "RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, maxcount, stackable, ContainerSlots, StatsCount, stat_type1, "
-                         //                                            29           30          31           32          33           34          35           36          37           38
-                         "stat_value1, stat_type2, stat_value2, stat_type3, stat_value3, stat_type4, stat_value4, stat_type5, stat_value5, stat_type6, "
-                         //                                            39           40          41           42           43          44           45           46           47
-                         "stat_value6, stat_type7, stat_value7, stat_type8, stat_value8, stat_type9, stat_value9, stat_type10, stat_value10, "
-                         //                                                   48                    49           50        51        52         53        54         55      56      57        58
-                         "ScalingStatDistribution, ScalingStatValue, dmg_min1, dmg_max1, dmg_type1, dmg_min2, dmg_max2, dmg_type2, armor, holy_res, fire_res, "
-                         //                                            59          60         61          62       63       64            65            66          67               68
-                         "nature_res, frost_res, shadow_res, arcane_res, delay, ammo_type, RangedModRange, spellid_1, spelltrigger_1, spellcharges_1, "
-                         //                                              69              70                71                 72                 73           74               75
-                         "spellppmRate_1, spellcooldown_1, spellcategory_1, spellcategorycooldown_1, spellid_2, spelltrigger_2, spellcharges_2, "
-                         //                                              76               77              78                  79                 80           81               82
-                         "spellppmRate_2, spellcooldown_2, spellcategory_2, spellcategorycooldown_2, spellid_3, spelltrigger_3, spellcharges_3, "
-                         //                                              83               84              85                  86                 87           88               89
-                         "spellppmRate_3, spellcooldown_3, spellcategory_3, spellcategorycooldown_3, spellid_4, spelltrigger_4, spellcharges_4, "
-                         //                                              90               91              92                  93                  94          95               96
-                         "spellppmRate_4, spellcooldown_4, spellcategory_4, spellcategorycooldown_4, spellid_5, spelltrigger_5, spellcharges_5, "
-                         //                                              97               98              99                  100                 101        102         103       104          105
-                         "spellppmRate_5, spellcooldown_5, spellcategory_5, spellcategorycooldown_5, bonding, description, PageText, LanguageID, PageMaterial, "
-                         //                                            106       107     108      109          110            111       112     113         114       115   116     117
-                         "startquest, lockid, Material, sheath, RandomProperty, RandomSuffix, block, itemset, MaxDurability, area, Map, BagFamily, "
-                         //                                            118             119             120             121             122            123              124            125
-                         "TotemCategory, socketColor_1, socketContent_1, socketColor_2, socketContent_2, socketColor_3, socketContent_3, socketBonus, "
-                         //                                            126                 127                     128            129            130            131         132         133
-                         "GemProperties, RequiredDisenchantSkill, ArmorDamageModifier, duration, ItemLimitCategory, HolidayId, ScriptName, DisenchantID, "
-                         //                                           134        135            136
-                         "FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom FROM item_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ItemTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 item templates. DB table `item_template` is empty.");
@@ -3085,7 +3001,7 @@ void ObjectMgr::LoadItemTemplates()
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
         LOG_ERROR("db.query", "Item (Entry: {}) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
 
-    LOG_INFO("server.loading", ">> Loaded {} Item Templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Item Templates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -3096,10 +3012,8 @@ ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
 
 void ObjectMgr::LoadItemSetNames()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _itemSetNameStore.clear();                               // needed for reload case
-
     std::set<uint32> itemSetItems;
 
     // fill item set member ids
@@ -3114,9 +3028,7 @@ void ObjectMgr::LoadItemSetNames()
                 itemSetItems.insert(setEntry->itemId[i]);
     }
 
-    //                                                  0        1            2
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `name`, `InventoryType` FROM `item_set_names`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ItemSetNames) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 item set names. DB table `item_set_names` is empty.");
@@ -3174,27 +3086,24 @@ void ObjectMgr::LoadItemSetNames()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Item Set Names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Item Set Names in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadVehicleTemplateAccessories()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _vehicleTemplateAccessoryStore.clear();                           // needed for reload case
 
-    uint32 count = 0;
-
-    //                                                  0             1              2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleTemplateAccessory) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     do
     {
@@ -3230,27 +3139,24 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Vehicle Template Accessories in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Vehicle Template Accessories in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadVehicleAccessories()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _vehicleAccessoryStore.clear();                           // needed for reload case
 
-    uint32 count = 0;
-
-    //                                                  0             1             2          3           4             5
-    QueryResult result = WorldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleAccessory) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Vehicle Accessories in {} ms", GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded 0 Vehicle Accessories in {}", sw);
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     do
     {
@@ -3274,17 +3180,15 @@ void ObjectMgr::LoadVehicleAccessories()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Vehicle Accessories in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Vehicle Accessories in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadPetLevelInfo()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                 0               1      2   3     4    5    6    7     8    9      10       11
-    QueryResult result = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PetLevelstats) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
@@ -3367,7 +3271,7 @@ void ObjectMgr::LoadPetLevelInfo()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Level Pet Stats Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Level Pet Stats Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -3421,13 +3325,12 @@ void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
     {
-        uint32 oldMSTime = getMSTime();
-        //                                                0     1      2    3        4          5           6
-        QueryResult result = WorldDatabase.Query("SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
+        StopWatch sw;
 
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfo) };
         if (!result)
         {
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", "");
             LOG_WARN("server.loading", ">> Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
             exit(1);
         }
@@ -3500,20 +3403,21 @@ void ObjectMgr::LoadPlayerInfo()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Player Create Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Player Create Definitions in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     // Load playercreate items
     LOG_INFO("server.loading", "Loading Player Create Items Data...");
     {
-        uint32 oldMSTime = getMSTime();
-        //                                                0     1      2       3
-        QueryResult result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
+        StopWatch sw;
 
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoItem) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Custom Player Create Items. DB Table `playercreateinfo_item` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Custom Player Create Items. DB Table `playercreateinfo_item` Is Empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3569,20 +3473,21 @@ void ObjectMgr::LoadPlayerInfo()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Custom Player Create Items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Custom Player Create Items in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     // Load playercreate skills
     LOG_INFO("server.loading", "Loading Player Create Skill Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT raceMask, classMask, skill, `rank` FROM playercreateinfo_skills");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoSkills) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Player Create Skills. DB Table `playercreateinfo_skills` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Player Create Skills. DB Table `playercreateinfo_skills` Is Empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3643,20 +3548,21 @@ void ObjectMgr::LoadPlayerInfo()
                 }
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} player create skills in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} player create skills in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     // Load playercreate spells
     LOG_INFO("server.loading", "Loading Player Create Spell Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoSpellCustom) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3700,7 +3606,7 @@ void ObjectMgr::LoadPlayerInfo()
                 }
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Custom Player Create Spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Custom Player Create Spells in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -3708,13 +3614,13 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate cast spell
     LOG_INFO("server.loading", "Loading Player Create Cast Spell Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT raceMask, classMask, spell FROM playercreateinfo_cast_spell");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoCastSpell) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Player Create Cast Spells. DB Table `playercreateinfo_cast_spell` Is Empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3758,7 +3664,7 @@ void ObjectMgr::LoadPlayerInfo()
                 }
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Player Create Cast Spells in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Player Create Cast Spells in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -3766,14 +3672,12 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate actions
     LOG_INFO("server.loading", "Loading Player Create Action Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                0     1      2       3       4
-        QueryResult result = WorldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoAction) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Player Create Actions. DB Table `playercreateinfo_action` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Player Create Actions. DB Table `playercreateinfo_action` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -3804,7 +3708,7 @@ void ObjectMgr::LoadPlayerInfo()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Player Create Actions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Player Create Actions in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -3812,11 +3716,9 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading levels data (class only dependent)
     LOG_INFO("server.loading", "Loading Player Create Level HP/Mana Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                0      1      2       3
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerClassLevelStats) };
         if (!result)
         {
             LOG_FATAL("server.loading", ">> Loaded 0 level health/mana definitions. DB table `player_classlevelstats` is empty.");
@@ -3887,18 +3789,16 @@ void ObjectMgr::LoadPlayerInfo()
             }
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} Level Health/Mana Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} Level Health/Mana Definitions in {}", count, sw);
+        LOG_INFO("server.loading", "");
     }
 
     // Loading levels data (class/race dependent)
     LOG_INFO("server.loading", "Loading Player Create Level Stats Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                 0     1      2      3    4    5    6    7
-        QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerLevelStats) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
@@ -3996,22 +3896,21 @@ void ObjectMgr::LoadPlayerInfo()
             }
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} Level Stats Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Level Stats Definitions in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 
     // Loading xp per level data
     LOG_INFO("server.loading", "Loading Player Create XP Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         _playerXPperLevel.resize(CONF_GET_INT("MaxPlayerLevel"));
+
         for (uint8 level = 0; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
             _playerXPperLevel[level] = 0;
 
-        //                                                 0    1
-        QueryResult result  = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerXpForLevel) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
@@ -4054,7 +3953,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} Xp For Level Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Xp For Level Definitions in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 }
@@ -4165,43 +4064,16 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 
 void ObjectMgr::LoadQuests()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // For reload case
     for (QuestMap::const_iterator itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
         delete itr->second;
-    _questTemplates.clear();
 
+    _questTemplates.clear();
     mExclusiveQuestGroups.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT "
-                         //0      1         2           3           4           5             6                 7            8
-                         "ID, QuestType, QuestLevel, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, TimeAllowed, AllowableRaces,"
-                         //      9                     10                   11                    12
-                         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, "
-                         //      13                14              15             16                 17                18                 19           20           21
-                         "RewardNextQuest, RewardXPDifficulty, RewardMoney, RewardMoneyDifficulty, RewardBonusMoney,  RewardDisplaySpell, RewardSpell, RewardHonor, RewardKillHonor, "
-                         //   22       23       24              25                26               27
-                         "StartItem, Flags, RewardTitle, RequiredPlayerKills, RewardTalents, RewardArenaPoints, "
-                         //    28           29           30          31            32              33            34             35
-                         "RewardItem1, RewardAmount1, RewardItem2, RewardAmount2, RewardItem3, RewardAmount3, RewardItem4, RewardAmount4, "
-                         //        36                      37                      38                      39                      40                      41                      42                      43                      44                      45                     46                      47
-                         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemID6, RewardChoiceItemQuantity6, "
-                         //       48                 49                     50                  51                  52                     53                 54                  55                     56                  57                  58                    59                   60                 61                      62
-                         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionID5, RewardFactionValue5,  RewardFactionOverride5,"
-                         //   62        64      65        66
-                         "POIContinent, POIx, POIy, POIPriority, "
-                         //   67          68               69           70                    71
-                         "LogTitle, LogDescription, QuestDescription, AreaDescription, QuestCompletionLog, "
-                         //      72                73                74                75                   76                     77                    78                      79
-                         "RequiredNpcOrGo1, RequiredNpcOrGo2, RequiredNpcOrGo3, RequiredNpcOrGo4, RequiredNpcOrGoCount1, RequiredNpcOrGoCount2, RequiredNpcOrGoCount3, RequiredNpcOrGoCount4, "
-                         //  80          81         82         83           84                  85                 86                  87
-                         "ItemDrop1, ItemDrop2, ItemDrop3, ItemDrop4, ItemDropQuantity1, ItemDropQuantity2, ItemDropQuantity3, ItemDropQuantity4, "
-                         //      88               89               90               91               92               93                94                  95                  96                  97                  98                  99
-                         "RequiredItemId1, RequiredItemId2, RequiredItemId3, RequiredItemId4, RequiredItemId5, RequiredItemId6, RequiredItemCount1, RequiredItemCount2, RequiredItemCount3, RequiredItemCount4, RequiredItemCount5, RequiredItemCount6, "
-                         //  100          101             102             103             104
-                         "Unknown0, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4"
-                         " FROM quest_template");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
@@ -4910,13 +4782,13 @@ void ObjectMgr::LoadQuests()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} quests definitions in {} ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} quests definitions in {}", (unsigned long)_questTemplates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     ScriptMapMap* scripts = GetScriptsMapByType(type);
     if (!scripts)
@@ -5224,7 +5096,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} script definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} script definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -5323,18 +5195,16 @@ void ObjectMgr::LoadWaypointScripts()
         } while (result->NextRow());
     }
 
-    for (std::set<uint32>::iterator itr = actionSet.begin(); itr != actionSet.end(); ++itr)
-        LOG_ERROR("db.query", "There is no waypoint which links to the waypoint script {}", *itr);
+    for (unsigned int itr : actionSet)
+        LOG_ERROR("db.query", "There is no waypoint which links to the waypoint script {}", itr);
 }
 
 void ObjectMgr::LoadSpellScriptNames()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _spellScriptsStore.clear();                            // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellScriptNames) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell script names. DB table `spell_script_names` is empty!");
@@ -5383,13 +5253,13 @@ void ObjectMgr::LoadSpellScriptNames()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} spell script names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell script names in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::ValidateSpellScripts()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (_spellScriptsStore.empty())
     {
@@ -5455,29 +5325,33 @@ void ObjectMgr::ValidateSpellScripts()
         }
     }
 
-    LOG_INFO("server.loading", ">> Validated {} scripts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Validated {} scripts in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::InitializeSpellInfoPrecomputedData()
 {
-    uint32 limit = sSpellStore.GetNumRows();
-    for(uint32 i = 0; i <= limit; ++i)
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i))
+    StopWatch sw;
+
+    for (auto const& spellEntry : sSpellStore)
+    {
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellEntry->Id))
         {
             const_cast<SpellInfo*>(spellInfo)->SetStackableWithRanks(spellInfo->ComputeIsStackableWithRanks());
             const_cast<SpellInfo*>(spellInfo)->SetCritCapable(spellInfo->ComputeIsCritCapable());
             const_cast<SpellInfo*>(spellInfo)->SetSpellValid(SpellMgr::ComputeIsSpellValid(spellInfo, false));
         }
+    }
+
+    LOG_INFO("server.loading", ">> Initialized SpellInfo Precomputed Data in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadPageTexts()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                               0     1       2
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID FROM page_text");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PageText) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 page texts. DB table `page_text` is empty!");
@@ -5486,6 +5360,7 @@ void ObjectMgr::LoadPageTexts()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -5508,7 +5383,7 @@ void ObjectMgr::LoadPageTexts()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} page texts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} page texts in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -5523,11 +5398,9 @@ PageText const* ObjectMgr::GetPageText(uint32 pageEntry)
 
 void ObjectMgr::LoadInstanceTemplate()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                0     1       2        4
-    QueryResult result = WorldDatabase.Query("SELECT map, parent, script, allowMount FROM instance_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::InstanceTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 instance templates. DB table `page_text` is empty!");
@@ -5559,7 +5432,7 @@ void ObjectMgr::LoadInstanceTemplate()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Instance Templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Instance Templates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -5574,10 +5447,9 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)
 
 void ObjectMgr::LoadInstanceEncounters()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                 0         1            2                3
-    QueryResult result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::InstanceEncounters) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 instance encounters, table is empty!");
@@ -5653,7 +5525,7 @@ void ObjectMgr::LoadInstanceEncounters()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Instance Encounters in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Instance Encounters in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -5667,19 +5539,9 @@ GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
 
 void ObjectMgr::LoadGossipText()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "text0_0, text0_1, BroadcastTextID0, lang0, Probability0, EmoteDelay0_0, Emote0_0, EmoteDelay0_1, Emote0_1, EmoteDelay0_2, Emote0_2, "
-        "text1_0, text1_1, BroadcastTextID1, lang1, Probability1, EmoteDelay1_0, Emote1_0, EmoteDelay1_1, Emote1_1, EmoteDelay1_2, Emote1_2, "
-        "text2_0, text2_1, BroadcastTextID2, lang2, Probability2, EmoteDelay2_0, Emote2_0, EmoteDelay2_1, Emote2_1, EmoteDelay2_2, Emote2_2, "
-        "text3_0, text3_1, BroadcastTextID3, lang3, Probability3, EmoteDelay3_0, Emote3_0, EmoteDelay3_1, Emote3_1, EmoteDelay3_2, Emote3_2, "
-        "text4_0, text4_1, BroadcastTextID4, lang4, Probability4, EmoteDelay4_0, Emote4_0, EmoteDelay4_1, Emote4_1, EmoteDelay4_2, Emote4_2, "
-        "text5_0, text5_1, BroadcastTextID5, lang5, Probability5, EmoteDelay5_0, Emote5_0, EmoteDelay5_1, Emote5_1, EmoteDelay5_2, Emote5_2, "
-        "text6_0, text6_1, BroadcastTextID6, lang6, Probability6, EmoteDelay6_0, Emote6_0, EmoteDelay6_1, Emote6_1, EmoteDelay6_2, Emote6_2, "
-        "text7_0, text7_1, BroadcastTextID7, lang7, Probability7, EmoteDelay7_0, Emote7_0, EmoteDelay7_1, Emote7_1, EmoteDelay7_2, Emote7_2 "
-        "FROM npc_text");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcText) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 npc texts, table is empty!");
@@ -5744,14 +5606,13 @@ void ObjectMgr::LoadGossipText()
         count++;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Npc Texts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Npc Texts in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     time_t curTime = GameTime::GetGameTime().count();
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
@@ -5778,6 +5639,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
     uint32 deletedCount = 0;
     uint32 returnedCount = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -5867,18 +5729,16 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         ++deletedCount;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Processed {} expired mails: {} deleted and {} returned in {} ms", deletedCount + returnedCount, deletedCount, returnedCount, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Processed {} expired mails: {} deleted and {} returned in {}", deletedCount + returnedCount, deletedCount, returnedCount, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadQuestAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _questAreaTriggerStore.clear();                           // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id, quest FROM areatrigger_involvedrelation");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerInvolvedrelation) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 quest trigger points. DB table `areatrigger_involvedrelation` is empty.");
@@ -5905,7 +5765,6 @@ void ObjectMgr::LoadQuestAreaTriggers()
         }
 
         Quest const* quest = GetQuestTemplate(quest_ID);
-
         if (!quest)
         {
             LOG_ERROR("db.query", "Table `areatrigger_involvedrelation` has record (id: {}) for not existing quest {}", trigger_ID, quest_ID);
@@ -5925,7 +5784,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
         _questAreaTriggerStore[trigger_ID] = quest_ID;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Quest Trigger Points in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest Trigger Points in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -5944,13 +5803,12 @@ QuestGreeting const* ObjectMgr::GetQuestGreeting(TypeID type, uint32 id) const
 
 void ObjectMgr::LoadQuestGreetings()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    for (std::size_t i = 0; i < _questGreetingStore.size(); ++i)
-        _questGreetingStore[i].clear();
+    for (auto& i : _questGreetingStore)
+        i.clear();
 
-    //                                                0   1          2                3             4
-    QueryResult result = WorldDatabase.Query("SELECT ID, Type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestGreeting) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 quest greetings. DB table `quest_greeting` is empty.");
@@ -5965,6 +5823,7 @@ void ObjectMgr::LoadQuestGreetings()
 
         uint32 id = fields[0].Get<uint32>();
         uint8 type = fields[1].Get<uint8>();
+
         switch (type)
         {
         case 0: // Creature
@@ -5994,17 +5853,16 @@ void ObjectMgr::LoadQuestGreetings()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} quest_greeting in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} quest_greeting in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _tavernAreaTriggerStore.clear();                          // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT id, faction FROM areatrigger_tavern");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerTavern) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 tavern triggers. DB table `areatrigger_tavern` is empty.");
@@ -6034,17 +5892,16 @@ void ObjectMgr::LoadTavernAreaTriggers()
         _tavernAreaTriggerStore.emplace(Trigger_ID, faction);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Tavern Triggers in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Tavern Triggers in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadAreaTriggerScripts()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _areaTriggerScriptStore.clear();                            // need for reload case
-    QueryResult result = WorldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
 
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerScripts) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Areatrigger Scripts. DB Table `areatrigger_scripts` Is Empty.");
@@ -6072,7 +5929,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         _areaTriggerScriptStore[Trigger_ID] = GetScriptId(scriptName);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Areatrigger Scripts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Areatrigger Scripts in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -6180,12 +6037,10 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, TeamId teamId, bool allowed_a
 
 void ObjectMgr::LoadAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _areaTriggerStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, map, x, y, z, radius, length, width, height, orientation FROM areatrigger");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::Areatrigger) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 area trigger definitions. DB table `areatrigger` is empty.");
@@ -6224,18 +6079,16 @@ void ObjectMgr::LoadAreaTriggers()
         _areaTriggerStore[at.entry] = at;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Area Trigger Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Area Trigger Definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadAreaTriggerTeleports()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _areaTriggerTeleportStore.clear();                                  // need for reload case
 
-    //                                               0        1              2                  3                  4                   5
-    QueryResult result = WorldDatabase.Query("SELECT ID,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerTeleport) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
@@ -6248,18 +6101,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
     do
     {
         auto fields = result->Fetch();
-
-        ++count;
-
         uint32 Trigger_ID = fields[0].Get<uint32>();
-
-        AreaTriggerTeleport at;
-
-        at.target_mapId             = fields[1].Get<uint16>();
-        at.target_X                 = fields[2].Get<float>();
-        at.target_Y                 = fields[3].Get<float>();
-        at.target_Z                 = fields[4].Get<float>();
-        at.target_Orientation       = fields[5].Get<float>();
 
         AreaTrigger const* atEntry = GetAreaTrigger(Trigger_ID);
         if (!atEntry)
@@ -6267,6 +6109,13 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             LOG_ERROR("db.query", "Area trigger (ID:{}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
             continue;
         }
+
+        AreaTriggerTeleport at{};
+        at.target_mapId             = fields[1].Get<uint16>();
+        at.target_X                 = fields[2].Get<float>();
+        at.target_Y                 = fields[3].Get<float>();
+        at.target_Z                 = fields[4].Get<float>();
+        at.target_Orientation       = fields[5].Get<float>();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
         if (!mapEntry)
@@ -6282,15 +6131,16 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         }
 
         _areaTriggerTeleportStore[Trigger_ID] = at;
+        count++;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Area Trigger Teleport Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Area Trigger Teleport Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadAccessRequirements()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (!_accessRequirementStore.empty())
     {
@@ -6436,7 +6286,7 @@ void ObjectMgr::LoadAccessRequirements()
         }
 
         //Sort all arrays for priority
-        auto sortFunction = [](const ProgressionRequirement* const a, const ProgressionRequirement* const b) {return a->priority > b->priority; };
+        auto sortFunction = [](const ProgressionRequirement* const a, const ProgressionRequirement* const b) { return a->priority > b->priority; };
         std::sort(ar->achievements.begin(), ar->achievements.end(), sortFunction);
         std::sort(ar->quests.begin(), ar->quests.end(), sortFunction);
         std::sort(ar->items.begin(), ar->items.end(), sortFunction);
@@ -6449,7 +6299,7 @@ void ObjectMgr::LoadAccessRequirements()
         _accessRequirementStore[mapid][difficulty] = ar;
     } while (access_template_result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Rows From dungeon_access_template And {} Rows From dungeon_access_requirements in {} ms", count, countProgressionRequirements, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} rows From dungeon_access_template And {} Rows From dungeon_access_requirements in {}", count, countProgressionRequirements, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -6506,6 +6356,11 @@ AreaTriggerTeleport const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 
 void ObjectMgr::SetHighestGuids()
 {
+    StopWatch sw;
+
+    LOG_INFO("server.loading", "");
+    LOG_INFO("server.loading", "Set highest guids...");
+
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
         GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].Get<uint32>() + 1);
@@ -6555,6 +6410,9 @@ void ObjectMgr::SetHighestGuids()
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
         _gameObjectSpawnId = (*result)[0].Get<uint32>() + 1;
+
+    LOG_INFO("server.loading", "Highest guids loaded in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 ObjectMgr::GenerateAuctionID()
@@ -6564,6 +6422,7 @@ uint32 ObjectMgr::GenerateAuctionID()
         LOG_ERROR("server.worldserver", "Auctions ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
+
     return _auctionId++;
 }
 
@@ -6669,16 +6528,9 @@ inline void CheckGOConsumable(GameObjectTemplate const* goInfo, uint32 dataN, ui
 
 void ObjectMgr::LoadGameObjectTemplate()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                 0      1      2        3       4             5          6      7
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, "
-                         //                                          8      9      10     11     12     13     14     15     16     17     18      19      20
-                         "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
-                         //                                          21      22      23      24      25      26      27      28      29      30      31      32        33
-                         "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName "
-                         "FROM gameobject_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameobjectTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gameobject definitions. DB table `gameobject_template` is empty.");
@@ -6688,6 +6540,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
     _gameObjectTemplateStore.rehash(result->GetRowCount());
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -6852,17 +6705,15 @@ void ObjectMgr::LoadGameObjectTemplate()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Game Object Templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Game Object Templates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadGameObjectTemplateAddons()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                0       1       2      3        4       5        6        7        8
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3 FROM gameobject_template_addon");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameobjectTemplateAddon) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gameobject template addon definitions. DB table `gameobject_template_addon` is empty.");
@@ -6929,16 +6780,15 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Game Object Template Addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Game Object Template Addons in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadExplorationBaseXP()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ExplorationBasexp) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
@@ -6957,7 +6807,7 @@ void ObjectMgr::LoadExplorationBaseXP()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} BaseXP Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} BaseXP Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -6975,10 +6825,9 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 
 void ObjectMgr::LoadPetNames()
 {
-    uint32 oldMSTime = getMSTime();
-    //                                                0     1      2
-    QueryResult result = WorldDatabase.Query("SELECT word, entry, half FROM pet_name_generation");
+    StopWatch sw;
 
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PetNameGeneration) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 pet name parts. DB table `pet_name_generation` is empty!");
@@ -7001,22 +6850,22 @@ void ObjectMgr::LoadPetNames()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Pet Name Parts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Pet Name Parts in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadPetNumber()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
+    auto result{ CharacterDatabase.Query("SELECT MAX(id) FROM character_pet") };
     if (result)
     {
         auto fields = result->Fetch();
         _hiPetNumber = fields[0].Get<uint32>() + 1;
     }
 
-    LOG_INFO("server.loading", ">> Loaded The Max Pet Number: {} in {} ms", _hiPetNumber - 1, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded The Max Pet Number: {} in {}", _hiPetNumber - 1, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -7046,17 +6895,18 @@ uint32 ObjectMgr::GeneratePetNumber()
 
 void ObjectMgr::LoadReputationRewardRate()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _repRewardRateStore.clear();                             // for reload case
 
-    uint32 count = 0; //                                0          1             2                  3                  4                 5                      6             7
-    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ReputationRewardRate) };
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded `reputation_reward_rate`, table is empty!");
+        LOG_INFO("server.loading", "");
         return;
     }
+
+    uint32 count = 0;
 
     do
     {
@@ -7064,8 +6914,7 @@ void ObjectMgr::LoadReputationRewardRate()
 
         uint32 factionId            = fields[0].Get<uint32>();
 
-        RepRewardRate repRate;
-
+        RepRewardRate repRate{};
         repRate.questRate           = fields[1].Get<float>();
         repRate.questDailyRate      = fields[2].Get<float>();
         repRate.questWeeklyRate     = fields[3].Get<float>();
@@ -7128,25 +6977,18 @@ void ObjectMgr::LoadReputationRewardRate()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Reputation Reward Rate in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Reputation Reward Rate in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadReputationOnKill()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // For reload case
     _repOnKillStore.clear();
 
-    uint32 count = 0;
-
-    //                                                0            1                     2
-    QueryResult result = WorldDatabase.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, "
-                         //   3             4             5                   6             7             8                   9
-                         "IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent "
-                         "FROM creature_onkill_reputation");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureOnkillReputation) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
@@ -7154,13 +6996,15 @@ void ObjectMgr::LoadReputationOnKill()
         return;
     }
 
+    uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
 
         uint32 creature_id = fields[0].Get<uint32>();
 
-        ReputationOnKillEntry repOnKill;
+        ReputationOnKillEntry repOnKill{};
         repOnKill.RepFaction1           = fields[1].Get<int16>();
         repOnKill.RepFaction2           = fields[2].Get<int16>();
         repOnKill.IsTeamAward1          = fields[3].Get<bool>();
@@ -7202,25 +7046,24 @@ void ObjectMgr::LoadReputationOnKill()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Award Reputation Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Award Reputation Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadReputationSpilloverTemplate()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _repSpilloverTemplateStore.clear();                      // for reload case
 
-    uint32 count = 0; //                                0         1        2       3        4       5       6         7        8      9        10       11     12
-    QueryResult result = WorldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4 FROM reputation_spillover_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ReputationSpilloverTemplate) };
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded `reputation_spillover_template`, table is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     do
     {
@@ -7313,27 +7156,24 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Reputation Spillover Template in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Reputation Spillover Template in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadPointsOfInterest()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _pointsOfInterestStore.clear();                              // need for reload case
 
-    uint32 count = 0;
-
-    //                                               0       1          2        3     4      5    6
-    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name FROM points_of_interest");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PointsOfInterest) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     do
     {
@@ -7361,21 +7201,16 @@ void ObjectMgr::LoadPointsOfInterest()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Points of Interest Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Points of Interest Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadQuestPOI()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _questPOIStore.clear();                              // need for reload case
 
-    uint32 count = 0;
-
-    //                                               0        1          2          3           4          5       6        7
-    QueryResult result = WorldDatabase.Query("SELECT QuestID, id, ObjectiveIndex, MapID, WorldMapAreaId, Floor, Priority, Flags FROM quest_poi order by QuestID");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestPOI) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
@@ -7383,10 +7218,9 @@ void ObjectMgr::LoadQuestPOI()
         return;
     }
 
-    //                                                  0       1   2  3
-    QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx2");
-
-    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
+    auto points{ sDBCacheMgr->GetResult(DBCacheTable::QuestPOIPoints) };
+    std::vector<std::vector<std::vector<QuestPOIPoint>>> POIs;
+    uint32 count = 0;
 
     if (points)
     {
@@ -7437,18 +7271,16 @@ void ObjectMgr::LoadQuestPOI()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Quest POI definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest POI definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadNPCSpellClickSpells()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _spellClickInfoStore.clear();
-    //                                                0          1         2            3
-    QueryResult result = WorldDatabase.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
 
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcSpellClickSpells) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
@@ -7504,7 +7336,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Spellclick Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Spellclick Definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -7530,11 +7362,8 @@ void ObjectMgr::DeleteGOData(ObjectGuid::LowType guid)
 
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go)
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     map.clear();                                            // need for reload case
-
-    uint32 count = 0;
 
     QueryResult result = WorldDatabase.Query("SELECT id, quest, pool_entry FROM {} qr LEFT JOIN pool_quest pq ON qr.quest = pq.entry", table);
 
@@ -7544,6 +7373,8 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     PooledQuestRelation* poolRelationMap = go ? &sPoolMgr->mQuestGORelation : &sPoolMgr->mQuestCreatureRelation;
     if (starter)
@@ -7569,7 +7400,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Quest Relations From {} in {} ms", count, table, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest Relations From {} in {}", count, table, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -7631,15 +7462,14 @@ void ObjectMgr::LoadCreatureQuestEnders()
 
 void ObjectMgr::LoadReservedPlayersNames()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _reservedNamesStore.clear();                                // need for reload case
 
     QueryResult result = CharacterDatabase.Query("SELECT name FROM reserved_name");
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 reserved player names. DB table `reserved_name` is empty!");
+        LOG_INFO("server.loading", ">> Loaded 0 reserved player names. DB table `reserved_name` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -7651,7 +7481,7 @@ void ObjectMgr::LoadReservedPlayersNames()
         std::string name = fields[0].Get<std::string>();
 
         std::wstring wstr;
-        if (!Utf8toWStr (name, wstr))
+        if (!Utf8toWStr(name, wstr))
         {
             LOG_ERROR("db.query", "Table `reserved_name` have invalid name: {}", name);
             continue;
@@ -7663,7 +7493,7 @@ void ObjectMgr::LoadReservedPlayersNames()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} reserved player names in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} reserved player names in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -7854,7 +7684,7 @@ PetNameInvalidReason ObjectMgr::CheckPetName(std::string_view name)
 
 void ObjectMgr::LoadGameObjectForQuests()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (sObjectMgr->GetGameObjectTemplates()->empty())
     {
@@ -7921,18 +7751,16 @@ void ObjectMgr::LoadGameObjectForQuests()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} GameObjects for quests in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} GameObjects for quests in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _fishingBaseForAreaStore.clear();                            // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, skill FROM skill_fishing_base_level");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillFishingBaseLevel) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
@@ -7959,7 +7787,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} areas for fishing base skill level in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} areas for fishing base skill level in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -8067,13 +7895,10 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 
 void ObjectMgr::LoadGameTele()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _gameTeleStore.clear();                                  // for reload case
 
-    //                                                0       1           2           3           4        5     6
-    QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameTele) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 GameTeleports. DB table `game_tele` is empty!");
@@ -8117,7 +7942,7 @@ void ObjectMgr::LoadGameTele()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} GameTeleports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} GameTeleports in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -8207,13 +8032,10 @@ bool ObjectMgr::DeleteGameTele(std::string_view name)
 
 void ObjectMgr::LoadMailLevelRewards()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _mailLevelRewardStore.clear();                           // for reload case
 
-    //                                                 0        1             2            3
-    QueryResult result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::MailLevelReward) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
@@ -8261,7 +8083,7 @@ void ObjectMgr::LoadMailLevelRewards()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Level Dependent Mail Rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Level Dependent Mail Rewards in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -8352,15 +8174,12 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
 
 void ObjectMgr::LoadTrainerSpell()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // For reload case
     _cacheTrainerSpellStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.ReqLevel, a.ReqSpell FROM npc_trainer AS a "
-                         "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
-                         "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcTrainer) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Trainers. DB table `npc_trainer` is empty!");
@@ -8387,7 +8206,7 @@ void ObjectMgr::LoadTrainerSpell()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Trainers in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Trainers in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -8432,16 +8251,15 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* s
 
 void ObjectMgr::LoadVendors()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // For reload case
-    for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
-        itr->second.Clear();
+    for (auto& itr : _cacheVendorItemStore)
+        itr.second.Clear();
+
     _cacheVendorItemStore.clear();
 
-    std::set<uint32> skip_vendors;
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC, item, ExtendedCost");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcVendor) };
     if (!result)
     {
         LOG_INFO("server.loading", " ");
@@ -8450,13 +8268,13 @@ void ObjectMgr::LoadVendors()
     }
 
     uint32 count = 0;
+    std::set<uint32> skip_vendors;
 
     do
     {
-        auto fields = result->Fetch();
-
-        uint32 entry        = fields[0].Get<uint32>();
-        int32 item_id      = fields[1].Get<int32>();
+        auto fields     = result->Fetch();
+        uint32 entry    = fields[0].Get<uint32>();
+        int32 item_id   = fields[1].Get<int32>();
 
         // if item is a negative, its a reference
         if (item_id < 0)
@@ -8471,24 +8289,21 @@ void ObjectMgr::LoadVendors()
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
-
             vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
             ++count;
         }
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Vendors in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Vendors in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadGossipMenu()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _gossipMenusStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, TextID FROM gossip_menu");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GossipMenu) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gossip_menu entries. DB table `gossip_menu` is empty!");
@@ -8514,21 +8329,16 @@ void ObjectMgr::LoadGossipMenu()
         _gossipMenusStore.insert(GossipMenusContainer::value_type(gMenu.MenuID, gMenu));
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} gossip_menu entries in {} ms", (uint32)_gossipMenusStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} gossip_menu entries in {}", (uint32)_gossipMenusStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadGossipMenuItems()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _gossipMenuItemsStore.clear();
 
-    QueryResult result = WorldDatabase.Query(
-                             //      0       1         2           3           4                      5           6              7             8            9         10        11       12
-                             "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
-                             "FROM gossip_menu_option ORDER BY MenuID, OptionID");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GossipMenuOption) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gossip_menu_option IDs. DB table `gossip_menu_option` is empty!");
@@ -8586,7 +8396,7 @@ void ObjectMgr::LoadGossipMenuItems()
         _gossipMenuItemsStore.insert(GossipMenuItemsContainer::value_type(gMenuItem.MenuID, gMenuItem));
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} gossip_menu_option entries in {} ms", uint32(_gossipMenuItemsStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} gossip_menu_option entries in {}", uint32(_gossipMenuItemsStore.size()), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -8713,41 +8523,13 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
 
 void ObjectMgr::LoadScriptNames()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    // We insert an empty placeholder here so we can use the
+    // We insert an empty placeholder here, so we can use the
     // script id 0 as dummy for "no script found".
     _scriptNamesStore.emplace_back("");
 
-    QueryResult result = WorldDatabase.Query(
-                             "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM creature WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM gameobject WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM gameobject_template WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM item_template WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM areatrigger_scripts WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM spell_script_names WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM transports WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM game_weather WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM conditions WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
-                             "UNION "
-                             "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::ScriptNames) };
     if (!result)
     {
         LOG_INFO("server.loading", " ");
@@ -8763,7 +8545,7 @@ void ObjectMgr::LoadScriptNames()
     } while (result->NextRow());
 
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
-    LOG_INFO("server.loading", ">> Loaded {} ScriptNames in {} ms", _scriptNamesStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} ScriptNames in {}", _scriptNamesStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -8822,10 +8604,9 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2 FROM creature_classlevelstats");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureClassLevelStats) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
@@ -8899,16 +8680,15 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         }
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Base Stats in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Base Stats in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFactionChangeAchievements()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeAchievement) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
@@ -8935,16 +8715,15 @@ void ObjectMgr::LoadFactionChangeAchievements()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} faction change achievement pairs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} faction change achievement pairs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFactionChangeItems()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeItems) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change item pairs. DB table `player_factionchange_items` is empty.");
@@ -8971,16 +8750,15 @@ void ObjectMgr::LoadFactionChangeItems()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} faction change item pairs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} faction change item pairs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFactionChangeQuests()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeQuest) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change quest pairs. DB table `player_factionchange_quests` is empty.");
@@ -9007,16 +8785,15 @@ void ObjectMgr::LoadFactionChangeQuests()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} faction change quest pairs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} faction change quest pairs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFactionChangeReputations()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeReputations) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
@@ -9043,16 +8820,15 @@ void ObjectMgr::LoadFactionChangeReputations()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} faction change reputation pairs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} faction change reputation pairs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFactionChangeSpells()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeSpells) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
@@ -9079,16 +8855,15 @@ void ObjectMgr::LoadFactionChangeSpells()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} faction change spell pairs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} faction change spell pairs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadFactionChangeTitles()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeTitles) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");
@@ -9114,7 +8889,7 @@ void ObjectMgr::LoadFactionChangeTitles()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} faction change title pairs in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} faction change title pairs in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -9178,18 +8953,18 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 
 void ObjectMgr::LoadGameObjectQuestItems()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                               0                1
-    QueryResult result = WorldDatabase.Query("SELECT GameObjectEntry, ItemId FROM gameobject_questitem ORDER BY Idx ASC");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameObjectQuestItem) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gameobject quest items. DB table `gameobject_questitem` is empty.");
+        LOG_INFO("server.loading", "");
         return;
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -9202,17 +8977,15 @@ void ObjectMgr::LoadGameObjectQuestItems()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Gameobject Quest Items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Gameobject Quest Items in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadCreatureQuestItems()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                               0              1
-    QueryResult result = WorldDatabase.Query("SELECT CreatureEntry, ItemId FROM creature_questitem ORDER BY Idx ASC");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureQuestItem) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature quest items. DB table `creature_questitem` is empty.");
@@ -9220,6 +8993,7 @@ void ObjectMgr::LoadCreatureQuestItems()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -9232,18 +9006,16 @@ void ObjectMgr::LoadCreatureQuestItems()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Quest Items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Quest Items in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void ObjectMgr::LoadQuestMoneyRewards()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _questMoneyRewards.clear();
 
-    //                                                0       1       2       3       4       5       6       7       8       9       10
-    QueryResult result = WorldDatabase.Query("SELECT `Level`, Money0, Money1, Money2, Money3, Money4, Money5, Money6, Money7, Money8, Money9 FROM `quest_money_reward` ORDER BY `Level`");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestMoneyReward) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 quest money rewards. DB table `quest_money_reward` is empty.");
@@ -9251,6 +9023,7 @@ void ObjectMgr::LoadQuestMoneyRewards()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -9266,8 +9039,23 @@ void ObjectMgr::LoadQuestMoneyRewards()
         }
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Quest Money Rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Quest Money Rewards in {}", count, sw);
     LOG_INFO("server.loading", " ");
+}
+
+void ObjectMgr::LoadQuestStartersAndEnders()
+{
+    LOG_INFO("server.loading", "Loading GO Start Quest Data...");
+    LoadGameobjectQuestStarters();
+
+    LOG_INFO("server.loading", "Loading GO End Quest Data...");
+    LoadGameobjectQuestEnders();
+
+    LOG_INFO("server.loading", "Loading Creature Start Quest Data...");
+    LoadCreatureQuestStarters();
+
+    LOG_INFO("server.loading", "Loading Creature End Quest Data...");
+    LoadCreatureQuestEnders();
 }
 
 uint32 ObjectMgr::GetQuestMoneyReward(uint8 level, uint32 questMoneyDifficulty) const
@@ -9286,7 +9074,7 @@ uint32 ObjectMgr::GetQuestMoneyReward(uint8 level, uint32 questMoneyDifficulty) 
 
 void ObjectMgr::LoadInstanceSavedGameobjectStateData()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SELECT_INSTANCE_SAVED_DATA);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -9294,14 +9082,15 @@ void ObjectMgr::LoadInstanceSavedGameobjectStateData()
     if (!result)
     {
         // There's no gameobject with this GUID saved on the DB
-        LOG_INFO("db.query", ">> Loaded 0 Instance saved gameobject state data. DB table `instance_saved_go_state_data` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 Instance saved gameobject state data. DB table `instance_saved_go_state_data` is empty.");
+        LOG_INFO("server.loading", "");
         return;
     }
 
     for (auto const& fields : *result)
         GameobjectInstanceSavedStateList.push_back({ fields[0].Get<uint32>(), fields[1].Get<uint32>(), fields[2].Get<uint16>() });
 
-    LOG_INFO("server.loading", ">> Loaded {} instance saved gameobject state data in {} ms", GameobjectInstanceSavedStateList.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} instance saved gameobject state data in {}", GameobjectInstanceSavedStateList.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -9380,15 +9169,13 @@ void ObjectMgr::SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint3
 
 void ObjectMgr::LoadMailServerTemplates()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _serverMailStore.clear(); // for reload case
 
-    //                                                    0     1           2              3         4         5        6             7       8             9          10      11
-    QueryResult result = CharacterDatabase.Query("SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`");
+    auto result{ CharacterDatabase.Query("SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`") };
     if (!result)
     {
-        LOG_INFO("db.query", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -9453,6 +9240,6 @@ void ObjectMgr::LoadMailServerTemplates()
         }
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Mail Server Template in {} ms", _serverMailStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Mail Server Template in {}", _serverMailStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }

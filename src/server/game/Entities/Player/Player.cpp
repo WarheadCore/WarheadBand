@@ -92,6 +92,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "StopWatch.h"
 #include <sstream>
 
 enum CharacterFlags
@@ -4268,22 +4269,28 @@ void Player::DeleteOldCharacters()
  */
 void Player::DeleteOldCharacters(uint32 keepDays)
 {
-    LOG_INFO("server.loading", "Player::DeleteOldChars: Deleting all characters which have been deleted {} days before...", keepDays);
+    StopWatch sw;
+
+    LOG_INFO("server.loading", ">> Deleting all characters which have been deleted {} days before...", keepDays);
     LOG_INFO("server.loading", " ");
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
     stmt->SetData(0, uint32(GameTime::GetGameTime().count() - time_t(keepDays * DAY)));
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
     {
-        LOG_INFO("server.loading", "Player::DeleteOldChars: Found {} character(s) to delete", result->GetRowCount());
+        LOG_INFO("server.loading", ">> Found {} character(s) to delete", result->GetRowCount());
+
         do
         {
             auto fields = result->Fetch();
             Player::DeleteFromDB(fields[0].Get<uint32>(), fields[1].Get<uint32>(), true, true);
         } while (result->NextRow());
     }
+
+    LOG_INFO("server.loading", ">> Deleting all characters done. Elapsed: {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 void Player::SetMovement(PlayerMovementType pType)

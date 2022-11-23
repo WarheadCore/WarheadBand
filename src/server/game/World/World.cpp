@@ -45,6 +45,7 @@
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
+#include "DBCacheMgr.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
@@ -528,6 +529,7 @@ void World::LoadConfigSettings(bool reload)
 
     if (!reload)
     {
+        LOG_INFO("server.loading", "");
         LOG_INFO("server.loading", "Loading data configurations...");
         LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
         LOG_INFO("server.loading", "");
@@ -536,6 +538,7 @@ void World::LoadConfigSettings(bool reload)
         LOG_INFO("server.loading", "> Get Height:           {}", enableHeight);
         LOG_INFO("server.loading", "> Indoor Check:         {}", enableIndoor);
         LOG_INFO("server.loading", "> Pet LOS:              {}", enablePetLOS);
+        LOG_INFO("server.loading", "");
     }
 
     if (reload)
@@ -555,6 +558,9 @@ void World::SetInitialWorldSettings()
 {
     ///- Server startup begin
     StopWatch sw;
+
+    // Init db cache
+    sDBCacheMgr->Initialize();
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime().count());
@@ -600,7 +606,6 @@ void World::SetInitialWorldSettings()
     sGameEventMgr->Initialize();
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
-    LOG_INFO("server", " ");
     LOG_INFO("server", "Loading Warhead strings...");
     if (!sGameLocale->LoadWarheadStrings())
         exit(1);                                            // Error message displayed in function already
@@ -1031,15 +1036,18 @@ void World::SetInitialWorldSettings()
 
     // pussywizard:
     LOG_INFO("server.loading", "Deleting Invalid Mail Items...");
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Done");
+    LOG_INFO("server.loading", "");
+
     CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN item_instance ii ON mi.item_guid = ii.guid WHERE ii.guid IS NULL");
     CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN mail m ON mi.mail_id = m.id WHERE m.id IS NULL");
     CharacterDatabase.Execute("UPDATE mail m LEFT JOIN mail_items mi ON m.id = mi.mail_id SET m.has_items=0 WHERE m.has_items<>0 AND mi.mail_id IS NULL");
 
     ///- Handle outdated emails (delete/return)
     LOG_INFO("server.loading", "Returning Old Mails...");
-    LOG_INFO("server.loading", " ");
     sObjectMgr->ReturnOrDeleteOldMails(false);
+    LOG_INFO("server.loading", ">> Done");
+    LOG_INFO("server.loading", "");
 
     ///- Load AutoBroadCast
     LOG_INFO("server.loading", "Loading Autobroadcasts...");
@@ -1072,7 +1080,6 @@ void World::SetInitialWorldSettings()
     sCalendarMgr->LoadFromDB();
 
     LOG_INFO("server.loading", "Initializing SpellInfo Precomputed Data..."); // must be called after loading items, professions, spells and pretty much anything
-    LOG_INFO("server.loading", " ");
     sObjectMgr->InitializeSpellInfoPrecomputedData();
 
     LOG_INFO("server.loading", "Initialize commands...");
@@ -1111,11 +1118,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize MapMgr
     LOG_INFO("server.loading", "Starting Map System");
-    LOG_INFO("server.loading", " ");
     sMapMgr->Initialize();
 
     LOG_INFO("server.loading", "Starting Game Event system...");
-    LOG_INFO("server.loading", " ");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
@@ -1129,7 +1134,6 @@ void World::SetInitialWorldSettings()
     opcodeTable.Initialize();
 
     LOG_INFO("server.loading", "Starting Arena Season...");
-    LOG_INFO("server.loading", " ");
     sGameEventMgr->StartArenaSeason();
 
     sTicketMgr->Initialize();
@@ -1201,28 +1205,24 @@ void World::SetInitialWorldSettings()
     {
         LOG_INFO("server.loading", "Loading All Grids For All Non-Instanced Maps...");
 
-        for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+        for (auto const& mapEntry : sMapStore)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(i);
+            if (!mapEntry || mapEntry->Instanceable())
+                continue;
 
-            if (mapEntry && !mapEntry->Instanceable())
+            Map* map = sMapMgr->CreateBaseMap(mapEntry->MapID);
+            if (map)
             {
-                Map* map = sMapMgr->CreateBaseMap(mapEntry->MapID);
-
-                if (map)
-                {
-                    LOG_INFO("server.loading", ">> Loading All Grids For Map {}", map->GetId());
-                    map->LoadAllCells();
-                }
+                LOG_INFO("server.loading", ">> Loading All Grids For Map {}", map->GetId());
+                map->LoadAllCells();
             }
         }
     }
 
     auto elapsed = sw.Elapsed();
+    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
     sScriptMgr->OnBeforeWorldInitialized(elapsed);
-
-    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
     LOG_INFO("server.loading", "World initialized in {}", startupDuration);
     LOG_INFO("server.loading", "");
@@ -2126,7 +2126,7 @@ void World::UpdateAreaDependentAuras()
 
 void World::LoadWorldStates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     QueryResult result = CharacterDatabase.Query("SELECT entry, value FROM worldstates");
 
@@ -2143,7 +2143,7 @@ void World::LoadWorldStates()
         m_worldstates[fields[0].Get<uint32>()] = fields[1].Get<uint32>();
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} World States in {} ms", m_worldstates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} World States in {}", m_worldstates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 

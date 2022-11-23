@@ -33,6 +33,8 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
@@ -1020,7 +1022,7 @@ ConditionList ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, ui
 
 void ConditionMgr::LoadConditions(bool isReload)
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     Clean();
 
@@ -1050,9 +1052,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::Conditions) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
@@ -1297,8 +1297,8 @@ void ConditionMgr::LoadConditions(bool isReload)
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} conditions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} conditions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)

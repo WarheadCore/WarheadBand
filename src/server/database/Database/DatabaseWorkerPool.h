@@ -32,6 +32,7 @@ template <typename T>
 class ProducerConsumerQueue;
 
 class AsyncOperation;
+class AsyncEnqueue;
 class TaskScheduler;
 
 struct StringPreparedStatement
@@ -68,6 +69,8 @@ public:
     virtual void DoPrepareStatements() = 0;
 
     [[nodiscard]] inline MySQLConnectionInfo const* GetConnectionInfo() const { return _connectionInfo.get(); }
+
+    void Enqueue(AsyncOperation* operation);
 
     /**
         Delayed one-way statement methods.
@@ -231,13 +234,16 @@ public:
 
     inline std::string_view GetPathToExtraFile() { return _pathToExtraFile; }
 
+    void InitDynamicConnections();
+
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
     void InitPrepareStatement(MySQLConnection* connection);
-    void Enqueue(AsyncOperation* operation);
+
     unsigned long EscapeString(char* to, char const* from, unsigned long length);
     void AddTasks();
     void MakeExtraFile();
+    void ExecuteAsyncQueue();
 
     //! Gets a free connection in the synchronous connection pool.
     //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
@@ -259,6 +265,10 @@ private:
     std::unique_ptr<TaskScheduler> _scheduler{};
     bool _isEnableDynamicConnections{};
     uint32 _maxQueueSize{ 50 };
+
+    // Dynamic async enqueue
+    std::unique_ptr<ProducerConsumerQueue<AsyncEnqueue*>> _queue;
+    std::unique_ptr<std::thread> _thread;
 
 #ifdef WARHEAD_DEBUG
     static inline thread_local bool _warnSyncQueries = false;

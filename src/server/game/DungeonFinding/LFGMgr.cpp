@@ -46,6 +46,8 @@
 #include "SocialMgr.h"
 #include "SpellAuras.h"
 #include "WorldSession.h"
+#include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 namespace lfg
 {
@@ -114,15 +116,15 @@ namespace lfg
     /// Load rewards for completing dungeons
     void LFGMgr::LoadRewards()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         for (LfgRewardContainer::iterator itr = RewardMapStore.begin(); itr != RewardMapStore.end(); ++itr)
             delete itr->second;
+
         RewardMapStore.clear();
 
         // ORDER BY is very important for GetRandomDungeonReward!
-        QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::LfgDungeonRewards) };
         if (!result)
         {
             LOG_ERROR("lfg", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
@@ -166,8 +168,8 @@ namespace lfg
             ++count;
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Rewards in {}", count, sw);
+        LOG_INFO("server.loading", "");
     }
 
     LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
@@ -181,8 +183,7 @@ namespace lfg
 
     void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     {
-        uint32 oldMSTime = getMSTime();
-
+        StopWatch sw;
         LfgDungeonStore.clear();
 
         // Initialize Dungeon map with data from dbcs
@@ -204,9 +205,7 @@ namespace lfg
         }
 
         // Fill teleport locations from DB
-        //                                                   0          1           2           3            4
-        QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation FROM lfg_dungeon_template");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::LfgDungeonTemplate) };
         if (!result)
         {
             LOG_ERROR("lfg", ">> Loaded 0 LFG Entrance Positions. DB Table `lfg_dungeon_template` Is Empty!");
@@ -235,7 +234,7 @@ namespace lfg
             ++count;
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} LFG Entrance Positions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} LFG Entrance Positions in {}", count, sw);
         LOG_INFO("server.loading", " ");
 
         // Fill all other teleport coords from areatriggers
