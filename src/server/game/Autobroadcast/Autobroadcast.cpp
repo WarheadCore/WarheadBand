@@ -39,7 +39,6 @@ AutobroadcastMgr* AutobroadcastMgr::instance()
 void AutobroadcastMgr::Load()
 {
     StopWatch sw;
-
     _autobroadcasts.clear();
     _autobroadcastsWeights.clear();
 

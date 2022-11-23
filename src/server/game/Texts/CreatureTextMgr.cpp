@@ -30,6 +30,7 @@
 #include "LocaleCommon.h"
 #include "MiscPackets.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 class CreatureTextBuilder
 {
@@ -87,7 +88,6 @@ CreatureTextMgr* CreatureTextMgr::instance()
 void CreatureTextMgr::LoadCreatureTexts()
 {
     StopWatch sw;
-
     mTextMap.clear(); // for reload case
     mTextRepeatMap.clear(); //reset all currently used temp texts
 
@@ -174,7 +174,6 @@ void CreatureTextMgr::LoadCreatureTexts()
 void CreatureTextMgr::LoadCreatureTextLocales()
 {
     StopWatch sw;
-
     mLocaleTextMap.clear(); // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureTextLocale) };

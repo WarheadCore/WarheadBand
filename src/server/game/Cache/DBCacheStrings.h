@@ -128,6 +128,7 @@ enum class DBCacheTable : std::size_t
     QuestPOI,
     QuestGreeting,
     QuestMoneyReward,
+    QuestPOIPoints,
 
     // Pool
     PoolTemplate,
@@ -153,6 +154,14 @@ enum class DBCacheTable : std::size_t
     GraveyardZone,
     GameGraveyard,
     PlayerCreateInfo,
+    PlayerCreateInfoItem,
+    PlayerCreateInfoSkills,
+    PlayerCreateInfoSpellCustom,
+    PlayerCreateInfoCastSpell,
+    PlayerCreateInfoAction,
+    PlayerClassLevelStats,
+    PlayerLevelStats,
+    PlayerXpForLevel,
     ExplorationBasexp,
     PetNameGeneration,
     PetLevelstats,

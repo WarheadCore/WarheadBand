@@ -26,6 +26,7 @@
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 FormationMgr::~FormationMgr() = default;
 
@@ -82,6 +83,7 @@ void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* membe
 
 void FormationMgr::LoadCreatureFormations()
 {
+    StopWatch sw;
     CreatureGroupMap.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureFormations) };
@@ -92,7 +94,6 @@ void FormationMgr::LoadCreatureFormations()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     for (auto const& fields : *result)

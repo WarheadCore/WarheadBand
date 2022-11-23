@@ -2639,7 +2639,6 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
     StopWatch sw;
-
     m_criteriaDataMap.clear();                              // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementCriteriaData) };
@@ -2817,7 +2816,6 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 void AchievementGlobalMgr::LoadRewards()
 {
     StopWatch sw;
-
     m_achievementRewards.clear();                           // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementReward) };

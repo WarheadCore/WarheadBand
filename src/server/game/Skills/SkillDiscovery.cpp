@@ -53,7 +53,6 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 void LoadSkillDiscoveryTable()
 {
     StopWatch sw;
-
     SkillDiscoveryStore.clear();                            // need for reload
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillDiscoveryTemplate) };

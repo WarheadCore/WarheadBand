@@ -21,6 +21,7 @@
 #include "LootItemStorage.h"
 #include "DatabaseEnv.h"
 #include "ObjectMgr.h"
+#include "StopWatch.h"
 
 LootItemStorage::LootItemStorage()
 {
@@ -43,6 +44,7 @@ void LootItemStorage::LoadStorageFromDB()
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 stored items!");
@@ -51,6 +53,7 @@ void LootItemStorage::LoadStorageFromDB()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();

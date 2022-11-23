@@ -23,6 +23,7 @@
 #include "GridDefines.h"
 #include "Log.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 WaypointMgr::WaypointMgr() = default;
 
@@ -47,6 +48,8 @@ WaypointMgr* WaypointMgr::instance()
 
 void WaypointMgr::Load()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::WaypointData) };
     if (!result)
     {
@@ -55,7 +58,6 @@ void WaypointMgr::Load()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do

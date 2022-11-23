@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
+#include "StopWatch.h"
 
 GuildMgr::GuildMgr() : NextGuildId(1)
 { }
@@ -400,6 +401,7 @@ void GuildMgr::LoadGuilds()
         {
             Guild* guild = itr->second;
             ++itr;
+
             if (guild && !guild->Validate())
                 delete guild;
         }

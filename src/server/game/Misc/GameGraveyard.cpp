@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 Graveyard* Graveyard::instance()
 {
@@ -36,7 +37,6 @@ Graveyard* Graveyard::instance()
 void Graveyard::LoadGraveyardFromDB()
 {
     StopWatch sw;
-
     _graveyardStore.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameGraveyard) };
@@ -367,7 +367,6 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
 void Graveyard::LoadGraveyardZones()
 {
     StopWatch sw;
-
     GraveyardStore.clear(); // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::GraveyardZone) };

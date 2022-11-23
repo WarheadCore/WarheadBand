@@ -31,6 +31,7 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "World.h"
+#include "StopWatch.h"
 #include <map>
 #include <sstream>
 

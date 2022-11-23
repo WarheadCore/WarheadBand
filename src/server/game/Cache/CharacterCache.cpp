@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
+#include "StopWatch.h"
 #include <unordered_map>
 
 namespace
@@ -62,8 +63,8 @@ CharacterCache* CharacterCache::instance()
 
 void CharacterCache::LoadCharacterCacheStorage()
 {
-    _characterCacheStore.clear();
     StopWatch sw;
+    _characterCacheStore.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
     if (!result)

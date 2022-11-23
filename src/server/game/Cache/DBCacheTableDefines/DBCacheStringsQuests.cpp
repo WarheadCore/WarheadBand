@@ -35,4 +35,5 @@ void DBCacheMgr::InitQuestStrings()
     _queryStrings.emplace(DBCacheTable::QuestPOI, "SELECT QuestID, id, ObjectiveIndex, MapID, WorldMapAreaId, Floor, Priority, Flags FROM quest_poi order by QuestID");
     _queryStrings.emplace(DBCacheTable::QuestGreeting, "SELECT ID, Type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
     _queryStrings.emplace(DBCacheTable::QuestMoneyReward, "SELECT `Level`, Money0, Money1, Money2, Money3, Money4, Money5, Money6, Money7, Money8, Money9 FROM `quest_money_reward` ORDER BY `Level`");
+    _queryStrings.emplace(DBCacheTable::QuestPOIPoints, "SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx2");
 }

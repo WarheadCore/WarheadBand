@@ -331,8 +331,8 @@ void TicketMgr::LoadTickets()
 
     for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
         delete itr->second;
-    _ticketList.clear();
 
+    _ticketList.clear();
     _lastTicketId = 0;
     _openTicketCount = 0;
 

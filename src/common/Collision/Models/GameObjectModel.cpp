@@ -22,7 +22,6 @@
 #include "Log.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
-#include "Timer.h"
 #include "VMapDefinitions.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"

@@ -29,9 +29,9 @@
 
 void DBCacheMgr::Initialize()
 {
-    LOG_INFO("server.loading", "Initialize async db query list");
-
     StopWatch sw;
+
+    LOG_INFO("server.loading", "Initialize async db query list");
 
     _isEnableWaitAtAdd = CONF_GET_BOOL("DBCache.WaitAtAdd.Enable");
 

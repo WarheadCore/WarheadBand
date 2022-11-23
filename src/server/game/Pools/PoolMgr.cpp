@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <sstream>
 
 ////////////////////////////////////////////////////////////

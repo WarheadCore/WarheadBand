@@ -37,6 +37,7 @@
 #include "Timer.h"
 #include "Transport.h"
 #include "World.h"
+#include "StopWatch.h"
 
 uint16 InstanceSaveMgr::ResetTimeDelay[] = {3600, 900, 300, 60, 0};
 PlayerBindStorage InstanceSaveMgr::playerBindStorage;

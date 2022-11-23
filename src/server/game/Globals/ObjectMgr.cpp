@@ -59,6 +59,7 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -1403,7 +1404,6 @@ void ObjectMgr::LoadEquipmentTemplates()
 void ObjectMgr::LoadCreatureMovementOverrides()
 {
     StopWatch sw;
-
     _creatureMovementOverrides.clear();
 
     // Load the data from creature_movement_override and if NULL fallback to creature_template_movement
@@ -1586,7 +1586,6 @@ void ObjectMgr::LoadCreatureModelInfo()
 void ObjectMgr::LoadLinkedRespawn()
 {
     StopWatch sw;
-
     _linkedRespawnStore.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::LinkedRespawn) };
@@ -2223,7 +2222,6 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 mapId, float x, float y, float
 void ObjectMgr::LoadGameobjects()
 {
     StopWatch sw;
-
     uint32 count = 0;
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::Gameobject) };
@@ -3014,9 +3012,7 @@ ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
 void ObjectMgr::LoadItemSetNames()
 {
     StopWatch sw;
-
     _itemSetNameStore.clear();                               // needed for reload case
-
     std::set<uint32> itemSetItems;
 
     // fill item set member ids
@@ -3095,6 +3091,7 @@ void ObjectMgr::LoadItemSetNames()
 
 void ObjectMgr::LoadVehicleTemplateAccessories()
 {
+    StopWatch sw;
     _vehicleTemplateAccessoryStore.clear();                           // needed for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleTemplateAccessory) };
@@ -3105,7 +3102,6 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -3148,9 +3144,8 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
 void ObjectMgr::LoadVehicleAccessories()
 {
-    _vehicleAccessoryStore.clear();                           // needed for reload case
-
     StopWatch sw;
+    _vehicleAccessoryStore.clear();                           // needed for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleAccessory) };
     if (!result)
@@ -3190,6 +3185,8 @@ void ObjectMgr::LoadVehicleAccessories()
 
 void ObjectMgr::LoadPetLevelInfo()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PetLevelstats) };
     if (!result)
     {
@@ -3198,7 +3195,6 @@ void ObjectMgr::LoadPetLevelInfo()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -3328,6 +3324,8 @@ void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfo) };
         if (!result)
         {
@@ -3337,7 +3335,6 @@ void ObjectMgr::LoadPlayerInfo()
         }
         else
         {
-            StopWatch sw;
             uint32 count = 0;
 
             do
@@ -3413,9 +3410,8 @@ void ObjectMgr::LoadPlayerInfo()
     LOG_INFO("server.loading", "Loading Player Create Items Data...");
     {
         StopWatch sw;
-        //                                                0     1      2       3
-        QueryResult result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
 
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoItem) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Custom Player Create Items. DB Table `playercreateinfo_item` Is Empty.");
@@ -3483,8 +3479,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT raceMask, classMask, skill, `rank` FROM playercreateinfo_skills");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoSkills) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Player Create Skills. DB Table `playercreateinfo_skills` Is Empty.");
@@ -3558,7 +3553,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoSpellCustom) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
@@ -3615,8 +3610,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         StopWatch sw;
 
-        QueryResult result = WorldDatabase.Query("SELECT raceMask, classMask, spell FROM playercreateinfo_cast_spell");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoCastSpell) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Player Create Cast Spells. DB Table `playercreateinfo_cast_spell` Is Empty.");
@@ -3673,9 +3667,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         StopWatch sw;
 
-        //                                                0     1      2       3       4
-        QueryResult result = WorldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoAction) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Player Create Actions. DB Table `playercreateinfo_action` Is Empty.");
@@ -3719,9 +3711,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         StopWatch sw;
 
-        //                                                0      1      2       3
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerClassLevelStats) };
         if (!result)
         {
             LOG_FATAL("server.loading", ">> Loaded 0 level health/mana definitions. DB table `player_classlevelstats` is empty.");
@@ -3801,9 +3791,7 @@ void ObjectMgr::LoadPlayerInfo()
     {
         StopWatch sw;
 
-        //                                                 0     1      2      3    4    5    6    7
-        QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerLevelStats) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
@@ -3911,12 +3899,11 @@ void ObjectMgr::LoadPlayerInfo()
         StopWatch sw;
 
         _playerXPperLevel.resize(CONF_GET_INT("MaxPlayerLevel"));
+
         for (uint8 level = 0; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
             _playerXPperLevel[level] = 0;
 
-        //                                                 0    1
-        QueryResult result  = WorldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerXpForLevel) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
@@ -4075,8 +4062,8 @@ void ObjectMgr::LoadQuests()
     // For reload case
     for (QuestMap::const_iterator itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
         delete itr->second;
-    _questTemplates.clear();
 
+    _questTemplates.clear();
     mExclusiveQuestGroups.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestTemplate) };
@@ -5208,7 +5195,6 @@ void ObjectMgr::LoadWaypointScripts()
 void ObjectMgr::LoadSpellScriptNames()
 {
     StopWatch sw;
-
     _spellScriptsStore.clear();                            // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellScriptNames) };
@@ -5613,7 +5599,6 @@ void ObjectMgr::LoadGossipText()
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     StopWatch sw;
-
     time_t curTime = GameTime::GetGameTime().count();
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
@@ -5736,6 +5721,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
 void ObjectMgr::LoadQuestAreaTriggers()
 {
+    StopWatch sw;
     _questAreaTriggerStore.clear();                           // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerInvolvedrelation) };
@@ -5746,7 +5732,6 @@ void ObjectMgr::LoadQuestAreaTriggers()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -5859,6 +5844,7 @@ void ObjectMgr::LoadQuestGreetings()
 
 void ObjectMgr::LoadTavernAreaTriggers()
 {
+    StopWatch sw;
     _tavernAreaTriggerStore.clear();                          // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerTavern) };
@@ -5869,7 +5855,6 @@ void ObjectMgr::LoadTavernAreaTriggers()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -5898,6 +5883,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
 
 void ObjectMgr::LoadAreaTriggerScripts()
 {
+    StopWatch sw;
     _areaTriggerScriptStore.clear();                            // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerScripts) };
@@ -5908,7 +5894,6 @@ void ObjectMgr::LoadAreaTriggerScripts()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -6037,6 +6022,7 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, TeamId teamId, bool allowed_a
 
 void ObjectMgr::LoadAreaTriggers()
 {
+    StopWatch sw;
     _areaTriggerStore.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::Areatrigger) };
@@ -6047,7 +6033,6 @@ void ObjectMgr::LoadAreaTriggers()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -6084,6 +6069,7 @@ void ObjectMgr::LoadAreaTriggers()
 
 void ObjectMgr::LoadAreaTriggerTeleports()
 {
+    StopWatch sw;
     _areaTriggerTeleportStore.clear();                                  // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AreatriggerTeleport) };
@@ -6094,7 +6080,6 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -6776,6 +6761,8 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 
 void ObjectMgr::LoadExplorationBaseXP()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::ExplorationBasexp) };
     if (!result)
     {
@@ -6784,7 +6771,6 @@ void ObjectMgr::LoadExplorationBaseXP()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -6814,6 +6800,8 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 
 void ObjectMgr::LoadPetNames()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PetNameGeneration) };
     if (!result)
     {
@@ -6822,7 +6810,6 @@ void ObjectMgr::LoadPetNames()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -6884,7 +6871,6 @@ uint32 ObjectMgr::GeneratePetNumber()
 void ObjectMgr::LoadReputationRewardRate()
 {
     StopWatch sw;
-
     _repRewardRateStore.clear();                             // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::ReputationRewardRate) };
@@ -7042,7 +7028,6 @@ void ObjectMgr::LoadReputationOnKill()
 void ObjectMgr::LoadReputationSpilloverTemplate()
 {
     StopWatch sw;
-
     _repSpilloverTemplateStore.clear();                      // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::ReputationSpilloverTemplate) };
@@ -7153,7 +7138,6 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 void ObjectMgr::LoadPointsOfInterest()
 {
     StopWatch sw;
-
     _pointsOfInterestStore.clear();                              // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PointsOfInterest) };
@@ -7199,10 +7183,7 @@ void ObjectMgr::LoadPointsOfInterest()
 void ObjectMgr::LoadQuestPOI()
 {
     StopWatch sw;
-
     _questPOIStore.clear();                              // need for reload case
-
-    uint32 count = 0;
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestPOI) };
     if (!result)
@@ -7212,10 +7193,9 @@ void ObjectMgr::LoadQuestPOI()
         return;
     }
 
-    //                                                  0       1   2  3
-    QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx2");
-
-    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
+    auto points{ sDBCacheMgr->GetResult(DBCacheTable::QuestPOIPoints) };
+    std::vector<std::vector<std::vector<QuestPOIPoint>>> POIs;
+    uint32 count = 0;
 
     if (points)
     {
@@ -7272,6 +7252,7 @@ void ObjectMgr::LoadQuestPOI()
 
 void ObjectMgr::LoadNPCSpellClickSpells()
 {
+    StopWatch sw;
     _spellClickInfoStore.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcSpellClickSpells) };
@@ -7282,7 +7263,6 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -7358,10 +7338,7 @@ void ObjectMgr::DeleteGOData(ObjectGuid::LowType guid)
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const& table, bool starter, bool go)
 {
     StopWatch sw;
-
     map.clear();                                            // need for reload case
-
-    uint32 count = 0;
 
     QueryResult result = WorldDatabase.Query("SELECT id, quest, pool_entry FROM {} qr LEFT JOIN pool_quest pq ON qr.quest = pq.entry", table);
 
@@ -7371,6 +7348,8 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 count = 0;
 
     PooledQuestRelation* poolRelationMap = go ? &sPoolMgr->mQuestGORelation : &sPoolMgr->mQuestCreatureRelation;
     if (starter)
@@ -7459,7 +7438,6 @@ void ObjectMgr::LoadCreatureQuestEnders()
 void ObjectMgr::LoadReservedPlayersNames()
 {
     StopWatch sw;
-
     _reservedNamesStore.clear();                                // need for reload case
 
     QueryResult result = CharacterDatabase.Query("SELECT name FROM reserved_name");
@@ -7754,6 +7732,7 @@ void ObjectMgr::LoadGameObjectForQuests()
 
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
+    StopWatch sw;
     _fishingBaseForAreaStore.clear();                            // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillFishingBaseLevel) };
@@ -7764,7 +7743,6 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -7892,6 +7870,7 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 
 void ObjectMgr::LoadGameTele()
 {
+    StopWatch sw;
     _gameTeleStore.clear();                                  // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameTele) };
@@ -7902,7 +7881,6 @@ void ObjectMgr::LoadGameTele()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8029,6 +8007,7 @@ bool ObjectMgr::DeleteGameTele(std::string_view name)
 
 void ObjectMgr::LoadMailLevelRewards()
 {
+    StopWatch sw;
     _mailLevelRewardStore.clear();                           // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::MailLevelReward) };
@@ -8039,7 +8018,6 @@ void ObjectMgr::LoadMailLevelRewards()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8171,6 +8149,8 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
 
 void ObjectMgr::LoadTrainerSpell()
 {
+    StopWatch sw;
+
     // For reload case
     _cacheTrainerSpellStore.clear();
 
@@ -8182,7 +8162,6 @@ void ObjectMgr::LoadTrainerSpell()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8247,6 +8226,8 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* s
 
 void ObjectMgr::LoadVendors()
 {
+    StopWatch sw;
+
     // For reload case
     for (auto& itr : _cacheVendorItemStore)
         itr.second.Clear();
@@ -8261,7 +8242,6 @@ void ObjectMgr::LoadVendors()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
     std::set<uint32> skip_vendors;
 
@@ -8295,6 +8275,7 @@ void ObjectMgr::LoadVendors()
 
 void ObjectMgr::LoadGossipMenu()
 {
+    StopWatch sw;
     _gossipMenusStore.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::GossipMenu) };
@@ -8304,8 +8285,6 @@ void ObjectMgr::LoadGossipMenu()
         LOG_INFO("server.loading", " ");
         return;
     }
-
-    StopWatch sw;
 
     do
     {
@@ -8331,6 +8310,7 @@ void ObjectMgr::LoadGossipMenu()
 
 void ObjectMgr::LoadGossipMenuItems()
 {
+    StopWatch sw;
     _gossipMenuItemsStore.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::GossipMenuOption) };
@@ -8340,8 +8320,6 @@ void ObjectMgr::LoadGossipMenuItems()
         LOG_INFO("server.loading", " ");
         return;
     }
-
-    StopWatch sw;
 
     do
     {
@@ -8683,6 +8661,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
 void ObjectMgr::LoadFactionChangeAchievements()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeAchievement) };
     if (!result)
     {
@@ -8691,7 +8671,6 @@ void ObjectMgr::LoadFactionChangeAchievements()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8717,6 +8696,8 @@ void ObjectMgr::LoadFactionChangeAchievements()
 
 void ObjectMgr::LoadFactionChangeItems()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeItems) };
     if (!result)
     {
@@ -8725,7 +8706,6 @@ void ObjectMgr::LoadFactionChangeItems()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8786,6 +8766,8 @@ void ObjectMgr::LoadFactionChangeQuests()
 
 void ObjectMgr::LoadFactionChangeReputations()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeReputations) };
     if (!result)
     {
@@ -8794,7 +8776,6 @@ void ObjectMgr::LoadFactionChangeReputations()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8820,6 +8801,8 @@ void ObjectMgr::LoadFactionChangeReputations()
 
 void ObjectMgr::LoadFactionChangeSpells()
 {
+    StopWatch sw;
+
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeSpells) };
     if (!result)
     {
@@ -8828,7 +8811,6 @@ void ObjectMgr::LoadFactionChangeSpells()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -8986,6 +8968,7 @@ void ObjectMgr::LoadCreatureQuestItems()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -9005,7 +8988,6 @@ void ObjectMgr::LoadCreatureQuestItems()
 void ObjectMgr::LoadQuestMoneyRewards()
 {
     StopWatch sw;
-
     _questMoneyRewards.clear();
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::QuestMoneyReward) };
@@ -9016,6 +8998,7 @@ void ObjectMgr::LoadQuestMoneyRewards()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -9160,6 +9143,7 @@ void ObjectMgr::SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint3
 
 void ObjectMgr::LoadMailServerTemplates()
 {
+    StopWatch sw;
     _serverMailStore.clear(); // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::MailServerTemplate) };
@@ -9170,7 +9154,6 @@ void ObjectMgr::LoadMailServerTemplates()
         return;
     }
 
-    StopWatch sw;
     _serverMailStore.rehash(result->GetRowCount());
 
     do

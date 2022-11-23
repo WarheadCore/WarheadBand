@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "M2Structure.h"
 #include "World.h"
+#include "StopWatch.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <iostream>
@@ -177,10 +178,11 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
 
 void LoadM2Cameras(std::string const& dataPath)
 {
+    StopWatch sw;
     sFlyByCameraStore.clear();
+
     LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
 
-    StopWatch sw;
     for (CinematicCameraEntry const* dbcentry : sCinematicCameraStore)
     {
         std::string filenameWork = dataPath;

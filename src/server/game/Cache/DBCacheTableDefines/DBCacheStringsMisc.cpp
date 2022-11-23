@@ -39,6 +39,14 @@ void DBCacheMgr::InitMiscStrings()
     _queryStrings.emplace(DBCacheTable::GameGraveyard, "SELECT ID, Map, x, y, z, Comment FROM game_graveyard");
     _queryStrings.emplace(DBCacheTable::GraveyardZone, "SELECT ID, GhostZone, Faction FROM graveyard_zone");
     _queryStrings.emplace(DBCacheTable::PlayerCreateInfo, "SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
+    _queryStrings.emplace(DBCacheTable::PlayerCreateInfoItem, "SELECT race, class, itemid, amount FROM playercreateinfo_item");
+    _queryStrings.emplace(DBCacheTable::PlayerCreateInfoSkills, "SELECT raceMask, classMask, skill, `rank` FROM playercreateinfo_skills");
+    _queryStrings.emplace(DBCacheTable::PlayerCreateInfoSpellCustom, "SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+    _queryStrings.emplace(DBCacheTable::PlayerCreateInfoCastSpell, "SELECT raceMask, classMask, spell FROM playercreateinfo_cast_spell");
+    _queryStrings.emplace(DBCacheTable::PlayerCreateInfoAction, "SELECT race, class, button, action, type FROM playercreateinfo_action");
+    _queryStrings.emplace(DBCacheTable::PlayerClassLevelStats, "SELECT class, level, basehp, basemana FROM player_classlevelstats");
+    _queryStrings.emplace(DBCacheTable::PlayerLevelStats, "SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
+    _queryStrings.emplace(DBCacheTable::PlayerXpForLevel, "SELECT Level, Experience FROM player_xp_for_level");
     _queryStrings.emplace(DBCacheTable::ExplorationBasexp, "SELECT level, basexp FROM exploration_basexp");
     _queryStrings.emplace(DBCacheTable::PetNameGeneration, "SELECT word, entry, half FROM pet_name_generation");
     _queryStrings.emplace(DBCacheTable::PetLevelstats, "SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor, min_dmg, max_dmg FROM pet_levelstats");

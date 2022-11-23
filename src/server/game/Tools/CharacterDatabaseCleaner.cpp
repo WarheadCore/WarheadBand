@@ -26,6 +26,7 @@
 #include "Log.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "StopWatch.h"
 #include <sstream>
 
 void CharacterDatabaseCleaner::CleanDatabase()

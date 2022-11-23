@@ -248,6 +248,8 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 void GameEventMgr::LoadFromDB()
 {
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEvent) };
         if (!result)
         {
@@ -257,7 +259,6 @@ void GameEventMgr::LoadFromDB()
             return;
         }
 
-        StopWatch sw;
         uint32 count = 0;
 
         for (auto const& fields : *result)

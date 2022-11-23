@@ -109,7 +109,6 @@ void GameLocale::LoadAllLocales()
 bool GameLocale::LoadWarheadStrings()
 {
     StopWatch sw;
-
     _warheadStringStore.clear(); // for reload case
 
     auto result = sDBCacheMgr->GetResult(DBCacheTable::WarheadStrings);
@@ -165,7 +164,6 @@ WarheadString const* GameLocale::GetWarheadString(uint32 entry) const
 void GameLocale::LoadAchievementRewardLocales()
 {
     StopWatch sw;
-
     _achievementRewardLocales.clear();                       // need for reload case
 
     auto result = sDBCacheMgr->GetResult(DBCacheTable::AchievementRewardLocales);
@@ -201,7 +199,6 @@ void GameLocale::LoadAchievementRewardLocales()
 void GameLocale::LoadBroadcastTexts()
 {
     StopWatch sw;
-
     _broadcastTextStore.clear(); // for reload case
 
     auto result = sDBCacheMgr->GetResult(DBCacheTable::BroadcastTexts);
@@ -308,7 +305,6 @@ void GameLocale::LoadBroadcastTextLocales()
 void GameLocale::LoadCreatureLocales()
 {
     StopWatch sw;
-
     _creatureLocaleStore.clear();                              // need for reload case
 
     auto result = sDBCacheMgr->GetResult(DBCacheTable::CreatureLocales);
@@ -862,7 +858,6 @@ Optional<std::string> GameLocale::GetChatCommandStringHelpLocale(std::string con
 void GameLocale::LoadRaceStrings()
 {
     StopWatch sw;
-
     _raceStringStore.clear();                              // need for reload case
 
     auto result = sDBCacheMgr->GetResult(DBCacheTable::RaceStrings);

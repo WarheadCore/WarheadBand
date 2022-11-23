@@ -33,7 +33,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateTime.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "StopWatch.h"
 #include <sstream>
@@ -539,7 +538,6 @@ void AuctionHouseMgr::LoadAuctionItems()
 void AuctionHouseMgr::LoadAuctions()
 {
     StopWatch sw;
-
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 

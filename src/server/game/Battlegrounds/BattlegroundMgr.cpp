@@ -53,6 +53,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <unordered_map>
 
 bool BattlegroundTemplate::IsArena() const
@@ -454,7 +455,6 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
 void BattlegroundMgr::LoadBattlegroundTemplates()
 {
     StopWatch sw;
-
     _battlegroundMapTemplates.clear();
     _battlegroundTemplates.clear();
 
@@ -788,6 +788,7 @@ uint32 BattlegroundMgr::GetPrematureFinishTime() const
 
 void BattlegroundMgr::LoadBattleMastersEntry()
 {
+    StopWatch sw;
     mBattleMastersMap.clear();                                  // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::BattlemasterEntry) };
@@ -798,7 +799,6 @@ void BattlegroundMgr::LoadBattleMastersEntry()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     for (auto const& fields : *result)

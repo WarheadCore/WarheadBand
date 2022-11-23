@@ -33,6 +33,7 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
+#include "StopWatch.h"
 
 static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {

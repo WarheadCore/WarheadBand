@@ -33,6 +33,7 @@
 #include "VMapMgr2.h"
 #include "World.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 namespace DisableMgr
 {

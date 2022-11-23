@@ -27,6 +27,7 @@
 #include "ObjectAccessor.h"
 #include "Transport.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 TransportTemplate::~TransportTemplate()
 {

@@ -184,7 +184,6 @@ namespace lfg
     void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     {
         StopWatch sw;
-
         LfgDungeonStore.clear();
 
         // Initialize Dungeon map with data from dbcs

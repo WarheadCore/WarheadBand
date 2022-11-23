@@ -39,6 +39,7 @@
 #include "SpellInfo.h"
 #include "World.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1406,7 +1407,6 @@ void SpellMgr::LoadSpellRanks()
 void SpellMgr::LoadSpellRequired()
 {
     StopWatch sw;
-
     mSpellsReqSpell.clear();                                   // need for reload case
     mSpellReq.clear();                                         // need for reload case
 
@@ -1469,7 +1469,6 @@ void SpellMgr::LoadSpellRequired()
 void SpellMgr::LoadSpellLearnSkills()
 {
     StopWatch sw;
-
     mSpellLearnSkills.clear();                              // need for reload case
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
@@ -1521,6 +1520,7 @@ void SpellMgr::LoadSpellLearnSkills()
 
 void SpellMgr::LoadSpellTargetPositions()
 {
+    StopWatch sw;
     mSpellTargetPositions.clear();                                // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellTargetPosition) };
@@ -1531,7 +1531,6 @@ void SpellMgr::LoadSpellTargetPositions()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -1623,7 +1622,6 @@ void SpellMgr::LoadSpellTargetPositions()
 void SpellMgr::LoadSpellGroups()
 {
     StopWatch sw;
-
     mSpellGroupMap.clear();                                  // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellGroup) };
@@ -1682,7 +1680,6 @@ void SpellMgr::LoadSpellGroups()
 void SpellMgr::LoadSpellGroupStackRules()
 {
     StopWatch sw;
-
     mSpellGroupStackMap.clear();                                  // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellGroupStackRules) };
@@ -1732,7 +1729,6 @@ void SpellMgr::LoadSpellGroupStackRules()
 void SpellMgr::LoadSpellProcEvents()
 {
     StopWatch sw;
-
     mSpellProcEventMap.clear();                             // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProcEvent) };
@@ -1825,7 +1821,6 @@ void SpellMgr::LoadSpellProcEvents()
 void SpellMgr::LoadSpellProcs()
 {
     StopWatch sw;
-
     mSpellProcMap.clear();                             // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProc) };
@@ -1972,7 +1967,6 @@ void SpellMgr::LoadSpellProcs()
 void SpellMgr::LoadSpellBonuses()
 {
     StopWatch sw;
-
     mSpellBonusMap.clear();                             // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellBonusData) };
@@ -2012,7 +2006,6 @@ void SpellMgr::LoadSpellBonuses()
 void SpellMgr::LoadSpellThreats()
 {
     StopWatch sw;
-
     mSpellThreatMap.clear();                                // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellThreat) };
@@ -2052,7 +2045,6 @@ void SpellMgr::LoadSpellThreats()
 void SpellMgr::LoadSpellMixology()
 {
     StopWatch sw;
-
     mSpellMixologyMap.clear();                                // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellMixology) };
@@ -2087,9 +2079,7 @@ void SpellMgr::LoadSpellMixology()
 void SpellMgr::LoadSkillLineAbilityMap()
 {
     StopWatch sw;
-
     mSkillLineAbilityMap.clear();
-
     uint32 count = 0;
 
     for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
@@ -2108,6 +2098,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
 void SpellMgr::LoadSpellPetAuras()
 {
+    StopWatch sw;
     mSpellPetAuraMap.clear();                                  // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellPetAuras) };
@@ -2118,7 +2109,6 @@ void SpellMgr::LoadSpellPetAuras()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -2212,7 +2202,6 @@ void SpellMgr::LoadEnchantCustomAttr()
 void SpellMgr::LoadSpellEnchantProcData()
 {
     StopWatch sw;
-
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellEnchantProcData) };
@@ -2254,6 +2243,7 @@ void SpellMgr::LoadSpellEnchantProcData()
 
 void SpellMgr::LoadSpellLinked()
 {
+    StopWatch sw;
     mSpellLinkedMap.clear();    // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellLinkedSpell) };
@@ -2264,7 +2254,6 @@ void SpellMgr::LoadSpellLinked()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -2308,7 +2297,6 @@ void SpellMgr::LoadSpellLinked()
 void SpellMgr::LoadPetLevelupSpellMap()
 {
     StopWatch sw;
-
     mPetLevelupSpellMap.clear();                                   // need for reload case
 
     uint32 count = 0;
@@ -2413,7 +2401,6 @@ bool LoadPetDefaultSpells_helper(CreatureTemplate const* cInfo, PetDefaultSpells
 void SpellMgr::LoadPetDefaultSpells()
 {
     StopWatch sw;
-
     mPetDefaultSpellsMap.clear();
 
     uint32 countCreature = 0;
@@ -2446,7 +2433,7 @@ void SpellMgr::LoadPetDefaultSpells()
     LOG_INFO("server.loading", " ");
 
     LOG_INFO("server.loading", "Loading Summonable Creature Templates...");
-    oldMSTime = getMSTime();
+    sw.Reset();
 
     // different summon spells
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
@@ -2492,6 +2479,7 @@ void SpellMgr::LoadPetDefaultSpells()
 
 void SpellMgr::LoadSpellAreas()
 {
+    StopWatch sw;
     mSpellAreaMap.clear();                                  // need for reload case
     mSpellAreaForQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
@@ -2505,7 +2493,6 @@ void SpellMgr::LoadSpellAreas()
         return;
     }
 
-    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -2765,8 +2752,7 @@ void SpellMgr::LoadSpellSpecificAndAuraState()
 
 void SpellMgr::LoadSpellInfoCustomAttributes()
 {
-    uint32 const oldMSTime = getMSTime();
-    uint32 const customAttrTime = getMSTime();
+    StopWatch sw;
     uint32 count;
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellCustomAttr) };
@@ -2837,8 +2823,11 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
             spellInfo->AttributesCu |= attributes;
         }
-        LOG_INFO("server.loading", ">> Loaded {} spell custom attributes from DB in {}", count, GetMSTimeDiffToNow(customAttrTime));
+
+        LOG_INFO("server.loading", ">> Loaded {} spell custom attributes from DB in {}", count, sw);
     }
+
+    sw.Reset();
 
     // xinef: create talent spells set
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
@@ -3414,9 +3403,10 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 }
             }
         }
-       spellInfo->_InitializeExplicitTargetMask();
 
-       sScriptMgr->OnLoadSpellCustomAttr(spellInfo);
+        spellInfo->_InitializeExplicitTargetMask();
+
+        sScriptMgr->OnLoadSpellCustomAttr(spellInfo);
     }
 
     // Xinef: addition for binary spells, ommit spells triggering other spells

@@ -25,7 +25,7 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "DBCacheMgr.h"
-//#include <functional>
+#include "StopWatch.h"
 #include <vector>
 
 struct EnchStoreItem
@@ -48,7 +48,6 @@ static EnchantmentStore RandomItemEnch;
 void LoadRandomEnchantmentsTable()
 {
     StopWatch sw;
-
     RandomItemEnch.clear();                                 // for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::ItemEnchantmentTemplate) };

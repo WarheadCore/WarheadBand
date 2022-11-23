@@ -58,7 +58,6 @@ SkillPerfectItemMap SkillPerfectItemStore;
 void LoadSkillPerfectItemTable()
 {
     StopWatch sw;
-
     SkillPerfectItemStore.clear(); // reload capability
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillPerfectItemTemplate) };
@@ -142,7 +141,6 @@ SkillExtraItemMap SkillExtraItemStore;
 void LoadSkillExtraItemTable()
 {
     StopWatch sw;
-
     SkillExtraItemStore.clear();                            // need for reload
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillExtraItemTemplate) };

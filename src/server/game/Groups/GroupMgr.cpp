@@ -156,11 +156,13 @@ void GroupMgr::LoadGroups()
     }
 
     LOG_INFO("server.loading", "Loading Group Members...");
+
     {
         StopWatch sw;
 
         // Delete all rows from group_member with no group
         CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM `groups`)");
+
         // Delete all members that does not exist
         CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
 

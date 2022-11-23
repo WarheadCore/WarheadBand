@@ -399,7 +399,6 @@ void Vip::UnBindInstances(Player* player)
 void Vip::LoadRates()
 {
     StopWatch sw;
-
     storeRates.clear(); // for reload case
 
     LOG_INFO("module.vip", "Loading vip rates...");
@@ -446,7 +445,6 @@ void Vip::LoadRates()
 void Vip::LoadAccounts()
 {
     StopWatch sw;
-
     store.clear(); // for reload case
 
     LOG_INFO("module.vip", "Load vip accounts...");
@@ -480,7 +478,6 @@ void Vip::LoadAccounts()
 void Vip::LoadUnbinds()
 {
     StopWatch sw;
-
     storeUnbind.clear(); // for reload case
 
     LOG_INFO("module.vip", "Load vip unbinds...");
@@ -506,7 +503,6 @@ void Vip::LoadUnbinds()
 void Vip::LoadVipVendors()
 {
     StopWatch sw;
-
     storeVendors.clear(); // for reload case
 
     LOG_INFO("module.vip", "Load vip vendors...");
