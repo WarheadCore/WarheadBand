@@ -66,7 +66,7 @@ void SmartWaypointMgr::LoadFromDB()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }

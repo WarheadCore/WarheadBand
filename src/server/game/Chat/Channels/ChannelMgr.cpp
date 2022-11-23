@@ -170,7 +170,7 @@ void ChannelMgr::LoadChannelRights()
     QueryResult result = CharacterDatabase.Query("SELECT name, flags, speakdelay, joinmessage, delaymessage, moderators FROM channels_rights");
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Channel Rights!");
+        LOG_INFO("server.loading", ">> Loaded 0 Channel Rights!");
         LOG_INFO("server.loading", " ");
         return;
     }

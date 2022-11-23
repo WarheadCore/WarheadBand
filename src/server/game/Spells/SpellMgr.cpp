@@ -1826,12 +1826,13 @@ void SpellMgr::LoadSpellProcs()
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellProc) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Spell Proc Conditions And Data. DB table `spell_proc` Is Empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 Spell Proc Conditions And Data. DB table `spell_proc` Is Empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();

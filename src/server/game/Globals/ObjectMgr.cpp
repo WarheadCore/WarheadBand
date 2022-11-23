@@ -428,6 +428,7 @@ void ObjectMgr::LoadCreatureTemplates()
     }
 
     LOG_INFO("server.loading", ">> Loaded {} creature definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadCreatureTemplate(Field* fields)
@@ -3150,7 +3151,7 @@ void ObjectMgr::LoadVehicleAccessories()
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::VehicleAccessory) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Vehicle Accessories in {}", sw);
+        LOG_INFO("server.loading", ">> Loaded 0 Vehicle Accessories in {}", sw);
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -3329,7 +3330,7 @@ void ObjectMgr::LoadPlayerInfo()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfo) };
         if (!result)
         {
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", "");
             LOG_WARN("server.loading", ">> Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
             exit(1);
         }
@@ -3403,6 +3404,7 @@ void ObjectMgr::LoadPlayerInfo()
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} Player Create Definitions in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
@@ -3414,7 +3416,8 @@ void ObjectMgr::LoadPlayerInfo()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoItem) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Custom Player Create Items. DB Table `playercreateinfo_item` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Custom Player Create Items. DB Table `playercreateinfo_item` Is Empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3471,6 +3474,7 @@ void ObjectMgr::LoadPlayerInfo()
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} Custom Player Create Items in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
@@ -3482,7 +3486,8 @@ void ObjectMgr::LoadPlayerInfo()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoSkills) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Player Create Skills. DB Table `playercreateinfo_skills` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Player Create Skills. DB Table `playercreateinfo_skills` Is Empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3544,7 +3549,7 @@ void ObjectMgr::LoadPlayerInfo()
             } while (result->NextRow());
 
             LOG_INFO("server.loading", ">> Loaded {} player create skills in {}", count, sw);
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", "");
         }
     }
 
@@ -3556,7 +3561,8 @@ void ObjectMgr::LoadPlayerInfo()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoSpellCustom) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 player create spells. DB table `playercreateinfo_spell_custom` is empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3614,6 +3620,7 @@ void ObjectMgr::LoadPlayerInfo()
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 Player Create Cast Spells. DB Table `playercreateinfo_cast_spell` Is Empty.");
+            LOG_INFO("server.loading", "");
         }
         else
         {
@@ -3670,7 +3677,7 @@ void ObjectMgr::LoadPlayerInfo()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerCreateInfoAction) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Player Create Actions. DB Table `playercreateinfo_action` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Player Create Actions. DB Table `playercreateinfo_action` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -3783,7 +3790,7 @@ void ObjectMgr::LoadPlayerInfo()
         }
 
         LOG_INFO("server.loading", ">> Loaded {} Level Health/Mana Definitions in {}", count, sw);
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", "");
     }
 
     // Loading levels data (class/race dependent)
@@ -5847,6 +5854,7 @@ void ObjectMgr::LoadQuestGreetings()
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} quest_greeting in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
@@ -6072,6 +6080,7 @@ void ObjectMgr::LoadAreaTriggers()
     } while (result->NextRow());
 
     LOG_INFO("server.loading", ">> Loaded {} Area Trigger Definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadAreaTriggerTeleports()
@@ -7460,7 +7469,7 @@ void ObjectMgr::LoadReservedPlayersNames()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 reserved player names. DB table `reserved_name` is empty!");
+        LOG_INFO("server.loading", ">> Loaded 0 reserved player names. DB table `reserved_name` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -7472,7 +7481,7 @@ void ObjectMgr::LoadReservedPlayersNames()
         std::string name = fields[0].Get<std::string>();
 
         std::wstring wstr;
-        if (!Utf8toWStr (name, wstr))
+        if (!Utf8toWStr(name, wstr))
         {
             LOG_ERROR("db.query", "Table `reserved_name` have invalid name: {}", name);
             continue;
@@ -9073,7 +9082,8 @@ void ObjectMgr::LoadInstanceSavedGameobjectStateData()
     if (!result)
     {
         // There's no gameobject with this GUID saved on the DB
-        LOG_INFO("db.query", ">> Loaded 0 Instance saved gameobject state data. DB table `instance_saved_go_state_data` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 Instance saved gameobject state data. DB table `instance_saved_go_state_data` is empty.");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -9165,7 +9175,7 @@ void ObjectMgr::LoadMailServerTemplates()
     auto result{ CharacterDatabase.Query("SELECT `id`, `reqLevel`, `reqPlayTime`, `moneyA`, `moneyH`, `itemA`, `itemCountA`, `itemH`,`itemCountH`, `subject`, `body`, `active` FROM `mail_server_template`") };
     if (!result)
     {
-        LOG_INFO("db.query", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 server mail rewards. DB table `mail_server_template` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }

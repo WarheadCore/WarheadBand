@@ -47,7 +47,7 @@ void LootItemStorage::LoadStorageFromDB()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 stored items!");
+        LOG_INFO("server.loading", ">> Loaded 0 stored items!");
         LOG_INFO("server.loading", " ");
         return;
     }

@@ -319,7 +319,7 @@ void GameEventMgr::LoadFromDB()
         auto result{ CharacterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save") };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Game Event Saves In Game Events. DB Table `game_event_save` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Game Event Saves In Game Events. DB Table `game_event_save` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -362,7 +362,7 @@ void GameEventMgr::LoadFromDB()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventPrerequisite) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Game Event Prerequisites in Game Events. DB Table `game_event_prerequisite` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Game Event Prerequisites in Game Events. DB Table `game_event_prerequisite` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -507,7 +507,7 @@ void GameEventMgr::LoadFromDB()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventModelEquip) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Model/Equipment Changes In Game Events. DB Table `game_event_model_equip` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Model/Equipment Changes In Game Events. DB Table `game_event_model_equip` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -643,7 +643,7 @@ void GameEventMgr::LoadFromDB()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventQuestCondition) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 quest event Conditions In Game Events. DB Table `game_event_quest_condition` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 quest event Conditions In Game Events. DB Table `game_event_quest_condition` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -684,7 +684,7 @@ void GameEventMgr::LoadFromDB()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCondition) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Conditions In Game Events. DB table `game_event_condition` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Conditions In Game Events. DB table `game_event_condition` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
@@ -724,7 +724,7 @@ void GameEventMgr::LoadFromDB()
         auto result{ CharacterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save") };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 Condition Saves In Game Events. DB Table `game_event_condition_save` Is Empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Condition Saves In Game Events. DB Table `game_event_condition_save` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else

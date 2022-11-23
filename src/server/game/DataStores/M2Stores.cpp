@@ -181,7 +181,7 @@ void LoadM2Cameras(std::string const& dataPath)
     StopWatch sw;
     sFlyByCameraStore.clear();
 
-    LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
+    LOG_INFO("server.loading", "Loading Cinematic Camera files");
 
     for (CinematicCameraEntry const* dbcentry : sCinematicCameraStore)
     {
@@ -255,6 +255,7 @@ void LoadM2Cameras(std::string const& dataPath)
     }
 
     LOG_INFO("server.loading", ">> Loaded {} Cinematic Waypoint Sets in {}", sFlyByCameraStore.size(), sw);
+    LOG_INFO("server.loading", "");
 }
 
 std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)

@@ -2784,7 +2784,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -2821,7 +2821,7 @@ void AchievementGlobalMgr::LoadRewards()
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementReward) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         LOG_INFO("server.loading", " ");
         return;
     }

@@ -953,8 +953,8 @@ void PoolMgr::LoadFromDB()
                 }
             } while (result->NextRow());
 
-            LOG_INFO("pool", "Pool handling system initialized, {} pools spawned in {}", count, sw);
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Pool handling system initialized. {} pools spawned in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 }

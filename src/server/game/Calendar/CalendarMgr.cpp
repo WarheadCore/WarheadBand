@@ -469,13 +469,11 @@ std::string CalendarEvent::BuildCalendarMailBody() const
 {
     WorldPacket data;
     uint32 time;
-    std::ostringstream strm;
 
     // we are supposed to send PackedTime so i used WorldPacket to pack it
     data.AppendPackedTime(_eventTime);
     data >> time;
-    strm << time;
-    return strm.str();
+    return Warhead::StringFormat("{}", time);
 }
 
 void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)

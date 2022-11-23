@@ -340,8 +340,8 @@ void TicketMgr::LoadTickets()
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
-
+        LOG_INFO("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
+        LOG_INFO("server.loading", "");
         return;
     }
 
