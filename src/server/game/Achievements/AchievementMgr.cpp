@@ -49,6 +49,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "DBCacheMgr.h"
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -2636,12 +2637,9 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
-    uint32 oldMSTime = getMSTime();
-
     m_criteriaDataMap.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementCriteriaData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
@@ -2649,6 +2647,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     for (auto const& row : *result)
@@ -2815,13 +2814,9 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
 void AchievementGlobalMgr::LoadRewards()
 {
-    uint32 oldMSTime = getMSTime();
-
     m_achievementRewards.clear();                           // need for reload case
 
-    //                                               0      1        2        3     4       5        6     7
-    QueryResult result = WorldDatabase.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementReward) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
@@ -2829,6 +2824,7 @@ void AchievementGlobalMgr::LoadRewards()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     for (auto const& fields : *result)

@@ -55,4 +55,5 @@ void DBCacheMgr::InitCreatureStrings()
                                                                   "LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id1");
     _queryStrings.emplace(DBCacheTable::CreatureQuestItem, "SELECT CreatureEntry, ItemId FROM creature_questitem ORDER BY Idx ASC");
     _queryStrings.emplace(DBCacheTable::NpcSpellClickSpells, "SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
+    _queryStrings.emplace(DBCacheTable::CreatureFormations, "SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
 }

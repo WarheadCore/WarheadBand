@@ -29,6 +29,7 @@
 #include "GridNotifiers.h"
 #include "LocaleCommon.h"
 #include "MiscPackets.h"
+#include "DBCacheMgr.h"
 
 class CreatureTextBuilder
 {
@@ -176,8 +177,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
 
     mLocaleTextMap.clear(); // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT CreatureId, GroupId, ID, Locale, Text FROM creature_text_locale");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureTextLocale) };
     if (!result)
         return;
 

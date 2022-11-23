@@ -31,4 +31,11 @@ void DBCacheMgr::InitGossipStrings()
                                                  "FROM npc_text");
 
     _queryStrings.emplace(DBCacheTable::PageText, "SELECT ID, Text, NextPageID FROM page_text");
+    _queryStrings.emplace(DBCacheTable::GossipMenu, "SELECT MenuID, TextID FROM gossip_menu");
+    _queryStrings.emplace(DBCacheTable::GossipMenuOption, "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
+                                                    "FROM gossip_menu_option ORDER BY MenuID, OptionID");
+    _queryStrings.emplace(DBCacheTable::NpcVendor, "SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC, item, ExtendedCost");
+    _queryStrings.emplace(DBCacheTable::TrainerSpell, "SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.ReqLevel, a.ReqSpell FROM npc_trainer AS a "
+                                                      "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
+                                                      "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
 }

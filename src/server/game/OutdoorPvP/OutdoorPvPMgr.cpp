@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "DBCacheMgr.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
@@ -51,9 +52,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0       1
-    QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::OutdoorpvpTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
@@ -67,7 +66,6 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     do
     {
         auto fields = result->Fetch();
-
         typeId = fields[0].Get<uint8>();
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, nullptr))

@@ -5201,8 +5201,8 @@ void ObjectMgr::LoadWaypointScripts()
         } while (result->NextRow());
     }
 
-    for (std::set<uint32>::iterator itr = actionSet.begin(); itr != actionSet.end(); ++itr)
-        LOG_ERROR("db.query", "There is no waypoint which links to the waypoint script {}", *itr);
+    for (unsigned int itr : actionSet)
+        LOG_ERROR("db.query", "There is no waypoint which links to the waypoint script {}", itr);
 }
 
 void ObjectMgr::LoadSpellScriptNames()
@@ -5211,8 +5211,7 @@ void ObjectMgr::LoadSpellScriptNames()
 
     _spellScriptsStore.clear();                            // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SpellScriptNames) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 spell script names. DB table `spell_script_names` is empty!");
@@ -5641,6 +5640,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
     uint32 deletedCount = 0;
     uint32 returnedCount = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -7754,12 +7754,9 @@ void ObjectMgr::LoadGameObjectForQuests()
 
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
-    uint32 oldMSTime = getMSTime();
-
     _fishingBaseForAreaStore.clear();                            // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, skill FROM skill_fishing_base_level");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillFishingBaseLevel) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
@@ -7767,6 +7764,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -7894,13 +7892,9 @@ SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 
 void ObjectMgr::LoadGameTele()
 {
-    uint32 oldMSTime = getMSTime();
-
     _gameTeleStore.clear();                                  // for reload case
 
-    //                                                0       1           2           3           4        5     6
-    QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameTele) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 GameTeleports. DB table `game_tele` is empty!");
@@ -7908,6 +7902,7 @@ void ObjectMgr::LoadGameTele()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8176,15 +8171,10 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
 
 void ObjectMgr::LoadTrainerSpell()
 {
-    uint32 oldMSTime = getMSTime();
-
     // For reload case
     _cacheTrainerSpellStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.ReqLevel, a.ReqSpell FROM npc_trainer AS a "
-                         "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
-                         "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::TrainerSpell) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 Trainers. DB table `npc_trainer` is empty!");
@@ -8192,6 +8182,7 @@ void ObjectMgr::LoadTrainerSpell()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8256,16 +8247,13 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32>* s
 
 void ObjectMgr::LoadVendors()
 {
-    uint32 oldMSTime = getMSTime();
-
     // For reload case
-    for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
-        itr->second.Clear();
+    for (auto& itr : _cacheVendorItemStore)
+        itr.second.Clear();
+
     _cacheVendorItemStore.clear();
 
-    std::set<uint32> skip_vendors;
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC, item, ExtendedCost");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::NpcVendor) };
     if (!result)
     {
         LOG_INFO("server.loading", " ");
@@ -8273,14 +8261,15 @@ void ObjectMgr::LoadVendors()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
+    std::set<uint32> skip_vendors;
 
     do
     {
-        auto fields = result->Fetch();
-
-        uint32 entry        = fields[0].Get<uint32>();
-        int32 item_id      = fields[1].Get<int32>();
+        auto fields     = result->Fetch();
+        uint32 entry    = fields[0].Get<uint32>();
+        int32 item_id   = fields[1].Get<int32>();
 
         // if item is a negative, its a reference
         if (item_id < 0)
@@ -8295,7 +8284,6 @@ void ObjectMgr::LoadVendors()
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
-
             vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
             ++count;
         }
@@ -8307,18 +8295,17 @@ void ObjectMgr::LoadVendors()
 
 void ObjectMgr::LoadGossipMenu()
 {
-    uint32 oldMSTime = getMSTime();
-
     _gossipMenusStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, TextID FROM gossip_menu");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GossipMenu) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gossip_menu entries. DB table `gossip_menu` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 oldMSTime = getMSTime();
 
     do
     {
@@ -8344,21 +8331,17 @@ void ObjectMgr::LoadGossipMenu()
 
 void ObjectMgr::LoadGossipMenuItems()
 {
-    uint32 oldMSTime = getMSTime();
-
     _gossipMenuItemsStore.clear();
 
-    QueryResult result = WorldDatabase.Query(
-                             //      0       1         2           3           4                      5           6              7             8            9         10        11       12
-                             "SELECT MenuID, OptionID, OptionIcon, OptionText, OptionBroadcastTextID, OptionType, OptionNpcFlag, ActionMenuID, ActionPoiID, BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID "
-                             "FROM gossip_menu_option ORDER BY MenuID, OptionID");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GossipMenuOption) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 gossip_menu_option IDs. DB table `gossip_menu_option` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
+
+    uint32 oldMSTime = getMSTime();
 
     do
     {
@@ -8700,10 +8683,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
 void ObjectMgr::LoadFactionChangeAchievements()
 {
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeAchievement) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
@@ -8711,6 +8691,7 @@ void ObjectMgr::LoadFactionChangeAchievements()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8736,10 +8717,7 @@ void ObjectMgr::LoadFactionChangeAchievements()
 
 void ObjectMgr::LoadFactionChangeItems()
 {
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeItems) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change item pairs. DB table `player_factionchange_items` is empty.");
@@ -8747,6 +8725,7 @@ void ObjectMgr::LoadFactionChangeItems()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8774,8 +8753,7 @@ void ObjectMgr::LoadFactionChangeQuests()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeQuest) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change quest pairs. DB table `player_factionchange_quests` is empty.");
@@ -8808,10 +8786,7 @@ void ObjectMgr::LoadFactionChangeQuests()
 
 void ObjectMgr::LoadFactionChangeReputations()
 {
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeReputations) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
@@ -8819,6 +8794,7 @@ void ObjectMgr::LoadFactionChangeReputations()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8844,10 +8820,7 @@ void ObjectMgr::LoadFactionChangeReputations()
 
 void ObjectMgr::LoadFactionChangeSpells()
 {
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeSpells) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
@@ -8855,6 +8828,7 @@ void ObjectMgr::LoadFactionChangeSpells()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -8882,8 +8856,7 @@ void ObjectMgr::LoadFactionChangeTitles()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerFactionchangeTitles) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");

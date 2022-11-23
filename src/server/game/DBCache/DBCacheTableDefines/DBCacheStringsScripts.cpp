@@ -48,4 +48,5 @@ void DBCacheMgr::InitScriptStrings()
                                                      "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     _queryStrings.emplace(DBCacheTable::AreatriggerScripts, "SELECT entry, ScriptName FROM areatrigger_scripts");
+    _queryStrings.emplace(DBCacheTable::SpellScriptNames, "SELECT spell_id, ScriptName FROM spell_script_names");
 }

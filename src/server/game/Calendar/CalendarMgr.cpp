@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "DBCacheMgr.h"
 #include <sstream>
 #include <unordered_map>
 
@@ -68,8 +69,7 @@ void CalendarMgr::LoadFromDB()
     _maxEventId = 0;
     _maxInviteId = 0;
 
-    //                                                       0   1        2      3            4     5        6          7      8
-    if (QueryResult result = CharacterDatabase.Query("SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events"))
+    if (auto result{ sDBCacheMgr->GetResult(DBCacheTable::CalendarEvents) })
     {
         for (auto const& fields : *result)
         {

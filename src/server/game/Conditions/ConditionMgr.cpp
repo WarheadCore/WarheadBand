@@ -33,6 +33,7 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "DBCacheMgr.h"
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
@@ -1050,9 +1051,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::Conditions) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");

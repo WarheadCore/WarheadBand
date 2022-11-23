@@ -43,6 +43,7 @@ enum class DBCacheTable : std::size_t
     RaceStrings,
     ClassStrings,
     CommonStrings,
+    CreatureTextLocale,
 
     // Game event
     GameEvent,
@@ -84,6 +85,7 @@ enum class DBCacheTable : std::size_t
     // Scripts
     ScriptNames,
     AreatriggerScripts,
+    SpellScriptnames,
 
     // Instances
     InstanceTemplate,
@@ -92,6 +94,10 @@ enum class DBCacheTable : std::size_t
     // Gossip
     NpcText,
     PageText,
+    GossipMenu,
+    GossipMenuOption,
+    NpcVendor,
+    TrainerSpell,
 
     // Items
     ItemTemplate,
@@ -114,6 +120,7 @@ enum class DBCacheTable : std::size_t
     CreatureMovementOverride,
     CreatureQuestItem,
     NpcSpellClickSpells,
+    CreatureFormations,
 
     // GameObject
     Gameobject,
@@ -159,6 +166,25 @@ enum class DBCacheTable : std::size_t
     PetLevelstats,
     MailLevelReward,
     MailServerTemplate,
+    SkillDiscoveryTemplate,
+    SkillExtraItemTemplate,
+    SkillPerfectItemTemplate,
+    SkillFishingBaseLevel,
+    AchievementCriteriaData,
+    AchievementReward,
+    BattlemasterEntry,
+    GameTele,
+    WaypointData,
+    Conditions,
+    PlayerFactionchangeAchievement,
+    PlayerFactionchangeSpells,
+    PlayerFactionchangeItems,
+    PlayerFactionchangeReputations,
+    PlayerFactionchangeTitles,
+    PlayerFactionchangeQuest,
+    CalendarEvents,
+    BattlegroundTemplate,
+    OutdoorpvpTemplate,
 
     Max
 };

@@ -42,4 +42,5 @@ void DBCacheMgr::InitGameLocaleStrings()
     _queryStrings.emplace(DBCacheTable::RaceStrings, "SELECT ID, Locale, NameMale, NameFemale FROM `string_race`");
     _queryStrings.emplace(DBCacheTable::ClassStrings, "SELECT ID, Locale, NameMale, NameFemale FROM `string_class`");
     _queryStrings.emplace(DBCacheTable::CommonStrings, "SELECT `Entry`, `Locale`, `Content` FROM `string_warhead`");
+    _queryStrings.emplace(DBCacheTable::CreatureTextLocale, "SELECT CreatureId, GroupId, ID, Locale, Text FROM creature_text_locale");
 }

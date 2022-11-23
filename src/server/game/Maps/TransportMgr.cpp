@@ -431,11 +431,10 @@ void TransportMgr::SpawnContinentTransports()
 
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
 
     if (CONF_GET_BOOL("IsContinentTransport.Enabled"))
     {
-
+        QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
         if (result)
         {
             do

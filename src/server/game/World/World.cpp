@@ -1035,15 +1035,18 @@ void World::SetInitialWorldSettings()
 
     // pussywizard:
     LOG_INFO("server.loading", "Deleting Invalid Mail Items...");
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Done");
+    LOG_INFO("server.loading", "");
+
     CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN item_instance ii ON mi.item_guid = ii.guid WHERE ii.guid IS NULL");
     CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN mail m ON mi.mail_id = m.id WHERE m.id IS NULL");
     CharacterDatabase.Execute("UPDATE mail m LEFT JOIN mail_items mi ON m.id = mi.mail_id SET m.has_items=0 WHERE m.has_items<>0 AND mi.mail_id IS NULL");
 
     ///- Handle outdated emails (delete/return)
     LOG_INFO("server.loading", "Returning Old Mails...");
-    LOG_INFO("server.loading", " ");
     sObjectMgr->ReturnOrDeleteOldMails(false);
+    LOG_INFO("server.loading", ">> Done");
+    LOG_INFO("server.loading", "");
 
     ///- Load AutoBroadCast
     LOG_INFO("server.loading", "Loading Autobroadcasts...");
@@ -1205,28 +1208,24 @@ void World::SetInitialWorldSettings()
     {
         LOG_INFO("server.loading", "Loading All Grids For All Non-Instanced Maps...");
 
-        for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+        for (auto const& mapEntry : sMapStore)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(i);
+            if (!mapEntry || mapEntry->Instanceable())
+                continue;
 
-            if (mapEntry && !mapEntry->Instanceable())
+            Map* map = sMapMgr->CreateBaseMap(mapEntry->MapID);
+            if (map)
             {
-                Map* map = sMapMgr->CreateBaseMap(mapEntry->MapID);
-
-                if (map)
-                {
-                    LOG_INFO("server.loading", ">> Loading All Grids For Map {}", map->GetId());
-                    map->LoadAllCells();
-                }
+                LOG_INFO("server.loading", ">> Loading All Grids For Map {}", map->GetId());
+                map->LoadAllCells();
             }
         }
     }
 
     auto elapsed = sw.Elapsed();
+    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
     sScriptMgr->OnBeforeWorldInitialized(elapsed);
-
-    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
     LOG_INFO("server.loading", "World initialized in {}", startupDuration);
     LOG_INFO("server.loading", "");

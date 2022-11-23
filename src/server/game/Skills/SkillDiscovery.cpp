@@ -27,6 +27,7 @@
 #include "SpellMgr.h"
 #include "Util.h"
 #include "World.h"
+#include "DBCacheMgr.h"
 #include <map>
 #include <sstream>
 
@@ -50,13 +51,9 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 
 void LoadSkillDiscoveryTable()
 {
-    uint32 oldMSTime = getMSTime();
-
     SkillDiscoveryStore.clear();                            // need for reload
 
-    //                                                0        1         2              3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillDiscoveryTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
@@ -64,6 +61,7 @@ void LoadSkillDiscoveryTable()
         return;
     }
 
+    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     std::ostringstream ssNonDiscoverableEntries;
