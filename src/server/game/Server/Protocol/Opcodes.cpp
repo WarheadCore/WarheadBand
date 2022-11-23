@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "Packets/AllPackets.h"
 #include "WorldSession.h"
+#include "StopWatch.h"
 #include <iomanip>
 #include <sstream>
 
@@ -125,6 +126,8 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
 /// Correspondence between opcodes and their names
 void OpcodeTable::Initialize()
 {
+    StopWatch sw;
+
 #define DEFINE_HANDLER(opcode, status, processing, handler) \
     ValidateAndSetClientOpcode<decltype(handler), handler>(opcode, #opcode, status, processing)
 
@@ -1445,6 +1448,9 @@ void OpcodeTable::Initialize()
 
 #undef DEFINE_HANDLER
 #undef DEFINE_SERVER_OPCODE_HANDLER
+
+    LOG_INFO("server.loading", ">> Opcodes is initialized in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 template<typename T>

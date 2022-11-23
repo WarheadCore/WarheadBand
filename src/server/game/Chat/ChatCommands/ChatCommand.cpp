@@ -29,6 +29,7 @@
 #include "ScriptMgr.h"
 #include "Tokenize.h"
 #include "WorldSession.h"
+#include "StopWatch.h"
 
 using ChatSubCommandMap = std::map<std::string_view, Warhead::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
 static ChatSubCommandMap COMMAND_MAP;
@@ -81,6 +82,8 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
 
 /*static*/ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadCommandMap()
 {
+    StopWatch sw;
+
     InvalidateCommandMap();
     LoadCommandsIntoMap(nullptr, COMMAND_MAP, sScriptMgr->GetChatCommands());
 
@@ -136,6 +139,9 @@ void Warhead::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
 
     for (auto& [name, cmd] : COMMAND_MAP)
         cmd.ResolveNames(std::string(name));
+
+    LOG_INFO("server.loading", ">> Commands initialized in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 void Warhead::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)

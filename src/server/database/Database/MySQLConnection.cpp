@@ -146,9 +146,6 @@ uint32 MySQLConnection::Open()
 
     if (_mysqlHandle)
     {
-//        if (!_isDynamic)
-//            RegisterThread();
-
         LOG_INFO("db.connection", "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
         mysql_autocommit(_mysqlHandle, 1);
 

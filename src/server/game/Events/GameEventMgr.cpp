@@ -1080,15 +1080,23 @@ void GameEventMgr::Initialize()
 
 uint32 GameEventMgr::StartSystem()                           // return the next event delay in ms
 {
+    StopWatch sw;
+
     m_ActiveEvents.clear();
     uint32 delay = Update();
     isSystemInit = true;
+
+    LOG_INFO("server.loading", ">> Game Event system is initialized in {}. Delay: {}", sw, delay);
+    LOG_INFO("server.loading", "");
+
     return delay;
 }
 
 void GameEventMgr::StartArenaSeason()
 {
-    uint8 season = sGameConfig->GetOption<uint8>("Arena.ArenaSeason.ID");
+    StopWatch sw;
+
+    auto season = sGameConfig->GetOption<uint8>("Arena.ArenaSeason.ID");
     QueryResult result = WorldDatabase.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{}'", season);
 
     if (!result)
@@ -1107,8 +1115,9 @@ void GameEventMgr::StartArenaSeason()
     }
 
     StartEvent(eventId, true);
-    LOG_INFO("server.loading", "Arena Season {} started...", season);
-    LOG_INFO("server.loading", " ");
+
+    LOG_INFO("server.loading", "Arena Season {} initialized in {}", season, sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GameEventMgr::Update()                               // return the next event delay in ms

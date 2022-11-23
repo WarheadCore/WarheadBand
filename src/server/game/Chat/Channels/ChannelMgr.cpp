@@ -62,7 +62,8 @@ void ChannelMgr::LoadChannels()
     QueryResult result = CharacterDatabase.Query("SELECT channelId, name, team, announce, ownership, password FROM channels ORDER BY channelId ASC");
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 channels. DB table `channels` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 channels. DB table `channels` is empty.");
+        LOG_INFO("server.loading", "");
         return;
     }
 

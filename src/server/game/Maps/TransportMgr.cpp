@@ -431,10 +431,12 @@ void TransportMgr::SpawnContinentTransports()
         return;
 
     uint32 count = 0;
-    StopWatch sw;
+    StopWatch swAll;
 
     if (CONF_GET_BOOL("IsContinentTransport.Enabled"))
     {
+        StopWatch sw;
+
         QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
         if (result)
         {
@@ -457,6 +459,8 @@ void TransportMgr::SpawnContinentTransports()
 
     if (CONF_GET_BOOL("IsPreloadedContinentTransport.Enabled"))
     {
+        StopWatch sw;
+
         // pussywizard: preload grids for continent static transports
         QueryResult result2 = WorldDatabase.Query("SELECT map, position_x, position_y FROM gameobject g JOIN gameobject_template t ON g.id = t.entry WHERE t.type = 11");
 
@@ -481,6 +485,9 @@ void TransportMgr::SpawnContinentTransports()
 
         LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {}", count, sw);
     }
+
+    LOG_INFO("server.loading", ">> Transports loaded in {}", swAll);
+    LOG_INFO("server.loading", "");
 }
 
 void TransportMgr::CreateInstanceTransports(Map* map)

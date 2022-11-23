@@ -1079,7 +1079,6 @@ void World::SetInitialWorldSettings()
     sCalendarMgr->LoadFromDB();
 
     LOG_INFO("server.loading", "Initializing SpellInfo Precomputed Data..."); // must be called after loading items, professions, spells and pretty much anything
-    LOG_INFO("server.loading", " ");
     sObjectMgr->InitializeSpellInfoPrecomputedData();
 
     LOG_INFO("server.loading", "Initialize commands...");
@@ -1118,11 +1117,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize MapMgr
     LOG_INFO("server.loading", "Starting Map System");
-    LOG_INFO("server.loading", " ");
     sMapMgr->Initialize();
 
     LOG_INFO("server.loading", "Starting Game Event system...");
-    LOG_INFO("server.loading", " ");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
@@ -1136,7 +1133,6 @@ void World::SetInitialWorldSettings()
     opcodeTable.Initialize();
 
     LOG_INFO("server.loading", "Starting Arena Season...");
-    LOG_INFO("server.loading", " ");
     sGameEventMgr->StartArenaSeason();
 
     sTicketMgr->Initialize();

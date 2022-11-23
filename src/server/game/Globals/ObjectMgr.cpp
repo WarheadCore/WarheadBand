@@ -5324,14 +5324,20 @@ void ObjectMgr::ValidateSpellScripts()
 
 void ObjectMgr::InitializeSpellInfoPrecomputedData()
 {
-    uint32 limit = sSpellStore.GetNumRows();
-    for(uint32 i = 0; i <= limit; ++i)
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i))
+    StopWatch sw;
+
+    for (auto const& spellEntry : sSpellStore)
+    {
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellEntry->Id))
         {
             const_cast<SpellInfo*>(spellInfo)->SetStackableWithRanks(spellInfo->ComputeIsStackableWithRanks());
             const_cast<SpellInfo*>(spellInfo)->SetCritCapable(spellInfo->ComputeIsCritCapable());
             const_cast<SpellInfo*>(spellInfo)->SetSpellValid(SpellMgr::ComputeIsSpellValid(spellInfo, false));
         }
+    }
+
+    LOG_INFO("server.loading", ">> Initialized SpellInfo Precomputed Data in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ObjectMgr::LoadPageTexts()
@@ -5347,6 +5353,7 @@ void ObjectMgr::LoadPageTexts()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();

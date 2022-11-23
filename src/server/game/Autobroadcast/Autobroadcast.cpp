@@ -49,6 +49,7 @@ void AutobroadcastMgr::Load()
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
+        LOG_INFO("server.loading", "");
         return;
     }
 
