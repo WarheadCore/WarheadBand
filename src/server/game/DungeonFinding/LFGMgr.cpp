@@ -47,6 +47,7 @@
 #include "SpellAuras.h"
 #include "WorldSession.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 namespace lfg
 {
@@ -115,7 +116,7 @@ namespace lfg
     /// Load rewards for completing dungeons
     void LFGMgr::LoadRewards()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         for (LfgRewardContainer::iterator itr = RewardMapStore.begin(); itr != RewardMapStore.end(); ++itr)
             delete itr->second;
@@ -167,8 +168,8 @@ namespace lfg
             ++count;
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Rewards in {}", count, sw);
+        LOG_INFO("server.loading", "");
     }
 
     LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
@@ -182,7 +183,7 @@ namespace lfg
 
     void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         LfgDungeonStore.clear();
 
@@ -234,7 +235,7 @@ namespace lfg
             ++count;
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} LFG Entrance Positions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} LFG Entrance Positions in {}", count, sw);
         LOG_INFO("server.loading", " ");
 
         // Fill all other teleport coords from areatriggers

@@ -54,7 +54,7 @@ ChannelMgr* ChannelMgr::forTeam(TeamId teamId)
 
 void ChannelMgr::LoadChannels()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     uint32 count = 0;
 
     //                                                    0          1     2     3         4          5
@@ -111,7 +111,7 @@ void ChannelMgr::LoadChannels()
         CharacterDatabase.Execute(stmt);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} channels in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} channels in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -162,7 +162,7 @@ ChannelRights ChannelMgr::channelRightsEmpty;
 
 void ChannelMgr::LoadChannelRights()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     channels_rights.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT name, flags, speakdelay, joinmessage, delaymessage, moderators FROM channels_rights");
@@ -198,7 +198,7 @@ void ChannelMgr::LoadChannelRights()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Channel Rights in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Channel Rights in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

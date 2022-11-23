@@ -92,7 +92,7 @@ void FormationMgr::LoadCreatureFormations()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     uint32 count = 0;
 
     for (auto const& fields : *result)
@@ -161,7 +161,7 @@ void FormationMgr::LoadCreatureFormations()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Creatures In Formations in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creatures In Formations in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

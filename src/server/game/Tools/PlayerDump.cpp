@@ -257,7 +257,7 @@ inline void AssertBaseTable(BaseTable const& baseTable)
 
 void PlayerDump::InitializeTables()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     for (DumpTable const& dumpTable : DumpTables)
     {
@@ -380,7 +380,7 @@ void PlayerDump::InitializeTables()
 
     ASSERT(CharacterTables.size() == DUMP_TABLE_COUNT);
 
-    LOG_INFO("server.loading", ">> Initialized Tables For PlayerDump in {} ms.", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Initialized Tables For PlayerDump in {}.", sw);
 }
 
 // Low level functions

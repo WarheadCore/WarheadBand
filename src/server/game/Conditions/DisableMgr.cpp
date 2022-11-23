@@ -56,7 +56,7 @@ namespace DisableMgr
 
     void LoadDisables()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         // reload case
         for (auto& itr : m_DisableMap)
@@ -270,13 +270,13 @@ namespace DisableMgr
             ++total_count;
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} Disables in {} ms", total_count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Disables in {}", total_count, sw);
         LOG_INFO("server.loading", " ");
     }
 
     void CheckQuestDisables()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
         if (!count)
@@ -301,7 +301,7 @@ namespace DisableMgr
             ++itr;
         }
 
-        LOG_INFO("server.loading", ">> Checked {} Quest Disables in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Checked {} Quest Disables in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 

@@ -261,7 +261,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
 
 void LoadDBCStores(const std::string& dataPath)
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     std::string dbcPath = dataPath + "dbc/";
 
@@ -643,7 +643,7 @@ void LoadDBCStores(const std::string& dataPath)
         exit(1);
     }
 
-    LOG_INFO("server.loading", ">> Initialized {} Data Stores in {} ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Initialized {} Data Stores in {}", DBCFileCount, sw);
     LOG_INFO("server.loading", "");
 
     // Close connection after load all data

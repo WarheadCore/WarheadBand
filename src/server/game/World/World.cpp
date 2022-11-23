@@ -2129,7 +2129,7 @@ void World::UpdateAreaDependentAuras()
 
 void World::LoadWorldStates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     QueryResult result = CharacterDatabase.Query("SELECT entry, value FROM worldstates");
 
@@ -2146,7 +2146,7 @@ void World::LoadWorldStates()
         m_worldstates[fields[0].Get<uint32>()] = fields[1].Get<uint32>();
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} World States in {} ms", m_worldstates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} World States in {}", m_worldstates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 

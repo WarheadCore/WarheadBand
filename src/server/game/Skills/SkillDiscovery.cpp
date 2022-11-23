@@ -28,6 +28,7 @@
 #include "Util.h"
 #include "World.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <map>
 #include <sstream>
 
@@ -51,6 +52,8 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 
 void LoadSkillDiscoveryTable()
 {
+    StopWatch sw;
+
     SkillDiscoveryStore.clear();                            // need for reload
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillDiscoveryTemplate) };
@@ -61,7 +64,6 @@ void LoadSkillDiscoveryTable()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     std::ostringstream ssNonDiscoverableEntries;
@@ -154,8 +156,8 @@ void LoadSkillDiscoveryTable()
             LOG_ERROR("db.query", "Spell (ID: {}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)

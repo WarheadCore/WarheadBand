@@ -581,7 +581,7 @@ void PoolMgr::LoadFromDB()
 {
     // Pool templates
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolTemplate) };
         if (!result)
@@ -605,7 +605,7 @@ void PoolMgr::LoadFromDB()
             ++count;
         } while (result->NextRow());
 
-        LOG_INFO("server.loading", ">> Loaded {} Objects Pools In {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Objects Pools in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 
@@ -613,7 +613,7 @@ void PoolMgr::LoadFromDB()
 
     LOG_INFO("server.loading", "Loading Creatures Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolCreature) };
         if (!result)
@@ -660,7 +660,7 @@ void PoolMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Creatures In Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Creatures In Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -669,7 +669,7 @@ void PoolMgr::LoadFromDB()
 
     LOG_INFO("server.loading", "Loading Gameobjects Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolGameobject) };
         if (!result)
@@ -728,7 +728,7 @@ void PoolMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -737,7 +737,7 @@ void PoolMgr::LoadFromDB()
 
     LOG_INFO("server.loading", "Loading Mother Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolPool) };
         if (!result)
@@ -818,14 +818,14 @@ void PoolMgr::LoadFromDB()
                 }
             }
 
-            LOG_INFO("server.loading", ">> Loaded {} Pools In Mother Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Pools In Mother Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Quest Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_QUEST_POOLS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -908,7 +908,7 @@ void PoolMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Quests In Pools in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests In Pools in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -916,7 +916,7 @@ void PoolMgr::LoadFromDB()
     // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
     LOG_INFO("server.loading", "Starting Objects Pooling System...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PoolObjects) };
         if (!result)
@@ -952,7 +952,7 @@ void PoolMgr::LoadFromDB()
                 }
             } while (result->NextRow());
 
-            LOG_INFO("pool", "Pool handling system initialized, {} pools spawned in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("pool", "Pool handling system initialized, {} pools spawned in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }

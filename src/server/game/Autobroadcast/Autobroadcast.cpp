@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Realm.h"
 #include "Tokenize.h"
+#include "StopWatch.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()
 {
@@ -37,7 +38,7 @@ AutobroadcastMgr* AutobroadcastMgr::instance()
 
 void AutobroadcastMgr::Load()
 {
-    const uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     _autobroadcasts.clear();
     _autobroadcastsWeights.clear();
@@ -61,8 +62,8 @@ void AutobroadcastMgr::Load()
         _autobroadcastsWeights[id] = fields[1].Get<uint8>();
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {} ms", _autobroadcasts.size(), GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {}", _autobroadcasts.size(), sw);
+    LOG_INFO("server.loading", "");
 }
 
 void AutobroadcastMgr::Send()

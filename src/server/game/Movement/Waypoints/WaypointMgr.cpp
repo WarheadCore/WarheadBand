@@ -55,7 +55,7 @@ void WaypointMgr::Load()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     uint32 count = 0;
 
     do
@@ -98,7 +98,7 @@ void WaypointMgr::Load()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} waypoints in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} waypoints in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

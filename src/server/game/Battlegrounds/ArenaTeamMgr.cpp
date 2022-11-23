@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "StopWatch.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {
@@ -149,7 +150,7 @@ uint32 ArenaTeamMgr::GenerateTempArenaTeamId()
 
 void ArenaTeamMgr::LoadArenaTeams()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // Clean out the trash before loading anything
     CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");       // One-time query
@@ -191,8 +192,8 @@ void ArenaTeamMgr::LoadArenaTeams()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} arena teams in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} arena teams in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ArenaTeamMgr::DistributeArenaPoints()

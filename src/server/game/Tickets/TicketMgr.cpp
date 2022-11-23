@@ -34,6 +34,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "StopWatch.h"
 #include <sstream>
 
 inline float GetAge(uint64 t) { return float(GameTime::GetGameTime().count() - t) / DAY; }
@@ -326,7 +327,7 @@ void TicketMgr::ResetTickets()
 
 void TicketMgr::LoadTickets()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
         delete itr->second;
@@ -366,7 +367,7 @@ void TicketMgr::LoadTickets()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} GM tickets in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} GM tickets in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -375,11 +376,12 @@ void TicketMgr::LoadSurveys()
     // we don't actually load anything into memory here as there's no reason to
     _lastSurveyId = 0;
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
+
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_survey"))
         _lastSurveyId = (*result)[0].Get<uint32>();
 
-    LOG_INFO("server.loading", ">> Loaded GM Survey count from database in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded GM Survey count from database in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 

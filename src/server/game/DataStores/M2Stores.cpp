@@ -180,7 +180,7 @@ void LoadM2Cameras(std::string const& dataPath)
     sFlyByCameraStore.clear();
     LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     for (CinematicCameraEntry const* dbcentry : sCinematicCameraStore)
     {
         std::string filenameWork = dataPath;
@@ -252,7 +252,7 @@ void LoadM2Cameras(std::string const& dataPath)
             LOG_ERROR("server.loading", "Camera file {} is damaged. Camera references position beyond file end", filename.string());
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Cinematic Waypoint Sets in {} ms", sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Cinematic Waypoint Sets in {}", sFlyByCameraStore.size(), sw);
 }
 
 std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)

@@ -38,7 +38,7 @@ LootItemStorage* LootItemStorage::instance()
 
 void LootItemStorage::LoadStorageFromDB()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     lootItemStore.clear();
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
@@ -62,7 +62,7 @@ void LootItemStorage::LoadStorageFromDB()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} stored items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} stored items in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

@@ -27,6 +27,7 @@
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "WorldModel.h"
+#include "StopWatch.h"
 
 using G3D::Vector3;
 using G3D::Ray;
@@ -47,7 +48,7 @@ ModelList model_list;
 
 void LoadGameObjectModelList(std::string const& dataPath)
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     FILE* model_list_file = fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
     if (!model_list_file)
@@ -101,7 +102,7 @@ void LoadGameObjectModelList(std::string const& dataPath)
     if (model_list_file)
         fclose(model_list_file);
 
-    LOG_INFO("server.loading", ">> Loaded {} GameObject Models in {} ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} GameObject Models in {}", model_list.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 

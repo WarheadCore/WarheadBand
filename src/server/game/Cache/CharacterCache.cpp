@@ -63,7 +63,7 @@ CharacterCache* CharacterCache::instance()
 void CharacterCache::LoadCharacterCacheStorage()
 {
     _characterCacheStore.clear();
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
     if (!result)
@@ -80,7 +80,7 @@ void CharacterCache::LoadCharacterCacheStorage()
         for (auto const& fields : *mailCountResult)
             UpdateCharacterMailCount(ObjectGuid(HighGuid::Player, fields[0].Get<uint32>()), static_cast<int8>(fields[1].Get<uint64>()), true);
 
-    LOG_INFO("server.loading", ">> Loaded Character Infos For {} Characters in {} ms", _characterCacheStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Character Infos For {} Characters in {}", _characterCacheStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 

@@ -453,7 +453,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
 
 void BattlegroundMgr::LoadBattlegroundTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     _battlegroundMapTemplates.clear();
     _battlegroundTemplates.clear();
@@ -541,7 +541,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->mapid[0]] = &_battlegroundTemplates[bgTypeId];
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} battlegrounds in {} ms", _battlegroundTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} battlegrounds in {}", _battlegroundTemplates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -798,7 +798,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     uint32 count = 0;
 
     for (auto const& fields : *result)
@@ -829,7 +829,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 
     CheckBattleMasters();
 
-    LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

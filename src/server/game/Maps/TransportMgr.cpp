@@ -56,7 +56,7 @@ void TransportMgr::Unload()
 
 void TransportMgr::LoadTransportTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::TransportTemplates) };
     if (!result)
@@ -96,7 +96,7 @@ void TransportMgr::LoadTransportTemplates()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Transport Templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Transport Templates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -430,7 +430,7 @@ void TransportMgr::SpawnContinentTransports()
         return;
 
     uint32 count = 0;
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (CONF_GET_BOOL("IsContinentTransport.Enabled"))
     {
@@ -451,7 +451,7 @@ void TransportMgr::SpawnContinentTransports()
             } while (result->NextRow());
         }
 
-        LOG_INFO("server.loading", ">> Spawned {} continent motion transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Spawned {} continent motion transports in {}", count, sw);
     }
 
     if (CONF_GET_BOOL("IsPreloadedContinentTransport.Enabled"))
@@ -478,7 +478,7 @@ void TransportMgr::SpawnContinentTransports()
             } while (result2->NextRow());
         }
 
-        LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {}", count, sw);
     }
 }
 

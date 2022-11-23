@@ -47,7 +47,7 @@ static EnchantmentStore RandomItemEnch;
 
 void LoadRandomEnchantmentsTable()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     RandomItemEnch.clear();                                 // for reload case
 
@@ -73,7 +73,7 @@ void LoadRandomEnchantmentsTable()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Item Enchantment definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

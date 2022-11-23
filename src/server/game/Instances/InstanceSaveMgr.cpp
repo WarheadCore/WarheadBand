@@ -261,7 +261,7 @@ void InstanceSaveMgr::DeleteInstanceSavedData(uint32 instanceId)
 
 void InstanceSaveMgr::LoadInstances()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // Delete character_instance for non-existent character
     CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
@@ -294,7 +294,7 @@ void InstanceSaveMgr::LoadInstances()
     // Sanitize pending rows on Instance_saved_data for data that wasn't deleted properly
     SanitizeInstanceSavedData();
 
-    LOG_INFO("server.loading", ">> Loaded Instances And Binds in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Instances And Binds in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 

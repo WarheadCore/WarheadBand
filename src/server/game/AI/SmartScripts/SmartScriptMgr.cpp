@@ -29,6 +29,7 @@
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 
 #define AC_SAI_IS_BOOLEAN_VALID(e, value) \
 { \
@@ -48,7 +49,7 @@ SmartWaypointMgr* SmartWaypointMgr::instance()
 
 void SmartWaypointMgr::LoadFromDB()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     for (std::unordered_map<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
     {
@@ -105,7 +106,7 @@ void SmartWaypointMgr::LoadFromDB()
         total++;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} SmartAI waypoint paths (total {} waypoints) in {} ms", count, total, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} SmartAI waypoint paths (total {} waypoints) in {}", count, total, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -128,7 +129,7 @@ SmartAIMgr* SmartAIMgr::instance()
 
 void SmartAIMgr::LoadSmartAIFromDB()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
         mEventMap[i].clear();  //Drop Existing SmartAI List
@@ -305,7 +306,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
         mEventMap[source_type][temp.entryOrGuid].push_back(temp);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} SmartAI scripts in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} SmartAI scripts in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

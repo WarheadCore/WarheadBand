@@ -35,6 +35,7 @@
 #include "UpdateTime.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "StopWatch.h"
 #include <sstream>
 #include <vector>
 
@@ -482,7 +483,7 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, Ch
 
 void AuctionHouseMgr::LoadAuctionItems()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // need to clear in case we are reloading
     if (!mAitems.empty())
@@ -531,13 +532,13 @@ void AuctionHouseMgr::LoadAuctionItems()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} auction items in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} auction items in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void AuctionHouseMgr::LoadAuctions()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -570,8 +571,8 @@ void AuctionHouseMgr::LoadAuctions()
 
     CharacterDatabase.CommitTransaction(trans);
 
-    LOG_INFO("server.loading", ">> Loaded {} auctions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} auctions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void AuctionHouseMgr::AddAItem(Item* it)

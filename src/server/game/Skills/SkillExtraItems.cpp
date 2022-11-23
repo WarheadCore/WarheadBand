@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "SpellMgr.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <map>
 
 // some type definitions
@@ -56,6 +57,8 @@ SkillPerfectItemMap SkillPerfectItemStore;
 // loads the perfection proc info from DB
 void LoadSkillPerfectItemTable()
 {
+    StopWatch sw;
+
     SkillPerfectItemStore.clear(); // reload capability
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillPerfectItemTemplate) };
@@ -66,7 +69,6 @@ void LoadSkillPerfectItemTable()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do /* fetch data and run sanity checks */
@@ -111,7 +113,7 @@ void LoadSkillPerfectItemTable()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} spell perfection definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell perfection definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -139,6 +141,8 @@ SkillExtraItemMap SkillExtraItemStore;
 // loads the extra item creation info from DB
 void LoadSkillExtraItemTable()
 {
+    StopWatch sw;
+
     SkillExtraItemStore.clear();                            // need for reload
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillExtraItemTemplate) };
@@ -149,7 +153,6 @@ void LoadSkillExtraItemTable()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     do
@@ -193,7 +196,7 @@ void LoadSkillExtraItemTable()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} spell specialization definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} spell specialization definitions in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

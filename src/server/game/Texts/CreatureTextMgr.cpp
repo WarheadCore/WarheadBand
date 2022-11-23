@@ -86,7 +86,7 @@ CreatureTextMgr* CreatureTextMgr::instance()
 
 void CreatureTextMgr::LoadCreatureTexts()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     mTextMap.clear(); // for reload case
     mTextRepeatMap.clear(); //reset all currently used temp texts
@@ -167,13 +167,13 @@ void CreatureTextMgr::LoadCreatureTexts()
         ++textCount;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Texts For {} Creatures in {} ms", textCount, mTextMap.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Texts For {} Creatures in {}", textCount, mTextMap.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
 void CreatureTextMgr::LoadCreatureTextLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     mLocaleTextMap.clear(); // for reload case
 
@@ -197,7 +197,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         Warhead::Locale::AddLocaleString(fields[4].Get<std::string>(), locale, data.Text);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Creature Text Locale in {} ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creature Text Locale in {}", uint32(mLocaleTextMap.size()), sw);
     LOG_INFO("server.loading", " ");
 }
 

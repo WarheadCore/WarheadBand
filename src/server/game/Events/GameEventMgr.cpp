@@ -40,6 +40,7 @@
 #include "World.h"
 #include "WorldStatePackets.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <ctime>
 
 GameEventMgr* GameEventMgr::instance()
@@ -256,7 +257,7 @@ void GameEventMgr::LoadFromDB()
             return;
         }
 
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
         uint32 count = 0;
 
         for (auto const& fields : *result)
@@ -306,13 +307,13 @@ void GameEventMgr::LoadFromDB()
             }
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Game Events in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 
     LOG_INFO("server.loading", "Loading Game Event Saves Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventSave) };
         if (!result)
@@ -348,13 +349,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             }
 
-            LOG_INFO("server.loading", ">> Loaded {} Game Event Saves In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Game Event Saves In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Prerequisite Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventPrerequisite) };
         if (!result)
         {
@@ -363,7 +366,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -398,13 +400,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} game event prerequisites in Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} game event prerequisites in Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Creature Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCreature) };
         if (!result)
         {
@@ -413,7 +417,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -444,13 +447,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Creatures In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Creatures In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event GO Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventGameobject) };
         if (!result)
         {
@@ -459,7 +464,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -490,13 +494,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Model/Equipment Change Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventModelEquip) };
         if (!result)
         {
@@ -505,7 +511,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -547,13 +552,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Model/Equipment Changes In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} Model/Equipment Changes In Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Quest Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCreatureQuest) };
         if (!result)
         {
@@ -562,7 +569,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -585,13 +591,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event GO Quest Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventGameobjectQuest) };
         if (!result)
         {
@@ -600,7 +608,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -623,13 +630,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Quest Condition Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventQuestCondition) };
         if (!result)
         {
@@ -638,7 +647,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -663,13 +671,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} quest event conditions in Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} quest event conditions in Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Condition Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCondition) };
         if (!result)
         {
@@ -678,7 +688,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -702,13 +711,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} conditions in Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} conditions in Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Condition Save Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventConditionSave) };
         if (!result)
         {
@@ -717,7 +728,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -747,13 +757,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Condition Saves In Game Events In {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Condition Saves In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event NPCflag Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventNpcFlag) };
         if (!result)
         {
@@ -762,7 +774,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -784,13 +795,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Npcflags In Game Events In {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Npcflags In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Seasonal Quest Relations...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventSeasonalQuestrelation) };
         if (!result)
         {
@@ -799,7 +812,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -828,13 +840,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Vendor Additions Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventNpcVendor) };
         if (!result)
         {
@@ -843,7 +857,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -890,13 +903,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Vendor Additions In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} Vendor Additions In Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Battleground Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventBattlegroundHoliday) };
         if (!result)
         {
@@ -905,7 +920,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -925,13 +939,15 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Battleground Holidays In Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Battleground Holidays In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Pool Data...");
     {
+        StopWatch sw;
+
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventPool) };
         if (!result)
         {
@@ -940,7 +956,6 @@ void GameEventMgr::LoadFromDB()
         }
         else
         {
-            uint32 oldMSTime = getMSTime();
             uint32 count = 0;
 
             do
@@ -968,7 +983,7 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} Pools For Game Events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Pools For Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -976,7 +991,7 @@ void GameEventMgr::LoadFromDB()
 
 void GameEventMgr::LoadHolidayDates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::HolidayDates) };
     if (!result)
@@ -986,6 +1001,7 @@ void GameEventMgr::LoadHolidayDates()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -1018,7 +1034,7 @@ void GameEventMgr::LoadHolidayDates()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} Holiday Dates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Holiday Dates in {}", count, sw);
 }
 
 uint32 GameEventMgr::GetNPCFlag(Creature* cr)

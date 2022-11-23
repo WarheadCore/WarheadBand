@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "Weather.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 #include <memory>
 
 namespace WeatherMgr
@@ -85,7 +86,7 @@ namespace WeatherMgr
 
     void LoadWeatherData()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameWeather) };
         if (!result)
@@ -135,8 +136,8 @@ namespace WeatherMgr
             ++count;
         } while (result->NextRow());
 
-        LOG_INFO("server.loading", ">> Loaded {} Weather Definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} Weather Definitions in {}", count, sw);
+        LOG_INFO("server.loading", "");
     }
 
     void SendFineWeatherUpdateToPlayer(Player* player)

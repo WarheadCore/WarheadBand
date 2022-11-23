@@ -50,6 +50,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "DBCacheMgr.h"
+#include "StopWatch.h"
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -2461,7 +2462,7 @@ void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
@@ -2604,13 +2605,13 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         ++loaded;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} achievement criteria in {} ms", loaded, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} achievement criteria in {}", loaded, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadAchievementReferenceList()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     if (sAchievementStore.GetNumRows() == 0)
     {
@@ -2631,12 +2632,14 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} achievement references in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} achievement references in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
+    StopWatch sw;
+
     m_criteriaDataMap.clear();                              // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementCriteriaData) };
@@ -2647,7 +2650,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     for (auto const& row : *result)
@@ -2763,13 +2765,13 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             LOG_ERROR("db.query", "Table `achievement_criteria_data` does not have expected data for criteria (Entry: {} Type: {}) for achievement {}.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} additional achievement criteria data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} additional achievement criteria data in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     QueryResult result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
@@ -2808,12 +2810,14 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             m_allCompletedAchievements[achievementId] = SystemTimePoint::max();
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {} ms", m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} completed achievements in {}", m_allCompletedAchievements.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
 void AchievementGlobalMgr::LoadRewards()
 {
+    StopWatch sw;
+
     m_achievementRewards.clear();                           // need for reload case
 
     auto result{ sDBCacheMgr->GetResult(DBCacheTable::AchievementReward) };
@@ -2824,7 +2828,6 @@ void AchievementGlobalMgr::LoadRewards()
         return;
     }
 
-    uint32 oldMSTime = getMSTime();
     uint32 count = 0;
 
     for (auto const& fields : *result)
@@ -2925,7 +2928,7 @@ void AchievementGlobalMgr::LoadRewards()
         ++count;
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} achievement rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} achievement rewards in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
