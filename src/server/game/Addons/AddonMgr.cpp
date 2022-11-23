@@ -72,7 +72,7 @@ namespace AddonMgr
             uint32 count2 = 0;
             uint32 offset = 102;
 
-            for (auto const& row : *result)
+            for (auto const& fields : *result)
             {
                 BannedAddon addon{};
                 addon.Id = fields[0].Get<uint32>() + offset;
