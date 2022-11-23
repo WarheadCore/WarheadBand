@@ -21,6 +21,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "halls_of_stone.h"
+#include "Log.h"
 #include <sstream>
 
 class instance_halls_of_stone : public InstanceMapScript

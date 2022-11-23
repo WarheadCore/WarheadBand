@@ -23,6 +23,7 @@
 #include "Config.h"
 #include "Log.h"
 #include "StringConvert.h"
+#include <mutex>
 #include <utility>
 
 ModulesConfig* ModulesConfig::instance()

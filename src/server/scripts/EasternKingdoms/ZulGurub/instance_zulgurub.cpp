@@ -30,6 +30,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "zulgurub.h"
+#include "Log.h"
 #include <sstream>
 
 DoorData const doorData[] =

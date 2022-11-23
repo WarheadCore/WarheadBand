@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "magtheridons_lair.h"
+#include "Log.h"
 #include <sstream>
 
 BossBoundaryData const boundaries =

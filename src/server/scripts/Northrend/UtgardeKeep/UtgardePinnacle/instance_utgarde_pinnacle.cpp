@@ -21,6 +21,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "utgarde_pinnacle.h"
+#include "Log.h"
 #include <sstream>
 
 class instance_utgarde_pinnacle : public InstanceMapScript

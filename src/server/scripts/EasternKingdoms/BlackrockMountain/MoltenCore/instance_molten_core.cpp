@@ -21,8 +21,8 @@
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
-#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
+#include "Log.h"
 #include "molten_core.h"
 #include <sstream>
 

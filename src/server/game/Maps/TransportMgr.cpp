@@ -28,6 +28,7 @@
 #include "Transport.h"
 #include "DBCacheMgr.h"
 #include "StopWatch.h"
+#include "Log.h"
 
 TransportTemplate::~TransportTemplate()
 {

@@ -21,6 +21,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "onyxias_lair.h"
+#include "Log.h"
 #include <sstream>
 
 ObjectData const creatureData[] =
