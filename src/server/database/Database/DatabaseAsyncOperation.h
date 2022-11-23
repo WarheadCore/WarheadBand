@@ -19,7 +19,6 @@
 #define _DATABASE_ASYNC_OPERATION_H_
 
 #include "DatabaseEnvFwd.h"
-#include <functional>
 
 class WH_DATABASE_API AsyncOperation
 {

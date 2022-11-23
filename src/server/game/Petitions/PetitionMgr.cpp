@@ -24,7 +24,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "StopWatch.h"
-#include "Timer.h"
 
 PetitionMgr::PetitionMgr()
 {

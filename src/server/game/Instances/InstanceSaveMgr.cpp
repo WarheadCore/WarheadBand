@@ -35,7 +35,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "StopWatch.h"
-#include "Timer.h"
 #include "Transport.h"
 #include "World.h"
 

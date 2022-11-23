@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ServerAutoShutdown.h"
-#include "Duration.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"

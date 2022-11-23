@@ -31,7 +31,6 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "StopWatch.h"
-#include "Timer.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"

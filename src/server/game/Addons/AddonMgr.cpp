@@ -22,7 +22,6 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "StopWatch.h"
-#include "Timer.h"
 #include <list>
 #include <openssl/md5.h>
 
