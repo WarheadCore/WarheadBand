@@ -20,6 +20,7 @@
 #include "Util.h"
 #include "StopWatch.h"
 #include "GameConfig.h"
+#include "Log.h"
 
 /*static*/ DBCacheMgr* DBCacheMgr::instance()
 {
@@ -31,7 +32,7 @@ void DBCacheMgr::Initialize()
 {
     StopWatch sw;
 
-    LOG_INFO("server.loading", "Initialize async db query list");
+    LOG_INFO("server.loading", "Initialize database cache");
 
     _isEnableAsyncLoad = CONF_GET_BOOL("DBCache.AsyncLoad.Enable");
     _isEnableWaitAtAdd = CONF_GET_BOOL("DBCache.WaitAtAdd.Enable");
@@ -39,7 +40,7 @@ void DBCacheMgr::Initialize()
     InitializeDefines();
     InitializeQuery();
 
-    LOG_INFO("server.loading", ">> Initialized async db query list in {}", sw);
+    LOG_INFO("server.loading", ">> Initialized database cache in {}", sw);
     LOG_INFO("server.loading", "");
 }
 
