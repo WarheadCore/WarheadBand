@@ -228,11 +228,10 @@ void Warden::ApplyPenalty(uint16 checkId, std::string const& reason)
         }
         case WARDEN_ACTION_BAN:
         {
-            std::stringstream duration;
-            duration << CONF_GET_INT("Warden.BanDuration") << "s";
+            auto duration{ Warhead::StringFormat("{}s", CONF_GET_INT("Warden.BanDuration")) };
             std::string accountName;
             AccountMgr::GetName(_session->GetAccountId(), accountName);
-            sBan->BanAccount(accountName, duration.str(), causeMsg, "Server");
+            sBan->BanAccount(accountName, duration, causeMsg, "Server");
             break;
         }
     }
