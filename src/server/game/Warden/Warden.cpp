@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include <sstream>
 
 Warden::Warden() : _session(nullptr), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
     _dataSent(false), _module(nullptr), _initialized(false)
