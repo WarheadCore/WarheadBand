@@ -26,11 +26,7 @@
 
 enum medivhSays
 {
-    SAY_WEAK75                  = 0,
-    SAY_WEAK50                  = 1,
-    SAY_WEAK25                  = 2,
-    SAY_ENTER                   = 3,
-    SAY_INTRO                   = 4,
+    SAY_ENTER                   = 0,
     SAY_DEATH                   = 5,
     SAY_WIN                     = 6,
     SAY_ORCS_ENTER              = 7,
@@ -214,7 +210,7 @@ public:
                 case EVENT_CHECK_HEALTH_75:
                     if (instance && instance->GetData(DATA_SHIELD_PERCENT) <= eventId * 25)
                     {
-                        Talk(eventId - 1);
+                        Talk(eventId + 1);
                         break;
                     }
                     events.ScheduleEvent(eventId, 500);

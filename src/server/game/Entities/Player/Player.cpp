@@ -1852,7 +1852,7 @@ void Player::Regenerate(Powers power)
                 bool recentCast = IsUnderLastManaUseEffect();
                 float ManaIncreaseRate = CONF_GET_FLOAT("Rate.Mana");
 
-                if (getLevel() < 15)
+                if (CONF_GET_BOOL("EnableLowLevelRegenBoost") && getLevel() < 15)
                     ManaIncreaseRate = CONF_GET_FLOAT("Rate.Mana") * (2.066f - (getLevel() * 0.066f));
 
                 if (recentCast) // Trinity Updates Mana in intervals of 2s, which is correct
@@ -1962,8 +1962,8 @@ void Player::RegenerateHealth()
 
     float HealthIncreaseRate = CONF_GET_FLOAT("Rate.Health");
 
-    if (getLevel() < 15)
-        HealthIncreaseRate = CONF_GET_FLOAT("Rate.Health") * (2.066f - (getLevel() * 0.066f));
+    if (CONF_GET_BOOL("EnableLowLevelRegenBoost") && getLevel() < 15)
+        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
 
     float addvalue = 0.0f;
 
@@ -2544,14 +2544,9 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(true), getClass(), getLevel(), &info);
 
-    uint32 exp_max_lvl = GetMaxLevelForExpansion(GetSession()->Expansion());
-    uint32 conf_max_lvl = CONF_GET_UINT("MaxPlayerLevel");
-
-    if (exp_max_lvl == DEFAULT_MAX_LEVEL || exp_max_lvl >= conf_max_lvl)
-        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, conf_max_lvl);
-    else
-        SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, exp_max_lvl);
-
+    uint32 maxPlayerLevel = CONF_GET_UINT("MaxPlayerLevel"));
+    sScriptMgr->OnSetMaxLevel(this, maxPlayerLevel);
+    SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, maxPlayerLevel);
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
 
     // reset before any aura state sources (health set/aura apply)
@@ -10254,6 +10249,8 @@ void Player::ContinueTaxiFlight()
     {
         RemoveAurasByType(SPELL_AURA_MOUNTED);
     }
+
+    SetCanTeleport(true);
 
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
