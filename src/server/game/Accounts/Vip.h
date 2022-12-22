@@ -30,6 +30,16 @@ class ChatHandler;
 class ObjectGuid;
 class Creature;
 
+using VipSpelLList = std::vector<uint32>;
+
+struct VipLevelInfo
+{
+    uint32 Level{};
+    uint32 MountSpell{};
+    VipSpelLList LearnSpells;
+    bool CanUseUnbindCommands{};
+};
+
 enum class VipRate
 {
     XP,
@@ -37,8 +47,6 @@ enum class VipRate
     ArenaPoint,
     Reputation
 };
-
-constexpr auto MAX_VIP_LEVEL = 3;
 
 class WH_GAME_API Vip
 {
@@ -51,7 +59,7 @@ class WH_GAME_API Vip
     Vip& operator=(Vip&&) = delete;
 
 public:
-    using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint8/*level*/>;
+    using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint32/*level*/>;
     using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
 
     static Vip* Instance();
@@ -62,7 +70,7 @@ public:
     inline bool IsEnable() { return _isEnable; }
 
     void Update(uint32 diff);
-    bool Add(uint32 accountID, Seconds endTime, uint8 level, bool force = false);
+    bool Add(uint32 accountID, Seconds endTime, uint32 level, bool force = false);
     bool Delete(uint32 accountID);
 
     // For player targer
@@ -71,7 +79,7 @@ public:
     void UnSet(uint32 accountID);
     bool IsVip(Player* player);
     bool IsVip(uint32 accountID);
-    uint8 GetLevel(Player* player);
+    uint32 GetLevel(Player* player);
     std::string GetDuration(Player* player);
     std::string GetDuration(uint32 accountID);
     void RemoveColldown(Player* player, uint32 spellID);
@@ -82,8 +90,8 @@ public:
 
     // Creature
     bool IsVipVendor(uint32 entry);
-    uint8 GetVendorVipLevel(uint32 entry);
-    void AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel);
+    uint32 GetVendorVipLevel(uint32 entry);
+    void AddVendorVipLevel(uint32 entry, uint32 vendorVipLevel);
     void DeleteVendorVipLevel(uint32 entry);
 
     float GetRateForPlayer(Player* player, VipRate rate);
@@ -91,31 +99,35 @@ public:
     // Load system
     void LoadRates();
     void LoadVipVendors();
+    void LoadVipLevels();
+
+    // Info
+    VipLevelInfo* GetVipLevelInfo(uint32 level);
 
 private:
     void LoadAccounts();
     void LoadUnbinds();
 
-    void LearnSpells(Player* player, uint8 vipLevel);
+    void LearnSpells(Player* player, uint32 vipLevel);
     void UnLearnSpells(Player* player, bool unlearnMount = true);
+    void IterateVipSpellsForPlayer(Player* player, bool isLearn);
 
     WarheadVip* GetVipInfo(uint32 accountID);
-    WarheadVipRates* GetVipRateInfo(uint8 vipLevel);
+    WarheadVipRates* GetVipRateInfo(uint32 vipLevel);
     Seconds* GetUndindTime(uint64 guid);
     static Player* GetPlayerFromAccount(uint32 accountID);
     static std::string GetDuration(WarheadVip* vipInfo);
 
-    bool _isEnable{ false };
-    Seconds _updateDelay{ 0s };
-    uint8 _mountVipLevel{ 3 };
-    uint32 _mountVipSpellID{ 0 };
-    std::vector<uint32> _spellList;
+    bool _isEnable{};
+    Seconds _updateDelay{};
     Seconds _unbindDuration{ 1_days };
+    uint32 _maxLevel{};
 
-    std::unordered_map<uint32/*acc id*/, WarheadVip> store;
-    std::unordered_map<uint8/*level*/, WarheadVipRates> storeRates;
-    std::unordered_map<uint64/*guid*/, Seconds/*unbindtime*/> storeUnbind;
-    std::unordered_map<uint32/*creature entry*/, uint8/*vip level*/> storeVendors;
+    std::unordered_map<uint32/*acc id*/, WarheadVip> _store;
+    std::unordered_map<uint32/*level*/, WarheadVipRates> _storeRates;
+    std::unordered_map<uint64/*guid*/, Seconds/*unbindtime*/> _storeUnbind;
+    std::unordered_map<uint32/*creature entry*/, uint32/*vip level*/> _storeVendors;
+    std::unordered_map<uint32/*vip level*/, VipLevelInfo> _vipLevelsInfo;
 
     TaskScheduler scheduler;
 };

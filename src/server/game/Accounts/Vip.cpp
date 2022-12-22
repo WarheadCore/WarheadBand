@@ -53,22 +53,6 @@ void Vip::LoadConfig()
         _updateDelay = 10s;
     }
 
-    _mountVipLevel = sModulesConfig->GetOption<uint8>("VIP.Mount.MinLevel");
-    _mountVipSpellID = MOD_CONF_GET_UINT("VIP.Mount.SpellID");
-
-    auto configSpells = MOD_CONF_GET_STR("VIP.Spells.List");
-    for (auto const& spellString : Warhead::Tokenize(configSpells, ',', false))
-    {
-        auto spellID = Warhead::StringTo<uint32>(spellString);
-        if (!spellID)
-        {
-            LOG_ERROR("module.vip", "> Incorrect spell '{}' in vip spell list. Skip", spellString);
-            continue;
-        }
-
-        _spellList.emplace_back(*spellID);
-    }
-
     _unbindDuration = Seconds(MOD_CONF_GET_UINT("VIP.Unbind.Duration"));
 }
 
@@ -80,7 +64,7 @@ void Vip::InitSystem()
     scheduler.CancelAll();
     scheduler.Schedule(3s, [this](TaskContext context)
     {
-        for (auto const& [accountID, vipInfo] : store)
+        for (auto const& [accountID, vipInfo] : _store)
         {
             auto const& [startTime, endTime, level] = vipInfo;
 
@@ -95,6 +79,7 @@ void Vip::InitSystem()
     LoadUnbinds();
     LoadRates();
     LoadVipVendors();
+    LoadVipLevels();
 }
 
 void Vip::Update(uint32 diff)
@@ -105,10 +90,13 @@ void Vip::Update(uint32 diff)
     scheduler.Update(diff);
 }
 
-bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= false*/)
+bool Vip::Add(uint32 accountID, Seconds endTime, uint32 level, bool force /*= false*/)
 {
     if (!_isEnable)
         return false;
+
+    if (level > _maxLevel)
+        level = _maxLevel;
 
     auto const& vipInfo = GetVipInfo(accountID);
 
@@ -126,7 +114,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint8 level, bool force /*= fal
 
     auto timeNow = GameTime::GetGameTime();
 
-    store.emplace(accountID, std::make_tuple(timeNow, endTime, level));
+    _store.emplace(accountID, std::make_tuple(timeNow, endTime, level));
 
     // Add DB
     AuthDatabase.Execute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
@@ -153,15 +141,14 @@ bool Vip::Delete(uint32 accountID)
         return false;
     }
 
+    if (auto player = GetPlayerFromAccount(accountID))
+        UnLearnSpells(player);
+
     // Set inactive in DB
     AuthDatabase.Execute("UPDATE `account_premium` SET `IsActive` = 0 WHERE `AccountID` = {} AND `IsActive` = 1",
         accountID);
 
-    store.erase(accountID);
-
-    if (auto player = GetPlayerFromAccount(accountID))
-        UnLearnSpells(player);
-
+    _store.erase(accountID);
     return true;
 }
 
@@ -170,20 +157,20 @@ void Vip::OnLoginPlayer(Player* player)
     if (!_isEnable)
         return;
 
+    UnLearnSpells(player);
+
     if (!IsVip(player))
-        UnLearnSpells(player);
-    else
-    {
-        ChatHandler handler(player->GetSession());
-        uint8 vipLevel = GetLevel(player);
+        return;
 
-        handler.PSendSysMessage("|cffff0000#|r --");
-        handler.PSendSysMessage("|cffff0000#|r |cff00ff00Привет,|r {}!", player->GetName());
-        handler.PSendSysMessage("|cffff0000#|r |cff00ff00Ваш уровень премиум аккаунта:|r {}", vipLevel);
-        handler.PSendSysMessage("|cffff0000#|r |cff00ff00Оставшееся время:|r {}", GetDuration(player));
+    ChatHandler handler(player->GetSession());
+    uint8 vipLevel = GetLevel(player);
 
-        LearnSpells(player, vipLevel);
-    }
+    handler.PSendSysMessage("|cffff0000#|r --");
+    handler.PSendSysMessage("|cffff0000#|r |cff00ff00Привет,|r {}!", player->GetName());
+    handler.PSendSysMessage("|cffff0000#|r |cff00ff00Ваш уровень премиум аккаунта:|r {}", vipLevel);
+    handler.PSendSysMessage("|cffff0000#|r |cff00ff00Оставшееся время:|r {}", GetDuration(player));
+
+    LearnSpells(player, vipLevel);
 }
 
 void Vip::OnLogoutPlayer(Player* player)
@@ -191,7 +178,7 @@ void Vip::OnLogoutPlayer(Player* player)
     if (!_isEnable)
         return;
 
-    UnLearnSpells(player, false);
+//    UnLearnSpells(player, false);
 }
 
 void Vip::UnSet(uint32 accountID)
@@ -221,19 +208,15 @@ bool Vip::IsVip(uint32 accountID)
     return GetVipInfo(accountID) != nullptr;
 }
 
-uint8 Vip::GetLevel(Player* player)
+uint32 Vip::GetLevel(Player* player)
 {
     if (!player)
         return 0;
 
     auto accountID = player->GetSession()->GetAccountId();
-
     auto const& vipInfo = GetVipInfo(accountID);
     if (!vipInfo)
-    {
-        LOG_ERROR("module.vip", "> Vip::GetLevel: Account {} is not premium", accountID);
         return 0;
-    }
 
     return std::get<2>(*vipInfo);
 }
@@ -306,9 +289,18 @@ void Vip::UnBindInstances(Player* player)
         return;
     }
 
-    if (GetLevel(player) < MAX_VIP_LEVEL)
+    auto level{ GetLevel(player) };
+
+    auto levelInfo{ GetVipLevelInfo(level) };
+    if (!levelInfo)
     {
-        handler.PSendSysMessage("> У вас недостаточно высокий уровень для этого");
+        handler.PSendSysMessage("> Ошибка в уровне премиума: Не найдена информация для уровня {}", level);
+        return;
+    }
+
+    if (!levelInfo->CanUseUnbindCommands)
+    {
+        handler.PSendSysMessage("> Ошибка в уровне премиума: Вы не можете использовать эту команду");
         return;
     }
 
@@ -372,7 +364,7 @@ void Vip::UnBindInstances(Player* player)
 
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
-        auto diff = Difficulty(i);
+        auto diff{ Difficulty(i) };
 
         for (auto const& [mapID, bind] : sInstanceSaveMgr->PlayerGetBoundInstances(player->GetGUID(), diff))
         {
@@ -392,13 +384,13 @@ void Vip::UnBindInstances(Player* player)
         return;
     }
 
-    storeUnbind.emplace(guid, GameTime::GetGameTime());
+    _storeUnbind.emplace(guid, GameTime::GetGameTime());
 }
 
 void Vip::LoadRates()
 {
     StopWatch sw;
-    storeRates.clear(); // for reload case
+    _storeRates.clear(); // for reload case
 
     LOG_INFO("module.vip", "Loading vip rates...");
 
@@ -427,24 +419,24 @@ void Vip::LoadRates()
     for (auto& row : *result)
     {
         auto const& [level, rateXP, rateHonor, rateArenaPoint, rateReputation] =
-                row.FetchTuple<uint8, float, float, float, float>();
+            row.FetchTuple<uint8, float, float, float, float>();
 
         if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputation }))
             continue;
 
         auto rates = std::make_tuple(rateXP, rateHonor, rateArenaPoint, rateReputation);
 
-        storeRates.emplace(level, rates);
+        _storeRates.emplace(level, rates);
     }
 
-    LOG_INFO("module.vip", ">> Loaded {} vip rates in {}", storeRates.size(), sw);
+    LOG_INFO("module.vip", ">> Loaded {} vip rates in {}", _storeRates.size(), sw);
     LOG_INFO("module.vip", "");
 }
 
 void Vip::LoadAccounts()
 {
     StopWatch sw;
-    store.clear(); // for reload case
+    _store.clear(); // for reload case
 
     LOG_INFO("module.vip", "Load vip accounts...");
 
@@ -460,24 +452,24 @@ void Vip::LoadAccounts()
     {
         auto const& [accountID, startTime, endTime, level] = result->FetchTuple<uint32, Seconds, Seconds, uint8>();
 
-        if (level > MAX_VIP_LEVEL)
+        if (level > _maxLevel)
         {
-            LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, MAX_VIP_LEVEL);
+            LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, _maxLevel);
             continue;
         }
 
-        store.emplace(accountID, std::make_tuple(startTime, endTime, level));
+        _store.emplace(accountID, std::make_tuple(startTime, endTime, level));
 
     } while (result->NextRow());
 
-    LOG_INFO("module.vip", ">> Loaded {} vip accounts in {}", store.size(), sw);
+    LOG_INFO("module.vip", ">> Loaded {} vip accounts in {}", _store.size(), sw);
     LOG_INFO("module.vip", "");
 }
 
 void Vip::LoadUnbinds()
 {
     StopWatch sw;
-    storeUnbind.clear(); // for reload case
+    _storeUnbind.clear(); // for reload case
 
     LOG_INFO("module.vip", "Load vip unbinds...");
 
@@ -492,17 +484,17 @@ void Vip::LoadUnbinds()
     for (auto& row : *result)
     {
         auto const& [guid, unbindTime] = row.FetchTuple<uint64, uint64>();
-        storeUnbind.emplace(guid, unbindTime);
+        _storeUnbind.emplace(guid, unbindTime);
     }
 
-    LOG_INFO("module.vip", ">> Loaded {} vip unbinds in {}", storeUnbind.size(), sw);
+    LOG_INFO("module.vip", ">> Loaded {} vip unbinds in {}", _storeUnbind.size(), sw);
     LOG_INFO("module.vip", "");
 }
 
 void Vip::LoadVipVendors()
 {
     StopWatch sw;
-    storeVendors.clear(); // for reload case
+    _storeVendors.clear(); // for reload case
 
     LOG_INFO("module.vip", "Load vip vendors...");
 
@@ -531,20 +523,84 @@ void Vip::LoadVipVendors()
             continue;
         }
 
-        if (!vipLevel || vipLevel > MAX_VIP_LEVEL)
+        if (!vipLevel || vipLevel > _maxLevel)
         {
             LOG_ERROR("module.vip", "> Vip: Creature entry {} have {} vip level. Skip", creatureEntry);
             continue;
         }
 
-        storeVendors.emplace(creatureEntry, vipLevel);
+        _storeVendors.emplace(creatureEntry, vipLevel);
     }
 
-    LOG_INFO("module.vip", ">> Loaded {} vip vendors in {}", storeVendors.size(), sw);
+    LOG_INFO("module.vip", ">> Loaded {} vip vendors in {}", _storeVendors.size(), sw);
     LOG_INFO("module.vip", "");
 }
 
-void Vip::LearnSpells(Player* player, uint8 vipLevel)
+void Vip::LoadVipLevels()
+{
+    StopWatch sw;
+    _vipLevelsInfo.clear(); // for reload case
+
+    LOG_INFO("module.vip", "Load vip levels info...");
+
+    QueryResult result = WorldDatabase.Query("SELECT `Level`, `MountSpell`, `LearnSpells`, `CanUseUnbindCommand` FROM `wh_vip_levels_config` ORDER BY `Level` ASC");
+    if (!result)
+    {
+        LOG_WARN("module.vip", ">> Loaded 0 vip levels info. DB table `vip_unbind` is empty.");
+        LOG_INFO("module.vip", "");
+        return;
+    }
+
+    for (auto const& fields : *result)
+    {
+        VipLevelInfo levelInfo{};
+        levelInfo.Level = fields[0].Get<uint32>();
+
+        if (!levelInfo.Level)
+        {
+            LOG_ERROR("module.vip", "> Vip: Level cannot be 0. Skip");
+            continue;
+        }
+
+        if (levelInfo.Level > _maxLevel)
+            _maxLevel = levelInfo.Level;
+
+        levelInfo.MountSpell = fields[1].Get<uint32>();
+
+        if (!sSpellMgr->GetSpellInfo(levelInfo.MountSpell))
+        {
+            LOG_ERROR("module.vip", "> Vip: Can't find mount spell: {}. Skip", levelInfo.MountSpell);
+            continue;
+        }
+
+        auto spellList = fields[2].Get<std::string_view>();
+        for (auto const& spellString : Warhead::Tokenize(spellList, ',', false))
+        {
+            auto spellID = Warhead::StringTo<uint32>(spellString);
+            if (!spellID)
+            {
+                LOG_ERROR("module.vip", "> Vip: Incorrect spell '{}' in vip spell list ({}) for level {}. Skip", spellString, spellList, levelInfo.Level);
+                continue;
+            }
+
+            if (!sSpellMgr->GetSpellInfo(*spellID))
+            {
+                LOG_ERROR("module.vip", "> Vip: Can't find spell {} in spell store. Skip", *spellID);
+                continue;
+            }
+
+            levelInfo.LearnSpells.emplace_back(*spellID);
+        }
+
+        levelInfo.CanUseUnbindCommands = fields[3].Get<bool>();
+        _vipLevelsInfo.emplace(levelInfo.Level, std::move(levelInfo));
+    }
+
+    LOG_INFO("module.vip", ">> Loaded {} vip levels info in {}", _vipLevelsInfo.size(), sw);
+    LOG_INFO("module.vip", "");
+}
+
+void Vip::LearnSpells(Player* player, uint32 vipLevel)
 {
     if (!_isEnable)
         return;
@@ -561,19 +617,7 @@ void Vip::LearnSpells(Player* player, uint8 vipLevel)
         return;
     }
 
-    // Learn mount
-    if (!player->HasSpell(_mountVipSpellID) && vipLevel >= _mountVipLevel)
-        player->learnSpell(_mountVipSpellID);
-
-    // Learn vip spells for 3+ level
-    if (vipLevel < MAX_VIP_LEVEL)
-        return;
-
-    for (auto const& spellID : _spellList)
-    {
-        if (!player->HasSpell(spellID))
-            player->learnSpell(spellID);
-    }
+    IterateVipSpellsForPlayer(player, true);
 }
 
 void Vip::UnLearnSpells(Player* player, bool unlearnMount /*= true*/)
@@ -587,16 +631,7 @@ void Vip::UnLearnSpells(Player* player, bool unlearnMount /*= true*/)
         return;
     }
 
-    // Mount spells
-    if (player->HasSpell(_mountVipSpellID) && unlearnMount)
-        player->removeSpell(_mountVipSpellID, SPEC_MASK_ALL, false);
-
-    // Vip spells
-    for (auto const& spellID : _spellList)
-    {
-        if (player->HasSpell(spellID))
-            player->removeSpell(spellID, SPEC_MASK_ALL, false);
-    }
+    IterateVipSpellsForPlayer(player, false);
 }
 
 void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
@@ -633,13 +668,13 @@ void Vip::SendVipListRates(ChatHandler* handler)
 {
     handler->PSendSysMessage("# Премиум рейты для разных уровней вип:");
 
-    if (storeRates.empty())
+    if (_storeRates.empty())
     {
         handler->PSendSysMessage("# Премиум рейты не обнаружены");
         return;
     }
 
-    for (auto const& [vipLevel, vipRates] : storeRates)
+    for (auto const& [vipLevel, vipRates] : _storeRates)
     {
         handler->PSendSysMessage("# Рейты для премиум уровня: {}", vipLevel);
         handler->PSendSysMessage("# Рейтинг получения опыта: {}", std::get<0>(vipRates));
@@ -669,28 +704,28 @@ bool Vip::CanUsingVendor(Player* player, Creature* creature)
 
 bool Vip::IsVipVendor(uint32 entry)
 {
-    return storeVendors.contains(entry);
+    return _storeVendors.contains(entry);
 }
 
-uint8 Vip::GetVendorVipLevel(uint32 entry)
+uint32 Vip::GetVendorVipLevel(uint32 entry)
 {
-    auto const& itr = storeVendors.find(entry);
-    return itr != storeVendors.end() ? itr->second : 0;
+    auto const& itr = _storeVendors.find(entry);
+    return itr != _storeVendors.end() ? itr->second : 0;
 }
 
-void Vip::AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel)
+void Vip::AddVendorVipLevel(uint32 entry, uint32 vendorVipLevel)
 {
-    auto const& itr = storeVendors.find(entry);
-    if (itr != storeVendors.end())
+    auto const& itr = _storeVendors.find(entry);
+    if (itr != _storeVendors.end())
     {
-        LOG_WARN("modules", "> Vip::AddVendorVipLevel: Creature {} is vip vendor, level {}. Erase", entry, itr->second);
-        storeVendors.erase(entry);
+        LOG_WARN("modules.vip", "> Vip::AddVendorVipLevel: Creature {} is vip vendor, level {}. Erase", entry, itr->second);
+        _storeVendors.erase(entry);
 
         // Del from DB
         WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
     }
 
-    storeVendors.emplace(entry, vendorVipLevel);
+    _storeVendors.emplace(entry, vendorVipLevel);
 
     // Add to DB
     WorldDatabase.Execute("INSERT INTO `vip_vendors` (`CreatureEntry`, `VipLevel`) VALUES({}, {})", entry, vendorVipLevel);
@@ -698,13 +733,10 @@ void Vip::AddVendorVipLevel(uint32 entry, uint8 vendorVipLevel)
 
 void Vip::DeleteVendorVipLevel(uint32 entry)
 {
-    if (!_isEnable)
+    if (!_isEnable || !IsVipVendor(entry))
         return;
 
-    if (!IsVipVendor(entry))
-        return;
-
-    storeVendors.erase(entry);
+    _storeVendors.erase(entry);
 
     // Del from DB
     WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
@@ -712,29 +744,17 @@ void Vip::DeleteVendorVipLevel(uint32 entry)
 
 Vip::WarheadVip* Vip::GetVipInfo(uint32 accountID)
 {
-    auto const& itr = store.find(accountID);
-    if (itr == store.end())
-        return nullptr;
-
-    return &itr->second;
+    return Warhead::Containers::MapGetValuePtr(_store, accountID);
 }
 
-Vip::WarheadVipRates* Vip::GetVipRateInfo(uint8 vipLevel)
+Vip::WarheadVipRates* Vip::GetVipRateInfo(uint32 vipLevel)
 {
-    auto const& itr = storeRates.find(vipLevel);
-    if (itr == storeRates.end())
-        return nullptr;
-
-    return &itr->second;
+    return Warhead::Containers::MapGetValuePtr(_storeRates, vipLevel);
 }
 
 Seconds* Vip::GetUndindTime(uint64 guid)
 {
-    auto const& itr = storeUnbind.find(guid);
-    if (itr == storeUnbind.end())
-        return nullptr;
-
-    return &itr->second;
+    return Warhead::Containers::MapGetValuePtr(_storeUnbind, guid);
 }
 
 Player* Vip::GetPlayerFromAccount(uint32 accountID)
@@ -753,6 +773,49 @@ std::string Vip::GetDuration(WarheadVip* vipInfo)
 
     auto const& [startTime, endTime, level] = *vipInfo;
     return Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
+}
+
+VipLevelInfo* Vip::GetVipLevelInfo(uint32 level)
+{
+    return Warhead::Containers::MapGetValuePtr(_vipLevelsInfo, level);
+}
+
+void Vip::IterateVipSpellsForPlayer(Player* player, bool isLearn)
+{
+    if (!_isEnable)
+        return;
+
+    auto level{ isLearn ? GetLevel(player) : _maxLevel };
+    if (!level)
+        return;
+
+    for (std::size_t i{ 1 }; i <= level; i++)
+    {
+        auto levelInfo{ GetVipLevelInfo(i) };
+        if (!levelInfo)
+            continue;
+
+        // Vip spells
+        if (!levelInfo->LearnSpells.empty())
+        {
+            for (auto const& spellID : levelInfo->LearnSpells)
+            {
+                if (isLearn && !player->HasSpell(spellID))
+                    player->learnSpell(spellID);
+                else if (!isLearn && player->HasSpell(spellID))
+                    player->removeSpell(spellID, SPEC_MASK_ALL, false);
+            }
+        }
+
+        // Vip mount
+        if (levelInfo->MountSpell)
+        {
+            if (isLearn && !player->HasSpell(levelInfo->MountSpell))
+                player->learnSpell(levelInfo->MountSpell);
+            else if (!isLearn && player->HasSpell(levelInfo->MountSpell))
+                player->removeSpell(levelInfo->MountSpell, SPEC_MASK_ALL, false);
+        }
+    }
 }
 
 namespace fmt
