@@ -1963,7 +1963,7 @@ void Player::RegenerateHealth()
     float HealthIncreaseRate = CONF_GET_FLOAT("Rate.Health");
 
     if (CONF_GET_BOOL("EnableLowLevelRegenBoost") && getLevel() < 15)
-        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
+        HealthIncreaseRate *= 2.066f - (getLevel() * 0.066f);
 
     float addvalue = 0.0f;
 
@@ -2544,7 +2544,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(true), getClass(), getLevel(), &info);
 
-    uint32 maxPlayerLevel = CONF_GET_UINT("MaxPlayerLevel"));
+    uint32 maxPlayerLevel = CONF_GET_UINT("MaxPlayerLevel");
     sScriptMgr->OnSetMaxLevel(this, maxPlayerLevel);
     SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, maxPlayerLevel);
     SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));

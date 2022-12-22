@@ -1245,6 +1245,8 @@ public:
 
     virtual void OnFirstLogin(Player* /*player*/) { }
 
+    virtual void OnSetMaxLevel(Player* /*player*/, uint32& /*maxPlayerLevel*/) { }
+
     [[nodiscard]] virtual bool CanJoinInBattlegroundQueue(Player* /*player*/, ObjectGuid /*BattlemasterGuid*/, BattlegroundTypeId /*BGTypeID*/, uint8 /*joinAsGroup*/, GroupJoinBattlegroundResult& /*err*/) { return true; }
     virtual bool ShouldBeRewardedWithMoneyInsteadOfExp(Player* /*player*/) { return false; }
 

@@ -22,6 +22,7 @@
 #include "Reference.h"
 #include "SharedDefines.h"
 #include "UnitEvents.h"
+#include "IteratorPair.h"
 #include <list>
 
 //==============================================================
@@ -31,7 +32,7 @@ class Creature;
 class ThreatMgr;
 class SpellInfo;
 
-#define THREAT_UPDATE_INTERVAL 2 * IN_MILLISECONDS    // Server should send threat update to client periodically each second
+#define THREAT_UPDATE_INTERVAL (2 * IN_MILLISECONDS)    // Server should send threat update to client periodically each second
 
 //==============================================================
 // Class to calculate the real threat based
@@ -223,8 +224,8 @@ public:
     [[nodiscard]] bool isThreatListEmpty() const { return iThreatContainer.empty(); }
     [[nodiscard]] bool areThreatListsEmpty() const { return iThreatContainer.empty() && iThreatOfflineContainer.empty(); }
 
-    Acore::IteratorPair<std::list<ThreatReference*>::const_iterator> GetSortedThreatList() const { auto& list = iThreatContainer.GetThreatList(); return { list.cbegin(), list.cend() }; }
-    Acore::IteratorPair<std::list<ThreatReference*>::const_iterator> GetUnsortedThreatList() const { return GetSortedThreatList(); }
+    [[nodiscard]] Warhead::IteratorPair<std::list<ThreatReference*>::const_iterator> GetSortedThreatList() const { auto& list = iThreatContainer.GetThreatList(); return { list.cbegin(), list.cend() }; }
+    [[nodiscard]] Warhead::IteratorPair<std::list<ThreatReference*>::const_iterator> GetUnsortedThreatList() const { return GetSortedThreatList(); }
 
     void processThreatEvent(ThreatRefStatusChangeEvent* threatRefStatusChangeEvent);
 

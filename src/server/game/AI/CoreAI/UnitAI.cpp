@@ -328,7 +328,7 @@ ThreatMgr& UnitAI::GetThreatMgr()
 
 void UnitAI::SortByDistance(std::list<Unit*>& list, bool ascending)
 {
-    list.sort(Acore::ObjectDistanceOrderPred(me, ascending));
+    list.sort(Warhead::ObjectDistanceOrderPred(me, ascending));
 }
 
 //Enable PlayerAI when charmed
@@ -403,8 +403,12 @@ bool SpellTargetSelector::operator()(Unit const* target) const
     return true;
 }
 
-DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) :
-    me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) { }
+DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura) :
+    me(unit),
+    m_dist(dist),
+    except(withMainTank ? me->GetThreatMgr().GetCurrentVictim() : nullptr),
+    m_playerOnly(playerOnly),
+    m_aura(aura) { }
 
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {
@@ -412,6 +416,9 @@ bool DefaultTargetSelector::operator()(Unit const* target) const
         return false;
 
     if (!target)
+        return false;
+
+    if (target == except)
         return false;
 
     if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))

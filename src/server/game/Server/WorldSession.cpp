@@ -1640,7 +1640,7 @@ public:
 
 void WorldSession::InitializeSession()
 {
-    uint32 cacheVersion = sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION);
+    uint32 cacheVersion = CONF_GET_UINT("ClientCacheVersion");
     sScriptMgr->OnBeforeFinalizePlayerWorldSession(cacheVersion);
 
     std::shared_ptr<AccountInfoQueryHolderPerRealm> realmHolder = std::make_shared<AccountInfoQueryHolderPerRealm>();

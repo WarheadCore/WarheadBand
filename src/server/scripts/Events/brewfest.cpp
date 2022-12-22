@@ -1014,7 +1014,7 @@ class spell_brewfest_apple_trap : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Acore::UnitAuraCheck(false, SPELL_RAM_FATIGUE));
+        targets.remove_if(Warhead::UnitAuraCheck(false, SPELL_RAM_FATIGUE));
 
         if (targets.empty())
             FinishCast(SPELL_FAILED_CASTER_AURASTATE);
