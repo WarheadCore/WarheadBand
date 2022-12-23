@@ -75,11 +75,11 @@ void Vip::InitSystem()
         context.Repeat(_updateDelay);
     });
 
+    LoadVipLevels();
     LoadAccounts();
     LoadUnbinds();
     LoadRates();
     LoadVipVendors();
-    LoadVipLevels();
 }
 
 void Vip::Update(uint32 diff)
