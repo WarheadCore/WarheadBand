@@ -78,7 +78,7 @@ Arena1v1.BlockForbiddenTalents = 1
 #    Arena1v1.ForbiddenTalentsIDs
 #        Description: List to block specific talents id in arena. See TalentTab.dbc for available talents (you will need an DBC-Editor). The list is coma(,) separated and should have no spaces
 #        Default:     "" - (no talent blocked)
-#		 Example:     "201,202,382,362,282,383,163"
+#         Example:     "201,202,382,362,282,383,163"
 #
 
 Arena1v1.ForbiddenTalentsIDs = ""
