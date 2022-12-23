@@ -525,7 +525,7 @@ void Vip::LoadVipVendors()
 
         if (!vipLevel || vipLevel > _maxLevel)
         {
-            LOG_ERROR("module.vip", "> Vip: Creature entry {} have {} vip level. Skip", creatureEntry);
+            LOG_ERROR("module.vip", "> Vip: Creature entry {} have {} vip level. Skip", creatureEntry, vipLevel);
             continue;
         }
 
