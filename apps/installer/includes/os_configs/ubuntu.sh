@@ -4,8 +4,10 @@ fi
 
 # UBUNTU_VERSION=$(lsb_release -sr);
 
-sudo apt-get remove -y libunwind-14
-sudo apt-get install -y libunwind-dev
+#sudo apt-get remove -y libunwind-14
+#sudo apt-get install -y libunwind-dev
+
+sudo apt-get install -f
 
 # Added repo for newest lib
 sudo apt update
