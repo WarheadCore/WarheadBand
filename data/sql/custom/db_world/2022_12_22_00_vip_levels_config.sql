@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS `wh_vip_levels_config`;
 CREATE TABLE IF NOT EXISTS `wh_vip_levels_config` (
   `Level` int(20) NOT NULL AUTO_INCREMENT,
   `MountSpell` int(11) NOT NULL DEFAULT 0,
-  `LearnSpells` TEXT DEFAULT '',
+  `LearnSpells` TEXT,
   `CanUseUnbindCommand` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`Level`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

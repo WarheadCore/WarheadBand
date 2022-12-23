@@ -573,23 +573,26 @@ void Vip::LoadVipLevels()
             continue;
         }
 
-        auto spellList = fields[2].Get<std::string_view>();
-        for (auto const& spellString : Warhead::Tokenize(spellList, ',', false))
+        if (!fields[2].IsNull())
         {
-            auto spellID = Warhead::StringTo<uint32>(spellString);
-            if (!spellID)
+            auto spellList = fields[2].Get<std::string_view>();
+            for (auto const& spellString : Warhead::Tokenize(spellList, ',', false))
             {
-                LOG_ERROR("module.vip", "> Vip: Incorrect spell '{}' in vip spell list ({}) for level {}. Skip", spellString, spellList, levelInfo.Level);
-                continue;
-            }
+                auto spellID = Warhead::StringTo<uint32>(spellString);
+                if (!spellID)
+                {
+                    LOG_ERROR("module.vip", "> Vip: Incorrect spell '{}' in vip spell list ({}) for level {}. Skip", spellString, spellList, levelInfo.Level);
+                    continue;
+                }
 
-            if (!sSpellMgr->GetSpellInfo(*spellID))
-            {
-                LOG_ERROR("module.vip", "> Vip: Can't find spell {} in spell store. Skip", *spellID);
-                continue;
-            }
+                if (!sSpellMgr->GetSpellInfo(*spellID))
+                {
+                    LOG_ERROR("module.vip", "> Vip: Can't find spell {} in spell store. Skip", *spellID);
+                    continue;
+                }
 
-            levelInfo.LearnSpells.emplace_back(*spellID);
+                levelInfo.LearnSpells.emplace_back(*spellID);
+            }
         }
 
         levelInfo.CanUseUnbindCommands = fields[3].Get<bool>();
