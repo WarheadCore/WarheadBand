@@ -14,10 +14,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ubuntu-22.04
-        compiler: clang
+        os: [ubuntu-22.04]
+        compiler: [clang]
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.compiler }} ${{ matrix.modules }} modules
+    name: ${{ matrix.compiler }}
     env:
       COMPILER: ${{ matrix.compiler }}
     steps:
