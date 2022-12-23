@@ -55,9 +55,9 @@ DELETE FROM `areatrigger_scripts` WHERE `entry`=4302;
 INSERT INTO `areatrigger_scripts` VALUES
 (4302,'at_underbog_ghazan');
 
-DELETE FROM `spelldifficulty_dbc` WHERE `ID`=34267;
-INSERT INTO `spelldifficulty_dbc` VALUES
-(34267,34267,38737,0,0);
+-- DELETE FROM `spelldifficulty_dbc` WHERE `ID`=34267;
+-- INSERT INTO `spelldifficulty_dbc` VALUES
+-- (34267,34267,38737,0,0);
 
 UPDATE `creature_template` SET `AiName`='', `ScriptName`='boss_ghazan' WHERE `entry`=18105;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=18105;
