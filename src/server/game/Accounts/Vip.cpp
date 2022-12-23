@@ -567,7 +567,7 @@ void Vip::LoadVipLevels()
 
         levelInfo.MountSpell = fields[1].Get<uint32>();
 
-        if (!sSpellMgr->GetSpellInfo(levelInfo.MountSpell))
+        if (levelInfo.MountSpell && !sSpellMgr->GetSpellInfo(levelInfo.MountSpell))
         {
             LOG_ERROR("module.vip", "> Vip: Can't find mount spell: {}. Skip", levelInfo.MountSpell);
             continue;
