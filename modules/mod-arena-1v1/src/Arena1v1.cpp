@@ -19,16 +19,16 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Arena1v1.h"
-#include "Log.h"
-#include "ModulesConfig.h"
-#include "BattlegroundMgr.h"
 #include "ArenaTeamMgr.h"
-#include "Player.h"
-#include "ScriptedGossip.h"
+#include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "DisableMgr.h"
-#include "Tokenize.h"
+#include "Log.h"
+#include "ModulesConfig.h"
+#include "Player.h"
+#include "ScriptedGossip.h"
 #include "StringConvert.h"
+#include "Tokenize.h"
 
 constexpr uint32 ARENA_TEAM_1V1 = 1;
 constexpr uint32 ARENA_TYPE_1V1 = 1;

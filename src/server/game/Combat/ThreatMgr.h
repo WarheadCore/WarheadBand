@@ -18,11 +18,11 @@
 #ifndef _THREATMANAGER
 #define _THREATMANAGER
 
+#include "IteratorPair.h"
 #include "ObjectGuid.h"
 #include "Reference.h"
 #include "SharedDefines.h"
 #include "UnitEvents.h"
-#include "IteratorPair.h"
 #include <list>
 
 //==============================================================

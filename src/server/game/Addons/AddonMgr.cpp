@@ -19,8 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AddonMgr.h"
-#include "DatabaseEnv.h"
 #include "CryptoHash.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "StopWatch.h"
 #include <list>
