@@ -4,7 +4,10 @@ fi
 
 # UBUNTU_VERSION=$(lsb_release -sr);
 
-# Insstall boost
+# Added repo for newest lib
+sudo apt update
+
+# Install boost
 sudo apt-get -y install libboost-all-dev
 
 if [[ $CONTINUOUS_INTEGRATION ]]; then
