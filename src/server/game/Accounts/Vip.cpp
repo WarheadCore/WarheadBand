@@ -232,7 +232,7 @@ float Vip::GetRateForPlayer(Player* player, VipRate rate)
     if (!vipRateInfo)
     {
         auto accountID = player->GetSession()->GetAccountId();
-        LOG_ERROR("module.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}. {}", accountID, *GetVipInfo(accountID), level);
+        LOG_ERROR("module.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
 
