@@ -33,7 +33,7 @@ public:
         if (!sVip->IsEnable() || !sVip->IsVip(player))
             return;
 
-        amount *= static_cast<uint32>(sVip->GetRateForPlayer(player, VipRate::XP));
+        amount = static_cast<uint32>(float(amount) * sVip->GetRateForPlayer(player, VipRate::XP));
     }
 
     void OnGiveHonorPoints(Player* player, float& points, Unit* /*victim*/) override
@@ -49,7 +49,7 @@ public:
         if (!sVip->IsEnable() || !sVip->IsVip(player))
             return true;
 
-        standing *= static_cast<int32>(sVip->GetRateForPlayer(player, VipRate::Reputation));
+        standing = static_cast<int32>(float(standing) * sVip->GetRateForPlayer(player, VipRate::Reputation));
         return true;
     }
 
