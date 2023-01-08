@@ -406,7 +406,7 @@ void Vip::LoadRates()
     {
         for (auto const& rate : rates)
         {
-            if (rate <= 1.0f)
+            if (rate < 1.0f)
             {
                 LOG_ERROR("module.vip", "> Vip: Invalid rate value ({}) for level ({})", rate, level);
                 return false;
