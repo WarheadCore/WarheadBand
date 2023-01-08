@@ -20,6 +20,7 @@
 
 #include "Duration.h"
 #include "TaskScheduler.h"
+#include <array>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -40,12 +41,25 @@ struct VipLevelInfo
     bool CanUseUnbindCommands{};
 };
 
-enum class VipRate
+enum class VipRateType
 {
     XP,
     Honor,
     ArenaPoint,
-    Reputation
+    Reputation,
+    Profession,
+
+    Max
+};
+
+constexpr std::size_t MAX_VIP_RATE_TYPE = static_cast<std::size_t>(VipRateType::Max);
+
+struct VipRates
+{
+    uint32 VipLevel{};
+    std::array<float, MAX_VIP_RATE_TYPE> RateValue{};
+
+    float GetVipRate(VipRateType type) const;
 };
 
 class WH_GAME_API Vip
@@ -60,7 +74,6 @@ class WH_GAME_API Vip
 
 public:
     using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint32/*level*/>;
-    using WarheadVipRates = std::tuple<float/*XP*/, float/*Honor*/, float/*ArenaPoint*/, float/*Reputation*/>;
 
     static Vip* Instance();
 
@@ -82,7 +95,7 @@ public:
     uint32 GetLevel(Player* player);
     std::string GetDuration(Player* player);
     std::string GetDuration(uint32 accountID);
-    void RemoveColldown(Player* player, uint32 spellID);
+    void RemoveCooldown(Player* player, uint32 spellID);
     void UnBindInstances(Player* player);
     void SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid);
     void SendVipListRates(ChatHandler* handler);
@@ -94,7 +107,7 @@ public:
     void AddVendorVipLevel(uint32 entry, uint32 vendorVipLevel);
     void DeleteVendorVipLevel(uint32 entry);
 
-    float GetRateForPlayer(Player* player, VipRate rate);
+    float GetRateForPlayer(Player* player, VipRateType rate);
 
     // Load system
     void LoadRates();
@@ -113,8 +126,8 @@ private:
     void IterateVipSpellsForPlayer(Player* player, bool isLearn);
 
     WarheadVip* GetVipInfo(uint32 accountID);
-    WarheadVipRates* GetVipRateInfo(uint32 vipLevel);
-    Seconds* GetUndindTime(uint64 guid);
+    VipRates* GetVipRates(uint32 vipLevel);
+    Seconds* GetUnbindTime(uint64 guid);
     static Player* GetPlayerFromAccount(uint32 accountID);
     static std::string GetDuration(WarheadVip* vipInfo);
 
@@ -124,7 +137,7 @@ private:
     uint32 _maxLevel{};
 
     std::unordered_map<uint32/*acc id*/, WarheadVip> _store;
-    std::unordered_map<uint32/*level*/, WarheadVipRates> _storeRates;
+    std::unordered_map<uint32/*level*/, VipRates> _storeRates;
     std::unordered_map<uint64/*guid*/, Seconds/*unbindtime*/> _storeUnbind;
     std::unordered_map<uint32/*creature entry*/, uint32/*vip level*/> _storeVendors;
     std::unordered_map<uint32/*vip level*/, VipLevelInfo> _vipLevelsInfo;

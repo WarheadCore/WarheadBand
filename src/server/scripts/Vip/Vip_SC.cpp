@@ -33,7 +33,7 @@ public:
         if (!sVip->IsEnable() || !sVip->IsVip(player))
             return;
 
-        amount = static_cast<uint32>(float(amount) * sVip->GetRateForPlayer(player, VipRate::XP));
+        amount = static_cast<uint32>(float(amount) * sVip->GetRateForPlayer(player, VipRateType::XP));
     }
 
     void OnGiveHonorPoints(Player* player, float& points, Unit* /*victim*/) override
@@ -41,7 +41,7 @@ public:
         if (!sVip->IsEnable() || !sVip->IsVip(player))
             return;
 
-        points *= sVip->GetRateForPlayer(player, VipRate::Honor);
+        points *= sVip->GetRateForPlayer(player, VipRateType::Honor);
     }
 
     bool OnReputationChange(Player* player, uint32 /*factionID*/, int32& standing, bool /*incremental*/) override
@@ -49,8 +49,16 @@ public:
         if (!sVip->IsEnable() || !sVip->IsVip(player))
             return true;
 
-        standing = static_cast<int32>(float(standing) * sVip->GetRateForPlayer(player, VipRate::Reputation));
+        standing = static_cast<int32>(float(standing) * sVip->GetRateForPlayer(player, VipRateType::Reputation));
         return true;
+    }
+
+    void OnUpdateProfessionSkill(Player* player, uint16 /*skillId*/, int32 /*chance*/, uint32& step) override
+    {
+        if (!sVip->IsEnable() || !sVip->IsVip(player))
+            return;
+
+        step = static_cast<uint32>(float(step) * sVip->GetRateForPlayer(player, VipRateType::Profession));
     }
 
     void OnLogin(Player* player) override
@@ -78,7 +86,7 @@ public:
             return;
 
         if (spell->GetSpellInfo()->Id == SPELL_HEARTHSTONE)
-            sVip->RemoveColldown(player, SPELL_HEARTHSTONE);
+            sVip->RemoveCooldown(player, SPELL_HEARTHSTONE);
     }
 
 private:

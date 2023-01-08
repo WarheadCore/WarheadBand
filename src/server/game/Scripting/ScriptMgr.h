@@ -519,6 +519,7 @@ public: /* PlayerScript */
     void OnCalculateMinMaxDamage(Player* player, float& damageFromAP);
     bool CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* questStatusData);
     void OnAddQuest(Player* player, Quest const* quest, Object* questGiver);
+    void OnUpdateProfessionSkill(Player* player, uint16 skillId, int32 chance, uint32& step);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);

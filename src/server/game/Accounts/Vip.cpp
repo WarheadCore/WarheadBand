@@ -34,6 +34,14 @@
 #include <tuple>
 #include <unordered_map>
 
+float VipRates::GetVipRate(VipRateType type) const
+{
+    if (type >= VipRateType::Max)
+        return 1.0f;
+
+    return RateValue.at(AsUnderlyingType(type));
+}
+
 Vip* Vip::Instance()
 {
     static Vip instance;
@@ -221,37 +229,29 @@ uint32 Vip::GetLevel(Player* player)
     return std::get<2>(*vipInfo);
 }
 
-float Vip::GetRateForPlayer(Player* player, VipRate rate)
+float Vip::GetRateForPlayer(Player* player, VipRateType rate)
 {
     if (!IsVip(player))
         return 1.0f;
 
+    auto accountID = player->GetSession()->GetAccountId();
     auto const& level = GetLevel(player);
-    auto const& vipRateInfo = GetVipRateInfo(level);
 
-    if (!vipRateInfo)
+    if (rate >= VipRateType::Max)
+    {
+        LOG_ERROR("module.vip", "> Vip: Incorrect get vip rate. Account: {}. Level: {}. Type: {}", accountID, level, AsUnderlyingType(rate));
+        return 1.0f;
+    }
+
+    auto vipRates = GetVipRates(level);
+    if (!vipRates)
     {
         auto accountID = player->GetSession()->GetAccountId();
         LOG_ERROR("module.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}", accountID, *GetVipInfo(accountID), level);
         return 1.0f;
     }
 
-    auto const& [rateXP, rateHonor, rateAP, rateRep] = *vipRateInfo;
-
-    switch (rate)
-    {
-    case VipRate::XP:
-        return rateXP;
-    case VipRate::Honor:
-        return rateHonor;
-    case VipRate::ArenaPoint:
-        return rateAP;
-    case VipRate::Reputation:
-        return rateRep;
-    default:
-        ABORT();
-        return 1.0f;
-    }
+    return vipRates->GetVipRate(rate);
 }
 
 std::string Vip::GetDuration(Player* player)
@@ -267,7 +267,7 @@ std::string Vip::GetDuration(uint32 accountID)
     return GetDuration(GetVipInfo(accountID));
 }
 
-void Vip::RemoveColldown(Player* player, uint32 spellID)
+void Vip::RemoveCooldown(Player* player, uint32 spellID)
 {
     scheduler.Schedule(1s, [player, spellID](TaskContext /*context*/)
     {
@@ -306,7 +306,7 @@ void Vip::UnBindInstances(Player* player)
 
     auto guid = player->GetGUID().GetRawValue();
 
-    if (auto unbindInfo = GetUndindTime(guid))
+    if (auto unbindInfo = GetUnbindTime(guid))
     {
         auto duration = GameTime::GetGameTime() - *unbindInfo;
 
@@ -394,7 +394,7 @@ void Vip::LoadRates()
 
     LOG_INFO("module.vip", "Loading vip rates...");
 
-    QueryResult result = CharacterDatabase.Query("SELECT VipLevel, RateXp, RateHonor, RateArenaPoint, RateReputation FROM vip_rates");
+    QueryResult result = CharacterDatabase.Query("SELECT VipLevel, RateXp, RateHonor, RateArenaPoint, RateReputation, RateProfession FROM wh_vip_rates");
     if (!result)
     {
         LOG_WARN("module.vip", ">> Loaded 0 Vip rates. DB table `vip_rates` is empty.");
@@ -418,15 +418,13 @@ void Vip::LoadRates()
 
     for (auto& row : *result)
     {
-        auto const& [level, rateXP, rateHonor, rateArenaPoint, rateReputation] =
-            row.FetchTuple<uint8, float, float, float, float>();
+        auto const& [level, rateXP, rateHonor, rateArenaPoint, rateReputation, rateProfession] =
+            row.FetchTuple<uint8, float, float, float, float, float>();
 
-        if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputation }))
+        if (!CheckRate(level, { rateXP, rateHonor, rateArenaPoint, rateReputation, rateProfession }))
             continue;
 
-        auto rates = std::make_tuple(rateXP, rateHonor, rateArenaPoint, rateReputation);
-
-        _storeRates.emplace(level, rates);
+        _storeRates.emplace(level, VipRates{ level, { rateXP, rateHonor, rateArenaPoint, rateReputation, rateProfession } });
     }
 
     LOG_INFO("module.vip", ">> Loaded {} vip rates in {}", _storeRates.size(), sw);
@@ -656,13 +654,14 @@ void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
         handler->PSendSysMessage("# Уровень премиум аккаунта: {}", std::get<2>(*vipInfo));
         handler->PSendSysMessage("# Оставшееся время: {}", GetDuration(vipInfo));
 
-        if (auto const& vipRateInfo = GetVipRateInfo(std::get<2>(*vipInfo)))
+        if (auto vipRates = GetVipRates(std::get<2>(*vipInfo)))
         {
             handler->PSendSysMessage("# Премиум рейты:");
-            handler->PSendSysMessage("# Рейтинг получения опыта: {}", std::get<0>(*vipRateInfo));
-            handler->PSendSysMessage("# Рейтинг получения чести: {}", std::get<1>(*vipRateInfo));
-            handler->PSendSysMessage("# Рейтинг получения арены: {}", std::get<2>(*vipRateInfo));
-            handler->PSendSysMessage("# Рейтинг получения репутации: {}", std::get<3>(*vipRateInfo));
+            handler->PSendSysMessage("# Рейтинг получения опыта: {}", vipRates->GetVipRate(VipRateType::XP));
+            handler->PSendSysMessage("# Рейтинг получения чести: {}", vipRates->GetVipRate(VipRateType::Honor));
+            handler->PSendSysMessage("# Рейтинг получения арены: {}", vipRates->GetVipRate(VipRateType::ArenaPoint));
+            handler->PSendSysMessage("# Рейтинг получения репутации: {}", vipRates->GetVipRate(VipRateType::Reputation));
+            handler->PSendSysMessage("# Рейтинг прокачки профессий: {}", vipRates->GetVipRate(VipRateType::Profession));
         }
     }
 }
@@ -680,10 +679,11 @@ void Vip::SendVipListRates(ChatHandler* handler)
     for (auto const& [vipLevel, vipRates] : _storeRates)
     {
         handler->PSendSysMessage("# Рейты для премиум уровня: {}", vipLevel);
-        handler->PSendSysMessage("# Рейтинг получения опыта: {}", std::get<0>(vipRates));
-        handler->PSendSysMessage("# Рейтинг получения чести: {}", std::get<1>(vipRates));
-        handler->PSendSysMessage("# Рейтинг получения арены: {}", std::get<2>(vipRates));
-        handler->PSendSysMessage("# Рейтинг получения репутации: {}", std::get<3>(vipRates));
+        handler->PSendSysMessage("# Рейтинг получения опыта: {}", vipRates.GetVipRate(VipRateType::XP));
+        handler->PSendSysMessage("# Рейтинг получения чести: {}", vipRates.GetVipRate(VipRateType::Honor));
+        handler->PSendSysMessage("# Рейтинг получения арены: {}", vipRates.GetVipRate(VipRateType::ArenaPoint));
+        handler->PSendSysMessage("# Рейтинг получения репутации: {}", vipRates.GetVipRate(VipRateType::Reputation));
+        handler->PSendSysMessage("# Рейтинг прокачки профессий: {}", vipRates.GetVipRate(VipRateType::Profession));
         handler->PSendSysMessage("# --");
     }
 }
@@ -750,12 +750,12 @@ Vip::WarheadVip* Vip::GetVipInfo(uint32 accountID)
     return Warhead::Containers::MapGetValuePtr(_store, accountID);
 }
 
-Vip::WarheadVipRates* Vip::GetVipRateInfo(uint32 vipLevel)
+VipRates* Vip::GetVipRates(uint32 vipLevel)
 {
     return Warhead::Containers::MapGetValuePtr(_storeRates, vipLevel);
 }
 
-Seconds* Vip::GetUndindTime(uint64 guid)
+Seconds* Vip::GetUnbindTime(uint64 guid)
 {
     return Warhead::Containers::MapGetValuePtr(_storeUnbind, guid);
 }

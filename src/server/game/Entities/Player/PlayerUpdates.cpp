@@ -823,6 +823,8 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
 
     if (Roll <= chance)
     {
+        sScriptMgr->OnUpdateProfessionSkill(this, skillId, chance, step);
+
         uint32 new_value = SkillValue + step;
         if (new_value > MaxValue)
             new_value = MaxValue;

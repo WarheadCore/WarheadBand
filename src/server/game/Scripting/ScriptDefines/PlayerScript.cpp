@@ -1473,3 +1473,11 @@ void ScriptMgr::OnAddQuest(Player* player, Quest const* quest, Object* questGive
         script->OnAddQuest(player, quest, questGiver);
     });
 }
+
+void ScriptMgr::OnUpdateProfessionSkill(Player* player, uint16 skillId, int32 chance, uint32& step)
+{
+    ExecuteScript<PlayerScript>([player, skillId, chance, &step](PlayerScript* script)
+    {
+        script->OnUpdateProfessionSkill(player, skillId, chance, step);
+    });
+}
