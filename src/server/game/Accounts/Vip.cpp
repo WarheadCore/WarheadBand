@@ -31,8 +31,8 @@
 #include "StopWatch.h"
 #include "TaskScheduler.h"
 #include "Tokenize.h"
+#include "VipQueryHolder.h"
 #include <tuple>
-#include <unordered_map>
 
 float VipRates::GetVipRate(VipRateType type) const
 {
@@ -82,7 +82,6 @@ void Vip::InitSystem()
     });
 
     LoadVipLevels();
-    LoadAccounts();
     LoadUnbinds();
     LoadRates();
     LoadVipVendors();
@@ -103,6 +102,8 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint32 level, bool force /*= fa
 
     if (level > _maxLevel)
         level = _maxLevel;
+
+    std::lock_guard<std::mutex> guard(_mutex);
 
     auto const& vipInfo = GetVipInfo(accountID);
 
@@ -426,39 +427,6 @@ void Vip::LoadRates()
     }
 
     LOG_INFO("module.vip", ">> Loaded {} vip rates in {}", _storeRates.size(), sw);
-    LOG_INFO("module.vip", "");
-}
-
-void Vip::LoadAccounts()
-{
-    StopWatch sw;
-    _store.clear(); // for reload case
-
-    LOG_INFO("module.vip", "Load vip accounts...");
-
-    QueryResult result = AuthDatabase.Query("SELECT AccountID, UNIX_TIMESTAMP(StartTime), UNIX_TIMESTAMP(EndTime), Level FROM account_premium WHERE IsActive = 1");
-    if (!result)
-    {
-        LOG_INFO("module.vip", ">> Loaded 0 vip accounts. DB table `account_premium` is empty.");
-        LOG_INFO("module.vip", "");
-        return;
-    }
-
-    do
-    {
-        auto const& [accountID, startTime, endTime, level] = result->FetchTuple<uint32, Seconds, Seconds, uint8>();
-
-        if (level > _maxLevel)
-        {
-            LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, _maxLevel);
-            continue;
-        }
-
-        _store.emplace(accountID, VipInfo{ accountID, level, startTime, endTime });
-
-    } while (result->NextRow());
-
-    LOG_INFO("module.vip", ">> Loaded {} vip accounts in {}", _store.size(), sw);
     LOG_INFO("module.vip", "");
 }
 
@@ -818,4 +786,23 @@ void Vip::IterateVipSpellsForPlayer(Player* player, bool isLearn)
                 player->removeSpell(levelInfo->MountSpell, SPEC_MASK_ALL, false);
         }
     }
+}
+
+void Vip::LoadInfoForSession(VipQueryHolder const& holder)
+{
+    auto result = holder.GetResult(VipQueryHolder::VIP_ACCOUNT_DATA);
+    if (!result)
+        return;
+
+    std::lock_guard<std::mutex> guard(_mutex);
+
+    auto const& [accountID, startTime, endTime, level] = result->FetchTuple<uint32, Seconds, Seconds, uint32>();
+
+    if (level > _maxLevel)
+    {
+        LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, _maxLevel);
+        return;
+    }
+
+    _store.emplace(holder.GetAccountId(), VipInfo{ holder.GetAccountId(), level, startTime, endTime });
 }

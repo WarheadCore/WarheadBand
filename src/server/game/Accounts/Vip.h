@@ -24,11 +24,14 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <mutex>
 
 class Player;
 class ChatHandler;
 class ObjectGuid;
 class Creature;
+class WorldSession;
+class VipQueryHolder;
 
 using VipSpelLList = std::vector<uint32>;
 
@@ -122,8 +125,10 @@ public:
     // Info
     VipLevelInfo* GetVipLevelInfo(uint32 level);
 
+    // Async load
+    void LoadInfoForSession(VipQueryHolder const& holder);
+
 private:
-    void LoadAccounts();
     void LoadUnbinds();
 
     void LearnSpells(Player* player, uint32 vipLevel);
@@ -148,6 +153,7 @@ private:
     std::unordered_map<uint32/*vip level*/, VipLevelInfo> _vipLevelsInfo;
 
     TaskScheduler scheduler;
+    std::mutex _mutex;
 };
 
 #define sVip Vip::Instance()

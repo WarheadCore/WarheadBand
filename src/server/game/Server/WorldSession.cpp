@@ -57,6 +57,8 @@
 #include "WorldPacket.h"
 #include "WorldSocket.h"
 #include "AccountInfoQueryHolderPerRealm.h"
+#include "Vip.h"
+#include "VipQueryHolder.h"
 #include <sstream>
 #include <zlib.h>
 
@@ -1610,35 +1612,6 @@ void WorldSession::ResetTimeOutTime(bool onlyActive)
         m_timeOutTime = int32(CONF_GET_INT("SocketTimeOutTime"));
 }
 
-class AccountInfoQueryHolderPerRealm : public CharacterDatabaseQueryHolder
-{
-public:
-    enum
-    {
-        GLOBAL_ACCOUNT_DATA = 0,
-        TUTORIALS,
-
-        MAX_QUERIES
-    };
-
-    AccountInfoQueryHolderPerRealm() { SetSize(MAX_QUERIES); }
-
-    bool Initialize(uint32 accountId)
-    {
-        bool ok = true;
-
-        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
-        stmt->SetData(0, accountId);
-        ok = SetPreparedQuery(GLOBAL_ACCOUNT_DATA, stmt) && ok;
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
-        stmt->SetData(0, accountId);
-        ok = SetPreparedQuery(TUTORIALS, stmt) && ok;
-
-        return ok;
-    }
-};
-
 void WorldSession::InitializeSession()
 {
     uint32 cacheVersion = CONF_GET_UINT("ClientCacheVersion");
@@ -1677,4 +1650,15 @@ void WorldSession::InitializeSessionCallback(CharacterDatabaseQueryHolder const&
     SendAddonsInfo();
     SendClientCacheVersion(clientCacheVersion);
     SendTutorialsData();
+
+    if (!sVip->IsEnable())
+        return;
+
+    auto vipHolder = std::make_shared<VipQueryHolder>(GetAccountId());
+    vipHolder->Initialize();
+
+    AddQueryHolderCallback(AuthDatabase.DelayQueryHolder(vipHolder)).AfterComplete([this](SQLQueryHolderBase const& holder)
+    {
+        sVip->LoadInfoForSession(dynamic_cast<VipQueryHolder const&>(holder));
+    });
 }
