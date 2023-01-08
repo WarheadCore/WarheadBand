@@ -23,6 +23,7 @@
 */
 
 #include "WorldSession.h"
+#include "AccountInfoQueryHolderPerRealm.h"
 #include "AccountMgr.h"
 #include "BanMgr.h"
 #include "BattlegroundMgr.h"
@@ -51,14 +52,13 @@
 #include "SocialMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "Vip.h"
+#include "VipQueryHolder.h"
 #include "WardenMac.h"
 #include "WardenWin.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
-#include "AccountInfoQueryHolderPerRealm.h"
-#include "Vip.h"
-#include "VipQueryHolder.h"
 #include <sstream>
 #include <zlib.h>
 

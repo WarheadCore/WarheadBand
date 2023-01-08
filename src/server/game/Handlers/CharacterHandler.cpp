@@ -38,6 +38,7 @@
 #include "InstanceSaveMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "LoginQueryHolder.h"
 #include "MapMgr.h"
 #include "Metric.h"
 #include "ObjectAccessor.h"
@@ -63,7 +64,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "LoginQueryHolder.h"
 #include <sstream>
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)

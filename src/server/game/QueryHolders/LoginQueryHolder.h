@@ -18,8 +18,8 @@
 #ifndef WARHEAD_LOGIN_QUERY_HOLDER_H_
 #define WARHEAD_LOGIN_QUERY_HOLDER_H_
 
-#include "QueryHolder.h"
 #include "ObjectGuid.h"
+#include "QueryHolder.h"
 
 class WH_GAME_API LoginQueryHolder : public CharacterDatabaseQueryHolder
 {

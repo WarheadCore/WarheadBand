@@ -19,11 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "QueryHolder.h"
+#include "Containers.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "QueryResult.h"
-#include "Containers.h"
 #include <utility>
 
 QueryResult SQLQueryHolderBase::GetResult(std::size_t index) const

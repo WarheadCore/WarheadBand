@@ -30,6 +30,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "PetLoadQueryHolder.h"
 #include "PetPackets.h"
 #include "Player.h"
 #include "QueryHolder.h"
@@ -41,7 +42,6 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "PetLoadQueryHolder.h"
 #include <sstream>
 
 Pet::Pet(Player* owner, PetType type) : Guardian(nullptr, owner ? owner->GetGUID() : ObjectGuid::Empty, true),

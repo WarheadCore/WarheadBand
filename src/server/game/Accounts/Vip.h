@@ -21,10 +21,10 @@
 #include "Duration.h"
 #include "TaskScheduler.h"
 #include <array>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <mutex>
 
 class Player;
 class ChatHandler;

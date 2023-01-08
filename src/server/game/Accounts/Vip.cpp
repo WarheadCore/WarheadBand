@@ -32,7 +32,6 @@
 #include "TaskScheduler.h"
 #include "Tokenize.h"
 #include "VipQueryHolder.h"
-#include <tuple>
 
 float VipRates::GetVipRate(VipRateType type) const
 {
