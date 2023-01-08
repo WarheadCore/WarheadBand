@@ -19,7 +19,15 @@
 #define _QUERYHOLDER_H
 
 #include "DatabaseAsyncOperation.h"
-#include <vector>
+#include "StringFormat.h"
+#include <unordered_map>
+#include <variant>
+
+struct SQLQueryHolderQuery
+{
+    std::variant<std::string, PreparedStatement> HolderQuery;
+    std::variant<QueryResult, PreparedQueryResult> HolderResult;
+};
 
 class WH_DATABASE_API SQLQueryHolderBase
 {
@@ -29,13 +37,23 @@ public:
     SQLQueryHolderBase() = default;
     virtual ~SQLQueryHolderBase() = default;
 
-    void SetSize(std::size_t size);
     [[nodiscard]] PreparedQueryResult GetPreparedResult(std::size_t index) const;
+    [[nodiscard]] QueryResult GetResult(std::size_t index) const;
+
     void SetPreparedResult(std::size_t index, PreparedQueryResult result);
-    bool SetPreparedQuery(std::size_t index, PreparedStatement stmt);
+    void SetResult(std::size_t index, QueryResult result);
+
+    bool AddPreparedQuery(std::size_t index, PreparedStatement stmt);
+    bool AddQuery(std::size_t index, std::string_view sql);
+
+    template<typename... Args>
+    inline bool AddQuery(std::size_t index, std::string_view fmt, Args&&... args)
+    {
+        return AddQuery(index, Warhead::StringFormat(fmt, std::forward<Args>(args)...));
+    }
 
 private:
-    std::vector<std::pair<PreparedStatement, PreparedQueryResult>> _queries;
+    std::unordered_map<uint32, SQLQueryHolderQuery> _queries;
 };
 
 class WH_DATABASE_API SQLQueryHolderTask : public AsyncOperation
@@ -57,8 +75,8 @@ private:
 class WH_DATABASE_API SQLQueryHolderCallback
 {
 public:
-    SQLQueryHolderCallback(SQLQueryHolder&& holder, QueryResultHolderFuture&& future)
-        : _holder(std::move(holder)), _future(std::move(future)) { }
+    SQLQueryHolderCallback(SQLQueryHolder&& holder, QueryResultHolderFuture&& future) :
+        _holder(std::move(holder)), _future(std::move(future)) { }
 
     SQLQueryHolderCallback(SQLQueryHolderCallback&&) = default;
     SQLQueryHolderCallback& operator=(SQLQueryHolderCallback&&) = default;

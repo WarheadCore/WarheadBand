@@ -13397,7 +13397,7 @@ void Player::learnSpellHighRank(uint32 spellid)
 void Player::_LoadSkills(PreparedQueryResult result)
 {
     //                                                           0      1      2
-    // SetQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '{}'", m_guid.GetCounter());
+    // AddQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '{}'", m_guid.GetCounter());
 
     uint32 count = 0;
     std::unordered_map<uint32, uint32> loadedSkillValues;
@@ -14729,7 +14729,7 @@ void Player::_SaveGlyphs(CharacterDatabaseTransaction trans)
 
 void Player::_LoadTalents(PreparedQueryResult result)
 {
-    // SetQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, specMask FROM character_talent WHERE guid = '{}'", m_guid.GetCounter());
+    // AddQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, specMask FROM character_talent WHERE guid = '{}'", m_guid.GetCounter());
     if (result)
     {
         do

@@ -41,6 +41,7 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "PetLoadQueryHolder.h"
 #include <sstream>
 
 Pet::Pet(Player* owner, PetType type) : Guardian(nullptr, owner ? owner->GetGUID() : ObjectGuid::Empty, true),
@@ -126,44 +127,6 @@ void Pet::RemoveFromWorld()
         GetMap()->GetObjectsStore().Remove<Pet>(GetGUID());
     }
 }
-
-class PetLoadQueryHolder : public CharacterDatabaseQueryHolder
-{
-public:
-    enum
-    {
-        DECLINED_NAMES,
-        AURAS,
-        SPELLS,
-        COOLDOWNS,
-
-        MAX
-    };
-
-    PetLoadQueryHolder(ObjectGuid::LowType ownerGuid, uint32 petNumber)
-    {
-        SetSize(MAX);
-
-        CharacterDatabasePreparedStatement stmt = nullptr;
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
-        stmt->SetData(0, ownerGuid);
-        stmt->SetData(1, petNumber);
-        SetPreparedQuery(DECLINED_NAMES, stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_AURA);
-        stmt->SetData(0, petNumber);
-        SetPreparedQuery(AURAS, stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL);
-        stmt->SetData(0, petNumber);
-        SetPreparedQuery(SPELLS, stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SPELL_COOLDOWN);
-        stmt->SetData(0, petNumber);
-        SetPreparedQuery(COOLDOWNS, stmt);
-    }
-};
 
 std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, bool current)
 {

@@ -56,6 +56,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
+#include "AccountInfoQueryHolderPerRealm.h"
 #include <sstream>
 #include <zlib.h>
 
@@ -1652,7 +1653,7 @@ void WorldSession::InitializeSession()
 
     AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this, cacheVersion](SQLQueryHolderBase const& holder)
     {
-        InitializeSessionCallback(static_cast<AccountInfoQueryHolderPerRealm const&>(holder), cacheVersion);
+        InitializeSessionCallback(dynamic_cast<AccountInfoQueryHolderPerRealm const&>(holder), cacheVersion);
     });
 }
 

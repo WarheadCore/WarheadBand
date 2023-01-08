@@ -4862,7 +4862,7 @@ void Player::_LoadArenaTeamInfo()
 
 void Player::_LoadEquipmentSets(PreparedQueryResult result)
 {
-    // SetQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '{}' ORDER BY setindex", m_guid.GetCounter());
+    // AddQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '{}' ORDER BY setindex", m_guid.GetCounter());
     if (!result)
         return;
 
@@ -5610,7 +5610,8 @@ bool Player::LoadFromDB(ObjectGuid playerGuid, CharacterDatabaseQueryHolder cons
     if (m_grantableLevels > 0)
         SetByteValue(PLAYER_FIELD_BYTES, 1, 0x01);
 
-    _LoadDeclinedNames(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
+    if (CONF_GET_BOOL("DeclinedNames"))
+        _LoadDeclinedNames(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
 
     //m_achievementMgr->CheckAllAchievementCriteria(); // pussywizard: disabled this
 

@@ -19,32 +19,65 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "QueryHolder.h"
-#include "Errors.h"
 #include "Log.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "QueryResult.h"
+#include "Containers.h"
 #include <utility>
 
-bool SQLQueryHolderBase::SetPreparedQuery(std::size_t index, PreparedStatement stmt)
+QueryResult SQLQueryHolderBase::GetResult(std::size_t index) const
 {
-    if (_queries.size() <= index)
+    auto const& itr = _queries.find(index);
+    if (itr == _queries.end())
     {
-        LOG_ERROR("db.query", "Query index ({}) out of range (size: {}) for prepared statement", index, _queries.size());
-        return false;
+        LOG_ERROR("db.query", "Query holder result (QueryResult) tried to access non exist index {}", index);
+        return nullptr;
     }
 
-    _queries[index].first = std::move(stmt);
-    return true;
+    try
+    {
+        auto result{ std::get<QueryResult>(itr->second.HolderResult) };
+        if (!result || !result->GetRowCount() || !result->NextRow())
+            return nullptr;
+
+        return result;
+    }
+    catch (...) {  }
+
+    return nullptr;
 }
 
 PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(std::size_t index) const
 {
-    // Don't call to this function if the index is of a prepared statement
-    ASSERT(index < _queries.size(), "Query holder result index out of range, tried to access index {} but there are only {} results",
-        index, _queries.size());
+    auto const& itr = _queries.find(index);
+    if (itr == _queries.end())
+    {
+        LOG_ERROR("db.query", "Query holder result (PreparedQueryResult) tried to access non exist index {}", index);
+        return nullptr;
+    }
 
-    return _queries[index].second;
+    try
+    {
+        auto result{ std::get<PreparedQueryResult>(itr->second.HolderResult) };
+        if (!result || !result->GetRowCount())
+            return nullptr;
+
+        return result;
+    }
+    catch (...) {  }
+
+    return nullptr;
+}
+
+void SQLQueryHolderBase::SetResult(std::size_t index, QueryResult result)
+{
+    if (result && !result->GetRowCount())
+        result.reset();
+
+    /// store the result in the holder
+    if (auto query = Warhead::Containers::MapGetValuePtr(_queries, index))
+        query->HolderResult = std::move(result);
 }
 
 void SQLQueryHolderBase::SetPreparedResult(std::size_t index, PreparedQueryResult result)
@@ -53,22 +86,50 @@ void SQLQueryHolderBase::SetPreparedResult(std::size_t index, PreparedQueryResul
         result.reset();
 
     /// store the result in the holder
-    if (index < _queries.size())
-        _queries[index].second = PreparedQueryResult(result);
+    if (auto query = Warhead::Containers::MapGetValuePtr(_queries, index))
+        query->HolderResult = std::move(result);
 }
 
-void SQLQueryHolderBase::SetSize(size_t size)
+bool SQLQueryHolderBase::AddQuery(std::size_t index, std::string_view sql)
 {
-    /// to optimize push_back, reserve the number of queries about to be executed
-    _queries.resize(size);
+    if (_queries.contains(index))
+    {
+        LOG_ERROR("db.query", "Query holder with index {} exist", index);
+        return false;
+    }
+
+    SQLQueryHolderQuery query{};
+    query.HolderQuery.emplace<std::string>(sql);
+
+    _queries.emplace(index, std::move(query));
+    return true;
+}
+
+bool SQLQueryHolderBase::AddPreparedQuery(std::size_t index, PreparedStatement stmt)
+{
+    if (_queries.contains(index))
+    {
+        LOG_ERROR("db.query", "Query holder with index {} exist", index);
+        return false;
+    }
+
+    SQLQueryHolderQuery query{};
+    query.HolderQuery = std::move(stmt);
+
+    _queries.emplace(index, std::move(query));
+    return true;
 }
 
 void SQLQueryHolderTask::ExecuteQuery()
 {
     /// execute all queries in the holder and pass the results
-    for (size_t i = 0; i < _holder->_queries.size(); ++i)
-        if (auto stmt = _holder->_queries[i].first)
-            _holder->SetPreparedResult(i, _connection->Query(stmt));
+    for (auto const& [index, query] : _holder->_queries)
+    {
+        if (std::holds_alternative<std::string>(query.HolderQuery))
+            _holder->SetResult(index, _connection->Query(std::get<std::string>(query.HolderQuery)));
+        else
+            _holder->SetPreparedResult(index, _connection->Query(std::get<PreparedStatement>(query.HolderQuery)));
+    }
 
     _result.set_value();
 }
