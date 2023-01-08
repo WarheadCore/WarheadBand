@@ -22,7 +22,6 @@
 #include "TaskScheduler.h"
 #include <array>
 #include <string>
-#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -62,6 +61,14 @@ struct VipRates
     float GetVipRate(VipRateType type) const;
 };
 
+struct VipInfo
+{
+    uint32 AccountID{};
+    uint32 Level{};
+    Seconds StartTime{};
+    Seconds EndTime{};
+};
+
 class WH_GAME_API Vip
 {
     Vip() = default;
@@ -73,14 +80,12 @@ class WH_GAME_API Vip
     Vip& operator=(Vip&&) = delete;
 
 public:
-    using WarheadVip = std::tuple<Seconds/*start*/, Seconds/*endtime*/, uint32/*level*/>;
-
     static Vip* Instance();
 
     void LoadConfig();
     void InitSystem();
 
-    inline bool IsEnable() { return _isEnable; }
+    inline bool IsEnable() const { return _isEnable; }
 
     void Update(uint32 diff);
     bool Add(uint32 accountID, Seconds endTime, uint32 level, bool force = false);
@@ -125,18 +130,18 @@ private:
     void UnLearnSpells(Player* player, bool unlearnMount = true);
     void IterateVipSpellsForPlayer(Player* player, bool isLearn);
 
-    WarheadVip* GetVipInfo(uint32 accountID);
+    VipInfo* GetVipInfo(uint32 accountID);
     VipRates* GetVipRates(uint32 vipLevel);
     Seconds* GetUnbindTime(uint64 guid);
     static Player* GetPlayerFromAccount(uint32 accountID);
-    static std::string GetDuration(WarheadVip* vipInfo);
+    static std::string GetDuration(VipInfo* vipInfo);
 
     bool _isEnable{};
     Seconds _updateDelay{};
     Seconds _unbindDuration{ 1_days };
     uint32 _maxLevel{};
 
-    std::unordered_map<uint32/*acc id*/, WarheadVip> _store;
+    std::unordered_map<uint32/*acc id*/, VipInfo> _store;
     std::unordered_map<uint32/*level*/, VipRates> _storeRates;
     std::unordered_map<uint64/*guid*/, Seconds/*unbindtime*/> _storeUnbind;
     std::unordered_map<uint32/*creature entry*/, uint32/*vip level*/> _storeVendors;

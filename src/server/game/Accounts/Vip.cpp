@@ -74,9 +74,7 @@ void Vip::InitSystem()
     {
         for (auto const& [accountID, vipInfo] : _store)
         {
-            auto const& [startTime, endTime, level] = vipInfo;
-
-            if (GameTime::GetGameTime() >= endTime)
+            if (GameTime::GetGameTime() >= vipInfo.EndTime)
                 UnSet(accountID);
         }
 
@@ -115,14 +113,14 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint32 level, bool force /*= fa
             Delete(accountID);
         else // Add error
         {
-            LOG_ERROR("module.vip", "> Vip: Account {} is premium. {}", accountID, *vipInfo);
+            LOG_ERROR("module.vip", "> Vip: Account {} is premium", accountID);
             return false;
         }
     }
 
     auto timeNow = GameTime::GetGameTime();
 
-    _store.emplace(accountID, std::make_tuple(timeNow, endTime, level));
+    _store.emplace(accountID, VipInfo{ accountID, level, timeNow, endTime });
 
     // Add DB
     AuthDatabase.Execute("INSERT INTO `account_premium` (`AccountID`, `StartTime`, `EndTime`, `Level`, `IsActive`) VALUES ({}, FROM_UNIXTIME({}), FROM_UNIXTIME({}), {}, 1)",
@@ -222,11 +220,11 @@ uint32 Vip::GetLevel(Player* player)
         return 0;
 
     auto accountID = player->GetSession()->GetAccountId();
-    auto const& vipInfo = GetVipInfo(accountID);
+    auto vipInfo = GetVipInfo(accountID);
     if (!vipInfo)
         return 0;
 
-    return std::get<2>(*vipInfo);
+    return vipInfo->Level;
 }
 
 float Vip::GetRateForPlayer(Player* player, VipRateType rate)
@@ -247,7 +245,7 @@ float Vip::GetRateForPlayer(Player* player, VipRateType rate)
     if (!vipRates)
     {
         auto accountID = player->GetSession()->GetAccountId();
-        LOG_ERROR("module.vip", "> Vip: Vip Account {} [{}] is incorrect vip level {}", accountID, *GetVipInfo(accountID), level);
+        LOG_ERROR("module.vip", "> Vip: Vip Account {} has incorrect vip level {}", accountID, level);
         return 1.0f;
     }
 
@@ -456,7 +454,7 @@ void Vip::LoadAccounts()
             continue;
         }
 
-        _store.emplace(accountID, std::make_tuple(startTime, endTime, level));
+        _store.emplace(accountID, VipInfo{ accountID, level, startTime, endTime });
 
     } while (result->NextRow());
 
@@ -644,17 +642,19 @@ void Vip::SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid)
         return;
     }
 
-    auto const& vipInfo = GetVipInfo(data->AccountId);
+    auto vipInfo = GetVipInfo(data->AccountId);
 
     if (!vipInfo)
         handler->PSendSysMessage("# Игрок: {} не является випом", data->Name);
     else
     {
+        auto vipLevel = vipInfo->Level;
+
         handler->PSendSysMessage("# Игрок: {}", data->Name);
-        handler->PSendSysMessage("# Уровень премиум аккаунта: {}", std::get<2>(*vipInfo));
+        handler->PSendSysMessage("# Уровень премиум аккаунта: {}", vipLevel);
         handler->PSendSysMessage("# Оставшееся время: {}", GetDuration(vipInfo));
 
-        if (auto vipRates = GetVipRates(std::get<2>(*vipInfo)))
+        if (auto vipRates = GetVipRates(vipLevel))
         {
             handler->PSendSysMessage("# Премиум рейты:");
             handler->PSendSysMessage("# Рейтинг получения опыта: {}", vipRates->GetVipRate(VipRateType::XP));
@@ -745,7 +745,7 @@ void Vip::DeleteVendorVipLevel(uint32 entry)
     WorldDatabase.Execute("DELETE FROM `vip_vendors` WHERE `CreatureEntry` = {}", entry);
 }
 
-Vip::WarheadVip* Vip::GetVipInfo(uint32 accountID)
+VipInfo* Vip::GetVipInfo(uint32 accountID)
 {
     return Warhead::Containers::MapGetValuePtr(_store, accountID);
 }
@@ -769,13 +769,12 @@ Player* Vip::GetPlayerFromAccount(uint32 accountID)
     return session->GetPlayer();
 }
 
-std::string Vip::GetDuration(WarheadVip* vipInfo)
+std::string Vip::GetDuration(VipInfo* vipInfo)
 {
     if (!vipInfo)
         return "<неизвестно>";
 
-    auto const& [startTime, endTime, level] = *vipInfo;
-    return Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
+    return Warhead::Time::ToTimeString(vipInfo->EndTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
 }
 
 VipLevelInfo* Vip::GetVipLevelInfo(uint32 level)
@@ -819,28 +818,4 @@ void Vip::IterateVipSpellsForPlayer(Player* player, bool isLearn)
                 player->removeSpell(levelInfo->MountSpell, SPEC_MASK_ALL, false);
         }
     }
-}
-
-namespace fmt
-{
-    template<>
-    struct formatter<Vip::WarheadVip> : formatter<string_view>
-    {
-        // parse is inherited from formatter<string_view>.
-        template <typename FormatContext>
-        auto format(Optional<Vip::WarheadVip> vipInfo, FormatContext& ctx)
-        {
-            string_view info = "<unknown>";
-
-            if (vipInfo)
-            {
-                auto const& [startTime, endTime, level] = *vipInfo;
-
-                info = Warhead::StringFormat("Start time: {}. End time: {}. Level: {}",
-                    Warhead::Time::TimeToHumanReadable(startTime), Warhead::Time::TimeToHumanReadable(endTime), level);
-            }
-
-            return formatter<string_view>::format(info, ctx);
-        }
-    };
 }
