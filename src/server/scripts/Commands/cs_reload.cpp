@@ -123,6 +123,7 @@ public:
             { "creature_text_locale",          HandleReloadLocalesCreatureTextCommand,        SEC_ADMINISTRATOR, Console::Yes },
             { "gameobject_template_locale",    HandleReloadLocalesGameobjectCommand,          SEC_ADMINISTRATOR, Console::Yes },
             { "gossip_menu_option_locale",     HandleReloadLocalesGossipMenuOptionCommand,    SEC_ADMINISTRATOR, Console::Yes },
+            { "item_template",                 HandleReloadItemTemplateCommand,               SEC_ADMINISTRATOR, Console::Yes },
             { "item_template_locale",          HandleReloadLocalesItemCommand,                SEC_ADMINISTRATOR, Console::Yes },
             { "item_set_name_locale",          HandleReloadLocalesItemSetNameCommand,         SEC_ADMINISTRATOR, Console::Yes },
             { "npc_text_locale",               HandleReloadLocalesNpcTextCommand,             SEC_ADMINISTRATOR, Console::Yes },
@@ -1107,6 +1108,14 @@ public:
         LOG_INFO("server.loading", "Re-Loading Item Template Locale ... ");
         sGameLocale->LoadItemLocales();
         handler->SendGlobalGMSysMessage("DB table `item_template_locale` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadItemTemplateCommand(ChatHandler* handler)
+    {
+        LOG_INFO("server.loading", "Re-Loading Item Template... ");
+        sObjectMgr->LoadItemTemplates();
+        handler->SendGlobalGMSysMessage("DB table `item_template` reloaded.");
         return true;
     }
 
