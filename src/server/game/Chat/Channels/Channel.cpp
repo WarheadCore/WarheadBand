@@ -222,10 +222,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
         return;
     }
 
-    if (HasFlag(CHANNEL_FLAG_LFG) &&
-            CONF_GET_BOOL("Channel.RestrictedLfg") &&
-            AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) &&
-            player->GetGroup())
+    if (HasFlag(CHANNEL_FLAG_LFG) && CONF_GET_BOOL("Channel.RestrictedLfg") &&
+        AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && player->GetGroup())
     {
         WorldPacket data;
         MakeNotInLfg(&data);
@@ -235,15 +233,14 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     player->JoinedChannel(this);
 
-    if (_announce && (!AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) ||
-                      !CONF_GET_BOOL("Channel.SilentlyGMJoin")))
+    if (_announce && (!AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) || !CONF_GET_BOOL("Channel.SilentlyGMJoin")))
     {
         WorldPacket data;
         MakeJoined(&data, guid);
         SendToAll(&data);
     }
 
-    PlayerInfo pinfo;
+    PlayerInfo pinfo{};
     pinfo.player = guid;
     pinfo.flags = MEMBER_FLAG_NONE;
     pinfo.plrPtr = player;
