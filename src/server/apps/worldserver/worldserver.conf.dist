@@ -4278,6 +4278,22 @@ VIP.Update.Delay = 10
 #
 
 VIP.Unbind.Duration = 86400
+
+#
+#   VIP.Command.Buff.Enable
+#       Description: Enable buff from vip menu
+#       Default: 1
+#
+
+VIP.Command.Buff.Enable = 1
+
+#
+#   VIP.Command.Buff.List
+#       Description: List spell id for vip buffs
+#       Default: "25898,48074,48162,48470,57623,61316"
+#
+
+VIP.Command.Buff.List = "25898,48074,48162,48470,57623,61316"
 ########################################
 
 ###################################################################################################

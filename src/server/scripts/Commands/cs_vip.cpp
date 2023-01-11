@@ -60,6 +60,7 @@ public:
             { "delete",     HandleVipDeleteCommand,     SEC_ADMINISTRATOR,  Console::Yes },
             { "unbind",     HandleVipUnbindCommand,     SEC_PLAYER,         Console::No },
             { "info",       HandleVipInfoCommand,       SEC_PLAYER,         Console::Yes },
+            { "menu",       HandleVipMenuCommand,       SEC_PLAYER,         Console::No },
             { "list",       vipListCommandTable },
             { "vendor",     vipVendorCommandTable },
             { "reload",     vipReloadCommandTable },
@@ -332,6 +333,18 @@ public:
 
         sVip->DeleteVendorVipLevel(creatureEntry);
         handler->PSendSysMessage("# Существо `{}` - '{}' доступно для всех", creatureEntry, creatureName);
+        return true;
+    }
+
+    static bool HandleVipMenuCommand(ChatHandler* handler)
+    {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        sVip->SendVipMenu(handler->GetPlayer());
         return true;
     }
 };

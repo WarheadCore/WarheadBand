@@ -89,6 +89,11 @@ public:
             sVip->RemoveCooldown(player, SPELL_HEARTHSTONE);
     }
 
+    void OnGossipSelect(Player* player, uint32 menuID, uint32 /*sender*/, uint32 action) override
+    {
+        sVip->VipMenuHandle(player, menuID, action);
+    }
+
 private:
     enum VipSpells
     {
