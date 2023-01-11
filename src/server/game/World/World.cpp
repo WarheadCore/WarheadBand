@@ -130,8 +130,6 @@ World::World()
     m_playerLimit = 0;
     m_allowedSecurityLevel = SEC_PLAYER;
     m_allowMovement = true;
-    m_ShutdownMask = 0;
-    m_ShutdownTimer = 0;
     m_maxActiveSessionCount = 0;
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
@@ -1648,49 +1646,47 @@ void World::_UpdateGameTime()
     Seconds elapsed = GameTime::GetGameTime() - lastGameTime;
 
     ///- if there is a shutdown timer
-    if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0s)
+    if (!IsStopped() && _shutdownTimer > 0s && elapsed > 0s)
     {
         ///- ... and it is overdue, stop the world (set m_stopEvent)
-        if (m_ShutdownTimer <= elapsed.count())
+        if (_shutdownTimer <= elapsed)
         {
-            if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
-                m_stopEvent = true;                         // exist code already set
+            if (!(_shutdownMask & SHUTDOWN_MASK_IDLE) || !GetActiveAndQueuedSessionCount())
+                m_stopEvent = true; // exist code already set
             else
-                m_ShutdownTimer = 1;                        // minimum timer value to wait idle state
+                _shutdownTimer = 1s; // minimum timer value to wait idle state
         }
-        ///- ... else decrease it and if necessary display a shutdown countdown to the users
-        else
+        else ///- ... else decrease it and if necessary display a shutdown countdown to the users
         {
-            m_ShutdownTimer -= elapsed.count();
-
+            _shutdownTimer -= elapsed;
             ShutdownMsg();
         }
     }
 }
 
 /// Shutdown the server
-void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason)
+void World::ShutdownServ(Seconds time, uint32 options, uint8 exitcode, const std::string& reason)
 {
     // ignore if server shutdown at next tick
     if (IsStopped())
         return;
 
-    m_ShutdownMask = options;
+    _shutdownMask = options;
     m_ExitCode = exitcode;
 
     auto const& playersOnline = GetActiveSessionCount();
 
-    if (time < 5 && playersOnline)
+    if (time < 5s && playersOnline)
     {
         // Set time to 5s for save all players
-        time = 5;
+        time = 5s;
     }
 
     playersSaveScheduler.CancelAll();
 
-    if (time >= 5)
+    if (time >= 5s)
     {
-        playersSaveScheduler.Schedule(Seconds(time - 5), [this](TaskContext /*context*/)
+        playersSaveScheduler.Schedule(time - 5s, [this](TaskContext /*context*/)
         {
             if (!GetActiveSessionCount())
             {
@@ -1708,17 +1704,16 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
     LOG_WARN("server", "> Time left until shutdown/restart: {}", strTime);
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
-    if (time == 0)
+    if (time == 0s)
     {
-        if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
+        if (!(options & SHUTDOWN_MASK_IDLE) || !GetActiveAndQueuedSessionCount())
             m_stopEvent = true;                             // exist code already set
         else
-            m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
+            _shutdownTimer = 1s;                            //So that the session count is re-evaluated at next world tick
     }
-    ///- Else set the shutdown timer and warn users
-    else
+    else ///- Else set the shutdown timer and warn users
     {
-        m_ShutdownTimer = time;
+        _shutdownTimer = Seconds(time);
         ShutdownMsg(true, nullptr, reason);
     }
 
@@ -1729,28 +1724,61 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
 void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 {
     // not show messages for idle shutdown mode
-    if (m_ShutdownMask & SHUTDOWN_MASK_IDLE)
+    if (_shutdownMask & SHUTDOWN_MASK_IDLE)
         return;
 
     ///- Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
     if (show ||
-            (m_ShutdownTimer < 5 * MINUTE && (m_ShutdownTimer % 15) == 0) || // < 5 min; every 15 sec
-            (m_ShutdownTimer < 15 * MINUTE && (m_ShutdownTimer % MINUTE) == 0) || // < 15 min ; every 1 min
-            (m_ShutdownTimer < 30 * MINUTE && (m_ShutdownTimer % (5 * MINUTE)) == 0) || // < 30 min ; every 5 min
-            (m_ShutdownTimer < 12 * HOUR && (m_ShutdownTimer % HOUR) == 0) || // < 12 h ; every 1 h
-            (m_ShutdownTimer > 12 * HOUR && (m_ShutdownTimer % (12 * HOUR)) == 0)) // > 12 h ; every 12 h
+            (_shutdownTimer < 10s) ||                                       // < 10 sec; every 1 sec
+            (_shutdownTimer < 30s && (_shutdownTimer % 5) == 0s) ||         // < 30 sec; every 5 sec
+            (_shutdownTimer < 1min && (_shutdownTimer % 10) == 0s) ||       // < 1 min; every 10 sec
+            (_shutdownTimer < 5min && (_shutdownTimer % 15) == 0s) ||       // < 5 min; every 15 sec
+            (_shutdownTimer < 15min && (_shutdownTimer % MINUTE) == 0s) ||  // < 15 min; every 1 min
+            (_shutdownTimer < 30min && (_shutdownTimer % (5min)) == 0s) ||  // < 30 min; every 5 min
+            (_shutdownTimer < 12h && (_shutdownTimer % 1h) == 0s) ||        // < 12 h; every 1 h
+            (_shutdownTimer > 12h && (_shutdownTimer % 12h) == 0s))         // > 12 h; every 12 h
     {
-        std::string str = Warhead::Time::ToTimeString(Seconds(m_ShutdownTimer)).append(".");
+        auto enMessage{ Warhead::Time::ToTimeString(_shutdownTimer, 3, TimeFormat::FullText).append(".") };
+        auto ruMessage{ GameLocale::ToTimeString(_shutdownTimer, LOCALE_ruRU, false).append(".") };
 
         if (!reason.empty())
         {
-            str += " - " + reason;
+            enMessage += " " + reason;
+            ruMessage += " " + reason;
         }
 
-        ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
+        ServerMessageType messageID = (_shutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
-        SendServerMessage(msgid, str, player);
-        LOG_DEBUG("server.worldserver", "Server is {} in {}", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str);
+        // Prepare packet
+        WorldPackets::Chat::ChatServerMessage chatServerMessage;
+        chatServerMessage.MessageID = int32(messageID);
+
+        if (player)
+        {
+            chatServerMessage.StringParam = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU ? ruMessage : enMessage;
+            player->SendDirectMessage(chatServerMessage.Write());
+            return;
+        }
+        else
+        {
+            for (auto const& [accountID, session] : m_sessions)
+            {
+                if (!session)
+                    continue;
+
+                auto itrPlayer{ session->GetPlayer() };
+                if (!itrPlayer)
+                    continue;
+
+                if (!itrPlayer->IsInWorld())
+                    continue;
+
+                chatServerMessage.StringParam = session->GetSessionDbLocaleIndex() == LOCALE_ruRU ? ruMessage : enMessage;
+                session->SendPacket(chatServerMessage.Write());
+            }
+        }
+
+        LOG_DEBUG("server.worldserver", "Server is {} in {}", (_shutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), enMessage);
     }
 }
 
@@ -1758,17 +1786,17 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if (!m_ShutdownTimer || m_stopEvent)
+    if (_shutdownTimer == 0s || m_stopEvent)
         return;
 
-    ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
+    ServerMessageType msgid = (_shutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
 
-    m_ShutdownMask = 0;
-    m_ShutdownTimer = 0;
+    _shutdownMask = 0;
+    _shutdownTimer = 0s;
     m_ExitCode = SHUTDOWN_EXIT_CODE;                       // to default value
     SendServerMessage(msgid);
 
-    LOG_DEBUG("server.worldserver", "Server {} cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    LOG_DEBUG("server.worldserver", "Server {} cancelled.", (_shutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
 
     sScriptMgr->OnShutdownCancel();
 }

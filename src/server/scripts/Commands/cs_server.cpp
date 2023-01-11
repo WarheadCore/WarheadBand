@@ -257,7 +257,7 @@ public:
 
         //! Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
-            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString(Seconds(sWorld->GetShutDownTimeLeft())));
+            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString(sWorld->GetShutDownTimeLeft()));
 
         return true;
     }
@@ -310,11 +310,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), 0, *exitCode);
+            sWorld->ShutdownServ(delay, 0, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), 0, SHUTDOWN_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, 0, SHUTDOWN_EXIT_CODE, strReason);
         }
 
         return true;
@@ -356,11 +356,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART, *exitCode);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE, strReason);
         }
 
         return true;
@@ -401,11 +401,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, *exitCode);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE, strReason);
         }
 
         return true;
@@ -444,11 +444,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_IDLE, *exitCode);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_IDLE, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE, strReason);
         }
 
         return true;

@@ -261,9 +261,9 @@ public:
     void SendServerMessage(ServerMessageType messageID, std::string_view stringParam = {}, Player* player = nullptr);
 
     /// Are we in the middle of a shutdown?
-    [[nodiscard]] bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
-    [[nodiscard]] uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
-    void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
+    [[nodiscard]] bool IsShuttingDown() const { return _shutdownTimer > 0s; }
+    [[nodiscard]] Seconds GetShutDownTimeLeft() const { return _shutdownTimer; }
+    void ShutdownServ(Seconds time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
     void ShutdownCancel();
     void ShutdownMsg(bool show = false, Player* player = nullptr, const std::string& reason = std::string());
     static uint8 GetExitCode() { return m_ExitCode; }
@@ -345,8 +345,8 @@ protected:
 private:
     static std::atomic_long m_stopEvent;
     static uint8 m_ExitCode;
-    uint32 m_ShutdownTimer;
-    uint32 m_ShutdownMask;
+    Seconds _shutdownTimer{};
+    uint32 _shutdownMask{};
 
     uint32 m_CleaningFlags;
 

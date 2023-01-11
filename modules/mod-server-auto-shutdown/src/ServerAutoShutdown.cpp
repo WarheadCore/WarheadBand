@@ -166,7 +166,7 @@ void ServerAutoShutdown::Init()
         LOG_INFO("modules", "> {}", message);
 
         sWorld->SendServerMessage(SERVER_MSG_STRING, message);
-        sWorld->ShutdownServ(preAnnounceSeconds.count(), 0, SHUTDOWN_EXIT_CODE);
+        sWorld->ShutdownServ(preAnnounceSeconds, 0, SHUTDOWN_EXIT_CODE);
     });
 }
 
