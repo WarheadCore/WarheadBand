@@ -1083,7 +1083,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
         return;
     }
 
-    if (!sScriptMgr->CanCreatureSendListInventory(GetPlayer(), vendor, vendorEntry))
+    if (!sScriptMgr->CanCreatureSendListInventory(GetPlayer(), vendor, vendorEntry) && !_player->IsGameMaster())
     {
         SendEmptyVendor();
         return;
