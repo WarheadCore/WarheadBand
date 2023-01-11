@@ -103,7 +103,7 @@ public:
     bool IsVip(uint32 accountID);
     uint32 GetLevel(Player* player);
     std::string GetDuration(Player* player);
-    std::string GetDuration(uint32 accountID);
+    std::string GetDuration(uint32 accountID, int8 locale = 0);
     void RemoveCooldown(Player* player, uint32 spellID);
     void UnBindInstances(Player* player);
     void SendVipInfo(ChatHandler* handler, ObjectGuid targetGuid);
@@ -144,7 +144,7 @@ private:
     VipRates* GetVipRates(uint32 vipLevel);
     Seconds* GetUnbindTime(uint64 guid);
     static Player* GetPlayerFromAccount(uint32 accountID);
-    static std::string GetDuration(VipInfo* vipInfo);
+    static std::string GetDuration(VipInfo* vipInfo, int8 locale = 0);
 
     TempSummon* GetTempSummon(Player* player);
     void AddTempSummon(Player* player, TempSummon* summon);

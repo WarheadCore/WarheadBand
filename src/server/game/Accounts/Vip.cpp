@@ -21,6 +21,7 @@
 #include "Vip.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "GameLocale.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"
@@ -150,7 +151,8 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint32 level, bool force /*= fa
 
     if (auto player = GetPlayerFromAccount(accountID))
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}", level, Warhead::Time::ToTimeString(endTime - GameTime::GetGameTime(), 4, TimeFormat::FullText));
+        ChatHandler(player->GetSession()).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}",
+            level, GameLocale::ToTimeString(vipInfo->EndTime - GameTime::GetGameTime(), player->GetSession()->GetSessionDbLocaleIndex(), false));
         LearnSpells(player, level);
     }
 
@@ -279,12 +281,12 @@ std::string Vip::GetDuration(Player* player)
     if (!player)
         return "<неизвестно>";
 
-    return GetDuration(player->GetSession()->GetAccountId());
+    return GetDuration(player->GetSession()->GetAccountId(), player->GetSession()->GetSessionDbLocaleIndex());
 }
 
-std::string Vip::GetDuration(uint32 accountID)
+std::string Vip::GetDuration(uint32 accountID, int8 locale /*= 0*/)
 {
-    return GetDuration(GetVipInfo(accountID));
+    return GetDuration(GetVipInfo(accountID), locale);
 }
 
 void Vip::RemoveCooldown(Player* player, uint32 spellID)
@@ -758,12 +760,12 @@ Player* Vip::GetPlayerFromAccount(uint32 accountID)
     return session->GetPlayer();
 }
 
-std::string Vip::GetDuration(VipInfo* vipInfo)
+std::string Vip::GetDuration(VipInfo* vipInfo, int8 locale /*= 0*/)
 {
-    if (!vipInfo)
+    if (!vipInfo || vipInfo->EndTime < GameTime::GetGameTime())
         return "<неизвестно>";
 
-    return Warhead::Time::ToTimeString(vipInfo->EndTime - GameTime::GetGameTime(), 3, TimeFormat::FullText);
+    return GameLocale::ToTimeString(vipInfo->EndTime - GameTime::GetGameTime(), locale, false);
 }
 
 VipLevelInfo* Vip::GetVipLevelInfo(uint32 level)
