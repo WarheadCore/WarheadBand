@@ -16,6 +16,7 @@
 */
 
 #include "PetLoadQueryHolder.h"
+#include "DatabaseEnv.h"
 
 PetLoadQueryHolder::PetLoadQueryHolder(ObjectGuid::LowType ownerGuid, uint32 petNumber)
 {

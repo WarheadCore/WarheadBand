@@ -16,8 +16,10 @@
 */
 
 #include "LoginQueryHolder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
+#include "Player.h"
 
 bool LoginQueryHolder::Initialize()
 {

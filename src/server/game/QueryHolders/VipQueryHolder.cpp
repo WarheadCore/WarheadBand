@@ -16,7 +16,6 @@
 */
 
 #include "VipQueryHolder.h"
-#include "DatabaseEnv.h"
 
 void VipQueryHolder::Initialize()
 {
