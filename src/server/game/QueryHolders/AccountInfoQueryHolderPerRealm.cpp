@@ -16,6 +16,7 @@
 */
 
 #include "AccountInfoQueryHolderPerRealm.h"
+#include "DatabaseEnv.h"
 
 bool AccountInfoQueryHolderPerRealm::Initialize(uint32 accountId)
 {
