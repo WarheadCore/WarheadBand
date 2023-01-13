@@ -38,6 +38,7 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <variant>
 
 class Unit;
 class WorldPacket;
@@ -160,30 +161,27 @@ enum LiquidStatus
 
 #define MAP_LIQUID_TYPE_DARK_WATER  0x10
 
-#define MAX_HEIGHT            100000.0f                     // can be use for find ground height at surface
-#define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
-#define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
-#define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
-#define MIN_UNLOAD_DELAY      1                             // immediate unload
+constexpr auto MAX_HEIGHT               = 100000.0f;    // can be use for find ground height at surface
+constexpr auto INVALID_HEIGHT           = -100000.0f;   // can be use for find ground height at surface
+constexpr auto MAX_FALL_DISTANCE        = 250000.0f;    // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
+constexpr auto DEFAULT_HEIGHT_SEARCH    = 50.0f;        // default search distance to find height at nearby locations
+constexpr auto MIN_UNLOAD_DELAY         = 1;            // immediate unload
 
 struct LiquidData
 {
-    LiquidData()  = default;
-
-    uint32 Entry{0};
-    uint32 Flags{0};
-    float  Level{INVALID_HEIGHT};
-    float  DepthLevel{INVALID_HEIGHT};
-    LiquidStatus Status{LIQUID_MAP_NO_WATER};
+    uint32 Entry{};
+    uint32 Flags{};
+    float  Level{ INVALID_HEIGHT };
+    float  DepthLevel{ INVALID_HEIGHT };
+    LiquidStatus Status{ LIQUID_MAP_NO_WATER };
 };
 
 struct PositionFullTerrainStatus
 {
-    PositionFullTerrainStatus()  = default;
-    uint32 areaId{0};
-    float floorZ{INVALID_HEIGHT};
-    bool outdoors{false};
-    LiquidData liquidInfo;
+    uint32 areaId{};
+    float floorZ{ INVALID_HEIGHT };
+    bool outdoors{};
+    LiquidData liquidInfo{};
 };
 
 enum LineOfSightChecks
@@ -199,67 +197,62 @@ enum LineOfSightChecks
 
 class WH_GAME_API GridMap
 {
-    uint32  _flags;
-    union
-    {
-        float* m_V9;
-        uint16* m_uint16_V9;
-        uint8* m_uint8_V9;
-    };
-    union
-    {
-        float* m_V8;
-        uint16* m_uint16_V8;
-        uint8* m_uint8_V8;
-    };
-    int16* _maxHeight;
-    int16* _minHeight;
-    // Height level data
-    float _gridHeight;
-    float _gridIntHeightMultiplier;
-
-    // Area data
-    uint16* _areaMap;
-
-    // Liquid data
-    float _liquidLevel;
-    uint16* _liquidEntry;
-    uint8* _liquidFlags;
-    float* _liquidMap;
-    uint16 _gridArea;
-    uint16 _liquidGlobalEntry;
-    uint8 _liquidGlobalFlags;
-    uint8 _liquidOffX;
-    uint8 _liquidOffY;
-    uint8 _liquidWidth;
-    uint8 _liquidHeight;
-    uint16* _holes;
-
-    bool loadAreaData(FILE* in, uint32 offset, uint32 size);
-    bool loadHeightData(FILE* in, uint32 offset, uint32 size);
-    bool loadLiquidData(FILE* in, uint32 offset, uint32 size);
-    bool loadHolesData(FILE* in, uint32 offset, uint32 size);
-    [[nodiscard]] bool isHole(int row, int col) const;
-
-    // Get height functions and pointers
-    typedef float (GridMap::*GetHeightPtr) (float x, float y) const;
-    GetHeightPtr _gridGetHeight;
-    [[nodiscard]] float getHeightFromFloat(float x, float y) const;
-    [[nodiscard]] float getHeightFromUint16(float x, float y) const;
-    [[nodiscard]] float getHeightFromUint8(float x, float y) const;
-    [[nodiscard]] float getHeightFromFlat(float x, float y) const;
-
 public:
     GridMap();
     ~GridMap();
-    bool loadData(std::string_view filaname);
-    void unloadData();
 
-    [[nodiscard]] uint16 getArea(float x, float y) const;
-    [[nodiscard]] inline float getHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
-    [[nodiscard]] float getMinHeight(float x, float y) const;
-    [[nodiscard]] float getLiquidLevel(float x, float y) const;
+    bool LoadData(std::string_view filaname);
+    void UnloadData();
+
+    [[nodiscard]] uint16 GetArea(float x, float y) const;
+    [[nodiscard]] inline float GetHeight(float x, float y) const {return (this->*_gridGetHeight)(x, y);}
+    [[nodiscard]] float GetMinHeight(float x, float y) const;
+    [[nodiscard]] float GetLiquidLevel(float x, float y) const;
     [[nodiscard]] LiquidData const GetLiquidData(float x, float y, float z, float collisionHeight, uint8 ReqLiquidType) const;
+
+private:
+    bool LoadAreaData(FILE* in, uint32 offset, uint32 size);
+    bool LoadHeightData(FILE* in, uint32 offset, uint32 size);
+    bool LoadLiquidData(FILE* in, uint32 offset, uint32 size);
+    bool LoadHolesData(FILE* in, uint32 offset, uint32 size);
+    [[nodiscard]] bool isHole(int row, int col) const;
+
+    // Get height functions and pointers
+    typedef float (GridMap::*GetHeightPtr)(float x, float y) const;
+    GetHeightPtr _gridGetHeight;
+    [[nodiscard]] float GetHeightFromFloat(float x, float y) const;
+    [[nodiscard]] float GetHeightFromUint16(float x, float y) const;
+    [[nodiscard]] float GetHeightFromUint8(float x, float y) const;
+    [[nodiscard]] float GetHeightFromFlat(float x, float y) const;
+
+    uint32 _flags{};
+
+    std::variant<std::unique_ptr<float[]>, std::unique_ptr<uint16[]>, std::unique_ptr<uint8[]>> _v9;
+    std::variant<std::unique_ptr<float[]>, std::unique_ptr<uint16[]>, std::unique_ptr<uint8[]>> _v8;
+
+    std::unique_ptr<int16[]> _maxHeight;
+    std::unique_ptr<int16[]> _minHeight;
+
+    // Height level data
+    float _gridHeight{ INVALID_HEIGHT };
+    float _gridIntHeightMultiplier{};
+
+    // Area data
+    std::unique_ptr<uint16[]> _areaMap;
+
+    // Liquid data
+    float _liquidLevel{ INVALID_HEIGHT };
+    std::unique_ptr<uint16[]> _liquidEntry;
+    std::unique_ptr<uint8[]> _liquidFlags;
+    std::unique_ptr<float[]> _liquidMap;
+    uint16 _gridArea{};
+    uint16 _liquidGlobalEntry{};
+    uint8 _liquidGlobalFlags{};
+    uint8 _liquidOffX{};
+    uint8 _liquidOffY{};
+    uint8 _liquidWidth{};
+    uint8 _liquidHeight{};
+    std::unique_ptr<uint16[]> _holes;
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
