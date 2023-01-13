@@ -278,11 +278,11 @@ struct ZoneDynamicInfo
 {
     ZoneDynamicInfo();
 
-    uint32 MusicId;
+    uint32 MusicId{};
     WeatherState WeatherId;
-    float WeatherGrade;
-    uint32 OverrideLightId;
-    uint32 LightFadeInTime;
+    float WeatherGrade{};
+    uint32 OverrideLightId{};
+    uint32 LightFadeInTime{};
 };
 
 #if defined(__GNUC__)
@@ -308,18 +308,18 @@ public:
     Map(uint32 id, uint32 InstanceId, uint8 SpawnMode, Map* _parent = nullptr);
     ~Map() override;
 
-    [[nodiscard]] MapEntry const* GetEntry() const { return i_mapEntry; }
+    [[nodiscard]] MapEntry const* GetEntry() const { return _mapEntry; }
 
     // currently unused for normal maps
     bool CanUnload(uint32 diff)
     {
-        if (!m_unloadTimer)
+        if (!_unloadTimer)
             return false;
 
-        if (m_unloadTimer <= diff)
+        if (_unloadTimer <= diff)
             return true;
 
-        m_unloadTimer -= diff;
+        _unloadTimer -= diff;
         return false;
     }
 
@@ -340,8 +340,8 @@ public:
 
     virtual void Update(const uint32, const uint32, bool thread = true);
 
-    [[nodiscard]] float GetVisibilityRange() const { return m_VisibleDistance; }
-    void SetVisibilityRange(float range) { m_VisibleDistance = range; }
+    [[nodiscard]] float GetVisibilityRange() const { return _visibleDistance; }
+    void SetVisibilityRange(float range) { _visibleDistance = range; }
     //function for setting up visibility distance for maps on per-type/per-Id basis
     virtual void InitVisibilityDistance();
 
@@ -368,7 +368,7 @@ public:
     bool UnloadGrid(NGridType& ngrid);
     virtual void UnloadAll();
 
-    [[nodiscard]] uint32 GetId() const { return i_mapEntry->MapID; }
+    [[nodiscard]] uint32 GetId() const { return _mapEntry->MapID; }
 
     static bool ExistMap(uint32 mapid, int gx, int gy);
     static bool ExistVMap(uint32 mapid, int gx, int gy);
@@ -409,8 +409,8 @@ public:
     void RemoveAllObjectsInRemoveList();
     virtual void RemoveAllPlayers();
 
-    [[nodiscard]] uint32 GetInstanceId() const { return i_InstanceId; }
-    [[nodiscard]] uint8 GetSpawnMode() const { return (i_spawnMode); }
+    [[nodiscard]] uint32 GetInstanceId() const { return _instanceId; }
+    [[nodiscard]] uint8 GetSpawnMode() const { return (_spawnMode); }
 
     enum EnterState
     {
@@ -437,22 +437,22 @@ public:
     [[nodiscard]] bool IsRegularDifficulty() const { return GetDifficulty() == REGULAR_DIFFICULTY; }
     [[nodiscard]] MapDifficulty const* GetMapDifficulty() const;
 
-    [[nodiscard]] bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
-    [[nodiscard]] bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
-    [[nodiscard]] bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
-    [[nodiscard]] bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
-    [[nodiscard]] bool IsRaidOrHeroicDungeon() const { return IsRaid() || i_spawnMode > DUNGEON_DIFFICULTY_NORMAL; }
-    [[nodiscard]] bool IsHeroic() const { return IsRaid() ? i_spawnMode >= RAID_DIFFICULTY_10MAN_HEROIC : i_spawnMode >= DUNGEON_DIFFICULTY_HEROIC; }
-    [[nodiscard]] bool Is25ManRaid() const { return IsRaid() && i_spawnMode & RAID_DIFFICULTY_MASK_25MAN; }   // since 25man difficulties are 1 and 3, we can check them like that
-    [[nodiscard]] bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
-    [[nodiscard]] bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
-    [[nodiscard]] bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
+    [[nodiscard]] bool Instanceable() const { return _mapEntry && _mapEntry->Instanceable(); }
+    [[nodiscard]] bool IsDungeon() const { return _mapEntry && _mapEntry->IsDungeon(); }
+    [[nodiscard]] bool IsNonRaidDungeon() const { return _mapEntry && _mapEntry->IsNonRaidDungeon(); }
+    [[nodiscard]] bool IsRaid() const { return _mapEntry && _mapEntry->IsRaid(); }
+    [[nodiscard]] bool IsRaidOrHeroicDungeon() const { return IsRaid() || _spawnMode > DUNGEON_DIFFICULTY_NORMAL; }
+    [[nodiscard]] bool IsHeroic() const { return IsRaid() ? _spawnMode >= RAID_DIFFICULTY_10MAN_HEROIC : _spawnMode >= DUNGEON_DIFFICULTY_HEROIC; }
+    [[nodiscard]] bool Is25ManRaid() const { return IsRaid() && _spawnMode & RAID_DIFFICULTY_MASK_25MAN; }   // since 25man difficulties are 1 and 3, we can check them like that
+    [[nodiscard]] bool IsBattleground() const { return _mapEntry && _mapEntry->IsBattleground(); }
+    [[nodiscard]] bool IsBattleArena() const { return _mapEntry && _mapEntry->IsBattleArena(); }
+    [[nodiscard]] bool IsBattlegroundOrArena() const { return _mapEntry && _mapEntry->IsBattlegroundOrArena(); }
 
     bool GetEntrancePos(int32& mapid, float& x, float& y)
     {
-        if (!i_mapEntry)
+        if (!_mapEntry)
             return false;
-        return i_mapEntry->GetEntrancePos(mapid, x, y);
+        return _mapEntry->GetEntrancePos(mapid, x, y);
     }
 
     void AddObjectToRemoveList(WorldObject* obj);
@@ -641,7 +641,7 @@ public:
 
     size_t GetActiveNonPlayersCount() const
     {
-        return m_activeNonPlayers.size();
+        return _activeNonPlayers.size();
     }
 
     virtual std::string GetDebugInfo() const;
@@ -669,19 +669,19 @@ private:
     [[nodiscard]] bool IsGridLoaded(const GridCoord&) const;
     void EnsureGridCreated_i(const GridCoord&);
 
-    void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
+    void buildNGridLinkage(std::shared_ptr<NGridType> pNGridType) { pNGridType->link(this); }
 
     [[nodiscard]] NGridType* getNGrid(uint32 x, uint32 y) const
     {
         ASSERT(x < MAX_NUMBER_OF_GRIDS && y < MAX_NUMBER_OF_GRIDS);
-        return i_grids[x][y];
+        return i_grids[x][y].get();
     }
 
     bool EnsureGridLoaded(Cell const&);
     [[nodiscard]] bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x, y)->isGridObjectDataLoaded(); }
     void setGridObjectDataLoaded(bool pLoaded, uint32 x, uint32 y) { getNGrid(x, y)->setGridObjectDataLoaded(pLoaded); }
 
-    void setNGrid(NGridType* grid, uint32 x, uint32 y);
+    void setNGrid(std::shared_ptr<NGridType> grid, uint32 x, uint32 y);
     void ScriptsProcess();
 
     void UpdateActiveCells(const float& x, const float& y, const uint32 t_diff);
@@ -693,20 +693,20 @@ protected:
     std::mutex GridLock;
     std::shared_mutex MMapLock;
 
-    MapEntry const* i_mapEntry;
-    uint8 i_spawnMode;
-    uint32 i_InstanceId;
-    uint32 m_unloadTimer;
-    float m_VisibleDistance;
+    MapEntry const* _mapEntry;
+    uint8 _spawnMode;
+    uint32 _instanceId;
+    uint32 _unloadTimer{};
+    float _visibleDistance;
     DynamicMapTree _dynamicTree;
-    time_t _instanceResetPeriod; // pussywizard
+    time_t _instanceResetPeriod{}; // pussywizard
 
     MapRefMgr m_mapRefMgr;
     MapRefMgr::iterator m_mapRefIter;
 
     typedef std::set<WorldObject*> ActiveNonPlayers;
-    ActiveNonPlayers m_activeNonPlayers;
-    ActiveNonPlayers::iterator m_activeNonPlayersIter;
+    ActiveNonPlayers _activeNonPlayers;
+    ActiveNonPlayers::iterator _activeNonPlayersIter;
 
     // Objects that must update even in inactive grids without activating them
     TransportsContainer _transports;
@@ -726,12 +726,12 @@ private:
     //InstanceMaps and BattlegroundMaps...
     Map* m_parentMap;
 
-    NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
-    GridMap* GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+    std::shared_ptr<NGridType> i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+    std::shared_ptr<GridMap> _gridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
     std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP* TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
     std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP* TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells_large;
 
-    bool i_scriptLock;
+    bool _scriptLock{};
     std::unordered_set<WorldObject*> i_objectsToRemove;
     std::map<WorldObject*, bool> i_objectsToSwitch;
     std::unordered_set<WorldObject*> i_worldObjects;
@@ -748,23 +748,23 @@ private:
 
     void AddToActiveHelper(WorldObject* obj)
     {
-        m_activeNonPlayers.insert(obj);
+        _activeNonPlayers.insert(obj);
     }
 
     void RemoveFromActiveHelper(WorldObject* obj)
     {
         // Map::Update for active object in proccess
-        if (m_activeNonPlayersIter != m_activeNonPlayers.end())
+        if (_activeNonPlayersIter != _activeNonPlayers.end())
         {
-            ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
-            if (itr == m_activeNonPlayers.end())
+            ActiveNonPlayers::iterator itr = _activeNonPlayers.find(obj);
+            if (itr == _activeNonPlayers.end())
                 return;
-            if (itr == m_activeNonPlayersIter)
-                ++m_activeNonPlayersIter;
-            m_activeNonPlayers.erase(itr);
+            if (itr == _activeNonPlayersIter)
+                ++_activeNonPlayersIter;
+            _activeNonPlayers.erase(itr);
         }
         else
-            m_activeNonPlayers.erase(obj);
+            _activeNonPlayers.erase(obj);
     }
 
     std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _creatureRespawnTimes;

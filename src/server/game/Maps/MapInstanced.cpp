@@ -38,6 +38,7 @@ void MapInstanced::InitVisibilityDistance()
 {
     if (m_InstancedMaps.empty())
         return;
+
     //initialize visibility distances for all instance copies
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
     {
@@ -47,7 +48,7 @@ void MapInstanced::InitVisibilityDistance()
 
 void MapInstanced::Update(const uint32 t, const uint32 s_diff, bool /*thread*/)
 {
-    // take care of loaded GridMaps (when unused, unload it!)
+    // take care of loaded _gridMaps (when unused, unload it!)
     Map::Update(t, s_diff, false);
 
     // update the instanced maps
@@ -59,7 +60,7 @@ void MapInstanced::Update(const uint32 t, const uint32 s_diff, bool /*thread*/)
         {
             if (!DestroyInstance(i))                             // iterator incremented
             {
-                //m_unloadTimer
+                //_unloadTimer
             }
         }
         else
@@ -102,7 +103,7 @@ void MapInstanced::UnloadAll()
 
     m_InstancedMaps.clear();
 
-    // Unload own grids (just dummy(placeholder) grids, neccesary to unload GridMaps!)
+    // Unload own grids (just dummy(placeholder) grids, neccesary to unload _gridMaps!)
     Map::UnloadAll();
 }
 
