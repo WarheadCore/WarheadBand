@@ -154,7 +154,11 @@ private:
     Seconds _updateDelay{};
     Seconds _unbindDuration{ 1_days };
     uint32 _maxLevel{};
-    bool _isCommandBuffEnable{};
+    bool _isMenuEnable{};
+    bool _isMenuAuctioneerEnable{};
+    bool _isMenuBankEnable{};
+    bool _isMenuMailEnable{};
+    bool _isMenuBuffEnable{};
 
     std::unordered_map<uint32/*acc id*/, VipInfo> _store;
     std::unordered_map<uint32/*level*/, VipRates> _storeRates;

@@ -68,7 +68,11 @@ void Vip::LoadConfig()
     }
 
     _unbindDuration = Seconds(MOD_CONF_GET_UINT("VIP.Unbind.Duration"));
-    _isCommandBuffEnable = MOD_CONF_GET_BOOL("VIP.Command.Buff.Enable");
+    _isMenuEnable = MOD_CONF_GET_BOOL("VIP.Menu.Enable");
+    _isMenuAuctioneerEnable = MOD_CONF_GET_BOOL("VIP.Menu.Auctioneer.Enable");
+    _isMenuBankEnable = MOD_CONF_GET_BOOL("VIP.Menu.Bank.Enable");
+    _isMenuMailEnable = MOD_CONF_GET_BOOL("VIP.Menu.Mail.Enable");
+    _isMenuBuffEnable = MOD_CONF_GET_BOOL("VIP.Menu.Buff.Enable");
 
     _spellBuffs.clear();
 
@@ -843,6 +847,12 @@ void Vip::SendVipMenu(Player* player)
         return;
     }
 
+    if (!_isMenuEnable)
+    {
+        handler.PSendSysMessage("Вип меню отключено");
+        return;
+    }
+
     if (player->duel ||
         player->GetMap()->IsBattleArena() ||
         player->InBattleground() ||
@@ -864,11 +874,16 @@ void Vip::SendVipMenu(Player* player)
     AddGossipItemFor(player, GOSSIP_ICON_CHAT, Warhead::StringFormat("Осталось: {}", GetDuration(player)), GOSSIP_SENDER_MAIN, 100);
     AddGossipItemFor(player, GOSSIP_ICON_CHAT, "---", GOSSIP_SENDER_MAIN, 100);
 
-    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Аукцион", GOSSIP_SENDER_MAIN, 1);
-    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Банк", GOSSIP_SENDER_MAIN, 2);
-    AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Почта", GOSSIP_SENDER_MAIN, 3);
+    if (_isMenuAuctioneerEnable)
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Аукцион", GOSSIP_SENDER_MAIN, 1);
 
-    if (_isCommandBuffEnable)
+    if (_isMenuBankEnable)
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Банк", GOSSIP_SENDER_MAIN, 2);
+
+    if (_isMenuMailEnable)
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Почта", GOSSIP_SENDER_MAIN, 3);
+
+    if (_isMenuBuffEnable)
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Получить вип баффы", GOSSIP_SENDER_MAIN, 4);
 
     // SetMenuId must be after clear menu and before send menu!!

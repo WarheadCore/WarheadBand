@@ -4280,12 +4280,44 @@ VIP.Update.Delay = 10
 VIP.Unbind.Duration = 86400
 
 #
-#   VIP.Command.Buff.Enable
+#   VIP.Menu.Enable
+#       Description: Enable vip menu
+#       Default: 1
+#
+
+VIP.Menu.Enable = 1
+
+#
+#   VIP.Menu.Auctioneer.Enable
+#       Description: Enable auctioneer in vip menu
+#       Default: 0
+#
+
+VIP.Menu.Auctioneer.Enable = 0
+
+#
+#   VIP.Menu.Bank.Enable
+#       Description: Enable bank in vip menu
+#       Default: 1
+#
+
+VIP.Menu.Bank.Enable = 1
+
+#
+#   VIP.Menu.Mail.Enable
+#       Description: Enable mail in vip menu
+#       Default: 1
+#
+
+VIP.Menu.Mail.Enable = 1
+
+#
+#   VIP.Menu.Buff.Enable
 #       Description: Enable buff from vip menu
 #       Default: 1
 #
 
-VIP.Command.Buff.Enable = 1
+VIP.Menu.Buff.Enable = 1
 
 #
 #   VIP.Command.Buff.List
