@@ -40,7 +40,6 @@
 #include "Vehicle.h"
 #include "Weather.h"
 #include <utility>
-//#include "Chat.h"
 
 union u_map_magic
 {
