@@ -3235,11 +3235,13 @@ bool Map::Instanceable() const
 
 bool Map::IsDungeon() const
 {
-    return _mapEntry && _mapEntry->IsDungeon(); }
+    return _mapEntry && _mapEntry->IsDungeon();
+}
 
 bool Map::IsNonRaidDungeon() const
 {
-    return _mapEntry && _mapEntry->IsNonRaidDungeon(); }
+    return _mapEntry && _mapEntry->IsNonRaidDungeon();
+}
 
 bool Map::IsRaid() const
 {
