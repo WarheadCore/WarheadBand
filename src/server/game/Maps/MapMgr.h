@@ -20,6 +20,8 @@
 
 #include "Define.h"
 #include "Position.h"
+#include "Timer.h"
+#include <atomic>
 #include <functional>
 #include <mutex>
 
@@ -29,6 +31,7 @@ class MotionTransport;
 class Map;
 class MapUpdater;
 class MapInstanced;
+class Player;
 
 enum MapEnterState : uint8;
 
