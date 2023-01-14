@@ -788,16 +788,16 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     bool teleported = false;
     if (player->GetMapId() != at->target_mapId)
     {
-        if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
+        if (MapEnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
         {
             bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
             switch (denyReason)
             {
-                case Map::CANNOT_ENTER_NOT_IN_RAID:
-                case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
-                case Map::CANNOT_ENTER_MAX_PLAYERS:
-                case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
+                case CANNOT_ENTER_NOT_IN_RAID:
+                case CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
+                case CANNOT_ENTER_TOO_MANY_INSTANCES:
+                case CANNOT_ENTER_MAX_PLAYERS:
+                case CANNOT_ENTER_ZONE_IN_COMBAT:
                     reviveAtTrigger = true;
                     break;
                 default:

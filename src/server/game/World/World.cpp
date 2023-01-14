@@ -58,6 +58,7 @@
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
+#include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GitRevision.h"
 #include "GroupMgr.h"

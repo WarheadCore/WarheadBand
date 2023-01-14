@@ -22,6 +22,7 @@
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Opcodes.h"
+#include "PathGenerator.h"
 #include "Transport.h"
 #include "Unit.h"
 #include "Vehicle.h"

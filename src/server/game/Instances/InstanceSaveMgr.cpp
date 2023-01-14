@@ -604,30 +604,24 @@ void InstanceSaveMgr::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool 
     }
 
     // now loop all existing maps to warn / reset
-    Map const* map = sMapMgr->CreateBaseMap(mapid);
-    MapInstanced::InstancedMaps& instMaps = ((MapInstanced*)map)->GetInstancedMaps();
-    MapInstanced::InstancedMaps::iterator mitr;
-    uint32 timeLeft;
+    Map const* baseMap = sMapMgr->CreateBaseMap(mapid);
+    uint32 timeLeft{};
 
-    for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
+    for (auto const& [instanceID, mapInstance] : baseMap->ToMapInstanced()->GetInstancedMaps())
     {
-        Map* map2 = mitr->second;
-        if (!map2->IsDungeon() || map2->GetDifficulty() != difficulty)
+        Map* map = mapInstance.get();
+        if (!map->IsDungeon() || map->GetDifficulty() != difficulty)
             continue;
 
         if (warn)
         {
-            if (now >= resetTime)
-                timeLeft = 0;
-            else
-                timeLeft = uint32(resetTime - now);
-
-            map2->ToInstanceMap()->SendResetWarnings(timeLeft);
+            timeLeft = now >= resetTime ? 0 : uint32(resetTime - now);
+            map->ToInstanceMap()->SendResetWarnings(timeLeft);
         }
         else
         {
-            InstanceSave* save = GetInstanceSave(map2->GetInstanceId());
-            map2->ToInstanceMap()->Reset(INSTANCE_RESET_GLOBAL, (save ? & (save->m_playerList) : nullptr));
+            InstanceSave* save = GetInstanceSave(map->GetInstanceId());
+            map->ToInstanceMap()->Reset(INSTANCE_RESET_GLOBAL, (save ? & (save->m_playerList) : nullptr));
         }
     }
 }

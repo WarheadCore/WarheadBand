@@ -7004,7 +7004,7 @@ bool Player::CheckInstanceLoginValid()
         return false;
 
     // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
-    return sMapMgr->PlayerCannotEnter(GetMap()->GetId(), this, true) == Map::CAN_ENTER;
+    return sMapMgr->PlayerCannotEnter(GetMap()->GetId(), this, true) == CAN_ENTER;
 }
 
 bool Player::CheckInstanceCount(uint32 instanceId) const

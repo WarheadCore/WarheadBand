@@ -54,7 +54,7 @@ public:
 
 class WH_COMMON_API GameObjectModel
 {
-    GameObjectModel()  = default;
+    GameObjectModel() = default;
 
 public:
     std::string name;

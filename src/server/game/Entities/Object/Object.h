@@ -28,6 +28,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
+#include "SharedDefines.h"
 #include "UpdateData.h"
 #include "UpdateFields.h"
 #include "UpdateMask.h"

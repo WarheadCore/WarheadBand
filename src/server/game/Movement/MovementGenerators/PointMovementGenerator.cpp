@@ -25,6 +25,7 @@
 #include "GameConfig.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "World.h"
 
