@@ -26,13 +26,13 @@
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "Player.h"
+#include "ScriptedGossip.h"
 #include "SpellMgr.h"
 #include "StopWatch.h"
-#include "TaskScheduler.h"
-#include "VipQueryHolder.h"
-#include "ScriptedGossip.h"
-#include "Tokenize.h"
 #include "StringConvert.h"
+#include "TaskScheduler.h"
+#include "Tokenize.h"
+#include "VipQueryHolder.h"
 
 namespace
 {

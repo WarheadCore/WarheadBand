@@ -21,33 +21,26 @@
 #include "Map.h"
 #include "Battleground.h"
 #include "CellImpl.h"
-#include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
+#include "GameObjectModel.h"
 #include "GameTime.h"
-#include "Geometry.h"
 #include "GridNotifiers.h"
-#include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
-#include "MapInstanced.h"
 #include "MapMgr.h"
 #include "Metric.h"
 #include "MiscPackets.h"
-#include "Object.h"
 #include "ObjectAccessor.h"
-#include "ObjectGridLoader.h"
-#include "ObjectMgr.h"
-#include "Pet.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "Vehicle.h"
 #include "Weather.h"
-#include <sstream>
 #include <utility>
+//#include "Chat.h"
 
 union u_map_magic
 {
@@ -450,7 +443,7 @@ void Map::EnsureGridCreated_i(const GridCoord& p)
         auto nGridType = std::make_shared<NGridType>(p.x_coord * MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord);
 
         // build a linkage between this map and NGridType
-        buildNGridLinkage(nGridType); // pussywizard: getNGrid(x, y) changed to: ngt
+        BuildNGridLinkage(nGridType); // pussywizard: getNGrid(x, y) changed to: ngt
 
         //z coord
         int gx = (MAX_NUMBER_OF_GRIDS - 1) - p.x_coord;
@@ -462,6 +455,12 @@ void Map::EnsureGridCreated_i(const GridCoord& p)
         // pussywizard: moved here
         setNGrid(nGridType, p.x_coord, p.y_coord);
     }
+}
+
+void Map::BuildNGridLinkage(std::shared_ptr<NGridType> pNGridType)
+{
+    if (pNGridType)
+        pNGridType->link(this);
 }
 
 //Create NGrid and load the object data in it
@@ -778,14 +777,15 @@ void Map::Update(const uint32 t_diff, const uint32 s_diff, bool  /*thread*/)
     Warhead::ObjectUpdater updater(t_diff, false);
 
     // for creature
-    TypeContainerVisitor<Warhead::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
+    TypeContainerVisitor<Warhead::ObjectUpdater, GridTypeMapContainer> grid_object_update(updater);
+
     // for pets
-    TypeContainerVisitor<Warhead::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
+    TypeContainerVisitor<Warhead::ObjectUpdater, WorldTypeMapContainer> world_object_update(updater);
 
     // for large creatures
     Warhead::ObjectUpdater largeObjectUpdater(t_diff, true);
-    TypeContainerVisitor<Warhead::ObjectUpdater, GridTypeMapContainer  > grid_large_object_update(largeObjectUpdater);
-    TypeContainerVisitor<Warhead::ObjectUpdater, WorldTypeMapContainer  > world_large_object_update(largeObjectUpdater);
+    TypeContainerVisitor<Warhead::ObjectUpdater, GridTypeMapContainer> grid_large_object_update(largeObjectUpdater);
+    TypeContainerVisitor<Warhead::ObjectUpdater, WorldTypeMapContainer> world_large_object_update(largeObjectUpdater);
 
     // pussywizard: container for far creatures in combat with players
     std::vector<Creature*> updateList;
@@ -958,7 +958,6 @@ void Map::RemoveFromMap(T* obj, bool remove)
         obj->DestroyForNearbyPlayers(); // pussywizard: previous player->UpdateObjectVisibility()
 
     obj->RemoveFromGrid();
-
     obj->ResetMap();
 
     if (remove)
@@ -1335,6 +1334,11 @@ void Map::UnloadAll()
     _corpsesByCell.clear();
     _corpsesByPlayer.clear();
     _corpseBones.clear();
+}
+
+uint32 Map::GetId() const
+{
+    return _mapEntry->MapID;
 }
 
 // *****************************
@@ -2539,9 +2543,9 @@ bool Map::HasEnoughWater(WorldObject const* searcher, LiquidData const& liquidDa
     return liquidData.Level > INVALID_HEIGHT && liquidData.Level > liquidData.DepthLevel && liquidData.Level - liquidData.DepthLevel >= minHeightInWater;
 }
 
-char const* Map::GetMapName() const
+std::string_view Map::GetMapName() const
 {
-    return _mapEntry ? _mapEntry->name[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
+    return _mapEntry ? _mapEntry->name[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP";
 }
 
 void Map::SendInitSelf(Player* player)
@@ -2646,7 +2650,7 @@ void Map::SendObjectUpdates()
     }
 }
 
-void Map::DelayedUpdate(const uint32 t_diff)
+void Map::DelayedUpdate(uint32 t_diff)
 {
     for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
     {
@@ -2890,7 +2894,7 @@ void InstanceMap::InitVisibilityDistance()
 /*
     Do map specific checks to see if the player can enter
 */
-Map::EnterState InstanceMap::CannotEnter(Player* player, bool loginCheck)
+MapEnterState InstanceMap::CannotEnter(Player* player, bool loginCheck)
 {
     if (!loginCheck && player->GetMapRef().getTarget() == this)
     {
@@ -3225,6 +3229,62 @@ MapDifficulty const* Map::GetMapDifficulty() const
     return GetMapDifficultyData(GetId(), GetDifficulty());
 }
 
+bool Map::Instanceable() const
+{
+    return _mapEntry && _mapEntry->Instanceable();
+}
+
+bool Map::IsDungeon() const
+{
+    return _mapEntry && _mapEntry->IsDungeon(); }
+
+bool Map::IsNonRaidDungeon() const
+{
+    return _mapEntry && _mapEntry->IsNonRaidDungeon(); }
+
+bool Map::IsRaid() const
+{
+    return _mapEntry && _mapEntry->IsRaid();
+}
+
+bool Map::IsRaidOrHeroicDungeon() const
+{
+    return IsRaid() || _spawnMode > DUNGEON_DIFFICULTY_NORMAL;
+}
+
+bool Map::IsHeroic() const
+{
+    return IsRaid() ? _spawnMode >= RAID_DIFFICULTY_10MAN_HEROIC : _spawnMode >= DUNGEON_DIFFICULTY_HEROIC;
+}
+
+bool Map::Is25ManRaid() const
+{
+    return IsRaid() && _spawnMode & RAID_DIFFICULTY_MASK_25MAN;
+}
+
+bool Map::IsBattleground() const
+{
+    return _mapEntry && _mapEntry->IsBattleground();
+}
+
+bool Map::IsBattleArena() const
+{
+    return _mapEntry && _mapEntry->IsBattleArena();
+}
+
+bool Map::IsBattlegroundOrArena() const
+{
+    return _mapEntry && _mapEntry->IsBattlegroundOrArena();
+}
+
+bool Map::GetEntrancePos(int32& mapid, float& x, float& y)
+{
+    if (!_mapEntry)
+        return false;
+
+    return _mapEntry->GetEntrancePos(mapid, x, y);
+}
+
 uint32 InstanceMap::GetMaxPlayers() const
 {
     MapDifficulty const* mapDiff = GetMapDifficulty();
@@ -3268,7 +3328,7 @@ void BattlegroundMap::InitVisibilityDistance()
         _visibleDistance = 30.0f;
 }
 
-Map::EnterState BattlegroundMap::CannotEnter(Player* player, bool loginCheck)
+MapEnterState BattlegroundMap::CannotEnter(Player* player, bool loginCheck)
 {
     if (!loginCheck && player->GetMapRef().getTarget() == this)
     {
@@ -4063,18 +4123,11 @@ void Map::DeleteCorpseData()
 
 std::string Map::GetDebugInfo() const
 {
-    std::stringstream sstr;
-    sstr << std::boolalpha
-        << "Id: " << GetId() << " InstanceId: " << GetInstanceId() << " Difficulty: " << std::to_string(GetDifficulty())
-        << " HasPlayers: " << HavePlayers();
-    return sstr.str();
+    return Warhead::StringFormat("Id: {}. InstanceId: {}. Difficulty: {}. HasPlayers: {}",
+        GetId(), GetInstanceId(), std::to_string(GetDifficulty()), HavePlayers());
 }
 
 std::string InstanceMap::GetDebugInfo() const
 {
-    std::stringstream sstr;
-    sstr << Map::GetDebugInfo() << "\n"
-        << std::boolalpha
-        << "ScriptId: " << GetScriptId() << " ScriptName: " << GetScriptName();
-    return sstr.str();
+    return Warhead::StringFormat("{}. ScriptId: {}. ScriptName: {}", Map::GetDebugInfo(), GetScriptId(), GetScriptName());
 }

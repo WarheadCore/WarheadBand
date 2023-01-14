@@ -18,41 +18,39 @@
 #ifndef WARHEAD_MAP_INSTANCED_H
 #define WARHEAD_MAP_INSTANCED_H
 
-#include "DBCEnums.h"
-#include "InstanceSaveMgr.h"
 #include "Map.h"
+
+class InstanceSave;
 
 class WH_GAME_API MapInstanced : public Map
 {
     friend class MapMgr;
-public:
-    using InstancedMaps = std::unordered_map<uint32, Map*>;
 
-    MapInstanced(uint32 id);
-    ~MapInstanced() override {}
+public:
+    using InstancedMaps = std::unordered_map<uint32, std::unique_ptr<Map>>;
+
+    explicit MapInstanced(uint32 id);
+    ~MapInstanced() override = default;
 
     // functions overwrite Map versions
-    void Update(const uint32, const uint32, bool thread = true) override;
-    void DelayedUpdate(const uint32 diff) override;
-    //void RelocationNotify();
+    void Update(uint32, uint32, bool thread = true) override;
+    void DelayedUpdate(uint32 diff) override;
     void UnloadAll() override;
-    EnterState CannotEnter(Player* player, bool loginCheck = false) override;
+    MapEnterState CannotEnter(Player* player, bool loginCheck = false) override;
 
-    Map* CreateInstanceForPlayer(const uint32 mapId, Player* player);
-    Map* FindInstanceMap(uint32 instanceId) const
-    {
-        InstancedMaps::const_iterator i = m_InstancedMaps.find(instanceId);
-        return(i == m_InstancedMaps.end() ? nullptr : i->second);
-    }
-    bool DestroyInstance(InstancedMaps::iterator& itr);
+    Map* CreateInstanceForPlayer(uint32 mapId, Player* player);
+    Map* FindInstanceMap(uint32 instanceId) const;
+    bool DestroyInstance(Map* map);
 
-    InstancedMaps& GetInstancedMaps() { return m_InstancedMaps; }
+    InstancedMaps const& GetInstancedMaps() const { return _instancedMaps; }
+    InstancedMaps& GetInstancedMaps() { return _instancedMaps; }
     void InitVisibilityDistance() override;
 
 private:
     InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty);
     BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
 
-    InstancedMaps m_InstancedMaps;
+    InstancedMaps _instancedMaps;
 };
+
 #endif
