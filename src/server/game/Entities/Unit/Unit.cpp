@@ -65,6 +65,7 @@
 #include "SpellMgr.h"
 #include "StringConvert.h"
 #include "TargetedMovementGenerator.h"
+#include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "Tokenize.h"
 #include "Totem.h"
@@ -328,17 +329,18 @@ Unit::Unit(bool isWorldObject) : WorldObject(isWorldObject),
     m_delayed_unit_relocation_timer = 0;
     m_delayed_unit_ai_notify_timer = 0;
     bRequestForcedVisibilityUpdate = false;
-
     m_applyResilience = false;
     _instantCast = false;
-
     _lastLiquid = nullptr;
-
     _oldFactionId = 0;
-
     _isWalkingBeforeCharm = false;
-
     _lastExtraAttackSpell = 0;
+
+    _scheduler = std::make_unique<TaskScheduler>();
+    _scheduler->SetValidator([this]()
+    {
+        return IsInWorld();
+    });
 }
 
 ////////////////////////////////////////////////////////////
@@ -363,6 +365,9 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellInfo const* spellInfo)
 // Methods of class Unit
 Unit::~Unit()
 {
+    // Stop all tasks
+    _scheduler->CancelAll();
+
     // set current spells as deletable
     for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
         if (m_currentSpells[i])
@@ -413,6 +418,8 @@ void Unit::Update(uint32 p_time)
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
     // Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
     m_Events.Update(p_time);
+
+    _scheduler->Update(p_time);
 
     if (!IsInWorld())
         return;
@@ -21360,4 +21367,9 @@ std::string Unit::GetDebugInfo() const
         << " UnitMovementFlags: " << GetUnitMovementFlags() << " ExtraUnitMovementFlags: " << GetExtraUnitMovementFlags()
         << " Class: " << std::to_string(getClass());
     return sstr.str();
+}
+
+TaskScheduler* Unit::GetTaskScheduler() const
+{
+    return _scheduler.get();
 }

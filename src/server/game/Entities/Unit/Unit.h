@@ -33,6 +33,8 @@
 #include <functional>
 #include <utility>
 
+class TaskScheduler;
+
 #define WORLD_TRIGGER   12999
 
 #define BASE_MINDAMAGE 1.0f
@@ -2456,6 +2458,8 @@ public:
 
     std::string GetDebugInfo() const override;
 
+    TaskScheduler* GetTaskScheduler() const;
+
 protected:
     explicit Unit (bool isWorldObject);
 
@@ -2535,6 +2539,8 @@ protected:
     bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
     bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
     bool _instantCast;
+
+    std::unique_ptr<TaskScheduler> _scheduler;
 
 private:
     bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent, ProcEventInfo const& eventInfo);
