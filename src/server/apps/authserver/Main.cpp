@@ -73,6 +73,8 @@ int main(int argc, char** argv)
     // Set signal handlers
     sSignalMgr->Initialize();
 
+    std::shared_ptr<void> signalMgrHandle(nullptr, [](void*) { sSignalMgr->Stop(); });
+
     // Command line parsing
     auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_REALM_CONFIG));
     auto vm = GetConsoleArguments(argc, argv, configFile);

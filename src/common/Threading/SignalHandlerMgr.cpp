@@ -70,6 +70,9 @@ void Warhead::SignalHandlerMgr::Initialize(std::function<void()>&& execute /*= {
 
 void Warhead::SignalHandlerMgr::Stop()
 {
-    if (_signalSet)
-        _signalSet->cancel();
+    if (!_signalSet)
+        return;
+
+    _signalSet->cancel();
+    _signalSet.reset();
 }

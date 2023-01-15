@@ -129,6 +129,8 @@ int main(int argc, char** argv)
         World::StopNow(SHUTDOWN_EXIT_CODE);
     });
 
+    std::shared_ptr<void> signalMgrHandle(nullptr, [](void*) { sSignalMgr->Stop(); });
+
     // Command line parsing
     auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG));
     std::string configService;
