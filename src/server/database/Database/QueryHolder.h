@@ -53,7 +53,7 @@ public:
     }
 
 private:
-    std::unordered_map<uint32, SQLQueryHolderQuery> _queries;
+    std::unordered_map<std::size_t, SQLQueryHolderQuery> _queries;
 };
 
 class WH_DATABASE_API SQLQueryHolderTask : public AsyncOperation
