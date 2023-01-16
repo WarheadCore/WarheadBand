@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-constexpr Milliseconds LIST_OWNER_ITEMS_DELAY = 100ms;
-constexpr Milliseconds LIST_ITEMS_DELAY = 500ms;
-
 #include "AsyncAuctionMgr.h"
 #include "AsyncAuctionOperation.h"
 #include "PCQueue.h"
@@ -26,6 +23,9 @@ constexpr Milliseconds LIST_ITEMS_DELAY = 500ms;
 #include "StopWatch.h"
 #include "Log.h"
 #include "TaskScheduler.h"
+
+constexpr Milliseconds LIST_OWNER_ITEMS_DELAY = 100ms;
+constexpr Milliseconds LIST_ITEMS_DELAY = 500ms;
 
 bool AuctionListItems::IsNoFilter() const
 {
