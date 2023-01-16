@@ -230,7 +230,7 @@ WorldPacket const* WorldPackets::AuctionHouse::ListOwnerResult::Write()
 
     _worldPacket.put<uint32>(0, count);
     _worldPacket << uint32(totalCount);
-    _worldPacket << uint32(0);
+    _worldPacket << uint32(SearchDelay);
 
     return &_worldPacket;
 }
