@@ -156,7 +156,7 @@ bool Vip::Add(uint32 accountID, Seconds endTime, uint32 level, bool force /*= fa
     if (auto player = GetPlayerFromAccount(accountID))
     {
         ChatHandler(player->GetSession()).PSendSysMessage("> У вас обновление премиум статуса. Уровень {}. Окончание через {}",
-            level, GameLocale::ToTimeString(vipInfo->EndTime - GameTime::GetGameTime(), player->GetSession()->GetSessionDbLocaleIndex(), false));
+            level, GameLocale::ToTimeString(endTime - GameTime::GetGameTime(), player->GetSession()->GetSessionDbLocaleIndex(), false));
         LearnSpells(player, level);
     }
 
