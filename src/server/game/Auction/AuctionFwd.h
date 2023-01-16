@@ -22,13 +22,7 @@
 #include "Duration.h"
 #include <vector>
 
-constexpr Seconds MIN_AUCTION_TIME = 12h;
 constexpr auto MAX_AUCTION_ITEMS = 160;
-
-constexpr bool IsCorrectAuctionTime(Seconds auctionTime)
-{
-    return auctionTime == MIN_AUCTION_TIME || auctionTime == MIN_AUCTION_TIME * 2 || auctionTime == MIN_AUCTION_TIME * 4;
-}
 
 enum class AuctionSortOrder
 {
