@@ -20,7 +20,6 @@
 
 #include "AuctionHouseMgr.h"
 #include "AuctionHousePackets.h"
-#include "AsyncAuctionMgr.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
