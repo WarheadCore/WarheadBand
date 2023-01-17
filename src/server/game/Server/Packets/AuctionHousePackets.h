@@ -193,7 +193,7 @@ namespace WorldPackets::AuctionHouse
     class ListResult final : public ServerPacket
     {
     public:
-        ListResult() : ServerPacket(SMSG_AUCTION_LIST_RESULT, (4 + 4 + 4) + 50 * ((16 + MAX_INSPECTED_ENCHANTMENT_SLOT * 3) * 4)) { }
+        ListResult() : ServerPacket(SMSG_AUCTION_LIST_RESULT, (4 + 4 + 4) + 50 * ((16 + 7 * 3) * 4)) { }
 
         WorldPacket const* Write() override;
 
