@@ -22,6 +22,7 @@
 #include "Packet.h"
 
 class AuctionEntry;
+class AuctionHouseObject;
 
 namespace WorldPackets::AuctionHouse
 {
