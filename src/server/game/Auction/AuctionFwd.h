@@ -20,7 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "Duration.h"
-#include <vector>
+#include <array>
 
 constexpr auto MAX_AUCTION_ITEMS = 160;
 
@@ -48,28 +48,6 @@ struct AuctionSortInfo
 };
 
 using AuctionSortOrderVector = std::vector<AuctionSortInfo>;
-
-struct WH_GAME_API AuctionListItems
-{
-    ObjectGuid PlayerGuid;
-    ObjectGuid CreatureGuid;
-    std::string SearchedName;
-    uint32 ListFrom{};
-    uint8 LevelMin{};
-    uint8 LevelMax{};
-    uint8 Usable{};
-    uint32 InventoryType{};
-    uint32 ItemClass{};
-    uint32 ItemSubClass{};
-    uint32 Quality{};
-    uint8 GetAll{};
-    AuctionSortOrderVector SortOrder;
-
-    uint32 Count{};
-    uint32 TotalCount{};
-
-    bool IsNoFilter() const;
-};
 
 enum AuctionError
 {
@@ -107,6 +85,37 @@ enum AuctionHouses
     AUCTIONHOUSE_ALLIANCE       = 2,
     AUCTIONHOUSE_HORDE          = 6,
     AUCTIONHOUSE_NEUTRAL        = 7
+};
+
+struct WH_GAME_API AuctionListItems
+{
+    ObjectGuid CreatureGuid;
+    std::string SearchedName;
+    uint32 ListFrom{};
+    uint8 LevelMin{};
+    uint8 LevelMax{};
+    uint8 Usable{};
+    uint32 InventoryType{};
+    uint32 ItemClass{};
+    uint32 ItemSubClass{};
+    uint32 Quality{};
+    uint8 GetAll{};
+    AuctionSortOrderVector SortOrder;
+
+    uint32 Count{};
+    uint32 TotalCount{};
+
+    [[nodiscard]] bool IsNoFilter() const;
+};
+
+struct WH_GAME_API AuctionSellItem
+{
+    ObjectGuid Auctioneer;
+    uint32 ItemsCount{};
+    uint32 ExpireTime{};
+    uint32 Bid{};
+    uint32 Buyout{};
+    std::array<std::pair<ObjectGuid, uint32>, MAX_AUCTION_ITEMS> Items{};
 };
 
 #endif

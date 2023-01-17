@@ -98,12 +98,7 @@ namespace WorldPackets::AuctionHouse
 
         void Read() override;
 
-        ObjectGuid Auctioneer;
-        uint32 ItemsCount{};
-        uint32 ExpireTime{};
-        uint32 Bid{};
-        uint32 Buyout{};
-        std::array<std::pair<ObjectGuid, uint32>, MAX_AUCTION_ITEMS> Items{ };
+        AuctionSellItem SellItems;
     };
 
     class PlaceBid final : public ClientPacket
@@ -227,8 +222,6 @@ namespace WorldPackets::AuctionHouse
         ListPendingSalesServer() : ServerPacket(SMSG_AUCTION_LIST_PENDING_SALES, 4) { }
 
         WorldPacket const* Write() override;
-
-        uint32 Unk1{};
     };
 }
 

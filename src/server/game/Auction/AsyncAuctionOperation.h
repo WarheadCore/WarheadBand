@@ -23,47 +23,105 @@
 #include <utility>
 
 struct AuctionListItems;
+struct AuctionSellItem;
 
 class WH_GAME_API AsyncAuctionOperation
 {
 public:
-    AsyncAuctionOperation() = default;
+    explicit AsyncAuctionOperation(ObjectGuid playerGuid) :
+        _playerGuid(playerGuid) { }
+
     virtual ~AsyncAuctionOperation() = default;
 
     virtual void Execute() = 0;
 
+    [[nodiscard]] ObjectGuid GetPlayerGUID() const { return _playerGuid; }
+    [[nodiscard]] Player* GetPlayer() const;
+
 private:
+    ObjectGuid _playerGuid;
+
     AsyncAuctionOperation(AsyncAuctionOperation const& right) = delete;
     AsyncAuctionOperation& operator=(AsyncAuctionOperation const& right) = delete;
+};
+
+class WH_GAME_API SellItemTask : public AsyncAuctionOperation
+{
+public:
+    SellItemTask(ObjectGuid playerGuid, std::shared_ptr<AuctionSellItem> packet) :
+        AsyncAuctionOperation(playerGuid), _packet(std::move(packet)) { }
+
+    ~SellItemTask() override = default;
+
+    void Execute() override;
+
+private:
+    std::shared_ptr<AuctionSellItem> _packet;
+};
+
+class WH_GAME_API PlaceBidTask : public AsyncAuctionOperation
+{
+public:
+    PlaceBidTask(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 auctionID, uint32 price) :
+        AsyncAuctionOperation(playerGuid), _auctioneer(auctioneer), _auctionID(auctionID), _price(price) { }
+
+    ~PlaceBidTask() override = default;
+
+    void Execute() override;
+
+private:
+    ObjectGuid _auctioneer;
+    uint32 _auctionID{};
+    uint32 _price{};
+};
+
+class WH_GAME_API ListBidderItemsTask : public AsyncAuctionOperation
+{
+public:
+    ListBidderItemsTask(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>& outbiddedAuctionIds) :
+        AsyncAuctionOperation(playerGuid),
+        _auctioneer(auctioneer),
+        _listFrom(listFrom),
+        _outbiddedCount(outbiddedCount),
+        _outbiddedAuctionIds(std::move(outbiddedAuctionIds)) { }
+
+    ~ListBidderItemsTask() override = default;
+
+    void Execute() override;
+
+private:
+    ObjectGuid _auctioneer;
+    uint32 _listFrom{};
+    uint32 _outbiddedCount{};
+    std::vector<uint32> _outbiddedAuctionIds{};
 };
 
 class WH_GAME_API ListOwnerTask : public AsyncAuctionOperation
 {
 public:
     ListOwnerTask(ObjectGuid playerGuid, ObjectGuid creatureGuid) :
-        _playerGuid(playerGuid), _creatureGuid(creatureGuid) { }
+        AsyncAuctionOperation(playerGuid), _creatureGuid(creatureGuid) { }
 
     ~ListOwnerTask() override = default;
 
     void Execute() override;
 
 private:
-    ObjectGuid _playerGuid;
     ObjectGuid _creatureGuid;
 };
 
 class WH_GAME_API ListItemsTask : public AsyncAuctionOperation
 {
 public:
-    ListItemsTask(std::shared_ptr<AuctionListItems> listItems) :
-        _listItems(std::move(listItems)) { }
+    explicit ListItemsTask(ObjectGuid playerGuid, std::shared_ptr<AuctionListItems> packet) :
+        AsyncAuctionOperation(playerGuid), _packet(std::move(packet)) { }
 
     ~ListItemsTask() override = default;
 
     void Execute() override;
 
 private:
-    std::shared_ptr<AuctionListItems> _listItems;
+    std::shared_ptr<AuctionListItems> _packet;
 };
 
 #endif

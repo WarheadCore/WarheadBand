@@ -800,7 +800,7 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntryFromHouse(uint8 houseId)
 {
-    return (CONF_GET_BOOL("AllowTwoSide.Interaction.Auction")) ? sAuctionHouseStore.LookupEntry(AUCTIONHOUSE_NEUTRAL) : sAuctionHouseStore.LookupEntry(houseId);
+    return CONF_GET_BOOL("AllowTwoSide.Interaction.Auction") ? sAuctionHouseStore.LookupEntry(AUCTIONHOUSE_NEUTRAL) : sAuctionHouseStore.LookupEntry(houseId);
 }
 
 void AuctionHouseMgr::ClearItems()
@@ -861,7 +861,7 @@ uint32 AuctionEntry::GetAuctionOutBid() const
 
 Milliseconds AuctionEntry::GetExpiredTime() const
 {
-    return (ExpireTime - GameTime::GetGameTime()) * 1000;
+    return ExpireTime - GameTime::GetGameTime();
 }
 
 void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const

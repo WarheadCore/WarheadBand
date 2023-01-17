@@ -764,7 +764,6 @@ public:                                                 // opcodes handlers
     void HandleAuctionSellItem(WorldPackets::AuctionHouse::SellItem& packet);
     void HandleAuctionRemoveItem(WorldPackets::AuctionHouse::RemoveItem& packet);
     void HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::ListOwnerItems& packet);
-    void HandleAuctionListOwnerItemsEvent(ObjectGuid creatureGuid);
     void HandleAuctionPlaceBid(WorldPackets::AuctionHouse::PlaceBid& packet);
     void HandleAuctionListPendingSales(WorldPackets::AuctionHouse::ListPendingSales& packet);
 

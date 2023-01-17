@@ -75,7 +75,22 @@ void AsyncAuctionMgr::Update(Milliseconds diff)
     _scheduler->Update(diff);
 }
 
-void AsyncAuctionMgr::ListOwnerItemsForPlayer(ObjectGuid playerGuid, ObjectGuid creatureGuid)
+void AsyncAuctionMgr::SellItem(ObjectGuid playerGuid, std::shared_ptr<AuctionSellItem> packet)
+{
+    Enqueue(new SellItemTask(playerGuid, std::move(packet)));
+}
+
+void AsyncAuctionMgr::PlaceBid(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 auctionID, uint32 price)
+{
+    Enqueue(new PlaceBidTask(playerGuid, auctioneer, auctionID, price));
+}
+
+void AsyncAuctionMgr::ListBidderItems(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>& outbiddedAuctionIds)
+{
+    Enqueue(new ListBidderItemsTask(playerGuid, auctioneer, listFrom, outbiddedCount, outbiddedAuctionIds));
+}
+
+void AsyncAuctionMgr::ListOwnerItems(ObjectGuid playerGuid, ObjectGuid creatureGuid)
 {
     _scheduler->Schedule(LIST_OWNER_ITEMS_DELAY, [this, playerGuid, creatureGuid](TaskContext)
     {
@@ -83,11 +98,11 @@ void AsyncAuctionMgr::ListOwnerItemsForPlayer(ObjectGuid playerGuid, ObjectGuid 
     });
 }
 
-void AsyncAuctionMgr::ListItemsForPlayer(std::shared_ptr<AuctionListItems> listItems)
+void AsyncAuctionMgr::ListItems(ObjectGuid playerGuid, std::shared_ptr<AuctionListItems> listItems)
 {
-    _scheduler->Schedule(LIST_ITEMS_DELAY, [this, listItems = std::move(listItems)](TaskContext)
+    _scheduler->Schedule(LIST_ITEMS_DELAY, [this, playerGuid, listItems = std::move(listItems)](TaskContext)
     {
-        Enqueue(new ListItemsTask(listItems));
+        Enqueue(new ListItemsTask(playerGuid, listItems));
     });
 }
 

@@ -102,26 +102,26 @@ WorldPacket const* WorldPackets::AuctionHouse::OwnerNotification::Write()
 
 void WorldPackets::AuctionHouse::SellItem::Read()
 {
-    Items.fill({ ObjectGuid::Empty, 0 });
+    SellItems.Items.fill({ ObjectGuid::Empty, 0 });
 
-    _worldPacket >> Auctioneer;
-    _worldPacket >> ItemsCount;
+    _worldPacket >> SellItems.Auctioneer;
+    _worldPacket >> SellItems.ItemsCount;
 
-    if (ItemsCount > MAX_AUCTION_ITEMS)
+    if (SellItems.ItemsCount > MAX_AUCTION_ITEMS)
     {
         _worldPacket.rfinish();
         return;
     }
 
-    for (uint32 i = 0; i < ItemsCount; ++i)
+    for (uint32 i = 0; i < SellItems.ItemsCount; ++i)
     {
-        _worldPacket >> Items[i].first;
-        _worldPacket >> Items[i].second;
+        _worldPacket >> SellItems.Items[i].first;
+        _worldPacket >> SellItems.Items[i].second;
     }
 
-    _worldPacket >> Bid;
-    _worldPacket >> Buyout;
-    _worldPacket >> ExpireTime;
+    _worldPacket >> SellItems.Bid;
+    _worldPacket >> SellItems.Buyout;
+    _worldPacket >> SellItems.ExpireTime;
 }
 
 void WorldPackets::AuctionHouse::PlaceBid::Read()
@@ -304,7 +304,7 @@ void WorldPackets::AuctionHouse::ListPendingSales::Read()
 
 WorldPacket const* WorldPackets::AuctionHouse::ListPendingSalesServer::Write()
 {
-    _worldPacket << uint32(Unk1);  // count
+    _worldPacket << uint32(0);  // count
 
     /*for (uint32 i = 0; i < count; ++i)
     {
