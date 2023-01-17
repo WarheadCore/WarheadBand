@@ -17,8 +17,8 @@
 
 #include "AuctionHousePackets.h"
 #include "AuctionHouseMgr.h"
-#include "Log.h"
 #include "GameTime.h"
+#include "Log.h"
 
 void WorldPackets::AuctionHouse::HelloFromClient::Read()
 {

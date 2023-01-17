@@ -17,11 +17,11 @@
 
 #include "AsyncAuctionMgr.h"
 #include "AsyncAuctionOperation.h"
-#include "PCQueue.h"
 #include "GameTime.h"
+#include "Log.h"
+#include "PCQueue.h"
 #include "Player.h"
 #include "StopWatch.h"
-#include "Log.h"
 #include "TaskScheduler.h"
 
 constexpr Milliseconds LIST_OWNER_ITEMS_DELAY = 100ms;

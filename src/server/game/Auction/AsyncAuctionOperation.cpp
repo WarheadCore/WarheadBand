@@ -16,13 +16,13 @@
  */
 
 #include "AsyncAuctionOperation.h"
-#include "AuctionHousePackets.h"
-#include "Player.h"
-#include "Creature.h"
 #include "AuctionHouseMgr.h"
+#include "AuctionHousePackets.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
-#include "DatabaseEnv.h"
+#include "Player.h"
 
 Player* AsyncAuctionOperation::GetPlayer() const
 {

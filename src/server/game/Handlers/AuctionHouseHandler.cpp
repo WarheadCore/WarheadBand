@@ -19,8 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AsyncAuctionMgr.h"
-#include "AuctionHousePackets.h"
 #include "AuctionHouseMgr.h"
+#include "AuctionHousePackets.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"

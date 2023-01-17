@@ -18,8 +18,8 @@
 #ifndef WARHEAD_AUCTION_FWD_H_
 #define WARHEAD_AUCTION_FWD_H_
 
-#include "ObjectGuid.h"
 #include "Duration.h"
+#include "ObjectGuid.h"
 #include <array>
 
 constexpr auto MAX_AUCTION_ITEMS = 160;

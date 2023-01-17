@@ -19,9 +19,9 @@
 #define WARHEAD_ASYNC_AUCTION_MGR_H_
 
 #include "AuctionFwd.h"
+#include <memory>
 #include <mutex>
 #include <thread>
-#include <memory>
 
 template <typename T>
 class ProducerConsumerQueue;
