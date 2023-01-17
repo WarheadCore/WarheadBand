@@ -24,6 +24,7 @@
 #include "GameTime.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 Player* AsyncAuctionOperation::GetPlayer() const
 {
