@@ -22,6 +22,8 @@
 #include <memory>
 #include <utility>
 
+class Player;
+
 struct AuctionListItems;
 struct AuctionSellItem;
 

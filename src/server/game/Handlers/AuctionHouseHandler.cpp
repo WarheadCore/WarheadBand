@@ -25,16 +25,12 @@
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
-#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
-#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "UpdateFields.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
 // Called when player click on auctioneer npc
@@ -119,6 +115,7 @@ void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 // Creates new auction and adds auction to some auctionhouse
 void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::SellItem& packet)
 {
+    LOG_DEBUG("network", "WORLD: Recived CMSG_AUCTION_SELL_ITEM");
     sAsyncAuctionMgr->SellItem(_player->GetGUID(), std::make_shared<AuctionSellItem>(std::move(packet.SellItems)));
 }
 

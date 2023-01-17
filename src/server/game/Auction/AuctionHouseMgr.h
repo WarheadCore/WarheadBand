@@ -27,6 +27,7 @@
 
 class Item;
 class Player;
+class WorldPacket;
 
 struct AuctionListItems;
 
