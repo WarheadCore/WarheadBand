@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 
 Player* AsyncAuctionOperation::GetPlayer() const
