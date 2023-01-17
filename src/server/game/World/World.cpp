@@ -27,7 +27,7 @@
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
 #include "ArenaTeamMgr.h"
-#include "AsyncAuctionListing.h"
+#include "AsyncAuctionMgr.h"
 #include "AsyncCallbackMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Autobroadcast.h"
@@ -1209,6 +1209,8 @@ void World::SetInitialWorldSettings()
         }
     }
 
+    sAsyncAuctionMgr->Initialize();
+
     auto elapsed = sw.Elapsed();
     std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
@@ -1358,25 +1360,20 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
-    // pussywizard:
-    // acquire mutex now, this is kind of waiting for listing thread to finish it's work (since it can't process next packet)
-    // so we don't have to do it in every packet that modifies auctions
-    AsyncAuctionListingMgr::SetAuctionListingAllowed(false);
     {
-        std::lock_guard<std::mutex> guard(AsyncAuctionListingMgr::GetLock());
+        std::lock_guard<std::mutex> guard(sAsyncAuctionMgr->GetLock());
 
         // pussywizard: handle auctions when the timer has passed
         if (m_timers[WUPDATE_AUCTIONS].Passed())
         {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
-
             m_timers[WUPDATE_AUCTIONS].Reset();
 
             // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
             sAuctionMgr->Update();
         }
 
-        AsyncAuctionListingMgr::Update(diff);
+        sAsyncAuctionMgr->Update(Milliseconds{ diff });
 
         if (currentGameTime > mail_expire_check_timer)
         {
@@ -1388,9 +1385,6 @@ void World::Update(uint32 diff)
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
         UpdateSessions(diff);
     }
-
-    // end of section with mutex
-    AsyncAuctionListingMgr::SetAuctionListingAllowed(true);
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
