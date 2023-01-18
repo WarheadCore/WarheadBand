@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Duration.h"
 #include "SharedDefines.h"
+#include <array>
 #include <string>
 #include <unordered_map>
 #include <vector>

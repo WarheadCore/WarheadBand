@@ -61,18 +61,18 @@ public:
 
     uint32 LastMissedItem{};
 
-    void SetMinTime(uint32 value)
+    void SetMinTime(Seconds value)
     {
         _minTime = value;
     }
 
-    [[nodiscard]] uint32 GetMinTime() const
+    [[nodiscard]] Seconds GetMinTime() const
     {
-        return std::min(1u, std::min(_minTime, _maxTime));
+        return std::min(1s, std::min(_minTime, _maxTime));
     }
 
-    void SetMaxTime(uint32 value) { _maxTime = value; }
-    [[nodiscard]] uint32 GetMaxTime() const { return _maxTime; }
+    void SetMaxTime(Seconds value) { _maxTime = value; }
+    [[nodiscard]] Seconds GetMaxTime() const { return _maxTime; }
 
     // Data access classified by item class and item quality
     void SetItemsAmountPerClass(AuctionQuality quality, ItemClass itemClass, uint32 amount) { _itemInfo[quality][itemClass].AmountOfItems = amount; }
@@ -104,8 +104,8 @@ public:
 
 private:
     AuctionHouseType _houseType{ AUCTION_HOUSE_NEUTRAL };
-    uint32 _minTime{ 1 };
-    uint32 _maxTime{ 72 };
+    Seconds _minTime{ 1h };
+    Seconds _maxTime{ 72h };
 
     std::array<std::array<SellerItemInfo, MAX_ITEM_CLASS>, MAX_AUCTION_QUALITY> _itemInfo{};
     std::array<SellerItemQualitySharedInfo, MAX_ITEM_QUALITY> _itemSharedQualityInfo{};
@@ -131,9 +131,6 @@ public:
     void LoadConfig();
 
 private:
-    std::array<SellerConfiguration, MAX_AUCTION_HOUSE_TYPE> _houseConfig{};
-    std::array<std::array<std::vector<uint32>, MAX_ITEM_CLASS>, MAX_AUCTION_QUALITY> _itemPool{};
-
     void LoadSellerValues(SellerConfiguration& config);
     uint32 SetStat(SellerConfiguration& config);
     bool GetItemsToSell(SellerConfiguration& config, ItemsToSellArray& itemsToSellArray, AllItemsArray const& addedItem);
@@ -142,6 +139,10 @@ private:
     void LoadItemsQuantity(SellerConfiguration& config);
     static uint32 GetBuyModifier(ItemTemplate const* prototype);
     static uint32 GetSellModifier(ItemTemplate const* itemProto);
+
+    std::array<SellerConfiguration, MAX_AUCTION_HOUSE_TYPE> _houseConfig{};
+    std::array<std::array<std::vector<uint32>, MAX_ITEM_CLASS>, MAX_AUCTION_QUALITY> _itemPool{};
+    float _rateMoney{ 1.f };
 };
 
 #endif

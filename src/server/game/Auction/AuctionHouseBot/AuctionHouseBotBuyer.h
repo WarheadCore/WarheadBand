@@ -25,8 +25,8 @@
 struct BuyerAuctionEval
 {
     uint32 AuctionId{};
-    time_t LastChecked{};
-    time_t LastExist{};
+    Seconds LastChecked;
+    Seconds LastExist;
 };
 
 struct BuyerItemInfo
@@ -39,9 +39,6 @@ struct BuyerItemInfo
     double TotalBidPrice{};
 };
 
-using BuyerItemInfoMap = std::map<uint32, BuyerItemInfo>;
-using CheckEntryMap = std::map<uint32, BuyerAuctionEval>;
-
 struct BuyerConfiguration
 {
     inline void Initialize(AuctionHouseType houseType)
@@ -51,8 +48,8 @@ struct BuyerConfiguration
 
     [[nodiscard]] AuctionHouseType GetHouseType() const { return _houseType; }
 
-    BuyerItemInfoMap SameItemInfo;
-    CheckEntryMap EligibleItems;
+    std::unordered_map<uint32, BuyerItemInfo> SameItemInfo;
+    std::unordered_map<uint32, BuyerAuctionEval> EligibleItems;
     bool BuyerEnabled{};
 
 private:
@@ -74,9 +71,6 @@ public:
     void BuyAndBidItems(BuyerConfiguration& config);
 
 private:
-    uint32 _checkInterval;
-    BuyerConfiguration _houseConfig[MAX_AUCTION_HOUSE_TYPE];
-
     void LoadBuyerValues(BuyerConfiguration& config);
 
     // ahInfo can be NULL
@@ -88,6 +82,10 @@ private:
     uint32 GetItemInformation(BuyerConfiguration& config);
     static uint32 GetVendorPrice(uint32 quality);
     static uint32 GetChanceMultiplier(uint32 quality);
+
+    Minutes _checkInterval{ 20min };
+    BuyerConfiguration _houseConfig[MAX_AUCTION_HOUSE_TYPE];
+    float _rateMoney{ 1.f };
 };
 
 #endif

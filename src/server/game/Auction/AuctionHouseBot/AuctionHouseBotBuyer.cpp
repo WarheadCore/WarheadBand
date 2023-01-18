@@ -16,14 +16,16 @@
  */
 
 #include "AuctionHouseBotBuyer.h"
+#include "GameConfig.h"
 #include "GameTime.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Random.h"
+#include "Timer.h"
 
-AuctionBotBuyer::AuctionBotBuyer() : _checkInterval(20 * MINUTE)
+AuctionBotBuyer::AuctionBotBuyer()
 {
     // Define faction for our main data class.
     for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
@@ -48,8 +50,9 @@ bool AuctionBotBuyer::Initialize()
         return false;
 
     // load Check interval
-    _checkInterval = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_RECHECK_INTERVAL) * MINUTE;
-    LOG_DEBUG("ahbot", "AHBot buyer interval is {} minutes", _checkInterval / MINUTE);
+    _checkInterval = Minutes{ sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_RECHECK_INTERVAL) };
+    _rateMoney = CONF_GET_FLOAT("Rate.Drop.Money");
+    LOG_DEBUG("ahbot", "AHBotBuyer: Check interval is {}", Warhead::Time::ToTimeString(_checkInterval));
     return true;
 }
 
@@ -74,7 +77,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
     if (!sAuctionBotConfig->GetConfigBuyerEnabled(houseType))
         return false;
 
-    LOG_DEBUG("ahbot", "AHBot: {} buying ...", AuctionBotConfig::GetHouseTypeName(houseType));
+    LOG_DEBUG("ahbot", "AHBotBuyer: {} buying...", AuctionBotConfig::GetHouseTypeName(houseType));
 
     BuyerConfiguration& config = _houseConfig[houseType];
     uint32 eligibleItems = GetItemInformation(config);
@@ -95,7 +98,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 {
     config.SameItemInfo.clear();
-    time_t now = GameTime::GetGameTime().count();
+    auto timeNow{ GameTime::GetGameTime() };
     uint32 count = 0;
 
     for (auto const& [auctionID, auction] : sAuctionMgr->GetAuctionsMap(config.GetHouseType())->GetAuctions())
@@ -141,14 +144,13 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
         // * bid from player
         if (!auction->Bid || auction->Bidder)
         {
-            config.EligibleItems[auction->Id].LastExist = now;
+            config.EligibleItems[auction->Id].LastExist = timeNow;
             config.EligibleItems[auction->Id].AuctionId = auction->Id;
             ++count;
         }
     }
 
-    LOG_DEBUG("ahbot", "AHBot: {} items added to buyable/biddable vector for ah type: {}", count, config.GetHouseType());
-    LOG_DEBUG("ahbot", "AHBot: SameItemInfo size = {}", config.SameItemInfo.size());
+    LOG_TRACE("ahbot", "AHBotBuyer: {} items added to buyable/biddable vector for ah type: {}", count, config.GetHouseType());
     return count;
 }
 
@@ -161,14 +163,21 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
     auto itemBuyPrice = float(auction->BuyOut / item->GetCount());
     auto itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
 
-    // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
+    // The AH cut needs to be added to the price, but we don't want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
+
+    // Include server rate money
+    itemPrice *= _rateMoney;
+
+    auto baseChance{ itemPrice / itemBuyPrice * 100.f / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)  };
+    if (baseChance < 0.0f)
+        baseChance = 0.0f;
 
     // This value is between 0 and 100 and is used directly as the chance to buy or bid
     // Value equal or above 100 means 100% chance and value below 0 means 0% chance
-    float chance = std::min(100.f, std::pow(100.f, 1.f + (1.f - itemBuyPrice / itemPrice) / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)));
+    float chance = std::min(100.f, baseChance);
 
-    // If a player has bidded on item, have fifth of normal chance
+    // If a player has bid on item, have fifth of normal chance
     if (auction->Bidder)
         chance = chance / 5.f;
 
@@ -176,7 +185,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
     {
         float avgBuyPrice = ahInfo->TotalBuyPrice / float(ahInfo->BuyItemCount);
 
-        LOG_DEBUG("ahbot", "AHBot: buyout average: {:.1f} items with buyout: {}", avgBuyPrice, ahInfo->BuyItemCount);
+        LOG_TRACE("ahbot", "AHBotBuyer: Buyout average: {:.1f} items with buyout: {}", avgBuyPrice, ahInfo->BuyItemCount);
 
         // If there are more than 5 items on AH of this entry, try weigh in the average buyout price
         if (ahInfo->BuyItemCount > 5)
@@ -185,11 +194,14 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, Item const* ite
 
     // Add config weigh in for quality
     chance *= GetChanceMultiplier(item->GetTemplate()->Quality) / 100.0f;
+    if (chance <= frand(0.f, 100.f))
+        return false;
 
-    float rand = frand(0.f, 100.f);
-    bool win = rand <= chance;
-    LOG_DEBUG("ahbot", "AHBot: {} BUY! chance = {:.2f}, price = {}, buyprice = {}.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBuyPrice));
-    return win;
+    auto itemID{ item->GetTemplate()->ItemId };
+    auto itemName{ item->GetTemplate()->Name1 };
+
+    LOG_DEBUG("ahbot", "AHBotBuyer: Win roll buy. Chance: {:.2f}. Price: {}, BuyPrice: {}. Item: {} ({})", chance, uint32(itemPrice), uint32(itemBuyPrice), itemID, itemName);
+    return true;
 }
 
 // ahInfo can be NULL
@@ -198,61 +210,72 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* ite
     auto itemBidPrice = float(bidPrice / item->GetCount());
     auto itemPrice = float(item->GetTemplate()->SellPrice ? item->GetTemplate()->SellPrice : GetVendorPrice(item->GetTemplate()->Quality));
 
-    // The AH cut needs to be added to the price, but we dont want a 100% chance to buy if the price is exactly AH default
+    // The AH cut needs to be added to the price, but we don't want a 100% chance to buy if the price is exactly AH default
     itemPrice *= 1.4f;
+
+    // Include server rate money
+    itemPrice *= _rateMoney;
+
+    auto baseChance{ itemPrice / itemBidPrice * 100.f / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)  };
+    if (baseChance < 0.0f)
+        baseChance = 0.0f;
 
     // This value is between 0 and 100 and is used directly as the chance to buy or bid
     // Value equal or above 100 means 100% chance and value below 0 means 0% chance
-    float chance = std::min(100.f, std::pow(100.f, 1.f + (1.f - itemBidPrice / itemPrice) / sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_CHANCE_FACTOR)));
+    float chance = std::min(100.f, baseChance);
 
     if (ahInfo)
     {
         float avgBidPrice = ahInfo->TotalBidPrice / float(ahInfo->BidItemCount);
 
-        LOG_DEBUG("ahbot", "AHBot: Bid average: {:.1f} biddable item count: {}", avgBidPrice, ahInfo->BidItemCount);
+        LOG_TRACE("ahbot", "AHBotBuyer: Bid average: {:.1f} biddable item count: {}", avgBidPrice, ahInfo->BidItemCount);
 
         // If there are more than 5 items on AH of this entry, try weigh in the average bid price
         if (ahInfo->BidItemCount >= 5)
             chance *= 1.f / std::sqrt(itemBidPrice / avgBidPrice);
     }
 
-    // If a player has bidded on item, have fifth of normal chance
+    // If a player has bid on item, have fifth of normal chance
     if (auction->Bidder && !sAuctionBotConfig->IsBotChar(auction->Bidder.GetCounter()))
         chance = chance / 5.f;
 
     // Add config weigh in for quality
     chance *= GetChanceMultiplier(item->GetTemplate()->Quality) / 100.0f;
+    if (chance <= frand(0.f, 100.f))
+        return false;
 
-    float rand = frand(0.f, 100.f);
-    bool win = rand <= chance;
-    LOG_DEBUG("ahbot", "AHBot: {} BID! chance = {:.2f}, price = {}, bidprice = {}.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBidPrice));
-    return win;
+    auto itemID{ item->GetTemplate()->ItemId };
+    auto itemName{ item->GetTemplate()->Name1 };
+
+    LOG_DEBUG("ahbot", "AHBotBuyer: Win roll bid. Chance: {:.2f}. Price: {}, BidPrice: {}. Item: {} ({})", chance, uint32(itemPrice), uint32(itemBidPrice), itemID, itemName);
+    return true;
 }
 
-// Removes items from EligibleItems that we shouldnt buy or bid on
+// Removes items from EligibleItems that we shouldn't buy or bid on
 // The last existed time on them should be older than now
 void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 {
     // now - 5 seconds to leave out all old entries but keep the ones just updated a moment ago
-    time_t now = GameTime::GetGameTime().count() - 5;
+    auto timeNow{ GameTime::GetGameTime() - 5s };
 
     for (auto itr = config.EligibleItems.begin(); itr != config.EligibleItems.end();)
     {
-        if (itr->second.LastExist < now)
+        if (itr->second.LastExist < timeNow)
             config.EligibleItems.erase(itr++);
         else
             ++itr;
     }
 
-    LOG_DEBUG("ahbot", "AHBot: EligibleItems size = {}", config.EligibleItems.size());
+    LOG_TRACE("ahbot", "AHBotBuyer: EligibleItems size: {}", config.EligibleItems.size());
 }
 
 // Tries to bid and buy items based on their prices and chances set in configs
 void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 {
-    time_t now = GameTime::GetGameTime().count();
+    auto timeNow{ GameTime::GetGameTime() };
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
-    CheckEntryMap& items = config.EligibleItems;
+    auto& items = config.EligibleItems;
+    bool canBid{ sAuctionBotConfig->GetRandChar() != 0 };
 
     // Max amount of items to buy or bid
     uint32 cycles = sAuctionBotConfig->GetItemPerCycleNormal();
@@ -260,26 +283,26 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
     {
         // set more cycles if there is a huge influx of items
         cycles = sAuctionBotConfig->GetItemPerCycleBoost();
-        LOG_DEBUG("ahbot", "AHBot: Boost value used for Buyer! (if this happens often adjust both ItemsPerCycle in worldserver.conf)");
+        LOG_DEBUG("ahbot", "AHBotBuyer: Boost value used for Buyer! (if this happens often adjust both ItemsPerCycle in worldserver.conf)");
     }
 
-    // Process items eligible to be bidded or bought
+    // Process items eligible to be bid or bought
     auto itr = items.begin();
     while (cycles && itr != items.end())
     {
         AuctionEntry* auction = auctionHouse->GetAuction(itr->second.AuctionId);
         if (!auction)
         {
-            LOG_DEBUG("ahbot", "AHBot: Entry {} doesn't exists, perhaps bought already?", itr->second.AuctionId);
+            LOG_DEBUG("ahbot", "AHBotBuyer: Entry {} doesn't exists, perhaps bought already?", itr->second.AuctionId);
             items.erase(itr++);
             continue;
         }
 
         // Check if the item has been checked once before
-        // If it has been checked and it was recently, skip it
-        if (itr->second.LastChecked && (now - itr->second.LastChecked) <= _checkInterval)
+        // If it has been checked, and it was recently, skip it
+        if (itr->second.LastChecked > 0s && (timeNow - itr->second.LastChecked) <= _checkInterval)
         {
-            LOG_DEBUG("ahbot", "AHBot: In time interval wait for entry {}!", auction->Id);
+            LOG_TRACE("ahbot", "AHBotBuyer: In time interval wait for entry {}!", auction->Id);
             ++itr;
             continue;
         }
@@ -310,7 +333,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
         if (sameItemItr != config.SameItemInfo.end())
             ahInfo = &sameItemItr->second;
 
-        LOG_DEBUG("ahbot", "AHBot: Rolling for AHentry {}:", auction->Id);
+        LOG_TRACE("ahbot", "AHBotBuyer: Rolling for AH entry: {}", auction->Id);
 
         // Roll buy and bid chances
         bool successBuy = RollBuyChance(ahInfo, item, auction, bidPrice);
@@ -324,10 +347,10 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
         if ((auction->BuyOut && successBid && bidPrice >= auction->BuyOut) ||
             (successBuy && (!successBid || urand(1, 5) == 1)))
             BuyEntry(auction, auctionHouse); // buyout
-        else if (successBid)
+        else if (successBid && canBid)
             PlaceBidToEntry(auction, bidPrice); // bid
 
-        itr->second.LastChecked = now;
+        itr->second.LastChecked = timeNow;
         --cycles;
         ++itr;
     }
@@ -385,7 +408,7 @@ uint32 AuctionBotBuyer::GetChanceMultiplier(uint32 quality)
 // Buys the auction and does necessary actions to complete the buyout
 void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctionHouse)
 {
-    LOG_DEBUG("ahbot", "AHBot: Entry {} bought at {}g", auction->Id, float(auction->BuyOut) / GOLD);
+    LOG_DEBUG("ahbot", "AHBotBuyer: Entry {} bought at {}g", auction->Id, float(auction->BuyOut) / GOLD);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -416,7 +439,7 @@ void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctio
 // Bids on the auction and does the necessary actions for bidding
 void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
 {
-    LOG_DEBUG("ahbot", "AHBot: Bid placed to entry {}, {}g", auction->Id, float(bidPrice) / GOLD);
+    LOG_DEBUG("ahbot", "AHBotBuyer: Bid placed to entry {}, {}g", auction->Id, float(bidPrice) / GOLD);
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 

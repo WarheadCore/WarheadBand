@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameConfig.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
@@ -39,6 +40,8 @@ AuctionBotSeller::AuctionBotSeller()
 bool AuctionBotSeller::Initialize()
 {
     StopWatch sw;
+
+    _rateMoney = CONF_GET_FLOAT("Rate.Drop.Money");
 
     std::unordered_set<uint32> npcItems;
     std::unordered_set<uint32> lootItems;
@@ -551,8 +554,8 @@ void AuctionBotSeller::LoadSellerValues(SellerConfiguration& config)
     config.SetPriceRatioPerClass(ITEM_CLASS_GLYPH, sAuctionBotConfig->GetConfig(CONFIG_AHBOT_CLASS_GLYPH_PRICE_RATIO));
 
     //load min and max auction times
-    config.SetMinTime(sAuctionBotConfig->GetConfig(CONFIG_AHBOT_MINTIME));
-    config.SetMaxTime(sAuctionBotConfig->GetConfig(CONFIG_AHBOT_MAXTIME));
+    config.SetMinTime(Hours{ sAuctionBotConfig->GetConfig(CONFIG_AHBOT_MINTIME) });
+    config.SetMaxTime(Hours{ sAuctionBotConfig->GetConfig(CONFIG_AHBOT_MAXTIME) });
 }
 
 // Set static of items on one AH faction.
@@ -583,11 +586,11 @@ uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
         }
     }
 
-    LOG_DEBUG("ahbot", "AHBot: Missed Item       \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
+    LOG_DEBUG("ahbot", "AHBotSeller: Missed Item       \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
 
     for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
     {
-        LOG_DEBUG("ahbot", "AHBot: \t\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
+        LOG_DEBUG("ahbot", "AHBotSeller: \t\t{}\t{}\t{}\t{}\t{}\t{}\t{}",
             config.GetMissedItemsPerClass(AUCTION_QUALITY_GRAY, (ItemClass)i),
             config.GetMissedItemsPerClass(AUCTION_QUALITY_WHITE, (ItemClass)i),
             config.GetMissedItemsPerClass(AUCTION_QUALITY_GREEN, (ItemClass)i),
@@ -658,6 +661,7 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
 
     float basePriceFloat = buyPrice * stackCount / (itemProto->Class == 6 ? 200.0f : static_cast<float>(itemProto->BuyCount));
     basePriceFloat *= priceRatio;
+    basePriceFloat *= _rateMoney;
 
     float range = basePriceFloat * 0.04f;
 
@@ -861,7 +865,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
     if (config.LastMissedItem > sAuctionBotConfig->GetItemPerCycleBoost())
     {
         items = sAuctionBotConfig->GetItemPerCycleBoost();
-        LOG_DEBUG("ahbot", "AHBot: Boost value used to fill AH! (if this happens often adjust both ItemsPerCycle in worldserver.conf)");
+        LOG_DEBUG("ahbot", "AHBotSeller: Boost value used to fill AH! (if this happens often adjust both ItemsPerCycle in worldserver.conf)");
     }
     else
         items = sAuctionBotConfig->GetItemPerCycleNormal();
@@ -903,14 +907,14 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         if (!itemId)
         {
-            LOG_DEBUG("ahbot", "AHBot: Item entry 0 auction creating attempt.");
+            LOG_DEBUG("ahbot", "AHBotSeller: Item entry 0 auction creating attempt.");
             continue;
         }
 
         ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
         if (!prototype)
         {
-            LOG_DEBUG("ahbot", "AHBot: Unknown item {} auction creating attempt.", itemId);
+            LOG_DEBUG("ahbot", "AHBotSeller: Unknown item {} auction creating attempt.", itemId);
             continue;
         }
 
@@ -919,7 +923,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         Item* item = Item::CreateItem(itemId, stackCount);
         if (!item)
         {
-            LOG_ERROR("ahbot", "AHBot: Item::CreateItem() returned NULL for item {} (stack: {})", itemId, stackCount);
+            LOG_ERROR("ahbot", "AHBotSeller: Item::CreateItem() returned NULL for item {} (stack: {})", itemId, stackCount);
             return;
         }
 
@@ -959,7 +963,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         auctionEntry->HouseId = houseid;
         auctionEntry->Deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
         auctionEntry->auctionHouseEntry = ahEntry;
-        auctionEntry->ExpireTime = GameTime::GetGameTime() + Hours{ urand(config.GetMinTime(), config.GetMaxTime()) };
+        auctionEntry->ExpireTime = GameTime::GetGameTime() + Hours{ urand(config.GetMinTime().count(), config.GetMaxTime().count()) };
 
         item->SaveToDB(trans);
         sAuctionMgr->AddAuctionItem(item);
@@ -970,7 +974,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
     }
 
     CharacterDatabase.CommitTransaction(trans);
-    LOG_DEBUG("ahbot", "AHBot: Added {} items to auction", count);
+    LOG_DEBUG("ahbot", "AHBotSeller: Added {} items to auction", count);
 }
 
 bool AuctionBotSeller::Update(AuctionHouseType houseType)
