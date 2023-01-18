@@ -285,14 +285,12 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
     // Ensures that listfrom is not greater that auctions count
     listItems->ListFrom = std::min(listItems->ListFrom, static_cast<uint32>(GetAuctions().size()));
     packet.ListFrom = listItems->ListFrom;
+    packet.IsGetAll = listItems->GetAll == 1;
 
-    std::vector<AuctionEntry*> auctionShortlist;
-
-    // pussywizard: optimization, this is a simplified case
-    if (listItems->IsNoFilter() && packet.WSearchedName.empty())
+    if (listItems->GetAll || (listItems->IsNoFilter() && packet.WSearchedName.empty()))
     {
         for (auto const& [auctionID, auction] : GetAuctions())
-            auctionShortlist.emplace_back(auction.get());
+            packet.AuctionShortlist.emplace_back(auction.get());
     }
     else
     {
@@ -394,11 +392,11 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
                     continue;
             }
 
-            auctionShortlist.emplace_back(auction.get());
+            packet.AuctionShortlist.emplace_back(auction.get());
         }
     }
 
-    if (auctionShortlist.empty())
+    if (packet.AuctionShortlist.empty())
         return true;
 
     // Check if sort enabled, and first sort column is valid, if not don't sort
@@ -408,16 +406,15 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
         if (sortInfo.SortOrder >= AuctionSortOrder::MinLevel && sortInfo.SortOrder < AuctionSortOrder::Max && sortInfo.SortOrder != AuctionSortOrder::Unk4)
         {
             // Partial sort to improve performance a bit, but the last pages will burn
-            if (listItems->ListFrom + 50 <= auctionShortlist.size())
-                std::partial_sort(auctionShortlist.begin(), auctionShortlist.begin() + listItems->ListFrom + 50, auctionShortlist.end(),
+            if (listItems->ListFrom + 50 <= packet.AuctionShortlist.size())
+                std::partial_sort(packet.AuctionShortlist.begin(), packet.AuctionShortlist.begin() + listItems->ListFrom + 50, packet.AuctionShortlist.end(),
                     std::bind(SortAuction, std::placeholders::_1, std::placeholders::_2, listItems->SortOrder, player, sortInfo.SortOrder == AuctionSortOrder::Bid));
             else
-                std::sort(auctionShortlist.begin(), auctionShortlist.end(), std::bind(SortAuction, std::placeholders::_1, std::placeholders::_2, listItems->SortOrder,
+                std::sort(packet.AuctionShortlist.begin(), packet.AuctionShortlist.end(), std::bind(SortAuction, std::placeholders::_1, std::placeholders::_2, listItems->SortOrder,
                     player, sortInfo.SortOrder == AuctionSortOrder::Bid));
         }
     }
 
-    packet.AuctionShortlist = std::move(auctionShortlist);
     return true;
 }
 

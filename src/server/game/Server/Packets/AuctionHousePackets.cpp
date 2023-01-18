@@ -276,8 +276,16 @@ WorldPacket const* WorldPackets::AuctionHouse::ListResult::Write()
 
     for (auto const auction : AuctionShortlist)
     {
-        // Add the item if no search term or if entered search term was found
-        if (count < 50 && totalCount >= ListFrom)
+        if (IsGetAll)
+        {
+            Item* item = sAuctionMgr->GetAuctionItem(auction->ItemGuid);
+            if (!item)
+                continue;
+
+            ++count;
+            auction->BuildAuctionInfo(_worldPacket);
+        }
+        else if (count < 50 && totalCount >= ListFrom) // Add the item if no search term or if entered search term was found
         {
             Item* item = sAuctionMgr->GetAuctionItem(auction->ItemGuid);
             if (!item)

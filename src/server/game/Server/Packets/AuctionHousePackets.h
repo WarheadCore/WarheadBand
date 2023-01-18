@@ -200,6 +200,7 @@ namespace WorldPackets::AuctionHouse
         bool IsCorrectSearchedName(std::string_view searchedName);
 
         uint32 ListFrom{};
+        bool IsGetAll{};
         uint32 SearchDelay{ 300 };
 
         std::vector<AuctionEntry*> AuctionShortlist;
