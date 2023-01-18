@@ -126,4 +126,13 @@ private:
     std::shared_ptr<AuctionListItems> _packet;
 };
 
+class WH_GAME_API AhBotTask : public AsyncAuctionOperation
+{
+public:
+    AhBotTask() : AsyncAuctionOperation(ObjectGuid::Empty) { }
+    ~AhBotTask() override = default;
+
+    void Execute() override;
+};
+
 #endif

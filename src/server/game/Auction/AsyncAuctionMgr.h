@@ -43,6 +43,7 @@ public:
     void ListBidderItems(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>& outbiddedAuctionIds);
     void ListOwnerItems(ObjectGuid playerGuid, ObjectGuid creatureGuid);
     void ListItems(ObjectGuid playerGuid, std::shared_ptr<AuctionListItems> listItems);
+    void UpdateBotAgents();
 
     inline std::mutex& GetLock() { return _mutex; }
 

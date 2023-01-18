@@ -295,7 +295,8 @@ enum InventoryType
 
 #define MAX_INVTYPE                               29
 
-enum ItemClass
+// EnumUtils: DESCRIBE THIS
+enum ItemClass : uint8
 {
     ITEM_CLASS_CONSUMABLE                       = 0,
     ITEM_CLASS_CONTAINER                        = 1,

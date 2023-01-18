@@ -16,6 +16,7 @@
  */
 
 #include "AsyncAuctionOperation.h"
+#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHousePackets.h"
 #include "Creature.h"
@@ -503,4 +504,9 @@ void ListItemsTask::Execute()
         return;
 
     player->SendDirectMessage(packetSend.Write());
+}
+
+void AhBotTask::Execute()
+{
+    sAuctionBot->UpdateAgents();
 }
