@@ -6878,7 +6878,7 @@ bool Player::Satisfy(DungeonProgressionRequirements const* ar, uint32 target_map
                     //Blizzlike method of printing out the requirements
                     if (missingPlayerQuests.size() && !missingPlayerQuests[0]->note.empty())
                     {
-                        ChatHandler(GetSession()).PSendSysMessage("%s", missingPlayerQuests[0]->note.c_str());
+                        ChatHandler(GetSession()).PSendSysMessage("{}", missingPlayerQuests[0]->note);
                     }
                     else if (missingLeaderQuests.size() && !missingLeaderQuests[0]->note.empty())
                     {
