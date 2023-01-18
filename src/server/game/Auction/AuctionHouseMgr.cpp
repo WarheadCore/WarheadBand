@@ -298,6 +298,8 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
         int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
         int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
+        wstrToLower(packet.WSearchedName);
+
         for (auto const& [auctionID, auction] : GetAuctions())
         {
             // Skip expired auctions
