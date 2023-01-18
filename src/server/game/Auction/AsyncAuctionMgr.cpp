@@ -16,6 +16,7 @@
  */
 
 #include "AsyncAuctionMgr.h"
+#include "AuctionHouseBot.h"
 #include "AsyncAuctionOperation.h"
 #include "GameTime.h"
 #include "Log.h"
@@ -104,6 +105,11 @@ void AsyncAuctionMgr::ListItems(ObjectGuid playerGuid, std::shared_ptr<AuctionLi
     {
         Enqueue(new ListItemsTask(playerGuid, listItems));
     });
+}
+
+void AsyncAuctionMgr::UpdateBotAgents()
+{
+    Enqueue(new AhBotTask());
 }
 
 void AsyncAuctionMgr::Enqueue(AsyncAuctionOperation* operation)

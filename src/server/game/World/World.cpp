@@ -29,6 +29,7 @@
 #include "ArenaTeamMgr.h"
 #include "AsyncAuctionMgr.h"
 #include "AsyncCallbackMgr.h"
+#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "Autobroadcast.h"
 #include "BattlefieldMgr.h"
@@ -1089,7 +1090,7 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetCurrent(MINUTE * IN_MILLISECONDS);
-    m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_INT("UpdateUptimeInterval") *MINUTE * IN_MILLISECONDS);
+    m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_UINT("UpdateUptimeInterval") * MINUTE * IN_MILLISECONDS);
     //Update "uptime" table based on configuration entry in minutes.
 
     m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
@@ -1210,6 +1211,7 @@ void World::SetInitialWorldSettings()
     }
 
     sAsyncAuctionMgr->Initialize();
+    sAuctionBot->Initialize();
 
     auto elapsed = sw.Elapsed();
     std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
@@ -1373,17 +1375,29 @@ void World::Update(uint32 diff)
             sAuctionMgr->Update();
         }
 
-        sAsyncAuctionMgr->Update(Milliseconds{ diff });
+        /// <li> Handle AHBot operations
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update AHBot"));
+            sAuctionBot->Update(Milliseconds{ diff });
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async auction"));
+            sAsyncAuctionMgr->Update(Milliseconds{diff});
+        }
 
         if (currentGameTime > mail_expire_check_timer)
         {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update old mails"));
             sObjectMgr->ReturnOrDeleteOldMails(true);
             mail_expire_check_timer = currentGameTime + 6h;
         }
 
         /// <li> Handle session updates when the timer has passed
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
-        UpdateSessions(diff);
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
+            UpdateSessions(diff);
+        }
     }
 
     /// <li> Handle weather updates when the timer has passed
