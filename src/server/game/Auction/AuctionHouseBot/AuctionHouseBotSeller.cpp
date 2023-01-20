@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "SmartEnum.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Item.h"
