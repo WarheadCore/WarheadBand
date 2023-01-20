@@ -237,7 +237,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg {} for {} created.", InstanceId, GetId());
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
-    uint8 spawnMode{ bracketEntry ? static_cast<uint8>(bracketEntry->difficulty) : REGULAR_DIFFICULTY };
+    uint8 spawnMode = bracketEntry ? bracketEntry->difficulty : REGULAR_DIFFICULTY;
 
     auto map = std::make_unique<BattlegroundMap>(GetId(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());

@@ -181,7 +181,7 @@ void SellItemTask::Execute()
     {
         Item* item = items[i];
 
-        auto auctionTime = Seconds{ std::size_t{ float(depositTime.count()) * CONF_GET_FLOAT("Rate.Auction.Time") }};
+        auto auctionTime = Seconds(std::size_t(float(depositTime.count()) * CONF_GET_FLOAT("Rate.Auction.Time")));
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
 
         uint32 Deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, Minutes{ _packet->ExpireTime }, item, finalCount);

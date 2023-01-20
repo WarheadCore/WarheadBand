@@ -440,7 +440,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, Minute
         return minDeposit;
 
     float multiplier = CalculatePct(float(entry->depositPercent), 3);
-    uint32 timeHr{ expireTime.count() / 60 / 12 };
+    uint32 timeHr(expireTime.count() / 60 / 12);
     auto deposit = uint32(((multiplier * float(MSV) * float(count) / 3) * timeHr * 3) * CONF_GET_FLOAT("Rate.Auction.Deposit"));
 
     LOG_DEBUG("auctionHouse", "MSV:        {}", MSV);
