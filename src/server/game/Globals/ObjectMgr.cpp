@@ -9148,7 +9148,7 @@ void ObjectMgr::SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint3
         MailSender sender(MAIL_NORMAL, player->GetGUID().GetCounter(), MAIL_STATIONERY_GM);
         MailDraft draft(subject, body);
 
-        draft.AddMoney(player->GetTeamId() == TEAM_ALLIANCE ? rewardMoneyA : rewardMoneyH);
+        draft.AddMoney(player->GetTeamId() == TEAM_ALLIANCE ? Copper{ rewardMoneyA } : Copper{ rewardMoneyH });
         if (Item* mailItem = Item::CreateItem(player->GetTeamId() == TEAM_ALLIANCE ? rewardItemA : rewardItemH, player->GetTeamId() == TEAM_ALLIANCE ? rewardItemCountA : rewardItemCountH))
         {
             mailItem->SaveToDB(trans);
