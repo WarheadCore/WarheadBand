@@ -34,6 +34,9 @@ struct CalendarEvent;
 
 struct WH_GAME_API GameMail
 {
+    GameMail() = default;
+    ~GameMail();
+
     uint32 MessageID{};
     MailMessageType MessageType{};
     MailStationery Stationery{ MAIL_STATIONERY_DEFAULT };
@@ -93,12 +96,14 @@ public:
     void AddMailItems(std::shared_ptr<GameMail> mail);
     void DeleteMailItem(uint32 mailID, ObjectGuid::LowType lowGuid);
 
+    void AddMailForPlayer(Player* player, std::shared_ptr<GameMail> mail);
+
 private:
-    void PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> mail, CharacterDatabaseTransaction trans, uint32 existItems = 0);
-    void SaveMailToDB(uint32 mailID, CharacterDatabaseTransaction trans, std::shared_ptr<GameMail> mail);
+    static void PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> mail, CharacterDatabaseTransaction trans);
 
     std::unordered_map<ObjectGuid/*mail owner*/, std::vector<std::shared_ptr<GameMail>>> _mails;
     std::unordered_map<uint32/*mail id*/, MailItems> _mailItems;
+    std::unordered_map<ObjectGuid, std::unordered_map<ObjectGuid::LowType/*item low guid*/, Item*>> _mailItemPtrs;
 };
 
 #define sMailMgr MailMgr::instance()

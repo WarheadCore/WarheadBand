@@ -33,6 +33,15 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
+GameMail::~GameMail()
+{
+    if (_items.empty())
+        return;
+
+    for (auto const& [itemLowGuid, item] : _items)
+        delete item;
+}
+
 void GameMail::BuildSender(MailMessageType messageType, uint32 guidLowOrEntry, MailStationery stationery /*= MAIL_STATIONERY_DEFAULT*/)
 {
     MessageType = messageType;
@@ -231,12 +240,32 @@ void MailMgr::DeleteMailItem(uint32 mailID, ObjectGuid::LowType lowGuid)
     items->erase(lowGuid);
 }
 
+void MailMgr::AddMailForPlayer(Player* player, std::shared_ptr<GameMail> mail)
+{
+    if (!player || !mail)
+        return;
+
+    auto playerGuid{ player->GetGUID() };
+
+    auto const& itr = _mails.find(playerGuid);
+    if (itr == _mails.end())
+    {
+        _mails.emplace(playerGuid, std::vector{ mail });
+        return;
+    }
+
+    itr->second.emplace_back(mail);
+}
+
 void MailMgr::SendMail(CharacterDatabaseTransaction trans, std::shared_ptr<GameMail> mail)
 {
+    mail->MessageID = sObjectMgr->GenerateMailID();
+
     auto receiverGuid{ ObjectGuid(HighGuid::Player, mail->Receiver) };
     auto receiverGuidLow = receiverGuid.GetCounter();
     auto playerReceiver = ObjectAccessor::FindPlayer(receiverGuid); // can be nullptr
-    mail->MessageID = sObjectMgr->GenerateMailID();
+
+    PrepareItemsForPlayer(playerReceiver, mail, trans);
 
     // Add to DB
     mail->SaveMailToDB(trans);
@@ -250,7 +279,7 @@ void MailMgr::SendMail(CharacterDatabaseTransaction trans, std::shared_ptr<GameM
         playerReceiver->AddNewMailDeliverTime(mail->DeliverTime.count());
 
         AddMailItems(mail);
-
+        AddMailForPlayer(playerReceiver, mail);
 
         pReceiver->AddMail(m);                           // to insert new mail to beginning of maillist
 
@@ -268,7 +297,7 @@ void MailMgr::SendMail(CharacterDatabaseTransaction trans, std::shared_ptr<GameM
     }
 }
 
-void MailMgr::PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> mail, CharacterDatabaseTransaction trans, uint32 existItems /*= 0*/)
+void MailMgr::PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> mail, CharacterDatabaseTransaction trans)
 {
     if (!player || !mail->MailTemplateId || !mail->IsCanPrepareItems)
         return;
@@ -286,14 +315,14 @@ void MailMgr::PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> ma
     mailLoot.FillLoot(mail->MailTemplateId, LootTemplates_Mail, player, true, true);
 
     uint32 max_slot = mailLoot.GetMaxSlotInLootFor(player);
-    for (uint32 i = 0; i < MAX_MAIL_ITEMS && i < max_slot; ++i)
+    for (uint32 i = 0; mail->GetItems().size() < MAX_MAIL_ITEMS && i < max_slot; ++i)
     {
         if (LootItem* lootitem = mailLoot.LootItemInSlot(i, player))
         {
             if (Item* item = Item::CreateItem(lootitem->itemid, lootitem->count, player))
             {
                 item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
-                AddMailItem(item);
+                mail->AddMailItem(item);
             }
         }
     }
