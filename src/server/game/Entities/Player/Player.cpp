@@ -4035,7 +4035,7 @@ void Player::DeleteFromDB(ObjectGuid::LowType lowGuid, uint32 accountId, bool up
 
                         uint32 pl_account = sCharacterCache->GetCharacterAccountIdByGuid(ObjectGuid(HighGuid::Player, lowGuid));
 
-                        draft.AddMoney(money).SendReturnToSender(pl_account, lowGuid, sender, trans);
+                        draft.AddMoney(Copper{ money }).SendReturnToSender(pl_account, lowGuid, sender, trans);
                     } while (resultMail->NextRow());
                 }
 

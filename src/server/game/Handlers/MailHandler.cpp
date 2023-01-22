@@ -72,12 +72,12 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     ObjectGuid mailbox;
     uint64 unk3;
     std::string receiver, subject, body;
-    uint32 unk1, unk2, money, COD;
+    Copper money, COD;
+    uint32 unk1, unk2;
     uint8 unk4;
 
     recvData >> mailbox;
     recvData >> receiver;
-
     recvData >> subject;
 
     // prevent client crash
@@ -138,13 +138,13 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (!receiverGuid)
     {
         LOG_DEBUG("network.opcode", "Player {} is sending mail to {} (GUID: not existed!) with subject {} and body {} includes {} items, {} copper and {} COD copper with unk1 = {}, unk2 = {}",
-            player->GetGUID().ToString(), receiver, subject, body, items_count, money, COD, unk1, unk2);
+            player->GetGUID().ToString(), receiver, subject, body, items_count, money.GetCopper(), COD.GetCopper(), unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
     LOG_DEBUG("network.opcode", "Player {} is sending mail to {} ({}) with subject {} and body {} includes {} items, {} copper and {} COD copper with unk1 = {}, unk2 = {}",
-        player->GetGUID().ToString(), receiver, receiverGuid.ToString(), subject, body, items_count, money, COD, unk1, unk2);
+        player->GetGUID().ToString(), receiver, receiverGuid.ToString(), subject, body, items_count, money.GetCopper(), COD.GetCopper(), unk1, unk2);
 
     if (player->GetGUID() == receiverGuid)
     {
@@ -159,18 +159,17 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    uint32 cost = items_count ? 30 * items_count : 30; // price hardcoded in client
-
-    uint32 reqmoney = cost + money;
+    auto cost = items_count ? 30_copper * items_count : 30_copper; // price hardcoded in client
+    auto reqMoney = cost + money;
 
     // Check for overflow
-    if (reqmoney < money)
+    if (reqMoney < money)
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
     }
 
-    if (!player->HasEnoughMoney(reqmoney))
+    if (!player->HasEnoughMoney(reqMoney.GetCopper()))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
@@ -275,7 +274,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             return;
         }
 
-        if (!sScriptMgr->CanSendMail(player, receiverGuid, mailbox, subject, body, money, COD, item))
+        if (!sScriptMgr->CanSendMail(player, receiverGuid, mailbox, subject, body, money.GetCopper(), COD.GetCopper(), item))
         {
             return;
         }
@@ -285,8 +284,8 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
-    player->ModifyMoney(-int32(reqmoney));
-    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
+    player->ModifyMoney(-int32(reqMoney.GetCopper()));
+    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost.GetCopper());
 
     bool needItemDelay = false;
 
@@ -294,7 +293,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    if (items_count > 0 || money > 0)
+    if (items_count > 0 || money)
     {
         if (items_count > 0)
         {
@@ -318,11 +317,11 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             needItemDelay = GetAccountId() != rc_account;
         }
 
-        if( money >= 10 * GOLD )
+        if (money >= 10_gold)
         {
             CleanStringForMysqlQuery(subject);
-            CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"{}\", NOW(), {})",
-                GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), rc_account, receiver, money, subject, 5);
+            CharacterDatabase.Execute(R"(INSERT INTO log_money VALUES({}, {}, "{}", "{}", {}, "{}", {}, "{}", NOW(), {}))",
+                GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), rc_account, receiver, money.GetCopper(), subject, 5);
         }
     }
 
@@ -331,11 +330,11 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     // don't ask for COD if there are no items
     if (items_count == 0)
-        COD = 0;
+        COD.Clear();
 
     // will delete item or place to receiver mail list
     draft
-    .AddMoney(money)
+    .AddMoney(Copper{ money })
     .AddCOD(COD)
     .SendMailTo(trans, MailReceiver(receive, receiverGuid.GetCounter()), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
 
@@ -447,7 +446,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
                 player->RemoveMItem(itr2->item_guid);
             }
         }
-        draft.AddMoney(m->money).SendReturnToSender(GetAccountId(), m->receiver, m->sender, trans);
+        draft.AddMoney(m->Money).SendReturnToSender(GetAccountId(), m->receiver, m->sender, trans);
     }
 
     CharacterDatabase.CommitTransaction(trans);
@@ -495,7 +494,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     }
 
     // prevent cheating with skip client money check
-    if (!player->HasEnoughMoney(m->COD))
+    if (!player->HasEnoughMoney(m->COD.GetCopper()))
     {
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
@@ -511,7 +510,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
         m->RemoveItem(itemLowGuid);
         m->removedItems.push_back(itemLowGuid);
 
-        if (m->COD > 0) // if there is COD, take COD money from player and send them to sender by mail
+        if (m->COD) // if there is COD, take COD money from player and send them to sender by mail
         {
             uint32 sender_accId = 0;
             Player* sender = ObjectAccessor::FindPlayerByLowGUID(m->sender);
@@ -531,24 +530,25 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                 .AddMoney(m->COD)
                 .SendMailTo(trans, MailReceiver(sender, m->sender), MailSender(MAIL_NORMAL, m->receiver), MAIL_CHECK_MASK_COD_PAYMENT);
 
-                if( m->COD >= 10 * GOLD )
+                if (m->COD >= 10_gold)
                 {
                     std::string senderName;
                     if (!sCharacterCache->GetCharacterNameByGuid(ObjectGuid(HighGuid::Player, m->sender), senderName))
                     {
                         senderName = sGameLocale->GetWarheadStringForDBCLocale(LANG_UNKNOWN);
                     }
+
                     std::string subj = m->subject;
                     CleanStringForMysqlQuery(subj);
-                    CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"{}\", NOW(), {})",
-                        GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), sender_accId, senderName, m->COD, subj, 1);
+                    CharacterDatabase.Execute(R"(INSERT INTO log_money VALUES({}, {}, "{}", "{}", {}, "{}", {}, "{}", NOW(), {}))",
+                        GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), player->GetSession()->GetRemoteAddress(), sender_accId, senderName, m->COD.GetCopper(), subj, 1);
                 }
             }
 
-            player->ModifyMoney(-int32(m->COD));
+            player->ModifyMoney(-int32(m->COD.GetCopper()));
         }
 
-        m->COD = 0;
+        m->COD.Clear();
         m->state = MAIL_STATE_CHANGED;
         player->m_mailsUpdated = true;
         player->RemoveMItem(it->GetGUID().GetCounter());
@@ -586,13 +586,13 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
         return;
     }
 
-    if (!player->ModifyMoney(m->money, false))
+    if (!player->ModifyMoney(m->Money.GetCopper(), false))
     {
         player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_TOO_MUCH_GOLD);
         return;
     }
 
-    m->money = 0;
+    m->Money.Clear();
     m->state = MAIL_STATE_CHANGED;
     player->m_mailsUpdated = true;
 
@@ -679,10 +679,10 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             body = "";
         }
 
-        data << uint32(mail->COD);                                      // COD
+        data << mail->COD;                                              // COD
         data << uint32(0);                                              // probably changed in 3.3.3
         data << uint32(mail->stationery);                               // stationery (Stationery.dbc)
-        data << uint32(mail->money);                                    // Gold
+        data << mail->Money;                                            // Money in copper
         data << uint32(mail->checked);                                  // flags
         data << float(float(mail->expire_time - GameTime::GetGameTime().count()) / DAY);  // Time
         data << uint32(mail->mailTemplateId);                           // mail template (MailTemplate.dbc)

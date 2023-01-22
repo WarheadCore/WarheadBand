@@ -554,7 +554,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, Character
 
         if (sendMail) // can be changed in the hook
             MailDraft(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->Bidder, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut()))
-            .AddMoney(profit)
+            .AddMoney(Copper{ profit })
             .SendMailTo(trans, MailReceiver(owner, auction->PlayerOwner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED, CONF_GET_INT("MailDeliveryDelay"));
 
         if (auction->Bid >= 500 * GOLD)
@@ -632,7 +632,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
         {
             MailDraft(auction->BuildAuctionMailSubject(AUCTION_OUTBIDDED),
                 AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut()))
-                .AddMoney(auction->Bid)
+                .AddMoney(Copper{ auction->Bid })
                 .SendMailTo(trans, MailReceiver(oldBidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
         }
     }
@@ -654,7 +654,7 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, Ch
         {
             MailDraft(auction->BuildAuctionMailSubject(AUCTION_CANCELLED_TO_BIDDER),
                 AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut, auction->Deposit))
-                .AddMoney(auction->Bid)
+                .AddMoney(Copper{ auction->Bid })
                 .SendMailTo(trans, MailReceiver(bidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
         }
     }

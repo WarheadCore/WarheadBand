@@ -197,7 +197,7 @@ void ExternalMail::SendMailsAsync(QueryResult result)
             MailDraft* mail = new MailDraft(exMail.Subject, exMail.Body);
 
             if (exMail.Money)
-                mail->AddMoney(exMail.Money);
+                mail->AddMoney(Copper{ exMail.Money });
 
             for (auto const& [itemID, itemCount] : items)
             {

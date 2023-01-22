@@ -110,9 +110,7 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction tran
     // The mail sent after turning in the quest The Wrath of Neptulon contains 100g
     // Only quest in the game up to BFA which sends raw gold through mail. So would just be overkill to introduce a new column in the database.
     if (m_mailTemplateId == 123)
-    {
-        m_money = 1000000;
-    }
+        _money = 100_gold;
 
     Loot mailLoot;
 
@@ -209,13 +207,13 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     uint32 expire_delay;
 
     // auction mail without any items and money
-    if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !m_money)
+    if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !_money)
         expire_delay = CONF_GET_INT("MailDeliveryDelay");
     // mail from battlemaster (rewardmarks) should last only one day
     else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;
     // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
-    else if (m_COD)
+    else if (_COD)
         expire_delay = 3 * DAY;
     else if (custom_expiration > 0)
         expire_delay = custom_expiration * DAY;
@@ -241,8 +239,8 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     stmt->SetData(++index, !m_items.empty());
     stmt->SetData(++index, uint32(expire_time));
     stmt->SetData(++index, uint32(deliver_time));
-    stmt->SetData(++index, m_money);
-    stmt->SetData(++index, m_COD);
+    stmt->SetData(++index, _money.GetCopper());
+    stmt->SetData(++index, _COD.GetCopper());
     stmt->SetData(++index, uint8(checked));
     trans->Append(stmt);
 
@@ -267,7 +265,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
         m->mailTemplateId = GetMailTemplateId();
         m->subject = GetSubject();
         m->body = GetBody();
-        m->money = GetMoney();
+        m->Money = GetMoney();
         m->COD = GetCOD();
 
         for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)

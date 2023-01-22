@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
+#include "GameMoney.h"
 #include "ObjectGuid.h"
 #include <map>
 #include <utility>
@@ -122,21 +123,20 @@ class WH_GAME_API MailDraft
 
 public:                                                 // Constructors
     explicit MailDraft(uint16 mailTemplateId, bool need_items = true)
-        : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_money(0), m_COD(0)
-    {}
+        : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items) { }
     MailDraft(std::string  subject, std::string  body)
-        : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(std::move(subject)), m_body(std::move(body)), m_money(0), m_COD(0) {}
+        : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(std::move(subject)), m_body(std::move(body)) { }
 public:                                                 // Accessors
     [[nodiscard]] uint16 GetMailTemplateId() const { return m_mailTemplateId; }
     [[nodiscard]] std::string const& GetSubject() const { return m_subject; }
-    [[nodiscard]] uint32 GetMoney() const { return m_money; }
-    [[nodiscard]] uint32 GetCOD() const { return m_COD; }
+    [[nodiscard]] Copper GetMoney() const { return _money; }
+    [[nodiscard]] Copper GetCOD() const { return _COD; }
     [[nodiscard]] std::string const& GetBody() const { return m_body; }
 
 public:                                                 // modifiers
     MailDraft& AddItem(Item* item);
-    MailDraft& AddMoney(uint32 money) { m_money = money; return *this; }
-    MailDraft& AddCOD(uint32 COD) { m_COD = COD; return *this; }
+    MailDraft& AddMoney(Copper money) { _money = money; return *this; }
+    MailDraft& AddCOD(Copper COD) { _COD = COD; return *this; }
 
 public:                                                 // finishers
     void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans);
@@ -153,8 +153,8 @@ private:
 
     MailItemMap m_items;                                // Keep the items in a map to avoid duplicate guids (which can happen), store only low part of guid
 
-    uint32 m_money;
-    uint32 m_COD;
+    Copper _money;
+    Copper _COD;
 };
 
 struct MailItemInfo
@@ -162,6 +162,7 @@ struct MailItemInfo
     ObjectGuid::LowType item_guid;
     uint32 item_template;
 };
+
 typedef std::vector<MailItemInfo> MailItemInfoVec;
 
 struct Mail
@@ -178,8 +179,8 @@ struct Mail
     std::vector<uint32> removedItems;
     time_t expire_time;
     time_t deliver_time;
-    uint32 money;
-    uint32 COD;
+    Copper Money;
+    Copper COD;
     uint32 checked;
     MailState state;
 
