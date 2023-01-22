@@ -38,6 +38,8 @@
 #include <sstream>
 #include <vector>
 
+#include "MailMgr.h"
+
 constexpr auto AH_MINIMUM_DEPOSIT = 100;
 
 // Proof of concept, we should shift the info we're obtaining in here into AuctionEntry probably
@@ -497,9 +499,20 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
 
         if (sendMail) // can be changed in the hook
         {
-            MailDraft(auction->BuildAuctionMailSubject(AUCTION_WON), AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut))
-                .AddItem(item)
-                .SendMailTo(trans, MailReceiver(bidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
+            auto mail = sMailMgr->CreateGameMail();
+            mail->BuildHeaders(auction->BuildAuctionMailSubject(AUCTION_WON), AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut));
+            mail->Receiver = auction->Bidder.GetCounter();
+            mail->BuildSender(auction);
+            mail->BuildExpireTime();
+            mail->Checked = MAIL_CHECK_MASK_COPIED;
+
+            sMailMgr->AddMailItem(item);
+
+            sMailMgr->SendMail(trans, mail);
+
+//            MailDraft(auction->BuildAuctionMailSubject(AUCTION_WON), AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut))
+//                .AddItem(item)
+//                .SendMailTo(trans, MailReceiver(bidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
         }
     }
     else
