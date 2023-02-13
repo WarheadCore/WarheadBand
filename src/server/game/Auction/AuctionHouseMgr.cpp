@@ -505,14 +505,9 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
             mail->BuildSender(auction);
             mail->BuildExpireTime();
             mail->Checked = MAIL_CHECK_MASK_COPIED;
-
-            sMailMgr->AddMailItem(item);
+            mail->AddMailItem(item);
 
             sMailMgr->SendMail(trans, mail);
-
-//            MailDraft(auction->BuildAuctionMailSubject(AUCTION_WON), AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut))
-//                .AddItem(item)
-//                .SendMailTo(trans, MailReceiver(bidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
         }
     }
     else
@@ -535,9 +530,16 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
         timePacker.AppendPackedTime(GameTime::GetGameTime().count() + time_t(deliveryDelay));
 
         if (sendMail) // can be changed in the hook
-            MailDraft(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING),
-                AuctionEntry::BuildAuctionMailBody(auction->Bidder, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut(), deliveryDelay, timePacker.read<uint32>()))
-            .SendMailTo(trans, MailReceiver(owner, auction->PlayerOwner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
+        {
+            auto mail = sMailMgr->CreateGameMail();
+            mail->BuildHeaders(auction->BuildAuctionMailSubject(AUCTION_SALE_PENDING), AuctionEntry::BuildAuctionMailBody(auction->Bidder, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut(), deliveryDelay, timePacker.read<uint32>()));
+            mail->Receiver = auction->PlayerOwner.GetCounter();
+            mail->BuildSender(auction);
+            mail->BuildExpireTime();
+            mail->Checked = MAIL_CHECK_MASK_COPIED;
+
+            sMailMgr->SendMail(trans, mail);
+        }
     }
 }
 
@@ -566,9 +568,17 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, Character
         }
 
         if (sendMail) // can be changed in the hook
-            MailDraft(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->Bidder, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut()))
-            .AddMoney(Copper{ profit })
-            .SendMailTo(trans, MailReceiver(owner, auction->PlayerOwner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED, CONF_GET_INT("MailDeliveryDelay"));
+        {
+            auto mail = sMailMgr->CreateGameMail();
+            mail->BuildHeaders(auction->BuildAuctionMailSubject(AUCTION_SUCCESSFUL), AuctionEntry::BuildAuctionMailBody(auction->Bidder, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut()));
+            mail->Receiver = auction->PlayerOwner.GetCounter();
+            mail->BuildSender(auction);
+            mail->BuildExpireTime(Seconds{ CONF_GET_UINT("MailDeliveryDelay") });
+            mail->Checked = MAIL_CHECK_MASK_COPIED;
+            mail->Money = Copper{ profit };
+
+            sMailMgr->SendMail(trans, mail);
+        }
 
         if (auction->Bid >= 500 * GOLD)
         {
@@ -615,9 +625,14 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDat
 
         if (sendMail) // can be changed in the hook
         {
-            MailDraft(auction->BuildAuctionMailSubject(AUCTION_EXPIRED), AuctionEntry::BuildAuctionMailBody(ObjectGuid::Empty, 0, auction->BuyOut, auction->Deposit))
-                .AddItem(pItem)
-                .SendMailTo(trans, MailReceiver(owner, auction->PlayerOwner.GetCounter()), auction, MAIL_CHECK_MASK_COPIED, 0);
+            auto mail = sMailMgr->CreateGameMail();
+            mail->BuildHeaders(auction->BuildAuctionMailSubject(AUCTION_EXPIRED), AuctionEntry::BuildAuctionMailBody(ObjectGuid::Empty, 0, auction->BuyOut, auction->Deposit));
+            mail->Receiver = auction->PlayerOwner.GetCounter();
+            mail->BuildSender(auction);
+            mail->BuildExpireTime();
+            mail->Checked = MAIL_CHECK_MASK_COPIED;
+
+            sMailMgr->SendMail(trans, mail);
         }
     }
     else
@@ -643,10 +658,15 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
 
         if (sendMail) // can be changed in the hook
         {
-            MailDraft(auction->BuildAuctionMailSubject(AUCTION_OUTBIDDED),
-                AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut()))
-                .AddMoney(Copper{ auction->Bid })
-                .SendMailTo(trans, MailReceiver(oldBidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
+            auto mail = sMailMgr->CreateGameMail();
+            mail->BuildHeaders(auction->BuildAuctionMailSubject(AUCTION_OUTBIDDED), AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut, auction->Deposit, auction->GetAuctionCut()));
+            mail->Receiver = auction->Bidder.GetCounter();
+            mail->BuildSender(auction);
+            mail->BuildExpireTime();
+            mail->Checked = MAIL_CHECK_MASK_COPIED;
+            mail->Money = Copper{ auction->Bid };
+
+            sMailMgr->SendMail(trans, mail);
         }
     }
 }
@@ -665,10 +685,15 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, Ch
         sScriptMgr->OnBeforeAuctionHouseMgrSendAuctionCancelledToBidderMail(this, auction, bidder, bidderAccId, sendMail);
         if (sendMail) // can be changed in the hook
         {
-            MailDraft(auction->BuildAuctionMailSubject(AUCTION_CANCELLED_TO_BIDDER),
-                AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut, auction->Deposit))
-                .AddMoney(Copper{ auction->Bid })
-                .SendMailTo(trans, MailReceiver(bidder, auction->Bidder.GetCounter()), auction, MAIL_CHECK_MASK_COPIED);
+            auto mail = sMailMgr->CreateGameMail();
+            mail->BuildHeaders(auction->BuildAuctionMailSubject(AUCTION_CANCELLED_TO_BIDDER), AuctionEntry::BuildAuctionMailBody(auction->PlayerOwner, auction->Bid, auction->BuyOut, auction->Deposit));
+            mail->Receiver = auction->Bidder.GetCounter();
+            mail->BuildSender(auction);
+            mail->BuildExpireTime();
+            mail->Checked = MAIL_CHECK_MASK_COPIED;
+            mail->Money = Copper{ auction->Bid };
+
+            sMailMgr->SendMail(trans, mail);
         }
     }
 }

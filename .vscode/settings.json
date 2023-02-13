@@ -115,7 +115,8 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "*.ipp": "cpp",
-        "resumable": "cpp"
+        "resumable": "cpp",
+        "hash_map": "cpp"
     },
     "deno.enable": true,
     "deno.path": "deps/deno/bin/deno",

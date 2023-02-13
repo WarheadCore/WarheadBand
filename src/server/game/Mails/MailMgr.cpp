@@ -33,15 +33,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 
-GameMail::~GameMail()
-{
-    if (_items.empty())
-        return;
-
-    for (auto const& [itemLowGuid, item] : _items)
-        delete item;
-}
-
 void GameMail::BuildSender(MailMessageType messageType, uint32 guidLowOrEntry, MailStationery stationery /*= MAIL_STATIONERY_DEFAULT*/)
 {
     MessageType = messageType;
@@ -160,9 +151,11 @@ void GameMail::SaveMailToDB(CharacterDatabaseTransaction trans)
 
 void GameMail::AddMailItem(Item* item)
 {
+    sMailMgr->AddMailItem(item);
+
     auto lowGuid{ item->GetGUID().GetCounter() };
-    ASSERT(!_items.contains(lowGuid));
-    _items.emplace(lowGuid, item);
+    ASSERT(!_items.contains(lowGuid) && item);
+    _items.emplace(lowGuid, item->GetEntry());
 }
 
 bool GameMail::DeleteMailItem(ObjectGuid::LowType lowGuid, bool includeDB /*= false*/)
@@ -198,46 +191,30 @@ std::shared_ptr<GameMail> MailMgr::CreateGameMail()
     return std::make_shared<GameMail>();
 }
 
-void MailMgr::AddMailItem(uint32 mailID, ObjectGuid::LowType lowGuid, uint32 itemID)
+void MailMgr::AddMailItem(Item* item)
 {
-    auto const& itr = _mailItems.find(mailID);
-    if (itr == _mailItems.end())
-    {
-        _mailItems.emplace(mailID, MailItems{ { lowGuid, itemID } });
-        return;
-    }
-
-    itr->second.emplace(lowGuid, itemID);
+    auto lowGuid{ item->GetGUID().GetCounter() };
+    ASSERT(!_mailItems.contains(lowGuid) && item);
+    _mailItems.emplace(lowGuid, item);
 }
 
-void MailMgr::AddMailItems(std::shared_ptr<GameMail> mail)
+void MailMgr::DeleteMailItem(ObjectGuid::LowType lowGuid, CharacterDatabaseTransaction trans /*= nullptr*/, bool inDB /*= false*/)
 {
-    if (!mail || !mail->MessageID || mail->GetItems().empty())
+    auto item{ Warhead::Containers::MapGetValuePtr(_mailItems, lowGuid) };
+    if (!item)
         return;
 
-    auto const& itr = _mailItems.find(mail->MessageID);
-    if (itr == _mailItems.end())
+    if (inDB)
     {
-        MailItems items;
+        ASSERT(trans);
 
-        for (auto const& [itemLowGuid, item] : mail->GetItems())
-            items.emplace(itemLowGuid, item->GetEntry());
-
-        _mailItems.emplace(mail->MessageID, std::move(items));
-        return;
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+        stmt->SetData(0, item->GetGUID().GetCounter());
+        trans->Append(stmt);
     }
 
-    for (auto const& [itemLowGuid, item] : mail->GetItems())
-        itr->second.emplace(itemLowGuid, item->GetEntry());
-}
-
-void MailMgr::DeleteMailItem(uint32 mailID, ObjectGuid::LowType lowGuid)
-{
-    auto items{ Warhead::Containers::MapGetValuePtr(_mailItems, mailID) };
-    if (!items)
-        return;
-
-    items->erase(lowGuid);
+    delete item;
+    _mailItems.erase(lowGuid);
 }
 
 void MailMgr::AddMailForPlayer(Player* player, std::shared_ptr<GameMail> mail)
@@ -262,9 +239,9 @@ void MailMgr::SendMail(CharacterDatabaseTransaction trans, std::shared_ptr<GameM
     mail->MessageID = sObjectMgr->GenerateMailID();
 
     auto receiverGuid{ ObjectGuid(HighGuid::Player, mail->Receiver) };
-    auto receiverGuidLow = receiverGuid.GetCounter();
     auto playerReceiver = ObjectAccessor::FindPlayer(receiverGuid); // can be nullptr
 
+    // Prepare mail loot items
     PrepareItemsForPlayer(playerReceiver, mail, trans);
 
     // Add to DB
@@ -273,28 +250,18 @@ void MailMgr::SendMail(CharacterDatabaseTransaction trans, std::shared_ptr<GameM
     // Update players cache
     sCharacterCache->IncreaseCharacterMailCount(receiverGuid);
 
+    //
+    auto mailItems = mail->GetItems();
+
     // For online receiver update in game mail status and data
     if (playerReceiver)
     {
         playerReceiver->AddNewMailDeliverTime(mail->DeliverTime.count());
-
-        AddMailItems(mail);
         AddMailForPlayer(playerReceiver, mail);
-
-        pReceiver->AddMail(m);                           // to insert new mail to beginning of maillist
-
-        if (!m_items.empty())
-        {
-            for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
-            {
-                pReceiver->AddMItem(mailItemIter->second);
-            }
-        }
     }
-    else if (!m_items.empty())
-    {
-        deleteIncludedItems(CharacterDatabaseTransaction(nullptr));
-    }
+    else if (!mailItems.empty())
+        for (auto const& [itemLowGuid, itemID] : mailItems)
+            DeleteMailItem(itemLowGuid);
 }
 
 void MailMgr::PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> mail, CharacterDatabaseTransaction trans)
@@ -311,15 +278,15 @@ void MailMgr::PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> ma
 
     Loot mailLoot;
 
-    // can be empty
+    // Can be empty
     mailLoot.FillLoot(mail->MailTemplateId, LootTemplates_Mail, player, true, true);
 
     uint32 max_slot = mailLoot.GetMaxSlotInLootFor(player);
     for (uint32 i = 0; mail->GetItems().size() < MAX_MAIL_ITEMS && i < max_slot; ++i)
     {
-        if (LootItem* lootitem = mailLoot.LootItemInSlot(i, player))
+        if (LootItem* lootItem = mailLoot.LootItemInSlot(i, player))
         {
-            if (Item* item = Item::CreateItem(lootitem->itemid, lootitem->count, player))
+            if (Item* item = Item::CreateItem(lootItem->itemid, lootItem->count, player))
             {
                 item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
                 mail->AddMailItem(item);

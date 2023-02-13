@@ -34,9 +34,6 @@ struct CalendarEvent;
 
 struct WH_GAME_API GameMail
 {
-    GameMail() = default;
-    ~GameMail();
-
     uint32 MessageID{};
     MailMessageType MessageType{};
     MailStationery Stationery{ MAIL_STATIONERY_DEFAULT };
@@ -77,7 +74,7 @@ struct WH_GAME_API GameMail
     inline auto& GetItems() const { return _items; }
 
 private:
-    std::unordered_map<ObjectGuid::LowType/*item low guid*/, Item*> _items;
+    std::unordered_map<ObjectGuid::LowType, uint32/*item id*/> _items;
 };
 
 using MailItems = std::unordered_map<ObjectGuid::LowType, uint32/*item id*/>;
@@ -92,9 +89,8 @@ public:
     static std::shared_ptr<GameMail> CreateGameMail();
     void SendMail(CharacterDatabaseTransaction trans, std::shared_ptr<GameMail> mail);
 
-    void AddMailItem(uint32 mailID, ObjectGuid::LowType lowGuid, uint32 itemID);
-    void AddMailItems(std::shared_ptr<GameMail> mail);
-    void DeleteMailItem(uint32 mailID, ObjectGuid::LowType lowGuid);
+    void AddMailItem(Item* item);
+    void DeleteMailItem(ObjectGuid::LowType lowGuid, CharacterDatabaseTransaction trans = nullptr, bool inDB = false);
 
     void AddMailForPlayer(Player* player, std::shared_ptr<GameMail> mail);
 
@@ -102,8 +98,7 @@ private:
     static void PrepareItemsForPlayer(Player* player, std::shared_ptr<GameMail> mail, CharacterDatabaseTransaction trans);
 
     std::unordered_map<ObjectGuid/*mail owner*/, std::vector<std::shared_ptr<GameMail>>> _mails;
-    std::unordered_map<uint32/*mail id*/, MailItems> _mailItems;
-    std::unordered_map<ObjectGuid, std::unordered_map<ObjectGuid::LowType/*item low guid*/, Item*>> _mailItemPtrs;
+    std::unordered_map<ObjectGuid::LowType/*item low guid*/, Item*> _mailItems;
 };
 
 #define sMailMgr MailMgr::instance()
