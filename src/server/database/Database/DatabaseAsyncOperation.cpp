@@ -16,6 +16,7 @@
  */
 
 #include "DatabaseAsyncOperation.h"
+#include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 #include "QueryResult.h"
 #include <utility>
@@ -68,4 +69,9 @@ void PreparedStatementTask::ExecuteQuery()
     }
 
     _connection->Execute(_stmt);
+}
+
+void CheckAsyncQueueTask::Execute()
+{
+    _dbPool->CheckAsyncQueue();
 }

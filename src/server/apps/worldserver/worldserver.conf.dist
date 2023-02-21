@@ -115,12 +115,11 @@ DbcDatabaseInfo        = "127.0.0.1;3306;warhead;warhead;warhead_dbc"
 
 #
 #    MaxQueueSize
-#        Description: Max size queue before open new async dynamic connect for db
-#        Supported DB: Characters and World
-#        Default:     50
+#        Description: Max size queue before open new dynamic async connect for db
+#        Default:     10
 #
 
-MaxQueueSize = 50
+MaxQueueSize = 10
 
 #
 #    Database.Reconnect.Seconds

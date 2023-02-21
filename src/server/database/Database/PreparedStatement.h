@@ -120,6 +120,7 @@ public:
 
     [[nodiscard]] uint32 GetIndex() const { return _index; }
     [[nodiscard]] std::vector<PreparedStatementData> const& GetParameters() const { return _statementData; }
+    [[nodiscard]] std::pair<bool, uint8> IsAllParamsSet() const;
 
 protected:
     template<typename T>
@@ -142,6 +143,7 @@ protected:
     }
 
     uint32 _index;
+    std::vector<bool> _paramsSet;
 
     //- Buffer of parameters, not tied to MySQL in any way yet
     std::vector<PreparedStatementData> _statementData;

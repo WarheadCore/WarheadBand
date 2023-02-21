@@ -28,29 +28,37 @@ template <typename T>
 class ProducerConsumerQueue
 {
 private:
-    std::mutex _queueLock;
+    mutable std::mutex _queueLock;
     std::queue<T> _queue;
     std::condition_variable _condition;
-    std::atomic<bool> _shutdown;
+    std::atomic<bool> _shutdown{ false };
 
 public:
-    ProducerConsumerQueue() : _shutdown(false) { }
+    ProducerConsumerQueue() = default;
 
-    void Push(const T& value)
+    void Push(T const& value)
+    {
+        std::lock_guard<std::mutex> lock(_queueLock);
+        _queue.push(value);
+        _condition.notify_one();
+    }
+
+    void Push(T&& value)
     {
         std::lock_guard<std::mutex> lock(_queueLock);
         _queue.push(std::move(value));
         _condition.notify_one();
     }
 
-    bool Empty()
+    bool Empty() const
     {
         std::lock_guard<std::mutex> lock(_queueLock);
         return _queue.empty();
     }
 
-    [[nodiscard]] std::size_t Size() const
+    std::size_t Size() const
     {
+        std::lock_guard<std::mutex> lock(_queueLock);
         return _queue.size();
     }
 
@@ -59,11 +67,9 @@ public:
         std::lock_guard<std::mutex> lock(_queueLock);
 
         if (_queue.empty() || _shutdown)
-        {
             return false;
-        }
 
-        value = _queue.front();
+        value = std::move(_queue.front());
         _queue.pop();
         return true;
     }
@@ -84,6 +90,22 @@ public:
         _queue.pop();
     }
 
+    void WaitAndPop(T& value, std::atomic<bool> const& customCancel)
+    {
+        std::unique_lock<std::mutex> lock(_queueLock);
+
+        // we could be using .wait(lock, predicate) overload here but it is broken
+        // https://connect.microsoft.com/VisualStudio/feedback/details/1098841
+        while (_queue.empty() && !_shutdown && !customCancel)
+            _condition.wait(lock);
+
+        if (_queue.empty() || _shutdown || customCancel)
+            return;
+
+        value = _queue.front();
+        _queue.pop();
+    }
+
     void Cancel()
     {
         std::unique_lock<std::mutex> lock(_queueLock);
@@ -91,7 +113,10 @@ public:
         while (!_queue.empty())
         {
             T& value = _queue.front();
-            DeleteQueuedObject(value);
+
+            if constexpr (std::is_pointer_v<T>)
+                delete value;
+
             _queue.pop();
         }
 
@@ -99,12 +124,11 @@ public:
         _condition.notify_all();
     }
 
-private:
-    template<typename E = T>
-    typename std::enable_if<std::is_pointer<E>::value>::type DeleteQueuedObject(E& obj) { delete obj; }
-
-    template<typename E = T>
-    typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/) { }
+    void NotifyAll()
+    {
+        std::lock_guard<std::mutex> lock(_queueLock);
+        _condition.notify_all();
+    }
 };
 
 #endif

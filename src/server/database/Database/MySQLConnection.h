@@ -24,14 +24,15 @@
 #include <string>
 #include <string_view>
 #include <thread>
-#include <unordered_map>
+#include <vector>
 
 template <typename T>
 class ProducerConsumerQueue;
 
 class AsyncOperation;
+class AsyncDBQueueWorker;
 
-using PreparedStatementList = std::unordered_map<uint32, std::unique_ptr<MySQLPreparedStatement>>;
+using PreparedStatementList = std::vector<std::unique_ptr<MySQLPreparedStatement>>;
 
 struct WH_DATABASE_API MySQLConnectionInfo
 {
@@ -48,7 +49,7 @@ struct WH_DATABASE_API MySQLConnectionInfo
 class WH_DATABASE_API MySQLConnection
 {
 public:
-    explicit MySQLConnection(MySQLConnectionInfo& connInfo, bool isAsync = false, bool isDynamic = false);
+    explicit MySQLConnection(MySQLConnectionInfo& connInfo, ProducerConsumerQueue<AsyncOperation*>* dbQueue, bool isDynamic = false);
     virtual ~MySQLConnection();
 
     virtual uint32 Open();
@@ -88,19 +89,14 @@ public:
     [[nodiscard]] uint32 GetServerVersion() const;
 
     [[nodiscard]] inline bool IsDynamic() const { return _isDynamic; }
-
-    bool CanRemoveConnection();
-    void RegisterThread();
-
-    void Enqueue(AsyncOperation* operation) const;
-    std::size_t GetQueueSize() const;
+    [[nodiscard]] bool CanRemoveConnection();
+    [[nodiscard]] std::size_t GetQueueSize() const;
 
 private:
     bool Query(std::string_view sql, MySQLResult** result, MySQLField** fields, uint64* rowCount, uint32* fieldCount);
     bool Query(PreparedStatement stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
     bool HandleMySQLError(uint32 errNo, uint8 attempts = 5);
     inline void UpdateLastUseTime() { _lastUseTime = std::chrono::system_clock::now(); }
-    void ExecuteQueue();
 
     MySQLHandle* _mysqlHandle{ nullptr };
     MySQLConnectionInfo& _connectionInfo;
@@ -108,12 +104,10 @@ private:
     PreparedStatementList _stmtList;
     std::mutex _mutex;
     bool _isDynamic{};
-    bool _prepareError{};  //! Was there any error while preparing statements?
+    bool _prepareError{}; //! Was there any error while preparing statements?
     SystemTimePoint _lastUseTime;
-
-    // Async
-    std::unique_ptr<ProducerConsumerQueue<AsyncOperation*>> _queue;
-    std::unique_ptr<std::thread> _thread;
+    ProducerConsumerQueue<AsyncOperation*>* _queue{ nullptr };
+    std::unique_ptr<AsyncDBQueueWorker> _asyncQueueWorker;
 
     MySQLConnection(MySQLConnection const& right) = delete;
     MySQLConnection& operator=(MySQLConnection const& right) = delete;

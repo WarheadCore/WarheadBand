@@ -230,6 +230,14 @@ Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
 
 #
+#    MaxQueueSize
+#        Description: Max size queue before open new dynamic async connect for db
+#        Default:     10
+#
+
+MaxQueueSize = 10
+
+#
 #    MaxPingTime
 #        Description: Time (in minutes) between database pings.
 #        Default:     30

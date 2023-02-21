@@ -55,7 +55,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
     // #2. Check option for enable auto update this pool
     bool const updatesEnabledForThis = DBUpdater::IsEnabled(pool, _updateFlags);
 
-    _open.push([this, name, updatesEnabledForThis, &pool]() -> bool
+    _open.emplace([this, name, updatesEnabledForThis, &pool]() -> bool
     {
        auto const dbString = sConfigMgr->GetOption<std::string>(std::string(name) + "DatabaseInfo", "");
        if (dbString.empty())
@@ -107,7 +107,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
        }
 
        // Add the close operation
-       _close.push([&pool]
+       _close.emplace([&pool]
        {
            pool.Close();
        });
@@ -118,7 +118,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
     // Populate and update only if updates are enabled for this pool
     if (updatesEnabledForThis)
     {
-        _populate.push([this, name, &pool]() -> bool
+        _populate.emplace([this, name, &pool]() -> bool
         {
            if (!DBUpdater::Populate(pool))
            {
@@ -129,9 +129,9 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
            return true;
         });
 
-        _update.push([this, name, &pool]() -> bool
+        _update.emplace([this, name, &pool]() -> bool
         {
-             if (!DBUpdater::Update(pool, _modulesList))
+             if (!DBUpdater::Update(pool))
              {
                  LOG_ERROR("db", "Could not update the {} database, see log for details.", name);
                  return false;
@@ -141,7 +141,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
         });
     }
 
-    _prepare.push([this, name, &pool]() -> bool
+    _prepare.emplace([this, name, &pool]() -> bool
     {
         if (!pool.PrepareStatements())
         {
@@ -150,7 +150,6 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
         }
 
         _poolList.emplace_back(&pool);
-
         return true;
     });
 }

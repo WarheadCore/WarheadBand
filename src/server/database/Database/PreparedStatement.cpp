@@ -23,7 +23,10 @@
 
 PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
     _index(index),
-    _statementData(capacity) { }
+    _statementData(capacity)
+{
+    _paramsSet.assign(capacity, false);
+}
 
 //- Bind to buffer
 template<typename T>
@@ -31,6 +34,7 @@ Warhead::Types::is_non_string_view_v<T> PreparedStatementBase::SetValidData(cons
 {
     ASSERT(index < _statementData.size());
     _statementData[index].data.emplace<T>(value);
+    _paramsSet[index] = true;
 }
 
 // Non template functions
@@ -38,12 +42,14 @@ void PreparedStatementBase::SetValidData(const uint8 index)
 {
     ASSERT(index < _statementData.size());
     _statementData[index].data.emplace<std::nullptr_t>(nullptr);
+    _paramsSet[index] = true;
 }
 
 void PreparedStatementBase::SetValidData(const uint8 index, std::string_view value)
 {
     ASSERT(index < _statementData.size(), "> Incorrect index ({}). Statement data size: {}", index, _statementData.size());
     _statementData[index].data.emplace<std::string>(value);
+    _paramsSet[index] = true;
 }
 
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, uint8 const& value);
@@ -58,6 +64,15 @@ template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 in
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, float const& value);
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value);
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value);
+
+std::pair<bool, uint8> PreparedStatementBase::IsAllParamsSet() const
+{
+    for (std::size_t index{}; index < _paramsSet.size(); index++)
+        if (!_paramsSet[index])
+            return { false, index };
+
+    return { true, {} };
+}
 
 template<typename T>
 std::string PreparedStatementData::ToString(T value)

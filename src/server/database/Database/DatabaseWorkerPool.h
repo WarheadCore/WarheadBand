@@ -31,8 +31,9 @@
 template <typename T>
 class ProducerConsumerQueue;
 
+class AsyncDBQueueChecker;
 class AsyncOperation;
-class AsyncEnqueue;
+class CheckAsyncQueueTask;
 class TaskScheduler;
 
 struct StringPreparedStatement
@@ -56,7 +57,7 @@ private:
     };
 
 public:
-    DatabaseWorkerPool(DatabaseType type);
+    explicit DatabaseWorkerPool(DatabaseType type);
     ~DatabaseWorkerPool();
 
     void SetConnectionInfo(std::string_view infoString);
@@ -213,28 +214,30 @@ public:
 #endif
     }
 
-    std::string_view GetPoolName() const { return _poolName; }
-    void SetPoolName(std::string_view name) { _poolName = name; }
+    inline std::string_view GetPoolName() const { return _poolName; }
+    inline void SetPoolName(std::string_view name) { _poolName = name; }
 
-    DatabaseType GetType() const { return _poolType; }
-    void SetType(DatabaseType type) { _poolType = type; }
+    inline DatabaseType GetType() const { return _poolType; }
+    inline void SetType(DatabaseType type) { _poolType = type; }
 
     void Update(Milliseconds diff);
     [[nodiscard]] std::size_t GetQueueSize() const;
 
-    inline void EnableDynamicConnections() { _isEnableDynamicConnections = true; }
-    inline void DisableDynamicConnections() { _isEnableDynamicConnections = false; }
-
     void OpenDynamicAsyncConnect();
     void OpenDynamicSyncConnect();
-
-    inline void SetMaxQueueSize(uint32 size) { _maxQueueSize = size; }
 
     void GetPoolInfo(std::function<void(std::string_view)> const& info);
 
     inline std::string_view GetPathToExtraFile() { return _pathToExtraFile; }
 
-    void InitDynamicConnections();
+    void CheckCleanup();
+    void CheckAsyncQueue();
+
+protected:
+    inline void SetStatementSize(std::size_t statementSize) { _statementSize = statementSize; }
+    inline std::size_t GetStatementSize() const { return _statementSize; }
+
+    std::size_t _statementSize{};
 
 private:
     std::pair<uint32, MySQLConnection*> OpenConnection(InternalIndex type, bool isDynamic = false);
@@ -243,7 +246,6 @@ private:
     unsigned long EscapeString(char* to, char const* from, unsigned long length);
     void AddTasks();
     void MakeExtraFile();
-    void ExecuteAsyncQueue();
 
     //! Gets a free connection in the synchronous connection pool.
     //! Caller MUST call t->Unlock() after touching the MySQL context to prevent deadlocks.
@@ -262,13 +264,13 @@ private:
     std::string _poolName;
     std::string _pathToExtraFile;
     DatabaseType _poolType{ DatabaseType::None };
-    std::unique_ptr<TaskScheduler> _scheduler{};
-    bool _isEnableDynamicConnections{};
-    uint32 _maxQueueSize{ 50 };
+    std::unique_ptr<TaskScheduler> _scheduler;
 
-    // Dynamic async enqueue
-    std::unique_ptr<ProducerConsumerQueue<AsyncEnqueue*>> _queue;
-    std::unique_ptr<std::thread> _thread;
+    // Async queue
+    std::unique_ptr<ProducerConsumerQueue<AsyncOperation*>> _queue;
+    std::unique_ptr<ProducerConsumerQueue<CheckAsyncQueueTask*>> _asyncQueueCheckQueue;
+    std::unique_ptr<AsyncDBQueueChecker> _asyncQueueChecker;
+    std::size_t _maxAsyncQueueSize{ 10 };
 
 #ifdef WARHEAD_DEBUG
     static inline thread_local bool _warnSyncQueries = false;

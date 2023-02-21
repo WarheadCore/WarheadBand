@@ -24,6 +24,8 @@ CharacterDatabasePool CharacterDatabase;
 
 void CharacterDatabasePool::DoPrepareStatements()
 {
+    SetStatementSize(MAX_CHARACTER_DATABASE_STATEMENTS);
+
     PrepareStatement(CHAR_DEL_QUEST_POOL_SAVE, "DELETE FROM pool_quest_save WHERE pool_id = ?", ConnectionFlags::Async);
     PrepareStatement(CHAR_INS_QUEST_POOL_SAVE, "INSERT INTO pool_quest_save (pool_id, quest_id) VALUES (?, ?)", ConnectionFlags::Async);
     PrepareStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM, "DELETE FROM guild_bank_item WHERE guildid = ? AND TabId = ? AND SlotId = ?", ConnectionFlags::Async);

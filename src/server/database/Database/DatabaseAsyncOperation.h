@@ -20,6 +20,8 @@
 
 #include "DatabaseEnvFwd.h"
 
+class DatabaseWorkerPool;
+
 class WH_DATABASE_API AsyncOperation
 {
 public:
@@ -68,19 +70,21 @@ private:
     std::unique_ptr<PreparedQueryResultPromise> _result;
 };
 
-class WH_DATABASE_API AsyncEnqueue
+class WH_DATABASE_API CheckAsyncQueueTask
 {
 public:
-    explicit AsyncEnqueue(AsyncOperation* operation) :
-        _operation(operation) { }
+    explicit CheckAsyncQueueTask(DatabaseWorkerPool* dbPool) :
+        _dbPool(dbPool) { }
 
-    inline AsyncOperation* GetOperation() { return _operation; }
+    virtual ~CheckAsyncQueueTask() = default;
+
+    void Execute();
 
 private:
-    AsyncOperation* _operation;
+    DatabaseWorkerPool* _dbPool;
 
-    AsyncEnqueue(AsyncEnqueue const& right) = delete;
-    AsyncEnqueue& operator=(AsyncEnqueue const& right) = delete;
+    CheckAsyncQueueTask(CheckAsyncQueueTask const& right) = delete;
+    CheckAsyncQueueTask& operator=(CheckAsyncQueueTask const& right) = delete;
 };
 
 #endif // _DATABASE_ASYNC_OPERATION_H_

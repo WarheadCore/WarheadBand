@@ -21,6 +21,8 @@ AuthDatabasePool AuthDatabase;
 
 void AuthDatabasePool::DoPrepareStatements()
 {
+    SetStatementSize(MAX_LOGIN_DATABASE_STATEMENTS);
+
     PrepareStatement(LOGIN_SEL_LOGONCHALLENGE,
                      "SELECT a.id, a.username, a.locked, a.lock_country, a.last_ip, a.failed_logins, "
                      "ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, ab.unbandate = ab.bandate, "

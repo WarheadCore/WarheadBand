@@ -25,6 +25,8 @@ WorldDatabasePool WorldDatabase;
 
 void WorldDatabasePool::DoPrepareStatements()
 {
+    SetStatementSize(MAX_WORLD_DATABASE_STATEMENTS);
+
     PrepareStatement(WORLD_SEL_QUEST_POOLS, "SELECT entry, pool_entry FROM pool_quest", ConnectionFlags::Sync);
     PrepareStatement(WORLD_DEL_CRELINKED_RESPAWN, "DELETE FROM linked_respawn WHERE guid = ?", ConnectionFlags::Async);
     PrepareStatement(WORLD_REP_CREATURE_LINKED_RESPAWN, "REPLACE INTO linked_respawn (guid, linkedGuid) VALUES (?, ?)", ConnectionFlags::Async);

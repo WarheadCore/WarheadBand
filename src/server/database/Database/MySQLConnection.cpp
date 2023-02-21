@@ -17,6 +17,7 @@
 
 #include "MySQLConnection.h"
 #include "DatabaseAsyncOperation.h"
+#include "DatabaseAsyncQueueWorker.h"
 #include "Errors.h"
 #include "Log.h"
 #include "MySQLHacks.h"
@@ -67,31 +68,28 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string_view infoString)
         SSL.assign(tokens.at(5));
 }
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, bool isAsync/* = false*/, bool isDynamic /*= false*/) :
+MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ProducerConsumerQueue<AsyncOperation*>* dbQueue, bool isDynamic /*= false*/) :
     _connectionInfo(connInfo),
     _isDynamic(isDynamic),
-    _connectionFlags(isAsync ? ConnectionFlags::Async : ConnectionFlags::Sync),
-    _queue(std::make_unique<ProducerConsumerQueue<AsyncOperation*>>())
+    _connectionFlags(dbQueue ? ConnectionFlags::Async : ConnectionFlags::Sync),
+    _queue(dbQueue)
 {
-    if (!_isDynamic)
-        RegisterThread();
+    if (_queue)
+        _asyncQueueWorker = std::make_unique<AsyncDBQueueWorker>(_queue, this);
 
     UpdateLastUseTime();
 }
 
 MySQLConnection::~MySQLConnection()
 {
-    _queue->Cancel();
-
-    if (_thread)
-        _thread->join();
-
     Close();
     LOG_DEBUG("db.connection", "> Close {} connection to '{}' db", GetConnectionFlagString(_connectionFlags), _connectionInfo.Database);
 }
 
 void MySQLConnection::Close()
 {
+    _asyncQueueWorker.reset();
+
     if (_mysqlHandle)
     {
         mysql_close(_mysqlHandle);
@@ -146,7 +144,7 @@ uint32 MySQLConnection::Open()
 
     if (_mysqlHandle)
     {
-        LOG_INFO("db.connection", "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
+        LOG_MSG_BODY("db.connection", _isDynamic ? Warhead::LogLevel::Debug : Warhead::LogLevel::Info, "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
         mysql_autocommit(_mysqlHandle, 1);
 
         // set connection properties to UTF8 to properly handle locales for different
@@ -193,7 +191,7 @@ bool MySQLConnection::Execute(std::string_view sql)
 
 bool MySQLConnection::Execute(PreparedStatement stmt)
 {
-    if (!_mysqlHandle)
+    if (!_mysqlHandle || !stmt)
         return false;
 
     uint32 index = stmt->GetIndex();
@@ -502,7 +500,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string_view sql, Conne
             _prepareError = true;
         }
         else
-            _stmtList.emplace(index, std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql));
+            _stmtList[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
     }
 }
 
@@ -623,38 +621,10 @@ bool MySQLConnection::CanRemoveConnection()
     return diff >= DYNAMIC_CONNECTION_TIMEOUT;
 }
 
-void MySQLConnection::RegisterThread()
-{
-    if (_connectionFlags == ConnectionFlags::Async && _queue)
-        _thread = std::make_unique<std::thread>([this](){ ExecuteQueue(); });
-}
-
-void MySQLConnection::ExecuteQueue()
-{
-    if (!_queue)
-        return;
-
-    for (;;)
-    {
-        AsyncOperation* task = nullptr;
-
-        _queue->WaitAndPop(task);
-
-        if (!task)
-            break;
-
-        task->SetConnection(this);
-        task->ExecuteQuery();
-        delete task;
-    }
-}
-
-void MySQLConnection::Enqueue(AsyncOperation* operation) const
-{
-    _queue->Push(operation);
-}
-
 std::size_t MySQLConnection::GetQueueSize() const
 {
+    if (!_queue)
+        return 0;
+
     return _queue->Size();
 }

@@ -51,7 +51,7 @@ namespace
                 return true;
         }
 
-        // In16
+        // Int16
         if constexpr (std::is_same_v<T, uint16> || std::is_same_v<T, int16>)
         {
             if (type == DatabaseFieldTypes::Int16)
@@ -210,12 +210,21 @@ T Field::GetData() const
     }
 #endif
 
-    std::optional<T> result = {};
+    std::optional<T> result;
 
     if (data.raw)
         result = *reinterpret_cast<T const*>(data.value);
     else
         result = Warhead::StringTo<T>(data.value);
+
+    if (!result)
+    {
+        if constexpr (std::is_unsigned_v<T> && !std::is_same_v<T, bool>)
+        {
+            if (auto newResult = Warhead::StringTo<std::make_signed_t<T>>(data.value))
+                result = static_cast<T>(*newResult);
+        }
+    }
 
     // Correct double fields... this undefined behavior :/
     if constexpr (std::is_same_v<T, double>)
@@ -226,35 +235,17 @@ T Field::GetData() const
             result = Warhead::StringTo<float>(data.value);
     }
 
-    // Check -1 for *_dbc db tables
-    if constexpr (std::is_same_v<T, uint32>)
-    {
-        std::string_view tableName{ meta->TableName };
-
-        if (!tableName.empty() && tableName.size() > 4 && tableName.substr(tableName.length() - 4) == "_dbc")
-        {
-            auto signedResult = Warhead::StringTo<int32>(data.value);
-
-            if (signedResult && !result)
-            {
-                LOG_DEBUG("db.query", "> Found incorrect value '{}' for type '{}' in _dbc table.", data.value, typeid(T).name());
-                LOG_DEBUG("db.query", "> Table name '{}'. Field name '{}'. Try return int32 value", meta->TableName, meta->Name);
-                return GetData<int32>();
-            }
-        }
-    }
-
     if (auto alias = GetCleanAliasName(meta->Alias))
     {
         if ((StringEqualI(*alias, "min") || StringEqualI(*alias, "max")) && !IsCorrectAlias<T>(meta->Type, *alias))
         {
-            LogWrongType(__FUNCTION__, typeid(T).name());
+            LogWrongType(__FUNCTION__, GetTypeName<T>());
             //ABORT();
         }
 
         if ((StringEqualI(*alias, "sum") || StringEqualI(*alias, "avg")) && !IsCorrectAlias<T>(meta->Type, *alias))
         {
-            LogWrongType(__FUNCTION__, typeid(T).name());
+            LogWrongType(__FUNCTION__, GetTypeName<T>());
             LOG_WARN("db.query", "> Please use GetData<double>()");
             return GetData<double>();
             //ABORT();
@@ -262,7 +253,7 @@ T Field::GetData() const
 
         if (StringEqualI(*alias, "count") && !IsCorrectAlias<T>(meta->Type, *alias))
         {
-            LogWrongType(__FUNCTION__, typeid(T).name());
+            LogWrongType(__FUNCTION__, GetTypeName<T>());
             LOG_WARN("db.query", "> Please use GetData<uint64>()");
             return GetData<uint64>();
             //ABORT();
@@ -271,7 +262,7 @@ T Field::GetData() const
 
     if (!result)
     {
-        LOG_FATAL("db.query", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, typeid(T).name(), data.raw);
+        LOG_FATAL("db.query", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, GetTypeName<T>(), data.raw);
         LOG_FATAL("db.query", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
         //ABORT();
         return GetDefaultValue<T>();
