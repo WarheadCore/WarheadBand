@@ -131,7 +131,7 @@ void DatabaseMgr::AddDatabase(DatabaseWorkerPool& pool, std::string_view name)
 
         _update.emplace([this, name, &pool]() -> bool
         {
-             if (!DBUpdater::Update(pool))
+             if (!DBUpdater::Update(pool, _modulesList))
              {
                  LOG_ERROR("db", "Could not update the {} database, see log for details.", name);
                  return false;
