@@ -3450,6 +3450,15 @@ Guild.BankTabCost4 = 25000000
 Guild.BankTabCost5 = 50000000
 
 #
+#       Guild.LevelReward
+#          Description: Reward level after kill boss or use item
+#          Default:     100 - kill boss
+#                       150 - use item
+
+guild.LevelRewardKillBoss = 100
+guild.LevelRewardItemUse = 150
+
+#
 #     ShowKickInWorld
 #        Description: Determines whether a message is broadcast to the entire server when a
 #                     player gets kicked

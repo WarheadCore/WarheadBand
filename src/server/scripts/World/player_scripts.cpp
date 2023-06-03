@@ -20,6 +20,7 @@
 
 #include "Player.h"
 #include "ScriptObject.h"
+#include "GuildLevelMgr.h"
 
 enum ApprenticeAnglerQuestEnum
 {
@@ -69,7 +70,67 @@ public:
     }
 };
 
+class GuildLevelPlayerScript : public PlayerScript
+{
+public:
+    GuildLevelPlayerScript() : PlayerScript("GuildLevelPlayerScript") { }
+
+    void OnLogin(Player* player) override
+    {
+        if (player) {
+            sGuildLevelMgr->LearnOrRemoveSpell(player);     
+        }
+    }
+
+    void OnCreatureKill(Player* player, Creature* boss) override {
+        if (!player || !boss->isWorldBoss())
+            return;
+
+        sGuildLevelMgr->RewardOnKillBoss(player);            
+    }    
+
+    void OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action) override
+    {    
+        if (!player)
+            return;
+
+        // 99 - это номер меню, которое мы создали в OnGossipHello
+        if (menu_id != 99)
+            return;
+
+        ClearGossipMenuFor(player);
+        switch (sender) {
+            // Глобальные функции
+            case GOSSIP_SENDER_MAIN: {
+                switch (action) {
+                    case 0: { // Старт меню гильдии
+                        sGuildLevelMgr->GuildLevelWindow(player);
+                    } break;
+                    case 1: { // Вложение в гильдию
+                        sGuildLevelMgr->GuildLevelInvestment(player);
+                    } break;
+                    case 2: { // История вложения всех членов гильдии
+                        sGuildLevelMgr->GuildLevelInvestmentHistory(player, true);
+                    } break;
+                    case 3: { // Покупка Дома
+                        sGuildLevelMgr->GuildLevelBuyHouse(player);
+                    } break;
+                    case 4: { // Доступные заклинания по уровню
+                        sGuildLevelMgr->GuildLevelSpell(player);
+                    } break;
+                    case 5: { // История вложения одного члена гильдии
+                        sGuildLevelMgr->GuildLevelInvestmentHistory(player, false);
+                    } break;
+                    default: break;
+                }
+            } break;
+            default: break;
+        }
+    }
+};
+
 void AddSC_player_scripts()
 {
     new QuestApprenticeAnglerPlayerScript();
+    new GuildLevelPlayerScript();
 }

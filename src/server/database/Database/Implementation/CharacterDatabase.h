@@ -517,6 +517,12 @@ enum CharacterDatabaseStatements : uint32
     CHAR_DELETE_INSTANCE_SAVED_DATA,
     CHAR_SANITIZE_INSTANCE_SAVED_DATA,
 
+    // guild level system - guild_level_invest_log table
+    CHAR_INS_GUILD_LEVEL_LOG,
+    // guild level system - guild table
+    CHAR_UPD_GUILD_EXP,
+    CHAR_UPD_GUILD_LEVEL,    
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

@@ -530,6 +530,14 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     CheckLogRecordsCount("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
     CheckLogRecordsCount("Guild.BankEventLogRecordsCount", GUILD_BANKLOG_MAX_RECORDS);
 
+    tempIntOption = CONF_GET_INT("Guild.LevelRewardKillBoss");
+    if (tempIntOption < 1)
+        SetOption<int32>("Guild.LevelRewardKillBoss", 100);    
+
+    tempIntOption = CONF_GET_INT("Guild.LevelRewardItemUse");
+    if (tempIntOption < 1)
+        SetOption<int32>("Guild.LevelRewardItemUse", 150);
+
     if (CONF_GET_BOOL("PlayerStart.CustomSpells"))
         LOG_WARN("server.loading", "WORLD: WARNING: PlayerStart.CustomSpells enabled - may not function as intended!");
 

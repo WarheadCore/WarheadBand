@@ -29,6 +29,7 @@
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameTime.h"
+#include "GuildLevelMgr.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
 #include "Language.h"
@@ -1060,10 +1061,19 @@ bool Guild::Create(Player* pLeader, std::string_view name)
 
     m_id = sGuildMgr->GenerateGuildId();
     m_leaderGuid = pLeader->GetGUID();
-    m_name = name;
     m_info = "";
     m_motd = "No message set.";
     m_bankMoney = 0;
+
+    // guild name system
+    m_guildExp = 0;
+    m_guildLevel = 1;
+
+    m_defaultName = name;
+    std::stringstream ss;
+    ss << name << ", 1 ур.";
+    m_name = ss.str();
+
     m_createdDate = GameTime::GetGameTime().count();
 
     LOG_DEBUG("guild", "GUILD: creating guild [{}] for leader {} ({})",
@@ -1089,6 +1099,9 @@ bool Guild::Create(Player* pLeader, std::string_view name)
     stmt->SetData(++index, m_emblemInfo.GetBorderColor());
     stmt->SetData(++index, m_emblemInfo.GetBackgroundColor());
     stmt->SetData(++index, m_bankMoney);
+    stmt->SetData(++index, m_guildExp);
+    stmt->SetData(++index, m_guildLevel);
+    stmt->SetData(++index, m_defaultName);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -1187,11 +1200,13 @@ void Guild::OnPlayerStatusChange(Player* player, uint32 flag, bool state)
     }
 }
 
-bool Guild::SetName(std::string_view const& name)
+bool Guild::SetName(std::string_view const& name, bool isSystem)
 {
-    if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
-    {
-        return false;
+    if (!isSystem) {
+        if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+        {
+            return false;
+        }
     }
 
     m_name = name;
@@ -1524,6 +1539,9 @@ void Guild::HandleLeaveMember(WorldSession* session)
     }
 
     sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
+
+    // Guild level system
+    sGuildLevelMgr->LearnOrRemoveSpell(player);
 
     if (disband)
         delete this;
@@ -1892,6 +1910,19 @@ bool Guild::LoadFromDB(Field* fields)
     if (purchasedTabs > GUILD_BANK_MAX_TABS)
         purchasedTabs = GUILD_BANK_MAX_TABS;
 
+    // guild level system
+    m_guildExp          = fields[13].Get<uint32>();
+    m_guildLevel        = fields[14].Get<uint32>();
+    m_defaultName       = fields[15].Get<std::string>();
+
+    // recalculate guild level with exp
+    uint32 guildLevel = sGuildLevelMgr->FindLevelByExp(m_guildExp);
+    m_guildLevel == guildLevel ? m_guildLevel : m_guildLevel = guildLevel;
+
+    if (m_guildLevel >= 1) {
+        m_name = m_defaultName + ", " + std::to_string(m_guildLevel) + " ур.";
+    }
+
     m_bankTabs.clear();
     m_bankTabs.reserve(purchasedTabs);
     for (uint8 i = 0; i < purchasedTabs; ++i)
@@ -2230,6 +2261,9 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, guid);
     _BroadcastEvent(GE_JOINED, guid, name);
 
+    // Guild level system
+    sGuildLevelMgr->LearnOrRemoveSpell(player);
+
     // Call scripts if member was succesfully added (and stored to database)
     sScriptMgr->OnGuildAddMember(this, player, rankId);
 
@@ -2293,6 +2327,10 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
     }
 
     _DeleteMemberFromDB(guid.GetCounter());
+
+    // Guild level system
+    sGuildLevelMgr->LearnOrRemoveSpell(player);
+    
     if (!isDisbanding)
         _UpdateAccountsNumber();
 }

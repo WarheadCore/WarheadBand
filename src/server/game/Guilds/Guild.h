@@ -327,7 +327,7 @@ public: // pussywizard: public class Member
         void SaveToDB(CharacterDatabaseTransaction trans) const;
 
         ObjectGuid GetGUID() const { return m_guid; }
-        std::string const& GetName() const { return m_name; }
+        std::string GetName() const { return m_name; }
         uint32 GetAccountId() const { return m_accountId; }
         uint8 GetRankId() const { return m_rankId; }
         uint64 GetLogoutTime() const { return m_logoutTime; }
@@ -682,10 +682,12 @@ public:
     uint32 GetId() const { return m_id; }
     ObjectGuid GetLeaderGUID() const { return m_leaderGuid; }
     std::string const& GetName() const { return m_name; }
+    std::string GetDefaultName() const { return m_defaultName; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
 
-    bool SetName(std::string_view const& name);
+    bool SetName(std::string_view const& name, bool isSystem = false);
+    void SetDefaultName(std::string_view const& name) { m_defaultName = name; };
 
     // Handle client commands
     void HandleRoster(WorldSession* session);
@@ -767,6 +769,13 @@ public:
     uint32 GetMemberCount() const { return m_members.size(); }
     time_t GetCreatedDate() const { return m_createdDate; }
 
+    // guild level system
+    uint32 GetGuildLevel() const { return m_guildLevel; }
+    uint32 GetGuildExp() const { return m_guildExp; }
+
+    void SetGuildLevel(uint32 level) { m_guildLevel = level; }
+    void SetGuildExp(uint32 exp) { m_guildExp = exp; }
+    
     // Bank tabs
     void SetBankTabText(uint8 tabId, std::string_view text);
 
@@ -775,11 +784,14 @@ public:
     [[nodiscard]] bool ModifyBankMoney(CharacterDatabaseTransaction trans, const uint64& amount, bool add) { return _ModifyBankMoney(trans, amount, add); }
     [[nodiscard]] uint32 GetMemberSize() const { return m_members.size(); }
 
+    std::unordered_map<uint32, Member> GetMember() const { return m_members; }
+
     auto const& GetAllMembers() { return m_members; }
 
 protected:
     uint32 m_id;
     std::string m_name;
+    std::string m_defaultName;
     ObjectGuid m_leaderGuid;
     std::string m_motd;
     std::string m_info;
@@ -789,6 +801,10 @@ protected:
     uint32 m_accountsNumber;
     uint64 m_bankMoney;
 
+    // guild level system
+    uint32 m_guildLevel;
+    uint32 m_guildExp;
+    
     std::vector<RankInfo> m_ranks;
     std::unordered_map<uint32, Member> m_members;
     std::vector<BankTab> m_bankTabs;
