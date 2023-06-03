@@ -20,14 +20,12 @@
 
 #include "GameTime.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "Transport.h"
 #include "UpdateMask.h"
-#include "World.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject), MovableMapObject(),
     _aura(nullptr), _removedAura(nullptr), _caster(nullptr), _duration(0), _isViewpoint(false), _updateViewerVisibilityTimer(0)

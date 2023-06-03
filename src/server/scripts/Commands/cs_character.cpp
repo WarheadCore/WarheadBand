@@ -30,7 +30,6 @@ EndScriptData */
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
-#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -40,6 +39,7 @@ EndScriptData */
 #include "Timer.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 
@@ -76,6 +76,7 @@ public:
             { "customize",      HandleCharacterCustomizeCommand,        SEC_GAMEMASTER, Console::Yes },
             { "changefaction",  HandleCharacterChangeFactionCommand,    SEC_GAMEMASTER, Console::Yes },
             { "changerace",     HandleCharacterChangeRaceCommand,       SEC_GAMEMASTER, Console::Yes },
+            { "changeaccount",  HandleCharacterChangeAccountCommand,    SEC_ADMINISTRATOR, Console::Yes },
             { "check",          characterCheckCommandTable },
             { "erase",          HandleCharacterEraseCommand,            SEC_CONSOLE,    Console::Yes },
             { "deleted",        characterDeletedCommandTable },
@@ -117,7 +118,7 @@ public:
     static bool GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string searchString)
     {
         PreparedQueryResult result;
-        CharacterDatabasePreparedStatement* stmt = nullptr;
+        CharacterDatabasePreparedStatement stmt = nullptr;
 
         if (!searchString.empty())
         {
@@ -147,21 +148,19 @@ public:
 
         if (result)
         {
-            do
+            for (auto const& row : *result)
             {
-                Field* fields = result->Fetch();
-
                 DeletedInfo info;
 
-                info.lowGuid    = fields[0].Get<uint32>();
-                info.name       = fields[1].Get<std::string>();
-                info.accountId  = fields[2].Get<uint32>();
+                info.lowGuid    = row[0].Get<uint32>();
+                info.name       = row[1].Get<std::string>();
+                info.accountId  = row[2].Get<uint32>();
 
                 // account name will be empty for nonexisting account
                 AccountMgr::GetName(info.accountId, info.accountName);
-                info.deleteDate = time_t(fields[3].Get<uint32>());
+                info.deleteDate = time_t(row[3].Get<uint32>());
                 foundList.push_back(info);
-            } while (result->NextRow());
+            }
         }
 
         return true;
@@ -236,7 +235,7 @@ public:
             return;
         }
 
-        auto* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_RESTORE_DELETE_INFO);
+        auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_RESTORE_DELETE_INFO);
         stmt->SetData(0, delInfo.name);
         stmt->SetData(1, delInfo.accountId);
         stmt->SetData(2, delInfo.lowGuid);
@@ -271,7 +270,7 @@ public:
         else
         {
             // Update level and reset XP, everything else will be updated at login
-            auto* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+            auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
             stmt->SetData(0, uint8(newLevel));
             stmt->SetData(1, playerGuid.GetCounter());
             CharacterDatabase.Execute(stmt);
@@ -367,7 +366,7 @@ public:
                 return false;
             }
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
             stmt->SetData(0, newName);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
             if (result)
@@ -385,6 +384,8 @@ public:
             if (Player* target = player->GetConnectedPlayer())
             {
                 target->SetName(newName);
+
+                ObjectAccessor::UpdatePlayerNameMapReference(player->GetName(), target);
 
                 if (WorldSession* session = target->GetSession())
                     session->KickPlayer("HandleCharacterRenameCommand GM Command renaming character");
@@ -416,7 +417,7 @@ public:
 
                 handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
 
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
                 stmt->SetData(0, uint16(AT_LOGIN_RENAME));
                 stmt->SetData(1, player->GetGUID().GetCounter());
                 CharacterDatabase.Execute(stmt);
@@ -471,7 +472,7 @@ public:
         else
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->SetData(0, static_cast<uint16>(AT_LOGIN_CUSTOMIZE));
             stmt->SetData(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
@@ -495,7 +496,7 @@ public:
         else
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->SetData(0, uint16(AT_LOGIN_CHANGE_FACTION));
             stmt->SetData(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
@@ -519,7 +520,7 @@ public:
         else
         {
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player), player->GetGUID().GetCounter());
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->SetData(0, uint16(AT_LOGIN_CHANGE_RACE));
             stmt->SetData(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
@@ -1062,6 +1063,55 @@ public:
         }
 
         handler->PSendSysMessage("--------------------------------------");
+        return true;
+    }
+
+    static bool HandleCharacterChangeAccountCommand(ChatHandler* handler, std::string accountName, Optional<PlayerIdentifier> player)
+    {
+        if (!player)
+        {
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        }
+
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (uint32 accountId = AccountMgr::GetId(accountName))
+        {
+            if (AccountMgr::GetCharactersCount(accountId) >= 10)
+            {
+                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName, accountId);
+                handler->SetSentErrorMessage(true);
+                return true;
+            }
+
+            if (CharacterCacheEntry const* cache = sCharacterCache->GetCharacterCacheByName(player->GetName()))
+            {
+                std::string accName;
+                AccountMgr::GetName(cache->AccountId, accName);
+                handler->PSendSysMessage(LANG_CMD_CHAR_CHANGE_ACC_SUCCESS, player->GetName(), player->GetGUID().GetCounter(), accName, cache->AccountId, accountName, accountId);
+            }
+
+            if (player->IsConnected())
+            {
+                player->GetConnectedPlayer()->GetSession()->KickPlayer("CMD char changeaccount");
+            }
+
+            CharacterDatabase.Query("UPDATE characters SET account = {} WHERE guid = {}", accountId, player->GetGUID().GetCounter());
+            sCharacterCache->UpdateCharacterAccountId(player->GetGUID(), accountId);
+
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
+            handler->SetSentErrorMessage(true);
+            return true;
+        }
+
         return true;
     }
 };

@@ -19,10 +19,7 @@
 #define AZEROTHCORE_COMMON_H
 
 #include "Define.h"
-#include <array>
-#include <memory>
 #include <string>
-#include <utility>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <ws2tcpip.h>
@@ -31,14 +28,6 @@
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
 #  endif // if WARHEAD_COMPILER == WARHEAD_COMPILER_INTEL
-#else
-#include <cstdlib>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 #endif
 
 #define STRINGIZE(a) #a

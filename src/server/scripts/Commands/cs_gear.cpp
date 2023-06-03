@@ -19,12 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Language.h"
-#include "Log.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -96,13 +95,13 @@ public:
 
         if (CONF_GET_INT("PlayerSave.Stats.MinLevel"))
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
             stmt->SetData(0, player->GetGUID().GetCounter());
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
             if (result)
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 MaxHealth = fields[0].Get<uint32>();
                 uint32 Strength = fields[1].Get<uint32>();
                 uint32 Agility = fields[2].Get<uint32>();

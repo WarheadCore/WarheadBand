@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ruins_of_ahnqiraj.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "ruins_of_ahnqiraj.h"
 #include "TaskScheduler.h"
 
 enum Spells
@@ -105,10 +105,10 @@ struct npc_obsidian_destroyer : public ScriptedAI
         _scheduler.Schedule(6s, [this](TaskContext context)
         {
             std::list<Unit*> targets;
-            SelectTargetList(targets, [&](Unit* target)
+            SelectTargetList(targets, 6, SelectTargetMethod::Random, 1, [&](Unit* target)
             {
                 return target && target->IsPlayer() && target->GetPower(POWER_MANA) > 0;
-            }, 6, SelectTargetMethod::Random);
+            });
 
             for (Unit* target : targets)
             {

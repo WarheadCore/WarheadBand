@@ -19,8 +19,6 @@
 #define _MAPTREE_H
 
 #include "BoundingIntervalHierarchy.h"
-#include "Define.h"
-#include <limits>
 #include <unordered_map>
 
 namespace G3D

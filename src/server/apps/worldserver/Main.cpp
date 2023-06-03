@@ -20,24 +20,25 @@
 
 #include "ACSoap.h"
 #include "AsyncAcceptor.h"
-#include "AsyncAuctionListing.h"
 #include "BattlegroundMgr.h"
 #include "BigNumber.h"
 #include "CliRunnable.h"
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "DatabaseLoader.h"
+#include "DatabaseMgr.h"
 #include "DeadlineTimer.h"
+#include "DiscordChannel.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
+#include "IoContextMgr.h"
+#include "IpCache.h"
 #include "Logo.h"
 #include "MapMgr.h"
 #include "Metric.h"
 #include "ModuleMgr.h"
 #include "ModulesScriptLoader.h"
-#include "MySQLThreading.h"
 #include "OpenSSLCrypto.h"
 #include "OutdoorPvPMgr.h"
 #include "ProcessPriority.h"
@@ -49,13 +50,12 @@
 #include "ScriptReloadMgr.h"
 #include "SecretMgr.h"
 #include "SharedDefines.h"
+#include "SignalHandlerMgr.h"
+#include "ThreadPool.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include <boost/asio/signal_set.hpp>
-#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/program_options.hpp>
-#include <csignal>
 #include <filesystem>
 #include <iostream>
 #include <openssl/crypto.h>
@@ -107,15 +107,12 @@ private:
 using namespace boost::program_options;
 namespace fs = std::filesystem;
 
-void SignalHandler(boost::system::error_code const& error, int signalNumber);
 void ClearOnlineAccounts();
 bool StartDB();
 void StopDB();
-bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext);
-AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext);
+bool LoadRealmInfo();
+AsyncAcceptor* StartRaSocketAcceptor();
 void ShutdownCLIThread(std::thread* cliThread);
-void AuctionListingRunnable();
-void ShutdownAuctionListingThread(std::thread* thread);
 void WorldUpdateLoop();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& cfg_service);
 
@@ -123,7 +120,14 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [
 int main(int argc, char** argv)
 {
     Warhead::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
-    signal(SIGABRT, &Warhead::AbortHandler);
+
+    // Set signal handlers
+    sSignalMgr->Initialize([]()
+    {
+        World::StopNow(SHUTDOWN_EXIT_CODE);
+    });
+
+    std::shared_ptr<void> signalMgrHandle(nullptr, [](void*) { sSignalMgr->Stop(); });
 
     // Command line parsing
     auto configFile = fs::path(sConfigMgr->GetConfigPath() + std::string(_WARHEAD_CORE_CONFIG));
@@ -190,9 +194,8 @@ int main(int argc, char** argv)
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
 
-    std::shared_ptr<Warhead::Asio::IoContext> ioContext = std::make_shared<Warhead::Asio::IoContext>();
-
     // Init all logs
+    sLog->RegisterChannel<Warhead::DiscordChannel>();
     sLog->Initialize();
 
     Warhead::Logo::Show("worldserver",
@@ -203,13 +206,15 @@ int main(int argc, char** argv)
         []()
         {
             LOG_INFO("server.worldserver", "> Using configuration file:       {}", sConfigMgr->GetFilename());
+            LOG_INFO("server.worldserver", "> Using logs directory:           {}", sLog->GetLogsDir());
             LOG_INFO("server.worldserver", "> Using SSL version:              {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             LOG_INFO("server.worldserver", "> Using Boost version:            {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-            LOG_INFO("server.worldserver", "> Using logs directory:           {}", sLog->GetLogsDir());
+            LOG_INFO("server.worldserver", "> Using DB client version:        {}", sDatabaseMgr->GetClientInfo());
+            LOG_INFO("server.worldserver", "> Using DB server version:        {}", sDatabaseMgr->GetServerVersion());
         }
     );
 
-    OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename().generic_string());
+    OpenSSLCrypto::threadsSetup();
 
     std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 
@@ -231,34 +236,15 @@ int main(int argc, char** argv)
         }
     }
 
-    // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
-    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    signals.add(SIGBREAK);
-#endif
-    signals.async_wait(SignalHandler);
-
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetOption<int32>("ThreadPool", 1);
-    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
-    {
-        ioContext->stop();
-        for (std::thread& thr : *del)
-            thr.join();
-
-        delete del;
-    });
-
     if (numThreads < 1)
         numThreads = 1;
 
+    auto threadPool = std::make_unique<Warhead::ThreadPool>(numThreads);
+
     for (int i = 0; i < numThreads; ++i)
-    {
-        threadPool->push_back(std::thread([ioContext]()
-        {
-            ioContext->run();
-        }));
-    }
+        threadPool->PostWork([]() { sIoContextMgr->Run(); });
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetOption<int32>(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetOption<bool>(CONFIG_HIGH_PRIORITY, false));
@@ -276,7 +262,6 @@ int main(int argc, char** argv)
 
     LOG_INFO("server.loading", "Initializing Scripts...");
     sScriptMgr->Initialize();
-    sScriptMgr->OnIoContext(ioContext);
 
     // Start the databases
     if (!StartDB())
@@ -284,17 +269,20 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
+    // Load ip cache
+    sIPCacheMgr->Initialize(Warhead::ApplicationType::WorldServer);
+
     // set server offline (not connectable)
-    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE realmlist SET flag = (flag & ~{}) | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
 
-    LoadRealmInfo(*ioContext);
+    LoadRealmInfo();
 
-    sMetric->Initialize(realm.Name, *ioContext, []()
+    sMetric->Initialize(realm.Name, []()
     {
         METRIC_VALUE("online_players", sWorld->GetPlayerCount());
-        METRIC_VALUE("db_queue_login", uint64(LoginDatabase.QueueSize()));
-        METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.QueueSize()));
-        METRIC_VALUE("db_queue_world", uint64(WorldDatabase.QueueSize()));
+        METRIC_VALUE("db_queue_login", uint64(AuthDatabase.GetQueueSize()));
+        METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.GetQueueSize()));
+        METRIC_VALUE("db_queue_world", uint64(WorldDatabase.GetQueueSize()));
     });
 
     METRIC_EVENT("events", "Worldserver started", "");
@@ -325,7 +313,7 @@ int main(int argc, char** argv)
     // Start the Remote Access port (acceptor) if enabled
     std::unique_ptr<AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetOption<bool>("Ra.Enable", false))
-        raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
+        raAcceptor.reset(StartRaSocketAcceptor());
 
     // Start soap serving thread if enabled
     std::shared_ptr<std::thread> soapThread;
@@ -340,11 +328,10 @@ int main(int argc, char** argv)
     }
 
     // Launch the worldserver listener socket
-    uint16 worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
-    std::string worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
+    auto worldPort = sGameConfig->GetOption<uint16>("WorldServerPort");
+    auto worldListener = sConfigMgr->GetOption<std::string>("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetOption<int32>("Network.Threads", 1);
-
     if (networkThreads <= 0)
     {
         LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
@@ -352,7 +339,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
+    if (!sWorldSocketMgr.StartWorldNetwork(sIoContextMgr->GetIoContext(), worldListener, worldPort, networkThreads))
     {
         LOG_ERROR("server.worldserver", "Failed to initialize network");
         World::StopNow(ERROR_EXIT_CODE);
@@ -371,7 +358,7 @@ int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_VERSION_MISMATCH, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_VERSION_MISMATCH));
 
@@ -379,12 +366,13 @@ int main(int argc, char** argv)
     std::shared_ptr<FreezeDetector> freezeDetector;
     if (int32 coreStuckTime = sConfigMgr->GetOption<int32>("MaxCoreStuckTime", 60))
     {
-        freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
+        freezeDetector = std::make_shared<FreezeDetector>(sIoContextMgr->GetIoContext(), coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
         LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
     LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    LOG_INFO("server.worldserver", "");
 
     sScriptMgr->OnStartup();
 
@@ -399,15 +387,6 @@ int main(int argc, char** argv)
         cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
     }
 
-    // Launch CliRunnable thread
-    std::shared_ptr<std::thread> auctionLisingThread;
-    auctionLisingThread.reset(new std::thread(AuctionListingRunnable),
-        [](std::thread* thr)
-    {
-        thr->join();
-        delete thr;
-    });
-
     if (sConfigMgr->isDryRun())
     {
         LOG_INFO("server.loading", "Dry run completed, terminating.");
@@ -417,12 +396,12 @@ int main(int argc, char** argv)
     WorldUpdateLoop();
 
     // Shutdown starts here
-    threadPool.reset();
+    sIoContextMgr->Stop();
 
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LOG_INFO("server.worldserver", "Halting process...");
 
@@ -436,16 +415,15 @@ int main(int argc, char** argv)
 /// Initialize connection to the databases
 bool StartDB()
 {
-    MySQL::Library_Init();
+    sDatabaseMgr->SetModuleList(WH_MODULES_LIST);
 
     // Load databases
-    DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE, WH_MODULES_LIST);
-    loader
-        .AddDatabase(LoginDatabase, "Login")
-        .AddDatabase(CharacterDatabase, "Character")
-        .AddDatabase(WorldDatabase, "World");
+    sDatabaseMgr->AddDatabase(AuthDatabase, "Auth");
+    sDatabaseMgr->AddDatabase(CharacterDatabase, "Characters");
+    sDatabaseMgr->AddDatabase(WorldDatabase, "World");
+    sDatabaseMgr->AddDatabase(DBCDatabase, "Dbc");
 
-    if (!loader.Load())
+    if (!sDatabaseMgr->Load())
         return false;
 
     ///- Get the realm Id from the configuration file
@@ -466,7 +444,7 @@ bool StartDB()
         return false;
     }
 
-    LOG_INFO("server.loading", "Loading world information...");
+    LOG_INFO("server.loading", "Loading World Information...");
     LOG_INFO("server.loading", "> RealmID:              {}", realm.Id.Realm);
 
     ///- Clean the database before starting
@@ -480,18 +458,13 @@ bool StartDB()
     LOG_INFO("server.loading", "> Version DB world:     {}", sWorld->GetDBVersion());
     LOG_INFO("server.loading", "");
 
-    sScriptMgr->OnAfterDatabasesLoaded(loader.GetUpdateFlags());
-
+    sScriptMgr->OnAfterDatabasesLoaded(sDatabaseMgr->GetUpdateFlags());
     return true;
 }
 
 void StopDB()
 {
-    CharacterDatabase.Close();
-    WorldDatabase.Close();
-    LoginDatabase.Close();
-
-    MySQL::Library_End();
+    sDatabaseMgr->CloseAllConnections();
 }
 
 /// Clear 'online' status for all accounts with characters in this realm
@@ -499,7 +472,7 @@ void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
     // pussywizard: tc query would set online=0 even if logged in on another realm >_>
-    LoginDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
+    AuthDatabase.DirectExecute("UPDATE account SET online = 0 WHERE online = {}", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
@@ -571,7 +544,7 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
-    LoginDatabase.WarnAboutSyncQueries(true);
+    AuthDatabase.WarnAboutSyncQueries(true);
     CharacterDatabase.WarnAboutSyncQueries(true);
     WorldDatabase.WarnAboutSyncQueries(true);
 
@@ -601,15 +574,9 @@ void WorldUpdateLoop()
 #endif
     }
 
-    LoginDatabase.WarnAboutSyncQueries(false);
+    AuthDatabase.WarnAboutSyncQueries(false);
     CharacterDatabase.WarnAboutSyncQueries(false);
     WorldDatabase.WarnAboutSyncQueries(false);
-}
-
-void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
-{
-    if (!error)
-        World::StopNow(SHUTDOWN_EXIT_CODE);
 }
 
 void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error)
@@ -639,12 +606,12 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
+AsyncAcceptor* StartRaSocketAcceptor()
 {
-    uint16 raPort = uint16(sConfigMgr->GetOption<int32>("Ra.Port", 3443));
-    std::string raListener = sConfigMgr->GetOption<std::string>("Ra.IP", "0.0.0.0");
+    auto raPort = uint16(sConfigMgr->GetOption<int32>("Ra.Port", 3443));
+    auto raListener = sConfigMgr->GetOption<std::string>("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
+    AsyncAcceptor* acceptor = new AsyncAcceptor(sIoContextMgr->GetIoContext(), raListener, raPort);
     if (!acceptor->Bind())
     {
         LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
@@ -656,15 +623,15 @@ AsyncAcceptor* StartRaSocketAcceptor(Warhead::Asio::IoContext& ioContext)
     return acceptor;
 }
 
-bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
+bool LoadRealmInfo()
 {
-    QueryResult result = LoginDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
+    QueryResult result = AuthDatabase.Query("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = {}", realm.Id.Realm);
     if (!result)
         return false;
 
-    Warhead::Asio::Resolver resolver(ioContext);
+    Warhead::Asio::Resolver resolver(sIoContextMgr->GetIoContext());
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     realm.Name = fields[1].Get<std::string>();
     sWorld->SetRealmName(realm.Name);
 
@@ -703,65 +670,6 @@ bool LoadRealmInfo(Warhead::Asio::IoContext& ioContext)
     realm.PopulationLevel = fields[10].Get<float>();
     realm.Build = fields[11].Get<uint32>();
     return true;
-}
-
-void AuctionListingRunnable()
-{
-    LOG_INFO("server", "Starting up Auction House Listing thread...");
-
-    while (!World::IsStopped())
-    {
-        if (AsyncAuctionListingMgr::IsAuctionListingAllowed())
-        {
-            uint32 diff = AsyncAuctionListingMgr::GetDiff();
-            AsyncAuctionListingMgr::ResetDiff();
-
-            if (AsyncAuctionListingMgr::GetTempList().size() || AsyncAuctionListingMgr::GetList().size())
-            {
-                std::lock_guard<std::mutex> guard(AsyncAuctionListingMgr::GetLock());
-
-                {
-                    std::lock_guard<std::mutex> guard(AsyncAuctionListingMgr::GetTempLock());
-
-                    for (auto const& delayEvent : AsyncAuctionListingMgr::GetTempList())
-                        AsyncAuctionListingMgr::GetList().emplace_back(delayEvent);
-
-                    AsyncAuctionListingMgr::GetTempList().clear();
-                }
-
-                for (auto& itr : AsyncAuctionListingMgr::GetList())
-                {
-                    if (itr._msTimer <= diff)
-                        itr._msTimer = 0;
-                    else
-                        itr._msTimer -= diff;
-                }
-
-                for (std::list<AuctionListItemsDelayEvent>::iterator itr = AsyncAuctionListingMgr::GetList().begin(); itr != AsyncAuctionListingMgr::GetList().end(); ++itr)
-                {
-                    if ((*itr)._msTimer != 0)
-                        continue;
-
-                    if ((*itr).Execute())
-                        AsyncAuctionListingMgr::GetList().erase(itr);
-
-                    break;
-                }
-            }
-        }
-        std::this_thread::sleep_for(1ms);
-    }
-
-    LOG_INFO("server", "Auction House Listing thread exiting without problems.");
-}
-
-void ShutdownAuctionListingThread(std::thread* thread)
-{
-    if (thread)
-    {
-        thread->join();
-        delete thread;
-    }
 }
 
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, [[maybe_unused]] std::string& configService)

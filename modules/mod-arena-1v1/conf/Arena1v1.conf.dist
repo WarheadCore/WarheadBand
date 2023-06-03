@@ -1,0 +1,92 @@
+#
+# This file is part of the WarheadCore Project. See AUTHORS file for Copyright information
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU Affero General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+
+########################################
+# Arena1v1 module configuration
+########################################
+#
+#    Arena1v1.Enable
+#        Description: Enable this module
+#        Default: 0
+#
+
+Arena1v1.Enable = 0
+
+#
+#    Arena1v1.MinLevel
+#        Description: Min level to create an arena team
+#        Default:     80
+#
+
+Arena1v1.MinLevel = 80
+
+#
+#    Arena1v1.Costs
+#        Description: Costs for create an arena team
+#        Default:     400000 - (40 gold)
+#
+
+Arena1v1.Costs = 400000
+
+#
+#    Arena1v1.VendorRating
+#        Description: If true, 1v1 rating will use to calculate highest personal-rating (extended costs).
+#                      Note: The vendor-item will show as not buyable (red), but players can buy it, if enabled and rating is high enough.
+#        Default:     0 - (false)
+#                     1 - (true)
+#
+
+Arena1v1.VendorRating = 0
+
+#
+#    Arena1v1.ArenaPointsMulti
+#        Description: An 5v5 arena team with 1500 rating will gain 344 points per week (blizzlike).
+#                      3v3 with same rating will gain 302 points (5v5points * 0.88)
+#                      2v2 will gain 261 points (5v5points * 0.76)
+#                      and 1v1 will gain 167 points (5v5points * 0.64)
+#                      With this multiplier you can modify the arenapoints for 1v1.
+#        Default:     0.64
+#
+
+Arena1v1.ArenaPointsMulti = 0.64
+
+#
+#    Arena1v1.BlockForbiddenTalents
+#        Description: If true, healers can't join 1v1 arena, if they invested more than 35 talentpoints in a healing-talenttree.
+#                      You can also block tanks and other talents, if you modify FORBIDDEN_TALENTS_IN_1V1_ARENA in the npc_arena1v1.h file (hardcoding). See TalentTab.dbc for available talents (you will need an DBC-Editor).
+#        Default:     1 - (true)
+#                     0 - (false)
+#
+
+Arena1v1.BlockForbiddenTalents = 1
+
+#
+#    Arena1v1.ForbiddenTalentsIDs
+#        Description: List to block specific talents id in arena. See TalentTab.dbc for available talents (you will need an DBC-Editor). The list is coma(,) separated and should have no spaces
+#        Default:     "" - (no talent blocked)
+#         Example:     "201,202,382,362,282,383,163"
+#
+
+Arena1v1.ForbiddenTalentsIDs = ""
+
+#
+#    Arena1v1.ArenaSlotID
+#        Description: The slot the 1v1 will be working over. Needs to be bigger or equals then 3 otherwise it will overwrite the 2v2,3v3 or 5v5 data
+#        Default:     3
+#
+
+Arena1v1.ArenaSlotID = 3

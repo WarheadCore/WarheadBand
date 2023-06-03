@@ -15,85 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-#include "ClientSocketMgr.h"
-#include "DiscordClient.h"
-#include "DiscordSharedDefines.h"
-#include "IoContext.h"
-#include "ModulesConfig.h"
+#include "DiscordMgr.h"
 #include "ScriptObject.h"
 
-class DiscordClient_World : public WorldScript
+class Discord_Player : public PlayerScript
 {
 public:
-    DiscordClient_World() : WorldScript("DiscordClient_World") { }
-
-    void OnAfterConfigLoad(bool reload) override
-    {
-        sDiscord->LoadConfig(reload);
-    }
-
-    void OnStartup() override
-    {
-        sDiscord->Initialize();
-    }
-
-    void OnShutdown() override
-    {
-        sDiscord->SendServerShutdown();
-        sClientSocketMgr->Disconnect();
-    }
-
-    void OnUpdate(uint32 diff) override
-    {
-        sDiscord->Update(Milliseconds(diff));
-    }
-
-    void OnBeforeWorldInitialized(Microseconds elapsed) override
-    {
-        sDiscord->SendServerStartup(elapsed);
-    }
-};
-
-class DiscordClient_Server : public ServerScript
-{
-public:
-    DiscordClient_Server() : ServerScript("DiscordClient_Server") { }
-
-    void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> ioContext) override
-    {
-        if (auto context = ioContext.lock())
-            sClientSocketMgr->InitializeIo(*context);
-    }
-};
-
-class DiscordClient_Player : public PlayerScript
-{
-public:
-    DiscordClient_Player() : PlayerScript("DiscordClient_Player") { }
+    Discord_Player() : PlayerScript("Discord_Player") { }
 
     void OnLogin(Player* player) override
     {
-        sDiscord->LogLogin(player);
+        sDiscordMgr->LogLogin(player);
     }
 
-    void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg) override
+    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) override
     {
-        sDiscord->LogChat(player, type, msg);
-    }
-
-    void OnChat(Player* player, uint32 type, uint32 /*lang*/, std::string& msg, Channel* channel) override
-    {
-        sDiscord->LogChat(player, type, msg, channel);
+        sDiscordMgr->LogChat(player, msg, channel);
     }
 };
 
-// Group all custom scripts
-void AddSC_DiscordClient()
+// Group all
+void AddSC_Discord()
 {
-    new DiscordClient_World();
-    new DiscordClient_Server();
-    new DiscordClient_Player();
+    new Discord_Player();
 }

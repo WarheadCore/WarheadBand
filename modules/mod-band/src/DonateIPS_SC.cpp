@@ -18,11 +18,9 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "AsyncCallbackProcessor.h"
 #include "CharacterCache.h"
-#include "DiscordClient.h"
+#include "DatabaseEnv.h"
 #include "ExternalMail.h"
-#include "GameLocale.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "Optional.h"
@@ -78,7 +76,6 @@ public:
     inline void LoadConfig()
     {
         _IsEnable = MOD_CONF_GET_BOOL("IPSShop.Enable");
-        //_discordShannelID = sModulesConfig->GetOption<int64>("IPSShop.Discord.ChannelID", 0);
     }
 
     inline void Initialize()
@@ -105,7 +102,7 @@ public:
 
         _shopStore.clear();
 
-        QueryResult result = LoginDatabase.Query("SELECT `ID`, `Type`, `Value` FROM `ips_shop_define` ORDER BY `ID`");
+        QueryResult result = AuthDatabase.Query("SELECT `ID`, `Type`, `Value` FROM `ips_shop_define` ORDER BY `ID`");
         if (!result)
         {
             LOG_WARN("server.loading", "> No data for ips shop define");
@@ -144,7 +141,7 @@ public:
 
     inline void SendDonate()
     {
-        _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(Warhead::StringFormat("SELECT `ID`, `Nickname`, `ItemID`, `ItemQuantity` FROM `ips_shop_link` WHERE `flag` = 0 AND `RealmName` = '{}'", realm.Name)).WithCallback([this](QueryResult result)
+        _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(Warhead::StringFormat("SELECT `ID`, `Nickname`, `ItemID`, `ItemQuantity` FROM `ips_shop_link` WHERE `flag` = 0 AND `RealmName` = '{}'", realm.Name)).WithCallback([this](QueryResult result)
         {
             _ipsShopLinkStore.clear();
 
@@ -232,7 +229,7 @@ private:
             return;
         }
 
-        LoginDatabase.Execute("UPDATE `ips_shop_link` SET `Flag` = 1 WHERE `ID` = {}", ipsShopLink->ID);
+        AuthDatabase.Execute("UPDATE `ips_shop_link` SET `Flag` = 1 WHERE `ID` = {}", ipsShopLink->ID);
     }
 
     inline void SendRewardItem(std::string_view charName, uint32 itemID, uint32 itemCount)
@@ -245,7 +242,6 @@ private:
         }
 
         sExternalMail->AddMail(charName, _thanksSubject, _thanksText, itemID, itemCount, 37688);
-        SendNotificationItem(charName, sGameLocale->GetItemNameLocale(itemID, 8), itemCount);
     }
 
     inline void SendRewardRename(std::string const& charName)
@@ -257,8 +253,6 @@ private:
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->SetArguments(uint16(AT_LOGIN_RENAME), targetGuid.GetCounter());
         CharacterDatabase.Execute(stmt);
-
-        SendNotification(charName, "Смена имени");
     }
 
     inline void SendRewardChangeRace(std::string const& charName)
@@ -270,8 +264,6 @@ private:
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->SetArguments(uint16(AT_LOGIN_CHANGE_RACE), targetGuid.GetCounter());
         CharacterDatabase.Execute(stmt);
-
-        SendNotification(charName, "Смена рассы");
     }
 
     inline void SendRewardChangeFaction(std::string const& charName)
@@ -283,8 +275,6 @@ private:
         auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
         stmt->SetArguments(uint16(AT_LOGIN_CHANGE_FACTION), targetGuid.GetCounter());
         CharacterDatabase.Execute(stmt);
-
-        SendNotification(charName, "Смена фракции");
     }
 
     inline Optional<IPSShopDefine> GetShopDefine(uint32 shopID)
@@ -296,37 +286,6 @@ private:
         LOG_FATAL("modules.ips", "> DonateIPS: невозможно найти данные для шоп айди ({})", shopID);
 
         return std::nullopt;
-    }
-
-    inline void SendNotificationItem(std::string_view playerName, std::string_view itemName, uint32 itemCount)
-    {
-        if (!sDiscord->IsEnable() || !_discordShannelID)
-            return;
-
-        //auto color = DiscordMessageColor::Indigo;
-        //auto title = "Покупка в игровом магазине";
-        //auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
-        //auto embedItemName = Warhead::StringFormat("`{}`", itemName);
-        //auto embedItemItemCount = Warhead::StringFormat("`{}`", Warhead::ToString(itemCount));
-
-        //DiscordEmbedFields fields;
-        //fields.emplace_back(EmbedField("Предмет", embedItemName, true));
-        //fields.emplace_back(EmbedField("Количество", embedItemItemCount, true));
-        ////sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
-    }
-
-    inline void SendNotification(std::string_view playerName, std::string_view desc)
-    {
-        if (!sDiscord->IsEnable() || !_discordShannelID)
-            return;
-
-        //auto color = DiscordMessageColor::Indigo;
-        //auto title = "Покупка в игровом магазине";
-        //auto description = Warhead::StringFormat("Игрок `{}` совершил покупку. Игровой мир `{}`.", playerName, sWorld->GetRealmName());
-
-        //DiscordEmbedFields fields;
-        //fields.emplace_back(EmbedField("Услуга", std::string(desc), true));
-        ////sDiscord->SendEmbedMessage(_discordShannelID, color, title, description, &fields);
     }
 
 private:

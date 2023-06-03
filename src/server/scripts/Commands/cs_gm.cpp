@@ -154,10 +154,10 @@ public:
     static bool HandleGMListFullCommand(ChatHandler* handler)
     {
         ///- Get the accounts with GM Level >0
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
         stmt->SetData(0, uint8(SEC_MODERATOR));
         stmt->SetData(1, int32(realm.Id.Realm));
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         if (result)
         {
@@ -166,7 +166,7 @@ public:
             ///- Cycle through them. Display username and GM level
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 auto name = fields[0].Get<std::string_view>();
                 uint8 security = fields[1].Get<uint8>();
                 uint8 max = (16 - name.length()) / 2;

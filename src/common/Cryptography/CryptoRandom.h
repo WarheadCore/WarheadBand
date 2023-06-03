@@ -23,7 +23,7 @@
 
 namespace Warhead::Crypto
 {
-    WH_COMMON_API void GetRandomBytes(uint8* buf, size_t len);
+    WH_COMMON_API void GetRandomBytes(uint8* buf, std::size_t len);
 
     template <typename Container>
     void GetRandomBytes(Container& c)
@@ -31,7 +31,7 @@ namespace Warhead::Crypto
         GetRandomBytes(std::data(c), std::size(c));
     }
 
-    template <size_t S>
+    template <std::size_t S>
     std::array<uint8, S> GetRandomBytes()
     {
         std::array<uint8, S> arr;

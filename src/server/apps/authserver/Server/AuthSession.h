@@ -19,12 +19,10 @@
 #define __AUTHSESSION_H__
 
 #include "AsyncCallbackProcessor.h"
-#include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
-#include "CryptoHash.h"
+#include "DatabaseEnvFwd.h"
 #include "Optional.h"
-#include "QueryResult.h"
 #include "SRP6.h"
 #include "Socket.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -67,7 +65,7 @@ class AuthSession : public Socket<AuthSession>
 public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
-    AuthSession(tcp::socket&& socket);
+    explicit AuthSession(tcp::socket&& socket);
 
     void Start() override;
     bool Update() override;

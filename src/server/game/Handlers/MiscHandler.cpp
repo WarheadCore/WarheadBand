@@ -51,7 +51,6 @@
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Spell.h"
-#include "Tokenize.h"
 #include "UpdateData.h"
 #include "Vehicle.h"
 #include "WhoListCacheMgr.h"
@@ -619,7 +618,7 @@ void WorldSession::HandleCharacterAuraFrozen(PreparedQueryResult result)
     // Output of the results
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         std::string player = fields[0].Get<std::string>();
         handler.PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, player);
     } while (result->NextRow());
@@ -642,7 +641,7 @@ void WorldSession::HandleBugOpcode(WorldPacket& recv_data)
     LOG_DEBUG("network", "{}", type);
     LOG_DEBUG("network", "{}", content);
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
 
     stmt->SetData(0, type);
     stmt->SetData(1, content);
@@ -734,7 +733,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
         return;
     }
 
-    bool isTavernAreatrigger = sObjectMgr->IsTavernAreaTrigger(triggerId);
+    uint32 teamFaction = player->GetTeamId(true) == TEAM_ALLIANCE ? FACTION_MASK_ALLIANCE : FACTION_MASK_HORDE;
+    bool isTavernAreatrigger = sObjectMgr->IsTavernAreaTrigger(triggerId, teamFaction);
     if (!player->IsInAreaTriggerRadius(atEntry, isTavernAreatrigger ? 5.f : 0.f))
     {
         LOG_DEBUG("network", "HandleAreaTriggerOpcode: Player {} ({}) too far (trigger map: {} player map: {}), ignore Area Trigger ID: {}",
@@ -759,8 +759,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
         player->SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->entry);
 
         if (sWorld->IsFFAPvPRealm())
-            player->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        {
+            if (player->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            {
+                player->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+                sScriptMgr->OnFfaPvpStateUpdate(player, false);
 
+            }
+        }
         return;
     }
 
@@ -782,16 +788,16 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
     bool teleported = false;
     if (player->GetMapId() != at->target_mapId)
     {
-        if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
+        if (MapEnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
         {
             bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
             switch (denyReason)
             {
-                case Map::CANNOT_ENTER_NOT_IN_RAID:
-                case Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
-                case Map::CANNOT_ENTER_TOO_MANY_INSTANCES:
-                case Map::CANNOT_ENTER_MAX_PLAYERS:
-                case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
+                case CANNOT_ENTER_NOT_IN_RAID:
+                case CANNOT_ENTER_INSTANCE_BIND_MISMATCH:
+                case CANNOT_ENTER_TOO_MANY_INSTANCES:
+                case CANNOT_ENTER_MAX_PLAYERS:
+                case CANNOT_ENTER_ZONE_IN_COMBAT:
                     reviveAtTrigger = true;
                     break;
                 default:
@@ -1124,11 +1130,11 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     uint32 accid = player->GetSession()->GetAccountId();
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_WHOIS);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_WHOIS);
 
     stmt->SetData(0, accid);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
 
     if (!result)
     {
@@ -1136,7 +1142,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     std::string acc = fields[0].Get<std::string>();
     if (acc.empty())
         acc = "Unknown";
@@ -1683,7 +1689,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recv_data*/)
     _player->BuildPlayerRepop();
     _player->ResurrectPlayer(1.0f);
     _player->SpawnCorpseBones();
-    _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
+    _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->m_homebindO);
 }
 
 void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)

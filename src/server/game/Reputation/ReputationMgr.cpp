@@ -25,7 +25,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
@@ -573,7 +572,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(fields[0].Get<uint16>());
             if (factionEntry && (factionEntry->reputationListID >= 0))
@@ -632,7 +631,7 @@ void ReputationMgr::SaveToDB(CharacterDatabaseTransaction trans)
     {
         if (itr->second.needSave)
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION_BY_FACTION);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION_BY_FACTION);
             stmt->SetData(0, _player->GetGUID().GetCounter());
             stmt->SetData(1, uint16(itr->second.ID));
             trans->Append(stmt);

@@ -22,13 +22,11 @@
 #include "ArenaScore.h"
 #include "Battleground.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 static constexpr Milliseconds BG_RV_PILLAR_SWITCH_TIMER  = 25s;
 static constexpr Milliseconds BG_RV_FIRE_TO_PILLAR_TIMER = 20s;
@@ -253,7 +251,7 @@ bool BattlegroundRV::SetupBattleground()
             || !AddObject(BG_RV_OBJECT_READY_MARKER_2, ARENA_READY_MARKER_ENTRY, 757.02f, -267.30f, 2.80f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 300)
        )
     {
-        LOG_ERROR("sql.sql", "BatteGroundRV: Failed to spawn some object!");
+        LOG_ERROR("db.query", "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
 

@@ -19,7 +19,6 @@
 #define CharacterCache_h__
 
 #include "ArenaTeam.h"
-#include "Define.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include <string>

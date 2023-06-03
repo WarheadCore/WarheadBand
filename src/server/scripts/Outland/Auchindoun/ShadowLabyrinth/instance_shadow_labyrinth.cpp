@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "shadow_labyrinth.h"
+#include <sstream>
 
 class instance_shadow_labyrinth : public InstanceMapScript
 {

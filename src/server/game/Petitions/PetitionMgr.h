@@ -20,7 +20,6 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-
 #include <map>
 
 #define CHARTER_DISPLAY_ID 16161

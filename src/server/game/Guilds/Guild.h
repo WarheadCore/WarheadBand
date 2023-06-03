@@ -19,25 +19,20 @@
 #define AZEROTHCORE_GUILD_H
 
 #include "Item.h"
-#include "ObjectMgr.h"
 #include "Optional.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <set>
 #include <unordered_map>
-#include <unordered_set>
 
 class Item;
 
-namespace WorldPackets
+namespace WorldPackets::Guild
 {
-    namespace Guild
-    {
-        class GuildBankLogQueryResults;
-        class GuildEventLogQueryResults;
-        class SaveGuildEmblem;
-    }
+    class GuildBankLogQueryResults;
+    class GuildEventLogQueryResults;
+    class SaveGuildEmblem;
 }
 
 enum GuildMisc
@@ -306,7 +301,8 @@ public: // pussywizard: public class Member
             m_class(0),
             m_flags(GUILDMEMBER_STATUS_NONE),
             m_accountId(0),
-            m_rankId(rankId)
+            m_rankId(rankId),
+            receiveGuildBankUpdatePackets(false)
         {
         }
 
@@ -351,7 +347,11 @@ public: // pussywizard: public class Member
         int32 GetBankWithdrawValue(uint8 tabId) const;
         void ResetValues();
 
-        inline Player* FindPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
+        [[nodiscard]] Player* FindPlayer() const;
+
+        void SubscribeToGuildBankUpdatePackets() { receiveGuildBankUpdatePackets = true; }
+        void UnsubscribeFromGuildBankUpdatePackets() { receiveGuildBankUpdatePackets = false; }
+        [[nodiscard]] bool ShouldReceiveBankPartialUpdatePackets() const { return receiveGuildBankUpdatePackets; }
 
     private:
         uint32 m_guildId;
@@ -371,6 +371,8 @@ public: // pussywizard: public class Member
         std::string m_officerNote;
 
         std::array<int32, GUILD_BANK_MAX_TABS + 1> m_bankWithdraw = {};
+
+        bool receiveGuildBankUpdatePackets;
     };
 
     // pussywizard: public GetMember
@@ -720,10 +722,10 @@ public:
     void SendInfo(WorldSession* session) const;
     void SendEventLog(WorldSession* session) const;
     void SendBankLog(WorldSession* session, uint8 tabId) const;
-    void SendBankTabsInfo(WorldSession* session, bool showTabs = false) const;
+    void SendBankTabsInfo(WorldSession* session, bool showTabs = false);
     void SendBankTabData(WorldSession* session, uint8 tabId, bool sendAllSlots) const;
     void SendBankTabText(WorldSession* session, uint8 tabId) const;
-    void SendPermissions(WorldSession* session) const;
+    void SendPermissions(WorldSession* session);
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session);
 
@@ -831,12 +833,7 @@ private:
     inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? &m_bankTabs[tabId] : nullptr; }
     inline BankTab const* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? &m_bankTabs[tabId] : nullptr; }
 
-    inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
-    {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
-        stmt->SetData(0, lowguid);
-        CharacterDatabase.Execute(stmt);
-    }
+    inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid) const;
 
     // Tries to create new bank tab
     void _CreateNewBankTab();

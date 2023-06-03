@@ -33,6 +33,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "WorldPacket.h"
 #include "hyjal_trash.h"
+#include <sstream>
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event

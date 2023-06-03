@@ -19,8 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptObject.h"
 #include "black_temple.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

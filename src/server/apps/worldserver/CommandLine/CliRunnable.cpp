@@ -23,10 +23,10 @@
 /// \file
 
 #include "CliRunnable.h"
+#include "CliCommandMgr.h"
 #include "Config.h"
 #include "Errors.h"
 #include "ObjectMgr.h"
-#include "World.h"
 #include <fmt/core.h>
 
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
@@ -62,7 +62,7 @@ namespace Warhead::Impl::Readline
     char** cli_completion(char const* text, int /*start*/, int /*end*/)
     {
         ::rl_attempted_completion_over = 1;
-        vec = Warhead::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr,nullptr), text);
+        vec = Warhead::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr), text);
         return ::rl_completion_matches(text, &cli_unpack_vector);
     }
 
@@ -75,29 +75,25 @@ namespace Warhead::Impl::Readline
 }
 #endif
 
-void utf8print(void* /*arg*/, std::string_view str)
+void utf8print(std::string_view str)
 {
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    fmt::print(str);
+    WriteWinConsole(str);
 #else
-{
     fmt::print(str);
-    fflush(stdout);
-}
 #endif
 }
 
-void commandFinished(void*, bool /*success*/)
+void commandFinished(bool /*success*/)
 {
     PrintCliPrefix();
-    fflush(stdout);
 }
 
-#ifdef linux
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
 // Non-blocking keypress detector, when return pressed, return 1, else always return 0
 int kb_hit_return()
 {
-    struct timeval tv;
+    struct timeval tv{};
     fd_set fds;
     tv.tv_sec = 0;
     tv.tv_usec = 0;
@@ -148,15 +144,8 @@ void CliThread()
         std::string command;
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-        wchar_t commandbuf[256];
-        if (fgetws(commandbuf, sizeof(commandbuf), stdin))
-        {
-            if (!WStrToUtf8(commandbuf, wcslen(commandbuf), command))
-            {
-                PrintCliPrefix();
-                continue;
-            }
-        }
+        if (!ReadWinConsole(command))
+            continue;
 #else
         char* command_str = readline(CLI_PREFIX);
         ::rl_bind_key('\t', ::rl_complete);
@@ -166,25 +155,28 @@ void CliThread()
             free(command_str);
         }
 #endif
-
         if (!command.empty())
         {
-            std::size_t nextLineIndex = command.find_first_of("\r\n");
-            if (nextLineIndex != std::string::npos)
+            Optional<std::size_t> nextLineIndex = RemoveCRLF(command);
+            if (nextLineIndex && *nextLineIndex == 0)
             {
-                if (nextLineIndex == 0)
-                {
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-                    PrintCliPrefix();
+                PrintCliPrefix();
 #endif
-                    continue;
-                }
-
-                command.erase(nextLineIndex);
+                continue;
             }
 
             fflush(stdout);
-            sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &utf8print, &commandFinished));
+
+            sCliCommandMgr->AddCommand(command, [](std::string_view command)
+            {
+                utf8print(command);
+            },
+            [](bool success)
+            {
+                commandFinished(success);
+            });
+
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
             add_history(command.c_str());
 #endif

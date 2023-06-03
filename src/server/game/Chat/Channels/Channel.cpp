@@ -25,11 +25,13 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "Timer.h"
 #include "World.h"
+
+constexpr auto CHANNEL_BAN_DURATION = DAY * 60;
 
 Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, TeamId teamId, bool announce, bool ownership):
     _announce(announce),
@@ -88,7 +90,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 channelDBId, 
         {
             _channelDBId = ++ChannelMgr::_channelIdMax;
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
             stmt->SetData(0, _channelDBId);
             stmt->SetData(1, name);
             stmt->SetData(2, _teamId);
@@ -108,7 +110,7 @@ void Channel::UpdateChannelInDB() const
 {
     if (_IsSaved)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
         stmt->SetData(0, _announce);
         stmt->SetData(1, _password);
         stmt->SetData(2, _channelDBId);
@@ -120,14 +122,14 @@ void Channel::UpdateChannelInDB() const
 
 void Channel::UpdateChannelUseageInDB() const
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
     stmt->SetData(0, _channelDBId);
     CharacterDatabase.Execute(stmt);
 }
 
 void Channel::AddChannelBanToDB(ObjectGuid guid, uint32 time) const
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL_BAN);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL_BAN);
     stmt->SetData(0, _channelDBId);
     stmt->SetData(1, guid.GetCounter());
     stmt->SetData(2, time);
@@ -136,10 +138,40 @@ void Channel::AddChannelBanToDB(ObjectGuid guid, uint32 time) const
 
 void Channel::RemoveChannelBanFromDB(ObjectGuid guid) const
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL_BAN);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL_BAN);
     stmt->SetData(0, _channelDBId);
     stmt->SetData(1, guid.GetCounter());
     CharacterDatabase.Execute(stmt);
+}
+
+void Channel::SetModerator(ObjectGuid guid, bool set)
+{
+    PlayerInfo& pinfo = playersStore[guid];
+    if (pinfo.IsModerator() != set)
+    {
+        uint8 oldFlag = pinfo.flags;
+        pinfo.SetModerator(set);
+
+        WorldPacket data;
+        MakeModeChange(&data, guid, oldFlag);
+        SendToAll(&data);
+
+        FlagsNotify(pinfo.plrPtr);
+    }
+}
+
+void Channel::SetMute(ObjectGuid guid, bool set)
+{
+    PlayerInfo& pinfo = playersStore[guid];
+    if (pinfo.IsMuted() != set)
+    {
+        uint8 oldFlag = pinfo.flags;
+        pinfo.SetMuted(set);
+
+        WorldPacket data;
+        MakeModeChange(&data, guid, oldFlag);
+        SendToAll(&data);
+    }
 }
 
 void Channel::CleanOldChannelsInDB()
@@ -148,7 +180,7 @@ void Channel::CleanOldChannelsInDB()
     {
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
         stmt->SetData(0, CONF_GET_INT("PreserveCustomChannelDuration") * DAY);
         trans->Append(stmt);
 
@@ -190,10 +222,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
         return;
     }
 
-    if (HasFlag(CHANNEL_FLAG_LFG) &&
-            CONF_GET_BOOL("Channel.RestrictedLfg") &&
-            AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) &&
-            player->GetGroup())
+    if (HasFlag(CHANNEL_FLAG_LFG) && CONF_GET_BOOL("Channel.RestrictedLfg") &&
+        AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && player->GetGroup())
     {
         WorldPacket data;
         MakeNotInLfg(&data);
@@ -203,15 +233,14 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     player->JoinedChannel(this);
 
-    if (_announce && (!AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) ||
-                      !CONF_GET_BOOL("Channel.SilentlyGMJoin")))
+    if (_announce && (!AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) || !CONF_GET_BOOL("Channel.SilentlyGMJoin")))
     {
         WorldPacket data;
         MakeJoined(&data, guid);
         SendToAll(&data);
     }
 
-    PlayerInfo pinfo;
+    PlayerInfo pinfo{};
     pinfo.player = guid;
     pinfo.flags = MEMBER_FLAG_NONE;
     pinfo.plrPtr = player;

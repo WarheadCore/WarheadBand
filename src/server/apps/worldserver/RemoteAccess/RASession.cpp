@@ -19,7 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "RASession.h"
-#include "AccountMgr.h"
+#include "CliCommandMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Duration.h"
@@ -27,7 +27,6 @@
 #include "SRP6.h"
 #include "ServerMotd.h"
 #include "Util.h"
-#include "World.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
 #include <thread>
@@ -128,17 +127,17 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     Utf8ToUpperOnlyLatin(safeUser);
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS);
     stmt->SetData(0, safeUser);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
     if (!result)
     {
         LOG_INFO("commands.ra", "User {} does not exist in database", user);
         return false;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
 
     if (fields[1].Get<uint8>() < sConfigMgr->GetOption<int32>("Ra.MinLevel", 3))
     {
@@ -164,10 +163,10 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
     Utf8ToUpperOnlyLatin(safe_pass);
     std::transform(safe_pass.begin(), safe_pass.end(), safe_pass.begin(), ::toupper);
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
     stmt->SetData(0, safe_user);
 
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+    if (PreparedQueryResult result = AuthDatabase.Query(stmt))
     {
         Warhead::Crypto::SRP6::Salt salt = (*result)[0].Get<Binary, Warhead::Crypto::SRP6::SALT_LENGTH>();
         Warhead::Crypto::SRP6::Verifier verifier = (*result)[1].Get<Binary, Warhead::Crypto::SRP6::VERIFIER_LENGTH>();
@@ -198,26 +197,29 @@ bool RASession::ProcessCommand(std::string& command)
     delete _commandExecuting;
     _commandExecuting = new std::promise<void>();
 
-    CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASession::CommandPrint, &RASession::CommandFinished);
-    sWorld->QueueCliCommand(cmd);
+    sCliCommandMgr->AddCommand(command, [this](std::string_view command)
+    {
+        CommandPrint(command);
+    },
+    [this](bool success)
+    {
+        CommandFinished(success);
+    });
 
     // Wait for the command to finish
     _commandExecuting->get_future().wait();
-
     return false;
 }
 
-void RASession::CommandPrint(void* callbackArg, std::string_view text)
+void RASession::CommandPrint(std::string_view text)
 {
     if (text.empty())
         return;
 
-    RASession* session = static_cast<RASession*>(callbackArg);
-    session->Send(text);
+    Send(text);
 }
 
-void RASession::CommandFinished(void* callbackArg, bool /*success*/)
+void RASession::CommandFinished(bool /*success*/)
 {
-    RASession* session = static_cast<RASession*>(callbackArg);
-    session->_commandExecuting->set_value();
+    _commandExecuting->set_value();
 }

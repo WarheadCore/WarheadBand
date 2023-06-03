@@ -355,7 +355,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!CONF_GET_BOOL("Wintergrasp.Enable"))
+            if (!CONF_GET_UINT("Wintergrasp.Enable") != 1)
                 return;
 
             ScriptedAI::UpdateAI(diff);

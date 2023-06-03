@@ -22,6 +22,7 @@
 #include "Errors.h"
 #include "SharedDefines.h"
 #include "WorldSession.h"
+#include <functional>
 #include <vector>
 
 class ChatHandler;
@@ -135,11 +136,11 @@ private:
 class WH_GAME_API CliHandler : public ChatHandler
 {
 public:
-    using Print = void(void*, std::string_view);
-    explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
+    using Print = std::function<void(std::string_view)>;
+    explicit CliHandler(Print* print) : _print(print) { }
 
     // overwrite functions
-    std::string GetWarheadString(uint32 entry) const override;
+    [[nodiscard]] std::string GetWarheadString(uint32 entry) const override;
     void SendSysMessage(std::string_view, bool escapeCharacters) override;
     bool ParseCommands(std::string_view str) override;
     std::string GetNameLink() const override;
@@ -148,8 +149,7 @@ public:
     int GetSessionDbLocaleIndex() const override;
 
 private:
-    void* m_callbackArg;
-    Print* m_print;
+    Print* _print;
 };
 
 #endif

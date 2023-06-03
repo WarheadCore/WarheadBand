@@ -19,8 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "InstanceScript.h"
+#include "Log.h"
 #include "ScriptObject.h"
 #include "sethekk_halls.h"
+#include <sstream>
 
 class instance_sethekk_halls : public InstanceMapScript
 {

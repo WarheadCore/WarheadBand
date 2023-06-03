@@ -37,7 +37,7 @@ namespace
 
 template<> struct HashTrait< GameObjectModel>
 {
-    static size_t hashCode(const GameObjectModel& g) { return (size_t)(void*)&g; }
+    static std::size_t hashCode(const GameObjectModel& g) { return (std::size_t)(void*)&g; }
 };
 
 template<> struct PositionTrait< GameObjectModel>

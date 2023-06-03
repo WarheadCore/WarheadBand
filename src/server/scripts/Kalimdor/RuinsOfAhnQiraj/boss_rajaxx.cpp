@@ -19,10 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ScriptObject.h"
-#include "SmartAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SmartAI.h"
 #include "SpellScript.h"
 #include "ruins_of_ahnqiraj.h"
 
@@ -38,9 +38,12 @@ enum Yells
 
 enum Spells
 {
-    SPELL_DISARM            = 6713,
-    SPELL_FRENZY            = 8269,
-    SPELL_THUNDERCRASH      = 25599
+    SPELL_DISARM              = 6713,
+    SPELL_FRENZY              = 8269,
+    SPELL_THUNDERCRASH        = 25599,
+
+    // Server-side
+    SPELL_CENARION_REPUTATION = 26342
 };
 
 enum Events
@@ -54,12 +57,6 @@ struct boss_rajaxx : public BossAI
 {
     boss_rajaxx(Creature* creature) : BossAI(creature, DATA_RAJAXX) { }
 
-    void Reset() override
-    {
-        BossAI::Reset();
-        enraged = false;
-    }
-
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_DEATH);
@@ -70,6 +67,26 @@ struct boss_rajaxx : public BossAI
             andorov->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_VENDOR);
             andorov->ForceValuesUpdateAtIndex(UNIT_NPC_FLAGS);
         }
+
+        std::list<Creature*> creatureList;
+        me->GetCreatureListWithEntryInGrid(creatureList, NPC_KALDOREI_ELITE, 200.0f);
+        creatureList.remove_if([&](Creature* creature) -> bool { return !creature->IsAlive(); });
+
+        me->GetMap()->DoForAllPlayers([&, creatureList](Player* player)
+        {
+            for (uint8 i = 0; i < creatureList.size(); ++i)
+            {
+                player->CastSpell(player, SPELL_CENARION_REPUTATION, true);
+            }
+
+            if (Creature* andorov = instance->instance->GetCreature(instance->GetGuidData(DATA_ANDOROV)))
+            {
+                if (andorov->IsAlive())
+                {
+                    player->CastSpell(player, SPELL_CENARION_REPUTATION, true);
+                }
+            }
+        });
     }
 
     void EnterCombat(Unit* /*victim*/) override
@@ -99,6 +116,7 @@ struct boss_rajaxx : public BossAI
                     break;
                 case EVENT_THUNDERCRASH:
                     DoCastSelf(SPELL_THUNDERCRASH);
+                    me->GetThreatMgr().ResetAllThreat();
                     events.ScheduleEvent(EVENT_THUNDERCRASH, 21s);
                     break;
                 default:
@@ -108,8 +126,6 @@ struct boss_rajaxx : public BossAI
 
         DoMeleeAttackIfReady();
     }
-private:
-    bool enraged;
 };
 
 class spell_rajaxx_thundercrash : public SpellScript
@@ -186,7 +202,6 @@ struct npc_general_andorov : public npc_escortAI
                 kaldoreielitist->SetImmuneToNPC(true);
                 kaldoreielitist->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 kaldoreielitist->SetReactState(REACT_PASSIVE);
-                kaldoreielitist->SetFaction(FACTION_ESCORT_H_ACTIVE);
                 CAST_AI(SmartAI, kaldoreielitist->AI())->SetFollow(me, 2.5f, 0.f + i * (M_PI / 2));
             }
         }
@@ -249,13 +264,16 @@ struct npc_general_andorov : public npc_escortAI
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* killer) override
     {
         _summons.DespawnAll();
 
-        if (Creature* rajaxx = instance->GetCreature(DATA_RAJAXX))
+        if (killer->GetEntry() == NPC_RAJAXX)
         {
-            rajaxx->AI()->Talk(SAY_KILLS_ANDOROV);
+            if (Creature* rajaxx = instance->GetCreature(DATA_RAJAXX))
+            {
+                rajaxx->AI()->Talk(SAY_KILLS_ANDOROV);
+            }
         }
     }
 
@@ -333,7 +351,7 @@ struct npc_general_andorov : public npc_escortAI
             {
                 case EVENT_BASH:
                     DoCastVictim(SPELL_BASH);
-                    events.ScheduleEvent(EVENT_BASH, urand(12, 15) * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_BASH, urand(25, 38) * IN_MILLISECONDS);
                     break;
                 case EVENT_COMMAND_AURA:
                     DoCastSelf(SPELL_AURA_OF_COMMAND, true);

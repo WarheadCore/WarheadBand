@@ -25,7 +25,9 @@
 #include "GameConfig.h"
 #include "Log.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "World.h"
+#include <sstream>
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -35,7 +37,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     LOG_INFO("misc", "Cleaning character database...");
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // check flags which clean ups are necessary
     QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry = {}", WS_CLEANING_FLAGS);
@@ -67,7 +69,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     sWorld->SetCleaningFlags(flags);
 
-    LOG_INFO("server.loading", ">> Cleaned character database in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Cleaned character database in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -76,7 +78,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     QueryResult result = CharacterDatabase.Query("SELECT DISTINCT {} FROM {}", column, table);
     if (!result)
     {
-        LOG_INFO("sql.sql", "Table {} is empty.", table);
+        LOG_INFO("db.query", "Table {} is empty.", table);
         return;
     }
 
@@ -84,7 +86,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     std::ostringstream ss;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 id = fields[0].Get<uint32>();
 

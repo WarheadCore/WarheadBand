@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "mechanar.h"
+#include <sstream>
 
 static DoorData const doorData[] =
 {

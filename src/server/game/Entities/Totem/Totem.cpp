@@ -20,7 +20,7 @@
 
 #include "Totem.h"
 #include "Group.h"
-#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"

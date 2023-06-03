@@ -18,6 +18,7 @@
 #ifndef _SCRIPT_OBJECT_H_
 #define _SCRIPT_OBJECT_H_
 
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
@@ -229,13 +230,6 @@ public:
      * @return True if you want to continue receive the packet, false if you want to disallow receive the packet
      */
     [[nodiscard]] virtual bool CanPacketReceive(WorldSession* /*session*/, WorldPacket& /*packet*/) { return true; }
-
-    /**
-     * @brief Called after scripts initialize
-     *
-     * @param ioContext Contains information about the Warhead::Asio::IoContext
-     */
-    virtual void OnIoContext(std::weak_ptr<Warhead::Asio::IoContext> /*ioContext*/) { }
 };
 
 class WH_GAME_API WorldScript : public ScriptObject
@@ -450,16 +444,18 @@ public:
     virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
     // Called when Spell Damage is being Dealt
-    virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+    virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 
-    // Called when Heal is Recieved
-    virtual void ModifyHealRecieved(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+    // Called when Heal is Received
+    virtual void ModifyHealReceived(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 
     //Called when Damage is Dealt
     virtual uint32 DealDamage(Unit* /*AttackerUnit*/, Unit* /*pVictim*/, uint32 damage, DamageEffectType /*damagetype*/) { return damage; }
 
     virtual void OnBeforeRollMeleeOutcomeAgainst(Unit const* /*attacker*/, Unit const* /*victim*/, WeaponAttackType /*attType*/, int32& /*attackerMaxSkillValueForLevel*/,
         int32& /*victimMaxSkillValueForLevel*/, int32& /*attackerWeaponSkill*/, int32& /*victimDefenseSkill*/, int32& /*crit_chance*/, int32& /*miss_chance*/, int32& /*dodge_chance*/, int32& /*parry_chance*/, int32& /*block_chance*/) { };
+
+    virtual void OnAuraApply(Unit* /*unit*/, Aura* /*aura*/) { }
 
     virtual void OnAuraRemove(Unit* /*unit*/, AuraApplication* /*aurApp*/, AuraRemoveMode /*mode*/) { }
 
@@ -642,6 +638,9 @@ public:
     // Called when a CreatureAI object is needed for the creature.
     [[nodiscard]] virtual CreatureAI* GetCreatureAI(Creature* /*creature*/) const { return nullptr; }
 
+    // Called Whenever the UNIT_BYTE2_FLAG_FFA_PVP Bit is set on the creature
+    virtual void OnFfaPvpStateUpdate(Creature* /*creature*/, bool /*inpvp*/) { }
+
     // Called when a player selects a quest reward.
     [[nodiscard]] virtual bool CanCreatureSendListInventory(Player* /*player*/, Creature* /*creature*/, uint32 /*vendorEntry*/) { return true; }
 
@@ -771,6 +770,9 @@ public:
 
     // Called when a CreatureAI object is needed for the creature.
     virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
+
+    //Called whenever the UNIT_BYTE2_FLAG_FFA_PVP bit is Changed on the player
+    virtual void OnFfaPvpStateUpdate(Creature* /*player*/, bool /*result*/) { }
 };
 
 class WH_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -1049,6 +1051,9 @@ public:
     // Called when a player's money is modified (before the modification is done)
     virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
 
+    // Called before looted money is added to a player
+    virtual void OnBeforeLootMoney(Player* /*player*/, Loot* /*loot*/) { }
+
     // Called when a player gains XP (before anything is given)
     virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
 
@@ -1196,6 +1201,9 @@ public:
     //After looting item
     virtual void OnLootItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, ObjectGuid /*lootguid*/) { }
 
+    //After looting item (includes master loot).
+    virtual void OnStoreNewItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
+
     //After creating item (eg profession item creation)
     virtual void OnCreateItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
 
@@ -1204,6 +1212,9 @@ public:
 
     // After receiving item as a group roll reward
     virtual void OnGroupRollRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, RollVote /*voteType*/, Roll* /*roll*/) { }
+
+    //Before opening an item
+    [[nodiscard]] virtual bool OnBeforeOpenItem(Player* /*player*/, Item* /*item*/) { return true; }
 
     // After completed a quest
     [[nodiscard]] virtual bool OnBeforeQuestComplete(Player* /*player*/, uint32 /*quest_id*/) { return true; }
@@ -1233,6 +1244,8 @@ public:
     virtual void OnBeforeInitTalentForLevel(Player* /*player*/, uint8& /*level*/, uint32& /*talentPointsForLevel*/) { }
 
     virtual void OnFirstLogin(Player* /*player*/) { }
+
+    virtual void OnSetMaxLevel(Player* /*player*/, uint32& /*maxPlayerLevel*/) { }
 
     [[nodiscard]] virtual bool CanJoinInBattlegroundQueue(Player* /*player*/, ObjectGuid /*BattlemasterGuid*/, BattlegroundTypeId /*BGTypeID*/, uint8 /*joinAsGroup*/, GroupJoinBattlegroundResult& /*err*/) { return true; }
     virtual bool ShouldBeRewardedWithMoneyInsteadOfExp(Player* /*player*/) { return false; }
@@ -1274,6 +1287,8 @@ public:
     [[nodiscard]] virtual bool CanRepopAtGraveyard(Player* /*player*/) { return true; }
 
     virtual void OnGetMaxSkillValue(Player* /*player*/, uint32 /*skill*/, int32& /*result*/, bool /*IsPure*/) { }
+
+    [[nodiscard]] virtual bool OnUpdateFishingSkill(Player* /*player*/, int32 /*skill*/, int32 /*zone_skill*/, int32 /*chance*/, int32 /*roll*/) { return true; }
 
     [[nodiscard]] virtual bool CanAreaExploreAndOutdoor(Player* /*player*/) { return true; }
 
@@ -1325,6 +1340,9 @@ public:
 
     virtual void OnGetArenaTeamId(Player* /*player*/, uint8 /*slot*/, uint32& /*result*/) { }
 
+    // Fires whenever the UNIT_BYTE2_FLAG_FFA_PVP bit is Changed on the player
+    virtual void OnFfaPvpStateUpdate(Player* /*player*/, bool /*result*/) { }
+
     virtual void OnIsFFAPvP(Player* /*player*/, bool& /*result*/) { }
 
     virtual void OnIsPvP(Player* /*player*/, bool& /*result*/) { }
@@ -1348,6 +1366,9 @@ public:
     virtual void OnAfterResurrect(Player* /*player*/, float /*restore_percent*/, bool /*applySickness*/) { }
 
     virtual void OnPlayerResurrect(Player* /*player*/, float /*restore_percent*/, bool /*applySickness*/) { }
+
+    // Called before selecting the graveyard when releasing spirit
+    virtual void OnBeforeChooseGraveyard(Player* /*player*/, TeamId /*teamId*/, bool /*nearCorpse*/, uint32& /*graveyardOverride*/) { }
 
     /**
      * @brief This hook called before player sending message in default chat
@@ -1457,6 +1478,7 @@ public:
     virtual void OnCalculateMinMaxDamage(Player* /*player*/, float& /*damageFromAP*/) { }
     [[nodiscard]] virtual bool CanCompleteQuest(Player* /*player*/, Quest const* /*questInfo*/, QuestStatusData const* /*questStatusData*/) { return true; }
     virtual void OnAddQuest(Player* /*player*/, Quest const* /*quest*/, Object* /*questGiver*/) { }
+    virtual void OnUpdateProfessionSkill(Player* /*player*/, uint16 /*skillId*/, int32 /*chance*/, uint32& /*step*/) { }
 
     // Passive Anticheat System
     virtual void AnticheatSetSkipOnePacketForASH(Player* /*player*/, bool /*apply*/) { }
@@ -1502,6 +1524,8 @@ public:
 
     // Called when Password failed to change for Account
     virtual void OnFailedPasswordChange(uint32 /*accountId*/) { }
+
+    [[nodiscard]] virtual bool CanAccountCreateCharacter(uint32 /*accountId*/, uint8 /*charRace*/, uint8 /*charClass*/) { return true; }
 };
 
 class WH_GAME_API GuildScript : public ScriptObject
@@ -1642,8 +1666,7 @@ public:
 
     virtual void OnQueueUpdate(BattlegroundQueue* /*queue*/, uint32 /* diff */, BattlegroundTypeId /* bgTypeId */, BattlegroundBracketId /* bracket_id */, uint8 /* arenaType */, bool /* isRated */, uint32 /* arenaRating */) { }
 
-    virtual void OnAddGroup(BattlegroundQueue* /*queue*/, GroupQueueInfo* /*ginfo*/, uint32& /*index*/, Player* /*leader*/, Group* /*group*/, BattlegroundTypeId /* bgTypeId */, PvPDifficultyEntry const* /* bracketEntry */,
-        uint8 /* arenaType */, bool /* isRated */, bool /* isPremade */, uint32 /* arenaRating */, uint32 /* matchmakerRating */, uint32 /* arenaTeamId */, uint32 /* opponentsArenaTeamId */) { }
+    virtual void OnAddGroup(BattlegroundQueue* /* queue */, GroupQueueInfo* /* ginfo */, Group* /* group */, bool /* isPremade */) { }
 
     [[nodiscard]] virtual bool CanFillPlayersToBG(BattlegroundQueue* /*queue*/, Battleground* /*bg*/, BattlegroundBracketId /*bracket_id*/) { return true; }
 

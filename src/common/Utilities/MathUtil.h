@@ -19,7 +19,6 @@
 #define _MATH_UTIL_H
 
 #include <algorithm>
-#include <iterator>
 #include <numeric>
 #include <vector>
 

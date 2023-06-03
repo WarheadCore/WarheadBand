@@ -42,7 +42,7 @@ public:
     }
 
 protected:
-    NetworkThread<AuthSession>* CreateThreads() const override
+    [[nodiscard]] NetworkThread<AuthSession>* CreateThreads() const override
     {
         return new NetworkThread<AuthSession>[1];
     }

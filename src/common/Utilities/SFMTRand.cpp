@@ -65,7 +65,7 @@ SFMTRand::SFMTRand()
 
     if (dev.entropy() > 0)
     {
-        std::array<uint32, SFMT_N32> seed;
+        std::array<uint32, SFMT_N32> seed{};
         std::generate(seed.begin(), seed.end(), std::ref(dev));
 
         sfmt_init_by_array(&_state, seed.data(), seed.size());

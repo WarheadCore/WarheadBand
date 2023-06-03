@@ -22,13 +22,13 @@
 #ifndef __WEATHER_H
 #define __WEATHER_H
 
-#include "Common.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 
 class Player;
 
 #define WEATHER_SEASONS 4
+
 struct WeatherSeasonChances
 {
     uint32 rainChance;

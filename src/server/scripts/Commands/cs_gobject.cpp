@@ -26,11 +26,13 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "MapMgr.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -38,6 +40,7 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "Timer.h"
 #include "Transport.h"
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 
@@ -110,7 +113,7 @@ public:
         if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
         {
             // report to DB errors log as in loading case
-            LOG_ERROR("sql.sql", "Gameobject (Entry {} GoType: {}) have invalid displayId ({}), not spawned.", *objectId, objectInfo->type, objectInfo->displayId);
+            LOG_ERROR("db.query", "Gameobject (Entry {} GoType: {}) have invalid displayId ({}), not spawned.", *objectId, objectInfo->type, objectInfo->displayId);
             handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, uint32(objectId));
             handler->SetSentErrorMessage(true);
             return false;
@@ -252,9 +255,11 @@ public:
         uint16 mapId;
         uint32 poolId;
 
-        do
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
+            if (found)
+                break;
+
             guidLow = fields[0].Get<uint32>();
             id =      fields[1].Get<uint32>();
             x =       fields[2].Get<float>();
@@ -264,9 +269,10 @@ public:
             mapId =   fields[6].Get<uint16>();
             phase =   fields[7].Get<uint32>();
             poolId =  sPoolMgr->IsPartOfAPool<GameObject>(guidLow);
+
             if (!poolId || sPoolMgr->IsSpawnedObject<GameObject>(guidLow))
                 found = true;
-        } while (result->NextRow() && !found);
+        }
 
         if (!found)
         {
@@ -463,7 +469,7 @@ public:
 
         Player* player = handler->GetSession()->GetPlayer();
 
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_NEAREST);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAMEOBJECT_NEAREST);
         stmt->SetData(0, player->GetPositionX());
         stmt->SetData(1, player->GetPositionY());
         stmt->SetData(2, player->GetPositionZ());
@@ -479,7 +485,7 @@ public:
         {
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 entry = fields[1].Get<uint32>();
                 float x = fields[2].Get<float>();

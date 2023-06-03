@@ -206,7 +206,7 @@ public:
                     {
                         if (me->GetDisplayId() != me->GetNativeDisplayId())
                         {
-                            DoResetThreat();
+                            DoResetThreatList();
                             me->LoadEquipment();
                             me->RemoveAurasDueToSpell(SPELL_METAMORPHOSIS);
                             events.ScheduleEvent(EVENT_SPELL_WHIRLWIND, 10000);
@@ -226,7 +226,7 @@ public:
                     events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
                     break;
                 case EVENT_SWITCH_TO_DEMON:
-                    DoResetThreat();
+                    DoResetThreatList();
                     Talk(SAY_SWITCH_TO_DEMON);
                     me->LoadEquipment(0, true);
                     me->GetMotionMaster()->MoveChase(me->GetVictim(), 25.0f);
@@ -237,7 +237,7 @@ public:
                     events.ScheduleEvent(EVENT_SWITCH_TO_ELF, 60000);
                     break;
                 case EVENT_SWITCH_TO_ELF:
-                    DoResetThreat();
+                    DoResetThreatList();
                     me->LoadEquipment();
                     me->GetMotionMaster()->MoveChase(me->GetVictim(), 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_METAMORPHOSIS);

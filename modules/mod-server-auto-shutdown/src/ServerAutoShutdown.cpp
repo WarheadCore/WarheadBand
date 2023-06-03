@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ServerAutoShutdown.h"
-#include "Duration.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "ModulesConfig.h"
@@ -167,7 +166,7 @@ void ServerAutoShutdown::Init()
         LOG_INFO("modules", "> {}", message);
 
         sWorld->SendServerMessage(SERVER_MSG_STRING, message);
-        sWorld->ShutdownServ(preAnnounceSeconds.count(), 0, SHUTDOWN_EXIT_CODE);
+        sWorld->ShutdownServ(preAnnounceSeconds, 0, SHUTDOWN_EXIT_CODE);
     });
 }
 

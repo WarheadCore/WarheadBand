@@ -22,8 +22,6 @@
 #include "GridDefines.h"
 #include "Object.h"
 #include "UpdateData.h"
-#include <mutex>
-#include <set>
 #include <shared_mutex>
 #include <unordered_map>
 
@@ -35,7 +33,6 @@ class DynamicObject;
 class WorldObject;
 class Vehicle;
 class Map;
-class WorldRunnable;
 class Transport;
 class StaticTransport;
 class MotionTransport;
@@ -106,6 +103,8 @@ namespace ObjectAccessor
 
     template<>
     void RemoveObject(Player* player);
+
+    void UpdatePlayerNameMapReference(std::string const& oldname, Player* player);
 }
 
 #endif

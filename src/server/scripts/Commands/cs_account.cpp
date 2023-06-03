@@ -18,18 +18,12 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-/* ScriptData
-Name: account_commandscript
-%Complete: 100
-Comment: All account related commands
-Category: commandscripts
-EndScriptData */
-
 #include "AES.h"
 #include "AccountMgr.h"
 #include "Base32.h"
 #include "Chat.h"
 #include "CryptoGenerics.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "IPLocation.h"
 #include "Language.h"
@@ -40,12 +34,7 @@ EndScriptData */
 #include "SecretMgr.h"
 #include "StringConvert.h"
 #include "TOTP.h"
-#include <openssl/rand.h>
 #include <unordered_map>
-
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 using namespace Warhead::ChatCommands;
 
@@ -54,73 +43,51 @@ class account_commandscript : public CommandScript
 public:
     account_commandscript() : CommandScript("account_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    [[nodiscard]] ChatCommandTable GetCommands() const override
     {
         static ChatCommandTable accountSetCommandTable =
         {
-            { "addon",      SEC_GAMEMASTER,     true,   &HandleAccountSetAddonCommand,          "" },
-            { "gmlevel",    SEC_CONSOLE,        true,   &HandleAccountSetGmLevelCommand,        "" },
-            { "password",   SEC_CONSOLE,        true,   &HandleAccountSetPasswordCommand,       "" },
-            { "2fa",        SEC_PLAYER,         true,   &HandleAccountSet2FACommand,            "" }
+            { "addon",          HandleAccountSetAddonCommand,           SEC_GAMEMASTER,     Console::Yes },
+            { "gmlevel",        HandleAccountSetGmLevelCommand,         SEC_CONSOLE,        Console::Yes },
+            { "password",       HandleAccountSetPasswordCommand,        SEC_CONSOLE,        Console::Yes },
+            { "2fa",            HandleAccountSet2FACommand,             SEC_PLAYER,         Console::Yes }
         };
 
         static ChatCommandTable accountLockCommandTable
         {
-            { "country",    SEC_PLAYER,         true,   &HandleAccountLockCountryCommand,       "" },
-            { "ip",         SEC_PLAYER,         true,   &HandleAccountLockIpCommand,            "" }
+            { "country",    HandleAccountLockCountryCommand,            SEC_PLAYER,         Console::Yes },
+            { "ip",         HandleAccountLockIpCommand,                 SEC_PLAYER,         Console::Yes }
         };
 
         static ChatCommandTable account2faCommandTable
         {
-            { "setup",      SEC_PLAYER,         false,  &HandleAccount2FASetupCommand,          "" },
-            { "remove",     SEC_PLAYER,         false,  &HandleAccount2FARemoveCommand,         "" },
-        };
-
-        static ChatCommandTable accountRemoveCommandTable
-        {
-            { "2fa",        SEC_PLAYER,         true,   nullptr, "", account2faCommandTable    },
-            { "addon",      SEC_MODERATOR,      false,  &HandleAccountAddonCommand,         "" },
-            { "create",     SEC_CONSOLE,        true,   &HandleAccountCreateCommand,        "" },
-            { "delete",     SEC_CONSOLE,        true,   &HandleAccountDeleteCommand,        "" },
-            { "onlinelist", SEC_CONSOLE,        true,   &HandleAccountOnlineListCommand,    "" },
-            { "lock",       SEC_PLAYER,         false,  nullptr, "", accountLockCommandTable   },
-            { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable    },
-            { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,      "" }
+            { "setup",      HandleAccount2FASetupCommand,               SEC_PLAYER,         Console::No },
+            { "remove",     HandleAccount2FARemoveCommand,              SEC_PLAYER,         Console::No }
         };
 
         static ChatCommandTable accountCommandTable =
         {
-            { "2fa",        SEC_PLAYER,         true,   nullptr, "", account2faCommandTable        },
-            { "addon",      SEC_MODERATOR,      false,  &HandleAccountAddonCommand,             "" },
-            { "create",     SEC_CONSOLE,        true,   &HandleAccountCreateCommand,            "" },
-            { "delete",     SEC_CONSOLE,        true,   &HandleAccountDeleteCommand,            "" },
-            { "onlinelist", SEC_CONSOLE,        true,   &HandleAccountOnlineListCommand,        "" },
-            { "lock",       SEC_PLAYER,         false,  nullptr, "", accountLockCommandTable       },
-            { "set",        SEC_ADMINISTRATOR,  true,   nullptr, "", accountSetCommandTable        },
-            { "password",   SEC_PLAYER,         false,  &HandleAccountPasswordCommand,          "" },
-            { "remove",     SEC_ADMINISTRATOR,  true,   nullptr, "", accountRemoveCommandTable     },
-            { "info",       SEC_PLAYER,         false,  &HandleAccountInfoCommand,              "" }
+            { "2fa",        account2faCommandTable },
+            { "lock",       accountLockCommandTable },
+            { "set",        accountSetCommandTable },
+            { "addon",      HandleAccountAddonCommand,                  SEC_MODERATOR,      Console::No },
+            { "create",     HandleAccountCreateCommand,                 SEC_CONSOLE,        Console::Yes },
+            { "delete",     HandleAccountDeleteCommand,                 SEC_CONSOLE,        Console::Yes },
+            { "onlinelist", HandleAccountOnlineListCommand,             SEC_CONSOLE,        Console::Yes },
+            { "password",   HandleAccountPasswordCommand,               SEC_PLAYER,         Console::No },
+            { "info",       HandleAccountInfoCommand,                   SEC_PLAYER,         Console::No }
         };
 
         static ChatCommandTable commandTable =
         {
-            { "account", SEC_PLAYER, true, nullptr, "", accountCommandTable }
+            { "account", accountCommandTable }
         };
 
         return commandTable;
     }
 
-    static bool HandleAccount2FASetupCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccount2FASetupCommand(ChatHandler* handler, uint32 token)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        auto token = Warhead::StringTo<uint32>(args);
-
         auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
         if (!masterKey.IsAvailable())
         {
@@ -132,9 +99,9 @@ public:
         uint32 const accountId = handler->GetSession()->GetAccountId();
 
         { // check if 2FA already enabled
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
             stmt->SetData(0, accountId);
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
+            PreparedQueryResult result = AuthDatabase.Query(stmt);
 
             if (!result)
             {
@@ -159,17 +126,17 @@ public:
         if (pair.second) // no suggestion yet, generate random secret
             Warhead::Crypto::GetRandomBytes(pair.first->second);
 
-        if (!pair.second && token) // suggestion already existed and token specified - validate
+        if (!pair.second) // suggestion already existed and token specified - validate
         {
-            if (Warhead::Crypto::TOTP::ValidateToken(pair.first->second, *token))
+            if (Warhead::Crypto::TOTP::ValidateToken(pair.first->second, token))
             {
                 if (masterKey)
                     Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(pair.first->second, *masterKey);
 
-                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 stmt->SetData(0, pair.first->second);
                 stmt->SetData(1, accountId);
-                LoginDatabase.Execute(stmt);
+                AuthDatabase.Execute(stmt);
 
                 suggestions.erase(pair.first);
                 handler->SendSysMessage(LANG_2FA_SETUP_COMPLETE);
@@ -185,17 +152,8 @@ public:
         return false;
     }
 
-    static bool HandleAccount2FARemoveCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccount2FARemoveCommand(ChatHandler* handler, uint32 token)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        auto token = Warhead::StringTo<uint32>(args);
-
         auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
         if (!masterKey.IsAvailable())
         {
@@ -206,10 +164,11 @@ public:
 
         uint32 const accountId = handler->GetSession()->GetAccountId();
         Warhead::Crypto::TOTP::Secret secret;
-        { // get current TOTP secret
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+        {
+            // get current TOTP secret
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
             stmt->SetData(0, accountId);
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
+            PreparedQueryResult result = AuthDatabase.Query(stmt);
 
             if (!result)
             {
@@ -219,9 +178,10 @@ public:
                 return false;
             }
 
-            Field* field = result->Fetch();
+            auto field = result->Fetch();
             if (field->IsNull())
-            { // 2FA not enabled
+            {
+                // 2FA not enabled
                 handler->SendSysMessage(LANG_2FA_NOT_SETUP);
                 handler->SetSentErrorMessage(true);
                 return false;
@@ -230,80 +190,57 @@ public:
             secret = field->Get<Binary>();
         }
 
-        if (token)
+        if (masterKey)
         {
-            if (masterKey)
+            bool success = Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(secret, *masterKey);
+            if (!success)
             {
-                bool success = Warhead::Crypto::AEDecrypt<Warhead::Crypto::AES>(secret, *masterKey);
-                if (!success)
-                {
-                    LOG_ERROR("misc", "Account {} has invalid ciphertext in TOTP token.", accountId);
-                    handler->SendSysMessage(LANG_UNKNOWN_ERROR);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
+                LOG_ERROR("misc", "Account {} has invalid ciphertext in TOTP token.", accountId);
+                handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                handler->SetSentErrorMessage(true);
+                return false;
             }
-
-            if (Warhead::Crypto::TOTP::ValidateToken(secret, *token))
-            {
-                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
-                stmt->SetData(0);
-                stmt->SetData(1, accountId);
-                LoginDatabase.Execute(stmt);
-                handler->SendSysMessage(LANG_2FA_REMOVE_COMPLETE);
-                return true;
-            }
-            else
-                handler->SendSysMessage(LANG_2FA_INVALID_TOKEN);
         }
+
+        if (Warhead::Crypto::TOTP::ValidateToken(secret, token))
+        {
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+            stmt->SetData(0);
+            stmt->SetData(1, accountId);
+            AuthDatabase.Execute(stmt);
+            handler->SendSysMessage(LANG_2FA_REMOVE_COMPLETE);
+            return true;
+        }
+        else
+            handler->SendSysMessage(LANG_2FA_INVALID_TOKEN);
 
         handler->SendSysMessage(LANG_2FA_REMOVE_NEED_TOKEN);
         handler->SetSentErrorMessage(true);
         return false;
     }
 
-    static bool HandleAccountAddonCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountAddonCommand(ChatHandler* handler, uint8 expansion)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        char* exp = strtok((char*)args, " ");
-
-        uint32 accountId = handler->GetSession()->GetAccountId();
-
-        auto expansion = Warhead::StringTo<uint8>(exp); //get int anyway (0 if error)
-        if (!expansion || *expansion > CONF_GET_INT("Expansion"))
+        if (!expansion || expansion > CONF_GET_INT("Expansion"))
         {
             handler->SendSysMessage(LANG_IMPROPER_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+        stmt->SetData(0, expansion);
+        stmt->SetData(1, handler->GetSession()->GetAccountId());
+        AuthDatabase.Execute(stmt);
 
-        stmt->SetData(0, *expansion);
-        stmt->SetData(1, accountId);
-
-        LoginDatabase.Execute(stmt);
-
-        handler->PSendSysMessage(LANG_ACCOUNT_ADDON, *expansion);
+        handler->PSendSysMessage(LANG_ACCOUNT_ADDON, expansion);
         return true;
     }
 
     /// Create an account
-    static bool HandleAccountCreateCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountCreateCommand(ChatHandler* handler, std::string_view accountName, std::string_view password)
     {
-        if (!*args)
-            return false;
-
-        ///- %Parse the command line arguments
-        char* accountName = strtok((char*)args, " ");
-        char* password = strtok(nullptr, " ");
-        if (!accountName || !password)
+        if (accountName.empty() || password.empty())
             return false;
 
         AccountOpResult result = AccountMgr::CreateAccount(std::string(accountName), std::string(password));
@@ -345,17 +282,12 @@ public:
 
     /// Delete a user account and all associated characters in this realm
     /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
-    static bool HandleAccountDeleteCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountDeleteCommand(ChatHandler* handler, std::string_view account)
     {
-        if (!*args)
+        if (account.empty())
             return false;
 
-        ///- Get the account name from the command line
-        char* account = strtok((char*)args, " ");
-        if (!account)
-            return false;
-
-        std::string accountName = account;
+        std::string accountName{ account };
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
@@ -401,12 +333,10 @@ public:
     }
 
     /// Display info on users currently in the realm
-    static bool HandleAccountOnlineListCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleAccountOnlineListCommand(ChatHandler* handler)
     {
         ///- Get the list of accounts ID logged to the realm
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE);
-
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ONLINE));
         if (!result)
         {
             handler->SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
@@ -419,50 +349,47 @@ public:
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
 
         ///- Cycle through accounts
-        do
+        for (auto const& fields : *result)
         {
-            Field* fieldsDB = result->Fetch();
-            std::string name = fieldsDB[0].Get<std::string>();
-            uint32 account = fieldsDB[1].Get<uint32>();
+            std::string name = fields[0].Get<std::string>();
+            uint32 account = fields[1].Get<uint32>();
+            auto mapID = fields[2].Get<uint16>();
+            auto zoneID = fields[3].Get<uint16>();
 
             ///- Get the username, last IP and GM level of each account
             // No SQL injection. account is uint32.
-            LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
-            stmt->SetData(0, account);
+            AuthDatabasePreparedStatement loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO);
+            loginStmt->SetArguments(account);
 
-            PreparedQueryResult resultLogin = LoginDatabase.Query(loginStmt);
-
+            PreparedQueryResult resultLogin = AuthDatabase.Query(loginStmt);
             if (resultLogin)
             {
-                Field* fieldsLogin = resultLogin->Fetch();
-                handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                                         fieldsLogin[0].Get<std::string_view>(), name, fieldsLogin[1].Get<std::string_view>(),
-                                         fieldsDB[2].Get<uint16>(), fieldsDB[3].Get<uint16>(), fieldsLogin[3].Get<uint8>(),
-                                         fieldsLogin[2].Get<uint8>());
+                auto fieldsLogin = resultLogin->Fetch();
+                auto accountName{ fieldsLogin[0].Get<std::string_view>() };
+                auto lastIP{ fieldsLogin[1].Get<std::string_view>() };
+                auto gmLevel{ fieldsLogin[2].Get<uint8>() };
+                auto expansion{ fieldsLogin[3].Get<int8>() };
+
+                handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE, accountName, name, lastIP, mapID, zoneID, expansion, gmLevel);
             }
             else
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_ERROR, name);
-        } while (result->NextRow());
+        }
 
         handler->SendSysMessage(LANG_ACCOUNT_LIST_BAR);
         return true;
     }
 
-    static bool HandleAccountRemoveLockCountryCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountRemoveLockCountryCommand(ChatHandler* handler, std::string_view account)
     {
-        if (!*args)
+        if (account.empty())
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        ///- %Parse the command line arguments
-        char* _accountName = strtok((char*)args, " ");
-        if (!_accountName)
-            return false;
-
-        std::string accountName = _accountName;
+        std::string accountName{ account };
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
@@ -478,144 +405,92 @@ public:
             return false;
         }
 
-        auto* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
         stmt->SetData(0, "00");
         stmt->SetData(1, accountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
         handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+        return true;
+    }
+
+    static bool HandleAccountLockCountryCommand(ChatHandler* handler, bool param)
+    {
+        if (param)
+        {
+            if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
+            {
+                AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+                stmt->SetData(0, location->CountryCode);
+                stmt->SetData(1, handler->GetSession()->GetAccountId());
+                AuthDatabase.Execute(stmt);
+                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
+            }
+            else
+            {
+                handler->PSendSysMessage("No IP2Location information - account not locked");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+        else
+        {
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
+            stmt->SetData(0, "00");
+            stmt->SetData(1, handler->GetSession()->GetAccountId());
+            AuthDatabase.Execute(stmt);
+            handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+        }
 
         return true;
     }
 
-    static bool HandleAccountLockCountryCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountLockIpCommand(ChatHandler* handler, bool param)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
+        stmt->SetArguments(param, handler->GetSession()->GetAccountId());
+        AuthDatabase.Execute(stmt);
 
-        std::string param = (char*)args;
-
-        if (!param.empty())
-        {
-            if (param == "on")
-            {
-                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
-                {
-                    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                    stmt->SetData(0, location->CountryCode);
-                    stmt->SetData(1, handler->GetSession()->GetAccountId());
-                    LoginDatabase.Execute(stmt);
-                    handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
-                }
-                else
-                {
-                    handler->PSendSysMessage("No IP2Location information - account not locked");
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-            }
-            else if (param == "off")
-            {
-                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
-                stmt->SetData(0, "00");
-                stmt->SetData(1, handler->GetSession()->GetAccountId());
-                LoginDatabase.Execute(stmt);
-                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
-            }
-            return true;
-        }
-
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-        return false;
+        handler->PSendSysMessage(param ? LANG_COMMAND_ACCLOCKLOCKED : LANG_COMMAND_ACCLOCKUNLOCKED);
+        return true;
     }
 
-    static bool HandleAccountLockIpCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountPasswordCommand(ChatHandler* handler, std::string_view oldPass, std::string_view newPass, std::string_view passConfim)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_USE_BOL);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string param = (char*)args;
-
-        if (!param.empty())
-        {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
-
-            if (param == "on")
-            {
-                stmt->SetData(0, true);                                     // locked
-                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
-            }
-            else if (param == "off")
-            {
-                stmt->SetData(0, false);                                    // unlocked
-                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
-            }
-
-            stmt->SetData(1, handler->GetSession()->GetAccountId());
-
-            LoginDatabase.Execute(stmt);
-            return true;
-        }
-
-        handler->SendSysMessage(LANG_USE_BOL);
-        handler->SetSentErrorMessage(true);
-        return false;
-    }
-
-    static bool HandleAccountPasswordCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
+        if (oldPass.empty() || newPass.empty() || passConfim.empty())
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        char* oldPassword = strtok((char*)args, " ");
-        char* newPassword = strtok(nullptr, " ");
-        char* passwordConfirmation = strtok(nullptr, " ");
+        auto accountId{ handler->GetSession()->GetAccountId() };
 
-        if (!oldPassword || !newPassword || !passwordConfirmation)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
+        if (!AccountMgr::CheckPassword(accountId, std::string{ oldPass }))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
-            sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
+            sScriptMgr->OnFailedPasswordChange(accountId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (strcmp(newPassword, passwordConfirmation) != 0)
+        if (newPass != passConfim)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
-            sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
+            sScriptMgr->OnFailedPasswordChange(accountId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        AccountOpResult result = AccountMgr::ChangePassword(handler->GetSession()->GetAccountId(), std::string(newPassword));
+        AccountOpResult result = AccountMgr::ChangePassword(accountId, std::string{ newPass });
         switch (result)
         {
             case AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
-                sScriptMgr->OnPasswordChange(handler->GetSession()->GetAccountId());
+                sScriptMgr->OnPasswordChange(accountId);
                 break;
             case AOR_PASS_TOO_LONG:
                 handler->SendSysMessage(LANG_PASSWORD_TOO_LONG);
-                sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
+                sScriptMgr->OnFailedPasswordChange(accountId);
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
@@ -627,27 +502,17 @@ public:
         return true;
     }
 
-    static bool HandleAccountSet2FACommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSet2FACommand(ChatHandler* handler, std::string_view account, std::string_view sec)
     {
-        if (!*args)
+        if (account.empty() || sec.empty())
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        char* _account = strtok((char*)args, " ");
-        char* _secret = strtok(nullptr, " ");
-
-        if (!_account || !_secret)
-        {
-            handler->SendSysMessage(LANG_CMD_SYNTAX);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string accountName = _account;
-        std::string secret = _secret;
+        std::string accountName{ account };
+        std::string secret{ sec };
 
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
@@ -669,10 +534,10 @@ public:
 
         if (secret == "off")
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
             stmt->SetData(0);
             stmt->SetData(1, targetAccountId);
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
             handler->PSendSysMessage(LANG_2FA_REMOVE_COMPLETE);
             return true;
         }
@@ -703,10 +568,10 @@ public:
         if (masterKey)
             Warhead::Crypto::AEEncryptWithRandomIV<Warhead::Crypto::AES>(*decoded, *masterKey);
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
         stmt->SetData(0, *decoded);
         stmt->SetData(1, targetAccountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_2FA_SECRET_SET_COMPLETE, accountName);
         return true;
@@ -714,25 +579,20 @@ public:
 
     static bool HandleAccountInfoCommand(ChatHandler* handler)
     {
-        AccountTypes gmLevel = handler->GetSession()->GetSecurity();
-        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(handler->GetSession()->GetSecurity()));
         return true;
     }
 
     /// Set/Unset the expansion level for an account
-    static bool HandleAccountSetAddonCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetAddonCommand(ChatHandler* handler, std::string_view account, Tail exp)
     {
-        ///- Get the command line arguments
-        char* account = strtok((char*)args, " ");
-        char* exp = strtok(nullptr, " ");
-
-        if (!account)
+        if (account.empty())
             return false;
 
         std::string accountName;
         uint32 accountId;
 
-        if (!exp)
+        if (exp.empty())
         {
             Player* player = handler->getSelectedPlayer();
             if (!player)
@@ -772,40 +632,33 @@ public:
         if (!expansion || *expansion > CONF_GET_INT("Expansion"))
             return false;
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
-
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
         stmt->SetData(0, *expansion);
         stmt->SetData(1, accountId);
-
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName, accountId, *expansion);
         return true;
     }
 
-    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, Tail arg1, Tail arg2, Tail arg3)
     {
-        if (!*args)
-            return false;
-
         std::string targetAccountName;
         uint32 targetAccountId = 0;
         uint32 targetSecurity = 0;
         uint32 gm = 0;
-        char* arg1 = strtok((char*)args, " ");
-        char* arg2 = strtok(nullptr, " ");
-        char* arg3 = strtok(nullptr, " ");
         bool isAccountNameGiven = true;
 
-        if (arg1 && !arg3)
+        if (!arg1.empty() && arg3.empty())
         {
             if (!handler->getSelectedPlayer())
                 return false;
+
             isAccountNameGiven = false;
         }
 
         // Check for second parameter
-        if (!isAccountNameGiven && !arg2)
+        if (!isAccountNameGiven && arg2.empty())
             return false;
 
         // Check for account
@@ -833,6 +686,7 @@ public:
         targetAccountId = (isAccountNameGiven) ? AccountMgr::GetId(targetAccountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
         int32 gmRealmID = (isAccountNameGiven) ? Warhead::StringTo<int32>(arg3).value_or(0) : Warhead::StringTo<int32>(arg2).value_or(0);
         uint32 playerSecurity;
+
         if (handler->GetSession())
             playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), gmRealmID);
         else
@@ -851,13 +705,11 @@ public:
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
         if (gmRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
-
+            AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
             stmt->SetData(0, targetAccountId);
             stmt->SetData(1, uint8(gm));
 
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
-
+            PreparedQueryResult result = AuthDatabase.Query(stmt);
             if (result)
             {
                 handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
@@ -875,31 +727,29 @@ public:
         }
 
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realm.Id.Realm
-        LoginDatabasePreparedStatement* stmt;
+        AuthDatabasePreparedStatement stmt;
 
         if (gmRealmID == -1)
         {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+            stmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
             stmt->SetData(0, targetAccountId);
         }
         else
         {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+            stmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
             stmt->SetData(0, targetAccountId);
             stmt->SetData(1, realm.Id.Realm);
         }
 
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         if (gm != 0)
         {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
-
+            stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
             stmt->SetData(0, targetAccountId);
             stmt->SetData(1, uint8(gm));
             stmt->SetData(2, gmRealmID);
-
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
         }
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName, gm);
@@ -907,20 +757,12 @@ public:
     }
 
     /// Set password for account
-    static bool HandleAccountSetPasswordCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountSetPasswordCommand(ChatHandler* handler, std::string_view account, std::string_view pass, std::string_view passConfim)
     {
-        if (!*args)
+        if (account.empty() || pass.empty() || passConfim.empty())
             return false;
 
-        ///- Get the command line arguments
-        char* account = strtok((char*)args, " ");
-        char* password = strtok(nullptr, " ");
-        char* passwordConfirmation = strtok(nullptr, " ");
-
-        if (!account || !password || !passwordConfirmation)
-            return false;
-
-        std::string accountName = account;
+        std::string accountName{ account };
         if (!Utf8ToUpperOnlyLatin(accountName))
         {
             handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName);
@@ -941,15 +783,14 @@ public:
         if (handler->HasLowerSecurityAccount(nullptr, targetAccountId, true))
             return false;
 
-        if (strcmp(password, passwordConfirmation))
+        if (pass != passConfim)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        AccountOpResult result = AccountMgr::ChangePassword(targetAccountId, password);
-
+        AccountOpResult result = AccountMgr::ChangePassword(targetAccountId, std::string{ pass });
         switch (result)
         {
             case AOR_OK:

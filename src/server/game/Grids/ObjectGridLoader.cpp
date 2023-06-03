@@ -25,6 +25,7 @@
 #include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
@@ -196,6 +197,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
+
     LOG_DEBUG("maps", "{} GameObjects, {} Creatures, and {} Corpses/Bones loaded for grid {} on map {}", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 

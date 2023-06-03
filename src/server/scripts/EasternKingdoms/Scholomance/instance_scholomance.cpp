@@ -26,6 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "scholomance.h"
+#include <sstream>
 
 Position KirtonosSpawn = Position(315.028, 70.5385, 102.15, 0.385971);
 
@@ -374,7 +375,7 @@ public:
 
         Unit* SelectUnitCasting()
         {
-          ThreatContainer::StorageType threatlist = me->GetThreatMgr().getThreatList();
+          ThreatContainer::StorageType threatlist = me->GetThreatMgr().GetThreatList();
           for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
           {
               if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))

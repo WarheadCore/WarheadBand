@@ -85,3 +85,13 @@ void ScriptMgr::OnFailedPasswordChange(uint32 accountId)
         script->OnFailedPasswordChange(accountId);
     });
 }
+
+bool ScriptMgr::CanAccountCreateCharacter(uint32 accountId, uint8 charRace, uint8 charClass)
+{
+    auto ret = IsValidBoolScript<AccountScript>([&](AccountScript* script)
+    {
+        return !script->CanAccountCreateCharacter(accountId, charRace, charClass);
+    });
+
+    return ReturnValidBool(ret);
+}

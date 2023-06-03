@@ -18,9 +18,10 @@
 #ifndef __GAME_CONFIG
 #define __GAME_CONFIG
 
-#include "Common.h"
+#include "Define.h"
 #include "Optional.h"
 #include "Types.h"
+#include <shared_mutex>
 #include <unordered_map>
 
 class WH_GAME_API GameConfig
@@ -61,6 +62,7 @@ private:
     void LoadConfigs(bool reload = false);
 
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
+    std::shared_mutex _mutex;
 };
 
 #define sGameConfig GameConfig::instance()

@@ -19,9 +19,9 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Logger.h"
-#include "Channel.h"
+#include "LogChannel.h"
 
-void Warhead::Logger::AddChannel(std::shared_ptr<Channel> channel)
+void Warhead::Logger::AddChannel(std::shared_ptr<LogChannel> channel)
 {
     std::lock_guard<std::mutex> guard(_mutex);
     _channels.emplace_back(channel);

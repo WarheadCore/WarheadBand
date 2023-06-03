@@ -21,7 +21,6 @@
 #include "Hyperlinks.h"
 #include "Common.h"
 #include "DBCStores.h"
-#include "Errors.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "ObjectMgr.h"

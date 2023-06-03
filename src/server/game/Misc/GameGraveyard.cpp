@@ -20,9 +20,13 @@
 
 #include "GameGraveyard.h"
 #include "DBCStores.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "StopWatch.h"
 
 Graveyard* Graveyard::instance()
 {
@@ -32,11 +36,10 @@ Graveyard* Graveyard::instance()
 
 void Graveyard::LoadGraveyardFromDB()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _graveyardStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Map, x, y, z, Comment FROM game_graveyard");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameGraveyard) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 graveyard. Table `game_graveyard` is empty!");
@@ -48,7 +51,7 @@ void Graveyard::LoadGraveyardFromDB()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 ID = fields[0].Get<uint32>();
 
         GraveyardStruct Graveyard;
@@ -61,7 +64,7 @@ void Graveyard::LoadGraveyardFromDB()
 
         if (!Utf8toWStr(Graveyard.name, Graveyard.wnameLow))
         {
-            LOG_ERROR("sql.sql", "Wrong UTF8 name for id {} in `game_graveyard` table, ignoring.", ID);
+            LOG_ERROR("db.query", "Wrong UTF8 name for id {} in `game_graveyard` table, ignoring.", ID);
             continue;
         }
 
@@ -72,7 +75,7 @@ void Graveyard::LoadGraveyardFromDB()
         ++Count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} graveyard in {} ms", Count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Graveyard in {}", Count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -98,6 +101,13 @@ GraveyardStruct const* Graveyard::GetDefaultGraveyard(TeamId teamId)
 
 GraveyardStruct const* Graveyard::GetClosestGraveyard(Player* player, TeamId teamId, bool nearCorpse)
 {
+    uint32 graveyardOverride = 0;
+    sScriptMgr->OnBeforeChooseGraveyard(player, teamId, nearCorpse, graveyardOverride);
+    if (graveyardOverride)
+    {
+        return sGraveyard->GetGraveyard(graveyardOverride);
+    }
+
     WorldLocation loc = player->GetWorldLocation();
 
     if (nearCorpse)
@@ -118,7 +128,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(Player* player, TeamId tea
     {
         if (z > -500)
         {
-            LOG_ERROR("sql.sql", "GetClosestGraveyard: unable to find zoneId and areaId for map {} coords ({}, {}, {})", mapId, x, y, z);
+            LOG_ERROR("db.query", "GetClosestGraveyard: unable to find zoneId and areaId for map {} coords ({}, {}, {})", mapId, x, y, z);
             return GetDefaultGraveyard(teamId);
         }
     }
@@ -155,7 +165,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(Player* player, TeamId tea
     // not need to check validity of map object; MapId _MUST_ be valid here
     if (range.first == range.second && !map->IsBattlegroundOrArena())
     {
-        LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, teamId);
+        LOG_ERROR("db.query", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, teamId);
         return GetDefaultGraveyard(teamId);
     }
 
@@ -180,7 +190,7 @@ GraveyardStruct const* Graveyard::GetClosestGraveyard(Player* player, TeamId tea
         GraveyardStruct const* entry = sGraveyard->GetGraveyard(graveyardLink.safeLocId);
         if (!entry)
         {
-            LOG_ERROR("sql.sql", "Table `graveyard_zone` has record for not existing `game_graveyard` table {}, skipped.", graveyardLink.safeLocId);
+            LOG_ERROR("db.query", "Table `graveyard_zone` has record for not existing `game_graveyard` table {}, skipped.", graveyardLink.safeLocId);
             continue;
         }
 
@@ -292,7 +302,7 @@ bool Graveyard::AddGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, bool p
     // add link to DB
     if (persist)
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
 
         stmt->SetData(0, id);
         stmt->SetData(1, zoneId);
@@ -310,7 +320,7 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
     GraveyardMapBoundsNonConst range = GraveyardStore.equal_range(zoneId);
     if (range.first == range.second)
     {
-        LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, teamId);
+        LOG_ERROR("db.query", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, teamId);
         return;
     }
 
@@ -343,7 +353,7 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
     // remove link from DB
     if (persist)
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
+        WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
 
         stmt->SetData(0, id);
         stmt->SetData(1, zoneId);
@@ -356,16 +366,13 @@ void Graveyard::RemoveGraveyardLink(uint32 id, uint32 zoneId, TeamId teamId, boo
 
 void Graveyard::LoadGraveyardZones()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     GraveyardStore.clear(); // need for reload case
 
-    //                                                0       1         2
-    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone, Faction FROM graveyard_zone");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GraveyardZone) };
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 graveyard-zone links. DB table `graveyard_zone` is empty.");
+        LOG_WARN("server.loading", ">> Loaded 0 Graveyard-Zone Links. DB Table `graveyard_zone` Is Empty.");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -376,7 +383,7 @@ void Graveyard::LoadGraveyardZones()
     {
         ++count;
 
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 safeLocId = fields[0].Get<uint32>();
         uint32 zoneId = fields[1].Get<uint32>();
@@ -386,28 +393,28 @@ void Graveyard::LoadGraveyardZones()
         GraveyardStruct const* entry = sGraveyard->GetGraveyard(safeLocId);
         if (!entry)
         {
-            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for not existing `game_graveyard` table {}, skipped.", safeLocId);
+            LOG_ERROR("db.query", "Table `graveyard_zone` has a record for not existing `game_graveyard` table {}, skipped.", safeLocId);
             continue;
         }
 
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
         if (!areaEntry)
         {
-            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for not existing zone id ({}), skipped.", zoneId);
+            LOG_ERROR("db.query", "Table `graveyard_zone` has a record for not existing zone id ({}), skipped.", zoneId);
             continue;
         }
 
         if (team != 0 && team != HORDE && team != ALLIANCE)
         {
-            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for non player faction ({}), skipped.", team);
+            LOG_ERROR("db.query", "Table `graveyard_zone` has a record for non player faction ({}), skipped.", team);
             continue;
         }
 
         if (!AddGraveyardLink(safeLocId, zoneId, teamId, false))
-            LOG_ERROR("sql.sql", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {}) and Zone (ID: {}), skipped.", safeLocId, zoneId);
+            LOG_ERROR("db.query", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {}) and Zone (ID: {}), skipped.", safeLocId, zoneId);
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} graveyard-zone links in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Graveyard-Zone Links in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

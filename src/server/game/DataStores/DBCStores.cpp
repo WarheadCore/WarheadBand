@@ -22,15 +22,18 @@
 #include "BattlegroundMgr.h"
 #include "DBCFileLoader.h"
 #include "DBCfmt.h"
+#include "DatabaseEnv.h"
 #include "Errors.h"
 #include "GameConfig.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "TransportMgr.h"
 #include "World.h"
 #include <map>
+#include <sstream>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
@@ -259,7 +262,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
 
 void LoadDBCStores(const std::string& dataPath)
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     std::string dbcPath = dataPath + "dbc/";
 
@@ -463,7 +466,7 @@ void LoadDBCStores(const std::string& dataPath)
             if (spellDiff->SpellID[x] <= 0 || !sSpellStore.LookupEntry(spellDiff->SpellID[x]))
             {
                 if (spellDiff->SpellID[x] > 0) //don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
-                    LOG_ERROR("sql.sql", "spelldifficulty_dbc: spell {} at field id: {} at spellid {} does not exist in SpellStore (spell.dbc), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
+                    LOG_ERROR("db.query", "spelldifficulty_dbc: spell {} at field id: {} at spellid {} does not exist in SpellStore (spell.dbc), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
 
                 newEntry.SpellID[x] = 0; // spell was <= 0 or invalid, set to 0
             }
@@ -641,8 +644,12 @@ void LoadDBCStores(const std::string& dataPath)
         exit(1);
     }
 
-    LOG_INFO("server.loading", ">> Initialized {} data stores in {} ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Initialized {} Data Stores in {}", DBCFileCount, sw);
+    LOG_INFO("server.loading", "");
+
+    // Close connection after load all data
+    DBCDatabase.Close();
+    LOG_INFO("server.loading", "");
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)

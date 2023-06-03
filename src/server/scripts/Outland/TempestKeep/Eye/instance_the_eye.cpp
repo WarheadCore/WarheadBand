@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "ScriptObject.h"
 #include "the_eye.h"
+#include <sstream>
 
 class instance_the_eye : public InstanceMapScript
 {

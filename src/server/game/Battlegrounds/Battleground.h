@@ -19,7 +19,6 @@
 #define __BATTLEGROUND_H
 
 #include "ArenaScore.h"
-#include "Common.h"
 #include "DBCEnums.h"
 #include "GameObject.h"
 #include "SharedDefines.h"
@@ -99,6 +98,7 @@ enum BattlegroundMarks
 {
     SPELL_WS_MARK_LOSER             = 24950,
     SPELL_WS_MARK_WINNER            = 24951,
+    SPELL_WS_MARK_TIE               = 66126,
     SPELL_AB_MARK_LOSER             = 24952,
     SPELL_AB_MARK_WINNER            = 24953,
     SPELL_AV_MARK_LOSER             = 24954,

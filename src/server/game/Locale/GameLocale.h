@@ -19,6 +19,7 @@
 #define _GAME_LOCALE_H_
 
 #include "Common.h"
+#include "Duration.h"
 #include "Optional.h"
 #include "SharedDefines.h"
 #include <unordered_map>
@@ -228,6 +229,11 @@ struct ClassString
     }
 };
 
+struct CommonString
+{
+    std::vector<std::string> Context;
+};
+
 class WH_GAME_API GameLocale
 {
 private:
@@ -301,20 +307,24 @@ public:
     [[nodiscard]] AutobroadcastLocale const* GetAutoBroadCastLocale(uint32 id) const;
 
     //
-    std::string const GetItemNameLocale(uint32 itemID, int8 index_loc = DEFAULT_LOCALE);
+    std::string const GetItemNameLocale(uint32 itemID, int8 index_loc = DEFAULT_LOCALE) const;
     std::string const GetItemLink(uint32 itemID, int8 index_loc = DEFAULT_LOCALE);
-    std::string const GetSpellLink(uint32 spellID, int8 index_loc = DEFAULT_LOCALE);
+    static std::string const GetSpellLink(uint32 spellID, int8 index_loc = DEFAULT_LOCALE);
     std::string const GetSpellNamelocale(uint32 spellID, int8 index_loc = DEFAULT_LOCALE);
-    std::string const GetCreatureNamelocale(uint32 creatureEntry, int8 index_loc = DEFAULT_LOCALE);
+    std::string const GetCreatureNamelocale(uint32 creatureEntry, int8 index_loc = DEFAULT_LOCALE) const;
 
     // New strings and locales
     void LoadRaceStrings();
     void LoadClassStrings();
+    void LoadCommonStrings();
 
     RaceString const* GetRaseString(uint32 id) const;
     ClassString const* GetClassString(uint32 id) const;
+    CommonString const* GetCommonStringLocale(std::string_view entry) const;
 
     Optional<std::string> GetChatCommandStringHelpLocale(std::string const& commandName, LocaleConstant locale) const;
+
+    static std::string ToTimeString(Microseconds durationTime, int8 indexLoc = DEFAULT_LOCALE, bool isShortFormat = true);
 
 private:
     std::unordered_map<uint32, WarheadString> _warheadStringStore;
@@ -339,6 +349,7 @@ private:
     // New strings and locales
     std::unordered_map<uint32, RaceString> _raceStringStore;
     std::unordered_map<uint32, ClassString> _classStringStore;
+    std::unordered_map<std::string, CommonString> _commonStringStore;
 
     // Chat command help locales
     std::unordered_map<std::string, ChatCommandHelpLocale> _chatCommandStringStore;

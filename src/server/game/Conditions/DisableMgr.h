@@ -19,10 +19,9 @@
 #define WARHEAD_DISABLEMGR_H
 
 #include "Define.h"
-#include "Map.h"
-#include "VMapMgr2.h"
 
 class Unit;
+class Map;
 
 enum DisableType
 {
@@ -61,4 +60,4 @@ namespace DisableMgr
     WH_GAME_API bool IsPathfindingEnabled(const Map* map);
 }
 
-#endif //WARHEAD_DISABLEMGR_H
+#endif // WARHEAD_DISABLEMGR_H

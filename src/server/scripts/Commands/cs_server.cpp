@@ -26,13 +26,13 @@
  EndScriptData */
 
 #include "Chat.h"
-#include "Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "GitRevision.h"
 #include "Language.h"
 #include "ModuleMgr.h"
-#include "MySQLThreading.h"
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptObject.h"
@@ -124,7 +124,7 @@ public:
 
         {
             uint16 dbPort = 0;
-            if (QueryResult res = LoginDatabase.Query("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
+            if (QueryResult res = AuthDatabase.Query("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
                 dbPort = (*res)[0].Get<uint16>();
 
             if (dbPort)
@@ -136,12 +136,12 @@ public:
         handler->PSendSysMessage("{}", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
         handler->PSendSysMessage("Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-        handler->PSendSysMessage("Using MySQL version: {}", MySQL::GetLibraryVersion());
+        handler->PSendSysMessage("Using MySQL version: {}", sDatabaseMgr->GetDatabaseLibraryVersion());
         handler->PSendSysMessage("Using CMake version: {}", GitRevision::GetCMakeVersion());
 
         handler->PSendSysMessage("Compiled on: {}", GitRevision::GetHostOSVersion());
 
-        handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, worldPort);
+        handler->PSendSysMessage("Worldserver listening connections on port {}" PRIu16, worldPort);
         handler->PSendSysMessage("{}", dbPortOutput);
 
         bool vmapIndoorCheck = CONF_GET_BOOL("vmap.enableIndoorCheck");
@@ -218,9 +218,9 @@ public:
 
         handler->PSendSysMessage("Using World DB: {}", sWorld->GetDBVersion());
 
-        handler->PSendSysMessage("LoginDatabase queue size: {}", LoginDatabase.QueueSize());
-        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.QueueSize());
-        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.QueueSize());
+        handler->PSendSysMessage("AuthDatabase queue size: {}", AuthDatabase.GetQueueSize());
+        handler->PSendSysMessage("CharacterDatabase queue size: {}", CharacterDatabase.GetQueueSize());
+        handler->PSendSysMessage("WorldDatabase queue size: {}", WorldDatabase.GetQueueSize());
 
         if (Warhead::Module::GetEnableModulesList().empty())
             handler->SendSysMessage("No modules enabled");
@@ -257,7 +257,7 @@ public:
 
         //! Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
-            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString(Seconds(sWorld->GetShutDownTimeLeft())));
+            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, Warhead::Time::ToTimeString(sWorld->GetShutDownTimeLeft()));
 
         return true;
     }
@@ -310,11 +310,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), 0, *exitCode);
+            sWorld->ShutdownServ(delay, 0, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), 0, SHUTDOWN_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, 0, SHUTDOWN_EXIT_CODE, strReason);
         }
 
         return true;
@@ -356,11 +356,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART, *exitCode);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE, strReason);
         }
 
         return true;
@@ -401,11 +401,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, *exitCode);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE, strReason);
         }
 
         return true;
@@ -444,11 +444,11 @@ public:
 
         if (exitCode && *exitCode >= 0 && *exitCode <= 125)
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_IDLE, *exitCode);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_IDLE, *exitCode);
         }
         else
         {
-            sWorld->ShutdownServ(delay.count(), SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE, strReason);
+            sWorld->ShutdownServ(delay, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE, strReason);
         }
 
         return true;

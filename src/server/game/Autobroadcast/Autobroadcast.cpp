@@ -21,11 +21,13 @@
 #include "Autobroadcast.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "Language.h"
 #include "Player.h"
 #include "Realm.h"
+#include "StopWatch.h"
 #include "Tokenize.h"
 
 AutobroadcastMgr* AutobroadcastMgr::instance()
@@ -36,32 +38,32 @@ AutobroadcastMgr* AutobroadcastMgr::instance()
 
 void AutobroadcastMgr::Load()
 {
-    const uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _autobroadcasts.clear();
     _autobroadcastsWeights.clear();
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
     stmt->SetData(0, realm.Id.Realm);
 
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
     if (!result)
     {
         LOG_INFO("server.loading", ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
+        LOG_INFO("server.loading", "");
         return;
     }
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint8 id = fields[0].Get<uint8>();
 
         _autobroadcasts[id] = fields[2].Get<std::string>();
         _autobroadcastsWeights[id] = fields[1].Get<uint8>();
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {} ms", _autobroadcasts.size(), GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} autobroadcast definitions in {}", _autobroadcasts.size(), sw);
+    LOG_INFO("server.loading", "");
 }
 
 void AutobroadcastMgr::Send()

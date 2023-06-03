@@ -21,19 +21,15 @@
 #include "CellImpl.h"
 #include "GameLocale.h"
 #include "GameTime.h"
-#include "GossipDef.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Map.h"
 #include "MapMgr.h"
-#include "MapRefMgr.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Transport.h"
 #include "WaypointMgr.h"
-#include "World.h"
 
  /// Put scripts in the execution queue
 void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
@@ -66,11 +62,11 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         sMapMgr->IncreaseScheduledScriptsCount();
     }
     ///- If one of the effects should be immediate, launch the script execution
-    if (/*start &&*/ immedScript && !i_scriptLock)
+    if (/*start &&*/ immedScript && !_scriptLock)
     {
-        i_scriptLock = true;
+        _scriptLock = true;
         ScriptsProcess();
-        i_scriptLock = false;
+        _scriptLock = false;
     }
 }
 
@@ -94,11 +90,11 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     sMapMgr->IncreaseScheduledScriptsCount();
 
     ///- If effects should be immediate, launch the script execution
-    if (delay == 0 && !i_scriptLock)
+    if (delay == 0 && !_scriptLock)
     {
-        i_scriptLock = true;
+        _scriptLock = true;
         ScriptsProcess();
-        i_scriptLock = false;
+        _scriptLock = false;
     }
 }
 

@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "mpq_libmpq04.h"
+#include <algorithm>
 #include <cstdio>
 #include <deque>
 
@@ -54,6 +55,11 @@ MPQArchive::MPQArchive(const char* filename)
         return;
     }
     gOpenArchives.push_front(this);
+}
+
+bool MPQArchive::isOpened() const
+{
+    return std::find(gOpenArchives.begin(), gOpenArchives.end(), this) != gOpenArchives.end();
 }
 
 void MPQArchive::close()
@@ -96,12 +102,12 @@ MPQFile::MPQFile(const char* filename):
     buffer = nullptr;
 }
 
-size_t MPQFile::read(void* dest, size_t bytes)
+std::size_t MPQFile::read(void* dest, std::size_t bytes)
 {
     if (eof) return 0;
 
-    size_t rpos = pointer + bytes;
-    if (rpos > size_t(size))
+    std::size_t rpos = pointer + bytes;
+    if (rpos > std::size_t(size))
     {
         bytes = size - pointer;
         eof = true;

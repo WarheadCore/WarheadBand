@@ -24,10 +24,10 @@
 #include "DBCStores.h"
 #include "Log.h"
 #include "M2Structure.h"
+#include "StopWatch.h"
 #include "World.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 
 typedef std::vector<FlyByCamera> FlyByCameraCollection;
@@ -178,10 +178,11 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
 
 void LoadM2Cameras(std::string const& dataPath)
 {
+    StopWatch sw;
     sFlyByCameraStore.clear();
-    LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
 
-    uint32 oldMSTime = getMSTime();
+    LOG_INFO("server.loading", "Loading Cinematic Camera files");
+
     for (CinematicCameraEntry const* dbcentry : sCinematicCameraStore)
     {
         std::string filenameWork = dataPath;
@@ -253,7 +254,8 @@ void LoadM2Cameras(std::string const& dataPath)
             LOG_ERROR("server.loading", "Camera file {} is damaged. Camera references position beyond file end", filename.string());
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} cinematic waypoint sets in {} ms", (uint32)sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Cinematic Waypoint Sets in {}", sFlyByCameraStore.size(), sw);
+    LOG_INFO("server.loading", "");
 }
 
 std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)

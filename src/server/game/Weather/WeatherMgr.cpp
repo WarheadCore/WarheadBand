@@ -23,18 +23,18 @@
 */
 
 #include "WeatherMgr.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "Weather.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 #include <memory>
 
 namespace WeatherMgr
 {
-
     namespace
     {
         typedef std::unordered_map<uint32, std::unique_ptr<Weather>> WeatherMap;
@@ -86,27 +86,21 @@ namespace WeatherMgr
 
     void LoadWeatherData()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        uint32 count = 0;
-
-        QueryResult result = WorldDatabase.Query("SELECT "
-                             "zone, spring_rain_chance, spring_snow_chance, spring_storm_chance,"
-                             "summer_rain_chance, summer_snow_chance, summer_storm_chance,"
-                             "fall_rain_chance, fall_snow_chance, fall_storm_chance,"
-                             "winter_rain_chance, winter_snow_chance, winter_storm_chance,"
-                             "ScriptName FROM game_weather");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameWeather) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", "");
             return;
         }
 
+        uint32 count = 0;
+
         do
         {
-            Field* fields = result->Fetch();
+            auto fields = result->Fetch();
 
             uint32 zone_id = fields[0].Get<uint32>();
 
@@ -121,19 +115,19 @@ namespace WeatherMgr
                 if (wzc.data[season].rainChance > 100)
                 {
                     wzc.data[season].rainChance = 25;
-                    LOG_ERROR("sql.sql", "Weather for zone {} season {} has wrong rain chance > 100%", zone_id, season);
+                    LOG_ERROR("db.query", "Weather for zone {} season {} has wrong rain chance > 100%", zone_id, season);
                 }
 
                 if (wzc.data[season].snowChance > 100)
                 {
                     wzc.data[season].snowChance = 25;
-                    LOG_ERROR("sql.sql", "Weather for zone {} season {} has wrong snow chance > 100%", zone_id, season);
+                    LOG_ERROR("db.query", "Weather for zone {} season {} has wrong snow chance > 100%", zone_id, season);
                 }
 
                 if (wzc.data[season].stormChance > 100)
                 {
                     wzc.data[season].stormChance = 25;
-                    LOG_ERROR("sql.sql", "Weather for zone {} season {} has wrong storm chance > 100%", zone_id, season);
+                    LOG_ERROR("db.query", "Weather for zone {} season {} has wrong storm chance > 100%", zone_id, season);
                 }
             }
 
@@ -142,8 +136,8 @@ namespace WeatherMgr
             ++count;
         } while (result->NextRow());
 
-        LOG_INFO("server.loading", ">> Loaded {} weather definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} Weather Definitions in {}", count, sw);
+        LOG_INFO("server.loading", "");
     }
 
     void SendFineWeatherUpdateToPlayer(Player* player)

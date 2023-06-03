@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "StringConvert.h"
 #include "World.h"
 #include <fstream>
@@ -58,6 +59,7 @@ struct FileCloser
             fclose(f);
     }
 };
+
 typedef std::unique_ptr<FILE, FileCloser> FileHandle;
 
 inline FileHandle GetFileHandle(char const* path, char const* mode)
@@ -256,7 +258,7 @@ inline void AssertBaseTable(BaseTable const& baseTable)
 
 void PlayerDump::InitializeTables()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     for (DumpTable const& dumpTable : DumpTables)
     {
@@ -379,7 +381,8 @@ void PlayerDump::InitializeTables()
 
     ASSERT(CharacterTables.size() == DUMP_TABLE_COUNT);
 
-    LOG_INFO("server.loading", ">> Initialized tables for PlayerDump in {} ms.", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Initialized Tables For PlayerDump in {}.", sw);
+    LOG_INFO("server.loading", "");
 }
 
 // Low level functions
@@ -538,7 +541,7 @@ inline void AppendTableDump(StringTransaction& trans, TableStruct const& tableSt
         ss << ") VALUES (";
 
         uint32 const fieldSize = uint32(tableStruct.TableFields.size());
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         for (uint32 i = 0; i < fieldSize;)
         {
@@ -776,7 +779,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     bool incHighest = true;
     if (guid && guid < sObjectMgr->GetGenerator<HighGuid::Player>().GetNextAfterMaxUsed())
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_GUID);
         stmt->SetData(0, guid);
 
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
@@ -793,7 +796,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
 
     if (ObjectMgr::CheckPlayerName(name, true) == CHAR_NAME_SUCCESS)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
         stmt->SetData(0, name);
 
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))

@@ -22,23 +22,18 @@
 #include "ConditionMgr.h"
 #include "Corpse.h"
 #include "Creature.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
-#include "GossipDef.h"
 #include "ItemTemplate.h"
-#include "Log.h"
 #include "Mail.h"
 #include "Map.h"
 #include "NPCHandler.h"
 #include "Object.h"
-#include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "QuestDef.h"
 #include "TemporarySummon.h"
 #include "VehicleDefines.h"
-#include <functional>
-#include <limits>
 #include <map>
 #include <string>
 
@@ -774,9 +769,15 @@ public:
         return 0;
     }
 
-    [[nodiscard]] bool IsTavernAreaTrigger(uint32 Trigger_ID) const
+    [[nodiscard]] bool IsTavernAreaTrigger(uint32 triggerID, uint32 faction) const
     {
-        return _tavernAreaTriggerStore.find(Trigger_ID) != _tavernAreaTriggerStore.end();
+        auto itr = _tavernAreaTriggerStore.find(triggerID);
+        if (itr != _tavernAreaTriggerStore.end())
+        {
+            return (itr->second & faction) != 0;
+        }
+
+        return false;
     }
 
     [[nodiscard]] GossipText const* GetGossipText(uint32 Text_ID) const;
@@ -874,17 +875,7 @@ public:
 
     void LoadQuests();
     void LoadQuestMoneyRewards();
-    void LoadQuestStartersAndEnders()
-    {
-        LOG_INFO("server.loading", "Loading GO Start Quest Data...");
-        LoadGameobjectQuestStarters();
-        LOG_INFO("server.loading", "Loading GO End Quest Data...");
-        LoadGameobjectQuestEnders();
-        LOG_INFO("server.loading", "Loading Creature Start Quest Data...");
-        LoadCreatureQuestStarters();
-        LOG_INFO("server.loading", "Loading Creature End Quest Data...");
-        LoadCreatureQuestEnders();
-    }
+    void LoadQuestStartersAndEnders();
     void LoadGameobjectQuestStarters();
     void LoadGameobjectQuestEnders();
     void LoadCreatureQuestStarters();
@@ -1264,7 +1255,7 @@ private:
 
     typedef std::unordered_map<uint32, GossipText> GossipTextContainer;
     typedef std::unordered_map<uint32, uint32> QuestAreaTriggerContainer;
-    typedef std::set<uint32> TavernAreaTriggerContainer;
+    typedef std::unordered_map<uint32, uint32> TavernAreaTriggerContainer;
 
     QuestAreaTriggerContainer _questAreaTriggerStore;
     TavernAreaTriggerContainer _tavernAreaTriggerStore;

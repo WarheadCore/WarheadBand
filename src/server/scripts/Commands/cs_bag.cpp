@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptObject.h"
+#include <sstream>
 
 constexpr std::array<std::string_view, MAX_ITEM_QUALITY> itemQualityToString =
 {

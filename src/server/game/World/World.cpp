@@ -27,8 +27,9 @@
 #include "AchievementMgr.h"
 #include "AddonMgr.h"
 #include "ArenaTeamMgr.h"
-#include "AsyncAuctionListing.h"
+#include "AsyncAuctionMgr.h"
 #include "AsyncCallbackMgr.h"
+#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
 #include "Autobroadcast.h"
 #include "BattlefieldMgr.h"
@@ -39,39 +40,42 @@
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
 #include "ChatPackets.h"
+#include "CliCommandMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "Config.h"
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
+#include "DatabaseMgr.h"
 #include "DisableMgr.h"
+#include "DiscordMgr.h"
 #include "DynamicVisibility.h"
 #include "ExternalMail.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
+#include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GitRevision.h"
-#include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildLevelMgr.h"
 #include "GuildMgr.h"
-#include "InstanceSaveMgr.h"
 #include "IPLocation.h"
+#include "InstanceSaveMgr.h"
 #include "ItemEnchantmentMgr.h"
-#include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
+#include "MMapFactory.h"
 #include "MapMgr.h"
 #include "Metric.h"
-#include "MMapFactory.h"
 #include "ModulesConfig.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -83,7 +87,6 @@
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
-#include "ServerMotd.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
@@ -91,15 +94,14 @@
 #include "StopWatch.h"
 #include "TaskScheduler.h"
 #include "TicketMgr.h"
-#include "Timer.h"
 #include "Tokenize.h"
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "UpdateTime.h"
 #include "Util.h"
-#include "Vehicle.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
+#include "Vehicle.h"
 #include "Warden.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
@@ -131,8 +133,6 @@ World::World()
     m_playerLimit = 0;
     m_allowedSecurityLevel = SEC_PLAYER;
     m_allowMovement = true;
-    m_ShutdownMask = 0;
-    m_ShutdownTimer = 0;
     m_maxActiveSessionCount = 0;
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
@@ -165,10 +165,6 @@ World::~World()
         delete m_offlineSessions.begin()->second;
         m_offlineSessions.erase(m_offlineSessions.begin());
     }
-
-    CliCommandHolder* command = nullptr;
-    while (cliCmdQueue.next(command))
-        delete command;
 
     VMAP::VMapFactory::clear();
     MMAP::MMapFactory::clear();
@@ -322,15 +318,12 @@ void World::AddSession_(WorldSession* s)
 
     if (pLimit > 0 && Sessions >= pLimit && AccountMgr::IsPlayerAccount(s->GetSecurity()) && !s->CanSkipQueue() && !HasRecentlyDisconnected(s))
     {
-        AddQueuedPlayer (s);
+        AddQueuedPlayer(s);
         UpdateMaxSessionCounters();
         return;
     }
 
-    s->SendAuthResponse(AUTH_OK, true);
-
-    FinalizePlayerWorldSession(s);
-
+    s->InitializeSession();
     UpdateMaxSessionCounters();
 }
 
@@ -409,12 +402,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
     if ((!GetPlayerAmountLimit() || sessions < GetPlayerAmountLimit()) && !m_QueuedPlayer.empty())
     {
         WorldSession* pop_sess = m_QueuedPlayer.front();
-        pop_sess->SetInQueue(false);
-        pop_sess->ResetTimeOutTime(false);
-        pop_sess->SendAuthWaitQueue(0);
-        pop_sess->SendAccountDataTimes(GLOBAL_CACHE_MASK);
-
-        FinalizePlayerWorldSession(pop_sess);
+        pop_sess->InitializeSession();
 
         m_QueuedPlayer.pop_front();
 
@@ -449,6 +437,7 @@ void World::LoadConfigSettings(bool reload)
 
     sGameConfig->Load(reload);
     sModulesConfig->ClearCache();
+    sDiscordMgr->LoadConfig(reload);
 
     // load update time related configs
     sWorldUpdateTime.LoadFromConfig();
@@ -532,6 +521,7 @@ void World::LoadConfigSettings(bool reload)
 
     if (!reload)
     {
+        LOG_INFO("server.loading", "");
         LOG_INFO("server.loading", "Loading data configurations...");
         LOG_INFO("server.loading", "> Using DataDir:        {}", m_dataPath);
         LOG_INFO("server.loading", "");
@@ -540,6 +530,7 @@ void World::LoadConfigSettings(bool reload)
         LOG_INFO("server.loading", "> Get Height:           {}", enableHeight);
         LOG_INFO("server.loading", "> Indoor Check:         {}", enableIndoor);
         LOG_INFO("server.loading", "> Pet LOS:              {}", enablePetLOS);
+        LOG_INFO("server.loading", "");
     }
 
     if (reload)
@@ -559,6 +550,9 @@ void World::SetInitialWorldSettings()
 {
     ///- Server startup begin
     StopWatch sw;
+
+    // Init db cache
+    sDBCacheMgr->Initialize();
 
     ///- Initialize the random number generator
     srand((unsigned int)GameTime::GetGameTime().count());
@@ -604,7 +598,6 @@ void World::SetInitialWorldSettings()
     sGameEventMgr->Initialize();
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
-    LOG_INFO("server", " ");
     LOG_INFO("server", "Loading Warhead strings...");
     if (!sGameLocale->LoadWarheadStrings())
         exit(1);                                            // Error message displayed in function already
@@ -621,13 +614,13 @@ void World::SetInitialWorldSettings()
 
     uint32 realm_zone = CONF_GET_INT("RealmZone");
 
-    LoginDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
+    AuthDatabase.Execute("UPDATE realmlist SET icon = {}, timezone = {} WHERE id = '{}'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     ///- Custom Hook for loading DB items
     sScriptMgr->OnLoadCustomDatabaseTable();
 
     ///- Load the DBC files
-    LOG_INFO("server.loading", "Initialize data stores...");
+    LOG_INFO("server.loading", "Initialize Data Stores...");
     LoadDBCStores(m_dataPath);
     DetectDBCLang();
 
@@ -651,16 +644,16 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Game Graveyard...");
     sGraveyard->LoadGraveyardFromDB();
 
-    LOG_INFO("server.loading", "Initializing PlayerDump tables...");
+    LOG_INFO("server.loading", "Initializing PlayerDump Tables...");
     PlayerDump::InitializeTables();
 
     ///- Initilize static helper structures
     AIRegistry::Initialize();
 
-    LOG_INFO("server.loading", "Loading SpellInfo store...");
+    LOG_INFO("server.loading", "Loading SpellInfo Store...");
     sSpellMgr->LoadSpellInfoStore();
 
-    LOG_INFO("server.loading", "Loading SpellInfo data corrections...");
+    LOG_INFO("server.loading", "Loading SpellInfo Data Corrections...");
     sSpellMgr->LoadSpellInfoCorrections();
 
     LOG_INFO("server.loading", "Loading Spell Rank Data...");
@@ -672,10 +665,10 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
+    LOG_INFO("server.loading", "Loading SpellInfo Custom Attributes...");
     sSpellMgr->LoadSpellInfoCustomAttributes();
 
-    LOG_INFO("server.loading", "Loading GameObject models...");
+    LOG_INFO("server.loading", "Loading GameObject Models...");
     LoadGameObjectModelList(m_dataPath);
 
     LOG_INFO("server.loading", "Loading Script Names...");
@@ -687,11 +680,11 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Instance Saved Gameobject State Data...");
     sObjectMgr->LoadInstanceSavedGameobjectStateData();
 
-    LOG_INFO("server.loading", "Load Character Cache...");
+    LOG_INFO("server.loading", "Loading Character Cache...");
     sCharacterCache->LoadCharacterCacheStorage();
 
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
-    LOG_INFO("server.loading", "Loading instances...");
+    LOG_INFO("server.loading", "Loading Instances...");
     sInstanceSaveMgr->LoadInstances();
 
     LOG_INFO("server.loading", "Loading Game locale texts...");
@@ -703,34 +696,34 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
 
-    LOG_INFO("server.loading", "Loading Game Object template addons...");
+    LOG_INFO("server.loading", "Loading Game Object Template Addons...");
     sObjectMgr->LoadGameObjectTemplateAddons();
 
-    LOG_INFO("server.loading", "Loading Transport templates...");
+    LOG_INFO("server.loading", "Loading Transport Templates...");
     sTransportMgr->LoadTransportTemplates();
 
     LOG_INFO("server.loading", "Loading Spell Required Data...");
     sSpellMgr->LoadSpellRequired();
 
-    LOG_INFO("server.loading", "Loading Spell Group types...");
+    LOG_INFO("server.loading", "Loading Spell Group Types...");
     sSpellMgr->LoadSpellGroups();
 
     LOG_INFO("server.loading", "Loading Spell Learn Skills...");
     sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
 
-    LOG_INFO("server.loading", "Loading Spell Proc Event conditions...");
+    LOG_INFO("server.loading", "Loading Spell Proc Event Conditions...");
     sSpellMgr->LoadSpellProcEvents();
 
-    LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
+    LOG_INFO("server.loading", "Loading Spell Proc Conditions and Data...");
     sSpellMgr->LoadSpellProcs();
 
     LOG_INFO("server.loading", "Loading Spell Bonus Data...");
-    sSpellMgr->LoadSpellBonusess();
+    sSpellMgr->LoadSpellBonuses();
 
     LOG_INFO("server.loading", "Loading Aggro Spells Definitions...");
     sSpellMgr->LoadSpellThreats();
 
-    LOG_INFO("server.loading", "Loading Mixology bonuses...");
+    LOG_INFO("server.loading", "Loading Mixology Bonuses...");
     sSpellMgr->LoadSpellMixology();
 
     LOG_INFO("server.loading", "Loading Spell Group Stack Rules...");
@@ -739,7 +732,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading NPC Texts...");
     sObjectMgr->LoadGossipText();
 
-    LOG_INFO("server.loading", "Loading Enchant Spells Proc datas...");
+    LOG_INFO("server.loading", "Loading Enchant Spells Proc Datas...");
     sSpellMgr->LoadSpellEnchantProcData();
 
     LOG_INFO("server.loading", "Loading Item Random Enchantments Table...");
@@ -751,19 +744,19 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
 
-    LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
+    LOG_INFO("server.loading", "Loading Item Set Names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemSetNames();
 
     LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 
-    LOG_INFO("server.loading", "Loading Creature templates...");
+    LOG_INFO("server.loading", "Loading Creature Templates...");
     sObjectMgr->LoadCreatureTemplates();
 
-    LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
+    LOG_INFO("server.loading", "Loading Equipment Templates...");           // must be after LoadCreatureTemplates
     sObjectMgr->LoadEquipmentTemplates();
 
-    LOG_INFO("server.loading", "Loading Creature template addons...");
+    LOG_INFO("server.loading", "Loading Creature Template Addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
 
     LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
@@ -787,10 +780,10 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Temporary Summon Data...");
     sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
 
-    LOG_INFO("server.loading", "Loading pet levelup spells...");
+    LOG_INFO("server.loading", "Loading Pet Levelup Spells...");
     sSpellMgr->LoadPetLevelupSpellMap();
 
-    LOG_INFO("server.loading", "Loading pet default spells additional to levelup spells...");
+    LOG_INFO("server.loading", "Loading Pet default Spells additional to Levelup Spells...");
     sSpellMgr->LoadPetDefaultSpells();
 
     LOG_INFO("server.loading", "Loading Creature Addon Data...");
@@ -857,10 +850,10 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
-    LOG_INFO("server.loading", "Loading Area Trigger definitions");
+    LOG_INFO("server.loading", "Loading Area Trigger Definitions");
     sObjectMgr->LoadAreaTriggers();
 
-    LOG_INFO("server.loading", "Loading Area Trigger Teleport definitions...");
+    LOG_INFO("server.loading", "Loading Area Trigger Teleport Definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
     LOG_INFO("server.loading", "Loading Access Requirements...");
@@ -872,31 +865,31 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Tavern Area Triggers...");
     sObjectMgr->LoadTavernAreaTriggers();
 
-    LOG_INFO("server.loading", "Loading AreaTrigger script names...");
+    LOG_INFO("server.loading", "Loading AreaTrigger Script Names...");
     sObjectMgr->LoadAreaTriggerScripts();
 
-    LOG_INFO("server.loading", "Loading LFG entrance positions..."); // Must be after areatriggers
+    LOG_INFO("server.loading", "Loading LFG Entrance Positions..."); // Must be after areatriggers
     sLFGMgr->LoadLFGDungeons();
 
-    LOG_INFO("server.loading", "Loading Dungeon boss data...");
+    LOG_INFO("server.loading", "Loading Dungeon Boss Data...");
     sObjectMgr->LoadInstanceEncounters();
 
-    LOG_INFO("server.loading", "Loading LFG rewards...");
+    LOG_INFO("server.loading", "Loading LFG Rewards...");
     sLFGMgr->LoadRewards();
 
-    LOG_INFO("server.loading", "Loading Graveyard-zone links...");
+    LOG_INFO("server.loading", "Loading Graveyard-Zone Links...");
     sGraveyard->LoadGraveyardZones();
 
-    LOG_INFO("server.loading", "Loading spell pet auras...");
+    LOG_INFO("server.loading", "Loading Spell Pet Auras...");
     sSpellMgr->LoadSpellPetAuras();
 
-    LOG_INFO("server.loading", "Loading Spell target coordinates...");
+    LOG_INFO("server.loading", "Loading Spell Target Coordinates...");
     sSpellMgr->LoadSpellTargetPositions();
 
-    LOG_INFO("server.loading", "Loading enchant custom attributes...");
+    LOG_INFO("server.loading", "Loading Enchant Custom Attributes...");
     sSpellMgr->LoadEnchantCustomAttr();
 
-    LOG_INFO("server.loading", "Loading linked spells...");
+    LOG_INFO("server.loading", "Loading linked Spells...");
     sSpellMgr->LoadSpellLinked();
 
     LOG_INFO("server.loading", "Loading Player Create Data...");
@@ -910,13 +903,13 @@ void World::SetInitialWorldSettings()
 
     CharacterDatabaseCleaner::CleanDatabase();
 
-    LOG_INFO("server.loading", "Loading the max pet number...");
+    LOG_INFO("server.loading", "Loading The Max Pet Number...");
     sObjectMgr->LoadPetNumber();
 
-    LOG_INFO("server.loading", "Loading pet level stats...");
+    LOG_INFO("server.loading", "Loading Pet Level Stats...");
     sObjectMgr->LoadPetLevelInfo();
 
-    LOG_INFO("server.loading", "Loading Player level dependent mail rewards...");
+    LOG_INFO("server.loading", "Loading Player Level Dependent Mail Rewards...");
     sObjectMgr->LoadMailLevelRewards();
 
     LOG_INFO("server.loading", "Load Mail Server Template...");
@@ -934,7 +927,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Skill Perfection Data Table...");
     LoadSkillPerfectItemTable();
 
-    LOG_INFO("server.loading", "Loading Skill Fishing base level requirements...");
+    LOG_INFO("server.loading", "Loading Skill Fishing Base Level Requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
 
     LOG_INFO("server.loading", "Loading Achievements...");
@@ -978,7 +971,7 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading ReservedNames...");
     sObjectMgr->LoadReservedPlayersNames();
 
-    LOG_INFO("server.loading", "Loading GameObjects for quests...");
+    LOG_INFO("server.loading", "Loading GameObjects for Quests...");
     sObjectMgr->LoadGameObjectForQuests();
 
     LOG_INFO("server.loading", "Loading BattleMasters...");
@@ -987,10 +980,10 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
 
-    LOG_INFO("server.loading", "Loading Gossip menu...");
+    LOG_INFO("server.loading", "Loading Gossip Menu...");
     sObjectMgr->LoadGossipMenu();
 
-    LOG_INFO("server.loading", "Loading Gossip menu options...");
+    LOG_INFO("server.loading", "Loading Gossip Menu Options...");
     sObjectMgr->LoadGossipMenuItems();
 
     LOG_INFO("server.loading", "Loading Vendors...");
@@ -1014,44 +1007,47 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Conditions...");
     sConditionMgr->LoadConditions();
 
-    LOG_INFO("server.loading", "Loading faction change achievement pairs...");
+    LOG_INFO("server.loading", "Loading Faction Change Achievement Pairs...");
     sObjectMgr->LoadFactionChangeAchievements();
 
-    LOG_INFO("server.loading", "Loading faction change spell pairs...");
+    LOG_INFO("server.loading", "Loading Faction Change Spell Pairs...");
     sObjectMgr->LoadFactionChangeSpells();
 
-    LOG_INFO("server.loading", "Loading faction change item pairs...");
+    LOG_INFO("server.loading", "Loading Faction Change Item Pairs...");
     sObjectMgr->LoadFactionChangeItems();
 
-    LOG_INFO("server.loading", "Loading faction change reputation pairs...");
+    LOG_INFO("server.loading", "Loading Faction Change Reputation Pairs...");
     sObjectMgr->LoadFactionChangeReputations();
 
-    LOG_INFO("server.loading", "Loading faction change title pairs...");
+    LOG_INFO("server.loading", "Loading Faction Change Title Pairs...");
     sObjectMgr->LoadFactionChangeTitles();
 
-    LOG_INFO("server.loading", "Loading faction change quest pairs...");
+    LOG_INFO("server.loading", "Loading Faction Change Quest Pairs...");
     sObjectMgr->LoadFactionChangeQuests();
 
-    LOG_INFO("server.loading", "Loading GM tickets...");
+    LOG_INFO("server.loading", "Loading GM Tickets...");
     sTicketMgr->LoadTickets();
 
-    LOG_INFO("server.loading", "Loading GM surveys...");
+    LOG_INFO("server.loading", "Loading GM Surveys...");
     sTicketMgr->LoadSurveys();
 
-    LOG_INFO("server.loading", "Loading client addons...");
+    LOG_INFO("server.loading", "Loading Client Addons...");
     AddonMgr::LoadFromDB();
 
     // pussywizard:
-    LOG_INFO("server.loading", "Deleting invalid mail items...");
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", "Deleting Invalid Mail Items...");
+    LOG_INFO("server.loading", ">> Done");
+    LOG_INFO("server.loading", "");
+
     CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN item_instance ii ON mi.item_guid = ii.guid WHERE ii.guid IS NULL");
     CharacterDatabase.Execute("DELETE mi FROM mail_items mi LEFT JOIN mail m ON mi.mail_id = m.id WHERE m.id IS NULL");
     CharacterDatabase.Execute("UPDATE mail m LEFT JOIN mail_items mi ON m.id = mi.mail_id SET m.has_items=0 WHERE m.has_items<>0 AND mi.mail_id IS NULL");
 
     ///- Handle outdated emails (delete/return)
-    LOG_INFO("server.loading", "Returning old mails...");
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", "Returning Old Mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
+    LOG_INFO("server.loading", ">> Done");
+    LOG_INFO("server.loading", "");
 
     ///- Load AutoBroadCast
     LOG_INFO("server.loading", "Loading Autobroadcasts...");
@@ -1062,7 +1058,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sObjectMgr->LoadWaypointScripts();
 
-    LOG_INFO("server.loading", "Loading spell script names...");
+    LOG_INFO("server.loading", "Loading Spell Script Names...");
     sObjectMgr->LoadSpellScriptNames();
 
     LOG_INFO("server.loading", "Loading Creature Texts...");
@@ -1074,17 +1070,16 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server.loading", "Loading Scripts...");
     sScriptMgr->LoadDatabase();
 
-    LOG_INFO("server.loading", "Validating spell scripts...");
+    LOG_INFO("server.loading", "Validating Spell Scripts...");
     sObjectMgr->ValidateSpellScripts();
 
-    LOG_INFO("server.loading", "Loading SmartAI scripts...");
+    LOG_INFO("server.loading", "Loading SmartAI Scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
-    LOG_INFO("server.loading", "Loading Calendar data...");
+    LOG_INFO("server.loading", "Loading Calendar Data...");
     sCalendarMgr->LoadFromDB();
 
-    LOG_INFO("server.loading", "Initializing SpellInfo precomputed data..."); // must be called after loading items, professions, spells and pretty much anything
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", "Initializing SpellInfo Precomputed Data..."); // must be called after loading items, professions, spells and pretty much anything
     sObjectMgr->InitializeSpellInfoPrecomputedData();
 
     LOG_INFO("server.loading", "Initialize commands...");
@@ -1095,24 +1090,22 @@ void World::SetInitialWorldSettings()
     LOG_INFO("server", " ");
     GameTime::UpdateGameTimers();
 
-    LoginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
+    AuthDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({}, {}, 0, '{}')",
         realm.Id.Realm, uint32(GameTime::GetStartTime().count()), GitRevision::GetFullVersion()); // One-time query
 
     // Delete old uptimes (1 week)
-    LoginDatabase.Execute("DELETE FROM `uptime` WHERE `realmid` = {} AND `starttime` < UNIX_TIMESTAMP(NOW()) - 604800", realm.Id.Realm);
+    AuthDatabase.Execute("DELETE FROM `uptime` WHERE `realmid` = {} AND `starttime` < UNIX_TIMESTAMP(NOW()) - 604800", realm.Id.Realm);
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1 * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE * IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetCurrent(MINUTE * IN_MILLISECONDS);
-    m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_INT("UpdateUptimeInterval") *MINUTE * IN_MILLISECONDS);
+    m_timers[WUPDATE_UPTIME].SetInterval(CONF_GET_UINT("UpdateUptimeInterval") * MINUTE * IN_MILLISECONDS);
     //Update "uptime" table based on configuration entry in minutes.
 
     m_timers[WUPDATE_CORPSES].SetInterval(20 * MINUTE * IN_MILLISECONDS);
 
     // clean logs table every 14 days by default
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(CONF_GET_INT("AutoBroadcast.Timer"));
-
-    m_timers[WUPDATE_PINGDB].SetInterval(CONF_GET_INT("MaxPingTime") * MINUTE * IN_MILLISECONDS);  // Mysql ping time in minutes
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
@@ -1125,11 +1118,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize MapMgr
     LOG_INFO("server.loading", "Starting Map System");
-    LOG_INFO("server.loading", " ");
     sMapMgr->Initialize();
 
     LOG_INFO("server.loading", "Starting Game Event system...");
-    LOG_INFO("server.loading", " ");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
@@ -1143,7 +1134,6 @@ void World::SetInitialWorldSettings()
     opcodeTable.Initialize();
 
     LOG_INFO("server.loading", "Starting Arena Season...");
-    LOG_INFO("server.loading", " ");
     sGameEventMgr->StartArenaSeason();
 
     sTicketMgr->Initialize();
@@ -1172,24 +1162,24 @@ void World::SetInitialWorldSettings()
     sWardenCheckMgr->LoadWardenOverrides();
 
     LOG_INFO("server.loading", "Deleting expired bans...");
-    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
+    AuthDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
 
-    LOG_INFO("server.loading", "Calculate next daily quest reset time...");
+    LOG_INFO("server.loading", "Calculate Next Daily Quest Reset Time...");
     InitDailyQuestResetTime();
 
-    LOG_INFO("server.loading", "Calculate next weekly quest reset time..." );
+    LOG_INFO("server.loading", "Calculate Next Weekly Quest Reset Time..." );
     InitWeeklyQuestResetTime();
 
-    LOG_INFO("server.loading", "Calculate next monthly quest reset time...");
+    LOG_INFO("server.loading", "Calculate Next Monthly Quest Reset Time...");
     InitMonthlyQuestResetTime();
 
-    LOG_INFO("server.loading", "Calculate random battleground reset time..." );
+    LOG_INFO("server.loading", "Calculate Random Battleground Reset Time..." );
     InitRandomBGResetTime();
 
-    LOG_INFO("server.loading", "Calculate deletion of old calendar events time...");
+    LOG_INFO("server.loading", "Calculate Deletion Of Old Calendar Events Time...");
     InitCalendarOldEventsDeletionTime();
 
-    LOG_INFO("server.loading", "Calculate Guild cap reset time...");
+    LOG_INFO("server.loading", "Calculate Guild Cap Reset Time...");
     LOG_INFO("server.loading", " ");
     InitGuildResetTime();
 
@@ -1213,36 +1203,37 @@ void World::SetInitialWorldSettings()
 
     if (CONF_GET_BOOL("PreloadAllNonInstancedMapGrids"))
     {
-        LOG_INFO("server.loading", "Loading all grids for all non-instanced maps...");
+        LOG_INFO("server.loading", "Loading All Grids For All Non-Instanced Maps...");
 
-        for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+        for (auto const& mapEntry : sMapStore)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(i);
+            if (!mapEntry || mapEntry->Instanceable())
+                continue;
 
-            if (mapEntry && !mapEntry->Instanceable())
+            Map* map = sMapMgr->CreateBaseMap(mapEntry->MapID);
+            if (map)
             {
-                Map* map = sMapMgr->CreateBaseMap(mapEntry->MapID);
-
-                if (map)
-                {
-                    LOG_INFO("server.loading", ">> Loading all grids for map {}", map->GetId());
-                    map->LoadAllCells();
-                }
+                LOG_INFO("server.loading", ">> Loading All Grids For Map {}", map->GetId());
+                map->LoadAllCells();
             }
         }
     }
 
+    sAsyncAuctionMgr->Initialize();
+    sAuctionBot->Initialize();
+
     auto elapsed = sw.Elapsed();
+    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
 
     sScriptMgr->OnBeforeWorldInitialized(elapsed);
 
-    std::string startupDuration = Warhead::Time::ToTimeString(elapsed, sw.GetOutCount());
-
-    LOG_INFO("server.loading", " ");
     LOG_INFO("server.loading", "World initialized in {}", startupDuration);
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", "");
 
     METRIC_EVENT("events", "World initialized", "World initialized in " + startupDuration);
+
+    sDiscordMgr->Start();
+    sDiscordMgr->SendServerStartup(startupDuration);
 }
 
 void World::DetectDBCLang()
@@ -1284,7 +1275,7 @@ void World::DetectDBCLang()
 
     m_defaultDbcLocale = LocaleConstant(default_locale);
 
-    LOG_INFO("server.loading", "Using {} DBC Locale as default. All available DBC locales: {}", localeNames[GetDefaultDbcLocale()], availableLocalsStr.empty() ? "<none>" : availableLocalsStr);
+    LOG_INFO("server.loading", "Using {} DBC Locale As Default. All Available DBC locales: {}", localeNames[GetDefaultDbcLocale()], availableLocalsStr.empty() ? "<none>" : availableLocalsStr);
     LOG_INFO("server.loading", " ");
 }
 
@@ -1320,7 +1311,7 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_5_SECS].Reset();
 
         // moved here from HandleCharEnumOpcode
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
         CharacterDatabase.Execute(stmt);
     }
 
@@ -1380,39 +1371,43 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
-    // pussywizard:
-    // acquire mutex now, this is kind of waiting for listing thread to finish it's work (since it can't process next packet)
-    // so we don't have to do it in every packet that modifies auctions
-    AsyncAuctionListingMgr::SetAuctionListingAllowed(false);
     {
-        std::lock_guard<std::mutex> guard(AsyncAuctionListingMgr::GetLock());
+        std::lock_guard<std::mutex> guard(sAsyncAuctionMgr->GetLock());
 
         // pussywizard: handle auctions when the timer has passed
         if (m_timers[WUPDATE_AUCTIONS].Passed())
         {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
-
             m_timers[WUPDATE_AUCTIONS].Reset();
 
             // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
             sAuctionMgr->Update();
         }
 
-        AsyncAuctionListingMgr::Update(diff);
+        /// <li> Handle AHBot operations
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update AHBot"));
+            sAuctionBot->Update(Milliseconds{ diff });
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async auction"));
+            sAsyncAuctionMgr->Update(Milliseconds{diff});
+        }
 
         if (currentGameTime > mail_expire_check_timer)
         {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update old mails"));
             sObjectMgr->ReturnOrDeleteOldMails(true);
             mail_expire_check_timer = currentGameTime + 6h;
         }
 
         /// <li> Handle session updates when the timer has passed
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
-        UpdateSessions(diff);
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
+            UpdateSessions(diff);
+        }
     }
-
-    // end of section with mutex
-    AsyncAuctionListingMgr::SetAuctionListingAllowed(true);
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())
@@ -1475,12 +1470,12 @@ void World::Update(uint32 diff)
 
         m_timers[WUPDATE_UPTIME].Reset();
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_UPTIME_PLAYERS);
         stmt->SetData(0, uint32(GameTime::GetUptime().count()));
         stmt->SetData(1, uint16(GetMaxPlayerCount()));
         stmt->SetData(2, realm.Id.Realm);
         stmt->SetData(3, uint32(GameTime::GetStartTime().count()));
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
     }
 
     ///- Erase corpses once every 20 minutes
@@ -1505,17 +1500,6 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_EVENTS].Reset();
     }
 
-    ///- Ping to keep MySQL connections alive
-    if (m_timers[WUPDATE_PINGDB].Passed())
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Ping MySQL"));
-        m_timers[WUPDATE_PINGDB].Reset();
-        LOG_DEBUG("sql.driver", "Ping MySQL to keep connection alive");
-        CharacterDatabase.KeepAlive();
-        LoginDatabase.KeepAlive();
-        WorldDatabase.KeepAlive();
-    }
-
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update instance reset times"));
         // update the instance reset times
@@ -1525,7 +1509,7 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Process cli commands"));
         // And last, but not least handle the issued cli commands
-        ProcessCliCommands();
+        sCliCommandMgr->ProcessCliCommands();
     }
 
     {
@@ -1546,6 +1530,11 @@ void World::Update(uint32 diff)
     {
         METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async callback mgr"));
         sAsyncCallbackMgr->ProcessReadyCallbacks();
+    }
+
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update db mgr"));
+        sDatabaseMgr->Update(Milliseconds{ diff });
     }
 
     {
@@ -1675,49 +1664,47 @@ void World::_UpdateGameTime()
     Seconds elapsed = GameTime::GetGameTime() - lastGameTime;
 
     ///- if there is a shutdown timer
-    if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0s)
+    if (!IsStopped() && _shutdownTimer > 0s && elapsed > 0s)
     {
         ///- ... and it is overdue, stop the world (set m_stopEvent)
-        if (m_ShutdownTimer <= elapsed.count())
+        if (_shutdownTimer <= elapsed)
         {
-            if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
-                m_stopEvent = true;                         // exist code already set
+            if (!(_shutdownMask & SHUTDOWN_MASK_IDLE) || !GetActiveAndQueuedSessionCount())
+                m_stopEvent = true; // exist code already set
             else
-                m_ShutdownTimer = 1;                        // minimum timer value to wait idle state
+                _shutdownTimer = 1s; // minimum timer value to wait idle state
         }
-        ///- ... else decrease it and if necessary display a shutdown countdown to the users
-        else
+        else ///- ... else decrease it and if necessary display a shutdown countdown to the users
         {
-            m_ShutdownTimer -= elapsed.count();
-
+            _shutdownTimer -= elapsed;
             ShutdownMsg();
         }
     }
 }
 
 /// Shutdown the server
-void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason)
+void World::ShutdownServ(Seconds time, uint32 options, uint8 exitcode, const std::string& reason)
 {
     // ignore if server shutdown at next tick
     if (IsStopped())
         return;
 
-    m_ShutdownMask = options;
+    _shutdownMask = options;
     m_ExitCode = exitcode;
 
     auto const& playersOnline = GetActiveSessionCount();
 
-    if (time < 5 && playersOnline)
+    if (time < 5s && playersOnline)
     {
         // Set time to 5s for save all players
-        time = 5;
+        time = 5s;
     }
 
     playersSaveScheduler.CancelAll();
 
-    if (time >= 5)
+    if (time >= 5s)
     {
-        playersSaveScheduler.Schedule(Seconds(time - 5), [this](TaskContext /*context*/)
+        playersSaveScheduler.Schedule(time - 5s, [this](TaskContext /*context*/)
         {
             if (!GetActiveSessionCount())
             {
@@ -1735,17 +1722,16 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
     LOG_WARN("server", "> Time left until shutdown/restart: {}", strTime);
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
-    if (time == 0)
+    if (time == 0s)
     {
-        if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
+        if (!(options & SHUTDOWN_MASK_IDLE) || !GetActiveAndQueuedSessionCount())
             m_stopEvent = true;                             // exist code already set
         else
-            m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
+            _shutdownTimer = 1s;                            //So that the session count is re-evaluated at next world tick
     }
-    ///- Else set the shutdown timer and warn users
-    else
+    else ///- Else set the shutdown timer and warn users
     {
-        m_ShutdownTimer = time;
+        _shutdownTimer = Seconds(time);
         ShutdownMsg(true, nullptr, reason);
     }
 
@@ -1756,28 +1742,61 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
 void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 {
     // not show messages for idle shutdown mode
-    if (m_ShutdownMask & SHUTDOWN_MASK_IDLE)
+    if (_shutdownMask & SHUTDOWN_MASK_IDLE)
         return;
 
     ///- Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
     if (show ||
-            (m_ShutdownTimer < 5 * MINUTE && (m_ShutdownTimer % 15) == 0) || // < 5 min; every 15 sec
-            (m_ShutdownTimer < 15 * MINUTE && (m_ShutdownTimer % MINUTE) == 0) || // < 15 min ; every 1 min
-            (m_ShutdownTimer < 30 * MINUTE && (m_ShutdownTimer % (5 * MINUTE)) == 0) || // < 30 min ; every 5 min
-            (m_ShutdownTimer < 12 * HOUR && (m_ShutdownTimer % HOUR) == 0) || // < 12 h ; every 1 h
-            (m_ShutdownTimer > 12 * HOUR && (m_ShutdownTimer % (12 * HOUR)) == 0)) // > 12 h ; every 12 h
+            (_shutdownTimer < 10s) ||                                       // < 10 sec; every 1 sec
+            (_shutdownTimer < 30s && (_shutdownTimer % 5) == 0s) ||         // < 30 sec; every 5 sec
+            (_shutdownTimer < 1min && (_shutdownTimer % 10) == 0s) ||       // < 1 min; every 10 sec
+            (_shutdownTimer < 5min && (_shutdownTimer % 15) == 0s) ||       // < 5 min; every 15 sec
+            (_shutdownTimer < 15min && (_shutdownTimer % MINUTE) == 0s) ||  // < 15 min; every 1 min
+            (_shutdownTimer < 30min && (_shutdownTimer % (5min)) == 0s) ||  // < 30 min; every 5 min
+            (_shutdownTimer < 12h && (_shutdownTimer % 1h) == 0s) ||        // < 12 h; every 1 h
+            (_shutdownTimer > 12h && (_shutdownTimer % 12h) == 0s))         // > 12 h; every 12 h
     {
-        std::string str = Warhead::Time::ToTimeString(Seconds(m_ShutdownTimer)).append(".");
+        auto enMessage{ Warhead::Time::ToTimeString(_shutdownTimer, 3, TimeFormat::FullText).append(".") };
+        auto ruMessage{ GameLocale::ToTimeString(_shutdownTimer, LOCALE_ruRU, false).append(".") };
 
         if (!reason.empty())
         {
-            str += " - " + reason;
+            enMessage += " " + reason;
+            ruMessage += " " + reason;
         }
 
-        ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
+        ServerMessageType messageID = (_shutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
-        SendServerMessage(msgid, str, player);
-        LOG_DEBUG("server.worldserver", "Server is {} in {}", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str);
+        // Prepare packet
+        WorldPackets::Chat::ChatServerMessage chatServerMessage;
+        chatServerMessage.MessageID = int32(messageID);
+
+        if (player)
+        {
+            chatServerMessage.StringParam = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU ? ruMessage : enMessage;
+            player->SendDirectMessage(chatServerMessage.Write());
+            return;
+        }
+        else
+        {
+            for (auto const& [accountID, session] : m_sessions)
+            {
+                if (!session)
+                    continue;
+
+                auto itrPlayer{ session->GetPlayer() };
+                if (!itrPlayer)
+                    continue;
+
+                if (!itrPlayer->IsInWorld())
+                    continue;
+
+                chatServerMessage.StringParam = session->GetSessionDbLocaleIndex() == LOCALE_ruRU ? ruMessage : enMessage;
+                session->SendPacket(chatServerMessage.Write());
+            }
+        }
+
+        LOG_DEBUG("server.worldserver", "Server is {} in {}", (_shutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), enMessage);
     }
 }
 
@@ -1785,17 +1804,17 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if (!m_ShutdownTimer || m_stopEvent)
+    if (_shutdownTimer == 0s || m_stopEvent)
         return;
 
-    ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
+    ServerMessageType msgid = (_shutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
 
-    m_ShutdownMask = 0;
-    m_ShutdownTimer = 0;
+    _shutdownMask = 0;
+    _shutdownTimer = 0s;
     m_ExitCode = SHUTDOWN_EXIT_CODE;                       // to default value
     SendServerMessage(msgid);
 
-    LOG_DEBUG("server.worldserver", "Server {} cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    LOG_DEBUG("server.worldserver", "Server {} cancelled.", (_shutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
 
     sScriptMgr->OnShutdownCancel();
 }
@@ -1893,32 +1912,9 @@ void World::UpdateSessions(uint32 diff)
     }
 }
 
-// This handles the issued and queued CLI commands
-void World::ProcessCliCommands()
-{
-    CliCommandHolder::Print zprint = nullptr;
-    void* callbackArg = nullptr;
-    CliCommandHolder* command = nullptr;
-
-    while (cliCmdQueue.next(command))
-    {
-        LOG_INFO("server.worldserver", "CLI command under processing...");
-
-        zprint = command->m_print;
-        callbackArg = command->m_callbackArg;
-        CliHandler handler(callbackArg, zprint);
-        handler.ParseCommands(command->m_command);
-
-        if (command->m_commandFinished)
-            command->m_commandFinished(callbackArg, !handler.HasSentErrorMessage());
-
-        delete command;
-    }
-}
-
 void World::UpdateRealmCharCount(uint32 accountId)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->SetData(0, accountId);
     _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&World::_UpdateRealmCharCount, this, std::placeholders::_1)));
 }
@@ -1927,19 +1923,19 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 {
     if (resultCharCount)
     {
-        Field* fields = resultCharCount->Fetch();
+        auto fields = resultCharCount->Fetch();
         uint32 accountId = fields[0].Get<uint32>();
         uint8 charCount = uint8(fields[1].Get<uint64>());
 
-        LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+        AuthDatabaseTransaction trans = AuthDatabase.BeginTransaction();
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
         stmt->SetData(0, charCount);
         stmt->SetData(1, accountId);
         stmt->SetData(2, realm.Id.Realm);
         trans->Append(stmt);
 
-        LoginDatabase.CommitTransaction(trans);
+        AuthDatabase.CommitTransaction(trans);
     }
 }
 
@@ -2022,7 +2018,7 @@ void World::InitGuildResetTime()
 
 void World::ResetDailyQuests()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2038,9 +2034,9 @@ void World::ResetDailyQuests()
 
 void World::LoadDBAllowedSecurityLevel()
 {
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
     stmt->SetData(0, int32(realm.Id.Realm));
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
 
     if (result)
         SetPlayerSecurityLimit(AccountTypes(result->Fetch()->Get<uint8>()));
@@ -2057,7 +2053,7 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
 
 void World::ResetWeeklyQuests()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2075,7 +2071,7 @@ void World::ResetMonthlyQuests()
 {
     LOG_INFO("server.worldserver", "Monthly quests reset for all characters.");
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2088,7 +2084,7 @@ void World::ResetMonthlyQuests()
 
 void World::ResetEventSeasonalQuests(uint16 event_id)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL);
     stmt->SetData(0, event_id);
     CharacterDatabase.Execute(stmt);
 
@@ -2101,7 +2097,7 @@ void World::ResetRandomBG()
 {
     LOG_DEBUG("server.worldserver", "Random BG status reset for all characters.");
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
@@ -2142,7 +2138,7 @@ void World::LoadDBVersion()
     QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
     if (result)
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         m_DBVersion = fields[0].Get<std::string>();
 
@@ -2167,7 +2163,7 @@ void World::UpdateAreaDependentAuras()
 
 void World::LoadWorldStates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     QueryResult result = CharacterDatabase.Query("SELECT entry, value FROM worldstates");
 
@@ -2180,11 +2176,11 @@ void World::LoadWorldStates()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         m_worldstates[fields[0].Get<uint32>()] = fields[1].Get<uint32>();
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} world states in {} ms", m_worldstates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} World States in {}", m_worldstates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -2194,14 +2190,14 @@ void World::setWorldState(uint32 index, uint64 timeValue)
     auto const& it = m_worldstates.find(index);
     if (it != m_worldstates.end())
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
         stmt->SetData(0, uint32(timeValue));
         stmt->SetData(1, index);
         CharacterDatabase.Execute(stmt);
     }
     else
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
         stmt->SetData(0, index);
         stmt->SetData(1, uint32(timeValue));
         CharacterDatabase.Execute(stmt);
@@ -2245,16 +2241,6 @@ uint32 World::GetNextWhoListUpdateDelaySecs()
     t = std::min(t, (uint32)m_timers[WUPDATE_5_SECS].GetInterval());
 
     return uint32(std::ceil(t / 1000.0f));
-}
-
-void World::FinalizePlayerWorldSession(WorldSession* session)
-{
-    uint32 cacheVersion = CONF_GET_UINT("ClientCacheVersion");
-    sScriptMgr->OnBeforeFinalizePlayerWorldSession(cacheVersion);
-
-    session->SendAddonsInfo();
-    session->SendClientCacheVersion(cacheVersion);
-    session->SendTutorialsData();
 }
 
 uint16 World::GetConfigMaxSkillValue() const
@@ -2312,14 +2298,4 @@ void World::DoForAllGM(Worker&& worker)
 
         worker(player);
     }
-}
-
-CliCommandHolder::CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished)
-    : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
-{
-}
-
-CliCommandHolder::~CliCommandHolder()
-{
-    free(m_command);
 }

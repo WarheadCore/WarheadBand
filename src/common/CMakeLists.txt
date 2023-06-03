@@ -75,7 +75,6 @@ target_link_libraries(common
   PUBLIC
     argon2
     boost
-    argon2
     sfmt
     utf8cpp
     openssl

@@ -918,7 +918,7 @@ public:
                         DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
                         TempThreat = DoGetThreat(target);
                         if (TempThreat)
-                            DoModifyThreatPercent(target, -100);
+                            DoModifyThreatByPercent(target, -100);
                         HoodGUID = target->GetGUID();
                         me->AddThreat(target, 1000000.0f);
                         ChaseTimer = 20000;
@@ -933,7 +933,7 @@ public:
                     {
                         HoodGUID.Clear();
                         if (DoGetThreat(target))
-                            DoModifyThreatPercent(target, -100);
+                            DoModifyThreatByPercent(target, -100);
                         me->AddThreat(target, TempThreat);
                         TempThreat = 0;
                     }

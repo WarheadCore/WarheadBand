@@ -12,17 +12,16 @@ function comp_ccacheEnable() {
     [ "$AC_CCACHE" != true ] && return
 
     export CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-'1000MB'}
+    #export CCACHE_DEPEND=true
     export CCACHE_SLOPPINESS=${CCACHE_SLOPPINESS:-pch_defines,time_macros,include_file_mtime}
     export CCACHE_CPP2=${CCACHE_CPP2:-true} # optimization for clang
     export CCACHE_COMPRESS=${CCACHE_COMPRESS:-1}
     export CCACHE_COMPRESSLEVEL=${CCACHE_COMPRESSLEVEL:-9}
+    export CCACHE_COMPILERCHECK=${CCACHE_COMPILERCHECK:-content}
+    export CCACHE_LOGFILE=${CCACHE_LOGFILE:-"$CCACHE_DIR/cache.debug"}
+    #export CCACHE_NODIRECT=true
 
-    unamestr=$(uname)
-    if [[ "$unamestr" == 'Darwin' ]]; then
-      export CCUSTOMOPTIONS="$CCUSTOMOPTIONS -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DMYSQL_ADD_INCLUDE_PATH=/usr/local/include -DMYSQL_LIBRARY=/usr/local/lib/libmysqlclient.dylib -DREADLINE_INCLUDE_DIR=/usr/local/opt/readline/include -DREADLINE_LIBRARY=/usr/local/opt/readline/lib/libreadline.dylib -DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl@1.1/include -DOPENSSL_SSL_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libssl.dylib -DOPENSSL_CRYPTO_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libcrypto.dylib"
-    else
-      export CCUSTOMOPTIONS="$CCUSTOMOPTIONS -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-    fi
+    export CCUSTOMOPTIONS="$CCUSTOMOPTIONS -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
 }
 
 function comp_ccacheClean() {
@@ -54,6 +53,13 @@ function comp_configure() {
   echo "DEBUG info: $CDEBUG"
   echo "Compilation type: $CTYPE"
   echo "CCache: $AC_CCACHE"
+  echo "CONTINUOUS_INTEGRATION: $CCONTINUOUS_INTEGRATION"
+  # -DCMAKE_BUILD_TYPE=$CCTYPE disable optimization "slow and huge amount of ram"
+  # -DWITH_COREDEBUG=$CDEBUG compiled with debug information
+
+  #-DSCRIPTS_COMMANDS=$CSCRIPTS -DSCRIPTS_CUSTOM=$CSCRIPTS -DSCRIPTS_EASTERNKINGDOMS=$CSCRIPTS -DSCRIPTS_EVENTS=$CSCRIPTS -DSCRIPTS_KALIMDOR=$CSCRIPTS \
+  #-DSCRIPTS_NORTHREND=$CSCRIPTS -DSCRIPTS_OUTDOORPVP=$CSCRIPTS -DSCRIPTS_OUTLAND=$CSCRIPTS -DSCRIPTS_PET=$CSCRIPTS -DSCRIPTS_SPELLS=$CSCRIPTS -DSCRIPTS_WORLD=$CSCRIPTS \
+  #-DAC_WITH_UNIT_TEST=$CAC_UNIT_TEST -DAC_WITH_PLUGINS=$CAC_PLG \
 
   local DCONF=""
   if [ ! -z "$CONFDIR" ]; then
@@ -61,6 +67,18 @@ function comp_configure() {
   fi
 
   comp_ccacheEnable
+
+  OSOPTIONS=""
+
+  echo "Platform: $OSTYPE"
+  case "$OSTYPE" in
+    darwin*)
+      OSOPTIONS=" -DMYSQL_ADD_INCLUDE_PATH=/usr/local/include -DMYSQL_LIBRARY=/usr/local/lib/libmysqlclient.dylib -DREADLINE_INCLUDE_DIR=/usr/local/opt/readline/include -DREADLINE_LIBRARY=/usr/local/opt/readline/lib/libreadline.dylib -DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl@1.1/include -DOPENSSL_SSL_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libssl.dylib -DOPENSSL_CRYPTO_LIBRARIES=/usr/local/opt/openssl@1.1/lib/libcrypto.dylib "
+      ;;
+    msys*)
+      OSOPTIONS=" -DMYSQL_INCLUDE_DIR=C:\tools\mysql\current\include -DMYSQL_LIBRARY=C:\tools\mysql\current\lib\mysqlclient.lib "
+      ;;
+  esac
 
   cmake $SRCPATH -DCMAKE_INSTALL_PREFIX=$BINPATH $DCONF \
   -DAPPS_BUILD=$CAPPS_BUILD \
@@ -74,7 +92,8 @@ function comp_configure() {
   -DWITH_WARNINGS=$CWARNINGS \
   -DCMAKE_C_COMPILER=$CCOMPILERC \
   -DCMAKE_CXX_COMPILER=$CCOMPILERCXX \
-  $CBUILD_APPS_LIST $CBUILD_TOOLS_LIST $CCUSTOMOPTIONS
+  -DWARHEAD_CI=$CCONTINUOUS_INTEGRATION \
+  $CBUILD_APPS_LIST $CBUILD_TOOLS_LIST $OSOPTIONS $CCUSTOMOPTIONS
 
   cd $CWD
 
@@ -90,26 +109,57 @@ function comp_compile() {
 
   cd $BUILDPATH
 
+  comp_ccacheEnable
+
   comp_ccacheResetStats
 
-  time make -j $MTHREADS
-  make -j $MTHREADS install
+  time cmake --build . --config $CTYPE  -j $MTHREADS
 
   comp_ccacheShowStats
 
-  cd $CWD
+  echo "Platform: $OSTYPE"
+  case "$OSTYPE" in
+    msys*)
+      cmake --install . --config $CTYPE
 
-  # if [[ $DOCKER = 1 ]]; then
-  #   echo "Generating confs..."
-  #   cp -n "env/dist/etc/worldserver.conf.dockerdist" "env/dist/etc/worldserver.conf"
-  #   cp -n "env/dist/etc/authserver.conf.dockerdist" "env/dist/etc/authserver.conf"
-  # fi
+      cd $CWD
+
+      echo "Done"
+      ;;
+    linux*|darwin*)
+      local confDir=${CONFDIR:-"$AC_BINPATH_FULL/../etc"}
+
+      # create the folders before installing to
+      # set the current user and permissions
+      echo "Creating $AC_BINPATH_FULL..."
+      mkdir -p "$AC_BINPATH_FULL"
+      echo "Creating $confDir..."
+      mkdir -p "$confDir"
+
+      echo "Cmake install..."
+      sudo cmake --install . --config $CTYPE
+
+      cd $CWD
+
+      # set all aplications SUID bit
+      echo "Setting permissions on binary files"
+      find "$AC_BINPATH_FULL"  -mindepth 1 -maxdepth 1 -type f -exec sudo chown root:root -- {} +
+      find "$AC_BINPATH_FULL"  -mindepth 1 -maxdepth 1 -type f -exec sudo chmod u+s  -- {} +
+
+      DOCKER_ETC_FOLDER=${DOCKER_ETC_FOLDER:-"env/dist/etc"}
+
+      if [[ $DOCKER = 1 && $DISABLE_DOCKER_CONF != 1 ]]; then
+        echo "Generating confs..."
+        cp -n "$DOCKER_ETC_FOLDER/worldserver.conf.dockerdist" "${confDir}/worldserver.conf"
+        cp -n "$DOCKER_ETC_FOLDER/authserver.conf.dockerdist" "${confDir}/authserver.conf"
+        cp -n "$DOCKER_ETC_FOLDER/dbimport.conf.dockerdist" "${confDir}/dbimport.conf"
+      fi
+
+      echo "Done"
+    ;;
+  esac
 
   runHooks "ON_AFTER_BUILD"
-
-  # set all aplications SUID bit
-  sudo chown -R root:root "$AC_BINPATH_FULL"
-  sudo chmod -R u+s "$AC_BINPATH_FULL"
 }
 
 function comp_build() {

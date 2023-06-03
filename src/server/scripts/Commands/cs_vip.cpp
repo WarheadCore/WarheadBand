@@ -34,8 +34,14 @@ class vip_commandscript : public CommandScript
 public:
     vip_commandscript() : CommandScript("vip_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    [[nodiscard]] ChatCommandTable GetCommands() const override
     {
+        static ChatCommandTable vipReloadCommandTable =
+        {
+            { "rates",      HandleVipReloadRatesCommand,    SEC_ADMINISTRATOR,  Console::Yes },
+            { "vendors",    HandleVipReloadVendorsCommand,  SEC_ADMINISTRATOR,  Console::Yes }
+        };
+
         static ChatCommandTable vipListCommandTable =
         {
             { "rates",      HandleVipListRatesCommand,   SEC_ADMINISTRATOR,  Console::Yes }
@@ -54,8 +60,10 @@ public:
             { "delete",     HandleVipDeleteCommand,     SEC_ADMINISTRATOR,  Console::Yes },
             { "unbind",     HandleVipUnbindCommand,     SEC_PLAYER,         Console::No },
             { "info",       HandleVipInfoCommand,       SEC_PLAYER,         Console::Yes },
+            { "menu",       HandleVipMenuCommand,       SEC_PLAYER,         Console::No },
             { "list",       vipListCommandTable },
             { "vendor",     vipVendorCommandTable },
+            { "reload",     vipReloadCommandTable },
         };
 
         static ChatCommandTable commandTable =
@@ -198,6 +206,32 @@ public:
         return true;
     }
 
+    static bool HandleVipReloadRatesCommand(ChatHandler* handler)
+    {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        sVip->LoadRates();
+        handler->PSendSysMessage("> Вип рейты перезагружены");
+        return true;
+    }
+
+    static bool HandleVipReloadVendorsCommand(ChatHandler* handler)
+    {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        sVip->LoadVipVendors();
+        handler->PSendSysMessage("> Вип вендоры перезагружены");
+        return true;
+    }
+
     static bool HandleVipVendorInfoCommand(ChatHandler* handler)
     {
         if (!sVip->IsEnable())
@@ -299,6 +333,18 @@ public:
 
         sVip->DeleteVendorVipLevel(creatureEntry);
         handler->PSendSysMessage("# Существо `{}` - '{}' доступно для всех", creatureEntry, creatureName);
+        return true;
+    }
+
+    static bool HandleVipMenuCommand(ChatHandler* handler)
+    {
+        if (!sVip->IsEnable())
+        {
+            handler->PSendSysMessage("> Модуль отключен");
+            return true;
+        }
+
+        sVip->SendVipMenu(handler->GetPlayer());
         return true;
     }
 };

@@ -34,7 +34,7 @@ public:
     mpq_archive_s* mpq_a;
 
     MPQArchive(const char* filename);
-    void close();
+    ~MPQArchive() { if (isOpened()) close(); }
 
     void GetFileListTo(vector<string>& filelist)
     {
@@ -65,6 +65,10 @@ public:
 
         delete[] buffer;
     }
+
+private:
+    void close();
+    bool isOpened() const;
 };
 typedef std::deque<MPQArchive*> ArchiveSet;
 
@@ -82,9 +86,9 @@ class MPQFile
 public:
     MPQFile(const char* filename);    // filenames are not case sensitive
     ~MPQFile() { close(); }
-    size_t read(void* dest, size_t bytes);
-    size_t getSize() { return size; }
-    size_t getPos() { return pointer; }
+    std::size_t read(void* dest, std::size_t bytes);
+    std::size_t getSize() { return size; }
+    std::size_t getPos() { return pointer; }
     char* getBuffer() { return buffer; }
     char* getPointer() { return buffer + pointer; }
     bool isEof() { return eof; }
@@ -95,13 +99,8 @@ public:
 
 inline void flipcc(char* fcc)
 {
-    char t;
-    t = fcc[0];
-    fcc[0] = fcc[3];
-    fcc[3] = t;
-    t = fcc[1];
-    fcc[1] = fcc[2];
-    fcc[2] = t;
+    std::swap(fcc[0], fcc[3]);
+    std::swap(fcc[1], fcc[2]);
 }
 
 #endif

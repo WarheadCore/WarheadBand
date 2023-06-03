@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Group.h"
 #include "Log.h"
 #include "ModulesConfig.h"

@@ -19,9 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ChannelMgr.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
 #include "World.h"
@@ -53,22 +55,22 @@ ChannelMgr* ChannelMgr::forTeam(TeamId teamId)
 
 void ChannelMgr::LoadChannels()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     uint32 count = 0;
 
     //                                                    0          1     2     3         4          5
     QueryResult result = CharacterDatabase.Query("SELECT channelId, name, team, announce, ownership, password FROM channels ORDER BY channelId ASC");
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 channels. DB table `channels` is empty.");
+        LOG_INFO("server.loading", ">> Loaded 0 channels. DB table `channels` is empty.");
+        LOG_INFO("server.loading", "");
         return;
     }
 
     std::vector<std::pair<std::string, uint32>> toDelete;
-    do
-    {
-        Field* fields = result->Fetch();
 
+    for (auto const& fields : *result)
+    {
         uint32 channelDBId = fields[0].Get<uint32>();
         std::string channelName = fields[1].Get<std::string>();
         TeamId team = TeamId(fields[2].Get<uint32>());
@@ -95,30 +97,23 @@ void ChannelMgr::LoadChannels()
         mgr->channels[channelWName] = newChannel;
 
         if (QueryResult banResult = CharacterDatabase.Query("SELECT playerGUID, banTime FROM channels_bans WHERE channelId = {}", channelDBId))
-        {
-            do
-            {
-                Field* banFields = banResult->Fetch();
-                if (!banFields)
-                    break;
+            for (auto const& banFields : *banResult)
                 newChannel->AddBan(ObjectGuid::Create<HighGuid::Player>(banFields[0].Get<uint32>()), banFields[1].Get<uint32>());
-            } while (banResult->NextRow());
-        }
 
         if (channelDBId > ChannelMgr::_channelIdMax)
             ChannelMgr::_channelIdMax = channelDBId;
         ++count;
-    } while (result->NextRow());
+    }
 
-    for (auto pair : toDelete)
+    for (const auto& pair : toDelete)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
         stmt->SetData(0, pair.first);
         stmt->SetData(1, pair.second);
         CharacterDatabase.Execute(stmt);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} channels in {}ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} channels in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -128,7 +123,7 @@ Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
     Utf8toWStr(name, wname);
     wstrToLower(wname);
 
-    ChannelMap::const_iterator i = channels.find(wname);
+    auto i = channels.find(wname);
 
     if (i == channels.end())
     {
@@ -169,21 +164,21 @@ ChannelRights ChannelMgr::channelRightsEmpty;
 
 void ChannelMgr::LoadChannelRights()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
     channels_rights.clear();
 
     QueryResult result = CharacterDatabase.Query("SELECT name, flags, speakdelay, joinmessage, delaymessage, moderators FROM channels_rights");
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 Channel Rights!");
+        LOG_INFO("server.loading", ">> Loaded 0 Channel Rights!");
         LOG_INFO("server.loading", " ");
         return;
     }
 
     uint32 count = 0;
-    do
+
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
         std::set<uint32> moderators;
         auto moderatorList = fields[5].Get<std::string_view>();
 
@@ -203,9 +198,9 @@ void ChannelMgr::LoadChannelRights()
         SetChannelRightsFor(fields[0].Get<std::string>(), fields[1].Get<uint32>(), fields[2].Get<uint32>(), fields[3].Get<std::string>(), fields[4].Get<std::string>(), moderators);
 
         ++count;
-    } while (result->NextRow());
+    }
 
-    LOG_INFO("server.loading", ">> Loaded {} Channel Rights in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Channel Rights in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 

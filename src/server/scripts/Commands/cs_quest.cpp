@@ -26,6 +26,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"
@@ -112,7 +113,7 @@ public:
 
             uint8 index = 0;
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS);
             stmt->SetData(index++, guid);
             stmt->SetData(index++, entry);
             stmt->SetData(index++, 1);
@@ -191,7 +192,7 @@ public:
             ObjectGuid::LowType guid = playerTarget->GetGUID().GetCounter();
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
             stmt->SetData(0, guid);
             stmt->SetData(1, entry);
             trans->Append(stmt);
@@ -211,7 +212,7 @@ public:
 
                 if (result)
                 {
-                    Field* fields = result->Fetch();
+                    auto fields = result->Fetch();
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
                     stmt->SetData(0, fields[0].Get<uint32>());
@@ -398,7 +399,7 @@ public:
 
             uint8 index = 0;
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS);
             stmt->SetData(index++, guid);
             stmt->SetData(index++, entry);
             stmt->SetData(index++, 1);
@@ -432,7 +433,7 @@ public:
 
                 if (result)
                 {
-                    Field* fields = result->Fetch();
+                    auto fields = result->Fetch();
                     uint32 curRep = fields[0].Get<uint32>();
 
                     if (curRep < repValue)
@@ -462,7 +463,7 @@ public:
 
                 if (result)
                 {
-                    Field* fields = result->Fetch();
+                    auto fields = result->Fetch();
                     uint32 curRep = fields[0].Get<uint32>();
 
                     if (curRep < repValue)
@@ -538,7 +539,7 @@ public:
             ObjectGuid::LowType guid = playerTarget->GetGUID().GetCounter();
             uint8 charLevel = sCharacterCache->GetCharacterLevelByGuid(ObjectGuid(HighGuid::Player, guid));
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-            CharacterDatabasePreparedStatement* stmt;
+            CharacterDatabasePreparedStatement stmt;
 
             QueryResult result = CharacterDatabase.Query("SELECT 1 FROM character_queststatus WHERE guid = {} AND quest = {} AND status = 1", guid, entry);
 
@@ -559,7 +560,7 @@ public:
 
                 if (result)
                 {
-                    Field* fields = result->Fetch();
+                    auto fields = result->Fetch();
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
                     stmt->SetData(0, fields[0].Get<uint32>());
@@ -581,7 +582,7 @@ public:
 
                 if (result)
                 {
-                    Field* fields = result->Fetch();
+                    auto fields = result->Fetch();
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
                     stmt->SetData(0, fields[0].Get<uint32>());
@@ -724,7 +725,7 @@ public:
             // Only reward money, don't subtract, let's not cause an overflow...
             if (rewMoney > 0)
             {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY_ACCUMULATIVE);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY_ACCUMULATIVE);
                 stmt->SetData(0, rewMoney);
                 stmt->SetData(1, guid);
                 trans->Append(stmt);

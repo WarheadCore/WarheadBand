@@ -30,7 +30,6 @@
 
 namespace AccountMgr
 {
-
     AccountOpResult CreateAccount(std::string username, std::string password)
     {
         if (utf8length(username) > MAX_ACCOUNT_STR)
@@ -47,15 +46,15 @@ namespace AccountMgr
 
         auto [salt, verifier] = Warhead::Crypto::SRP6::MakeRegistrationData(username, password);
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
         stmt->SetData(0, username);
         stmt->SetData(1, salt);
         stmt->SetData(2, verifier);
         stmt->SetData(3, sGameConfig->GetOption<uint8>("Expansion"));
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
-        LoginDatabase.Execute(stmt);
+        stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
+        AuthDatabase.Execute(stmt);
 
         return AOR_OK;                                          // everything's fine
     }
@@ -63,15 +62,15 @@ namespace AccountMgr
     AccountOpResult DeleteAccount(uint32 accountId)
     {
         // Check if accounts exists
-        LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
+        AuthDatabasePreparedStatement loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
         loginStmt->SetData(0, accountId);
 
-        PreparedQueryResult result = LoginDatabase.Query(loginStmt);
+        PreparedQueryResult result = AuthDatabase.Query(loginStmt);
         if (!result)
             return AOR_NAME_NOT_EXIST;
 
         // Obtain accounts characters
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARS_BY_ACCOUNT_ID);
         stmt->SetData(0, accountId);
 
         result = CharacterDatabase.Query(stmt);
@@ -107,29 +106,29 @@ namespace AccountMgr
         stmt->SetData(0, accountId);
         CharacterDatabase.Execute(stmt);
 
-        LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+        AuthDatabaseTransaction trans = AuthDatabase.BeginTransaction();
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT);
+        loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT);
         loginStmt->SetData(0, accountId);
         trans->Append(loginStmt);
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+        loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
         loginStmt->SetData(0, accountId);
         trans->Append(loginStmt);
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS);
+        loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS);
         loginStmt->SetData(0, accountId);
         trans->Append(loginStmt);
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_BANNED);
+        loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_BANNED);
         loginStmt->SetData(0, accountId);
         trans->Append(loginStmt);
 
-        loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
+        loginStmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_MUTE_EXPIRED);
         loginStmt->SetData(0, accountId);
         trans->Append(loginStmt);
 
-        LoginDatabase.CommitTransaction(trans);
+        AuthDatabase.CommitTransaction(trans);
 
         return AOR_OK;
     }
@@ -137,9 +136,9 @@ namespace AccountMgr
     AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
     {
         // Check if accounts exists
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
         stmt->SetData(0, accountId);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         if (!result)
             return AOR_NAME_NOT_EXIST;
@@ -153,17 +152,17 @@ namespace AccountMgr
         Utf8ToUpperOnlyLatin(newUsername);
         Utf8ToUpperOnlyLatin(newPassword);
 
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
+        stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
         stmt->SetData(0, newUsername);
         stmt->SetData(1, accountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         auto [salt, verifier] = Warhead::Crypto::SRP6::MakeRegistrationData(newUsername, newPassword);
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
         stmt->SetData(0, salt);
         stmt->SetData(1, verifier);
         stmt->SetData(2, accountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         return AOR_OK;
     }
@@ -189,11 +188,11 @@ namespace AccountMgr
 
         auto [salt, verifier] = Warhead::Crypto::SRP6::MakeRegistrationData(username, newPassword);
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
         stmt->SetData(0, salt);
         stmt->SetData(1, verifier);
         stmt->SetData(2, accountId);
-        LoginDatabase.Execute(stmt);
+        AuthDatabase.Execute(stmt);
 
         sScriptMgr->OnPasswordChange(accountId);
         return AOR_OK;
@@ -201,37 +200,37 @@ namespace AccountMgr
 
     uint32 GetId(std::string const& username)
     {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
         stmt->SetData(0, username);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         return (result) ? (*result)[0].Get<uint32>() : 0;
     }
 
     uint32 GetSecurity(uint32 accountId)
     {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL);
         stmt->SetData(0, accountId);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         return (result) ? (*result)[0].Get<uint8>() : uint32(SEC_PLAYER);
     }
 
     uint32 GetSecurity(uint32 accountId, int32 realmId)
     {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
         stmt->SetData(0, accountId);
         stmt->SetData(1, realmId);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         return (result) ? (*result)[0].Get<uint8>() : uint32(SEC_PLAYER);
     }
 
     bool GetName(uint32 accountId, std::string& name)
     {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_USERNAME_BY_ID);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_GET_USERNAME_BY_ID);
         stmt->SetData(0, accountId);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         if (result)
         {
@@ -252,10 +251,10 @@ namespace AccountMgr
         Utf8ToUpperOnlyLatin(username);
         Utf8ToUpperOnlyLatin(password);
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
         stmt->SetData(0, accountId);
 
-        if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+        if (PreparedQueryResult result = AuthDatabase.Query(stmt))
         {
             Warhead::Crypto::SRP6::Salt salt = (*result)[0].Get<Binary, Warhead::Crypto::SRP6::SALT_LENGTH>();
             Warhead::Crypto::SRP6::Verifier verifier = (*result)[1].Get<Binary, Warhead::Crypto::SRP6::VERIFIER_LENGTH>();
@@ -270,7 +269,7 @@ namespace AccountMgr
     uint32 GetCharactersCount(uint32 accountId)
     {
         // check character count
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
         stmt->SetData(0, accountId);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 

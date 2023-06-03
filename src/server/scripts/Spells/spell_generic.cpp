@@ -31,10 +31,8 @@
 #include "BattlegroundMgr.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "Chat.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
-#include "Group.h"
 #include "InstanceScript.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
@@ -853,18 +851,24 @@ class spell_gen_fixate_aura : public AuraScript
 
 /* 64440 - Blade Warding
    64568 - Blood Reserve */
-class spell_gen_proc_above_75 : public AuraScript
+class spell_gen_proc_above_75 : public SpellScript
 {
-    PrepareAuraScript(spell_gen_proc_above_75);
+    PrepareSpellScript(spell_gen_proc_above_75);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    SpellCastResult CheckLevel()
     {
-        return eventInfo.GetActor() && eventInfo.GetActor()->getLevel() >= 75;
+        Unit* caster = GetCaster();
+        if (caster->getLevel() < 75)
+        {
+            return SPELL_FAILED_LOWLEVEL;
+        }
+
+        return SPELL_CAST_OK;
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_gen_proc_above_75::CheckProc);
+        OnCheckCast += SpellCheckCastFn(spell_gen_proc_above_75::CheckLevel);
     }
 };
 
@@ -896,7 +900,7 @@ class spell_gen_knock_away : public SpellScript
         PreventHitDefaultEffect(effIndex);
         if (Unit* target = GetHitUnit())
             if (Creature* caster = GetCaster()->ToCreature())
-                caster->GetThreatMgr().modifyThreatPercent(target, -25); // Xinef: amount confirmed by onyxia and void reaver notes
+                caster->GetThreatMgr().ModifyThreatByPercent(target, -25); // Xinef: amount confirmed by onyxia and void reaver notes
     }
 
     void Register() override
@@ -1002,7 +1006,7 @@ class spell_gen_hate_to_zero : public SpellScript
         PreventHitDefaultEffect(effIndex);
         if (Unit* target = GetHitUnit())
             if (Creature* caster = GetCaster()->ToCreature())
-                caster->GetThreatMgr().modifyThreatPercent(target, -100);
+                caster->GetThreatMgr().ModifyThreatByPercent(target, -100);
     }
 
     void Register() override
@@ -4481,7 +4485,8 @@ enum AQSpells
     SPELL_CONSUME_LEECH_HEAL_AQ20 = 25378,
     SPELL_CONSUME_SPIT_OUT        = 25383,
 
-    SPELL_HIVEZARA_CATALYST       = 25187
+    SPELL_HIVEZARA_CATALYST       = 25187,
+    SPELL_VEKNISS_CATALYST        = 26078
 };
 
 class spell_gen_consume : public AuraScript
@@ -4571,6 +4576,72 @@ private:
     uint32 _spellId;
     uint32 _effect;
     uint32 _aura;
+};
+
+// 818 Basic Campfire
+class spell_gen_basic_campfire : public SpellScript
+{
+    PrepareSpellScript(spell_gen_basic_campfire);
+
+    void ModDest(SpellDestination& dest)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (caster->GetMap()->GetGameObjectFloor(caster->GetPhaseMask(), caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()) == -G3D::finf())
+            {
+                float ground = caster->GetMap()->GetHeight(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ() + caster->GetCollisionHeight() * 0.5f);
+                dest._position.m_positionZ = ground;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_gen_basic_campfire::ModDest, EFFECT_0, TARGET_DEST_CASTER_SUMMON);
+    }
+};
+
+// 34779 - Freezing Circle
+enum FreezingCircleSpells
+{
+    SPELL_FREEZING_CIRCLE_PIT_OF_SARON_NORMAL = 69574,
+    SPELL_FREEZING_CIRCLE_PIT_OF_SARON_HEROIC = 70276,
+    SPELL_FREEZING_CIRCLE                     = 34787,
+};
+
+class spell_freezing_circle : public SpellScript
+{
+    PrepareSpellScript(spell_freezing_circle);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_FREEZING_CIRCLE_PIT_OF_SARON_NORMAL,
+                SPELL_FREEZING_CIRCLE_PIT_OF_SARON_HEROIC,
+                SPELL_FREEZING_CIRCLE
+            });
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        uint32 spellId = 0;
+        Map* map = caster->GetMap();
+
+        if (map->IsDungeon())
+            spellId = map->IsHeroic() ? SPELL_FREEZING_CIRCLE_PIT_OF_SARON_HEROIC : SPELL_FREEZING_CIRCLE_PIT_OF_SARON_NORMAL;
+        else
+            spellId = SPELL_FREEZING_CIRCLE;
+
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+            SetHitDamage(spellInfo->Effects[EFFECT_0].CalcValue());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_freezing_circle::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 void AddSC_generic_spell_scripts()
@@ -4709,4 +4780,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_remove_impairing_auras);
     RegisterSpellScriptWithArgs(spell_gen_consume, "spell_consume_aq20", SPELL_CONSUME_LEECH_AQ20, SPELL_CONSUME_LEECH_HEAL_AQ20);
     RegisterSpellScriptWithArgs(spell_gen_apply_aura_after_expiration, "spell_itch_aq20", SPELL_HIVEZARA_CATALYST, EFFECT_0, SPELL_AURA_DUMMY);
+    RegisterSpellScriptWithArgs(spell_gen_apply_aura_after_expiration, "spell_itch_aq40", SPELL_VEKNISS_CATALYST, EFFECT_0, SPELL_AURA_DUMMY);
+    RegisterSpellScript(spell_gen_basic_campfire);
+    RegisterSpellScript(spell_freezing_circle);
 }

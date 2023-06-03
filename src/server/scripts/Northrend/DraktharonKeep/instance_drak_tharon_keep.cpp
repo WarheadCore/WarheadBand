@@ -21,6 +21,7 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

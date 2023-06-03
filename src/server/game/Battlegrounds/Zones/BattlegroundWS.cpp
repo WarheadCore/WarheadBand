@@ -23,8 +23,7 @@
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
-#include "Language.h"
-#include "Object.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
@@ -105,6 +104,10 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
                     player->CastSpell(player, BG_WS_SPELL_BRUTAL_ASSAULT, true);
                 }
                 break;
+            case BG_WS_EVENT_DESPAWN_DOORS:
+                SpawnBGObject(BG_WS_OBJECT_DOOR_H_1, RESPAWN_ONE_DAY);
+                SpawnBGObject(BG_WS_OBJECT_DOOR_H_2, RESPAWN_ONE_DAY);
+                break;
         }
     }
 }
@@ -139,6 +142,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
     _bgEvents.ScheduleEvent(BG_WS_EVENT_UPDATE_GAME_TIME, 0);
     _bgEvents.ScheduleEvent(BG_WS_EVENT_NO_TIME_LEFT, BG_WS_TOTAL_GAME_TIME - 2 * MINUTE * IN_MILLISECONDS); // 27 - 2 = 25 minutes
+    _bgEvents.ScheduleEvent(BG_WS_EVENT_DESPAWN_DOORS, BG_WS_DOOR_DESPAWN_TIME);
 }
 
 void BattlegroundWS::AddPlayer(Player* player)
@@ -457,14 +461,14 @@ bool BattlegroundWS::SetupBattleground()
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i < BG_WS_OBJECT_MAX; ++i)
         if (!BgObjects[i])
         {
-            LOG_ERROR("sql.sql", "BatteGroundWS: Failed to spawn some object Battleground not created!");
+            LOG_ERROR("db.query", "BatteGroundWS: Failed to spawn some object Battleground not created!");
             return false;
         }
 
     for (uint32 i = WS_SPIRIT_MAIN_ALLIANCE; i < BG_CREATURES_MAX_WS; ++i)
         if (!BgCreatures[i])
         {
-            LOG_ERROR("sql.sql", "BatteGroundWS: Failed to spawn spirit guides Battleground not created!");
+            LOG_ERROR("db.query", "BatteGroundWS: Failed to spawn spirit guides Battleground not created!");
             return false;
         }
 

@@ -18,24 +18,25 @@
 #ifndef _WARHEAD_FILE_CHANNEL_H_
 #define _WARHEAD_FILE_CHANNEL_H_
 
-#include "Channel.h"
+#include "LogChannel.h"
 #include <mutex>
 
 namespace Warhead
 {
-    class WH_COMMON_API FileChannel : public Channel
+    class WH_COMMON_API FileChannel : public LogChannel
     {
     public:
         static constexpr auto ThisChannelType{ ChannelType::File };
 
         FileChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options);
-        virtual ~FileChannel();
+        ~FileChannel() override;
 
         void Write(LogMessage const& msg) override;
 
     private:
         bool OpenFile();
         void CloseFile();
+        void ClearOldFiles();
 
         std::string _logsDir;
         std::string _fileName;
@@ -44,9 +45,11 @@ namespace Warhead
         bool _isFlush{ true };
         bool _isOpenModeAppend{ true };
         bool _isAddTimestamp{ false };
+        uint32 _maxCount{ 20 };
+        uint32 _purgeAge{ 10 };
         std::mutex _mutex;
     };
 
 } // namespace Warhead
 
-#endif //
+#endif // _WARHEAD_FILE_CHANNEL_H_

@@ -20,7 +20,6 @@
 
 #include "GridNotifiers.h"
 #include "CellImpl.h"
-#include "GridNotifiersImpl.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"

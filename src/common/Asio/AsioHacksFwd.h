@@ -18,8 +18,6 @@
 #ifndef AsioHacksFwd_h__
 #define AsioHacksFwd_h__
 
-#include <boost/version.hpp>
-
 /**
   Collection of forward declarations to improve compile time
  */
@@ -32,6 +30,8 @@ namespace boost::asio
 {
     template <typename Time>
     struct time_traits;
+
+    class thread_pool;
 }
 
 namespace boost::asio::ip

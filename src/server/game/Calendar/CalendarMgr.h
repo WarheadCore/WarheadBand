@@ -18,8 +18,7 @@
 #ifndef WARHEAD_CALENDARMGR_H
 #define WARHEAD_CALENDARMGR_H
 
-#include "Common.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
 #include "WorldPacket.h"
 #include <unordered_map>

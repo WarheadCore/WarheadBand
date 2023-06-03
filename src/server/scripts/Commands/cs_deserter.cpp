@@ -26,13 +26,13 @@
 */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "SpellAuras.h"
 #include "Timer.h"
-
-using namespace Warhead::ChatCommands;
 
 enum Spells
 {
@@ -40,9 +40,7 @@ enum Spells
     BG_SPELL_DESERTER = 26013
 };
 
-#if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+using namespace Warhead::ChatCommands;
 
 class deserter_commandscript : public CommandScript
 {
@@ -188,7 +186,7 @@ public:
             int32 remainTime = 0;
             if (QueryResult result = CharacterDatabase.Query("SELECT remainTime FROM character_aura WHERE guid = {} AND spell = {}", guid.GetCounter(), deserterSpell))
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 remainTime = fields[0].Get<int32>();
 
                 if (remainTime < 0 || remainTime >= duration.count() * IN_MILLISECONDS)
@@ -200,7 +198,7 @@ public:
             }
 
             uint8 index = 0;
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
             stmt->SetData(index++, guid.GetCounter());
             stmt->SetData(index++, guid.GetCounter());
             stmt->SetData(index++, 0);
@@ -276,7 +274,7 @@ public:
         {
             if (QueryResult result = CharacterDatabase.Query("SELECT remainTime FROM character_aura WHERE guid = {} AND spell = {}", player->GetGUID().GetCounter(), deserterSpell))
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 duration = fields[0].Get<int32>();
                 CharacterDatabase.Execute("DELETE FROM character_aura WHERE guid = {} AND spell = {}", player->GetGUID().GetCounter(), deserterSpell);
             }
@@ -327,7 +325,7 @@ public:
     static bool HandleDeserterRemoveAll(ChatHandler* handler, bool isInstance, Optional<std::string_view> maxTime)
     {
         uint32 deserterSpell = isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER;
-        Seconds remainTime = isInstance ? 1800s : 900s;
+        Seconds remainTime = 30min;
         uint64 deserterCount = 0;
         bool countOnline = true;
 

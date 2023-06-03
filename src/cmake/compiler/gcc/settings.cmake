@@ -62,6 +62,24 @@ if( WITH_COREDEBUG )
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
 
+if (ASAN)
+  target_compile_options(warhead-compile-option-interface
+    INTERFACE
+    -fno-omit-frame-pointer
+    -fsanitize=address
+    -fsanitize-recover=address
+    -fsanitize-address-use-after-scope)
+
+  target_link_options(warhead-compile-option-interface
+    INTERFACE
+    -fno-omit-frame-pointer
+    -fsanitize=address
+    -fsanitize-recover=address
+    -fsanitize-address-use-after-scope)
+
+  message(STATUS "GCC: Enabled Address Sanitizer")
+endif()
+
 if(BUILD_SHARED_LIBS)
   target_compile_options(warhead-compile-option-interface
     INTERFACE

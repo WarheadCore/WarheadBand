@@ -9,6 +9,7 @@
 #    EXAMPLE CONFIG
 #    AUTH SERVER SETTINGS
 #    MYSQL SETTINGS
+#    IP CACHE SETTINGS
 #    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    LOGGING SYSTEM SETTINGS
@@ -41,13 +42,6 @@
 #        Default:     "" - (Log files will be stored in the current path)
 
 LogsDir = ""
-
-#
-#    MaxPingTime
-#        Description: Time (in minutes) between database pings.
-#        Default:     30
-
-MaxPingTime = 30
 
 #
 #    RealmServerPort
@@ -120,12 +114,12 @@ WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 
 #
-#    WrongPass.BanType
+#    WrongPass.CheckIpType
 #        Description: Ban type for invalid login attempts.
 #        Default:     0 - (Ban IP)
 #                     1 - (Ban Account)
 
-WrongPass.BanType = 0
+WrongPass.CheckIpType = 0
 
 #
 #    WrongPass.Logging
@@ -167,13 +161,23 @@ SourceDirectory = ""
 #        Description: The path to your MySQL CLI binary.
 #                     If the path is left empty, built-in path from cmake is used.
 #        Example:     "C:/Program Files/MariaDB 10.5/bin/mysql.exe"
-#                     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#                     "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe"
 #                     "mysql.exe"
 #                     "/usr/bin/mysql"
 #        Default:     ""
 #
 
 MySQLExecutable = ""
+
+#
+#    TempDir
+#        Description: Temp directory setting.
+#        Important:   TempDir needs to be quoted, as the string might contain space characters.
+#                     TempDir directory must exists, or the server can't work properly
+#        Example:     "/home/youruser/azerothcore/temp"
+#        Default:     "" - (Temp files will be stored in the current path)
+
+TempDir = ""
 
 #
 #    IPLocationFile
@@ -192,14 +196,12 @@ IPLocationFile = ""
 #
 
 AllowLoggingIPAddressesInDatabase = 1
-
-#
 ###################################################################################################
 
 ###################################################################################################
 # MYSQL SETTINGS
 #
-#    LoginDatabaseInfo
+#    AuthDatabaseInfo
 #        Description: Database connection settings for the realm server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -213,7 +215,7 @@ AllowLoggingIPAddressesInDatabase = 1
 #    any value other than 'ssl' is set, TLS will not be used.
 #
 
-LoginDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_auth"
+AuthDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_auth"
 
 #
 #    Database.Reconnect.Seconds
@@ -228,27 +230,67 @@ Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
 
 #
-#    LoginDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
+#    MaxQueueSize
+#        Description: Max size queue before open new dynamic async connect for db
+#        Default:     10
+#
+
+MaxQueueSize = 10
+
+#
+#    MaxPingTime
+#        Description: Time (in minutes) between database pings.
+#        Default:     30
+#
+
+MaxPingTime = 30
+###################################################################################################
+
+###################################################################################################
+#   IP CACHE SETTINGS
+#
+#    IPCache.Enable
+#        Description: Enable ip cache
 #        Default:     1
-
-LoginDatabase.WorkerThreads = 1
-
-#
-#    LoginDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
 #
 
-LoginDatabase.SynchThreads = 1
+IPCache.Enable = 1
 
 #
+#    IPCache.Check.Delay
+#        Description: Delay in seconds for check ip from db and update cache
+#        Default:     60
+#
+
+IPCache.Check.Delay = 60
+
+#
+#    IPCache.Check.MaxCount
+#        Description: Max check count for add ban (LoginFlood Malformed DDOS)
+#        Default:     "10 3 50"
+#
+
+IPCache.Check.MaxCount = "10 3 50"
+
+#
+#    IPCache.Ban.Enable
+#        Description: Enable ban (LoginFlood Malformed DDOS)
+#        Default:     "1 1 1"
+#
+
+IPCache.Ban.Enable = "1 1 1"
+
+#
+#    IPCache.Ban.Enable
+#        Description: Ban duration in seconds (LoginFlood Malformed DDOS)
+#        Default:     "300 300 604800"
+#
+
+IPCache.Ban.Duration = "300 300 604800"
 ###################################################################################################
 
 ###################################################################################################
-# CRYPTOGRAPHY
-
+#   CRYPTOGRAPHY
 #
 #    EnableTOTP
 #        Description: Check if a TOTP token is needed on account login
@@ -280,10 +322,11 @@ TOTPMasterSecret =
 #        Description: A mask that describes which databases shall be updated.
 #
 #        Following flags are available
-#           DATABASE_LOGIN     = 1, // Auth database
+#           DATABASE_LOGIN  = 1, // Auth database
 #
 #        Default:     0  - (All Disabled)
 #                     1  - (All Enabled)
+#
 
 Updates.EnableDatabases = 1
 
@@ -424,6 +467,12 @@ Updates.CleanDeadRefMaxCount = 3
 #                     Optional4 - Add timestamp (is type File).
 #                           true: Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
 #                           false: Just using filename (default)
+#
+#                     Optional5 - Max files count (is type File). Need option 4
+#                           Default: 20
+#
+#                     Optional6 - Purge age in days (is type File). Need option 4
+#                           Default: 10
 #
 
 LogChannel.Console = "1","6","[%H:%M:%S] %t","lightRed lightRed red brown cyan lightMagenta green"

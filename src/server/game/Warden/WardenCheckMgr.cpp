@@ -23,10 +23,9 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
+#include "StopWatch.h"
 #include "Util.h"
 #include "Warden.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 
 WardenCheckMgr::WardenCheckMgr()
 {
@@ -44,6 +43,8 @@ WardenCheckMgr* WardenCheckMgr::instance()
 
 void WardenCheckMgr::LoadWardenChecks()
 {
+    StopWatch sw;
+
     // Check if Warden is enabled by config before loading anything
     if (!CONF_GET_BOOL("Warden.Enabled"))
     {
@@ -61,7 +62,7 @@ void WardenCheckMgr::LoadWardenChecks()
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
 
     uint16 maxCheckId = fields[0].Get<uint16>();
 
@@ -80,7 +81,7 @@ void WardenCheckMgr::LoadWardenChecks()
 
         if (checkType == LUA_EVAL_CHECK && id > 9999)
         {
-            LOG_ERROR("warden", "sql.sql: Warden Lua check with id {} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.", id);
+            LOG_ERROR("warden", "db.query: Warden Lua check with id {} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.", id);
             continue;
         }
 
@@ -139,7 +140,7 @@ void WardenCheckMgr::LoadWardenChecks()
             {
                 if (wardenCheck.Length > WARDEN_MAX_LUA_CHECK_LENGTH)
                 {
-                    LOG_ERROR("warden", "sql.sql: Found over-long Lua check for Warden check with id {} in `warden_checks`. Max length is {}. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
+                    LOG_ERROR("warden", "db.query: Found over-long Lua check for Warden check with id {} in `warden_checks`. Max length is {}. Skipped.", id, WARDEN_MAX_LUA_CHECK_LENGTH);
                     continue;
                 }
 
@@ -163,8 +164,8 @@ void WardenCheckMgr::LoadWardenChecks()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} warden checks.", count);
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} warden checks in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void WardenCheckMgr::LoadWardenOverrides()
@@ -191,7 +192,7 @@ void WardenCheckMgr::LoadWardenOverrides()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint16 checkId = fields[0].Get<uint16>();
         uint8  action  = fields[1].Get<uint8>();

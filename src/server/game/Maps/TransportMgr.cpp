@@ -19,10 +19,15 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "TransportMgr.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapMgr.h"
 #include "MoveSpline.h"
+#include "ObjectAccessor.h"
+#include "StopWatch.h"
 #include "Transport.h"
 
 TransportTemplate::~TransportTemplate()
@@ -53,10 +58,9 @@ void TransportMgr::Unload()
 
 void TransportMgr::LoadTransportTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::TransportTemplates) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 transport templates. DB table `gameobject_template` has no transports!");
@@ -67,7 +71,7 @@ void TransportMgr::LoadTransportTemplates()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         uint32 entry = fields[0].Get<uint32>();
         GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
         if (!goInfo)
@@ -94,7 +98,7 @@ void TransportMgr::LoadTransportTemplates()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} transport templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Transport Templates in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -428,17 +432,18 @@ void TransportMgr::SpawnContinentTransports()
         return;
 
     uint32 count = 0;
-    uint32 oldMSTime = getMSTime();
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
+    StopWatch swAll;
 
     if (CONF_GET_BOOL("IsContinentTransport.Enabled"))
     {
+        StopWatch sw;
 
+        QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
         if (result)
         {
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 entry = fields[1].Get<uint32>();
 
@@ -450,11 +455,13 @@ void TransportMgr::SpawnContinentTransports()
             } while (result->NextRow());
         }
 
-        LOG_INFO("server.loading", ">> Spawned {} continent motion transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Spawned {} continent motion transports in {}", count, sw);
     }
 
     if (CONF_GET_BOOL("IsPreloadedContinentTransport.Enabled"))
     {
+        StopWatch sw;
+
         // pussywizard: preload grids for continent static transports
         QueryResult result2 = WorldDatabase.Query("SELECT map, position_x, position_y FROM gameobject g JOIN gameobject_template t ON g.id = t.entry WHERE t.type = 11");
 
@@ -462,7 +469,7 @@ void TransportMgr::SpawnContinentTransports()
         {
             do
             {
-                Field* fields = result2->Fetch();
+                auto fields = result2->Fetch();
                 uint16 mapId = fields[0].Get<uint16>();
                 float x = fields[1].Get<float>();
                 float y = fields[2].Get<float>();
@@ -477,8 +484,11 @@ void TransportMgr::SpawnContinentTransports()
             } while (result2->NextRow());
         }
 
-        LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Preloaded grids for {} continent static transports in {}", count, sw);
     }
+
+    LOG_INFO("server.loading", ">> Transports loaded in {}", swAll);
+    LOG_INFO("server.loading", "");
 }
 
 void TransportMgr::CreateInstanceTransports(Map* map)

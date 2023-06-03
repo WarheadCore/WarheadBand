@@ -34,7 +34,6 @@ EndContentData */
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "WorldSession.h"
 
 /*######
 ## npc_the_scourge_cauldron

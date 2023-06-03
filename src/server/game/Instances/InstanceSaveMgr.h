@@ -19,11 +19,10 @@
 #define _INSTANCESAVEMGR_H
 
 #include "DBCEnums.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
-#include <list>
 #include <map>
 #include <mutex>
 #include <unordered_map>

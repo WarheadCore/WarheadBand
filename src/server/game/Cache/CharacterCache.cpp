@@ -23,7 +23,7 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "Player.h"
-#include "Timer.h"
+#include "StopWatch.h"
 #include "World.h"
 #include <unordered_map>
 
@@ -62,8 +62,8 @@ CharacterCache* CharacterCache::instance()
 
 void CharacterCache::LoadCharacterCacheStorage()
 {
+    StopWatch sw;
     _characterCacheStore.clear();
-    uint32 oldMSTime = getMSTime();
 
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
     if (!result)
@@ -72,24 +72,15 @@ void CharacterCache::LoadCharacterCacheStorage()
         return;
     }
 
-    do
-    {
-        Field* fields = result->Fetch();
+    for (auto const& fields : *result)
         AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>()) /*guid*/, fields[2].Get<uint32>() /*account*/, fields[1].Get<std::string>() /*name*/,
-            fields[4].Get<uint8>() /*gender*/, fields[3].Get<uint8>() /*race*/, fields[5].Get<uint8>() /*class*/, fields[6].Get<uint8>() /*level*/);
-    } while (result->NextRow());
+                               fields[4].Get<uint8>() /*gender*/, fields[3].Get<uint8>() /*race*/, fields[5].Get<uint8>() /*class*/, fields[6].Get<uint8>() /*level*/);
 
-    QueryResult mailCountResult = CharacterDatabase.Query("SELECT receiver, COUNT(receiver) FROM mail GROUP BY receiver");
-    if (mailCountResult)
-    {
-        do
-        {
-            Field* fields = mailCountResult->Fetch();
+    if (QueryResult mailCountResult = CharacterDatabase.Query("SELECT receiver, COUNT(receiver) FROM mail GROUP BY receiver"))
+        for (auto const& fields : *mailCountResult)
             UpdateCharacterMailCount(ObjectGuid(HighGuid::Player, fields[0].Get<uint32>()), static_cast<int8>(fields[1].Get<uint64>()), true);
-        } while (mailCountResult->NextRow());
-    }
 
-    LOG_INFO("server.loading", "Loaded character infos for {} characters in {} ms", _characterCacheStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Character Infos For {} Characters in {}", _characterCacheStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -97,30 +88,22 @@ void CharacterCache::RefreshCacheEntry(uint32 lowGuid)
 {
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters WHERE guid = {}", lowGuid);
     if (!result)
-    {
         return;
-    }
 
-    do
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
         DeleteCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(lowGuid), fields[1].Get<std::string>());
-        AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>()) /*guid*/, fields[2].Get<uint32>() /*account*/, fields[1].Get<std::string>() /*name*/, fields[4].Get<uint8>() /*gender*/, fields[3].Get<uint8>() /*race*/, fields[5].Get<uint8>() /*class*/, fields[6].Get<uint8>() /*level*/);
-    } while (result->NextRow());
-
-    QueryResult mailCountResult = CharacterDatabase.Query("SELECT receiver, COUNT(receiver) FROM mail WHERE receiver = {} GROUP BY receiver", lowGuid);
-    if (mailCountResult)
-    {
-        do
-        {
-            Field* fields = mailCountResult->Fetch();
-            UpdateCharacterMailCount(ObjectGuid(HighGuid::Player, fields[0].Get<uint32>()), static_cast<int8>(fields[1].Get<uint64>()), true);
-        } while (mailCountResult->NextRow());
+        AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].Get<uint32>()) /*guid*/, fields[2].Get<uint32>() /*account*/,
+            fields[1].Get<std::string>() /*name*/, fields[4].Get<uint8>() /*gender*/, fields[3].Get<uint8>() /*race*/, fields[5].Get<uint8>() /*class*/, fields[6].Get<uint8>() /*level*/);
     }
+
+    if (QueryResult mailCountResult = CharacterDatabase.Query("SELECT receiver, COUNT(receiver) FROM mail WHERE receiver = {} GROUP BY receiver", lowGuid))
+        for (auto const& fields : *mailCountResult)
+            UpdateCharacterMailCount(ObjectGuid(HighGuid::Player, fields[0].Get<uint32>()), static_cast<int8>(fields[1].Get<uint64>()), true);
 }
 
 /*
-Modifying functions
+    Modifying functions
 */
 void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
 {
@@ -133,6 +116,7 @@ void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accou
     data.Class = playerClass;
     data.Level = level;
     data.GuildId = 0;                           // Will be set in guild loading or guild setting
+
     for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
     {
         data.ArenaTeamId[i] = 0; // Will be set in arena teams loading

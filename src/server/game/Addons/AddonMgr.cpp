@@ -19,11 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AddonMgr.h"
+#include "CryptoHash.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "Timer.h"
+#include "StopWatch.h"
 #include <list>
-#include <openssl/md5.h>
 
 namespace AddonMgr
 {
@@ -40,7 +40,7 @@ namespace AddonMgr
 
     void LoadFromDB()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         QueryResult result = CharacterDatabase.Query("SELECT name, crc FROM addons");
         if (!result)
@@ -52,49 +52,41 @@ namespace AddonMgr
 
         uint32 count = 0;
 
-        do
+        for (auto const& row : *result)
         {
-            Field* fields = result->Fetch();
-
-            std::string name = fields[0].Get<std::string>();
-            uint32 crc = fields[1].Get<uint32>();
+            std::string name = row[0].Get<std::string>();
+            uint32 crc = row[1].Get<uint32>();
 
             m_knownAddons.push_back(SavedAddon(name, crc));
-
             ++count;
-        } while (result->NextRow());
+        }
 
-        LOG_INFO("server.loading", ">> Loaded {} known addons in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} known addons in {}", count, sw);
+        LOG_INFO("server.loading", "");
 
-        oldMSTime = getMSTime();
+        sw.Reset();
         result = CharacterDatabase.Query("SELECT id, name, version, UNIX_TIMESTAMP(timestamp) FROM banned_addons");
+
         if (result)
         {
             uint32 count2 = 0;
             uint32 offset = 102;
 
-            do
+            for (auto const& fields : *result)
             {
-                Field* fields = result->Fetch();
-
                 BannedAddon addon{};
                 addon.Id = fields[0].Get<uint32>() + offset;
                 addon.Timestamp = uint32(fields[3].Get<uint64>());
+                addon.NameMD5 = Warhead::Crypto::MD5::GetDigestOf(fields[1].Get<std::string>());
+                addon.VersionMD5 = Warhead::Crypto::MD5::GetDigestOf(fields[2].Get<std::string>());
 
-                std::string name = fields[1].Get<std::string>();
-                std::string version = fields[2].Get<std::string>();
-
-                MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
-                MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
-
-                m_bannedAddons.push_back(addon);
+                m_bannedAddons.emplace_back(addon);
 
                 ++count2;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} banned addons in {} ms", count2, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} banned addons in {}", count2, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
@@ -102,7 +94,7 @@ namespace AddonMgr
     {
         std::string name = addon.Name;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
 
         stmt->SetData(0, name);
         stmt->SetData(1, addon.CRC);

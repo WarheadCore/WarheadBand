@@ -19,9 +19,9 @@
 #define AZEROTHCORE_GROUP_H
 
 #include "DBCEnums.h"
+#include "DatabaseEnvFwd.h"
 #include "GroupRefMgr.h"
 #include "LootMgr.h"
-#include "QueryResult.h"
 #include "SharedDefines.h"
 #include <functional>
 

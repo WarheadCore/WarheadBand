@@ -29,7 +29,6 @@
   Grid's perspective, the loader meets its API requirement is suffice.
 */
 
-#include "Define.h"
 #include "TypeContainer.h"
 #include "TypeContainerVisitor.h"
 

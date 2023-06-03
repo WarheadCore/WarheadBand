@@ -29,7 +29,6 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "Tokenize.h"
-#include "WorldSession.h"
 
 using namespace Warhead::ChatCommands;
 
@@ -207,7 +206,7 @@ public:
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         MailDraft(subject, text)
-        .AddMoney(money)
+        .AddMoney(Copper{ money })
         .SendMailTo(trans, MailReceiver(target->GetConnectedPlayer(), target->GetGUID().GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);

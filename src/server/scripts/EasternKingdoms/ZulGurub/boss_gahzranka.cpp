@@ -133,7 +133,7 @@ class spell_gahzranka_slam : public SpellScript
     {
         if (Unit* caster = GetCaster())
         {
-            _wipeThreat = targets.size() < caster->GetThreatMgr().getThreatList().size();
+            _wipeThreat = targets.size() < caster->GetThreatMgr().GetThreatListSize();
         }
     }
 
@@ -145,7 +145,7 @@ class spell_gahzranka_slam : public SpellScript
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    caster->GetThreatMgr().modifyThreatPercent(target, -100);
+                    caster->GetThreatMgr().ModifyThreatByPercent(target, -100);
                 }
             }
         }

@@ -40,6 +40,7 @@ class WH_GAME_API AuraApplication
     friend void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex);
     friend void Unit::RemoveAura(AuraApplication* aurApp, AuraRemoveMode mode);
     friend AuraApplication* Unit::_CreateAuraApplication(Aura* aura, uint8 effMask);
+
 private:
     Unit* const _target;
     Aura* const _base;
@@ -196,7 +197,7 @@ public:
     // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
     // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
     bool IsProcOnCooldown() const;
-    void AddProcCooldown(uint32 msec);
+    void AddProcCooldown(Milliseconds msec);
     bool IsUsingCharges() const { return m_isUsingCharges; }
     void SetUsingCharges(bool val) { m_isUsingCharges = val; }
     void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo);
@@ -226,6 +227,7 @@ public:
 
     // Spell Proc Hooks
     bool CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+    bool CallScriptCheckAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
     bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
     bool CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
     void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);

@@ -26,7 +26,6 @@
 
 namespace Warhead
 {
-
     /// Starts a process with the given arguments and parameters and will block
     /// until the process is finished.
     /// When an input path is given, the file will be routed to the processes stdin.
@@ -41,7 +40,7 @@ namespace Warhead
     class AsyncProcessResult
     {
     public:
-        virtual ~AsyncProcessResult() { }
+        virtual ~AsyncProcessResult() = default;
 
         /// Returns the future which contains the result of the process
         /// as soon it is finished.
@@ -63,7 +62,6 @@ namespace Warhead
     /// Searches for the given executable in the PATH variable
     /// and returns a non-empty string when it was found.
     WH_COMMON_API std::string SearchExecutableInPath(std::string const& filename);
-
 } // namespace Warhead
 
 #endif // __PROCESS_H__

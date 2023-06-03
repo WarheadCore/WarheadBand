@@ -19,11 +19,11 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "QuestDef.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
 
 Quest::Quest(Field* questRecord)
 {
@@ -135,6 +135,12 @@ Quest::Quest(Field* questRecord)
     }
 
     _eventIdForQuest = 0;
+
+    if (CONF_GET_BOOL("Quests.IgnoreAutoAccept"))
+        Flags &= ~QUEST_FLAGS_AUTO_ACCEPT;
+
+    if (CONF_GET_BOOL("Quests.IgnoreAutoComplete"))
+        Flags &= ~QUEST_FLAGS_AUTOCOMPLETE;
 }
 
 void Quest::LoadQuestDetails(Field* fields)
@@ -184,7 +190,7 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     RewardMailSenderEntry = fields[16].Get<uint32>();
     SpecialFlags = fields[17].Get<uint8>();
 
-    if (SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
+    if ((SpecialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT) && !CONF_GET_BOOL("Quests.IgnoreAutoAccept"))
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }
 
@@ -257,12 +263,12 @@ uint32 Quest::GetRewMoneyMaxLevel() const
 
 bool Quest::IsAutoAccept() const
 {
-    return CONF_GET_BOOL("Quests.IgnoreAutoAccept") ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);
+    return HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
 bool Quest::IsAutoComplete() const
 {
-    return CONF_GET_BOOL("Quests.IgnoreAutoComplete") ? false : HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
+    return HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const

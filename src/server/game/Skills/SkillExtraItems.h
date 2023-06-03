@@ -18,7 +18,7 @@
 #ifndef WARHEAD_SKILL_EXTRA_ITEMS_H
 #define WARHEAD_SKILL_EXTRA_ITEMS_H
 
-#include "Common.h"
+#include "Define.h"
 
 // predef classes used in functions
 class Player;

@@ -19,10 +19,7 @@
 #define ICECROWN_CITADEL_H_
 
 #include "Chat.h"
-#include "Creature.h"
-#include "InstanceScript.h"
 #include "Map.h"
-#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
@@ -39,8 +36,10 @@ uint32 const MaxHeroicAttempts = 50;
 
 // Defined in boss_valithria_dreamwalker.cpp
 extern Position const ValithriaSpawnPos;
+
 // Defined in boss_sindragosa.cpp
 extern Position const SindragosaSpawnPos;
+
 // Defined in boss_the_lich_king.cpp
 extern Position const TerenasSpawn;
 extern Position const TerenasSpawnHeroic;
@@ -620,7 +619,7 @@ private:
     uint32 _triggerId;
 };
 
-template <class AI, class T>
+template<class AI, class T>
 inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);

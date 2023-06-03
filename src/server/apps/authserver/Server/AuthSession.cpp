@@ -23,11 +23,10 @@
 #include "AuthCodes.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
-#include "CryptoHash.h"
-#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
+#include "IpCache.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
@@ -36,7 +35,6 @@
 #include "Timer.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
-#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 
@@ -173,13 +171,31 @@ AuthSession::AuthSession(tcp::socket&& socket) :
 
 void AuthSession::Start()
 {
-    std::string ip_address = GetRemoteIpAddress().to_string();
-    LOG_TRACE("session", "Accepted connection from {}", ip_address);
+    std::string ipAddress = GetRemoteIpAddress().to_string();
+    LOG_TRACE("session", "Accepted connection from {}", ipAddress);
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->SetArguments(ip_address);
+    sIPCacheMgr->CheckIp(ipAddress);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
+    if (sIPCacheMgr->CanCheckIpFromDB(ipAddress))
+    {
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+        stmt->SetArguments(ipAddress);
+        _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
+        return;
+    }
+
+    if (sIPCacheMgr->IsBanned(ipAddress))
+    {
+        ByteBuffer pkt;
+        pkt << uint8(AUTH_LOGON_CHALLENGE);
+        pkt << uint8(0x00);
+        pkt << uint8(WOW_FAIL_BANNED);
+        SendPacket(pkt);
+        LOG_DEBUG("ipcache", "[AuthSession::Start] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
+        return;
+    }
+
+    AsyncRead();
 }
 
 bool AuthSession::Update()
@@ -188,32 +204,32 @@ bool AuthSession::Update()
         return false;
 
     _queryProcessor.ProcessReadyCallbacks();
-
     return true;
 }
 
 void AuthSession::CheckIpCallback(PreparedQueryResult result)
 {
-    if (result)
+    std::string ipAddress = GetRemoteIpAddress().to_string();
+
+    if (!result)
     {
-        bool banned = false;
+        AsyncRead();
+        return;
+    }
 
-        do
+    for (auto const& row : *result)
+    {
+        if (row[0].Get<uint64>())
         {
-            Field* fields = result->Fetch();
-            if (fields[0].Get<uint64>())
-                banned = true;
+            // Set ban in cache
+            sIPCacheMgr->SetBannedForIP(ipAddress, Warhead::CheckIpType::LoginFlood);
 
-        } while (result->NextRow());
-
-        if (banned)
-        {
             ByteBuffer pkt;
             pkt << uint8(AUTH_LOGON_CHALLENGE);
             pkt << uint8(0x00);
             pkt << uint8(WOW_FAIL_BANNED);
             SendPacket(pkt);
-            LOG_DEBUG("session", "[AuthSession::CheckIpCallback] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
+            LOG_INFO("session", "[AuthSession::CheckIpCallback] Banned ip '{}:{}' tries to login!", GetRemoteIpAddress().to_string(), GetRemotePort());
             return;
         }
     }
@@ -233,7 +249,16 @@ void AuthSession::ReadHandler()
         {
             // well we dont handle this, lets just ignore it
             packet.Reset();
-            break;
+
+            // Ban this ip for malformed packet
+            {
+                auto ipAddress{ GetRemoteIpAddress().to_string() };
+                LOG_WARN("session", "IP: {} sent malformed packet!", ipAddress);
+                sIPCacheMgr->CheckIp(ipAddress, Warhead::CheckIpType::Malformed);
+            }
+
+            CloseSocket();
+            return;
         }
 
         if (_status != itr->second.status)
@@ -242,13 +267,13 @@ void AuthSession::ReadHandler()
             return;
         }
 
-        uint16 size = uint16(itr->second.packetSize);
+        auto size = uint16(itr->second.packetSize);
         if (packet.GetActiveSize() < size)
             break;
 
         if (cmd == AUTH_LOGON_CHALLENGE || cmd == AUTH_RECONNECT_CHALLENGE)
         {
-            sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(packet.GetReadPointer());
+            auto* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(packet.GetReadPointer());
             size += challenge->size;
             if (size > MAX_ACCEPTED_CHALLENGE_SIZE)
             {
@@ -298,7 +323,7 @@ bool AuthSession::HandleLogonChallenge()
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
-    std::array<char, 5> os;
+    std::array<char, 5> os{};
     os.fill('\0');
     memcpy(os.data(), challenge->os, sizeof(challenge->os));
     _os = os.data();
@@ -311,10 +336,10 @@ bool AuthSession::HandleLogonChallenge()
         _localizationName[i] = challenge->country[4 - i - 1];
 
     // Get the account details from the account table
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
+    auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
     stmt->SetArguments(GetRemoteIpAddress().to_string(), login);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1)));
     return true;
 }
 
@@ -331,7 +356,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
 
@@ -518,9 +543,9 @@ bool AuthSession::HandleLogonProof()
         // No SQL injection (escaped user name) and IP address as received by socket
 
         std::string address = sConfigMgr->GetOption<bool>("AllowLoggingIPAddressesInDatabase", true, true) ? GetRemoteIpAddress().to_string() : "0.0.0.0";
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->SetArguments(_sessionKey, address, GetLocaleByName(_localizationName), _os, _accountInfo.Login);
-        LoginDatabase.DirectExecute(stmt);
+        AuthDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
         Warhead::Crypto::SHA1::Digest M2 = Warhead::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey);
@@ -570,37 +595,37 @@ bool AuthSession::HandleLogonProof()
         // We can not include the failed account login hook. However, this is a workaround to still log this.
         if (sConfigMgr->GetOption<bool>("WrongPass.Logging", false))
         {
-            LoginDatabasePreparedStatement* logstmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
-            logstmt->SetArguments(_accountInfo.Id, GetRemoteIpAddress().to_string(), "Login to WoW Failed - Incorrect Password");
-            LoginDatabase.Execute(logstmt);
+            AuthDatabasePreparedStatement logstmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_FALP_IP_LOGGING);
+            logstmt->SetArguments(_accountInfo.Id, GetRemoteIpAddress().to_string(), "Auth to WoW Failed - Incorrect Password");
+            AuthDatabase.Execute(logstmt);
         }
 
         if (MaxWrongPassCount > 0)
         {
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
+            auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
             stmt->SetArguments(_accountInfo.Login);
-            LoginDatabase.Execute(stmt);
+            AuthDatabase.Execute(stmt);
 
             if (++_accountInfo.FailedLogins >= MaxWrongPassCount)
             {
                 uint32 WrongPassBanTime = sConfigMgr->GetOption<int32>("WrongPass.BanTime", 600);
-                bool WrongPassBanType = sConfigMgr->GetOption<bool>("WrongPass.BanType", false);
+                bool WrongPassBanType = sConfigMgr->GetOption<bool>("WrongPass.CheckIpType", false);
 
                 if (WrongPassBanType)
                 {
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_AUTO_BANNED);
+                    stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_AUTO_BANNED);
                     stmt->SetArguments(_accountInfo.Id, WrongPassBanTime);
-                    LoginDatabase.Execute(stmt);
+                    AuthDatabase.Execute(stmt);
 
                     LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] account {} got banned for '{}' seconds because it failed to authenticate '{}' times",
                         GetRemoteIpAddress().to_string(), GetRemotePort(), _accountInfo.Login, WrongPassBanTime, _accountInfo.FailedLogins);
                 }
                 else
                 {
-                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
+                    stmt = AuthDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
                     stmt->SetArguments(GetRemoteIpAddress().to_string(), WrongPassBanTime);
-                    LoginDatabase.Execute(stmt);
+                    AuthDatabase.Execute(stmt);
 
                     LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] IP got banned for '{}' seconds because account {} failed to authenticate '{}' times",
                         GetRemoteIpAddress().to_string(), GetRemotePort(), WrongPassBanTime, _accountInfo.Login, _accountInfo.FailedLogins);
@@ -626,7 +651,7 @@ bool AuthSession::HandleReconnectChallenge()
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
 
-    std::array<char, 5> os;
+    std::array<char, 5> os{};
     os.fill('\0');
     memcpy(os.data(), challenge->os, sizeof(challenge->os));
     _os = os.data();
@@ -639,10 +664,10 @@ bool AuthSession::HandleReconnectChallenge()
         _localizationName[i] = challenge->country[4 - i - 1];
 
     // Get the account details from the account table
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
     stmt->SetArguments(GetRemoteIpAddress().to_string(), login);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1)));
     return true;
 }
 
@@ -658,7 +683,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
     _sessionKey = fields[11].Get<Binary, SESSION_KEY_LENGTH>();
@@ -677,7 +702,7 @@ bool AuthSession::HandleReconnectProof()
     LOG_DEBUG("server.authserver", "Entering _HandleReconnectProof");
     _status = STATUS_CLOSED;
 
-    sAuthReconnectProof_C* reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
+    auto reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
 
     if (_accountInfo.Login.empty())
         return false;
@@ -724,10 +749,10 @@ bool AuthSession::HandleRealmList()
 {
     LOG_DEBUG("server.authserver", "Entering _HandleRealmList");
 
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_CHARACTER_COUNTS);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_REALM_CHARACTER_COUNTS);
     stmt->SetArguments(_accountInfo.Id);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
     _status = STATUS_WAITING_FOR_REALM_LIST;
     return true;
 }

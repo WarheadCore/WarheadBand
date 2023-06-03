@@ -20,6 +20,7 @@
 
 #include "GossipDef.h"
 #include "Formulas.h"
+#include "GameConfig.h"
 #include "GameLocale.h"
 #include "Object.h"
 #include "ObjectMgr.h"
@@ -277,7 +278,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
     PointOfInterest const* poi = sObjectMgr->GetPointOfInterest(poiId);
     if (!poi)
     {
-        LOG_ERROR("sql.sql", "Request to send non-existing POI (Id: {}), ignored.", poiId);
+        LOG_ERROR("db.query", "Request to send non-existing POI (Id: {}), ignored.", poiId);
         return;
     }
 
@@ -477,9 +478,25 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
                 data << uint32(0);
         }
 
-        uint8 playerLevel = _session->GetPlayer() ? _session->GetPlayer()->getLevel() : 0;
-        data << uint32(quest->GetRewOrReqMoney(playerLevel));
-        data << uint32(quest->XPValue(playerLevel) * _session->GetPlayer()->GetQuestRate());
+        uint32 moneyRew{};
+        Player* player = _session->GetPlayer();
+        uint8 playerLevel = player ? player->getLevel() : 0;
+
+        if (player && (player->getLevel() >= CONF_GET_UINT("MaxPlayerLevel") || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player)))
+            moneyRew = quest->GetRewMoneyMaxLevel();
+
+        moneyRew += quest->GetRewOrReqMoney(player ? player->getLevel() : 0); // reward money (below max lvl)
+        data << moneyRew;
+
+        uint32 questXp;
+
+        if (player && !sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player))
+            questXp = uint32(quest->XPValue(playerLevel) * player->GetQuestRate());
+        else
+            questXp = 0;
+
+        sScriptMgr->OnQuestComputeXP(player, quest, questXp);
+        data << questXp;
     }
 
     // rewarded honor points. Multiply with 10 to satisfy client
@@ -560,7 +577,15 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         data << uint32(0);                                  // Hide money rewarded
     else
-        data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer() ? _session->GetPlayer()->getLevel() : 0)); // reward money (below max lvl)
+    {
+        uint32 moneyRew{};
+        Player* player = _session->GetPlayer();
+        if (player && (player->getLevel() >= CONF_GET_UINT("MaxPlayerLevel") || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player)))
+            moneyRew = quest->GetRewMoneyMaxLevel();
+
+        moneyRew += quest->GetRewOrReqMoney(player ? player->getLevel() : 0); // reward money (below max lvl)
+        data << moneyRew;
+    }
 
     data << uint32(quest->GetRewMoneyMaxLevel());           // used in XP calculation at client
     data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
@@ -704,10 +729,22 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
             data << uint32(0);
     }
 
-    uint8 playerLevel = _session->GetPlayer() ? _session->GetPlayer()->getLevel() : 0;
+    uint32 moneyRew = 0;
+    Player* player = _session->GetPlayer();
+    uint8 playerLevel = player ? player->getLevel() : 0;
 
-    data << uint32(quest->GetRewOrReqMoney(playerLevel));
-    data << uint32(quest->XPValue(playerLevel) * _session->GetPlayer()->GetQuestRate());
+    if (player && (player->getLevel() >= CONF_GET_UINT("MaxPlayerLevel") || sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player)))
+        moneyRew = quest->GetRewMoneyMaxLevel();
+
+    moneyRew += quest->GetRewOrReqMoney(player ? player->getLevel() : 0); // reward money (below max lvl)
+    data << moneyRew;
+
+    uint32 questXp{};
+    if (player && !sScriptMgr->ShouldBeRewardedWithMoneyInsteadOfExp(player))
+        questXp = uint32(quest->XPValue(playerLevel) * player->GetQuestRate());
+
+    sScriptMgr->OnQuestComputeXP(player, quest, questXp);
+    data << questXp;
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));

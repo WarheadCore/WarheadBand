@@ -33,6 +33,7 @@
 #include <boost/process/pipe.hpp>
 #include <boost/process/search_path.hpp>
 #include <filesystem>
+#include <utility>
 
 using namespace boost::process;
 using namespace boost::iostreams;
@@ -40,7 +41,7 @@ using namespace boost::iostreams;
 namespace Warhead
 {
     template<typename T>
-    class TCLogSink
+    class WHLogSink
     {
         T callback_;
 
@@ -49,22 +50,30 @@ namespace Warhead
         typedef sink_tag  category;
 
         // Requires a callback type which has a void(std::string) signature
-        TCLogSink(T callback)
+        WHLogSink(T callback)
             : callback_(std::move(callback)) { }
 
         std::streamsize write(char const* str, std::streamsize size)
         {
-            std::string consoleStr(str, size);
-            std::string utf8;
-            if (consoleToUtf8(consoleStr, utf8))
-                callback_(utf8);
-            return size;
+            std::string_view consoleStr(str, size);
+            size_t lineEnd = consoleStr.find_first_of("\r\n");
+            std::streamsize processedCharacters = size;
+            if (lineEnd != std::string_view::npos)
+            {
+                consoleStr = consoleStr.substr(0, lineEnd);
+                processedCharacters = lineEnd + 1;
+            }
+
+            if (!consoleStr.empty())
+                callback_(consoleStr);
+
+            return processedCharacters;
         }
     };
 
     template<typename T>
-    auto MakeTCLogSink(T&& callback)
-        -> TCLogSink<typename std::decay<T>::type>
+    auto MakeWHLogSink(T&& callback)
+        -> WHLogSink<typename std::decay<T>::type>
     {
         return { std::forward<T>(callback) };
     }
@@ -120,12 +129,12 @@ namespace Warhead
             }
         }();
 
-        auto outInfo = MakeTCLogSink([&](std::string const& msg)
+        auto outInfo = MakeWHLogSink([&](std::string_view msg)
         {
             LOG_INFO(logger, "{}", msg);
         });
 
-        auto outError = MakeTCLogSink([&](std::string const& msg)
+        auto outError = MakeWHLogSink([&](std::string_view msg)
         {
             LOG_ERROR(logger, "{}", msg);
         });
@@ -179,11 +188,13 @@ namespace Warhead
 
     public:
         explicit AsyncProcessResultImplementation(std::string executable_, std::vector<std::string> args_,
-            std::string logger_, std::string input_file_,
-            bool secure)
-            : executable(std::move(executable_)), args(std::move(args_)),
-            logger(std::move(logger_)), input_file(input_file_),
-            is_secure(secure), was_terminated(false) { }
+            std::string logger_, std::string input_file_, bool secure) :
+            executable(std::move(executable_)),
+            args(std::move(args_)),
+            logger(std::move(logger_)),
+            input_file(std::move(input_file_)),
+            is_secure(secure),
+            was_terminated(false) { }
 
         AsyncProcessResultImplementation(AsyncProcessResultImplementation const&) = delete;
         AsyncProcessResultImplementation& operator= (AsyncProcessResultImplementation const&) = delete;
@@ -246,8 +257,7 @@ namespace Warhead
         }
     };
 
-    std::shared_ptr<AsyncProcessResult>
-        StartAsyncProcess(std::string executable, std::vector<std::string> args,
+    std::shared_ptr<AsyncProcessResult> StartAsyncProcess(std::string executable, std::vector<std::string> args,
             std::string logger, std::string input_file, bool secure)
     {
         auto handle = std::make_shared<AsyncProcessResultImplementation>(

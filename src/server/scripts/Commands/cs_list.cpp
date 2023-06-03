@@ -38,7 +38,7 @@ EndScriptData */
 #include "Random.h"
 #include "ScriptObject.h"
 #include "SpellAuraEffects.h"
-#include "WorldSession.h"
+#include <sstream>
 
 using namespace Warhead::ChatCommands;
 
@@ -104,9 +104,8 @@ public:
 
         if (result)
         {
-            do
+            for (auto const& fields : *result)
             {
-                Field* fields               = result->Fetch();
                 ObjectGuid::LowType guid    = fields[0].Get<uint32>();
                 float x                     = fields[1].Get<float>();
                 float y                     = fields[2].Get<float>();
@@ -127,7 +126,7 @@ public:
                     auto const creBounds = thisMap->GetCreatureBySpawnIdStore().equal_range(guid);
                     if (creBounds.first != creBounds.second)
                     {
-                        for (std::unordered_multimap<uint32, Creature*>::const_iterator itr = creBounds.first; itr != creBounds.second;)
+                        for (auto itr = creBounds.first; itr != creBounds.second;)
                         {
                             if (handler->GetSession())
                                 handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name, x, y, z, mapId, itr->second->GetGUID().ToString(), itr->second->IsAlive() ? "*" : " ");
@@ -147,7 +146,6 @@ public:
                         handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name, x, y, z, mapId, "", "");
                 }
             }
-            while (result->NextRow());
         }
 
         handler->PSendSysMessage(LANG_COMMAND_LISTCREATUREMESSAGE, uint32(creatureId), creatureCount);
@@ -177,7 +175,7 @@ public:
         // inventory case
         uint32 inventoryCount = 0;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_INVENTORY_COUNT_ITEM);
         stmt->SetData(0, itemId);
         result = CharacterDatabase.Query(stmt);
 
@@ -193,7 +191,7 @@ public:
         {
             do
             {
-                Field* fields           = result->Fetch();
+                auto fields           = result->Fetch();
                 uint32 itemGuid         = fields[0].Get<uint32>();
                 uint32 itemBag          = fields[1].Get<uint32>();
                 uint8 itemSlot          = fields[2].Get<uint8>();
@@ -247,7 +245,7 @@ public:
         {
             do
             {
-                Field* fields                   = result->Fetch();
+                auto fields                   = result->Fetch();
                 ObjectGuid::LowType itemGuid    = fields[0].Get<uint32>();
                 ObjectGuid::LowType itemSender  = fields[1].Get<uint32>();
                 uint32 itemReceiver             = fields[2].Get<uint32>();
@@ -294,7 +292,7 @@ public:
         {
             do
             {
-                Field* fields           = result->Fetch();
+                auto fields           = result->Fetch();
                 uint32 itemGuid         = fields[0].Get<uint32>();
                 uint32 owner            = fields[1].Get<uint32>();
                 uint32 ownerAccountId   = fields[2].Get<uint32>();
@@ -326,7 +324,7 @@ public:
         {
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 uint32 itemGuid = fields[0].Get<uint32>();
                 uint32 guildGuid = fields[1].Get<uint32>();
                 std::string guildName = fields[2].Get<std::string>();
@@ -391,9 +389,8 @@ public:
 
         if (result)
         {
-            do
+            for (auto const& fields : *result)
             {
-                Field* fields               = result->Fetch();
                 ObjectGuid::LowType guid    = fields[0].Get<uint32>();
                 float x                     = fields[1].Get<float>();
                 float y                     = fields[2].Get<float>();
@@ -435,11 +432,9 @@ public:
                         handler->PSendSysMessage(LANG_GO_LIST_CONSOLE, guid, gInfo->name, x, y, z, mapId, "", "");
                 }
             }
-            while (result->NextRow());
         }
 
         handler->PSendSysMessage(LANG_COMMAND_LISTOBJMESSAGE, uint32(gameObjectId), objectCount);
-
         return true;
     }
 

@@ -27,7 +27,10 @@ namespace fs = std::filesystem;
 void Warhead::File::CorrectDirPath(std::string& path)
 {
     if (path.empty())
+    {
+        path = fs::absolute(fs::current_path()).generic_string();
         return;
+    }
 
     std::replace(std::begin(path), std::end(path), '\\', '/');
 

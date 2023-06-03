@@ -21,6 +21,8 @@
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
 #include "ChatTextBuilder.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameObjectAI.h"
@@ -33,12 +35,13 @@
 #include "Player.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
+#include "StopWatch.h"
 #include "Transport.h"
 #include "UnitAI.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldStatePackets.h"
-#include <time.h>
+#include <ctime>
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -226,7 +229,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
                 itr->second.done = 0;
 
             CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE);
             stmt->SetData(0, uint8(event_id));
             trans->Append(stmt);
 
@@ -245,9 +248,9 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 void GameEventMgr::LoadFromDB()
 {
     {
-        uint32 oldMSTime = getMSTime();
-        //                                                    1                 2                           3                  4        5        6          7             8            9          10
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
+        StopWatch sw;
+
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEvent) };
         if (!result)
         {
             mGameEvent.clear();
@@ -257,14 +260,13 @@ void GameEventMgr::LoadFromDB()
         }
 
         uint32 count = 0;
-        do
-        {
-            Field* fields = result->Fetch();
 
+        for (auto const& fields : *result)
+        {
             uint8 event_id = fields[0].Get<uint8>();
             if (event_id == 0)
             {
-                LOG_ERROR("sql.sql", "`game_event` game event entry 0 is reserved and can't be used.");
+                LOG_ERROR("db.query", "`game_event` game event entry 0 is reserved and can't be used.");
                 continue;
             }
 
@@ -290,7 +292,7 @@ void GameEventMgr::LoadFromDB()
 
             if (pGameEvent.length == 0 && pGameEvent.state == GAMEEVENT_NORMAL)                            // length>0 is validity check
             {
-                LOG_ERROR("sql.sql", "`game_event` game event id ({}) isn't a world event and has length = 0, thus it can't be used.", event_id);
+                LOG_ERROR("db.query", "`game_event` game event id ({}) isn't a world event and has length = 0, thus it can't be used.", event_id);
                 continue;
             }
 
@@ -298,42 +300,39 @@ void GameEventMgr::LoadFromDB()
             {
                 if (!sHolidaysStore.LookupEntry(pGameEvent.holiday_id))
                 {
-                    LOG_ERROR("sql.sql", "`game_event` game event id ({}) have not existed holiday id {}.", event_id, pGameEvent.holiday_id);
+                    LOG_ERROR("db.query", "`game_event` game event id ({}) have not existed holiday id {}.", event_id, pGameEvent.holiday_id);
                     pGameEvent.holiday_id = HOLIDAY_NONE;
                 }
 
                 SetHolidayEventTime(pGameEvent);
             }
-        } while (result->NextRow());
+        }
 
-        LOG_INFO("server.loading", ">> Loaded {} game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} Game Events in {}", count, sw);
         LOG_INFO("server.loading", " ");
     }
 
     LOG_INFO("server.loading", "Loading Game Event Saves Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                       0       1        2
-        QueryResult result = CharacterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save");
-
+        auto result{ CharacterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save") };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Game Event Saves In Game Events. DB Table `game_event_save` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
-            do
-            {
-                Field* fields = result->Fetch();
 
+            for (auto const& fields : *result)
+            {
                 uint8 event_id = fields[0].Get<uint8>();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_save` game event entry ({}) is out of range compared to max event entry in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_save` game event entry ({}) is out of range compared to max event entry in `game_event`", event_id);
                     continue;
                 }
 
@@ -344,41 +343,41 @@ void GameEventMgr::LoadFromDB()
                 }
                 else
                 {
-                    LOG_ERROR("sql.sql", "game_event_save includes event save for non-worldevent id {}", event_id);
+                    LOG_ERROR("db.query", "game_event_save includes event save for non-worldevent id {}", event_id);
                     continue;
                 }
 
                 ++count;
-            } while (result->NextRow());
+            }
 
-            LOG_INFO("server.loading", ">> Loaded {} game event saves in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Game Event Saves In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Prerequisite Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                   0             1
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventPrerequisite) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Game Event Prerequisites in Game Events. DB Table `game_event_prerequisite` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id = fields[0].Get<uint8>();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_prerequisite` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_prerequisite` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -387,32 +386,31 @@ void GameEventMgr::LoadFromDB()
                     uint16 prerequisite_event = fields[1].Get<uint32>();
                     if (prerequisite_event >= mGameEvent.size())
                     {
-                        LOG_ERROR("sql.sql", "`game_event_prerequisite` game event prerequisite id ({}) is out of range compared to max event id in `game_event`", prerequisite_event);
+                        LOG_ERROR("db.query", "`game_event_prerequisite` game event prerequisite id ({}) is out of range compared to max event id in `game_event`", prerequisite_event);
                         continue;
                     }
+
                     mGameEvent[event_id].prerequisite_events.insert(prerequisite_event);
                 }
                 else
                 {
-                    LOG_ERROR("sql.sql", "game_event_prerequisiste includes event entry for non-worldevent id {}", event_id);
+                    LOG_ERROR("db.query", "game_event_prerequisiste includes event entry for non-worldevent id {}", event_id);
                     continue;
                 }
 
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} game event prerequisites in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} game event prerequisites in Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Creature Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                 0        1
-        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry FROM game_event_creature");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCreature) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
@@ -421,9 +419,10 @@ void GameEventMgr::LoadFromDB()
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 int16 event_id = fields[1].Get<int8>();
@@ -431,7 +430,7 @@ void GameEventMgr::LoadFromDB()
                 CreatureData const* data = sObjectMgr->GetCreatureData(guid);
                 if (!data)
                 {
-                    LOG_ERROR("sql.sql", "`game_event_creature` contains creature (GUID: {}) not found in `creature` table.", guid);
+                    LOG_ERROR("db.query", "`game_event_creature` contains creature (GUID: {}) not found in `creature` table.", guid);
                     continue;
                 }
 
@@ -439,7 +438,7 @@ void GameEventMgr::LoadFromDB()
 
                 if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
                 {
-                    LOG_ERROR("sql.sql", "`game_event_creature` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_creature` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -449,18 +448,16 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} creatures in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Creatures In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event GO Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                0         1
-        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry FROM game_event_gameobject");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventGameobject) };
         if (!result)
         {
             LOG_WARN("server.loading", ">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
@@ -469,9 +466,10 @@ void GameEventMgr::LoadFromDB()
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 int16 event_id = fields[1].Get<int8>();
@@ -481,13 +479,13 @@ void GameEventMgr::LoadFromDB()
                 GameObjectData const* data = sObjectMgr->GetGOData(guid);
                 if (!data)
                 {
-                    LOG_ERROR("sql.sql", "`game_event_gameobject` contains gameobject (GUID: {}) not found in `gameobject` table.", guid);
+                    LOG_ERROR("db.query", "`game_event_gameobject` contains gameobject (GUID: {}) not found in `gameobject` table.", guid);
                     continue;
                 }
 
                 if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
                 {
-                    LOG_ERROR("sql.sql", "`game_event_gameobject` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_gameobject` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -497,30 +495,28 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} gameobjects in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Gameobjects In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Model/Equipment Change Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                     0              1             2            3                         4                               5                                 6
-        QueryResult result = WorldDatabase.Query("SELECT creature.guid, creature.id1, creature.id2, creature.id3, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
-                             "FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventModelEquip) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Model/Equipment Changes In Game Events. DB Table `game_event_model_equip` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint32 entry = fields[1].Get<uint32>();
@@ -530,7 +526,7 @@ void GameEventMgr::LoadFromDB()
 
                 if (event_id >= mGameEventModelEquip.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_model_equip` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_model_equip` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -546,7 +542,7 @@ void GameEventMgr::LoadFromDB()
                     int8 equipId = static_cast<int8>(newModelEquipSet.equipment_id);
                     if ((!sObjectMgr->GetEquipmentInfo(entry, equipId)) || (entry2 && !sObjectMgr->GetEquipmentInfo(entry2, equipId)) || (entry3 && !sObjectMgr->GetEquipmentInfo(entry3, equipId)))
                     {
-                        LOG_ERROR("sql.sql", "Table `game_event_model_equip` have creature (Guid: {}) with equipment_id {} not found in table `creature_equip_template`, set to no equipment.",
+                        LOG_ERROR("db.query", "Table `game_event_model_equip` have creature (Guid: {}) with equipment_id {} not found in table `creature_equip_template`, set to no equipment.",
                                          guid, newModelEquipSet.equipment_id);
                         continue;
                     }
@@ -557,29 +553,28 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} model/equipment changes in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} Model/Equipment Changes In Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Quest Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                               0     1      2
-        QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCreatureQuest) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 Quests Additions In Game Events. DB Table `game_event_creature_quest` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 id       = fields[0].Get<uint32>();
                 uint32 quest    = fields[1].Get<uint32>();
@@ -587,7 +582,7 @@ void GameEventMgr::LoadFromDB()
 
                 if (event_id >= mGameEventCreatureQuests.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_creature_quest` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_creature_quest` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -597,29 +592,28 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} quests additions in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event GO Quest Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                               0     1      2
-        QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventGameobjectQuest) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 go Quests Additions In Game Events. DB Table `game_event_gameobject_quest` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 id       = fields[0].Get<uint32>();
                 uint32 quest    = fields[1].Get<uint32>();
@@ -627,7 +621,7 @@ void GameEventMgr::LoadFromDB()
 
                 if (event_id >= mGameEventGameObjectQuests.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_gameobject_quest` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_gameobject_quest` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -637,38 +631,37 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} quests additions in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Quest Condition Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                 0       1         2             3
-        QueryResult result = WorldDatabase.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventQuestCondition) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 quest event Conditions In Game Events. DB Table `game_event_quest_condition` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 quest     = fields[0].Get<uint32>();
                 uint16 event_id  = fields[1].Get<uint8>();
                 uint32 condition = fields[2].Get<uint32>();
-                float num       = fields[3].Get<float>();
+                float num        = fields[3].Get<float>();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_quest_condition` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_quest_condition` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -679,36 +672,35 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} quest event conditions in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} quest event conditions in Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Condition Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                  0          1            2             3                      4
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventCondition) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Conditions In Game Events. DB table `game_event_condition` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id  = fields[0].Get<uint8>();
                 uint32 condition = fields[1].Get<uint32>();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_condition` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_condition` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -720,36 +712,35 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} conditions in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} conditions in Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Condition Save Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                      0           1         2
-        QueryResult result = CharacterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
-
+        auto result{ CharacterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save") };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
+            LOG_INFO("server.loading", ">> Loaded 0 Condition Saves In Game Events. DB Table `game_event_condition_save` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id  = fields[0].Get<uint8>();
                 uint32 condition = fields[1].Get<uint32>();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_condition_save` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_condition_save` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -760,36 +751,35 @@ void GameEventMgr::LoadFromDB()
                 }
                 else
                 {
-                    LOG_ERROR("sql.sql", "game_event_condition_save contains not present condition evt id {} cond id {}", event_id, condition);
+                    LOG_ERROR("db.query", "game_event_condition_save contains not present condition evt id {} cond id {}", event_id, condition);
                     continue;
                 }
 
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} condition saves in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Condition Saves In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event NPCflag Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                0       1        2
-        QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventNpcFlag) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 Npcflags In Game Events. DB Table `game_event_npcflag` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 ObjectGuid::LowType guid = fields[0].Get<uint32>();
                 uint16 event_id = fields[1].Get<uint8>();
@@ -797,7 +787,7 @@ void GameEventMgr::LoadFromDB()
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_npcflag` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_npcflag` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -806,29 +796,28 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} npcflags in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Npcflags In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Seasonal Quest Relations...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                  0          1
-        QueryResult result = WorldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventSeasonalQuestrelation) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 Seasonal Quests Additions In Game Events. DB Table `game_event_seasonal_questrelation` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint32 questId  = fields[0].Get<uint32>();
                 uint32 eventEntry = fields[1].Get<uint32>(); // TODO: Change to uint8
@@ -837,13 +826,13 @@ void GameEventMgr::LoadFromDB()
 
                 if (!questTemplate)
                 {
-                    LOG_ERROR("sql.sql", "`game_event_seasonal_questrelation` quest id ({}) does not exist in `quest_template`", questId);
+                    LOG_ERROR("db.query", "`game_event_seasonal_questrelation` quest id ({}) does not exist in `quest_template`", questId);
                     continue;
                 }
 
                 if (eventEntry >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_seasonal_questrelation` event id ({}) is out of range compared to max event in `game_event`", eventEntry);
+                    LOG_ERROR("db.query", "`game_event_seasonal_questrelation` event id ({}) is out of range compared to max event in `game_event`", eventEntry);
                     continue;
                 }
 
@@ -852,35 +841,33 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} quests additions in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Quests Additions In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Vendor Additions Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                    0        1    2       3         4          5
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor ORDER BY guid, slot ASC");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventNpcVendor) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 Vendor Additions In Game Events. DB Table `game_event_npc_vendor` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
-
-                uint8 event_id  = fields[0].Get<uint8>();
+                auto fields = result->Fetch();
+                uint8 event_id = fields[0].Get<uint8>();
 
                 if (event_id >= mGameEventVendors.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_npc_vendor` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_npc_vendor` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -902,6 +889,7 @@ void GameEventMgr::LoadFromDB()
                         break;
                     }
                 }
+
                 // get creature entry
                 newEntry.entry = 0;
 
@@ -913,39 +901,37 @@ void GameEventMgr::LoadFromDB()
                     continue;
 
                 vendors.push_back(newEntry);
-
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} vendor additions in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} Vendor Additions In Game Events in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Battleground Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                   0         1
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, bgflag FROM game_event_battleground_holiday");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventBattlegroundHoliday) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 Battleground Holidays In Game Events. DB table `game_event_battleground_holiday` is empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
 
                 uint16 event_id = fields[0].Get<uint8>();
 
                 if (event_id >= mGameEvent.size())
                 {
-                    LOG_ERROR("sql.sql", "`game_event_battleground_holiday` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_battleground_holiday` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
@@ -954,45 +940,41 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} battleground holidays in game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Battleground Holidays In Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
     LOG_INFO("server.loading", "Loading Game Event Pool Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
-        //                                                               0                         1
-        QueryResult result = WorldDatabase.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template"
-                             " JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventPool) };
         if (!result)
         {
-            LOG_WARN("server.loading", ">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
+            LOG_WARN("server.loading", ">> Loaded 0 Pools For Game Events. DB Table `game_event_pool` Is Empty.");
             LOG_INFO("server.loading", " ");
         }
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
-
+                auto fields = result->Fetch();
                 uint32 entry   = fields[0].Get<uint32>();
                 int16 event_id = fields[1].Get<int8>();
-
                 int32 internal_event_id = mGameEvent.size() + event_id - 1;
 
                 if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
                 {
-                    LOG_ERROR("sql.sql", "`game_event_pool` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
+                    LOG_ERROR("db.query", "`game_event_pool` game event id ({}) is out of range compared to max event id in `game_event`", event_id);
                     continue;
                 }
 
                 if (!sPoolMgr->CheckPool(entry))
                 {
-                    LOG_ERROR("sql.sql", "Pool Id ({}) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
+                    LOG_ERROR("db.query", "Pool Id ({}) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
                     continue;
                 }
 
@@ -1002,7 +984,7 @@ void GameEventMgr::LoadFromDB()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} pools for game events in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} Pools For Game Events in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
@@ -1010,11 +992,9 @@ void GameEventMgr::LoadFromDB()
 
 void GameEventMgr::LoadHolidayDates()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                               0   1        2           3
-    QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value, holiday_duration FROM holiday_dates");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::HolidayDates) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 holiday dates. DB table `holiday_dates` is empty.");
@@ -1022,22 +1002,23 @@ void GameEventMgr::LoadHolidayDates()
     }
 
     uint32 count = 0;
+
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 holidayId = fields[0].Get<uint32>();
         HolidaysEntry* entry = const_cast<HolidaysEntry*>(sHolidaysStore.LookupEntry(holidayId));
         if (!entry)
         {
-            LOG_ERROR("sql.sql", "holiday_dates entry has invalid holiday id {}.", holidayId);
+            LOG_ERROR("db.query", "holiday_dates entry has invalid holiday id {}.", holidayId);
             continue;
         }
 
         uint8 dateId = fields[1].Get<uint8>();
         if (dateId >= MAX_HOLIDAY_DATES)
         {
-            LOG_ERROR("sql.sql", "holiday_dates entry has out of range date_id {}.", dateId);
+            LOG_ERROR("db.query", "holiday_dates entry has out of range date_id {}.", dateId);
             continue;
         }
         entry->Date[dateId] = fields[2].Get<uint32>();
@@ -1054,7 +1035,7 @@ void GameEventMgr::LoadHolidayDates()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} holiday dates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Holiday Dates in {}", count, sw);
 }
 
 uint32 GameEventMgr::GetNPCFlag(Creature* cr)
@@ -1074,10 +1055,14 @@ uint32 GameEventMgr::GetNPCFlag(Creature* cr)
 
 void GameEventMgr::Initialize()
 {
-    QueryResult result = WorldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
+    StopWatch sw;
+
+    LOG_INFO("server.loading", "Loading max event id...");
+
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::GameEventMaxEvent) };
     if (result)
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 maxEventId = fields[0].Get<uint8>();
 
@@ -1095,19 +1080,30 @@ void GameEventMgr::Initialize()
         mGameEventNPCFlags.resize(maxEventId);
         mGameEventModelEquip.resize(maxEventId);
     }
+
+    LOG_INFO("server.loading", ">> Max event id loaded in {}", sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GameEventMgr::StartSystem()                           // return the next event delay in ms
 {
+    StopWatch sw;
+
     m_ActiveEvents.clear();
     uint32 delay = Update();
     isSystemInit = true;
+
+    LOG_INFO("server.loading", ">> Game Event system is initialized in {}. Delay: {}", sw, delay);
+    LOG_INFO("server.loading", "");
+
     return delay;
 }
 
 void GameEventMgr::StartArenaSeason()
 {
-    uint8 season = sGameConfig->GetOption<uint8>("Arena.ArenaSeason.ID");
+    StopWatch sw;
+
+    auto season = sGameConfig->GetOption<uint8>("Arena.ArenaSeason.ID");
     QueryResult result = WorldDatabase.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{}'", season);
 
     if (!result)
@@ -1116,7 +1112,7 @@ void GameEventMgr::StartArenaSeason()
         return;
     }
 
-    Field* fields = result->Fetch();
+    auto fields = result->Fetch();
     uint16 eventId = fields[0].Get<uint8>();
 
     if (eventId >= mGameEvent.size())
@@ -1126,8 +1122,9 @@ void GameEventMgr::StartArenaSeason()
     }
 
     StartEvent(eventId, true);
-    LOG_INFO("server.loading", "Arena Season {} started...", season);
-    LOG_INFO("server.loading", " ");
+
+    LOG_INFO("server.loading", "Arena Season {} initialized in {}", season, sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GameEventMgr::Update()                               // return the next event delay in ms
@@ -1140,7 +1137,7 @@ uint32 GameEventMgr::Update()                               // return the next e
     {
         // must do the activating first, and after that the deactivating
         // so first queue it
-        //LOG_ERROR("sql.sql", "Checking event {}", itr);
+        //LOG_ERROR("db.query", "Checking event {}", itr);
 
         sScriptMgr->OnGameEventCheck(itr);
 
@@ -1696,7 +1693,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
                 // save the change to db
                 CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_CONDITION_SAVE);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_CONDITION_SAVE);
                 stmt->SetData(0, uint8(event_id));
                 stmt->SetData(1, condition);
                 trans->Append(stmt);
@@ -1741,7 +1738,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
     stmt->SetData(0, uint8(event_id));
     trans->Append(stmt);
 
@@ -1813,7 +1810,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
 
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {
-        LOG_ERROR("sql.sql", "Missing date or duration for holiday {}.", event.holiday_id);
+        LOG_ERROR("db.query", "Missing date or duration for holiday {}.", event.holiday_id);
         return;
     }
 

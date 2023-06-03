@@ -19,15 +19,18 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "SkillDiscovery.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "Log.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "StopWatch.h"
 #include "Util.h"
 #include "World.h"
 #include <map>
+#include <sstream>
 
 struct SkillDiscoveryEntry
 {
@@ -49,13 +52,10 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 
 void LoadSkillDiscoveryTable()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     SkillDiscoveryStore.clear();                            // need for reload
 
-    //                                                0        1         2              3
-    QueryResult result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::SkillDiscoveryTemplate) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
@@ -70,7 +70,7 @@ void LoadSkillDiscoveryTable()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         uint32 spellId         = fields[0].Get<uint32>();
         int32  reqSkillOrSpell = fields[1].Get<int32>();
@@ -92,7 +92,7 @@ void LoadSkillDiscoveryTable()
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
-                    LOG_ERROR("sql.sql", "Spell (ID: {}) have not existed spell (ID: {}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
+                    LOG_ERROR("db.query", "Spell (ID: {}) have not existed spell (ID: {}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
                     reportedReqSpells.insert(absReqSkillOrSpell);
                 }
                 continue;
@@ -105,7 +105,7 @@ void LoadSkillDiscoveryTable()
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
-                    LOG_ERROR("sql.sql", "Spell (ID: {}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc"
+                    LOG_ERROR("db.query", "Spell (ID: {}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc"
                                      " and not 100% chance random discovery ability but listed for spellId {} (and maybe more) in `skill_discovery_template` table",
                                      absReqSkillOrSpell, spellId);
                     reportedReqSpells.insert(absReqSkillOrSpell);
@@ -121,7 +121,7 @@ void LoadSkillDiscoveryTable()
 
             if (bounds.first == bounds.second)
             {
-                LOG_ERROR("sql.sql", "Spell (ID: {}) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
+                LOG_ERROR("db.query", "Spell (ID: {}) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
                 continue;
             }
 
@@ -130,7 +130,7 @@ void LoadSkillDiscoveryTable()
         }
         else
         {
-            LOG_ERROR("sql.sql", "Spell (ID: {}) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
+            LOG_ERROR("db.query", "Spell (ID: {}) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
             continue;
         }
 
@@ -138,7 +138,7 @@ void LoadSkillDiscoveryTable()
     } while (result->NextRow());
 
     if (!ssNonDiscoverableEntries.str().empty())
-        LOG_ERROR("sql.sql", "Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n{}", ssNonDiscoverableEntries.str());
+        LOG_ERROR("db.query", "Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n{}", ssNonDiscoverableEntries.str());
 
     // report about empty data for explicit discovery spells
     for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
@@ -152,11 +152,11 @@ void LoadSkillDiscoveryTable()
             continue;
 
         if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
-            LOG_ERROR("sql.sql", "Spell (ID: {}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
+            LOG_ERROR("db.query", "Spell (ID: {}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
-    LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)

@@ -26,7 +26,6 @@
 #include <cctype>
 #include <list>
 #include <string>
-#include <vector>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
@@ -78,9 +77,9 @@ inline T RoundToInterval(T& num, T floor, T ceil)
 WH_COMMON_API bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr);
 
 // in wsize==max size of buffer, out wsize==real string size
-WH_COMMON_API bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);
+WH_COMMON_API bool Utf8toWStr(char const* utf8str, std::size_t csize, wchar_t* wstr, std::size_t& wsize);
 
-inline bool Utf8toWStr(std::string_view utf8str, wchar_t* wstr, size_t& wsize)
+inline bool Utf8toWStr(std::string_view utf8str, wchar_t* wstr, std::size_t& wsize)
 {
     return Utf8toWStr(utf8str.data(), utf8str.size(), wstr, wsize);
 }
@@ -351,6 +350,13 @@ WH_COMMON_API bool utf8ToConsole(std::string_view utf8str, std::string& conStr);
 WH_COMMON_API bool consoleToUtf8(std::string_view conStr, std::string& utf8str);
 WH_COMMON_API bool Utf8FitTo(std::string_view str, std::wstring_view search);
 WH_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
+
+#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
+WH_COMMON_API bool ReadWinConsole(std::string& str, size_t size = 256);
+WH_COMMON_API bool WriteWinConsole(std::string_view str, bool error = false);
+#endif
+
+WH_COMMON_API Optional<std::size_t> RemoveCRLF(std::string& str);
 
 WH_COMMON_API bool IsIPAddress(char const* ipaddress);
 

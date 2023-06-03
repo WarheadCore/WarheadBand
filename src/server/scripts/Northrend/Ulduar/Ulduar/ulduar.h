@@ -18,11 +18,9 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
-#include "CellImpl.h"
 #include "Chat.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 
 #define UlduarScriptName "instance_ulduar"
 

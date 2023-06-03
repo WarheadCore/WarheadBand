@@ -15,6 +15,8 @@
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+include(CheckCXXSourceCompiles)
+
 if ((USE_COREPCH OR USE_SCRIPTPCH) AND (CMAKE_C_COMPILER_LAUNCHER STREQUAL "ccache" OR CMAKE_CXX_COMPILER_LAUNCHER STREQUAL "ccache"))
   message(STATUS "Clang: disable pch timestamp when ccache and pch enabled")
   # TODO: for ccache https://github.com/ccache/ccache/issues/539
@@ -28,13 +30,13 @@ target_compile_definitions(warhead-compile-option-interface
 
 set(CLANG_EXPECTED_VERSION 10.0.0)
 
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS CLANG_EXPECTED_VERSION)
+if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS CLANG_EXPECTED_VERSION)
   message(FATAL_ERROR "Clang: WarheadCore requires version ${CLANG_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
 else()
   message(STATUS "Clang: Minimum version required is ${CLANG_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
-if(WITH_WARNINGS)
+if (WITH_WARNINGS)
   target_compile_options(warhead-warning-interface
     INTERFACE
       -W
@@ -47,15 +49,15 @@ if(WITH_WARNINGS)
   message(STATUS "Clang: All warnings enabled")
 endif()
 
-if(WITH_COREDEBUG)
+if (WITH_COREDEBUG)
   target_compile_options(warhead-compile-option-interface
     INTERFACE
       -g3)
   message(STATUS "Clang: Debug-flags set (-g3)")
 endif()
 
-if(MSAN)
-    target_compile_options(acore-compile-option-interface
+if (MSAN)
+    target_compile_options(warhead-compile-option-interface
             INTERFACE
             -fno-omit-frame-pointer
             -fsanitize=memory
@@ -63,7 +65,7 @@ if(MSAN)
             -mllvm
             -msan-keep-going=1)
 
-    target_link_options(acore-compile-option-interface
+    target_link_options(warhead-compile-option-interface
             INTERFACE
             -fno-omit-frame-pointer
             -fsanitize=memory
@@ -72,13 +74,13 @@ if(MSAN)
     message(STATUS "Clang: Enabled Memory Sanitizer MSan")
 endif()
 
-if(UBSAN)
-    target_compile_options(acore-compile-option-interface
+if (UBSAN)
+    target_compile_options(warhead-compile-option-interface
             INTERFACE
             -fno-omit-frame-pointer
             -fsanitize=undefined)
 
-    target_link_options(acore-compile-option-interface
+    target_link_options(warhead-compile-option-interface
             INTERFACE
             -fno-omit-frame-pointer
             -fsanitize=undefined)
@@ -86,18 +88,36 @@ if(UBSAN)
     message(STATUS "Clang: Enabled Undefined Behavior Sanitizer UBSan")
 endif()
 
-if(TSAN)
-    target_compile_options(acore-compile-option-interface
+if (TSAN)
+    target_compile_options(warhead-compile-option-interface
             INTERFACE
             -fno-omit-frame-pointer
             -fsanitize=thread)
 
-    target_link_options(acore-compile-option-interface
+    target_link_options(warhead-compile-option-interface
             INTERFACE
             -fno-omit-frame-pointer
             -fsanitize=thread)
 
     message(STATUS "Clang: Enabled Thread Sanitizer TSan")
+endif()
+
+if (ASAN)
+  target_compile_options(warhead-compile-option-interface
+    INTERFACE
+    -fno-omit-frame-pointer
+    -fsanitize=address
+    -fsanitize-recover=address
+    -fsanitize-address-use-after-scope)
+
+  target_link_options(warhead-compile-option-interface
+    INTERFACE
+    -fno-omit-frame-pointer
+    -fsanitize=address
+    -fsanitize-recover=address
+    -fsanitize-address-use-after-scope)
+
+  message(STATUS "Clang: Enabled Address Sanitizer")
 endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d
@@ -107,7 +127,7 @@ target_compile_options(warhead-compile-option-interface
     -Wno-narrowing
     -Wno-deprecated-register)
 
-if(BUILD_SHARED_LIBS)
+if (BUILD_SHARED_LIBS)
     # -fPIC is needed to allow static linking in shared libs.
     # -fvisibility=hidden sets the default visibility to hidden to prevent exporting of all symbols.
     target_compile_options(warhead-compile-option-interface
@@ -123,4 +143,16 @@ if(BUILD_SHARED_LIBS)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --no-undefined")
 
     message(STATUS "Clang: Disallow undefined symbols")
-  endif()
+endif()
+
+# speedup PCH builds by forcing template instantiations during PCH generation
+set(CMAKE_REQUIRED_FLAGS "-fpch-instantiate-templates")
+check_cxx_source_compiles("int main() { return 0; }" CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
+unset(CMAKE_REQUIRED_FLAGS)
+if (CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
+  target_compile_options(warhead-compile-option-interface
+    INTERFACE
+      -fpch-instantiate-templates)
+
+  message(STATUS "Clang: Enable -fpch-instantiate-templates")
+endif()

@@ -32,7 +32,6 @@
 #include <atomic>
 #include <list>
 #include <map>
-#include <set>
 #include <unordered_map>
 
 class Object;
@@ -44,25 +43,6 @@ class WorldSession;
 class Player;
 
 struct Realm;
-
-/// Storage class for commands issued for delayed execution
-struct WH_GAME_API CliCommandHolder
-{
-    using Print = void(*)(void*, std::string_view);
-    using CommandFinished = void(*)(void*, bool success);
-
-    void* m_callbackArg;
-    char* m_command;
-    Print m_print;
-    CommandFinished m_commandFinished;
-
-    CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished);
-    ~CliCommandHolder();
-
-private:
-    CliCommandHolder(CliCommandHolder const& right) = delete;
-    CliCommandHolder& operator=(CliCommandHolder const& right) = delete;
-};
 
 typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 
@@ -114,8 +94,6 @@ enum WorldTimers
     WUPDATE_CORPSES,
     WUPDATE_EVENTS,
     WUPDATE_AUTOBROADCAST,
-    WUPDATE_MAILBOXQUEUE,
-    WUPDATE_PINGDB,
     WUPDATE_5_SECS,
     WUPDATE_WHO_LIST,
     WUPDATE_CHECK_FILECHANGES,
@@ -283,9 +261,9 @@ public:
     void SendServerMessage(ServerMessageType messageID, std::string_view stringParam = {}, Player* player = nullptr);
 
     /// Are we in the middle of a shutdown?
-    [[nodiscard]] bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
-    [[nodiscard]] uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
-    void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
+    [[nodiscard]] bool IsShuttingDown() const { return _shutdownTimer > 0s; }
+    [[nodiscard]] Seconds GetShutDownTimeLeft() const { return _shutdownTimer; }
+    void ShutdownServ(Seconds time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
     void ShutdownCancel();
     void ShutdownMsg(bool show = false, Player* player = nullptr, const std::string& reason = std::string());
     static uint8 GetExitCode() { return m_ExitCode; }
@@ -314,9 +292,6 @@ public:
 
     // our: needed for arena spectator subscriptions
     uint32 GetNextWhoListUpdateDelaySecs();
-
-    void ProcessCliCommands();
-    void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
 
     void ForceGameEventUpdate();
 
@@ -350,6 +325,7 @@ public:
 
 protected:
     void _UpdateGameTime();
+
     // callback for UpdateRealmCharacters
     void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
 
@@ -365,11 +341,12 @@ protected:
     void ResetRandomBG();
     void CalendarDeleteOldEvents();
     void ResetGuildCap();
+
 private:
     static std::atomic_long m_stopEvent;
     static uint8 m_ExitCode;
-    uint32 m_ShutdownTimer;
-    uint32 m_ShutdownMask;
+    Seconds _shutdownTimer{};
+    uint32 _shutdownMask{};
 
     uint32 m_CleaningFlags;
 
@@ -406,9 +383,6 @@ private:
 
     std::string _realmName;
 
-    // CLI command holder to be thread safe
-    LockedQueue<CliCommandHolder*> cliCmdQueue;
-
     // next daily quests and random bg reset time
     Seconds m_NextDailyQuestReset;
     Seconds m_NextWeeklyQuestReset;
@@ -429,13 +403,6 @@ private:
 
     void ProcessQueryCallbacks();
     QueryCallbackProcessor _queryProcessor;
-
-    /**
-     * @brief Executed when a World Session is being finalized. Be it from a normal login or via queue popping.
-     *
-     * @param session The World Session that we are finalizing.
-     */
-    inline void FinalizePlayerWorldSession(WorldSession* session);
 
     World();
     ~World();

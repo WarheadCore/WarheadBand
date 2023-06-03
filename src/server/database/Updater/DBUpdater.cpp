@@ -22,14 +22,12 @@
 #include "BuiltInConfig.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "DatabaseLoader.h"
 #include "GitRevision.h"
 #include "Log.h"
+#include "MySQLConnection.h"
 #include "ProgressBar.h"
-#include "QueryResult.h"
 #include "StartProcess.h"
 #include "UpdateFetcher.h"
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -39,8 +37,8 @@ std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {
     if (!corrected_path().empty())
         return corrected_path();
-    else
-        return BuiltInConfig::GetMySQLExecutable();
+
+    return BuiltInConfig::GetMySQLExecutable();
 }
 
 bool DBUpdaterUtil::CheckExecutable()
@@ -56,11 +54,12 @@ bool DBUpdaterUtil::CheckExecutable()
             return true;
         }
 
-        LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'{}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
+        LOG_FATAL("db.update", "Didn't find any executable MySQL binary at \'{}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
             absolute(exe).generic_string());
 
         return false;
     }
+
     return true;
 }
 
@@ -70,107 +69,43 @@ std::string& DBUpdaterUtil::corrected_path()
     return path;
 }
 
-// Auth Database
-template<>
-std::string DBUpdater<LoginDatabaseConnection>::GetConfigEntry()
+std::string DBUpdater::GetConfigEntry(DatabaseWorkerPool const& pool)
 {
-    return "Updates.Auth";
+    return "Updates." + std::string{ pool.GetPoolName() };
 }
 
-template<>
-std::string DBUpdater<LoginDatabaseConnection>::GetTableName()
+std::string DBUpdater::GetTableName(DatabaseWorkerPool const& pool)
 {
-    return "Auth";
+    return std::string{ pool.GetPoolName() };
 }
 
-template<>
-std::string DBUpdater<LoginDatabaseConnection>::GetBaseFilesDirectory()
+std::string DBUpdater::GetBaseFilesDirectory(DatabaseWorkerPool const& pool)
 {
-    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_auth/";
+    std::string folderName{ "db_" };
+    std::transform(pool.GetPoolName().begin(), pool.GetPoolName().end(), std::back_inserter(folderName), ::tolower);
+    folderName += "/";
+
+    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + folderName;
 }
 
-template<>
-bool DBUpdater<LoginDatabaseConnection>::IsEnabled(uint32 const updateMask)
+bool DBUpdater::IsEnabled(DatabaseWorkerPool& pool, uint32 updateMask)
 {
     // This way silences warnings under msvc
-    return (updateMask & DatabaseLoader::DATABASE_LOGIN) ? true : false;
+    return (updateMask & (uint32)pool.GetType()) != 0;
 }
 
-template<>
-std::string DBUpdater<LoginDatabaseConnection>::GetDBModuleName()
+std::string DBUpdater::GetDBModuleName(DatabaseWorkerPool const& pool)
 {
-    return "db_auth";
+    std::string folderName{ "db_" };
+    std::transform(pool.GetPoolName().begin(), pool.GetPoolName().end(), std::back_inserter(folderName), ::tolower);
+    folderName += "/";
+    return folderName;
 }
 
-// World Database
-template<>
-std::string DBUpdater<WorldDatabaseConnection>::GetConfigEntry()
+bool DBUpdater::Create(DatabaseWorkerPool& pool)
 {
-    return "Updates.World";
-}
-
-template<>
-std::string DBUpdater<WorldDatabaseConnection>::GetTableName()
-{
-    return "World";
-}
-
-template<>
-std::string DBUpdater<WorldDatabaseConnection>::GetBaseFilesDirectory()
-{
-    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_world/";
-}
-
-template<>
-bool DBUpdater<WorldDatabaseConnection>::IsEnabled(uint32 const updateMask)
-{
-    // This way silences warnings under msvc
-    return (updateMask & DatabaseLoader::DATABASE_WORLD) ? true : false;
-}
-
-template<>
-std::string DBUpdater<WorldDatabaseConnection>::GetDBModuleName()
-{
-    return "db_world";
-}
-
-// Character Database
-template<>
-std::string DBUpdater<CharacterDatabaseConnection>::GetConfigEntry()
-{
-    return "Updates.Character";
-}
-
-template<>
-std::string DBUpdater<CharacterDatabaseConnection>::GetTableName()
-{
-    return "Character";
-}
-
-template<>
-std::string DBUpdater<CharacterDatabaseConnection>::GetBaseFilesDirectory()
-{
-    return BuiltInConfig::GetSourceDirectory() + SQL_BASE_DIR + "db_characters/";
-}
-
-template<>
-bool DBUpdater<CharacterDatabaseConnection>::IsEnabled(uint32 const updateMask)
-{
-    // This way silences warnings under msvc
-    return (updateMask & DatabaseLoader::DATABASE_CHARACTER) ? true : false;
-}
-
-template<>
-std::string DBUpdater<CharacterDatabaseConnection>::GetDBModuleName()
-{
-    return "db_characters";
-}
-
-template<class T>
-bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
-{
-    LOG_WARN("sql.updates", "Database \"{}\" does not exist, do you want to create it? [yes (default) / no]: ",
-             pool.GetConnectionInfo()->database);
+    LOG_WARN("db.update", "Database \"{}\" does not exist, do you want to create it? [yes (default) / no]: ",
+             pool.GetConnectionInfo()->Database);
 
     if (!sConfigMgr->isDryRun())
     {
@@ -180,7 +115,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
             return false;
     }
 
-    LOG_INFO("sql.updates", "Creating database \"{}\"...", pool.GetConnectionInfo()->database);
+    LOG_INFO("db.update", "Creating database \"{}\"...", pool.GetConnectionInfo()->Database);
 
     // Path of temp file
     static Path const temp("create_table.sql");
@@ -189,64 +124,63 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     std::ofstream file(temp.generic_string());
     if (!file.is_open())
     {
-        LOG_FATAL("sql.updates", "Failed to create temporary query file \"{}\"!", temp.generic_string());
+        LOG_FATAL("db.update", "Failed to create temporary query file \"{}\"!", temp.generic_string());
         return false;
     }
 
-    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->database << "` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_general_ci;\n\n";
+    file << "CREATE DATABASE `" << pool.GetConnectionInfo()->Database << "` DEFAULT CHARACTER SET UTF8MB4 COLLATE utf8mb4_general_ci;\n\n";
     file.close();
 
     try
     {
-        DBUpdater<T>::ApplyFile(pool, pool.GetConnectionInfo()->host, pool.GetConnectionInfo()->user, pool.GetConnectionInfo()->password,
-                                pool.GetConnectionInfo()->port_or_socket, "", pool.GetConnectionInfo()->ssl, temp);
+        DBUpdater::ApplyFile(pool, pool.GetConnectionInfo()->Host, pool.GetConnectionInfo()->User, pool.GetConnectionInfo()->Password,
+            pool.GetConnectionInfo()->PortOrSocket, "", pool.GetConnectionInfo()->SSL, temp);
     }
-    catch (UpdateException&)
+    catch (UpdateException const&)
     {
-        LOG_FATAL("sql.updates", "Failed to create database {}! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->database);
+        LOG_FATAL("db.update", "Failed to create database {}! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->Database);
         std::filesystem::remove(temp);
         return false;
     }
 
-    LOG_INFO("sql.updates", "Done.");
-    LOG_INFO("sql.updates", " ");
+    LOG_INFO("db.update", "Done.");
+    LOG_INFO("db.update", "");
     std::filesystem::remove(temp);
     return true;
 }
 
-template<class T>
-bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::string_view modulesList /*= {}*/)
+bool DBUpdater::Update(DatabaseWorkerPool& pool, std::string_view modulesList /*= {}*/)
 {
     if (!DBUpdaterUtil::CheckExecutable())
         return false;
 
-    LOG_INFO("sql.updates", "Updating {} database...", DBUpdater<T>::GetTableName());
+    LOG_INFO("db.update", "Updating {} database...", DBUpdater::GetTableName(pool));
 
     Path const sourceDirectory(BuiltInConfig::GetSourceDirectory());
 
     if (!is_directory(sourceDirectory))
     {
-        LOG_ERROR("sql.updates", "DBUpdater: The given source directory {} does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.",
-                  sourceDirectory.generic_string());
+        LOG_ERROR("db.update", "DBUpdater: The given source directory {} does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.",
+            sourceDirectory.generic_string());
         return false;
     }
 
     auto CheckUpdateTable = [&](std::string const& tableName)
     {
-        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName));
+        auto checkTable = DBUpdater::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName));
         if (!checkTable)
         {
-            LOG_WARN("sql.updates", "> Table '{}' not exist! Try add based table", tableName);
+            LOG_WARN("db.update", "> Table '{}' not exist! Try add based table", tableName);
 
-            Path const temp(GetBaseFilesDirectory() + tableName + ".sql");
+            Path const temp(GetBaseFilesDirectory(pool) + tableName + ".sql");
 
             try
             {
-                DBUpdater<T>::ApplyFile(pool, temp);
+                DBUpdater::ApplyFile(pool, temp);
             }
             catch (UpdateException&)
             {
-                LOG_FATAL("sql.updates", "Failed apply file to database {}! Does the user (named in *.conf) have `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->database);
+                LOG_FATAL("db.update", "Failed apply file to database {}! Does the user (named in *.conf) have `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->Database);
                 return false;
             }
 
@@ -259,9 +193,9 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::string_view modulesL
     if (!CheckUpdateTable("updates") || !CheckUpdateTable("updates_include"))
         return false;
 
-    UpdateFetcher updateFetcher(sourceDirectory, [&](std::string const & query) { DBUpdater<T>::Apply(pool, query); },
-    [&](Path const & file) { DBUpdater<T>::ApplyFile(pool, file); },
-    [&](std::string const & query) -> QueryResult { return DBUpdater<T>::Retrieve(pool, query); }, DBUpdater<T>::GetDBModuleName(), modulesList);
+    UpdateFetcher updateFetcher(sourceDirectory, [&pool](std::string_view query) { DBUpdater::Apply(pool, query); },
+    [&pool](Path const& file) { DBUpdater::ApplyFile(pool, file); },
+    [&pool](std::string_view query) -> QueryResult { return DBUpdater::Retrieve(pool, query); }, DBUpdater::GetDBModuleName(pool), modulesList);
 
     UpdateResult result;
     try
@@ -277,38 +211,32 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::string_view modulesL
                              result.recent, result.archived);
 
     if (!result.updated)
-        LOG_INFO("sql.updates", ">> {} database is up-to-date! {}", DBUpdater<T>::GetTableName(), info);
+        LOG_INFO("db.update", ">> {} database is up-to-date! {}", DBUpdater::GetTableName(pool), info);
     else
-        LOG_INFO("sql.updates", ">> Applied {} {}. {}", result.updated, result.updated == 1 ? "query" : "queries", info);
+        LOG_INFO("db.update", ">> Applied {} {}. {}", result.updated, result.updated == 1 ? "query" : "queries", info);
 
-    LOG_INFO("sql.updates", "");
-
+    LOG_INFO("db.update", "");
     return true;
 }
 
-template<class T>
-bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> const* setDirectories)
+bool DBUpdater::Update(DatabaseWorkerPool& pool, std::vector<std::string> const* setDirectories)
 {
     if (!DBUpdaterUtil::CheckExecutable())
-    {
         return false;
-    }
 
     Path const sourceDirectory(BuiltInConfig::GetSourceDirectory());
     if (!is_directory(sourceDirectory))
-    {
         return false;
-    }
 
     auto CheckUpdateTable = [&](std::string const& tableName)
     {
-        auto checkTable = DBUpdater<T>::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName));
+        auto checkTable = DBUpdater::Retrieve(pool, Warhead::StringFormat("SHOW TABLES LIKE '{}'", tableName));
         if (!checkTable)
         {
-            Path const temp(GetBaseFilesDirectory() + tableName + ".sql");
+            Path const temp(GetBaseFilesDirectory(pool) + tableName + ".sql");
             try
             {
-                DBUpdater<T>::ApplyFile(pool, temp);
+                DBUpdater::ApplyFile(pool, temp);
             }
             catch (UpdateException&)
             {
@@ -326,9 +254,9 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> 
         return false;
     }
 
-    UpdateFetcher updateFetcher(sourceDirectory, [&](std::string const & query) { DBUpdater<T>::Apply(pool, query); },
-    [&](Path const & file) { DBUpdater<T>::ApplyFile(pool, file); },
-    [&](std::string const & query) -> QueryResult { return DBUpdater<T>::Retrieve(pool, query); }, DBUpdater<T>::GetDBModuleName(), setDirectories);
+    UpdateFetcher updateFetcher(sourceDirectory, [&pool](std::string_view query) { DBUpdater::Apply(pool, query); },
+    [&pool](Path const& file) { DBUpdater::ApplyFile(pool, file); },
+    [&pool](std::string_view query) -> QueryResult { return DBUpdater::Retrieve(pool, query); }, DBUpdater::GetDBModuleName(pool), setDirectories);
 
     UpdateResult result;
     try
@@ -343,8 +271,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool, std::vector<std::string> 
     return true;
 }
 
-template<class T>
-bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
+bool DBUpdater::Populate(DatabaseWorkerPool& pool)
 {
     {
         QueryResult const result = Retrieve(pool, "SHOW TABLES");
@@ -355,20 +282,20 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
     if (!DBUpdaterUtil::CheckExecutable())
         return false;
 
-    LOG_INFO("sql.updates", "Database {} is empty, auto populating it...", DBUpdater<T>::GetTableName());
+    LOG_INFO("db.update", "Database {} is empty, auto populating it...", DBUpdater::GetTableName(pool));
 
-    std::string const dirPathStr = DBUpdater<T>::GetBaseFilesDirectory();
+    std::string const dirPathStr = DBUpdater::GetBaseFilesDirectory(pool);
 
     Path const dirPath(dirPathStr);
     if (dirPath.empty())
     {
-        LOG_ERROR("sql.updates", ">> Directory \"{}\" is empty", dirPath.generic_string());
+        LOG_ERROR("db.update", ">> Directory \"{}\" is empty", dirPath.generic_string());
         return false;
     }
 
     if (!std::filesystem::is_directory(dirPath))
     {
-        LOG_ERROR("sql.updates", ">> Directory \"{}\" not exist", dirPath.generic_string());
+        LOG_ERROR("db.update", ">> Directory \"{}\" not exist", dirPath.generic_string());
         return false;
     }
 
@@ -382,7 +309,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
 
     if (!filesCount)
     {
-        LOG_ERROR("sql.updates", ">> In directory \"{}\" not exist '*.sql' files", dirPath.generic_string());
+        LOG_ERROR("db.update", ">> In directory \"{}\" not exist '*.sql' files", dirPath.generic_string());
         return false;
     }
 
@@ -408,97 +335,59 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
     }
 
     progress.Stop();
-    LOG_INFO("sql.updates", ">> Done!");
-    LOG_INFO("sql.updates", "");
+    LOG_INFO("db.update", ">> Done!");
+    LOG_INFO("db.update", "");
     return true;
 }
 
-template<class T>
-QueryResult DBUpdater<T>::Retrieve(DatabaseWorkerPool<T>& pool, std::string const& query)
+QueryResult DBUpdater::Retrieve(DatabaseWorkerPool& pool, std::string_view query)
 {
-    return pool.Query(query.c_str());
+    return pool.Query(query);
 }
 
-template<class T>
-void DBUpdater<T>::Apply(DatabaseWorkerPool<T>& pool, std::string const& query)
+void DBUpdater::Apply(DatabaseWorkerPool& pool, std::string_view query)
 {
-    pool.DirectExecute(query.c_str());
+    pool.DirectExecute(query);
 }
 
-template<class T>
-void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, Path const& path)
+void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, Path const& path)
 {
-    DBUpdater<T>::ApplyFile(pool, pool.GetConnectionInfo()->host, pool.GetConnectionInfo()->user, pool.GetConnectionInfo()->password,
-                            pool.GetConnectionInfo()->port_or_socket, pool.GetConnectionInfo()->database, pool.GetConnectionInfo()->ssl, path);
+    DBUpdater::ApplyFile(pool, pool.GetConnectionInfo()->Host, pool.GetConnectionInfo()->User, pool.GetConnectionInfo()->Password,
+        pool.GetConnectionInfo()->PortOrSocket, pool.GetConnectionInfo()->Database, pool.GetConnectionInfo()->SSL, path);
 }
 
-template<class T>
-void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& host, std::string const& user,
-                             std::string const& password, std::string const& port_or_socket, std::string const& database, std::string const& ssl, Path const& path)
+void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, std::string_view host, std::string_view user, std::string_view password,
+    std::string_view port_or_socket, std::string_view database, std::string_view ssl, Path const& path)
 {
     std::vector<std::string> args;
+    args.reserve(9);
 
-    auto CanUseExtraFile = []()
-    {
-#ifdef MARIADB_VERSION_ID
-        return false;
-#endif
+    // Add password from extra file
+    args.emplace_back(Warhead::StringFormat("--defaults-extra-file={}", pool.GetPathToExtraFile()));
 
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_UNIX
+    // CLI Client connection info
+    args.emplace_back("-h" + std::string{ host });
+    args.emplace_back("-u" + std::string{ user });
 
-        // For Ubuntu/Debian only
-        try
-        {
-            return std::filesystem::is_regular_file("/etc/mysql/debian.cnf");
-        }
-        catch (const std::error_code& error)
-        {
-            LOG_FATAL("sql.updates", "> Error at check '/etc/mysql/debian.cnf'. {}", error.message());
-            return false;
-        }
-#endif
-
-        return false;
-    };
-
-    if (CanUseExtraFile())
-    {
-        args.reserve(7 - 4);
-        args.emplace_back("--defaults-extra-file=/etc/mysql/debian.cnf");
-    }
-    else
-    {
-        args.reserve(7);
-
-        // CLI Client connection info
-        args.emplace_back("-h" + host);
-        args.emplace_back("-u" + user);
-
-        if (!password.empty())
-            args.emplace_back("-p" + password);
-
-        // Check if we want to connect through ip or socket (Unix only)
+    // Check if we want to connect through ip or socket (Unix only)
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-
-        if (host == ".")
-            args.emplace_back("--protocol=PIPE");
-        else
-            args.emplace_back("-P" + port_or_socket);
-
+    if (host == ".")
+        args.emplace_back("--protocol=PIPE");
+    else
+        args.emplace_back("-P" + std::string{ port_or_socket });
 #else
 
-        if (!std::isdigit(port_or_socket[0]))
-        {
-            // We can't check if host == "." here, because it is named localhost if socket option is enabled
-            args.emplace_back("-P0");
-            args.emplace_back("--protocol=SOCKET");
-            args.emplace_back("-S" + port_or_socket);
-        }
-        else
-            // generic case
-            args.emplace_back("-P" + port_or_socket);
-#endif
+    if (!std::isdigit(port_or_socket[0]))
+    {
+        // We can't check if host == "." here, because it is named localhost if socket option is enabled
+        args.emplace_back("-P0");
+        args.emplace_back("--protocol=SOCKET");
+        args.emplace_back("-S" + std::string{ port_or_socket });
     }
+    else
+        // generic case
+        args.emplace_back("-P" + std::string{ port_or_socket });
+#endif
 
     // Set the default charset to utf8
     args.emplace_back("--default-character-set=utf8mb4");
@@ -514,27 +403,27 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
         args.emplace_back("--ssl");
 #endif
 
+    // Execute sql file
+    args.emplace_back("-e");
+    args.emplace_back(Warhead::StringFormat("BEGIN; SOURCE {}; COMMIT;", path.generic_string()));
+
     // Database
     if (!database.empty())
         args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
     int const ret = Warhead::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,
-        "sql.updates", path.generic_string(), true);
+        "db.update", "", true);
 
     if (ret != EXIT_SUCCESS)
     {
-        LOG_FATAL("sql.updates", "Applying of file \'{}\' to database \'{}\' failed!" \
+        LOG_FATAL("db.update", "Applying of file \'{}\' to database \'{}\' failed!" \
             " If you are a user, please pull the latest revision from the repository. "
             "Also make sure you have not applied any of the databases with your sql client. "
             "You cannot use auto-update system and import sql files from WarheadCore repository with your sql client. "
             "If you are a developer, please fix your sql query.",
-            path.generic_string(), pool.GetConnectionInfo()->database);
+            path.generic_string(), pool.GetConnectionInfo()->Database);
 
         throw UpdateException("update failed");
     }
 }
-
-template class WH_DATABASE_API DBUpdater<LoginDatabaseConnection>;
-template class WH_DATABASE_API DBUpdater<WorldDatabaseConnection>;
-template class WH_DATABASE_API DBUpdater<CharacterDatabaseConnection>;

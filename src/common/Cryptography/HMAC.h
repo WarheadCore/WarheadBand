@@ -22,7 +22,6 @@
 #include "CryptoHash.h"
 #include "Errors.h"
 #include <array>
-#include <string>
 #include <string_view>
 
 class BigNumber;
@@ -128,9 +127,9 @@ namespace Warhead::Impl
 
             Digest const& GetDigest() const { return _digest; }
         private:
-            EVP_MD_CTX* _ctx;
-            EVP_PKEY* _key;
-            Digest _digest = { };
+            EVP_MD_CTX* _ctx{};
+            EVP_PKEY* _key{};
+            Digest _digest{};
     };
 }
 

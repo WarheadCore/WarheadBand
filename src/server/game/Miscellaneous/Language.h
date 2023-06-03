@@ -1144,6 +1144,8 @@ enum WarheadStrings
 
     LANG_CMD_GOQUEST_INVALID_SYNTAX     = 5082,
 
+    LANG_CMD_CHAR_CHANGE_ACC_SUCCESS    = 5083,
+
     // Room for more strings    5083-9999
 
     // Level requirement notifications
@@ -1329,4 +1331,5 @@ enum WarheadStrings
     LANG_DEBUG_LFG_ON                             = 30096,
     LANG_DEBUG_LFG_OFF                            = 30097
 };
+
 #endif

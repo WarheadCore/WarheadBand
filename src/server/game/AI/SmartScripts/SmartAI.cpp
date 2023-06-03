@@ -22,7 +22,6 @@
 #include "CellImpl.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "ObjectDefines.h"
 #include "ObjectMgr.h"
@@ -528,7 +527,17 @@ void SmartAI::UpdateAI(uint32 diff)
     }
 
     if (!IsAIControlled())
+    {
+        if (CharmInfo* charmInfo = me->GetCharmInfo())
+        {
+            if (charmInfo->IsCommandAttack() && mCanAutoAttack)
+            {
+                DoMeleeAttackIfReady();
+            }
+        }
+
         return;
+    }
 
     if (!UpdateVictim())
         return;
@@ -804,6 +813,7 @@ void SmartAI::KilledUnit(Unit* victim)
 void SmartAI::JustSummoned(Creature* creature)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+    GetScript()->AddCreatureSummon(creature->GetGUID());
 }
 
 void SmartAI::SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
@@ -884,6 +894,7 @@ void SmartAI::DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damag
 void SmartAI::SummonedCreatureDespawn(Creature* unit)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit);
+    GetScript()->RemoveCreatureSummon(unit->GetGUID());
 }
 
 void SmartAI::CorpseRemoved(uint32& respawnDelay)
@@ -1155,7 +1166,7 @@ void SmartGameObjectAI::Reset()
 // Called when a player opens a gossip dialog with the gameobject.
 bool SmartGameObjectAI::GossipHello(Player* player, bool reportUse)
 {
-    LOG_DEBUG("sql.sql", "SmartGameObjectAI::GossipHello");
+    LOG_DEBUG("db.query", "SmartGameObjectAI::GossipHello");
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, (uint32)reportUse, 0, false, nullptr, me);
     return false;
 }
@@ -1235,7 +1246,7 @@ public:
         if (!player->IsAlive())
             return false;
 
-        LOG_DEBUG("sql.sql", "AreaTrigger {} is using SmartTrigger script", trigger->entry);
+        LOG_DEBUG("db.query", "AreaTrigger {} is using SmartTrigger script", trigger->entry);
         SmartScript script;
         script.OnInitialize(nullptr, trigger);
         script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->entry);

@@ -483,7 +483,7 @@ public:
                     events2.CancelEvent(EVENT_PREFIGHT_PHASE71);
                     Talk(SAY_PHASE4_INTRO2);
                     phase = PHASE_FINAL;
-                    DoResetThreat();
+                    DoResetThreatList();
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         AttackStart(target);
@@ -997,7 +997,7 @@ public:
         {
             PreventHitEffect(effIndex);
 
-            ThreatContainer::StorageType const& ThreatList = GetCaster()-> GetThreatMgr().getThreatList();
+            ThreatContainer::StorageType const& ThreatList = GetCaster()-> GetThreatMgr().GetThreatList();
             std::list<Unit*> targetList;
             for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
             {

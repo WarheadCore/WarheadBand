@@ -81,4 +81,4 @@ namespace Warhead
 
 } // namespace Warhead
 
-#endif //
+#endif // _WARHEAD_LOG_COMMON_H_

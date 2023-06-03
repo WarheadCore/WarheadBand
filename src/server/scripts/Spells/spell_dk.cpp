@@ -24,6 +24,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
+#include "ObjectAccessor.h"
 #include "PetDefines.h"
 #include "Player.h"
 #include "ScriptObject.h"
@@ -651,10 +652,13 @@ class spell_dk_dancing_rune_weapon : public AuraScript
         {
             target = player->GetMeleeHitRedirectTarget(target);
             CalcDamageInfo damageInfo;
-            player->CalculateMeleeDamage(target, 0, &damageInfo, eventInfo.GetDamageInfo()->GetAttackType());
-            Unit::DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
+            player->CalculateMeleeDamage(target, &damageInfo, eventInfo.GetDamageInfo()->GetAttackType());
+            for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+            {
+                Unit::DealDamageMods(target, damageInfo.damages[i].damage, &damageInfo.damages[i].absorb);
+                damageInfo.damages[i].damage /= 2.0f;
+            }
             damageInfo.attacker = dancingRuneWeapon;
-            damageInfo.damage /= 2.0f;
             dancingRuneWeapon->SendAttackStateUpdate(&damageInfo);
             dancingRuneWeapon->DealMeleeDamage(&damageInfo, true);
         }

@@ -21,13 +21,14 @@
 #include "CreatureGroups.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
+#include "StopWatch.h"
 
-FormationMgr::~FormationMgr()
-{
-}
+FormationMgr::~FormationMgr() = default;
 
 FormationMgr* FormationMgr::instance()
 {
@@ -82,11 +83,10 @@ void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* membe
 
 void FormationMgr::LoadCreatureFormations()
 {
-    uint32 const oldMSTime = getMSTime();
+    StopWatch sw;
     CreatureGroupMap.clear();
 
-    //Get group data
-    QueryResult result = WorldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::CreatureFormations) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
@@ -95,32 +95,31 @@ void FormationMgr::LoadCreatureFormations()
     }
 
     uint32 count = 0;
-    do
-    {
-        Field const* fields = result->Fetch();
 
+    for (auto const& fields : *result)
+    {
         //Load group member data
         FormationInfo group_member;
-        group_member.leaderGUID            = fields[0].Get<uint32>();
+        group_member.leaderGUID              = fields[0].Get<uint32>();
         ObjectGuid::LowType const memberGUID = fields[1].Get<uint32>();
-        float const follow_dist             = fields[2].Get<float>();
-        float const follow_angle            = fields[3].Get<float>() * (static_cast<float>(M_PI) / 180);
-        group_member.groupAI               = fields[4].Get<uint16>();
-        group_member.point_1               = fields[5].Get<uint16>();
-        group_member.point_2               = fields[6].Get<uint16>();
+        float const follow_dist              = fields[2].Get<float>();
+        float const follow_angle             = fields[3].Get<float>() * (static_cast<float>(M_PI) / 180);
+        group_member.groupAI                 = fields[4].Get<uint16>();
+        group_member.point_1                 = fields[5].Get<uint16>();
+        group_member.point_2                 = fields[6].Get<uint16>();
 
         //If creature is group leader we may skip loading of dist/angle
         if (group_member.leaderGUID != memberGUID)
         {
             if (!group_member.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_SUPPORTED)))
             {
-                LOG_ERROR("sql.sql", "creature_formations table leader guid {} and member guid {} has unsupported GroupAI flag value ({}). Skipped", group_member.leaderGUID, memberGUID, group_member.groupAI);
+                LOG_ERROR("db.query", "creature_formations table leader guid {} and member guid {} has unsupported GroupAI flag value ({}). Skipped", group_member.leaderGUID, memberGUID, group_member.groupAI);
                 continue;
             }
 
             if (!group_member.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_FOLLOW_LEADER)) && (follow_dist > 0.0f || follow_angle > 0.0f))
             {
-                LOG_ERROR("sql.sql", "creature_formations table member guid {} and leader guid {} cannot have follow distance or follow angle because don't have GROUP_AI_FLAG_FOLLOW_LEADER flag. Values are not gonna be used", memberGUID, group_member.leaderGUID);
+                LOG_ERROR("db.query", "creature_formations table member guid {} and leader guid {} cannot have follow distance or follow angle because don't have GROUP_AI_FLAG_FOLLOW_LEADER flag. Values are not gonna be used", memberGUID, group_member.leaderGUID);
                 group_member.follow_dist       = 0.0f;
                 group_member.follow_angle      = 0.0f;
             }
@@ -135,7 +134,7 @@ void FormationMgr::LoadCreatureFormations()
             // Leader can have 0 AI flags - its allowed
             if (group_member.groupAI && !group_member.HasGroupFlag(std::underlying_type_t<GroupAIFlags>(GroupAIFlags::GROUP_AI_FLAG_SUPPORTED)))
             {
-                LOG_ERROR("sql.sql", "creature_formations table leader guid {} and member guid {} has unsupported GroupAI flag value ({}). Skipped", group_member.leaderGUID, memberGUID, group_member.groupAI);
+                LOG_ERROR("db.query", "creature_formations table leader guid {} and member guid {} has unsupported GroupAI flag value ({}). Skipped", group_member.leaderGUID, memberGUID, group_member.groupAI);
                 continue;
             }
 
@@ -143,27 +142,27 @@ void FormationMgr::LoadCreatureFormations()
             group_member.follow_angle      = 0.0f;
             if (follow_dist > 0.0f || follow_angle > 0.0f)
             {
-                LOG_ERROR("sql.sql", "creature_formations table member guid {} and leader guid {} cannot have follow distance or follow angle. Values are not gonna be used", memberGUID, group_member.leaderGUID);
+                LOG_ERROR("db.query", "creature_formations table member guid {} and leader guid {} cannot have follow distance or follow angle. Values are not gonna be used", memberGUID, group_member.leaderGUID);
             }
         }
 
         if (!sObjectMgr->GetCreatureData(group_member.leaderGUID))
         {
-            LOG_ERROR("sql.sql", "creature_formations table leader guid {} incorrect (does not exist). Skipped", group_member.leaderGUID);
+            LOG_ERROR("db.query", "creature_formations table leader guid {} incorrect (does not exist). Skipped", group_member.leaderGUID);
             continue;
         }
 
         if (!sObjectMgr->GetCreatureData(memberGUID))
         {
-            LOG_ERROR("sql.sql", "creature_formations table member guid {} incorrect (does not exist). Skipped", memberGUID);
+            LOG_ERROR("db.query", "creature_formations table member guid {} incorrect (does not exist). Skipped", memberGUID);
             continue;
         }
 
         CreatureGroupMap[memberGUID] = group_member;
         ++count;
-    } while (result->NextRow());
+    }
 
-    LOG_INFO("server.loading", ">> Loaded {} creatures in formations in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} Creatures In Formations in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -410,13 +409,16 @@ bool CreatureGroup::IsFormationInCombat()
     return false;
 }
 
-bool CreatureGroup::IsAnyMemberAlive()
+bool CreatureGroup::IsAnyMemberAlive(bool ignoreLeader /*= false*/)
 {
     for (auto const& itr : m_members)
     {
         if (itr.first && itr.first->IsAlive())
         {
-            return true;
+            if (!ignoreLeader || itr.first != m_leader)
+            {
+                return true;
+            }
         }
     }
 

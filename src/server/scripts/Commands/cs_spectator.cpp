@@ -20,7 +20,6 @@
 
 #include "AccountMgr.h"
 #include "ArenaSpectator.h"
-#include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "Player.h"
 #include "ScriptObject.h"

@@ -27,6 +27,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "StopWatch.h"
 #include "World.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
@@ -149,7 +150,7 @@ uint32 ArenaTeamMgr::GenerateTempArenaTeamId()
 
 void ArenaTeamMgr::LoadArenaTeams()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     // Clean out the trash before loading anything
     CharacterDatabase.Execute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)");       // One-time query
@@ -161,7 +162,7 @@ void ArenaTeamMgr::LoadArenaTeams()
 
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
+        LOG_INFO("server.loading", ">> Loaded 0 arena teams. DB table `arena_team` is empty!");
         LOG_INFO("server.loading", " ");
         return;
     }
@@ -191,8 +192,8 @@ void ArenaTeamMgr::LoadArenaTeams()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} arena teams in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-    LOG_INFO("server.loading", " ");
+    LOG_INFO("server.loading", ">> Loaded {} arena teams in {}", count, sw);
+    LOG_INFO("server.loading", "");
 }
 
 void ArenaTeamMgr::DistributeArenaPoints()
@@ -223,7 +224,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
             player->ModifyArenaPoints(playerItr->second, trans);
         else    // Update database
         {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ARENA_POINTS);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ARENA_POINTS);
             stmt->SetData(0, playerItr->second);
             stmt->SetData(1, playerItr->first.GetCounter());
             trans->Append(stmt);

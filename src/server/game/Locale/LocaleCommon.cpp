@@ -20,7 +20,7 @@
 
 #include "LocaleCommon.h"
 
-void Warhead::Locale::AddLocaleString(std::string&& str, LocaleConstant locale, std::vector<std::string>& data)
+void Warhead::Locale::AddLocaleString(std::string_view str, LocaleConstant locale, std::vector<std::string>& data)
 {
     if (str.empty())
         return;
@@ -28,5 +28,5 @@ void Warhead::Locale::AddLocaleString(std::string&& str, LocaleConstant locale, 
     if (data.size() <= size_t(locale))
         data.resize(size_t(locale) + 1);
 
-    data[locale] = std::move(str);
+    data[locale] = str;
 }

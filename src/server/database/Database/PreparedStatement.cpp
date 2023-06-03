@@ -20,37 +20,36 @@
 
 #include "PreparedStatement.h"
 #include "Errors.h"
-#include "Log.h"
-#include "MySQLConnection.h"
-#include "MySQLPreparedStatement.h"
-#include "MySQLWorkaround.h"
-#include "QueryResult.h"
 
 PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
-    m_index(index),
-    statement_data(capacity) { }
-
-PreparedStatementBase::~PreparedStatementBase() { }
+    _index(index),
+    _statementData(capacity)
+{
+    _paramsSet.assign(capacity, false);
+}
 
 //- Bind to buffer
 template<typename T>
 Warhead::Types::is_non_string_view_v<T> PreparedStatementBase::SetValidData(const uint8 index, T const& value)
 {
-    ASSERT(index < statement_data.size());
-    statement_data[index].data.emplace<T>(value);
+    ASSERT(index < _statementData.size());
+    _statementData[index].data.emplace<T>(value);
+    _paramsSet[index] = true;
 }
 
 // Non template functions
 void PreparedStatementBase::SetValidData(const uint8 index)
 {
-    ASSERT(index < statement_data.size());
-    statement_data[index].data.emplace<std::nullptr_t>(nullptr);
+    ASSERT(index < _statementData.size());
+    _statementData[index].data.emplace<std::nullptr_t>(nullptr);
+    _paramsSet[index] = true;
 }
 
 void PreparedStatementBase::SetValidData(const uint8 index, std::string_view value)
 {
-    ASSERT(index < statement_data.size());
-    statement_data[index].data.emplace<std::string>(value);
+    ASSERT(index < _statementData.size(), "> Incorrect index ({}). Statement data size: {}", index, _statementData.size());
+    _statementData[index].data.emplace<std::string>(value);
+    _paramsSet[index] = true;
 }
 
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, uint8 const& value);
@@ -66,42 +65,13 @@ template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 in
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, std::string const& value);
 template WH_DATABASE_API void PreparedStatementBase::SetValidData(const uint8 index, std::vector<uint8> const& value);
 
-//- Execution
-PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
-    m_stmt(stmt),
-    m_result(nullptr)
+std::pair<bool, uint8> PreparedStatementBase::IsAllParamsSet() const
 {
-    m_has_result = async; // If it's async, then there's a result
+    for (std::size_t index{}; index < _paramsSet.size(); index++)
+        if (!_paramsSet[index])
+            return { false, index };
 
-    if (async)
-        m_result = new PreparedQueryResultPromise();
-}
-
-PreparedStatementTask::~PreparedStatementTask()
-{
-    delete m_stmt;
-
-    if (m_has_result && m_result)
-        delete m_result;
-}
-
-bool PreparedStatementTask::Execute()
-{
-    if (m_has_result)
-    {
-        PreparedResultSet* result = m_conn->Query(m_stmt);
-        if (!result || !result->GetRowCount())
-        {
-            delete result;
-            m_result->set_value(PreparedQueryResult(nullptr));
-            return false;
-        }
-
-        m_result->set_value(PreparedQueryResult(result));
-        return true;
-    }
-
-    return m_conn->Execute(m_stmt);
+    return { true, {} };
 }
 
 template<typename T>

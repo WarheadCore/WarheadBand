@@ -21,19 +21,13 @@
 #include "Metric.h"
 #include "Config.h"
 #include "DeadlineTimer.h"
+#include "IoContextMgr.h"
 #include "Log.h"
 #include "Strand.h"
 #include "Tokenize.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
-
-Metric::Metric()
-{
-}
-
-Metric::~Metric()
-{
-}
+#include <utility>
 
 Metric* Metric::instance()
 {
@@ -41,19 +35,19 @@ Metric* Metric::instance()
     return &instance;
 }
 
-void Metric::Initialize(std::string const& realmName, Warhead::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
+void Metric::Initialize(std::string const& realmName, std::function<void()> overallStatusLogger)
 {
     _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(ioContext);
-    _overallStatusTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(ioContext);
-    _overallStatusLogger = overallStatusLogger;
+    _batchTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(sIoContextMgr->GetIoContext());
+    _overallStatusTimer = std::make_unique<Warhead::Asio::DeadlineTimer>(sIoContextMgr->GetIoContext());
+    _overallStatusLogger = std::move(overallStatusLogger);
     LoadFromConfigs();
 }
 
 bool Metric::Connect()
 {
-    auto& stream = static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream());
+    auto& stream = dynamic_cast<boost::asio::ip::tcp::iostream&>(GetDataStream());
     stream.connect(_hostname, _port);
 
     auto error = stream.error();
@@ -93,7 +87,7 @@ void Metric::LoadFromConfigs()
     std::vector<std::string> thresholdSettings = sConfigMgr->GetKeysByString("Metric.Threshold.");
     for (std::string const& thresholdSetting : thresholdSettings)
     {
-        int64 thresholdValue = sConfigMgr->GetOption<int64>(thresholdSetting, 0);
+        auto thresholdValue = sConfigMgr->GetOption<int64>(thresholdSetting, 0);
         std::string thresholdName = thresholdSetting.substr(strlen("Metric.Threshold."));
         _thresholds[thresholdName] = thresholdValue;
     }
@@ -102,7 +96,7 @@ void Metric::LoadFromConfigs()
     // Cancel any scheduled operation if the config changed from Enabled to Disabled.
     if (_enabled && !previousValue)
     {
-        std::string connectionInfo = sConfigMgr->GetOption<std::string>("Metric.ConnectionInfo", "");
+        auto connectionInfo = sConfigMgr->GetOption<std::string>("Metric.ConnectionInfo", "");
         if (connectionInfo.empty())
         {
             LOG_ERROR("metric", "'Metric.ConnectionInfo' not specified in configuration file.");
@@ -239,7 +233,7 @@ void Metric::SendBatch()
     {
         if (header == "Connection: close\r")
         {
-            static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
+            dynamic_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
         }
     }
 
@@ -255,7 +249,7 @@ void Metric::ScheduleSend()
     }
     else
     {
-        static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
+        dynamic_cast<boost::asio::ip::tcp::iostream&>(GetDataStream()).close();
         MetricData* data;
 
         // Clear the queue

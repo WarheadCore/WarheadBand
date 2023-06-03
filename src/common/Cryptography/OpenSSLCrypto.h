@@ -19,7 +19,6 @@
 #define _WARHEAD_OPENSSL_CRYPTO_H
 
 #include "Define.h"
-#include <string_view>
 
 /**
 * A group of functions which setup openssl crypto module to work properly in multithreaded enviroment
@@ -28,7 +27,7 @@
 namespace OpenSSLCrypto
 {
     /// Needs to be called before threads using openssl are spawned
-    WH_COMMON_API void threadsSetup(std::string_view providerModulePath);
+    WH_COMMON_API void threadsSetup();
 
     /// Needs to be called after threads using openssl are despawned
     WH_COMMON_API void threadsCleanup();

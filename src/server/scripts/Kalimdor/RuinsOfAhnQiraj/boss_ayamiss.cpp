@@ -22,8 +22,8 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "ruins_of_ahnqiraj.h"
 #include "TaskScheduler.h"
+#include "ruins_of_ahnqiraj.h"
 
 enum Spells
 {
@@ -92,6 +92,7 @@ struct boss_ayamiss : public BossAI
         _enraged = false;
         SetCombatMovement(false);
         _scheduler.CancelAll();
+        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void JustSummoned(Creature* who) override
@@ -123,12 +124,22 @@ struct boss_ayamiss : public BossAI
 
             me->m_Events.AddEventAtOffset([this]()
             {
+                me->SetReactState(REACT_AGGRESSIVE);
                 if (me->GetVictim())
                 {
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
                 }
 
             }, 1s);
+
+            _scheduler.Schedule(5s, 8s, [this](TaskContext context) {
+                DoCastVictim(SPELL_LASH);
+                context.Repeat(8s, 15s);
+            }).Schedule(16s, [this](TaskContext context)
+            {
+                DoCastSelf(SPELL_THRASH);
+                context.Repeat();
+            });
         }
     }
 
@@ -151,7 +162,7 @@ struct boss_ayamiss : public BossAI
             }
 
             context.Repeat(RAND(2400ms, 3600ms));
-        }).Schedule(15s, [this](TaskContext context) {
+        }).Schedule(15s, 28s, [this](TaskContext context) {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
             {
                 DoCast(target, SPELL_PARALYZE, true);
@@ -209,21 +220,11 @@ struct boss_ayamiss : public BossAI
         {
             _phase = PHASE_GROUND;
             me->ClearUnitState(UNIT_STATE_ROOT);
+            me->SetReactState(REACT_PASSIVE);
             me->SetCanFly(false);
             me->SetDisableGravity(false);
             me->GetMotionMaster()->MovePath(me->GetEntry() * 10, false);
-            DoResetThreat();
-
-            _scheduler.Schedule(5s, 8s, [this](TaskContext context) {
-                DoCastVictim(SPELL_LASH);
-                context.Repeat(8s, 15s);
-            }).Schedule(16s, [this](TaskContext context)
-            {
-                DoCastSelf(SPELL_THRASH);
-                context.Repeat();
-            });
-
-            _scheduler.DelayAll(5s);
+            DoResetThreatList();
             _scheduler.CancelGroup(PHASE_AIR);
         }
 
@@ -274,6 +275,7 @@ struct npc_hive_zara_larva : public ScriptedAI
         if (Creature* ayamiss = _instance->GetCreature(DATA_AYAMISS))
         {
             ayamiss->AI()->JustSummoned(summon);
+            summon->SetInCombatWithZone();
         }
     }
 

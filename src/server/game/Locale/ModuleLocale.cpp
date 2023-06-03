@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "Optional.h"
 #include "Player.h"
+#include "StopWatch.h"
 #include "Tokenize.h"
 #include "World.h"
 
@@ -64,8 +65,7 @@ Optional<std::string> ModuleLocale::GetModuleString(std::string const& entry, ui
 
 void ModuleLocale::LoadModuleString()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _modulesStringStore.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT `Entry`, `Locale`, `Text` FROM `string_module`");
@@ -78,7 +78,7 @@ void ModuleLocale::LoadModuleString()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
 
         auto& data = _modulesStringStore[fields[0].Get<std::string>()];
 
@@ -86,16 +86,18 @@ void ModuleLocale::LoadModuleString()
 
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} module strings in {} ms", _modulesStringStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} module strings in {}", _modulesStringStore.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
-void ModuleLocale::SendPlayerMessageFmt(Player* player, std::function<std::string_view(uint8)> const& msg)
+void ModuleLocale::SendPlayerMessageFmt(Player* player, std::function<std::string(uint8)> const& msg)
 {
     if (!msg)
         return;
 
-    for (std::string_view line : Warhead::Tokenize(msg(player->GetSession()->GetSessionDbLocaleIndex()), '\n', true))
+    std::string message{ msg(player->GetSession()->GetSessionDbLocaleIndex()) };
+
+    for (std::string_view line : Warhead::Tokenize(message, '\n', false))
     {
         WorldPacket data;
         ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
@@ -103,10 +105,25 @@ void ModuleLocale::SendPlayerMessageFmt(Player* player, std::function<std::strin
     }
 }
 
-void ModuleLocale::SendGlobalMessageFmt(bool gmOnly, std::function<std::string_view(uint8)> const& msg)
+void ModuleLocale::SendGlobalMessageFmt(bool gmOnly, std::function<std::string(uint8)> const& msg)
 {
     if (!msg)
         return;
+
+    std::unordered_map<uint8, std::vector<WorldPacket>> packetCache;
+    packetCache.rehash(TOTAL_LOCALES - 1);
+
+    for (uint8 i = LOCALE_enUS; i < TOTAL_LOCALES; ++i)
+    {
+        std::string message{ msg(i) };
+
+        for (std::string_view line : Warhead::Tokenize(message, '\n', true))
+        {
+            WorldPacket data;
+            ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
+            packetCache[i].emplace_back(std::move(data));
+        }
+    }
 
     for (auto const& [accountID, session] : sWorld->GetAllSessions())
     {
@@ -117,12 +134,11 @@ void ModuleLocale::SendGlobalMessageFmt(bool gmOnly, std::function<std::string_v
         if (AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && gmOnly)
             continue;
 
-        for (std::string_view line : Warhead::Tokenize(msg(player->GetSession()->GetSessionDbLocaleIndex()), '\n', true))
-        {
-            WorldPacket data;
-            ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
-            SendPlayerPacket(player, &data);
-        }
+        auto& packetList = packetCache[static_cast<uint8>(player->GetSession()->GetSessionDbLocaleIndex())];
+        ASSERT(!packetList.empty());
+
+        for (auto& packet : packetList)
+            SendPlayerPacket(player, &packet);
     }
 }
 

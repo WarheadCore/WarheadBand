@@ -19,33 +19,32 @@
 #define __BATTLEGROUNDQUEUE_H
 
 #include "Battleground.h"
-#include "Common.h"
 #include "DBCEnums.h"
 #include "EventProcessor.h"
 #include <array>
-#include <deque>
 
 constexpr auto COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME = 10;
 
-struct WH_GAME_API GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
+struct WH_GAME_API GroupQueueInfo                           // stores information about the group in queue (also used when joined as solo!)
 {
-    GuidSet Players;                                        // player guid set
-    TeamId  teamId;                                         // Player team (TEAM_ALLIANCE/TEAM_HORDE)
-    TeamId  RealTeamID;                                     // Realm player team (TEAM_ALLIANCE/TEAM_HORDE)
-    BattlegroundTypeId BgTypeId;                            // battleground type id
-    bool    IsRated;                                        // rated
-    uint8   ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
-    uint32  ArenaTeamId;                                    // team id if rated match
-    uint32  JoinTime;                                       // time when group was added
-    uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
-    uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
-    uint32  ArenaTeamRating;                                // if rated match, inited to the rating of the team
-    uint32  ArenaMatchmakerRating;                          // if rated match, inited to the rating of the team
-    uint32  OpponentsTeamRating;                            // for rated arena matches
-    uint32  OpponentsMatchmakerRating;                      // for rated arena matches
-    uint32  PreviousOpponentsTeamId;                        // excluded from the current queue until the timer is met
-    uint8   BracketId;                                      // BattlegroundBracketId
-    uint8   GroupType;                                      // BattlegroundQueueGroupTypes
+    ObjectGuid LeaderGuid{};                                // leader player guid
+    GuidVector Players;                                     // player guid list
+    TeamId  teamId{};                                       // Player team (TEAM_ALLIANCE/TEAM_HORDE)
+    TeamId  RealTeamID{};                                   // Realm player team (TEAM_ALLIANCE/TEAM_HORDE)
+    BattlegroundTypeId BgTypeId{};                          // battleground type id
+    bool    IsRated{};                                      // rated
+    uint8   ArenaType{};                                    // 2v2, 3v3, 5v5 or 0 when BG
+    uint32  ArenaTeamId{};                                  // team id if rated match
+    Milliseconds JoinTime{};                                // time when group was added
+    uint32  RemoveInviteTime{};                             // time when we will remove invite for players in group
+    uint32  IsInvitedToBGInstanceGUID{};                    // was invited to certain BG
+    uint32  ArenaTeamRating{};                              // if rated match, inited to the rating of the team
+    uint32  ArenaMatchmakerRating{};                        // if rated match, inited to the rating of the team
+    uint32  OpponentsTeamRating{};                          // for rated arena matches
+    uint32  OpponentsMatchmakerRating{};                    // for rated arena matches
+    uint32  PreviousOpponentsTeamId{};                      // excluded from the current queue until the timer is met
+    uint8   BracketId{};                                    // BattlegroundBracketId
+    uint8   GroupType{};                                    // BattlegroundQueueGroupTypes
 };
 
 enum BattlegroundQueueGroupTypes

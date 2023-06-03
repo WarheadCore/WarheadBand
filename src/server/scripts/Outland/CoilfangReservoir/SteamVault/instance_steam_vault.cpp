@@ -19,8 +19,10 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "InstanceScript.h"
+#include "Log.h"
 #include "ScriptObject.h"
 #include "steam_vault.h"
+#include <sstream>
 
 class go_main_chambers_access_panel : public GameObjectScript
 {

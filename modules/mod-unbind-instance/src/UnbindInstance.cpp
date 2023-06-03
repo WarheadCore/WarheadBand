@@ -21,6 +21,7 @@
 #include "UnbindInstance.h"
 #include "Chat.h"
 #include "Creature.h"
+#include "DatabaseEnv.h"
 #include "GameLocale.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
@@ -192,32 +193,30 @@ void UnbindInstance::LoadCostData()
     auto IsCorrectCount = [](std::initializer_list<uint32> listCount) -> bool
     {
         for (auto const& count : listCount)
-            return count ? true : false;
+            return count != 0;
 
         return false;
     };
 
-    do
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
-
-        UnbindCost _UIData;
-        _UIData.ItemID                  = fields[0].Get<uint32>();
-        _UIData.CountForDungeonHeroic   = fields[1].Get<uint32>();
-        _UIData.CountForRaid10Normal    = fields[2].Get<uint32>();
-        _UIData.CountForRaid25Normal    = fields[3].Get<uint32>();
-        _UIData.CountForRaid10Heroic    = fields[4].Get<uint32>();
-        _UIData.CountForRaid25Heroic    = fields[5].Get<uint32>();
+        UnbindCost UIData;
+        UIData.ItemID                  = fields[0].Get<uint32>();
+        UIData.CountForDungeonHeroic   = fields[1].Get<uint32>();
+        UIData.CountForRaid10Normal    = fields[2].Get<uint32>();
+        UIData.CountForRaid25Normal    = fields[3].Get<uint32>();
+        UIData.CountForRaid10Heroic    = fields[4].Get<uint32>();
+        UIData.CountForRaid25Heroic    = fields[5].Get<uint32>();
 
         // Check item
-        if (!IsCorrectItemId(_UIData.ItemID))
+        if (!IsCorrectItemId(UIData.ItemID))
             continue;
 
-        if (!IsCorrectCount({ _UIData.CountForRaid10Normal, _UIData.CountForRaid25Normal, _UIData.CountForRaid10Heroic, _UIData.CountForRaid25Heroic }))
+        if (!IsCorrectCount({ UIData.CountForRaid10Normal, UIData.CountForRaid25Normal, UIData.CountForRaid10Heroic, UIData.CountForRaid25Heroic }))
             continue;
 
-        _costStore.emplace(_UIData.ItemID, _UIData);
-    } while (result->NextRow());
+        _costStore.emplace(UIData.ItemID, UIData);
+    }
 
     LOG_INFO("module.unbind", ">> Загружено {} вариантов за {}", _costStore.size(), sw);
     LOG_INFO("module.unbind", "");

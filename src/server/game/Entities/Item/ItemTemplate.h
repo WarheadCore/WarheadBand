@@ -295,7 +295,8 @@ enum InventoryType
 
 #define MAX_INVTYPE                               29
 
-enum ItemClass
+// EnumUtils: DESCRIBE THIS
+enum ItemClass : uint8
 {
     ITEM_CLASS_CONSUMABLE                       = 0,
     ITEM_CLASS_CONTAINER                        = 1,
@@ -595,6 +596,7 @@ struct _ItemStat
     uint32  ItemStatType;
     int32   ItemStatValue;
 };
+
 struct _Spell
 {
     int32 SpellId;                                          // id from Spell.dbc
@@ -659,12 +661,12 @@ struct ItemTemplate
     uint32 ScalingStatValue;                                // mask for selecting column in ScalingStatValues.dbc
     _Damage Damage[MAX_ITEM_PROTO_DAMAGES];
     uint32 Armor;
-    uint32 HolyRes;
-    uint32 FireRes;
-    uint32 NatureRes;
-    uint32 FrostRes;
-    uint32 ShadowRes;
-    uint32 ArcaneRes;
+    int32 HolyRes;
+    int32 FireRes;
+    int32 NatureRes;
+    int32 FrostRes;
+    int32 ShadowRes;
+    int32 ArcaneRes;
     uint32 Delay;
     uint32 AmmoType;
     float  RangedModRange;

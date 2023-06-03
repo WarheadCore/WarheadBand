@@ -154,7 +154,7 @@ void Warhead::Log::CreateLoggerFromConfig(std::string_view configLoggerName)
         return;
     }
 
-    LogLevel level = static_cast<LogLevel>(*loggerLevel);
+    auto level = static_cast<LogLevel>(*loggerLevel);
 
     if (level > highestLogLevel)
         highestLogLevel = level;
@@ -281,7 +281,7 @@ Warhead::Logger* Warhead::Log::GetLoggerByType(std::string_view type)
         return nullptr;
 
     std::string_view parentLogger{ LOGGER_ROOT };
-    size_t found = type.find_last_of('.');
+    auto found = type.find_last_of('.');
     if (found != std::string_view::npos)
         parentLogger = type.substr(0, found);
 
@@ -297,7 +297,7 @@ Warhead::Logger* Warhead::Log::HasLogger(std::string_view type)
     return nullptr;
 }
 
-std::shared_ptr<Warhead::Channel> Warhead::Log::HasChannel(std::string_view name)
+std::shared_ptr<Warhead::LogChannel> Warhead::Log::HasChannel(std::string_view name)
 {
     auto const& itr = _channels.find(std::string{ name });
     if (itr != _channels.end())

@@ -24,6 +24,8 @@
 #include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DBCStores.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
@@ -36,6 +38,7 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -43,6 +46,7 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SpellAuras.h"
+#include "StopWatch.h"
 #include "WorldSession.h"
 
 namespace lfg
@@ -102,7 +106,7 @@ namespace lfg
         if (!guid.IsGroup())
             return;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_LFG_DATA);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_LFG_DATA);
         stmt->SetData(0, guid.GetCounter());
         stmt->SetData(1, GetDungeon(guid));
         stmt->SetData(2, GetState(guid));
@@ -112,15 +116,15 @@ namespace lfg
     /// Load rewards for completing dungeons
     void LFGMgr::LoadRewards()
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         for (LfgRewardContainer::iterator itr = RewardMapStore.begin(); itr != RewardMapStore.end(); ++itr)
             delete itr->second;
+
         RewardMapStore.clear();
 
         // ORDER BY is very important for GetRandomDungeonReward!
-        QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::LfgDungeonRewards) };
         if (!result)
         {
             LOG_ERROR("lfg", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
@@ -129,10 +133,8 @@ namespace lfg
 
         uint32 count = 0;
 
-        Field* fields = nullptr;
-        do
+        for (auto const& fields : *result)
         {
-            fields = result->Fetch();
             uint32 dungeonId = fields[0].Get<uint32>();
             uint32 maxLevel = fields[1].Get<uint8>();
             uint32 firstQuestId = fields[2].Get<uint32>();
@@ -164,10 +166,10 @@ namespace lfg
 
             RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId)));
             ++count;
-        } while (result->NextRow());
+        }
 
-        LOG_INFO("server.loading", ">> Loaded {} lfg dungeon rewards in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", ">> Loaded {} LFG Dungeon Rewards in {}", count, sw);
+        LOG_INFO("server.loading", "");
     }
 
     LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
@@ -181,8 +183,7 @@ namespace lfg
 
     void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     {
-        uint32 oldMSTime = getMSTime();
-
+        StopWatch sw;
         LfgDungeonStore.clear();
 
         // Initialize Dungeon map with data from dbcs
@@ -204,21 +205,18 @@ namespace lfg
         }
 
         // Fill teleport locations from DB
-        //                                                   0          1           2           3            4
-        QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation FROM lfg_dungeon_template");
-
+        auto result{ sDBCacheMgr->GetResult(DBCacheTable::LfgDungeonTemplate) };
         if (!result)
         {
-            LOG_ERROR("lfg", ">> Loaded 0 lfg entrance positions. DB table `lfg_dungeon_template` is empty!");
+            LOG_ERROR("lfg", ">> Loaded 0 LFG Entrance Positions. DB Table `lfg_dungeon_template` Is Empty!");
             LOG_INFO("server.loading", " ");
             return;
         }
 
         uint32 count = 0;
 
-        do
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
             uint32 dungeonId = fields[0].Get<uint32>();
             LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
             if (dungeonItr == LfgDungeonStore.end())
@@ -234,9 +232,9 @@ namespace lfg
             data.o = fields[4].Get<float>();
 
             ++count;
-        } while (result->NextRow());
+        }
 
-        LOG_INFO("server.loading", ">> Loaded {} lfg entrance positions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+        LOG_INFO("server.loading", ">> Loaded {} LFG Entrance Positions in {}", count, sw);
         LOG_INFO("server.loading", " ");
 
         // Fill all other teleport coords from areatriggers
@@ -788,14 +786,6 @@ namespace lfg
             SetRoles(guid, roles);
             debugNames.append(player->GetName());
         }
-
-        /*if (sLog->ShouldLog(LOG_FILTER_LFG, LOG_LEVEL_DEBUG))
-        {
-            std::ostringstream o;
-            o << "LFGMgr::Join: [" << guid << "] joined (" << (grp ? "group" : "player") << ") Members: " << debugNames.c_str()
-              << ". Dungeons (" << uint32(dungeons.size()) << "): " << ConcatenateDungeons(dungeons);
-            LOG_DEBUG("lfg", "{}", o.str());
-        }*/
     }
 
     void LFGMgr::ToggleTesting()

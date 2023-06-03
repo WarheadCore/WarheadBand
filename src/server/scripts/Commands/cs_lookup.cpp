@@ -28,6 +28,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
 #include "GameLocale.h"
@@ -38,8 +39,7 @@ EndScriptData */
 #include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "StringFormat.h"
-
-using namespace Warhead::ChatCommands;
+#include <sstream>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -1627,9 +1627,9 @@ public:
             ip = *ip;
         }
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_IP);
         stmt->SetData(0, *ip);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
     }
@@ -1641,18 +1641,18 @@ public:
             return false;
         }
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME);
         stmt->SetData(0, account);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
     }
 
     static bool HandleLookupPlayerEmailCommand(ChatHandler* handler, std::string email, Optional<int32> limit)
     {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);
         stmt->SetData(0, email);
-        PreparedQueryResult result = LoginDatabase.Query(stmt);
+        PreparedQueryResult result = AuthDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
     }
@@ -1678,11 +1678,11 @@ public:
                 return true;
             }
 
-            Field* fields           = result->Fetch();
+            auto fields             = result->Fetch();
             uint32 accountId        = fields[0].Get<uint32>();
             std::string accountName = fields[1].Get<std::string>();
 
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_NAME_BY_ACC);
+            CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_NAME_BY_ACC);
             stmt->SetData(0, accountId);
             PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
 
@@ -1692,7 +1692,7 @@ public:
 
                 do
                 {
-                    Field* characterFields   = result2->Fetch();
+                    auto characterFields   = result2->Fetch();
                     ObjectGuid::LowType guid = characterFields[0].Get<uint32>();
                     std::string name         = characterFields[1].Get<std::string>();
                     uint8 plevel = 0, prace = 0, pclass = 0;

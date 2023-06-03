@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameTime.h"
@@ -193,6 +194,10 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         {
             err = ERR_BATTLEGROUND_NONE;
         }
+        else if (!_player->GetBGAccessByLevel(bgTypeId))
+        {
+            err = ERR_BATTLEGROUND_NONE;
+        }
 
         if (err <= 0)
         {
@@ -241,6 +246,10 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             else if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId)) // queued for this bg
             {
                 err = ERR_BATTLEGROUND_NONE;
+            }
+            else if (!member->GetBGAccessByLevel(bgTypeId))
+            {
+                err = ERR_BATTLEGROUND_JOIN_TIMED_OUT;
             }
 
             if (err < 0)
@@ -409,6 +418,12 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
         return;
     }
 
+    if (_player->GetCharmGUID() || _player->IsInCombat())
+    {
+        Warhead::Text::SendNotification(this, LANG_YOU_IN_COMBAT);
+        return;
+    }
+
     // get BattlegroundQueue for received
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenaType);
@@ -563,7 +578,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& recvData)
         {
             if (CONF_GET_BOOL("Battleground.TrackDeserters.Enable"))
             {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
+                CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_DESERTER_TRACK);
                 stmt->SetData(0, _player->GetGUID().GetCounter());
                 stmt->SetData(1, BG_DESERTION_TYPE_LEAVE_QUEUE);
                 CharacterDatabase.Execute(stmt);
@@ -647,7 +662,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
                 continue;
 
             uint32 avgWaitTime = bgQueue.GetAverageQueueWaitTime(&ginfo);
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bgt, i, STATUS_WAIT_QUEUE, avgWaitTime, getMSTimeDiff(ginfo.JoinTime, GameTime::GetGameTimeMS().count()), ginfo.ArenaType, TEAM_NEUTRAL, ginfo.IsRated);
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bgt, i, STATUS_WAIT_QUEUE, avgWaitTime, GetMSTimeDiff(ginfo.JoinTime, GameTime::GetGameTimeMS()).count(), ginfo.ArenaType, TEAM_NEUTRAL, ginfo.IsRated);
             SendPacket(&data);
         }
     }

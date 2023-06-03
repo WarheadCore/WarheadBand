@@ -25,6 +25,7 @@
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "the_black_morass.h"
+#include <sstream>
 
 const Position PortalLocation[4] =
 {

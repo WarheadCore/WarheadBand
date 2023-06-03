@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "GridNotifiers.h"
-#include "Group.h"
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
@@ -551,7 +550,7 @@ public:
                 case EVENT_SLIME_PUDDLE:
                     {
                         std::list<Unit*> targets;
-                        SelectTargetList(targets, 2, SelectTargetMethod::Random, 0.0f, true);
+                        SelectTargetList(targets, 2, SelectTargetMethod::Random, 0, 0.0f, true);
                         if (!targets.empty())
                             for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                 me->CastSpell(*itr, SPELL_SLIME_PUDDLE_TRIGGER, true);
@@ -637,7 +636,7 @@ public:
                     if (Is25ManRaid())
                     {
                         std::list<Unit*> targets;
-                        SelectTargetList(targets, MalleableGooSelector(me), (IsHeroic() ? 3 : 2), SelectTargetMethod::Random);
+                        SelectTargetList(targets, (IsHeroic() ? 3 : 2), SelectTargetMethod::Random, 0, MalleableGooSelector(me));
 
                         if (!targets.empty())
                         {

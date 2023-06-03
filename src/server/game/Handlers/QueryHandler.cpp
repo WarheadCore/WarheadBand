@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "MapMgr.h"
 #include "NPCHandler.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"

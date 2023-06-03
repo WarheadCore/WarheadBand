@@ -20,7 +20,6 @@
 
 #include "Battleground.h"
 #include "Chat.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptObject.h"
 

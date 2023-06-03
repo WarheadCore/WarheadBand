@@ -20,6 +20,7 @@
 
 #include "WorldSocket.h"
 #include "AccountMgr.h"
+#include "BanMgr.h"
 #include "Config.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
@@ -27,9 +28,9 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "IPLocation.h"
+#include "IpCache.h"
 #include "Opcodes.h"
 #include "PacketLog.h"
-#include "Random.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
@@ -49,28 +50,49 @@ WorldSocket::~WorldSocket() = default;
 
 void WorldSocket::Start()
 {
-    std::string ip_address = GetRemoteIpAddress().to_string();
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->SetData(0, ip_address);
+    std::string ipAddress = GetRemoteIpAddress().to_string();
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+    sIPCacheMgr->CheckIp(ipAddress);
+
+    if (sIPCacheMgr->CanCheckIpFromDB(ipAddress))
+    {
+        AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+        stmt->SetArguments(ipAddress);
+        _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+        return;
+    }
+
+    if (sIPCacheMgr->IsBanned(ipAddress))
+    {
+        SendAuthResponseError(AUTH_REJECT);
+        LOG_ERROR("network", "WorldSocket::Start: Client try login with ban ignore authserver. IP: {}", ipAddress);
+        DelayedCloseSocket();
+        return;
+    }
+
+    AsyncRead();
+    HandleSendAuthSession();
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 {
-    if (result)
+    std::string ipAddress = GetRemoteIpAddress().to_string();
+
+    // Not found ban info for this ip
+    if (!result)
     {
-        bool banned = false;
-        do
-        {
-            Field* fields = result->Fetch();
-            if (fields[0].Get<uint64>() != 0)
-                banned = true;
+        AsyncRead();
+        HandleSendAuthSession();
+        return;
+    }
 
-        } while (result->NextRow());
-
-        if (banned)
+    for (auto const& row : *result)
+    {
+        if (row[0].Get<uint64>())
         {
+            // Set ban in cache
+            sIPCacheMgr->SetBannedForIP(ipAddress, Warhead::CheckIpType::LoginFlood);
+
             SendAuthResponseError(AUTH_REJECT);
             LOG_ERROR("network", "WorldSocket::CheckIpCallback: Sent Auth Response (IP {} banned).", GetRemoteIpAddress().to_string());
             DelayedCloseSocket();
@@ -124,7 +146,6 @@ bool WorldSocket::Update()
         return false;
 
     _queryProcessor.ProcessReadyCallbacks();
-
     return true;
 }
 
@@ -215,15 +236,18 @@ bool WorldSocket::ReadHeaderHandler()
     if (_authCrypt.IsInitialized())
         _authCrypt.DecryptRecv(_headerBuffer.GetReadPointer(), sizeof(ClientPktHeader));
 
-    ClientPktHeader* header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
+    auto header = reinterpret_cast<ClientPktHeader*>(_headerBuffer.GetReadPointer());
     EndianConvertReverse(header->size);
     EndianConvert(header->cmd);
 
     if (!header->IsValidSize() || !header->IsValidOpcode())
     {
-        LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
-            GetRemoteIpAddress().to_string(), header->size, header->cmd);
+        auto ipAddress{ GetRemoteIpAddress().to_string() };
 
+        LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client {} sent malformed packet (size: {}, cmd: {})",
+            ipAddress, header->size, header->cmd);
+
+        sIPCacheMgr->CheckIp(ipAddress, Warhead::CheckIpType::Malformed);
         return false;
     }
 
@@ -437,11 +461,11 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket.read(authSession->AddonInfo.contents(), authSession->AddonInfo.size()); // .contents will throw if empty, thats what we want
 
     // Get the account information from the auth database
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    AuthDatabasePreparedStatement stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->SetData(0, int32(realm.Id.Realm));
     stmt->SetData(1, authSession->Account);
 
-    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
+    _queryProcessor.AddCallback(AuthDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result)
@@ -461,13 +485,13 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     // For hook purposes, we get Remoteaddress at this point.
     std::string address = sConfigMgr->GetOption<bool>("AllowLoggingIPAddressesInDatabase", true, true) ? GetRemoteIpAddress().to_string() : "0.0.0.0";
 
-    LoginDatabasePreparedStatement* stmt = nullptr;
+    AuthDatabasePreparedStatement stmt = nullptr;
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
+    stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
     stmt->SetData(0, address);
     stmt->SetData(1, authSession->Account);
-    LoginDatabase.Execute(stmt);
+    AuthDatabase.Execute(stmt);
     // This also allows to check for possible "hack" attempts on account
 
     // even if auth credentials are bad, try using the session key we have - client cannot read auth response error without it
@@ -573,11 +597,11 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '{}' authenticated successfully from {}.", authSession->Account, address);
 
     // Update the last_ip in the database as it was successful for login
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
+    stmt = AuthDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
     stmt->SetData(0, address);
     stmt->SetData(1, authSession->Account);
 
-    LoginDatabase.Execute(stmt);
+    AuthDatabase.Execute(stmt);
 
     // At this point, we can safely hook a successful login
     sScriptMgr->OnAccountLogin(account.Id);

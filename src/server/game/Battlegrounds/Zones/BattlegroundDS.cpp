@@ -19,15 +19,12 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "BattlegroundDS.h"
-#include "ArenaScore.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 BattlegroundDS::BattlegroundDS()
 {
@@ -204,7 +201,7 @@ bool BattlegroundDS::SetupBattleground()
             || !AddObject(BG_DS_OBJECT_READY_MARKER_1, ARENA_READY_MARKER_ENTRY, 1229.44f, 759.35f, 17.89f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 300)
             || !AddObject(BG_DS_OBJECT_READY_MARKER_2, ARENA_READY_MARKER_ENTRY, 1352.90f, 822.77f, 17.96f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 300))
     {
-        LOG_ERROR("sql.sql", "BatteGroundDS: Failed to spawn some object!");
+        LOG_ERROR("db.query", "BatteGroundDS: Failed to spawn some object!");
         return false;
     }
 

@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include <future>
-#include <mutex>
 
 void process_message(struct soap* soap_message);
 void ACSoapThread(const std::string& host, uint16 port);
@@ -28,37 +27,22 @@ void ACSoapThread(const std::string& host, uint16 port);
 class SOAPCommand
 {
 public:
-    SOAPCommand() :
-        m_success(false) { }
+    SOAPCommand() = default;
+    ~SOAPCommand() = default;
 
-    ~SOAPCommand() { }
+    inline void appendToPrintBuffer(std::string_view msg) { _printBuffer.append(msg); }
 
-    void appendToPrintBuffer(std::string_view msg)
+    inline void setCommandSuccess(bool val)
     {
-        m_printBuffer += msg;
+        _success = val;
+        _finishedPromise.set_value();
     }
 
-    void setCommandSuccess(bool val)
-    {
-        m_success = val;
-        finishedPromise.set_value();
-    }
+    [[nodiscard]] bool hasCommandSucceeded() const { return _success; }
 
-    bool hasCommandSucceeded() const
-    {
-        return m_success;
-    }
-
-    static void print(void* callbackArg, std::string_view msg)
-    {
-        ((SOAPCommand*)callbackArg)->appendToPrintBuffer(msg);
-    }
-
-    static void commandFinished(void* callbackArg, bool success);
-
-    bool m_success;
-    std::string m_printBuffer;
-    std::promise<void> finishedPromise;
+    bool _success{};
+    std::string _printBuffer;
+    std::promise<void> _finishedPromise;
 };
 
 #endif

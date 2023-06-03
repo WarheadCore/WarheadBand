@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Warhead_AES_h__
-#define Warhead_AES_h__
+#ifndef Azeroth_AES_h__
+#define Azeroth_AES_h__
 
 #include "Define.h"
 #include <array>
@@ -35,7 +35,7 @@ namespace Warhead::Crypto
         using Key = std::array<uint8, KEY_SIZE_BYTES>;
         using Tag = uint8[TAG_SIZE_BYTES];
 
-        AES(bool encrypting);
+        explicit AES(bool encrypting);
         ~AES();
 
         void Init(Key const& key);
@@ -48,4 +48,4 @@ namespace Warhead::Crypto
     };
 }
 
-#endif // Warhead_AES_h__
+#endif // Azeroth_AES_h__

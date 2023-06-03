@@ -24,7 +24,6 @@
 #include "DynamicObject.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -101,6 +100,11 @@ namespace PlayerNameMapHolder
     void Remove(Player* p)
     {
         PlayerNameMap.erase(p->GetName());
+    }
+
+    void RemoveByName(std::string const& name)
+    {
+        PlayerNameMap.erase(name);
     }
 
     Player* Find(std::string const& name)
@@ -292,4 +296,10 @@ void ObjectAccessor::RemoveObject(Player* player)
 {
     HashMapHolder<Player>::Remove(player);
     PlayerNameMapHolder::Remove(player);
+}
+
+void ObjectAccessor::UpdatePlayerNameMapReference(std::string const& oldname, Player* player)
+{
+    PlayerNameMapHolder::RemoveByName(oldname);
+    PlayerNameMapHolder::Insert(player);
 }

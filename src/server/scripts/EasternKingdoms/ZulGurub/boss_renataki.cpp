@@ -88,8 +88,18 @@ public:
 
         bool CanAIAttack(Unit const* target) const override
         {
-            if (me->GetThreatMgr().getThreatList().size() > 1 && me->GetThreatMgr().getOnlineContainer().getMostHated()->getTarget() == target)
-                return !target->HasAura(SPELL_GOUGE);
+            if (me->GetThreatMgr().GetThreatListSize() > 1)
+            {
+                ThreatContainer::StorageType::const_iterator lastRef = me->GetThreatMgr().GetOnlineContainer().GetThreatList().end();
+                --lastRef;
+                if (Unit* lastTarget = (*lastRef)->getTarget())
+                {
+                    if (lastTarget != target)
+                    {
+                        return !target->HasAura(SPELL_GOUGE);
+                    }
+                }
+            }
 
             return true;
         }
@@ -161,7 +171,7 @@ public:
                         if (_thousandBladesTargets.empty())
                         {
                             std::vector<Unit*> targetList;
-                            ThreatContainer::StorageType const& threatlist = me->GetThreatMgr().getThreatList();
+                            ThreatContainer::StorageType const& threatlist = me->GetThreatMgr().GetThreatList();
                             for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                             {
                                 if (Unit* target = (*itr)->getTarget())
@@ -182,7 +192,7 @@ public:
                                 {
                                     if (!target->IsWithinMeleeRange(me))
                                     {
-                                        _thousandBladesTargets.push_back(target);
+                                        _thousandBladesTargets.push_back(target->GetGUID());
                                     }
                                 }
 
@@ -193,7 +203,7 @@ public:
                                     {
                                         if (target->IsWithinMeleeRange(me))
                                         {
-                                            _thousandBladesTargets.push_back(target);
+                                            _thousandBladesTargets.push_back(target->GetGUID());
                                         }
                                     }
                                 }
@@ -207,12 +217,12 @@ public:
 
                         if (!_thousandBladesTargets.empty())
                         {
-                            std::vector<Unit*>::iterator itr = _thousandBladesTargets.begin();
+                            GuidVector::iterator itr = _thousandBladesTargets.begin();
                             std::advance(itr, urand(0, _thousandBladesTargets.size() - 1));
 
-                            if (Unit* target = *itr)
+                            if (Unit* target = ObjectAccessor::GetUnit(*me, *itr))
                             {
-                                DoCast(target, SPELL_THOUSAND_BLADES, false);
+                                DoCast(target, SPELL_THOUSAND_BLADES);
                             }
 
                             if (_thousandBladesTargets.erase(itr) != _thousandBladesTargets.end())
@@ -245,7 +255,7 @@ public:
         bool _enraged;
         uint32 _dynamicFlags;
         uint8 _thousandBladesCount;
-        std::vector<Unit*> _thousandBladesTargets;
+        GuidVector _thousandBladesTargets;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

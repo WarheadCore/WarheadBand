@@ -19,13 +19,13 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "ExternalMail.h"
 #include "Log.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "StringFormat.h"
 
 struct LevelRewardStruct
 {
@@ -59,10 +59,8 @@ public:
             return;
         }
 
-        do
+        for (auto const& fields : *result)
         {
-            Field* fields = result->Fetch();
-
             LevelRewardStruct _levelReward;
 
             uint32 Level = fields[0].Get<uint32>();
@@ -95,8 +93,7 @@ public:
             }
 
             rewards.emplace(Level, _levelReward);
-
-        } while (result->NextRow());
+        }
 
         LOG_INFO("module", ">> Loaded {} reward for level in {} ms", rewards.size(), GetMSTimeDiffToNow(msTime));
         LOG_INFO("module", "");

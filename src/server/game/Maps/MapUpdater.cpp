@@ -19,6 +19,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "MapUpdater.h"
+#include "DatabaseEnv.h"
 #include "LFGMgr.h"
 #include "Map.h"
 #include "Metric.h"
@@ -29,121 +30,108 @@ public:
     UpdateRequest() = default;
     virtual ~UpdateRequest() = default;
 
-    virtual void call() = 0;
+    virtual void UpdateMap() = 0;
 };
 
 class MapUpdateRequest : public UpdateRequest
 {
 public:
-    MapUpdateRequest(Map& m, MapUpdater& u, uint32 d, uint32 sd)
-        : m_map(m), m_updater(u), m_diff(d), s_diff(sd)
-    {
-    }
+    MapUpdateRequest(Map& m, MapUpdater& u, uint32 d, uint32 sd) :
+        _map(m), _updater(u), _mapDiff(d), _sDiff(sd) { }
 
-    void call() override
+    void UpdateMap() override
     {
-        METRIC_TIMER("map_update_time_diff", METRIC_TAG("map_id", std::to_string(m_map.GetId())));
-        m_map.Update(m_diff, s_diff);
-        m_updater.update_finished();
+        METRIC_TIMER("map_update_time_diff", METRIC_TAG("map_id", std::to_string(_map.GetId())));
+        _map.Update(_mapDiff, _sDiff);
+        _updater.FinishUpdate();
     }
 
 private:
-    Map& m_map;
-    MapUpdater& m_updater;
-    uint32 m_diff;
-    uint32 s_diff;
+    Map& _map;
+    MapUpdater& _updater;
+    uint32 _mapDiff;
+    uint32 _sDiff;
 };
 
 class LFGUpdateRequest : public UpdateRequest
 {
 public:
-    LFGUpdateRequest(MapUpdater& u, uint32 d) : m_updater(u), m_diff(d) {}
+    LFGUpdateRequest(MapUpdater& u, uint32 d) : _updater(u), _diff(d) {}
 
-    void call() override
+    void UpdateMap() override
     {
-        sLFGMgr->Update(m_diff, 1);
-        m_updater.update_finished();
+        sLFGMgr->Update(_diff, 1);
+        _updater.FinishUpdate();
     }
+
 private:
-    MapUpdater& m_updater;
-    uint32 m_diff;
+    MapUpdater& _updater;
+    uint32 _diff;
 };
 
-MapUpdater::MapUpdater(): pending_requests(0)
-{
-}
-
-void MapUpdater::activate(size_t num_threads)
+void MapUpdater::InitThreads(std::size_t num_threads)
 {
     _workerThreads.reserve(num_threads);
-    for (size_t i = 0; i < num_threads; ++i)
-    {
-        _workerThreads.push_back(std::thread(&MapUpdater::WorkerThread, this));
-    }
+
+    for (std::size_t i = 0; i < num_threads; ++i)
+        _workerThreads.emplace_back(&MapUpdater::InitializeThread, this);
 }
 
-void MapUpdater::deactivate()
+void MapUpdater::Stop()
 {
     _cancelationToken = true;
 
-    wait();
-
+    WaitThreads();
     _queue.Cancel();
 
     for (auto& thread : _workerThreads)
-    {
         if (thread.joinable())
-        {
             thread.join();
-        }
-    }
 }
 
-void MapUpdater::wait()
+void MapUpdater::WaitThreads()
 {
     std::unique_lock<std::mutex> guard(_lock);
 
-    while (pending_requests > 0)
+    while (pending_requests)
         _condition.wait(guard);
 
     guard.unlock();
 }
 
-void MapUpdater::schedule_update(Map& map, uint32 diff, uint32 s_diff)
+void MapUpdater::ScheduleUpdate(Map& map, uint32 diff, uint32 s_diff)
 {
     std::lock_guard<std::mutex> guard(_lock);
-
     ++pending_requests;
-
     _queue.Push(new MapUpdateRequest(map, *this, diff, s_diff));
 }
 
-void MapUpdater::schedule_lfg_update(uint32 diff)
+void MapUpdater::ScheduleLfgUpdate(uint32 diff)
 {
     std::lock_guard<std::mutex> guard(_lock);
-
     ++pending_requests;
-
     _queue.Push(new LFGUpdateRequest(*this, diff));
 }
 
-bool MapUpdater::activated()
+bool MapUpdater::IsActive()
 {
-    return _workerThreads.size() > 0;
+    return !_workerThreads.empty();
 }
 
-void MapUpdater::update_finished()
+void MapUpdater::FinishUpdate()
 {
     std::lock_guard<std::mutex> lock(_lock);
-
     --pending_requests;
-
     _condition.notify_all();
 }
 
-void MapUpdater::WorkerThread()
+void MapUpdater::InitializeThread()
 {
-    while (1)
+    AuthDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
+
+    for (;;)
     {
         UpdateRequest* request = nullptr;
 
@@ -151,8 +139,7 @@ void MapUpdater::WorkerThread()
         if (_cancelationToken)
             return;
 
-        request->call();
-
+        request->UpdateMap();
         delete request;
     }
 }

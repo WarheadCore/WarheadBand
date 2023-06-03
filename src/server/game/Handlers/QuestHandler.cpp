@@ -21,6 +21,7 @@
 #include "Battleground.h"
 #include "BattlegroundAV.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameObjectAI.h"
 #include "Group.h"
@@ -32,7 +33,6 @@
 #include "Player.h"
 #include "QuestDef.h"
 #include "ScriptMgr.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
@@ -68,7 +68,10 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
         case TYPEID_GAMEOBJECT:
             {
                 LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_STATUS_QUERY for GameObject {}", guid.ToString());
-                questStatus = _player->GetQuestDialogStatus(questGiver);
+                if (CONF_GET_BOOL("Visibility.ObjectQuestMarkers"))
+                {
+                    questStatus = _player->GetQuestDialogStatus(questGiver);
+                }
                 break;
             }
         default:

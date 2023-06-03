@@ -36,6 +36,8 @@
 #include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "Common.h"
+#include "DBCacheMgr.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
 #include "GameConfig.h"
@@ -49,6 +51,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SharedDefines.h"
+#include "StopWatch.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <unordered_map>
@@ -451,24 +454,19 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
 
 void BattlegroundMgr::LoadBattlegroundTemplates()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     _battlegroundMapTemplates.clear();
     _battlegroundTemplates.clear();
 
-    //                                               0   1                  2                  3       4       5                 6               7              8            9             10      11
-    QueryResult result = WorldDatabase.Query("SELECT ID, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, AllianceStartLoc, AllianceStartO, HordeStartLoc, HordeStartO, StartMaxDist, Weight, ScriptName FROM battleground_template");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::BattlegroundTemplate) };
     if (!result)
     {
         LOG_ERROR("bg.battleground", ">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
         return;
     }
 
-    do
+    for (auto const& fields : *result)
     {
-        Field* fields = result->Fetch();
-
         BattlegroundTypeId bgTypeId = static_cast<BattlegroundTypeId>(fields[0].Get<uint32>());
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeId, nullptr))
@@ -496,16 +494,16 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 
         if (bgTemplate.MaxPlayersPerTeam == 0 || bgTemplate.MinPlayersPerTeam > bgTemplate.MaxPlayersPerTeam)
         {
-            LOG_ERROR("sql.sql", "Table `battleground_template` for id {} contains bad values for MinPlayersPerTeam ({}) and MaxPlayersPerTeam({}).",
-                bgTemplate.Id, bgTemplate.MinPlayersPerTeam, bgTemplate.MaxPlayersPerTeam);
+            LOG_ERROR("db.query", "Table `battleground_template` for id {} contains bad values for MinPlayersPerTeam ({}) and MaxPlayersPerTeam({}).",
+                      bgTemplate.Id, bgTemplate.MinPlayersPerTeam, bgTemplate.MaxPlayersPerTeam);
 
             continue;
         }
 
         if (bgTemplate.MinLevel == 0 || bgTemplate.MaxLevel == 0 || bgTemplate.MinLevel > bgTemplate.MaxLevel)
         {
-            LOG_ERROR("sql.sql", "Table `battleground_template` for id {} has bad values for LevelMin ({}) and LevelMax({})",
-                bgTemplate.Id, bgTemplate.MinLevel, bgTemplate.MaxLevel);
+            LOG_ERROR("db.query", "Table `battleground_template` for id {} has bad values for LevelMin ({}) and LevelMax({})",
+                      bgTemplate.Id, bgTemplate.MinLevel, bgTemplate.MaxLevel);
             continue;
         }
 
@@ -518,7 +516,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             }
             else
             {
-                LOG_ERROR("sql.sql", "Table `battleground_template` for id {} contains a non-existing WorldSafeLocs.dbc id {} in field `AllianceStartLoc`. BG not created.", bgTemplate.Id, startId);
+                LOG_ERROR("db.query", "Table `battleground_template` for id {} contains a non-existing WorldSafeLocs.dbc id {} in field `AllianceStartLoc`. BG not created.", bgTemplate.Id, startId);
                 continue;
             }
 
@@ -529,7 +527,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             }
             else
             {
-                LOG_ERROR("sql.sql", "Table `battleground_template` for id {} contains a non-existing WorldSafeLocs.dbc id {} in field `HordeStartLoc`. BG not created.", bgTemplate.Id, startId);
+                LOG_ERROR("db.query", "Table `battleground_template` for id {} contains a non-existing WorldSafeLocs.dbc id {} in field `HordeStartLoc`. BG not created.", bgTemplate.Id, startId);
                 continue;
             }
         }
@@ -541,10 +539,9 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
 
         if (bgTemplate.BattlemasterEntry->mapid[1] == -1) // in this case we have only one mapId
             _battlegroundMapTemplates[bgTemplate.BattlemasterEntry->mapid[0]] = &_battlegroundTemplates[bgTypeId];
+    }
 
-    } while (result->NextRow());
-
-    LOG_INFO("server.loading", ">> Loaded {} battlegrounds in {} ms", _battlegroundTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} battlegrounds in {}", _battlegroundTemplates.size(), sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -791,12 +788,10 @@ uint32 BattlegroundMgr::GetPrematureFinishTime() const
 
 void BattlegroundMgr::LoadBattleMastersEntry()
 {
-    uint32 oldMSTime = getMSTime();
-
+    StopWatch sw;
     mBattleMastersMap.clear();                                  // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, bg_template FROM battlemaster_entry");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::BattlemasterEntry) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
@@ -806,37 +801,35 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 
     uint32 count = 0;
 
-    do
+    for (auto const& fields : *result)
     {
         ++count;
-
-        Field* fields = result->Fetch();
 
         uint32 entry = fields[0].Get<uint32>();
         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry))
         {
             if ((cInfo->npcflag & UNIT_NPC_FLAG_BATTLEMASTER) == 0)
-                LOG_ERROR("sql.sql", "Creature (Entry: {}) listed in `battlemaster_entry` is not a battlemaster.", entry);
+                LOG_ERROR("db.query", "Creature (Entry: {}) listed in `battlemaster_entry` is not a battlemaster.", entry);
         }
         else
         {
-            LOG_ERROR("sql.sql", "Creature (Entry: {}) listed in `battlemaster_entry` does not exist.", entry);
+            LOG_ERROR("db.query", "Creature (Entry: {}) listed in `battlemaster_entry` does not exist.", entry);
             continue;
         }
 
         uint32 bgTypeId  = fields[1].Get<uint32>();
         if (!sBattlemasterListStore.LookupEntry(bgTypeId))
         {
-            LOG_ERROR("sql.sql", "Table `battlemaster_entry` contain entry {} for not existed battleground type {}, ignored.", entry, bgTypeId);
+            LOG_ERROR("db.query", "Table `battlemaster_entry` contain entry {} for not existed battleground type {}, ignored.", entry, bgTypeId);
             continue;
         }
 
         mBattleMastersMap[entry] = BattlegroundTypeId(bgTypeId);
-    } while (result->NextRow());
+    }
 
     CheckBattleMasters();
 
-    LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} battlemaster entries in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -847,7 +840,7 @@ void BattlegroundMgr::CheckBattleMasters()
     {
         if ((itr->second.npcflag & UNIT_NPC_FLAG_BATTLEMASTER) && mBattleMastersMap.find(itr->second.Entry) == mBattleMastersMap.end())
         {
-            LOG_ERROR("sql.sql", "CreatureTemplate (Entry: {}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", itr->second.Entry);
+            LOG_ERROR("db.query", "CreatureTemplate (Entry: {}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", itr->second.Entry);
             const_cast<CreatureTemplate*>(&itr->second)->npcflag &= ~UNIT_NPC_FLAG_BATTLEMASTER;
         }
     }

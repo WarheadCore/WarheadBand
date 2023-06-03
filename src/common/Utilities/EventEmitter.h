@@ -18,6 +18,9 @@
 #ifndef __EVENT_EMITTER_H
 #define __EVENT_EMITTER_H
 
+#include <functional>
+#include <vector>
+
 template<class Signature>
 class EventEmitter
 {

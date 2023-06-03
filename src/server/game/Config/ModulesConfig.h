@@ -18,9 +18,10 @@
 #ifndef _MODULES_CONFIG_H_
 #define _MODULES_CONFIG_H_
 
-#include "Common.h"
+#include "Define.h"
 #include "Optional.h"
 #include "Types.h"
+#include <shared_mutex>
 #include <unordered_map>
 
 class WH_GAME_API ModulesConfig
@@ -62,6 +63,7 @@ public:
 
 private:
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
+    std::shared_mutex _mutex;
 };
 
 #define sModulesConfig ModulesConfig::instance()

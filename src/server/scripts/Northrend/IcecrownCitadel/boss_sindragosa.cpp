@@ -21,6 +21,7 @@
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "ObjectMgr.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"

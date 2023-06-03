@@ -19,13 +19,13 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "WaypointMgr.h"
+#include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
 #include "GridDefines.h"
 #include "Log.h"
+#include "StopWatch.h"
 
-WaypointMgr::WaypointMgr()
-{
-}
+WaypointMgr::WaypointMgr() = default;
 
 WaypointMgr::~WaypointMgr()
 {
@@ -48,11 +48,9 @@ WaypointMgr* WaypointMgr::instance()
 
 void WaypointMgr::Load()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
-    //                                                0    1         2           3          4            5           6        7      8           9
-    QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
-
+    auto result{ sDBCacheMgr->GetResult(DBCacheTable::WaypointData) };
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 waypoints. DB table `waypoint_data` is empty!");
@@ -64,7 +62,7 @@ void WaypointMgr::Load()
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         WaypointData* wp = new WaypointData();
 
         uint32 pathId = fields[0].Get<uint32>();
@@ -89,7 +87,7 @@ void WaypointMgr::Load()
 
         if (wp->move_type >= WAYPOINT_MOVE_TYPE_MAX)
         {
-            //LOG_ERROR("sql.sql", "Waypoint {} in waypoint_data has invalid move_type, ignoring", wp->id);
+            //LOG_ERROR("db.query", "Waypoint {} in waypoint_data has invalid move_type, ignoring", wp->id);
             delete wp;
             continue;
         }
@@ -102,7 +100,7 @@ void WaypointMgr::Load()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} waypoints in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} waypoints in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -117,7 +115,7 @@ void WaypointMgr::ReloadPath(uint32 id)
         _waypointStore.erase(itr);
     }
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
+    WorldDatabasePreparedStatement stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
 
     stmt->SetData(0, id);
 
@@ -130,7 +128,7 @@ void WaypointMgr::ReloadPath(uint32 id)
 
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         WaypointData* wp = new WaypointData();
 
         float x = fields[1].Get<float>();
@@ -152,7 +150,7 @@ void WaypointMgr::ReloadPath(uint32 id)
 
         if (wp->move_type >= WAYPOINT_MOVE_TYPE_MAX)
         {
-            //LOG_ERROR("sql.sql", "Waypoint {} in waypoint_data has invalid move_type, ignoring", wp->id);
+            //LOG_ERROR("db.query", "Waypoint {} in waypoint_data has invalid move_type, ignoring", wp->id);
             delete wp;
             continue;
         }

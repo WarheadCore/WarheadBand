@@ -1,7 +1,6 @@
 ################################################
 # WarheadCore World Server configuration file #
 ################################################
-[worldserver]
 
 ###################################################################################################
 # SECTION INDEX
@@ -29,12 +28,16 @@
 #    CHARACTER DELETE OPTIONS
 #    ITEM DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
+#    AUCTION HOUSE BOT SETTINGS
+#    AUCTION HOUSE BOT ITEM FINE TUNING
+#    AUCTION HOUSE BOT BUYER CONFIG
 #    UPDATE SETTINGS
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    DEBUG
 #    METRIC SETTINGS
 #    EXTERNAL MAIL SETTINGS
+#    IP CACHE SETTINGS
 #    VIP SETTINGS
 #    DISCORD SETTINGS
 #
@@ -85,9 +88,10 @@ DataDir = "."
 LogsDir = ""
 
 #
-#    LoginDatabaseInfo
+#    AuthDatabaseInfo
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
+#    DbcDatabaseInfo
 #        Description: Database connection settings for the world server.
 #        Example:     "hostname;port;username;password;database"
 #                     ".;somenumber;username;password;database" - (Use named pipes on Windows
@@ -95,17 +99,27 @@ LogsDir = ""
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database;ssl" - (use Unix sockets on
 #                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;warhead;warhead;warhead_auth"       - (LoginDatabaseInfo)
+#        Default:     "127.0.0.1;3306;warhead;warhead;warhead_auth"       - (AuthDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;warhead;warhead;warhead_characters" - (CharacterDatabaseInfo)
+#                     "127.0.0.1;3306;warhead;warhead;warhead_dbc"        - (DbcDatabaseInfo)
 #
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
 #
 
-LoginDatabaseInfo     = "127.0.0.1;3306;warhead;warhead;warhead_auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;warhead;warhead;warhead_world"
-CharacterDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
+AuthDatabaseInfo       = "127.0.0.1;3306;warhead;warhead;warhead_auth"
+WorldDatabaseInfo      = "127.0.0.1;3306;warhead;warhead;warhead_world"
+CharactersDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
+DbcDatabaseInfo        = "127.0.0.1;3306;warhead;warhead;warhead_dbc"
+
+#
+#    MaxQueueSize
+#        Description: Max size queue before open new dynamic async connect for db
+#        Default:     10
+#
+
+MaxQueueSize = 10
 
 #
 #    Database.Reconnect.Seconds
@@ -118,34 +132,6 @@ CharacterDatabaseInfo = "127.0.0.1;3306;warhead;warhead;warhead_characters"
 
 Database.Reconnect.Seconds = 15
 Database.Reconnect.Attempts = 20
-
-#
-#    LoginDatabase.WorkerThreads
-#    WorldDatabase.WorkerThreads
-#    CharacterDatabase.WorkerThreads
-#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. Each worker thread is mirrored with its own connection to the
-#                     MySQL server and their own thread on the MySQL server.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     1 - (CharacterDatabase.WorkerThreads)
-
-LoginDatabase.WorkerThreads     = 1
-WorldDatabase.WorkerThreads     = 1
-CharacterDatabase.WorkerThreads = 1
-
-#
-#    LoginDatabase.SynchThreads
-#    WorldDatabase.SynchThreads
-#    CharacterDatabase.SynchThreads
-#        Description: The amount of MySQL connections spawned to handle.
-#        Default:     1 - (LoginDatabase.WorkerThreads)
-#                     1 - (WorldDatabase.WorkerThreads)
-#                     2 - (CharacterDatabase.WorkerThreads)
-
-LoginDatabase.SynchThreads     = 1
-WorldDatabase.SynchThreads     = 1
-CharacterDatabase.SynchThreads = 2
 
 #
 #    MaxPingTime
@@ -861,6 +847,14 @@ StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
 
 #
+#    StartHeroicPlayerMoney
+#        Description: Amount of money (in Copper) that heroic class characters have after creation.
+#        Default:     2000
+#                     2000 - (20 Silver)
+
+StartHeroicPlayerMoney = 2000
+
+#
 #    MaxHonorPoints
 #        Description: Maximum honor points a character can have.
 #        Default:     75000
@@ -1360,12 +1354,13 @@ TOTPMasterSecret =
 #           DATABASE_LOGIN     = 1, // Auth database
 #           DATABASE_CHARACTER = 2, // Character database
 #           DATABASE_WORLD     = 4, // World database
+#           DATABASE_DBC       = 8, // Dbc database
 #
-#        Default:     7  - (All enabled)
+#        Default:     15 - (All enabled)
 #                     4  - (Enable world only)
 #                     0  - (All disabled)
 
-Updates.EnableDatabases = 7
+Updates.EnableDatabases = 15
 
 #
 #    Updates.AutoSetup
@@ -1412,8 +1407,6 @@ Updates.AllowRehash = 1
 #                    -1 - (Enabled - unlimited)
 
 Updates.CleanDeadRefMaxCount = 3
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -2224,6 +2217,22 @@ Visibility.Notify.Period.InInstances  = 1000
 Visibility.Notify.Period.InBGArenas   = 1000
 
 #
+#    Visibility.ObjectSparkles
+#        Description: Whether or not to display sparkles on gameobjects related to active quests.
+#        Default:     1 - (Show Sparkles)
+#                     0 - (Hide Sparkles)
+
+Visibility.ObjectSparkles = 1
+
+#
+#    Visibility.ObjectQuestMarkers
+#        Description: Show quest icons above game objects in the same way as creature quest givers.
+#        Default:     1 - (Show quest markers, post patch 2.3 behavior)
+#                     0 - (Hide quest markers, pre patch 2.3 behavior)
+
+Visibility.ObjectQuestMarkers = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2523,6 +2532,15 @@ Rate.Pet.LevelXP = 0.05
 #
 
 WaterBreath.Timer = 180000
+
+#
+#    EnableLowLevelRegenBoost
+#        Description: Greatly increase Health and Mana regen rates for players under level 15 (Added in patch 3.3)
+#        Default:     1 - Enabled
+#                     0 - Disabled
+#
+
+EnableLowLevelRegenBoost = 1
 
 #
 #    SkillGain.Crafting
@@ -2953,8 +2971,9 @@ Battleground.SpeedBuffRespawn = 150
 #
 #     Wintergrasp.Enable
 #         Description: Enable the Wintergrasp battlefield.
-#         Default:     0 - (Disabled)
-#                      1 - (Enabled, Experimental as of still being in development)
+#         Default:     1 - (Enabled, Experimental as of still being in development)
+#                      0 - (Battleground disabled, Wintergrasp world processing still occurs)
+#                      2 - (Disable all Wintergrasp processing)
 
 Wintergrasp.Enable = 1
 
@@ -3847,6 +3866,509 @@ LeaveGroupOnLogout.Enabled = 1
 ChangeFaction.MaxMoney = 0
 
 #
+#     DBCache.WaitAtAdd.Enable
+#        Description: Enable async load database cache
+#        Default:     1 - Enabled
+#
+
+DBCache.AsyncLoad.Enable = 1
+
+#
+#     DBCache.WaitAtAdd.Enable
+#        Description: Enable wait query at add in store
+#        Default:     0 - Disabled
+#
+
+DBCache.WaitAtAdd.Enable = 0
+###################################################################################################
+
+###################################################################################################
+# AUCTION HOUSE BOT SETTINGS
+#
+#    AuctionHouseBot.Account
+#       Description: Account ID for AHBot characters. If non-zero, all auctions and bids associated
+#                    with the AHBot will randomly be assigned one of this account's characters.
+#       Default:     0
+#
+
+AuctionHouseBot.Account = 0
+
+#
+#    AuctionHouseBot.Update.Interval
+#       Description: Interval in seconds for AHBot to get updated
+#       Default:     20
+#
+
+AuctionHouseBot.Update.Interval = 20
+
+#
+#    AuctionHouseBot.Seller.Enabled
+#       Description: General enable or disable AuctionHouseBot Seller functionality
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Seller.Enabled = 0
+
+#
+#    AuctionHouseBot.Alliance.Items.Amount.Ratio
+#       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Alliance AH
+#       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Alliance.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.Horde.Items.Amount.Ratio
+#        Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Horde AH
+#       Default: 100 (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Horde.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.Neutral.Items.Amount.Ratio
+#       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Neutral AH
+#       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Neutral.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.MinTime
+#       Description: Minimum time for the new auction in hours
+#       Default: 1 - (Hour)
+
+AuctionHouseBot.MinTime = 1
+
+#
+#    AuctionHouseBot.MaxTime
+#       Description: Maximum time for the new auction in hours
+#       Default:     72 - (Hours)
+
+AuctionHouseBot.MaxTime = 72
+
+#
+#    AuctionHouseBot.Class.CLASS.Allow.Zero = 0
+#       Description: Include items without a sell or buy price.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Class.Consumable.Allow.Zero = 0
+AuctionHouseBot.Class.Container.Allow.Zero = 0
+AuctionHouseBot.Class.Weapon.Allow.Zero = 0
+AuctionHouseBot.Class.Gem.Allow.Zero = 0
+AuctionHouseBot.Class.Armor.Allow.Zero = 0
+AuctionHouseBot.Class.Reagent.Allow.Zero = 0
+AuctionHouseBot.Class.Projectile.Allow.Zero = 0
+AuctionHouseBot.Class.TradeGood.Allow.Zero = 0
+AuctionHouseBot.Class.Recipe.Allow.Zero = 0
+AuctionHouseBot.Class.Quiver.Allow.Zero = 0
+AuctionHouseBot.Class.Quest.Allow.Zero = 0
+AuctionHouseBot.Class.Key.Allow.Zero = 0
+AuctionHouseBot.Class.Misc.Allow.Zero = 0
+AuctionHouseBot.Class.Glyph.Allow.Zero = 0
+
+#
+#    AuctionHouseBot.Items.Vendor
+#       Description: Include items that can be bought from vendors.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.Vendor = 0
+
+#
+#    AuctionHouseBot.Items.Loot
+#       Description: Include items that can be looted or fished for.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+AuctionHouseBot.Items.Loot = 1
+
+#
+#    AuctionHouseBot.Items.Misc
+#       Description: Include misc. items.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.Misc = 0
+
+#
+#    AuctionHouseBot.Bind.*
+#       Description: Indicates which bonding types to allow the bot to put up for auction
+#                       No     - Items that don't bind            Default 1 (Allowed)
+#                       Pickup - Items that bind on pickup        Default 0 (Not Allowed)
+#                       Equip  - Items that bind on equip         Default 1 (Allowed)
+#                       Use    - Items that bind on use           Default 1 (Allowed)
+#                       Quest  - Quest Items                      Default 0 (Not Allowed)
+#       Values:      0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Bind.No = 1
+AuctionHouseBot.Bind.Pickup = 0
+AuctionHouseBot.Bind.Equip = 1
+AuctionHouseBot.Bind.Use = 1
+AuctionHouseBot.Bind.Quest = 0
+
+#
+#    AuctionHouseBot.LockBox.Enabled
+#       Description: Enable or disable lockboxes in the AuctionHouse.
+#       Default      0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.LockBox.Enabled = 0
+
+#
+#    AuctionHouseBot.ItemsPerCycle.Boost
+#       Description: This value is used to fill AH faster than normal when there is more than this value on missed items (not auctioned items).
+#                    Usually this value is only used once on server start with empty auction table.
+#       Default:     1000
+
+AuctionHouseBot.ItemsPerCycle.Boost = 1000
+
+#
+#    AuctionHouseBot.ItemsPerCycle.Normal
+#       Description: This value is used to fill AH for sold and expired items. A high value will be more resource intensive
+#                    Usually this value is used always when auction table is already initialised.
+#       Default:     20
+
+AuctionHouseBot.ItemsPerCycle.Normal = 20
+
+#
+#    AuctionHouseBot.BuyPrice.Seller
+#       Description: Should the Seller use the items BuyPrice or SellPrice to determine Bid Prices
+#       Default:     0 - (use BuyPrice - results in higher prices)
+#                    1 - (use SellPrice - results in lower prices)
+
+AuctionHouseBot.BuyPrice.Seller = 0
+
+#
+#    AuctionHouseBot.BidPrice.*
+#       Description: These values determine the range that the Bid Price will fall into, as a percentage of the Buy Price
+#       Default:     0.6 - (Min)
+#                    0.9 - (Max)
+
+AuctionHouseBot.BidPrice.Min = 0.6
+AuctionHouseBot.BidPrice.Max = 0.9
+
+#
+#    AuctionHouseBot.Alliance.Price.Ratio
+#       Description: Percentage by which the price of items sold on Alliance Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Alliance.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Horde.Price.Ratio
+#       Description: Percentage by which the price of items sold on Horde Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Horde.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Neutral.Price.Ratio
+#       Description: Percentage by which the price of items sold on Neutral Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Neutral.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Items.QUALITY.Price.Ratio
+#       Description: Percentage by which the price of items sold of each quality is incremented / decreased (for all houses)
+#       Default:     100 - (No change)
+
+AuctionHouseBot.Items.Gray.Price.Ratio = 100
+AuctionHouseBot.Items.White.Price.Ratio = 100
+AuctionHouseBot.Items.Green.Price.Ratio = 100
+AuctionHouseBot.Items.Blue.Price.Ratio = 100
+AuctionHouseBot.Items.Purple.Price.Ratio = 100
+AuctionHouseBot.Items.Orange.Price.Ratio = 100
+AuctionHouseBot.Items.Yellow.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Class.CLASS.Price.Ratio
+#       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
+#       Default:   100 - (No change)
+
+AuctionHouseBot.Class.Consumable.Price.Ratio = 100
+AuctionHouseBot.Class.Container.Price.Ratio = 100
+AuctionHouseBot.Class.Weapon.Price.Ratio = 100
+AuctionHouseBot.Class.Gem.Price.Ratio = 100
+AuctionHouseBot.Class.Armor.Price.Ratio = 100
+AuctionHouseBot.Class.Reagent.Price.Ratio = 100
+AuctionHouseBot.Class.Projectile.Price.Ratio = 100
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
+AuctionHouseBot.Class.Generic.Price.Ratio = 100
+AuctionHouseBot.Class.Recipe.Price.Ratio = 100
+AuctionHouseBot.Class.Quiver.Price.Ratio = 100
+AuctionHouseBot.Class.Quest.Price.Ratio = 100
+AuctionHouseBot.Class.Key.Price.Ratio = 100
+AuctionHouseBot.Class.Misc.Price.Ratio = 100
+AuctionHouseBot.Class.Glyph.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Items.ItemLevel.*
+#       Description: Prevent seller from listing items below/above this item level
+#       Default:     0 - (Disabled)
+
+AuctionHouseBot.Items.ItemLevel.Min = 0
+AuctionHouseBot.Items.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Items.ReqLevel.*
+#       Description: Prevent seller from listing items below/above this required level
+#       Default:     0 - (Disabled)
+
+AuctionHouseBot.Items.ReqLevel.Min = 0
+AuctionHouseBot.Items.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Items.ReqSkill.*
+#       Description: Prevent seller from listing items below/above this skill level
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.ReqSkill.Min = 0
+AuctionHouseBot.Items.ReqSkill.Max = 0
+
+#
+#    AuctionHouseBot.Items.Amount.*
+#       Description: Define here for every item qualities how many items you want to be shown in Auction House
+#                    This value will be adjusted by AuctionHouseBot.FACTION.Items.Amount.Ratio to define the exact amount of
+#                    items that will finally be shown on Auction House
+#       Default:     0, 2000, 2500, 1500, 1000, 0, 0 (Gray, white, green, blue, purple, orange, yellow)
+
+AuctionHouseBot.Items.Amount.Gray = 0
+AuctionHouseBot.Items.Amount.White = 2000
+AuctionHouseBot.Items.Amount.Green = 2500
+AuctionHouseBot.Items.Amount.Blue = 1500
+AuctionHouseBot.Items.Amount.Purple = 1000
+AuctionHouseBot.Items.Amount.Orange = 0
+AuctionHouseBot.Items.Amount.Yellow = 0
+
+#
+#    AuctionHouseBot.Class.*
+#       Description: Here you can set the class of items you prefer to be shown on AH
+#                    These values are sorted by preference, from 0 (disabled) to 10 (max. preference)
+#       Default:     Consumable: 6
+#                    Container: 4
+#                    Weapon: 8
+#                    Gem: 3
+#                    Armor: 8
+#                    Reagent: 1
+#                    Projectile: 2
+#                    TradeGood: 10
+#                    Generic: 1
+#                    Recipe: 6
+#                    Quiver: 1
+#                    Quest: 1
+#                    Key: 1
+#                    Misc: 5
+#                    Glyph: 3
+
+AuctionHouseBot.Class.Consumable = 6
+AuctionHouseBot.Class.Container = 4
+AuctionHouseBot.Class.Weapon = 8
+AuctionHouseBot.Class.Gem = 3
+AuctionHouseBot.Class.Armor = 8
+AuctionHouseBot.Class.Reagent = 1
+AuctionHouseBot.Class.Projectile = 2
+AuctionHouseBot.Class.TradeGood = 10
+AuctionHouseBot.Class.Generic = 1
+AuctionHouseBot.Class.Recipe = 6
+AuctionHouseBot.Class.Quiver = 1
+AuctionHouseBot.Class.Quest = 1
+AuctionHouseBot.Class.Key = 1
+AuctionHouseBot.Class.Misc = 5
+AuctionHouseBot.Class.Glyph = 3
+
+#
+###################################################################################################
+
+###################################################################################################
+# AUCTION HOUSE BOT ITEM FINE TUNING
+#
+#    The following settings are useful for limiting which character levels
+#    can benefit from the auction house
+#
+#    AuctionHouseBot.Class.Misc.Mount.ReqLevel.*
+#       Description: Prevent seller from listing mounts below/above this required level
+#       Default:     0
+
+AuctionHouseBot.Class.Misc.Mount.ReqLevel.Min = 0
+AuctionHouseBot.Class.Misc.Mount.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Misc.Mount.ReqSkill.*
+#       Description: Prevent seller from listing mounts below/above this skill level
+#       Default:     0
+
+AuctionHouseBot.Class.Misc.Mount.ReqSkill.Min = 0
+AuctionHouseBot.Class.Misc.Mount.ReqSkill.Max = 0
+
+#
+#    AuctionHouseBot.Class.Glyph.ReqLevel.*
+#       Description: Prevent seller from listing glyphs below/above this required level
+#       Default:     0
+
+AuctionHouseBot.Class.Glyph.ReqLevel.Min = 0
+AuctionHouseBot.Class.Glyph.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Glyph.ItemLevel.*
+#       Description: Prevent seller from listing glyphs below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.Glyph.ItemLevel.Min = 0
+AuctionHouseBot.Class.Glyph.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.TradeGood.ItemLevel.*
+#       Description: Prevent seller from listing trade good items below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.TradeGood.ItemLevel.Min = 0
+AuctionHouseBot.Class.TradeGood.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Container.ItemLevel.*
+#       Description: Prevent seller from listing containers below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.Container.ItemLevel.Min = 0
+AuctionHouseBot.Class.Container.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.forceIncludeItems
+#       Description: Include these items and ignore ALL filters
+#                    List of ids with delimiter ','
+#       Default:     ""
+
+AuctionHouseBot.forceIncludeItems = ""
+
+#
+#    AuctionHouseBot.forceExcludeItems
+#       Description: Exclude these items even if they would pass the filters
+#                    List of ids with delimiter ','
+#       Example:     "21878,27774,27811,28117,28122,43949" (this removes old items)
+#       Default:     ""
+#
+
+AuctionHouseBot.forceExcludeItems = "6343,6345,6376,7192"
+
+#
+#    AuctionHouseBot.Class.RandomStackRatio.*
+#       Description: Used to determine how often a stack of the class will be single or randomly-size stacked when posted
+#                    Value needs to be between 0 and 100, no decimal.  Anything higher than 100 will be treated as 100
+#       Examples:    100 = stacks will always be random in size
+#                    50 = half the time the stacks are random, the other half being single stack
+#                    0 = stacks will always be single size
+#       Default:     Consumable: 20 (20% random stack size, 80% single stack size)
+#                    Container: 0 (100% single stack size)
+#                    Weapon: 0 (100% single stack size)
+#                    Gem: 20 (20% random stack size, 80% single stack size)
+#                    Armor: 0 (100% single stack size)
+#                    Reagent: 100 (100% random stack size)
+#                    Projectile: 100 (100% random stack size)
+#                    TradeGood: 50 (50% random stack size, 50% single stack size)
+#                    Generic: 100 (100% random stack size)
+#                    Recipe: 0 (100% single stack size)
+#                    Quiver: 0 (100% single stack size)
+#                    Quest: 100 (100% random stack size)
+#                    Key: 100 (100% random stack size)
+#                    Misc: 100 (100% random stack size)
+#                    Glyph: 0 (100% single stack size)
+#
+
+AuctionHouseBot.Class.RandomStackRatio.Consumable = 20
+AuctionHouseBot.Class.RandomStackRatio.Container = 0
+AuctionHouseBot.Class.RandomStackRatio.Weapon = 0
+AuctionHouseBot.Class.RandomStackRatio.Gem = 20
+AuctionHouseBot.Class.RandomStackRatio.Armor = 0
+AuctionHouseBot.Class.RandomStackRatio.Reagent = 100
+AuctionHouseBot.Class.RandomStackRatio.Projectile = 100
+AuctionHouseBot.Class.RandomStackRatio.TradeGood = 50
+AuctionHouseBot.Class.RandomStackRatio.Generic = 100
+AuctionHouseBot.Class.RandomStackRatio.Recipe = 0
+AuctionHouseBot.Class.RandomStackRatio.Quiver = 0
+AuctionHouseBot.Class.RandomStackRatio.Quest = 100
+AuctionHouseBot.Class.RandomStackRatio.Key = 100
+AuctionHouseBot.Class.RandomStackRatio.Misc = 100
+AuctionHouseBot.Class.RandomStackRatio.Glyph = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# AUCTION HOUSE BOT BUYER CONFIG
+#
+#    AuctionHouseBot.Buyer.Enabled
+#       Description: General enable or disable AuctionHouseBot Buyer functionality
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Buyer.Enabled = 0
+
+#
+#    AuctionHouseBot.Buyer.FACTION.Enabled
+#       Description: Enable or disable buyer independently by faction
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Buyer.Alliance.Enabled = 0
+AuctionHouseBot.Buyer.Horde.Enabled = 0
+AuctionHouseBot.Buyer.Neutral.Enabled = 0
+
+#    AuctionHouseBot.Buyer.ChanceFactor
+#       Description: k value in the formula used for the chance to buy an item "100^(1 + (1 - (AuctionBid / ItemPrice)) / k)"
+#                    It must be a decimal number in the range of (0, +infinity). The higher the number the higher chance to buy overpriced auctions
+#       Default:     2
+
+AuctionHouseBot.Buyer.ChanceFactor = 2
+
+#
+#    AuctionHouseBot.Buyer.Baseprice.QUALITY
+#       Description: Base sell prices in copper for non priced items for each quality.
+#                    The default values are based on average item prices of each quality.
+#       Defaults:    Gray   3504
+#                    White  5429
+#                    Green  21752
+#                    Blue   36463
+#                    Purple 87124
+#                    Orange 214347
+#                    Yellow 407406
+
+AuctionHouseBot.Buyer.Baseprice.Gray = 3504
+AuctionHouseBot.Buyer.Baseprice.White = 5429
+AuctionHouseBot.Buyer.Baseprice.Green = 21752
+AuctionHouseBot.Buyer.Baseprice.Blue = 36463
+AuctionHouseBot.Buyer.Baseprice.Purple = 87124
+AuctionHouseBot.Buyer.Baseprice.Orange = 214347
+AuctionHouseBot.Buyer.Baseprice.Yellow = 407406
+
+#
+#    AuctionHouseBot.Buyer.ChanceMultiplier.QUALITY
+#       Description: Multipliers for the buy/bid chances for each quality. 100 means the chance is 100% of the original,
+#                    1 would mean 1 % of the original and 200 would mean 200% of the original chance.
+#       Defaults:    Gray   100
+#                    White  100
+#                    Green  100
+#                    Blue   100
+#                    Purple 100
+#                    Orange 100
+#                    Yellow 100
+
+AuctionHouseBot.Buyer.ChanceMultiplier.Gray = 100
+AuctionHouseBot.Buyer.ChanceMultiplier.White = 100
+AuctionHouseBot.Buyer.ChanceMultiplier.Green = 100
+AuctionHouseBot.Buyer.ChanceMultiplier.Blue = 100
+AuctionHouseBot.Buyer.ChanceMultiplier.Purple = 100
+AuctionHouseBot.Buyer.ChanceMultiplier.Orange = 100
+AuctionHouseBot.Buyer.ChanceMultiplier.Yellow = 100
+
+#
+#    AuctionHouseBot.Buyer.Recheck.Interval
+#       Description: This specifies the time interval (in minutes) between two evaluations of the same sold item.
+#                    The smaller this value is, the more chances you give for an item to be bought by AHBot.
+#       Default:     20 (20min.)
+
+AuctionHouseBot.Buyer.Recheck.Interval = 20
 ###################################################################################################
 
 ###################################################################################################
@@ -3861,6 +4383,8 @@ ChangeFaction.MaxMoney = 0
 #                     Type
 #                       1 - (Console)
 #                       2 - (File)
+#                       3 - (DB)
+#                       4 - (Discord)
 #
 #                     LogLevel
 #                         0 - (Disabled)
@@ -3878,10 +4402,6 @@ ChangeFaction.MaxMoney = 0
 #                         * %l - message priority level (1 .. 7)
 #                         * %p - message priority (Fatal, Critical, Error, Warning, Information, Debug, Trace)
 #                         * %q - abbreviated message priority (F, C, E, W, I, D, T)
-#                         - * %P - message process identifier
-#                         - * %T - message thread name
-#                         - * %I - message thread identifier (numeric)
-#                         - * %N - node or host name
 #                         * %U - message source file path (empty string if not set)
 #                         * %O - message source file filename (empty string if not set)
 #                         * %u - message source line number (0 if not set)
@@ -3905,6 +4425,8 @@ ChangeFaction.MaxMoney = 0
 #                           Example for file "%Y-%m-%d %H:%M:%S %t"
 #                           Example for console "%H:%M:%S %t"
 #
+#   CONSOLE OPTIONS
+#
 #                    Optional1 - Colors (is type Console)
 #                       Format: "fatal critical error warning info debug trace"
 #                       black
@@ -3925,20 +4447,28 @@ ChangeFaction.MaxMoney = 0
 #                       white
 #                         Example: "lightRed lightRed red brown cyan lightMagenta green"
 #
-#                     Optional1 - File name (is type file)
+#   FILE OPTIONS
+#
+#                     Optional1 - File name
 #                       Example: "Auth.log"
 #
-#                     Optional2 - Mode to open the file (is type file)
+#                     Optional2 - Mode to open the file
 #                          true - Append (default)
 #                          false - Overwrite
 #
-#                     Optional3 - Flush (is type File)
+#                     Optional3 - Flush
 #                       true: Every essages is immediately flushed to the log file (default).
 #                       false: Messages are not immediately flushed to the log file.
 #
-#                     Optional4 - Add timestamp (is type File).
+#                     Optional4 - Add timestamp
 #                           true: Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
 #                           false: Just using filename (default)
+#
+#                     Optional5 - Max files count. Need option 4
+#                           Default: 20
+#
+#                     Optional6 - Purge age in days. Need option 4
+#                           Default: 10
 #
 
 LogChannel.Console = "1","6","[%H:%M:%S] %t","lightRed lightRed red brown cyan lightMagenta green"
@@ -3947,6 +4477,7 @@ LogChannel.GM = "2","6","[%Y-%m-%d %H:%M:%S] %t","GM_{}.log"
 LogChannel.DBErrors = "2","6","[%Y-%m-%d %H:%M:%S] %t","DBErrors.log"
 LogChannel.Modules = "2","6","[%Y-%m-%d %H:%M:%S] %t","Modules.log"
 LogChannel.Hotswap = "2","6","[%Y-%m-%d %H:%M:%S] %t","Hotswap.log"
+LogChannel.Discord = "4","6","%t"
 
 #
 #  Logger config values: Given a logger "name"
@@ -3971,8 +4502,9 @@ LogChannel.Hotswap = "2","6","[%Y-%m-%d %H:%M:%S] %t","Hotswap.log"
 Logger.root = 4,Console Server
 Logger.server = 5,Console Server
 Logger.commands.gm = 5,GM
-Logger.sql = 4,Console DBErrors
-Logger.sql.updates = 5,Console Server
+Logger.db = 5,Console Server
+Logger.db.update = 5,Console Server
+Logger.db.query = 3,Console DBErrors
 Logger.mmaps= 5,Server
 Logger.module = 5,Console Modules
 Logger.time.update = 6,Console Server
@@ -4049,8 +4581,6 @@ Logger.scripts.hotswap=5,Console Hotswap
 #Logger.spells.effect=4,Console Server
 #Logger.spells.scripts=4,Console Server
 #Logger.spells=4,Console Server
-#Logger.sql.dev=4,Console Server
-#Logger.sql.driver=4,Console Server
 #Logger.vehicles=4,Console Server
 #Logger.warden=4,Console Server
 #Logger.weather=4,Console Server
@@ -4179,6 +4709,49 @@ Metric.OverallStatusInterval = 1
 ExternalMail.Enable = 1
 ###################################################################################################
 
+###################################################################################################
+#   IP CACHE SETTINGS
+#
+#    IPCache.Enable
+#        Description: Enable ip cache
+#        Default:     1
+#
+
+IPCache.Enable = 1
+
+#
+#    IPCache.Check.Delay
+#        Description: Delay in seconds for check ip from db and update cache
+#        Default:     60
+#
+
+IPCache.Check.Delay = 60
+
+#
+#    IPCache.Check.MaxCount
+#        Description: Max check count for add ban (LoginFlood Malformed DDOS)
+#        Default:     "10 3 50"
+#
+
+IPCache.Check.MaxCount = "10 3 50"
+
+#
+#    IPCache.Ban.Enable
+#        Description: Enable ban (LoginFlood Malformed DDOS)
+#        Default:     "1 1 1"
+#
+
+IPCache.Ban.Enable = "1 1 1"
+
+#
+#    IPCache.Ban.Enable
+#        Description: Ban duration in seconds (LoginFlood Malformed DDOS)
+#        Default:     "300 300 604800"
+#
+
+IPCache.Ban.Duration = "300 300 604800"
+###################################################################################################
+
 ########################################
 # Vip module configuration
 ########################################
@@ -4199,77 +4772,87 @@ VIP.Enable = 0
 VIP.Update.Delay = 10
 
 #
-#   VIP.Mount.MinLevel
-#       Description: Min level for learning mount at login
-#       Default: 3
-#
-#   VIP.Mount.SpellID
-#       Description: Spell id for mount
-#       Default: 3
-#
-
-VIP.Mount.MinLevel = 3
-VIP.Mount.SpellID = 72286
-
-#
-#   VIP.Spells.List
-#        Description: Spell list for learn at login
-#        Default:
-#
-
-VIP.Spells.List = "26662,62555"
-
-#
 #   VIP.Unbind.Duration
-#       Description: Delay needed to use the .vip unbind command in seconds
+#       Description: Delay needed to use the `.vip unbind` command in seconds
 #       Default: 86400 (1 day)
 #
 
 VIP.Unbind.Duration = 86400
-########################################
-
-########################################
-# DiscordClient module configuration
-########################################
-#
-#    Discord.Enable
-#        Description: Enable module
-#        Default: 0
-#
-
-Discord.Enable = 0
 
 #
-#    Discord.Server.Port
-#        Description: Host name for server
+#   VIP.Menu.Enable
+#       Description: Enable vip menu
+#       Default: 1
+#
+
+VIP.Menu.Enable = 1
+
+#
+#   VIP.Menu.Auctioneer.Enable
+#       Description: Enable auctioneer in vip menu
+#       Default: 0
+#
+
+VIP.Menu.Auctioneer.Enable = 0
+
+#
+#   VIP.Menu.Bank.Enable
+#       Description: Enable bank in vip menu
+#       Default: 1
+#
+
+VIP.Menu.Bank.Enable = 1
+
+#
+#   VIP.Menu.Mail.Enable
+#       Description: Enable mail in vip menu
+#       Default: 1
+#
+
+VIP.Menu.Mail.Enable = 1
+
+#
+#   VIP.Menu.Buff.Enable
+#       Description: Enable buff from vip menu
+#       Default: 1
+#
+
+VIP.Menu.Buff.Enable = 1
+
+#
+#   VIP.Command.Buff.List
+#       Description: List spell id for vip buffs
+#       Default: "25898,48074,48162,48470,57623,61316"
+#
+
+VIP.Command.Buff.List = "25898,48074,48162,48470,57623,61316"
+########################################
+
+###################################################################################################
+#   DISCORD SETTINGS
+#
+#    Discord.Bot.Enable
+#        Description: Enable discord bot
+#        Default:     0 - (Disabled)
+#
+
+Discord.Bot.Enable = 0
+
+#
+#    Discord.Bot.Token
+#        Description: Discord bot token
 #        Default:     ""
 #
 
-Discord.Server.Host = ""
+Discord.Bot.Token = ""
 
 #
-#    Discord.Server.Port
-#        Description: TCP port for connect server.
-#        Default:     1000
+#    Discord.Guild.ID
+#        Description: Discord server id
+#        Default:     0
 #
 
-Discord.Server.Port = 1000
-
-#
-#    Discord.Server.Account.Name
-#        Description: Account name for server
-#        Default:     ""
-#
-
-Discord.Server.Account.Name = ""
-
-#
-#    Discord.Server.Account.Key
-#        Description: Account key for server
-#        Default:     ""
-#
-
-Discord.Server.Account.Key = ""
+Discord.Guild.ID = 0
 
 #
 #    Discord.GameChatLogs.Enable
@@ -4281,9 +4864,17 @@ Discord.GameChatLogs.Enable = 0
 
 #
 #    Discord.GameLoginLogs.Enable
-#        Description: Enable login logs
+#        Description: Enable world login logs
 #        Default:     0
 #
 
 Discord.GameLoginLogs.Enable = 0
+
+#
+#    Discord.BanLogs.Enable
+#        Description: Enable ban logs
+#        Default:     0
+#
+
+Discord.BanLogs.Enable = 0
 ###################################################################################################

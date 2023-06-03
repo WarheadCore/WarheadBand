@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "shadowfang_keep.h"
+#include <sstream>
 
 enum Spells
 {

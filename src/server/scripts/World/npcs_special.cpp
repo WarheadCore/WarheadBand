@@ -40,8 +40,6 @@ npc_firework            100%    NPC's summoned by rockets and rocket clusters, f
 EndContentData */
 
 #include "CellImpl.h"
-#include "Chat.h"
-#include "CombatAI.h"
 #include "CreatureTextMgr.h"
 #include "DBCStructure.h"
 #include "GameConfig.h"
@@ -59,12 +57,6 @@ EndContentData */
 #include "SpellAuras.h"
 #include "WaypointMgr.h"
 #include "World.h"
-
-// TODO: this import is not necessary for compilation and marked as unused by the IDE
-//  however, for some reasons removing it would cause a damn linking issue
-//  there is probably some underlying problem with imports which should properly addressed
-//  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
-#include "GridNotifiersImpl.h"
 
 enum elderClearwater
 {
@@ -211,19 +203,30 @@ public:
     }
 };
 
-enum riggleBassbait
+/*
+ * Stranglethorn Vale Fishing Extravaganza World States
+ */
+enum FishingExtravaganzaWorldStates
 {
-    EVENT_RIGGLE_ANNOUNCE               = 1,
+    STV_FISHING_PREV_WIN_TIME           = 197,
+    STV_FISHING_HAS_WINNER              = 198,
+    STV_FISHING_ANNOUNCE_EVENT_BEGIN    = 199,
+    STV_FISHING_ANNOUNCE_POOLS_DESPAN   = 200
+};
 
-    RIGGLE_SAY_START                    = 0,
-    RIGGLE_SAY_WINNER                   = 1,
-    RIGGLE_SAY_END                      = 2,
+enum RiggleBassbait
+{
+    RIGGLE_SAY_START            = 0,
+    RIGGLE_SAY_POOLS_END        = 1,
+    RIGGLE_SAY_WINNER           = 2,
 
-    QUEST_MASTER_ANGLER                 = 8193,
+    QUEST_MASTER_ANGLER         = 8193,
 
-    DATA_ANGLER_FINISHED                = 1,
+    EVENT_FISHING_TURN_INS      = 90,
+    EVENT_FISHING_POOLS         = 15,
 
-    GAME_EVENT_FISHING                  = 62
+    GOSSIP_EVENT_ACTIVE         = 7614,
+    GOSSIP_EVENT_OVER           = 7714
 };
 
 class npc_riggle_bassbait : public CreatureScript
@@ -235,84 +238,95 @@ public:
     {
         npc_riggle_bassbaitAI(Creature* c) : ScriptedAI(c)
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_RIGGLE_ANNOUNCE, 1000, 1, 0);
-            finished = sWorld->getWorldState(GAME_EVENT_FISHING) == 1;
-            startWarning = false;
-            finishWarning = false;
-        }
-
-        EventMap events;
-        bool finished;
-        bool startWarning;
-        bool finishWarning;
-
-        uint32 GetData(uint32 type) const override
-        {
-            if (type == DATA_ANGLER_FINISHED)
-                return (uint32)finished;
-
-            return 0;
-        }
-
-        void DoAction(int32 param) override
-        {
-            if (param == DATA_ANGLER_FINISHED)
+            m_uiTimer = 0;
+            auto prevWinTime = sWorld->getWorldState(STV_FISHING_PREV_WIN_TIME);
+            if (GameTime::GetGameTime().count() - prevWinTime > DAY)
             {
-                finished = true;
-                sWorld->setWorldState(GAME_EVENT_FISHING, 1);
+                // reset all after 1 day
+                sWorld->setWorldState(STV_FISHING_ANNOUNCE_EVENT_BEGIN, 1);
+                sWorld->setWorldState(STV_FISHING_ANNOUNCE_POOLS_DESPAN, 0);
+                sWorld->setWorldState(STV_FISHING_HAS_WINNER, 0);
+            }
+        }
+
+        uint32 m_uiTimer;
+
+        void CheckTournamentState() const
+        {
+            if (sGameEventMgr->IsActiveEvent(EVENT_FISHING_TURN_INS) && !sWorld->getWorldState(STV_FISHING_HAS_WINNER))
+            {
+                if (!me->IsQuestGiver())
+                {
+                    me->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                }
+                if (sWorld->getWorldState(STV_FISHING_ANNOUNCE_EVENT_BEGIN))
+                {
+                    me->AI()->Talk(RIGGLE_SAY_START);
+                    sWorld->setWorldState(STV_FISHING_ANNOUNCE_EVENT_BEGIN, 0);
+                }
+            }
+            else
+            {
+                if (me->IsQuestGiver())
+                {
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                }
+            }
+            if (sGameEventMgr->IsActiveEvent(EVENT_FISHING_POOLS))
+            {
+                // enable announcement: when pools despawn
+                sWorld->setWorldState(STV_FISHING_ANNOUNCE_POOLS_DESPAN, 1);
+            }
+            else
+            {
+                if (sWorld->getWorldState(STV_FISHING_ANNOUNCE_POOLS_DESPAN))
+                {
+                    me->AI()->Talk(RIGGLE_SAY_POOLS_END);
+                    sWorld->setWorldState(STV_FISHING_ANNOUNCE_POOLS_DESPAN, 0);
+                }
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            events.Update(diff);
-            switch (events.ExecuteEvent())
+            if (m_uiTimer < diff)
             {
-                case EVENT_RIGGLE_ANNOUNCE:
-                    {
-                        tm strdate = Warhead::Time::TimeBreakdown();
-
-                        if (!startWarning && strdate.tm_hour == 14 && strdate.tm_min == 0)
-                        {
-                            sCreatureTextMgr->SendChat(me, RIGGLE_SAY_START, 0, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, TEXT_RANGE_ZONE);
-                            startWarning = true;
-                        }
-
-                        if (!finishWarning && strdate.tm_hour == 16 && strdate.tm_min == 0)
-                        {
-                            sCreatureTextMgr->SendChat(me, RIGGLE_SAY_END, 0, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, TEXT_RANGE_ZONE);
-                            finishWarning = true;
-                            // no one won - despawn
-                            if (!finished)
-                            {
-                                me->DespawnOrUnsummon();
-                                break;
-                            }
-                        }
-
-                        events.RepeatEvent(1000);
-                        break;
-                    }
+                CheckTournamentState();
+                m_uiTimer = 1000;
+            }
+            else
+            {
+                m_uiTimer -= diff;
             }
         }
     };
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (!creature->AI()->GetData(DATA_ANGLER_FINISHED))
+        if (creature->IsQuestGiver())
+        {
             player->PrepareQuestMenu(creature->GetGUID());
+        }
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+        if (sWorld->getWorldState(STV_FISHING_HAS_WINNER))
+        {
+            SendGossipMenuFor(player, GOSSIP_EVENT_OVER, creature->GetGUID());
+        }
+        else
+        {
+            SendGossipMenuFor(player, GOSSIP_EVENT_ACTIVE, creature->GetGUID());
+        }
         return true;
     }
 
     bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 /*opt*/) override
     {
-        if (!creature->AI()->GetData(DATA_ANGLER_FINISHED) && quest->GetQuestId() == QUEST_MASTER_ANGLER)
+        if (quest->GetQuestId() == QUEST_MASTER_ANGLER)
         {
-            creature->AI()->DoAction(DATA_ANGLER_FINISHED);
-            sCreatureTextMgr->SendChat(creature, RIGGLE_SAY_WINNER, player, CHAT_MSG_MONSTER_YELL, LANG_UNIVERSAL, TEXT_RANGE_ZONE);
+            creature->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+            creature->AI()->Talk(RIGGLE_SAY_WINNER, player);
+            sWorld->setWorldState(STV_FISHING_PREV_WIN_TIME, GameTime::GetGameTime().count());
+            sWorld->setWorldState(STV_FISHING_HAS_WINNER, 1);
         }
         return true;
     }
@@ -525,14 +539,14 @@ public:
             }
 
             if (!SpawnAssoc)
-                LOG_ERROR("sql.sql", "TCSR: Creature template entry {} has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
+                LOG_ERROR("db.query", "TCSR: Creature template entry {} has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
             else
             {
                 CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(SpawnAssoc->spawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
-                    LOG_ERROR("sql.sql", "TCSR: Creature template entry {} does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                    LOG_ERROR("db.query", "TCSR: Creature template entry {} does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
                     SpawnAssoc = nullptr;
                     return;
                 }
@@ -552,7 +566,7 @@ public:
                 SpawnedGUID = summoned->GetGUID();
             else
             {
-                LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature {}", SpawnAssoc->spawnedCreatureEntry);
+                LOG_ERROR("db.query", "TCSR: npc_air_force_bots: wasn't able to spawn Creature {}", SpawnAssoc->spawnedCreatureEntry);
                 SpawnAssoc = nullptr;
             }
 
@@ -2546,6 +2560,64 @@ public:
     }
 };
 
+enum ArcaniteDragonling
+{
+    SPELL_FLAME_BUFFET    = 9658,
+    SPELL_FLAME_BREATH    = 8873,
+
+    EVENT_FLAME_BUFFET    = 1,
+    EVENT_FLAME_BREATH    = 2
+};
+
+struct npc_arcanite_dragonling : public ScriptedAI
+{
+public:
+    npc_arcanite_dragonling(Creature* creature) : ScriptedAI(creature)
+    {
+        creature->SetCanModifyStats(true);
+        creature->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void Reset() override
+    {
+        me->SetPvP(true);
+        events.Reset();
+    }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        events.ScheduleEvent(EVENT_FLAME_BUFFET, 4s);
+        events.ScheduleEvent(EVENT_FLAME_BREATH, 12s);
+    }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->GetMotionMaster()->MoveFollow(summoner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        switch (events.ExecuteEvent())
+        {
+            case EVENT_FLAME_BUFFET:
+                DoCastVictim(SPELL_FLAME_BUFFET);
+                events.Repeat(12s);
+                break;
+            case EVENT_FLAME_BREATH:
+                DoCastVictim(SPELL_FLAME_BREATH);
+                events.Repeat(24s);
+                break;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
 void AddSC_npcs_special()
 {
     // Ours
@@ -2572,4 +2644,5 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_stable_master();
+    RegisterCreatureAI(npc_arcanite_dragonling);
 }

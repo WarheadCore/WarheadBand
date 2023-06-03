@@ -26,4 +26,5 @@ class TargetedMovementGeneratorBase;
 class FollowerRefMgr : public RefMgr<Unit, TargetedMovementGeneratorBase>
 {
 };
+
 #endif

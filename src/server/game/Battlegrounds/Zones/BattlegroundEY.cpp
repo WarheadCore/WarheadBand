@@ -20,17 +20,14 @@
 
 #include "BattlegroundEY.h"
 #include "BattlegroundMgr.h"
-#include "ChatTextBuilder.h"
 #include "Creature.h"
 #include "GameGraveyard.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void BattlegroundEYScore::BuildObjectivesBlock(WorldPacket& data)
 {
@@ -337,14 +334,14 @@ bool BattlegroundEY::SetupBattleground()
     for (uint32 i = BG_EY_OBJECT_DOOR_A; i < BG_EY_OBJECT_MAX; ++i)
         if (!BgObjects[i])
         {
-            LOG_ERROR("sql.sql", "BatteGroundEY: Failed to spawn some object Battleground not created!");
+            LOG_ERROR("db.query", "BatteGroundEY: Failed to spawn some object Battleground not created!");
             return false;
         }
 
     for (uint32 i = BG_EY_SPIRIT_MAIN_ALLIANCE; i <= BG_EY_SPIRIT_MAIN_HORDE; ++i)
         if (!BgCreatures[i])
         {
-            LOG_ERROR("sql.sql", "BatteGroundEY: Failed to spawn spirit guides Battleground not created!");
+            LOG_ERROR("db.query", "BatteGroundEY: Failed to spawn spirit guides Battleground not created!");
             return false;
         }
 

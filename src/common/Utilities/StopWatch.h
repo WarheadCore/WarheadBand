@@ -26,10 +26,10 @@ class StopWatch
     using clock = std::chrono::steady_clock;
 
 public:
-    StopWatch(uint8 outCount = 3)
+    explicit StopWatch(uint8 outCount = 3)
         : _startTime{ clock::now() }, _outCount{ outCount } {}
 
-    Microseconds Elapsed() const
+    [[nodiscard]] Microseconds Elapsed() const
     {
         return std::chrono::duration_cast<Microseconds>(clock::now() - _startTime);
     }
@@ -39,7 +39,7 @@ public:
         _startTime = clock::now();
     }
 
-    uint8 GetOutCount() const
+    [[nodiscard]] uint8 GetOutCount() const
     {
         return _outCount;
     }

@@ -19,7 +19,6 @@
 #define _EXTERNAL_MAIL_H_
 
 #include "AsyncCallbackProcessor.h"
-#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
@@ -61,4 +60,4 @@ private:
 
 #define sExternalMail ExternalMail::instance()
 
-#endif /* _EXTERNALMAIL_H_ */
+#endif // _EXTERNAL_MAIL_H_

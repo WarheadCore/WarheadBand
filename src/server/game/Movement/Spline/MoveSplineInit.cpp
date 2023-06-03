@@ -22,6 +22,7 @@
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Opcodes.h"
+#include "PathGenerator.h"
 #include "Transport.h"
 #include "Unit.h"
 #include "Vehicle.h"
@@ -137,11 +138,6 @@ namespace Movement
             data << unit->GetTransGUID().WriteAsPacked();
             data << int8(unit->GetTransSeat());
         }
-
-        Movement::SplineBase::ControlArray* visualPoints = const_cast<Movement::SplineBase::ControlArray*>(move_spline._Spline().allocateVisualPoints());
-        visualPoints->resize(move_spline._Spline().getPointCount());
-        // Xinef: Apply hover in creature movement packet
-        std::copy(move_spline._Spline().getPoints(false).begin(), move_spline._Spline().getPoints(false).end(), visualPoints->begin());
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
         unit->SendMessageToSet(&data, true);

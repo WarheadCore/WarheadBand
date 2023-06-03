@@ -26,7 +26,6 @@
 #include <vector>
 
 constexpr auto MAP_FILENAME_EXTENSION2 = ".vmtree";
-constexpr auto FILENAMEBUFFER_SIZE = 500;
 
 /**
 This is the main Class to manage loading and unloading of maps, line of sight, height calculation and so on.

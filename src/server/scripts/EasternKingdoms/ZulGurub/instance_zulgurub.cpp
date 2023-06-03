@@ -28,8 +28,10 @@ EndScriptData */
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "ScriptObject.h"
 #include "zulgurub.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

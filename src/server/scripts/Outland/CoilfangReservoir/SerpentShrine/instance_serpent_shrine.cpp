@@ -23,6 +23,7 @@
 #include "ScriptObject.h"
 #include "TemporarySummon.h"
 #include "serpent_shrine.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

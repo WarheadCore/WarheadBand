@@ -19,7 +19,6 @@
 #define WARHEAD_CONDITIONMGR_H
 
 #include "Define.h"
-#include "Errors.h"
 #include <list>
 #include <map>
 

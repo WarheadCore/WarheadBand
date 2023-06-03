@@ -20,4 +20,5 @@
 
 /// Command Line Interface handling thread
 void CliThread();
+
 #endif

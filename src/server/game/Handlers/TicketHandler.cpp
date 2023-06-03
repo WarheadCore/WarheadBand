@@ -20,6 +20,7 @@
 
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Language.h"
@@ -234,7 +235,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
         if (!ValidateHyperlinksAndMaybeKick(comment))
             return;
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
+        CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->SetData(0, nextSurveyID);
         stmt->SetData(1, subSurveyId);
         stmt->SetData(2, rank);
@@ -250,7 +251,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
         return;
     }
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
     stmt->SetData(1, nextSurveyID);
     stmt->SetData(2, mainSurvey);
@@ -273,7 +274,7 @@ void WorldSession::HandleReportLag(WorldPacket& recv_data)
     recv_data >> y;
     recv_data >> z;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
     stmt->SetData(0, GetPlayer()->GetGUID().GetCounter());
     stmt->SetData (1, lagType);
     stmt->SetData(2, mapId);

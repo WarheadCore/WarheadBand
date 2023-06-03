@@ -23,6 +23,7 @@
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
@@ -422,7 +423,7 @@ void Player::UpdateNextMailTimeAndUnreads()
     // Update the next delivery time and unread mails
     time_t cTime = GameTime::GetGameTime().count();
     // Get the next delivery time
-    CharacterDatabasePreparedStatement* stmtNextDeliveryTime =
+    CharacterDatabasePreparedStatement stmtNextDeliveryTime =
         CharacterDatabase.GetPreparedStatement(CHAR_SEL_NEXT_MAIL_DELIVERYTIME);
     stmtNextDeliveryTime->SetData(0, GetGUID().GetCounter());
     stmtNextDeliveryTime->SetData(1, uint32(cTime));
@@ -430,12 +431,12 @@ void Player::UpdateNextMailTimeAndUnreads()
         CharacterDatabase.Query(stmtNextDeliveryTime);
     if (resultNextDeliveryTime)
     {
-        Field* fields          = resultNextDeliveryTime->Fetch();
+        auto fields          = resultNextDeliveryTime->Fetch();
         m_nextMailDelivereTime = time_t(fields[0].Get<uint32>());
     }
 
     // Get unread mails count
-    CharacterDatabasePreparedStatement* stmtUnreadAmount =
+    CharacterDatabasePreparedStatement stmtUnreadAmount =
         CharacterDatabase.GetPreparedStatement(
             CHAR_SEL_CHARACTER_MAILCOUNT_UNREAD_SYNCH);
     stmtUnreadAmount->SetData(0, GetGUID().GetCounter());
@@ -444,7 +445,7 @@ void Player::UpdateNextMailTimeAndUnreads()
         CharacterDatabase.Query(stmtUnreadAmount);
     if (resultUnreadAmount)
     {
-        Field* fields = resultUnreadAmount->Fetch();
+        auto fields = resultUnreadAmount->Fetch();
         unReadMails   = uint8(fields[0].Get<uint64>());
     }
 }
@@ -459,81 +460,74 @@ void Player::UpdateLocalChannels(uint32 newZone)
         return; // The client handles it automatically after loading, but not
                 // after teleporting
 
-    AreaTableEntry const* current_zone = sAreaTableStore.LookupEntry(newZone);
-    if (!current_zone)
+    AreaTableEntry const* currentZone = sAreaTableStore.LookupEntry(newZone);
+    if (!currentZone)
         return;
 
-    ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeamId());
-    if (!cMgr)
+    ChannelMgr* channelMgr = ChannelMgr::forTeam(GetTeamId());
+    if (!channelMgr)
         return;
 
-    std::string current_zone_name =
-        current_zone->area_name[GetSession()->GetSessionDbcLocale()];
+    std::string currentZoneName = currentZone->area_name[GetSession()->GetSessionDbcLocale()];
 
-    for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+    for (auto const& channel : sChatChannelsStore)
     {
-        if (ChatChannelsEntry const* channel =
-                sChatChannelsStore.LookupEntry(i))
+        Channel* usedChannel = nullptr;
+
+        for (auto const& itr : m_channels)
         {
-            Channel* usedChannel = nullptr;
-
-            for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
+            if (itr->GetChannelId() == channel->ChannelID)
             {
-                if ((*itr)->GetChannelId() == i)
-                {
-                    usedChannel = *itr;
-                    break;
-                }
+                usedChannel = itr;
+                break;
             }
+        }
 
-            Channel* removeChannel = nullptr;
-            Channel* joinChannel   = nullptr;
-            bool     sendRemove    = true;
+        Channel* removeChannel = nullptr;
+        Channel* joinChannel   = nullptr;
+        bool     sendRemove    = true;
 
-            if (CanJoinConstantChannelInZone(channel, current_zone))
+        if (CanJoinConstantChannelInZone(channel, currentZone))
+        {
+            if (!(channel->flags & CHANNEL_DBC_FLAG_GLOBAL))
             {
-                if (!(channel->flags & CHANNEL_DBC_FLAG_GLOBAL))
-                {
-                    if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY &&
-                        usedChannel)
-                        continue; // Already on the channel, as city channel names are not changing
+                if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
+                    continue; // Already on the channel, as city channel names are not changing
 
-                    std::string currentNameExt;
+                std::string currentNameExt;
 
-                    if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                        currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
-                    else
-                        currentNameExt = current_zone_name;
-
-                    joinChannel = cMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()),
-                        channel->ChannelID);
-
-                    if (usedChannel)
-                    {
-                        if (joinChannel != usedChannel)
-                        {
-                            removeChannel = usedChannel;
-                            sendRemove    = false; // Do not send leave channel, it already replaced at client
-                        }
-                        else
-                            joinChannel = nullptr;
-                    }
-                }
+                if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
+                    currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                 else
-                    joinChannel = cMgr->GetJoinChannel(channel->pattern[m_session->GetSessionDbcLocale()], channel->ChannelID);
+                    currentNameExt = currentZoneName;
+
+                joinChannel = channelMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()), channel->ChannelID);
+
+                if (usedChannel)
+                {
+                    if (joinChannel != usedChannel)
+                    {
+                        removeChannel = usedChannel;
+                        sendRemove    = false; // Do not send leave channel, it already replaced at client
+                    }
+                    else
+                        joinChannel = nullptr;
+                }
             }
             else
-                removeChannel = usedChannel;
+                joinChannel = channelMgr->GetJoinChannel(channel->pattern[m_session->GetSessionDbcLocale()], channel->ChannelID);
+        }
+        else
+            removeChannel = usedChannel;
 
-            if (joinChannel)
-                joinChannel->JoinChannel(this, ""); // Changed Channel: ... or Joined Channel: ...
+        if (joinChannel)
+            joinChannel->JoinChannel(this, ""); // Changed Channel: ... or Joined Channel: ...
 
-            if (removeChannel)
-            {
-                removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
-                std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
-                LeftChannel(removeChannel); // Remove from player's channel list
-            }
+        if (removeChannel && (CONF_GET_BOOL("LFG.Location.All") && !removeChannel->IsLFG()))
+        {
+            removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
+            std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
+            LeftChannel(removeChannel); // Remove from player's channel list
         }
     }
 }
@@ -822,6 +816,8 @@ bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
 
     if (Roll <= chance)
     {
+        sScriptMgr->OnUpdateProfessionSkill(this, skillId, chance, step);
+
         uint32 new_value = SkillValue + step;
         if (new_value > MaxValue)
             new_value = MaxValue;
@@ -896,27 +892,44 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType, Item* ite
 
 void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defence, Item* item /*= nullptr*/)
 {
-    uint8 plevel    = getLevel(); // if defense than victim == attacker
-    uint8 greylevel = Warhead::XP::GetGrayLevel(plevel);
-    uint8 moblevel  = victim->getLevelForTarget(this);
+    uint8  playerLevel = getLevel();
+    uint16 currentSkillValue = defence ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType);
+    uint16 currentSkillMax = 5 * playerLevel;
+    int32  skillDiff = currentSkillMax - currentSkillValue;
 
-    if (moblevel > plevel + 5)
-        moblevel = plevel + 5;
-
-    uint8 lvldif = moblevel - greylevel;
-    if (lvldif < 3)
-        lvldif = 3;
-
-    uint32 skilldif = 5 * plevel - (defence ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType));
-    if (skilldif <= 0)
+    // Max skill reached for level.
+    // Can in some cases be less than 0: having max skill and then .level -1 as example.
+    if (skillDiff <= 0)
+    {
         return;
+    }
 
-    float chance = float(3 * lvldif * skilldif) / plevel;
+    uint8 greylevel = Warhead::XP::GetGrayLevel(playerLevel);
+    uint8 moblevel = defence ? victim->getLevelForTarget(this) : victim->getLevel(); // if defense than victim == attacker
+    /*if (moblevel < greylevel)
+        return;*/
+    // Patch 3.0.8 (2009-01-20): You can no longer skill up weapons on mobs that are immune to damage.
+
+    if (moblevel > playerLevel + 5)
+    {
+        moblevel = playerLevel + 5;
+    }
+
+    int16 lvldif = moblevel - greylevel;
+    if (lvldif < 3)
+    {
+        lvldif = 3;
+    }
+
+    float chance = float(3 * lvldif * skillDiff) / playerLevel;
     if (!defence)
-        if (getClass() == CLASS_WARRIOR || getClass() == CLASS_ROGUE)
-            chance += chance * 0.02f * GetStat(STAT_INTELLECT);
+    {
+        chance += chance * 0.02f * GetStat(STAT_INTELLECT);
+    }
 
     chance = chance < 1.0f ? 1.0f : chance; // minimum chance to increase skill is 1%
+
+    LOG_DEBUG("entities.player", "Player::UpdateCombatSkills(defence:{}, playerLevel:{}, moblevel:{}) -> ({}/{}) chance to increase skill is {}%", defence, playerLevel, moblevel, currentSkillValue, currentSkillMax, chance);
 
     if (roll_chance_f(chance))
     {
@@ -1294,6 +1307,7 @@ void Player::UpdateFFAPvPState(bool reset /*= true*/)
     {
         if (!IsFFAPvP())
         {
+            sScriptMgr->OnFfaPvpStateUpdate(this, true);
             SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlSet::iterator itr = m_Controlled.begin();
                  itr != m_Controlled.end(); ++itr)
@@ -1312,8 +1326,11 @@ void Player::UpdateFFAPvPState(bool reset /*= true*/)
             !pvpInfo.EndTimer)
         {
             pvpInfo.FFAPvPEndTimer = time_t(0);
-
-            RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            if (HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            {
+                RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+                sScriptMgr->OnFfaPvpStateUpdate(this, false);
+            }
             for (ControlSet::iterator itr = m_Controlled.begin();
                  itr != m_Controlled.end(); ++itr)
                 (*itr)->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1,
@@ -1623,28 +1640,33 @@ void Player::UpdateForQuestWorldObjects()
                 continue;
 
             // check if this unit requires quest specific flags
-            if (!obj->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
-                continue;
-
-            SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
-            for (SpellClickInfoContainer::const_iterator _itr = clickPair.first; _itr != clickPair.second; ++_itr)
+            if (obj->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
             {
-                //! This code doesn't look right, but it was logically converted to condition system to do the exact
-                //! same thing it did before. It definitely needs to be overlooked for intended functionality.
-                ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), _itr->second.spellId);
-                bool buildUpdateBlock = false;
-                for (ConditionList::const_iterator jtr = conds.begin(); jtr != conds.end() && !buildUpdateBlock; ++jtr)
-                    if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN)
-                        buildUpdateBlock = true;
-
-                if (buildUpdateBlock)
+                SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
+                for (SpellClickInfoContainer::const_iterator _itr = clickPair.first; _itr != clickPair.second; ++_itr)
                 {
-                    obj->BuildValuesUpdateBlockForPlayer(&udata, this);
-                    break;
+                    //! This code doesn't look right, but it was logically converted to condition system to do the exact
+                    //! same thing it did before. It definitely needs to be overlooked for intended functionality.
+                    ConditionList conds = sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), _itr->second.spellId);
+                    bool buildUpdateBlock = false;
+                    for (ConditionList::const_iterator jtr = conds.begin(); jtr != conds.end() && !buildUpdateBlock; ++jtr)
+                        if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN)
+                            buildUpdateBlock = true;
+
+                    if (buildUpdateBlock)
+                    {
+                        obj->BuildValuesUpdateBlockForPlayer(&udata, this);
+                        break;
+                    }
                 }
+            }
+            else if (obj->HasNpcFlag(UNIT_NPC_FLAG_VENDOR_MASK | UNIT_NPC_FLAG_TRAINER))
+            {
+                obj->BuildValuesUpdateBlockForPlayer(&udata, this);
             }
         }
     }
+
     udata.BuildPacket(&packet);
     GetSession()->SendPacket(&packet);
 }
@@ -1951,7 +1973,7 @@ void Player::UpdateSpecCount(uint8 count)
         ActivateSpec(0);
 
     CharacterDatabaseTransaction        trans = CharacterDatabase.BeginTransaction();
-    CharacterDatabasePreparedStatement* stmt  = nullptr;
+    CharacterDatabasePreparedStatement stmt  = nullptr;
 
     // Copy spec data
     if (count > curCount)

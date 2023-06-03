@@ -21,8 +21,10 @@
 #include "GroupMgr.h"
 #include "Common.h"
 #include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
+#include "StopWatch.h"
 #include "World.h"
 
 GroupMgr::GroupMgr()
@@ -103,7 +105,7 @@ void GroupMgr::RemoveGroup(Group* group)
 void GroupMgr::LoadGroups()
 {
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         // Delete all groups whose leader does not exist
         CharacterDatabase.DirectExecute("DELETE FROM `groups` WHERE leaderGuid NOT IN (SELECT guid FROM characters)");
@@ -130,33 +132,37 @@ void GroupMgr::LoadGroups()
         else
         {
             uint32 count = 0;
+
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
+
                 Group* group = new Group;
                 if (!group->LoadGroupFromDB(fields))
                 {
                     delete group;
                     continue;
                 }
-                AddGroup(group);
 
+                AddGroup(group);
                 RegisterGroupId(group->GetGUID().GetCounter());
 
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} group definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+            LOG_INFO("server.loading", ">> Loaded {} group definitions in {}", count, sw);
             LOG_INFO("server.loading", " ");
         }
     }
 
-    LOG_INFO("server.loading", "Loading Group members...");
+    LOG_INFO("server.loading", "Loading Group Members...");
+
     {
-        uint32 oldMSTime = getMSTime();
+        StopWatch sw;
 
         // Delete all rows from group_member with no group
         CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM `groups`)");
+
         // Delete all members that does not exist
         CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
 
@@ -172,7 +178,7 @@ void GroupMgr::LoadGroups()
             uint32 count = 0;
             do
             {
-                Field* fields = result->Fetch();
+                auto fields = result->Fetch();
                 Group* group = GetGroupByGUID(fields[0].Get<uint32>());
 
                 if (group)
@@ -181,8 +187,8 @@ void GroupMgr::LoadGroups()
                 ++count;
             } while (result->NextRow());
 
-            LOG_INFO("server.loading", ">> Loaded {} group members in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-            LOG_INFO("server.loading", " ");
+            LOG_INFO("server.loading", ">> Loaded {} group members in {}", count, sw);
+            LOG_INFO("server.loading", "");
         }
     }
 }

@@ -27,12 +27,14 @@
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "Timer.h"
+#include "StopWatch.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include <sstream>
 
 inline float GetAge(uint64 t) { return float(GameTime::GetGameTime().count() - t) / DAY; }
 
@@ -85,7 +87,7 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
     //  0    1       2         3          4          5        6     7     8     9           10           11          12        13        14        15         16        17         18          19
     // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy
     uint8 index = 0;
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->SetData(  index, _id);
     stmt->SetData (++index, uint8(_type));
     stmt->SetData(++index, _playerGuid.GetCounter());
@@ -112,7 +114,7 @@ void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
 
 void GmTicket::DeleteFromDB()
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GM_TICKET);
     stmt->SetData(0, _id);
     CharacterDatabase.Execute(stmt);
 }
@@ -273,6 +275,16 @@ void GmTicket::SetMessage(std::string const& message)
     _lastModifiedTime = uint64(GameTime::GetGameTime().count());
 }
 
+Player* GmTicket::GetPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_playerGuid);
+}
+
+Player* GmTicket::GetAssignedPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_assignedTo);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
 TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(GameTime::GetGameTime().count()) { }
@@ -307,35 +319,35 @@ void TicketMgr::ResetTickets()
 
     _lastTicketId = 0;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
 
     CharacterDatabase.Execute(stmt);
 }
 
 void TicketMgr::LoadTickets()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
         delete itr->second;
-    _ticketList.clear();
 
+    _ticketList.clear();
     _lastTicketId = 0;
     _openTicketCount = 0;
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
+    CharacterDatabasePreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
-        LOG_WARN("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
-
+        LOG_INFO("server.loading", ">> Loaded 0 GM tickets. DB table `gm_ticket` is empty!");
+        LOG_INFO("server.loading", "");
         return;
     }
 
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        auto fields = result->Fetch();
         GmTicket* ticket = new GmTicket();
         if (!ticket->LoadFromDB(fields))
         {
@@ -354,7 +366,7 @@ void TicketMgr::LoadTickets()
         ++count;
     } while (result->NextRow());
 
-    LOG_INFO("server.loading", ">> Loaded {} GM tickets in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded {} GM tickets in {}", count, sw);
     LOG_INFO("server.loading", " ");
 }
 
@@ -363,11 +375,12 @@ void TicketMgr::LoadSurveys()
     // we don't actually load anything into memory here as there's no reason to
     _lastSurveyId = 0;
 
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
+
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_survey"))
         _lastSurveyId = (*result)[0].Get<uint32>();
 
-    LOG_INFO("server.loading", ">> Loaded GM Survey count from database in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded GM Survey count from database in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 

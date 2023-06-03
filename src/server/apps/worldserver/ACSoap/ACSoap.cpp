@@ -20,9 +20,11 @@
 
 #include "ACSoap.h"
 #include "AccountMgr.h"
+#include "CliCommandMgr.h"
 #include "Log.h"
 #include "World.h"
 #include "soapStub.h"
+#include <memory>
 
 void ACSoapThread(const std::string& host, uint16 port)
 {
@@ -110,33 +112,33 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return soap_sender_fault(soap, "Command can not be empty", "The supplied command was an empty string");
 
     LOG_DEBUG("network.soap", "ACSoap: got command '{}'", command);
-    SOAPCommand connection;
+    auto connection = std::make_shared<SOAPCommand>();
 
     // commands are executed in the world thread. We have to wait for them to be completed
     {
         // CliCommandHolder will be deleted from world, accessing after queueing is NOT save
-        CliCommandHolder* cmd = new CliCommandHolder(&connection, command, &SOAPCommand::print, &SOAPCommand::commandFinished);
-        sWorld->QueueCliCommand(cmd);
+        sCliCommandMgr->AddCommand(command, [connection](std::string_view command)
+        {
+            connection->appendToPrintBuffer(command);
+        },
+        [connection](bool success)
+        {
+            connection->setCommandSuccess(success);
+        });
     }
 
     // Wait until the command has finished executing
-    connection.finishedPromise.get_future().wait();
+    connection->_finishedPromise.get_future().wait();
 
     // The command has finished executing already
-    char* printBuffer = soap_strdup(soap, connection.m_printBuffer.c_str());
-    if (connection.hasCommandSucceeded())
+    char* printBuffer = soap_strdup(soap, connection->_printBuffer.c_str());
+    if (connection->hasCommandSucceeded())
     {
         *result = printBuffer;
         return SOAP_OK;
     }
     else
         return soap_sender_fault(soap, printBuffer, printBuffer);
-}
-
-void SOAPCommand::commandFinished(void* soapconnection, bool success)
-{
-    SOAPCommand* con = (SOAPCommand*)soapconnection;
-    con->setCommandSuccess(success);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

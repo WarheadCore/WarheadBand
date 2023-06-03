@@ -24,7 +24,6 @@
 #include "GameConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include <zlib.h>
 

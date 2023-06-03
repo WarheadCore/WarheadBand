@@ -23,7 +23,7 @@
 #include "GameTime.h"
 #include "Language.h"
 #include "MapMgr.h"
-#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
 #include "ScriptObject.h"

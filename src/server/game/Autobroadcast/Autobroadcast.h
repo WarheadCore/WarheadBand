@@ -18,7 +18,8 @@
 #ifndef _AUTO_BROAD_CAST_H_
 #define _AUTO_BROAD_CAST_H_
 
-#include "Common.h"
+#include "Define.h"
+#include <string>
 #include <unordered_map>
 
 enum class AnnounceType : uint8

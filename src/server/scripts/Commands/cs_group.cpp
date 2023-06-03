@@ -36,7 +36,7 @@ public:
     {
         static ChatCommandTable groupCommandTable =
         {
-            { "list",    HandleGroupListCommand,    SEC_GAMEMASTER, Console::No },
+            { "list",    HandleGroupListCommand,    SEC_GAMEMASTER, Console::Yes },
             { "join",    HandleGroupJoinCommand,    SEC_GAMEMASTER, Console::No },
             { "remove",  HandleGroupRemoveCommand,  SEC_GAMEMASTER, Console::No },
             { "disband", HandleGroupDisbandCommand, SEC_GAMEMASTER, Console::No },
@@ -222,7 +222,7 @@ public:
             return true;
         }
 
-        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"));
+        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "Raid" : "Party"), groupTarget->GetMembersCount());
 
         for (auto const& slot : groupTarget->GetMemberSlots())
         {

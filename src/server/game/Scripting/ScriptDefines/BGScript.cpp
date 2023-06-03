@@ -70,13 +70,11 @@ void ScriptMgr::OnBattlegroundRemovePlayerAtLeave(Battleground* bg, Player* play
     });
 }
 
-void ScriptMgr::OnAddGroup(BattlegroundQueue* queue, GroupQueueInfo* ginfo, uint32& index, Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const* bracketEntry,
-    uint8 arenaType, bool isRated, bool isPremade, uint32 arenaRating, uint32 matchmakerRating, uint32 arenaTeamId, uint32 opponentsArenaTeamId)
+void ScriptMgr::OnAddGroup(BattlegroundQueue* queue, GroupQueueInfo* ginfo, Group* group, bool isPremade)
 {
-    ExecuteScript<BGScript>([&](BGScript* script)
+    ExecuteScript<BGScript>([queue, ginfo, group, isPremade](BGScript* script)
     {
-        script->OnAddGroup(queue, ginfo, index, leader, group, bgTypeId, bracketEntry,
-            arenaType, isRated, isPremade, arenaRating, matchmakerRating, arenaTeamId, opponentsArenaTeamId);
+        script->OnAddGroup(queue, ginfo, group, isPremade);
     });
 }
 

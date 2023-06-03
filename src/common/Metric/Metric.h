@@ -18,22 +18,16 @@
 #ifndef METRIC_H__
 #define METRIC_H__
 
+#include "AsioHacksFwd.h"
 #include "Define.h"
 #include "Duration.h"
 #include "MPSCQueue.h"
 #include <functional>
 #include <iosfwd>
 #include <memory>
-#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-namespace Warhead::Asio
-{
-    class IoContext;
-    class DeadlineTimer;
-}
 
 enum MetricDataType
 {
@@ -98,12 +92,12 @@ private:
     // ToDo: should format TagKey and FieldKey too in the same way as TagValue
 
 public:
-    Metric();
-    ~Metric();
+    Metric() = default;
+    ~Metric()= default;
 
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, Warhead::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
     bool ShouldLog(std::string const& category, int64 value) const;

@@ -21,7 +21,6 @@
 #include "BattlegroundAV.h"
 #include "ChatTextBuilder.h"
 #include "CreatureTextMgr.h"
-#include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
@@ -30,7 +29,6 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void BattlegroundAVScore::BuildObjectivesBlock(WorldPacket& data)
 {
@@ -732,8 +730,8 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
     {
         m_Mine_Reclaim_Timer[mine] = AV_MINE_RECLAIM_TIMER;
 
-        std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH),
-            (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+        std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString(LANG_BG_AV_MINE_TAKEN), (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE),
+                GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH));
 
         Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
         if (creature)
@@ -1440,7 +1438,7 @@ bool BattlegroundAV::SetupBattleground()
         // horde gates
         || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1][0], BG_AV_DoorPositons[1][1], BG_AV_DoorPositons[1][2], BG_AV_DoorPositons[1][3], 0, 0, std::sin(BG_AV_DoorPositons[1][3] / 2), cos(BG_AV_DoorPositons[1][3] / 2), RESPAWN_IMMEDIATELY))
     {
-        LOG_ERROR("sql.sql", "BatteGroundAV: Failed to spawn some object Battleground not created!1");
+        LOG_ERROR("db.query", "BatteGroundAV: Failed to spawn some object Battleground not created!1");
         return false;
     }
 

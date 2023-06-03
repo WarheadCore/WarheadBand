@@ -54,7 +54,6 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Spell.h"
-#include "WorldSession.h"
 
 // Ours
 /*######

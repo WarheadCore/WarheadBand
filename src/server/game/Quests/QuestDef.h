@@ -19,8 +19,7 @@
 #define AZEROTHCORE_QUEST_H
 
 #include "DBCEnums.h"
-#include "DatabaseEnv.h"
-#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <string>
@@ -182,8 +181,9 @@ enum QuestSpecialFlags
 class WH_GAME_API Quest
 {
     friend class ObjectMgr;
+
 public:
-    Quest(Field* questRecord);
+    explicit Quest(Field* questRecord);
     void LoadQuestDetails(Field* fields);
     void LoadQuestRequestItems(Field* fields);
     void LoadQuestOfferReward(Field* fields);

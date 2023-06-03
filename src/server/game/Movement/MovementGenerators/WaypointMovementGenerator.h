@@ -25,7 +25,6 @@
  */
 
 #include "MovementGenerator.h"
-#include "Player.h"
 #include "WaypointMgr.h"
 
 #define FLIGHT_TRAVEL_UPDATE  100
