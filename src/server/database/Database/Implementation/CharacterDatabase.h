@@ -521,9 +521,9 @@ enum CharacterDatabaseStatements : uint32
     CHAR_INS_GUILD_LEVEL_LOG,
     // guild level system - guild table
     CHAR_UPD_GUILD_EXP,
-    CHAR_UPD_GUILD_LEVEL,    
+    CHAR_UPD_GUILD_LEVEL,
 
-    MAX_CHARACTERDATABASE_STATEMENTS
+    MAX_CHARACTER_DATABASE_STATEMENTS
 };
 
 class WH_DATABASE_API CharacterDatabasePool : public DatabaseWorkerPool
