@@ -92,6 +92,8 @@ public:
     [[nodiscard]] bool CanRemoveConnection();
     [[nodiscard]] std::size_t GetQueueSize() const;
 
+    void SetInitStmts();
+
 private:
     bool Query(std::string_view sql, MySQLResult** result, MySQLField** fields, uint64* rowCount, uint32* fieldCount);
     bool Query(PreparedStatement stmt, MySQLPreparedStatement** mysqlStmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
@@ -108,6 +110,7 @@ private:
     SystemTimePoint _lastUseTime;
     ProducerConsumerQueue<AsyncOperation*>* _queue{ nullptr };
     std::unique_ptr<AsyncDBQueueWorker> _asyncQueueWorker;
+    std::unique_ptr<std::promise<void>> _isInitStmts;
 
     MySQLConnection(MySQLConnection const& right) = delete;
     MySQLConnection& operator=(MySQLConnection const& right) = delete;

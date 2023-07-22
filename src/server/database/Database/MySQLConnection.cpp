@@ -78,6 +78,7 @@ MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ProducerConsumer
         _asyncQueueWorker = std::make_unique<AsyncDBQueueWorker>(_queue, this);
 
     UpdateLastUseTime();
+    _isInitStmts = std::make_unique<std::promise<void>>();
 }
 
 MySQLConnection::~MySQLConnection()
@@ -193,6 +194,12 @@ bool MySQLConnection::Execute(PreparedStatement stmt)
 {
     if (!_mysqlHandle || !stmt)
         return false;
+
+    if (_isInitStmts)
+    {
+        _isInitStmts->get_future().wait();
+        _isInitStmts.reset();
+    }
 
     uint32 index = stmt->GetIndex();
 
@@ -627,4 +634,9 @@ std::size_t MySQLConnection::GetQueueSize() const
         return 0;
 
     return _queue->Size();
+}
+
+void MySQLConnection::SetInitStmts()
+{
+    _isInitStmts->set_value();
 }
