@@ -23,17 +23,20 @@
 
 namespace Warhead
 {
+    template<typename... Args>
+    using FormatString = fmt::format_string<Args...>;
+
     // Default string format function.
     template<typename... Args>
-    inline std::string StringFormat(std::string_view fmt, Args&&... args)
+    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
     {
         try
         {
             return fmt::format(fmt, std::forward<Args>(args)...);
         }
-        catch (const fmt::format_error& formatError)
+        catch (std::exception const& e)
         {
-            return fmt::format("An error occurred formatting string \"{}\": {}", fmt, formatError.what());
+            return fmt::format("Wrong format occurred ({}). Fmt string: '{}'", e.what(), fmt.get());
         }
     }
 
