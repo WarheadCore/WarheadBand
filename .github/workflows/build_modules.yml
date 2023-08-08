@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   build:
     strategy:
@@ -21,9 +24,14 @@ jobs:
     env:
       COMPILER: ${{ matrix.compiler }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         env:
           cache-name: cache-modules
         with:
