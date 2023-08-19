@@ -546,7 +546,7 @@ void DiscordMgr::CheckGuild()
 
             if (channel.name == DEFAULT_CATEGORY_NAME)
             {
-                LOG_DEBUG("discord", "> Category with name '{}' exist. ID {}", DEFAULT_CATEGORY_NAME, channelID);
+                LOG_DEBUG("discord", "> Category with name '{}' exist. ID {}", DEFAULT_CATEGORY_NAME, uint64(channelID));
                 return channelID;
             }
         }
@@ -617,7 +617,7 @@ void DiscordMgr::CheckGuild()
 
                     auto createdChannel = _bot->channel_create_sync(channelToCreate);
                     channelID = createdChannel.id;
-                    LOG_INFO("discord", "> Created channel {}. ID {}. Is hidden: {}", channelName, createdChannel.id, IsHiddenChannel(channelType));
+                    LOG_INFO("discord", "> Created channel {}. ID {}. Is hidden: {}", channelName, uint64(createdChannel.id), IsHiddenChannel(channelType));
                 }
                 catch (dpp::rest_exception const& error)
                 {

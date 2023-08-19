@@ -312,11 +312,12 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
             break;
     }
 
-    LOG_DEBUG("lfg", "SMSG_LFG_UPDATE_PLAYER {} updatetype: {}",
-                   GetPlayerInfo(), updateData.updateType);
+    LOG_DEBUG("lfg", "SMSG_LFG_UPDATE_PLAYER {} updatetype: {}", GetPlayerInfo(), updateData.updateType);
+
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
     data << uint8(size > 0);                               // Extra info
+
     if (size)
     {
         data << uint8(queued);                             // Join the queue
@@ -328,6 +329,7 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
             data << uint32(*it);
         data << updateData.comment;
     }
+
     SendPacket(&data);
 }
 
@@ -358,6 +360,7 @@ void WorldSession::SendLfgUpdateParty(lfg::LfgUpdateData const& updateData)
     WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
     data << uint8(size > 0);                               // Extra info
+
     if (size)
     {
         data << uint8(join);                               // LFG Join
@@ -510,15 +513,17 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
     uint32 secsleft = boot.cancelTime - GameTime::GetGameTime().count();
-    for (lfg::LfgAnswerContainer::const_iterator it = boot.votes.begin(); it != boot.votes.end(); ++it)
+
+    for (auto vote : boot.votes)
     {
-        if (it->second != lfg::LFG_ANSWER_PENDING)
+        if (vote.second != lfg::LFG_ANSWER_PENDING)
         {
             ++votesNum;
-            if (it->second == lfg::LFG_ANSWER_AGREE)
+            if (vote.second == lfg::LFG_ANSWER_AGREE)
                 ++agreeNum;
         }
     }
+
     LOG_DEBUG("network", "SMSG_LFG_BOOT_PROPOSAL_UPDATE [{}] inProgress: {} - didVote: {} - agree: {} - victim: [{}] votes: {} - agrees: {} - left: {} - needed: {} - reason {}",
                    guid.ToString(), uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING), uint8(playerVote == lfg::LFG_ANSWER_AGREE),
                    boot.victim.ToString(), votesNum, agreeNum, secsleft, lfg::LFG_GROUP_KICK_VOTES_NEEDED, boot.reason);

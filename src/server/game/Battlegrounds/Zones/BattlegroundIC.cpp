@@ -775,8 +775,8 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 else
                     gunshipHorde->GetCreatureListWithEntryInGrid(cannons, NPC_HORDE_GUNSHIP_CANNON, 150.0f);
 
-                for (std::list<Creature*>::const_iterator itr = cannons.begin(); itr != cannons.end(); ++itr)
-                    (*itr)->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                for (auto& cannon : cannons)
+                    cannon->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
                 {

@@ -19,6 +19,7 @@
 #define _LOG_H
 
 #include "LogCommon.h"
+#include "StringFormat.h"
 #include <fmt/format.h>
 #include <unordered_map>
 #include <vector>

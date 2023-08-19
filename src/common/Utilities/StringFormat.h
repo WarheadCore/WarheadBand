@@ -65,4 +65,9 @@ namespace Warhead::String
     WH_COMMON_API uint32 PatternReplace(std::string& subject, std::string_view pattern, std::string_view replacement);
 }
 
+// Add support enum for fmt
+//template <typename T, std::enable_if_t<std::is_enum_v<T>, int> = 0>
+template <typename T, FMT_ENABLE_IF(std::is_enum_v<T>)>
+auto format_as(T f) { return fmt::underlying(f); }
+
 #endif

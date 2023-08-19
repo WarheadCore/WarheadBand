@@ -158,10 +158,10 @@ void LLA::AddQueue(Player* leader)
 
         sScriptMgr->OnPlayerJoinArena(leader);
 
-        LOG_DEBUG("bg.battleground", "Battleground: player joined queue for arena, skirmish, bg queue type {} bg type {}: {}, NAME {}", bgQueueTypeId, bgTypeId, leader->GetGUID().ToString(), leader->GetName());
+        LOG_DEBUG("bg.battleground", "Battleground: player joined queue for arena, skirmish, bg queue type {} bg type {}: {}, NAME {}", (uint32)bgQueueTypeId, (uint32)bgTypeId, leader->GetGUID().ToString(), leader->GetName());
 
-        handler.PSendSysMessage("# You entered arena skirmish queue {}/{} ({:2}v{:2})",
-            bracketEntry->minLevel, bracketEntry->maxLevel, arenaType);
+        handler.PSendSysMessage("# You entered arena skirmish queue {}/{} ({}v{})",
+            bracketEntry->minLevel, bracketEntry->maxLevel, arenaType, arenaType);
     }
     // check if group can queue:
     else
