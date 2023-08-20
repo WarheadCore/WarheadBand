@@ -47,7 +47,7 @@ namespace
     // Check logging system configs like LogChannel.* and Logger.*
     bool IsLoggingSystemOptions(std::string_view optionName)
     {
-        size_t foundAppender = optionName.find("LogChannel.");
+        size_t foundAppender = optionName.find("Sink.");
         size_t foundLogger = optionName.find("Logger.");
 
         return foundAppender != std::string_view::npos || foundLogger != std::string_view::npos;

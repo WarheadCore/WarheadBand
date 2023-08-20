@@ -60,7 +60,7 @@ void BOARMgr::LoadDBData()
     QueryResult result = CharacterDatabase.Query("SELECT `BgTypeID`, `WinnerItemID`, `WinnerItemCount`, `LoserItemID`, `LoserItemCount` FROM battlegound_arena_rewards");
     if (!result)
     {
-        LOG_FATAL("sql.sql", ">> Loaded 0 rewards. DB table `battlegound_arena_rewards` is empty.");
+        LOG_CRIT("sql.sql", ">> Loaded 0 rewards. DB table `battlegound_arena_rewards` is empty.");
         LOG_WARN("server.loading", "> Disable this module");
         _isEnable = false;
         return;

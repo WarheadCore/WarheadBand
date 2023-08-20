@@ -154,7 +154,7 @@ std::string const Transmogrification::GetSlotName(Player* player, uint8 slot) co
             return sModuleLocale->GetModuleString("TRANSMOG_LOCALE_TABARD", localeIndex).value_or("Tabard"); // Tabard
         default:
             {
-                LOG_FATAL("module.transmog", "> Transmog: unknown slot ({})", slot);
+                LOG_CRIT("module.transmog", "> Transmog: unknown slot ({})", slot);
                 return "";
             }
     }

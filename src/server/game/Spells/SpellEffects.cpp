@@ -4358,7 +4358,7 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
             break;
         }
         case GameObjectActions::None:
-            LOG_FATAL("spell", "Spell {} has action type NONE in effect {}", m_spellInfo->Id, int32(effIndex));
+            LOG_CRIT("spell", "Spell {} has action type NONE in effect {}", m_spellInfo->Id, int32(effIndex));
             break;
         default:
             LOG_ERROR("spell", "Spell {} has unhandled action {} in effect {}", m_spellInfo->Id, int32(action), int32(effIndex));

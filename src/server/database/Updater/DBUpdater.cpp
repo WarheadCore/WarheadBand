@@ -54,7 +54,7 @@ bool DBUpdaterUtil::CheckExecutable()
             return true;
         }
 
-        LOG_FATAL("db.update", "Didn't find any executable MySQL binary at \'{}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
+        LOG_CRIT("db.update", "Didn't find any executable MySQL binary at \'{}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
             absolute(exe).generic_string());
 
         return false;
@@ -124,7 +124,7 @@ bool DBUpdater::Create(DatabaseWorkerPool& pool)
     std::ofstream file(temp.generic_string());
     if (!file.is_open())
     {
-        LOG_FATAL("db.update", "Failed to create temporary query file \"{}\"!", temp.generic_string());
+        LOG_CRIT("db.update", "Failed to create temporary query file \"{}\"!", temp.generic_string());
         return false;
     }
 
@@ -138,7 +138,7 @@ bool DBUpdater::Create(DatabaseWorkerPool& pool)
     }
     catch (UpdateException const&)
     {
-        LOG_FATAL("db.update", "Failed to create database {}! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->Database);
+        LOG_CRIT("db.update", "Failed to create database {}! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->Database);
         std::filesystem::remove(temp);
         return false;
     }
@@ -180,7 +180,7 @@ bool DBUpdater::Update(DatabaseWorkerPool& pool, std::string_view modulesList /*
             }
             catch (UpdateException&)
             {
-                LOG_FATAL("db.update", "Failed apply file to database {}! Does the user (named in *.conf) have `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->Database);
+                LOG_CRIT("db.update", "Failed apply file to database {}! Does the user (named in *.conf) have `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->Database);
                 return false;
             }
 
@@ -417,7 +417,7 @@ void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, std::string_view host, std::
 
     if (ret != EXIT_SUCCESS)
     {
-        LOG_FATAL("db.update", "Applying of file \'{}\' to database \'{}\' failed!" \
+        LOG_CRIT("db.update", "Applying of file \'{}\' to database \'{}\' failed!" \
             " If you are a user, please pull the latest revision from the repository. "
             "Also make sure you have not applied any of the databases with your sql client. "
             "You cannot use auto-update system and import sql files from WarheadCore repository with your sql client. "

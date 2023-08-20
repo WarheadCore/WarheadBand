@@ -365,7 +365,7 @@ void UnbindInstance::BindInfo(Player* player, Creature* creature, uint32 sender,
                 case RAID_DIFFICULTY_25MAN_HEROIC:
                     return uiCostsStore.CountForRaid25Heroic;
                 default:
-                    LOG_FATAL("module.unbind", "> UI: Incorrect diff for raid ({})", sender - GOSSIP_SENDER_DIFFICULTY);
+                    LOG_CRIT("module.unbind", "> UI: Incorrect diff for raid ({})", sender - GOSSIP_SENDER_DIFFICULTY);
                     break;
             }
         }
@@ -376,7 +376,7 @@ void UnbindInstance::BindInfo(Player* player, Creature* creature, uint32 sender,
                 case DUNGEON_DIFFICULTY_HEROIC:
                     return uiCostsStore.CountForDungeonHeroic;
                 default:
-                    LOG_FATAL("module.unbind", "> UI: Incorrect diff for dungeon ({})", sender - GOSSIP_SENDER_DIFFICULTY);
+                    LOG_CRIT("module.unbind", "> UI: Incorrect diff for dungeon ({})", sender - GOSSIP_SENDER_DIFFICULTY);
                     break;
             }
         }
@@ -433,7 +433,7 @@ void UnbindInstance::Unbind(Player* player, Creature* creature, uint32 sender, u
                 case RAID_DIFFICULTY_25MAN_HEROIC:
                     return uiCostsStore.CountForRaid25Heroic;
                 default:
-                    LOG_FATAL("module.unbind", "> UI: Incorrect diff for raid ({})", sender - GOSSIP_SENDER_DIFFICULTY);
+                    LOG_CRIT("module.unbind", "> UI: Incorrect diff for raid ({})", sender - GOSSIP_SENDER_DIFFICULTY);
                     break;
             }
         }
@@ -444,7 +444,7 @@ void UnbindInstance::Unbind(Player* player, Creature* creature, uint32 sender, u
                 case DUNGEON_DIFFICULTY_HEROIC:
                     return uiCostsStore.CountForDungeonHeroic;
                 default:
-                    LOG_FATAL("module.unbind", "> UI: Incorrect diff for dungeon ({})", sender - GOSSIP_SENDER_DIFFICULTY);
+                    LOG_CRIT("module.unbind", "> UI: Incorrect diff for dungeon ({})", sender - GOSSIP_SENDER_DIFFICULTY);
                     break;
             }
         }

@@ -68,7 +68,7 @@ void Transaction::Cleanup()
                 }
                 catch (const std::bad_variant_access& ex)
                 {
-                    LOG_FATAL("db.query", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
+                    LOG_CRIT("db.query", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
                     ABORT("");
                 }
             }
@@ -81,7 +81,7 @@ void Transaction::Cleanup()
                 }
                 catch (const std::bad_variant_access& ex)
                 {
-                    LOG_FATAL("db.query", "> std::string not found in SQLElementData. {}", ex.what());
+                    LOG_CRIT("db.query", "> std::string not found in SQLElementData. {}", ex.what());
                     ABORT("");
                 }
             }

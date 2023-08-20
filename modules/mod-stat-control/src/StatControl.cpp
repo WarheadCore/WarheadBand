@@ -83,7 +83,7 @@ void StatControlMgr::LoadDBData()
     QueryResult result = WorldDatabase.Query("SELECT `StatControlType`, `ClassMask`, `Value`, `IsEnable` FROM `wh_stats_control`");
     if (!result)
     {
-        LOG_FATAL("sql.sql", ">> Loaded 0 stats control. DB table `wh_stats_control` is empty.");
+        LOG_CRIT("sql.sql", ">> Loaded 0 stats control. DB table `wh_stats_control` is empty.");
         LOG_WARN("server.loading", "> Disable this module");
         _isEnable = false;
         return;

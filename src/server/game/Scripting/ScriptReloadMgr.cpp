@@ -934,7 +934,7 @@ private:
             fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
             if (code)
             {
-                LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
+                LOG_CRIT("scripts.hotswap", ">> Failed to create cache entry for module "
                     "\"{}\" at \"{}\" with reason (\"{}\")!",
                     path.filename().generic_string(), cache_path.generic_string(),
                     code.message());
@@ -953,7 +953,7 @@ private:
         auto module = ScriptModule::CreateFromPath(path, cache_path);
         if (!module)
         {
-            LOG_FATAL("scripts.hotswap", ">> Failed to load script module \"{}\"!",
+            LOG_CRIT("scripts.hotswap", ">> Failed to load script module \"{}\"!",
                 path.filename().generic_string());
 
             // Find a better solution for this but it's much better
@@ -1144,7 +1144,7 @@ private:
             auto name = itr->first;
             rebuild_buildfiles = !itr->second.empty();
 
-            if (sLog->ShouldLog("scripts.hotswap", Warhead::LogLevel::Trace))
+            if (sLog->ShouldLog("scripts.hotswap", spdlog::level::trace))
             {
                 for (auto const& entry : itr->second)
                 {

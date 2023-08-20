@@ -67,3 +67,7 @@ efws (Entropia File System Watcher - crossplatform file system watcher)
 DPP D++ Extremely Lightweight C++ Discord Library
   https://github.com/brainboxdotcc/DPP
   Version: 10.0.2
+
+spdlog (Very fast, header-only/compiled, C++ logging library)
+  https://github.com/gabime/spdlog
+  Version: https://github.com/gabime/spdlog/commit/811bc4c7a9a4b192c6fa59109476e214f0eb50c0

@@ -123,14 +123,14 @@ void DatabaseWorkerPool::MakeExtraFile()
     }
     catch (const std::error_code& error)
     {
-        LOG_FATAL("db.pool", "> Error at check '{}'. {}", extraFile.generic_string(), error.message());
+        LOG_CRIT("db.pool", "> Error at check '{}'. {}", extraFile.generic_string(), error.message());
         ABORT();
     }
 
     std::ofstream outfile(extraFile.generic_string());
     if (!outfile.is_open())
     {
-        LOG_FATAL("db.pool", "Failed to create extra file '{}'", extraFile.generic_string());
+        LOG_CRIT("db.pool", "Failed to create extra file '{}'", extraFile.generic_string());
         ABORT();
     }
 

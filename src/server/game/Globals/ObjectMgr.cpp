@@ -3721,7 +3721,7 @@ void ObjectMgr::LoadPlayerInfo()
         auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerClassLevelStats) };
         if (!result)
         {
-            LOG_FATAL("server.loading", ">> Loaded 0 level health/mana definitions. DB table `player_classlevelstats` is empty.");
+            LOG_CRIT("server.loading", ">> Loaded 0 level health/mana definitions. DB table `player_classlevelstats` is empty.");
             exit(1);
         }
 

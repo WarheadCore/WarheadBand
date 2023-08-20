@@ -1673,7 +1673,7 @@ void World::_UpdateGameTime()
     }
 }
 
-/// Shutdown the server
+/// Clear the server
 void World::ShutdownServ(Seconds time, uint32 options, uint8 exitcode, const std::string& reason)
 {
     // ignore if server shutdown at next tick

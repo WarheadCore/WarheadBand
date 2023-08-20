@@ -3991,7 +3991,7 @@ bool Map::CheckCollisionAndGetValidCoords(WorldObject const* source, float start
     // Prevent invalid coordinates here, position is unchanged
     if (!Warhead::IsValidMapCoord(startX, startY, startZ) || !Warhead::IsValidMapCoord(destX, destY, destZ))
     {
-        LOG_FATAL("maps", "Map::CheckCollisionAndGetValidCoords invalid coordinates startX: {}, startY: {}, startZ: {}, destX: {}, destY: {}, destZ: {}", startX, startY, startZ, destX, destY, destZ);
+        LOG_CRIT("maps", "Map::CheckCollisionAndGetValidCoords invalid coordinates startX: {}, startY: {}, startZ: {}, destX: {}, destY: {}, destZ: {}", startX, startY, startZ, destX, destY, destZ);
         return false;
     }
 

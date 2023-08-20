@@ -136,7 +136,7 @@ public:
         }
         catch (Warhead::RegularExpressionException const& e)
         {
-            LOG_FATAL("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
+            LOG_CRIT("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
         }
 
         if (_reStore.empty())
@@ -150,7 +150,7 @@ public:
         }
         catch (Warhead::RegularExpressionException const& e)
         {
-            LOG_FATAL("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
+            LOG_CRIT("module.antiad", "Warhead::RegularExpressionException: {}", e.GetErrorMessage());
         }
 
         return false;

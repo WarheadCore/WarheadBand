@@ -286,7 +286,7 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, char const* status, 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
-    if (!sLog->ShouldLog("network.opcode", Warhead::LogLevel::Trace) || packet->rpos() >= packet->wpos())
+    if (!sLog->ShouldLog("network.opcode", spdlog::level::trace) || packet->rpos() >= packet->wpos())
         return;
 
     LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at {} from {}) Opcode {} from {}",
@@ -435,7 +435,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         catch (ByteBufferException const&)
         {
             LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: {}) from client {}, accountid={}. Skipped packet.", packet->GetOpcode(), GetRemoteAddress(), GetAccountId());
-            if (sLog->ShouldLog("network", Warhead::LogLevel::Debug))
+            if (sLog->ShouldLog("network", spdlog::level::debug))
             {
                 LOG_DEBUG("network", "Dumping error causing packet:");
                 packet->hexlike();

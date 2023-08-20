@@ -48,7 +48,7 @@ enum LeviathanSpells
     SPELL_INVIS_AND_STEALTH_DETECT      = 18950,
     SPELL_TRANSITUS_SHIELD_IMPACT       = 48387,
 
-    // Shutdown spells
+    // Clear spells
     SPELL_SYSTEMS_SHUTDOWN              = 62475,
     SPELL_OVERLOAD_CIRCUIT              = 62399,
 

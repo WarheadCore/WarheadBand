@@ -1491,22 +1491,22 @@ void BattlegroundAV::AssaultNode(BG_AV_Nodes node, TeamId teamId)
 {
     if (m_Nodes[node].TotalOwnerId == teamId)
     {
-        LOG_FATAL("bg.battleground", "Assaulting team is TotalOwner of node");
+        LOG_CRIT("bg.battleground", "Assaulting team is TotalOwner of node");
         ABORT();
     }
     if (m_Nodes[node].OwnerId == teamId)
     {
-        LOG_FATAL("bg.battleground", "Assaulting team is owner of node");
+        LOG_CRIT("bg.battleground", "Assaulting team is owner of node");
         ABORT();
     }
     if (m_Nodes[node].State == POINT_DESTROYED)
     {
-        LOG_FATAL("bg.battleground", "Destroyed node is being assaulted");
+        LOG_CRIT("bg.battleground", "Destroyed node is being assaulted");
         ABORT();
     }
     if (m_Nodes[node].State == POINT_ASSAULTED && m_Nodes[node].TotalOwnerId != TEAM_NEUTRAL) //only assault an assaulted node if no totalowner exists
     {
-        LOG_FATAL("bg.battleground", "Assault on an not assaulted node with total owner");
+        LOG_CRIT("bg.battleground", "Assault on an not assaulted node with total owner");
         ABORT();
     }
     //the timer gets another time, if the previous owner was 0 == Neutral

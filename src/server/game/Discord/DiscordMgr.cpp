@@ -172,7 +172,7 @@ void DiscordMgr::LoadConfig(bool reload)
         _botToken = CONF_GET_STR("Discord.Bot.Token");
         if (_botToken.empty())
         {
-            LOG_FATAL("discord", "> Empty bot token for discord. Disable system");
+            LOG_CRIT("discord", "> Empty bot token for discord. Disable system");
             _isEnable = false;
             return;
         }
@@ -180,7 +180,7 @@ void DiscordMgr::LoadConfig(bool reload)
         _guildID = sGameConfig->GetOption<int64>("Discord.Guild.ID");
         if (!_guildID)
         {
-            LOG_FATAL("discord", "> Empty guild id for discord. Disable system");
+            LOG_CRIT("discord", "> Empty guild id for discord. Disable system");
             _isEnable = false;
             return;
         }
@@ -638,7 +638,7 @@ void DiscordMgr::CheckGuild()
         auto const& channels = _bot->channels_get_sync(_guildID);
         if (channels.empty())
         {
-            LOG_FATAL("discord", "> Empty channels in guild. Guild is new?");
+            LOG_CRIT("discord", "> Empty channels in guild. Guild is new?");
             findCategoryID = CreateCategory();
         }
 

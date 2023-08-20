@@ -28,7 +28,6 @@
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
 #include "DeadlineTimer.h"
-#include "DiscordChannel.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
@@ -195,7 +194,6 @@ int main(int argc, char** argv)
         return 1;
 
     // Init all logs
-    sLog->RegisterChannel<Warhead::DiscordChannel>();
     sLog->Initialize();
 
     Warhead::Logo::Show("worldserver",
@@ -395,7 +393,7 @@ int main(int argc, char** argv)
 
     WorldUpdateLoop();
 
-    // Shutdown starts here
+    // Clear starts here
     sIoContextMgr->Stop();
 
     sScriptMgr->OnShutdown();
