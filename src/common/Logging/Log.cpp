@@ -29,8 +29,6 @@
 #include <spdlog/sinks/sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <list>
-#include <regex>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <spdlog/details/windows_include.h>
