@@ -2,7 +2,7 @@ name: windows-build
 on:
   push:
     branches:
-      - 'master'  # only default branch
+      - 'win'  # only default branch
   pull_request:
 
 concurrency:
