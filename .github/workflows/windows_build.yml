@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.head_ref }} || concat(${{ github.ref }}, ${{ github.workflow }})
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   windows-build:
     strategy:
@@ -18,7 +21,12 @@ jobs:
     env:
       BOOST_ROOT: C:\local\boost_1_80_0
     steps:
-      - uses: actions/checkout@v2
+      - name: Harden Runner
+        uses: step-security/harden-runner@cba0d00b1fc9a034e1e642ea0f1103c282990604 # v2.5.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       - name: Configure OS
         shell: bash
         env:
@@ -55,7 +63,7 @@ jobs:
           cp "/c/tools/mysql/current/lib/libmysql.dll" "env/dist"
           cp "/c/Program Files/OpenSSL-Win64/bin/libcrypto-1_1-x64.dll" "env/dist"
           cp "/c/Program Files/OpenSSL-Win64/bin/libssl-1_1-x64.dll" "env/dist"
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
         with:
           name: windows-2022-MSVC17-release
           path: env/dist
