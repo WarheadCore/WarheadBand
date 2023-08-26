@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TaskScheduler.h"
+#include "Player.h"
 #include "magtheridons_lair.h"
 
 enum Yells

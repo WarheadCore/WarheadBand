@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 /*
  * Ordered alphabetically using scriptname.
  * Scriptnames of files in this file should be prefixed with "npc_pet_hun_".
@@ -25,6 +22,7 @@
 
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
+#include "PetDefines.h"
 
 enum HunterSpells
 {

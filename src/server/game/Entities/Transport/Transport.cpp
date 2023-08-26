@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "Transport.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -33,6 +30,7 @@
 #include "Spell.h"
 #include "Vehicle.h"
 #include "WorldModel.h"
+#include "ObjectAccessor.h"
 #include <sstream>
 
 MotionTransport::MotionTransport() : Transport(), _transportInfo(nullptr), _isMoving(true), _pendingStop(false), _triggeredArrivalEvent(false), _triggeredDepartureEvent(false), _passengersLoaded(false), _delayedTeleport(false)

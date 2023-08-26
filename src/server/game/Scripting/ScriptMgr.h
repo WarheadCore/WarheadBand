@@ -19,110 +19,12 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
+#include "ScriptObjectFwd.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
 #include "SharedDefines.h"
 #include <string_view>
-
-// Core class
-class AchievementGlobalMgr;
-class AchievementMgr;
-class ArenaTeam;
-class AuctionEntry;
-class AuctionHouseMgr;
-class AuctionHouseObject;
-class Aura;
-class AuraApplication;
-class AuraEffect;
-class AuraScript;
-class Battleground;
-class BattlegroundMap;
-class BattlegroundQueue;
-class Channel;
-class ChatHandler;
-class Creature;
-class CreatureAI;
-class DynamicObject;
-class GameObject;
-class GameObjectAI;
-class GridMap;
-class Group;
-class Guardian;
-class Guild;
-class InstanceMap;
-class InstanceSave;
-class InstanceScript;
-class Item;
-class LootStore;
-class LootTemplate;
-class MailDraft;
-class MailReceiver;
-class MailSender;
-class Map;
-class MapInstanced;
-class Object;
-class OutdoorPvP;
-class Pet;
-class Player;
-class Quest;
-class Roll;
-class Spell;
-class SpellCastTargets;
-class SpellInfo;
-class SpellScript;
-class TempSummon;
-class Transport;
-class Unit;
-class Vehicle;
-class Weather;
-class WorldObject;
-class WorldPacket;
-class WorldSession;
-class WorldSocket;
-
-enum ArenaTeamInfoType : uint8;
-enum AuraRemoveMode : uint8;
-enum BattlegroundDesertionType : uint8;
-enum ContentLevels : uint8;
-enum DamageEffectType : uint8;
-enum EnchantmentSlot : uint8;
-enum EncounterCreditType : uint8;
-enum EncounterState : uint8;
-enum InventoryResult : uint8;
-enum MailCheckMask : uint8;
-enum PetType : uint8;
-enum RollVote : uint8;
-enum ShutdownExitCode : uint8;
-enum ShutdownMask : uint8;
-enum WeaponAttackType : uint8;
-enum WeatherState : uint32;
-
-struct AchievementCriteriaEntry;
-struct AchievementEntry;
-struct AreaTrigger;
-struct CompletedAchievementData;
-struct Condition;
-struct ConditionSourceInfo;
-struct CreatureTemplate;
-struct CriteriaProgress;
-struct DungeonEncounter;
-struct DungeonProgressionRequirements;
-struct GroupQueueInfo;
-struct InstanceTemplate;
-struct ItemSetEffect;
-struct ItemTemplate;
-struct Loot;
-struct LootStoreItem;
-struct MapDifficulty;
-struct MapEntry;
-struct MovementInfo;
-struct PvPDifficultyEntry;
-struct QuestStatusData;
-struct ScalingStatValuesEntry;
-struct SpellModifier;
-struct TargetInfo;
-struct VendorItem;
 
 // Dynamic linking class
 class ModuleReference;

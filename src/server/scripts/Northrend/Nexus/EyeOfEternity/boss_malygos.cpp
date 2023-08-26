@@ -15,22 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "CombatAI.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Opcodes.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
-#include "WorldSession.h"
 #include "eye_of_eternity.h"
+#include "ScriptMgr.h"
 
 enum MovementInformPoints
 {

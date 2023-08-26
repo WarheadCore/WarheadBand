@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "mana_tombs.h"
 
@@ -64,7 +64,10 @@ struct boss_tavarok : public BossAI
         _JustDied();
     }
 
-    void KilledUnit(Unit* /*victim*/) override {}
+    void KilledUnit(Unit* /*victim*/) override
+    {
+
+    }
 };
 
 void AddSC_boss_tavarok()

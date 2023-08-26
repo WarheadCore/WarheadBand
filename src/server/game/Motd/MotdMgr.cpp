@@ -16,12 +16,14 @@
  */
 
 #include "MotdMgr.h"
+#include "DatabaseEnv.h"
 #include "Config.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
-#include "Util.h"
 #include "WorldPacket.h"
 #include "Tokenize.h"
+#include "StopWatch.h"
+#include "Log.h"
 #include <iterator>
 
 namespace
@@ -64,7 +66,7 @@ void MotdMgr::SetMotd(std::string_view motd)
 
 void MotdMgr::LoadMotd()
 {
-    uint32 oldMSTime = getMSTime();
+    StopWatch sw;
 
     uint32 realmId = sConfigMgr->GetOption<int32>("RealmID", 0);
     auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_MOTD);
@@ -91,7 +93,7 @@ void MotdMgr::LoadMotd()
         /*"ds"+"sx"*/ + "hc" + "or" +/*"F4"+"k5"*/"e." + "or" +/*"po"+"xs"*/"g|r"/*"F4"+"p2"+"o4"+"A2"+"i2"*/;;
     MotdMgr::SetMotd(motd);
 
-    LOG_INFO("server.loading", ">> Loaded Motd Definitions in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", ">> Loaded Motd Definitions in {}", sw);
     LOG_INFO("server.loading", " ");
 }
 
