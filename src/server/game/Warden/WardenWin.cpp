@@ -293,7 +293,7 @@ void WardenWin::RequestChecks()
     _CurrentChecks.clear();
 
     // Erase any nullptrs.
-    Acore::Containers::EraseIf(_PendingChecks,
+    Warhead::Containers::EraseIf(_PendingChecks,
         [this](uint16 id)
         {
             WardenCheck const* check = sWardenCheckMgr->GetWardenDataById(id);
@@ -734,15 +734,15 @@ void WardenWin::HandleData(ByteBuffer& buff)
             }
 
             WardenCheckResult const* rs = sWardenCheckMgr->GetWardenResultById(checkId);
-            if (memcmp(buff.contents() + buff.rpos(), rs->Result.ToByteArray<20>(false).data(), Acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES) != 0) // SHA1
+            if (memcmp(buff.contents() + buff.rpos(), rs->Result.ToByteArray<20>(false).data(), Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES) != 0) // SHA1
             {
                 LOG_DEBUG("warden", "RESULT MPQ_CHECK fail, CheckId {} account Id {}", checkId, _session->GetAccountId());
                 checkFailed = checkId;
-                buff.rpos(buff.rpos() + Acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);            // 20 bytes SHA1
+                buff.rpos(buff.rpos() + Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);            // 20 bytes SHA1
                 continue;
             }
 
-            buff.rpos(buff.rpos() + Acore::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);                // 20 bytes SHA1
+            buff.rpos(buff.rpos() + Warhead::Crypto::Constants::SHA1_DIGEST_LENGTH_BYTES);                // 20 bytes SHA1
             LOG_DEBUG("warden", "RESULT MPQ_CHECK passed, CheckId {} account Id {}", checkId, _session->GetAccountId());
             break;
         }

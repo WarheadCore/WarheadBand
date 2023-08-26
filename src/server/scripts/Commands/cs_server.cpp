@@ -237,7 +237,7 @@ public:
 
     static bool HandleServerInfoCommand(ChatHandler* handler)
     {
-        std::string realmName = sWorld->GetRealmName();
+        auto realmName = sWorld->GetRealmName();
         uint32 playerCount = sWorld->GetPlayerCount();
         uint32 activeSessionCount = sWorld->GetActiveSessionCount();
         uint32 queuedSessionCount = sWorld->GetQueuedSessionCount();
@@ -488,15 +488,15 @@ public:
             return false;
         }
 
-        LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_MOTD);
-        stmt->SetData(0, Acore::StringTo<int32>(realmId).value());
+        auto trans = AuthDatabase.BeginTransaction();
+        auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_REP_MOTD);
+        stmt->SetData(0, Warhead::StringTo<int32>(realmId).value());
         stmt->SetData(1, strMotd);
         trans->Append(stmt);
-        LoginDatabase.CommitTransaction(trans);
+        AuthDatabase.CommitTransaction(trans);
 
         sMotdMgr->LoadMotd();
-        handler->PSendSysMessage(LANG_MOTD_NEW, Acore::StringTo<int32>(realmId).value(), strMotd);
+        handler->PSendSysMessage(LANG_MOTD_NEW, Warhead::StringTo<int32>(realmId).value(), strMotd);
         return true;
     }
 

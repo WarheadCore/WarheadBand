@@ -213,7 +213,7 @@ class spell_tractor_beam_creator : public SpellScript
         {
             std::vector<uint32> tractorBeamSummons = { SPELL_SUMMON_TRACTOR_BEAM_1, SPELL_SUMMON_TRACTOR_BEAM_2, SPELL_SUMMON_TRACTOR_BEAM_3, SPELL_SUMMON_TRACTOR_BEAM_4,
                 SPELL_SUMMON_TRACTOR_BEAM_5, SPELL_SUMMON_TRACTOR_BEAM_6, SPELL_SUMMON_TRACTOR_BEAM_7, SPELL_SUMMON_TRACTOR_BEAM_8 };
-            uint32 randomTractorSpellID = Acore::Containers::SelectRandomContainerElement(tractorBeamSummons);
+            uint32 randomTractorSpellID = Warhead::Containers::SelectRandomContainerElement(tractorBeamSummons);
             caster->CastSpell(caster, randomTractorSpellID, true);
         }
     }

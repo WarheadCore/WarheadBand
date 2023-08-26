@@ -425,11 +425,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
 }
 
 DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura) :
-    me(unit),
-    m_dist(dist),
-    except(withMainTank ? me->GetThreatMgr().GetCurrentVictim() : nullptr),
-    m_playerOnly(playerOnly),
-    m_aura(aura) { }
+        me(unit), m_dist(dist), except(!withMainTank ? me->GetThreatMgr().GetCurrentVictim() : nullptr), m_playerOnly(playerOnly), m_aura(aura) { }
 
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {

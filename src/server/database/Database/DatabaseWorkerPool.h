@@ -114,7 +114,7 @@ public:
     }
 
     //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
-    //! Statement must be prepared with the CONNECTION_SYNCH flag.
+    //! Statement must be prepared with the ConnectionFlags::Sync flag.
     void DirectExecute(PreparedStatement stmt);
 
     /**
@@ -138,7 +138,7 @@ public:
 
     //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
     //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-    //! Statement must be prepared with CONNECTION_SYNCH flag.
+    //! Statement must be prepared with ConnectionFlags::Sync flag.
     PreparedQueryResult Query(PreparedStatement stmt);
 
     /**
@@ -151,13 +151,13 @@ public:
 
     //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
     //! The return value is then processed in ProcessQueryCallback methods.
-    //! Statement must be prepared with CONNECTION_ASYNC flag.
+    //! Statement must be prepared with ConnectionFlags::Async flag.
     QueryCallback AsyncQuery(PreparedStatement stmt);
 
     //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
     //! return object as soon as the query is executed.
     //! The return value is then processed in ProcessQueryCallback methods.
-    //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
+    //! Any prepared statements added to this holder need to be prepared with the ConnectionFlags::Async flag.
     SQLQueryHolderCallback DelayQueryHolder(SQLQueryHolder holder);
 
     /**

@@ -18536,7 +18536,7 @@ void Unit::SetFeared(bool apply, Unit* fearedBy /*= nullptr*/, bool isFear /*= f
     if (apply)
     {
         SetTarget();
-        GetMotionMaster()->MoveFleeing(fearedBy, isFear ? 0 : sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
+        GetMotionMaster()->MoveFleeing(fearedBy, isFear ? 0 : CONF_GET_INT("CreatureFamilyFleeDelay"));
 
         if (GetTypeId() == TYPEID_PLAYER)
         {

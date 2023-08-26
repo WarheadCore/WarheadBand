@@ -90,6 +90,7 @@ enum ContentLevels : uint8;
 enum DamageEffectType : uint8;
 enum EnchantmentSlot : uint8;
 enum EncounterCreditType : uint8;
+enum EncounterState : uint8;
 enum InventoryResult : uint8;
 enum MailCheckMask : uint8;
 enum PetType : uint8;
@@ -114,6 +115,7 @@ struct InstanceTemplate;
 struct ItemSetEffect;
 struct ItemTemplate;
 struct Loot;
+struct LootItem;
 struct LootStoreItem;
 struct MapDifficulty;
 struct MapEntry;
@@ -124,6 +126,7 @@ struct ScalingStatValuesEntry;
 struct SpellModifier;
 struct TargetInfo;
 struct VendorItem;
+struct SkillLineAbilityEntry;
 
 namespace lfg
 {
@@ -438,7 +441,7 @@ public:
 
     // Called when DoT's Tick Damage is being Dealt
     // Attacker can be nullptr if he is despawned while the aura still exists on target
-    virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+    virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* /*spellInfo*/) { }
 
     // Called when Melee Damage is being Dealt
     virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
@@ -1055,7 +1058,7 @@ public:
     virtual void OnBeforeLootMoney(Player* /*player*/, Loot* /*loot*/) { }
 
     // Called when a player gains XP (before anything is given)
-    virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
+    virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/, uint8 /*xpSource*/) { }
 
     // Called when a player's reputation changes (before it is actually changed)
     virtual bool OnReputationChange(Player* /*player*/, uint32 /*factionID*/, int32& /*standing*/, bool /*incremental*/) { return true; }
@@ -1201,6 +1204,9 @@ public:
     //After looting item
     virtual void OnLootItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, ObjectGuid /*lootguid*/) { }
 
+    //Before looting item
+    virtual void OnBeforeFillQuestLootItem(Player* /*player*/, LootItem& /*item*/) { }
+
     //After looting item (includes master loot).
     virtual void OnStoreNewItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
 
@@ -1209,6 +1215,9 @@ public:
 
     // After receiving item as a quest reward
     virtual void OnQuestRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
+
+    // When placing a bid or buying out an auction
+    [[nodiscard]] virtual bool CanPlaceAuctionBid(Player* /*player*/, AuctionEntry* /*auction*/) { return true; }
 
     // After receiving item as a group roll reward
     virtual void OnGroupRollRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, RollVote /*voteType*/, Roll* /*roll*/) { }
@@ -1287,6 +1296,29 @@ public:
     [[nodiscard]] virtual bool CanRepopAtGraveyard(Player* /*player*/) { return true; }
 
     virtual void OnGetMaxSkillValue(Player* /*player*/, uint32 /*skill*/, int32& /*result*/, bool /*IsPure*/) { }
+
+    /**
+     * @brief This hook called before gathering skill gain is applied to the character.
+     *
+     * @param player Contains information about the Player sender
+     * @param skill_id Contains information about the skill line
+     * @param current Contains the current skill level for skill
+     * @param gray Contains the gray skill level for current application
+     * @param green Contains the green skill level for current application
+     * @param yellow Contains the yellow skill level for current application
+     * @param gain Contains the amount of points that should be added to the Player
+     */
+    virtual void OnUpdateGatheringSkill(Player* /*player*/, uint32 /*skill_id*/, uint32 /*current*/, uint32 /*gray*/, uint32 /*green*/, uint32 /*yellow*/, uint32& /*gain*/) { }
+
+    /**
+     * @brief This hook is called before crafting skill gain is applied to the character.
+     *
+     * @param player Contains information about the Player sender
+     * @param skill Contains information about the skill line
+     * @param current_level Contains the current skill level for skill
+     * @param gain Contains the amount of points that should be added to the Player
+     */
+    virtual void OnUpdateCraftingSkill(Player* /*player*/, SkillLineAbilityEntry const* /*skill*/, uint32 /*current_level*/, uint32& /*gain*/) { }
 
     [[nodiscard]] virtual bool OnUpdateFishingSkill(Player* /*player*/, int32 /*skill*/, int32 /*zone_skill*/, int32 /*chance*/, int32 /*roll*/) { return true; }
 
@@ -1489,6 +1521,30 @@ public:
     virtual void AnticheatUpdateMovementInfo(Player* /*player*/, MovementInfo const& /*movementInfo*/) { }
     [[nodiscard]] virtual bool AnticheatHandleDoubleJump(Player* /*player*/, Unit* /*mover*/) { return true; }
     [[nodiscard]] virtual bool AnticheatCheckMovementInfo(Player* /*player*/, MovementInfo const& /*movementInfo*/, Unit* /*mover*/, bool /*jump*/) { return true; }
+
+    /**
+     * @brief This hook is called, to avoid displaying the error message that the body has already been stripped
+     *
+     * @param player Contains information about the Player
+     *
+     * @return true Avoiding displaying the error message that the loot has already been taken.
+     */
+    virtual bool CanSendErrorAlreadyLooted(Player* /*player*/) { return true; }
+
+    /**
+     * @brief It is used when an item is taken from a creature.
+     *
+     * @param player Contains information about the Player
+     *
+    */
+    virtual void OnAfterCreatureLoot(Player* /*player*/) { }
+
+    /**
+     * @brief After a creature's money is taken
+     *
+     * @param player Contains information about the Player
+     */
+    virtual void OnAfterCreatureLootMoney(Player* /*player*/) { }
 };
 
 class WH_GAME_API AccountScript : public ScriptObject
@@ -1634,6 +1690,12 @@ public:
 
     // Called when checking if a player can see the creature loot
     virtual bool OnAllowedForPlayerLootCheck(Player const* /*player*/, ObjectGuid /*source*/) { return true; }
+
+    // Called when instance id is removed from database (e.g. instance reset)
+    virtual void OnInstanceIdRemoved(uint32 /*instanceId*/) { }
+
+    // Called when any raid boss has their state updated (e.g. pull, reset, kill)
+    virtual void OnBeforeSetBossState(uint32 /*id*/, EncounterState /*newState*/, EncounterState /*oldState*/, Map* /*instance*/) { }
 };
 
 class WH_GAME_API BGScript : public ScriptObject

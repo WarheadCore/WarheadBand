@@ -209,7 +209,7 @@ struct boss_moroes : public BossAI
                 guestList.push_back(summon);
             }
         }
-        return Acore::Containers::SelectRandomContainerElement(guestList);
+        return Warhead::Containers::SelectRandomContainerElement(guestList);
     }
 
     void UpdateAI(uint32 diff) override

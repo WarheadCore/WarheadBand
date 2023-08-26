@@ -385,9 +385,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 bool senderIsPlayer = AccountMgr::IsPlayerAccount(GetSecurity());
                 bool receiverIsPlayer = AccountMgr::IsPlayerAccount(receiver ? receiver->GetSession()->GetSecurity() : SEC_PLAYER);
 
-                if (sender->GetLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ) && receiver != sender)
+                if (sender->GetLevel() < CONF_GET_INT("ChatLevelReq.Whisper") && receiver != sender)
                 {
-                    SendNotification(GetAcoreString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
+                    Warhead::Text::SendNotification(this, LANG_WHISPER_REQ, CONF_GET_INT("ChatLevelReq.Whisper"));
                     return;
                 }
 

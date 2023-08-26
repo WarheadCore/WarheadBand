@@ -3833,7 +3833,7 @@ class spell_item_worn_troll_dice : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        if (!sObjectMgr->GetBroadcastText(TEXT_WORN_TROLL_DICE))
+        if (!sGameLocale->GetBroadcastText(TEXT_WORN_TROLL_DICE))
             return false;
         return true;
     }

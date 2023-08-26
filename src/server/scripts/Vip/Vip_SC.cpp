@@ -28,7 +28,7 @@ class Vip_Player : public PlayerScript
 public:
     Vip_Player() : PlayerScript("Vip_Player") { }
 
-    void OnGiveXP(Player* player, uint32& amount, Unit* /*victim*/) override
+    void OnGiveXP(Player* player, uint32& amount, Unit* /*victim*/, uint8 /*xpSource*/) override
     {
         if (!sVip->IsEnable() || !sVip->IsVip(player))
             return;

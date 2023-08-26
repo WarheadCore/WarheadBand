@@ -60,12 +60,10 @@ private:
 
     AbortState m_abortState{AbortState::STATE_RUNNING};                            // set by externals when the event is aborted, aborted events don't execute
 
-        AbortState m_abortState{AbortState::STATE_RUNNING};                            // set by externals when the event is aborted, aborted events don't execute
-
-        // these can be used for time offset control
-        uint64 m_addTime{0};                                   // time when the event was added to queue, filled by event handler
-        uint64 m_execTime{0};                                  // planned time of next execution, filled by event handler
-        uint8 m_eventGroup{0};
+    // these can be used for time offset control
+    uint64 m_addTime{0};                                   // time when the event was added to queue, filled by event handler
+    uint64 m_execTime{0};                                  // planned time of next execution, filled by event handler
+    uint8 m_eventGroup{0};
 };
 
 template<typename T>

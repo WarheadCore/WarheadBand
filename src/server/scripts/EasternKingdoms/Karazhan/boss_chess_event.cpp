@@ -1221,7 +1221,7 @@ struct npc_echo_of_medivh : public ScriptedAI
 
                 if (targetList.size() > 3)
                 {
-                    Acore::Containers::RandomResize(targetList, 3);
+                    Warhead::Containers::RandomResize(targetList, 3);
                 }
 
                 for (Creature* target : targetList)
@@ -1254,7 +1254,7 @@ struct npc_echo_of_medivh : public ScriptedAI
                 uint8 resizeMax = urand(1, 4);
                 if (targetList.size() > resizeMax)
                 {
-                    Acore::Containers::RandomResize(targetList, resizeMax);
+                    Warhead::Containers::RandomResize(targetList, resizeMax);
                 }
 
                 for (Creature* target : targetList)
@@ -1324,7 +1324,7 @@ struct npc_echo_of_medivh : public ScriptedAI
 
         if (!targets.empty())
         {
-            target = Acore::Containers::SelectRandomContainerElement(targets);
+            target = Warhead::Containers::SelectRandomContainerElement(targets);
         }
 
         return target;

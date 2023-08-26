@@ -36,14 +36,16 @@ MotdMgr* MotdMgr::instance()
     return &instance;
 }
 
-void MotdMgr::SetMotd(std::string motd)
+void MotdMgr::SetMotd(std::string_view motd)
 {
+    std::string saveMotd{ motd };
+
     // scripts may change motd
-    sScriptMgr->OnMotdChange(motd);
+    sScriptMgr->OnMotdChange(saveMotd);
 
-    WorldPacket data(SMSG_MOTD);                     // new in 2.0.1
+    WorldPacket data(SMSG_MOTD); // new in 2.0.1
 
-    std::vector<std::string_view> motdTokens = Acore::Tokenize(motd, '@', true);
+    std::vector<std::string_view> motdTokens = Warhead::Tokenize(saveMotd, '@', true);
     data << uint32(motdTokens.size()); // line count
 
     for (std::string_view token : motdTokens)
@@ -51,7 +53,7 @@ void MotdMgr::SetMotd(std::string motd)
 
     MotdPacket = data;
 
-    if (!motdTokens.size())
+    if (motdTokens.empty())
         return;
 
     std::ostringstream oss;
@@ -65,9 +67,9 @@ void MotdMgr::LoadMotd()
     uint32 oldMSTime = getMSTime();
 
     uint32 realmId = sConfigMgr->GetOption<int32>("RealmID", 0);
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_MOTD);
+    auto stmt = AuthDatabase.GetPreparedStatement(LOGIN_SEL_MOTD);
     stmt->SetData(0, realmId);
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
+    PreparedQueryResult result = AuthDatabase.Query(stmt);
     std::string motd;
 
     if (result)
@@ -93,9 +95,9 @@ void MotdMgr::LoadMotd()
     LOG_INFO("server.loading", " ");
 }
 
-char const* MotdMgr::GetMotd()
+std::string_view MotdMgr::GetMotd()
 {
-    return FormattedMotd.c_str();
+    return FormattedMotd;
 }
 
 WorldPacket const* MotdMgr::GetMotdPacket()

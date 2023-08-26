@@ -2009,7 +2009,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        auto toggleXpCost = sWorld->getIntConfig(CONFIG_TOGGLE_XP_COST);
+        auto toggleXpCost = CONF_GET_INT("ToggleXP.Cost");
 
         if (!player->HasPlayerFlag(PLAYER_FLAGS_NO_XP_GAIN))
         {

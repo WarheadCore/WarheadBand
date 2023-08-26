@@ -33,6 +33,7 @@ namespace
     std::vector<std::string> _args;
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
     std::mutex _configLock;
+    bool _usingDistConfig{ false };
 
     // Check system configs like *server.conf*
     bool IsAppConfig(std::string_view fileName)
@@ -352,7 +353,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLog
             if (showLogs)
             {
                 LOG_ERROR("server.loading", "> Config: Missing property {} in config file {}, add \"{} = {}\" to this file.",
-                    name, _filename, name, Acore::ToString(def));
+                    name, _filename, name, Warhead::ToString(def));
             }
 
             return def;
@@ -462,7 +463,7 @@ std::vector<std::string> ConfigMgr::GetKeysByString(std::string const& name)
 std::string const ConfigMgr::GetFilename()
 {
     std::lock_guard<std::mutex> lock(_configLock);
-    return _filename;
+    return _usingDistConfig ? _filename + ".dist" : _filename;
 }
 
 std::vector<std::string> const& ConfigMgr::GetArguments() const

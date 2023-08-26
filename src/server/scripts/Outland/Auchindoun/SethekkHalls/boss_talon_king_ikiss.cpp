@@ -160,7 +160,7 @@ class spell_talon_king_ikiss_blink : public SpellScript
         uint8 maxSize = 1;
         if (targets.size() > maxSize)
         {
-            Acore::Containers::RandomResize(targets, maxSize);
+            Warhead::Containers::RandomResize(targets, maxSize);
         }
     }
 

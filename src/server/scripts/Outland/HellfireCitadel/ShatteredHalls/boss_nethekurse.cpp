@@ -180,7 +180,7 @@ struct boss_grand_warlock_nethekurse : public BossAI
 
             scheduler.Schedule(2500ms, GROUP_RP, [this](TaskContext /*context*/)
             {
-                PeonRoleplay roleplayData = Acore::Containers::SelectRandomContainerElement(PeonRoleplayData);
+                PeonRoleplay roleplayData = Warhead::Containers::SelectRandomContainerElement(PeonRoleplayData);
                 DoCast(me, roleplayData.spellId);
                 Talk(roleplayData.textId);
                 me->GetMotionMaster()->Initialize();

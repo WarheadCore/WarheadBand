@@ -2899,7 +2899,7 @@ void InstanceMap::InitVisibilityDistance()
             _visibleDistance = 200.0f;
             break;
         case 531: // Ahn'Qiraj Temple
-            m_VisibleDistance = 300.0f;
+            _visibleDistance = 300.0f;
             break;
     }
 }

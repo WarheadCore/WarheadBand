@@ -213,14 +213,14 @@ public:
                     {
                         if (_availableRiftPositions.size() > 1)
                         {
-                            spawnPos = Acore::Containers::SelectRandomContainerElementIf(_availableRiftPositions, [&](Position pos) -> bool
+                            spawnPos = Warhead::Containers::SelectRandomContainerElementIf(_availableRiftPositions, [&](Position pos) -> bool
                             {
                                 return pos != lastPosition;
                             });
                         }
                         else
                         {
-                            spawnPos = Acore::Containers::SelectRandomContainerElement(_availableRiftPositions);
+                            spawnPos = Warhead::Containers::SelectRandomContainerElement(_availableRiftPositions);
                         }
 
                         _availableRiftPositions.remove(spawnPos);

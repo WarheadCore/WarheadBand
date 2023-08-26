@@ -99,7 +99,7 @@ struct boss_laj : public BossAI
         }).Schedule(30s, [this](TaskContext context)
         {
             me->RemoveAurasDueToSpell(_lastTransform.spellId);
-            _lastTransform = Acore::Containers::SelectRandomContainerElementIf(_transformContainer, [&](LajTransformData data) -> bool
+            _lastTransform = Warhead::Containers::SelectRandomContainerElementIf(_transformContainer, [&](LajTransformData data) -> bool
             {
                 return data.spellId != _lastTransform.spellId;
             });

@@ -284,7 +284,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         items[i] = item;
     }
 
-    if (!items_count && !sScriptMgr->CanSendMail(player, receiverGuid, mailbox, subject, body, money, COD, nullptr))
+    if (!items_count && !sScriptMgr->CanSendMail(player, receiverGuid, mailbox, subject, body, money.GetCopper(), COD.GetCopper(), nullptr))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -425,17 +425,17 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 
     if (m->HasItems())
     {
-        for (MailItemInfoVec::iterator itr = m->items.begin(); itr != m->items.end(); ++itr)
+        for (auto itr = m->items.begin(); itr != m->items.end(); ++itr)
         {
             Item* item = player->GetMItem(itr->item_guid);
-            if (item && !sScriptMgr->CanSendMail(player, ObjectGuid(HighGuid::Player, m->sender), mailbox, m->subject, m->body, m->money, m->COD, item))
+            if (item && !sScriptMgr->CanSendMail(player, ObjectGuid(HighGuid::Player, m->sender), mailbox, m->subject, m->body, m->Money.GetCopper(), m->COD.GetCopper(), item))
             {
                 player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
                 return;
             }
         }
     }
-    else if (!sScriptMgr->CanSendMail(player, ObjectGuid(HighGuid::Player, m->sender), mailbox, m->subject, m->body, m->money, m->COD, nullptr))
+    else if (!sScriptMgr->CanSendMail(player, ObjectGuid(HighGuid::Player, m->sender), mailbox, m->subject, m->body, m->Money.GetCopper(), m->COD.GetCopper(), nullptr))
     {
         player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;

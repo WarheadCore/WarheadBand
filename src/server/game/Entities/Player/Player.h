@@ -333,7 +333,7 @@ typedef std::list<PlayerCreateInfoSkill> PlayerCreateInfoSkills;
 struct PlayerInfo
 {
     // existence checked by displayId != 0
-    PlayerInfo()  = default;
+    PlayerInfo() = default;
 
     uint32 mapId{0};
     uint32 areaId{0};
@@ -2578,8 +2578,6 @@ public:
     float GetSightRange(WorldObject const* target = nullptr) const override;
 
     std::string GetPlayerName();
-
-    [[nodiscard]] AchievementMgr* GetAchievementMgr() const { return m_achievementMgr; }
 
     void SendSystemMessage(std::string_view msg, bool escapeCharacters = false);
 

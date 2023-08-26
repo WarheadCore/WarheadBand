@@ -19,23 +19,23 @@
 #define _MOTDMGR_H_
 
 #include "Define.h"
-#include <string>
+#include <string_view>
 
 class WorldPacket;
 
-class AC_GAME_API MotdMgr
+class WH_GAME_API MotdMgr
 {
 public:
     static MotdMgr* instance();
 
     /// Set a new Message of the Day
-    void SetMotd(std::string motd);
+    void SetMotd(std::string_view motd);
 
     /// Load Message of the Day
     void LoadMotd();
 
     /// Get the current Message of the Day
-    char const* GetMotd();
+    std::string_view GetMotd();
 
     /// Get the motd packet to send at login
     WorldPacket const* GetMotdPacket();

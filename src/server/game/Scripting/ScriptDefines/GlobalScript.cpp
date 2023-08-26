@@ -162,7 +162,7 @@ bool ScriptMgr::OnAllowedForPlayerLootCheck(Player const* player, ObjectGuid sou
  */
 void ScriptMgr::OnInstanceIdRemoved(uint32 instanceId)
 {
-    ExecuteScript<GlobalScript>([&](GlobalScript* script)
+    ExecuteScript<GlobalScript>([=](GlobalScript* script)
     {
         script->OnInstanceIdRemoved(instanceId);
     });
@@ -179,7 +179,7 @@ void ScriptMgr::OnInstanceIdRemoved(uint32 instanceId)
  */
 void ScriptMgr::OnBeforeSetBossState(uint32 id, EncounterState newState, EncounterState oldState, Map* instance)
 {
-    ExecuteScript<GlobalScript>([&](GlobalScript* script)
+    ExecuteScript<GlobalScript>([id, newState, oldState, instance](GlobalScript* script)
     {
         script->OnBeforeSetBossState(id, newState, oldState, instance);
     });

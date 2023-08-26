@@ -793,11 +793,11 @@ void ObjectMgr::LoadCreatureCustomIDs()
 {
     // Hack for modules
     std::string stringCreatureIds = sConfigMgr->GetOption<std::string>("Creatures.CustomIDs", "");
-    std::vector<std::string_view> CustomCreatures = Acore::Tokenize(stringCreatureIds, ',', false);
+    std::vector<std::string_view> CustomCreatures = Warhead::Tokenize(stringCreatureIds, ',', false);
 
     for (auto& itr : CustomCreatures)
     {
-        _creatureCustomIDsStore.push_back(Acore::StringTo<uint32>(itr).value());
+        _creatureCustomIDsStore.push_back(Warhead::StringTo<uint32>(itr).value());
     }
 }
 
@@ -2493,7 +2493,7 @@ void ObjectMgr::LoadItemTemplates()
     _itemTemplateStore.reserve(result->GetRowCount());
     uint32 count = 0;
     // original inspiration https://github.com/TrinityCore/TrinityCore/commit/0c44bd33ee7b42c924859139a9f4b04cf2b91261
-    bool enforceDBCAttributes = sWorld->getBoolConfig(CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES);
+    bool enforceDBCAttributes = CONF_GET_BOOL("DBC.EnforceItemAttributes");
 
     do
     {
@@ -3867,7 +3867,7 @@ void ObjectMgr::LoadPlayerInfo()
             PlayerClassInfo* pClassInfo = _playerClassInfo[class_];
 
             // fatal error if no initial level data
-            if (!pClassInfo->levelInfo || (pClassInfo->levelInfo[sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL) - 1].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (pClassInfo->levelInfo[sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL) - 1].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
+            if (!pClassInfo->levelInfo || (pClassInfo->levelInfo[CONF_GET_INT("StartPlayerLevel") - 1].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (pClassInfo->levelInfo[CONF_GET_INT("StartHeroicPlayerLevel") - 1].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
             {
                 LOG_ERROR("sql.sql", "Class {} initial level does not have health/mana data!", class_);
                 exit(1);
@@ -3876,7 +3876,7 @@ void ObjectMgr::LoadPlayerInfo()
             // fill level gaps
             for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
             {
-                if ((pClassInfo->levelInfo[level].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL) && pClassInfo->levelInfo[level].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
+                if ((pClassInfo->levelInfo[level].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= CONF_GET_INT("StartHeroicPlayerLevel") && pClassInfo->levelInfo[level].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
                 {
                     LOG_ERROR("sql.sql", "Class {} level {} does not have health/mana data. Using stats data of level {}.", class_, level + 1, level);
                     pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level - 1];
@@ -3891,21 +3891,25 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading levels data (class/race dependent)
     LOG_INFO("server.loading", "Loading Player Create Level Stats Data...");
     {
+        struct RaceStats {
+            int16 StatModifier[MAX_STATS];
+        };
+
+        std::array<RaceStats, MAX_RACES> raceStatModifiers{};
+
         StopWatch sw;
 
-        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerLevelStats) };
-        if (!result)
+        auto resultRace{ sDBCacheMgr->GetResult(DBCacheTable::PlayerRaceStats) };
+        if (!resultRace)
         {
             LOG_WARN("server.loading", ">> Loaded 0 race stats definitions. DB table `player_race_stats` is empty.");
             LOG_INFO("server.loading", " ");
             exit(1);
         }
 
-        do
+        for (auto const &row: *resultRace)
         {
-            auto fields = result->Fetch();
-
-            uint32 current_race = fields[0].Get<uint8>();
+            uint32 current_race = row[0].Get<uint8>();
             if (current_race >= MAX_RACES)
             {
                 LOG_ERROR("db.query", "Wrong race {} in `player_levelstats` table, ignoring.", current_race);
@@ -3913,58 +3917,50 @@ void ObjectMgr::LoadPlayerInfo()
             }
 
             for (uint32 i = 0; i < MAX_STATS; ++i)
-                raceStatModifiers[current_race].StatModifier[i] = fields[i + 1].Get<int16>();
+                raceStatModifiers[current_race].StatModifier[i] = row[i + 1].Get<int16>();
+        }
 
-        } while (raceStatsResult->NextRow());
-
-        //                                                 0      1       2         3        4         5        6
-        QueryResult result = WorldDatabase.Query("SELECT Class, Level, Strength, Agility, Stamina, Intellect, Spirit FROM player_class_stats");
-
-        if (!result)
+        auto resultClass{sDBCacheMgr->GetResult(DBCacheTable::PlayerClassStats)};
+        if (!resultClass)
         {
             LOG_ERROR("server.loading", ">> Loaded 0 level stats definitions. DB table `player_class_stats` is empty.");
             exit(1);
         }
 
-        uint32 count = 0;
-
-        do
+        for (auto const& row: *resultClass)
         {
-            Field* fields = result->Fetch();
-
-            uint32 current_class = fields[0].Get<uint8>();
+            uint32 current_class = row[0].Get<uint8>();
             if (current_class >= MAX_CLASSES)
             {
                 LOG_ERROR("db.query", "Wrong class {} in `player_levelstats` table, ignoring.", current_class);
                 continue;
             }
 
-            uint32 current_level = fields[2].Get<uint8>();
+            uint32 current_level = row[2].Get<uint8>();
             if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
                     LOG_ERROR("db.query", "Wrong (> {}) level {} in `player_levelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
                 else
-                {
                     LOG_DEBUG("db.query", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_levelstats` table, ignoring.", current_level);
-                    ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-                }
+
                 continue;
             }
 
             for (std::size_t race = 0; race < raceStatModifiers.size(); ++race)
             {
-                if (!info->levelInfo)
-                    info->levelInfo = new PlayerLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
+                if (PlayerInfo* info = _playerInfo[race][current_class])
+                {
+                    if (!info->levelInfo)
+                        info->levelInfo = new PlayerLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
 
                     PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+
                     for (int i = 0; i < MAX_STATS; ++i)
-                        levelInfo.stats[i] = fields[i + 2].Get<uint16>() + raceStatModifiers[race].StatModifier[i];
+                        levelInfo.stats[i] = row[i + 2].Get<uint16>() + raceStatModifiers[race].StatModifier[i];
                 }
             }
-
-            ++count;
-        } while (result->NextRow());
+        }
 
         // Fill gaps and check integrity
         for (int race = 0; race < MAX_RACES; ++race)
@@ -3992,7 +3988,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // fatal error if no initial level data
-                if (!info->levelInfo || (info->levelInfo[sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL) - 1].stats[0] == 0 && class_ != CLASS_DEATH_KNIGHT) || (info->levelInfo[sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL) - 1].stats[0] == 0 && class_ == CLASS_DEATH_KNIGHT))
+                if (!info->levelInfo || (info->levelInfo[CONF_GET_INT("StartPlayerLevel") - 1].stats[0] == 0 && class_ != CLASS_DEATH_KNIGHT) || (info->levelInfo[CONF_GET_INT("StartHeroicPlayerLevel") - 1].stats[0] == 0 && class_ == CLASS_DEATH_KNIGHT))
                 {
                     LOG_ERROR("db.query", "Race {} Class {} Level 1 does not have stats data!", race, class_);
                     exit(1);
@@ -4001,7 +3997,7 @@ void ObjectMgr::LoadPlayerInfo()
                 // fill level gaps
                 for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
                 {
-                    if ((info->levelInfo[level].stats[0] == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL) && info->levelInfo[level].stats[0] == 0 && class_ == CLASS_DEATH_KNIGHT))
+                    if ((info->levelInfo[level].stats[0] == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= CONF_GET_INT("StartHeroicPlayerLevel") && info->levelInfo[level].stats[0] == 0 && class_ == CLASS_DEATH_KNIGHT))
                     {
                         LOG_ERROR("db.query", "Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, class_, level + 1, level);
                         info->levelInfo[level] = info->levelInfo[level - 1];
@@ -4010,7 +4006,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
         }
 
-        LOG_INFO("server.loading", ">> Loaded {} Level Stats Definitions in {}", count, sw);
+        LOG_INFO("server.loading", ">> Loaded Level Stats Definitions in {}", sw);
         LOG_INFO("server.loading", " ");
     }
 
@@ -7334,7 +7330,7 @@ void ObjectMgr::LoadPointsOfInterest()
 
 void ObjectMgr::LoadQuestPOI()
 {
-    if (!sWorld->getBoolConfig(CONFIG_QUEST_POI_ENABLED))
+    if (!CONF_GET_BOOL("QuestPOI.Enabled"))
     {
         LOG_INFO("server.loading", ">> Loaded 0 quest POI definitions. Disabled by config.");
         LOG_INFO("server.loading", " ");
@@ -7735,7 +7731,7 @@ void ObjectMgr::AddProfanityPlayerName(std::string const& name)
 
         _profanityNamesStore.insert(wstr);
 
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PROFANITY_PLAYER_NAME);
+        auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PROFANITY_PLAYER_NAME);
         stmt->SetData(0, name);
         CharacterDatabase.Execute(stmt);
     }
@@ -7852,22 +7848,12 @@ uint8 ObjectMgr::CheckPlayerName(std::string_view name, bool create)
     }
 
     // Check for Reserved Name from DBC
-    if (sWorld->getBoolConfig(CONFIG_STRICT_NAMES_RESERVED))
-    {
-        if (ReservedNames(wname))
-        {
-            return CHAR_NAME_RESERVED;
-        }
-    }
+    if (CONF_GET_BOOL("StrictNames.Reserved") && ReservedNames(wname))
+        return CHAR_NAME_RESERVED;
 
     // Check for Profanity
-    if (sWorld->getBoolConfig(CONFIG_STRICT_NAMES_PROFANITY))
-    {
-        if (ProfanityNames(wname))
-        {
-            return CHAR_NAME_PROFANE;
-        }
-    }
+    if (CONF_GET_BOOL("StrictNames.Profanity") && ProfanityNames(wname))
+        return CHAR_NAME_PROFANE;
 
     return CHAR_NAME_SUCCESS;
 }
@@ -7881,31 +7867,19 @@ bool ObjectMgr::IsValidCharterName(std::string_view name)
     if (wname.size() > MAX_CHARTER_NAME)
         return false;
 
-    uint32 minName = CONF_GET_UINT("MinCharterName");
+    auto minName = CONF_GET_UINT("MinCharterName");
     if (wname.size() < minName)
         return false;
 
     // Check for Reserved Name from DBC
-    if (sWorld->getBoolConfig(CONFIG_STRICT_NAMES_RESERVED))
-    {
-        if (ReservedNames(wname))
-        {
-            return false;
-        }
-    }
+    if (CONF_GET_BOOL("StrictNames.Reserved") && ReservedNames(wname))
+        return false;
 
     // Check for Profanity
-    if (sWorld->getBoolConfig(CONFIG_STRICT_NAMES_PROFANITY))
-    {
-        if (ProfanityNames(wname))
-        {
-            return false;
-        }
-    }
+    if (CONF_GET_BOOL("StrictNames.Profanity") && ProfanityNames(wname))
+        return false;
 
-    uint32 strictMask = CONF_GET_UINT("StrictCharterNames");
-
-    return isValidString(wname, strictMask, true);
+    return isValidString(wname, CONF_GET_UINT("StrictCharterNames"), true);
 }
 
 bool ObjectMgr::IsValidChannelName(const std::string& name)
@@ -7940,22 +7914,12 @@ PetNameInvalidReason ObjectMgr::CheckPetName(std::string_view name)
         return PET_NAME_MIXED_LANGUAGES;
 
     // Check for Reserved Name from DBC
-    if (sWorld->getBoolConfig(CONFIG_STRICT_NAMES_RESERVED))
-    {
-        if (ReservedNames(wname))
-        {
-            return PET_NAME_RESERVED;
-        }
-    }
+    if (CONF_GET_BOOL("StrictNames.Reserved") && ReservedNames(wname))
+        return PET_NAME_RESERVED;
 
     // Check for Profanity
-    if (sWorld->getBoolConfig(CONFIG_STRICT_NAMES_PROFANITY))
-    {
-        if (ProfanityNames(wname))
-        {
-            return PET_NAME_PROFANE;
-        }
-    }
+    if (CONF_GET_BOOL("StrictNames.Profanity") && ProfanityNames(wname))
+        return PET_NAME_PROFANE;
 
     return PET_NAME_SUCCESS;
 }
@@ -7974,52 +7938,52 @@ void ObjectMgr::LoadGameObjectForQuests()
     uint32 count = 0;
 
     // collect GO entries for GO that must activated
-    GameObjectTemplateContainer* gotc = const_cast<GameObjectTemplateContainer*>(sObjectMgr->GetGameObjectTemplates());
-    for (GameObjectTemplateContainer::iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
+    auto gotc = const_cast<GameObjectTemplateContainer*>(sObjectMgr->GetGameObjectTemplates());
+    for (auto& itr : *gotc)
     {
-        itr->second.IsForQuests = false;
-        switch (itr->second.type)
+        itr.second.IsForQuests = false;
+        switch (itr.second.type)
         {
             case GAMEOBJECT_TYPE_QUESTGIVER:
-                itr->second.IsForQuests = true;
+                itr.second.IsForQuests = true;
                 ++count;
                 break;
             case GAMEOBJECT_TYPE_CHEST:
                 {
                     // scan GO chest with loot including quest items
-                    uint32 loot_id = (itr->second.GetLootId());
+                    uint32 loot_id = (itr.second.GetLootId());
 
                     // find quest loot for GO
-                    if (itr->second.chest.questId || LootTemplates_Gameobject.HaveQuestLootFor(loot_id))
+                    if (itr.second.chest.questId || LootTemplates_Gameobject.HaveQuestLootFor(loot_id))
                     {
-                        itr->second.IsForQuests = true;
+                        itr.second.IsForQuests = true;
                         ++count;
                     }
                     break;
                 }
             case GAMEOBJECT_TYPE_GENERIC:
                 {
-                    if (itr->second._generic.questID > 0)            //quests objects
+                    if (itr.second._generic.questID > 0)            //quests objects
                     {
-                        itr->second.IsForQuests = true;
+                        itr.second.IsForQuests = true;
                         ++count;
                     }
                     break;
                 }
             case GAMEOBJECT_TYPE_SPELL_FOCUS:
                 {
-                    if (itr->second.spellFocus.questID > 0)          //quests objects
+                    if (itr.second.spellFocus.questID > 0)          //quests objects
                     {
-                        itr->second.IsForQuests = true;
+                        itr.second.IsForQuests = true;
                         ++count;
                     }
                     break;
                 }
             case GAMEOBJECT_TYPE_GOOBER:
                 {
-                    if (itr->second.goober.questId > 0)              //quests objects
+                    if (itr.second.goober.questId > 0)              //quests objects
                     {
-                        itr->second.IsForQuests = true;
+                        itr.second.IsForQuests = true;
                         ++count;
                     }
                     break;

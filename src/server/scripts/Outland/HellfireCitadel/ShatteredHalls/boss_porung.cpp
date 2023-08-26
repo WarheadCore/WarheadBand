@@ -293,7 +293,7 @@ class spell_tsh_shoot_flame_arrow : public SpellScript
                 return !target->SelectNearestPlayer(15.0f);
             });
 
-        Acore::Containers::RandomResize(unitList, 1);
+        Warhead::Containers::RandomResize(unitList, 1);
     }
 
     void HandleScriptEffect(SpellEffIndex effIndex)

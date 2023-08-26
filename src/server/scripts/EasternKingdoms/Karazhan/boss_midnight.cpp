@@ -192,7 +192,7 @@ struct boss_attumen : public BossAI
                 }
                 if (!target_list.empty())
                 {
-                    target = Acore::Containers::SelectRandomContainerElement(target_list);
+                    target = Warhead::Containers::SelectRandomContainerElement(target_list);
                 }
                 DoCast(target, SPELL_CHARGE);
                 task.Repeat(10s, 25s);

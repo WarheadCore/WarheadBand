@@ -583,7 +583,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 caster = unit->SummonTrigger(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetOrientation(), 5000);
 
             if (e.action.cast.targetsLimit)
-                Acore::Containers::RandomResize(targets, e.action.cast.targetsLimit);
+                Warhead::Containers::RandomResize(targets, e.action.cast.targetsLimit);
 
             for (WorldObject* target : targets)
             {
@@ -661,7 +661,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.action.cast.targetsLimit)
-                Acore::Containers::RandomResize(targets, e.action.cast.targetsLimit);
+                Warhead::Containers::RandomResize(targets, e.action.cast.targetsLimit);
 
             TriggerCastFlags triggerFlags = TRIGGERED_NONE;
             if (e.action.cast.castFlags & SMARTCAST_TRIGGERED)
@@ -705,7 +705,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.action.cast.targetsLimit)
-                Acore::Containers::RandomResize(targets, e.action.cast.targetsLimit);
+                Warhead::Containers::RandomResize(targets, e.action.cast.targetsLimit);
 
             for (WorldObject* target : targets)
             {

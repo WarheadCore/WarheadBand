@@ -172,8 +172,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
             // using gossip_menu_option texts by default
             std::string strOptionText = itr->second.OptionText;
             std::string strBoxText = itr->second.BoxText;
-            // search in broadcast_text and broadcast_text_locale
-            std::string strOptionText, strBoxText;
+
             BroadcastText const* optionBroadcastText = sGameLocale->GetBroadcastText(itr->second.OptionBroadcastTextID);
             BroadcastText const* boxBroadcastText = sGameLocale->GetBroadcastText(itr->second.BoxBroadcastTextID);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();

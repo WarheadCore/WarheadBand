@@ -1701,7 +1701,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint16 lootMode, 
         // Rate.Drop.Item.GroupAmount is only in effect for the top loot template level
         if (isTopLevel)
         {
-            Groups[groupId - 1]->Process(loot, player, store, lootMode, sWorld->getRate(RATE_DROP_ITEM_GROUP_AMOUNT));
+            Groups[groupId - 1]->Process(loot, player, store, lootMode, CONF_GET_FLOAT("Rate.Drop.Item.GroupAmount"));
         }
         else
         {
@@ -1711,11 +1711,11 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint16 lootMode, 
     }
 
     // Rolling non-grouped items
-    for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
+    for (auto item : Entries)
     {
-        LootStoreItem* item = *i;
         if (!(item->lootmode & lootMode))                         // Do not add if mode mismatch
             continue;
+
         if (!item->Roll(rate, player, loot, store))
             continue;                                           // Bad luck for the entry
 
@@ -1725,7 +1725,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint16 lootMode, 
             if (!Referenced)
                 continue;                                       // Error message already printed at loading stage
 
-            uint32 maxcount = uint32(float(item->maxcount) * CONF_GET_FLOAT("Rate.Drop.Item.ReferencedAmount"));
+            auto maxcount = uint32(float(item->maxcount) * CONF_GET_FLOAT("Rate.Drop.Item.ReferencedAmount"));
             sScriptMgr->OnAfterRefCount(player, loot, rate, lootMode, item, maxcount, store);
             for (uint32 loop = 0; loop < maxcount; ++loop)      // Ref multiplicator
                 // we're no longer in the top level, so isTopLevel is false
@@ -1740,13 +1740,13 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, uint16 lootMode, 
     }
 
     // Now processing groups
-    for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
-        if (LootGroup* group = *i)
+    for (auto group : Groups)
+        if (group)
         {
             // Rate.Drop.Item.GroupAmount is only in effect for the top loot template level
             if (isTopLevel)
             {
-                group->Process(loot, player, store, lootMode, sWorld->getRate(RATE_DROP_ITEM_GROUP_AMOUNT));
+                group->Process(loot, player, store, lootMode, CONF_GET_FLOAT("Rate.Drop.Item.GroupAmount"));
             }
             else
             {

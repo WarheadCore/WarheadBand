@@ -671,12 +671,6 @@ struct GameObjectTemplateAddon
     std::array<uint32, 4> artKits = {};
 };
 
-struct GameObjectLocale
-{
-    std::vector<std::string> Name;
-    std::vector<std::string> CastBarCaption;
-};
-
 // `gameobject_addon` table
 struct GameObjectAddon
 {

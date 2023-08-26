@@ -470,17 +470,16 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
     std::string currentZoneName = currentZone->area_name[GetSession()->GetSessionDbcLocale()];
 
-    for (auto const& channel : sChatChannelsStore)
+    for (auto const& dbcChannel : sChatChannelsStore)
     {
         Channel* usedChannel = nullptr;
 
-            for (Channel* channel : m_channels)
+        for (Channel* channel : m_channels)
+        {
+            if (channel && channel->GetChannelId() == dbcChannel->ChannelID)
             {
-                if (channel && channel->GetChannelId() == i)
-                {
-                    usedChannel = channel;
-                    break;
-                }
+                usedChannel = channel;
+                break;
             }
         }
 
@@ -488,35 +487,35 @@ void Player::UpdateLocalChannels(uint32 newZone)
         Channel* joinChannel   = nullptr;
         bool     sendRemove    = true;
 
-        if (CanJoinConstantChannelInZone(channel, currentZone))
+        if (CanJoinConstantChannelInZone(dbcChannel, currentZone))
         {
-            if (!(channel->flags & CHANNEL_DBC_FLAG_GLOBAL))
+            if (!(dbcChannel->flags & CHANNEL_DBC_FLAG_GLOBAL))
             {
-                if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
-                    continue; // Already on the channel, as city channel names are not changing
+                if (dbcChannel->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
+                    continue; // Already on the dbcChannel, as city dbcChannel names are not changing
 
                 std::string currentNameExt;
 
-                if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
+                if (dbcChannel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                     currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                 else
                     currentNameExt = currentZoneName;
 
-                joinChannel = channelMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()), channel->ChannelID);
+                joinChannel = channelMgr->GetJoinChannel(fmt::sprintf(dbcChannel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()), dbcChannel->ChannelID);
 
                 if (usedChannel)
                 {
                     if (joinChannel != usedChannel)
                     {
                         removeChannel = usedChannel;
-                        sendRemove    = false; // Do not send leave channel, it already replaced at client
+                        sendRemove    = false; // Do not send leave dbcChannel, it already replaced at client
                     }
                     else
                         joinChannel = nullptr;
                 }
             }
             else
-                joinChannel = channelMgr->GetJoinChannel(channel->pattern[m_session->GetSessionDbcLocale()], channel->ChannelID);
+                joinChannel = channelMgr->GetJoinChannel(dbcChannel->pattern[m_session->GetSessionDbcLocale()], dbcChannel->ChannelID);
         }
         else
             removeChannel = usedChannel;
@@ -526,9 +525,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
         if (removeChannel && (CONF_GET_BOOL("LFG.Location.All") && !removeChannel->IsLFG()))
         {
-            removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
+            removeChannel->LeaveChannel(this, sendRemove); // Leave old dbcChannel
             std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
-            LeftChannel(removeChannel); // Remove from player's channel list
+            LeftChannel(removeChannel); // Remove from player's dbcChannel list
         }
     }
 }

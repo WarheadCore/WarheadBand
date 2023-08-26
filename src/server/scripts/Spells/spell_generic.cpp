@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 /*
  * Scripts for spells with SPELLFAMILY_GENERIC which cannot be included in AI script file
  * of creature using it or can't be bound to any player class.
@@ -42,6 +39,8 @@
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Vehicle.h"
+#include "GameConfig.h"
+#include "DatabaseEnv.h"
 #include <array>
 
 /// @todo: this import is not necessary for compilation and marked as unused by the IDE
@@ -4721,21 +4720,15 @@ private:
 inline int32 SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
 {
     if (SkillValue >= GrayLevel)
-    {
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY) * 10;
-    }
+        return CONF_GET_INT("SkillChance.Grey") * 10;
 
     if (SkillValue >= GreenLevel)
-    {
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN) * 10;
-    }
+        return CONF_GET_INT("SkillChance.Green") * 10;
 
     if (SkillValue >= YellowLevel)
-    {
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW) * 10;
-    }
+        return CONF_GET_INT("SkillChance.Yellow") * 10;
 
-    return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE) * 10;
+    return CONF_GET_INT("SkillChance.Orange") * 10;
 }
 
 // 818 Basic Campfire

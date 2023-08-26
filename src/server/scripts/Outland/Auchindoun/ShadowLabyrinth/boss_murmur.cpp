@@ -201,8 +201,8 @@ class spell_murmur_thundering_storm : public SpellScript
 
     void SelectTarget(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Acore::AllWorldObjectsInExactRange(GetCaster(), 100.0f, true));
-        targets.remove_if(Acore::AllWorldObjectsInExactRange(GetCaster(), 25.0f, false));
+        targets.remove_if(Warhead::AllWorldObjectsInExactRange(GetCaster(), 100.0f, true));
+        targets.remove_if(Warhead::AllWorldObjectsInExactRange(GetCaster(), 25.0f, false));
     }
 
     void Register() override

@@ -81,14 +81,14 @@ public:
                     itemCount = 1; // Default to sending 1 item
                     break;
                 case 2:
-                    itemCount = *Acore::StringTo<uint32>(itemTokens.at(1));
+                    itemCount = *Warhead::StringTo<uint32>(itemTokens.at(1));
                     break;
                 default:
-                    handler->SendSysMessage(Acore::StringFormatFmt("> Incorrect item list format for '{}'", itemString));
+                    handler->SendSysMessage(Warhead::StringFormat("> Incorrect item list format for '{}'", itemString));
                     continue;
             }
 
-            uint32 itemID = *Acore::StringTo<uint32>(itemTokens.at(0));
+            uint32 itemID = *Warhead::StringTo<uint32>(itemTokens.at(0));
 
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
             if (!itemTemplate)

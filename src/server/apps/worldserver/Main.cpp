@@ -253,9 +253,6 @@ int main(int argc, char** argv)
         }
     );
 
-    for (std::string const& key : overriddenKeys)
-        LOG_INFO("server.worldserver", "Configuration field {} was overridden with environment variable.", key);
-
     OpenSSLCrypto::threadsSetup();
 
     std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });

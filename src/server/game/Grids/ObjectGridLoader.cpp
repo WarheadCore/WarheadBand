@@ -126,7 +126,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefMgr<Creatur
             if (obj->IsAlive() && !obj->HasUnitState(UNIT_STATE_SIGHTLESS) && obj->HasReactState(REACT_AGGRESSIVE) && !obj->IsImmuneToNPC())
             {
                 // call MoveInLineOfSight for nearby grid creatures
-                Acore::AIRelocationNotifier notifier(*obj);
+                Warhead::AIRelocationNotifier notifier(*obj);
                 Cell::VisitGridObjects(obj, notifier, 60.f);
             }
         }
