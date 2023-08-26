@@ -211,40 +211,55 @@ class AntiAD_Player : public PlayerScript
 public:
     AntiAD_Player() : PlayerScript("AntiAD_Player") { }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg) override
+    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg) override
     {
+        if (lang == LANG_ADDON)
+            return;
+
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_SAY))
             return;
 
         sAD->CheckMessage(player, msg);
     }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player* /*receiver*/) override
+    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* /*receiver*/) override
     {
+        if (lang == LANG_ADDON)
+            return;
+
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_WHISPER))
             return;
 
         sAD->CheckMessage(player, msg);
     }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Group* /*group*/) override
+    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Group* /*group*/) override
     {
+        if (lang == LANG_ADDON)
+            return;
+
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_GROUP))
             return;
 
         sAD->CheckMessage(player, msg);
     }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Guild* /*guild*/) override
+    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Guild* /*guild*/) override
     {
+        if (lang == LANG_ADDON)
+            return;
+
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_GUILD))
             return;
 
         sAD->CheckMessage(player, msg);
     }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* /*channel*/) override
+    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Channel* /*channel*/) override
     {
+        if (lang == LANG_ADDON)
+            return;
+
         if (!sAD->IsNeedCheckChannel(ANTIAD_CHANNEL_CHANNEL))
             return;
 
