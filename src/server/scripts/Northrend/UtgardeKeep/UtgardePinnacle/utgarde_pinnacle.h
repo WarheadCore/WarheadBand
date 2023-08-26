@@ -20,6 +20,8 @@
 
 #include "CreatureAIImpl.h"
 
+#define DataHeader "UP"
+
 #define UtgardePinnacleScriptName "instance_utgarde_pinnacle"
 
 enum Data

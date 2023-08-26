@@ -144,7 +144,7 @@ std::string _SpellScript::EffectNameCheck::ToString()
             return "SPELL_EFFECT_ANY";
         default:
             char num[10];
-            sprintf (num, "%u", effName);
+            snprintf(num, sizeof(num), "%u", effName);
             return num;
     }
 }
@@ -166,7 +166,7 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
             return "SPELL_AURA_ANY";
         default:
             char num[10];
-            sprintf (num, "%u", effAurName);
+            snprintf(num, sizeof(num), "%u", effAurName);
             return num;
     }
 }
@@ -914,6 +914,16 @@ bool AuraScript::CheckProcHandler::Call(AuraScript* auraScript, ProcEventInfo& e
     return (auraScript->*_HandlerScript)(eventInfo);
 }
 
+AuraScript::AfterCheckProcHandler::AfterCheckProcHandler(AuraAfterCheckProcFnType handlerScript)
+{
+    _HandlerScript = handlerScript;
+}
+
+bool AuraScript::AfterCheckProcHandler::Call(AuraScript* auraScript, ProcEventInfo& eventInfo, bool isTriggeredAtSpellProcEvent)
+{
+    return (auraScript->*_HandlerScript)(eventInfo, isTriggeredAtSpellProcEvent);
+}
+
 AuraScript::AuraProcHandler::AuraProcHandler(AuraProcFnType handlerScript)
 {
     _HandlerScript = handlerScript;
@@ -1175,7 +1185,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD:
         case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
         case AURA_SCRIPT_HOOK_CHECK_PROC:
-        case AURA_SCRIPT_HOOK_CHECK_AFTER_PROC:
+        case AURA_SCRIPT_HOOK_AFTER_CHECK_PROC:
         case AURA_SCRIPT_HOOK_PREPARE_PROC:
         case AURA_SCRIPT_HOOK_PROC:
         case AURA_SCRIPT_HOOK_AFTER_PROC:

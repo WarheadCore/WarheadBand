@@ -62,6 +62,8 @@ int main(int argc, char** argv)
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
 
+    std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
+
     // Init logging
     sLog->Initialize();
 
@@ -79,6 +81,9 @@ int main(int argc, char** argv)
             LOG_INFO("server.authserver", "> Using DB server version:        {}", sDatabaseMgr->GetServerVersion());
         }
     );
+
+    for (std::string const& key : overriddenKeys)
+        LOG_INFO("dbimport", "Configuration field {} was overridden with environment variable.", key);
 
     OpenSSLCrypto::threadsSetup();
 

@@ -182,9 +182,9 @@ public:
             while (true)
             {
                 uint32 tn = tree[node];
-                uint32 axis = (tn & (3 << 30)) >> 30;
-                bool BVH2 = tn & (1 << 29);
-                int offset = tn & ~(7 << 29);
+                uint32 axis = (tn & (3 << 30)) >> 30; // cppcheck-suppress integerOverflow
+                bool BVH2 = tn & (1 << 29); // cppcheck-suppress integerOverflow
+                int offset = tn & ~(7 << 29); // cppcheck-suppress integerOverflow
                 if (!BVH2)
                 {
                     if (axis < 3)
@@ -292,9 +292,9 @@ public:
             while (true)
             {
                 uint32 tn = tree[node];
-                uint32 axis = (tn & (3 << 30)) >> 30;
-                bool BVH2 = tn & (1 << 29);
-                int offset = tn & ~(7 << 29);
+                uint32 axis = (tn & (3 << 30)) >> 30; // cppcheck-suppress integerOverflow
+                bool BVH2 = tn & (1 << 29); // cppcheck-suppress integerOverflow
+                int offset = tn & ~(7 << 29); // cppcheck-suppress integerOverflow
                 if (!BVH2)
                 {
                     if (axis < 3)
@@ -417,7 +417,7 @@ protected:
     void createNode(std::vector<uint32>& tempTree, int nodeIndex, uint32 left, uint32 right) const
     {
         // write leaf node
-        tempTree[nodeIndex + 0] = (3 << 30) | left;
+        tempTree[nodeIndex + 0] = (3 << 30) | left; // cppcheck-suppress integerOverflow
         tempTree[nodeIndex + 1] = right - left + 1;
     }
 

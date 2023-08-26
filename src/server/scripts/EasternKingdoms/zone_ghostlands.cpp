@@ -164,17 +164,17 @@ struct npc_sentinel_leader : public ScriptedAI
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     SentinelSpy->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                    _events.ScheduleEvent(EVENT_QUESTION, 5000);
+                    _events.ScheduleEvent(EVENT_QUESTION, 5s);
                 }
                 break;
             }
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_SINISTER_STRIKE, urand(5000, 9000));
-        _events.ScheduleEvent(EVENT_BACKSTAB, urand(3000, 5000));
+        _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 5s, 9s);
+        _events.ScheduleEvent(EVENT_BACKSTAB, 3s, 5s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -190,7 +190,7 @@ struct npc_sentinel_leader : public ScriptedAI
                 case EVENT_QUESTION:
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
-                    _events.ScheduleEvent(EVENT_TALK, 1000);
+                    _events.ScheduleEvent(EVENT_TALK, 1s);
                     break;
                 }
                 case EVENT_TALK:
@@ -215,11 +215,11 @@ struct npc_sentinel_leader : public ScriptedAI
             {
             case EVENT_SINISTER_STRIKE:
                 DoCastVictim(SPELL_SINISTER_STRIKE, true);
-                _events.ScheduleEvent(EVENT_SINISTER_STRIKE, urand(5000, 9000));
+                _events.ScheduleEvent(EVENT_SINISTER_STRIKE, 5s, 9s);
                 break;
             case EVENT_BACKSTAB:
                 DoCastVictim(SPELL_BACKSTAB, true);
-                _events.ScheduleEvent(EVENT_BACKSTAB, urand(7000, 11000));
+                _events.ScheduleEvent(EVENT_BACKSTAB, 7s, 11s);
                 break;
             default:
                 break;
@@ -294,7 +294,7 @@ struct npc_sentinel_infiltrator : public ScriptedAI
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                             SentinelInfiltrator->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                            _events.ScheduleEvent(EVENT_TALK2, 2000);
+                            _events.ScheduleEvent(EVENT_TALK2, 2s);
                         }
                         break;
                 }
@@ -311,7 +311,7 @@ struct npc_sentinel_infiltrator : public ScriptedAI
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                             SentinelInfiltrator->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                            _events.ScheduleEvent(EVENT_TALK, 2000);
+                            _events.ScheduleEvent(EVENT_TALK, 2s);
                         }
                         break;
                 }
@@ -320,10 +320,10 @@ struct npc_sentinel_infiltrator : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_GOUGE2, urand(9000, 15000));
-        _events.ScheduleEvent(EVENT_BACKSTAB2, urand(3000, 5000));
+        _events.ScheduleEvent(EVENT_GOUGE2, 9s, 15s);
+        _events.ScheduleEvent(EVENT_BACKSTAB2, 3s, 5s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -343,13 +343,13 @@ struct npc_sentinel_infiltrator : public ScriptedAI
                     {
                         SentinelInfiltrator->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                     }
-                    _events.ScheduleEvent(EVENT_QUESTION, 2000);
+                    _events.ScheduleEvent(EVENT_QUESTION, 2s);
                     break;
                 }
                 case EVENT_QUESTION2:
                 {
                     me->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);
-                    _events.ScheduleEvent(EVENT_EXCLAMATION, 1000);
+                    _events.ScheduleEvent(EVENT_EXCLAMATION, 1s);
                     break;
                 }
                 case EVENT_EXCLAMATION:
@@ -359,7 +359,7 @@ struct npc_sentinel_infiltrator : public ScriptedAI
                     {
                         SentinelInfiltrator->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     }
-                    _events.ScheduleEvent(EVENT_SALUTE, 3000);
+                    _events.ScheduleEvent(EVENT_SALUTE, 3s);
                     break;
                 }
                 case EVENT_SALUTE:
@@ -385,11 +385,11 @@ struct npc_sentinel_infiltrator : public ScriptedAI
             {
             case EVENT_GOUGE2:
                 DoCastVictim(SPELL_GOUGE, true);
-                _events.ScheduleEvent(EVENT_GOUGE2, urand(9000, 15000));
+                _events.ScheduleEvent(EVENT_GOUGE2, 9s, 15s);
                 break;
             case EVENT_BACKSTAB2:
                 DoCastVictim(SPELL_BACKSTAB, true);
-                _events.ScheduleEvent(EVENT_BACKSTAB, urand(7000, 11000));
+                _events.ScheduleEvent(EVENT_BACKSTAB, 7s, 11s);
                 break;
             default:
                 break;

@@ -22,6 +22,8 @@
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
 
+#define DataHeader "UU"
+
 #define UlduarScriptName "instance_ulduar"
 
 enum UlduarEncounters

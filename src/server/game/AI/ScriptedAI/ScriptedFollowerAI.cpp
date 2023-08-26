@@ -102,7 +102,7 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
         if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombatAgainst(who))
             return;
 
-    if (me->CanStartAttack(who))
+    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who))
     {
         if (me->HasUnitState(UNIT_STATE_DISTRACTED))
         {

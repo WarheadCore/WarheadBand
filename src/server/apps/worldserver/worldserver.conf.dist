@@ -323,9 +323,16 @@ SocketTimeOutTimeActive = 60000
 SessionAddDelay = 10000
 
 #
+#    MinWorldUpdateTime
+#        Description: Minimum time (milliseconds) between world update ticks (for mostly idle servers).
+#        Default:     1 - (0.001 second)
+
+MinWorldUpdateTime = 1
+
+#
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
-#        Default:     100 - (0.01 second)
+#        Default:     10 - (0.01 second)
 
 MapUpdateInterval = 10
 
@@ -435,6 +442,7 @@ UpdateUptimeInterval = 1
 #
 #    MaxCoreStuckTime
 #        Description: Time (in seconds) before the server is forced to crash if it is frozen.
+#                     FreezeDetector
 #        Default:     0   - (Disabled)
 #                     10+ - (Enabled, Recommended 30+)
 # Note: If enabled and the setting is too low, it can cause unexpected crash.
@@ -593,6 +601,24 @@ RealmZone = 1
 #                     0 - (Disabled)
 
 World.RealmAvailability = 1
+
+#
+#   StrictNames.Reserved
+#       Description: Use the Reserved Filter from DBC.
+#                    Prevents Player, Pet & Charter names from containing reserved names.
+#       Default:     1 - Enabled
+#                    0 - Disabled
+
+StrictNames.Reserved = 1
+
+#
+#   StrictNames.Profanity
+#       Description: Use the Profanity Filter from DBC.
+#                    Prevents Player, Pet & Charter names from containing profanity.
+#       Default:     1 - Enabled
+#                    0 - Disabled
+
+StrictNames.Profanity = 1
 
 #
 #    StrictPlayerNames
@@ -889,6 +915,14 @@ MaxArenaPoints = 10000
 #        Default:     0
 
 StartArenaPoints = 0
+
+#
+#   Arena.LegacyArenaPoints
+#        Description: Use arena point calculation from TBC for season 1 - 5 when rating is less or equal to 1500
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Arena.LegacyArenaPoints = 0
 
 #
 #    RecruitAFriend.MaxLevel
@@ -1208,30 +1242,6 @@ BeepAtStart = 1
 FlashAtStart = 1
 
 #
-#    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@"
-#        Default:     "Welcome to an WarheadCore server."
-
-Motd = "Welcome to an WarheadCore server."
-
-#    PLEASE NOTE: another (hardcoded) text will appear below the MOTD:
-#
-#        "This server runs on WarheadCore www.azerothcore.org"
-#
-#    All the WarheadCore contributors, as well as its father projects (MaNGOS, TrinityCore, etc..),
-#    have worked for free to provide you this software. Please do not remove the credits.
-#
-#    Changing or removing such hardcoded text is considered a violation of our license
-#    and it's not allowed. We reserve the right to take legal action in case of violations.
-#    Furthermore, any kind of support will be always denied.
-#
-#    All WarheadCore contributors and its father projects are publicly listed in
-#    our official repository. Credits to open source contributions should always be shown.
-#
-
-#
 #    Server.LoginInfo
 #        Description: Display core version (.server info) on login.
 #        Default:     0 - (Disabled)
@@ -1264,16 +1274,12 @@ AllowTickets = 1
 DeletedCharacterTicketTrace = 0
 
 #
-#     DungeonFinder.OptionsMask
-#        Description: Dungeon and raid finder system.
-#        Value is a bitmask consisting of:
-#           LFG_OPTION_ENABLE_DUNGEON_FINDER    = 1,     Enable the dungeon finder browser
-#           LFG_OPTION_ENABLE_RAID_BROWSER      = 2,     Enable the raid browser
-#           LFG_OPTION_ENABLE_SEASONAL_BOSSES   = 4,     Enable seasonal bosses
+#   DBC.EnforceItemAttributes
+#        Disallow overriding item attributes stored in DBC files with values from the database
+#        Default: 0 - Off, Use DB values
+#                 1 - On, Enforce DBC Values (default)
 
-#        Default:     5
-
-DungeonFinder.OptionsMask = 5
+DBC.EnforceItemAttributes = 1
 
 #
 #     DungeonFinder.Expansion
@@ -1613,6 +1619,14 @@ AllowTwoSide.Interaction.Group = 0
 #                     1 - (Enabled)
 
 AllowTwoSide.Interaction.Guild = 0
+
+#
+#    AllowTwoSide.Interaction.Arena
+#        Description: Allow joining arena teams between factions.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AllowTwoSide.Interaction.Arena = 0
 
 #
 #    AllowTwoSide.Interaction.Auction
@@ -2307,7 +2321,20 @@ Rate.Drop.Item.Artifact         = 1
 Rate.Drop.Item.Referenced       = 1
 Rate.Drop.Money                 = 1
 
-#    RewardBonusMoney
+#    Rate.Drop.Item.ReferencedAmount
+#        Description: Multiplier for referenced loot amount. Makes many raid bosses (and others) drop additional loot.
+#        Default:     1
+
+Rate.Drop.Item.ReferencedAmount = 1
+
+#
+#    Rate.Drop.Item.GroupAmount
+#        Description: Multiplier for grouped items. Makes many dungeon bosses (and others) drop additional loot.
+#        Default:     1
+
+Rate.Drop.Item.GroupAmount = 1
+
+#    Rate.RewardBonusMoney
 #        Description: Allows to further tweak the amount of extra money rewarded by quests when the player
 #                     is at MaxPlayerLevel (this amount is specified in quest_template.RewardBonusMoney).
 #                     NOTE: the final amount will also affected by Rate.Drop.Money
@@ -2370,13 +2397,6 @@ Rate.BuyValue.Item.Epic             = 1
 Rate.BuyValue.Item.Legendary        = 1
 Rate.BuyValue.Item.Artifact         = 1
 Rate.BuyValue.Item.Heirloom         = 1
-
-#
-#    Rate.Drop.Item.ReferencedAmount
-#        Description: Multiplier for referenced loot amount.
-#        Default:     1
-
-Rate.Drop.Item.ReferencedAmount = 1
 
 #
 #    Rate.XP.Kill
@@ -3090,6 +3110,17 @@ Arena.QueueAnnouncer.Enable = 0
 Arena.QueueAnnouncer.PlayerOnly = 0
 
 #
+#    Arena.QueueAnnouncer.Detail
+#        Description: The amount of detail to announce on teams queued for arenas.
+#        Default:     3 - (Announce the team's name and rating)
+#                     2 - (Announce only the team's name)
+#                     1 - (Announce only the team's rating)
+#                     0 - (Do not announce any information about the teams)
+#
+
+Arena.QueueAnnouncer.Detail = 3
+
+#
 #    Arena.ArenaSeason.ID
 #        Description: Current arena season id shown in clients.
 #        Default:     8
@@ -3718,6 +3749,17 @@ Calculate.Gameoject.Zone.Area.Data = 0
 Group.Raid.LevelRestriction = 10
 
 #
+#     DungeonFinder.OptionsMask
+#        Description: Dungeon and raid finder system.
+#        Value is a bitmask consisting of:
+#           LFG_OPTION_ENABLE_DUNGEON_FINDER    = 1,     Enable the dungeon finder browser
+#           LFG_OPTION_ENABLE_RAID_BROWSER      = 2,     Enable the raid browser
+#           LFG_OPTION_ENABLE_SEASONAL_BOSSES   = 4,     Enable seasonal bosses
+#        Default:     5
+
+DungeonFinder.OptionsMask = 5
+
+#
 #    LFG.Location.All
 #
 #     Includes satellite to search for work elsewhere LFG
@@ -3848,6 +3890,14 @@ JoinBGAndLFG.Enable = 0
 LeaveGroupOnLogout.Enabled = 1
 
 #
+#   QuestPOI.Enabled
+#        Description: Show points of interest on the map
+#        Default:     1 - Enabled
+#                     0 - Disabled
+
+QuestPOI.Enabled = 1
+
+#
 #     ChangeFaction.MaxMoney
 #        Description: Maximum amount of gold allowed on the character to perform a faction change.
 #        Default:     0 - Disabled
@@ -3871,6 +3921,23 @@ DBCache.AsyncLoad.Enable = 1
 #
 
 DBCache.WaitAtAdd.Enable = 0
+
+#
+#     Pet.RankMod.Health
+#        Description: Allows pet health to be modified by rank health rates (set in config)
+#        Default:     1 - Enabled
+#                     0 - Disabled
+
+Pet.RankMod.Health = 1
+
+#
+#     AuctionHouse.SearchTimeout
+#        Description: Time (in milliseconds) after which an auction house search is discarded.
+#        Default:     1000 - (1 second)
+
+AuctionHouse.SearchTimeout = 1000
+
+#
 ###################################################################################################
 
 ###################################################################################################

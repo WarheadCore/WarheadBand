@@ -161,9 +161,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
         }
 
         void DoAction(int32 param) override
@@ -335,7 +335,7 @@ public:
                 shade->AI()->DoAction(ACTION_AKAMA_DIED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_SPELL_CHAIN_LIGHTNING, 2000);
             events.ScheduleEvent(EVENT_SPELL_DESTRUCTIVE_POISON, 5000);

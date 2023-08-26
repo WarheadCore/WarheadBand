@@ -130,7 +130,7 @@ public:
             me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
         {
@@ -175,7 +175,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
         {
@@ -218,7 +218,7 @@ public:
                 TargetGUID = who->GetGUID();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void DamageTaken(Unit*, uint32& damage, DamageEffectType, SpellSchoolMask) override
         {
@@ -295,6 +295,7 @@ public:
         {
             instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
+            me->SetReactState(REACT_AGGRESSIVE);
             DoomfireSpiritGUID.Clear();
             WorldTreeGUID.Clear();
             WispCount = 0;
@@ -350,7 +351,7 @@ public:
                 }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             Talk(SAY_AGGRO);
@@ -621,6 +622,7 @@ public:
                         break;
                     }
                 case EVENT_BELOW_10_PERCENT_HP:
+                    me->SetReactState(REACT_PASSIVE);
                     DoCastProtection();     // Protection of Elune against Finger and Hand of Death
                     BelowTenPercent = true;
                     me->GetMotionMaster()->Clear(false);

@@ -197,8 +197,8 @@ public:
     /// Increase/Decrease number of players
     inline void IncreasePlayerCount()
     {
-        m_PlayerCount++;
-        m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
+        _playerCount++;
+        _maxPlayerCount = std::max(_maxPlayerCount, _playerCount);
     }
     inline void DecreasePlayerCount() { m_PlayerCount--; }
 
@@ -286,9 +286,9 @@ public:
     void KickAllLess(AccountTypes sec);
 
     // for max speed access
-    static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
-    static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
-    static float GetMaxVisibleDistanceInBGArenas()      { return m_MaxVisibleDistanceInBGArenas;   }
+    static float GetMaxVisibleDistanceOnContinents()    { return _maxVisibleDistanceOnContinents; }
+    static float GetMaxVisibleDistanceInInstances()     { return _maxVisibleDistanceInInstances;  }
+    static float GetMaxVisibleDistanceInBGArenas()      { return _maxVisibleDistanceInBGArenas;   }
 
     // our: needed for arena spectator subscriptions
     uint32 GetNextWhoListUpdateDelaySecs();
@@ -343,63 +343,63 @@ protected:
     void ResetGuildCap();
 
 private:
-    static std::atomic_long m_stopEvent;
-    static uint8 m_ExitCode;
-    Seconds _shutdownTimer{};
-    uint32 _shutdownMask{};
+    static std::atomic_long _stopEvent;
+    static uint8 _exitCode;
+    uint32 _shutdownTimer;
+    uint32 _shutdownMask;
 
-    uint32 m_CleaningFlags;
+    uint32 _cleaningFlags;
 
-    bool m_isClosed;
+    bool _isClosed;
 
-    IntervalTimer m_timers[WUPDATE_COUNT];
-    Seconds mail_expire_check_timer;
+    IntervalTimer _timers[WUPDATE_COUNT];
+    Seconds _mail_expire_check_timer;
 
-    SessionMap m_sessions;
-    SessionMap m_offlineSessions;
+    SessionMap _sessions;
+    SessionMap _offlineSessions;
     typedef std::unordered_map<uint32, time_t> DisconnectMap;
-    DisconnectMap m_disconnects;
-    uint32 m_maxActiveSessionCount;
-    uint32 m_maxQueuedSessionCount;
-    uint32 m_PlayerCount;
-    uint32 m_MaxPlayerCount;
+    DisconnectMap _disconnects;
+    uint32 _maxActiveSessionCount;
+    uint32 _maxQueuedSessionCount;
+    uint32 _playerCount;
+    uint32 _maxPlayerCount;
 
-    std::string m_newCharString;
+    std::string _newCharString;
 
     typedef std::map<uint32, uint64> WorldStatesMap;
-    WorldStatesMap m_worldstates;
-    uint32 m_playerLimit;
-    AccountTypes m_allowedSecurityLevel;
-    LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
-    uint32 m_availableDbcLocaleMask;                       // by loaded DBC
+    WorldStatesMap _worldstates;
+    uint32 _playerLimit;
+    AccountTypes _allowedSecurityLevel;
+    LocaleConstant _defaultDbcLocale;                     // from config for one from loaded DBC locales
+    uint32 _availableDbcLocaleMask;                       // by loaded DBC
     void DetectDBCLang();
-    bool m_allowMovement;
-    std::string m_dataPath;
+    bool _allowMovement;
+    std::string _dataPath;
 
     // for max speed access
-    static float m_MaxVisibleDistanceOnContinents;
-    static float m_MaxVisibleDistanceInInstances;
-    static float m_MaxVisibleDistanceInBGArenas;
+    static float _maxVisibleDistanceOnContinents;
+    static float _maxVisibleDistanceInInstances;
+    static float _maxVisibleDistanceInBGArenas;
 
     std::string _realmName;
 
     // next daily quests and random bg reset time
-    Seconds m_NextDailyQuestReset;
-    Seconds m_NextWeeklyQuestReset;
-    Seconds m_NextMonthlyQuestReset;
-    Seconds m_NextRandomBGReset;
-    Seconds m_NextCalendarOldEventsDeletionTime;
-    Seconds m_NextGuildReset;
+    Seconds _nextDailyQuestReset;
+    Seconds _nextWeeklyQuestReset;
+    Seconds _nextMonthlyQuestReset;
+    Seconds _nextRandomBGReset;
+    Seconds _nextCalendarOldEventsDeletionTime;
+    Seconds _nextGuildReset;
 
     //Player Queue
-    Queue m_QueuedPlayer;
+    Queue _queuedPlayer;
 
     // sessions that are added async
     void AddSession_(WorldSession* s);
-    LockedQueue<WorldSession*> addSessQueue;
+    LockedQueue<WorldSession*> _addSessQueue;
 
     // used versions
-    std::string m_DBVersion;
+    std::string _dbVersion;
 
     void ProcessQueryCallbacks();
     QueryCallbackProcessor _queryProcessor;

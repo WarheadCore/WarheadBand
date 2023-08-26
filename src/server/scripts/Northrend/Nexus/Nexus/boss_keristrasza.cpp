@@ -80,17 +80,17 @@ public:
             aGuids.clear();
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
 
             me->CastSpell(me, SPELL_INTENSE_COLD, true);
-            events.ScheduleEvent(EVENT_CRYSTALFIRE_BREATH, 14000);
+            events.ScheduleEvent(EVENT_CRYSTALFIRE_BREATH, 14s);
             events.ScheduleEvent(EVENT_CRYSTAL_CHAINS, DUNGEON_MODE(20000, 11000));
-            events.ScheduleEvent(EVENT_TAIL_SWEEP, 5000);
-            events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
-            events.ScheduleEvent(EVENT_ACHIEVEMENT_CHECK, 1000);
+            events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
+            events.ScheduleEvent(EVENT_HEALTH_CHECK, 1s);
+            events.ScheduleEvent(EVENT_ACHIEVEMENT_CHECK, 1s);
         }
 
         void JustDied(Unit* killer) override
@@ -104,7 +104,7 @@ public:
             if (events.GetNextEventTime(EVENT_KILL_TALK) == 0)
             {
                 Talk(SAY_SLAY);
-                events.ScheduleEvent(EVENT_KILL_TALK, 6000);
+                events.ScheduleEvent(EVENT_KILL_TALK, 6s);
             }
         }
 
@@ -160,7 +160,7 @@ public:
                         me->CastSpell(me, SPELL_ENRAGE, true);
                         break;
                     }
-                    events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
+                    events.ScheduleEvent(EVENT_HEALTH_CHECK, 1s);
                     break;
                 case EVENT_ACHIEVEMENT_CHECK:
                     {
@@ -169,16 +169,16 @@ public:
                             if (Aura* aur = itr->GetSource()->GetAura(SPELL_INTENSE_COLD_TRIGGER))
                                 if (aur->GetStackAmount() > 2)
                                     aGuids.insert(itr->GetSource()->GetGUID().GetCounter());
-                        events.ScheduleEvent(EVENT_ACHIEVEMENT_CHECK, 500);
+                        events.ScheduleEvent(EVENT_ACHIEVEMENT_CHECK, 500ms);
                         break;
                     }
                 case EVENT_CRYSTALFIRE_BREATH:
                     me->CastSpell(me->GetVictim(), SPELL_CRYSTALFIRE_BREATH, false);
-                    events.ScheduleEvent(EVENT_CRYSTALFIRE_BREATH, 14000);
+                    events.ScheduleEvent(EVENT_CRYSTALFIRE_BREATH, 14s);
                     break;
                 case EVENT_TAIL_SWEEP:
                     me->CastSpell(me, SPELL_TAIL_SWEEP, false);
-                    events.ScheduleEvent(EVENT_TAIL_SWEEP, 5000);
+                    events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
                     break;
                 case EVENT_CRYSTAL_CHAINS:
                     Talk(SAY_CRYSTAL_NOVA);

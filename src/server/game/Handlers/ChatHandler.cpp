@@ -353,7 +353,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 if (!sender->IsAlive())
                     return;
 
-                if (sender->getLevel() < CONF_GET_INT("ChatLevelReq.Say"))
+                if (sender->GetLevel() < CONF_GET_INT("ChatLevelReq.Say"))
                 {
                     Warhead::Text::SendNotification(this, LANG_SAY_REQ, CONF_GET_INT("ChatLevelReq.Say"));
                     return;
@@ -369,7 +369,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             break;
         case CHAT_MSG_WHISPER:
             {
-                if (sender->getLevel() < CONF_GET_INT("ChatLevelReq.Whisper"))
+                if (sender->GetLevel() < CONF_GET_INT("ChatLevelReq.Whisper"))
                 {
                     Warhead::Text::SendNotification(this, LANG_WHISPER_REQ, CONF_GET_INT("ChatLevelReq.Whisper"));
                     return;
@@ -384,6 +384,13 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 Player* receiver = ObjectAccessor::FindPlayerByName(to, false);
                 bool senderIsPlayer = AccountMgr::IsPlayerAccount(GetSecurity());
                 bool receiverIsPlayer = AccountMgr::IsPlayerAccount(receiver ? receiver->GetSession()->GetSecurity() : SEC_PLAYER);
+
+                if (sender->GetLevel() < sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ) && receiver != sender)
+                {
+                    SendNotification(GetAcoreString(LANG_WHISPER_REQ), sWorld->getIntConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
+                    return;
+                }
+
                 if (!receiver || (senderIsPlayer && !receiverIsPlayer && !receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
                 {
                     SendPlayerNotFoundNotice(to);
@@ -581,7 +588,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             {
                 if (AccountMgr::IsPlayerAccount(GetSecurity()))
                 {
-                    if (sender->getLevel() < CONF_GET_INT("ChatLevelReq.Channel"))
+                    if (sender->GetLevel() < CONF_GET_INT("ChatLevelReq.Channel"))
                     {
                         Warhead::Text::SendNotification(this, LANG_CHANNEL_REQ, CONF_GET_INT("ChatLevelReq.Channel"));
                         return;

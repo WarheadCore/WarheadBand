@@ -36,7 +36,7 @@
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptObject.h"
-#include "ServerMotd.h"
+#include "MotdMgr.h"
 #include "StringConvert.h"
 #include "Timer.h"
 #include "UpdateTime.h"
@@ -264,7 +264,7 @@ public:
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler)
     {
-        handler->PSendSysMessage(LANG_MOTD_CURRENT, Motd::GetMotd());
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, sMotdMgr->GetMotd());
         return true;
     }
 
@@ -463,10 +463,40 @@ public:
     }
 
     // Define the 'Message of the day' for the realm
-    static bool HandleServerSetMotdCommand(ChatHandler* handler, std::string motd)
+    static bool HandleServerSetMotdCommand(ChatHandler* handler, std::string realmId, Tail motd)
     {
-        Motd::SetMotd(motd);
-        handler->PSendSysMessage(LANG_MOTD_NEW, motd);
+        std::wstring wMotd   = std::wstring();
+        std::string  strMotd = std::string();
+
+        if (realmId.empty())
+        {
+            return false;
+        }
+
+        if (motd.empty())
+        {
+            return false;
+        }
+
+        if (!Utf8toWStr(motd, wMotd))
+        {
+            return false;
+        }
+
+        if (!WStrToUtf8(wMotd, strMotd))
+        {
+            return false;
+        }
+
+        LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_MOTD);
+        stmt->SetData(0, Acore::StringTo<int32>(realmId).value());
+        stmt->SetData(1, strMotd);
+        trans->Append(stmt);
+        LoginDatabase.CommitTransaction(trans);
+
+        sMotdMgr->LoadMotd();
+        handler->PSendSysMessage(LANG_MOTD_NEW, Acore::StringTo<int32>(realmId).value(), strMotd);
         return true;
     }
 

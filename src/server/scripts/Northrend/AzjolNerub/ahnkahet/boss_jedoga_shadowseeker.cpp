@@ -72,6 +72,7 @@ enum Events
     EVENT_JEDOGA_PREPARE_RITUAL,
     EVENT_JEDOGA_MOVE_UP,
     EVENT_JEDOGA_MOVE_DOWN,
+    EVENT_JEDGA_START_RITUAL,
 
     // Initiate
     EVENT_RITUAL_BEGIN_MOVE,
@@ -283,7 +284,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                 {
                     DoCastSelf(SPELL_GIFT_OF_THE_HERALD, true);
                 }
-                events.ScheduleEvent(EVENT_JEDOGA_MOVE_DOWN, 1000, 0, PHASE_RITUAL);
+                events.ScheduleEvent(EVENT_JEDOGA_MOVE_DOWN, 1s, 0, PHASE_RITUAL);
                 break;
             }
         }
@@ -302,7 +303,7 @@ struct boss_jedoga_shadowseeker : public BossAI
             me->SetUnitFlag(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
             events.SetPhase(PHASE_RITUAL);
-            events.ScheduleEvent(EVENT_JEDOGA_PREPARE_RITUAL, 1000, 0, PHASE_RITUAL);
+            events.ScheduleEvent(EVENT_JEDOGA_PREPARE_RITUAL, 1s, 0, PHASE_RITUAL);
             ritualTriggered = true;
             return;
         }
@@ -324,9 +325,9 @@ struct boss_jedoga_shadowseeker : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         ReschedulleCombatEvents();
     }
@@ -386,12 +387,10 @@ struct boss_jedoga_shadowseeker : public BossAI
                 me->SetFacingTo(5.66f);
                 if (!summons.empty())
                 {
-                    sacraficeTarget_GUID = Warhead::Containers::SelectRandomContainerElement(summons);
-                    if (Creature* volunteer = ObjectAccessor::GetCreature(*me, sacraficeTarget_GUID))
+                    sacraficeTarget_GUID = Acore::Containers::SelectRandomContainerElement(summons);
+                    if (ObjectAccessor::GetCreature(*me, sacraficeTarget_GUID))
                     {
-                        Talk(SAY_SACRIFICE_1);
-                        sacraficeTarget_GUID = volunteer->GetGUID();
-                        volunteer->AI()->DoAction(ACTION_RITUAL_BEGIN);
+                        events.ScheduleEvent(EVENT_JEDGA_START_RITUAL, 3s, 0, PHASE_RITUAL);
                     }
                     // Something failed, let players continue but do not grant achievement
                     else
@@ -408,7 +407,7 @@ struct boss_jedoga_shadowseeker : public BossAI
             {
                 me->SetFacingTo(5.66f);
                 DoCastSelf(SPELL_HOVER_FALL);
-                events.ScheduleEvent(EVENT_JEDOGA_MOVE_UP, 1000, 0, PHASE_RITUAL);
+                events.ScheduleEvent(EVENT_JEDOGA_MOVE_UP, 1s, 0, PHASE_RITUAL);
                 break;
             }
             case POINT_INITIAL:
@@ -464,7 +463,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                 case EVENT_JEDOGA_CYCLONE:
                 {
                     DoCastSelf(DUNGEON_MODE(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
-                    events.RepeatEvent(urand(10000, 14000));
+                    events.Repeat(10s, 14s);
                     break;
                 }
                 case EVENT_JEDOGA_LIGHTNING_BOLT:
@@ -473,7 +472,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     {
                         DoCast(pTarget, DUNGEON_MODE(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
                     }
-                    events.RepeatEvent(urand(11000, 15000));
+                    events.Repeat(11s, 15s);
                     break;
                 }
                 case EVENT_JEDOGA_THUNDERSHOCK:
@@ -483,7 +482,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                         DoCast(pTarget, DUNGEON_MODE(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
                     }
 
-                    events.RepeatEvent(urand(16000, 22000));
+                    events.Repeat(16s, 22s);
                     break;
                 }
                 // Ritual phase
@@ -507,6 +506,17 @@ struct boss_jedoga_shadowseeker : public BossAI
                     DoCastSelf(SPELL_HOVER_FALL);
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->MovePoint(POINT_DOWN, JedogaPosition[1], false);
+                    break;
+                }
+                case EVENT_JEDGA_START_RITUAL:
+                {
+                    sacraficeTarget_GUID = Acore::Containers::SelectRandomContainerElement(summons);
+                    if (Creature* volunteer = ObjectAccessor::GetCreature(*me, sacraficeTarget_GUID))
+                    {
+                        Talk(SAY_SACRIFICE_1);
+                        sacraficeTarget_GUID = volunteer->GetGUID();
+                        volunteer->AI()->DoAction(ACTION_RITUAL_BEGIN);
+                    }
                     break;
                 }
             }
@@ -537,9 +547,9 @@ private:
     void ReschedulleCombatEvents()
     {
         events.SetPhase(PHASE_NORMAL);
-        events.RescheduleEvent(EVENT_JEDOGA_CYCLONE, 3000, 0, PHASE_NORMAL);
-        events.RescheduleEvent(EVENT_JEDOGA_LIGHTNING_BOLT, 7000, 0, PHASE_NORMAL);
-        events.RescheduleEvent(EVENT_JEDOGA_THUNDERSHOCK, 12000, 0, PHASE_NORMAL);
+        events.RescheduleEvent(EVENT_JEDOGA_CYCLONE, 3s, 0, PHASE_NORMAL);
+        events.RescheduleEvent(EVENT_JEDOGA_LIGHTNING_BOLT, 7s, 0, PHASE_NORMAL);
+        events.RescheduleEvent(EVENT_JEDOGA_THUNDERSHOCK, 12s, 0, PHASE_NORMAL);
     }
 
     void DespawnOOCSummons()
@@ -595,7 +605,7 @@ struct npc_twilight_volunteer : public ScriptedAI
             Talk(SAY_CHOSEN);
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            events.ScheduleEvent(EVENT_RITUAL_BEGIN_MOVE, 1500);
+            events.ScheduleEvent(EVENT_RITUAL_BEGIN_MOVE, 1500ms);
         }
     }
 
@@ -635,12 +645,8 @@ struct npc_twilight_volunteer : public ScriptedAI
             if (Creature* jedoga = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER)))
             {
                 jedoga->AI()->Talk(SAY_SACRIFICE_2);
-                jedoga->CastSpell(nullptr, SPELL_SACRIFICE_BEAM);
-
-                if (Creature* ritualTrigger = jedoga->SummonCreature(NPC_JEDOGA_CONTROLLER, JedogaPosition[2], TEMPSUMMON_TIMED_DESPAWN, 5000))
-                {
-                    ritualTrigger->CastSpell(ritualTrigger, SPELL_SACRIFICE_VISUAL);
-                }
+                jedoga->CastSpell(nullptr, SPELL_SACRIFICE_BEAM); /// @todo: Visual is not working. (cosmetic)
+                jedoga->AI()->DoAction(ACTION_SACRAFICE);
             }
 
             Talk(SAY_SACRIFICED);
@@ -659,6 +665,14 @@ struct npc_twilight_volunteer : public ScriptedAI
                 me->SetHomePosition(JedogaPosition[2]);
                 me->SetWalk(true);
                 me->GetMotionMaster()->MovePoint(POINT_RITUAL, JedogaPosition[2], false);
+
+                if (Creature* jedoga = ObjectAccessor::GetCreature(*me, pInstance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER)))
+                {
+                    if (Creature* ritualTrigger = jedoga->SummonCreature(NPC_JEDOGA_CONTROLLER, JedogaPosition[2], TEMPSUMMON_TIMED_DESPAWN, 15000))
+                    {
+                        ritualTrigger->CastSpell(ritualTrigger, SPELL_SACRIFICE_VISUAL);
+                    }
+                }
             }
         }
 
@@ -691,31 +705,6 @@ class spell_random_lightning_visual_effect : public SpellScript
     }
 };
 
-// 56150 - Sacrifice Beam
-class spell_jedoga_sacrafice_beam : public AuraScript
-{
-    PrepareAuraScript(spell_jedoga_sacrafice_beam);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_UNIT;
-    }
-
-    void HandleRemoval(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        AuraRemoveMode const removeMode = GetTargetApplication()->GetRemoveMode();
-        if (removeMode == AURA_REMOVE_BY_DEFAULT || removeMode == AURA_REMOVE_BY_EXPIRE)
-        {
-            GetCaster()->ToCreature()->AI()->DoAction(ACTION_SACRAFICE);
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_jedoga_sacrafice_beam::HandleRemoval, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // CriteriaID 7359, Volunteer Work (2056)
 class achievement_volunteer_work : public AchievementCriteriaScript
 {
@@ -743,7 +732,6 @@ void AddSC_boss_jedoga_shadowseeker()
 
     // Spells
     RegisterSpellScript(spell_random_lightning_visual_effect);
-    RegisterSpellScript(spell_jedoga_sacrafice_beam);
 
     // Achievements
     new achievement_volunteer_work();

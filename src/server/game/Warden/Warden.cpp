@@ -33,7 +33,7 @@
 #include <sstream>
 
 Warden::Warden() : _session(nullptr), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0),
-    _dataSent(false), _module(nullptr), _initialized(false)
+    _dataSent(false), _module(nullptr), _initialized(false), _interrupted(false), _checkInProgress(false)
 {
     memset(_inputKey, 0, sizeof(_inputKey));
     memset(_outputKey, 0, sizeof(_outputKey));
@@ -155,6 +155,11 @@ bool Warden::IsValidCheckSum(uint32 checksum, const uint8* data, const uint16 le
         LOG_DEBUG("warden", "CHECKSUM IS VALID");
         return true;
     }
+}
+
+bool Warden::IsInitialized()
+{
+    return _initialized;
 }
 
 union keyData
@@ -303,6 +308,11 @@ bool Warden::ProcessLuaCheckResponse(std::string const& msg)
 
     ApplyPenalty(0, "Sent bogus Lua check response for Warden");
     return true;
+}
+
+WardenPayloadMgr* Warden::GetPayloadMgr()
+{
+    return &_payloadMgr;
 }
 
 void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)

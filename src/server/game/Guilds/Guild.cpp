@@ -527,7 +527,7 @@ void Guild::BankTab::SendText(Guild const* guild, WorldSession* session) const
 void Guild::Member::SetStats(Player* player)
 {
     m_name      = player->GetName();
-    m_level     = player->getLevel();
+    m_level     = player->GetLevel();
     m_class     = player->getClass();
     m_gender    = player->getGender();
     m_zoneId    = player->GetZoneId();
@@ -1190,7 +1190,7 @@ void Guild::OnPlayerStatusChange(Player* player, uint32 flag, bool state)
 
 bool Guild::SetName(std::string_view const& name)
 {
-    if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+    if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || sObjectMgr->IsProfanityName(name) || !ObjectMgr::IsValidCharterName(name))
     {
         return false;
     }
@@ -1207,6 +1207,7 @@ void Guild::HandleRoster(WorldSession* session)
 {
     WorldPackets::Guild::GuildRoster roster;
 
+    roster.RankData.reserve(m_ranks.size());
     for (RankInfo const& rank : m_ranks)
     {
         WorldPackets::Guild::GuildRankData& rankData =  roster.RankData.emplace_back();
@@ -1221,6 +1222,7 @@ void Guild::HandleRoster(WorldSession* session)
     }
 
     bool sendOfficerNote = _HasRankRight(session->GetPlayer(), GR_RIGHT_VIEWOFFNOTE);
+    roster.MemberData.reserve(m_members.size());
     for (auto const& [guid, member] : m_members)
     {
         WorldPackets::Guild::GuildRosterMemberData& memberData = roster.MemberData.emplace_back();
@@ -1392,7 +1394,7 @@ void Guild::HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string_v
         rankInfo->SetRights(rights);
         _SetRankBankMoneyPerDay(rankId, moneyPerDay);
 
-        for (auto rightsAndSlot : rightsAndSlots)
+        for (auto& rightsAndSlot : rightsAndSlots)
             _SetRankBankTabRightsAndSlots(rankId, rightsAndSlot);
 
         _BroadcastEvent(GE_RANK_UPDATED, ObjectGuid::Empty, std::to_string(rankId), rankInfo->GetName(), std::to_string(m_ranks.size()));
@@ -1678,7 +1680,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
 
     if (amount > 10 * GOLD)     // receiver_acc = Guild id, receiver_name = Guild name
         CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"(guild members: {}, new amount: {}, leader guid low: {}, sender level: {})\", NOW(), {})",
-            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), session->GetRemoteAddress(), GetId(), GetName(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 3);
+            session->GetAccountId(), player->GetGUID().GetCounter(), player->GetName(), session->GetRemoteAddress(), GetId(), GetName(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->GetLevel(), 3);
 }
 
 bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool repair)
@@ -1722,7 +1724,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
 
     if (amount > 10 * GOLD)     // sender_acc = 0 (guild has no account), sender_guid = Guild id, sender_name = Guild name
         CharacterDatabase.Execute("INSERT INTO log_money VALUES({}, {}, \"{}\", \"{}\", {}, \"{}\", {}, \"(guild, members: {}, new amount: {}, leader guid low: {}, withdrawer level: {})\", NOW(), {})",
-            0, GetId(), GetName(), session->GetRemoteAddress(), session->GetAccountId(), player->GetName(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->getLevel(), 4);
+            0, GetId(), GetName(), session->GetRemoteAddress(), session->GetAccountId(), player->GetName(), amount, GetMemberCount(), GetTotalBankMoney(), GetLeaderGUID().GetCounter(), player->GetLevel(), 4);
 
     std::string aux = Warhead::Impl::ByteArrayToHexStr(reinterpret_cast<uint8*>(&m_bankMoney), 8, true);
     _BroadcastEvent(GE_BANK_MONEY_SET, ObjectGuid::Empty, aux.c_str());
@@ -2386,7 +2388,7 @@ void Guild::_CreateNewBankTab()
     trans->Append(stmt);
 
     ++tabId;
-    for (auto & m_rank : m_ranks)
+    for (auto& m_rank : m_ranks)
         m_rank.CreateMissingTabsIfNeeded(tabId, trans, false);
 
     CharacterDatabase.CommitTransaction(trans);

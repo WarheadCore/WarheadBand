@@ -22,6 +22,7 @@
 #include "CreatureAIImpl.h"
 #include "EventProcessor.h"
 
+#define DataHeader "EOE"
 #define EyeOfEternityScriptName "instance_eye_of_eternity"
 
 enum Objects

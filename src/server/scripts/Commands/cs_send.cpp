@@ -74,14 +74,21 @@ public:
         {
             auto itemTokens = Warhead::Tokenize(itemString, ':', false);
 
-            if (itemTokens.size() != 2)
+            uint32 itemCount;
+            switch (itemTokens.size())
             {
-                handler->SendSysMessage(Warhead::StringFormat("> Incorrect item list format for '{}'", itemString));
-                continue;
+                case 1:
+                    itemCount = 1; // Default to sending 1 item
+                    break;
+                case 2:
+                    itemCount = *Acore::StringTo<uint32>(itemTokens.at(1));
+                    break;
+                default:
+                    handler->SendSysMessage(Acore::StringFormatFmt("> Incorrect item list format for '{}'", itemString));
+                    continue;
             }
 
-            uint32 itemID = *Warhead::StringTo<uint32>(itemTokens.at(0));
-            uint32 itemCount = *Warhead::StringTo<uint32>(itemTokens.at(1));
+            uint32 itemID = *Acore::StringTo<uint32>(itemTokens.at(0));
 
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemID);
             if (!itemTemplate)

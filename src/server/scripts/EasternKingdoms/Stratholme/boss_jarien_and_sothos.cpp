@@ -135,7 +135,7 @@ struct boss_jarien : public BossAI
         _Reset();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         Talk(SAY_JARIEN_ON_SUMMON_0);
 
@@ -184,9 +184,9 @@ struct boss_jarien : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         _scheduler.Schedule(5s, [this](TaskContext context)
             {
                 DoCastVictim(SPELL_SHADOW_SHOCK);
@@ -260,7 +260,7 @@ struct boss_sothos : public BossAI
         _Reset();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         _scheduler.Schedule(12s, [this](TaskContext /*context*/)
             {
@@ -310,9 +310,9 @@ struct boss_sothos : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         _scheduler.Schedule(10s, [this](TaskContext context)
             {
                 DoCastAOE(SPELL_FEAR);

@@ -76,6 +76,9 @@ char serviceDescription[] = "WarheadCore World of Warcraft emulator world servic
  *  2 - paused
  */
 int m_ServiceStatus = -1;
+
+#include <boost/dll/shared_library.hpp>
+#include <timeapi.h>
 #endif
 
 #ifndef _WARHEAD_CORE_CONFIG
@@ -144,6 +147,44 @@ int main(int argc, char** argv)
         return WinServiceUninstall() == true ? 0 : 1;
     else if (configService.compare("run") == 0)
         WinServiceRun();
+
+    Optional<UINT> newTimerResolution;
+    boost::system::error_code dllError;
+    std::shared_ptr<boost::dll::shared_library> winmm(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
+    {
+        try
+        {
+            if (newTimerResolution)
+                lib->get<decltype(timeEndPeriod)>("timeEndPeriod")(*newTimerResolution);
+        }
+        catch (std::exception const&)
+        {
+            // ignore
+        }
+
+        delete lib;
+    });
+
+    if (winmm->is_loaded())
+    {
+        try
+        {
+            auto timeGetDevCapsPtr = winmm->get<decltype(timeGetDevCaps)>("timeGetDevCaps");
+            // setup timer resolution
+            TIMECAPS timeResolutionLimits;
+            if (timeGetDevCapsPtr(&timeResolutionLimits, sizeof(TIMECAPS)) == TIMERR_NOERROR)
+            {
+                auto timeBeginPeriodPtr = winmm->get<decltype(timeBeginPeriod)>("timeBeginPeriod");
+                newTimerResolution = std::min(std::max(timeResolutionLimits.wPeriodMin, 1u), timeResolutionLimits.wPeriodMax);
+                timeBeginPeriodPtr(*newTimerResolution);
+            }
+        }
+        catch (std::exception const& e)
+        {
+            printf("Failed to initialize timer resolution: %s\n", e.what());
+        }
+    }
+
 #endif
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
@@ -211,6 +252,9 @@ int main(int argc, char** argv)
             LOG_INFO("server.worldserver", "> Using DB server version:        {}", sDatabaseMgr->GetServerVersion());
         }
     );
+
+    for (std::string const& key : overriddenKeys)
+        LOG_INFO("server.worldserver", "Configuration field {} was overridden with environment variable.", key);
 
     OpenSSLCrypto::threadsSetup();
 
@@ -539,6 +583,7 @@ void ShutdownCLIThread(std::thread* cliThread)
 
 void WorldUpdateLoop()
 {
+    uint32 minUpdateDiff = uint32(sConfigMgr->GetOption<int32>("MinWorldUpdateTime", 1));
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
@@ -592,10 +637,14 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 freezeDetector->_worldLoopCounter = worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
+            else
             {
-                LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-                ABORT();
+                uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
+                if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
+                {
+                    LOG_ERROR("server.worldserver", "World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
+                    ABORT("World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
+                }
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));

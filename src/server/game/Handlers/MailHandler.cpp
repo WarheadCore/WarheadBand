@@ -123,7 +123,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     Player* player = _player;
 
-    if (player->getLevel() < CONF_GET_INT("LevelReq.Mail"))
+    if (player->GetLevel() < CONF_GET_INT("LevelReq.Mail"))
     {
         Warhead::Text::SendNotification(this, LANG_MAIL_SENDER_REQ, CONF_GET_INT("LevelReq.Mail"));
         return;
@@ -244,6 +244,13 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             return;
         }
 
+        // handle empty bag before CanBeTraded, since that func already has that check
+        if (item->IsNotEmptyBag())
+        {
+            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS);
+            return;
+        }
+
         if (!item->CanBeTraded(true))
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
@@ -268,18 +275,19 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             return;
         }
 
-        if (item->IsNotEmptyBag())
-        {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS);
-            return;
-        }
-
         if (!sScriptMgr->CanSendMail(player, receiverGuid, mailbox, subject, body, money.GetCopper(), COD.GetCopper(), item))
         {
+            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
             return;
         }
 
         items[i] = item;
+    }
+
+    if (!items_count && !sScriptMgr->CanSendMail(player, receiverGuid, mailbox, subject, body, money, COD, nullptr))
+    {
+        player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
+        return;
     }
 
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
@@ -414,6 +422,25 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
         player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
+
+    if (m->HasItems())
+    {
+        for (MailItemInfoVec::iterator itr = m->items.begin(); itr != m->items.end(); ++itr)
+        {
+            Item* item = player->GetMItem(itr->item_guid);
+            if (item && !sScriptMgr->CanSendMail(player, ObjectGuid(HighGuid::Player, m->sender), mailbox, m->subject, m->body, m->money, m->COD, item))
+            {
+                player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
+                return;
+            }
+        }
+    }
+    else if (!sScriptMgr->CanSendMail(player, ObjectGuid(HighGuid::Player, m->sender), mailbox, m->subject, m->body, m->money, m->COD, nullptr))
+    {
+        player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
+        return;
+    }
+
     //we can return mail now
     //so firstly delete the old one
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();

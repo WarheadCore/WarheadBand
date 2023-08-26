@@ -283,7 +283,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance)
                 instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);

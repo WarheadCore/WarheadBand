@@ -371,7 +371,7 @@ public: /* PlayerScript */
     void OnPlayerTalentsReset(Player* player, bool noCost);
     void OnPlayerMoneyChanged(Player* player, int32& amount);
     void OnBeforeLootMoney(Player* player, Loot* loot);
-    void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
+    void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim, uint8 xpSource);
     bool OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);
     void OnPlayerReputationRankChange(Player* player, uint32 factionID, ReputationRank newRank, ReputationRank oldRank, bool increased);
     void OnPlayerLearnSpell(Player* player, uint32 spellID);
@@ -421,9 +421,11 @@ public: /* PlayerScript */
     void GetCustomArenaPersonalRating(Player const* player, uint8 slot, uint32& rating) const;
     void OnGetMaxPersonalArenaRatingRequirement(Player const* player, uint32 minSlot, uint32& maxArenaRating) const;
     void OnLootItem(Player* player, Item* item, uint32 count, ObjectGuid lootguid);
+    void OnBeforeFillQuestLootItem(Player* player, LootItem& item);
     void OnStoreNewItem(Player* player, Item* item, uint32 count);
     void OnCreateItem(Player* player, Item* item, uint32 count);
     void OnQuestRewardItem(Player* player, Item* item, uint32 count);
+    bool CanPlaceAuctionBid(Player* player, AuctionEntry* auction);
     void OnGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVote voteType, Roll* roll);
     bool OnBeforeOpenItem(Player* player, Item* item);
     bool OnBeforePlayerQuestComplete(Player* player, uint32 quest_id);
@@ -460,6 +462,8 @@ public: /* PlayerScript */
     void OnDeleteFromDB(CharacterDatabaseTransaction trans, uint32 guid);
     bool CanRepopAtGraveyard(Player* player);
     void OnGetMaxSkillValue(Player* player, uint32 skill, int32& result, bool IsPure);
+    void OnUpdateGatheringSkill(Player* player, uint32 skillId, uint32 currentLevel, uint32 gray, uint32 green, uint32 yellow, uint32& gain);
+    void OnUpdateCraftingSkill(Player* player, SkillLineAbilityEntry const* skill, uint32 currentLevel, uint32& gain);
     bool OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_skill, int32 chance, int32 roll);
     bool CanAreaExploreAndOutdoor(Player* player);
     void OnVictimRewardBefore(Player* player, Player* victim, uint32& killer_title, uint32& victim_title);
@@ -520,6 +524,9 @@ public: /* PlayerScript */
     bool CanCompleteQuest(Player* player, Quest const* questInfo, QuestStatusData const* questStatusData);
     void OnAddQuest(Player* player, Quest const* quest, Object* questGiver);
     void OnUpdateProfessionSkill(Player* player, uint16 skillId, int32 chance, uint32& step);
+    bool CanSendErrorAlreadyLooted(Player* player);
+    void OnAfterCreatureLoot(Player* player);
+    void OnAfterCreatureLootMoney(Player* player);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);
@@ -582,11 +589,13 @@ public: /* GlobalScript */
     bool OnSpellHealingBonusTakenNegativeModifiers(Unit const* target, Unit const* caster, SpellInfo const* spellInfo, float& val);
     void OnLoadSpellCustomAttr(SpellInfo* spell);
     bool OnAllowedForPlayerLootCheck(Player const* player, ObjectGuid source);
+    void OnInstanceIdRemoved(uint32 instanceId);
+    void OnBeforeSetBossState(uint32 id, EncounterState newState, EncounterState oldState, Map* instance);
 
 public: /* UnitScript */
     void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
     void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
-    void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
+    void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage, SpellInfo const* spellInfo);
     void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
     void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo);
     void ModifyHealReceived(Unit* target, Unit* attacker, uint32& addHealth, SpellInfo const* spellInfo);

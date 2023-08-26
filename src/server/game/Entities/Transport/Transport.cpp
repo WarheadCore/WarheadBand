@@ -42,6 +42,8 @@ MotionTransport::MotionTransport() : Transport(), _transportInfo(nullptr), _isMo
 
 MotionTransport::~MotionTransport()
 {
+    HashMapHolder<MotionTransport>::Remove(this);
+
     ASSERT(_passengers.empty());
     UnloadStaticPassengers();
 }
@@ -425,7 +427,7 @@ void MotionTransport::LoadStaticPassengers()
             // GameObjects on transport
             guidEnd = cellItr->second.gameobjects.end();
             for (CellGuidSet::const_iterator guidItr = cellItr->second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
-                CreateGOPassenger(*guidItr, sObjectMgr->GetGOData(*guidItr));
+                CreateGOPassenger(*guidItr, sObjectMgr->GetGameObjectData(*guidItr));
         }
     }
 }

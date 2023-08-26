@@ -231,6 +231,15 @@ enum BattlegroundStartingEventsIds
     BG_STARTING_EVENT_FOURTH        = 3
 };
 
+enum SpiritOfCompetitionEvent
+{
+    EVENT_SPIRIT_OF_COMPETITION             = 46,
+    QUEST_FLAG_PARTICIPANT                  = 12187,
+    QUEST_FLAG_WINNER                       = 12186,
+    SPELL_SPIRIT_OF_COMPETITION_PARTICIPANT = 48163,
+    SPELL_SPIRIT_OF_COMPETITION_WINNER      = 48164,
+};
+
 constexpr auto BG_STARTING_EVENT_COUNT = 4;
 
 class WH_GAME_API ArenaLogEntryData
@@ -330,6 +339,9 @@ public:
     [[nodiscard]] PvPTeamId GetWinner() const         { return m_WinnerId; }
     [[nodiscard]] uint32 GetScriptId() const          { return ScriptId; }
     [[nodiscard]] uint32 GetBonusHonorFromKill(uint32 kills) const;
+
+    // Spirit of Competition event
+    bool SpiritofCompetitionEvent(PvPTeamId winnerTeamId);
 
     bool IsRandom() { return m_IsRandom; }
 
@@ -448,7 +460,7 @@ public:
 
     void EndBattleground(PvPTeamId winnerTeamId);
 
-    // deprecated, need delete
+    /// @deprecated need delete
     virtual void EndBattleground(TeamId winnerTeamId)
     {
         EndBattleground(GetPvPTeamId(winnerTeamId));
@@ -516,7 +528,7 @@ public:
     void HandleTriggerBuff(GameObject* gameObject);
     void SetHoliday(bool is_holiday);
 
-    // TODO: make this protected:
+    /// @todo: make this protected:
     typedef GuidVector BGObjects;
     typedef GuidVector BGCreatures;
     BGObjects BgObjects;

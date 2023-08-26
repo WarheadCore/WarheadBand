@@ -100,7 +100,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(AGGRO_YELL_AQUE, who);
         }
@@ -272,7 +272,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void Reset() override { }
 
         void UpdateAI(uint32 diff) override
