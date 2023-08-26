@@ -47,7 +47,6 @@ void DBCacheMgr::InitMiscStrings()
     _queryStrings.emplace(DBCacheTable::PlayerClassLevelStats, "SELECT class, level, basehp, basemana FROM player_classlevelstats");
     _queryStrings.emplace(DBCacheTable::PlayerRaceStats, "SELECT Race, Strength, Agility, Stamina, Intellect, Spirit FROM player_race_stats");
     _queryStrings.emplace(DBCacheTable::PlayerClassStats, "SELECT Class, Level, Strength, Agility, Stamina, Intellect, Spirit FROM player_class_stats");
-    _queryStrings.emplace(DBCacheTable::PlayerLevelStats, "SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
     _queryStrings.emplace(DBCacheTable::PlayerXpForLevel, "SELECT Level, Experience FROM player_xp_for_level");
     _queryStrings.emplace(DBCacheTable::ExplorationBasexp, "SELECT level, basexp FROM exploration_basexp");
     _queryStrings.emplace(DBCacheTable::PetNameGeneration, "SELECT word, entry, half FROM pet_name_generation");

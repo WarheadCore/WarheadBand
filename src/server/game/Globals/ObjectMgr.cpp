@@ -3891,7 +3891,8 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading levels data (class/race dependent)
     LOG_INFO("server.loading", "Loading Player Create Level Stats Data...");
     {
-        struct RaceStats {
+        struct RaceStats
+        {
             int16 StatModifier[MAX_STATS];
         };
 
@@ -3920,7 +3921,7 @@ void ObjectMgr::LoadPlayerInfo()
                 raceStatModifiers[current_race].StatModifier[i] = row[i + 1].Get<int16>();
         }
 
-        auto resultClass{sDBCacheMgr->GetResult(DBCacheTable::PlayerClassStats)};
+        auto resultClass{ sDBCacheMgr->GetResult(DBCacheTable::PlayerClassStats) };
         if (!resultClass)
         {
             LOG_ERROR("server.loading", ">> Loaded 0 level stats definitions. DB table `player_class_stats` is empty.");
@@ -3932,17 +3933,17 @@ void ObjectMgr::LoadPlayerInfo()
             uint32 current_class = row[0].Get<uint8>();
             if (current_class >= MAX_CLASSES)
             {
-                LOG_ERROR("db.query", "Wrong class {} in `player_levelstats` table, ignoring.", current_class);
+                LOG_ERROR("db.query", "Wrong class {} in `player_class_stats` table, ignoring.", current_class);
                 continue;
             }
 
-            uint32 current_level = row[2].Get<uint8>();
+            uint32 current_level = row[1].Get<uint8>();
             if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
             {
                 if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                    LOG_ERROR("db.query", "Wrong (> {}) level {} in `player_levelstats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
+                    LOG_ERROR("db.query", "Wrong (> {}) level {} in `player_class_stats` table, ignoring.", STRONG_MAX_LEVEL, current_level);
                 else
-                    LOG_DEBUG("db.query", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_levelstats` table, ignoring.", current_level);
+                    LOG_DEBUG("db.query", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_class_stats` table, ignoring.", current_level);
 
                 continue;
             }
@@ -5688,10 +5689,10 @@ void ObjectMgr::LoadGossipText()
             gOption.Language         = fields[cic++].Get<uint8>();
             gOption.Probability      = fields[cic++].Get<float>();
 
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
+            for (auto& Emote : gOption.Emotes)
             {
-                gOption.Emotes[j]._Delay = fields[cic++].Get<uint16>();
-                gOption.Emotes[j]._Emote = fields[cic++].Get<uint16>();
+                Emote._Delay = fields[cic++].Get<uint16>();
+                Emote._Emote = fields[cic++].Get<uint16>();
             }
 
             // check broadcast_text correctness
@@ -7115,7 +7116,7 @@ void ObjectMgr::LoadReputationOnKill()
     if (!result)
     {
         LOG_WARN("server.loading", ">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
-        LOG_INFO("server.loading", " ");
+        LOG_INFO("server.loading", "");
         return;
     }
 
@@ -7132,10 +7133,10 @@ void ObjectMgr::LoadReputationOnKill()
         repOnKill.RepFaction2           = fields[2].Get<int16>();
         repOnKill.IsTeamAward1          = fields[3].Get<bool>();
         repOnKill.ReputationMaxCap1     = fields[4].Get<uint8>();
-        repOnKill.RepValue1             = fields[5].Get<int32>();
+        repOnKill.RepValue1             = fields[5].Get<float>();
         repOnKill.IsTeamAward2          = fields[6].Get<bool>();
         repOnKill.ReputationMaxCap2     = fields[7].Get<uint8>();
-        repOnKill.RepValue2             = fields[8].Get<int32>();
+        repOnKill.RepValue2             = fields[8].Get<float>();
         repOnKill.TeamDependent         = fields[9].Get<uint8>();
 
         if (!GetCreatureTemplate(creature_id))

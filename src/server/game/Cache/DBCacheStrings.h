@@ -160,7 +160,6 @@ enum class DBCacheTable : std::size_t
     PlayerClassLevelStats,
     PlayerRaceStats,
     PlayerClassStats,
-    PlayerLevelStats,
     PlayerXpForLevel,
     ExplorationBasexp,
     PetNameGeneration,

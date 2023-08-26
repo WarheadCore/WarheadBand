@@ -31,8 +31,8 @@ void DBCacheMgr::InitCreatureStrings()
     _queryStrings.emplace(DBCacheTable::CreatureEquipTemplate, "SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
     _queryStrings.emplace(DBCacheTable::CreatureTemplateAddon, "SELECT entry, path_id, mount, bytes1, bytes2, emote, visibilityDistanceType, auras FROM creature_template_addon");
     _queryStrings.emplace(DBCacheTable::CreatureOnkillReputation, "SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, "
-                                                              "IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent "
-                                                              "FROM creature_onkill_reputation");
+                                                                  "IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent "
+                                                                  "FROM creature_onkill_reputation");
     _queryStrings.emplace(DBCacheTable::CreatureClassLevelStats, "SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor, attackpower, rangedattackpower, damage_base, damage_exp1, damage_exp2 FROM creature_classlevelstats");
     _queryStrings.emplace(DBCacheTable::Creature, "SELECT creature.guid, id1, id2, id3, map, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, wander_distance, "
                                                                  "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, "
@@ -53,7 +53,7 @@ void DBCacheMgr::InitCreatureStrings()
                                                                   "FROM creature_movement_override AS cmo "
                                                                   "LEFT JOIN creature AS c ON c.guid = cmo.SpawnId "
                                                                   "LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id1");
-    _queryStrings.emplace(DBCacheTable::CreatureQuestItem, "SELECT CreatureEntry, ItemId FROM creature_questitem ORDER BY Idx ASC");
+    _queryStrings.emplace(DBCacheTable::CreatureQuestItem, "SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
     _queryStrings.emplace(DBCacheTable::NpcSpellClickSpells, "SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
     _queryStrings.emplace(DBCacheTable::CreatureFormations, "SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
 }

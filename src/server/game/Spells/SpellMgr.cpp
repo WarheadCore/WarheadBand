@@ -2216,6 +2216,7 @@ void SpellMgr::LoadSpellEnchantProcData()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();

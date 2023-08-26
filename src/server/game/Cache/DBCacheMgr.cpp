@@ -231,7 +231,6 @@ void DBCacheMgr::InitializeQuery()
     AddQuery(DBCacheTable::PlayerClassLevelStats);
     AddQuery(DBCacheTable::PlayerRaceStats);
     AddQuery(DBCacheTable::PlayerClassStats);
-    AddQuery(DBCacheTable::PlayerLevelStats);
     AddQuery(DBCacheTable::PlayerXpForLevel);
     AddQuery(DBCacheTable::ExplorationBasexp);
     AddQuery(DBCacheTable::PetNameGeneration);
