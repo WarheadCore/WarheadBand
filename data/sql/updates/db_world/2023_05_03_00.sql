@@ -1,15 +1,4 @@
 -- DB update 2023_05_01_00 -> 2023_05_03_00
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (34798, 34797, 34644, 34359, 34358, 27637, 34254, 34642, 34641);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(34798, 34798, 39121),
-(34797, 34797, 39120),
-(34644, 34644, 39122),
-(34359, 34359, 39128),
-(34358, 34358, 39127),
-(27637, 27637, 39125),
-(34254, 34254, 39126),
-(34642, 34642, 39347),
-(34641, 34641, 39129);
 
 -- Small Updates
 UPDATE `smart_scripts` SET `event_param1` = 7300, `event_param2` = 15350, `event_param3` = 18200, `event_param4` = 25700 WHERE (`entryorguid` = 19505) AND (`source_type` = 0) AND (`id` IN (1)); -- Sunseeker Channeler

@@ -1,12 +1,4 @@
 -- DB update 2023_05_03_03 -> 2023_05_09_00
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32191, 32193, 15234, 34944, 17139, 34945);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(32191, 32191, 37666),
-(32193, 32193, 37665),
-(15234, 15234, 37664),
-(34944, 34944, 37669),
-(17139, 17139, 36052),
-(34945, 34945, 39378);
 
 -- Small Updates
 UPDATE `smart_scripts` SET `event_param1` = 3600, `event_param2` = 9750, `event_param3` = 6050, `event_param4` = 9750 WHERE (`entryorguid` = 17964) AND (`source_type` = 0) AND (`id` IN (0, 1)); -- Wastewalker Worker

@@ -1,0 +1,79 @@
+--
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32860, 32858, 31975, 32861, 32863);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(32860, 32860, 38378),
+(32858, 32858, 38377),
+(31975, 31975, 35511),
+(32861, 32861, 38379),
+(32863, 32863, 38252);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32329, 34163, 34171, 31410, 31407, 22887);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(32329, 32329, 37965),
+(34163, 34163, 37967),
+(34171, 34171, 37956),
+(31410, 31410, 37973),
+(31407, 31407, 39413),
+(22887, 22887, 40317);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID`=34171;
+INSERT INTO `spelldifficulty_dbc` VALUES
+(34171,34171,37956,0,0);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (33617, 33783);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(33617, 33617, 39363),
+(33783, 33783, 39364);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (19130,30925,12739,30500,30495);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(19130, 19130, 40392),
+(30925, 30925, 40059),
+(12739, 12739, 15472),
+(30500, 30500, 35954),
+(30495, 30495, 35953);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32197, 40062, 30846);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(32197, 32197, 37113),
+(40062, 40062, 40064),
+(30846, 30846, 32784);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (34798, 34797, 34644, 34359, 34358, 27637, 34254, 34642, 34641);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(34798, 34798, 39121),
+(34797, 34797, 39120),
+(34644, 34644, 39122),
+(34359, 34359, 39128),
+(34358, 34358, 39127),
+(27637, 27637, 39125),
+(34254, 34254, 39126),
+(34642, 34642, 39347),
+(34641, 34641, 39129);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (8374,15039,33534,12548,33620,15659,38795);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(8374, 8374, 38761),
+(15039, 15039, 15616),
+(33534, 33534, 38135),
+(12548, 12548, 21401),
+(33620, 33620, 38137),
+(15659, 15659, 15305),
+(38795, 38795, 33666);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (36275, 36279, 36278, 36277);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(36275, 36275, 38533),
+(36279, 38534, 38533),
+(36278, 38536, 38533),
+(36277, 38535, 38533);
+
+DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32191, 32193, 15234, 34944, 17139, 34945);
+INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+(32191, 32191, 37666),
+(32193, 32193, 37665),
+(15234, 15234, 37664),
+(34944, 34944, 37669),
+(17139, 17139, 36052),
+(34945, 34945, 39378);
