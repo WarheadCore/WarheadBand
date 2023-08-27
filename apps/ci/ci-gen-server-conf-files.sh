@@ -7,7 +7,7 @@ MYSQL_ROOT_PASSWORD=${4:-""}
 cp ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf.dist ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
 
 # replace login info
-sed -i "s/127.0.0.1;3306;acore;acore/localhost;3306;root;$MYSQL_ROOT_PASSWORD/" ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
+sed -i "s/127.0.0.1;3306;warhead;warhead/localhost;3306;root;$MYSQL_ROOT_PASSWORD/" ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
 
 if [[ $APP_NAME == "worldserver" ]]; then
     sed -i 's/DataDir = \".\"/DataDir = \".\/data"/' ./env/dist/$CONFIG_FOLDER/$APP_NAME.conf
