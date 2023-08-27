@@ -1,9 +1,4 @@
 -- DB update 2023_05_10_06 -> 2023_05_10_07
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32197, 40062, 30846);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(32197, 32197, 37113),
-(40062, 40062, 40064),
-(30846, 30846, 32784);
 
 -- Small Updates
 UPDATE `smart_scripts` SET `event_param1` = 9300, `event_param2` = 18200, `event_param3` = 10950, `event_param4` = 23100 WHERE (`entryorguid` = 17626) AND (`source_type` = 0) AND (`id` = 1); -- Laughing Skull Legionnaire

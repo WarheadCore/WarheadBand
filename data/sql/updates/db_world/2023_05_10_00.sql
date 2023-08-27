@@ -1,12 +1,4 @@
 -- DB update 2023_05_09_02 -> 2023_05_10_00
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (32329, 34163, 34171, 31410, 31407, 22887);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(32329, 32329, 37965),
-(34163, 34163, 37967),
-(34171, 34171, 37956),
-(31410, 31410, 37973),
-(31407, 31407, 39413),
-(22887, 22887, 40317);
 
 -- Complete Rewrites
 DELETE FROM `smart_scripts` WHERE (`source_type` = 0 AND `entryorguid` IN (17871, 17723, 17724, 17731, 17732, 20465, 19632, 17726, 17728, 17771, 17735, 17727, 17729, 17734));
