@@ -184,48 +184,6 @@ int main(int argc, char** argv)
             printf("Failed to initialize timer resolution: %s\n", e.what());
         }
     }
-
-#endif
-
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
-    Optional<UINT> newTimerResolution;
-    boost::system::error_code dllError;
-
-    std::shared_ptr<boost::dll::shared_library> winmm(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
-    {
-        try
-        {
-            if (newTimerResolution)
-                lib->get<decltype(timeEndPeriod)>("timeEndPeriod")(*newTimerResolution);
-        }
-        catch (std::exception const&)
-        {
-            // ignore
-        }
-
-        delete lib;
-    });
-
-    if (winmm->is_loaded())
-    {
-        try
-        {
-            auto timeGetDevCapsPtr = winmm->get<decltype(timeGetDevCaps)>("timeGetDevCaps");
-
-            // setup timer resolution
-            TIMECAPS timeResolutionLimits;
-            if (timeGetDevCapsPtr(&timeResolutionLimits, sizeof(TIMECAPS)) == TIMERR_NOERROR)
-            {
-                auto timeBeginPeriodPtr = winmm->get<decltype(timeBeginPeriod)>("timeBeginPeriod");
-                newTimerResolution = std::min(std::max(timeResolutionLimits.wPeriodMin, 1u), timeResolutionLimits.wPeriodMax);
-                timeBeginPeriodPtr(*newTimerResolution);
-            }
-        }
-        catch (std::exception const& e)
-        {
-            fmt::print("Failed to initialize timer resolution: {}\n", e.what());
-        }
-    }
 #endif
 
     // Add file and args in config
