@@ -23,17 +23,20 @@
 
 namespace Warhead
 {
+    template<typename... Args>
+    using FormatString = fmt::format_string<Args...>;
+
     // Default string format function.
     template<typename... Args>
-    inline std::string StringFormat(std::string_view fmt, Args&&... args)
+    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
     {
         try
         {
             return fmt::format(fmt, std::forward<Args>(args)...);
         }
-        catch (const fmt::format_error& formatError)
+        catch (std::exception const& e)
         {
-            return fmt::format("An error occurred formatting string \"{}\": {}", fmt, formatError.what());
+            return fmt::format("Wrong format occurred ({}). Fmt string: '{}'", e.what(), fmt.get());
         }
     }
 
@@ -61,5 +64,10 @@ namespace Warhead::String
     // RegularExpression
     WH_COMMON_API uint32 PatternReplace(std::string& subject, std::string_view pattern, std::string_view replacement);
 }
+
+// Add support enum for fmt
+//template <typename T, std::enable_if_t<std::is_enum_v<T>, int> = 0>
+template <typename T, FMT_ENABLE_IF(std::is_enum_v<T>)>
+auto format_as(T f) { return fmt::underlying(f); }
 
 #endif

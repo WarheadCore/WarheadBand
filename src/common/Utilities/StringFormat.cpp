@@ -82,7 +82,7 @@ uint32 Warhead::String::PatternReplace(std::string& subject, std::string_view pa
     }
     catch (const RegularExpressionException& e)
     {
-        LOG_FATAL("util", "> Warhead::String::PatternReplace: {}", e.GetErrorMessage());
+        LOG_CRIT("util", "> Warhead::String::PatternReplace: {}", e.GetErrorMessage());
     }
 
     return 0;

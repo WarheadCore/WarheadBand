@@ -123,14 +123,14 @@ void DatabaseWorkerPool::MakeExtraFile()
     }
     catch (const std::error_code& error)
     {
-        LOG_FATAL("db.pool", "> Error at check '{}'. {}", extraFile.generic_string(), error.message());
+        LOG_CRIT("db.pool", "> Error at check '{}'. {}", extraFile.generic_string(), error.message());
         ABORT();
     }
 
     std::ofstream outfile(extraFile.generic_string());
     if (!outfile.is_open())
     {
-        LOG_FATAL("db.pool", "Failed to create extra file '{}'", extraFile.generic_string());
+        LOG_CRIT("db.pool", "Failed to create extra file '{}'", extraFile.generic_string());
         ABORT();
     }
 
@@ -214,6 +214,11 @@ std::pair<uint32, MySQLConnection*> DatabaseWorkerPool::OpenConnection(InternalI
         return { 1, nullptr };
     }
 
+    // Init statements before add to container
+    InitPrepareStatement(connection.get());
+    connection->SetInitStmts();
+
+    // Add connection to container
     auto& itrConnection = _connections[type].emplace_back(std::move(connection));
 
     // Everything is fine
@@ -650,7 +655,6 @@ void DatabaseWorkerPool::OpenDynamicAsyncConnect()
     if (error)
         return;
 
-    InitPrepareStatement(connection);
     ASSERT(connection->PrepareStatements(), "Can't register prepare statements for dynamic async connection");
 }
 
@@ -665,10 +669,7 @@ void DatabaseWorkerPool::OpenDynamicSyncConnect()
 
     auto [error, connection] = OpenConnection(IDX_SYNCH, true);
     if (!error)
-    {
-        InitPrepareStatement(connection);
         ASSERT(connection->PrepareStatements());
-    }
 }
 
 void DatabaseWorkerPool::GetPoolInfo(std::function<void(std::string_view)> const& info)

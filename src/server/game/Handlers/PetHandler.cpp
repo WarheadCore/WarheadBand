@@ -116,7 +116,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
             // xinef: allow to dissmis dead pets
             if ((*itr)->GetEntry() == pet->GetEntry() && ((*itr)->IsAlive() || (flag == ACT_COMMAND && spellId == COMMAND_ABANDON)))
                 controlled.push_back(*itr);
-            // xinef: mirror image blizzard crappness
+            // xinef: mirror image blizzard
             else if ((*itr)->GetEntry() == NPC_MIRROR_IMAGE && flag == ACT_COMMAND && spellId == COMMAND_FOLLOW)
             {
                 (*itr)->InterruptNonMeleeSpells(false);
@@ -326,7 +326,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     if (pet->ToPet())
                         pet->ToPet()->ClearCastWhenWillAvailable();
                     pet->ClearInPetCombat();
-                    [[fallthrough]]; // TODO: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
+                    [[fallthrough]]; /// @todo: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
 
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
@@ -535,7 +535,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                                 pet->SendPetAIReaction(guid1);
                             }
 
-                            pet->ToPet()->CastWhenWillAvailable(spellId, unit_target, nullptr, tempspellIsPositive);
+                            pet->ToPet()->CastWhenWillAvailable(spellId, unit_target, ObjectGuid::Empty, tempspellIsPositive);
                         }
                     }
                     else if (haspositiveeffect)
@@ -571,7 +571,11 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                                 pet->SendPetAIReaction(guid1);
                             }
 
-                            pet->ToPet()->CastWhenWillAvailable(spellId, unit_target, victim, tmpSpellIsPositive);
+                            ObjectGuid oldTarget = ObjectGuid::Empty;
+                            if (victim)
+                                oldTarget = victim->GetGUID();
+
+                            pet->ToPet()->CastWhenWillAvailable(spellId, unit_target, oldTarget, tmpSpellIsPositive);
                         }
                     }
                 }
@@ -863,6 +867,12 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     if (sObjectMgr->IsReservedName(name))
     {
         SendPetNameInvalid(PET_NAME_RESERVED, name, nullptr);
+        return;
+    }
+
+    if (sObjectMgr->IsProfanityName(name))
+    {
+        SendPetNameInvalid(PET_NAME_PROFANE, name, nullptr);
         return;
     }
 

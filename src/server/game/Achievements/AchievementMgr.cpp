@@ -355,7 +355,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
             if (!target)
                 return false;
-            return target->getLevel() >= level.minlevel;
+            return target->GetLevel() >= level.minlevel;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER:
             if (!target)
                 return false;
@@ -983,7 +983,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
                     if (!data->Meets(GetPlayer(), unit))
                         continue;
-                SetCriteriaProgress(achievementCriteria, GetPlayer()->getLevel());
+                SetCriteriaProgress(achievementCriteria, GetPlayer()->GetLevel());
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
                 // update at loading or specific skill update
@@ -2338,7 +2338,7 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
         *data << uint32(iter->first);
         data->appendPackGUID(iter->second.counter);
         *data << GetPlayer()->GetPackGUID();
-        *data << uint32(0); // TODO: This should be 1 if it is a failed timed criteria
+        *data << uint32(0); /// @todo: This should be 1 if it is a failed timed criteria
         data->AppendPackedTime(iter->second.date);
         *data << uint32(now - iter->second.date);
         *data << uint32(now - iter->second.date);
@@ -2389,6 +2389,11 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
         return false;
 
     return true;
+}
+
+CompletedAchievementMap const& AchievementMgr::GetCompletedAchievements()
+{
+    return _completedAchievements;
 }
 
 AchievementGlobalMgr* AchievementGlobalMgr::instance()
@@ -2477,6 +2482,12 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
         if (!criteria)
             continue;
+
+        if (!GetAchievement(criteria->referredAchievement))
+        {
+            LOG_DEBUG("server.loading", "Achievement {} referenced by criteria {} doesn't exist, criteria not loaded.", criteria->referredAchievement, criteria->ID);
+            continue;
+        }
 
         _achievementCriteriasByType[criteria->requiredType].push_back(criteria);
         _achievementCriteriaListByAchievement[criteria->referredAchievement].push_back(criteria);

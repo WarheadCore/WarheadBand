@@ -204,7 +204,7 @@ MapEnterState MapMgr::PlayerCannotEnter(uint32 mapid, Player* player, bool login
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
             // TODO: this is not a good place to send the message
-            Warhead::Text::SendAreaTriggerMessage(player->GetSession(), LANG_INSTANCE_RAID_GROUP_ONLY);
+            Warhead::Text::SendAreaTriggerMessage(player->GetSession(), LANG_INSTANCE_RAID_GROUP_ONLY), mapName;
             LOG_DEBUG("maps", "MAP: Player '{}' must be in a raid group to enter instance '{}'", player->GetName(), mapName);
             return CANNOT_ENTER_NOT_IN_RAID;
         }
@@ -361,7 +361,7 @@ bool MapMgr::IsValidMAP(uint32 mapid, bool startUp)
         return mEntry && (!mEntry->IsDungeon() || sObjectMgr->GetInstanceTemplate(mapid));
     }
 
-    // TODO: add check for battleground template
+    /// @todo: add check for battleground template
 }
 
 /*static*/ bool MapMgr::IsValidMapCoord(uint32 mapid, float x, float y)

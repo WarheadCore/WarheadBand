@@ -2551,6 +2551,7 @@ void Map::SendInitSelf(Player* player)
 {
     LOG_DEBUG("maps", "Creating player data for himself {}", player->GetGUID().ToString());
 
+    WorldPacket packet;
     UpdateData data;
 
     // attach to player data current transport data
@@ -2560,15 +2561,25 @@ void Map::SendInitSelf(Player* player)
     // build data for self presence in world at own client (one time for map)
     player->BuildCreateUpdateBlockForPlayer(&data, player);
 
+    // build and send self update packet before sending to player his own auras
+    data.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+
+    // send to player his own auras (this is needed here for timely initialization of some fields on client)
+    player->GetAurasForTarget(player, true);
+
+    // clean buffers for further work
+    packet.clear();
+    data.Clear();
+
     // build other passengers at transport also (they always visible and marked as visible and will not send at visibility update at add to map
     if (Transport* transport = player->GetTransport())
         for (auto itr : transport->GetPassengers())
             if (player != itr && player->HaveAtClient(itr))
                 itr->BuildCreateUpdateBlockForPlayer(&data, player);
 
-    WorldPacket packet;
     data.BuildPacket(&packet);
-    player->GetSession()->SendPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Map::SendInitTransports(Player* player)
@@ -2886,6 +2897,9 @@ void InstanceMap::InitVisibilityDistance()
         case 631: // Icecrown Citadel
         case 724: // Ruby Sanctum
             _visibleDistance = 200.0f;
+            break;
+        case 531: // Ahn'Qiraj Temple
+            _visibleDistance = 300.0f;
             break;
     }
 }
@@ -3906,7 +3920,7 @@ void Map::DoForAllPlayers(std::function<void(Player*)> exec)
 bool Map::CanReachPositionAndGetValidCoords(WorldObject const* source, PathGenerator *path, float &destX, float &destY, float &destZ, bool failOnCollision, bool failOnSlopes) const
 {
     G3D::Vector3 prevPath = path->GetStartPosition();
-    for (auto & vector : path->GetPath())
+    for (auto& vector : path->GetPath())
     {
         float x = vector.x;
         float y = vector.y;
@@ -3991,7 +4005,7 @@ bool Map::CheckCollisionAndGetValidCoords(WorldObject const* source, float start
     // Prevent invalid coordinates here, position is unchanged
     if (!Warhead::IsValidMapCoord(startX, startY, startZ) || !Warhead::IsValidMapCoord(destX, destY, destZ))
     {
-        LOG_FATAL("maps", "Map::CheckCollisionAndGetValidCoords invalid coordinates startX: {}, startY: {}, startZ: {}, destX: {}, destY: {}, destZ: {}", startX, startY, startZ, destX, destY, destZ);
+        LOG_CRIT("maps", "Map::CheckCollisionAndGetValidCoords invalid coordinates startX: {}, startY: {}, startZ: {}, destX: {}, destY: {}, destZ: {}", startX, startY, startZ, destX, destY, destZ);
         return false;
     }
 

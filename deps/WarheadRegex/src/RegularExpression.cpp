@@ -39,7 +39,7 @@ namespace
                 pcre2_match_data_free_8(_match);
 		}
 
-		std::uint32_t count() const
+		uint32_t count() const
 		{
 			return pcre2_get_ovector_count_8(_match);
 		}

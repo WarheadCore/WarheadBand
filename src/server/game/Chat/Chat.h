@@ -79,7 +79,7 @@ public:
     bool _ParseCommands(std::string_view text);
     virtual bool ParseCommands(std::string_view text);
 
-    void SendGlobalSysMessage(const char* str);
+    void SendGlobalSysMessage(std::string_view str);
 
     // function with different implementation for chat/console
     virtual bool IsHumanReadable() const { return true; }

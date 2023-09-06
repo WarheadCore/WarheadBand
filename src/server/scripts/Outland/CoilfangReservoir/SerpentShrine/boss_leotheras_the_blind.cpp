@@ -175,9 +175,9 @@ public:
             BossAI::JustDied(killer);
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
-            BossAI::EnterCombat(who);
+            BossAI::JustEngagedWith(who);
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
         }
 
@@ -297,7 +297,7 @@ public:
             me->DespawnOrUnsummon(1);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (!summoner)
                 return;

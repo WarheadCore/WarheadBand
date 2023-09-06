@@ -502,7 +502,7 @@ void OnlineRewardMgr::AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryRe
 
     if (_rewardHistory.contains(lowGuid))
     {
-        LOG_FATAL("module.or", "> OR: Time to ping @Winfidonarleyan. Code 2");
+        LOG_CRIT("module.or", "> OR: Time to ping @Winfidonarleyan. Code 2");
         _rewardHistory.erase(lowGuid);
     }
 
@@ -571,7 +571,7 @@ void OnlineRewardMgr::SendRewards()
         auto player = ObjectAccessor::FindPlayerByLowGUID(lowGuid);
         if (!player)
         {
-            LOG_FATAL("module.or", "> OR::RewardPlayers: Try reward non existing player (maybe offline) with guid {}. Skip reward, try next time", lowGuid);
+            LOG_CRIT("module.or", "> OR::RewardPlayers: Try reward non existing player (maybe offline) with guid {}. Skip reward, try next time", lowGuid);
             DeleteRewardHistory(lowGuid);
             continue;
         }
@@ -622,7 +622,7 @@ void OnlineRewardMgr::CorrectDBData()
     QueryResult result = CharacterDatabase.Query("SELECT `or`.`ID`, `orh`.`RewardID` FROM `wh_online_rewards_history` AS `orh` RIGHT JOIN `wh_online_rewards` AS `or` ON `orh`.`RewardID` = `or`.`ID`");
     if (!result)
     {
-        LOG_FATAL("module.or", "> OR: Time to ping @Winfidonarleyan. Code 1");
+        LOG_CRIT("module.or", "> OR: Time to ping @Winfidonarleyan. Code 1");
         return;
     }
 

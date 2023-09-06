@@ -68,7 +68,7 @@ void Transaction::Cleanup()
                 }
                 catch (const std::bad_variant_access& ex)
                 {
-                    LOG_FATAL("db.query", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
+                    LOG_CRIT("db.query", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
                     ABORT("");
                 }
             }
@@ -81,7 +81,7 @@ void Transaction::Cleanup()
                 }
                 catch (const std::bad_variant_access& ex)
                 {
-                    LOG_FATAL("db.query", "> std::string not found in SQLElementData. {}", ex.what());
+                    LOG_CRIT("db.query", "> std::string not found in SQLElementData. {}", ex.what());
                     ABORT("");
                 }
             }
@@ -109,7 +109,7 @@ void TransactionTask::ExecuteQuery()
             // Make sure only 1 async thread retries a transaction, so they don't keep deadlocking each other
             std::lock_guard<std::mutex> lock(_deadlockLock);
 
-            for (Milliseconds loopDuration = 0s, startMSTime = GetTimeMS(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
+            for (Milliseconds loopDuration{}, startMSTime = GetTimeMS(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
             {
                 if (!TryExecute())
                     return;
@@ -154,7 +154,7 @@ void TransactionWithResultTask::ExecuteQuery()
             // Make sure only 1 async thread retries a transaction, so they don't keep deadlocking each other
             std::lock_guard<std::mutex> lock(_deadlockLock);
 
-            for (Milliseconds loopDuration = 0s, startMSTime = GetTimeMS(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
+            for (Milliseconds loopDuration{}, startMSTime = GetTimeMS(); loopDuration <= DEADLOCK_MAX_RETRY_TIME_MS; loopDuration = GetMSTimeDiffToNow(startMSTime))
             {
                 if (!TryExecute())
                 {

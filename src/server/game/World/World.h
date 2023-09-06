@@ -183,24 +183,24 @@ public:
     bool KickSession(uint32 id);
     /// Get the number of current active sessions
     void UpdateMaxSessionCounters();
-    [[nodiscard]] const SessionMap& GetAllSessions() const { return m_sessions; }
-    [[nodiscard]] uint32 GetActiveAndQueuedSessionCount() const { return m_sessions.size(); }
-    [[nodiscard]] uint32 GetActiveSessionCount() const { return m_sessions.size() - m_QueuedPlayer.size(); }
-    [[nodiscard]] uint32 GetQueuedSessionCount() const { return m_QueuedPlayer.size(); }
+    [[nodiscard]] const SessionMap& GetAllSessions() const { return _sessions; }
+    [[nodiscard]] uint32 GetActiveAndQueuedSessionCount() const { return _sessions.size(); }
+    [[nodiscard]] uint32 GetActiveSessionCount() const { return _sessions.size() - _queuedPlayer.size(); }
+    [[nodiscard]] uint32 GetQueuedSessionCount() const { return _queuedPlayer.size(); }
     /// Get the maximum number of parallel sessions on the server since last reboot
-    [[nodiscard]] uint32 GetMaxQueuedSessionCount() const { return m_maxQueuedSessionCount; }
-    [[nodiscard]] uint32 GetMaxActiveSessionCount() const { return m_maxActiveSessionCount; }
+    [[nodiscard]] uint32 GetMaxQueuedSessionCount() const { return _maxQueuedSessionCount; }
+    [[nodiscard]] uint32 GetMaxActiveSessionCount() const { return _maxActiveSessionCount; }
     /// Get number of players
-    [[nodiscard]] inline uint32 GetPlayerCount() const { return m_PlayerCount; }
-    [[nodiscard]] inline uint32 GetMaxPlayerCount() const { return m_MaxPlayerCount; }
+    [[nodiscard]] inline uint32 GetPlayerCount() const { return _playerCount; }
+    [[nodiscard]] inline uint32 GetMaxPlayerCount() const { return _maxPlayerCount; }
 
     /// Increase/Decrease number of players
     inline void IncreasePlayerCount()
     {
-        m_PlayerCount++;
-        m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
+        _playerCount++;
+        _maxPlayerCount = std::max(_maxPlayerCount, _playerCount);
     }
-    inline void DecreasePlayerCount() { m_PlayerCount--; }
+    inline void DecreasePlayerCount() { _playerCount--; }
 
     Player* FindPlayerInZone(uint32 zone);
 
@@ -211,13 +211,13 @@ public:
     void SetClosed(bool val);
 
     /// Security level limitations
-    [[nodiscard]] AccountTypes GetPlayerSecurityLimit() const { return m_allowedSecurityLevel; }
+    [[nodiscard]] AccountTypes GetPlayerSecurityLimit() const { return _allowedSecurityLevel; }
     void SetPlayerSecurityLimit(AccountTypes sec);
     void LoadDBAllowedSecurityLevel();
 
     /// Active session server limit
-    void SetPlayerAmountLimit(uint32 limit) { m_playerLimit = limit; }
-    [[nodiscard]] uint32 GetPlayerAmountLimit() const { return m_playerLimit; }
+    void SetPlayerAmountLimit(uint32 limit) { _playerLimit = limit; }
+    [[nodiscard]] uint32 GetPlayerAmountLimit() const { return _playerLimit; }
 
     //player Queue
     typedef std::list<WorldSession*> Queue;
@@ -228,24 +228,24 @@ public:
 
     /// \todo Actions on m_allowMovement still to be implemented
     /// Is movement allowed?
-    [[nodiscard]] bool getAllowMovement() const { return m_allowMovement; }
+    [[nodiscard]] bool getAllowMovement() const { return _allowMovement; }
     /// Allow/Disallow object movements
-    void SetAllowMovement(bool allow) { m_allowMovement = allow; }
+    void SetAllowMovement(bool allow) { _allowMovement = allow; }
 
     /// Set the string for new characters (first login)
-    void SetNewCharString(std::string const& str) { m_newCharString = str; }
+    void SetNewCharString(std::string const& str) { _newCharString = str; }
     /// Get the string for new characters (first login)
-    [[nodiscard]] std::string const& GetNewCharString() const { return m_newCharString; }
+    [[nodiscard]] std::string const& GetNewCharString() const { return _newCharString; }
 
-    [[nodiscard]] LocaleConstant GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
+    [[nodiscard]] LocaleConstant GetDefaultDbcLocale() const { return _defaultDbcLocale; }
 
     /// Get the path where data (dbc, maps) are stored on disk
-    [[nodiscard]] std::string const& GetDataPath() const { return m_dataPath; }
+    [[nodiscard]] std::string const& GetDataPath() const { return _dataPath; }
 
     /// Next daily quests and random bg reset time
-    [[nodiscard]] Seconds GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
-    [[nodiscard]] Seconds GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
-    [[nodiscard]] Seconds GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
+    [[nodiscard]] Seconds GetNextDailyQuestsResetTime() const { return _nextDailyQuestReset; }
+    [[nodiscard]] Seconds GetNextWeeklyQuestsResetTime() const { return _nextWeeklyQuestReset; }
+    [[nodiscard]] Seconds GetNextRandomBGResetTime() const { return _nextRandomBGReset; }
 
     /// Get the maximum skill level a player can reach
     uint16 GetConfigMaxSkillValue() const;
@@ -266,9 +266,9 @@ public:
     void ShutdownServ(Seconds time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
     void ShutdownCancel();
     void ShutdownMsg(bool show = false, Player* player = nullptr, const std::string& reason = std::string());
-    static uint8 GetExitCode() { return m_ExitCode; }
-    static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
-    static bool IsStopped() { return m_stopEvent; }
+    static uint8 GetExitCode() { return _exitCode; }
+    static void StopNow(uint8 exitcode) { _stopEvent = true; _exitCode = exitcode; }
+    static bool IsStopped() { return _stopEvent; }
 
     void Update(uint32 diff);
 
@@ -286,9 +286,9 @@ public:
     void KickAllLess(AccountTypes sec);
 
     // for max speed access
-    static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
-    static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
-    static float GetMaxVisibleDistanceInBGArenas()      { return m_MaxVisibleDistanceInBGArenas;   }
+    static float GetMaxVisibleDistanceOnContinents()    { return _maxVisibleDistanceOnContinents; }
+    static float GetMaxVisibleDistanceInInstances()     { return _maxVisibleDistanceInInstances;  }
+    static float GetMaxVisibleDistanceInBGArenas()      { return _maxVisibleDistanceInBGArenas;   }
 
     // our: needed for arena spectator subscriptions
     uint32 GetNextWhoListUpdateDelaySecs();
@@ -297,20 +297,20 @@ public:
 
     void UpdateRealmCharCount(uint32 accid);
 
-    [[nodiscard]] LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
+    [[nodiscard]] LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (_availableDbcLocaleMask & (1 << locale)) return locale; else return _defaultDbcLocale; }
 
     // used World DB version
     void LoadDBVersion();
-    [[nodiscard]] char const* GetDBVersion() const { return m_DBVersion.c_str(); }
+    [[nodiscard]] std::string_view GetDBVersion() const { return _dbVersion; }
 
     void UpdateAreaDependentAuras();
 
-    [[nodiscard]] uint32 GetCleaningFlags() const { return m_CleaningFlags; }
-    void SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+    [[nodiscard]] uint32 GetCleaningFlags() const { return _cleaningFlags; }
+    void SetCleaningFlags(uint32 flags) { _cleaningFlags = flags; }
     void ResetEventSeasonalQuests(uint16 event_id);
 
-    [[nodiscard]] std::string const& GetRealmName() const { return _realmName; } // pussywizard
-    void SetRealmName(std::string name) { _realmName = name; } // pussywizard
+    [[nodiscard]] std::string_view GetRealmName() const { return _realmName; } // pussywizard
+    void SetRealmName(std::string_view name) { _realmName = name; } // pussywizard
 
     void RemoveOldCorpses();
 
@@ -343,63 +343,63 @@ protected:
     void ResetGuildCap();
 
 private:
-    static std::atomic_long m_stopEvent;
-    static uint8 m_ExitCode;
-    Seconds _shutdownTimer{};
-    uint32 _shutdownMask{};
+    static std::atomic_long _stopEvent;
+    static uint8 _exitCode;
+    Seconds _shutdownTimer;
+    uint32 _shutdownMask;
 
-    uint32 m_CleaningFlags;
+    uint32 _cleaningFlags;
 
-    bool m_isClosed;
+    bool _isClosed;
 
-    IntervalTimer m_timers[WUPDATE_COUNT];
-    Seconds mail_expire_check_timer;
+    IntervalTimer _timers[WUPDATE_COUNT];
+    Seconds _mail_expire_check_timer;
 
-    SessionMap m_sessions;
-    SessionMap m_offlineSessions;
+    SessionMap _sessions;
+    SessionMap _offlineSessions;
     typedef std::unordered_map<uint32, time_t> DisconnectMap;
-    DisconnectMap m_disconnects;
-    uint32 m_maxActiveSessionCount;
-    uint32 m_maxQueuedSessionCount;
-    uint32 m_PlayerCount;
-    uint32 m_MaxPlayerCount;
+    DisconnectMap _disconnects;
+    uint32 _maxActiveSessionCount;
+    uint32 _maxQueuedSessionCount;
+    uint32 _playerCount;
+    uint32 _maxPlayerCount;
 
-    std::string m_newCharString;
+    std::string _newCharString;
 
     typedef std::map<uint32, uint64> WorldStatesMap;
-    WorldStatesMap m_worldstates;
-    uint32 m_playerLimit;
-    AccountTypes m_allowedSecurityLevel;
-    LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
-    uint32 m_availableDbcLocaleMask;                       // by loaded DBC
+    WorldStatesMap _worldstates;
+    uint32 _playerLimit;
+    AccountTypes _allowedSecurityLevel;
+    LocaleConstant _defaultDbcLocale;                     // from config for one from loaded DBC locales
+    uint32 _availableDbcLocaleMask;                       // by loaded DBC
     void DetectDBCLang();
-    bool m_allowMovement;
-    std::string m_dataPath;
+    bool _allowMovement;
+    std::string _dataPath;
 
     // for max speed access
-    static float m_MaxVisibleDistanceOnContinents;
-    static float m_MaxVisibleDistanceInInstances;
-    static float m_MaxVisibleDistanceInBGArenas;
+    static float _maxVisibleDistanceOnContinents;
+    static float _maxVisibleDistanceInInstances;
+    static float _maxVisibleDistanceInBGArenas;
 
     std::string _realmName;
 
     // next daily quests and random bg reset time
-    Seconds m_NextDailyQuestReset;
-    Seconds m_NextWeeklyQuestReset;
-    Seconds m_NextMonthlyQuestReset;
-    Seconds m_NextRandomBGReset;
-    Seconds m_NextCalendarOldEventsDeletionTime;
-    Seconds m_NextGuildReset;
+    Seconds _nextDailyQuestReset;
+    Seconds _nextWeeklyQuestReset;
+    Seconds _nextMonthlyQuestReset;
+    Seconds _nextRandomBGReset;
+    Seconds _nextCalendarOldEventsDeletionTime;
+    Seconds _nextGuildReset;
 
     //Player Queue
-    Queue m_QueuedPlayer;
+    Queue _queuedPlayer;
 
     // sessions that are added async
     void AddSession_(WorldSession* s);
-    LockedQueue<WorldSession*> addSessQueue;
+    LockedQueue<WorldSession*> _addSessQueue;
 
     // used versions
-    std::string m_DBVersion;
+    std::string _dbVersion;
 
     void ProcessQueryCallbacks();
     QueryCallbackProcessor _queryProcessor;

@@ -55,7 +55,7 @@ void ItemLevelUpMgr::LoadConfig(bool /*reload*/)
         // If invalid - skip
         if (tokens.size() != 5)
         {
-            LOG_FATAL("module", "> ItemLevelUpMgr: Incorrect teleport location: {}. Disable module", locationInfo);
+            LOG_CRIT("module", "> ItemLevelUpMgr: Incorrect teleport location: {}. Disable module", locationInfo);
             _isEnable = false;
             return;
         }

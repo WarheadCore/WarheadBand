@@ -28,7 +28,6 @@
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
 #include "DeadlineTimer.h"
-#include "DiscordChannel.h"
 #include "GameConfig.h"
 #include "GitRevision.h"
 #include "IoContext.h"
@@ -77,6 +76,9 @@ char serviceDescription[] = "WarheadCore World of Warcraft emulator world servic
  *  2 - paused
  */
 int m_ServiceStatus = -1;
+
+#include <boost/dll/shared_library.hpp>
+#include <timeapi.h>
 #endif
 
 #ifndef _WARHEAD_CORE_CONFIG
@@ -145,12 +147,9 @@ int main(int argc, char** argv)
         return WinServiceUninstall() == true ? 0 : 1;
     else if (configService.compare("run") == 0)
         WinServiceRun();
-#endif
 
-#if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
-
     std::shared_ptr<boost::dll::shared_library> winmm(new boost::dll::shared_library("winmm.dll", dllError, boost::dll::load_mode::search_system_folders), [&](boost::dll::shared_library* lib)
     {
         try
@@ -171,7 +170,6 @@ int main(int argc, char** argv)
         try
         {
             auto timeGetDevCapsPtr = winmm->get<decltype(timeGetDevCaps)>("timeGetDevCaps");
-
             // setup timer resolution
             TIMECAPS timeResolutionLimits;
             if (timeGetDevCapsPtr(&timeResolutionLimits, sizeof(TIMECAPS)) == TIMERR_NOERROR)
@@ -183,7 +181,7 @@ int main(int argc, char** argv)
         }
         catch (std::exception const& e)
         {
-            fmt::print("Failed to initialize timer resolution: {}\n", e.what());
+            printf("Failed to initialize timer resolution: %s\n", e.what());
         }
     }
 #endif
@@ -195,7 +193,6 @@ int main(int argc, char** argv)
         return 1;
 
     // Init all logs
-    sLog->RegisterChannel<Warhead::DiscordChannel>();
     sLog->Initialize();
 
     Warhead::Logo::Show("worldserver",
@@ -395,7 +392,7 @@ int main(int argc, char** argv)
 
     WorldUpdateLoop();
 
-    // Shutdown starts here
+    // Clear starts here
     sIoContextMgr->Stop();
 
     sScriptMgr->OnShutdown();
@@ -541,6 +538,7 @@ void ShutdownCLIThread(std::thread* cliThread)
 
 void WorldUpdateLoop()
 {
+    uint32 minUpdateDiff = uint32(sConfigMgr->GetOption<int32>("MinWorldUpdateTime", 1));
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
@@ -594,10 +592,14 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 freezeDetector->_worldLoopCounter = worldLoopCounter;
             }
             // possible freeze
-            else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
+            else
             {
-                LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-                ABORT();
+                uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
+                if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
+                {
+                    LOG_ERROR("server.worldserver", "World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
+                    ABORT("World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
+                }
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));

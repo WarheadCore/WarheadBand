@@ -147,6 +147,9 @@ class WH_COMMON_API TaskScheduler
 
         void ModifyIf(std::function<bool(TaskContainer const&)> const& filter);
 
+        /// Check if the group exists and is currently scheduled.
+        bool IsGroupQueued(group_t const group);
+
         bool IsEmpty() const;
     };
 
@@ -270,6 +273,9 @@ public:
     /// Cancels all groups in the given std::vector.
     /// Hint: Use std::initializer_list for this: "{1, 2, 3, 4}"
     TaskScheduler& CancelGroupsOf(std::vector<group_t> const& groups);
+
+    /// Check if the group exists and is currently scheduled.
+    bool IsGroupScheduled(group_t const group);
 
     /// Delays all tasks with the given duration.
     template<class _Rep, class _Period>

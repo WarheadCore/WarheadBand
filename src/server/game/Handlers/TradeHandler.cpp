@@ -532,7 +532,7 @@ void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::SendCancelTrade()
 {
-    if (PlayerLogout())
+    if (PlayerRecentlyLoggedOut() || PlayerLogout())
         return;
 
     SendTradeStatus(TRADE_STATUS_TRADE_CANCELED);
@@ -540,7 +540,9 @@ void WorldSession::SendCancelTrade()
 
 void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    _player->TradeCancel(true);
+    // sended also after LOGOUT COMPLETE
+    if (_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
+        _player->TradeCancel(true);
 }
 
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
@@ -575,7 +577,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (GetPlayer()->getLevel() < CONF_GET_INT("LevelReq.Trade"))
+    if (GetPlayer()->GetLevel() < CONF_GET_INT("LevelReq.Trade"))
     {
         Warhead::Text::SendNotification(this, LANG_TRADE_REQ, CONF_GET_INT("LevelReq.Trade"));
         return;
@@ -640,7 +642,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pOther->getLevel() < CONF_GET_INT("LevelReq.Trade"))
+    if (pOther->GetLevel() < CONF_GET_INT("LevelReq.Trade"))
     {
         Warhead::Text::SendNotification(this, LANG_TRADE_OTHER_REQ, CONF_GET_INT("LevelReq.Trade"));
         return;

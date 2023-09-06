@@ -25,7 +25,7 @@
 #include "Duration.h"
 #include "Log.h"
 #include "SRP6.h"
-#include "ServerMotd.h"
+#include "MotdMgr.h"
 #include "Util.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
@@ -77,7 +77,7 @@ void RASession::Start()
     LOG_INFO("commands.ra", "User {} (IP: {}) authenticated correctly to RA", username, GetRemoteIpAddress());
 
     // Authentication successful, send the motd
-    Send(std::string(std::string(Motd::GetMotd()) + "\r\n").c_str());
+    Send(std::string(std::string(sMotdMgr->GetMotd()) + "\r\n").c_str());
 
     // Read commands
     for (;;)

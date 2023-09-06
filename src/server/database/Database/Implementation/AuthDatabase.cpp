@@ -133,6 +133,10 @@ void AuthDatabasePool::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET, "SELECT totp_secret FROM account WHERE id = ?", ConnectionFlags::Sync);
     PrepareStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET, "UPDATE account SET totp_secret = ? WHERE id = ?", ConnectionFlags::Async);
 
+    // Motd
+    PrepareStatement(LOGIN_SEL_MOTD, "SELECT text FROM motd WHERE realmid = ? OR realmid = -1 ORDER BY realmid DESC", ConnectionFlags::Sync);
+    PrepareStatement(LOGIN_REP_MOTD, "REPLACE INTO motd (realmid, text) VALUES (?, ?)", ConnectionFlags::Async);
+
     // Mute system
     PrepareStatement(LOGIN_INS_ACCOUNT_MUTE, "INSERT INTO `account_muted` (`accountid`, `mutedate`, `mutetime`, `mutedby`, `mutereason`, `active`) VALUES (?, ?, ?, ?, ?, 1)", ConnectionFlags::Async);
     PrepareStatement(LOGIN_UPD_ACCOUNT_MUTE_DATE, "UPDATE `account_muted` SET `mutedate` = ? WHERE `accountid` = ? AND `active` = 1", ConnectionFlags::Async);

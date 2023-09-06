@@ -30,9 +30,9 @@ static void SignalHandler(boost::system::error_code const& error, int signalNumb
             ioContext->stop();
 
 #if WARHEAD_PLATFORM != WARHEAD_PLATFORM_WINDOWS
-        LOG_FATAL("server", "Caught signal {}: {}", signalNumber, strsignal(signalNumber));
+        LOG_WARN("server", "Caught signal {}: {}", signalNumber, strsignal(signalNumber));
 #else
-        LOG_FATAL("server", "Caught signal {}", signalNumber);
+        LOG_WARN("server", "Caught signal {}", signalNumber);
 #endif
     }
 }

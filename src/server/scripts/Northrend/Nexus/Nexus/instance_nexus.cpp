@@ -47,6 +47,7 @@ public:
 
         void Initialize() override
         {
+            SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTERS);
             LoadDoorData(doorData);
         }
@@ -155,34 +156,6 @@ public:
                 (*i)->RemoveGameObjectFlag(GO_FLAG_NOT_SELECTABLE);
             return true;
         }
-
-        std::string GetSaveData() override
-        {
-            std::ostringstream saveStream;
-            saveStream << "N E X " << GetBossSaveData();
-            return saveStream.str();
-        }
-
-        void Load(const char* in) override
-        {
-            if( !in )
-                return;
-
-            char dataHead1, dataHead2, dataHead3;
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> dataHead3;
-            if (dataHead1 == 'N' && dataHead2 == 'E' && dataHead3 == 'X')
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
-                }
-            }
-        }
     };
 };
 
@@ -225,7 +198,7 @@ public:
             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit*) override
+        void JustEngagedWith(Unit*) override
         {
             _allowDeath = me->GetInstanceScript()->GetBossState(DATA_ORMOROK_EVENT) == DONE;
         }

@@ -63,7 +63,7 @@ GuildCriteriaProgressStruct* GuildCriteria::GetProgress(uint32 criteriaID, bool 
         if (_progress != _guildCriteriaProgress.end())
             return &_progress->second;
 
-        LOG_FATAL("module.gls", "> GLS: Not found criteria progress ({}) after insert empty", criteriaID);
+        LOG_CRIT("module.gls", "> GLS: Not found criteria progress ({}) after insert empty", criteriaID);
     }
 
     return nullptr;
@@ -73,7 +73,7 @@ GuildCriteriaStruct* GuildCriteria::GetCriteria(uint32 criteriaID)
 {
     auto const& criteria = _guildCriteria.find(criteriaID);
     if (criteria == _guildCriteria.end())
-        LOG_FATAL("module.gls", "> GLS: Not found criteria ({}) for guild id ({})", criteriaID, _guildID);
+        LOG_CRIT("module.gls", "> GLS: Not found criteria ({}) for guild id ({})", criteriaID, _guildID);
 
     return &criteria->second;
 }
@@ -90,7 +90,7 @@ void GuildCriteria::RescalingCriterias()
     uint32 members = guild ? guild->GetMemberCount() : 0;
 
     if (!members)
-        LOG_FATAL("module.gls", "> GLS: No members count in guild ({})", _guildID);
+        LOG_CRIT("module.gls", "> GLS: No members count in guild ({})", _guildID);
 
     for (auto& itr : _guildCriteria)
     {
@@ -425,19 +425,19 @@ void GuildLevelSystem::LoadBaseCriteria()
 
         if (static_cast<uint32>(listItemIDTokens.size()) > GLS_ITEMS_COUNT)
         {
-            LOG_FATAL("module.gls", "> GLS: List items for CriteriaID ({}) > {}", criteriaID, GLS_ITEMS_COUNT);
+            LOG_CRIT("module.gls", "> GLS: List items for CriteriaID ({}) > {}", criteriaID, GLS_ITEMS_COUNT);
             continue;
         }
 
         if (static_cast<uint32>(listItemCountTokens.size()) > GLS_ITEMS_COUNT)
         {
-            LOG_FATAL("module.gls", "> GLS: List items count for CriteriaID ({}) > {}", criteriaID, GLS_ITEMS_COUNT);
+            LOG_CRIT("module.gls", "> GLS: List items count for CriteriaID ({}) > {}", criteriaID, GLS_ITEMS_COUNT);
             continue;
         }
 
         if (listItemIDTokens.size() != listItemCountTokens.size())
         {
-            LOG_FATAL("module.gls", "> GLS: Differenst size data between `ListItemID` and `ListItemCount`");
+            LOG_CRIT("module.gls", "> GLS: Differenst size data between `ListItemID` and `ListItemCount`");
             continue;
         }
 
@@ -465,7 +465,7 @@ void GuildLevelSystem::LoadBaseCriteria()
 
         if (static_cast<uint32>(listRewardSpellsTokens.size()) > GLS_SPELLS_REWARD_COUNT)
         {
-            LOG_FATAL("module.gls", "> GLS: List reward spells for CriteriaID ({}) > {}", criteriaID, GLS_SPELLS_REWARD_COUNT);
+            LOG_CRIT("module.gls", "> GLS: List reward spells for CriteriaID ({}) > {}", criteriaID, GLS_SPELLS_REWARD_COUNT);
             continue;
         }
 
@@ -554,21 +554,21 @@ void GuildLevelSystem::LoadCriteriaProgress()
 
         if (static_cast<uint32>(listItemCountTokens.size()) > GLS_ITEMS_COUNT)
         {
-            LOG_FATAL("module.gls", "> GLS: List items count for CriteriaID ({}) > {}", criteriaID, GLS_ITEMS_COUNT);
+            LOG_CRIT("module.gls", "> GLS: List items count for CriteriaID ({}) > {}", criteriaID, GLS_ITEMS_COUNT);
             continue;
         }
 
         // Check spell
         if (spellID && !sSpellMgr->GetSpellInfo(spellID))
         {
-            LOG_FATAL("module.gls", "> GLS: spell ({}) for CriteriaID ({}) is invalid", spellID, criteriaID);
+            LOG_CRIT("module.gls", "> GLS: spell ({}) for CriteriaID ({}) is invalid", spellID, criteriaID);
             continue;
         }
 
         // Check wtf logic
         if (!spellID && isDone)
         {
-            LOG_FATAL("module.gls", "> GLS: CriteriaID ({}) is done and spell not selectable!", criteriaID);
+            LOG_CRIT("module.gls", "> GLS: CriteriaID ({}) is done and spell not selectable!", criteriaID);
             continue;
         }
 
@@ -767,7 +767,7 @@ GuildCriteria* GuildLevelSystem::GetCriteriaProgress(uint32 guildid, bool forceC
         if (_itr != _guildCriteriaProgress.end())
             return _itr->second;
 
-        LOG_FATAL("module.gls", "> GLS: Invalid create empty guild criteria for guild ({})", guildid);
+        LOG_CRIT("module.gls", "> GLS: Invalid create empty guild criteria for guild ({})", guildid);
     }
 
     return nullptr;
@@ -779,7 +779,7 @@ GuildCriteriaStruct* GuildLevelSystem::GetCriteriaBase(uint32 criteriaID)
     if (itr != _guildCriteriaBase.end())
         return &itr->second;
 
-    LOG_FATAL("module.gls", "> GLS: Not found base criteria ({})", criteriaID);
+    LOG_CRIT("module.gls", "> GLS: Not found base criteria ({})", criteriaID);
 
     return nullptr;
 }
@@ -790,7 +790,7 @@ uint32 GuildLevelSystem::GetMaxCriteriaItemCountBase(uint32 criteriaID, uint8 it
     if (itr != _guildCriteriaBase.end())
         return itr->second.ItemCount[itemType];
 
-    LOG_FATAL("module.gls", "> GLS: Not found base criteria ({})", criteriaID);
+    LOG_CRIT("module.gls", "> GLS: Not found base criteria ({})", criteriaID);
 
     return 0;
 }
@@ -996,7 +996,7 @@ void GuildLevelSystem::GetRewardsCriteria(Player* player, Creature* /* creature 
 
     if (spellType >= GLS_SPELLS_REWARD_COUNT)
     {
-        LOG_FATAL("module.gls", "> GLS: spellType({}) >= GLS_SPELLS_REWARD_COUNT({})", spellType, GLS_SPELLS_REWARD_COUNT);
+        LOG_CRIT("module.gls", "> GLS: spellType({}) >= GLS_SPELLS_REWARD_COUNT({})", spellType, GLS_SPELLS_REWARD_COUNT);
         return;
     }
 
@@ -1175,7 +1175,7 @@ uint32 GuildLevelSystem::GetCountCriteriaInStage(uint32 stageID)
     if (_stages != _guildStages.end())
         return static_cast<uint32>(_stages->second.size());
 
-    LOG_FATAL("module.gls", "> GLS: Not find stage {}", stageID);
+    LOG_CRIT("module.gls", "> GLS: Not find stage {}", stageID);
 
     return 0;
 }
@@ -1188,7 +1188,7 @@ uint32 GuildLevelSystem::GetNextStage(uint32 currStage)
         if (nextStage == itr.first)
             return nextStage;
 
-    LOG_FATAL("module.gls", "> GLS: Not found next stage after {}", currStage);
+    LOG_CRIT("module.gls", "> GLS: Not found next stage after {}", currStage);
 
     return currStage;
 }

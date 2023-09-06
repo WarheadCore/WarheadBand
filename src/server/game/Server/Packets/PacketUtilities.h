@@ -21,6 +21,7 @@
 #include "ByteBuffer.h"
 #include "Tuples.h"
 #include <string_view>
+#include <fmt/format.h>
 
 namespace WorldPackets
 {
@@ -271,5 +272,14 @@ namespace WorldPackets
         return data;
     }
 }
+
+template<std::size_t MaxBytesWithoutNullTerminator, typename... Validators>
+struct fmt::formatter<WorldPackets::String<MaxBytesWithoutNullTerminator, Validators...>> : fmt::formatter<std::string_view>
+{
+    auto format(WorldPackets::String<MaxBytesWithoutNullTerminator, Validators...> const& str, format_context& ctx) const
+    {
+        return fmt::formatter<std::string_view>::format(std::string_view(str), ctx);
+    }
+};
 
 #endif // PacketUtilities_h__

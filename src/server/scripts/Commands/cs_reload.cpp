@@ -39,6 +39,7 @@ EndScriptData */
 #include "LFGMgr.h"
 #include "Language.h"
 #include "MapMgr.h"
+#include "MotdMgr.h"
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
 #include "SkillDiscovery.h"
@@ -87,6 +88,7 @@ public:
             { "areatrigger_tavern",            HandleReloadAreaTriggerTavernCommand,          SEC_ADMINISTRATOR, Console::Yes },
             { "areatrigger_teleport",          HandleReloadAreaTriggerTeleportCommand,        SEC_ADMINISTRATOR, Console::Yes },
             { "autobroadcast",                 HandleReloadAutobroadcastCommand,              SEC_ADMINISTRATOR, Console::Yes },
+            { "motd",                          HandleReloadMotdCommand,                       SEC_ADMINISTRATOR, Console::Yes },
             { "broadcast_text",                HandleReloadBroadcastTextCommand,              SEC_ADMINISTRATOR, Console::Yes },
             { "battleground_template",         HandleReloadBattlegroundTemplate,              SEC_ADMINISTRATOR, Console::Yes },
             { "command",                       HandleReloadCommandCommand,                    SEC_ADMINISTRATOR, Console::Yes },
@@ -149,6 +151,7 @@ public:
             { "quest_template",                HandleReloadQuestTemplateCommand,              SEC_ADMINISTRATOR, Console::Yes },
             { "reference_loot_template",       HandleReloadLootTemplatesReferenceCommand,     SEC_ADMINISTRATOR, Console::Yes },
             { "reserved_name",                 HandleReloadReservedNameCommand,               SEC_ADMINISTRATOR, Console::Yes },
+            { "profanity_name",                HandleReloadProfanityNameCommand,              SEC_ADMINISTRATOR, Console::Yes },
             { "reputation_reward_rate",        HandleReloadReputationRewardRateCommand,       SEC_ADMINISTRATOR, Console::Yes },
             { "reputation_spillover_template", HandleReloadReputationRewardRateCommand,       SEC_ADMINISTRATOR, Console::Yes },
             { "skill_discovery_template",      HandleReloadSkillDiscoveryTemplateCommand,     SEC_ADMINISTRATOR, Console::Yes },
@@ -211,6 +214,7 @@ public:
         HandleReloadCommandCommand(handler);
         HandleReloadReservedNameCommand(handler);
         HandleReloadWarheadStringCommand(handler);
+        HandleReloadProfanityNameCommand(handler);
         HandleReloadGameTeleCommand(handler);
         HandleReloadCreatureMovementOverrideCommand(handler);
 
@@ -218,6 +222,7 @@ public:
         HandleReloadVehicleTemplateAccessoryCommand(handler);
 
         HandleReloadAutobroadcastCommand(handler);
+        HandleReloadMotdCommand(handler);
         HandleReloadBroadcastTextCommand(handler);
         HandleReloadBattlegroundTemplate(handler);
         return true;
@@ -410,6 +415,15 @@ public:
         LOG_INFO("server.loading", "Re-Loading Autobroadcasts...");
         sAutobroadcastMgr->Load();
         handler->SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadMotdCommand(ChatHandler* handler)
+    {
+        LOG_INFO("server.loading", "Re-Loading Motd...");
+        sMotdMgr->LoadMotd();
+        handler->SendGlobalGMSysMessage("DB table `motd` reloaded.");
+        handler->SendGlobalSysMessage(sMotdMgr->GetMotd());
         return true;
     }
 
@@ -792,9 +806,17 @@ public:
 
     static bool HandleReloadReservedNameCommand(ChatHandler* handler)
     {
-        LOG_INFO("server.loading", "Loading ReservedNames... (`reserved_name`)");
+        LOG_INFO("server.loading", "Re-Loading `reserved_player` Table!");
         sObjectMgr->LoadReservedPlayersNames();
-        handler->SendGlobalGMSysMessage("DB table `reserved_name` (player reserved names) reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `reserved_name` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadProfanityNameCommand(ChatHandler* handler)
+    {
+        LOG_INFO("server.loading", "Re-Loading `profanity_player` Table!");
+        sObjectMgr->LoadProfanityPlayersNames();
+        handler->SendGlobalGMSysMessage("DB table `profanity_player` reloaded.");
         return true;
     }
 

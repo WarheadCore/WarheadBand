@@ -156,12 +156,12 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
     LOG_DEBUG("network", "CMSG_LFG_PLAYER_LOCK_INFO_REQUEST [{}]", guid.ToString());
 
     // Get Random dungeons that can be done at a certain level and expansion
-    uint8 level = GetPlayer()->getLevel();
+    uint8 level = GetPlayer()->GetLevel();
     lfg::LfgDungeonSet const& randomDungeons =
         sLFGMgr->GetRandomAndSeasonalDungeons(level, GetPlayer()->GetSession()->Expansion());
 
     // Get player locked Dungeons
-    sLFGMgr->InitializeLockedDungeons(GetPlayer()); // pussywizard
+    sLFGMgr->InitializeLockedDungeons(GetPlayer(), GetPlayer()->GetGroup()); // pussywizard
     lfg::LfgLockMap const& lock = sLFGMgr->GetLockedDungeons(guid);
     uint32 rsize = uint32(randomDungeons.size());
     uint32 lsize = uint32(lock.size());
@@ -189,7 +189,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
 
         if (quest)
         {
-            uint8 playerLevel = GetPlayer() ? GetPlayer()->getLevel() : 0;
+            uint8 playerLevel = GetPlayer() ? GetPlayer()->GetLevel() : 0;
             data << uint8(done);
             data << uint32(quest->GetRewOrReqMoney(playerLevel));
             data << uint32(quest->XPValue(playerLevel));
@@ -243,7 +243,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket&  /*recvData*
         if (pguid == guid)
             continue;
 
-        sLFGMgr->InitializeLockedDungeons(plrg); // pussywizard
+        sLFGMgr->InitializeLockedDungeons(plrg, group); // pussywizard
         lockMap[pguid] = sLFGMgr->GetLockedDungeons(pguid);
     }
 
@@ -312,11 +312,12 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
             break;
     }
 
-    LOG_DEBUG("lfg", "SMSG_LFG_UPDATE_PLAYER {} updatetype: {}",
-                   GetPlayerInfo(), updateData.updateType);
+    LOG_DEBUG("lfg", "SMSG_LFG_UPDATE_PLAYER {} updatetype: {}", GetPlayerInfo(), updateData.updateType);
+
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
     data << uint8(size > 0);                               // Extra info
+
     if (size)
     {
         data << uint8(queued);                             // Join the queue
@@ -328,6 +329,7 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
             data << uint32(*it);
         data << updateData.comment;
     }
+
     SendPacket(&data);
 }
 
@@ -358,6 +360,7 @@ void WorldSession::SendLfgUpdateParty(lfg::LfgUpdateData const& updateData)
     WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (size > 0 ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
     data << uint8(updateData.updateType);                  // Lfg Update type
     data << uint8(size > 0);                               // Extra info
+
     if (size)
     {
         data << uint8(join);                               // LFG Join
@@ -414,7 +417,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
         data << uint8(roles > 0);                          // Ready
         data << uint32(roles);                             // Roles
         Player* player = ObjectAccessor::FindConnectedPlayer(guid);
-        data << uint8(player ? player->getLevel() : 0);    // Level
+        data << uint8(player ? player->GetLevel() : 0);    // Level
 
         for (lfg::LfgRolesMap::const_iterator it = roleCheck.roles.begin(); it != roleCheck.roles.end(); ++it)
         {
@@ -427,7 +430,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
             data << uint8(roles > 0);                      // Ready
             data << uint32(roles);                         // Roles
             player = ObjectAccessor::FindConnectedPlayer(guid);
-            data << uint8(player ? player->getLevel() : 0);// Level
+            data << uint8(player ? player->GetLevel() : 0);// Level
         }
     }
     SendPacket(&data);
@@ -477,7 +480,7 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
 
     uint8 itemNum = rewardData.quest->GetRewItemsCount();
 
-    uint8 playerLevel = GetPlayer() ? GetPlayer()->getLevel() : 0;
+    uint8 playerLevel = GetPlayer() ? GetPlayer()->GetLevel() : 0;
 
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
     data << uint32(rewardData.rdungeonEntry);              // Random Dungeon Finished
@@ -510,15 +513,17 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
     uint32 secsleft = boot.cancelTime - GameTime::GetGameTime().count();
-    for (lfg::LfgAnswerContainer::const_iterator it = boot.votes.begin(); it != boot.votes.end(); ++it)
+
+    for (auto vote : boot.votes)
     {
-        if (it->second != lfg::LFG_ANSWER_PENDING)
+        if (vote.second != lfg::LFG_ANSWER_PENDING)
         {
             ++votesNum;
-            if (it->second == lfg::LFG_ANSWER_AGREE)
+            if (vote.second == lfg::LFG_ANSWER_AGREE)
                 ++agreeNum;
         }
     }
+
     LOG_DEBUG("network", "SMSG_LFG_BOOT_PROPOSAL_UPDATE [{}] inProgress: {} - didVote: {} - agree: {} - victim: [{}] votes: {} - agrees: {} - left: {} - needed: {} - reason {}",
                    guid.ToString(), uint8(boot.inProgress), uint8(playerVote != lfg::LFG_ANSWER_PENDING), uint8(playerVote == lfg::LFG_ANSWER_AGREE),
                    boot.victim.ToString(), votesNum, agreeNum, secsleft, lfg::LFG_GROUP_KICK_VOTES_NEEDED, boot.reason);

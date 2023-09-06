@@ -25,6 +25,8 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
+#define DataHeader "SS"
+
 #define SerpentShrineScriptName "instance_serpent_shrine"
 
 enum DataTypes
@@ -86,5 +88,7 @@ inline AI* GetSerpentShrineAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SerpentShrineScriptName);
 }
+
+#define RegisterSerpentShrineAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSerpentShrineAI)
 
 #endif

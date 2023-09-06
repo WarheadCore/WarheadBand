@@ -39,7 +39,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
         return;
 
-    if (GetPlayer()->getLevel() < CONF_GET_INT("LevelReq.Ticket"))
+    if (GetPlayer()->GetLevel() < CONF_GET_INT("LevelReq.Ticket"))
     {
         Warhead::Text::SendNotification(this, LANG_TICKET_REQ, CONF_GET_INT("LevelReq.Ticket"));
         return;

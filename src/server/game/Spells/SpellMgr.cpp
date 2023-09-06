@@ -1200,6 +1200,8 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                     return spellId == 56618;
                 else if (team == TEAM_ALLIANCE)
                     return spellId == 56617;
+                else
+                    return false;
                 break;
             }
         // Hellscream's Warsong
@@ -2176,7 +2178,7 @@ void SpellMgr::LoadEnchantCustomAttr()
         if (!spellInfo)
             continue;
 
-        // TODO: find a better check
+        /// @todo: find a better check
         // Xinef: commented second part, fixes warlock enchants like firestone, spellstone
         if (!spellInfo->HasAttribute(SPELL_ATTR2_ENCHANT_OWN_ITEM_ONLY)/* || !spellInfo->HasAttribute(SPELL_ATTR0_NOT_SHAPESHIFTED)*/)
             continue;
@@ -2214,6 +2216,7 @@ void SpellMgr::LoadSpellEnchantProcData()
     }
 
     uint32 count = 0;
+
     do
     {
         auto fields = result->Fetch();
@@ -2232,6 +2235,7 @@ void SpellMgr::LoadSpellEnchantProcData()
         spe.customChance = fields[1].Get<uint32>();
         spe.PPMChance = fields[2].Get<float>();
         spe.procEx = fields[3].Get<uint32>();
+        spe.attributeMask = fields[4].Get<uint32>();
 
         mSpellEnchantProcEventMap[enchantId] = spe;
 
@@ -2716,6 +2720,48 @@ void SpellMgr::LoadSpellInfoStore()
     LOG_INFO("server.loading", " ");
 }
 
+void SpellMgr::LoadSpellCooldownOverrides()
+{
+    uint32 oldMSTime = getMSTime();
+
+    mSpellCooldownOverrideMap.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, RecoveryTime, CategoryRecoveryTime, StartRecoveryTime, StartRecoveryCategory FROM spell_cooldown_overrides");
+
+    uint32 count = 0;
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            SpellCooldownOverride spellCooldown;
+            uint32 spellId = fields[0].Get<uint32>();
+            spellCooldown.RecoveryTime = fields[1].Get<uint32>();
+            spellCooldown.CategoryRecoveryTime = fields[2].Get<uint32>();
+            spellCooldown.StartRecoveryTime = fields[3].Get<uint32>();
+            spellCooldown.StartRecoveryCategory = fields[4].Get<uint32>();
+            mSpellCooldownOverrideMap[spellId] = spellCooldown;
+
+            ++count;
+        } while (result->NextRow());
+    }
+
+    LOG_INFO("server.loading", ">> Loaded {} Spell Cooldown Overrides entries in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    LOG_INFO("server.loading", " ");
+}
+
+bool SpellMgr::HasSpellCooldownOverride(uint32 spellId) const
+{
+    return mSpellCooldownOverrideMap.find(spellId) != mSpellCooldownOverrideMap.end();
+}
+
+SpellCooldownOverride SpellMgr::GetSpellCooldownOverride(uint32 spellId) const
+{
+    auto range = mSpellCooldownOverrideMap.find(spellId);
+    return range->second;
+}
+
 void SpellMgr::UnloadSpellInfoStore()
 {
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
@@ -3021,7 +3067,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                                     spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_HEALTH_FUNNEL ||
                                     spellInfo->Effects[j].ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
                                 continue;
-                            [[fallthrough]]; // TODO: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
+                            [[fallthrough]]; /// @todo: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
                         default:
                             if (spellInfo->Effects[j].CalcValue() || ((spellInfo->Effects[j].Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_DONT_BREAK_STEALTH)) && !spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES)))
                                 if (spellInfo->Id != 69649 && spellInfo->Id != 71056 && spellInfo->Id != 71057 && spellInfo->Id != 71058 && spellInfo->Id != 73061 && spellInfo->Id != 73062 && spellInfo->Id != 73063 && spellInfo->Id != 73064) // Sindragosa Frost Breath
@@ -3406,6 +3452,31 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         }
 
         spellInfo->_InitializeExplicitTargetMask();
+
+        if (sSpellMgr->HasSpellCooldownOverride(spellInfo->Id))
+        {
+            SpellCooldownOverride spellOverride = sSpellMgr->GetSpellCooldownOverride(spellInfo->Id);
+
+            if (spellInfo->RecoveryTime != spellOverride.RecoveryTime)
+            {
+                spellInfo->RecoveryTime = spellOverride.RecoveryTime;
+            }
+
+            if (spellInfo->CategoryRecoveryTime != spellOverride.CategoryRecoveryTime)
+            {
+                spellInfo->CategoryRecoveryTime = spellOverride.CategoryRecoveryTime;
+            }
+
+            if (spellInfo->StartRecoveryTime != spellOverride.StartRecoveryTime)
+            {
+                spellInfo->RecoveryTime = spellOverride.RecoveryTime;
+            }
+
+            if (spellInfo->StartRecoveryCategory != spellOverride.StartRecoveryCategory)
+            {
+                spellInfo->RecoveryTime = spellOverride.RecoveryTime;
+            }
+        }
 
         sScriptMgr->OnLoadSpellCustomAttr(spellInfo);
     }

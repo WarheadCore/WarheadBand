@@ -594,7 +594,7 @@ namespace Warhead
         void Visit(PlayerMapType& m)
         {
             for (PlayerMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_searcher) && itr->GetSource()->IsWithinDist(i_searcher, i_dist))
+                if (itr->GetSource()->HaveAtClient(i_searcher) && itr->GetSource()->IsWithinDist(i_searcher, i_dist))
                     i_do(itr->GetSource());
         }
 
@@ -857,7 +857,7 @@ namespace Warhead
         AnyUnfriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) {}
         bool operator()(Unit* u)
         {
-            if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u) &&
+            if (u->IsAlive() && !u->IsCritter() && i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u) &&
                     (i_funit->GetTypeId() != TYPEID_UNIT || !i_funit->ToCreature()->IsAvoidingAOE())) // pussywizard
                 return true;
             else
@@ -927,10 +927,7 @@ namespace Warhead
             if (i_obj->GetTypeId() == TYPEID_GAMEOBJECT)
             {
                 losChecks &= ~LINEOFSIGHT_CHECK_GOBJECT_M2;
-                if (i_owner->IsPlayer())
-                {
-                    collisionHeight = i_owner->GetCollisionHeight();
-                }
+                collisionHeight = i_owner->GetCollisionHeight();
             }
 
             if (!i_obj->IsWithinDistInMap(u, i_range) || !i_owner->IsValidAttackTarget(u) ||

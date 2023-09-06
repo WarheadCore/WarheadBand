@@ -276,7 +276,7 @@ int32 DoHighUnlearnCost(Player* /*player*/)                //tailor, alchemy
 
 int32 DoMedUnlearnCost(Player* player)                     //blacksmith, leatherwork
 {
-    uint8 level = player->getLevel();
+    uint8 level = player->GetLevel();
     if (level < 51)
         return 250000;
     else if (level < 66)
@@ -287,7 +287,7 @@ int32 DoMedUnlearnCost(Player* player)                     //blacksmith, leather
 
 int32 DoLowUnlearnCost(Player* player)                     //blacksmith
 {
-    uint8 level = player->getLevel();
+    uint8 level = player->GetLevel();
     if (level < 66)
         return 50000;
     else
@@ -489,7 +489,7 @@ public:
         if (creature->IsTrainer())
             AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-        if (player->HasSkill(SKILL_ALCHEMY) && player->GetBaseSkillValue(SKILL_ALCHEMY) >= 350 && player->getLevel() > 67)
+        if (player->HasSkill(SKILL_ALCHEMY) && player->GetBaseSkillValue(SKILL_ALCHEMY) >= 325 && player->GetLevel() > 67)
         {
             if (player->GetQuestRewardStatus(Q_MASTER_TRANSMUTE) || player->GetQuestRewardStatus(Q_MASTER_ELIXIR) || player->GetQuestRewardStatus(Q_MASTER_POTION))
             {
@@ -651,6 +651,11 @@ public:
         if (creature->IsVendor())
             AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
+        if (creature->IsTrainer())
+        {
+            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+        }
+
         uint32 creatureId = creature->GetEntry();
         //WEAPONSMITH & ARMORSMITH
         if (player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 225)
@@ -669,24 +674,18 @@ public:
                     case N_TRAINER_WEAPON1:                                     //Ironus Coldsteel
                     case N_TRAINER_WEAPON2:                                     //Borgosh Corebender
                         if (player->HasSpell(S_WEAPON))
-                        {
                             AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_WEAPON_UNLEARN,    GOSSIP_SENDER_UNLEARN,   GOSSIP_ACTION_INFO_DEF + 3);
-                            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
-                        }
                         break;
                     case N_TRAINER_ARMOR1:                                      //Grumnus Steelshaper
                     case N_TRAINER_ARMOR2:                                     //Okothos Ironrager
                         if (player->HasSpell(S_ARMOR))
-                        {
                             AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ARMOR_UNLEARN,     GOSSIP_SENDER_UNLEARN,   GOSSIP_ACTION_INFO_DEF + 4);
-                            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
-                        }
                         break;
                 }
             }
         }
         //WEAPONSMITH SPEC
-        if (player->HasSpell(S_WEAPON) && player->getLevel() > 49 && player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
+        if (player->HasSpell(S_WEAPON) && player->GetLevel() > 49 && player->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
         {
             switch (creatureId)
             {
@@ -694,28 +693,19 @@ public:
                     if (!HasWeaponSub(player))
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 5);
                     if (player->HasSpell(S_HAMMER))
-                    {
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_HAMMER,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 8);
-                        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
-                    }
                     break;
                 case N_TRAINER_AXE:                                     //Kilram
                     if (!HasWeaponSub(player))
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,          GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 6);
                     if (player->HasSpell(S_AXE))
-                    {
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_AXE,        GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 9);
-                        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
-                    }
                     break;
                 case N_TRAINER_SWORD:                                     //Seril Scourgebane
                     if (!HasWeaponSub(player))
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,        GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 7);
                     if (player->HasSpell(S_SWORD))
-                    {
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SWORD,      GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 10);
-                        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
-                    }
                     break;
             }
         }
@@ -995,33 +985,40 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
         }
 
-        if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 225 && player->getLevel() > 40)
+        switch (creature->GetEntry())
+        {
+            case N_TRAINER_DRAGON1:             //Peter Galen
+            case N_TRAINER_DRAGON2:             //Thorkaf Dragoneye
+                AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_DRAGON1 ? GOSSIP_MENU_PETER_GALEN : GOSSIP_MENU_THORKAF_DRAGONEYE, GOSSIP_MENU_OPTION_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                break;
+            case N_TRAINER_ELEMENTAL1:          //Sarah Tanner
+            case N_TRAINER_ELEMENTAL2:          //Brumn Winterhoof
+                AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_ELEMENTAL1 ? GOSSIP_MENU_SARAH_TANNER : GOSSIP_MENU_BRUMN_WINTERHOOF, GOSSIP_MENU_OPTION_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                break;
+            case N_TRAINER_TRIBAL1:             //Caryssia Moonhunter
+            case N_TRAINER_TRIBAL2:             //Se'Jib
+                AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_TRIBAL1 ? GOSSIP_MENU_CARYSSIA_MOONHUNTER : GOSSIP_MENU_SEJIB, GOSSIP_MENU_OPTION_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+                break;
+        }
+
+        if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 225 && player->GetLevel() > 40)
         {
             switch (creature->GetEntry())
             {
                 case N_TRAINER_DRAGON1:             //Peter Galen
                 case N_TRAINER_DRAGON2:             //Thorkaf Dragoneye
                     if (player->HasSpell(S_DRAGON))
-                    {
-                        AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_DRAGON1 ? GOSSIP_MENU_PETER_GALEN : GOSSIP_MENU_THORKAF_DRAGONEYE, GOSSIP_MENU_OPTION_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
                         AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_DRAGON1 ? GOSSIP_MENU_PETER_GALEN : GOSSIP_MENU_THORKAF_DRAGONEYE, GOSSIP_MENU_OPTION_CONFIRM_UNLEARN_DRAGONSCALE, GOSSIP_SENDER_MAIN, GOSSIP_MENU_UNLEARN_CONFIRM_DRAGONSCALE);
-                    }
                     break;
                 case N_TRAINER_ELEMENTAL1:          //Sarah Tanner
                 case N_TRAINER_ELEMENTAL2:          //Brumn Winterhoof
                     if (player->HasSpell(S_ELEMENTAL))
-                    {
-                        AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_ELEMENTAL1 ? GOSSIP_MENU_SARAH_TANNER : GOSSIP_MENU_BRUMN_WINTERHOOF, GOSSIP_MENU_OPTION_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
                         AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_ELEMENTAL1 ? GOSSIP_MENU_SARAH_TANNER : GOSSIP_MENU_BRUMN_WINTERHOOF, GOSSIP_MENU_OPTION_CONFIRM_UNLEARN_ELEMENTAL, GOSSIP_SENDER_MAIN, GOSSIP_MENU_UNLEARN_CONFIRM_ELEMENTAL);
-                    }
                     break;
                 case N_TRAINER_TRIBAL1:             //Caryssia Moonhunter
                 case N_TRAINER_TRIBAL2:             //Se'Jib
                     if (player->HasSpell(S_TRIBAL))
-                    {
-                        AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_TRIBAL1 ? GOSSIP_MENU_CARYSSIA_MOONHUNTER : GOSSIP_MENU_SEJIB, GOSSIP_MENU_OPTION_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
                         AddGossipItemFor(player, creature->GetEntry() == N_TRAINER_TRIBAL1 ? GOSSIP_MENU_CARYSSIA_MOONHUNTER : GOSSIP_MENU_SEJIB, GOSSIP_MENU_OPTION_CONFIRM_UNLEARN_TRIBAL, GOSSIP_SENDER_MAIN, GOSSIP_MENU_UNLEARN_CONFIRM_TRIBAL);
-                    }
                     break;
             }
         }
@@ -1087,8 +1084,13 @@ public:
         if (creature->IsVendor())
             AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
+        if (creature->IsTrainer())
+        {
+            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+        }
+
         //TAILORING SPEC
-        if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 350 && player->getLevel() > 59)
+        if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 350 && player->GetLevel() > 59)
         {
             if (player->GetQuestRewardStatus(10831) || player->GetQuestRewardStatus(10832) || player->GetQuestRewardStatus(10833))
             {
@@ -1100,7 +1102,6 @@ public:
                         if (player->HasSpell(S_SPELLFIRE))
                         {
                             AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SPELLFIRE,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 4);
-                            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
                         }
                         break;
                     case N_TRAINER_MOONCLOTH:                                 //Nasmara Moonsong
@@ -1109,7 +1110,6 @@ public:
                         if (player->HasSpell(S_MOONCLOTH))
                         {
                             AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_MOONCLOTH,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 5);
-                            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
                         }
                         break;
                     case N_TRAINER_SHADOWEAVE:                                 //Andrion Darkspinner
@@ -1118,7 +1118,6 @@ public:
                         if (player->HasSpell(S_SHADOWEAVE))
                         {
                             AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 6);
-                            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN,      GOSSIP_SENDER_MAIN,     GOSSIP_ACTION_TRAIN);
                         }
                         break;
                 }
@@ -1250,7 +1249,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* gameobject) override
     {
         //ENGINEERING SPEC
-        if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 225 && player->getLevel() >= 35)
+        if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 225 && player->GetLevel() >= 35)
         {
             if (player->GetQuestRewardStatus(3643) || player->GetQuestRewardStatus(3641) || player->GetQuestRewardStatus(3639))
             {
@@ -1271,7 +1270,7 @@ public:
         }
 
         //LEATHERWORKING SPEC
-        if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 225 && player->getLevel() >= 40)
+        if (player->HasSkill(SKILL_LEATHERWORKING) && player->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 225 && player->GetLevel() >= 40)
         {
             if (!HasLeatherSpecialty(player) && (player->GetQuestRewardStatus(5141) || player->GetQuestRewardStatus(5143) || player->GetQuestRewardStatus(5144) || player->GetQuestRewardStatus(5145) || player->GetQuestRewardStatus(5146) || player->GetQuestRewardStatus(5148)))
             {

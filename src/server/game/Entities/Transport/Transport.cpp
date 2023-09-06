@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "Transport.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -33,6 +30,7 @@
 #include "Spell.h"
 #include "Vehicle.h"
 #include "WorldModel.h"
+#include "ObjectAccessor.h"
 #include <sstream>
 
 MotionTransport::MotionTransport() : Transport(), _transportInfo(nullptr), _isMoving(true), _pendingStop(false), _triggeredArrivalEvent(false), _triggeredDepartureEvent(false), _passengersLoaded(false), _delayedTeleport(false)
@@ -42,6 +40,8 @@ MotionTransport::MotionTransport() : Transport(), _transportInfo(nullptr), _isMo
 
 MotionTransport::~MotionTransport()
 {
+    HashMapHolder<MotionTransport>::Remove(this);
+
     ASSERT(_passengers.empty());
     UnloadStaticPassengers();
 }
@@ -425,7 +425,7 @@ void MotionTransport::LoadStaticPassengers()
             // GameObjects on transport
             guidEnd = cellItr->second.gameobjects.end();
             for (CellGuidSet::const_iterator guidItr = cellItr->second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
-                CreateGOPassenger(*guidItr, sObjectMgr->GetGOData(*guidItr));
+                CreateGOPassenger(*guidItr, sObjectMgr->GetGameObjectData(*guidItr));
         }
     }
 }

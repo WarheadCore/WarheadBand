@@ -33,7 +33,7 @@ namespace
     std::vector<std::string> _args;
     std::unordered_map<std::string /*name*/, std::string /*value*/> _configOptions;
     std::mutex _configLock;
-    bool _usingDistConfig = false;
+    bool _usingDistConfig{ false };
 
     // Check system configs like *server.conf*
     bool IsAppConfig(std::string_view fileName)
@@ -47,7 +47,7 @@ namespace
     // Check logging system configs like LogChannel.* and Logger.*
     bool IsLoggingSystemOptions(std::string_view optionName)
     {
-        size_t foundAppender = optionName.find("LogChannel.");
+        size_t foundAppender = optionName.find("Sink.");
         size_t foundLogger = optionName.find("Logger.");
 
         return foundAppender != std::string_view::npos || foundLogger != std::string_view::npos;
@@ -216,6 +216,81 @@ namespace
 
         return false;
     }
+
+    // Converts ini keys to the environment variable key (upper snake case).
+    // Example of conversions:
+    //   SomeConfig => SOME_CONFIG
+    //   myNestedConfig.opt1 => MY_NESTED_CONFIG_OPT_1
+    //   LogDB.Opt.ClearTime => LOG_DB_OPT_CLEAR_TIME
+    std::string IniKeyToEnvVarKey(std::string const& key)
+    {
+        std::string result;
+
+        const char* str = key.c_str();
+        size_t n = key.length();
+
+        char curr;
+        bool isEnd;
+        bool nextIsUpper;
+        bool currIsNumeric;
+        bool nextIsNumeric;
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            curr = str[i];
+            if (curr == ' ' || curr == '.' || curr == '-')
+            {
+                result += '_';
+                continue;
+            }
+
+            isEnd = i == n - 1;
+            if (!isEnd)
+            {
+                nextIsUpper = isupper(str[i + 1]);
+
+                // handle "aB" to "A_B"
+                if (!isupper(curr) && nextIsUpper)
+                {
+                    result += static_cast<char>(std::toupper(curr));
+                    result += '_';
+                    continue;
+                }
+
+                currIsNumeric = isNumeric(curr);
+                nextIsNumeric = isNumeric(str[i + 1]);
+
+                // handle "a1" to "a_1"
+                if (!currIsNumeric && nextIsNumeric)
+                {
+                    result += static_cast<char>(std::toupper(curr));
+                    result += '_';
+                    continue;
+                }
+
+                // handle "1a" to "1_a"
+                if (currIsNumeric && !nextIsNumeric)
+                {
+                    result += static_cast<char>(std::toupper(curr));
+                    result += '_';
+                    continue;
+                }
+            }
+
+            result += static_cast<char>(std::toupper(curr));
+        }
+        return result;
+    }
+
+    Optional<std::string> EnvVarForIniKey(std::string const& key)
+    {
+        std::string envKey = "AC_" + IniKeyToEnvVarKey(key);
+        char* val = std::getenv(envKey.c_str());
+        if (!val)
+            return std::nullopt;
+
+        return std::string(val);
+    }
 }
 
 bool ConfigMgr::LoadInitial(std::string_view file, bool isReload /*= false*/)
@@ -242,19 +317,59 @@ bool ConfigMgr::Reload()
     return LoadAppConfigs(true) && LoadModulesConfigs(true);
 }
 
+std::vector<std::string> ConfigMgr::OverrideWithEnvVariablesIfAny()
+{
+    std::lock_guard<std::mutex> lock(_configLock);
+
+    std::vector<std::string> overriddenKeys;
+
+    for (auto& itr : _configOptions)
+    {
+        if (itr.first.empty())
+            continue;
+
+        Optional<std::string> envVar = EnvVarForIniKey(itr.first);
+        if (!envVar)
+            continue;
+
+        itr.second = *envVar;
+
+        overriddenKeys.push_back(itr.first);
+    }
+
+    return overriddenKeys;
+}
+
 template<class T>
 T ConfigMgr::GetValueDefault(std::string const& name, T const& def, bool showLogs /*= true*/) const
 {
+    std::string strValue;
     auto const& itr = _configOptions.find(name);
     if (itr == _configOptions.end())
     {
+        Optional<std::string> envVar = EnvVarForIniKey(name);
+        if (!envVar)
+        {
+            if (showLogs)
+            {
+                LOG_ERROR("server.loading", "> Config: Missing property {} in config file {}, add \"{} = {}\" to this file.",
+                    name, _filename, name, Warhead::ToString(def));
+            }
+
+            return def;
+        }
+
         if (showLogs)
         {
             LOG_ERROR("server.loading", "> Config: Missing property {} in all config files, at least the .dist file must contain: \"{} = {}\"",
                 name, name, Warhead::ToString(def));
         }
 
-        return def;
+        strValue = *envVar;
+    }
+    else
+    {
+        strValue = itr->second;
     }
 
     auto value = Warhead::StringTo<T>(itr->second);
@@ -278,10 +393,22 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     auto const& itr = _configOptions.find(name);
     if (itr == _configOptions.end())
     {
+        Optional<std::string> envVar = EnvVarForIniKey(name);
+        if (envVar)
+        {
+            if (showLogs)
+            {
+                LOG_WARN("server.loading", "Missing property {} in config file {}, recovered with environment '{}' value.",
+                    name.c_str(), _filename.c_str(), envVar->c_str());
+            }
+
+            return *envVar;
+        }
+
         if (showLogs)
         {
-            LOG_ERROR("server.loading", "> Config: Missing option {}, add \"{} = {}\"",
-                name, name, def);
+            LOG_ERROR("server.loading", "> Config: Missing property {} in config file {}, add \"{} = {}\" to this file.",
+                name, _filename, name, def);
         }
 
         return def;

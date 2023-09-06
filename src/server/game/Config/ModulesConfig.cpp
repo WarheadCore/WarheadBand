@@ -77,7 +77,7 @@ T ModulesConfig::GetOption(std::string_view optionName, Optional<T> def /*= std:
     // Check exist option part 2
     if (itr == _configOptions.end())
     {
-        LOG_FATAL("server.loading", "> ModulesConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
+        LOG_CRIT("server.loading", "> ModulesConfig: option ({}) is not exists. Returned ({})", optionName, defStr);
         return Warhead::Config::GetDefaultValue<T>();
     }
 

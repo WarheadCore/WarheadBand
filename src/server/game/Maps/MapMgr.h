@@ -84,6 +84,15 @@ public:
     // modulos a radian orientation to the range of 0..2PI
     static float NormalizeOrientation(float o);
 
+    /**
+    * @name GetInstanceIDs
+    * @return vector of instance IDs
+    */
+    std::vector<bool> GetInstanceIDs()
+    {
+        return _instanceIds;
+    }
+
     void DoDelayedMovesAndRemoves();
 
     MapEnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);

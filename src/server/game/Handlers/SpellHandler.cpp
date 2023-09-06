@@ -63,7 +63,7 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
-    // TODO: add targets.read() check
+    /// @todo: add targets.read() check
     Player* pUser = _player;
 
     // ignore for remote control state
@@ -330,6 +330,10 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     if (!go)
         return;
 
+    // Prevent use of GameObject if it is not selectable. Fixes hack.
+    if (go->HasGameObjectFlag(GO_FLAG_NOT_SELECTABLE))
+        return;
+
     if (!go->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
         return;
 
@@ -389,7 +393,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 }
             }
 
-            // TODO: Preparation for #23204
+            /// @todo: Preparation for #23204
             // allow casting of spells triggered by clientside periodic trigger auras
             /*
              if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
@@ -463,7 +467,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // auto-selection buff level base at target level (in spellInfo)
     if (targets.GetUnitTarget())
     {
-        SpellInfo const* actualSpellInfo = spellInfo->GetAuraRankForLevel(targets.GetUnitTarget()->getLevel());
+        SpellInfo const* actualSpellInfo = spellInfo->GetAuraRankForLevel(targets.GetUnitTarget()->GetLevel());
 
         // if rank not found then function return nullptr but in explicit cast case original spell can be casted and later failed with appropriate error message
         if (actualSpellInfo)
@@ -656,7 +660,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     if (!unit)
         return;
 
-    // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
+    /// @todo: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
     if (!unit->IsInWorld())
         return;
 

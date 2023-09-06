@@ -76,7 +76,6 @@ public:
         if (!player)
             return false;
 
-        bool isExistDisabledMap{ false };
         std::vector<std::pair<uint32/*mapID*/, Difficulty>> toUnbind;
 
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)

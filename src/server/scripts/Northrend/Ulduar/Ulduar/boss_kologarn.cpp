@@ -353,7 +353,7 @@ public:
                     if (me->IsInCombat())
                     {
                         Talk(SAY_LEFT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESTORE_ARM_LEFT, 50000);
+                        events.ScheduleEvent(EVENT_RESTORE_ARM_LEFT, 50s);
                     }
                 }
                 else
@@ -362,13 +362,13 @@ public:
                     if (me->IsInCombat())
                     {
                         Talk(SAY_RIGHT_ARM_GONE);
-                        events.ScheduleEvent(EVENT_RESTORE_ARM_RIGHT, 50000);
+                        events.ScheduleEvent(EVENT_RESTORE_ARM_RIGHT, 50s);
                     }
                 }
 
                 me->CastSpell(me, SPELL_ARM_DEAD, true);
                 if (!_right && !_left)
-                    events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
+                    events.ScheduleEvent(EVENT_STONE_SHOUT, 5s);
             }
         }
 
@@ -381,16 +381,16 @@ public:
             }
         }
 
-        void EnterCombat(Unit*  /*who*/) override
+        void JustEngagedWith(Unit*  /*who*/) override
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_KOLOGARN, IN_PROGRESS);
 
-            events.ScheduleEvent(EVENT_SMASH, 8000);
-            events.ScheduleEvent(EVENT_SWEEP, 17000);
-            events.ScheduleEvent(EVENT_GRIP, 15000);
-            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 10000);
-            events.ScheduleEvent(EVENT_PREPARE_BREATH, 3000);
+            events.ScheduleEvent(EVENT_SMASH, 8s);
+            events.ScheduleEvent(EVENT_SWEEP, 17s);
+            events.ScheduleEvent(EVENT_GRIP, 15s);
+            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 10s);
+            events.ScheduleEvent(EVENT_PREPARE_BREATH, 3s);
             //events.ScheduleEvent(EVENT_ENRAGE, x); no info
 
             Talk(SAY_AGGRO);
@@ -430,7 +430,7 @@ public:
                     }
 
                     me->CastSpell(me->GetVictim(), SPELL_STONE_SHOUT, false);
-                    events.ScheduleEvent(EVENT_STONE_SHOUT, 2000);
+                    events.ScheduleEvent(EVENT_STONE_SHOUT, 2s);
                     break;
                 case EVENT_SMASH:
                     if (_left && _right)
@@ -438,8 +438,8 @@ public:
                     else if (_left || _right)
                         me->CastSpell(me->GetVictim(), SPELL_ONEARMED_OVERHEAD_SMASH, false);
 
-                    events.DelayEvents(1000);
-                    events.ScheduleEvent(EVENT_SMASH, 14000);
+                    events.DelayEvents(1s);
+                    events.ScheduleEvent(EVENT_SMASH, 14s);
                     return;
                 case EVENT_SWEEP:
                     if (_left)
@@ -451,11 +451,11 @@ public:
                             Talk(SAY_SHOCKWAVE);
                     }
 
-                    events.DelayEvents(1000);
-                    events.ScheduleEvent(EVENT_SWEEP, 17000);
+                    events.DelayEvents(1s);
+                    events.ScheduleEvent(EVENT_SWEEP, 17s);
                     return;
                 case EVENT_GRIP:
-                    events.ScheduleEvent(EVENT_GRIP, 25000);
+                    events.ScheduleEvent(EVENT_GRIP, 25s);
                     if (!_right)
                         break;
 
@@ -465,7 +465,7 @@ public:
                     return;
                 case EVENT_FOCUSED_EYEBEAM:
                 {
-                    events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 20000);
+                    events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 20s);
 
                     if ((eyebeamTarget = SelectTarget(SelectTargetMethod::MinDistance, 0, 0, true)))
                     {

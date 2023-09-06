@@ -49,7 +49,7 @@
 #include "WorldStatePackets.h"
 #include <fmt/printf.h>
 
-// TODO: this import is not necessary for compilation and marked as unused by the IDE
+/// @todo: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue
 //  there is probably some underlying problem with imports which should properly addressed
 //  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
@@ -161,7 +161,7 @@ void Player::Update(uint32 p_time)
         if (Unit* victim = GetVictim())
         {
             // default combat reach 10
-            // TODO add weapon, skill check
+            /// @todo add weapon, skill check
 
             if (isAttackReady(BASE_ATTACK))
             {
@@ -470,15 +470,15 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
     std::string currentZoneName = currentZone->area_name[GetSession()->GetSessionDbcLocale()];
 
-    for (auto const& channel : sChatChannelsStore)
+    for (auto const& dbcChannel : sChatChannelsStore)
     {
         Channel* usedChannel = nullptr;
 
-        for (auto const& itr : m_channels)
+        for (Channel* channel : m_channels)
         {
-            if (itr->GetChannelId() == channel->ChannelID)
+            if (channel && channel->GetChannelId() == dbcChannel->ChannelID)
             {
-                usedChannel = itr;
+                usedChannel = channel;
                 break;
             }
         }
@@ -487,35 +487,35 @@ void Player::UpdateLocalChannels(uint32 newZone)
         Channel* joinChannel   = nullptr;
         bool     sendRemove    = true;
 
-        if (CanJoinConstantChannelInZone(channel, currentZone))
+        if (CanJoinConstantChannelInZone(dbcChannel, currentZone))
         {
-            if (!(channel->flags & CHANNEL_DBC_FLAG_GLOBAL))
+            if (!(dbcChannel->flags & CHANNEL_DBC_FLAG_GLOBAL))
             {
-                if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
-                    continue; // Already on the channel, as city channel names are not changing
+                if (dbcChannel->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
+                    continue; // Already on the dbcChannel, as city dbcChannel names are not changing
 
                 std::string currentNameExt;
 
-                if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
+                if (dbcChannel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
                     currentNameExt = sGameLocale->GetWarheadStringForDBCLocale(LANG_CHANNEL_CITY);
                 else
                     currentNameExt = currentZoneName;
 
-                joinChannel = channelMgr->GetJoinChannel(fmt::sprintf(channel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()), channel->ChannelID);
+                joinChannel = channelMgr->GetJoinChannel(fmt::sprintf(dbcChannel->pattern[m_session->GetSessionDbcLocale()], currentNameExt.c_str()), dbcChannel->ChannelID);
 
                 if (usedChannel)
                 {
                     if (joinChannel != usedChannel)
                     {
                         removeChannel = usedChannel;
-                        sendRemove    = false; // Do not send leave channel, it already replaced at client
+                        sendRemove    = false; // Do not send leave dbcChannel, it already replaced at client
                     }
                     else
                         joinChannel = nullptr;
                 }
             }
             else
-                joinChannel = channelMgr->GetJoinChannel(channel->pattern[m_session->GetSessionDbcLocale()], channel->ChannelID);
+                joinChannel = channelMgr->GetJoinChannel(dbcChannel->pattern[m_session->GetSessionDbcLocale()], dbcChannel->ChannelID);
         }
         else
             removeChannel = usedChannel;
@@ -525,9 +525,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
         if (removeChannel && (CONF_GET_BOOL("LFG.Location.All") && !removeChannel->IsLFG()))
         {
-            removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
+            removeChannel->LeaveChannel(this, sendRemove); // Leave old dbcChannel
             std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
-            LeftChannel(removeChannel); // Remove from player's channel list
+            LeftChannel(removeChannel); // Remove from player's dbcChannel list
         }
     }
 }
@@ -892,7 +892,7 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType, Item* ite
 
 void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool defence, Item* item /*= nullptr*/)
 {
-    uint8  playerLevel = getLevel();
+    uint8  playerLevel = GetLevel();
     uint16 currentSkillValue = defence ? GetBaseDefenseSkillValue() : GetBaseWeaponSkillValue(attType);
     uint16 currentSkillMax = 5 * playerLevel;
     int32  skillDiff = currentSkillMax - currentSkillValue;
@@ -905,7 +905,7 @@ void Player::UpdateCombatSkills(Unit* victim, WeaponAttackType attType, bool def
     }
 
     uint8 greylevel = Warhead::XP::GetGrayLevel(playerLevel);
-    uint8 moblevel = defence ? victim->getLevelForTarget(this) : victim->getLevel(); // if defense than victim == attacker
+    uint8 moblevel = defence ? victim->getLevelForTarget(this) : victim->GetLevel(); // if defense than victim == attacker
     /*if (moblevel < greylevel)
         return;*/
     // Patch 3.0.8 (2009-01-20): You can no longer skill up weapons on mobs that are immune to damage.
@@ -1299,7 +1299,7 @@ void Player::UpdatePvPState()
 
 void Player::UpdateFFAPvPState(bool reset /*= true*/)
 {
-    // TODO: should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller
+    /// @todo: should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller
     // and controlled? no, we shouldn't, those are checked for affecting player
     // by client
     if (!pvpInfo.IsInNoPvPArea && !IsGameMaster() &&
@@ -1842,7 +1842,7 @@ void Player::UpdateCharmedAI()
 
     if (!target || !IsValidAttackTarget(target))
     {
-        target = SelectNearbyTarget(nullptr, 30);
+        target = SelectNearbyTarget(nullptr, GetMap()->IsDungeon() ? 100.f : 30.f);
         if (!target)
         {
             if (!HasUnitState(UNIT_STATE_FOLLOW))

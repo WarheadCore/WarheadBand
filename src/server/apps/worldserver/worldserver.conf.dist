@@ -323,9 +323,16 @@ SocketTimeOutTimeActive = 60000
 SessionAddDelay = 10000
 
 #
+#    MinWorldUpdateTime
+#        Description: Minimum time (milliseconds) between world update ticks (for mostly idle servers).
+#        Default:     1 - (0.001 second)
+
+MinWorldUpdateTime = 1
+
+#
 #    MapUpdateInterval
 #        Description: Time (milliseconds) for map update interval.
-#        Default:     100 - (0.01 second)
+#        Default:     10 - (0.01 second)
 
 MapUpdateInterval = 10
 
@@ -435,6 +442,7 @@ UpdateUptimeInterval = 1
 #
 #    MaxCoreStuckTime
 #        Description: Time (in seconds) before the server is forced to crash if it is frozen.
+#                     FreezeDetector
 #        Default:     0   - (Disabled)
 #                     10+ - (Enabled, Recommended 30+)
 # Note: If enabled and the setting is too low, it can cause unexpected crash.
@@ -593,6 +601,24 @@ RealmZone = 1
 #                     0 - (Disabled)
 
 World.RealmAvailability = 1
+
+#
+#   StrictNames.Reserved
+#       Description: Use the Reserved Filter from DBC.
+#                    Prevents Player, Pet & Charter names from containing reserved names.
+#       Default:     1 - Enabled
+#                    0 - Disabled
+
+StrictNames.Reserved = 1
+
+#
+#   StrictNames.Profanity
+#       Description: Use the Profanity Filter from DBC.
+#                    Prevents Player, Pet & Charter names from containing profanity.
+#       Default:     1 - Enabled
+#                    0 - Disabled
+
+StrictNames.Profanity = 1
 
 #
 #    StrictPlayerNames
@@ -889,6 +915,14 @@ MaxArenaPoints = 10000
 #        Default:     0
 
 StartArenaPoints = 0
+
+#
+#   Arena.LegacyArenaPoints
+#        Description: Use arena point calculation from TBC for season 1 - 5 when rating is less or equal to 1500
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Arena.LegacyArenaPoints = 0
 
 #
 #    RecruitAFriend.MaxLevel
@@ -1208,30 +1242,6 @@ BeepAtStart = 1
 FlashAtStart = 1
 
 #
-#    Motd
-#        Description: Message of the Day, displayed at login.
-#                     Use '@' for a newline and be sure to escape special characters.
-#        Example:     "Welcome to John\'s Server@"
-#        Default:     "Welcome to an WarheadCore server."
-
-Motd = "Welcome to an WarheadCore server."
-
-#    PLEASE NOTE: another (hardcoded) text will appear below the MOTD:
-#
-#        "This server runs on WarheadCore www.azerothcore.org"
-#
-#    All the WarheadCore contributors, as well as its father projects (MaNGOS, TrinityCore, etc..),
-#    have worked for free to provide you this software. Please do not remove the credits.
-#
-#    Changing or removing such hardcoded text is considered a violation of our license
-#    and it's not allowed. We reserve the right to take legal action in case of violations.
-#    Furthermore, any kind of support will be always denied.
-#
-#    All WarheadCore contributors and its father projects are publicly listed in
-#    our official repository. Credits to open source contributions should always be shown.
-#
-
-#
 #    Server.LoginInfo
 #        Description: Display core version (.server info) on login.
 #        Default:     0 - (Disabled)
@@ -1264,16 +1274,12 @@ AllowTickets = 1
 DeletedCharacterTicketTrace = 0
 
 #
-#     DungeonFinder.OptionsMask
-#        Description: Dungeon and raid finder system.
-#        Value is a bitmask consisting of:
-#           LFG_OPTION_ENABLE_DUNGEON_FINDER    = 1,     Enable the dungeon finder browser
-#           LFG_OPTION_ENABLE_RAID_BROWSER      = 2,     Enable the raid browser
-#           LFG_OPTION_ENABLE_SEASONAL_BOSSES   = 4,     Enable seasonal bosses
+#   DBC.EnforceItemAttributes
+#        Disallow overriding item attributes stored in DBC files with values from the database
+#        Default: 0 - Off, Use DB values
+#                 1 - On, Enforce DBC Values (default)
 
-#        Default:     5
-
-DungeonFinder.OptionsMask = 5
+DBC.EnforceItemAttributes = 1
 
 #
 #     DungeonFinder.Expansion
@@ -1613,6 +1619,14 @@ AllowTwoSide.Interaction.Group = 0
 #                     1 - (Enabled)
 
 AllowTwoSide.Interaction.Guild = 0
+
+#
+#    AllowTwoSide.Interaction.Arena
+#        Description: Allow joining arena teams between factions.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AllowTwoSide.Interaction.Arena = 0
 
 #
 #    AllowTwoSide.Interaction.Auction
@@ -2307,7 +2321,20 @@ Rate.Drop.Item.Artifact         = 1
 Rate.Drop.Item.Referenced       = 1
 Rate.Drop.Money                 = 1
 
-#    RewardBonusMoney
+#    Rate.Drop.Item.ReferencedAmount
+#        Description: Multiplier for referenced loot amount. Makes many raid bosses (and others) drop additional loot.
+#        Default:     1
+
+Rate.Drop.Item.ReferencedAmount = 1
+
+#
+#    Rate.Drop.Item.GroupAmount
+#        Description: Multiplier for grouped items. Makes many dungeon bosses (and others) drop additional loot.
+#        Default:     1
+
+Rate.Drop.Item.GroupAmount = 1
+
+#    Rate.RewardBonusMoney
 #        Description: Allows to further tweak the amount of extra money rewarded by quests when the player
 #                     is at MaxPlayerLevel (this amount is specified in quest_template.RewardBonusMoney).
 #                     NOTE: the final amount will also affected by Rate.Drop.Money
@@ -2370,13 +2397,6 @@ Rate.BuyValue.Item.Epic             = 1
 Rate.BuyValue.Item.Legendary        = 1
 Rate.BuyValue.Item.Artifact         = 1
 Rate.BuyValue.Item.Heirloom         = 1
-
-#
-#    Rate.Drop.Item.ReferencedAmount
-#        Description: Multiplier for referenced loot amount.
-#        Default:     1
-
-Rate.Drop.Item.ReferencedAmount = 1
 
 #
 #    Rate.XP.Kill
@@ -3090,6 +3110,17 @@ Arena.QueueAnnouncer.Enable = 0
 Arena.QueueAnnouncer.PlayerOnly = 0
 
 #
+#    Arena.QueueAnnouncer.Detail
+#        Description: The amount of detail to announce on teams queued for arenas.
+#        Default:     3 - (Announce the team's name and rating)
+#                     2 - (Announce only the team's name)
+#                     1 - (Announce only the team's rating)
+#                     0 - (Do not announce any information about the teams)
+#
+
+Arena.QueueAnnouncer.Detail = 3
+
+#
 #    Arena.ArenaSeason.ID
 #        Description: Current arena season id shown in clients.
 #        Default:     8
@@ -3727,6 +3758,17 @@ Calculate.Gameoject.Zone.Area.Data = 0
 Group.Raid.LevelRestriction = 10
 
 #
+#     DungeonFinder.OptionsMask
+#        Description: Dungeon and raid finder system.
+#        Value is a bitmask consisting of:
+#           LFG_OPTION_ENABLE_DUNGEON_FINDER    = 1,     Enable the dungeon finder browser
+#           LFG_OPTION_ENABLE_RAID_BROWSER      = 2,     Enable the raid browser
+#           LFG_OPTION_ENABLE_SEASONAL_BOSSES   = 4,     Enable seasonal bosses
+#        Default:     5
+
+DungeonFinder.OptionsMask = 5
+
+#
 #    LFG.Location.All
 #
 #     Includes satellite to search for work elsewhere LFG
@@ -3857,6 +3899,14 @@ JoinBGAndLFG.Enable = 0
 LeaveGroupOnLogout.Enabled = 1
 
 #
+#   QuestPOI.Enabled
+#        Description: Show points of interest on the map
+#        Default:     1 - Enabled
+#                     0 - Disabled
+
+QuestPOI.Enabled = 1
+
+#
 #     ChangeFaction.MaxMoney
 #        Description: Maximum amount of gold allowed on the character to perform a faction change.
 #        Default:     0 - Disabled
@@ -3880,6 +3930,23 @@ DBCache.AsyncLoad.Enable = 1
 #
 
 DBCache.WaitAtAdd.Enable = 0
+
+#
+#     Pet.RankMod.Health
+#        Description: Allows pet health to be modified by rank health rates (set in config)
+#        Default:     1 - Enabled
+#                     0 - Disabled
+
+Pet.RankMod.Health = 1
+
+#
+#     AuctionHouse.SearchTimeout
+#        Description: Time (in milliseconds) after which an auction house search is discarded.
+#        Default:     1000 - (1 second)
+
+AuctionHouse.SearchTimeout = 1000
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -4375,109 +4442,89 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 #
 #  LOGGING SYSTEM SETTINGS
 #
-#  Log channel config values: Given an channel "name"
-#    Log.Channel.name
+#  Log sink config values: Given an sink "name"
+#    Log.Sink.name
 #        Description: Defines 'where to log'
-#        Format:      Type,LogLevel,Pattern,Optional1,Optional2,Optional3,Optional4
+#        Format:      Type,LogLevel,Pattern,Optional1,Optional2,Optional3
 #
 #                     Type
 #                       1 - (Console)
 #                       2 - (File)
-#                       3 - (DB)
-#                       4 - (Discord)
 #
 #                     LogLevel
-#                         0 - (Disabled)
-#                         1 - (Fatal)
-#                         2 - (Critical)
-#                         3 - (Error)
-#                         4 - (Warning)
-#                         5 - (Info)
-#                         6 - (Debug)
-#                         7 - (Trace)
+#                       0 - Trace
+#                       1 - Debug
+#                       2 - Info
+#                       3 - Warning
+#                       4 - Error
+#                       5 - Critical
+#                       6 - Disabled
 #
 #                    Pattern (all type)
-#                         * %s - message source
-#                         * %t - message text
-#                         * %l - message priority level (1 .. 7)
-#                         * %p - message priority (Fatal, Critical, Error, Warning, Information, Debug, Trace)
-#                         * %q - abbreviated message priority (F, C, E, W, I, D, T)
-#                         * %U - message source file path (empty string if not set)
-#                         * %O - message source file filename (empty string if not set)
-#                         * %u - message source line number (0 if not set)
-#                         * %w - message date/time abbreviated weekday (Mon, Tue, ...)
-#                         * %W - message date/time full weekday (Monday, Tuesday, ...)
-#                         * %b - message date/time abbreviated month (Jan, Feb, ...)
-#                         * %B - message date/time full month (January, February, ...)
-#                         * %d - message date/time zero-padded day of month (01 .. 31)
-#                         * %m - message date/time zero-padded month (01 .. 12)
-#                         * %n - message date/time month (1 .. 12)
-#                         * %y - message date/time year without century (70)
-#                         * %Y - message date/time year with century (1970)
-#                         * %H - message date/time hour (00 .. 23)
-#                         * %h - message date/time hour (00 .. 12)
-#                         * %A - message date/time AM/PM
-#                         * %M - message date/time minute (00 .. 59)
-#                         * %S - message date/time second (00 .. 59)
-#                         * %E - epoch time (UTC, seconds since midnight, January 1, 1970)
-#                         * %v[width] - the message source (%s) but text length is padded/cropped to 'width'
-#                         * %% - percent sign
-#                           Example for file "%Y-%m-%d %H:%M:%S %t"
-#                           Example for console "%H:%M:%S %t"
+#                       * %v - The actual text to log
+#                       * %t - Thread id
+#                       * %P - Process id
+#                       * %n - Logger's name
+#                       * %l - The log level of the message
+#                       * %L - Short log level of the message
+#                       * %a - Abbreviated weekday name
+#                       * %A - Full weekday name
+#                       * %b - Abbreviated month name
+#                       * %B - Full month name
+#                       * %c - Date and time representation
+#                       * %C - Year in 2 digits
+#                       * %Y - Year in 4 digits
+#                       * %D or %x - Short MM/DD/YY date
+#                       * %m - Month 01-12
+#                       * %d - Day of month 01-31
+#                       * %H - Hours in 24 format 00-23
+#                       * %I - Hours in 12 format 01-12
+#                       * %M - Minutes 00-59
+#                       * %S - Seconds 00-59
+#                       * %e - Millisecond part of the current second 000-999
+#                       * %f - Microsecond part of the current second 000000-999999
+#                       * %F - Nanosecond part of the current second 000000000-999999999
+#                       * %p - AM/PM
+#                       * %r - 12 hour clock
+#                       * %R - 24-hour HH:MM time, equivalent to %H:%M
+#                       * %T or %X - ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
+#                       * %z - ISO 8601 offset from UTC in timezone ([+/-]HH:MM)
+#                       * %E - Seconds since the epoch
+#                       * %% - The % sign
+#                       * %+ - spdlog's default format
+#                       * %^ - start color range (can be used only once)
+#                       * %$ - end color range (for example %^[+++]%$ %v) (can be used only once)
+#                       * %@ - Source file and line
+#                       * %s - Basename of the source file
+#                       * %g - Full or relative path of the source file as appears in the __FILE__ macro
+#                       * %# - Source line
+#                       * %! - Source function
+#                       * %o - Elapsed time in milliseconds since previous message
+#                       * %i - Elapsed time in microseconds since previous message
+#                       * %u - Elapsed time in nanoseconds since previous message
+#                       * %O - Elapsed time in seconds since previous message
+#                           Example for file "[%Y-%m-%d %T.%e] %v"
+#                           Example for console "[%T.%e] [%t] %^%v%$"
 #
-#   CONSOLE OPTIONS
-#
-#                    Optional1 - Colors (is type Console)
-#                       Format: "fatal critical error warning info debug trace"
-#                       black
-#                       red
-#                       green
-#                       brown
-#                       blue
-#                       magenta
-#                       cyan
-#                       gray
-#                       darkGray
-#                       lightRed
-#                       lightGreen
-#                       yellow
-#                       lightBlue
-#                       lightMagenta
-#                       lightCyan
-#                       white
-#                         Example: "lightRed lightRed red brown cyan lightMagenta green"
-#
-#   FILE OPTIONS
-#
-#                     Optional1 - File name
+#                     Optional1 - File name (is type file)
 #                       Example: "Auth.log"
 #
-#                     Optional2 - Mode to open the file
-#                          true - Append (default)
-#                          false - Overwrite
+#                     Optional2 - Truncate file at open (is type file)
+#                          true - Clear file at open (default)
+#                          false - Just append logs to file
 #
-#                     Optional3 - Flush
-#                       true: Every essages is immediately flushed to the log file (default).
-#                       false: Messages are not immediately flushed to the log file.
-#
-#                     Optional4 - Add timestamp
-#                           true: Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS
+#                     Optional3 - Add timestamp (is type File).
+#                           true: Append timestamp to the log file name. Format: YYYY_MM_DD_HH_MM_SS
 #                           false: Just using filename (default)
 #
-#                     Optional5 - Max files count. Need option 4
-#                           Default: 20
-#
-#                     Optional6 - Purge age in days. Need option 4
-#                           Default: 10
-#
 
-LogChannel.Console = "1","6","[%H:%M:%S] %t","lightRed lightRed red brown cyan lightMagenta green"
-LogChannel.Server = "2","6","[%Y-%m-%d %H:%M:%S] %t","Server.log","true","true","true"
-LogChannel.GM = "2","6","[%Y-%m-%d %H:%M:%S] %t","GM_{}.log"
-LogChannel.DBErrors = "2","6","[%Y-%m-%d %H:%M:%S] %t","DBErrors.log"
-LogChannel.Modules = "2","6","[%Y-%m-%d %H:%M:%S] %t","Modules.log"
-LogChannel.Hotswap = "2","6","[%Y-%m-%d %H:%M:%S] %t","Hotswap.log"
-LogChannel.Discord = "4","6","%t"
+Sink.Console = "1","1","[%T.%e] [%t] %^%v%$","lightRed lightRed red brown cyan lightMagenta green"
+Sink.Server = "2","1","[%Y-%m-%d %T.%e] %v","Server.log","true","true","true"
+Sink.GM = "2","2","[%Y-%m-%d %T.%e] %v","GM.log"
+Sink.DBErrors = "2","4","[%Y-%m-%d %T.%e] %v","DBErrors.log"
+Sink.Modules = "2","1","[%Y-%m-%d %T.%e] %v","Modules.log"
+Sink.Hotswap = "2","2","[%Y-%m-%d %T.%e] %v","Hotswap.log"
+# Sink.Discord = "4","6","%v"
 
 #
 #  Logger config values: Given a logger "name"
@@ -4486,104 +4533,103 @@ LogChannel.Discord = "4","6","%t"
 #        Format:      LogLevel,ChannelList
 #
 #                     LogLevel
-#                         0 - (Disabled)
-#                         1 - (Fatal)
-#                         2 - (Critical)
-#                         3 - (Error)
-#                         4 - (Warning)
-#                         5 - (Info)
-#                         6 - (Debug)
-#                         7 - (Trace)
+#                       0 - Trace
+#                       1 - Debug
+#                       2 - Info
+#                       3 - Warning
+#                       4 - Error
+#                       5 - Critical
+#                       6 - Disabled
 #
 #                     File channel: file channel linked to logger
 #                     (Using spaces as separator).
 #
 
-Logger.root = 4,Console Server
-Logger.server = 5,Console Server
-Logger.commands.gm = 5,GM
-Logger.db = 5,Console Server
-Logger.db.update = 5,Console Server
+Logger.root = 2,Console Server
+Logger.server = 2,Console Server
+Logger.commands.gm = 2,GM
+Logger.db = 2,Console Server
+Logger.db.update = 2,Console Server
 Logger.db.query = 3,Console DBErrors
-Logger.mmaps= 5,Server
-Logger.module = 5,Console Modules
-Logger.time.update = 6,Console Server
-Logger.scripts.hotswap=5,Console Hotswap
+Logger.mmaps= 2,Server
+Logger.module = 2,Console Modules
+Logger.time.update = 1,Console Server
+Logger.scripts.hotswap= 2,Console Hotswap
 
-#Logger.achievement=4,Console Server
-#Logger.addon=4,Console Server
-#Logger.ahbot=4,Console Server
-#Logger.auctionHouse=4,Console Server
-#Logger.bg.arena=4,Console Server
-#Logger.bg.battlefield=4,Console Server
-#Logger.bg.battleground=4,Console Server
-#Logger.bg.reportpvpafk=4,Console Server
-#Logger.calendar=4,Console Server
-#Logger.chat.log=4,Console Server
-#Logger.chat.log.addon=4,Console Server
-#Logger.chat.system=4,Console Server
-#Logger.cheat=4,Console Server
-#Logger.commands.ra=4,Console Server
-#Logger.condition=4,Console Server
-#Logger.dbc=4,Console Server
-#Logger.disable=4,Console Server
-#Logger.entities.dyobject=4,Console Server
-#Logger.entities.faction=4,Console Server
-#Logger.entities.gameobject=4,Console Server
-#Logger.entities.object=4,Console Server
-#Logger.entities.pet=4,Console Server
-#Logger.entities.player.character=4,Console Server
-#Logger.entities.player.dump=4,Console Server
-#Logger.entities.player.items=4,Console Server
-#Logger.entities.player.loading=4,Console Server
-#Logger.entities.player.skills=4,Console Server
-#Logger.entities.player.session=4,Console Server
-#Logger.entities.player=4,Console Server
-#Logger.entities.transport=4,Console Server
-#Logger.entities.unit.ai=4,Console Server
-#Logger.entities.unit=4,Console Server
-#Logger.entities.vehicle=4,Console Server
-#Logger.gameevent=4,Console Server
-#Logger.group=4,Console Server
-#Logger.guild=4,Console Server
-#Logger.instance.save=4,Console Server
-#Logger.instance.script=4,Console Server
-#Logger.lfg=4,Console Server
-#Logger.loot=4,Console Server
-#Logger.mail=4,Console Server
-#Logger.maps.script=4,Console Server
-#Logger.maps=4,Console Server
-#Logger.misc=4,Console Server
-#Logger.mmaps.tiles=4,Console Server
-#Logger.movement.flightpath=4,Console Server
-#Logger.movement.motionmaster=4,Console Server
-#Logger.movement.splinechain=4,Console Server
-#Logger.movement=4,Console Server
-#Logger.network.kick=4,Console Server
-#Logger.network.opcode=4,Console Server
-#Logger.network.soap=4,Console Server
-#Logger.network=4,Console Server
-#Logger.outdoorpvp=4,Console Server
-#Logger.pool=4,Console Server
-#Logger.rbac=4,Console Server
-#Logger.reputation=4,Console Server
-#Logger.scripts.ai.escortai=4,Console Server
-#Logger.scripts.ai.followerai=4,Console Server
-#Logger.scripts.ai.petai=4,Console Server
-#Logger.scripts.ai.sai=4,Console Server
-#Logger.scripts.ai=4,Console Server
-#Logger.scripts.cos=4,Console Server
-#Logger.scripts=4,Console Server
-#Logger.server.authserver=4,Console Server
-#Logger.spells.aura.effect.nospell=4,Console Server
-#Logger.spells.aura.effect=4,Console Server
-#Logger.spells.effect.nospell=4,Console Server
-#Logger.spells.effect=4,Console Server
-#Logger.spells.scripts=4,Console Server
-#Logger.spells=4,Console Server
-#Logger.vehicles=4,Console Server
-#Logger.warden=4,Console Server
-#Logger.weather=4,Console Server
+#Logger.achievement=1,Console Server
+#Logger.addon=1,Console Server
+#Logger.ahbot=1,Console Server
+#Logger.auctionHouse=1,Console Server
+#Logger.bg.arena=1,Console Server
+#Logger.bg.battlefield=1,Console Server
+#Logger.bg.battleground=1,Console Server
+#Logger.bg.reportpvpafk=1,Console Server
+#Logger.calendar=1,Console Server
+#Logger.chat.log=1,Console Server
+#Logger.chat.log.addon=1,Console Server
+#Logger.chat.system=1,Console Server
+#Logger.cheat=1,Console Server
+#Logger.commands.ra=1,Console Server
+#Logger.condition=1,Console Server
+#Logger.dbc=1,Console Server
+#Logger.disable=1,Console Server
+#Logger.entities.dyobject=1,Console Server
+#Logger.entities.faction=1,Console Server
+#Logger.entities.gameobject=1,Console Server
+#Logger.entities.object=1,Console Server
+#Logger.entities.pet=1,Console Server
+#Logger.entities.player.character=1,Console Server
+#Logger.entities.player.dump=1,Console Server
+#Logger.entities.player.items=1,Console Server
+#Logger.entities.player.loading=1,Console Server
+#Logger.entities.player.skills=1,Console Server
+#Logger.entities.player.session=1,Console Server
+#Logger.entities.player=1,Console Server
+#Logger.entities.transport=1,Console Server
+#Logger.entities.unit.ai=1,Console Server
+#Logger.entities.unit=1,Console Server
+#Logger.entities.vehicle=1,Console Server
+#Logger.gameevent=1,Console Server
+#Logger.group=1,Console Server
+#Logger.guild=1,Console Server
+#Logger.instance.save=1,Console Server
+#Logger.instance.script=1,Console Server
+#Logger.lfg=1,Console Server
+#Logger.loot=1,Console Server
+#Logger.mail=1,Console Server
+#Logger.maps.script=1,Console Server
+#Logger.maps=1,Console Server
+#Logger.misc=1,Console Server
+#Logger.mmaps.tiles=1,Console Server
+#Logger.movement.flightpath=1,Console Server
+#Logger.movement.motionmaster=1,Console Server
+#Logger.movement.splinechain=1,Console Server
+#Logger.movement=1,Console Server
+#Logger.network.kick=1,Console Server
+#Logger.network.opcode=1,Console Server
+#Logger.network.soap=1,Console Server
+#Logger.network=1,Console Server
+#Logger.outdoorpvp=1,Console Server
+#Logger.pool=1,Console Server
+#Logger.rbac=1,Console Server
+#Logger.reputation=1,Console Server
+#Logger.scripts.ai.escortai=1,Console Server
+#Logger.scripts.ai.followerai=1,Console Server
+#Logger.scripts.ai.petai=1,Console Server
+#Logger.scripts.ai.sai=1,Console Server
+#Logger.scripts.ai=1,Console Server
+#Logger.scripts.cos=1,Console Server
+#Logger.scripts=1,Console Server
+#Logger.server.authserver=1,Console Server
+#Logger.spells.aura.effect.nospell=1,Console Server
+#Logger.spells.aura.effect=1,Console Server
+#Logger.spells.effect.nospell=1,Console Server
+#Logger.spells.effect=1,Console Server
+#Logger.spells.scripts=1,Console Server
+#Logger.spells=1,Console Server
+#Logger.vehicles=1,Console Server
+#Logger.warden=1,Console Server
+#Logger.weather=1,Console Server
 ###################################################################################################
 
 ###################################################################################################

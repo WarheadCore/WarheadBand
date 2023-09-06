@@ -15,27 +15,47 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LOG_H
-#define _LOG_H
+#ifndef WARHEAD_LOG_H_
+#define WARHEAD_LOG_H_
 
-#include "LogCommon.h"
-#include <fmt/format.h>
+#include "StringFormat.h"
+#include <spdlog/common.h>
+#include <spdlog/fwd.h>
 #include <unordered_map>
 #include <vector>
 
 namespace Warhead
 {
-    class Logger;
-    class LogChannel;
-    class LogMessage;
-
-    typedef std::shared_ptr<LogChannel>(*ChannelCreateFn)(std::string_view, LogLevel, std::string_view, std::vector<std::string_view> const&);
-
-    template <class ChannelImpl>
-    inline std::shared_ptr<LogChannel> CreateChannel(std::string_view name, LogLevel level, std::string_view pattern, std::vector<std::string_view> const& options)
+    enum class SinkType : uint8_t
     {
-        return std::make_shared<ChannelImpl>(name, level, pattern, options);
+        Console = 1,
+        File,
+
+        Max
+    };
+
+    constexpr uint8_t MAX_SINK_TYPE = static_cast<uint8_t>(SinkType::Max);
+
+    constexpr std::string_view GetSinkName(SinkType type)
+    {
+        switch (type)
+        {
+            case SinkType::Console:
+                return "Console";
+            case SinkType::File:
+                return "File";
+            default:
+                return "Unknown";
+        }
     }
+
+//    typedef spdlog::sink_ptr(*SinkCreateFn)(std::string_view, spdlog::level::level_enum, std::string_view, std::vector<std::string_view> const&);
+//
+//    template <class SinkImpl>
+//    inline spdlog::sink_ptr CreateSink(std::string_view name, spdlog::level::level_enum level, std::string_view pattern, std::vector<std::string_view> const& options)
+//    {
+//        return std::make_shared<SinkImpl>(name, level, pattern, options);
+//    }
 
     class WH_COMMON_API Log
     {
@@ -51,122 +71,96 @@ namespace Warhead
         static Log* instance();
 
         void Initialize();
+        void Clear();
+        bool ShouldLog(std::string_view filter, spdlog::level::level_enum level);
         void LoadFromConfig();
 
-        void SetLoggerLevel(std::string_view name, LogLevel const level);
-        void SetChannelLevel(std::string_view name, LogLevel const level);
-        bool ShouldLog(std::string_view filter, LogLevel const level);
+        // Logger functions
+        spdlog::logger* GetLoggerByType(std::string_view type);
+        static spdlog::logger* GetLogger(std::string_view loggerName);
+        void SetLoggerLevel(std::string_view loggerName, int level);
+
+        // Sink functions
+        spdlog::sink_ptr GetSink(std::string_view sinkName) const;
+        void AddSink(std::string_view sinkName, spdlog::sink_ptr sink);
+        void SetSinkLevel(std::string_view sinkName, int level);
 
         template<typename... Args>
-        inline void OutMessage(std::string_view filter, LogLevel const level, std::string_view file, std::size_t line, std::string_view function, std::string_view fmt, Args&&... args)
+        inline void OutMessage(std::string_view filter, spdlog::source_loc source, spdlog::level::level_enum level, Warhead::FormatString<Args...> fmt, Args&&... args)
         {
-            _OutMessage(filter, level, file, line, function, fmt::format(fmt, std::forward<Args>(args)...));
+            Write(filter, source, level, StringFormat(fmt, std::forward<Args>(args)...));
         }
 
         template<typename... Args>
-        inline void OutCommand(uint32 account, std::string_view fmt, Args&&... args)
+        inline void OutCommand(uint32 account, Warhead::FormatString<Args...> fmt, Args&&... args)
         {
-            if (!ShouldLog("commands.gm", LogLevel::Info))
+            if (!ShouldLog("commands.gm", spdlog::level::info))
                 return;
 
-            _OutCommand(account, fmt::format(fmt, std::forward<Args>(args)...));
+            WriteCommand(account, StringFormat(fmt, std::forward<Args>(args)...));
         }
 
-        //void OutCharDump(std::string_view str, uint32 accountId, uint64 guid, std::string_view name);
-
-        template<class ChannelImpl>
-        void RegisterChannel()
-        {
-            RegisterChannel(ChannelImpl::ThisChannelType, CreateChannel<ChannelImpl>);
-        }
-
-        inline std::string_view GetLogsDir() { return _logsDir; }
-
-        void UsingDefaultLogs(bool value = true);
+        std::string_view GetLogsDir() { return _logsDir; }
 
     private:
-        void _OutMessage(std::string_view filter, LogLevel level, std::string_view file, std::size_t line, std::string_view function, std::string_view message);
-        void _OutCommand(uint32 accountID, std::string_view message);
-        void Write(std::unique_ptr<LogMessage>&& msg);
+        void Write(std::string_view filter, spdlog::source_loc source, spdlog::level::level_enum level, std::string_view message);
+        void WriteCommand(uint32 accountID, std::string_view message);
 
         void CreateLoggerFromConfig(std::string_view configLoggerName);
-        void CreateChannelsFromConfig(std::string_view logChannelName);
+        void CreateSinksFromConfig(std::string_view configSinkName);
         void ReadLoggersFromConfig();
-        void ReadChannelsFromConfig();
+        void ReadSinksFromConfig();
 
-        void Clear();
-
-        void RegisterChannel(ChannelType type, ChannelCreateFn channelCreateFn);
-
-        Logger* GetLoggerByType(std::string_view type);
-        Logger* HasLogger(std::string_view type);
-        std::shared_ptr<LogChannel> HasChannel(std::string_view name);
-
-        std::unordered_map<std::string, std::unique_ptr<Logger>> _loggers;
-        std::unordered_map<std::string, std::shared_ptr<LogChannel>> _channels;
-        std::unordered_map<int8, ChannelCreateFn> _channelsCreateFunction;
-
-        LogLevel highestLogLevel{ LogLevel::Disabled };
         std::string _logsDir;
-
-        //
-        bool _isUseDefaultLogs{ false };
+        spdlog::level::level_enum _lowestLogLevel{spdlog::level::critical };
+        std::unordered_map<std::string, spdlog::sink_ptr> _sinks;
     };
 }
 
 #define sLog Warhead::Log::instance()
 
-#define LOG_EXCEPTION_FREE(filterType__, level__, ...) \
-    { \
-        try \
+#define LOG_CALL(filterType__, level__, ...) \
+        do \
         { \
-            sLog->OutMessage(filterType__, level__, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); \
-        } \
-        catch (const std::exception& e) \
-        { \
-            sLog->OutMessage("server", Warhead::LogLevel::Error, __FILE__, __LINE__, __FUNCTION__, "Wrong format occurred ({}) at '{}:{}'", \
-                e.what(), __FILE__, __LINE__); \
-        } \
-    }
-
-#define LOG_MSG_BODY(filterType__, level__, ...)                        \
-        do {                                                            \
-            if (sLog->ShouldLog(filterType__, level__))                 \
-                LOG_EXCEPTION_FREE(filterType__, level__, __VA_ARGS__); \
+            if (sLog->ShouldLog(filterType__, level__)) \
+            { \
+                try \
+                { \
+                    sLog->OutMessage(filterType__, spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level__, __VA_ARGS__); \
+                } \
+                catch (std::exception const& e) \
+                { \
+                    sLog->OutMessage("root", spdlog::source_loc{}, spdlog::level::err, "Wrong format occurred ({}) at '{}:{}'", \
+                        e.what(), __FILE__, __LINE__); \
+                } \
+            } \
         } while (0)
 
-// Fatal - 1
-#define LOG_FATAL(filterType__, ...) \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Fatal, __VA_ARGS__)
-
-// Critical - 2
+// Critical - 5
 #define LOG_CRIT(filterType__, ...) \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Critical, __VA_ARGS__)
+    LOG_CALL(filterType__, spdlog::level::critical, __VA_ARGS__)
 
-// Error - 3
+// Error - 4
 #define LOG_ERROR(filterType__, ...) \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Error, __VA_ARGS__)
+    LOG_CALL(filterType__, spdlog::level::err, __VA_ARGS__)
 
-// Warning - 4
+// Warning - 3
 #define LOG_WARN(filterType__, ...)  \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Warning, __VA_ARGS__)
+    LOG_CALL(filterType__, spdlog::level::warn, __VA_ARGS__)
 
-// Info - 5
+// Info - 2
 #define LOG_INFO(filterType__, ...)  \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Info, __VA_ARGS__)
+    LOG_CALL(filterType__, spdlog::level::info, __VA_ARGS__)
 
-// Debug - 6
+// Debug - 1
 #define LOG_DEBUG(filterType__, ...) \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Debug, __VA_ARGS__)
+    LOG_CALL(filterType__, spdlog::level::debug, __VA_ARGS__)
 
-// Trace - 7
+// Trace - 0
 #define LOG_TRACE(filterType__, ...) \
-    LOG_MSG_BODY(filterType__, Warhead::LogLevel::Trace, __VA_ARGS__)
+    LOG_CALL(filterType__, spdlog::level::trace, __VA_ARGS__)
 
 #define LOG_GM(accountId__, ...) \
     sLog->OutCommand(accountId__, __VA_ARGS__);
-
-//#define LOG_CHAR_DUMP(message__, accountId__, playerGuid__, playerName__) \
-//    sLog->OutCharDump(message__, accountId__, playerGuid__, playerName__);
 
 #endif

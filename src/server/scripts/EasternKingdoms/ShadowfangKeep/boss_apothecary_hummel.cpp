@@ -90,7 +90,7 @@ public:
     {
         boss_apothecary_hummelAI(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false)
         {
-            _scheduler.SetValidator([this]
+            scheduler.SetValidator([this]
             {
                 return !me->HasUnitState(UNIT_STATE_CASTING);
             });
@@ -112,15 +112,9 @@ public:
             _deadCount = 0;
             _isDead = false;
             _phase = PHASE_ALL;
-            summons.DespawnAll();
             me->SetFaction(FACTION_FRIENDLY);
             me->SummonCreatureGroup(1);
             me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
         }
 
         void DoAction(int32 action) override
@@ -128,7 +122,7 @@ public:
             if (action == ACTION_START_EVENT && _phase == PHASE_ALL)
             {
                 _phase = PHASE_INTRO;
-                _scheduler.Schedule(1ms, [this](TaskContext /*context*/)
+                scheduler.Schedule(1ms, [this](TaskContext /*context*/)
                 {
                     Talk(SAY_INTRO_0);
                 })
@@ -233,9 +227,8 @@ public:
                 Talk(SAY_HUMMEL_DEATH);
             }
 
-            _scheduler.CancelAll();
+            _JustDied();
             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
 
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (!players.IsEmpty())
@@ -257,7 +250,7 @@ public:
                 return;
             }
 
-            _scheduler.Update(diff, [this]
+            scheduler.Update(diff, [this]
             {
                 DoMeleeAttackIfReady();
             });
@@ -266,7 +259,6 @@ public:
     private:
         uint8 _deadCount;
         bool _isDead;
-        TaskScheduler _scheduler;
         uint8 _phase;
     };
 

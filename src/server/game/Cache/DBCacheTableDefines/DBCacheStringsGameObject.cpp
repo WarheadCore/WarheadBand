@@ -31,5 +31,5 @@ void DBCacheMgr::InitGameObjectStrings()
                                                     "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
                                                     "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
     _queryStrings.emplace(DBCacheTable::GameobjectAddon, "SELECT guid, invisibilityType, invisibilityValue FROM gameobject_addon");
-    _queryStrings.emplace(DBCacheTable::GameObjectQuestItem, "SELECT GameObjectEntry, ItemId FROM gameobject_questitem ORDER BY Idx ASC");
+    _queryStrings.emplace(DBCacheTable::GameObjectQuestItem, "SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
 }

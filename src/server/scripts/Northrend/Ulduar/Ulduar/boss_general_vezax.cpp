@@ -154,18 +154,18 @@ public:
             me->setActive(false);
         }
 
-        void EnterCombat(Unit*  /*pWho*/) override
+        void JustEngagedWith(Unit*  /*pWho*/) override
         {
             me->setActive(true);
             me->SetInCombatWithZone();
 
             events.Reset();
-            events.RescheduleEvent(EVENT_SPELL_VEZAX_SHADOW_CRASH, 13000);
-            events.RescheduleEvent(EVENT_SPELL_SEARING_FLAMES, 10000, 1);
-            events.RescheduleEvent(EVENT_SPELL_SURGE_OF_DARKNESS, 63000);
-            events.RescheduleEvent(EVENT_SPELL_MARK_OF_THE_FACELESS, 20000);
-            events.RescheduleEvent(EVENT_SPELL_SUMMON_SARONITE_VAPORS, 30000);
-            events.RescheduleEvent(EVENT_BERSERK, 600000);
+            events.RescheduleEvent(EVENT_SPELL_VEZAX_SHADOW_CRASH, 13s);
+            events.RescheduleEvent(EVENT_SPELL_SEARING_FLAMES, 10s, 1);
+            events.RescheduleEvent(EVENT_SPELL_SURGE_OF_DARKNESS, 63s);
+            events.RescheduleEvent(EVENT_SPELL_MARK_OF_THE_FACELESS, 20s);
+            events.RescheduleEvent(EVENT_SPELL_SUMMON_SARONITE_VAPORS, 30s);
+            events.RescheduleEvent(EVENT_BERSERK, 10min);
 
             Talk(SAY_AGGRO);
 
@@ -213,7 +213,7 @@ public:
                 return;
 
             if( !berserk && (me->GetPositionX() < 1720.0f || me->GetPositionX() > 1940.0f || me->GetPositionY() < 20.0f || me->GetPositionY() > 210.0f) )
-                events.RescheduleEvent(EVENT_BERSERK, 1);
+                events.RescheduleEvent(EVENT_BERSERK, 1ms);
 
             events.Update(diff);
 
@@ -231,7 +231,7 @@ public:
                     break;
                 case EVENT_SPELL_VEZAX_SHADOW_CRASH:
                     {
-                        events.RepeatEvent(10000);
+                        events.Repeat(10s);
 
                         std::vector<Player*> players;
                         Map::PlayerList const& pl = me->GetMap()->GetPlayers();
@@ -247,7 +247,7 @@ public:
                             Player* target = players.at(urand(0, players.size() - 1));
                             me->SetGuidValue(UNIT_FIELD_TARGET, target->GetGUID());
                             me->CastSpell(target, SPELL_VEZAX_SHADOW_CRASH, false);
-                            events.ScheduleEvent(EVENT_RESTORE_TARGET, 750);
+                            events.ScheduleEvent(EVENT_RESTORE_TARGET, 750ms);
                         }
                     }
                     break;
@@ -258,13 +258,13 @@ public:
                 case EVENT_SPELL_SEARING_FLAMES:
                     if(!me->HasAura(SPELL_SARONITE_BARRIER))
                         me->CastSpell(me->GetVictim(), SPELL_SEARING_FLAMES, false);
-                    events.RepeatEvent( me->GetMap()->Is25ManRaid() ? 8000 : 15000 );
+                    events.Repeat(me->GetMap()->Is25ManRaid() ? 8s : 15s);
                     break;
                 case EVENT_SPELL_SURGE_OF_DARKNESS:
                     Talk(SAY_SURGE_OF_DARKNESS);
                     Talk(SAY_EMOTE_SURGE_OF_DARKNESS);
                     me->CastSpell(me, SPELL_SURGE_OF_DARKNESS, false);
-                    events.RepeatEvent(63000);
+                    events.Repeat(63s);
                     events.DelayEvents(10000, 1);
                     break;
                 case EVENT_SPELL_MARK_OF_THE_FACELESS:
@@ -291,7 +291,7 @@ public:
                         if (t)
                             me->CastSpell(t, SPELL_MARK_OF_THE_FACELESS_AURA, false);
 
-                        events.RepeatEvent(40000);
+                        events.Repeat(40s);
                     }
                     break;
                 case EVENT_SPELL_SUMMON_SARONITE_VAPORS:
@@ -300,7 +300,7 @@ public:
                         me->CastSpell(me, SPELL_SUMMON_SARONITE_VAPORS, false);
 
                         if( vaporsCount < 6 || !hardmodeAvailable )
-                            events.RepeatEvent(30000);
+                            events.Repeat(30s);
                         else
                         {
                             for (ObjectGuid const& guid : summons)
@@ -313,7 +313,7 @@ public:
 
                             events.DelayEvents(12000, 0);
                             events.DelayEvents(12000, 1);
-                            events.ScheduleEvent(EVENT_SARONITE_VAPORS_SWIRL, 6000);
+                            events.ScheduleEvent(EVENT_SARONITE_VAPORS_SWIRL, 6s);
                         }
                     }
                     break;
@@ -324,7 +324,7 @@ public:
                         if( Creature* sv = ObjectAccessor::GetCreature(*me, *(summons.begin())) )
                             sv->CastSpell(sv, SPELL_SARONITE_ANIMUS_FORMATION_VISUAL, true);
 
-                        events.ScheduleEvent(EVENT_SPELL_SUMMON_SARONITE_ANIMUS, 2000);
+                        events.ScheduleEvent(EVENT_SPELL_SUMMON_SARONITE_ANIMUS, 2s);
                         break;
                     }
                     break;
@@ -337,7 +337,7 @@ public:
                         if( Creature* sv = ObjectAccessor::GetCreature(*me, *(summons.begin())) )
                             sv->CastSpell(sv, SPELL_SUMMON_SARONITE_ANIMUS, true);
 
-                        events.ScheduleEvent(EVENT_DESPAWN_SARONITE_VAPORS, 2500);
+                        events.ScheduleEvent(EVENT_DESPAWN_SARONITE_VAPORS, 2500ms);
                         break;
                     }
                     break;
@@ -415,7 +415,7 @@ public:
                     vezax->AI()->DoAction(1);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void IsSummonedBy(WorldObject* /*summoner*/) override
         {
             Talk(SAY_EMOTE_VAPORS);
         }

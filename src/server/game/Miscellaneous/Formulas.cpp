@@ -81,7 +81,7 @@ uint32 Warhead::XP::Gain(Player* player, Unit* unit, bool isBattleGround /*= fal
     {
         float xpMod = 1.0f;
 
-        gain = BaseGain(player->getLevel(), unit->getLevel(), GetContentLevelsForMapAndZone(unit->GetMapId(), unit->GetZoneId()));
+        gain = BaseGain(player->GetLevel(), unit->GetLevel(), GetContentLevelsForMapAndZone(unit->GetMapId(), unit->GetZoneId()));
 
         if (gain && creature)
         {

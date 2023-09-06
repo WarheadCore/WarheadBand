@@ -78,6 +78,7 @@ MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ProducerConsumer
         _asyncQueueWorker = std::make_unique<AsyncDBQueueWorker>(_queue, this);
 
     UpdateLastUseTime();
+    _isInitStmts = std::make_unique<std::promise<void>>();
 }
 
 MySQLConnection::~MySQLConnection()
@@ -144,7 +145,7 @@ uint32 MySQLConnection::Open()
 
     if (_mysqlHandle)
     {
-        LOG_MSG_BODY("db.connection", _isDynamic ? Warhead::LogLevel::Debug : Warhead::LogLevel::Info, "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
+        LOG_CALL("db.connection", _isDynamic ? spdlog::level::debug : spdlog::level::info, "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
         mysql_autocommit(_mysqlHandle, 1);
 
         // set connection properties to UTF8 to properly handle locales for different
@@ -193,6 +194,12 @@ bool MySQLConnection::Execute(PreparedStatement stmt)
 {
     if (!_mysqlHandle || !stmt)
         return false;
+
+    if (_isInitStmts)
+    {
+        _isInitStmts->get_future().wait();
+        _isInitStmts.reset();
+    }
 
     uint32 index = stmt->GetIndex();
 
@@ -403,7 +410,7 @@ bool MySQLConnection::HandleMySQLError(uint32 errNo, uint8 attempts /*= 5*/)
             {
                 if (!this->PrepareStatements())
                 {
-                    LOG_FATAL("db.connection", "Could not re-prepare statements!");
+                    LOG_CRIT("db.connection", "Could not re-prepare statements!");
                     ABORT("Could not re-prepare statements!");
                 }
 
@@ -417,7 +424,7 @@ bool MySQLConnection::HandleMySQLError(uint32 errNo, uint8 attempts /*= 5*/)
             {
                 // Shut down the server when the mysql server isn't
                 // reachable for some time
-                LOG_FATAL("db.connection", "Failed to reconnect to the MySQL server, terminating the server to prevent data corruption!");
+                LOG_CRIT("db.connection", "Failed to reconnect to the MySQL server, terminating the server to prevent data corruption!");
 
                 // We could also initiate a shutdown through using std::raise(SIGTERM)
                 ABORT("Failed to reconnect to the MySQL server, terminating the server to prevent data corruption!");
@@ -541,7 +548,7 @@ int32 MySQLConnection::ExecuteTransaction(SQLTransaction transaction)
                 }
                 catch (const std::bad_variant_access& ex)
                 {
-                    LOG_FATAL("db.query", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
+                    LOG_CRIT("db.query", "> PreparedStatementBase not found in SQLElementData. {}", ex.what());
                     ABORT("> PreparedStatementBase not found in SQLElementData. {}", ex.what());
                 }
 
@@ -566,7 +573,7 @@ int32 MySQLConnection::ExecuteTransaction(SQLTransaction transaction)
                 }
                 catch (const std::bad_variant_access& ex)
                 {
-                    LOG_FATAL("db.query", "> std::string not found in SQLElementData. {}", ex.what());
+                    LOG_CRIT("db.query", "> std::string not found in SQLElementData. {}", ex.what());
                     ABORT("> std::string not found in SQLElementData. {}", ex.what());
                 }
 
@@ -627,4 +634,9 @@ std::size_t MySQLConnection::GetQueueSize() const
         return 0;
 
     return _queue->Size();
+}
+
+void MySQLConnection::SetInitStmts()
+{
+    _isInitStmts->set_value();
 }

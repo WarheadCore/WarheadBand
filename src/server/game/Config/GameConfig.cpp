@@ -25,7 +25,6 @@
 #include "MapMgr.h"
 #include "Object.h"
 #include "Player.h"
-#include "ServerMotd.h"
 #include "StringConvert.h"
 #include "World.h"
 
@@ -101,7 +100,7 @@ T GameConfig::GetOption(std::string_view optionName, Optional<T> def /*= std::nu
     // Check exist option part 2
     if (itr == _configOptions.end())
     {
-        LOG_FATAL("server.loading", "> GameConfig::GetOption: option ({}) is not exists. Returned ({})", optionName, defStr);
+        LOG_CRIT("server.loading", "> GameConfig::GetOption: option ({}) is not exists. Returned ({})", optionName, defStr);
         return Warhead::Config::GetDefaultValue<T>();
     }
 
@@ -196,8 +195,6 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
     ///- Read the player limit and the Message of the day from the config file
     if (!reload)
         sWorld->SetPlayerAmountLimit(CONF_GET_INT("PlayerLimit"));
-
-    Motd::SetMotd(CONF_GET_STR("Motd"));
 
     ///- Get string for new logins (newly created characters)
     sWorld->SetNewCharString(CONF_GET_STR("PlayerStart.String"));

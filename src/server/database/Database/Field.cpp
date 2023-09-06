@@ -262,8 +262,8 @@ T Field::GetData() const
 
     if (!result)
     {
-        LOG_FATAL("db.query", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, GetTypeName<T>(), data.raw);
-        LOG_FATAL("db.query", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
+        LOG_CRIT("db.query", "> Incorrect value '{}' for type '{}'. Value is raw ? '{}'", data.value, GetTypeName<T>(), data.raw);
+        LOG_CRIT("db.query", "> Table name '{}'. Field name '{}'", meta->TableName, meta->Name);
         //ABORT();
         return GetDefaultValue<T>();
     }

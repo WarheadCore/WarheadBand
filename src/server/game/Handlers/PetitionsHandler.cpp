@@ -96,7 +96,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     else
     {
         // TODO: find correct opcode
-        if (_player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
+        if (_player->GetLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
@@ -141,7 +141,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
             return;
         }
 
-        if (sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+        if (sObjectMgr->IsReservedName(name) || sObjectMgr->IsProfanityName(name) || !ObjectMgr::IsValidCharterName(name))
         {
             Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_INVALID, name);
             return;
@@ -154,7 +154,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_NAME_EXISTS_S);
             return;
         }
-        if (sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+        if (sObjectMgr->IsReservedName(name) || sObjectMgr->IsProfanityName(name) || !ObjectMgr::IsValidCharterName(name))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_NAME_INVALID);
             return;
@@ -355,7 +355,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
             Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, newName);
             return;
         }
-        if (sObjectMgr->IsReservedName(newName) || !ObjectMgr::IsValidCharterName(newName))
+        if (sObjectMgr->IsReservedName(newName) || sObjectMgr->IsProfanityName(newName) || !ObjectMgr::IsValidCharterName(newName))
         {
             Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_INVALID, newName);
             return;
@@ -368,7 +368,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, newName, "", ERR_ARENA_TEAM_NAME_EXISTS_S);
             return;
         }
-        if (sObjectMgr->IsReservedName(newName) || !ObjectMgr::IsValidCharterName(newName))
+        if (sObjectMgr->IsReservedName(newName) || sObjectMgr->IsProfanityName(newName) || !ObjectMgr::IsValidCharterName(newName))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, newName, "", ERR_ARENA_TEAM_NAME_INVALID);
             return;
@@ -418,21 +418,17 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     if (!signatures)
         return;
 
-    // not let enemies sign guild charter
-    if (!CONF_GET_BOOL("AllowTwoSide.Interaction.Guild") && GetPlayer()->GetTeamId() != sCharacterCache->GetCharacterTeamByGuid(petition->ownerGuid))
-    {
-        if (type != GUILD_CHARTER_TYPE)
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
-        else
-            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
-        return;
-    }
-
     if (type != GUILD_CHARTER_TYPE)
     {
-        if (_player->getLevel() < CONF_GET_INT("MaxPlayerLevel"))
+        if (!CONF_GET_BOOL("AllowTwoSide.Interaction.Arena") && GetPlayer()->GetTeamId() != sCharacterCache->GetCharacterTeamByGuid(petition->ownerGuid))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName().c_str(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
+            return;
+        }
+
+        if (_player->GetLevel() < CONF_GET_INT("MaxPlayerLevel"))
+        {
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -442,18 +438,24 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
         if (_player->GetArenaTeamId(slot))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_IN_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_IN_ARENA_TEAM_S);
             return;
         }
 
         if (_player->GetArenaTeamIdInvited())
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
             return;
         }
     }
     else
     {
+        if (!CONF_GET_BOOL("AllowTwoSide.Interaction.Guild") && GetPlayer()->GetTeamId() != sCharacterCache->GetCharacterTeamByGuid(petition->ownerGuid))
+        {
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
+            return;
+        }
+
         if (_player->GetGuildId())
         {
             Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, _player->GetName());
@@ -474,8 +476,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
     // not allow sign another player from already sign player account
 
     bool found = false;
-    for (SignatureMap::const_iterator itr = signatures->signatureMap.begin(); itr != signatures->signatureMap.end(); ++itr)
-        if (itr->second == GetAccountId())
+    for (auto itr : signatures->signatureMap)
+        if (itr.second == GetAccountId())
         {
             found = true;
             break;
@@ -569,21 +571,18 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
     if (!petition)
         return;
 
-    if (GetPlayer()->GetTeamId() != player->GetTeamId())
-    {
-        if (petition->petitionType != GUILD_CHARTER_TYPE)
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
-        else
-            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
-        return;
-    }
-
     if (petition->petitionType != GUILD_CHARTER_TYPE)
     {
-        if (!player->IsMaxLevel())
+        if (GetPlayer()->GetTeamId() != player->GetTeamId() && !CONF_GET_BOOL("AllowTwoSide.Interaction.Arena"))
+        {
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
+            return;
+        }
+
+        if (player->GetLevel() < CONF_GET_INT("MaxPlayerLevel"))
         {
             // player is too low level to join an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -594,18 +593,24 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
         if (player->GetArenaTeamId(slot))
         {
             // player is already in an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName().c_str(), "", ERR_ALREADY_IN_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ALREADY_IN_ARENA_TEAM_S);
             return;
         }
 
         if (player->GetArenaTeamIdInvited())
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName().c_str(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_INVITED_TO_ARENA_TEAM_S);
             return;
         }
     }
     else
     {
+        if (GetPlayer()->GetTeamId() != player->GetTeamId() && !CONF_GET_BOOL("AllowTwoSide.Interaction.Guild"))
+        {
+            Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NOT_ALLIED);
+            return;
+        }
+
         if (player->GetGuildId())
         {
             Guild::SendCommandResult(this, GUILD_COMMAND_INVITE, ERR_ALREADY_IN_GUILD_S, _player->GetName());

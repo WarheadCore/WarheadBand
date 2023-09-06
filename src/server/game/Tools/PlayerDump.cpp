@@ -206,7 +206,7 @@ inline void MarkDependentColumn(TableStruct& tableStruct, std::string const& col
     auto itr = FindColumnByName(tableStruct, columnName);
     if (itr == tableStruct.TableFields.end())
     {
-        LOG_FATAL("server.loading", "Column `{}` declared in table `{}` marked as dependent but doesn't exist, PlayerDump will not work properly, please update table definitions",
+        LOG_CRIT("server.loading", "Column `{}` declared in table `{}` marked as dependent but doesn't exist, PlayerDump will not work properly, please update table definitions",
             columnName, tableStruct.TableName);
         ABORT();
         return;
@@ -214,7 +214,7 @@ inline void MarkDependentColumn(TableStruct& tableStruct, std::string const& col
 
     if (itr->IsDependentField)
     {
-        LOG_FATAL("server.loading", "Attempt to mark column `{}` in table `{}` as dependent column but already marked! please check your code.",
+        LOG_CRIT("server.loading", "Attempt to mark column `{}` in table `{}` as dependent column but already marked! please check your code.",
             columnName, tableStruct.TableName);
         ABORT();
         return;
@@ -231,7 +231,7 @@ inline void MarkWhereField(TableStruct& tableStruct, std::string const& whereFie
     auto whereFieldItr = FindColumnByName(tableStruct, whereField);
     if (whereFieldItr == tableStruct.TableFields.end())
     {
-        LOG_FATAL("server.loading", "Column name `{}` set as 'WHERE' column for table `{}` doesn't exist. PlayerDump won't work properly",
+        LOG_CRIT("server.loading", "Column name `{}` set as 'WHERE' column for table `{}` doesn't exist. PlayerDump won't work properly",
             whereField, tableStruct.TableName);
         ABORT();
         return;
@@ -358,7 +358,7 @@ void PlayerDump::InitializeTables()
             MarkDependentColumn(t, "guid", GUID_TYPE_PET);
             break;
         default:
-            LOG_FATAL("server.loading", "Wrong dump table type {}, probably added a new table type without updating code", uint32(dumpTable.Type));
+            LOG_CRIT("server.loading", "Wrong dump table type {}, probably added a new table type without updating code", uint32(dumpTable.Type));
             ABORT();
             return;
         }
@@ -371,7 +371,7 @@ void PlayerDump::InitializeTables()
     {
         if (tableStruct.WhereFieldName.empty())
         {
-            LOG_FATAL("server.loading", "Table `{}` defined in player dump doesn't have a WHERE query field", tableStruct.TableName);
+            LOG_CRIT("server.loading", "Table `{}` defined in player dump doesn't have a WHERE query field", tableStruct.TableName);
             ABORT();
         }
     }

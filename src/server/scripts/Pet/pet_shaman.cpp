@@ -49,7 +49,7 @@ struct npc_pet_shaman_earth_elemental : public ScriptedAI
 {
     npc_pet_shaman_earth_elemental(Creature* creature) : ScriptedAI(creature), _initAttack(true) { }
 
-    void EnterCombat(Unit*) override
+    void JustEngagedWith(Unit*) override
     {
         _events.Reset();
         _events.ScheduleEvent(EVENT_SHAMAN_ANGEREDEARTH, 0);
@@ -94,7 +94,7 @@ struct npc_pet_shaman_fire_elemental : public ScriptedAI
 
     void InitializeAI() override { }
 
-    void EnterCombat(Unit*) override
+    void JustEngagedWith(Unit*) override
     {
         _events.Reset();
         _events.ScheduleEvent(EVENT_SHAMAN_FIRENOVA, urand(5000, 20000));

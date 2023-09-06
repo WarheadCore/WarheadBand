@@ -328,7 +328,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     if (!creature)
         return nullptr;
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN] || creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN])
-        creature->SetRespawnDelay(RESPAWN_ONE_DAY); // TODO: look if this can be done by database + also add this for the wingcommanders
+        creature->SetRespawnDelay(RESPAWN_ONE_DAY); /// @todo: look if this can be done by database + also add this for the wingcommanders
 
     if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3) ||
             (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
@@ -1491,22 +1491,22 @@ void BattlegroundAV::AssaultNode(BG_AV_Nodes node, TeamId teamId)
 {
     if (m_Nodes[node].TotalOwnerId == teamId)
     {
-        LOG_FATAL("bg.battleground", "Assaulting team is TotalOwner of node");
+        LOG_CRIT("bg.battleground", "Assaulting team is TotalOwner of node");
         ABORT();
     }
     if (m_Nodes[node].OwnerId == teamId)
     {
-        LOG_FATAL("bg.battleground", "Assaulting team is owner of node");
+        LOG_CRIT("bg.battleground", "Assaulting team is owner of node");
         ABORT();
     }
     if (m_Nodes[node].State == POINT_DESTROYED)
     {
-        LOG_FATAL("bg.battleground", "Destroyed node is being assaulted");
+        LOG_CRIT("bg.battleground", "Destroyed node is being assaulted");
         ABORT();
     }
     if (m_Nodes[node].State == POINT_ASSAULTED && m_Nodes[node].TotalOwnerId != TEAM_NEUTRAL) //only assault an assaulted node if no totalowner exists
     {
-        LOG_FATAL("bg.battleground", "Assault on an not assaulted node with total owner");
+        LOG_CRIT("bg.battleground", "Assault on an not assaulted node with total owner");
         ABORT();
     }
     //the timer gets another time, if the previous owner was 0 == Neutral
@@ -1581,7 +1581,7 @@ void BattlegroundAV::ResetBGSubclass()
 
 bool BattlegroundAV::IsBothMinesControlledByTeam(TeamId teamId) const
 {
-    for (auto mine : m_Mine_Owner)
+    for (auto& mine : m_Mine_Owner)
         if (mine != teamId)
             return false;
 

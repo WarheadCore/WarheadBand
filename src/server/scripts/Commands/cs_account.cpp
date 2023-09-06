@@ -641,15 +641,15 @@ public:
         return true;
     }
 
-    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, Tail arg1, Tail arg2, Tail arg3)
+    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, int32 level, std::optional<std::string_view> account, std::optional<int32> realmId)
     {
         std::string targetAccountName;
         uint32 targetAccountId = 0;
         uint32 targetSecurity = 0;
-        uint32 gm = 0;
+        uint32 gm = level;
         bool isAccountNameGiven = true;
 
-        if (!arg1.empty() && arg3.empty())
+        if (!account)
         {
             if (!handler->getSelectedPlayer())
                 return false;
@@ -657,14 +657,10 @@ public:
             isAccountNameGiven = false;
         }
 
-        // Check for second parameter
-        if (!isAccountNameGiven && arg2.empty())
-            return false;
-
         // Check for account
         if (isAccountNameGiven)
         {
-            targetAccountName = arg1;
+            targetAccountName = *account;
             if (!Utf8ToUpperOnlyLatin(targetAccountName))
             {
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, targetAccountName);
@@ -674,7 +670,6 @@ public:
         }
 
         // Check for invalid specified GM level.
-        gm = (isAccountNameGiven) ? Warhead::StringTo<int32>(arg2).value_or(0) : Warhead::StringTo<int32>(arg1).value_or(0);
         if (gm > SEC_CONSOLE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -684,7 +679,7 @@ public:
 
         // handler->getSession() == nullptr only for console
         targetAccountId = (isAccountNameGiven) ? AccountMgr::GetId(targetAccountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
-        int32 gmRealmID = (isAccountNameGiven) ? Warhead::StringTo<int32>(arg3).value_or(0) : Warhead::StringTo<int32>(arg2).value_or(0);
+        int32 gmRealmID = realmId.value_or(0);
         uint32 playerSecurity;
 
         if (handler->GetSession())

@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseMgr.h"
@@ -62,6 +59,8 @@ int main(int argc, char** argv)
     if (!sConfigMgr->LoadAppConfigs())
         return 1;
 
+    std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
+
     // Init logging
     sLog->Initialize();
 
@@ -79,6 +78,9 @@ int main(int argc, char** argv)
             LOG_INFO("server.authserver", "> Using DB server version:        {}", sDatabaseMgr->GetServerVersion());
         }
     );
+
+    for (std::string const& key : overriddenKeys)
+        LOG_INFO("dbimport", "Configuration field {} was overridden with environment variable.", key);
 
     OpenSSLCrypto::threadsSetup();
 
