@@ -20,7 +20,6 @@
 
 #include "AnticheatMgr.h"
 #include "Chat.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptObject.h"

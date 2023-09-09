@@ -20,7 +20,6 @@
 
 #include "AccountMgr.h"
 #include "Channel.h"
-#include "Chat.h"
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
