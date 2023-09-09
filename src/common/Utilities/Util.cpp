@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <boost/core/demangle.hpp>
 #include <cctype>
-#include <cstdarg>
 #include <sstream>
 #include <string>
 #include <utf8.h>
