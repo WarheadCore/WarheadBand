@@ -38,6 +38,8 @@
 #include "VMapFactory.h"
 #include "Vehicle.h"
 #include "Weather.h"
+#include "IVMapMgr.h"
+#include "VMapMgr2.h"
 #include <utility>
 
 union u_map_magic

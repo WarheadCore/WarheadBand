@@ -55,6 +55,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "InstanceScript.h"
 #include <zlib.h>
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
