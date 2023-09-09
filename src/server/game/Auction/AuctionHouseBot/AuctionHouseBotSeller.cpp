@@ -564,8 +564,9 @@ void AuctionBotSeller::LoadSellerValues(SellerConfiguration& config)
 uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
 {
     AllItemsArray itemsSaved(MAX_AUCTION_QUALITY, std::vector<uint32>(MAX_ITEM_CLASS));
+    auto auctionObject{ sAuctionMgr->GetAuctionsMap(config.GetHouseType()) };
 
-    for (auto const& [auctionID, auction] : sAuctionMgr->GetAuctionsMap(config.GetHouseType())->GetAuctions())
+    auctionObject->ForEachAuctions([this, &config, &itemsSaved](AuctionEntry* auction)
     {
         Item* item = sAuctionMgr->GetAuctionItem(auction->ItemGuid);
         if (item)
@@ -575,7 +576,7 @@ uint32 AuctionBotSeller::SetStat(SellerConfiguration& config)
                 if (!auction->PlayerOwner || sAuctionBotConfig->IsBotChar(auction->PlayerOwner.GetCounter())) // Add only ahbot items
                     ++itemsSaved[prototype->Quality][prototype->Class];
         }
-    }
+    });
 
     uint32 count = 0;
     for (uint32 j = 0; j < MAX_AUCTION_QUALITY; ++j)

@@ -499,10 +499,7 @@ void ListItemsTask::Execute()
     }
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
-    bool result = auctionHouse->BuildListAuctionItems(packetSend, player, _packet);
-    if (!result)
-        return;
-
+    auctionHouse->BuildListAuctionItems(packetSend, player, std::move(_packet));
     player->SendDirectMessage(packetSend.Write());
 }
 

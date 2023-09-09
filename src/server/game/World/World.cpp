@@ -97,7 +97,6 @@
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "UpdateTime.h"
-#include "Util.h"
 #include "VMapFactory.h"
 #include "VMapMgr2.h"
 #include "Vehicle.h"
@@ -1299,12 +1298,12 @@ void World::Update(uint32 diff)
     DynamicVisibilityMgr::Update(GetActiveSessionCount());
 
     ///- Update the different timers
-    for (int i = 0; i < WUPDATE_COUNT; ++i)
+    for (auto& _timer : _timers)
     {
-        if (_timers[i].GetCurrent() >= 0)
-            _timers[i].Update(diff);
+        if (_timer.GetCurrent() >= 0)
+            _timer.Update(diff);
         else
-            _timers[i].SetCurrent(0);
+            _timer.SetCurrent(0);
     }
 
     // pussywizard: our speed up and functionality
@@ -1373,47 +1372,44 @@ void World::Update(uint32 diff)
         _timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
+    // pussywizard: handle auctions when the timer has passed
+    if (_timers[WUPDATE_AUCTIONS].Passed())
     {
-        std::lock_guard<std::mutex> guard(sAsyncAuctionMgr->GetLock());
+        _timers[WUPDATE_AUCTIONS].Reset();
 
-        // pussywizard: handle auctions when the timer has passed
-        if (_timers[WUPDATE_AUCTIONS].Passed())
-        {
-            _timers[WUPDATE_AUCTIONS].Reset();
+        // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
+        sAuctionMgr->Update();
+    }
 
-            // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
-            sAuctionMgr->Update();
-        }
+    /// <li> Handle AHBot operations
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update AHBot"));
+        sAuctionBot->Update(Milliseconds{ diff });
+    }
 
-        /// <li> Handle AHBot operations
-        {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update AHBot"));
-            sAuctionBot->Update(Milliseconds{ diff });
-        }
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async auction"));
+        sAsyncAuctionMgr->Update(Milliseconds{diff});
+    }
 
-        {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update async auction"));
-            sAsyncAuctionMgr->Update(Milliseconds{diff});
-        }
+    if (currentGameTime > _mail_expire_check_timer)
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update old mails"));
+        sObjectMgr->ReturnOrDeleteOldMails(true);
+        _mail_expire_check_timer = currentGameTime + 6h;
+    }
 
-        if (currentGameTime > _mail_expire_check_timer)
-        {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update old mails"));
-            sObjectMgr->ReturnOrDeleteOldMails(true);
-            _mail_expire_check_timer = currentGameTime + 6h;
-        }
-
-        /// <li> Handle session updates when the timer has passed
-        {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
-            UpdateSessions(diff);
-        }
+    /// <li> Handle session updates when the timer has passed
+    {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update sessions"));
+        UpdateSessions(diff);
     }
 
     /// <li> Handle weather updates when the timer has passed
     if (_timers[WUPDATE_WEATHERS].Passed())
     {
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update weather manager"));
         _timers[WUPDATE_WEATHERS].Reset();
         WeatherMgr::Update(uint32(_timers[WUPDATE_WEATHERS].GetInterval()));
     }

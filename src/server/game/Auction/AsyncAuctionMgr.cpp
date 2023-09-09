@@ -47,8 +47,9 @@ AsyncAuctionMgr::~AsyncAuctionMgr()
     if (_queue)
         _queue->Cancel();
 
-    if (_thread && _thread->joinable())
-        _thread->join();
+    for (auto& thread : _threads)
+        if (thread.joinable())
+            thread.join();
 }
 
 /*static*/ AsyncAuctionMgr* AsyncAuctionMgr::instance()
@@ -64,8 +65,12 @@ void AsyncAuctionMgr::Initialize()
     LOG_INFO("server.loading", "Initialize async auction...");
 
     _queue = std::make_unique<ProducerConsumerQueue<AsyncAuctionOperation*>>();
-    _thread = std::make_unique<std::thread>([this](){ ExecuteAsyncQueue(); });
     _scheduler = std::make_unique<TaskScheduler>();
+
+    for (std::size_t i{}; i < 5; i++)
+        _threads.emplace_back([this](){ ExecuteAsyncQueue(); });
+
+    _threads.shrink_to_fit();
 
     LOG_INFO("server.loading", ">> Async auction initialized in {}", sw);
     LOG_INFO("server.loading", "");
@@ -86,9 +91,9 @@ void AsyncAuctionMgr::PlaceBid(ObjectGuid playerGuid, ObjectGuid auctioneer, uin
     Enqueue(new PlaceBidTask(playerGuid, auctioneer, auctionID, price));
 }
 
-void AsyncAuctionMgr::ListBidderItems(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>& outbiddedAuctionIds)
+void AsyncAuctionMgr::ListBidderItems(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>&& outbiddedAuctionIds)
 {
-    Enqueue(new ListBidderItemsTask(playerGuid, auctioneer, listFrom, outbiddedCount, outbiddedAuctionIds));
+    Enqueue(new ListBidderItemsTask(playerGuid, auctioneer, listFrom, outbiddedCount, std::move(outbiddedAuctionIds)));
 }
 
 void AsyncAuctionMgr::ListOwnerItems(ObjectGuid playerGuid, ObjectGuid creatureGuid)
@@ -130,11 +135,7 @@ void AsyncAuctionMgr::ExecuteAsyncQueue()
         if (!task)
             break;
 
-        {
-            std::lock_guard<std::mutex> guard(_mutex);
-            task->Execute();
-        }
-
+        task->Execute();
         delete task;
     }
 }
