@@ -16,7 +16,6 @@
  */
 
 #include "ScriptedCreature.h"
-#include "AreaBoundary.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GameTime.h"

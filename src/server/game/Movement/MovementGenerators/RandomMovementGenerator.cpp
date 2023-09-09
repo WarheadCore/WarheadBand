@@ -23,7 +23,6 @@
 #include "CreatureGroups.h"
 #include "GameConfig.h"
 #include "Map.h"
-#include "MapMgr.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Spell.h"

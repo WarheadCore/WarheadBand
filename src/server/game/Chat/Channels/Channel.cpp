@@ -26,10 +26,8 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "World.h"
 
 constexpr auto CHANNEL_BAN_DURATION = DAY * 60;
 

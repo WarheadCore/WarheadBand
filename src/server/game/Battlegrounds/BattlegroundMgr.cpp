@@ -28,7 +28,6 @@
 #include "BattlegroundEY.h"
 #include "BattlegroundIC.h"
 #include "BattlegroundNA.h"
-#include "BattlegroundQueue.h"
 #include "BattlegroundRL.h"
 #include "BattlegroundRV.h"
 #include "BattlegroundSA.h"

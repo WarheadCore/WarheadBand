@@ -17,7 +17,6 @@
 
 #include "Transport.h"
 #include "Cell.h"
-#include "CellImpl.h"
 #include "Common.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"

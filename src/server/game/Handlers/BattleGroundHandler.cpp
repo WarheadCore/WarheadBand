@@ -30,7 +30,6 @@
 #include "GameTime.h"
 #include "Group.h"
 #include "LFGMgr.h"
-#include "Language.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"

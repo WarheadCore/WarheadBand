@@ -27,7 +27,6 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapMgr.h"
-#include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"

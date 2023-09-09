@@ -24,7 +24,6 @@
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
-#include "DynamicTree.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameObjectAI.h"

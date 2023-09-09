@@ -23,7 +23,6 @@
 #include "GameConfig.h"
 #include "GameGraveyard.h"
 #include "GameObject.h"
-#include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

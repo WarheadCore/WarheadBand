@@ -20,7 +20,6 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Item.h"
-#include "ItemTemplate.h"
 #include "Log.h"
 #include "Random.h"
 #include "Timer.h"

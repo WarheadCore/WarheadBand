@@ -26,7 +26,6 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"

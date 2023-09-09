@@ -25,7 +25,6 @@
 #include "GameEventMgr.h"
 #include "GridDefines.h"
 #include "InstanceScript.h"
-#include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellMgr.h"

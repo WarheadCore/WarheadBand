@@ -29,7 +29,6 @@
 #include "InstanceScript.h"
 #include "Language.h"
 #include "MoveSplineInit.h"
-#include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"

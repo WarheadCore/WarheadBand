@@ -27,7 +27,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "SharedDefines.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <sstream>

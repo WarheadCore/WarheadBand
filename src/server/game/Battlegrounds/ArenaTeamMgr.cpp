@@ -21,7 +21,6 @@
 #include "ArenaTeamMgr.h"
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
-#include "Define.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"

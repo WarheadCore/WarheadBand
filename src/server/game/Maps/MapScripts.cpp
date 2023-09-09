@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CellImpl.h"
-#include "GameLocale.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "Map.h"

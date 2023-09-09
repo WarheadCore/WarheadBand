@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "BattlegroundRV.h"
-#include "ArenaScore.h"
 #include "Battleground.h"
 #include "GameObject.h"
 #include "Log.h"

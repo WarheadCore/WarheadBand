@@ -52,7 +52,6 @@
 #include "UpdateFieldFlags.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "VMapFactory.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include <sstream>

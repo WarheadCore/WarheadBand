@@ -30,7 +30,6 @@
 #include "GameTime.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

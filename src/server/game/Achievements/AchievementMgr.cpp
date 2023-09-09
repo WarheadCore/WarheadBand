@@ -40,7 +40,6 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstanceScript.h"
-#include "Language.h"
 #include "Map.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
