@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -39,7 +40,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
-#include "InstanceScript.h"
 
 /// @todo: this import is not necessary for compilation and marked as unused by the IDE
 //  however, for some reasons removing it would cause a damn linking issue

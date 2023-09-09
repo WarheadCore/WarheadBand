@@ -28,6 +28,8 @@
 #include "BattlegroundMgr.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
@@ -39,8 +41,6 @@
 #include "SpellScript.h"
 #include "Unit.h"
 #include "Vehicle.h"
-#include "GameConfig.h"
-#include "DatabaseEnv.h"
 #include <array>
 
 /// @todo: this import is not necessary for compilation and marked as unused by the IDE

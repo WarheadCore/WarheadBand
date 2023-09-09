@@ -20,9 +20,9 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_hun_".
  */
 
+#include "PetDefines.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
-#include "PetDefines.h"
 
 enum HunterSpells
 {

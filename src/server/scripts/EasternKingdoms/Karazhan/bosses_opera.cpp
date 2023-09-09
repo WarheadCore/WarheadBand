@@ -27,10 +27,10 @@ EndScriptData */
 
 #include "Player.h"
 #include "ScriptObject.h"
-#include "TaskScheduler.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "TaskScheduler.h"
 #include "karazhan.h"
 
 /***********************************/

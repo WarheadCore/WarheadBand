@@ -20,8 +20,8 @@
 
 #include "AuctionFwd.h"
 #include <memory>
-#include <vector>
 #include <thread>
+#include <vector>
 
 template <typename T>
 class ProducerConsumerQueue;

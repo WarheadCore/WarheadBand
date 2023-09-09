@@ -22,8 +22,8 @@
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "karazhan.h"
 #include "TaskScheduler.h"
+#include "karazhan.h"
 
 enum ShadeOfAran
 {

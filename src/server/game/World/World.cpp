@@ -76,6 +76,7 @@
 #include "MapMgr.h"
 #include "Metric.h"
 #include "ModulesConfig.h"
+#include "MotdMgr.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -107,7 +108,6 @@
 #include "WhoListCacheMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "MotdMgr.h"
 #include <boost/asio/ip/address.hpp>
 #include <cmath>
 

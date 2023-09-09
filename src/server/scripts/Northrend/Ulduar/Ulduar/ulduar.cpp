@@ -26,8 +26,8 @@
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "Vehicle.h"
 #include "TaskScheduler.h"
+#include "Vehicle.h"
 
 enum Texts
 {

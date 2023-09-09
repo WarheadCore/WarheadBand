@@ -17,9 +17,9 @@
 
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "sethekk_halls.h"
-#include "SpellMgr.h"
 
 enum Text
 {

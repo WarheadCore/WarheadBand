@@ -16,9 +16,9 @@
  */
 
 #include "DatabaseWorkerPool.h"
+#include "Config.h"
 #include "DatabaseAsyncOperation.h"
 #include "DatabaseAsyncQueueWorker.h"
-#include "Config.h"
 #include "Errors.h"
 #include "FileUtil.h"
 #include "Log.h"

@@ -31,6 +31,7 @@
 #include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameConfig.h"
+#include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "GridNotifiersImpl.h"
@@ -49,7 +50,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
-#include "GameEventMgr.h"
 
 Battleground::Battleground()
 {

@@ -19,10 +19,10 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
-#include "ScriptObjectFwd.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
+#include "ScriptObjectFwd.h"
 #include "SharedDefines.h"
 #include <string_view>
 

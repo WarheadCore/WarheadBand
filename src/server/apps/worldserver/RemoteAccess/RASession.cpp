@@ -24,8 +24,8 @@
 #include "DatabaseEnv.h"
 #include "Duration.h"
 #include "Log.h"
-#include "SRP6.h"
 #include "MotdMgr.h"
+#include "SRP6.h"
 #include "Util.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>

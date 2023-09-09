@@ -18,9 +18,9 @@
 #ifndef AUCTION_HOUSE_BOT_BUYER_H
 #define AUCTION_HOUSE_BOT_BUYER_H
 
-#include "Define.h"
-#include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
+#include "AuctionHouseMgr.h"
+#include "Define.h"
 
 struct BuyerAuctionEval
 {

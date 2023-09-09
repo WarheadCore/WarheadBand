@@ -16,14 +16,14 @@
  */
 
 #include "MotdMgr.h"
-#include "DatabaseEnv.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
 #include "Opcodes.h"
 #include "ScriptMgr.h"
-#include "WorldPacket.h"
-#include "Tokenize.h"
 #include "StopWatch.h"
-#include "Log.h"
+#include "Tokenize.h"
+#include "WorldPacket.h"
 #include <iterator>
 
 namespace

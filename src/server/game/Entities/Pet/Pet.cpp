@@ -23,7 +23,9 @@
 #include "GameLocale.h"
 #include "GameTime.h"
 #include "Group.h"
+#include "InstanceScript.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PetLoadQueryHolder.h"
 #include "PetPackets.h"
@@ -37,8 +39,6 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
-#include "InstanceScript.h"
 #include <sstream>
 
 Pet::Pet(Player* owner, PetType type) : Guardian(nullptr, owner ? owner->GetGUID() : ObjectGuid::Empty, true),

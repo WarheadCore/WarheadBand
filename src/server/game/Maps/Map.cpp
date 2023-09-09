@@ -27,6 +27,7 @@
 #include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
+#include "IVMapMgr.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "MapMgr.h"
@@ -36,10 +37,9 @@
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "VMapFactory.h"
+#include "VMapMgr2.h"
 #include "Vehicle.h"
 #include "Weather.h"
-#include "IVMapMgr.h"
-#include "VMapMgr2.h"
 #include <utility>
 
 union u_map_magic

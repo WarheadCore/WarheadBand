@@ -24,8 +24,8 @@
 #include "EventProcessor.h"
 #include "ObjectGuid.h"
 #include <functional>
-#include <unordered_map>
 #include <shared_mutex>
+#include <unordered_map>
 
 class Item;
 class Player;

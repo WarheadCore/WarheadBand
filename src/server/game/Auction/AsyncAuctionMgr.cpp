@@ -16,8 +16,8 @@
  */
 
 #include "AsyncAuctionMgr.h"
-#include "AuctionHouseBot.h"
 #include "AsyncAuctionOperation.h"
+#include "AuctionHouseBot.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "PCQueue.h"

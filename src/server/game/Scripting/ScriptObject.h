@@ -19,11 +19,11 @@
 #define _SCRIPT_OBJECT_H_
 
 #include "Common.h"
-#include "ScriptObjectFwd.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "LFG.h"
 #include "ObjectGuid.h"
+#include "ScriptObjectFwd.h"
 #include "SharedDefines.h"
 #include "Tuples.h"
 #include "Types.h"

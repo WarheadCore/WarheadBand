@@ -20,8 +20,8 @@
 
 #include "ByteBuffer.h"
 #include "Tuples.h"
-#include <string_view>
 #include <fmt/format.h>
+#include <string_view>
 
 namespace WorldPackets
 {

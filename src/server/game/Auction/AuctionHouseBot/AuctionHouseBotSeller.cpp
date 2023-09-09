@@ -18,18 +18,18 @@
 #include "AuctionHouseBotSeller.h"
 #include "AuctionHouseMgr.h"
 #include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DBCStores.h"
-#include "SmartEnum.h"
+#include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Random.h"
-#include "Tokenize.h"
-#include "StringConvert.h"
+#include "SmartEnum.h"
 #include "StopWatch.h"
+#include "StringConvert.h"
+#include "Tokenize.h"
 
 AuctionBotSeller::AuctionBotSeller()
 {

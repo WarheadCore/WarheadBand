@@ -16,21 +16,21 @@
  */
 
 #include "AuctionHouseBot.h"
-#include "AsyncAuctionMgr.h"
 #include "AccountMgr.h"
+#include "AsyncAuctionMgr.h"
 #include "AuctionHouseBotBuyer.h"
 #include "AuctionHouseBotSeller.h"
 #include "AuctionHouseMgr.h"
 #include "Config.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "SmartEnum.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
-#include "TaskScheduler.h"
+#include "SmartEnum.h"
 #include "StopWatch.h"
+#include "TaskScheduler.h"
 
 AuctionBotConfig* AuctionBotConfig::instance()
 {

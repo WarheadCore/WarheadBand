@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DatabaseEnv.h"
+#include "GameConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "World.h"
-#include "DatabaseEnv.h"
-#include "GameConfig.h"
 
 // Ours
 class npc_steam_powered_auctioneer : public CreatureScript

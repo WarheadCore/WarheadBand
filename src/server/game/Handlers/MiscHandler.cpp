@@ -34,6 +34,7 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "GuildMgr.h"
+#include "InstanceScript.h"
 #include "Language.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -55,7 +56,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "InstanceScript.h"
 #include <zlib.h>
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
