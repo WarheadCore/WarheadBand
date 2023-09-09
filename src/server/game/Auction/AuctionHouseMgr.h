@@ -23,7 +23,9 @@
 #include "DatabaseEnvFwd.h"
 #include "EventProcessor.h"
 #include "ObjectGuid.h"
+#include <functional>
 #include <unordered_map>
+#include <shared_mutex>
 
 class Item;
 class Player;
@@ -49,7 +51,7 @@ struct AuctionEntry
     uint32 BuyOut{};
     Seconds ExpireTime{};
     ObjectGuid Bidder{ ObjectGuid::Empty };
-    uint32 Deposit{}; // Deposit can be calculated only when creating auction
+    uint32 Deposit{}; // Deposit can be calculated only when creating an auction
     AuctionHouseEntry const* auctionHouseEntry; // in AuctionHouse.dbc
 
     // Helpers
@@ -72,19 +74,18 @@ public:
     AuctionHouseObject() = default;
     ~AuctionHouseObject() = default;
 
-    [[nodiscard]] uint32 GetCount() const { return _auctions.size(); }
-
-    auto const& GetAuctions() { return _auctions; }
-
-    [[nodiscard]] AuctionEntry* GetAuction(uint32 id) const;
+    [[nodiscard]] std::size_t GetCount();
+    void ForEachAuctions(std::function<void(AuctionEntry*)> const& fn);
+    [[nodiscard]] AuctionEntry* GetAuction(uint32 id);
 
     void AddAuction(std::unique_ptr<AuctionEntry>&& auction);
     bool RemoveAuction(AuctionEntry* auction);
     void Update();
 
-    bool BuildListAuctionItems(WorldPackets::AuctionHouse::ListResult& packet, Player* player, std::shared_ptr<AuctionListItems> listItems);
+    void BuildListAuctionItems(WorldPackets::AuctionHouse::ListResult& packet, Player* player, std::shared_ptr<AuctionListItems> listItems);
 
 private:
+    std::shared_mutex _mutex;
     std::unordered_map<uint32, std::unique_ptr<AuctionEntry>> _auctions;
 };
 
@@ -131,6 +132,7 @@ private:
     AuctionHouseObject mNeutralAuctions;
 
     std::unordered_map<ObjectGuid, Item*> _items;
+    std::shared_mutex _mutex;
 };
 
 #define sAuctionMgr AuctionHouseMgr::instance()

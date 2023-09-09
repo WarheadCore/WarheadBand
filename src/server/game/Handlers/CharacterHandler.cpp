@@ -1838,14 +1838,14 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
         {
             AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(i == 0 ? 0 : (((1 << (playerData->Race - 1)) & RACEMASK_ALLIANCE) ? 12 : 29));
 
-            for (auto const& [auID, Aentry] : auctionHouse->GetAuctions())
+            auctionHouse->ForEachAuctions([factionChangeInfo, &has_auctions](AuctionEntry* auction)
             {
-                if (Aentry && (Aentry->PlayerOwner == factionChangeInfo->Guid || Aentry->Bidder == factionChangeInfo->Guid))
+                if (auction && (auction->PlayerOwner == factionChangeInfo->Guid || auction->Bidder == factionChangeInfo->Guid))
                 {
                     has_auctions = true;
-                    break;
+                    return;
                 }
-            }
+            });
 
             if (has_auctions)
                 break;

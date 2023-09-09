@@ -184,7 +184,7 @@ WorldPacket const* WorldPackets::AuctionHouse::BidderListResult::Write()
         }
     }
 
-    for (auto const& [__, auction] : _auctionHouse->GetAuctions())
+    _auctionHouse->ForEachAuctions([this, &count, &totalCount](AuctionEntry* auction)
     {
         if (auction && auction->Bidder == PlayerGuid)
         {
@@ -193,7 +193,7 @@ WorldPacket const* WorldPackets::AuctionHouse::BidderListResult::Write()
 
             ++totalCount;
         }
-    }
+    });
 
     _worldPacket.put<uint32>(0, count);
     _worldPacket << uint32(totalCount);
@@ -217,7 +217,7 @@ WorldPacket const* WorldPackets::AuctionHouse::ListOwnerResult::Write()
     uint32 count{};
     uint32 totalCount{};
 
-    for (auto const& [__, auction] : auctionHouse->GetAuctions())
+    auctionHouse->ForEachAuctions([this, &count, &totalCount](AuctionEntry* auction)
     {
         if (auction && auction->PlayerOwner == PlayerGuid)
         {
@@ -226,7 +226,7 @@ WorldPacket const* WorldPackets::AuctionHouse::ListOwnerResult::Write()
 
             ++totalCount;
         }
-    }
+    });
 
     _worldPacket.put<uint32>(0, count);
     _worldPacket << uint32(totalCount);

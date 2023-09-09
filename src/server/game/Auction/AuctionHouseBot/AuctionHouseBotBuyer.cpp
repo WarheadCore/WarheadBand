@@ -94,21 +94,23 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 }
 
 // Collects information about item counts and minimum prices to SameItemInfo and updates EligibleItems - a list with new items eligible for bot to buy and bid
-// Returns count of items in AH that were eligible for being bought or bidded on by ahbot buyer (EligibleItems size)
+// Returns count of items in AH that were eligible for being bought or bid on by ahbot buyer (EligibleItems size)
 uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 {
     config.SameItemInfo.clear();
     auto timeNow{ GameTime::GetGameTime() };
     uint32 count = 0;
 
-    for (auto const& [auctionID, auction] : sAuctionMgr->GetAuctionsMap(config.GetHouseType())->GetAuctions())
+    auto auctionObject{ sAuctionMgr->GetAuctionsMap(config.GetHouseType()) };
+
+    auctionObject->ForEachAuctions([this, timeNow, &config, &count](AuctionEntry* auction)
     {
         if (!auction->PlayerOwner || sAuctionBotConfig->IsBotChar(auction->PlayerOwner.GetCounter()))
-            continue; // Skip auctions owned by AHBot
+            return; // Skip auctions owned by AHBot
 
         Item* item = sAuctionMgr->GetAuctionItem(auction->ItemGuid);
         if (!item)
-            continue;
+            return;
 
         BuyerItemInfo& itemInfo = config.SameItemInfo[item->GetEntry()];
 
@@ -148,7 +150,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
             config.EligibleItems[auction->Id].AuctionId = auction->Id;
             ++count;
         }
-    }
+    });
 
     LOG_TRACE("ahbot", "AHBotBuyer: {} items added to buyable/biddable vector for ah type: {}", count, config.GetHouseType());
     return count;
