@@ -24,6 +24,7 @@
 #include "GameGraveyard.h"
 #include "GameObject.h"
 #include "ObjectAccessor.h"
+#include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"

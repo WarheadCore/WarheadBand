@@ -32,7 +32,6 @@
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "IVMapMgr.h"
 #include "InstanceScript.h"
@@ -61,6 +60,12 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include <sstream>
+
+/// @todo: this import is not necessary for compilation and marked as unused by the IDE
+//  however, for some reasons removing it would cause a damn linking issue
+//  there is probably some underlying problem with imports which should properly addressed
+//  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
+#include "GridNotifiersImpl.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 

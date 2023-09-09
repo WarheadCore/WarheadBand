@@ -57,7 +57,6 @@
 #include "Tokenize.h"
 #include "Transport.h"
 #include "Unit.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"

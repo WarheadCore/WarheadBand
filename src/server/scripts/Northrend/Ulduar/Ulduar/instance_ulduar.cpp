@@ -25,7 +25,6 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include "ulduar.h"
 #include <sstream>
 

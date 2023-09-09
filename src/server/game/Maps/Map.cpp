@@ -36,7 +36,6 @@
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "VMapFactory.h"
-#include "VMapMgr2.h"
 #include "Vehicle.h"
 #include "Weather.h"
 #include <utility>
@@ -3077,7 +3076,10 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
     //if (!_unloadTimer && m_mapRefMgr.getSize() == 1)
     //    _unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(CONF_GET_INT("Instance.UnloadDelay"), (uint32)MIN_UNLOAD_DELAY);
     Map::RemovePlayerFromMap(player, remove);
-    player->SetPendingBind(0, 0);
+
+    // If remove == true - player already deleted.
+    if (!remove)
+        player->SetPendingBind(0, 0);
 }
 
 void InstanceMap::AfterPlayerUnlinkFromMap()

@@ -33,7 +33,6 @@
 #include "GameConfig.h"
 #include "GameLocale.h"
 #include "GameTime.h"
-#include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Hyperlinks.h"

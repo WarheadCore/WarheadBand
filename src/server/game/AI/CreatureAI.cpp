@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
+#include "ScriptMgr.h"
 #include "ZoneScript.h"
 
 //Disable CreatureAI when charmed
