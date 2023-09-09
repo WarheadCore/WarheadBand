@@ -24,7 +24,6 @@
 #include "EventMap.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
-#include "EventMap.h"
 #include "TaskScheduler.h"
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))

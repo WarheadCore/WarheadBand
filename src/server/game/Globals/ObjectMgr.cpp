@@ -60,8 +60,6 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
-#include "StringConvert.h"
-#include "Tokenize.h"
 #include <boost/algorithm/string.hpp>
 
 ScriptMapMap sSpellScripts;
