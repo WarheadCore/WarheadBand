@@ -25,7 +25,6 @@
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "WorldSession.h"
 #include "pit_of_saron.h"
 
 enum Yells

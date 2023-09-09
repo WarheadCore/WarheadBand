@@ -22,7 +22,6 @@
 #include "DatabaseEnv.h"
 #include "Group.h"
 #include "LFGMgr.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
 

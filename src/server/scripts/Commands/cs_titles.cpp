@@ -27,7 +27,6 @@ EndScriptData */
 
 #include "Chat.h"
 #include "DBCStores.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StringConvert.h"

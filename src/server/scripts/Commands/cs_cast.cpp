@@ -27,7 +27,6 @@ EndScriptData */
 
 #include "Chat.h"
 #include "Creature.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "SpellInfo.h"

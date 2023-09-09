@@ -28,7 +28,6 @@ EndScriptData */
 #include "Chat.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Language.h"
 #include "ScriptObject.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

@@ -31,7 +31,6 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "GitRevision.h"
-#include "Language.h"
 #include "ModuleMgr.h"
 #include "MotdMgr.h"
 #include "Player.h"

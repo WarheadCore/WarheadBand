@@ -26,7 +26,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
-#include "WorldSession.h"
 #include "pit_of_saron.h"
 
 enum Yells

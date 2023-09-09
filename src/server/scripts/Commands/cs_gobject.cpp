@@ -30,7 +30,6 @@ EndScriptData */
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

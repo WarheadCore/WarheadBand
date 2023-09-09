@@ -30,7 +30,6 @@ EndScriptData */
 #include "Opcodes.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "ScriptedCreature.h"
 #include "WorldPacket.h"
 #include "hyjal_trash.h"
 #include <sstream>

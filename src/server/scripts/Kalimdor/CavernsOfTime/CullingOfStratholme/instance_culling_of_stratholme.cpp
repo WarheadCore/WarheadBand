@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "culling_of_stratholme.h"
 #include <sstream>

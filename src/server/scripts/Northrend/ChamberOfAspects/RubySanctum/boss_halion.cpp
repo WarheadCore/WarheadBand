@@ -27,7 +27,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
-#include "WorldSession.h"
 #include "ruby_sanctum.h"
 
 enum Texts

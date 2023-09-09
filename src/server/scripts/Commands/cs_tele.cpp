@@ -29,7 +29,6 @@ EndScriptData */
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
-#include "Language.h"
 #include "MapMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"

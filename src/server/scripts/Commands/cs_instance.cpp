@@ -30,7 +30,6 @@
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
-#include "Language.h"
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

@@ -19,10 +19,8 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Chat.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
-#include "WorldSession.h"
 #include <sstream>
 
 constexpr std::array<const char*, MAX_ITEM_SUBCLASS_CONTAINER> bagSpecsToString =
