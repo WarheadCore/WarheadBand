@@ -3972,6 +3972,7 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!sChrClassesStore.LookupEntry(class_))
                     continue;
 
+                PlayerClassInfo* pClassInfo = _playerClassInfo[class_];
                 PlayerInfo* info = _playerInfo[race][class_];
                 if (!info)
                     continue;
@@ -3998,6 +3999,16 @@ void ObjectMgr::LoadPlayerInfo()
                     {
                         LOG_ERROR("db.query", "Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, class_, level + 1, level);
                         info->levelInfo[level] = info->levelInfo[level - 1];
+                    }
+                }
+
+                // fill level gaps for health/mana
+                for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+                {
+                    if ((pClassInfo->levelInfo[level].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL) && pClassInfo->levelInfo[level].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
+                    {
+                        LOG_ERROR("sql.sql", "Class {} level {} does not have health/mana data. Using stats data of level {}.", class_, level + 1, level);
+                        pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level - 1];
                     }
                 }
             }
