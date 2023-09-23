@@ -385,7 +385,7 @@ void DatabaseWorkerPool::PrepareStatement(uint32 index, std::string_view sql, Co
     auto const& itr = _stringPreparedStatement.find(index);
     if (itr != _stringPreparedStatement.end())
     {
-        LOG_ERROR("db.pool", "{} DBPool: Trying add exist statement with index ()! Skip", GetPoolName(), index);
+        LOG_ERROR("db.pool", "{} DBPool: Trying add exist statement with index ({})! Skip", GetPoolName(), index);
         return;
     }
 
@@ -502,7 +502,7 @@ void DatabaseWorkerPool::DirectCommitTransaction(SQLTransaction transaction)
     auto errorCode = connection->ExecuteTransaction(transaction);
     if (!errorCode)
     {
-        connection->Unlock(); // OK, operation succesful
+        connection->Unlock(); // OK, operation successful
         return;
     }
 
