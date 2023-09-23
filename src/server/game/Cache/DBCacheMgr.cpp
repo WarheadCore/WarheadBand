@@ -228,7 +228,6 @@ void DBCacheMgr::InitializeQuery()
     AddQuery(DBCacheTable::PlayerCreateInfoSpellCustom);
     AddQuery(DBCacheTable::PlayerCreateInfoCastSpell);
     AddQuery(DBCacheTable::PlayerCreateInfoAction);
-    AddQuery(DBCacheTable::PlayerClassLevelStats);
     AddQuery(DBCacheTable::PlayerRaceStats);
     AddQuery(DBCacheTable::PlayerClassStats);
     AddQuery(DBCacheTable::PlayerXpForLevel);

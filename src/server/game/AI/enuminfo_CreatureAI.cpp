@@ -20,14 +20,14 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Acore::Impl::EnumUtilsImpl
+namespace Warhead::Impl::EnumUtilsImpl
 {
 
 /****************************************************************************\
 |* data for enum 'CreatureAI::EvadeReason' in 'CreatureAI.h' auto-generated *|
 \****************************************************************************/
 template <>
-AC_API_EXPORT EnumText EnumUtils<CreatureAI::EvadeReason>::ToString(CreatureAI::EvadeReason value)
+WH_API_EXPORT EnumText EnumUtils<CreatureAI::EvadeReason>::ToString(CreatureAI::EvadeReason value)
 {
     switch (value)
     {
@@ -40,10 +40,10 @@ AC_API_EXPORT EnumText EnumUtils<CreatureAI::EvadeReason>::ToString(CreatureAI::
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<CreatureAI::EvadeReason>::Count() { return 4; }
+WH_API_EXPORT size_t EnumUtils<CreatureAI::EvadeReason>::Count() { return 4; }
 
 template <>
-AC_API_EXPORT CreatureAI::EvadeReason EnumUtils<CreatureAI::EvadeReason>::FromIndex(size_t index)
+WH_API_EXPORT CreatureAI::EvadeReason EnumUtils<CreatureAI::EvadeReason>::FromIndex(size_t index)
 {
     switch (index)
     {
@@ -56,7 +56,7 @@ AC_API_EXPORT CreatureAI::EvadeReason EnumUtils<CreatureAI::EvadeReason>::FromIn
 }
 
 template <>
-AC_API_EXPORT size_t EnumUtils<CreatureAI::EvadeReason>::ToIndex(CreatureAI::EvadeReason value)
+WH_API_EXPORT size_t EnumUtils<CreatureAI::EvadeReason>::ToIndex(CreatureAI::EvadeReason value)
 {
     switch (value)
     {
