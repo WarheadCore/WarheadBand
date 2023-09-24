@@ -49,7 +49,7 @@ struct WH_DATABASE_API MySQLConnectionInfo
 class WH_DATABASE_API MySQLConnection
 {
 public:
-    explicit MySQLConnection(MySQLConnectionInfo& connInfo, ProducerConsumerQueue<AsyncOperation*>* dbQueue, bool isDynamic = false);
+    explicit MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags type, bool isDynamic = false);
     virtual ~MySQLConnection();
 
     virtual uint32 Open();
@@ -90,9 +90,8 @@ public:
 
     [[nodiscard]] inline bool IsDynamic() const { return _isDynamic; }
     [[nodiscard]] bool CanRemoveConnection();
-    [[nodiscard]] std::size_t GetQueueSize() const;
 
-    void SetInitStmts();
+    void SetAsyncQueue(ProducerConsumerQueue<AsyncOperation*>* dbQueue);
 
 private:
     bool Query(std::string_view sql, MySQLResult** result, MySQLField** fields, uint64* rowCount, uint32* fieldCount);
@@ -108,9 +107,7 @@ private:
     bool _isDynamic{};
     bool _prepareError{}; //! Was there any error while preparing statements?
     SystemTimePoint _lastUseTime;
-    ProducerConsumerQueue<AsyncOperation*>* _queue{ nullptr };
     std::unique_ptr<AsyncDBQueueWorker> _asyncQueueWorker;
-    std::unique_ptr<std::promise<void>> _isInitStmts;
 
     MySQLConnection(MySQLConnection const& right) = delete;
     MySQLConnection& operator=(MySQLConnection const& right) = delete;
