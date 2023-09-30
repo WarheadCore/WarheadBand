@@ -10,6 +10,7 @@ INSERT INTO `string_module` (`Entry`, `Locale`, `Text`) VALUES
 ('OR_LOCALE_MESSAGE_MAIL', 'enUS', 'You were rewarded for online ({}). You can get the award at the post office.'),
 ('OR_LOCALE_MESSAGE_IN_GAME', 'enUS', 'You were rewarded for online ({}).'),
 ('OR_LOCALE_NOT_ENOUGH_BAG', 'enUS', 'Not enough room in the bag. Send wia mail'),
+('OR_LOCALE_NEXT', 'enUS', '{}. Count: {}. Left: {}'),
 
 -- ruRU
 ('OR_LOCALE_SUBJECT', 'ruRU', 'Награда за онлайн {}'),
@@ -17,3 +18,4 @@ INSERT INTO `string_module` (`Entry`, `Locale`, `Text`) VALUES
 ('OR_LOCALE_MESSAGE_MAIL', 'ruRU', 'Вы были вознаграждены за онлайн ({}). Получить награду можно на почте.'),
 ('OR_LOCALE_MESSAGE_IN_GAME', 'ruRU', 'Вы были вознаграждены за онлайн ({}).'),
 ('OR_LOCALE_NOT_ENOUGH_BAG', 'ruRU', 'У вас недостаточно места в сумке, награда будет ждать вас на почте');
+('OR_LOCALE_NEXT', 'ruRU', '{}. Кол-во: {}. Осталось: {}');
