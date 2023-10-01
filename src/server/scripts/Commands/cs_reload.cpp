@@ -37,7 +37,6 @@ EndScriptData */
 #include "GameGraveyard.h"
 #include "GameLocale.h"
 #include "LFGMgr.h"
-#include "Language.h"
 #include "MapMgr.h"
 #include "MotdMgr.h"
 #include "ObjectMgr.h"

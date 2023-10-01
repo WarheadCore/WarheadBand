@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Guild.h"
-#include "AccountMgr.h"
 #include "Bag.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
@@ -32,7 +31,6 @@
 #include "GuildLevelMgr.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
-#include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

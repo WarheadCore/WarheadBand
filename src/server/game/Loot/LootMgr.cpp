@@ -21,8 +21,8 @@
 #include "LootMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "GameConfig.h"
 #include "DisableMgr.h"
+#include "GameConfig.h"
 #include "Group.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -33,8 +33,6 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "StopWatch.h"
-#include "Util.h"
-#include "World.h"
 
 static std::string const qualityToRate[MAX_ITEM_QUALITY] =
 {

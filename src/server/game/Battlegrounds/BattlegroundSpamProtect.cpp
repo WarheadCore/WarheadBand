@@ -24,7 +24,6 @@
 #include "GameTime.h"
 #include "ObjectGuid.h"
 #include "Player.h"
-#include "World.h"
 
 namespace
 {

@@ -18,9 +18,9 @@
 #ifndef AUCTION_HOUSE_BOT_SELLER_H
 #define AUCTION_HOUSE_BOT_SELLER_H
 
+#include "AuctionHouseBot.h"
 #include "Define.h"
 #include "ItemTemplate.h"
-#include "AuctionHouseBot.h"
 
 struct ItemToSell
 {

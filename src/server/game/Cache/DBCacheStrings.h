@@ -157,7 +157,6 @@ enum class DBCacheTable : std::size_t
     PlayerCreateInfoSpellCustom,
     PlayerCreateInfoCastSpell,
     PlayerCreateInfoAction,
-    PlayerClassLevelStats,
     PlayerRaceStats,
     PlayerClassStats,
     PlayerXpForLevel,

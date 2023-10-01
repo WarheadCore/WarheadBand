@@ -17,8 +17,8 @@
 
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"
-#include "TaskScheduler.h"
 #include "SpellMgr.h"
+#include "TaskScheduler.h"
 #include "gruuls_lair.h"
 
 enum HighKingMaulgar

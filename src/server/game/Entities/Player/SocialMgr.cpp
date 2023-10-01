@@ -23,7 +23,6 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "Util.h"
 #include "WorldPacket.h"

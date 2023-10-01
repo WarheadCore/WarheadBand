@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #ifndef _ONLINE_REWARD_H_
 #define _ONLINE_REWARD_H_
 
@@ -27,7 +24,8 @@
 #include "Duration.h"
 #include "ObjectGuid.h"
 #include "TaskScheduler.h"
-#include <mutex>
+#include <shared_mutex>
+#include <functional>
 #include <unordered_map>
 #include <vector>
 
@@ -88,9 +86,10 @@ public:
     bool DeleteReward(uint32 id);
     bool IsExistReward(uint32 id);
 
-    auto const& GetOnlineRewards() { return &_rewards; }
+    void DoForAllRewards(std::function<void(OnlineReward const*)> const& task);
 
     void LoadDBData();
+    void GetNextTimeForReward(Player* player, Seconds playedTime, OnlineReward const* onlineReward);
 
 private:
     void RewardPlayers();
@@ -128,7 +127,8 @@ private:
     TaskScheduler scheduler;
 
     QueryCallbackProcessor _queryProcessor;
-    std::mutex _playerLoadingLock;
+    std::shared_mutex _mutex;
+    std::shared_mutex _mutexHistory;
 };
 
 #define sOLMgr OnlineRewardMgr::instance()

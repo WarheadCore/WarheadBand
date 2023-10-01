@@ -26,13 +26,11 @@
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "GroupMgr.h"
-#include "Language.h"
 #include "Log.h"
 #include "ModulesConfig.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
 #include <algorithm>
 
 constexpr uint32 MapAlteracValley = 30;

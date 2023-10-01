@@ -26,7 +26,6 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "IPLocation.h"
-#include "Language.h"
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"

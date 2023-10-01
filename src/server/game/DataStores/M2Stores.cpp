@@ -15,17 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
 #include "M2Stores.h"
-#include "Common.h"
 #include "Containers.h"
 #include "DBCStores.h"
 #include "Log.h"
 #include "M2Structure.h"
 #include "StopWatch.h"
-#include "World.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <iostream>

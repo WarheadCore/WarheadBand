@@ -31,7 +31,6 @@ EndScriptData */
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"

@@ -23,7 +23,6 @@
  * Scriptnames of files in this file should be prefixed with "npc_pet_pri_".
  */
 
-#include "PassiveAI.h"
 #include "PetAI.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"

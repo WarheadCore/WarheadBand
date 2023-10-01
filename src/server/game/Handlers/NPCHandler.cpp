@@ -24,7 +24,6 @@
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameGraveyard.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"

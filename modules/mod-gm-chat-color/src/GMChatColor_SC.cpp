@@ -19,8 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "AccountMgr.h"
-#include "Chat.h"
-#include "Log.h"
 #include "ModulesConfig.h"
 #include "Player.h"
 #include "ScriptObject.h"

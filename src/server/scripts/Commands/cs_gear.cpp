@@ -21,7 +21,6 @@
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
 

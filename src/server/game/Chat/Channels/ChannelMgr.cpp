@@ -26,7 +26,6 @@
 #include "StopWatch.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
-#include "World.h"
 
 ChannelMgr::~ChannelMgr()
 {

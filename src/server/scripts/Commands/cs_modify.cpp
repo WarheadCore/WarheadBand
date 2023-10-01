@@ -28,7 +28,6 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ReputationMgr.h"

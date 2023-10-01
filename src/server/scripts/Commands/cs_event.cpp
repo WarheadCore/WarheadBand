@@ -28,7 +28,6 @@
 #include "Chat.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
 #include "Timer.h"

@@ -300,4 +300,6 @@ inline AI* GetUlduarAI(T* obj)
     return GetInstanceAI<AI>(obj, UlduarScriptName);
 }
 
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
+
 #endif

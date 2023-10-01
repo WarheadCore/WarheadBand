@@ -1,12 +1,12 @@
 -- DB update 2023_03_23_01 -> 2023_03_23_02
 --
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (40331,35106,34449,37272,37252);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(40331, 40331, 40332),
-(35106, 35106, 37856),
-(34449, 34449, 37924),
-(37272, 37272, 37862),
-(37252, 37252, 39412);
+-- DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (40331,35106,34449,37272,37252);
+-- INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+-- (40331, 40331, 40332),
+-- (35106, 35106, 37856),
+-- (34449, 34449, 37924),
+-- (37272, 37272, 37862),
+-- (37252, 37252, 39412);
 
 UPDATE `creature_text` SET `BroadcastTextId` = 16711 WHERE `Text`='By Nazjatar\'s Depths!';
 UPDATE `creature_text` SET `BroadcastTextId` = 16710 WHERE `Text`='Die, warmblood!';

@@ -215,8 +215,10 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMapByHouseId(uint8 auctionHouseI
     return &mNeutralAuctions;
 }
 
-AuctionEntry* AuctionHouseObject::GetAuction(uint32 id) const
+AuctionEntry* AuctionHouseObject::GetAuction(uint32 id)
 {
+    std::shared_lock guard(_mutex);
+
     auto auction{ Warhead::Containers::MapGetValuePtr(_auctions, id) };
     if (!auction)
         return nullptr;
@@ -226,27 +228,34 @@ AuctionEntry* AuctionHouseObject::GetAuction(uint32 id) const
 
 void AuctionHouseObject::AddAuction(std::unique_ptr<AuctionEntry>&& auction)
 {
-    ASSERT(auction);
+    std::unique_lock guard(_mutex);
 
+    ASSERT(auction);
     auto const [itr, isEmplace] = _auctions.emplace(auction->Id, std::move(auction));
     sScriptMgr->OnAuctionAdd(this, itr->second.get());
 }
 
 bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 {
+    std::unique_lock guard(_mutex);
+
     sScriptMgr->OnAuctionRemove(this, auction);
     return _auctions.erase(auction->Id) > 0;
 }
 
 void AuctionHouseObject::Update()
 {
+    std::unique_lock guard(_mutex);
+
     auto checkTime{ GameTime::GetGameTime() + 1min };
 
-    // If storage is empty, no need to update. next == nullptr in this case.
+    // If storage is empty, no need to update. Next == nullptr in this case.
     if (_auctions.empty())
         return;
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    std::list<uint32> _toDelete;
 
     for (auto const& [auctionID, auction] : _auctions)
     {
@@ -274,23 +283,30 @@ void AuctionHouseObject::Update()
         auction->DeleteFromDB(trans);
 
         sAuctionMgr->RemoveAItem(auction->ItemGuid);
-        RemoveAuction(auction.get());
+        sScriptMgr->OnAuctionRemove(this, auction.get());
+        _toDelete.emplace_back(auction->Id);
     }
 
     CharacterDatabase.CommitTransaction(trans);
+
+    if (!_toDelete.empty())
+        for (auto id : _toDelete)
+            _auctions.erase(id);
 }
 
-bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListResult& packet, Player* player, std::shared_ptr<AuctionListItems> listItems)
+void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListResult& packet, Player* player, std::shared_ptr<AuctionListItems> listItems)
 {
     // Ensures that listfrom is not greater that auctions count
-    listItems->ListFrom = std::min(listItems->ListFrom, static_cast<uint32>(GetAuctions().size()));
+    listItems->ListFrom = std::min(listItems->ListFrom, static_cast<uint32>(GetCount()));
     packet.ListFrom = listItems->ListFrom;
     packet.IsGetAll = listItems->GetAll == 1;
 
     if (listItems->GetAll || (listItems->IsNoFilter() && packet.WSearchedName.empty()))
     {
-        for (auto const& [auctionID, auction] : GetAuctions())
-            packet.AuctionShortlist.emplace_back(auction.get());
+        ForEachAuctions([&packet](AuctionEntry* auction)
+        {
+            packet.AuctionShortlist.emplace_back(auction);
+        });
     }
     else
     {
@@ -300,45 +316,45 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
 
         wstrToLower(packet.WSearchedName);
 
-        for (auto const& [auctionID, auction] : GetAuctions())
+        ForEachAuctions([&packet, player, &listItems, curTime, loc_idx, locdbc_idx](AuctionEntry* auction)
         {
             // Skip expired auctions
             if (auction->ExpireTime < curTime)
-                continue;
+                return;
 
             Item* item = sAuctionMgr->GetAuctionItem(auction->ItemGuid);
             if (!item)
-                continue;
+                return;
 
             ItemTemplate const* proto = item->GetTemplate();
             if (listItems->ItemClass != 0xffffffff && proto->Class != listItems->ItemClass)
-                continue;
+                return;
 
             if (listItems->ItemSubClass != 0xffffffff && proto->SubClass != listItems->ItemSubClass)
-                continue;
+                return;
 
             if (listItems->InventoryType != 0xffffffff && proto->InventoryType != listItems->InventoryType)
             {
                 // xinef: exception, robes are counted as chests
                 if (listItems->InventoryType != INVTYPE_CHEST || proto->InventoryType != INVTYPE_ROBE)
-                    continue;
+                    return;
             }
 
             if (listItems->Quality != 0xffffffff && proto->Quality < listItems->Quality)
-                continue;
+                return;
 
             if (listItems->LevelMin != 0x00 && (proto->RequiredLevel < listItems->LevelMin ||
                 (listItems->LevelMax != 0x00 && proto->RequiredLevel > listItems->LevelMax)))
-                continue;
+                return;
 
             if (listItems->Usable != 0x00)
             {
                 if (player->CanUseItem(item) != EQUIP_ERR_OK)
-                    continue;
+                    return;
 
                 // xinef: check already learded recipes and pets
                 if (proto->Spells[1].SpellTrigger == ITEM_SPELLTRIGGER_LEARN_SPELL_ID && player->HasSpell(proto->Spells[1].SpellId))
-                    continue;
+                    return;
             }
 
             // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
@@ -347,7 +363,7 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
             {
                 std::string name = proto->Name1;
                 if (name.empty())
-                    continue;
+                    return;
 
                 // local name
                 if (loc_idx > 0)
@@ -382,26 +398,26 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
                     // dbc local name
                     if (suffix)
                     {
-                        // Append the suffix (ie: of the Monkey) to the name using localization
+                        // Append the suffix (i.e.: of the Monkey) to the name using localization
                         // or default enUS if localization is invalid
                         name += ' ';
                         name += (*suffix)[locdbc_idx >= 0 ? locdbc_idx : LOCALE_enUS];
                     }
                 }
 
-                // Perform the search (with or without suffix)
+                // Perform the search (with or without a suffix)
                 if (!Utf8FitTo(name, packet.WSearchedName))
-                    continue;
+                    return;
             }
 
-            packet.AuctionShortlist.emplace_back(auction.get());
-        }
+            packet.AuctionShortlist.emplace_back(auction);
+        });
     }
 
     if (packet.AuctionShortlist.empty())
-        return true;
+        return;
 
-    // Check if sort enabled, and first sort column is valid, if not don't sort
+    // Check if sort enabled, and the first sort column is valid, if not don't sort
     if (!listItems->SortOrder.empty())
     {
         AuctionSortInfo const& sortInfo = *listItems->SortOrder.begin();
@@ -416,8 +432,20 @@ bool AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListR
                     player, sortInfo.SortOrder == AuctionSortOrder::Bid));
         }
     }
+}
 
-    return true;
+std::size_t AuctionHouseObject::GetCount()
+{
+    std::shared_lock guard(_mutex);
+    return _auctions.size();
+}
+
+void AuctionHouseObject::ForEachAuctions(std::function<void(AuctionEntry*)> const& fn)
+{
+    std::shared_lock guard(_mutex);
+
+    for (auto const& [auctionID, auction] : _auctions)
+        fn(auction.get());
 }
 
 AuctionHouseMgr::~AuctionHouseMgr()
@@ -638,7 +666,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
     }
 }
 
-// Sends mail, when auction is cancelled to old bidder
+// Sends mail, when auction is canceled to old bidder
 void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction trans, bool sendMail)
 {
     uint32 bidderAccId{};
@@ -741,6 +769,8 @@ void AuctionHouseMgr::LoadAuctions()
 
 void AuctionHouseMgr::AddAuctionItem(Item* item)
 {
+    std::unique_lock guard(_mutex);
+
     auto itemGuid{ item->GetGUID() };
 
     ASSERT(item);
@@ -751,6 +781,8 @@ void AuctionHouseMgr::AddAuctionItem(Item* item)
 
 bool AuctionHouseMgr::RemoveAItem(ObjectGuid itemGuid, bool deleteFromDB, CharacterDatabaseTransaction trans /*= nullptr*/)
 {
+    std::unique_lock guard(_mutex);
+
     auto const& itr = _items.find(itemGuid);
     if (itr == _items.end())
         return false;

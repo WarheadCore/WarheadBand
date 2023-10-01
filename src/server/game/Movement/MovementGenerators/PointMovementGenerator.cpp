@@ -27,7 +27,6 @@
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Player.h"
-#include "World.h"
 
 //----- Point Movement Generator
 template<class T>

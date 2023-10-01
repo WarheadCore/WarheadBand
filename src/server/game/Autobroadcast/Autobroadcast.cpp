@@ -24,7 +24,6 @@
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
 #include "GameLocale.h"
-#include "Language.h"
 #include "Player.h"
 #include "Realm.h"
 #include "StopWatch.h"

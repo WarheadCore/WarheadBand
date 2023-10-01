@@ -29,7 +29,6 @@ EndScriptData */
 #include "Guild.h"
 #include "GuildLevelMgr.h"
 #include "GuildMgr.h"
-#include "Language.h"
 #include "ScriptObject.h"
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU

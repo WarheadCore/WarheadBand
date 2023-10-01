@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "PlayerCommand.h"
-#include "Language.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"

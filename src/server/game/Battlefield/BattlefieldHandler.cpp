@@ -22,7 +22,6 @@
 #include "BattlefieldMgr.h"
 #include "GameTime.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"

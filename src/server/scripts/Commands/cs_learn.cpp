@@ -26,7 +26,6 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"

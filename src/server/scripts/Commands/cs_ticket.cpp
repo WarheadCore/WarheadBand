@@ -27,10 +27,8 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
-#include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptObject.h"

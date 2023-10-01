@@ -25,7 +25,6 @@
 #include "CliRunnable.h"
 #include "CliCommandMgr.h"
 #include "Config.h"
-#include "Errors.h"
 #include "ObjectMgr.h"
 #include <fmt/core.h>
 

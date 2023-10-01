@@ -14,7 +14,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (19823, 0, 2, 0, 2, 0, 100, 1, 0, 50, 0, 0, 0, 11, 37948, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Crazed Colossus - Between 0-50% Health - Cast \'Serverside - Summon Crazed Shardling\' (No Repeat)'),
 (19823, 0, 3, 0, 2, 0, 100, 1, 0, 25, 0, 0, 0, 11, 37949, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Crazed Colossus - Between 0-25% Health - Cast \'Serverside - Summon Crazed Shardling\' (No Repeat)');
 
-UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectMiscValueB_1` = 64, `EffectBasePoints_1` = 0 WHERE `ID` IN (37947, 37948, 37949);
+-- UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectMiscValueB_1` = 64, `EffectBasePoints_1` = 0 WHERE `ID` IN (37947, 37948, 37949);
 
 DELETE FROM `creature_text` WHERE `CreatureID`=22054;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES

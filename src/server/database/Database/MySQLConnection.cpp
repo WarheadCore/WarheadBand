@@ -68,17 +68,12 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string_view infoString)
         SSL.assign(tokens.at(5));
 }
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ProducerConsumerQueue<AsyncOperation*>* dbQueue, bool isDynamic /*= false*/) :
+MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo, ConnectionFlags type, bool isDynamic /*= false*/) :
     _connectionInfo(connInfo),
     _isDynamic(isDynamic),
-    _connectionFlags(dbQueue ? ConnectionFlags::Async : ConnectionFlags::Sync),
-    _queue(dbQueue)
+    _connectionFlags(type)
 {
-    if (_queue)
-        _asyncQueueWorker = std::make_unique<AsyncDBQueueWorker>(_queue, this);
-
     UpdateLastUseTime();
-    _isInitStmts = std::make_unique<std::promise<void>>();
 }
 
 MySQLConnection::~MySQLConnection()
@@ -89,7 +84,8 @@ MySQLConnection::~MySQLConnection()
 
 void MySQLConnection::Close()
 {
-    _asyncQueueWorker.reset();
+    if (_asyncQueueWorker)
+        _asyncQueueWorker.reset();
 
     if (_mysqlHandle)
     {
@@ -194,12 +190,6 @@ bool MySQLConnection::Execute(PreparedStatement stmt)
 {
     if (!_mysqlHandle || !stmt)
         return false;
-
-    if (_isInitStmts)
-    {
-        _isInitStmts->get_future().wait();
-        _isInitStmts.reset();
-    }
 
     uint32 index = stmt->GetIndex();
 
@@ -628,15 +618,7 @@ bool MySQLConnection::CanRemoveConnection()
     return diff >= DYNAMIC_CONNECTION_TIMEOUT;
 }
 
-std::size_t MySQLConnection::GetQueueSize() const
+void MySQLConnection::SetAsyncQueue(ProducerConsumerQueue<AsyncOperation*>* dbQueue)
 {
-    if (!_queue)
-        return 0;
-
-    return _queue->Size();
-}
-
-void MySQLConnection::SetInitStmts()
-{
-    _isInitStmts->set_value();
+    _asyncQueueWorker = std::make_unique<AsyncDBQueueWorker>(dbQueue, this);
 }

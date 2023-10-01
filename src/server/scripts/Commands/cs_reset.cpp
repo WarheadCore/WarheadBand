@@ -30,7 +30,6 @@ EndScriptData */
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
 #include "GameConfig.h"
-#include "Language.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"

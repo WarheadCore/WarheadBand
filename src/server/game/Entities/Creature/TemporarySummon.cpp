@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "TemporarySummon.h"
-#include "CreatureAI.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"

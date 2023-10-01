@@ -16,13 +16,13 @@
  */
 
 #include "QuestBuff.h"
+#include "DBCStores.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ModulesConfig.h"
-#include "DatabaseEnv.h"
-#include "StopWatch.h"
 #include "ObjectMgr.h"
-#include "DBCStores.h"
 #include "Player.h"
+#include "StopWatch.h"
 
 QuestBuffMgr* QuestBuffMgr::instance()
 {

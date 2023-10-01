@@ -36,22 +36,20 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
-#include "Language.h"
 #include "Log.h"
 #include "LoginQueryHolder.h"
 #include "MapMgr.h"
 #include "Metric.h"
+#include "MotdMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "PlayerDump.h"
-#include "QueryHolder.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "MotdMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SpellAuraEffects.h"
@@ -1838,14 +1836,14 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
         {
             AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(i == 0 ? 0 : (((1 << (playerData->Race - 1)) & RACEMASK_ALLIANCE) ? 12 : 29));
 
-            for (auto const& [auID, Aentry] : auctionHouse->GetAuctions())
+            auctionHouse->ForEachAuctions([factionChangeInfo, &has_auctions](AuctionEntry* auction)
             {
-                if (Aentry && (Aentry->PlayerOwner == factionChangeInfo->Guid || Aentry->Bidder == factionChangeInfo->Guid))
+                if (auction && (auction->PlayerOwner == factionChangeInfo->Guid || auction->Bidder == factionChangeInfo->Guid))
                 {
                     has_auctions = true;
-                    break;
+                    return;
                 }
-            }
+            });
 
             if (has_auctions)
                 break;

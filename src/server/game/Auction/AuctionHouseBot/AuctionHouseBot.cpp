@@ -16,21 +16,21 @@
  */
 
 #include "AuctionHouseBot.h"
-#include "AsyncAuctionMgr.h"
 #include "AccountMgr.h"
+#include "AsyncAuctionMgr.h"
 #include "AuctionHouseBotBuyer.h"
 #include "AuctionHouseBotSeller.h"
 #include "AuctionHouseMgr.h"
 #include "Config.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
-#include "SmartEnum.h"
 #include "GameConfig.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
-#include "TaskScheduler.h"
+#include "SmartEnum.h"
 #include "StopWatch.h"
+#include "TaskScheduler.h"
 
 AuctionBotConfig* AuctionBotConfig::instance()
 {
@@ -495,7 +495,9 @@ void AuctionHouseBot::PrepareStatusInfos(std::unordered_map<AuctionHouseType, Au
         for (AuctionQuality quality : EnumUtils::Iterate<AuctionQuality>())
             statusInfo[ahType].QualityInfo[quality] = 0;
 
-        for (auto const& [auctionID, auction] : sAuctionMgr->GetAuctionsMap(ahType)->GetAuctions())
+        auto auctionObject{ sAuctionMgr->GetAuctionsMap(ahType) };
+
+        auctionObject->ForEachAuctions([ahType, &statusInfo](AuctionEntry* auction)
         {
             if (Item* item = sAuctionMgr->GetAuctionItem(auction->ItemGuid))
             {
@@ -508,7 +510,7 @@ void AuctionHouseBot::PrepareStatusInfos(std::unordered_map<AuctionHouseType, Au
                     ++statusInfo[ahType].ItemsCount;
                 }
             }
-        }
+        });
     }
 }
 
@@ -516,10 +518,13 @@ void AuctionHouseBot::Rebuild(bool all)
 {
     for (uint32 i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
     {
-        for (auto const& [auctionID, auction] : sAuctionMgr->GetAuctionsMap(i)->GetAuctions())
+        auto auctionObject{ sAuctionMgr->GetAuctionsMap(i) };
+        auctionObject->ForEachAuctions([all](AuctionEntry* auction)
+        {
             if (!auction->PlayerOwner || sAuctionBotConfig->IsBotChar(auction->PlayerOwner.GetCounter())) // Add only ahbot items
                 if (all || !auction->Bid) // expire now auction if no bid or forced
                     auction->ExpireTime = GameTime::GetGameTime();
+        });
     }
 }
 

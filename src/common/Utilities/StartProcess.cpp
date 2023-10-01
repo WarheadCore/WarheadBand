@@ -22,7 +22,6 @@
 #include "Errors.h"
 #include "Log.h"
 #include "Optional.h"
-#include "Util.h"
 #include <boost/algorithm/string/join.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/process/args.hpp>
@@ -84,8 +83,22 @@ namespace Warhead
         std::string const& logger, std::string const& input,
         bool secure)
     {
+#if AC_COMPILER == AC_COMPILER_MICROSOFT
+#pragma warning(push)
+#pragma warning(disable:4297)
+/*
+  Silence warning with boost 1.83
+    boost/process/pipe.hpp(132,5): warning C4297: 'boost::process::basic_pipebuf<char,std::char_traits<char>>::~basic_pipebuf': function assumed not to throw an exception but does
+    boost/process/pipe.hpp(132,5): message : destructor or deallocator has a (possibly implicit) non-throwing exception specification
+    boost/process/pipe.hpp(124,6): message : while compiling class template member function 'boost::process::basic_pipebuf<char,std::char_traits<char>>::~basic_pipebuf(void)'
+    boost/process/pipe.hpp(304,42): message : see reference to class template instantiation 'boost::process::basic_pipebuf<char,std::char_traits<char>>' being compiled
+*/
+#endif
         ipstream outStream;
         ipstream errStream;
+#if AC_COMPILER == AC_COMPILER_MICROSOFT
+#pragma warning(pop)
+#endif
 
         if (!secure)
         {

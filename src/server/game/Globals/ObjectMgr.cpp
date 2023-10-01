@@ -27,9 +27,9 @@
 #include "Config.h"
 #include "Containers.h"
 #include "CreatureAIFactory.h"
+#include "DBCStructure.h"
 #include "DBCacheMgr.h"
 #include "DatabaseEnv.h"
-#include "DBCStructure.h"
 #include "DisableMgr.h"
 #include "GameConfig.h"
 #include "GameEventMgr.h"
@@ -40,7 +40,6 @@
 #include "GroupMgr.h"
 #include "GuildMgr.h"
 #include "LFGMgr.h"
-#include "Language.h"
 #include "Log.h"
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
@@ -57,12 +56,9 @@
 #include "Tokenize.h"
 #include "Transport.h"
 #include "Unit.h"
-#include "UpdateMask.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
-#include "StringConvert.h"
-#include "Tokenize.h"
 #include <boost/algorithm/string.hpp>
 
 ScriptMapMap sSpellScripts;
@@ -3593,7 +3589,7 @@ void ObjectMgr::LoadPlayerInfo()
                 auto fields = result->Fetch();
                 uint32 raceMask = fields[0].Get<uint32>();
                 uint32 classMask = fields[1].Get<uint32>();
-                PlayerCreateInfoSkill skill;
+                PlayerCreateInfoSkill skill{};
                 skill.SkillId = fields[2].Get<uint16>();
                 skill.Rank = fields[3].Get<uint16>();
 
@@ -3808,86 +3804,6 @@ void ObjectMgr::LoadPlayerInfo()
         }
     }
 
-    // Loading levels data (class only dependent)
-    LOG_INFO("server.loading", "Loading Player Create Level HP/Mana Data...");
-    {
-        StopWatch sw;
-
-        auto result{ sDBCacheMgr->GetResult(DBCacheTable::PlayerClassLevelStats) };
-        if (!result)
-        {
-            LOG_CRIT("server.loading", ">> Loaded 0 level health/mana definitions. DB table `player_classlevelstats` is empty.");
-            exit(1);
-        }
-
-        uint32 count = 0;
-
-        do
-        {
-            auto fields = result->Fetch();
-
-            uint32 current_class = fields[0].Get<uint8>();
-            if (current_class >= MAX_CLASSES)
-            {
-                LOG_ERROR("db.query", "Wrong class {} in `player_classlevelstats` table, ignoring.", current_class);
-                continue;
-            }
-
-            uint8 current_level = fields[1].Get<uint8>();      // Can't be > than STRONG_MAX_LEVEL (hardcoded level maximum) due to var type
-            if (current_level > CONF_GET_UINT("MaxPlayerLevel"))
-            {
-                LOG_INFO("db.query", "Unused (> MaxPlayerLevel in worldserver.conf) level {} in `player_classlevelstats` table, ignoring.", current_level);
-                ++count;                                    // make result loading percent "expected" correct in case disabled detail mode for example.
-                continue;
-            }
-
-            PlayerClassInfo* info = _playerClassInfo[current_class];
-            if (!info)
-            {
-                info = new PlayerClassInfo();
-                info->levelInfo = new PlayerClassLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
-                _playerClassInfo[current_class] = info;
-            }
-
-            PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level - 1];
-
-            levelInfo.basehealth = fields[2].Get<uint32>();
-            levelInfo.basemana   = fields[3].Get<uint32>();
-
-            ++count;
-        } while (result->NextRow());
-
-        // Fill gaps and check integrity
-        for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
-        {
-            // skip non existed classes
-            if (!sChrClassesStore.LookupEntry(class_))
-                continue;
-
-            PlayerClassInfo* pClassInfo = _playerClassInfo[class_];
-
-            // fatal error if no initial level data
-            if (!pClassInfo->levelInfo || (pClassInfo->levelInfo[CONF_GET_INT("StartPlayerLevel") - 1].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (pClassInfo->levelInfo[CONF_GET_INT("StartHeroicPlayerLevel") - 1].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
-            {
-                LOG_ERROR("sql.sql", "Class {} initial level does not have health/mana data!", class_);
-                exit(1);
-            }
-
-            // fill level gaps
-            for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
-            {
-                if ((pClassInfo->levelInfo[level].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= CONF_GET_INT("StartHeroicPlayerLevel") && pClassInfo->levelInfo[level].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
-                {
-                    LOG_ERROR("sql.sql", "Class {} level {} does not have health/mana data. Using stats data of level {}.", class_, level + 1, level);
-                    pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level - 1];
-                }
-            }
-        }
-
-        LOG_INFO("server.loading", ">> Loaded {} Level Health/Mana Definitions in {}", count, sw);
-        LOG_INFO("server.loading", "");
-    }
-
     // Loading levels data (class/race dependent)
     LOG_INFO("server.loading", "Loading Player Create Level Stats Data...");
     {
@@ -3961,6 +3877,19 @@ void ObjectMgr::LoadPlayerInfo()
                         levelInfo.stats[i] = row[i + 2].Get<uint16>() + raceStatModifiers[race].StatModifier[i];
                 }
             }
+
+            PlayerClassInfo* info = _playerClassInfo[current_class];
+            if (!info)
+            {
+                info = new PlayerClassInfo();
+                info->levelInfo = new PlayerClassLevelInfo[CONF_GET_INT("MaxPlayerLevel")];
+                _playerClassInfo[current_class] = info;
+            }
+
+            PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+
+            levelInfo.basehealth = row[7].Get<uint32>();
+            levelInfo.basemana = row[8].Get<uint32>();
         }
 
         // Fill gaps and check integrity
@@ -3976,8 +3905,9 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!sChrClassesStore.LookupEntry(class_))
                     continue;
 
+                PlayerClassInfo* pClassInfo = _playerClassInfo[class_];
                 PlayerInfo* info = _playerInfo[race][class_];
-                if (!info)
+                if (!info || !pClassInfo)
                     continue;
 
                 // skip expansion races if not playing with expansion
@@ -4002,6 +3932,16 @@ void ObjectMgr::LoadPlayerInfo()
                     {
                         LOG_ERROR("db.query", "Race {} Class {} Level {} does not have stats data. Using stats data of level {}.", race, class_, level + 1, level);
                         info->levelInfo[level] = info->levelInfo[level - 1];
+                    }
+                }
+
+                // fill level gaps for health/mana
+                for (uint8 level = 1; level < CONF_GET_INT("MaxPlayerLevel"); ++level)
+                {
+                    if ((pClassInfo->levelInfo[level].basehealth == 0 && class_ != CLASS_DEATH_KNIGHT) || (level >= CONF_GET_INT("StartHeroicPlayerLevel") && pClassInfo->levelInfo[level].basehealth == 0 && class_ == CLASS_DEATH_KNIGHT))
+                    {
+                        LOG_ERROR("sql.sql", "Class {} level {} does not have health/mana data. Using stats data of level {}.", class_, level + 1, level);
+                        pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level - 1];
                     }
                 }
             }

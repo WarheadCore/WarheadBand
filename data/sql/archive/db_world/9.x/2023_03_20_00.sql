@@ -8,4 +8,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 UPDATE `creature_template` SET `ScriptName` = 'npc_raging_flames' WHERE `entry` = 20481;
 UPDATE `creature_template` SET `mechanic_immune_mask` = 617299803, `spell_school_immune_mask` = 0 WHERE `entry` IN (20481,21538);
 
-UPDATE `spell_dbc` SET `ProcTypeMask` = 20, `ProcChance` = 100, `BaseLevel` = 70, `SpellLevel` = 70, `Effect_1` = 6, `ImplicitTargetA_1` = 1, `EffectAura_1` = 42, `EffectTriggerSpell_1` = 45195 WHERE `Id` = 45196;
+-- UPDATE `spell_dbc` SET `ProcTypeMask` = 20, `ProcChance` = 100, `BaseLevel` = 70, `SpellLevel` = 70, `Effect_1` = 6, `ImplicitTargetA_1` = 1, `EffectAura_1` = 42, `EffectTriggerSpell_1` = 45195 WHERE `Id` = 45196;

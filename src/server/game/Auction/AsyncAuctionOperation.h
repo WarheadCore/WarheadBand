@@ -80,7 +80,7 @@ private:
 class WH_GAME_API ListBidderItemsTask : public AsyncAuctionOperation
 {
 public:
-    ListBidderItemsTask(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>& outbiddedAuctionIds) :
+    ListBidderItemsTask(ObjectGuid playerGuid, ObjectGuid auctioneer, uint32 listFrom, uint32 outbiddedCount, std::vector<uint32>&& outbiddedAuctionIds) :
         AsyncAuctionOperation(playerGuid),
         _auctioneer(auctioneer),
         _listFrom(listFrom),

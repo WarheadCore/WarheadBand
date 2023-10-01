@@ -20,15 +20,15 @@
 #include "Errors.h"
 #include "FileUtil.h"
 #include "StringConvert.h"
-#include "Tokenize.h"
 #include "Timer.h"
+#include "Tokenize.h"
 #include <filesystem>
-#include <utility>
 #include <fmt/std.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
+#include <utility>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <spdlog/details/windows_include.h>

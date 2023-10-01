@@ -37,8 +37,6 @@
 #include "InstanceSaveMgr.h"
 #include "LFG.h"
 #include "LFGMgr.h"
-#include "Language.h"
-#include "MapMgr.h"
 #include "MiscPackets.h"
 #include "MovementGenerator.h"
 #include "MuteMgr.h"

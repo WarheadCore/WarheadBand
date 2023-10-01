@@ -29,7 +29,6 @@ EndScriptData */
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "Player.h"

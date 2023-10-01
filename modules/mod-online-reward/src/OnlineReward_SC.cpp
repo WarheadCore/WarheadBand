@@ -31,7 +31,7 @@ class OnlineReward_CS : public CommandScript
 public:
     OnlineReward_CS() : CommandScript("OnlineReward_CS") { }
 
-    ChatCommandTable GetCommands() const override
+    [[nodiscard]] ChatCommandTable GetCommands() const override
     {
         static ChatCommandTable vipCommandTable =
         {
@@ -39,6 +39,7 @@ public:
             { "delete",     HandleOnlineRewardDeleteCommand,    SEC_ADMINISTRATOR,  Console::Yes },
             { "list",       HandleOnlineRewardListCommand,      SEC_ADMINISTRATOR,  Console::Yes },
             { "reload",     HandleOnlineRewardReloadCommand,    SEC_ADMINISTRATOR,  Console::Yes },
+            { "next",       HandleOnlineRewardNextCommand,      SEC_ADMINISTRATOR,  Console::No  },
             { "init",       HandleOnlineRewardInitCommand,      SEC_ADMINISTRATOR,  Console::Yes },
         };
 
@@ -92,28 +93,28 @@ public:
 
         std::size_t count{ 0 };
 
-        for (auto const& [id, onlineReward] : *sOLMgr->GetOnlineRewards())
+        sOLMgr->DoForAllRewards([handler, &count](OnlineReward const* onlineReward)
         {
-            handler->PSendSysMessage("{}. {}. IsPerOnline? {}", ++count, Warhead::Time::ToTimeString(onlineReward.Seconds), onlineReward.IsPerOnline);
+            handler->PSendSysMessage("{}. {}. IsPerOnline? {}", ++count, Warhead::Time::ToTimeString(onlineReward->Seconds), onlineReward->IsPerOnline);
 
-            if (!onlineReward.Items.empty())
+            if (!onlineReward->Items.empty())
             {
                 handler->SendSysMessage("-- Предметы:");
 
-                for (auto const& [itemID, itemCount] : onlineReward.Items)
+                for (auto const& [itemID, itemCount] : onlineReward->Items)
                     handler->PSendSysMessage("> {}/{}", itemID, itemCount);
             }
 
-            if (!onlineReward.Reputations.empty())
+            if (!onlineReward->Reputations.empty())
             {
                 handler->SendSysMessage("-- Репутация:");
 
-                for (auto const& [faction, reputation] : onlineReward.Reputations)
+                for (auto const& [faction, reputation] : onlineReward->Reputations)
                     handler->PSendSysMessage("> {}/{}", faction, reputation);
             }
 
             handler->SendSysMessage("--");
-        }
+        });
 
         return true;
     }
@@ -122,6 +123,22 @@ public:
     {
         sOLMgr->LoadDBData();
         handler->PSendSysMessage("> Награды перезагружены");
+        return true;
+    }
+
+    static bool HandleOnlineRewardNextCommand(ChatHandler* handler)
+    {
+        auto player = handler->GetPlayer();
+        if (!player)
+            return false;
+
+        Seconds playedTimeSec{ player->GetTotalPlayedTime() };
+
+        sOLMgr->DoForAllRewards([player, playedTimeSec](OnlineReward const* reward)
+        {
+            sOLMgr->GetNextTimeForReward(player, playedTimeSec, reward);
+        });
+
         return true;
     }
 

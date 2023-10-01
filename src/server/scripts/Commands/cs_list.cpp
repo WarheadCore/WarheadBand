@@ -30,7 +30,6 @@ EndScriptData */
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

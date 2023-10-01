@@ -18,7 +18,6 @@
 #include "ScriptObject.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Unit.h"
 
 class spell_q12779_an_end_to_all_things : public SpellScript
 {

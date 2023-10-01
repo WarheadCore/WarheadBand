@@ -23,7 +23,6 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
-#include "ObjectDefines.h"
 #include "ObjectMgr.h"
 #include "ScriptObject.h"
 #include "ScriptedCreature.h"

@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     name: ${{ matrix.compiler }}
     env:
-      BOOST_ROOT: C:\local\boost_1_80_0
+      BOOST_ROOT: C:\local\boost_1_82_0
     steps:
       - uses: actions/checkout@v3
       - name: ccache

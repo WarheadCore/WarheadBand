@@ -19,7 +19,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "Formulas.h"
-#include "Battleground.h"
 #include "Creature.h"
 #include "GameConfig.h"
 #include "Log.h"

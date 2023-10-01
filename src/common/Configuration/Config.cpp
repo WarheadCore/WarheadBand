@@ -40,8 +40,9 @@ namespace
     {
         size_t foundAuth = fileName.find("authserver.conf");
         size_t foundWorld = fileName.find("worldserver.conf");
+        size_t foundImport = fileName.find("dbimport.conf");
 
-        return foundAuth != std::string_view::npos || foundWorld != std::string_view::npos;
+        return foundAuth != std::string_view::npos || foundWorld != std::string_view::npos || foundImport != std::string_view::npos;
     }
 
     // Check logging system configs like LogChannel.* and Logger.*
@@ -399,7 +400,7 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
             if (showLogs)
             {
                 LOG_WARN("server.loading", "Missing property {} in config file {}, recovered with environment '{}' value.",
-                    name.c_str(), _filename.c_str(), envVar->c_str());
+                    name, _filename, envVar->c_str());
             }
 
             return *envVar;

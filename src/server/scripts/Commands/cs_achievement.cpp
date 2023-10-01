@@ -28,7 +28,6 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "Language.h"
 #include "Player.h"
 #include "ScriptObject.h"
 

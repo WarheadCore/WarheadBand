@@ -27,7 +27,6 @@ EndScriptData */
 
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptObject.h"

@@ -23,7 +23,6 @@
 #include "DBCEnums.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
-#include "MMapFactory.h"
 #include "MapMgr.h"
 #include "MapUpdater.h"
 #include "ObjectMgr.h"

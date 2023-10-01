@@ -18,7 +18,7 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (17990, 0, 0, 0, 1, 0, 0),
 (20189, 0, 0, 0, 1, 0, 0);
 
-UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectMiscValueB_1` = 64 WHERE `ID` = 31692;
+-- UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectMiscValueB_1` = 64 WHERE `ID` = 31692;
 
 DELETE FROM `spell_script_names` WHERE `spell_id` = 34168 AND `ScriptName` = 'spell_spore_cloud';
 DELETE FROM `spell_script_names` WHERE `spell_id` = 34874 AND `ScriptName` = 'spell_despawn_underbog_mushrooms';
