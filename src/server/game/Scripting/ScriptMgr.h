@@ -430,6 +430,7 @@ public: /* PlayerScript */
     bool CanSendErrorAlreadyLooted(Player* player);
     void OnAfterCreatureLoot(Player* player);
     void OnAfterCreatureLootMoney(Player* player);
+    bool CanResurrect(Player* player, float restorePercent, bool applySickness);
 
     // Anti cheat
     void AnticheatSetSkipOnePacketForASH(Player* player, bool apply);

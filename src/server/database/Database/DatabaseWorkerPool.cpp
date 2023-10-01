@@ -202,7 +202,7 @@ QueryResult DatabaseWorkerPool::Query(std::string_view sql)
 
 std::pair<uint32, MySQLConnection*> DatabaseWorkerPool::OpenConnection(InternalIndex type, bool isDynamic /*= false*/)
 {
-    auto connection = std::make_unique<MySQLConnection>(*_connectionInfo, type == IDX_ASYNC ? _queue.get() : nullptr, isDynamic);
+    auto connection = std::make_unique<MySQLConnection>(*_connectionInfo, type == IDX_ASYNC ? ConnectionFlags::Async : ConnectionFlags::Sync, isDynamic);
     if (uint32 error = connection->Open())
     {
         // Failed to open a connection or invalid version
@@ -216,7 +216,9 @@ std::pair<uint32, MySQLConnection*> DatabaseWorkerPool::OpenConnection(InternalI
 
     // Init statements before add to container
     InitPrepareStatement(connection.get());
-    connection->SetInitStmts();
+
+    if (type == IDX_ASYNC)
+        connection->SetAsyncQueue(_queue.get());
 
     // Add connection to container
     auto& itrConnection = _connections[type].emplace_back(std::move(connection));
@@ -385,7 +387,7 @@ void DatabaseWorkerPool::PrepareStatement(uint32 index, std::string_view sql, Co
     auto const& itr = _stringPreparedStatement.find(index);
     if (itr != _stringPreparedStatement.end())
     {
-        LOG_ERROR("db.pool", "{} DBPool: Trying add exist statement with index ()! Skip", GetPoolName(), index);
+        LOG_ERROR("db.pool", "{} DBPool: Trying add exist statement with index ({})! Skip", GetPoolName(), index);
         return;
     }
 
@@ -502,7 +504,7 @@ void DatabaseWorkerPool::DirectCommitTransaction(SQLTransaction transaction)
     auto errorCode = connection->ExecuteTransaction(transaction);
     if (!errorCode)
     {
-        connection->Unlock(); // OK, operation succesful
+        connection->Unlock(); // OK, operation successful
         return;
     }
 

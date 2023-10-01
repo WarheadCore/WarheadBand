@@ -24,6 +24,7 @@
 #include "DatabaseEnv.h"
 #include "ExternalMail.h"
 #include "Log.h"
+#include "GameLocale.h"
 #include "ModuleLocale.h"
 #include "ModulesConfig.h"
 #include "ObjectAccessor.h"
@@ -32,6 +33,7 @@
 #include "StopWatch.h"
 #include "StringConvert.h"
 #include "Tokenize.h"
+#include "ObjectAccessor.h"
 
 OnlineRewardMgr* OnlineRewardMgr::instance()
 {
@@ -86,10 +88,9 @@ void OnlineRewardMgr::ScheduleReward()
     if (!_isEnable)
         return;
 
-    scheduler.Schedule(30s, [this](TaskContext context)
+    scheduler.Schedule(10s, [this](TaskContext /*context*/)
     {
         RewardPlayers();
-        context.Repeat(15min);
     });
 }
 
@@ -106,7 +107,6 @@ void OnlineRewardMgr::RewardNow()
 {
     scheduler.CancelAll();
     RewardPlayers();
-    ScheduleReward();
 }
 
 void OnlineRewardMgr::LoadDBData()
@@ -268,6 +268,7 @@ bool OnlineRewardMgr::AddReward(uint32 id, bool isPerOnline, Seconds seconds, st
         return false;
     }
 
+    std::unique_lock guard(_mutex);
     _rewards.emplace(id, data);
 
     // If add from command - save to db
@@ -288,9 +289,11 @@ void OnlineRewardMgr::AddRewardHistory(ObjectGuid::LowType lowGuid)
     if (IsExistHistory(lowGuid))
         return;
 
-    _queryProcessor.AddCallback(
-        CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `RewardID`, `RewardedSeconds` FROM `wh_online_rewards_history` WHERE `PlayerGuid` = {}", lowGuid)).
-        WithCallback(std::bind(&OnlineRewardMgr::AddRewardHistoryAsync, this, lowGuid, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(Warhead::StringFormat("SELECT `RewardID`, `RewardedSeconds` FROM `wh_online_rewards_history` WHERE `PlayerGuid` = {}", lowGuid)).
+        WithCallback([this, lowGuid](QueryResult result)
+    {
+        AddRewardHistoryAsync(lowGuid, std::move(result));
+    }));
 }
 
 void OnlineRewardMgr::DeleteRewardHistory(ObjectGuid::LowType lowGuid)
@@ -298,6 +301,7 @@ void OnlineRewardMgr::DeleteRewardHistory(ObjectGuid::LowType lowGuid)
     if (!_isEnable)
         return;
 
+    std::unique_lock guard(_mutexHistory);
     _rewardHistory.erase(lowGuid);
 }
 
@@ -308,7 +312,10 @@ void OnlineRewardMgr::RewardPlayers()
 
     // Empty world, no need reward
     if (!sWorld->GetPlayerCount())
+    {
+        ScheduleReward();
         return;
+    }
 
     ASSERT(_rewardPending.empty());
 
@@ -316,16 +323,13 @@ void OnlineRewardMgr::RewardPlayers()
     {
         StopWatch sw;
 
-        LOG_DEBUG("module.or", "> OR: Start rewars players...");
+        LOG_DEBUG("module.or", "> OR: Start rewards players...");
 
-        auto const& sessions = sWorld->GetAllSessions();
-        if (sessions.empty())
-            return;
+        std::shared_lock guard(_mutex);
 
-        for (auto const& [accountID, session] : sessions)
+        for (auto [guid, player] : ObjectAccessor::GetPlayers())
         {
-            auto const& player = session->GetPlayer();
-            if (!player || !player->IsInWorld())
+            if (!player || !player->IsInWorld() || player->IsBeingTeleported())
                 continue;
 
             auto const lowGuid = player->GetGUID().GetCounter();
@@ -349,12 +353,16 @@ void OnlineRewardMgr::RewardPlayers()
         // Save data to DB
         SaveRewardHistoryToDB();
 
-        LOG_DEBUG("module.or", "> OR: End rewars players. Elapsed {}", sw);
+        LOG_DEBUG("module.or", "> OR: End rewards players. Elapsed {}", sw);
+
+        ScheduleReward();
     });
 }
 
 void OnlineRewardMgr::SaveRewardHistoryToDB()
 {
+    std::shared_lock guard(_mutexHistory);
+
     if (_rewardHistory.empty())
         return;
 
@@ -363,7 +371,7 @@ void OnlineRewardMgr::SaveRewardHistoryToDB()
     // Save data for exist history
     for (auto const& [lowGuid, history] : _rewardHistory)
     {
-        // Delele old data
+        // Delete old data
         trans->Append("DELETE FROM `wh_online_rewards_history` WHERE `PlayerGuid` = {}", lowGuid);
 
         for (auto const& [rewardID, seconds] : history)
@@ -378,6 +386,8 @@ void OnlineRewardMgr::SaveRewardHistoryToDB()
 
 OnlineRewardMgr::RewardHistory* OnlineRewardMgr::GetHistory(ObjectGuid::LowType lowGuid)
 {
+    std::shared_lock guard(_mutexHistory);
+
     if (_rewardHistory.empty())
         return nullptr;
 
@@ -390,6 +400,8 @@ OnlineRewardMgr::RewardHistory* OnlineRewardMgr::GetHistory(ObjectGuid::LowType 
 
 Seconds OnlineRewardMgr::GetHistorySecondsForReward(ObjectGuid::LowType lowGuid, uint32 id)
 {
+    std::shared_lock guard(_mutexHistory);
+
     if (_rewardHistory.empty())
         return 0s;
 
@@ -406,11 +418,13 @@ Seconds OnlineRewardMgr::GetHistorySecondsForReward(ObjectGuid::LowType lowGuid,
 
 void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 rewardID)
 {
-    //LOG_TRACE("module.or", "Send reward for player guid {}. RewardSeconds {}", player->GetGUID().GetCounter(), secondsOnine.count());
-
-    auto const& onlineReward = GetOnlineReward(rewardID);
+    auto onlineReward = GetOnlineReward(rewardID);
     if (!onlineReward)
         return;
+
+//    LOG_INFO("module.or", "Send reward for player guid {}. RewardSeconds {}", player->GetGUID().GetCounter(), onlineReward->Seconds.count());
+
+    std::shared_lock guard(_mutex);
 
     ChatHandler handler{ player->GetSession() };
     std::string playedTimeSecStr{ Warhead::Time::ToTimeString(onlineReward->Seconds, 3, TimeFormat::FullText) };
@@ -434,7 +448,7 @@ void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 rewardID)
             auto const& factionEntry = sFactionStore.LookupEntry(faction);
             if (factionEntry)
             {
-                repMgr.SetOneFactionReputation(factionEntry, reputation, true);
+                repMgr.SetOneFactionReputation(factionEntry, static_cast<float>(reputation), true);
                 repMgr.SendState(repMgr.GetState(factionEntry));
             }
         }
@@ -472,9 +486,12 @@ void OnlineRewardMgr::AddHistory(ObjectGuid::LowType lowGuid, uint32 rewardId, S
     auto history = GetHistory(lowGuid);
     if (!history)
     {
+        std::unique_lock guard(_mutexHistory);
         _rewardHistory.emplace(lowGuid, RewardHistory{ { rewardId, playerOnlineTime } });
         return;
     }
+
+    std::unique_lock guard(_mutexHistory);
 
     for (auto& [rewardID, seconds] : *history)
     {
@@ -490,6 +507,7 @@ void OnlineRewardMgr::AddHistory(ObjectGuid::LowType lowGuid, uint32 rewardId, S
 
 bool OnlineRewardMgr::IsExistHistory(ObjectGuid::LowType lowGuid)
 {
+    std::shared_lock guard(_mutexHistory);
     return _rewardHistory.contains(lowGuid);
 }
 
@@ -498,7 +516,7 @@ void OnlineRewardMgr::AddRewardHistoryAsync(ObjectGuid::LowType lowGuid, QueryRe
     if (!result)
         return;
 
-    std::lock_guard<std::mutex> guard(_playerLoadingLock);
+    std::unique_lock guard(_mutexHistory);
 
     if (_rewardHistory.contains(lowGuid))
     {
@@ -585,11 +603,14 @@ void OnlineRewardMgr::SendRewards()
 
 bool OnlineRewardMgr::IsExistReward(uint32 id)
 {
+    std::shared_lock guard(_mutex);
     return _rewards.contains(id);
 }
 
 bool OnlineRewardMgr::DeleteReward(uint32 id)
 {
+    std::unique_lock guard(_mutex);
+
     auto const& erased = _rewards.erase(id);
     if (!erased)
         return false;
@@ -600,6 +621,7 @@ bool OnlineRewardMgr::DeleteReward(uint32 id)
 
 OnlineReward const* OnlineRewardMgr::GetOnlineReward(uint32 id)
 {
+    std::shared_lock guard(_mutex);
     return Warhead::Containers::MapGetValuePtr(_rewards, id);
 }
 
@@ -654,4 +676,58 @@ void OnlineRewardMgr::CorrectDBData()
 
     LOG_INFO("module.or", "> OR: Filled {} rewards in {}", count, sw);
     LOG_INFO("module.or", "");
+}
+
+void OnlineRewardMgr::DoForAllRewards(std::function<void(OnlineReward const*)> const& task)
+{
+    std::shared_lock guard(_mutex);
+
+    if (_rewards.empty())
+        return;
+
+    for (auto const& [id, reward] : _rewards)
+        task(&reward);
+}
+
+void OnlineRewardMgr::GetNextTimeForReward(Player* player, Seconds playedTime, OnlineReward const* onlineReward)
+{
+    if (!onlineReward || !player || playedTime == 0s)
+        return;
+
+    auto lowGuid = player->GetGUID().GetCounter();
+    auto localeIndex = player->GetSession()->GetSessionDbLocaleIndex();
+    ChatHandler handler(player->GetSession());
+
+    auto PrintReward = [player, onlineReward, localeIndex, &handler](Seconds seconds)
+    {
+        for (auto const& [itemId, count] : onlineReward->Items)
+        {
+            auto item = sGameLocale->GetItemLink(itemId, localeIndex);
+            auto left = seconds == 0s ? "<at next reward tick>" : Warhead::Time::ToTimeString(seconds);
+
+            sModuleLocale->SendPlayerMessage(player, "OR_LOCALE_NEXT", item, count, left);
+        }
+    };
+
+    auto rewardedSeconds = GetHistorySecondsForReward(lowGuid, onlineReward->ID);
+
+    if (onlineReward->IsPerOnline && _isPerOnlineEnable)
+    {
+        if (rewardedSeconds != 0s)
+            return;
+
+        PrintReward(onlineReward->Seconds - playedTime);
+    }
+    else if (!onlineReward->IsPerOnline && _isPerTimeEnable)
+    {
+        auto next = onlineReward->Seconds * (rewardedSeconds / onlineReward->Seconds + 1);
+
+        for (auto diffTime{ next }; next < playedTime; diffTime + onlineReward->Seconds)
+        {
+            PrintReward(0s);
+            next += onlineReward->Seconds;
+        }
+
+        PrintReward(next - playedTime);
+    }
 }

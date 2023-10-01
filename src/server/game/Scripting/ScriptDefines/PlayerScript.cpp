@@ -847,12 +847,7 @@ bool ScriptMgr::CanSendErrorAlreadyLooted(Player* player)
         return !script->CanSendErrorAlreadyLooted(player);
     });
 
-    if (ret && *ret)
-    {
-        return false;
-    }
-
-    return true;
+    return ReturnValidBool(ret);
 }
 
 void ScriptMgr::OnAfterCreatureLoot(Player* player)
@@ -1550,4 +1545,14 @@ void ScriptMgr::OnUpdateProfessionSkill(Player* player, uint16 skillId, int32 ch
     {
         script->OnUpdateProfessionSkill(player, skillId, chance, step);
     });
+}
+
+bool ScriptMgr::CanResurrect(Player* player, float restorePercent, bool applySickness)
+{
+    auto ret = IsValidBoolScript<PlayerScript>([player, restorePercent, applySickness](PlayerScript* script)
+    {
+        return !script->CanResurrect(player, restorePercent, applySickness);
+    });
+
+    return ReturnValidBool(ret);
 }

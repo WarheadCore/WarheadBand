@@ -1,9 +1,9 @@
 -- DB update 2023_03_29_02 -> 2023_03_29_03
 --
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (33480, 32863);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(33480, 33480, 38226),
-(32863, 32863, 38252);
+-- DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (33480, 32863);
+-- INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+-- (33480, 33480, 38226),
+-- (32863, 32863, 38252);
 
 -- BroadcastID
 UPDATE `creature_text` SET `BroadcastTextId` = 16798 WHERE `Text` = 'Ruin finds us all!';

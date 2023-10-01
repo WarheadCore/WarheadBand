@@ -255,6 +255,8 @@ void AuctionHouseObject::Update()
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
+    std::list<uint32> _toDelete;
+
     for (auto const& [auctionID, auction] : _auctions)
     {
         if (auction->ExpireTime > checkTime)
@@ -282,10 +284,14 @@ void AuctionHouseObject::Update()
 
         sAuctionMgr->RemoveAItem(auction->ItemGuid);
         sScriptMgr->OnAuctionRemove(this, auction.get());
-        _auctions.erase(auction->Id);
+        _toDelete.emplace_back(auction->Id);
     }
 
     CharacterDatabase.CommitTransaction(trans);
+
+    if (!_toDelete.empty())
+        for (auto id : _toDelete)
+            _auctions.erase(id);
 }
 
 void AuctionHouseObject::BuildListAuctionItems(WorldPackets::AuctionHouse::ListResult& packet, Player* player, std::shared_ptr<AuctionListItems> listItems)
