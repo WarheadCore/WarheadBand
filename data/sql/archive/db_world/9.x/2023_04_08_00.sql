@@ -1,12 +1,12 @@
 -- DB update 2023_04_06_01 -> 2023_04_08_00
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (22911,36023,30481,30636,34100,30932);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(22911, 22911, 37511),
-(36023, 36023, 36054),
-(30481, 30481, 35945),
-(30636, 30636, 35942),
-(34100, 34100, 35950),
-(30932, 30932, 40248);
+-- DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (22911,36023,30481,30636,34100,30932);
+-- INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+-- (22911, 22911, 37511),
+-- (36023, 36023, 36054),
+-- (30481, 30481, 35945),
+-- (30636, 30636, 35942),
+-- (34100, 34100, 35950),
+-- (30932, 30932, 40248);
 
 UPDATE `creature_text` SET `Text` = 'For Kargath!  For Victory!', `BroadcastTextId` = 16698 WHERE `Text` = 'For Kargath! For Victory!';
 UPDATE `creature_text` SET `BroadcastTextId` = 16699 WHERE `Text` = 'Gakarah ma!';

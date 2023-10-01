@@ -3,12 +3,12 @@
 UPDATE `creature_template_addon` SET `auras` = '11838 31261 36716' WHERE (`entry` = 20869);
 UPDATE `creature_template_addon` SET `auras` = '11838 31261 38828' WHERE (`entry` = 21586);
 
-DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (36719, 36716);
-INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
-(36719, 36719, 38830),
-(36716, 36716, 38828);
+-- DELETE FROM `spelldifficulty_dbc` WHERE `ID` IN (36719, 36716);
+-- INSERT INTO `spelldifficulty_dbc` (`ID`, `DifficultySpellID_1`, `DifficultySpellID_2`) VALUES
+-- (36719, 36719, 38830),
+-- (36716, 36716, 38828);
 
-UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectMiscValueB_1` = 64, `EffectBasePoints_1` = 0 WHERE `ID`=37394;
+-- UPDATE `spell_dbc` SET `Effect_1` = 28, `EffectMiscValueB_1` = 64, `EffectBasePoints_1` = 0 WHERE `ID`=37394;
 
 DELETE FROM `smart_scripts` WHERE (`source_type` = 0 AND `entryorguid` IN (20869, 21303, 21304));
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
