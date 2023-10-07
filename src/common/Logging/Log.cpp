@@ -259,7 +259,7 @@ void Warhead::Log::CreateSinksFromConfig(std::string_view configSinkName)
     spdlog::sink_ptr sink;
 
     if (type == SinkType::Console)
-        sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>(spdlog::color_mode::always);
     else if (type == SinkType::File)
     {
         std::string fileName{ tokens[3] };
