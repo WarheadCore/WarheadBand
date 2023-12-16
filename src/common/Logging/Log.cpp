@@ -154,14 +154,14 @@ void Warhead::Log::CreateLoggerFromConfig(std::string_view configLoggerName)
     if (configLoggerName.empty())
         return;
 
-    if (GetLogger(configLoggerName))
+    std::string const& options = sConfigMgr->GetOption<std::string>(std::string{ configLoggerName }, "");
+    auto loggerName = configLoggerName.substr(PREFIX_LOGGER_LENGTH);
+
+    if (GetLogger(loggerName))
     {
         spdlog::error("Log::CreateLoggerFromConfig: {} is exist\n", configLoggerName);
         return;
     }
-
-    std::string const& options = sConfigMgr->GetOption<std::string>(std::string{ configLoggerName }, "");
-    auto loggerName = configLoggerName.substr(PREFIX_LOGGER_LENGTH);
 
     if (options.empty())
     {
