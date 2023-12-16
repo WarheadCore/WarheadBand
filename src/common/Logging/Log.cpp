@@ -215,14 +215,14 @@ void Warhead::Log::CreateSinksFromConfig(std::string_view configSinkName)
     if (configSinkName.empty())
         return;
 
-    if (GetSink(configSinkName))
+    std::string const& options = sConfigMgr->GetOption<std::string>(std::string{configSinkName }, "");
+    auto sinkName = configSinkName.substr(PREFIX_SINK_LENGTH);
+
+    if (GetSink(sinkName))
     {
         spdlog::error("Log::CreateSinksFromConfig: {} is exist", configSinkName);
         return;
     }
-
-    std::string const& options = sConfigMgr->GetOption<std::string>(std::string{configSinkName }, "");
-    auto sinkName = configSinkName.substr(PREFIX_SINK_LENGTH);
 
     auto const& tokens = Warhead::Tokenize(options, ',', true);
     if (tokens.size() < 3 || tokens.size() > 7)
