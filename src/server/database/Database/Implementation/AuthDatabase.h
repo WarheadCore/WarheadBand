@@ -128,7 +128,7 @@ class WH_DATABASE_API AuthDatabasePool : public DatabaseWorkerPool
 {
 public:
     AuthDatabasePool() : DatabaseWorkerPool(DatabaseType::Auth) { }
-    ~AuthDatabasePool() = default;
+    ~AuthDatabasePool() override = default;
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;

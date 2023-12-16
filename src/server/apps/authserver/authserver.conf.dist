@@ -381,103 +381,76 @@ Updates.CleanDeadRefMaxCount = 3
 #
 #  LOGGING SYSTEM SETTINGS
 #
-#  Log sink config values: Given an sink "name"
-#    Log.Sink.name
+#  Log handler config values: Given an handler "name"
+#    Log.Handler.name
 #        Description: Defines 'where to log'
 #        Format:      Type,LogLevel,Pattern,Optional1,Optional2,Optional3
 #
 #                     Type
 #                       1 - (Console)
 #                       2 - (File)
+#                       3 - (DB)
 #
 #                     LogLevel
-#                       0 - Trace
-#                       1 - Debug
-#                       2 - Info
-#                       3 - Warning
-#                       4 - Error
-#                       5 - Critical
-#                       6 - Disabled
+#                       0 - TraceL3
+#                       1 - TraceL2
+#                       2 - TraceL1
+#                       3 - Debug
+#                       4 - Info
+#                       5 - Warning
+#                       6 - Error
+#                       7 - Critical
+#                       9 - Disabled
 #
 #                    Pattern (all type)
-#                       * %v - The actual text to log
-#                       * %t - Thread id
-#                       * %P - Process id
-#                       * %n - Logger's name
-#                       * %l - The log level of the message
-#                       * %L - Short log level of the message
-#                       * %a - Abbreviated weekday name
-#                       * %A - Full weekday name
-#                       * %b - Abbreviated month name
-#                       * %B - Full month name
-#                       * %c - Date and time representation
-#                       * %C - Year in 2 digits
-#                       * %Y - Year in 4 digits
-#                       * %D or %x - Short MM/DD/YY date
-#                       * %m - Month 01-12
-#                       * %d - Day of month 01-31
-#                       * %H - Hours in 24 format 00-23
-#                       * %I - Hours in 12 format 01-12
-#                       * %M - Minutes 00-59
-#                       * %S - Seconds 00-59
-#                       * %e - Millisecond part of the current second 000-999
-#                       * %f - Microsecond part of the current second 000000-999999
-#                       * %F - Nanosecond part of the current second 000000000-999999999
-#                       * %p - AM/PM
-#                       * %r - 12 hour clock
-#                       * %R - 24-hour HH:MM time, equivalent to %H:%M
-#                       * %T or %X - ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
-#                       * %z - ISO 8601 offset from UTC in timezone ([+/-]HH:MM)
-#                       * %E - Seconds since the epoch
-#                       * %% - The % sign
-#                       * %+ - spdlog's default format
-#                       * %^ - start color range (can be used only once)
-#                       * %$ - end color range (for example %^[+++]%$ %v) (can be used only once)
-#                       * %@ - Source file and line
-#                       * %s - Basename of the source file
-#                       * %g - Full or relative path of the source file as appears in the __FILE__ macro
-#                       * %# - Source line
-#                       * %! - Source function
-#                       * %o - Elapsed time in milliseconds since previous message
-#                       * %i - Elapsed time in microseconds since previous message
-#                       * %u - Elapsed time in nanoseconds since previous message
-#                       * %O - Elapsed time in seconds since previous message
-#                           Example for file "[%Y-%m-%d %T.%e] %v"
-#                           Example for console "[%T.%e] [%t] %^%v%$"
+#                       * %(ascii_time)    - Human-readable time when the LogRecord was created. By default this is of the form ‘2003-07-08 16:49:45,896’ (the numbers after the comma are millisecond portion of the time).
+#                       * %(filename)      - Filename portion of pathname.
+#                       * %(function_name) - Name of function containing the logging call.
+#                       * %(level_name)    - Text logging level for the message ('TRACEL3', 'TRACEL2', 'TRACEL1', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', 'BACKTRACE').
+#                       * %(level_id)      - Abbreviated level name ('T3', 'T2', 'T1', 'D', 'I', 'W', 'E', 'C', 'BT').
+#                       * %(lineno)	       - Source line number where the logging call was issued (if available).
+#                       * %(message)	   - The logged message, computed as msg % args. This is set when Formatter.format() is invoked.
+#                       * %(logger_name)   - Name of the logger used to log the call.
+#                       * %(pathname)      - Full pathname of the source file where the logging call was issued (if available).
+#                       * %(thread)        - Thread ID (if available).
+#                       * %(thread_name)   - Thread name if set. The name of the thread must be set prior to issuing any log statement on that thread.
+#                       * %(process)       - Process ID
+#                           Example for file "[%(ascii_time)] [%(level_id)] %(message)"
+#                           Example for console "[%(ascii_time)] %(message)"
 #
 #                     Optional1 - File name (is type file)
 #                       Example: "Auth.log"
 #
-#                     Optional2 - Truncate file at open (is type file)
-#                          true - Clear file at open (default)
-#                          false - Just append logs to file
+#                     Optional2 - Sets the maximum number of log files to keep. By default, there is no limit on the number of log files (is type File)
+#                       Example: "60"
 #
-#                     Optional3 - Add timestamp (is type File).
-#                           true: Append timestamp to the log file name. Format: YYYY_MM_DD_HH_MM_SS
-#                           false: Just using filename (default)
+#                     Optional3 - Sets the time of day for daily log file rotation. (is type file)
+#                       Example: "7:00"
 #
 
-Sink.Console = "1","2","[%T.%e] [%t] %^%v%$"
-Sink.Auth = "2","2","[%Y-%m-%d %T.%e] %v","Auth.log"
+Handler.Console = "1","4","[%(ascii_time)] %(message)"
+Handler.Auth = "2","3","[%(ascii_time)] [%(level_id)] %(message)","Auth.log","60","07:00"
 
 #
 #  Logger config values: Given a logger "name"
 #    Logger.name
 #        Description: Defines 'What to log'
-#        Format:      LogLevel,ChannelList
+#        Format:      LogLevel,HandlersList
 #
 #                     LogLevel
-#                       0 - Trace
-#                       1 - Debug
-#                       2 - Info
-#                       3 - Warning
-#                       4 - Error
-#                       5 - Critical
-#                       6 - Disabled
+#                       0 - TraceL3
+#                       1 - TraceL2
+#                       2 - TraceL1
+#                       3 - Debug
+#                       4 - Info
+#                       5 - Warning
+#                       6 - Error
+#                       7 - Critical
+#                       9 - Disabled
 #
 #                     File channel: file channel linked to logger
 #                     (Using spaces as separator).
 #
 
-Logger.root = 2,Console Auth
+Logger.root = 3,Console Auth
 ###################################################################################################

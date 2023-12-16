@@ -28,7 +28,7 @@ namespace Warhead
 
     // Default string format function.
     template<typename... Args>
-    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
+    std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
     {
         try
         {

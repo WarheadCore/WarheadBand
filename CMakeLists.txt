@@ -16,12 +16,16 @@
 #
 
 # Require version Cmake
-cmake_minimum_required(VERSION 3.16...3.22)
+cmake_minimum_required(VERSION 3.16)
 
 message(STATUS "CMake version: ${CMAKE_VERSION}")
 
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 NEW)
+
+if (${CMAKE_VERSION} GREATER_EQUAL 3.28)
+  cmake_policy(SET CMP0153 OLD)
+endif ()
 
 # Set projectname (must be done AFTER setting configurationtypes)
 project(WarheadBand VERSION 3.0.0 LANGUAGES CXX C)

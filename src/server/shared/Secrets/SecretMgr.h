@@ -56,7 +56,7 @@ public:
     Secret const& GetSecret(Secrets i);
 
 private:
-    void AttemptLoad(Secrets i, int errorLevel, std::unique_lock<std::mutex> const&);
+    void AttemptLoad(Secrets i, std::unique_lock<std::mutex> const&);
     [[nodiscard]] Optional<std::string> AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const;
 
     std::array<Secret, NUM_SECRETS> _secrets;

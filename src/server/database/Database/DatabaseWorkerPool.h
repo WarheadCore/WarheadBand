@@ -48,7 +48,6 @@ struct StringPreparedStatement
 
 class WH_DATABASE_API DatabaseWorkerPool
 {
-private:
     enum InternalIndex
     {
         IDX_ASYNC,
@@ -58,7 +57,7 @@ private:
 
 public:
     explicit DatabaseWorkerPool(DatabaseType type);
-    ~DatabaseWorkerPool();
+    virtual ~DatabaseWorkerPool();
 
     void SetConnectionInfo(std::string_view infoString);
 
@@ -84,12 +83,9 @@ public:
     //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
     //! This method should only be used for queries that are only executed once, e.g during startup.
     template<typename... Args>
-    void Execute(std::string_view sql, Args&&... args)
+    void Execute(Warhead::FormatString<Args...> fmt, Args&&... args)
     {
-        if (sql.empty())
-            return;
-
-        Execute(Warhead::StringFormat(sql, std::forward<Args>(args)...));
+        Execute(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
     void Execute(PreparedStatement stmt);
@@ -105,12 +101,9 @@ public:
     //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
     //! This method should only be used for queries that are only executed once, e.g during startup.
     template<typename... Args>
-    void DirectExecute(std::string_view sql, Args&&... args)
+    void DirectExecute(Warhead::FormatString<Args...> fmt, Args&&... args)
     {
-        if (sql.empty())
-            return;
-
-        DirectExecute(Warhead::StringFormat(sql, std::forward<Args>(args)...));
+        DirectExecute(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
     //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
@@ -128,12 +121,9 @@ public:
     //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
     //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
     template<typename... Args>
-    QueryResult Query(std::string_view sql, Args&&... args)
+    QueryResult Query(Warhead::FormatString<Args...> fmt, Args&&... args)
     {
-        if (sql.empty())
-            return { nullptr };
-
-        return Query(Warhead::StringFormat(sql, std::forward<Args>(args)...));
+        return Query(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
 
     //! Directly executes an SQL query in prepared format that will block the calling thread until finished.

@@ -20,37 +20,30 @@
 #include "Errors.h"
 #include "FileUtil.h"
 #include "StringConvert.h"
-#include "Timer.h"
+#include "Containers.h"
 #include "Tokenize.h"
 #include <filesystem>
-#include <fmt/std.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 #include <utility>
 
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
 #include <spdlog/details/windows_include.h>
 #endif
 
-namespace fs = std::filesystem;
+// Quill
+#include <quill/Quill.h>
+#include <quill/Logger.h>
 
 namespace
 {
     // Const loggers name
     constexpr auto LOGGER_ROOT = "root";
-    constexpr auto LOGGER_GM = "commands.gm";
-    //constexpr auto LOGGER_PLAYER_DUMP = "entities.player.dump";
 
     // Prefix's
     constexpr auto PREFIX_LOGGER = "Logger.";
-    constexpr auto PREFIX_CHANNEL = "Sink.";
-    constexpr auto PREFIX_LOGGER_LENGTH = 7;
-    constexpr auto PREFIX_SINK_LENGTH = 5;
-
-    constexpr auto LOG_TIMESTAMP_FMT = "%Y_%m_%d_%H_%M_%S";
+    constexpr auto PREFIX_HANDLER = "Handler.";
 }
+
+namespace fs = std::filesystem;
 
 Warhead::Log::Log()
 {
@@ -58,14 +51,8 @@ Warhead::Log::Log()
     SetConsoleOutputCP(65001);
 #endif
 
-    // Set pattern for default logger
-    spdlog::set_pattern("[%t] %^%v%$");
-
-    // Global flush policy
-    spdlog::flush_every(2s);
-
-    // Set warn level for default logger
-    spdlog::set_level(spdlog::level::info);
+    // Start the logging backend thread
+    quill::start();
 }
 
 Warhead::Log::~Log()
@@ -81,32 +68,27 @@ Warhead::Log* Warhead::Log::instance()
 
 void Warhead::Log::Clear()
 {
-    auto defaultLogger{ spdlog::default_logger() };
-
-    spdlog::shutdown();
-    _sinks.clear();
-
-    spdlog::set_default_logger(defaultLogger);
+   //
 }
 
 void Warhead::Log::Initialize()
 {
     _logsDir = sConfigMgr->GetOption<std::string>("LogsDir", "", false);
-    Warhead::File::CorrectDirPath(_logsDir);
-    ASSERT(Warhead::File::CreateDirIfNeed(_logsDir));
+    File::CorrectDirPath(_logsDir);
+    ASSERT(File::CreateDirIfNeed(_logsDir));
     LoadFromConfig();
 }
 
 void Warhead::Log::LoadFromConfig()
 {
-    _lowestLogLevel = spdlog::level::critical;
+    _lowestLogLevel = quill::LogLevel::Critical;
 
     Clear();
     ReadSinksFromConfig();
     ReadLoggersFromConfig();
 }
 
-bool Warhead::Log::ShouldLog(std::string_view filter, spdlog::level::level_enum level)
+bool Warhead::Log::ShouldLog(std::string_view filter, quill::LogLevel level)
 {
     // Don't even look for a logger if the LogLevel is higher than the highest log levels across all loggers
     if (level < _lowestLogLevel)
@@ -116,8 +98,8 @@ bool Warhead::Log::ShouldLog(std::string_view filter, spdlog::level::level_enum 
     if (!logger)
         return false;
 
-    auto logLevel = logger->level();
-    return logLevel != spdlog::level::off && logLevel <= level;
+    auto logLevel = logger->log_level();
+    return logLevel != quill::LogLevel::None && logLevel <= level;
 }
 
 void Warhead::Log::ReadLoggersFromConfig()
@@ -125,7 +107,7 @@ void Warhead::Log::ReadLoggersFromConfig()
     auto const& keys = sConfigMgr->GetKeysByString(PREFIX_LOGGER);
     if (keys.empty())
     {
-        spdlog::error("Log::ReadLoggersFromConfig - Not found loggers, change config file!\n");
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::ReadLoggersFromConfig - Not found loggers, change config file!");
         return;
     }
 
@@ -133,20 +115,26 @@ void Warhead::Log::ReadLoggersFromConfig()
         CreateLoggerFromConfig(loggerName);
 
     if (!GetLogger(LOGGER_ROOT))
-        spdlog::error("Log::ReadLoggersFromConfig - Logger '{0}' not found!\nPlease change or add 'Logger.{0}' option in config file!", LOGGER_ROOT);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::ReadLoggersFromConfig - Logger '{0}' not found!\nPlease change or add 'Logger.{0}' option in config file!", LOGGER_ROOT);
 }
 
 void Warhead::Log::ReadSinksFromConfig()
 {
-    auto const& keys = sConfigMgr->GetKeysByString(PREFIX_CHANNEL);
+    auto const& keys = sConfigMgr->GetKeysByString(PREFIX_HANDLER);
     if (keys.empty())
     {
-        spdlog::error("Log::ReadSinksFromConfig - Not found channels, change config file!\n");
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::ReadSinksFromConfig - Not found channels, change config file!");
         return;
     }
 
     for (auto const& channelName : keys)
-        CreateSinksFromConfig(channelName);
+        CreateHandlersFromConfig(channelName);
+}
+
+quill::Logger* Warhead::Log::GetQuillLogger(std::string const& loggerName) const
+{
+    std::lock_guard const lock{_rmutex};
+    return Containers::MapGetValuePtr(_loggers, loggerName);
 }
 
 void Warhead::Log::CreateLoggerFromConfig(std::string_view configLoggerName)
@@ -156,135 +144,139 @@ void Warhead::Log::CreateLoggerFromConfig(std::string_view configLoggerName)
 
     if (GetLogger(configLoggerName))
     {
-        spdlog::error("Log::CreateLoggerFromConfig: {} is exist\n", configLoggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateLoggerFromConfig: {} is exist", configLoggerName);
         return;
     }
 
     std::string const& options = sConfigMgr->GetOption<std::string>(std::string{ configLoggerName }, "");
-    auto loggerName = configLoggerName.substr(PREFIX_LOGGER_LENGTH);
+    auto loggerName = configLoggerName.substr(strlen(PREFIX_LOGGER));
 
     if (options.empty())
     {
-        spdlog::error("Log::CreateLoggerFromConfig: Missing config option Logger.{}\n", loggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateLoggerFromConfig: Missing config option Logger.{}", loggerName);
         return;
     }
 
     auto const& tokens = Warhead::Tokenize(options, ',', true);
     if (tokens.size() != 2)
     {
-        spdlog::error("Log::CreateLoggerFromConfig: Bad config options for Logger ({})\n", loggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateLoggerFromConfig: Bad config options for Logger ({})", loggerName);
         return;
     }
 
     auto loggerLevel = Warhead::StringTo<int>(tokens[0]);
-    if (!loggerLevel || *loggerLevel >= spdlog::level::n_levels)
+    if (!loggerLevel || *loggerLevel > static_cast<int>(quill::LogLevel::None))
     {
-        spdlog::error("Log::CreateLoggerFromConfig: Wrong Log Level for logger {}\n", loggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateLoggerFromConfig: Wrong log level for logger {}", loggerName);
         return;
     }
 
-    auto level = static_cast<spdlog::level::level_enum>(*loggerLevel);
-
+    auto level = static_cast<quill::LogLevel>(*loggerLevel);
     if (level < _lowestLogLevel)
         _lowestLogLevel = level;
 
-    auto logger = std::make_shared<spdlog::logger>(std::string{ loggerName });
-    logger->set_level(level);
+    std::vector<std::shared_ptr<quill::Handler>> handlers;
 
-    auto& sinks = logger->sinks();
-
-    for (std::string_view sinkName : Warhead::Tokenize(tokens[1], ' ', false))
+    for (std::string_view handlerName : Warhead::Tokenize(tokens[1], ' ', false))
     {
-        if (auto sink = GetSink(sinkName))
+        if (auto handler = GetHandler(std::string{ handlerName }))
         {
-            sinks.emplace_back(sink);
+            handlers.emplace_back(handler);
             continue;
         }
 
-        spdlog::error("Error while configuring Sink '{}' in Logger {}. Sink does not exist", sinkName, loggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Error while configuring Handler '{}' in Logger {}. Handler does not exist", handlerName, loggerName);
     }
 
-    // Set flush policy
-    logger->flush_on(spdlog::level::warn);
+    auto logger = quill::create_logger(std::string{ loggerName }, std::move(handlers));
+    logger->set_log_level(level);
 
-    spdlog::register_logger(std::move(logger));
+    _loggers.emplace(loggerName, logger);
 }
 
-void Warhead::Log::CreateSinksFromConfig(std::string_view configSinkName)
+void Warhead::Log::CreateHandlersFromConfig(std::string_view configHandlerName)
 {
-    if (configSinkName.empty())
+    if (configHandlerName.empty())
         return;
 
-    if (GetSink(configSinkName))
+    std::string const& options = sConfigMgr->GetOption<std::string>(std::string{configHandlerName }, "");
+    auto handlerName = configHandlerName.substr(strlen(PREFIX_HANDLER));
+
+    if (GetHandler(std::string{ handlerName }))
     {
-        spdlog::error("Log::CreateSinksFromConfig: {} is exist", configSinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateHandlersFromConfig: {} is exist", configHandlerName);
         return;
     }
 
-    std::string const& options = sConfigMgr->GetOption<std::string>(std::string{configSinkName }, "");
-    auto sinkName = configSinkName.substr(PREFIX_SINK_LENGTH);
-
-    auto const& tokens = Warhead::Tokenize(options, ',', true);
+    auto const& tokens = Tokenize(options, ',', true);
     if (tokens.size() < 3 || tokens.size() > 7)
     {
-        spdlog::error("Log::CreateSinksFromConfig: Wrong config option for {}", configSinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateHandlersFromConfig: Wrong config option for {}", configHandlerName);
         return;
     }
 
-    auto sinkType = Warhead::StringTo<int8>(tokens[0]);
-    if (!sinkType || sinkType >= MAX_SINK_TYPE)
+    auto handlerType = Warhead::StringTo<int8>(tokens[0]);
+    if (!handlerType || handlerType >= MAX_HANDLER_TYPE)
     {
-        spdlog::error("Log::CreateSinksFromConfig: Wrong sink type for {}", configSinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateHandlersFromConfig: Wrong sink type for {}", configHandlerName);
         return;
     }
 
-    auto type = static_cast<SinkType>(*sinkType);
+    auto const type = static_cast<HandlerType>(*handlerType);
 
     auto loggerLevel = Warhead::StringTo<uint8>(tokens[1]);
-    if (!loggerLevel || *loggerLevel >= spdlog::level::n_levels)
+    if (!loggerLevel || *loggerLevel > static_cast<int>(quill::LogLevel::None))
     {
-        spdlog::error("Log::CreateSinksFromConfig: Wrong Log Level for {}\n", configSinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateHandlersFromConfig: Wrong Log Level for {}", configHandlerName);
         return;
     }
 
-    auto level = static_cast<spdlog::level::level_enum>(*loggerLevel);
+    auto level = static_cast<quill::LogLevel>(*loggerLevel);
 
     auto const& pattern = tokens[2];
     if (pattern.empty())
     {
-        spdlog::error("Log::CreateSinksFromConfig: Empty pattern for {}\n", configSinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Log::CreateHandlersFromConfig: Empty pattern for {}", configHandlerName);
         return;
     }
 
-    spdlog::sink_ptr sink;
+    std::shared_ptr<quill::Handler> handler;
 
-    if (type == SinkType::Console)
-        sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>(spdlog::color_mode::always);
-    else if (type == SinkType::File)
+    if (type == HandlerType::Console)
     {
-        std::string fileName{ tokens[3] };
-        bool truncate = false;
+        // Create a ConsoleColours class that we will pass to `quill::stdout_handler(...)`
+        quill::ConsoleColours consoleHandler;
+
+        // Enable using default colours to get the default colour scheme
+        consoleHandler.set_default_colours();
+
+        // Make color console handler
+        handler = quill::stdout_handler(std::string{ handlerName }, consoleHandler);
+    }
+    else if (type == HandlerType::File)
+    {
+        std::string const fileName{ tokens[3] };
+
+        quill::RotatingFileHandlerConfig cfg;
+        cfg.set_append_to_filename(quill::FilenameAppend::StartDateTime);
 
         if (tokens.size() >= 5)
-            truncate = Warhead::StringTo<bool>(tokens[4]).value_or(false);
+            if (auto maxFiles = StringTo<uint32>(tokens[4]))
+                cfg.set_max_backup_files(*maxFiles ? *maxFiles : std::numeric_limits<uint32_t>::max());
 
-        if (tokens.size() >= 6 && Warhead::StringTo<bool>(tokens[5]).value_or(false))
-        {
-            auto timeStamp = "_" + Warhead::Time::TimeToTimestampStr(GetEpochTime(), LOG_TIMESTAMP_FMT);
-            std::size_t dot_pos = fileName.find_last_of('.');
-            dot_pos != std::string::npos ? fileName.insert(dot_pos, timeStamp) : fileName += timeStamp;
-        }
+        if (tokens.size() >= 6)
+            cfg.set_rotation_time_daily(tokens[5].data());
 
-        sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(_logsDir + std::string{ fileName }, truncate);
+        handler = quill::rotating_file_handler(fileName, cfg);
     }
 
-    sink->set_level(level);
-    sink->set_pattern(std::string{ pattern });
+    handler->set_log_level(level);
+    handler->set_pattern(std::string{ pattern });
 
-    AddSink(sinkName, std::move(sink));
+    AddHandler(std::string{ handlerName }, handler.get());
 }
 
-spdlog::logger* Warhead::Log::GetLoggerByType(std::string_view type)
+quill::Logger* Warhead::Log::GetLoggerByType(std::string_view type)
 {
     if (auto logger = GetLogger(type))
         return logger;
@@ -300,88 +292,65 @@ spdlog::logger* Warhead::Log::GetLoggerByType(std::string_view type)
     return GetLoggerByType(parentLogger);
 }
 
-spdlog::logger* Warhead::Log::GetLogger(std::string_view loggerName)
+quill::Logger* Warhead::Log::GetLogger(std::string_view loggerName) const
 {
-    if (auto logger = spdlog::get(std::string{ loggerName }))
-        return logger.get();
-
-    return nullptr;
+    return GetQuillLogger(std::string{ loggerName });
 }
 
 void Warhead::Log::SetLoggerLevel(std::string_view loggerName, int level)
 {
-    auto spdlogLevel = static_cast<spdlog::level::level_enum>(level);
-    if (spdlogLevel < spdlog::level::trace || spdlogLevel > spdlog::level::off)
+    auto logLevel = static_cast<quill::LogLevel>(level);
+    if (logLevel < quill::LogLevel::TraceL3 || logLevel >= quill::LogLevel::None)
     {
-        spdlog::error("Trying set non defined log level ({}) to logger '{}'", level, loggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Trying set non defined log level ({}) to logger '{}'", level, loggerName);
         return;
     }
 
     auto logger = GetLogger(loggerName);
     if (!logger)
     {
-        spdlog::error("Trying set log level ({}) to non existing logger '{}'", level, loggerName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Trying set log level ({}) to non existing logger '{}'", level, loggerName);
         return;
     }
 
-    if (spdlogLevel != spdlog::level::off && spdlogLevel < _lowestLogLevel)
-        _lowestLogLevel = spdlogLevel;
+    if (logLevel != quill::LogLevel::None && logLevel < _lowestLogLevel)
+        _lowestLogLevel = logLevel;
 
-    logger->set_level(spdlogLevel);
+    logger->set_log_level(logLevel);
 }
 
-spdlog::sink_ptr Warhead::Log::GetSink(std::string_view sinkName) const
+void Warhead::Log::AddHandler(std::string const& name, quill::Handler* handler)
 {
-    auto itr = _sinks.find(std::string{ sinkName });
-    if (itr != _sinks.end())
-        return itr->second;
-
-    return nullptr;
+    _handlers.emplace(name, handler);
 }
 
-void Warhead::Log::AddSink(std::string_view sinkName, spdlog::sink_ptr sink)
+std::shared_ptr<quill::Handler> Warhead::Log::GetHandler(std::string const& name)
 {
-    if (GetSink(sinkName))
+    auto const itr = _handlers.find(name);
+    if (itr == _handlers.end())
+        return nullptr;
+
+    return itr->second;
+}
+
+void Warhead::Log::SetHandlerLevel(std::string_view handlerName, int level)
+{
+    auto logLevel = static_cast<quill::LogLevel>(level);
+    if (logLevel < quill::LogLevel::TraceL3 || logLevel >= quill::LogLevel::None)
     {
-        spdlog::error("Trying add existing sink with name: '{}'", sinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Trying set non defined log level ({}) to handler '{}'", level, handlerName);
         return;
     }
 
-    _sinks.emplace(sinkName, std::move(sink));
-}
-
-void Warhead::Log::SetSinkLevel(std::string_view sinkName, int level)
-{
-    auto spdlogLevel = static_cast<spdlog::level::level_enum>(level);
-    if (spdlogLevel < spdlog::level::trace || spdlogLevel > spdlog::level::off)
+    auto handler = GetHandler(handlerName.data());
+    if (!handler)
     {
-        spdlog::error("Trying set non defined log level ({}) to sink '{}'", level, sinkName);
+        QUILL_LOG_ERROR(quill::get_logger(), "Trying set log level ({}) to non existing handler '{}'", level, handlerName);
         return;
     }
 
-    auto sink = GetSink(sinkName);
-    if (!sink)
-    {
-        spdlog::error("Trying set log level ({}) to non existing sink '{}'", level, sinkName);
-        return;
-    }
+    if (logLevel != quill::LogLevel::None && logLevel < _lowestLogLevel)
+        _lowestLogLevel = logLevel;
 
-    if (spdlogLevel != spdlog::level::off && spdlogLevel < _lowestLogLevel)
-        _lowestLogLevel = spdlogLevel;
-
-    sink->set_level(spdlogLevel);
-}
-
-void Warhead::Log::Write(std::string_view filter, spdlog::source_loc source, spdlog::level::level_enum level, std::string_view message)
-{
-    auto logger{ GetLoggerByType(filter) };
-    if (!logger)
-        return;
-
-    logger->log(source, level, message);
-}
-
-void Warhead::Log::WriteCommand(uint32 /*accountID*/, std::string_view message)
-{
-    Write("commands.gm", {}, spdlog::level::info, message);
+    handler->set_log_level(logLevel);
 }

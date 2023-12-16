@@ -187,15 +187,18 @@ void DatabaseWorkerPool::Close()
 
 QueryResult DatabaseWorkerPool::Query(std::string_view sql)
 {
+    if (sql.empty())
+        return nullptr;
+
     auto connection = GetFreeConnection();
     if (!connection)
-        return { nullptr };
+        return nullptr;
 
     auto result = connection->Query(sql);
     connection->Unlock();
 
     if (!result || !result->GetRowCount() || !result->NextRow())
-        return { nullptr };
+        return nullptr;
 
     return { result };
 }

@@ -48,24 +48,24 @@ namespace
     // Check logging system configs like LogChannel.* and Logger.*
     bool IsLoggingSystemOptions(std::string_view optionName)
     {
-        size_t foundAppender = optionName.find("Sink.");
+        size_t foundHandler = optionName.find("Handler.");
         size_t foundLogger = optionName.find("Logger.");
 
-        return foundAppender != std::string_view::npos || foundLogger != std::string_view::npos;
+        return foundHandler != std::string_view::npos || foundLogger != std::string_view::npos;
     }
 
-    template<typename Format, typename... Args>
-    inline void PrintError(std::string_view filename, Format&& fmt, Args&& ... args)
+    template<typename... Args>
+    void PrintError(std::string_view filename, Warhead::FormatString<Args...> fmt, Args&&... args)
     {
-        std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
+        auto msg{ Warhead::StringFormat(fmt, std::forward<Args>(args)...) };
 
         if (IsAppConfig(filename))
         {
-            fmt::print(message + "\n");
+            fmt::print(stderr, fmt, std::forward<Args>(args)...);
         }
         else
         {
-            LOG_ERROR("server.loading", message);
+            LOG_ERROR("server.loading", "{}", msg);
         }
     }
 

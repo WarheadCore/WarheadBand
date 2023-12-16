@@ -88,7 +88,7 @@ void SecretMgr::Initialize()
         if (secret_info[i].flags() & SECRET_FLAG_DEFER_LOAD)
             continue;
         std::unique_lock<std::mutex> lock(_secrets[i].lock);
-        AttemptLoad(Secrets(i), spdlog::level::critical, lock);
+        AttemptLoad(Secrets(i), lock);
         if (!_secrets[i].IsAvailable())
             ABORT(); // load failed
     }
@@ -99,11 +99,11 @@ SecretMgr::Secret const& SecretMgr::GetSecret(Secrets i)
     std::unique_lock<std::mutex> lock(_secrets[i].lock);
 
     if (_secrets[i].state == Secret::NOT_LOADED_YET)
-        AttemptLoad(i, spdlog::level::critical, lock);
+        AttemptLoad(i, lock);
     return _secrets[i];
 }
 
-void SecretMgr::AttemptLoad(Secrets i, int errorLevel, std::unique_lock<std::mutex> const&)
+void SecretMgr::AttemptLoad(Secrets i, std::unique_lock<std::mutex> const&)
 {
     auto const& info = secret_info[i];
 
@@ -127,9 +127,10 @@ void SecretMgr::AttemptLoad(Secrets i, int errorLevel, std::unique_lock<std::mut
         if (info.owner != THIS_SERVER_PROCESS)
         {
             if (currentValue)
-                LOG_CALL("server.loading", (spdlog::level::level_enum)errorLevel, "Invalid value for '{}' specified - this is not actually the secret being used in your auth DB.", info.configKey);
+                LOG_ERROR("server.loading", "Invalid value for '{}' specified - this is not actually the secret being used in your auth DB.", info.configKey);
             else
-                LOG_CALL("server.loading", (spdlog::level::level_enum)errorLevel, "No value for '{}' specified - please specify the secret currently being used in your auth DB.", info.configKey);
+                LOG_ERROR("server.loading", "No value for '{}' specified - please specify the secret currently being used in your auth DB.", info.configKey);
+
             _secrets[i].state = Secret::LOAD_FAILED;
             return;
         }
@@ -140,7 +141,7 @@ void SecretMgr::AttemptLoad(Secrets i, int errorLevel, std::unique_lock<std::mut
             oldSecret = GetHexFromConfig(info.oldKey, info.bits);
             if (oldSecret && !Warhead::Crypto::Argon2::Verify(oldSecret->AsHexStr(), *oldDigest))
             {
-                LOG_CALL("server.loading", (spdlog::level::level_enum)errorLevel, "Invalid value for '{}' specified - this is not actually the secret previously used in your auth DB.", info.oldKey);
+                LOG_ERROR("server.loading", "Invalid value for '{}' specified - this is not actually the secret previously used in your auth DB.", info.oldKey);
                 _secrets[i].state = Secret::LOAD_FAILED;
                 return;
             }
@@ -150,7 +151,7 @@ void SecretMgr::AttemptLoad(Secrets i, int errorLevel, std::unique_lock<std::mut
         Optional<std::string> error = AttemptTransition(Secrets(i), currentValue, oldSecret, static_cast<bool>(oldDigest));
         if (error)
         {
-            LOG_CALL("server.loading", (spdlog::level::level_enum)errorLevel, "Your value of '{}' changed, but we cannot transition your database to the new value:\n{}", info.configKey, error->c_str());
+            LOG_ERROR("server.loading", "Your value of '{}' changed, but we cannot transition your database to the new value:\n{}", info.configKey, error->c_str());
             _secrets[i].state = Secret::LOAD_FAILED;
             return;
         }

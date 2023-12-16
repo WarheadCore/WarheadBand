@@ -37,7 +37,7 @@ class WH_DATABASE_API DBCDatabasePool : public DatabaseWorkerPool
 {
 public:
     DBCDatabasePool() : DatabaseWorkerPool(DatabaseType::Dbc) { }
-    ~DBCDatabasePool() = default;
+    ~DBCDatabasePool() override = default;
 
     //- Loads database type specific prepared statements
     void DoPrepareStatements() override;

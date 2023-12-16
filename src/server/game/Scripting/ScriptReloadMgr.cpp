@@ -1144,7 +1144,7 @@ private:
             auto name = itr->first;
             rebuild_buildfiles = !itr->second.empty();
 
-            if (sLog->ShouldLog("scripts.hotswap", spdlog::level::trace))
+            if (sLog->ShouldLog("scripts.hotswap", quill::LogLevel::TraceL1))
             {
                 for (auto const& entry : itr->second)
                 {

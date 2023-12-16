@@ -27,13 +27,13 @@ namespace Warhead
     [[noreturn]] WH_COMMON_API void Abort(std::string_view file, int line, std::string_view function, std::string_view fmtMessage = {});
 
     template<typename... Args>
-    inline void Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, std::string_view fmt, Args&&... args)
+    void Assert(std::string_view file, int line, std::string_view function, std::string const& debugInfo, std::string_view message, FormatString<Args...> fmt, Args&&... args)
     {
         Assert(file, line, function, debugInfo, message, StringFormat(fmt, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    inline void Abort(std::string_view file, int line, std::string_view function, std::string_view fmt, Args&&... args)
+    void Abort(std::string_view file, int line, std::string_view function, FormatString<Args...> fmt, Args&&... args)
     {
         Abort(file, line, function, StringFormat(fmt, std::forward<Args>(args)...));
     }
@@ -62,7 +62,7 @@ WH_COMMON_API std::string GetDebugInfo();
 #define ABORT WPAbort
 
 template <typename T>
-inline T* ASSERT_NOTNULL_IMPL(T* pointer, std::string_view expr)
+T* ASSERT_NOTNULL_IMPL(T* pointer, std::string_view expr)
 {
     ASSERT(pointer, "{}", expr);
     return pointer;

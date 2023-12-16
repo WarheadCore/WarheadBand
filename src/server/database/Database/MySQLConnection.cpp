@@ -141,7 +141,11 @@ uint32 MySQLConnection::Open()
 
     if (_mysqlHandle)
     {
-        LOG_CALL("db.connection", _isDynamic ? spdlog::level::debug : spdlog::level::info, "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
+        if (_isDynamic)
+            LOG_DEBUG("db.connection", "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
+        else
+            LOG_INFO("db.connection", "Open new {} connect to DB at {}", GetConnectionFlagString(_connectionFlags), _connectionInfo.Host);
+
         mysql_autocommit(_mysqlHandle, 1);
 
         // set connection properties to UTF8 to properly handle locales for different

@@ -19,14 +19,18 @@
 #define WARHEAD_LOG_H_
 
 #include "StringFormat.h"
-#include <spdlog/common.h>
-#include <spdlog/fwd.h>
+#include <quill/detail/LogMacros.h>
+#include <mutex>
 #include <unordered_map>
-#include <vector>
+
+namespace quill
+{
+    class Handler;
+}
 
 namespace Warhead
 {
-    enum class SinkType : uint8_t
+    enum class HandlerType : uint8_t
     {
         Console = 1,
         File,
@@ -34,15 +38,15 @@ namespace Warhead
         Max
     };
 
-    constexpr uint8_t MAX_SINK_TYPE = static_cast<uint8_t>(SinkType::Max);
+    constexpr uint8_t MAX_HANDLER_TYPE = static_cast<uint8_t>(HandlerType::Max);
 
-    constexpr std::string_view GetSinkName(SinkType type)
+    constexpr std::string_view GetHandlerName(HandlerType type)
     {
         switch (type)
         {
-            case SinkType::Console:
+            case HandlerType::Console:
                 return "Console";
-            case SinkType::File:
+            case HandlerType::File:
                 return "File";
             default:
                 return "Unknown";
@@ -59,7 +63,6 @@ namespace Warhead
 
     class WH_COMMON_API Log
     {
-    private:
         Log();
         ~Log();
         Log(Log const&) = delete;
@@ -72,95 +75,89 @@ namespace Warhead
 
         void Initialize();
         void Clear();
-        bool ShouldLog(std::string_view filter, spdlog::level::level_enum level);
+        bool ShouldLog(std::string_view filter, quill::LogLevel level);
         void LoadFromConfig();
 
         // Logger functions
-        spdlog::logger* GetLoggerByType(std::string_view type);
-        static spdlog::logger* GetLogger(std::string_view loggerName);
+        [[nodiscard]] quill::Logger* GetLoggerByType(std::string_view type);
+        [[nodiscard]] quill::Logger* GetLogger(std::string_view loggerName) const;
         void SetLoggerLevel(std::string_view loggerName, int level);
 
-        // Sink functions
-        spdlog::sink_ptr GetSink(std::string_view sinkName) const;
-        void AddSink(std::string_view sinkName, spdlog::sink_ptr sink);
-        void SetSinkLevel(std::string_view sinkName, int level);
+        // Handler functions
+        void AddHandler(std::string const& name, quill::Handler* handler);
+        [[nodiscard]] std::shared_ptr<quill::Handler> GetHandler(std::string const& name);
+        void SetHandlerLevel(std::string_view handlerName, int level);
 
-        template<typename... Args>
-        inline void OutMessage(std::string_view filter, spdlog::source_loc source, spdlog::level::level_enum level, Warhead::FormatString<Args...> fmt, Args&&... args)
-        {
-            Write(filter, source, level, StringFormat(fmt, std::forward<Args>(args)...));
-        }
-
-        template<typename... Args>
-        inline void OutCommand(uint32 account, Warhead::FormatString<Args...> fmt, Args&&... args)
-        {
-            if (!ShouldLog("commands.gm", spdlog::level::info))
-                return;
-
-            WriteCommand(account, StringFormat(fmt, std::forward<Args>(args)...));
-        }
-
-        std::string_view GetLogsDir() { return _logsDir; }
+       [[nodiscard]] std::string_view GetLogsDir() const { return _logsDir; }
 
     private:
-        void Write(std::string_view filter, spdlog::source_loc source, spdlog::level::level_enum level, std::string_view message);
-        void WriteCommand(uint32 accountID, std::string_view message);
-
         void CreateLoggerFromConfig(std::string_view configLoggerName);
-        void CreateSinksFromConfig(std::string_view configSinkName);
+        void CreateHandlersFromConfig(std::string_view configHandlerName);
         void ReadLoggersFromConfig();
         void ReadSinksFromConfig();
+        [[nodiscard]] quill::Logger* GetQuillLogger(std::string const& loggerName) const;
 
         std::string _logsDir;
-        spdlog::level::level_enum _lowestLogLevel{spdlog::level::critical };
-        std::unordered_map<std::string, spdlog::sink_ptr> _sinks;
+
+        mutable std::recursive_mutex _rmutex; /**< Thread safe access to logger map, Mutable to have a const get_logger() function  */
+        std::unordered_map<std::string, std::shared_ptr<quill::Handler>> _handlers;
+        std::unordered_map<std::string, quill::Logger*> _loggers;
+        quill::LogLevel _lowestLogLevel{ quill::LogLevel::Critical };
     };
 }
 
 #define sLog Warhead::Log::instance()
 
-#define LOG_CALL(filterType__, level__, ...) \
+#define LOG_CALL(filterType__, level__, fmt__, ...) \
         do \
         { \
             if (sLog->ShouldLog(filterType__, level__)) \
             { \
-                try \
-                { \
-                    sLog->OutMessage(filterType__, spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level__, __VA_ARGS__); \
-                } \
-                catch (std::exception const& e) \
-                { \
-                    sLog->OutMessage("root", spdlog::source_loc{}, spdlog::level::err, "Wrong format occurred ({}) at '{}:{}'", \
-                        e.what(), __FILE__, __LINE__); \
-                } \
+                auto logger__{ sLog->GetLoggerByType(filterType__) }; \
+                if (!logger__) \
+                    break; \
+                \
+                QUILL_LOGGER_CALL(QUILL_LIKELY, logger__, level__, fmt__, ##__VA_ARGS__); \
             } \
-        } while (0)
+        } while (false)
 
-// Critical - 5
-#define LOG_CRIT(filterType__, ...) \
-    LOG_CALL(filterType__, spdlog::level::critical, __VA_ARGS__)
+// Critical - 7
+#define LOG_CRIT(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::Critical, fmt, ##__VA_ARGS__)
 
-// Error - 4
-#define LOG_ERROR(filterType__, ...) \
-    LOG_CALL(filterType__, spdlog::level::err, __VA_ARGS__)
+// Error - 6
+#define LOG_ERROR(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::Error, fmt, ##__VA_ARGS__)
 
-// Warning - 3
-#define LOG_WARN(filterType__, ...)  \
-    LOG_CALL(filterType__, spdlog::level::warn, __VA_ARGS__)
+// Warning - 5
+#define LOG_WARN(filterType__, fmt, ...)  \
+    LOG_CALL(filterType__, quill::LogLevel::Warning, fmt, ##__VA_ARGS__)
 
-// Info - 2
-#define LOG_INFO(filterType__, ...)  \
-    LOG_CALL(filterType__, spdlog::level::info, __VA_ARGS__)
+// Info - 4
+#define LOG_INFO(filterType__, fmt, ...)  \
+    LOG_CALL(filterType__, quill::LogLevel::Info, fmt, ##__VA_ARGS__)
 
-// Debug - 1
-#define LOG_DEBUG(filterType__, ...) \
-    LOG_CALL(filterType__, spdlog::level::debug, __VA_ARGS__)
+// Debug - 3
+#define LOG_DEBUG(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::Debug, fmt, ##__VA_ARGS__)
 
-// Trace - 0
-#define LOG_TRACE(filterType__, ...) \
-    LOG_CALL(filterType__, spdlog::level::trace, __VA_ARGS__)
+// Trace - TraceL1
+#define LOG_TRACE(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::TraceL1, fmt, ##__VA_ARGS__)
 
-#define LOG_GM(accountId__, ...) \
-    sLog->OutCommand(accountId__, __VA_ARGS__);
+// TraceL1 - 2
+#define LOG_TRACE_L1(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::TraceL1, fmt, ##__VA_ARGS__)
+
+// TraceL2 - 1
+#define LOG_TRACE_L2(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::TraceL2, fmt, ##__VA_ARGS__)
+
+// TraceL3 - 0
+#define LOG_TRACE_L3(filterType__, fmt, ...) \
+    LOG_CALL(filterType__, quill::LogLevel::TraceL3, fmt, ##__VA_ARGS__)
+
+#define LOG_GM(accountId__, fmt, ...) \
+        LOG_CALL("commands.gm", quill::LogLevel::Info, fmt, ##__VA_ARGS__)
 
 #endif

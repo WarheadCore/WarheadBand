@@ -285,7 +285,7 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, char const* status, 
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 {
-    if (!sLog->ShouldLog("network.opcode", spdlog::level::trace) || packet->rpos() >= packet->wpos())
+    if (!sLog->ShouldLog("network.opcode", quill::LogLevel::TraceL1) || packet->rpos() >= packet->wpos())
         return;
 
     LOG_TRACE("network.opcode", "Unprocessed tail data (read stop at {} from {}) Opcode {} from {}",
