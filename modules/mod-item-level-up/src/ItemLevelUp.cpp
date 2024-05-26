@@ -92,6 +92,9 @@ bool ItemLevelUpMgr::OnPlayerItemUse(Player* player, Item* item)
         if (newLevel == 1)
             newLevel = playerLevel + 1;
 
+        if (newLevel > _maxConfigLevel)
+            newLevel = _maxConfigLevel;
+
         player->GiveLevel(newLevel);
 
         if (!_isSaveExpEnable)
