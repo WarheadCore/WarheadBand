@@ -27,6 +27,10 @@ if (${CMAKE_VERSION} GREATER_EQUAL 3.28)
   cmake_policy(SET CMP0153 OLD)
 endif ()
 
+if(POLICY CMP0153)
+  cmake_policy(SET CMP0153 NEW) # The exec_program() command should not be called
+endif()
+
 # Set projectname (must be done AFTER setting configurationtypes)
 project(WarheadBand VERSION 3.0.0 LANGUAGES CXX C)
 

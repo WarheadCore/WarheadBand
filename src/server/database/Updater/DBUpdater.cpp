@@ -360,7 +360,7 @@ void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, std::string_view host, std::
     std::string_view port_or_socket, std::string_view database, std::string_view ssl, Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(9);
+    args.reserve(10);
 
     // Add password from extra file
     args.emplace_back(Warhead::StringFormat("--defaults-extra-file={}", pool.GetPathToExtraFile()));
@@ -401,6 +401,12 @@ void DBUpdater::ApplyFile(DatabaseWorkerPool& pool, std::string_view host, std::
 #else
     if (ssl == "ssl")
         args.emplace_back("--ssl");
+    else
+    {
+#ifdef MARIADB_VERSION_ID && MARIADB_VERSION_ID > 110000
+        args.emplace_back("--ssl=0");
+#endif
+    }
 #endif
 
     // Execute sql file

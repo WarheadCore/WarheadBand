@@ -126,18 +126,20 @@ if( UNIX )
   if( MYSQL_CONFIG )
     message(STATUS "Using mysql-config: ${MYSQL_CONFIG}")
     # set INCLUDE_DIR
-    exec_program(${MYSQL_CONFIG}
-      ARGS --include
+    execute_process(
+      COMMAND "${MYSQL_CONFIG}" --include
       OUTPUT_VARIABLE MY_TMP
+      OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
     string(REGEX REPLACE "-I([^ ]*)( .*)?" "\\1" MY_TMP "${MY_TMP}")
     set(MYSQL_ADD_INCLUDE_PATH ${MY_TMP} CACHE FILEPATH INTERNAL)
     #message("[DEBUG] MYSQL ADD_INCLUDE_PATH : ${MYSQL_ADD_INCLUDE_PATH}")
     # set LIBRARY_DIR
-    exec_program(${MYSQL_CONFIG}
-      ARGS --libs_r
+    execute_process(
+      COMMAND "${MYSQL_CONFIG}" --libs_r
       OUTPUT_VARIABLE MY_TMP
+      OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     set(MYSQL_ADD_LIBRARIES "")
     string(REGEX MATCHALL "-l[^ ]*" MYSQL_LIB_LIST "${MY_TMP}")
@@ -153,7 +155,7 @@ if( UNIX )
       string(REGEX REPLACE "[ ]*-L([^ ]*)" "\\1" LIB "${LIB}")
       list(APPEND MYSQL_ADD_LIBRARIES_PATH "${LIB}")
       #message("[DEBUG] MYSQL ADD_LIBRARIES_PATH : ${MYSQL_ADD_LIBRARIES_PATH}")
-    endforeach(LIB ${MYSQL_LIBS})
+    endforeach(LIB)
 
   else( MYSQL_CONFIG )
     set(MYSQL_ADD_LIBRARIES "")
@@ -196,7 +198,7 @@ if( UNIX )
   foreach(LIB ${MYSQL_ADD_LIBRARIES})
     find_library( MYSQL_LIBRARY
       NAMES
-        mysql libmysql ${LIB}
+        mysql libmariadb libmysql ${LIB}
       PATHS
         ${MYSQL_ADD_LIBRARIES_PATH}
         /usr/lib
@@ -206,7 +208,7 @@ if( UNIX )
         /usr/local/mysql/lib
       DOC "Specify the location of the mysql library here."
     )
-  endforeach(LIB ${MYSQL_ADD_LIBRARY})
+  endforeach(LIB)
 endif( UNIX )
 
 if( WIN32 )
@@ -260,7 +262,7 @@ else( NOT WIN32 )
 endif( NOT WIN32 )
 
 if( UNIX )
-  find_program(MYSQL_EXECUTABLE mysql
+  find_program(MYSQL_EXECUTABLE mariadb mysql
     PATHS
       ${MYSQL_CONFIG_PREFER_PATH}
       /usr/local/mysql/bin/
