@@ -170,11 +170,11 @@ def handleCleanup(line):
     line = line.replace("%02X", "{:02X}");
     line = line.replace("%08X", "{:08X}");
     line = line.replace("%f", "{}");
-    line = line.replace("%.1f", "{0:.1f}");
-    line = line.replace("%.2f", "{0:.2f}");
-    line = line.replace("%.3f", "{0:.3f}");
-    line = line.replace("%.4f", "{0:.4f}");
-    line = line.replace("%.5f", "{0:.5f}");
+    line = line.replace("%.1f", "{:.1f}");
+    line = line.replace("%.2f", "{:.2f}");
+    line = line.replace("%.3f", "{:.3f}");
+    line = line.replace("%.4f", "{:.4f}");
+    line = line.replace("%.5f", "{:.5f}");
     line = line.replace("%3.1f", "{:3.1f}");
     line = line.replace("%%", "%");
     line = line.replace(".c_str()", "");
