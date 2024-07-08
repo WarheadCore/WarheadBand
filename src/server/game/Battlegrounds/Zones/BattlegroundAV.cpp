@@ -650,10 +650,10 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
         }
     }
 
-    std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_TOWER_TAKEN), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+    std::string yellText = Warhead::StringFormat(fmt::runtime(GetWarheadString(LANG_BG_AV_TOWER_TAKEN)), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
 
     if (!IsTower(node))
-        yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_GRAVE_TAKEN), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+        yellText = Warhead::StringFormat(fmt::runtime(GetWarheadString(LANG_BG_AV_GRAVE_TAKEN)), GetNodeName(node), (ownerId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
 
     Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
     if (creature)
@@ -730,8 +730,8 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, TeamId teamId, bool initial)
     {
         m_Mine_Reclaim_Timer[mine] = AV_MINE_RECLAIM_TIMER;
 
-        std::string yellText = Warhead::StringFormat(GetWarheadString(LANG_BG_AV_MINE_TAKEN), GetWarheadString(LANG_BG_AV_MINE_TAKEN), (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE),
-                GetWarheadString((mine == AV_NORTH_MINE) ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH));
+        std::string yellText = Warhead::StringFormat(fmt::runtime(GetWarheadString(LANG_BG_AV_MINE_TAKEN)), teamId == TEAM_ALLIANCE ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE),
+                                                     GetWarheadString(mine == AV_NORTH_MINE ? LANG_BG_AV_MINE_NORTH : LANG_BG_AV_MINE_SOUTH));
 
         Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
         if (creature)
@@ -984,7 +984,7 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
         }
     }
 
-    std::string yellText = Warhead::StringFormat(GetWarheadString((IsTower(node)) ? LANG_BG_AV_TOWER_DEFENDED : LANG_BG_AV_GRAVE_DEFENDED), GetNodeName(node), (teamId == TEAM_ALLIANCE) ?  GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
+    std::string yellText = Warhead::StringFormat(fmt::runtime(GetWarheadString((IsTower(node)) ? LANG_BG_AV_TOWER_DEFENDED : LANG_BG_AV_GRAVE_DEFENDED)), GetNodeName(node), teamId == TEAM_ALLIANCE ?  GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
 
     Creature* creature = GetBGCreature(AV_CPLACE_HERALD);
     if (creature)
@@ -1095,7 +1095,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     // xinef: change here is too late, AssaultNode(node, team);
     UpdateNodeWorldState(node);
 
-    std::string yellText = Warhead::StringFormat(IsTower(node) ? GetWarheadString(LANG_BG_AV_TOWER_ASSAULTED) : GetWarheadString(LANG_BG_AV_GRAVE_ASSAULTED),
+    std::string yellText = Warhead::StringFormat(fmt::runtime(IsTower(node) ? GetWarheadString(LANG_BG_AV_TOWER_ASSAULTED) : GetWarheadString(LANG_BG_AV_GRAVE_ASSAULTED)),
         GetNodeName(node), (teamId == TEAM_ALLIANCE) ? GetWarheadString(LANG_BG_AV_ALLY) : GetWarheadString(LANG_BG_AV_HORDE));
 
     Creature* creature = GetBGCreature(AV_CPLACE_HERALD);

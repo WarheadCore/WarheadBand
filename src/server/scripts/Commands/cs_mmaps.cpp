@@ -261,7 +261,7 @@ public:
         handler->PSendSysMessage(" {} BVTree nodes", nodeCount);
         handler->PSendSysMessage(" {} polygons ({} vertices)", polyCount, vertCount);
         handler->PSendSysMessage(" {} triangles ({} vertices)", triCount, triVertCount);
-        handler->PSendSysMessage(" {0:.2f} MB of data (not including pointers)", ((float)dataSize / sizeof(unsigned char)) / 1048576);
+        handler->PSendSysMessage(" {:.2f} MB of data (not including pointers)", ((float)dataSize / sizeof(unsigned char)) / 1048576);
 
         return true;
     }

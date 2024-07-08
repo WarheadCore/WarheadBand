@@ -498,14 +498,14 @@ public:
 
                         if (row[0].Get<uint32>() == row[1].Get<uint32>())
                         {
-                            handler->PSendSysMessage("|%-15.15s|{:02}-{:02}-{:02} {:02}:{:02}|   permanent  |%-15.15s|%-15.15s|",
+                            handler->PSendSysMessage("|{:<15}|{:02}-{:02}-{:02} {:02}:{:02}|   permanent  |{:<15}|{:<15}|",
                                                      accountName, tmBan.tm_year % 100, tmBan.tm_mon + 1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                                      row[2].Get<std::string_view>(), row[3].Get<std::string_view>());
                         }
                         else
                         {
                             auto tmUnban = Warhead::Time::TimeBreakdown(row[1].Get<uint32>());
-                            handler->PSendSysMessage("|%-15.15s|{:02}-{:02}-{:02} {:02}:{:02}|{:02}-{:02}-{:02} {:02}:{:02}|%-15.15s|%-15.15s|",
+                            handler->PSendSysMessage("|{:<15}|{:02}-{:02}-{:02} {:02}:{:02}|{:02}-{:02}-{:02} {:02}:{:02}|{:<15}|{:<15}|",
                                                      accountName, tmBan.tm_year % 100, tmBan.tm_mon + 1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                                      tmUnban.tm_year % 100, tmUnban.tm_mon + 1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                                                      row[2].Get<std::string_view>(), row[3].Get<std::string_view>());
@@ -577,14 +577,14 @@ public:
 
                         if (banRow[0].Get<uint32>() == banRow[1].Get<uint32>())
                         {
-                            handler->PSendSysMessage("|%-15.15s|{:02}-{:02}-{:02} {:02}:{:02}|   permanent  |%-15.15s|%-15.15s|",
+                            handler->PSendSysMessage("|{:<15}|{:02}-{:02}-{:02} {:02}:{:02}|   permanent  |{:<15}|{:<15}|",
                                                      char_name, tmBan.tm_year % 100, tmBan.tm_mon + 1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                                      banRow[2].Get<std::string_view>(), banRow[3].Get<std::string_view>());
                         }
                         else
                         {
                             auto tmUnban = Warhead::Time::TimeBreakdown(banRow[1].Get<uint32>());
-                            handler->PSendSysMessage("|%-15.15s|{:02}-{:02}-{:02} {:02}:{:02}|{:02}-{:02}-{:02} {:02}:{:02}|%-15.15s|%-15.15s|",
+                            handler->PSendSysMessage("|{:<15}|{:02}-{:02}-{:02} {:02}:{:02}|{:02}-{:02}-{:02} {:02}:{:02}|{:<15}|{:<15}|",
                                                      char_name, tmBan.tm_year % 100, tmBan.tm_mon + 1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                                      tmUnban.tm_year % 100, tmUnban.tm_mon + 1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                                                      banRow[2].Get<std::string_view>(), banRow[3].Get<std::string_view>());
@@ -649,14 +649,14 @@ public:
                 auto tmBan = Warhead::Time::TimeBreakdown(row[1].Get<uint32>());
                 if (row[1].Get<uint32>() == row[2].Get<uint32>())
                 {
-                    handler->PSendSysMessage("|%-15.15s|{:02}-{:02}-{:02} {:02}:{:02}|   permanent  |%-15.15s|%-15.15s|",
+                    handler->PSendSysMessage("|{:<15}|{:02}-{:02}-{:02} {:02}:{:02}|   permanent  |{:<15}|{:<15}|",
                                              row[0].Get<std::string_view>(), tmBan.tm_year % 100, tmBan.tm_mon + 1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                              row[3].Get<std::string_view>(), row[4].Get<std::string_view>());
                 }
                 else
                 {
                     tm tmUnban = Warhead::Time::TimeBreakdown(row[2].Get<uint32>());
-                    handler->PSendSysMessage("|%-15.15s|{:02}-{:02}-{:02} {:02}:{:02}|{:02}-{:02}-{:02} {:02}:{:02}|%-15.15s|%-15.15s|",
+                    handler->PSendSysMessage("|{:<15}|{:02}-{:02}-{:02} {:02}:{:02}|{:02}-{:02}-{:02} {:02}:{:02}|{:<15}|{:<15}|",
                                              row[0].Get<std::string_view>(), tmBan.tm_year % 100, tmBan.tm_mon + 1, tmBan.tm_mday, tmBan.tm_hour, tmBan.tm_min,
                                              tmUnban.tm_year % 100, tmUnban.tm_mon + 1, tmUnban.tm_mday, tmUnban.tm_hour, tmUnban.tm_min,
                                              row[3].Get<std::string_view>(), row[4].Get<std::string_view>());

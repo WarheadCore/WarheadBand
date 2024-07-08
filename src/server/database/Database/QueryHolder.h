@@ -47,7 +47,7 @@ public:
     bool AddQuery(std::size_t index, std::string_view sql);
 
     template<typename... Args>
-    inline bool AddQuery(std::size_t index, std::string_view fmt, Args&&... args)
+    inline bool AddQuery(std::size_t index, Warhead::FormatString<Args...> fmt, Args&&... args)
     {
         return AddQuery(index, Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }

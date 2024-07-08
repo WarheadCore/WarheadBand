@@ -123,7 +123,7 @@ namespace Warhead::Impl::ChatCommands
     template <typename... Ts>
     std::string FormatWarheadString(ChatHandler const* handler, WarheadStrings which, Ts&&... args)
     {
-        return Warhead::StringFormat(GetWarheadString(handler, which), std::forward<Ts>(args)...);
+        return Warhead::StringFormat(fmt::runtime(GetWarheadString(handler, which)), std::forward<Ts>(args)...);
     }
 }
 

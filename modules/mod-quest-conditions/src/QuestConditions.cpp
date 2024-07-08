@@ -733,7 +733,7 @@ void QuestConditionsMgr::SendQuestConditionInfo(ChatHandler* handler, uint32 que
                 completeQuestTitle = name;
         }
 
-        handler->PSendSysMessage("> Завершить квест: {} - |cffffffff|Hquest:{}:{}|h[{}]|h|r", completeQuest->GetQuestId(), completeQuest->GetQuestLevel(), questTitle);
+        handler->PSendSysMessage("> Завершить квест: {} - |cffffffff|Hquest:{}:{}|h[{}]|h|r", completeQuest->GetQuestId(), completeQuest->GetQuestId(), completeQuest->GetQuestLevel(), questTitle);
     }
 
     if (questCondtion->EquipItemID)

@@ -646,7 +646,7 @@ public:
         {
             if (mechanicImmuneMask & (1 << (mechanicImmunes[i].flag - 1)))
             {
-                handler->PSendSysMessage(mechanicImmunes[i].text, mechanicImmunes[i].flag);
+                handler->PSendSysMessage(fmt::runtime(mechanicImmunes[i].text), mechanicImmunes[i].flag);
             }
         }
 
@@ -655,7 +655,7 @@ public:
         {
             if (spellSchoolImmuneMask & (1 << spellSchoolImmunes[i].flag))
             {
-                handler->PSendSysMessage(spellSchoolImmunes[i].text, spellSchoolImmunes[i].flag);
+                handler->PSendSysMessage(fmt::runtime(spellSchoolImmunes[i].text), spellSchoolImmunes[i].flag);
             }
         }
 

@@ -1631,7 +1631,7 @@ void Battleground::SendMessage2ToAll(uint32 entry, ChatMsg type, Player const* s
         std::string arg2str = arg2 ? sGameLocale->GetWarheadString(arg2, localeIndex) : "";
 
         WorldPacket data;
-        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, source, source, Warhead::StringFormat(message, arg1str, arg2str));
+        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, source, source, Warhead::StringFormat(fmt::runtime(message), arg1str, arg2str));
         player->SendDirectMessage(&data);
     }
 }

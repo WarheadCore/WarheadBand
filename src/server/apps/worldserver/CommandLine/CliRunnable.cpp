@@ -79,7 +79,7 @@ void utf8print(std::string_view str)
 #if WARHEAD_PLATFORM == WARHEAD_PLATFORM_WINDOWS
     WriteWinConsole(str);
 #else
-    fmt::print(str);
+    fmt::print(fmt::runtime(str));
 #endif
 }
 

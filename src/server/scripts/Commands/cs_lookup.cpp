@@ -40,6 +40,7 @@ EndScriptData */
 #include "SpellInfo.h"
 #include "StringFormat.h"
 #include <sstream>
+#include <fmt/printf.h>
 
 #if WARHEAD_COMPILER == WARHEAD_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -992,7 +993,7 @@ public:
                     uint32 permValue = target->GetSkillPermBonusValue(skillInfo->id);
                     uint32 tempValue = target->GetSkillTempBonusValue(skillInfo->id);
 
-                    valStr = Warhead::StringFormat(handler->GetWarheadString(LANG_SKILL_VALUES), curValue, maxValue, permValue, tempValue);
+                    valStr = Warhead::StringFormat(fmt::runtime(handler->GetWarheadString(LANG_SKILL_VALUES)), curValue, maxValue, permValue, tempValue);
                 }
 
                 // send skill in "id - [namedlink locale]" format
@@ -1509,7 +1510,7 @@ public:
                 std::string knownStr = target && target->HasTitle(titleInfo) ? handler->GetWarheadString(LANG_KNOWN) : "";
                 std::string activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index ? handler->GetWarheadString(LANG_ACTIVE) : "";
 
-                std::string titleNameStr = Warhead::StringFormat(name, targetName);
+                std::string titleNameStr = fmt::sprintf(name, targetName);
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())

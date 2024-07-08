@@ -81,7 +81,7 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    std::string mapName = Warhead::StringFormat(sWorld->GetDataPath() + "maps/{:03}{:02}{:02}.map", mapid, gx, gy);
+    std::string mapName = Warhead::StringFormat(fmt::runtime(sWorld->GetDataPath() + "maps/{:03}{:02}{:02}.map"), mapid, gx, gy);
 
     bool ret = false;
     FILE* pf = fopen(mapName.c_str(), "rb");
@@ -199,7 +199,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
         _gridMaps[gx][gy].reset();
     }
 
-    std::string mapName = Warhead::StringFormat(sWorld->GetDataPath() + "maps/{:03}{:02}{:02}.map", GetId(), gx, gy);
+    std::string mapName = Warhead::StringFormat(fmt::runtime(sWorld->GetDataPath() + "maps/{:03}{:02}{:02}.map"), GetId(), gx, gy);
 
     LOG_TRACE("maps", "Loading map {}", mapName);
 
@@ -3648,7 +3648,7 @@ void Map::LogEncounterFinished(EncounterCreditType type, uint32 creditEntry)
         for (auto const& aura : player->GetAppliedAuras())
             auraStr.append(Warhead::StringFormat("{}({}) ", aura.first, aura.second->GetEffectMask()));
 
-        playersInfo.append(Warhead::StringFormat("{} ({}, acc: {}, ip: {}, guild: {}), xyz: ({0:.1f}, {0:.1f}, {0:.1f}), auras: {}\n",
+        playersInfo.append(Warhead::StringFormat("{} ({}, acc: {}, ip: {}, guild: {}), xyz: ({:.1f}, {:.1f}, {:.1f}), auras: {}\n",
             player->GetName(), player->GetGUID().ToString(), player->GetSession()->GetAccountId(), player->GetSession()->GetRemoteAddress(), player->GetGuildId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), auraStr));
     }
 

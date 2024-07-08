@@ -22,7 +22,7 @@
 #include "GitRevision.h"
 #include "StringFormat.h"
 
-void Warhead::Logo::Show(std::string_view applicationName, void(*log)(std::string_view text), void(*logExtraInfo)())
+void Warhead::Logo::Show(std::string_view applicationName, std::function<void(std::string_view)> const& log, std::function<void()> const& logExtraInfo /*= {}*/)
 {
     log(Warhead::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName));
     log("<Ctrl-C> to stop");

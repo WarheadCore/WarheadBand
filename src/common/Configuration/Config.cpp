@@ -54,18 +54,17 @@ namespace
         return foundAppender != std::string_view::npos || foundLogger != std::string_view::npos;
     }
 
-    template<typename Format, typename... Args>
-    inline void PrintError(std::string_view filename, Format&& fmt, Args&& ... args)
+    template<typename... Args>
+    inline void PrintError(std::string_view filename, Warhead::FormatString<Args...> fmt, Args&& ... args)
     {
-        std::string message = Warhead::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...);
-
         if (IsAppConfig(filename))
         {
-            fmt::print(message + "\n");
+            fmt::print(fmt, std::forward<Args>(args)...);
+            fmt::print("\n");
         }
         else
         {
-            LOG_ERROR("server.loading", message);
+            LOG_ERROR("server.loading", fmt, std::forward<Args>(args)...);
         }
     }
 

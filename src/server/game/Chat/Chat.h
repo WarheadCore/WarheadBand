@@ -59,7 +59,7 @@ public:
     void SendSysMessage(uint32 entry);
 
     template<typename... Args>
-    void PSendSysMessage(std::string_view fmt, Args&&... args)
+    void PSendSysMessage(Warhead::FormatString<Args...> fmt, Args&&... args)
     {
         SendSysMessage(Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }
@@ -73,7 +73,7 @@ public:
     template<typename... Args>
     std::string PGetParseString(uint32 entry, Args&&... args) const
     {
-        return Warhead::StringFormat(GetWarheadString(entry), std::forward<Args>(args)...);
+        return Warhead::StringFormat(fmt::runtime(GetWarheadString(entry)), std::forward<Args>(args)...);
     }
 
     bool _ParseCommands(std::string_view text);

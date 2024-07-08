@@ -84,9 +84,9 @@ public:
     //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
     //! This method should only be used for queries that are only executed once, e.g during startup.
     template<typename... Args>
-    void Execute(std::string_view sql, Args&&... args)
+    void Execute(Warhead::FormatString<Args...> sql, Args&&... args)
     {
-        if (sql.empty())
+        if (!sql.get().size())
             return;
 
         Execute(Warhead::StringFormat(sql, std::forward<Args>(args)...));
@@ -105,9 +105,9 @@ public:
     //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
     //! This method should only be used for queries that are only executed once, e.g during startup.
     template<typename... Args>
-    void DirectExecute(std::string_view sql, Args&&... args)
+    void DirectExecute(Warhead::FormatString<Args...> sql, Args&&... args)
     {
-        if (sql.empty())
+        if (!sql.get().size())
             return;
 
         DirectExecute(Warhead::StringFormat(sql, std::forward<Args>(args)...));
@@ -128,9 +128,9 @@ public:
     //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
     //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
     template<typename... Args>
-    QueryResult Query(std::string_view sql, Args&&... args)
+    QueryResult Query(Warhead::FormatString<Args...> sql, Args&&... args)
     {
-        if (sql.empty())
+        if (!sql.get().size())
             return { nullptr };
 
         return Query(Warhead::StringFormat(sql, std::forward<Args>(args)...));

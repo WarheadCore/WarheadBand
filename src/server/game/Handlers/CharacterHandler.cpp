@@ -672,7 +672,7 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
 
         // send server info
         if (CONF_GET_INT("Server.LoginInfo") == 1)
-            chH.PSendSysMessage(GitRevision::GetFullVersion());
+            chH.PSendSysMessage("{}", GitRevision::GetFullVersion());
     }
 
     if (uint32 guildId = sCharacterCache->GetCharacterGuildIdByGuid(pCurrChar->GetGUID()))

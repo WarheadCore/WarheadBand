@@ -43,7 +43,7 @@ namespace ArenaSpectator
     WH_GAME_API void SendPacketTo(const T* object, std::string&& message);
 
     template<class T, typename... Args>
-    inline void SendCommand(T* o, std::string_view fmt, Args&& ... args)
+    inline void SendCommand(T* o, Warhead::FormatString<Args...> fmt, Args&& ... args)
     {
         SendPacketTo(o, Warhead::StringFormat(fmt, std::forward<Args>(args)...));
     }

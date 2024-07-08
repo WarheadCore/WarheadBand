@@ -52,8 +52,10 @@ private:
 template<>
 struct fmt::formatter<StopWatch> : formatter<string_view>
 {
-    template<typename FormatContext>
-    auto format(const StopWatch& sw, FormatContext& ctx) -> decltype(ctx.out())
+//    constexpr auto parse(format_parse_context& ctx);
+
+    template <typename FormatContext>
+    auto format(StopWatch const& sw, FormatContext& ctx) const
     {
         return formatter<string_view>::format(Warhead::Time::ToTimeString(sw.Elapsed(), sw.GetOutCount()), ctx);
     }

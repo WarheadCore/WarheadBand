@@ -198,7 +198,7 @@ public:
         target->SetMaxPower(POWER_ENERGY, energyPoints);
         target->SetPower(POWER_ENERGY, energyPoints);
 
-        LOG_DEBUG("server", handler->GetWarheadString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        LOG_DEBUG("server", "{}", handler->GetWarheadString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
 
         return true;
     }
@@ -632,7 +632,7 @@ public:
         {
             int32 newmoney = int32(targetMoney) + moneyToAdd;
 
-            LOG_DEBUG("chat.system", handler->GetWarheadString(LANG_CURRENT_MONEY), targetMoney, moneyToAdd, newmoney);
+            LOG_DEBUG("chat.system", "{}", handler->GetWarheadString(LANG_CURRENT_MONEY), targetMoney, moneyToAdd, newmoney);
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target));
@@ -667,7 +667,7 @@ public:
             target->ModifyMoney(moneyToAdd);
         }
 
-        LOG_DEBUG("chat.system", handler->GetWarheadString(LANG_NEW_MONEY), targetMoney, moneyToAdd, target->GetMoney());
+        LOG_DEBUG("chat.system", "{}", handler->GetWarheadString(LANG_NEW_MONEY), targetMoney, moneyToAdd, target->GetMoney());
 
         return true;
     }

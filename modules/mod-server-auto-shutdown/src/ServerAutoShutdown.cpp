@@ -161,7 +161,7 @@ void ServerAutoShutdown::Init()
     scheduler.Schedule(diffToPreAnnounce, [preAnnounceSeconds](TaskContext /*context*/)
     {
         std::string preAnnounceMessageFormat = MOD_CONF_GET_STR("ServerAutoShutdown.PreAnnounce.Message");
-        std::string message = Warhead::StringFormat(preAnnounceMessageFormat, Warhead::Time::ToTimeString(preAnnounceSeconds));
+        std::string message = Warhead::StringFormat(fmt::runtime(preAnnounceMessageFormat), Warhead::Time::ToTimeString(preAnnounceSeconds));
 
         LOG_INFO("modules", "> {}", message);
 

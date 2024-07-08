@@ -337,7 +337,7 @@ namespace fmt
     {
         // parse is inherited from formatter<string_view>.
         template <typename FormatContext>
-        auto format(ObjectGuid guid, FormatContext& ctx)
+        auto format(ObjectGuid guid, FormatContext& ctx) const
         {
             std::string info = "<unknown>";
 

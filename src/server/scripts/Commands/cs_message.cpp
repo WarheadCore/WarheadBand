@@ -65,7 +65,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        Warhead::Text::SendWorldText(LANG_ANNOUNCE_COLOR, name, message);
+        Warhead::Text::SendWorldText(LANG_ANNOUNCE_COLOR, name, std::string_view(message));
 
         return true;
     }
@@ -79,7 +79,7 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        Warhead::Text::SendGMText(LANG_ANNOUNCE_COLOR, name, message);
+        Warhead::Text::SendGMText(LANG_ANNOUNCE_COLOR, name, std::string_view(message));
 
         return true;
     }
@@ -90,7 +90,7 @@ public:
         if (message.empty())
             return false;
 
-        sWorld->SendServerMessage(SERVER_MSG_STRING, Warhead::StringFormat(handler->GetWarheadString(LANG_SYSTEMMESSAGE), message));
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Warhead::StringFormat(fmt::runtime(handler->GetWarheadString(LANG_SYSTEMMESSAGE)), std::string_view(message)));
         return true;
     }
 
@@ -100,7 +100,7 @@ public:
         if (message.empty())
             return false;
 
-        Warhead::Text::SendGMText(LANG_GM_BROADCAST, message);
+        Warhead::Text::SendGMText(LANG_GM_BROADCAST, std::string_view(message));
 
         return true;
     }

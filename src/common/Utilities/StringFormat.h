@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include <fmt/format.h>
+#include <locale>
 
 namespace Warhead
 {

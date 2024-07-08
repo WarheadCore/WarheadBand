@@ -151,7 +151,7 @@ bool OnlineRewardMgr::AddReward(uint32 id, bool isPerOnline, Seconds seconds, st
 {
     auto SendErrorMesasge = [handler](std::string_view message)
     {
-        LOG_ERROR("module.or", message);
+        LOG_ERROR("module.or", "{}", message);
 
         if (handler)
             handler->SendSysMessage(message);
@@ -432,8 +432,8 @@ void OnlineRewardMgr::SendRewardForPlayer(Player* player, uint32 rewardID)
 
     auto SendItemsViaMail = [player, onlineReward, playedTimeSecStr, &localeIndex]()
     {
-        auto const mailSubject = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex), playedTimeSecStr);
-        auto const MailText = Warhead::StringFormat(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex), player->GetName(), playedTimeSecStr);
+        auto const mailSubject = Warhead::StringFormat(fmt::runtime(*sModuleLocale->GetModuleString("OR_LOCALE_SUBJECT", localeIndex)), playedTimeSecStr);
+        auto const MailText = Warhead::StringFormat(fmt::runtime(*sModuleLocale->GetModuleString("OR_LOCALE_TEXT", localeIndex)), player->GetName(), playedTimeSecStr);
 
         // Send External mail
         for (auto const& [itemID, itemCount] : onlineReward->Items)

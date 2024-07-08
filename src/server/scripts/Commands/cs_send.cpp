@@ -189,7 +189,7 @@ public:
         Warhead::Text::SendAreaTriggerMessage(player->GetSession(), "|cffff0000[Message from administrator]:|r");
 
         // Confirmation message
-        handler->PSendSysMessage(LANG_SENDMESSAGE, handler->playerLink(target->GetName()), message);
+        handler->PSendSysMessage(LANG_SENDMESSAGE, handler->playerLink(target->GetName()), std::string_view(message));
 
         return true;
     }

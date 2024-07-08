@@ -473,7 +473,7 @@ std::string CalendarEvent::BuildCalendarMailBody() const
     // we are supposed to send PackedTime so i used WorldPacket to pack it
     data.AppendPackedTime(_eventTime);
     data >> time;
-    return Warhead::StringFormat("{}", time);
+    return fmt::to_string(time);
 }
 
 void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& invite)

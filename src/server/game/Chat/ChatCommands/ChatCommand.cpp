@@ -192,7 +192,7 @@ static void LogCommandUsage(WorldSession const& session, std::string_view cmdStr
         (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName() : "",
         targetGuid.ToString());
 
-    LOG_GM(session.GetAccountId(), logMessage);
+    LOG_GM(session.GetAccountId(), "{}", logMessage);
 }
 
 void Warhead::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const

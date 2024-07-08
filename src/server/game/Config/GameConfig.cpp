@@ -506,7 +506,7 @@ void GameConfig::CheckOptions(bool reload /*= false*/)
         uint32 time = CONF_GET_INT(optionName);
         if (time < 1)
         {
-            LOG_ERROR("server.loading", "{} ({}) must be > 0. Using {} instead.", optionName, defaultTime);
+            LOG_ERROR("server.loading", "{} must be > 0. Using {} instead.", optionName, defaultTime);
             SetOption<int32>(optionName, defaultTime);
         }
     };

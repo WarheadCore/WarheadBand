@@ -61,7 +61,7 @@ public:
     {
         if (sArenaTeamMgr->GetArenaTeamByName(name))
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name);
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, std::string_view(name));
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -127,14 +127,14 @@ public:
         ArenaTeam* arena = sArenaTeamMgr->GetArenaTeamByName(oldName);
         if (!arena)
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_NOT_FOUND, oldName);
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_NOT_FOUND, std::string_view(oldName));
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         if (sArenaTeamMgr->GetArenaTeamByName(newName))
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, oldName);
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, std::string_view(oldName));
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -153,7 +153,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_ARENA_RENAME, arena->GetId(), oldName, newName);
+        handler->PSendSysMessage(LANG_ARENA_RENAME, arena->GetId(), std::string_view(oldName), std::string_view(newName));
 
         return true;
     }

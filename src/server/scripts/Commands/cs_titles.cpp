@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptObject.h"
 #include "StringConvert.h"
+#include <fmt/printf.h>
 
 using namespace Warhead::ChatCommands;
 
@@ -38,7 +39,7 @@ class titles_commandscript : public CommandScript
 public:
     titles_commandscript() : CommandScript("titles_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    [[nodiscard]] ChatCommandTable GetCommands() const override
     {
         static ChatCommandTable titlesSetCommandTable =
         {
@@ -81,7 +82,7 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = fmt::sprintf(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
         target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
@@ -114,7 +115,7 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = fmt::sprintf(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, uint32(titleId), titleNameStr, tNameLink);
@@ -147,7 +148,7 @@ public:
         target->SetTitle(titleInfo, true);
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Warhead::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = fmt::sprintf(target->getGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, uint32(titleId), titleNameStr, tNameLink);
 

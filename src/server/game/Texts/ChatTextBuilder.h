@@ -35,7 +35,7 @@ namespace Warhead::Text
     template<typename... Args>
     inline std::string GetLocaleMessage(uint8 localeIndex, uint32 id, Args&&... args)
     {
-        return StringFormat(sGameLocale->GetWarheadString(id, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
+        return StringFormat("{}", sGameLocale->GetWarheadString(id, LocaleConstant(localeIndex)), std::forward<Args>(args)...);
     }
 
     // Helper fmt functions
@@ -93,7 +93,7 @@ namespace Warhead::Text
     }
 
     template<typename... Args>
-    inline void SendNotification(WorldSession* session, std::string_view fmt, Args&&... args)
+    inline void SendNotification(WorldSession* session, FormatString<Args...> fmt, Args&&... args)
     {
         SendNotification(session, StringFormat(fmt, std::forward<Args>(args)...));
     }
@@ -108,7 +108,7 @@ namespace Warhead::Text
     }
 
     template<typename... Args>
-    inline void SendAreaTriggerMessage(WorldSession* session, std::string_view fmt, Args&&... args)
+    inline void SendAreaTriggerMessage(WorldSession* session, FormatString<Args...> fmt, Args&&... args)
     {
         SendAreaTriggerMessage(session, StringFormat(fmt, std::forward<Args>(args)...));
     }
@@ -116,7 +116,7 @@ namespace Warhead::Text
     template<typename... Args>
     inline void SendAreaTriggerMessage(WorldSession* session, uint32 stringID, Args&&... args)
     {
-        SendAreaTriggerMessageFmt([&](uint8 localeIndex)
+        SendAreaTriggerMessageFmt([stringID, &args...](uint8 localeIndex)
         {
             return GetLocaleMessage(localeIndex, stringID, std::forward<Args>(args)...);
         }, session);

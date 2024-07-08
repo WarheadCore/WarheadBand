@@ -365,7 +365,7 @@ bool Arena1v1Mgr::CreateArenaTeam(Player* player, Creature* creature)
     // Teamname = playername
     // if teamname exist, we have to choose another name (playername + number)
     uint8 i = 0;
-    std::string teamName{ Warhead::StringFormat("{}", player->GetName()) };
+    std::string teamName{ player->GetName() };
 
     do
     {

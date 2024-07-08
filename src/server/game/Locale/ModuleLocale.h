@@ -72,7 +72,7 @@ public:
     template<typename... Args>
     inline std::string GetLocaleMessage(std::string const& entry, uint8 localeIndex, Args&&... args)
     {
-        return Warhead::StringFormat(*GetModuleString(entry, localeIndex), std::forward<Args>(args)...);
+        return Warhead::StringFormat(fmt::runtime(*GetModuleString(entry, localeIndex)), std::forward<Args>(args)...);
     }
 
     void SendPlayerMessageFmt(Player* player, std::function<std::string(uint8)> const& msg);

@@ -154,7 +154,7 @@ void AutobroadcastMgr::Send()
                 GameLocale::GetLocaleString(autoBroadCastLocale->Text, player->GetSession()->GetSessionDbLocaleIndex(), localeMsg);
             }
 
-            std::string fmtMessage = Warhead::StringFormat(sGameLocale->GetWarheadString(LANG_AUTO_BROADCAST, player->GetSession()->GetSessionDbLocaleIndex()), localeMsg);
+            std::string fmtMessage = Warhead::StringFormat(fmt::runtime(sGameLocale->GetWarheadString(LANG_AUTO_BROADCAST, player->GetSession()->GetSessionDbLocaleIndex())), localeMsg);
 
             for (std::string_view line : Warhead::Tokenize(fmtMessage, '\n', true))
             {

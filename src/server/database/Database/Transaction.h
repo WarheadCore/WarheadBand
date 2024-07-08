@@ -48,7 +48,7 @@ public:
     void Append(std::string_view sql);
 
     template<typename... Args>
-    void Append(std::string_view sql, Args&&... args)
+    void Append(Warhead::FormatString<Args...> sql, Args&&... args)
     {
         Append(Warhead::StringFormat(sql, std::forward<Args>(args)...));
     }

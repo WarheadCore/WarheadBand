@@ -2663,7 +2663,7 @@ void ObjectMgr::LoadItemTemplates()
             }
             if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclassID)
             {
-                LOG_ERROR("sql.sql", "Item (Entry: {}) does not have a correct SoundOverrideSubclass ({}), must be {}.", entry, itemTemplate.SoundOverrideSubclass);
+                LOG_ERROR("sql.sql", "Item (Entry: {}) does not have a correct SoundOverrideSubclass ({}).", entry, itemTemplate.SoundOverrideSubclass);
                 if (enforceDBCAttributes)
                     itemTemplate.SoundOverrideSubclass = dbcitem->SoundOverrideSubclassID;
             }

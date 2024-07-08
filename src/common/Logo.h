@@ -19,11 +19,12 @@
 #define _LOGO_H_
 
 #include "Define.h"
+#include <functional>
 #include <string_view>
 
 namespace Warhead::Logo
 {
-    WH_COMMON_API void Show(std::string_view applicationName, void(*log)(std::string_view text), void(*logExtraInfo)());
+    WH_COMMON_API void Show(std::string_view applicationName, std::function<void(std::string_view)> const& log, std::function<void()> const& logExtraInfo = {});
 }
 
 #endif

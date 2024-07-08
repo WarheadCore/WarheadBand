@@ -40,6 +40,7 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
+#include <fmt/printf.h>
 
 using namespace Warhead::ChatCommands;
 
@@ -310,11 +311,11 @@ public:
                 if (!*name)
                     continue;
 
-                std::string activeStr = "";
+                std::string activeStr;
                 if (target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index)
                     activeStr = handler->GetWarheadString(LANG_ACTIVE);
 
-                std::string titleName = Warhead::StringFormat(name, player->GetName());
+                std::string titleName = fmt::sprintf(name, player->GetName());
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())

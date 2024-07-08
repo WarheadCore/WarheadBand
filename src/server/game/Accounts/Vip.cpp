@@ -827,7 +827,7 @@ void Vip::LoadInfoForSession(VipQueryHolder const& holder)
 
     if (level > _maxLevel)
     {
-        LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", level, _maxLevel);
+        LOG_ERROR("module.vip", "> Account {} has a incorrect vip level of {}. Max vip level {}. Skip", holder.GetAccountId(), level, _maxLevel);
         return;
     }
 
